@@ -32,7 +32,7 @@ const RecoverySuccessModalContent = () => {
                 width={wp(42.5)}
                 height={hp(38)}
                 icon={<WalletIcon />}
-                backgroundColor={colorMode == 'dark' ? Colors.ForestGreenDark : Colors.pantoneGreen}
+                backgroundColor={colorMode == 'dark' ? Colors.DullGreenDark : Colors.pantoneGreen}
               />
             </Box>
             <AsterisksIcon />

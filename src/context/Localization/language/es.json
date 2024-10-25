@@ -785,7 +785,6 @@
     "Disconnectyour": "Disconnect your own node and connect to Hexa node",
     "Disconnectfrom": "Disconnect from Hexa node and connect to your own",
     "Connecttomynode": "Connect to my node",
-    "nodeisaccessible": "Make sure that your node is accessible at all times for the app to be able to connect to it",
     "PersonalNodeDetails": "Personal Node Details",
     "NodeAddress": "Node Address",
     "NoAddressSet": "No Address Set",

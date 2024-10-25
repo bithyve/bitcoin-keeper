@@ -152,7 +152,7 @@ function PasswordModal(props) {
           title={seed.walletRecoverySuccessful}
           subTitle={seed.seedDescription}
           buttonText="View Wallet"
-          buttonTextColor={`${colorMode}.white`}
+          buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={passwordScreen}
           textColor={`${colorMode}.primaryText`}
           Content={RecoverWalletScreen}

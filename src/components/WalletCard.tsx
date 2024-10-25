@@ -36,7 +36,6 @@ function WalletCard({
   return (
     <Pressable testID={`btn_${walletName}`} onPress={() => onCardSelect(id)}>
       <Box
-        borderColor={`${colorMode}.TransactionIconBackColor`}
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}
         style={[styles.walletContainer, !isSelected && { opacity: 0.5 }, { width: setWidth }]}
       >
@@ -51,7 +50,7 @@ function WalletCard({
           </Box>
           <Box>
             <Text
-              color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
+              color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.black`}
               numberOfLines={numberOfLines}
               style={styles.walletName}
               medium={isSelected}
@@ -59,7 +58,7 @@ function WalletCard({
               {walletName}
             </Text>
             <Text
-              color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
+              color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.black`}
               fontSize={10}
               numberOfLines={2}
               style={styles.walletDesc}

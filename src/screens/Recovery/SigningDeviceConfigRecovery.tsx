@@ -186,7 +186,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
           subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
           subTitleColor={`${colorMode}.secondaryText`}
           buttonText="Continue"
-          buttonTextColor={`${colorMode}.white`}
+          buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={() => {
             navigation.dispatch(
               CommonActions.navigate({

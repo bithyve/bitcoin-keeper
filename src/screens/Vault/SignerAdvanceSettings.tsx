@@ -1096,7 +1096,7 @@ function SignerAdvanceSettings({ route }: any) {
         secondaryCallback={() => setHideWarning(false)}
         secButtonTextColor={`${colorMode}.greenText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => {

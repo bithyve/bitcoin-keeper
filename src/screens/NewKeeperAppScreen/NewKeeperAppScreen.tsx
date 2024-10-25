@@ -343,7 +343,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         }}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(300)}
       />
     </ScreenWrapper>

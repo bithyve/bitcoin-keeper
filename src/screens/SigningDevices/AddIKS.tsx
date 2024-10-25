@@ -108,7 +108,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
         title={config.title}
         subTitle={config.subTitle}
         buttonText="Proceed"
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={setupInheritanceKey}
         textColor={`${colorMode}.primaryText`}
         Content={Content}

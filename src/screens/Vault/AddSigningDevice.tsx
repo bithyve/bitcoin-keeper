@@ -401,7 +401,7 @@ function Signers({
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
+          icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}
           isFullText
@@ -437,7 +437,7 @@ function Signers({
               : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
           }
           description={getSignerDescription(signer)}
-          icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+          icon={SDIcons(signer.type).Icon}
           image={signer?.extraData?.thumbnailPath}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) => {
@@ -509,7 +509,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+            icon={SDIcons(signer.type).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
             onCardSelect={handleCardSelect}

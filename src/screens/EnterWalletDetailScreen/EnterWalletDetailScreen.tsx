@@ -291,7 +291,7 @@ function EnterWalletDetailScreen({ route }) {
         textColor={`${colorMode}.primaryText`}
         showCloseIcon={false}
         learnMoreButton={true}
-        learnButtonTextColor={`${colorMode}.white`}
+        learnbuttonTextColor={`${colorMode}.buttonText`}
         learnMoreButtonPressed={() => {
           setVisibleModal(true);
         }}

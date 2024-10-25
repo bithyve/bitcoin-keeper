@@ -90,7 +90,7 @@ const PendingHealthCheckModal = ({
               name={getSignerNameFromType(signer.type, signer.isMock, signer.isAMF)}
               description={getSignerDescription(signer)}
               customStyle={styles.signerCard}
-              icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+              icon={SDIcons(signer.type).Icon}
               image={signer?.extraData?.thumbnailPath}
               showSelection={false}
               showDot={true}
@@ -132,7 +132,7 @@ const PendingHealthCheckModal = ({
           </Text>
         </Box>
       )}
-      buttonTextColor={`${colorMode}.white`}
+      buttonTextColor={`${colorMode}.buttonText`}
       buttonBackground={`${colorMode}.pantoneGreen`}
       showCloseIcon={false}
     />

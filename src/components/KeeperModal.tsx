@@ -58,11 +58,11 @@ KeeperModal.defaultProps = {
   title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: 'light.primaryBackground',
-  buttonBackground: 'light.greenButtonBackground',
+  modalBackground: 'primaryBackground',
+  buttonBackground: 'greenButtonBackground',
   buttonText: null,
-  buttonTextColor: 'white',
-  secButtonTextColor: 'light.headerText',
+  buttonTextColor: 'buttonText',
+  secButtonTextColor: 'headerText',
   buttonCallback: () => {},
   secondaryButtonText: null,
   secondaryCallback: () => {},
@@ -77,7 +77,7 @@ KeeperModal.defaultProps = {
   learnMoreCallback: () => {},
   learnMoreButton: false,
   learnMoreButtonPressed: () => {},
-  learnButtonBackgroundColor: 'light.BrownNeedHelp',
+  learnButtonBackgroundColor: 'BrownNeedHelp',
   learnButtonTextColor: 'light.learnMoreBorder',
   closeOnOverlayClick: true,
   showCloseIcon: true,
@@ -153,7 +153,14 @@ function KeeperModal(props: ModalProps) {
         width="95%"
       >
         <GestureHandlerRootView>
-          <Box backgroundColor={modalBackground} style={styles.container}>
+          <Box
+            backgroundColor={
+              modalBackground === 'primaryBackground'
+                ? `${colorMode}.primaryBackground`
+                : modalBackground
+            }
+            style={styles.container}
+          >
             {showCloseIcon ? (
               <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
                 {getCloseIcon()}
@@ -174,7 +181,11 @@ function KeeperModal(props: ModalProps) {
                   borderColor={
                     learnButtonTextColor === 'light.white' ? 'light.white' : 'light.learnMoreBorder'
                   }
-                  backgroundColor={learnButtonBackgroundColor}
+                  backgroundColor={
+                    learnButtonBackgroundColor == 'BrownNeedHelp'
+                      ? `${colorMode}.BrownNeedHelp`
+                      : buttonBackground
+                  }
                   style={styles.learnMoreButtonContainer}
                 >
                   <Text color={learnButtonTextColor} style={styles.learnMoreText}>
@@ -222,7 +233,15 @@ function KeeperModal(props: ModalProps) {
                   {!!secondaryButtonText && (
                     <TouchableOpacity onPress={secondaryCallback} testID="modal_secondary_btn">
                       <Box style={styles.secCta}>
-                        <Text style={styles.ctaText} color={secButtonTextColor} medium>
+                        <Text
+                          style={styles.ctaText}
+                          color={
+                            secButtonTextColor === 'headerText'
+                              ? `${colorMode}.headerText`
+                              : secButtonTextColor
+                          }
+                          medium
+                        >
                           {showButtons ? secondaryButtonText : null}
                         </Text>
                       </Box>
@@ -230,8 +249,23 @@ function KeeperModal(props: ModalProps) {
                   )}
                   {!!buttonText && (
                     <TouchableOpacity onPress={buttonCallback} testID="modal_primary_btn">
-                      <Box backgroundColor={buttonBackground} style={styles.cta}>
-                        <Text style={styles.ctaText} color={buttonTextColor} bold>
+                      <Box
+                        backgroundColor={
+                          buttonBackground == 'greenButtonBackground'
+                            ? `${colorMode}.greenButtonBackground`
+                            : buttonBackground
+                        }
+                        style={styles.cta}
+                      >
+                        <Text
+                          style={styles.ctaText}
+                          color={
+                            buttonTextColor == 'buttonText'
+                              ? `${colorMode}.buttonText`
+                              : buttonTextColor
+                          }
+                          bold
+                        >
                           {showButtons ? buttonText : null}
                         </Text>
                         {loading ? <ActivityIndicator /> : null}

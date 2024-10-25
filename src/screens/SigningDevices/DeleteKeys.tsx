@@ -220,7 +220,7 @@ function DeleteKeys({ route }) {
         secButtonTextColor={`${colorMode}.greenText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => {
           setHideWarning(false);
@@ -251,7 +251,7 @@ function DeleteKeys({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={signerText.manageKeys}
         buttonCallback={() => {
           dispatch(hideKeyDeletedSuccessModal());

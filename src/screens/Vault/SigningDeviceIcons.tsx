@@ -53,8 +53,9 @@ const getColouredIcon = (LightComponent, DarkComponent, isLight, width, height) 
   return React.cloneElement(component, { width, height });
 };
 
-export const SDIcons = (type: SignerType, light = false, width = 20, height = 20) => {
+export const SDIcons = (type: SignerType, light = true, width = 20, height = 20) => {
   const { colorMode } = useColorMode();
+  console.log(type);
   switch (type) {
     case SignerType.COLDCARD:
       return {

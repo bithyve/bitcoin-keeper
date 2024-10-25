@@ -13,6 +13,7 @@ import { NetworkType, SignerType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Colors from 'src/theme/Colors';
 
 const { width } = Dimensions.get('screen');
 
@@ -24,6 +25,8 @@ function SignerList({
   isIKSClicked,
   isIKSDeclined,
   IKSSignTime,
+  isFirst,
+  isLast,
 }: {
   vaultKey: VaultSigner;
   callback: any;
@@ -32,6 +35,8 @@ function SignerList({
   isIKSClicked?: boolean;
   isIKSDeclined?: boolean;
   IKSSignTime?: number;
+  isFirst: boolean;
+  isLast: boolean;
 }) {
   const { colorMode } = useColorMode();
   const hasSignerSigned = !!envelops.filter(
@@ -83,7 +88,18 @@ function SignerList({
   }, [hasSignerSigned, isIKS, isIKSClicked, isIKSDeclined]);
 
   return (
-    <TouchableOpacity testID={`btn_transactionSigner`} onPress={callback}>
+    <TouchableOpacity
+      testID={`btn_transactionSigner`}
+      onPress={callback}
+      style={[
+        isFirst && { borderTopLeftRadius: 10, borderTopRightRadius: 10 },
+        isLast && { borderBottomLeftRadius: 10, borderBottomRightRadius: 10 },
+        {
+          paddingVertical: 10,
+          backgroundColor: colorMode === 'light' ? Colors.White : Colors.SecondaryBlack,
+        },
+      ]}
+    >
       <Box margin={5}>
         <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
           <Box flexDirection="row">
@@ -111,24 +127,25 @@ function SignerList({
                   signer.masterFingerprint
                 })`}
               </Text>
-              <Text
-                color={`${colorMode}.GreyText`}
-                fontSize={12}
-                marginRight={10}
-                letterSpacing={0.6}
-              >
-                {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
-              </Text>
-              {!!signer.signerDescription && (
+              {signer.signerDescription ? (
                 <Text
                   numberOfLines={1}
-                  color="#6A7772"
+                  color={`${colorMode}.greenText`}
                   fontSize={12}
                   letterSpacing={0.6}
                   fontStyle={null}
                   maxWidth={width * 0.6}
                 >
                   {signer.signerDescription}
+                </Text>
+              ) : (
+                <Text
+                  color={`${colorMode}.GreyText`}
+                  fontSize={12}
+                  marginRight={10}
+                  letterSpacing={0.6}
+                >
+                  {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
                 </Text>
               )}
             </View>

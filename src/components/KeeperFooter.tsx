@@ -44,9 +44,7 @@ export function KeeperFooter({
               onPress={item.onPress}
               disabled={item.disabled}
             >
-              <Box style={styles.icon}>
-                <item.Icon size={24} />
-              </Box>
+              <item.Icon size={24} />
               <Text
                 color={`${colorMode}.primaryText`}
                 style={[
@@ -83,16 +81,5 @@ const styles = StyleSheet.create({
   border: {
     borderTopWidth: 1,
     paddingTop: hp(15),
-  },
-  circle: {
-    width: 38,
-    height: 38,
-    borderRadius: 38 / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    width: wp(24),
-    height: hp(24),
   },
 });

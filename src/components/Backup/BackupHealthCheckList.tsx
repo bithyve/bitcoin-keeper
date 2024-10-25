@@ -177,7 +177,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonText={BackupWallet.home}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonCallback={() => {
           navigtaion.navigate('Home');

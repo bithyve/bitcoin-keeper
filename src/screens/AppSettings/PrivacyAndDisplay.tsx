@@ -365,7 +365,7 @@ function PrivacyAndDisplay({ route }) {
                   <TouchableOpacity onPress={requestPermission}>
                     <Box
                       style={styles.settingsCTA}
-                      backgroundColor={`${colorMode}.learnMoreBorder`}
+                      backgroundColor={`${colorMode}.coffeeBackground`}
                     >
                       <Text style={styles.settingsCTAText} bold color={`${colorMode}.whiteText`}>
                         Enable {sensorType}

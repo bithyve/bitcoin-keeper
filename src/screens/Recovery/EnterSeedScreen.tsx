@@ -609,7 +609,7 @@ function EnterSeedScreen({ route, navigation }) {
           title={seed.InvalidSeeds}
           subTitle={seed.InvalidSeedsSubtitle}
           buttonText="Retry"
-          buttonTextColor={`${colorMode}.white`}
+          buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={closeInvalidSeedsModal}
           textColor={`${colorMode}.primaryText`}
           Content={InValidSeedsScreen}
@@ -622,7 +622,7 @@ function EnterSeedScreen({ route, navigation }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          buttonTextColor={`${colorMode}.white`}
+          buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
           Content={RecoverySuccessModalContent}
           close={() => {

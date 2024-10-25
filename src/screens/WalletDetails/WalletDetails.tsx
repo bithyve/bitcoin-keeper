@@ -164,15 +164,15 @@ function WalletDetails({ route }: ScreenProps) {
       <Box style={styles.topContainer}>
         <KeeperHeader
           learnMore
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           learnBackgroundColor={`${colorMode}.pantoneGreen`}
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}
           title={name}
-          titleColor={`${colorMode}.seashellWhite`}
+          titleColor={`${colorMode}.seashellWhiteText`}
           mediumTitle
           subtitle={walletType === 'IMPORTED' ? 'Imported wallet' : description}
-          subTitleColor={`${colorMode}.seashellWhite`}
+          subTitleColor={`${colorMode}.seashellWhiteText`}
           icon={getWalletIcon(wallet)}
           rightComponent={
             <TouchableOpacity
@@ -198,8 +198,8 @@ function WalletDetails({ route }: ScreenProps) {
               hideAmounts={false}
               amount={unconfirmed + confirmed}
               fontSize={24}
-              color={`${colorMode}.white`}
-              variation={colorMode === 'light' ? 'light' : 'dark'}
+              color={`${colorMode}.buttonText`}
+              variation="light"
             />
           </Box>
         </Box>

@@ -14,30 +14,11 @@ import { Shadow } from 'react-native-shadow-2';
 
 function DowngradeModalContent() {
   const { colorMode } = useColorMode();
-  const dispatch = useDispatch();
-  const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
 
   return (
     <Box>
       <Box alignItems="center">
         {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
-      </Box>
-      <Box alignItems="center" mt={4} flexDirection="row">
-        <TouchableOpacity
-          testID="btn_downgradeplan"
-          onPress={() => {
-            dispatch(setRecepitVerificationFailed(false));
-          }}
-        >
-          <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-            <Box style={[styles.createBtn]} backgroundColor={`${colorMode}.greenButtonBackground`}>
-              <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
-                {common.continue}
-              </Text>
-            </Box>
-          </Shadow>
-        </TouchableOpacity>
       </Box>
     </Box>
   );
@@ -47,7 +28,8 @@ export function DowngradeModal() {
   const { colorMode } = useColorMode();
   const { recepitVerificationFailed } = useAppSelector((state) => state.login);
   const { translations } = useContext(LocalizationContext);
-  const { choosePlan } = translations;
+  const { common, choosePlan } = translations;
+  const dispatch = useDispatch();
 
   return (
     <KeeperModal
@@ -63,6 +45,8 @@ export function DowngradeModal() {
       subTitleWidth={wp(210)}
       showButtons
       showCloseIcon={false}
+      buttonText={common.continue}
+      buttonCallback={dispatch(setRecepitVerificationFailed(false))}
     />
   );
 }

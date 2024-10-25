@@ -167,7 +167,7 @@ const AssociateContact = ({ route }) => {
           secondaryButtonText="Cancel"
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
-          buttonTextColor={`${colorMode}.white`}
+          buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
           secButtonTextColor={`${colorMode}.greenButtonBackground`}
           buttonText="Continue"

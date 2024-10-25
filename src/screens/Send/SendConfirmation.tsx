@@ -1434,7 +1434,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <SendSuccessfulContent
@@ -1492,7 +1492,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={common.confirm}
         buttonCallback={() => {
           setTransPriorityModalVisible(false), setTransactionPriority;
@@ -1530,7 +1530,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         secButtonTextColor={`${colorMode}.greenText`}
         buttonText={common.proceed}
@@ -1561,7 +1561,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonText={common.proceed}
         buttonCallback={toogleFeesInsightModal}
@@ -1581,7 +1581,7 @@ function SendConfirmation({ route }) {
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonText={'Discard'}
         buttonCallback={discardCachedTransaction}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         showButtons
         secondaryButtonText={'Cancel'}
         secondaryCallback={() => {
@@ -1624,7 +1624,6 @@ const styles = StyleSheet.create({
   },
   priorityTableText: {
     fontSize: 16,
-    color: '#24312E',
   },
   transPriorityWrapper: {
     flexDirection: 'row',

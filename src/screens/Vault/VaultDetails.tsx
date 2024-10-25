@@ -141,8 +141,8 @@ function VaultInfo({ vault }: { vault: Vault }) {
         hideAmounts={false}
         amount={confirmed + unconfirmed}
         fontSize={24}
-        color={`${colorMode}.white`}
-        variation={colorMode === 'light' ? 'light' : 'dark'}
+        color={`${colorMode}.buttonText`}
+        variation="light"
       />
     </HStack>
   );
@@ -335,8 +335,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <VStack style={styles.topSection}>
           <KeeperHeader
             title={vault.presentationData?.name}
-            titleColor={`${colorMode}.seashellWhite`}
-            subTitleColor={`${colorMode}.seashellWhite`}
+            titleColor={`${colorMode}.seashellWhiteText`}
+            subTitleColor={`${colorMode}.seashellWhiteText`}
             // TODO: Add collaborativeWalletIcon
             icon={
               <HexagonIcon
@@ -356,7 +356,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             }
             subtitle={vault.presentationData?.description}
             learnMore
-            learnTextColor={`${colorMode}.white`}
+            learnTextColor={`${colorMode}.buttonText`}
             learnBackgroundColor="rgba(0,0,0,.2)"
             learnMorePressed={() => dispatch(setIntroModal(true))}
             contrastScreen={true}
