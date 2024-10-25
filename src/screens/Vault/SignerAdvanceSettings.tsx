@@ -442,7 +442,7 @@ function SignerAdvanceSettings({ route }: any) {
             placeholder="pleb@bitcoin.com"
             value={email}
             onChangeText={(value) => {
-              setEmail(value);
+              setEmail(value.trim());
               emailStatusFail && setEmailStatusFail(false);
             }}
           />
