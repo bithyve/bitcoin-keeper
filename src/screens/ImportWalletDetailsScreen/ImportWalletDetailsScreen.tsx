@@ -54,6 +54,12 @@ function ImportWalletDetailsScreen({ route }) {
                 backgroundColor={`${colorMode}.seashellWhite`}
                 value={walletName}
                 onChangeText={(text) => setWalletName(text)}
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
               />
             </Box>
             <Box style={styles.textInputWrapper}>
@@ -64,6 +70,12 @@ function ImportWalletDetailsScreen({ route }) {
                 backgroundColor={`${colorMode}.seashellWhite`}
                 value={walletDescription}
                 onChangeText={(text) => setWalletDescription(text)}
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
               />
             </Box>
           </Box>

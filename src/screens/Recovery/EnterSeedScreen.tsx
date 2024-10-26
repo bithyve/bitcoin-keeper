@@ -32,6 +32,7 @@ import RecoverySuccessModalContent from './RecoverySuccessModalContent';
 import { resetSeedWords, setAppImageError, setSeedWord } from 'src/store/reducers/bhr';
 import Fonts from 'src/constants/Fonts';
 import { SEED_WORDS_12, SEED_WORDS_18, SEED_WORDS_24, seedWordItem } from './constants';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function EnterSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
@@ -471,6 +472,12 @@ function EnterSeedScreen({ route, navigation }) {
               Keyboard.dismiss();
             }}
             testID={`input_seedWord${getPlaceholder(index)}`}
+            _input={
+              colorMode === 'dark' && {
+                selectionColor: Colors.SecondaryWhite,
+                cursorColor: Colors.SecondaryWhite,
+              }
+            }
           />
         </Box>
       );

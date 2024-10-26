@@ -175,6 +175,12 @@ function PassportConfigRecovery() {
                   textAlignVertical="top"
                   textAlign="left"
                   multiline
+                  _input={
+                    colorMode === 'dark' && {
+                      selectionColor: Colors.SecondaryWhite,
+                      cursorColor: Colors.SecondaryWhite,
+                    }
+                  }
                 />
               </Box>
               <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box>

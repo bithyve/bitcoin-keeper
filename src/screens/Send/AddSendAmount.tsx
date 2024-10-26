@@ -424,6 +424,12 @@ function AddSendAmount({ route }) {
                     }
                   }}
                   keyboardType="decimal-pad"
+                  _input={
+                    colorMode === 'dark' && {
+                      selectionColor: Colors.SecondaryWhite,
+                      cursorColor: Colors.SecondaryWhite,
+                    }
+                  }
                 />
               </Box>
               <HStack style={styles.inputInnerStyle}>
@@ -468,6 +474,12 @@ function AddSendAmount({ route }) {
                 letterSpacing={1.04}
                 borderWidth="0"
                 value={note}
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
                 onChangeText={(value) => {
                   setNote(value);
                 }}

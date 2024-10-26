@@ -10,6 +10,7 @@ import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { setInvalidPassword } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
 import KeeperModal from './KeeperModal';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function PasswordModal(props) {
   const { colorMode } = useColorMode();
@@ -124,6 +125,12 @@ function PasswordModal(props) {
                 dispatch(setInvalidPassword(false));
               }
             }}
+            _input={
+              colorMode === 'dark' && {
+                selectionColor: Colors.SecondaryWhite,
+                cursorColor: Colors.SecondaryWhite,
+              }
+            }
           />
           {invalidPassword && (
             <Text alignSelf="flex-start" mx={4} color="red.400">

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet, TouchableOpacity, View, ScrollView, Keyboard } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, ScrollView, Keyboard, Vibration } from 'react-native';
 import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -26,6 +26,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { resetState } from 'src/store/reducers/utxos';
 import LabelItem from './components/LabelItem';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function UTXOLabeling() {
   const processDispatched = useRef(false);
@@ -85,6 +86,7 @@ function UTXOLabeling() {
       setEditingIndex(-1);
       setExistingLabels(existingLabels);
       setLabel('');
+      Vibration.vibrate(50);
     }
   };
 
@@ -196,6 +198,12 @@ function UTXOLabeling() {
                 value={label}
                 autoCorrect={false}
                 backgroundColor={`${colorMode}.seashellWhite`}
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
               />
             </Box>
             <TouchableOpacity

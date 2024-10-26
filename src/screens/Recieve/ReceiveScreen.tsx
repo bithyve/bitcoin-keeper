@@ -34,6 +34,7 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { generateNewAddress } from 'src/store/sagaActions/wallets';
 import { useAppDispatch } from 'src/store/hooks';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const AddressVerifiableSigners = [SignerType.BITBOX02, SignerType.LEDGER, SignerType.TREZOR];
 
@@ -130,6 +131,12 @@ function ReceiveScreen({ route }: { route }) {
                 onChangeText={(value) => setAmount(value)}
                 onFocus={() => Keyboard.dismiss()}
                 testID="input_receiveAmount"
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
               />
             </Box>
 
