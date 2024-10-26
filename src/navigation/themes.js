@@ -201,6 +201,7 @@ export const customTheme = extendTheme({
       textGreen: Colors.pantoneGreen,
       textWhite: Colors.Seashell,
       textGreenGrey: Colors.GreenishGrey,
+      seedCard: Colors.LightYellow,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -356,6 +357,7 @@ export const customTheme = extendTheme({
       textGreen: Colors.SecondaryWhite,
       textWhite: Colors.SecondaryWhite,
       textGreenGrey: Colors.SecondaryWhite,
+      seedCard: Colors.SeashellDark,
     },
   },
   config: {
