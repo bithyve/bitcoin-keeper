@@ -200,7 +200,7 @@ function UTXOElement({
             style={[
               styles.amountWrapper,
               {
-                marginRight: allowSelection ? wp(10) : wp(2),
+                marginRight: allowSelection ? wp(10) : wp(5),
                 marginTop: hasTransactionNote ? wp(5) : wp(30),
               },
             ]}
