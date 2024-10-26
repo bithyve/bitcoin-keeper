@@ -43,10 +43,10 @@ function PersonalCloudBackup({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color={`${colorMode}.buttonText`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.personalCloudNotes}</Text>
+          <Text color={`${colorMode}.buttonText`}>{inheritancePlanning.personalCloudNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

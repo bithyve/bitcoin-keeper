@@ -78,7 +78,6 @@ function AddWallet({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
-  const isSmallDevice = useIsSmallDevices();
   const dispatch = useDispatch();
   const [selectedCard, selectCard] = useState(1);
   const [visibleModal, setVisibleModal] = useState(false);
@@ -86,13 +85,6 @@ function AddWallet({ navigation }) {
   const onCardSelect = (id: number) => {
     selectCard(id);
   };
-
-  let setPadding;
-  if (selectedCard === 3) {
-    setPadding = hp(40);
-  } else {
-    setPadding = isSmallDevice ? 50 : 0;
-  }
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -105,7 +97,7 @@ function AddWallet({ navigation }) {
         }}
         learnTextColor={`${colorMode}.buttonText`}
       />
-      <HStack style={[styles.container, { paddingBottom: setPadding }]}>
+      <HStack style={[styles.container]}>
         <WalletCard
           id={1}
           walletName={wallet.CreateNew}

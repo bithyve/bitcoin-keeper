@@ -192,7 +192,11 @@ function KeeperModal(props: ModalProps) {
                   {title}
                 </Text>
                 {subTitle ? (
-                  <Text testID="text_modal_subtitle" style={styles.subTitle} color={subTitleColor}>
+                  <Text
+                    testID="text_modal_subtitle"
+                    style={styles.subTitle}
+                    color={subTitleColor === 'black' ? `${colorMode}.black` : subTitleColor}
+                  >
                     {`${subTitle}`}
                   </Text>
                 ) : null}
