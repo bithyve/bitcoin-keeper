@@ -202,6 +202,7 @@ export const customTheme = extendTheme({
       textWhite: Colors.Seashell,
       textGreenGrey: Colors.GreenishGrey,
       seedCard: Colors.LightYellow,
+      secondaryBackground: Colors.Seashell,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -358,6 +359,7 @@ export const customTheme = extendTheme({
       textWhite: Colors.SecondaryWhite,
       textGreenGrey: Colors.SecondaryWhite,
       seedCard: Colors.SeashellDark,
+      secondaryBackground: Colors.SecondaryBlack,
     },
   },
   config: {

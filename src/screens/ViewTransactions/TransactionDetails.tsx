@@ -27,7 +27,7 @@ import { useDispatch } from 'react-redux';
 import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LabelItem from '../UTXOManagement/components/LabelItem';
 
-function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
+export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
     noteRef.current = text;
   }, []);

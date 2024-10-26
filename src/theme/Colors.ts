@@ -126,7 +126,7 @@ const Colors = {
   LabelDark3: 'rgba(113, 146, 138, 1)',
   BoxGolden: 'rgba(237, 228, 218, 1)',
   SecondaryBackgroundDark: 'rgba(31, 31, 31, 1)',
-  separator: 'rgba(65, 65, 65, 0.1)',
+  separator: 'rgba(212, 212, 212, 0.2)',
   AlertRed: 'rgba(249, 89, 89, 1)',
   AlertRedDark: 'rgba(187, 73, 73, 1)',
   NewBadgeGreen: 'rgba(210, 237, 231, 1)',
