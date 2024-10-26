@@ -158,7 +158,7 @@ function UTXOElement({
               </Box>
             </Box>
           ) : null}
-          <Box style={{ width: allowSelection ? '46%' : '55%' }}>
+          <Box style={{ width: allowSelection ? '75%' : '80%' }}>
             <Box style={styles.rowCenter}>
               <Box style={{ width: '100%' }}>
                 <Text
@@ -199,7 +199,10 @@ function UTXOElement({
           <Box
             style={[
               styles.amountWrapper,
-              { width: '45%', marginTop: hasTransactionNote ? wp(5) : wp(30) },
+              {
+                marginRight: allowSelection ? wp(10) : wp(2),
+                marginTop: hasTransactionNote ? wp(5) : wp(30),
+              },
             ]}
           >
             {item.confirmed ? null : (
