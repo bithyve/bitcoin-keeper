@@ -211,7 +211,6 @@ function ManageSigners({ route }: ScreenProps) {
       <KeeperModal
         title={signerTranslation.keyReceived}
         subTitle={signerTranslation.keyReceiveMessage}
-        DarkCloseIcon={colorMode === 'dark'}
         close={() => setTimerModal(false)}
         visible={timerModal}
         textColor={`${colorMode}.primaryText`}
@@ -239,7 +238,6 @@ function ManageSigners({ route }: ScreenProps) {
       <KeeperModal
         title={signerTranslation.keyExpired}
         subTitle={signerTranslation.keyExpireMessage}
-        DarkCloseIcon={colorMode === 'dark'}
         close={() => setTimerExpiredModal(false)}
         visible={timerExpiredModal}
         textColor={`${colorMode}.primaryText`}

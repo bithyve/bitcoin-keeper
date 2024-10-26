@@ -221,7 +221,6 @@ function DeleteKeys({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));

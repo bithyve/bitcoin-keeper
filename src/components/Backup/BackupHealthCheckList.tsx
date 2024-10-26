@@ -182,7 +182,6 @@ function BackupHealthCheckList({ isUaiFlow }) {
         buttonCallback={() => {
           navigtaion.navigate('Home');
         }}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => <Content />}
         closeOnOverlayClick={true}
       />

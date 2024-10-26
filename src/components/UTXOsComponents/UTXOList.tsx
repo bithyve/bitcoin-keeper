@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { hp, wp, windowHeight } from 'src/constants/responsive';
@@ -9,7 +9,6 @@ import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/services/wallets/interfaces';
 import Selected from 'src/assets/images/selected.svg';
 import { WalletType } from 'src/services/wallets/enums';
-import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
@@ -19,12 +18,15 @@ import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { sha256 } from 'bitcoinjs-lib/src/crypto';
 import LabelItem from 'src/screens/UTXOManagement/components/LabelItem';
 
-function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }) {
+export function UTXOLabel(props: {
+  labels: Array<{ name: string; isSystem: boolean }>;
+  center?: boolean;
+  addMoreBtn?: boolean;
+}) {
   const { colorMode } = useColorMode();
-  const { labels } = props;
+  const { labels, center, addMoreBtn } = props;
   const [extraLabelCount, setExtraLabelCount] = useState(0);
   const [extraLabelMap, setExtraLabelMap] = useState(new Map());
 
@@ -37,7 +39,6 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
       extraLabelMap.delete(`${index}`);
       setExtraLabelMap(extraLabelMap);
     }
-    console.log(extraLabelMap.size);
     setExtraLabelCount(extraLabelMap.size);
   };
 
@@ -48,7 +49,12 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
   };
 
   return (
-    <Box style={{ flexDirection: 'row' }}>
+    <Box
+      style={{
+        flexDirection: 'row',
+        alignSelf: center ? 'center' : 'flex-start',
+      }}
+    >
       <Box style={styles.labelList}>
         {labels
           .sort((a, b) => (a.isSystem < b.isSystem ? 1 : a.isSystem > b.isSystem ? -1 : 0))
@@ -78,6 +84,22 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
           </Text>
         </Box>
       )}
+      {addMoreBtn && (
+        <Box
+          style={[styles.addBtnLabel]}
+          color={`${colorMode}.labelText`}
+          backgroundColor={`${colorMode}.pantoneGreen`}
+        >
+          <Text
+            style={[styles.labelText, { fontSize: 16 }]}
+            color={`${colorMode}.labelText`}
+            testID="text_extraLabelCount"
+            bold
+          >
+            +
+          </Text>
+        </Box>
+      )}
     </Box>
   );
 }
@@ -97,7 +119,6 @@ function UTXOElement({
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   const allowSelection = enableSelection && item.confirmed;
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
@@ -158,7 +179,7 @@ function UTXOElement({
               </Box>
             </Box>
           ) : null}
-          <Box style={{ width: allowSelection ? '50%' : '55%' }}>
+          <Box style={{ width: allowSelection ? '46%' : '55%' }}>
             <Box style={styles.rowCenter}>
               <Box style={{ width: '100%' }}>
                 <Text
@@ -193,14 +214,16 @@ function UTXOElement({
                 </Text>
               </Box>
             ) : (
-              <UTXOLabel labels={labels} />
+              <Box marginTop={hp(8)}>
+                <UTXOLabel labels={labels} />
+              </Box>
             )}
           </Box>
           <Box
             style={[
               styles.amountWrapper,
               {
-                width: '30%',
+                width: allowSelection ? '20%' : '30%',
                 marginRight: allowSelection ? wp(10) : wp(5),
                 marginTop: hasTransactionNote ? wp(5) : wp(30),
               },
@@ -345,7 +368,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     maxHeight: 28,
     marginLeft: 3,
-    marginTop: hp(13),
+    marginTop: hp(5),
   },
   utxoLabelView: {
     paddingHorizontal: wp(10),
@@ -364,7 +387,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'left',
     width: '100%',
-    marginTop: hp(13),
+    marginTop: hp(5),
   },
   transactionNoteText: {
     fontSize: 12,
@@ -378,6 +401,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: hp(18),
+    marginTop: hp(10),
+  },
+  addBtnLabel: {
+    paddingHorizontal: wp(7),
+    paddingVertical: wp(2),
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: hp(10),
+    marginLeft: hp(5),
   },
 });

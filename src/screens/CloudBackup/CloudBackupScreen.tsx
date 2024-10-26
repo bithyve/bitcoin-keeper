@@ -168,7 +168,6 @@ function CloudBackupScreen() {
         title={strings.cloudBackupModalTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}

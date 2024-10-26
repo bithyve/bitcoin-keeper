@@ -166,7 +166,6 @@ function SigningDeviceConfigRecovery({ navigation }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           buttonCallback={() => {
             navigation.dispatch(
               CommonActions.navigate({

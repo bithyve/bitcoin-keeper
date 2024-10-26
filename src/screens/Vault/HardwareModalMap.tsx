@@ -2025,7 +2025,6 @@ function HardwareModalMap({
         buttonText={signerType === SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={buttonCallback}
-        DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}

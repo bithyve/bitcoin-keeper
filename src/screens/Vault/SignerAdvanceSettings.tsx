@@ -1050,7 +1050,6 @@ function SignerAdvanceSettings({ route }: any) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonText="Continue"
         secondaryButtonText="Cancel"
         secondaryCallback={() => setWarning(false)}
@@ -1065,7 +1064,6 @@ function SignerAdvanceSettings({ route }: any) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={EditModalContent}
       />
       <KeeperModal
@@ -1098,7 +1096,6 @@ function SignerAdvanceSettings({ route }: any) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));

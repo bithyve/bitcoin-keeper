@@ -414,7 +414,6 @@ function PrivacyAndDisplay({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             primaryText="Confirm"
@@ -448,7 +447,6 @@ function PrivacyAndDisplay({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <Box style={styles.PasscodeHCModal}>
             <PasscodeLockIllustration width={wp(160)} height={hp(125)} />

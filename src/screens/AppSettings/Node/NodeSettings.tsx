@@ -291,7 +291,6 @@ function NodeSettings() {
         buttonBackground={`${colorMode}.gradientStart`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonText=""
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={closeAddNodeModal}
@@ -312,7 +311,6 @@ function NodeSettings() {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.buttonText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={async () => {
           setElectrumDisconnectWarningVisible(false);
           if (nodeToDisconnect) {

@@ -8,10 +8,12 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const useLabelsNew = ({
   txid,
+  address,
   utxos = [],
   wallet,
 }: {
   txid?: string;
+  address?: string;
   utxos?: UTXO[];
   wallet: Wallet | Vault;
 }) => {
@@ -26,6 +28,9 @@ const useLabelsNew = ({
   if (txid) {
     utxoMap[txid] = true;
     labelMap[txid] = [];
+  } else if (address) {
+    utxoMap[address] = true;
+    labelMap[address] = [];
   } else {
     utxos.forEach(({ txId, vout }) => {
       utxoMap[`${txId}:${vout}`] = true;

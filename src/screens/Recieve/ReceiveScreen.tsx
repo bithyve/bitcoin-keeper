@@ -35,6 +35,13 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { generateNewAddress } from 'src/store/sagaActions/wallets';
 import { useAppDispatch } from 'src/store/hooks';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { LabelsEditor } from '../UTXOManagement/UTXOLabeling';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import Close from 'src/assets/images/modal_close.svg';
+import CloseGreen from 'src/assets/images/modal_close_green.svg';
+import useLabelsNew from 'src/hooks/useLabelsNew';
+import { UTXOLabel } from 'src/components/UTXOsComponents/UTXOList';
 
 const AddressVerifiableSigners = [SignerType.BITBOX02, SignerType.LEDGER, SignerType.TREZOR];
 
@@ -42,6 +49,7 @@ function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
   const { getCurrencyIcon } = useBalance();
   const [modalVisible, setModalVisible] = useState(false);
+  const [labelsModalVisible, setLabelsModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
 
   const wallet: Wallet = route?.params?.wallet;
@@ -64,6 +72,12 @@ function ReceiveScreen({ route }: { route }) {
 
   const dispatch = useAppDispatch();
 
+  const { showToast } = useToastMessage();
+
+  const { labels: addressLabels } = useLabelsNew({ address: receivingAddress, wallet });
+  const labels = addressLabels ? addressLabels[receivingAddress] || [] : [];
+  console.log(labels);
+  console.log(labels.length);
   const generateNewReceiveAddress = () => {
     dispatch(generateNewAddress(wallet));
     Vibration.vibrate(50);
@@ -224,7 +238,18 @@ function ReceiveScreen({ route }: { route }) {
           borderColor={`${colorMode}.greyBorder`}
         >
           <AddressUsageBadge used={addressUsed} />
-          <ReceiveQR qrValue={paymentURI || receivingAddress} qrSize={wp(windowWidth * 0.5)} />
+          <TouchableOpacity onPress={() => setLabelsModalVisible(true)}>
+            {labels.length > 0 ? (
+              <Box style={styles.labelsRow}>
+                <UTXOLabel labels={labels} center addMoreBtn />
+              </Box>
+            ) : (
+              <Text color={`${colorMode}.textGreen`} style={styles.addLablesText} semiBold>
+                + Add labels to your address
+              </Text>
+            )}
+          </TouchableOpacity>
+          <ReceiveQR qrValue={paymentURI || receivingAddress} qrSize={wp(windowWidth * 0.45)} />
           <Box style={styles.addressContainer}>
             <ReceiveAddress address={paymentURI || receivingAddress} />
           </Box>
@@ -322,6 +347,61 @@ function ReceiveScreen({ route }: { route }) {
         textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}
       />
+      {/* <KeeperModal
+        visible={labelsModalVisible}
+        showCloseIcon={false}
+        close={() => setLabelsModalVisible(false)}
+        title={'Add Labels'}
+        subTitle={'Use labels to identify coins reveiced to your address'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={LabelsModalContent}
+      /> */}
+
+      {labelsModalVisible && (
+        <Pressable
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          backgroundColor="rgba(0, 0, 0, 0.5)"
+          justifyContent="center"
+          alignItems="center"
+          onPress={() => {
+            setLabelsModalVisible(false);
+          }}
+        >
+          <Pressable
+            width="90%"
+            backgroundColor={`${colorMode}.primaryBackground`}
+            borderRadius={10}
+            style={styles.overlayContainer}
+            onPress={() => {}}
+          >
+            <TouchableOpacity style={styles.close} onPress={() => setLabelsModalVisible(false)}>
+              <Close />
+            </TouchableOpacity>
+            <Text color={`${colorMode}.primaryText`} style={styles.overlayTitle}>
+              Add Labels
+            </Text>
+            <Text color={`${colorMode}.secondaryText`} style={styles.overlaySubtitle}>
+              Use labels to identify coins received to your address
+            </Text>
+            {receivingAddress && (
+              <LabelsEditor
+                address={receivingAddress}
+                wallet={wallet}
+                onLabelsSaved={() => {
+                  showToast('Labels saved successfully', <TickIcon />);
+                  setLabelsModalVisible(false);
+                }}
+              />
+            )}
+          </Pressable>
+        </Pressable>
+      )}
     </ScreenWrapper>
   );
 }
@@ -379,7 +459,7 @@ const styles = StyleSheet.create({
   },
   receiveDataContainer: {
     paddingTop: hp(17),
-    paddingBottom: hp(15),
+    paddingBottom: hp(10),
     borderRadius: 10,
     borderWidth: 1,
   },
@@ -419,6 +499,37 @@ const styles = StyleSheet.create({
     marginLeft: wp(9),
     marginRight: wp(10),
     marginTop: hp(1),
+  },
+  addLablesText: {
+    fontSize: 14,
+    width: '100%',
+    textAlign: 'center',
+    marginTop: hp(10),
+  },
+  overlayContainer: {
+    paddingTop: hp(30),
+    paddingBottom: hp(50),
+    paddingHorizontal: wp(15),
+  },
+  overlayTitle: {
+    fontSize: 19,
+    letterSpacing: 0.19,
+    marginBottom: hp(5),
+  },
+  overlaySubtitle: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+    marginBottom: hp(15),
+  },
+  close: {
+    width: '100%',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+  },
+  labelsRow: {
+    alignSelf: 'center',
+    marginVertical: hp(1),
+    width: '60%',
   },
 });
 

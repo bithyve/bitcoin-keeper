@@ -259,7 +259,6 @@ function TransactionDetails({ route }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
           subTitleColor={`${colorMode}.secondaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           close={close}
           title={common.addNote}
           subTitle={transactions.updateLabelSubTitle}

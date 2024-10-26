@@ -1435,7 +1435,6 @@ function SendConfirmation({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.buttonText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
@@ -1470,7 +1469,6 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics
