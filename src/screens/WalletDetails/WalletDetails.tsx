@@ -14,7 +14,7 @@ import TribeWalletIcon from 'src/assets/images/hexagontile_wallet.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import SettingIcon from 'src/assets/images/settings_footer.svg';
+import SettingIcon from 'src/assets/images/settings.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';

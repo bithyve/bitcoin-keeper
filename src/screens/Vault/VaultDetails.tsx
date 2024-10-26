@@ -11,7 +11,7 @@ import SendIcon from 'src/assets/images/send.svg';
 import SendIconWhite from 'src/assets/images/send-white.svg';
 import RecieveIcon from 'src/assets/images/receive.svg';
 import RecieveIconWhite from 'src/assets/images/receive-white.svg';
-import SettingIcon from 'src/assets/images/settings_footer.svg';
+import SettingIcon from 'src/assets/images/settings.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
