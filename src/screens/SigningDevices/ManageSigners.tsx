@@ -4,7 +4,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -47,6 +47,7 @@ import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import Relay from 'src/services/backend/Relay';
 import { notificationType } from 'src/models/enums/Notifications';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import AddKeyButton from './components/AddKeyButton';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -379,8 +380,12 @@ function SignersList({
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        style={styles.scrollMargin}
       >
+        {!vaultKeys.length && (
+          <Box style={{ marginBottom: hp(25), marginRight: wp(15) }}>
+            <AddKeyButton onPress={handleAddSigner} />
+          </Box>
+        )}
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
             const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
@@ -421,13 +426,6 @@ function SignersList({
             );
           })}
           {isNonVaultManageSignerFlow && renderAssistedKeysShell()}
-          {!vaultKeys.length ? (
-            <AddCard
-              name={signerTranslation.addKey}
-              cardStyles={styles.addCard}
-              callback={handleAddSigner}
-            />
-          ) : null}
         </Box>
       </ScrollView>
     </SafeAreaView>
@@ -447,22 +445,20 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   topSection: {
-    height: '35%',
+    height: '25%',
     paddingHorizontal: 20,
     paddingTop: 20,
   },
   signersContainer: {
     paddingHorizontal: '5%',
+    borderTopRightRadius: 25,
+    borderTopLeftRadius: 25,
     flex: 1,
   },
   scrollContainer: {
     zIndex: 2,
-    gap: 40,
-    marginVertical: 30,
-    paddingBottom: 30,
-  },
-  scrollMargin: {
-    marginTop: '-30%',
+    marginVertical: wp(30),
+    paddingBottom: hp(30),
   },
   addedSignersContainer: {
     flexDirection: 'row',
