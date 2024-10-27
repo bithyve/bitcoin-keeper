@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   labelsRow: {
     alignSelf: 'center',
     marginVertical: hp(1),
-    width: '60%',
+    width: '70%',
   },
   addressUsedLabelsWarning: {
     width: '97%',
