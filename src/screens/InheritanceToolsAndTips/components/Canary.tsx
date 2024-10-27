@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import { CommonActions } from '@react-navigation/native';
@@ -15,7 +15,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 function CanaryWallets({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning } = translations;
+  const { inheritancePlanning, common } = translations;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
@@ -45,9 +45,12 @@ function CanaryWallets({ navigation }) {
             icon={<Chip />}
           />
         </Box>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
-          {inheritancePlanning.canaryWalletDescp3}
-        </Text>
+        <Box style={[styles.leftTextStyle]}>
+          <Text bold color={`${colorMode}.white`}>
+            {`${common.note}:`}
+          </Text>
+          <Text color={`${colorMode}.white`}>{inheritancePlanning.canaryWalletDescp3}</Text>
+        </Box>
       </ScrollView>
     </ScreenWrapper>
   );
@@ -76,6 +79,12 @@ const styles = StyleSheet.create({
   circleStyle: {
     alignItems: 'center',
     marginTop: hp(20),
+    marginRight: wp(25),
+  },
+  leftTextStyle: {
+    textAlign: 'left',
+    marginTop: hp(40),
+    color: Colors.white,
   },
 });
 
