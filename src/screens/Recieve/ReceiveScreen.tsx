@@ -39,7 +39,8 @@ import { LabelsEditor } from '../UTXOManagement/UTXOLabeling';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Close from 'src/assets/images/modal_close.svg';
-import CloseGreen from 'src/assets/images/modal_close_green.svg';
+import ErrorIcon from 'src/assets/images/error.svg';
+import ErrorDarkIcon from 'src/assets/images/error-dark.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { UTXOLabel } from 'src/components/UTXOsComponents/UTXOList';
 
@@ -399,6 +400,20 @@ function ReceiveScreen({ route }: { route }) {
                 }}
               />
             )}
+            {addressUsed && (
+              <Box
+                style={styles.addressUsedLabelsWarning}
+                backgroundColor={`${colorMode}.errorToastBackground`}
+                borderColor={`${colorMode}.alertRed`}
+              >
+                <Box style={styles.addressUsedLabelsWarningIcon}>
+                  {colorMode === 'light' ? <ErrorIcon /> : <ErrorDarkIcon />}
+                </Box>
+                <Text style={styles.addressUsedLabelsWarningText}>
+                  Address already used. Editing labels here affects only new transactions
+                </Text>
+              </Box>
+            )}
           </Pressable>
         </Pressable>
       )}
@@ -530,6 +545,28 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginVertical: hp(1),
     width: '60%',
+  },
+  addressUsedLabelsWarning: {
+    width: '97%',
+    alignSelf: 'center',
+    marginTop: hp(20),
+    paddingVertical: hp(17),
+    paddingHorizontal: hp(9),
+    borderWidth: 0.5,
+    borderRadius: 10,
+    flexDirection: 'row',
+  },
+  addressUsedLabelsWarningText: {
+    fontSize: 13,
+    textAlign: 'left',
+    width: '80%',
+    marginLeft: wp(10),
+  },
+  addressUsedLabelsWarningIcon: {
+    width: wp(30),
+    height: hp(30),
+    marginTop: hp(5),
+    marginHorizontal: hp(2),
   },
 });
 

@@ -35,9 +35,9 @@ function PinInputsView({
   const getBackgroundColor = () =>
     backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)';
 
-  const getTextColor = () => (textColor ? 'light.textBlack' : 'light.primaryBackground');
+  const getTextColor = () => `${colorMode}.textBlack`;
 
-  const getDotColor = () => (textColor ? 'black' : 'light.primaryBackground');
+  const getDotColor = () => `${colorMode}.textBlack`;
 
   const getPin = (num: number) => {
     if (passCode?.length === num && !hide) {

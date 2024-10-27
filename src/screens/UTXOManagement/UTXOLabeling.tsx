@@ -129,7 +129,7 @@ export function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSave
     const labelChanges = getLabelChanges(initialLabels, finalLabels);
     processDispatched.current = true;
     if (address) {
-      dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, address, wallet }));
+      dispatch(bulkUpdateLabels({ labelChanges, address, wallet }));
     } else {
       dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
     }

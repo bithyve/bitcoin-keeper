@@ -131,5 +131,7 @@ const Colors = {
   AlertRedDark: 'rgba(187, 73, 73, 1)',
   NewBadgeGreen: 'rgba(210, 237, 231, 1)',
   NewBadgeGreenDark: 'rgba(65, 89, 76, 1)',
+  ErrorToast: 'rgba(249, 219, 219, 1)',
+  ErrorToastDark: 'rgba(58, 41, 41, 1)',
 };
 export default Colors;

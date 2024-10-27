@@ -274,14 +274,6 @@ function AddSendAmount({ route }) {
   );
   useEffect(() => {
     const initialLabels = [];
-    if (recipient && recipient.presentationData) {
-      const name =
-        recipient?.entityKind === EntityKind.VAULT
-          ? sender.presentationData.name
-          : recipient.presentationData.name;
-      const isSystem = true;
-      initialLabels.push({ name, isSystem });
-    }
     selectedUTXOs.forEach((utxo) => {
       if (labels[`${utxo.txId}:${utxo.vout}`]) {
         const useLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((item) => !item.isSystem);
