@@ -9,7 +9,7 @@ export interface Props {
   passCode?: string;
   passcodeFlag?: boolean;
   backgroundColor?: boolean;
-  textColor?: boolean;
+  textColor?: string;
   borderColor?: string;
 }
 function PinInputsView({
@@ -35,9 +35,9 @@ function PinInputsView({
   const getBackgroundColor = () =>
     backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)';
 
-  const getTextColor = () => `${colorMode}.textBlack`;
+  const getTextColor = () => (textColor ? textColor : `${colorMode}.textBlack`);
 
-  const getDotColor = () => `${colorMode}.textBlack`;
+  const getDotColor = () => (textColor ? textColor : `${colorMode}.textBlack`);
 
   const getPin = (num: number) => {
     if (passCode?.length === num && !hide) {

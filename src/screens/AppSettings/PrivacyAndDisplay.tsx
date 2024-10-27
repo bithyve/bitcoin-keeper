@@ -136,7 +136,6 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
           passCode={passcode}
           passcodeFlag={passcodeFlag}
           borderColor="transparent"
-          textColor={true}
         />
       </Box>
       {passcode.length === 4 && (
@@ -148,7 +147,6 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
               passCode={confirmPasscode}
               passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
               borderColor="transparent"
-              textColor={true}
             />
             <Box mb={5}>
               {passcode !== confirmPasscode && confirmPasscode.length === 4 && (

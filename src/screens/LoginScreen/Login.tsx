@@ -417,7 +417,11 @@ function LoginScreen({ navigation, route }) {
                   marginTop: hp(50),
                 }}
               >
-                <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+                <PinInputsView
+                  passCode={passcode}
+                  passcodeFlag={passcodeFlag}
+                  textColor={`${colorMode}.buttonText`}
+                />
               </Box>
               {/*  */}
             </Box>
