@@ -348,18 +348,6 @@ function ReceiveScreen({ route }: { route }) {
         textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}
       />
-      {/* <KeeperModal
-        visible={labelsModalVisible}
-        showCloseIcon={false}
-        close={() => setLabelsModalVisible(false)}
-        title={'Add Labels'}
-        subTitle={'Use labels to identify coins reveiced to your address'}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        Content={LabelsModalContent}
-      /> */}
-
       {labelsModalVisible && (
         <Pressable
           position="absolute"

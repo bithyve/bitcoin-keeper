@@ -210,7 +210,7 @@ function UTXOElement({
             {labels.length === 0 ? (
               <Box style={styles.utxoLabelView} backgroundColor={`${colorMode}.gray`}>
                 <Text color={`${colorMode}.placeHolderTextColor`} style={styles.addLabelsText}>
-                  + Add Labels
+                  + {walletTranslation.AddLabels}
                 </Text>
               </Box>
             ) : (

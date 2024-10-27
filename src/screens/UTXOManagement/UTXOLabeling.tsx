@@ -32,7 +32,7 @@ import Link from 'src/assets/images/link.svg';
 import LinkWhite from 'src/assets/images/link-white.svg';
 import Edit from 'src/assets/images/edit.svg';
 import EditWhite from 'src/assets/images/edit-white.svg';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { LocalizationContext, translations } from 'src/context/Localization/LocContext';
 import { EditNoteContent } from '../ViewTransactions/TransactionDetails';
 import KeeperModal from 'src/components/KeeperModal';
 
@@ -158,7 +158,7 @@ export function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSave
               style={styles.inputLabel}
               height={hp(38)}
               borderWidth={0}
-              placeholder="+ Add Labels" // TODO: Move to translations
+              placeholder={`+ ${translations.wallet.AddLabels}`}
               value={label}
               autoCorrect={false}
               backgroundColor={`${colorMode}.seashellWhite`}
@@ -221,7 +221,7 @@ function UTXOLabeling() {
   const noteRef = useRef();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { transactions: txTranslations, common } = translations;
+  const { transactions: txTranslations, wallet: walletTranslations, common } = translations;
 
   const dispatch = useDispatch();
 
@@ -317,8 +317,8 @@ function UTXOLabeling() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="UTXO Details" // TODO: Move to translations
-        subtitle="See your UTXO details and manage its labels" // TODO: Move to translations
+        title={walletTranslations.UTXODetails}
+        subtitle={walletTranslations.UTXODetailsSubtitle}
       />
       <ScrollView
         style={styles.scrollViewWrapper}
@@ -329,14 +329,14 @@ function UTXOLabeling() {
           utxo={utxo}
           wallet={wallet}
           onLabelsSaved={() => {
-            showToast('Labels saved successfully', <TickIcon />);
+            showToast(walletTranslations.LabelsSavedSuccessfully, <TickIcon />);
             navigation.goBack();
           }}
         />
         <Box style={styles.detailsBox}>
           <Box>
             <InfoCard
-              title="UTXO Value"
+              title={walletTranslations.UTXOValue}
               descComponent={
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Box style={{ marginHorizontal: 5, marginBottom: hp(7) }}>
@@ -363,14 +363,14 @@ function UTXOLabeling() {
               showIcon={false}
             />
             <InfoCard
-              title="Address"
+              title={common.Address}
               description={utxo.address}
               showIcon={true}
               Icon={colorMode === 'light' ? <Link /> : <LinkWhite />}
               onIconPress={() => redirectToBlockExplorer('address')}
             />
             <InfoCard
-              title="Transaction Note"
+              title={txTranslations.transactionNote}
               description={
                 txNoteLabels[utxo.txId]?.[0]?.name ||
                 common.addNote.charAt(0) + common.addNote.slice(1).toLowerCase()
@@ -380,7 +380,7 @@ function UTXOLabeling() {
               onIconPress={() => setTxNoteModalVisible(true)}
             />
             <InfoCard
-              title="Transaction ID"
+              title={txTranslations.transactionID}
               description={utxo.txId}
               showIcon={true}
               Icon={colorMode === 'light' ? <Link /> : <LinkWhite />}
