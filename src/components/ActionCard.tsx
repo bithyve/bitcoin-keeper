@@ -27,7 +27,7 @@ function ActionCard({
   dottedBorder = false,
   cardPillText = '',
   showDot = false,
-  smallDeviceHeight = hp(140),
+  smallDeviceHeight = hp(110),
   smallDeviceWidth = wp(110),
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
