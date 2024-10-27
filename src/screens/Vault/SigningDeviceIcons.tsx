@@ -7,25 +7,30 @@ import COLDCARDLOGO from 'src/assets/images/coldcard_logo.svg';
 import JADEICON from 'src/assets/images/jade_icon.svg';
 import JADEICONLIGHT from 'src/assets/images/jade_icon_light.svg';
 import JADELOGO from 'src/assets/images/jade_logo.svg';
+import JADELOGOWHITE from 'src/assets/images/jade_logo_white.svg';
 import KEEPERAPP from 'src/assets/images/KeeperIcon.svg';
 import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
 import KEYSTONEICON from 'src/assets/images/keystone_icon.svg';
 import KEYSTONEICONLIGHT from 'src/assets/images/keystone_icon_light.svg';
 import KEYSTONELOGO from 'src/assets/images/keystone_logo.svg';
+import KEYSTONELOGOWHITE from 'src/assets/images/keystone_logo_white.svg';
 import LEDGERICON from 'src/assets/images/ledger_icon.svg';
 import LEDGERICONLIGHT from 'src/assets/images/ledger_light.svg';
 import LEDGERLOGO from 'src/assets/images/ledger_logo.svg';
+import LEDGERLOGOWHITE from 'src/assets/images/ledger_logo_white.svg';
 import MOBILEKEY from 'src/assets/images/mobile_key.svg';
 import MOBILEKEYLIGHT from 'src/assets/images/mobile_key_light.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTICONLIGHT from 'src/assets/images/passport_light.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
+import PASSPORTLOGOWHITE from 'src/assets/images/passport_logo_white.svg';
 import SEEDSIGNERICON from 'src/assets/images/seedsigner_icon.svg';
 import SEEDSIGNERICONLIGHT from 'src/assets/images/seedsigner_light.svg';
 import SEEDSIGNERLOGO from 'src/assets/images/seedsignerlogo.svg';
 import SPECTERICON from 'src/assets/images/specter_icon.svg';
 import SPECTERICONLIGHT from 'src/assets/images/specter_icon_light.svg';
 import SPECTERLOGO from 'src/assets/images/specter_logo.svg';
+import SPECTERLOGOWHITE from 'src/assets/images/specter_logo_white.svg';
 import SEEDWORDS from 'src/assets/images/seedwords.svg';
 import SEEDWORDSLIGHT from 'src/assets/images/seedwordsLight.svg';
 import SERVER from 'src/assets/images/server.svg';
@@ -36,9 +41,11 @@ import TAPSIGNERLOGO from 'src/assets/images/tapsigner_logo.svg';
 import TREZORICON from 'src/assets/images/trezor_icon.svg';
 import TREZORICONLIGHT from 'src/assets/images/trezor_light.svg';
 import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
+import TREZORLOGOWHITE from 'src/assets/images/trezor_logo_white.svg';
 import BITBOXICON from 'src/assets/images/BitBox.svg';
 import BITBOXICONLIGHT from 'src/assets/images/BitBoxLight.svg';
 import BITBOXLOGO from 'src/assets/images/bitbox_logo.svg';
+import BITBOXLOGOWHITE from 'src/assets/images/bitbox_logo_white.svg';
 import OTHERSDICON from 'src/assets/images/other.svg';
 import OTHERSDICONLIGHT from 'src/assets/images/other_light.svg';
 import INHERITANCEKEYLIGHT from 'src/assets/images/inheritance_key_light.svg';
@@ -66,7 +73,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.JADE:
       return {
         Icon: getColouredIcon(<JADEICONLIGHT />, <JADEICON />, light, width, height),
-        Logo: <JADELOGO />,
+        Logo: light ? <JADELOGOWHITE /> : <JADELOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.MY_KEEPER:
@@ -90,13 +97,13 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.KEYSTONE:
       return {
         Icon: getColouredIcon(<KEYSTONEICONLIGHT />, <KEYSTONEICON />, light, width, height),
-        Logo: <KEYSTONELOGO />,
+        Logo: light ? <KEYSTONELOGOWHITE /> : <KEYSTONELOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.LEDGER:
       return {
         Icon: getColouredIcon(<LEDGERICONLIGHT />, <LEDGERICON />, light, width, height),
-        Logo: <LEDGERLOGO />,
+        Logo: light ? <LEDGERLOGOWHITE /> : <LEDGERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.MOBILE_KEY:
@@ -112,7 +119,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.PASSPORT:
       return {
         Icon: getColouredIcon(<PASSPORTICONLIGHT />, <PASSPORTICON />, light, width, height),
-        Logo: <PASSPORTLOGO />,
+        Logo: light ? <PASSPORTLOGOWHITE /> : <PASSPORTLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.POLICY_SERVER:
@@ -134,7 +141,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.TREZOR:
       return {
         Icon: getColouredIcon(<TREZORICONLIGHT />, <TREZORICON />, light, width, height),
-        Logo: <TREZORLOGO />,
+        Logo: light ? <TREZORLOGOWHITE /> : <TREZORLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SEEDSIGNER:
@@ -146,13 +153,13 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.SPECTER:
       return {
         Icon: getColouredIcon(<SPECTERICONLIGHT />, <SPECTERICON />, light, width, height),
-        Logo: <SPECTERLOGO />,
+        Logo: light ? <SPECTERLOGOWHITE /> : <SPECTERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.BITBOX02:
       return {
         Icon: getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light, width, height),
-        Logo: <BITBOXLOGO />,
+        Logo: light ? <BITBOXLOGOWHITE /> : <BITBOXLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.OTHER_SD:
