@@ -229,7 +229,7 @@ function UTXOElement({
               },
             ]}
           >
-            {item.confirmed ? null : (
+            {item.height > 0 ? null : (
               <Box paddingX={3} testID="view_unconfirmIcon">
                 <UnconfirmedIcon />
               </Box>
