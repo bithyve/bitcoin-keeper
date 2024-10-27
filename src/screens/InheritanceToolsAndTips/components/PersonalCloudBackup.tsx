@@ -36,13 +36,6 @@ function PersonalCloudBackup({}) {
             icon={<Cloud />}
           />
         </Box>
-
-        {/* <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
-            Note:
-          </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.personalCloudNotes}</Text>
-        </Box> */}
       </ScrollView>
     </ScreenWrapper>
   );
