@@ -103,7 +103,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
 
   return (
     <Box>
-      <Box height={hp(520)}>
+      <Box height={'77%'}>
         <FlatList
           data={history}
           contentContainerStyle={{ flexGrow: 1 }}
