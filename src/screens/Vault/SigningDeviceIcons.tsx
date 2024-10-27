@@ -73,14 +73,14 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.JADE:
       return {
         Icon: getColouredIcon(<JADEICONLIGHT />, <JADEICON />, light, width, height),
-        Logo: light ? <JADELOGOWHITE /> : <JADELOGO />,
+        Logo: colorMode === 'dark' ? <JADELOGOWHITE /> : <JADELOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.MY_KEEPER:
       return {
         Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light, width, height),
         Logo: (
-          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
             Mobile Key
           </Text>
         ),
@@ -89,7 +89,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
       return {
         Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light, width, height),
         Logo: (
-          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
             External Key
           </Text>
         ),
@@ -97,20 +97,20 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.KEYSTONE:
       return {
         Icon: getColouredIcon(<KEYSTONEICONLIGHT />, <KEYSTONEICON />, light, width, height),
-        Logo: light ? <KEYSTONELOGOWHITE /> : <KEYSTONELOGO />,
+        Logo: colorMode === 'dark' ? <KEYSTONELOGOWHITE /> : <KEYSTONELOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.LEDGER:
       return {
         Icon: getColouredIcon(<LEDGERICONLIGHT />, <LEDGERICON />, light, width, height),
-        Logo: light ? <LEDGERLOGOWHITE /> : <LEDGERLOGO />,
+        Logo: colorMode === 'dark' ? <LEDGERLOGOWHITE /> : <LEDGERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.MOBILE_KEY:
       return {
         Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light, width, height),
         Logo: (
-          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
             Mobile Key
           </Text>
         ),
@@ -119,14 +119,14 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.PASSPORT:
       return {
         Icon: getColouredIcon(<PASSPORTICONLIGHT />, <PASSPORTICON />, light, width, height),
-        Logo: light ? <PASSPORTLOGOWHITE /> : <PASSPORTLOGO />,
+        Logo: colorMode === 'dark' ? <PASSPORTLOGOWHITE /> : <PASSPORTLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.POLICY_SERVER:
       return {
         Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light, width, height),
         Logo: (
-          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
             Signing Server +
           </Text>
         ),
@@ -141,7 +141,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.TREZOR:
       return {
         Icon: getColouredIcon(<TREZORICONLIGHT />, <TREZORICON />, light, width, height),
-        Logo: light ? <TREZORLOGOWHITE /> : <TREZORLOGO />,
+        Logo: colorMode === 'dark' ? <TREZORLOGOWHITE /> : <TREZORLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SEEDSIGNER:
@@ -153,20 +153,20 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.SPECTER:
       return {
         Icon: getColouredIcon(<SPECTERICONLIGHT />, <SPECTERICON />, light, width, height),
-        Logo: light ? <SPECTERLOGOWHITE /> : <SPECTERLOGO />,
+        Logo: colorMode === 'dark' ? <SPECTERLOGOWHITE /> : <SPECTERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.BITBOX02:
       return {
         Icon: getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light, width, height),
-        Logo: light ? <BITBOXLOGOWHITE /> : <BITBOXLOGO />,
+        Logo: colorMode === 'dark' ? <BITBOXLOGOWHITE /> : <BITBOXLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.OTHER_SD:
       return {
         Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light, width, height),
         Logo: (
-          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
             Other signer
           </Text>
         ),
@@ -176,7 +176,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
       return {
         Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light, width, height),
         Logo: (
-          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
             Unknown Signer
           </Text>
         ),
@@ -186,7 +186,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
       return {
         Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light, width, height),
         Logo: (
-          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
             Seed Key
           </Text>
         ),
@@ -202,7 +202,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
           height
         ),
         Logo: (
-          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
             Inheritance Key +
           </Text>
         ),
