@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
   },
   deleteContainer: {
     paddingLeft: wp(10),
+    paddingVertical: wp(4),
   },
   labelEditContainer: {
     alignItems: 'center',
