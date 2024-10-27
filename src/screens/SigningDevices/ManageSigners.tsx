@@ -367,7 +367,6 @@ function SignersList({
           icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}
-          isFullText
           colorVarient="green"
           colorMode={colorMode}
         />
@@ -416,7 +415,6 @@ function SignersList({
                 image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}
-                isFullText
                 colorVarient="green"
                 colorMode={colorMode}
               />
