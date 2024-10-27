@@ -1066,32 +1066,21 @@ function* refreshWalletsWorker({
     });
 
     let labels: { ref: string; label: string; isSystem: boolean }[];
-    console.log('Test 0');
 
     if (synchedWallets && synchedWallets.some((wallet) => wallet.newUTXOs.length > 0)) {
       labels = yield call(dbManager.getCollection, RealmSchema.Tags);
-      console.log('TEst 1');
     }
-    console.log('Lables');
-    console.log(labels);
     for (const synchedWalletWithUTXOs of synchedWallets) {
       const synchedWallet = synchedWalletWithUTXOs.synchedWallet;
       // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
-      console.log('synchedWalletWithUTXOs.newUTXOs');
-      console.log(synchedWalletWithUTXOs.newUTXOs);
       for (const utxo of synchedWalletWithUTXOs.newUTXOs) {
         const labelChanges = {
           added: [],
           deleted: [],
         };
 
-        console.log('synchedWallet.specs.addresses.internal');
-        console.log(synchedWallet.specs.addresses.internal);
-        console.log('utxo.address');
-        console.log(utxo.address);
         if (Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
-          console.log('YES CHANGE');
           labelChanges.added.push({
             name: 'Change',
             isSystem: false,
@@ -1099,8 +1088,6 @@ function* refreshWalletsWorker({
         }
 
         const utxoLabels = labels ? labels.filter((label) => label.ref === utxo.address) : [];
-        console.log('utxoLabels');
-        console.log(utxoLabels);
         if (utxoLabels.length > 0) {
           labelChanges.added.push(
             ...utxoLabels.map((label) => ({
@@ -1110,8 +1097,6 @@ function* refreshWalletsWorker({
           );
         }
 
-        console.log('Write!');
-        console.log(labelChanges);
         yield call(bulkUpdateLabelsWorker, {
           payload: { labelChanges, UTXO: utxo, wallet: synchedWallet as any },
         });
@@ -1416,7 +1401,6 @@ function* updateVaultDetailsWorker({ payload }) {
     // API-TODO: based on response call the DB
     vault.presentationData = presentationData;
 
-    console.log(vault.presentationData);
     const response = yield call(updateVaultImageWorker, {
       payload: { vault },
     });

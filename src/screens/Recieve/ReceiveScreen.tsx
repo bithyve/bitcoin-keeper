@@ -35,7 +35,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { generateNewAddress } from 'src/store/sagaActions/wallets';
 import { useAppDispatch } from 'src/store/hooks';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { LabelsEditor } from '../UTXOManagement/UTXOLabeling';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Close from 'src/assets/images/modal_close.svg';
@@ -43,6 +42,7 @@ import ErrorIcon from 'src/assets/images/error.svg';
 import ErrorDarkIcon from 'src/assets/images/error-dark.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { UTXOLabel } from 'src/components/UTXOsComponents/UTXOList';
+import LabelsEditor from '../UTXOManagement/components/LabelsEditor';
 
 const AddressVerifiableSigners = [SignerType.BITBOX02, SignerType.LEDGER, SignerType.TREZOR];
 
@@ -77,8 +77,7 @@ function ReceiveScreen({ route }: { route }) {
 
   const { labels: addressLabels } = useLabelsNew({ address: receivingAddress, wallet });
   const labels = addressLabels ? addressLabels[receivingAddress] || [] : [];
-  console.log(labels);
-  console.log(labels.length);
+
   const generateNewReceiveAddress = () => {
     dispatch(generateNewAddress(wallet));
     Vibration.vibrate(50);
@@ -373,17 +372,17 @@ function ReceiveScreen({ route }: { route }) {
               <Close />
             </TouchableOpacity>
             <Text color={`${colorMode}.primaryText`} style={styles.overlayTitle}>
-              Add Labels
+              {walletTranslation.AddLabels}
             </Text>
             <Text color={`${colorMode}.secondaryText`} style={styles.overlaySubtitle}>
-              Use labels to identify coins received to your address
+              {walletTranslation.AddLabelsReceiveSubtitle}
             </Text>
             {receivingAddress && (
               <LabelsEditor
                 address={receivingAddress}
                 wallet={wallet}
                 onLabelsSaved={() => {
-                  showToast('Labels saved successfully', <TickIcon />);
+                  showToast(walletTranslation.LabelsSavedSuccessfully, <TickIcon />);
                   setLabelsModalVisible(false);
                 }}
               />
@@ -398,7 +397,7 @@ function ReceiveScreen({ route }: { route }) {
                   {colorMode === 'light' ? <ErrorIcon /> : <ErrorDarkIcon />}
                 </Box>
                 <Text style={styles.addressUsedLabelsWarningText}>
-                  Address already used. Editing labels here affects only new transactions
+                  {walletTranslation.addressAlreadyUsedLabelWarning}
                 </Text>
               </Box>
             )}

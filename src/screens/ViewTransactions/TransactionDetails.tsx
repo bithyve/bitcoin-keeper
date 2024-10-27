@@ -26,6 +26,7 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { useDispatch } from 'react-redux';
 import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LabelItem from '../UTXOManagement/components/LabelItem';
+import { getLabelChanges } from '../UTXOManagement/components/LabelsEditor';
 
 export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
@@ -138,21 +139,6 @@ function TransactionDetails({ route }) {
       }`
     );
   };
-
-  function getLabelChanges(existingLabels, updatedLabels) {
-    const existingNames = new Set(existingLabels.map((label) => label.name));
-    const updatedNames = new Set(updatedLabels.map((label) => label.name));
-
-    const addedLabels = updatedLabels.filter((label) => !existingNames.has(label.name));
-    const deletedLabels = existingLabels.filter((label) => !updatedNames.has(label.name));
-
-    const labelChanges = {
-      added: addedLabels,
-      deleted: deletedLabels,
-    };
-
-    return labelChanges;
-  }
 
   const MemoisedContent = React.useCallback(
     () => (

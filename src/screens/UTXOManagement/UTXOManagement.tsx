@@ -207,15 +207,6 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
     }
   }, [selectedAccount]);
 
-  const updateSelectedWallet = (selectedAccount) => {
-    const walletAccount: Wallet = getWalletBasedOnAccount(
-      wallet,
-      whirlpoolWalletAccountMap,
-      selectedAccount
-    );
-    setSelectedWallet(walletAccount);
-  };
-
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs
         ?.map((utxo) => {
