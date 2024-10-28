@@ -62,7 +62,7 @@ const getColouredIcon = (LightComponent, DarkComponent, isLight, width, height) 
 
 export const SDIcons = (type: SignerType, light = true, width = 20, height = 20) => {
   const { colorMode } = useColorMode();
-  console.log(type);
+
   switch (type) {
     case SignerType.COLDCARD:
       return {

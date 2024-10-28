@@ -60,8 +60,6 @@ function SigningDeviceList() {
   const reduxDispatch = useDispatch();
   const isOnL1L2 = isOnL1 || isOnL2;
 
-  console.log(plan, 'plan');
-
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
