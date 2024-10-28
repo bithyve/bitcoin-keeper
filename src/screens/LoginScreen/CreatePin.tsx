@@ -195,6 +195,7 @@ export default function CreatePin(props) {
                     ? `${colorMode}.error`
                     : 'transparent'
                 }
+                textColor={`${colorMode}.buttonText`}
               />
               {/*  */}
             </Box>
@@ -213,6 +214,7 @@ export default function CreatePin(props) {
                         ? `${colorMode}.error`
                         : 'transparent'
                     }
+                    textColor={`${colorMode}.buttonText`}
                   />
                   {/*  */}
                   {passcode !== confirmPasscode && confirmPasscode.length === 4 && (

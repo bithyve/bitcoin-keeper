@@ -534,7 +534,6 @@ export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
 
     psbt.updateGlobal({
       globalXpub: vault.signers.map((signer) => {
-        console.log(signer.xpub);
         const extendedPubkey = base58check.decode(signer.xpub);
         return {
           extendedPubkey: Buffer.concat([extendedPubkey.prefix, extendedPubkey.data]),

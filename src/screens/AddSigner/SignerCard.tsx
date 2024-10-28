@@ -4,6 +4,7 @@ import { Image, StyleSheet, ViewStyle } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
+import Colors from 'src/theme/Colors';
 
 type SignerCardProps = {
   name: string;
@@ -59,6 +60,7 @@ function SignerCard({
     <Pressable
       disabled={disabled}
       backgroundColor={`${colorMode}.seashellWhite`}
+      borderColor={colorMode === 'light' ? Colors.SilverMist : Colors.separator}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
@@ -118,6 +120,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 3,
     position: 'relative',
+    borderWidth: 1,
   },
   walletName: {
     fontSize: 12,
