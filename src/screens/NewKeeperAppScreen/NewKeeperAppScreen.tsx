@@ -23,7 +23,7 @@ import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import IconSettings from 'src/assets/images/settings.svg';
 import IconGreySettings from 'src/assets/images/settings_grey.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { CommonActions } from '@react-navigation/native';
+import Colors from 'src/theme/Colors';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -208,21 +208,30 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box flexDir={'row'} width="100%">
         <TouchableOpacity
           style={styles.settingIconWrapper}
-          onPress={() => navigation.dispatch(CommonActions.navigate('NodeSettings'))}
+          onPress={() => navigation.navigate('NodeSettings')}
           testID="btn_AppSettingsIcon"
         >
           {colorMode === 'light' ? <IconGreySettings /> : <IconSettings />}
-        </TouchableOpacity>
-        <Pressable
-          backgroundColor={`${colorMode}.BrownNeedHelp`}
-          borderColor={`${colorMode}.BrownNeedHelp`}
-          style={styles.learnMoreContainer}
-          onPress={() => setIntroModalVisible(true)}
-        >
-          <Text style={styles.learnMoreText} medium color={`${colorMode}.white`}>
-            {common.learnMore}
+          <Text
+            style={styles.settingIconText}
+            color={colorMode === 'light' ? Colors.MediumGrey : Colors.SecondaryWhite}
+            semiBold
+          >
+            Server Settings
           </Text>
-        </Pressable>
+        </TouchableOpacity>
+        <Box flex={1}>
+          <Pressable
+            backgroundColor={`${colorMode}.BrownNeedHelp`}
+            borderColor={`${colorMode}.BrownNeedHelp`}
+            style={styles.learnMoreContainer}
+            onPress={() => setIntroModalVisible(true)}
+          >
+            <Text style={styles.learnMoreText} medium color={`${colorMode}.buttonText`}>
+              {common.learnMore}
+            </Text>
+          </Pressable>
+        </Box>
       </Box>
       <Box style={styles.contentContainer}>
         <Box>
@@ -373,7 +382,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   settingIconWrapper: {
+    marginTop: hp(14),
     marginLeft: wp(20),
+    flexDirection: 'row',
+  },
+  settingIconText: {
+    marginLeft: wp(8),
+    fontSize: 12,
   },
   tileContainer: {
     marginBottom: hp(40),
@@ -415,6 +430,7 @@ const styles = StyleSheet.create({
   },
   learnMoreContainer: {
     marginTop: hp(10),
+    alignSelf: 'flex-end',
     borderRadius: 5,
     borderWidth: 0.5,
     paddingVertical: 2,

@@ -150,6 +150,7 @@ function LoginStack() {
       <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
       <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
+      <Stack.Screen name="NodeSettings" component={NodeSettings} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="OnBoardingSlides"
