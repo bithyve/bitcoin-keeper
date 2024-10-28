@@ -26,8 +26,9 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { useDispatch } from 'react-redux';
 import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LabelItem from '../UTXOManagement/components/LabelItem';
+import { getLabelChanges } from '../UTXOManagement/components/LabelsEditor';
 
-function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
+export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
     noteRef.current = text;
   }, []);
@@ -139,21 +140,6 @@ function TransactionDetails({ route }) {
     );
   };
 
-  function getLabelChanges(existingLabels, updatedLabels) {
-    const existingNames = new Set(existingLabels.map((label) => label.name));
-    const updatedNames = new Set(updatedLabels.map((label) => label.name));
-
-    const addedLabels = updatedLabels.filter((label) => !existingNames.has(label.name));
-    const deletedLabels = existingLabels.filter((label) => !updatedNames.has(label.name));
-
-    const labelChanges = {
-      added: addedLabels,
-      deleted: deletedLabels,
-    };
-
-    return labelChanges;
-  }
-
   const MemoisedContent = React.useCallback(
     () => (
       <EditNoteContent existingNote={labels[transaction.txid][0]?.name || ''} noteRef={noteRef} />
@@ -259,7 +245,6 @@ function TransactionDetails({ route }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
           subTitleColor={`${colorMode}.secondaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           close={close}
           title={common.addNote}
           subTitle={transactions.updateLabelSubTitle}

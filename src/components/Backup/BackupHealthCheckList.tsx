@@ -103,7 +103,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
 
   return (
     <Box>
-      <Box height={hp(520)}>
+      <Box height={'77%'}>
         <FlatList
           data={history}
           contentContainerStyle={{ flexGrow: 1 }}
@@ -177,12 +177,11 @@ function BackupHealthCheckList({ isUaiFlow }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonText={BackupWallet.home}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonCallback={() => {
           navigtaion.navigate('Home');
         }}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => <Content />}
         closeOnOverlayClick={true}
       />

@@ -22,6 +22,7 @@ import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppSelector } from 'src/store/hooks';
 import idx from 'idx';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function IKSAddEmailPhone({ route }) {
   const [email, setEmail] = useState('');
@@ -126,6 +127,12 @@ function IKSAddEmailPhone({ route }) {
               setEmail(text.trim());
               emailStatusFail && setEmailStatusFail(false);
             }}
+            _input={
+              colorMode === 'dark' && {
+                selectionColor: Colors.SecondaryWhite,
+                cursorColor: Colors.SecondaryWhite,
+              }
+            }
           />
           {emailStatusFail && (
             <Text style={[styles.errorStyle, { color: `${colorMode}.errorRed` }]}>

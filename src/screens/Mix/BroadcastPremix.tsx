@@ -256,7 +256,7 @@ export default function BroadcastPremix({ route, navigation }) {
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
         learnMore
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setWhirlpoolSwiperModal(true));
         }}
@@ -327,7 +327,7 @@ export default function BroadcastPremix({ route, navigation }) {
                 </Text>
               </Box>
             </Box>
-            <Box style={styles.textArea} testID='Premixes_container'>
+            <Box style={styles.textArea} testID="Premixes_container">
               <Text color="#017963" style={styles.textWidth}>
                 No. of Premixes
               </Text>

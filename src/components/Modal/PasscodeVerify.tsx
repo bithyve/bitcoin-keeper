@@ -146,7 +146,6 @@ function PasscodeVerifyModal({
           passCode={passcode}
           passcodeFlag={loginError}
           backgroundColor={colorMode === 'light'}
-          textColor
         />
         {loginError && (
           <Text color={`${colorMode}.indicator`} style={styles.errorText}>

@@ -101,7 +101,6 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
           passCode={passcode}
           passcodeFlag={loginError}
           backgroundColor={colorMode === 'light'}
-          textColor
         />
         {loginError && (
           <Text

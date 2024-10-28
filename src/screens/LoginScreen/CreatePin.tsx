@@ -171,11 +171,7 @@ export default function CreatePin(props) {
   };
 
   return (
-    <Box
-      testID="main"
-      style={styles.container}
-      backgroundColor={`${colorMode}.primaryGreenBackground`}
-    >
+    <Box testID="main" style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -240,8 +236,8 @@ export default function CreatePin(props) {
               }}
               primaryText={common.create}
               primaryDisable={isDisabled}
-              primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
-              primaryTextColor={`${colorMode}.modalWhiteButtonText`}
+              primaryBackgroundColor={`${colorMode}.buttonText`}
+              primaryTextColor={`${colorMode}.pantoneGreen`}
               fullWidth
             />
           </Box>

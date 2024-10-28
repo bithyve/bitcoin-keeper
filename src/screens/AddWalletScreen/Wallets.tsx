@@ -1,4 +1,4 @@
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import React, { useState } from 'react';
 import OptionCard from 'src/components/OptionCard';
 import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
@@ -19,6 +19,7 @@ enum SingleKeyOptions {
 }
 function Wallets({ navigation }) {
   const { wallets } = useWallets({ getAll: true });
+  const { colorMode } = useColorMode();
 
   const [singleKeyOptions, setSingleKeyOptions] = useState(false);
   const [selectedSingleKeyOption, setselectedSingleKeyOption] = useState(
@@ -84,7 +85,7 @@ function Wallets({ navigation }) {
               onCardSelect={() => {
                 setselectedSingleKeyOption(option.name);
               }}
-              colorMode="light"
+              colorMode={colorMode}
             />
           ))}
       </View>

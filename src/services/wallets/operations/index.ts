@@ -27,6 +27,7 @@ import {
   OutputUTXOs,
   SerializedPSBTEnvelop,
   SigningPayload,
+  SyncedWallet,
   Transaction,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
@@ -273,8 +274,9 @@ export default class WalletOperations {
     wallets: (Wallet | Vault)[],
     network: bitcoinJS.networks.Network
   ): Promise<{
-    synchedWallets: (Wallet | Vault)[];
+    synchedWallets: SyncedWallet[];
   }> => {
+    const synchedWallets = [];
     for (const wallet of wallets) {
       const addresses = [];
 
@@ -382,6 +384,23 @@ export default class WalletOperations {
         }
       }
 
+      const newUTXOs = [];
+
+      for (const utxo of [...confirmedUTXOs, ...unconfirmedUTXOs]) {
+        const existsInConfirmed = wallet.specs.confirmedUTXOs.some(
+          (confirmedUTXO) => confirmedUTXO.txId === utxo.txId && confirmedUTXO.vout === utxo.vout
+        );
+
+        const existsInUnconfirmed = wallet.specs.unconfirmedUTXOs.some(
+          (unconfirmedUTXO) =>
+            unconfirmedUTXO.txId === utxo.txId && unconfirmedUTXO.vout === utxo.vout
+        );
+
+        if (!existsInConfirmed && !existsInUnconfirmed) {
+          newUTXOs.push(utxo);
+        }
+      }
+
       // sync & populate transactionsInfo
       const {
         transactions,
@@ -411,10 +430,14 @@ export default class WalletOperations {
       wallet.specs.transactions = transactions;
       wallet.specs.hasNewUpdates = hasNewUpdates;
       wallet.specs.lastSynched = Date.now();
+      synchedWallets.push({
+        synchedWallet: wallet,
+        newUTXOs,
+      });
     }
 
     return {
-      synchedWallets: wallets,
+      synchedWallets,
     };
   };
 

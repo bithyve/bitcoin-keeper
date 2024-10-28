@@ -7,10 +7,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import KeeperHeader from 'src/components/KeeperHeader';
-import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import AddIcon from 'src/assets/images/add.svg';
-import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import ConnectIcon from 'src/assets/images/connectNode.svg';
 import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
 import DeleteIcon from 'src/assets/images/deleteNode.svg';
@@ -27,6 +24,7 @@ import AddNode from './AddNodeModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
+import Buttons from 'src/components/Buttons';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -280,16 +278,8 @@ function NodeSettings() {
           />
         </Box>
       )}
-      <TouchableOpacity testID="btn_addNode" onPress={onAdd}>
-        <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
-          {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
-          <Text style={[styles.addNewNodeText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>
-            {settings.addNewNode}
-          </Text>
-        </Box>
-      </TouchableOpacity>
-      <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
-        <Note title={common.note} subtitle={settings.nodeSettingsNote} subtitleColor="GreyText" />
+      <Box>
+        <Buttons primaryCallback={onAdd} primaryText={`+ ${settings.addNewNode}`} fullWidth />
       </Box>
       <KeeperModal
         justifyContent="center"
@@ -301,9 +291,8 @@ function NodeSettings() {
         buttonBackground={`${colorMode}.gradientStart`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonText=""
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
@@ -321,8 +310,7 @@ function NodeSettings() {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
-        DarkCloseIcon={colorMode === 'dark'}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={async () => {
           setElectrumDisconnectWarningVisible(false);
           if (nodeToDisconnect) {
@@ -369,13 +357,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1.12,
     paddingBottom: 5,
   },
-  note: {
-    position: 'absolute',
-    bottom: hp(25),
-    marginLeft: 22.3,
-    width: '100%',
-    paddingTop: hp(5),
-  },
   splitter: {
     marginTop: 35,
     marginBottom: 25,
@@ -391,7 +372,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     flexDirection: 'row',
     width: '100%',
-    height: windowHeight > 800 ? '65%' : '56%',
+    flex: 1,
   },
   nodeListTitle: {
     fontSize: 14,
@@ -461,21 +442,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  addNewNode: {
-    height: 60,
-    borderRadius: 10,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  addNewNodeText: {
-    fontSize: 15,
-    fontWeight: '400',
-    letterSpacing: 0.6,
-  },
-  portContainer: {
-    // marginLeft: wp(-5),
   },
 });
 

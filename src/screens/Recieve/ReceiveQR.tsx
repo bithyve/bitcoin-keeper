@@ -32,7 +32,7 @@ function ReceiveQR({ qrValue, qrSize }: Props) {
 
 const styles = StyleSheet.create({
   qrWrapper: {
-    marginTop: hp(20),
+    marginTop: hp(10),
     alignItems: 'center',
     alignSelf: 'center',
   },

@@ -1,5 +1,5 @@
-import { Platform, Share, StyleSheet, TextInput } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Platform, StyleSheet } from 'react-native';
+import { Box, Input, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -330,7 +330,8 @@ function SetupTapsigner({ route }) {
       >
         <ScrollView>
           <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
-            <TextInput
+            <Input
+              borderWidth={0}
               value={cvc}
               onChangeText={setCvc}
               secureTextEntry

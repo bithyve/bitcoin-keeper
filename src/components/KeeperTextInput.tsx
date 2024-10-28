@@ -56,6 +56,12 @@ function KeeperTextInput({
           ) : null
         }
         backgroundColor={`${colorMode}.ChampagneBliss`}
+        _input={
+          colorMode === 'dark' && {
+            selectionColor: Colors.SecondaryWhite,
+            cursorColor: Colors.SecondaryWhite,
+          }
+        }
         {...props}
       />
     </Box>

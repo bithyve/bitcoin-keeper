@@ -99,7 +99,12 @@ function WalletSettings({ route }) {
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
+                <Text
+                  numberOfLines={1}
+                  style={styles.btnText}
+                  color={`${colorMode}.buttonText`}
+                  bold
+                >
                   {common.MoveFunds}
                 </Text>
               </Box>
@@ -160,7 +165,6 @@ function WalletSettings({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         showCurrencyTypeSwitch={true}
         Content={() => (
@@ -189,7 +193,6 @@ function WalletSettings({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics
@@ -241,7 +244,6 @@ function WalletSettings({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <ShowXPub
             data={wallet?.specs?.xpub}

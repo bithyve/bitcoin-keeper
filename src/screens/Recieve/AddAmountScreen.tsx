@@ -12,6 +12,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function AddAmountScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -44,6 +45,12 @@ function AddAmountScreen({ route }: { route }) {
               value={amount}
               onChangeText={(value) => setAmount(value)}
               onFocus={() => Keyboard.dismiss()}
+              _input={
+                colorMode === 'dark' && {
+                  selectionColor: Colors.SecondaryWhite,
+                  cursorColor: Colors.SecondaryWhite,
+                }
+              }
             />
           </View>
 

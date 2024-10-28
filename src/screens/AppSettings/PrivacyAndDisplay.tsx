@@ -136,7 +136,6 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
           passCode={passcode}
           passcodeFlag={passcodeFlag}
           borderColor="transparent"
-          textColor={true}
         />
       </Box>
       {passcode.length === 4 && (
@@ -148,7 +147,6 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
               passCode={confirmPasscode}
               passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
               borderColor="transparent"
-              textColor={true}
             />
             <Box mb={5}>
               {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
@@ -365,7 +363,7 @@ function PrivacyAndDisplay({ route }) {
                   <TouchableOpacity onPress={requestPermission}>
                     <Box
                       style={styles.settingsCTA}
-                      backgroundColor={`${colorMode}.learnMoreBorder`}
+                      backgroundColor={`${colorMode}.coffeeBackground`}
                     >
                       <Text style={styles.settingsCTAText} bold color={`${colorMode}.whiteText`}>
                         Enable {sensorType}
@@ -414,7 +412,6 @@ function PrivacyAndDisplay({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             primaryText="Confirm"
@@ -448,7 +445,6 @@ function PrivacyAndDisplay({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <Box style={styles.PasscodeHCModal}>
             <PasscodeLockIllustration width={wp(160)} height={hp(125)} />

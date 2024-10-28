@@ -155,6 +155,12 @@ function AddDetailsFinalScreen({ route }) {
                 autoCorrect={false}
                 maxLength={20}
                 editable={false}
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
               />
             </Box>
             <TouchableOpacity onPress={onDropDownClick}>

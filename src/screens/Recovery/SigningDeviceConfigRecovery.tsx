@@ -166,7 +166,6 @@ function SigningDeviceConfigRecovery({ navigation }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           buttonCallback={() => {
             navigation.dispatch(
               CommonActions.navigate({
@@ -186,7 +185,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
           subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
           subTitleColor={`${colorMode}.secondaryText`}
           buttonText="Continue"
-          buttonTextColor={`${colorMode}.white`}
+          buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={() => {
             navigation.dispatch(
               CommonActions.navigate({

@@ -40,16 +40,25 @@ const LearnMoreButton = ({
   onPress,
   learnBackgroundColor,
   learnTextColor,
+  colorMode,
   common,
   styles,
 }: any) => (
   <TouchableOpacity onPress={onPress} testID="btn_learnMore">
     <Box
-      borderColor={learnTextColor === 'light.white' ? 'light.white' : 'light.learnMoreBorder'}
-      backgroundColor={learnBackgroundColor}
+      borderColor={
+        learnTextColor === 'light.white' || learnTextColor === 'light.buttonText'
+          ? 'light.white'
+          : `${colorMode}.learnMoreBorder`
+      }
+      backgroundColor={
+        learnBackgroundColor == 'BrownNeedHelp'
+          ? `${colorMode}.BrownNeedHelp`
+          : learnBackgroundColor
+      }
       style={styles.learnMoreContainer}
     >
-      <Text color={learnTextColor} style={styles.learnMoreText}>
+      <Text color={learnTextColor || `${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
         {common.learnMore}
       </Text>
     </Box>
@@ -105,8 +114,8 @@ const KeeperHeader = ({
   enableBack = true,
   learnMore = false,
   learnMorePressed = () => {},
-  learnBackgroundColor = 'light.BrownNeedHelp',
-  learnTextColor = 'light.learnMoreBorder',
+  learnBackgroundColor = 'BrownNeedHelp',
+  learnTextColor,
   rightComponent = null,
   availableBalance = null,
   contrastScreen = false,
@@ -171,6 +180,7 @@ const KeeperHeader = ({
               learnTextColor={learnTextColor}
               common={common}
               styles={styles}
+              colorMode={colorMode}
             />
           )}
         </Box>
