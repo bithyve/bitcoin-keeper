@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
@@ -45,11 +44,13 @@ function CanaryWallets({ navigation }) {
             icon={<Chip />}
           />
         </Box>
-        <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+        <Box style={styles.leftTextStyle}>
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             {`${common.note}:`}
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.canaryWalletDescp3}</Text>
+          <Text color={`${colorMode}.modalGreenContent`}>
+            {inheritancePlanning.canaryWalletDescp3}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>
@@ -61,7 +62,6 @@ const styles = StyleSheet.create({
     gap: 25,
     marginTop: 20,
   },
-
   walletType: {
     justifyContent: 'space-between',
     gap: 10,
@@ -84,7 +84,6 @@ const styles = StyleSheet.create({
   leftTextStyle: {
     textAlign: 'left',
     marginTop: hp(40),
-    color: Colors.white,
   },
 });
 
