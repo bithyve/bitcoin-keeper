@@ -1,8 +1,7 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
@@ -17,36 +16,29 @@ function PersonalCloudBackup({}) {
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
   const navigation = useNavigation();
-  const cloudName = useMemo(() => {
-    return Platform.select({ android: 'Google Drive', ios: 'iCloud' });
-  }, []);
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView>
-        <Text style={styles.heading}>{inheritancePlanning.personalCloudTitle}</Text>
-        <Text style={styles.description}>
-          {`${inheritancePlanning.personalCloudDescpMain} ${cloudName}`}
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.personalCloudTitle}
         </Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.personalCloudParagph1}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.personalCloudParagph2}</Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.personalCloudParagph1}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.personalCloudParagph2}
+        </Text>
         <Box style={styles.circleStyle}>
           <PersonalCloudBackupIcon />
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton
-            description="Ensure only you have access"
+            description={inheritancePlanning.manageCloudBackupSubTitle}
             callback={() => navigation.navigate('AppSettings')}
-            name="Manage Cloud Backup"
+            name={inheritancePlanning.manageCloudBackupTitle}
             icon={<Cloud />}
           />
-        </Box>
-
-        <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.buttonText`}>
-            Note:
-          </Text>
-          <Text color={`${colorMode}.buttonText`}>{inheritancePlanning.personalCloudNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>
@@ -65,23 +57,12 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 18,
     fontWeight: '500',
-    color: Colors.white,
-  },
-  description: {
-    fontSize: 14,
-    color: Colors.white,
   },
   commonTextStyle: {
     marginTop: hp(40),
-    color: Colors.white,
   },
   addContainer: {
     marginTop: hp(40),
-  },
-  leftTextStyle: {
-    textAlign: 'left',
-    marginTop: hp(40),
-    color: Colors.white,
   },
   circleStyle: {
     alignItems: 'center',
