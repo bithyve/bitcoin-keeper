@@ -400,11 +400,11 @@ const styles = StyleSheet.create({
   },
   nodeList: {
     width: '100%',
-    marginBottom: 4,
     borderRadius: 7,
     paddingHorizontal: wp(14),
     paddingTop: hp(20),
     paddingBottom: hp(18),
+    marginBottom: hp(10),
   },
   nodeButtons: {
     flexDirection: 'row',
