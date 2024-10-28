@@ -31,9 +31,9 @@ function LabelItem({
     const labelHash = sha256(label).toString('hex');
     const num = parseInt(labelHash.slice(0, 8), 16);
     // Update when adding more label colors
-    const labelColorsCount = 3;
+    const labelColorsCount = 10;
     const colorIndex = (num % labelColorsCount) + 1;
-    return `${colorMode}.labelColor${colorIndex}`;
+    return `${colorMode}.tagColor${colorIndex}`;
   }
 
   useEffect(() => {
