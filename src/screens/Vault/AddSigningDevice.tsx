@@ -62,8 +62,7 @@ import HWError from 'src/hardware/HWErrorState';
 import KeyAddedModal from 'src/components/KeyAddedModal';
 import AddKeyButton from '../SigningDevices/components/AddKeyButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width } = Dimensions.get('screen');
+import NoKeysIllustration from '../SigningDevices/components/NoKeysIllustration';
 
 const onSignerSelect = (
   selected,
@@ -622,12 +621,18 @@ function Signers({
                     {renderSigners()}
                     {renderAssistedKeysShell()}
                   </>
-                ) : (
+                ) : signers.filter(
+                    (signer) => signer.type === SignerType.KEEPER && !signer.archived
+                  ).length ? (
                   <>{renderCollaborativeSigners()}</>
+                ) : (
+                  <NoKeysIllustration />
                 )}
               </Box>
             </Box>
-          ) : null}
+          ) : (
+            <NoKeysIllustration />
+          )}
           <HardwareModalMap
             visible={visible}
             close={close}
