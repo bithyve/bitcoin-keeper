@@ -62,7 +62,7 @@ function TorModalMap({ visible, close }) {
         subTitle="There was an error when connecting via Tor. You could continue without connecting to Tor or try after sometime."
         subTitleColor={`${colorMode}.secondaryText`}
         buttonText="Close"
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           close();
         }}

@@ -64,19 +64,20 @@ export function* bulkUpdateLabelsWorker({
     };
     UTXO?: UTXO;
     txId?: string;
+    address?: string;
     wallet: Wallet;
   };
 }) {
   try {
     yield put(setSyncingUTXOs(true));
-    const { labelChanges, wallet, UTXO, txId } = payload;
+    const { labelChanges, wallet, UTXO, txId, address } = payload;
     const origin = genrateOutputDescriptors(wallet, false);
     let addedTags: BIP329Label[] = [];
     let deletedTagIds: string[] = [];
-    const idSuffix = txId || `${UTXO.txId}:${UTXO.vout}`;
+    const idSuffix = txId || address || `${UTXO.txId}:${UTXO.vout}`;
     if (labelChanges.added) {
-      const ref = txId || `${UTXO.txId}:${UTXO.vout}`;
-      const type = txId ? LabelRefType.TXN : LabelRefType.OUTPUT;
+      const ref = txId || address || `${UTXO.txId}:${UTXO.vout}`;
+      const type = txId ? LabelRefType.TXN : address ? LabelRefType.ADDR : LabelRefType.OUTPUT;
       addedTags = labelChanges.added.map((label) => ({
         id: `${idSuffix}${label.name}`,
         ref,

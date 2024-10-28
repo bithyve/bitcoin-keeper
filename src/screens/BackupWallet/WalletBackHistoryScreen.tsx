@@ -20,15 +20,17 @@ function WalletBackHistoryScreen({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title={seed.backupPhrase}
-        //-----TODO LEARN MORE------
-        // learnMore
-        // learnTextColor={`${colorMode}.white`}
-        // learnMorePressed={() => {
-        //   setIsLearnMore(true);
-        // }}
-      />
+      <Box mb={4}>
+        <KeeperHeader
+          title={seed.backupPhrase}
+          //-----TODO LEARN MORE------
+          // learnMore
+          // learnTextColor={`${colorMode}.buttonText`}
+          // learnMorePressed={() => {
+          //   setIsLearnMore(true);
+          // }}
+        />
+      </Box>
       <Box mx={2}>
         <BackupHealthCheckList isUaiFlow={isUaiFlow} />
       </Box>

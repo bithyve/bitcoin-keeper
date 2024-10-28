@@ -26,6 +26,7 @@ import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 let decoder = new URRegistryDecoder();
 
@@ -151,7 +152,7 @@ function ScanQR() {
             learnMorePressed={() => {
               setVisibleModal(true);
             }}
-            learnTextColor={`${colorMode}.white`}
+            learnTextColor={`${colorMode}.buttonText`}
           />
           <ScrollView
             automaticallyAdjustKeyboardInsets={true}
@@ -212,6 +213,12 @@ function ScanQR() {
                         onBarCodeRead({ data: inputText }, true);
                       }
                     }}
+                    _input={
+                      colorMode === 'dark' && {
+                        selectionColor: Colors.SecondaryWhite,
+                        cursorColor: Colors.SecondaryWhite,
+                      }
+                    }
                   />
                 </Box>
               </Box>

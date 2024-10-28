@@ -179,9 +179,9 @@ function ManageSigners({ route }: ScreenProps) {
           mediumTitle
           learnMore
           learnMorePressed={() => setShowLearnMoreModal(true)}
-          learnTextColor={`${colorMode}.white`}
-          titleColor={`${colorMode}.seashellWhite`}
-          subTitleColor={`${colorMode}.seashellWhite`}
+          learnTextColor={`${colorMode}.buttonText`}
+          titleColor={`${colorMode}.seashellWhiteText`}
+          subTitleColor={`${colorMode}.seashellWhiteText`}
           rightComponent={
             <TouchableOpacity onPress={navigateToSettings} testID="btn_manage_singner_setting">
               <SettingIcon />
@@ -189,7 +189,7 @@ function ManageSigners({ route }: ScreenProps) {
           }
           icon={
             <CircleIconWrapper
-              backgroundColor={`${colorMode}.seashellWhite`}
+              backgroundColor={`${colorMode}.seashellWhiteText`}
               icon={<SignerIcon />}
             />
           }
@@ -211,13 +211,12 @@ function ManageSigners({ route }: ScreenProps) {
       <KeeperModal
         title={signerTranslation.keyReceived}
         subTitle={signerTranslation.keyReceiveMessage}
-        DarkCloseIcon={colorMode === 'dark'}
         close={() => setTimerModal(false)}
         visible={timerModal}
         textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.modalGreenButton`}
         secButtonTextColor={`${colorMode}.modalGreenButton`}
         buttonText={signerTranslation.addKey}
@@ -239,13 +238,12 @@ function ManageSigners({ route }: ScreenProps) {
       <KeeperModal
         title={signerTranslation.keyExpired}
         subTitle={signerTranslation.keyExpireMessage}
-        DarkCloseIcon={colorMode === 'dark'}
         close={() => setTimerExpiredModal(false)}
         visible={timerExpiredModal}
         textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         Content={() => (
           <Box>
             <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
@@ -366,10 +364,9 @@ function SignersList({
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, false)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
+          icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}
-          isFullText
           colorVarient="green"
           colorMode={colorMode}
         />
@@ -414,11 +411,10 @@ function SignersList({
                     : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
                 description={getSignerDescription(signer)}
-                icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+                icon={SDIcons(signer.type, true).Icon}
                 image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}
-                isFullText
                 colorVarient="green"
                 colorMode={colorMode}
               />

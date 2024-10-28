@@ -137,7 +137,7 @@ const SelectWalletModal = ({
           getWalletIcon={getWalletIcon}
         />
       )}
-      buttonTextColor={`${colorMode}.white`}
+      buttonTextColor={`${colorMode}.buttonText`}
       buttonBackground={`${colorMode}.pantoneGreen`}
       showCloseIcon={false}
     />

@@ -129,7 +129,7 @@ function ImportWalletScreen() {
           subtitle={importWallet.usingExternalHardware}
           learnMore
           learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setIntroModal(true)}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>

@@ -136,13 +136,13 @@ function ChoosePlanCarouselItem({
           <Text
             fontSize={15}
             bold={true}
-            color={isSelected ? `${colorMode}.white` : `${colorMode}.choosePlanInactiveText`}
+            color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.choosePlanInactiveText`}
           >
             {item.name}
           </Text>
           <Text
             fontSize={15}
-            color={isSelected ? `${colorMode}.white` : `${colorMode}.choosePlanInactiveText`}
+            color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.choosePlanInactiveText`}
             mb={1.5}
           >
             {`(${item.subTitle})`}
@@ -150,7 +150,7 @@ function ChoosePlanCarouselItem({
           <Text
             fontSize={14}
             lineHeight={20}
-            color={isSelected ? `${colorMode}.white` : `${colorMode}.pantoneGreen`}
+            color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.greenWhiteText`}
           >
             {getAmt +
               (item.productType !== 'free' && item.isActive

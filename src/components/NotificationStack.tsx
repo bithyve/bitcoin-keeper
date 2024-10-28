@@ -523,7 +523,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         buttonCallback={uaiConfig?.modalDetails?.btnConfig.primary.cta}
         secondaryButtonText={uaiConfig?.modalDetails?.btnConfig.secondary.text}
         secondaryCallback={uaiConfig?.modalDetails?.btnConfig.secondary.cta}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         showCloseIcon={false}
         Content={() => <Instruction text={uaiConfig?.modalDetails?.body} />}
       />
@@ -559,7 +559,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={'Done'}
         buttonCallback={() => {
           setInsightModal(false);

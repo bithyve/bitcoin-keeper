@@ -1,6 +1,15 @@
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, Input, InputGroup, Pressable, Stack, Icon, StatusBar, useColorMode } from 'native-base';
+import {
+  Box,
+  Input,
+  InputGroup,
+  Pressable,
+  Stack,
+  Icon,
+  StatusBar,
+  useColorMode,
+} from 'native-base';
 import BackIcon from 'src/assets/images/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import React from 'react';
@@ -13,6 +22,7 @@ import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import IconDoller from 'src/assets/images/icon_dollar.svg';
 import WalletIcon from 'src/assets/images/icon_wallet.svg';
 import CustomButton from 'src/components/CustomButton/CustomButton';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const onPressNumber = () => {
   console.log('Number pressed');
@@ -65,6 +75,12 @@ function SendToWallet({ navigation }) {
             placeholderTextColor={`${colorMode}.greenText`}
             size="xl"
             width="100%"
+            _input={
+              colorMode === 'dark' && {
+                selectionColor: Colors.SecondaryWhite,
+                cursorColor: Colors.SecondaryWhite,
+              }
+            }
           />
         </InputGroup>
         <Input placeholder="Add Note" placeholderTextColor={`${colorMode}.greenText`} size="xl" />

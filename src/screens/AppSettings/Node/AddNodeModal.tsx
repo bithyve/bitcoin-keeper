@@ -7,6 +7,7 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import Buttons from 'src/components/Buttons';
 import Switch from 'src/components/Switch/Switch';
 import Text from 'src/components/KeeperText';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) => void) {
   const { colorMode } = useColorMode();
@@ -74,6 +75,12 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
                 setIsHostValid(!(text === null || text.length === 0));
                 setHost(text);
               }}
+              _input={
+                colorMode === 'dark' && {
+                  selectionColor: Colors.SecondaryWhite,
+                  cursorColor: Colors.SecondaryWhite,
+                }
+              }
             />
           </Box>
           <Box style={styles.spacer} />
@@ -99,6 +106,12 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
                 setIsPortValid(!(text === null || text.length === 0));
                 setPort(text);
               }}
+              _input={
+                colorMode === 'dark' && {
+                  selectionColor: Colors.SecondaryWhite,
+                  cursorColor: Colors.SecondaryWhite,
+                }
+              }
             />
           </Box>
         </Box>

@@ -210,7 +210,7 @@ export default function WhirlpoolConfiguration({ route }) {
           title="Configure Whirlpool"
           subtitle="Prepare to start a mix"
           learnMore
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setScodeModalVisible(true)}
         />
         <ScrollView style={styles.scrollViewWrapper} keyboardShouldPersistTaps="always">
@@ -296,7 +296,6 @@ export default function WhirlpoolConfiguration({ route }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           buttonCallback={closeFeeSelectionModal}
           closeOnOverlayClick={false}
           Content={() => feesContent(fees, onFeeSelectionCallback)}

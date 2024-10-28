@@ -398,7 +398,7 @@ function SigningDeviceDetails({ route }) {
         <KeeperHeader
           learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
           learnMorePressed={() => setDetailModal(true)}
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           title={signerTranslations.keyDetails}
           subtitle={
             !signer.isBIP85
@@ -509,7 +509,7 @@ function SigningDeviceDetails({ route }) {
         subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
         buttonText="Confirm Access"
         secondaryButtonText="Confirm Later"
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           dispatch(
             healthCheckStatusUpdate([
@@ -578,7 +578,7 @@ function SigningDeviceDetails({ route }) {
         }}
         secondaryButtonText={common.back}
         secondaryCallback={() => setShowMobileKeyModal(false)}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={MobileKeyModalContent}
       />

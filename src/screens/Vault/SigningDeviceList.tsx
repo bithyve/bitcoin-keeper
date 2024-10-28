@@ -106,10 +106,10 @@ function SigningDeviceList() {
     SignerType.SEEDSIGNER,
     SignerType.SPECTER,
     SignerType.BITBOX02,
+    SignerType.KEYSTONE,
     SignerType.KEEPER,
     SignerType.MY_KEEPER,
     SignerType.SEED_WORDS,
-    SignerType.KEYSTONE,
     // SignerType.MOBILE_KEY,
     SignerType.OTHER_SD,
     SignerType.POLICY_SERVER,
@@ -210,7 +210,7 @@ function SigningDeviceList() {
         subtitle={vault.SelectSignerSubtitle}
         learnMore
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}

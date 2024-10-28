@@ -234,7 +234,6 @@ function ChangeLanguage() {
           }}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           showCloseIcon={false}
           buttonText={null}
           buttonCallback={() => {}}
@@ -265,7 +264,6 @@ function ChangeLanguage() {
           }}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           showCloseIcon={false}
           buttonText={null}
           buttonCallback={() => {}}
