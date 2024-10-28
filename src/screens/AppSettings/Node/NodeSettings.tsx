@@ -28,6 +28,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import Buttons from 'src/components/Buttons';
+import EmptyListIllustration from 'src/components/EmptyListIllustration';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -296,7 +297,9 @@ function NodeSettings() {
             }}
           />
         ) : (
-          <Box flex={1}></Box>
+          <Box flex={1}>
+            <EmptyListIllustration listType="nodes" />
+          </Box>
         )}
       </Box>
       <Box>

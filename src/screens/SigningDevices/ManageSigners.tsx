@@ -48,7 +48,7 @@ import Relay from 'src/services/backend/Relay';
 import { notificationType } from 'src/models/enums/Notifications';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import AddKeyButton from './components/AddKeyButton';
-import NoKeysIllustration from './components/NoKeysIllustration';
+import EmptyListIllustration from '../../components/EmptyListIllustration';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -427,7 +427,9 @@ function SignersList({
             );
           })}
           {isNonVaultManageSignerFlow && renderAssistedKeysShell()}
-          {isNonVaultManageSignerFlow && list.length == 0 && shellAssistedKeys.length == 0 && <NoKeysIllustration />}
+          {isNonVaultManageSignerFlow && list.length == 0 && shellAssistedKeys.length == 0 && (
+            <EmptyListIllustration listType="keys" />
+          )}
         </Box>
       </ScrollView>
     </SafeAreaView>

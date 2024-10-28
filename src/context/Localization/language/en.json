@@ -931,7 +931,9 @@
     "passcodeHCModalTitle": "Recovery Key Health Check During Passcode Reset",
     "passcodeHCModalSubTitle": "We request you to enter a few seed words during passcode reset to verify your identity and ownership of the wallet.",
     "passcodeHCModalDesc": "This ensures that even if a passcode is forgotten, access to the wallet remains secure by confirming the Recovery Key, a critical piece of information that only the legitimate wallet owner should have.",
-    "torDescription": "This will redirect you to the Orbot app and you can configure the connection from there."
+    "torDescription": "This will redirect you to the Orbot app and you can configure the connection from there.",
+    "NoServerAdded": "No Servers Added Yet",
+    "NoServerAddedSubtitle": "Looks like you haven't added any servers yet. Add and connect to a server to use the app. Without a server the app works in Offline Mode."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
