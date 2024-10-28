@@ -129,6 +129,8 @@
     "goToBackup": "Go to Backup",
     "Receipt": "Receipt",
     "Later": "Later",
+    "importing": "Importing",
+    "verify": "Verify",
     "noElectrumServerTitle": "No Electrum Server Connected",
     "noElectrumServerText": "You are not connected to any Electrum Server. Fetching your balances, receiving incoming transactions, and sending new transactions may not work. You can select a server to use in the Node Settings.",
     "electrumServerConnectionFailedTitle": "Server Connection Failed",
@@ -505,7 +507,7 @@
     "sendingFromUtxo": "Sending from selected UTXOs of",
     "AvailableToSpend": "Available to spend",
     "advanced": "Advanced",
-    "chooseFromTemplate": "Choose from a template",
+    "addWalletHeaderSubtitle": "Create/import wallets for specific requirements",
     "watchOnly": "Watch only",
     "watchOnlyDesc": "You can keep an eye on an external wallet using this option.Note that you would be able to see various transactions and wallet balance but not send/receive sats.",
     "walletConfigurationFile": "Wallet Configuration file",
@@ -570,7 +572,14 @@
     "LabelsSavedSuccessfully": "Labels saved successfully",
     "UTXODetails": "UTXO Details",
     "UTXODetailsSubtitle": "See your UTXO details and manage its labels",
-    "UTXOValue": "UTXO Value"
+    "UTXOValue": "UTXO Value",
+    "walletSetupModalTitle": "About Wallet Setup",
+    "addWalletOption1Title": "Single or Multi-Key Wallets",
+    "addWalletOption1Description": "Create a wallet that suits your needs. Opt for a Single-Key Wallet for simplicity, or choose advanced setups like 2-of-3 Vaults for occasional use or 3-of-5 Vaults for secure, cold storage.",
+    "addWalletOption2Title": "Importing Wallets",
+    "addWalletOption2Description": "Easily recover or recreate existing wallets from backups, configuration files, and xPubs (watch-only).",
+    "addWalletOption3Title": "Advanced Customization",
+    "addWalletOption3Description": "Explore advanced options to build custom multi-sig wallets or import vaults from a signer. Coming soon: features like Time Lock and Degrading Multisig for added control over your wallet security and spending conditions."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -757,6 +766,12 @@
     "maxAllowedAmt": "Max allowed amount",
     "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the signer will not sign it. You will have to use other devices for it"
   },
+  "externalKey": {
+    "modalInstruction1": "Choose a Key from another Keeper app",
+    "modalInstruction2": "To import an external key here, go to the Settings of the key in the other Keeper app, click on Key Details, and scan the QR code presented there.",
+    "setupCanaryTitle": "Setting up for Canary",
+    "modalSubtitle": "Keep the other Keeper App ready"
+  },
   "settings": {
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",
@@ -921,11 +936,11 @@
   "onboarding": {
     "Comprehensive": "Comprehensive",
     "security": "security",
-    "slide01Title": "for\n your bitcoin",
+    "slide01Title": "for\n your Bitcoin",
     "privacy": "privacy",
-    "slide01Paragraph": "Create single or multi-key wallets using popular signing devices. Perform air-gapped signing. Do regular health checks for keys.",
-    "slide02Title": "Security should not\ncome at the cost of",
-    "slide02Paragraph": "No account creation needed. Run your own node. Connect via Tor. Manage UTXOs.",
+    "slide01Paragraph": "Create single or multi-key wallets using popular signing devices. Perform air-gapped signing. Conduct regular health checks for keys.",
+    "slide02Title": "Security should not come at the\ncost of",
+    "slide02Paragraph": "No account creation needed. Use your own node. Connect via Tor. Manage UTXOs.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide04Title": "All that you will need for\nsecuring your bitcoin",
