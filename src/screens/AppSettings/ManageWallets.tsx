@@ -230,7 +230,12 @@ function ManageWallets() {
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
+                <Text
+                  numberOfLines={1}
+                  style={styles.btnText}
+                  color={`${colorMode}.buttonText`}
+                  bold
+                >
                   Move Funds
                 </Text>
               </Box>
@@ -290,7 +295,12 @@ function ManageWallets() {
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
+                <Text
+                  numberOfLines={1}
+                  style={styles.btnText}
+                  color={`${colorMode}.buttonText`}
+                  bold
+                >
                   Move Funds
                 </Text>
               </Box>
@@ -387,7 +397,7 @@ function ManageWallets() {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         Content={WalletBalanceAlertModalContent}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={true}
@@ -406,7 +416,7 @@ function ManageWallets() {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={DeleteVaultBalanceAlertModalContent}
         subTitleColor={`${colorMode}.secondaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={isWallet ? false : true}
         showCloseIcon={false}

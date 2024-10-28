@@ -68,7 +68,7 @@ const getObjectByIndex = (schema: RealmSchema, index: number = 0, all: boolean =
  */
 const getObjectById = (schema: RealmSchema, id: string) => {
   const objects = realm.get(schema);
-  return objects.filtered(`id == '${id}'`)[0];
+  return objects.filtered(`id == $0`, id)[0];
 };
 
 /**
@@ -78,7 +78,7 @@ const getObjectById = (schema: RealmSchema, id: string) => {
  */
 const getObjectByPrimaryId = (schema: RealmSchema, name: string, primaryId: string) => {
   const objects = realm.get(schema);
-  return objects.filtered(`${name} == '${primaryId}'`)[0];
+  return objects.filtered(`${name} == $0`, primaryId)[0];
 };
 
 /**
@@ -136,7 +136,7 @@ const updateObjectByPrimaryId = (
  */
 const getObjectByField = (schema: RealmSchema, value: string, fieldName: string) => {
   const objects = realm.get(schema);
-  return objects.filtered(`${fieldName} == '${value}'`);
+  return objects.filtered(`${fieldName} == $0`, value);
 };
 
 /**

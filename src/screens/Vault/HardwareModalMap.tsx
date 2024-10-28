@@ -2018,9 +2018,8 @@ function HardwareModalMap({
         title={title}
         subTitle={subTitle}
         buttonText={signerType === SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={buttonCallback}
-        DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}

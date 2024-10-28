@@ -35,7 +35,6 @@ function SignerSettings({ navigation, route }) {
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
-        DarkCloseIcon={colorMode === 'dark'}
         close={() => setConfirmPassVisible(false)}
         title={settings.EnterPasscodeTitle}
         subTitleWidth={wp(240)}

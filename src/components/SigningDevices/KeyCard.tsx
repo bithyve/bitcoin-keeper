@@ -33,7 +33,7 @@ function KeyCard({
               backgroundColor={Colors.pantoneGreen}
               icon={icon.element}
             />
-            <Text medium style={[styles.nameText, { color: `${colorMode}.primaryText` }]}>
+            <Text medium style={styles.nameText} color={`${colorMode}.primaryText`}>
               {name}
             </Text>
           </VStack>
@@ -44,15 +44,12 @@ function KeyCard({
 
         <VStack space={1}>
           {descriptionTitle && (
-            <Text
-              medium
-              style={[styles.descriptionTitleText, { color: `${colorMode}.secondaryText` }]}
-            >
+            <Text medium style={styles.descriptionTitleText} color={`${colorMode}.secondaryText`}>
               {descriptionTitle}
             </Text>
           )}
           {description && (
-            <Text style={[styles.descriptionText, { color: `${colorMode}.secondaryText` }]}>
+            <Text style={styles.descriptionText} color={`${colorMode}.secondaryText`}>
               {description}
             </Text>
           )}
@@ -99,6 +96,7 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 14,
     fontWeight: '500',
+    marginTop: hp(5),
   },
   iconContainer: {
     alignItems: 'flex-start',

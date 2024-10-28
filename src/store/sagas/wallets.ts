@@ -145,6 +145,8 @@ import {
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
+import { bulkUpdateLabelsWorker } from './utxos';
+import { SyncedWallet } from 'src/services/wallets/interfaces';
 
 export interface NewVaultDetails {
   name?: string;
@@ -1027,7 +1029,7 @@ function* syncWalletsWorker({
   const { wallets } = payload;
   const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
 
-  const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(
+  const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
     WalletOperations.syncWalletsViaElectrumClient,
     wallets,
     network
@@ -1056,18 +1058,49 @@ function* refreshWalletsWorker({
     }
 
     yield put(setSyncing({ wallets, isSyncing: true }));
-    const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(
-      syncWalletsWorker,
-      {
-        payload: {
-          wallets,
-          options,
-        },
-      }
-    );
+    const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(syncWalletsWorker, {
+      payload: {
+        wallets,
+        options,
+      },
+    });
 
-    for (const synchedWallet of synchedWallets) {
+    let labels: { ref: string; label: string; isSystem: boolean }[];
+
+    if (synchedWallets && synchedWallets.some((wallet) => wallet.newUTXOs.length > 0)) {
+      labels = yield call(dbManager.getCollection, RealmSchema.Tags);
+    }
+    for (const synchedWalletWithUTXOs of synchedWallets) {
+      const synchedWallet = synchedWalletWithUTXOs.synchedWallet;
       // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+
+      for (const utxo of synchedWalletWithUTXOs.newUTXOs) {
+        const labelChanges = {
+          added: [],
+          deleted: [],
+        };
+
+        if (Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
+          labelChanges.added.push({
+            name: 'Change',
+            isSystem: false,
+          });
+        }
+
+        const utxoLabels = labels ? labels.filter((label) => label.ref === utxo.address) : [];
+        if (utxoLabels.length > 0) {
+          labelChanges.added.push(
+            ...utxoLabels.map((label) => ({
+              name: label.label,
+              isSystem: label.isSystem,
+            }))
+          );
+        }
+
+        yield call(bulkUpdateLabelsWorker, {
+          payload: { labelChanges, UTXO: utxo, wallet: synchedWallet as any },
+        });
+      }
 
       if (synchedWallet.entityKind === EntityKind.VAULT) {
         yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
@@ -1368,7 +1401,6 @@ function* updateVaultDetailsWorker({ payload }) {
     // API-TODO: based on response call the DB
     vault.presentationData = presentationData;
 
-    console.log(vault.presentationData);
     const response = yield call(updateVaultImageWorker, {
       payload: { vault },
     });

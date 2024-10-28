@@ -176,7 +176,7 @@ function VaultConfigurationCreation() {
           title={importWallet.usingConfigFile}
           subtitle={importWallet.insertTextfromFile}
           learnMore
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setShowModal(true)}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -213,6 +213,12 @@ function VaultConfigurationCreation() {
                   textAlignVertical="top"
                   textAlign="left"
                   multiline
+                  _input={
+                    colorMode === 'dark' && {
+                      selectionColor: Colors.SecondaryWhite,
+                      cursorColor: Colors.SecondaryWhite,
+                    }
+                  }
                 />
               </Box>
               <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box>

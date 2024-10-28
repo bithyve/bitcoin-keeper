@@ -114,7 +114,7 @@ function SignerItem({
       key={signer.masterFingerprint}
       name={getSignerNameFromType(signer.type, signer.isMock, false)}
       description={getSignerDescription(signer)}
-      icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+      icon={SDIcons(signer.type).Icon}
       image={signer?.extraData?.thumbnailPath}
       isSelected={false}
       showSelection={false}
@@ -288,7 +288,7 @@ function SetupCollaborativeWallet() {
         subtitle={wallet.CollaborativeWalletCreated}
         learnMore
         learnMorePressed={() => dispatch(setCosginerModal(true))}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
       />
       <FlatList
         horizontal

@@ -137,7 +137,8 @@
     "electrumServerConnectionFailedText": "Failed to connect to Electrum server. Fetching your balances, receiving incoming transactions, and sending new transactions may not work. Check your network connection and try again.",
     "serverSettings": "Server Settings",
     "disconnectingFromServer": "Disconnecting from Server",
-    "disconnectingFromServerText": "You are about to disconnect from the current Electrum server. Fetching your balances, receiving incoming transactions, and broadcasting new transactions will not be possible until you connect to another server."
+    "disconnectingFromServerText": "You are about to disconnect from the current Electrum server. Fetching your balances, receiving incoming transactions, and broadcasting new transactions will not be possible until you connect to another server.",
+    "Address": "Address"
   },
   "noInternet": {
     "no": "No Internet",
@@ -314,6 +315,7 @@
     "labels": "Labels",
     "confirmations": "Confirmations",
     "transactionID": "Transaction ID",
+    "transactionNote": "Transaction Note",
     "inputs": "Inputs",
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions"
@@ -469,6 +471,7 @@
     "walletIdCopied": "Fingerprint Copied Successfully",
     "psbtCopied": "PSBT Copied Successfully",
     "xpubCopied": "Key Copied Successfully",
+    "2faCopied": "2FA Key Copied Successfully",
     "addSpecificInvoiceAmt": "Add a specific invoice amount",
     "addressReceiveDirectly": "You can get a receive address directly from a signer and do not have to trust the Keeper app",
     "editTransPolicyInfo": "This will trigger a transfer request which you need to approve",
@@ -562,6 +565,13 @@
     "transactionToastMessage": "Transaction sent successfully! If the transaction isn’t visible, wait a moment and refresh.",
     "NewAddress": "New Address",
     "UsedAddress": "Used Address",
+    "addressAlreadyUsedLabelWarning": "Address already used. Editing labels here affects only new transactions",
+    "AddLabels": "Add Labels",
+    "AddLabelsReceiveSubtitle": "Use labels to identify coins received to your address",
+    "LabelsSavedSuccessfully": "Labels saved successfully",
+    "UTXODetails": "UTXO Details",
+    "UTXODetailsSubtitle": "See your UTXO details and manage its labels",
+    "UTXOValue": "UTXO Value",
     "walletSetupModalTitle": "About Wallet Setup",
     "addWalletOption1Title": "Single or Multi-Key Wallets",
     "addWalletOption1Description": "Create a wallet that suits your needs. Opt for a Single-Key Wallet for simplicity, or choose advanced setups like 2-of-3 Vaults for occasional use or 3-of-5 Vaults for secure, cold storage.",
@@ -804,7 +814,6 @@
     "Disconnectyour": "Disconnect your own node and connect to Hexa node",
     "Disconnectfrom": "Disconnect from Hexa node and connect to your own",
     "Connecttomynode": "Connect to my node",
-    "nodeisaccessible": "Make sure that your node is accessible at all times for the app to be able to connect to it",
     "PersonalNodeDetails": "Personal Node Details",
     "NodeAddress": "Node Address",
     "NoAddressSet": "No Address Set",

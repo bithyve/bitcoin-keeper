@@ -382,7 +382,7 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.content} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+    <Box style={styles.content} backgroundColor={`${colorMode}.pantoneGreen`}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -417,7 +417,11 @@ function LoginScreen({ navigation, route }) {
                   marginTop: hp(50),
                 }}
               >
-                <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+                <PinInputsView
+                  passCode={passcode}
+                  passcodeFlag={passcodeFlag}
+                  textColor={`${colorMode}.buttonText`}
+                />
               </Box>
               {/*  */}
             </Box>
@@ -474,8 +478,8 @@ function LoginScreen({ navigation, route }) {
               primaryLoading={loggingIn}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
-              primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
-              primaryTextColor={`${colorMode}.modalWhiteButtonText`}
+              primaryBackgroundColor={`${colorMode}.buttonText`}
+              primaryTextColor={`${colorMode}.pantoneGreen`}
               fullWidth
             />
           </Box>
@@ -522,13 +526,12 @@ function LoginScreen({ navigation, route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
         // buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         Content={LoginModalContent}
         subTitleWidth={wp(280)}
       />

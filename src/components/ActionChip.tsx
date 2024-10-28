@@ -13,7 +13,7 @@ const ActionChip = ({ Icon, text, onPress }) => {
         style={styles.container}
       >
         {Icon}
-        <Text color={`${colorMode}.white`} medium style={styles.text}>
+        <Text color={`${colorMode}.buttonText`} medium style={styles.text}>
           {text}
         </Text>
       </Box>

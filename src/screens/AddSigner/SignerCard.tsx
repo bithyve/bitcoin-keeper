@@ -81,7 +81,7 @@ function SignerCard({
         )}
         {titleComp}
         <Text
-          color={`${colorMode}.primaryText`}
+          color={`${colorMode}.modalWhiteContent`}
           style={styles.walletName}
           numberOfLines={isFullText ? 0 : 1}
           medium
@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
   walletName: {
     fontSize: 12,
     letterSpacing: 0.12,
-    opacity: 0.8,
   },
   walletSubtTitle: {
     fontSize: 11,
