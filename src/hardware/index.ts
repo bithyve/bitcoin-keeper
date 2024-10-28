@@ -213,6 +213,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.INHERITANCEKEY:
       name = 'Inheritance Key';
       break;
+    case SignerType.PORTAL:
+      name = 'Portal';
+      break;
     default:
       name = type;
       break;
@@ -350,6 +353,11 @@ export const getDeviceStatus = (
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
     case SignerType.INHERITANCEKEY:
       return getInheritanceKeyStatus(type, isOnL1, isOnL2, scheme, addSignerFlow, existingSigners);
+    case SignerType.TAPSIGNER:
+      return {
+        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
+      };
     default:
       return { message: '', disabled: false };
   }
@@ -473,6 +481,9 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     }
     case SignerType.INHERITANCEKEY: {
       return '';
+    }
+    case SignerType.PORTAL: {
+      return 'Phone-specific hardware wallet';
     }
     default:
       return null;

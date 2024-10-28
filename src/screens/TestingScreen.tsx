@@ -1,21 +1,187 @@
-import { StyleSheet, Text } from 'react-native';
+import React, { useState } from 'react';
+import { Platform, View, Button, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+import { PortalSdk, type NfcOut, type CardStatus } from 'libportal-react-native';
 
-import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+const sdk = new PortalSdk(true);
+let paused = false;
 
-// Just testing things out here (dev only)
+function livenessCheck(): Promise<NfcOut> {
+  return new Promise((_resolve, reject) => {
+    const interval = setInterval(() => {
+      if (paused) {
+        return;
+      }
+
+      NfcManager.getTag()
+        .then(() => NfcManager.transceive([0x30, 0xed]))
+        .catch(() => {
+          NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
+          clearInterval(interval);
+
+          reject('Removed tag');
+        });
+    }, 250);
+  });
+}
+
+async function manageTag() {
+  await sdk.newTag();
+  const check = Platform.select({
+    ios: () => new Promise(() => {}),
+    android: () => livenessCheck(),
+  })();
+
+  while (true) {
+    const msg = await Promise.race([sdk.poll(), check]);
+    // console.trace('>', msg.data);
+    if (!paused) {
+      const result = await NfcManager.nfcAHandler.transceive(msg.data);
+      // console.trace('<', result);
+      await sdk.incomingData(msg.msgIndex, result);
+    }
+  }
+}
+
+async function restartPolling() {
+  const timeout = new Promise((_, rej) => setTimeout(rej, 250));
+
+  paused = true;
+  return Promise.race([NfcManager.restartTechnologyRequestIOS(), timeout]).finally(() => {
+    paused = false;
+  });
+}
+
+async function getOneTag() {
+  console.info('Testing: Looking for a Portal...');
+  paused = false;
+
+  if (Platform.OS === 'android') {
+    await NfcManager.registerTagEvent();
+  }
+  await NfcManager.requestTechnology(NfcTech.NfcA, {});
+  if (Platform.OS === 'ios') {
+    restartInterval = setInterval(restartPolling, 17500);
+  }
+
+  let restartInterval = null;
+  while (true) {
+    try {
+      await manageTag();
+    } catch (ex) {
+      console.warn('Oops!', ex);
+    }
+
+    // Try recovering the tag on iOS
+    if (Platform.OS === 'ios') {
+      try {
+        await restartPolling();
+      } catch (_ex) {
+        if (restartInterval) {
+          clearInterval(restartInterval);
+        }
+
+        NfcManager.invalidateSessionWithErrorIOS('Portal was lost');
+        break;
+      }
+    } else {
+      NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
+      break;
+    }
+  }
+}
+
+async function listenForTags() {
+  while (true) {
+    await getOneTag();
+  }
+}
+
+NfcManager.isSupported().then((value) => {
+  if (value) {
+    NfcManager.start();
+
+    // On Android we can listen for tags in background
+    if (Platform.OS === 'android') {
+      return listenForTags();
+    }
+  } else {
+    throw 'NFC not supported';
+  }
+});
+
 function TestingScreen() {
+  const [status, setStatus] = useState<CardStatus | null>(null);
+  async function getStatus() {
+    // on iOS we have to explicitly open the NFC popup...
+    if (Platform.OS === 'ios') {
+      getOneTag();
+    }
+
+    setStatus(await sdk.getStatus());
+
+    // ... and close it at the end
+    if (Platform.OS === 'ios') {
+      NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
+    }
+  }
+
+  function resetStatus() {
+    setStatus(null);
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
-      <Text>Test anything here</Text>
-    </SafeAreaView>
+    <View style={styles.wrapper}>
+      <Button title="getStatus" onPress={getStatus}>
+        <Text>getStatus()</Text>
+      </Button>
+      <Button title="resetStatus" onPress={resetStatus}>
+        <Text>resetStatus()</Text>
+      </Button>
+
+      <Button
+        title="Desc"
+        onPress={async () => {
+          const descriptor = await sdk.publicDescriptors();
+          console.log('🚀 ~ onPress={ ~ descriptor:', descriptor);
+        }}
+      />
+
+      <Button
+        title="Wipe"
+        onPress={async () => {
+          const wipe = await sdk.debugWipeDevice();
+          console.log('🚀 ~ onPress={ ~ wipe:', wipe);
+        }}
+      />
+      <Button
+        title="Address"
+        onPress={async () => {
+          const address = await sdk.displayAddress(0);
+          console.log('🚀 ~ onPress={ ~ address:', address);
+        }}
+      />
+      <Button
+        title="Xpub"
+        onPress={async () => {
+          const derivationPath = 'm/48/1h/0h';
+          const xPub = await sdk.getXpub(derivationPath);
+          console.log('🚀 ~ onPress={ ~ xPub:', xPub);
+        }}
+      />
+
+      <Text>{JSON.stringify(status)}</Text>
+    </View>
   );
 }
 
-export default TestingScreen;
-
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     flex: 1,
+    gap: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
+
+export default TestingScreen;

@@ -110,6 +110,7 @@ function SigningDeviceList() {
     SignerType.MY_KEEPER,
     SignerType.SEED_WORDS,
     SignerType.KEYSTONE,
+    SignerType.PORTAL,
     // SignerType.MOBILE_KEY,
     SignerType.OTHER_SD,
     SignerType.POLICY_SERVER,

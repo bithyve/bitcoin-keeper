@@ -43,6 +43,8 @@ import OTHERSDICON from 'src/assets/images/other.svg';
 import OTHERSDICONLIGHT from 'src/assets/images/other_light.svg';
 import INHERITANCEKEYLIGHT from 'src/assets/images/inheritance_key_light.svg';
 import INHERITANCEKEYDARK from 'src/assets/images/inheritance_key_dark.svg';
+import PortalLogo from 'src/assets/images/portalLogo.svg';
+import PortalIcon from 'src/assets/images/portalIcon.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -152,6 +154,12 @@ export const SDIcons = (type: SignerType, light = false, width = 20, height = 20
       return {
         Icon: getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light, width, height),
         Logo: <BITBOXLOGO />,
+        type: SignerStorage.COLD,
+      };
+    case SignerType.PORTAL:
+      return {
+        Icon: getColouredIcon(<PortalIcon />, <PortalIcon />, light, width, height),
+        Logo: <PortalLogo />,
         type: SignerStorage.COLD,
       };
     case SignerType.OTHER_SD:

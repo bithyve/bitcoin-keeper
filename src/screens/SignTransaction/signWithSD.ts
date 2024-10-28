@@ -6,11 +6,12 @@ import { generateSeedWordsKey } from 'src/services/wallets/factories/VaultFactor
 import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
-import { isSignerAMF } from 'src/hardware';
+import { isSignerAMF, getPsbtForHwi } from 'src/hardware';
 import { EntityKind } from 'src/services/wallets/enums';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import SigningServer from 'src/services/backend/SigningServer';
 import { isTestnet } from 'src/constants/Bitcoin';
+import * as PORTAL from 'src/hardware/portal';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -171,5 +172,31 @@ export const signTransactionWithSeedWords = async ({
     return { signedSerializedPSBT };
   } catch (err) {
     Alert.alert(err?.message);
+  }
+};
+
+export const signTransactionWithPortal = async ({
+  setPortalModal,
+  withNfcModal,
+  serializedPSBTEnvelop,
+  closeNfc,
+  vault,
+}) => {
+  try {
+    const psbtForPortal = await getPsbtForHwi(serializedPSBTEnvelop.serializedPSBT, vault); // portal requires non-witness utxo also.
+    setPortalModal(false);
+    return await withNfcModal(async () => {
+      await PORTAL.getStatus();
+      const signedRes = await PORTAL.signPSBT(psbtForPortal.serializedPSBT);
+      return { signedSerializedPSBT: signedRes };
+    });
+  } catch (error) {
+    console.log('🚀 ~ error:', error);
+    if (error.toString() === 'Error') {
+      // ignore if nfc modal is dismissed
+    } else {
+      closeNfc();
+      captureError(error);
+    }
   }
 };

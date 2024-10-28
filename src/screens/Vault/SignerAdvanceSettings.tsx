@@ -394,6 +394,16 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.OTHER_SD:
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
+      case SignerType.PORTAL:
+        navigation.dispatch(
+          CommonActions.navigate('SetupPortal', {
+            vaultKey,
+            vaultId,
+            mode: InteracationMode.IDENTIFICATION,
+          })
+        );
+        break;
+
       default:
         showToast('Coming soon', null, IToastCategory.DEFAULT, 1000);
         break;

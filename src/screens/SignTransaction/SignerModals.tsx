@@ -16,6 +16,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import KeystoneSetup from 'src/assets/images/keystone_illustration.svg';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
+import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
@@ -339,6 +340,15 @@ function TapsignerContent() {
     </>
   );
 }
+function PortalContent() {
+  return (
+    <>
+      <PortalIllustration />
+      <Instruction text="Portal communicates with the app over NFC" />
+      <Instruction text="You will need the CVC/ Pin, if you have set one." />
+    </>
+  );
+}
 
 function PasswordEnter({ signTransaction, setPasswordModal }) {
   const { colorMode } = useColorMode();
@@ -571,6 +581,7 @@ function SignerModals({
   keeperModal,
   trezorModal,
   bitbox02Modal,
+  portalModal,
   otherSDModal,
   setOtherSDModal,
   setTrezorModal,
@@ -585,6 +596,7 @@ function SignerModals({
   setLedgerModal,
   setPasswordModal,
   showOTPModal,
+  setPortalModal,
   signTransaction,
   vaultKeys,
   isMultisig,
@@ -611,6 +623,7 @@ function SignerModals({
   keeperModal: boolean;
   trezorModal: boolean;
   bitbox02Modal: boolean;
+  portalModal: boolean;
   otherSDModal: boolean;
   setOtherSDModal: any;
   setTrezorModal: any;
@@ -625,6 +638,7 @@ function SignerModals({
   setLedgerModal: any;
   setPasswordModal: any;
   showOTPModal: any;
+  setPortalModal: any;
   signTransaction: any;
   vaultKeys: VaultSigner[];
   isMultisig: boolean;
@@ -1033,6 +1047,31 @@ function SignerModals({
               )}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
+            />
+          );
+        }
+        if (signer.type === SignerType.PORTAL) {
+          const navigateToSignWithPortal = () => {
+            setTapsignerModal(false);
+            navigation.dispatch(
+              CommonActions.navigate('SetupPortal', {
+                mode: InteracationMode.SIGN_TRANSACTION,
+                signer,
+                isMultisig,
+                signTransaction,
+              })
+            );
+          };
+          return (
+            <KeeperModal
+              key={vaultKey.xfp}
+              visible={currentSigner && portalModal}
+              close={() => setPortalModal(false)}
+              title="Keep your Portal ready"
+              subTitle="Keep your Portal ready before proceeding"
+              buttonText="Proceed"
+              buttonCallback={navigateToSignWithPortal}
+              Content={() => <PortalContent />}
             />
           );
         }

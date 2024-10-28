@@ -132,6 +132,8 @@ import AddContact from 'src/screens/Contact/AddContact';
 import ContactProfile from 'src/screens/Contact/ContactProfile';
 import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
+import TestingScreen from 'src/screens/TestingScreen';
+import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -188,6 +190,7 @@ function AppStack() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="TapsignerAction" component={SetupTapsigner} />
+        <Stack.Screen name="SetupPortal" component={SetupPortal} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="PassportConfigRecovery" component={PassportConfigRecovery} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
@@ -312,6 +315,7 @@ function AppStack() {
         <Stack.Screen name="ContactProfile" component={ContactProfile} />
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
+        <Stack.Screen name="TestingScreen" component={TestingScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );
