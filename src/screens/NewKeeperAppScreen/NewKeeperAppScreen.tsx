@@ -20,6 +20,10 @@ import BounceLoader from 'src/components/BounceLoader';
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
+import IconSettings from 'src/assets/images/settings.svg';
+import IconGreySettings from 'src/assets/images/settings_grey.svg';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { CommonActions } from '@react-navigation/native';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -201,21 +205,30 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Pressable
-        backgroundColor={`${colorMode}.BrownNeedHelp`}
-        borderColor={`${colorMode}.BrownNeedHelp`}
-        style={styles.learnMoreContainer}
-        onPress={() => setIntroModalVisible(true)}
-      >
-        <Text style={styles.learnMoreText} medium color={`${colorMode}.white`}>
-          {common.learnMore}
-        </Text>
-      </Pressable>
+      <Box flexDir={'row'} width="100%">
+        <TouchableOpacity
+          style={styles.settingIconWrapper}
+          onPress={() => navigation.dispatch(CommonActions.navigate('NodeSettings'))}
+          testID="btn_AppSettingsIcon"
+        >
+          {colorMode === 'light' ? <IconGreySettings /> : <IconSettings />}
+        </TouchableOpacity>
+        <Pressable
+          backgroundColor={`${colorMode}.BrownNeedHelp`}
+          borderColor={`${colorMode}.BrownNeedHelp`}
+          style={styles.learnMoreContainer}
+          onPress={() => setIntroModalVisible(true)}
+        >
+          <Text style={styles.learnMoreText} medium color={`${colorMode}.white`}>
+            {common.learnMore}
+          </Text>
+        </Pressable>
+      </Box>
       <Box style={styles.contentContainer}>
         <Box>
           <Box style={styles.headingContainer}>
             <Text color={`${colorMode}.headerText`} fontSize={18}>
-              {login.welcome}
+              {login.welcomeToBitcoinKeeper}
             </Text>
             <Text fontSize={14} color={`${colorMode}.secondaryText`}>
               {login.CreateApp}
@@ -359,6 +372,9 @@ const styles = StyleSheet.create({
     marginRight: 20,
     flexDirection: 'row-reverse',
   },
+  settingIconWrapper: {
+    marginLeft: wp(20),
+  },
   tileContainer: {
     marginBottom: hp(40),
     width: '100%',
@@ -399,7 +415,6 @@ const styles = StyleSheet.create({
   },
   learnMoreContainer: {
     marginTop: hp(10),
-    alignSelf: 'flex-end',
     borderRadius: 5,
     borderWidth: 0.5,
     paddingVertical: 2,
