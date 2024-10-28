@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -13,14 +13,23 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import { setStatusMessage } from 'src/store/reducers/login';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import KeeperModal from 'src/components/KeeperModal';
+import OfflineIllustration from 'src/assets/images/offline-illustration.svg';
+import { switchAppStatus } from 'src/store/sagaActions/login';
+import Buttons from 'src/components/Buttons';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { hp, wp } from 'src/constants/responsive';
 
 function CurrentPlanView({ plan }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-
-  const { statusMessage, isOffline } = useAppSelector((state) => state?.login);
+  const { translations } = useContext(LocalizationContext);
+  const { login } = translations;
+  const [showModal, setShowModal] = useState(false);
+  const { statusMessage, isOffline, isLoading } = useAppSelector((state) => state?.login);
 
   useEffect(() => {
     if (statusMessage) {
@@ -31,6 +40,7 @@ function CurrentPlanView({ plan }) {
 
   return (
     <Box style={styles.wrapper}>
+      <ActivityIndicatorView visible={isLoading} showLoader />
       <Box style={styles.planContianer}>
         {!isOffline && (
           <TouchableOpacity
@@ -53,7 +63,7 @@ function CurrentPlanView({ plan }) {
         )}
         {isOffline && (
           <Box style={styles.appStatus}>
-            <AppStatus />
+            <AppStatus setShowModal={setShowModal} />
           </Box>
         )}
       </Box>
@@ -66,6 +76,41 @@ function CurrentPlanView({ plan }) {
           <SettingIcon />
         </TouchableOpacity>
       </Box>
+      <KeeperModal
+        visible={showModal}
+        close={() => setShowModal(false)}
+        closeOnOverlayClick
+        title={login.offlineModalTitle}
+        subTitle={login.offlineModalSubTitle}
+        showCloseIcon={false}
+        textColor={`${colorMode}.modalWhiteContent`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(290)}
+        secButtonTextColor={`${colorMode}.greenButtonBackground`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        Content={() => (
+          <Box>
+            <Box style={styles.illustration}>
+              <OfflineIllustration />
+            </Box>
+            <Text color={`${colorMode}.secondaryText`}>{login.offlineModalDesc}</Text>
+            <Box style={styles.CTAWrapper}>
+              <Buttons
+                primaryText={login.retryConnection}
+                primaryCallback={() => {
+                  setShowModal(false);
+                  dispatch(switchAppStatus());
+                }}
+                secondaryText={login.continueOffline}
+                secondaryCallback={() => setShowModal(false)}
+                width={wp(150)}
+              />
+            </Box>
+          </Box>
+        )}
+      />
     </Box>
   );
 }
@@ -97,6 +142,14 @@ const styles = StyleSheet.create({
   currentPlanText: {
     fontSize: 20,
     letterSpacing: 0.2,
+  },
+  illustration: {
+    marginBottom: hp(30),
+    marginRight: wp(25),
+    alignSelf: 'center',
+  },
+  CTAWrapper: {
+    marginTop: hp(30),
   },
 });
 export default CurrentPlanView;
