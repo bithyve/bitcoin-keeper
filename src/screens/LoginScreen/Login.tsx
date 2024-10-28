@@ -29,7 +29,11 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { credsAuth } from 'src/store/sagaActions/login';
-import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
+import {
+  credsAuthenticated,
+  setOfflineStatus,
+  setRecepitVerificationError,
+} from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { increasePinFailAttempts, resetPinFailAttempts } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -370,6 +374,7 @@ function LoginScreen({ navigation, route }) {
     dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
       subscription: updatedSubscription,
     });
+    dispatch(setOfflineStatus(true));
     navigation.replace('App');
   }
 

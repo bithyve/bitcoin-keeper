@@ -138,6 +138,8 @@
     "serverSettings": "Server Settings",
     "disconnectingFromServer": "Disconnecting from Server",
     "disconnectingFromServerText": "You are about to disconnect from the current Electrum server. Fetching your balances, receiving incoming transactions, and broadcasting new transactions will not be possible until you connect to another server.",
+    "offline": "Offline",
+    "retry": "Retry",
     "Address": "Address"
   },
   "noInternet": {
@@ -197,7 +199,6 @@
     "Agreement": "By proceeding you agree to our",
     "TermsOfService": "Terms of Service",
     "PrivacyPolicy": "Privacy Policy",
-
     "appcreates": "The app creates a new wallet for you with accounts you can start using right away",
     "previously": "If you previously had Hexa, you can recover it using the Recovery Keys with these options",
     "restoreNoteV1": "If you are trying to migrate from Hexa 1.0 to Hexa 2.0, please read how in the link below",
@@ -236,7 +237,12 @@
     "ResetPassSubPara2": "Your passcode can only be reset if you have your wallet backup safe and accessible",
     "shareAnalyticsDesc": "Only data relevant to app diagnostics is collected. You can optionally share email id while setting up inheritance.",
     "shareAnalyticsTitle": "Share Analytics",
-    "shareAnalyticsSubTitle": "If you so choose, you can allow Keeper to collect data that would help us serve you better."
+    "shareAnalyticsSubTitle": "If you so choose, you can allow Keeper to collect data that would help us serve you better.",
+    "offlineModalTitle": "Keeper is Offline",
+    "offlineModalSubTitle": "It seems there is a network issue. Please check your connection and try again",
+    "offlineModalDesc": "Some functionalities requiring internet connection may not work",
+    "continueOffline": "Continue offline",
+    "retryConnection": "Retry Connection"
   },
   "home": {
     "Hello": "Hello,",
