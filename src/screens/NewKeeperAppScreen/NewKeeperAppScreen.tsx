@@ -280,7 +280,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             </Box>
           </Pressable>
         </Box>
-        <Box style={styles.note}>
+        <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
           <Text color={`${colorMode}.headerText`} medium fontSize={14}>
             {login.Note}
           </Text>
