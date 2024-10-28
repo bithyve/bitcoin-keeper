@@ -29,6 +29,7 @@ import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import Buttons from 'src/components/Buttons';
 import EmptyListIllustration from 'src/components/EmptyListIllustration';
+import Colors from 'src/theme/Colors';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -209,7 +210,11 @@ function NodeSettings() {
                   onPress={() => onSelectedNodeitem(item)}
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
-                  <Box backgroundColor={`${colorMode}.seashellWhite`} style={[styles.nodeList]}>
+                  <Box
+                    backgroundColor={`${colorMode}.seashellWhite`}
+                    style={[styles.nodeList]}
+                    borderColor={colorMode === 'light' ? 'transparent' : Colors.separator}
+                  >
                     <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
                       <Box flex={1}>
                         <Text
@@ -405,6 +410,7 @@ const styles = StyleSheet.create({
     paddingTop: hp(20),
     paddingBottom: hp(18),
     marginBottom: hp(10),
+    borderWidth: 1,
   },
   nodeButtons: {
     flexDirection: 'row',
