@@ -138,6 +138,8 @@
     "serverSettings": "Server Settings",
     "disconnectingFromServer": "Disconnecting from Server",
     "disconnectingFromServerText": "You are about to disconnect from the current Electrum server. Fetching your balances, receiving incoming transactions, and broadcasting new transactions will not be possible until you connect to another server.",
+    "offline": "Offline",
+    "retry": "Retry",
     "Address": "Address"
   },
   "noInternet": {
@@ -184,7 +186,6 @@
     "Agreement": "By proceeding you agree to our",
     "TermsOfService": "Terms of Service",
     "PrivacyPolicy": "Privacy Policy",
-
     "EncryptionKeyNotSet": "Encryption Key not set",
     "Youcanreset": "You can reset your Login Passcode if you have set up an Encryption Key (Strong Password, Own Passphrase or Security Answer). It seems you have not set up any",
     "existingPasscode": "existing passcode",
@@ -237,7 +238,12 @@
     "ResetPassSubPara2": "Your passcode can only be reset if you have your wallet backup safe and accessible",
     "shareAnalyticsDesc": "Only data relevant to app diagnostics is collected. You can optionally share email id while setting up inheritance.",
     "shareAnalyticsTitle": "Share Analytics",
-    "shareAnalyticsSubTitle": "If you so choose, you can allow Keeper to collect data that would help us serve you better."
+    "shareAnalyticsSubTitle": "If you so choose, you can allow Keeper to collect data that would help us serve you better.",
+    "offlineModalTitle": "Keeper is Offline",
+    "offlineModalSubTitle": "It seems there is a network issue. Please check your connection and try again",
+    "offlineModalDesc": "Some functionalities requiring internet connection may not work",
+    "continueOffline": "Continue offline",
+    "retryConnection": "Retry Connection"
   },
   "home": {
     "Hello": "Hello,",
