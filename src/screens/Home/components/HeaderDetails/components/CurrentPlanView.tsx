@@ -20,6 +20,8 @@ import { switchAppStatus } from 'src/store/sagaActions/login';
 import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function CurrentPlanView({ plan }) {
   const navigation = useNavigation();
@@ -32,11 +34,11 @@ function CurrentPlanView({ plan }) {
   const { statusMessage, isOffline, isLoading } = useAppSelector((state) => state?.login);
 
   useEffect(() => {
-    if (statusMessage) {
-      showToast(statusMessage);
-      dispatch(setStatusMessage(null));
+    if (statusMessage.message) {
+      showToast(statusMessage.message, statusMessage.status ? <TickIcon /> : <ToastErrorIcon />);
+      dispatch(setStatusMessage({ message: '', status: false }));
     }
-  }, [statusMessage, isOffline]);
+  }, [statusMessage]);
 
   return (
     <Box style={styles.wrapper}>

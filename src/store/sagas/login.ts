@@ -395,19 +395,30 @@ export function* switchAppStatusWorker() {
       if (response.isValid) {
         yield call(updateSubscription, response.level);
         yield put(setOfflineStatus(false));
-        yield put(setStatusMessage('Connection successful! Keeper is online now.'));
+        yield put(
+          setStatusMessage({
+            message: 'Connection successful! Keeper is online now.',
+            status: true,
+          })
+        );
       } else {
         yield put(setOfflineStatus(true));
-        yield put(setStatusMessage('App status update failed: Invalid receipt'));
+        yield put(
+          setStatusMessage({
+            message: 'App status update failed: Invalid receipt',
+            status: false,
+          })
+        );
       }
 
       yield put(setRecepitVerificationFailed(!response.isValid));
       yield put(connectToNode());
     } catch (error) {
       yield put(
-        setStatusMessage(
-          'It seems there’s a network issue. Please check your connection and try again.'
-        )
+        setStatusMessage({
+          message: 'It seems there’s a network issue. Please check your connection and try again.',
+          status: false,
+        })
       );
       yield put(setRecepitVerificationError(true));
       yield put(setOfflineStatus(true));
@@ -417,7 +428,12 @@ export function* switchAppStatusWorker() {
   } else {
     yield put(setRecepitVerificationFailed(true));
     yield put(setRecepitVerificationError(true));
-    yield put(setStatusMessage('App ID not found. Verification failed.'));
+    yield put(
+      setStatusMessage({
+        message: 'App ID not found. Verification failed.',
+        status: false,
+      })
+    );
   }
   yield put(setStatusLoading(false));
 }
