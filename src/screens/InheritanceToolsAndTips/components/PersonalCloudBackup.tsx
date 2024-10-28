@@ -35,7 +35,7 @@ function PersonalCloudBackup({}) {
         <Box mt={5} alignItems={'center'}>
           <DashedButton
             description={inheritancePlanning.manageCloudBackupSubTitle}
-            callback={() => navigation.navigate('AppSettings')}
+            callback={() => navigation.navigate('CloudBackup')}
             name={inheritancePlanning.manageCloudBackupTitle}
             icon={<Cloud />}
           />
