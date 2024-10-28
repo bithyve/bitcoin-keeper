@@ -32,6 +32,7 @@ import { BackupType } from 'src/models/enums/BHR';
 import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import PasscodeLockIllustration from 'src/assets/images/passwordlock.svg';
 import BackupModalContent from './BackupModal';
@@ -131,19 +132,13 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
     <Box>
       <Box>
         {login.newPasscode}
-        <PinInputsView
-          backgroundColor={true}
-          passCode={passcode}
-          passcodeFlag={passcodeFlag}
-          borderColor="transparent"
-        />
+        <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} borderColor="transparent" />
       </Box>
       {passcode.length === 4 && (
         <>
           <Box>
             {login.confirmNewPasscode}
             <PinInputsView
-              backgroundColor={true}
               passCode={confirmPasscode}
               passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
               borderColor="transparent"
@@ -178,7 +173,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
         disabled={false}
         onDeletePressed={onDeletePressed}
         onPressNumber={onPressNumber}
-        ClearIcon={<DeleteIcon />}
+        ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         keyColor={`${colorMode}.primaryText`}
       />
     </Box>
@@ -485,7 +480,6 @@ function PrivacyAndDisplay({ route }) {
         }}
         title={settings.changePasscode}
         subTitleWidth={wp(240)}
-        modalBackground={`${colorMode}.learMoreTextcolor`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => (
