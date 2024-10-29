@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Image, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import AddCard from 'src/components/AddCard';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
+import SignerIconDark from 'src/assets/images/signer-icon-brown-dark.svg';
 import HardwareIllustration from 'src/assets/images/diversify-hardware.svg';
 import {
   UNVERIFYING_SIGNERS,
@@ -24,8 +24,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { NetworkType, SignerStorage, SignerType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import * as Sentry from '@sentry/react-native';
@@ -171,7 +170,7 @@ function ManageSigners({ route }: ScreenProps) {
 
   return (
     <Box
-      backgroundColor={`${colorMode}.BrownNeedHelp`}
+      backgroundColor={`${colorMode}.manageKeysHeaderBackground`}
       style={[styles.wrapper, { paddingTop: top }]}
     >
       <Box style={styles.topSection}>
@@ -181,6 +180,7 @@ function ManageSigners({ route }: ScreenProps) {
           mediumTitle
           learnMore
           learnMorePressed={() => setShowLearnMoreModal(true)}
+          learnBackgroundColor={`${colorMode}.manageKeysHeaderBackground`}
           learnTextColor={`${colorMode}.buttonText`}
           titleColor={`${colorMode}.seashellWhiteText`}
           subTitleColor={`${colorMode}.seashellWhiteText`}
@@ -191,14 +191,17 @@ function ManageSigners({ route }: ScreenProps) {
           }
           icon={
             <CircleIconWrapper
-              backgroundColor={`${colorMode}.seashellWhiteText`}
-              icon={<SignerIcon />}
+              backgroundColor={`${colorMode}.whiteCircle`}
+              icon={colorMode === 'dark' ? <SignerIconDark /> : <SignerIcon />}
             />
           }
           contrastScreen
         />
       </Box>
-      <Box style={styles.signersContainer} backgroundColor={`${colorMode}.primaryBackground`}>
+      <Box
+        style={styles.signersContainer}
+        backgroundColor={`${colorMode}.roundedSecondaryBackground`}
+      >
         <SignersList
           colorMode={colorMode}
           vaultKeys={vaultKeys}
@@ -423,6 +426,8 @@ function SignersList({
                 showDot={showDot}
                 colorVarient="green"
                 colorMode={colorMode}
+                customStyle={{ height: hp(157) }}
+                numberOfLines={2}
               />
             );
           })}
