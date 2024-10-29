@@ -72,8 +72,8 @@ function ColdCardContent({
       <ColdCardSVG />
       <Box marginTop={2}>
         <Text style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>{message}</Text>
-        <Text style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>
-          {'Choose how you wish to sign the transaction:'}
+        <Text semiBold style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>
+          {'Sign transaction via:'}
         </Text>
       </Box>
       <HStack alignSelf={'flex-start'}>
@@ -117,15 +117,17 @@ function PassportContent({
         {isMultisig && (
           <Text style={styles.instructionsText}>
             {
-              'Make sure the multisig wallet is registered with the Passport before signing the transaction.'
+              '\u2022 Make sure the multisig wallet is registered with the Passport before signing the transaction.'
             }
           </Text>
         )}
         <Text style={styles.instructionsText}>
-          {"For QR signing, on the Passport main menu, choose the 'Sign with QR Code' option."}
+          {
+            "\u2022 For QR signing, on the Passport main menu, choose the 'Sign with QR Code' option."
+          }
         </Text>
-        <Text style={styles.instructionsText}>
-          {'Choose how you wish to sign the transaction:'}
+        <Text semiBold style={styles.instructionsText}>
+          {'Sign transaction via:'}
         </Text>
       </Box>
       <HStack alignSelf={'flex-start'}>
@@ -158,13 +160,13 @@ function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
         {isMultisig ? (
           <Text style={styles.instructionsText}>
             {
-              'The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.'
+              '\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.'
             }
           </Text>
         ) : null}
         <Text style={styles.instructionsText}>
           {
-            "On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned."
+            "\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned."
           }
         </Text>
       </Box>
@@ -179,12 +181,12 @@ function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
       <Box marginTop={2}>
         {isMultisig && (
           <Text style={styles.instructionsText}>
-            {`Make sure the multisig wallet is registered with the Specter before signing the transaction`}
+            {`\u2022 Make sure the multisig wallet is registered with the Specter before signing the transaction`}
           </Text>
         )}
         <Text style={styles.instructionsText}>
           {
-            "On the Specter main menu, choose the 'Scan QR code' option and wait for the QR to be scanned."
+            "\u2022 On the Specter main menu, choose the 'Scan QR code' option and wait for the QR to be scanned."
           }
         </Text>
       </Box>
@@ -211,17 +213,17 @@ function KeystoneContent({
         {isMultisig && (
           <Text style={styles.instructionsText}>
             {
-              'Make sure the multisig wallet is registered with the Keystone before signing the transaction.'
+              '\u2022 Make sure the multisig wallet is registered with the Keystone before signing the transaction.'
             }
           </Text>
         )}
         <Text style={styles.instructionsText}>
-          {`For QR signing, on the Keystone, choose ${
+          {`\u2022 For QR signing, on the Keystone, choose ${
             isMultisig ? 'multisig menu' : 'Generic Wallet section'
           }, press the scan icon on the top bar and wait for the QR to be scanned.`}
         </Text>
-        <Text style={styles.instructionsText}>
-          {'Choose how you wish to sign the transaction:'}
+        <Text semiBold style={styles.instructionsText}>
+          {'Sign transaction via:'}
         </Text>
       </Box>
       <HStack alignSelf={'flex-start'}>
@@ -252,7 +254,9 @@ function JadeContent() {
       <JadeSetup />
       <Box marginTop={2}>
         <Text style={styles.instructionsText}>
-          {"On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."}
+          {
+            "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."
+          }
         </Text>
       </Box>
     </Box>
@@ -266,7 +270,7 @@ function TrezorContent() {
       <Box marginTop={2}>
         <Text style={styles.instructionsText}>
           {
-            'After downloading the desktop app, connect the Trezor to your computer and follow the instructions on the Keeper desktop app'
+            '\u2022 After downloading the desktop app, connect the Trezor to your computer and follow the instructions on the Keeper desktop app'
           }
         </Text>
       </Box>
@@ -281,7 +285,7 @@ function BitBox02Content() {
       <Box marginTop={2}>
         <Text style={styles.instructionsText}>
           {
-            'After downloading the desktop app, connect the BitBox02 to your computer and follow the instructions on the Keeper desktop app'
+            '\u2022 After downloading the desktop app, connect the BitBox02 to your computer and follow the instructions on the Keeper desktop app'
           }
         </Text>
       </Box>
@@ -296,7 +300,7 @@ function LedgerContent() {
       <Box marginTop={2}>
         <Text style={styles.instructionsText}>
           {
-            'After downloading the desktop app, connect the Ledger to your computer and follow the instructions on the Keeper desktop app'
+            '\u2022 After downloading the desktop app, connect the Ledger to your computer and follow the instructions on the Keeper desktop app'
           }
         </Text>
       </Box>
@@ -1096,6 +1100,8 @@ const styles = StyleSheet.create({
   instructionsText: {
     fontSize: 13,
     letterSpacing: 0.65,
-    margin: 7,
+    marginHorizontal: wp(5),
+    marginTop: wp(3),
+    marginBottom: wp(10),
   },
 });
