@@ -214,7 +214,30 @@ const getSignerContent = (
           ? 'Setting up for Canary'
           : 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
-        options: [],
+        options: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.QR,
+          },
+          {
+            title: 'USB',
+            icon: (
+              <CircleIconWrapper
+                icon={<USBIcon />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.USB,
+          },
+        ],
       };
     case SignerType.KEEPER:
       return {
@@ -1947,6 +1970,7 @@ function HardwareModalMap({
       case SignerType.KEEPER:
       case SignerType.SEED_WORDS:
       case SignerType.COLDCARD:
+      case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.KEYSTONE:
         setKeyGenerationMode(option.name);
@@ -2011,7 +2035,11 @@ function HardwareModalMap({
         return navigateToAddQrBasedSigner();
       case SignerType.SEEDSIGNER:
       case SignerType.SPECTER:
+        return navigateToAddQrBasedSigner();
       case SignerType.JADE:
+        if (keyGenerationMode === KeyGenerationMode.USB) {
+          return navigateToSetupWithChannel();
+        }
         return navigateToAddQrBasedSigner();
       case SignerType.KEEPER:
         return navigateToAddQrBasedSigner();

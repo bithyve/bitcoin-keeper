@@ -563,6 +563,33 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
           },
         ],
       };
+    case SignerType.JADE:
+      return {
+        supportedSigningOptions: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.QR,
+          },
+          {
+            title: 'USB',
+            icon: (
+              <CircleIconWrapper
+                icon={<USBIcon />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.USB,
+          },
+        ],
+      };
     default:
       return {
         supportedSigningOptions: [],
