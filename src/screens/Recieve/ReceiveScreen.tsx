@@ -33,7 +33,7 @@ import NewQRWhite from 'src/assets/images/qr-new-white.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { generateNewAddress } from 'src/store/sagaActions/wallets';
-import { useAppDispatch } from 'src/store/hooks';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -43,6 +43,10 @@ import ErrorDarkIcon from 'src/assets/images/error-dark.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { UTXOLabel } from 'src/components/UTXOsComponents/UTXOList';
 import LabelsEditor from '../UTXOManagement/components/LabelsEditor';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 
 const AddressVerifiableSigners = [SignerType.BITBOX02, SignerType.LEDGER, SignerType.TREZOR];
 
@@ -78,6 +82,11 @@ function ReceiveScreen({ route }: { route }) {
   const { labels: addressLabels } = useLabelsNew({ address: receivingAddress, wallet });
   const labels = addressLabels ? addressLabels[receivingAddress] || [] : [];
 
+  const { satsEnabled }: { satsEnabled: boolean } = useAppSelector((state) => state.settings);
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+
   const generateNewReceiveAddress = () => {
     dispatch(generateNewAddress(wallet));
     Vibration.vibrate(50);
@@ -107,10 +116,24 @@ function ReceiveScreen({ route }: { route }) {
     }
   }, [currentAddressIdx]);
 
+  function convertFiatToSats(fiatAmount: number) {
+    return exchangeRates && exchangeRates[currencyCode]
+      ? (fiatAmount / exchangeRates[currencyCode].last) * SATOSHIS_IN_BTC
+      : 0;
+  }
+
   useEffect(() => {
     if (amount) {
+      let convertedAmount;
+      if (currentCurrency === CurrencyKind.BITCOIN) {
+        if (satsEnabled) convertedAmount = parseInt(amount) / 1e8;
+        else convertedAmount = parseFloat(amount);
+      } else
+        convertedAmount =
+          parseInt(convertFiatToSats(parseFloat(amount)).toFixed(0).toString()) / 1e8;
+
       const newPaymentURI = WalletUtilities.generatePaymentURI(receivingAddress, {
-        amount: parseInt(amount) / 1e8,
+        amount: convertedAmount,
       }).paymentURI;
       setPaymentURI(newPaymentURI);
     } else if (paymentURI) setPaymentURI(null);
@@ -138,7 +161,6 @@ function ReceiveScreen({ route }: { route }) {
               />
               <Input
                 placeholder={home.ConvertedAmount}
-                placeholderTextColor={`${colorMode}.greenText`}
                 style={styles.inputField}
                 borderWidth="0"
                 value={amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -174,6 +196,7 @@ function ReceiveScreen({ route }: { route }) {
             clear={() => setAmount('')}
             color={colorMode === 'light' ? '#041513' : '#FFF'}
             darkDeleteIcon={colorMode === 'light'}
+            decimalPoint
           />
         </View>
       </View>
@@ -418,7 +441,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   inputField: {
-    color: '#073E39',
     opacity: 0.8,
     fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1.04,
