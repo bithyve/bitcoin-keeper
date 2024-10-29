@@ -49,6 +49,7 @@ import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import ManageWallets from 'src/screens/AppSettings/ManageWallets';
 import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
+import TransactionAdvancedDetails from 'src/screens/ViewTransactions/TransactionAdvancedDetails';
 import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import AllTransactions from 'src/screens/Vault/AllTransactions';
@@ -264,6 +265,7 @@ function AppStack() {
         <Stack.Screen name="AddDescription" component={AddDescription} />
         <Stack.Screen name="AllTransactions" component={AllTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
+        <Stack.Screen name="TransactionAdvancedDetails" component={TransactionAdvancedDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
         <Stack.Screen name="ScanQR" component={ScanQR} />

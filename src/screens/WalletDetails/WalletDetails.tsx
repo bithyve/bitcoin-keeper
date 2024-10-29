@@ -353,6 +353,7 @@ const styles = StyleSheet.create({
   transactionHeading: {
     fontSize: 16,
     letterSpacing: 0.16,
+    paddingBottom: 16,
   },
   settingBtn: {
     width: wp(24),
