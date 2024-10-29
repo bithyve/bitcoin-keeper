@@ -37,9 +37,7 @@ function RegisterWithQR({ route, navigation }: any) {
           '/<0;1>/*',
           ''
         )}${activeVault.isMultiSig ? ' )' : ''}`
-      : signer.type === SignerType.COLDCARD || signer.type === SignerType.PASSPORT
-      ? getWalletConfig({ vault: activeVault })
-      : generateOutputDescriptors(activeVault, false);
+      : getWalletConfig({ vault: activeVault });
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
   const { showToast } = useToastMessage();
 
