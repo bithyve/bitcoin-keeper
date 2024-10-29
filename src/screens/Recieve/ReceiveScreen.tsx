@@ -47,8 +47,22 @@ import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
-const AddressVerifiableSigners = [SignerType.BITBOX02, SignerType.LEDGER, SignerType.TREZOR];
+const AddressVerifiableSigners = [
+  SignerType.BITBOX02,
+  SignerType.LEDGER,
+  SignerType.TREZOR,
+  SignerType.COLDCARD,
+];
+
+const SignerTypesNeedingRegistration = [
+  SignerType.COLDCARD,
+  SignerType.JADE,
+  SignerType.PASSPORT,
+  SignerType.KEYSTONE,
+];
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -57,17 +71,18 @@ function ReceiveScreen({ route }: { route }) {
   const [labelsModalVisible, setLabelsModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
 
-  const wallet: Wallet = route?.params?.wallet;
+  const wallet: Wallet | Vault = route?.params?.wallet;
   // const amount = route?.params?.amount;
   const [receivingAddress, setReceivingAddress] = useState(null);
   const [paymentURI, setPaymentURI] = useState(null);
 
   const { translations } = useContext(LocalizationContext);
-  const { common, home, wallet: walletTranslation } = translations;
+  const { common, home, wallet: walletTranslation, vault: vaultTranslations } = translations;
 
   const navigation = useNavigation();
   const { vaultSigners } = useSigners(wallet.id);
   const [addVerifiableSigners, setAddVerifiableSigners] = useState([]);
+  const [signersNeedRegistration, setSignersNeedRegistration] = useState([]);
 
   const [currentAddressIdx, setCurrentAddressIdx] = useState(0);
   const [currentAddressIdxTempText, setCurrentAddressIdxTempText] = useState('');
@@ -146,6 +161,24 @@ function ReceiveScreen({ route }: { route }) {
     setAddVerifiableSigners(avSigner);
   }, []);
 
+  useEffect(() => {
+    if (wallet.entityKind === 'VAULT' && (wallet as Vault).isMultiSig) {
+      const signersFingerprintsToCheck = vaultSigners
+        .filter((signer) => SignerTypesNeedingRegistration.includes(signer.type))
+        .map((signer) => signer.masterFingerprint);
+      const unregisteredSigners = (wallet as Vault).signers.filter((signer) => {
+        {
+          return (
+            signersFingerprintsToCheck.includes(signer.masterFingerprint) &&
+            signer.registeredVaults.find((info) => info.vaultId === wallet.id)?.registered !== true
+          );
+        }
+      });
+
+      setSignersNeedRegistration(unregisteredSigners);
+    }
+  }, [wallet]);
+
   function AddAmountContent() {
     return (
       <View>
@@ -206,29 +239,48 @@ function ReceiveScreen({ route }: { route }) {
   const onVerifyAddress = () => {
     const signersMFP = addVerifiableSigners.map((signer) => signer.masterFingerprint);
     navigation.dispatch(
-      CommonActions.navigate('VerifyAddressSelectionScreen', {
+      CommonActions.navigate('SignerSelectionListScreen', {
         signersMFP,
         vaultId: wallet.id,
+        title: 'Verify Address on Device', //TODO: Move to translations
+        description: 'Select a signer',
+        callback: (signer, signerName) => {
+          navigation.dispatch(
+            CommonActions.navigate('ConnectChannel', {
+              signer,
+              vaultId: wallet.id,
+              type: signer.type,
+              mode: InteracationMode.ADDRESS_VERIFICATION,
+              title: `Connecting to ${signerName}`,
+              subtitle: vaultTranslations.verifyAddDesc,
+            })
+          );
+        },
       })
     );
   };
 
-  const VerifyAddressBtn = () => {
-    return (
-      <Pressable
-        style={[styles.verifyAddressBtn]}
-        backgroundColor={`${colorMode}.greenButtonBackground`}
-        onPress={onVerifyAddress}
-      >
-        <Text
-          numberOfLines={1}
-          style={styles.verifyAddressBtnText}
-          color={`${colorMode}.buttonText`}
-          bold
-        >
-          {'Verify Address on Device'}
-        </Text>
-      </Pressable>
+  const onRegisterVault = () => {
+    const signersMFP = vaultSigners
+      .filter((signer) => SignerTypesNeedingRegistration.includes(signer.type))
+      .map((signer) => signer.masterFingerprint);
+    navigation.dispatch(
+      CommonActions.navigate('SignerSelectionListScreen', {
+        signersMFP,
+        vaultId: wallet.id,
+        title: 'Register vault on Device', //TODO: Move to translations
+        description: 'Select a signer',
+        callback: (signer, signerName) => {
+          navigation.dispatch(
+            CommonActions.navigate('RegisterWithQR', {
+              vaultKey: (wallet as Vault).signers.find(
+                (vaultSigner) => vaultSigner.masterFingerprint === signer.masterFingerprint
+              ),
+              vaultId: wallet.id,
+            })
+          );
+        },
+      })
     );
   };
 
@@ -351,10 +403,19 @@ function ReceiveScreen({ route }: { route }) {
         </TouchableOpacity>
         {
           <Box>
-            {wallet.entityKind === 'VAULT' && addVerifiableSigners?.length > 0 ? (
-              <VerifyAddressBtn />
+            {wallet.entityKind === 'VAULT' &&
+            (addVerifiableSigners?.length || signersNeedRegistration.length) ? (
+              <Box marginTop={hp(33)}>
+                <Buttons
+                  fullWidth
+                  primaryText={addVerifiableSigners?.length ? 'Verify Address' : null}
+                  primaryCallback={onVerifyAddress}
+                  secondaryText={signersNeedRegistration.length ? 'Register vault' : null}
+                  secondaryCallback={onRegisterVault}
+                />
+              </Box>
             ) : (
-              <Box marginBottom={hp(84)}></Box>
+              <Box marginBottom={hp(84)} />
             )}
           </Box>
         }
@@ -491,7 +552,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     width: '100%',
     textAlign: 'center',
-    marginVertical: hp(20),
+    marginBottom: hp(20),
   },
   addressPagesBar: {
     marginTop: hp(5),

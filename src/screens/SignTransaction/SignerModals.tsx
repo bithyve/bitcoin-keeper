@@ -23,7 +23,7 @@ import { SignerType, SigningMode } from 'src/services/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/utils/service-utilities/encryption';
-import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
+import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
@@ -38,6 +38,7 @@ import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import QRComms from 'src/assets/images/qr_comms.svg';
 import NfcComms from 'src/assets/images/nfc_comms.svg';
 import Import from 'src/assets/images/import.svg';
+import USBIcon from 'src/assets/images/usb_white.svg';
 import SignerCard from '../AddSigner/SignerCard';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import { InteracationMode } from '../Vault/HardwareModalMap';
@@ -61,25 +62,18 @@ function ColdCardContent({
   const { colorMode } = useColorMode();
   let message = '';
 
-  if (register) {
+  if (isMultisig) {
     message =
-      '\u2022 Since this is the first time you are signing with this device, the Coldcard requires for us to register the multisig wallet data before it can sign transactions.';
-  } else if (isMultisig) {
-    message =
-      '\u2022 Make sure the multisig wallet is registered with the Coldcard before signing the transaction';
+      'Make sure the multisig wallet is registered with the Coldcard before signing the transaction';
   }
 
   return (
     <Box alignItems="center">
       <ColdCardSVG />
       <Box marginTop={2}>
-        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
-          {message}
-        </Text>
-        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
-          {register
-            ? ''
-            : "\u2022 On the Coldcard main menu, choose the 'Ready to sign' option and choose the nfc option."}
+        <Text style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>{message}</Text>
+        <Text style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>
+          {'Choose how you wish to sign the transaction:'}
         </Text>
       </Box>
       <HStack alignSelf={'flex-start'}>
@@ -96,6 +90,7 @@ function ColdCardContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
+              customStyle={{ width: wp(95), height: hp(100) }}
             />
           ))}
       </HStack>
@@ -142,6 +137,7 @@ function PassportContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
+              customStyle={{ width: wp(95), height: hp(100) }}
             />
           ))}
       </HStack>
@@ -232,6 +228,7 @@ function KeystoneContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
+              customStyle={{ width: wp(95), height: hp(100) }}
             />
           ))}
       </HStack>
@@ -519,6 +516,17 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             ),
             name: SigningMode.FILE,
           },
+          {
+            title: 'USB',
+            icon: (
+              <CircleIconWrapper
+                icon={<USBIcon />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.USB,
+          },
         ],
       };
     case SignerType.KEYSTONE:
@@ -633,7 +641,7 @@ function SignerModals({
   setSpecterModal: any;
   onFileSign: any;
   isRemoteKey: boolean;
-  serializedPSBTEnvelopFromProps: SerializedPSBTEnvelop;
+  serializedPSBTEnvelopFromProps?: SerializedPSBTEnvelop;
   sendConfirmationRouteParams?: SendConfirmationRouteParams;
   tnxDetails?: tnxDetailsProps;
 }) {
@@ -677,9 +685,9 @@ function SignerModals({
         vaultKey,
         vaultId,
         signerType,
-        isRemoteKey: isRemoteKey,
+        isRemoteKey,
         serializedPSBTEnvelopFromProps,
-        isMultisig: isMultisig,
+        isMultisig,
       })
     );
   };
@@ -736,28 +744,30 @@ function SignerModals({
                 })
               );
               return;
+            } else if (signingMode === SigningMode.USB) {
+              navigateToChannelSigning(vaultKey, SignerType.COLDCARD);
+            } else {
+              navigation.dispatch(
+                CommonActions.navigate('SignWithColdCard', {
+                  signTransaction,
+                  vaultKey,
+                  isMultisig,
+                  vaultId,
+                  isRemoteKey,
+                })
+              );
             }
-            navigation.dispatch(
-              CommonActions.navigate('SignWithColdCard', {
-                signTransaction,
-                vaultKey,
-                isMultisig,
-                vaultId,
-                isRemoteKey,
-              })
-            );
           };
-          const shouldRegister = isMultisig && !info?.registered;
           return (
             <KeeperModal
               key={vaultKey.xfp}
               visible={currentSigner && coldCardModal}
               close={() => setColdCardModal(false)}
-              title={shouldRegister ? 'Register Coldcard' : 'Keep your Coldcard ready'}
+              title={'Keep your Coldcard ready'}
               subTitle="Keep your Coldcard ready before proceeding"
               Content={() => (
                 <ColdCardContent
-                  register={shouldRegister}
+                  register={isMultisig && !info?.registered}
                   isMultisig={isMultisig}
                   supportedSigningOptions={supportedSigningOptions}
                   onSelect={(mode) => {
@@ -766,8 +776,15 @@ function SignerModals({
                   signingMode={signingMode}
                 />
               )}
-              buttonText={shouldRegister ? 'Register' : 'Proceed'}
+              buttonText={'Start Signing'}
               buttonCallback={navigateToSignWithColdCard}
+              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryCallback={() => {
+                setColdCardModal(false);
+                navigation.dispatch(
+                  CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
+                );
+              }}
             />
           );
         }

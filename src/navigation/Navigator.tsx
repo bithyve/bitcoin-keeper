@@ -125,7 +125,7 @@ import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRec
 import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
-import VerifyAddressSelectionScreen from 'src/screens/Recieve/VerifyAddressSelectionScreen';
+import SignerSelectionListScreen from 'src/screens/Recieve/SignerSelectionListScreen';
 import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
 import AssociateContact from 'src/screens/Contact/AssociateContact';
@@ -162,7 +162,6 @@ function LoginStack() {
         options={{ gestureEnabled: false }}
         component={NewKeeperApp}
       />
-
       {/* Cold Card */}
       <Stack.Screen name="AddColdCardRecovery" component={SetupColdCard} />
       {/* Tap Signer  */}
@@ -205,10 +204,7 @@ function AppStack() {
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
-        <Stack.Screen
-          name="VerifyAddressSelectionScreen"
-          component={VerifyAddressSelectionScreen}
-        />
+        <Stack.Screen name="SignerSelectionListScreen" component={SignerSelectionListScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />

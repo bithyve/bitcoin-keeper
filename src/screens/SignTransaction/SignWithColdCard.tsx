@@ -22,7 +22,7 @@ import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaAction
 import useVault from 'src/hooks/useVault';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { RKInteractionMode } from 'src/services/wallets/enums';
 
 function Card({ message, buttonText, buttonCallBack }) {
@@ -141,34 +141,14 @@ function SignWithColdCard({ route }: { route }) {
       }
     });
 
-  const registerCC = async () =>
-    withNfcModal(async () => {
-      await registerToColcard({ vault: activeVault });
-      dispatch(
-        updateKeyDetails(vaultKey, 'registered', {
-          registered: true,
-          vaultId: activeVault.id,
-        })
-      );
-    });
+  const registerCC = async () => {
+    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+  };
   const { colorMode } = useColorMode();
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <VStack justifyContent="space-between" flex={1}>
         <VStack>
-          {!registered && isMultisig ? (
-            <>
-              <KeeperHeader
-                title="Register Device"
-                subtitle="The vault needs to be registered only once"
-              />
-              <Card
-                message="You will register the new vault with Coldcard so that it allows you to sign every time"
-                buttonText="Scan"
-                buttonCallBack={registerCC}
-              />
-            </>
-          ) : null}
           <KeeperHeader title="Sign Transaction" subtitle="Two step process" enableBack={false} />
           <Card
             message="Send PSBT from the app to Coldcard"
@@ -182,7 +162,7 @@ function SignWithColdCard({ route }: { route }) {
           />
         </VStack>
         <VStack>
-          <Box backgroundColor={`${colorMode}.whiteText`} padding={2}>
+          <Box padding={2}>
             <Box opacity={1}>
               <Text fontSize={14} color={`${colorMode}.primaryText`}>
                 Note
