@@ -55,6 +55,7 @@ const AddressVerifiableSigners = [
   SignerType.LEDGER,
   SignerType.TREZOR,
   SignerType.COLDCARD,
+  SignerType.JADE,
 ];
 
 const SignerTypesNeedingRegistration = [
