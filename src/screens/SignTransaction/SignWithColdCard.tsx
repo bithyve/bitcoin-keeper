@@ -129,16 +129,16 @@ function SignWithColdCard({ route }: { route }) {
             vaultId: activeVault.id,
           })
         );
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
-            },
-          ])
-        );
-        navigation.goBack();
       }
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+          },
+        ])
+      );
+      navigation.goBack();
     });
 
   const registerCC = async () => {
