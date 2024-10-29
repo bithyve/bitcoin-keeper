@@ -34,6 +34,10 @@ function TabBar({ tabs, activeTab, setActiveTab }) {
             backgroundColor={
               activeTab === index ? `${colorMode}.pantoneGreen` : `${colorMode}.secondaryBackground`
             }
+            borderLeftRadius={index === 0 ? 14 : 0}
+            borderBottomLeftRadius={index === 0 ? 14 : 0}
+            borderTopRightRadius={index === tabs.length - 1 ? 14 : 0}
+            borderBottomRightRadius={index === tabs.length - 1 ? 14 : 0}
           >
             <Text
               color={
@@ -218,7 +222,7 @@ const styles = StyleSheet.create({
     width: '85%',
     height: hp(38),
     borderWidth: 1,
-    borderRadius: 14,
+    borderRadius: 15,
   },
   tabBarItem: {
     flex: 1,
