@@ -59,7 +59,7 @@ function SignerCard({
   return (
     <Pressable
       disabled={disabled}
-      backgroundColor={`${colorMode}.seashellWhite`}
+      backgroundColor={`${colorMode}.signerCardBackground`}
       borderColor={colorMode === 'light' ? Colors.SilverMist : Colors.separator}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
@@ -85,7 +85,7 @@ function SignerCard({
         <Text
           color={`${colorMode}.modalWhiteContent`}
           style={styles.walletName}
-          numberOfLines={isFullText ? 0 : 1}
+          numberOfLines={isFullText ? 0 : numberOfLines ? numberOfLines : 1}
           medium
         >
           {name}
@@ -123,8 +123,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   walletName: {
-    fontSize: 12,
-    letterSpacing: 0.12,
+    fontSize: 14,
   },
   walletSubtTitle: {
     fontSize: 11,
@@ -132,7 +131,6 @@ const styles = StyleSheet.create({
   },
   walletDescription: {
     fontSize: 11,
-    letterSpacing: 0.11,
   },
   feeText: {
     fontSize: 16,

@@ -887,7 +887,7 @@ function SignerAdvanceSettings({ route }: any) {
         }
         icon={
           <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
+            backgroundColor={`${colorMode}.pantoneGreen`}
             icon={SDIcons(signer.type, true).Icon}
             image={signer?.extraData?.thumbnailPath}
           />
@@ -1020,9 +1020,7 @@ function SignerAdvanceSettings({ route }: any) {
                 <HexagonIcon
                   width={38}
                   height={34}
-                  backgroundColor={
-                    colorMode === 'dark' ? Colors.pantoneGreenDark : Colors.pantoneGreen
-                  }
+                  backgroundColor={colorMode === 'dark' ? Colors.DullBrown : Colors.RussetBrown}
                   icon={getWalletIcon(vault)}
                 />
               }
@@ -1328,7 +1326,7 @@ const styles = StyleSheet.create({
   },
   signerText: {
     marginVertical: hp(15),
-    marginHorizontal: 10,
+    marginHorizontal: 2,
   },
   signerCard: {
     borderWidth: 1,
