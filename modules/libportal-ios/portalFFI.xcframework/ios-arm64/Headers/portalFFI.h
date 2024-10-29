@@ -65,6 +65,8 @@ void* _Nonnull uniffi_portal_fn_method_portalsdk_debug_msg(void*_Nonnull ptr
 );
 void* _Nonnull uniffi_portal_fn_method_portalsdk_debug_send_raw(void*_Nonnull ptr, RustBuffer data
 );
+void* _Nonnull uniffi_portal_fn_method_portalsdk_debug_wipe_device(void*_Nonnull ptr
+);
 void* _Nonnull uniffi_portal_fn_method_portalsdk_display_address(void*_Nonnull ptr, uint32_t index
 );
 void* _Nonnull uniffi_portal_fn_method_portalsdk_generate_mnemonic(void*_Nonnull ptr, RustBuffer num_words, RustBuffer network, RustBuffer password
@@ -209,6 +211,9 @@ uint16_t uniffi_portal_checksum_method_portalsdk_debug_msg(void
     
 );
 uint16_t uniffi_portal_checksum_method_portalsdk_debug_send_raw(void
+    
+);
+uint16_t uniffi_portal_checksum_method_portalsdk_debug_wipe_device(void
     
 );
 uint16_t uniffi_portal_checksum_method_portalsdk_display_address(void
