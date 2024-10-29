@@ -1052,7 +1052,7 @@ function SignerModals({
         }
         if (signer.type === SignerType.PORTAL) {
           const navigateToSignWithPortal = () => {
-            setTapsignerModal(false);
+            setPortalModal(false);
             navigation.dispatch(
               CommonActions.navigate('SetupPortal', {
                 mode: InteracationMode.SIGN_TRANSACTION,

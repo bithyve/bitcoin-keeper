@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import WalletOperations from 'src/services/wallets/operations';
 import { captureError } from 'src/services/sentry';
 import config from 'src/utils/service-utilities/config';
@@ -182,15 +182,24 @@ export const signTransactionWithPortal = async ({
   closeNfc,
   vault,
 }) => {
+  const signPsbtPortal = async (psbt) => {
+    await PORTAL.startReading();
+    await PORTAL.getStatus();
+    const signedRes = await PORTAL.signPSBT(psbt);
+    return { signedSerializedPSBT: signedRes };
+  };
+
   try {
     const psbtForPortal = await getPsbtForHwi(serializedPSBTEnvelop.serializedPSBT, vault); // portal requires non-witness utxo also.
     setPortalModal(false);
-    return await withNfcModal(async () => {
-      await PORTAL.startReading();
-      await PORTAL.getStatus();
-      const signedRes = await PORTAL.signPSBT(psbtForPortal.serializedPSBT);
-      return { signedSerializedPSBT: signedRes };
-    });
+    if (Platform.OS === 'android') {
+      return await withNfcModal(async () => {
+        return await signPsbtPortal(psbtForPortal.serializedPSBT);
+      });
+    } else {
+      // modal not required for ios// created by portal utility
+      return signPsbtPortal(psbtForPortal.serializedPSBT);
+    }
   } catch (error) {
     console.log('🚀 ~ error:', error);
     if (error.toString() === 'Error') {

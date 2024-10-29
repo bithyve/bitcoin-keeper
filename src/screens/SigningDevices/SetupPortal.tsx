@@ -74,10 +74,7 @@ function SetupPortal({ route }) {
     vaultDescriptor = vaultDescriptor.replaceAll('/**', '/*');
     vaultDescriptor = vaultDescriptor.replace('No path restrictions', '/0/*,/1/*');
     vaultDescriptor = vaultDescriptor.replace('\n', ' ');
-    console.log('🚀 ~ SetupPortal ~ vaultDescriptor:', vaultDescriptor);
   }
-
-
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -120,6 +117,7 @@ function SetupPortal({ route }) {
 
   const registerVault = async () => {
     try {
+      await PORTAL.startReading();
       const status: CardStatus = await PORTAL.getStatus();
       if (!status.initialized) {
         throw 'Portal not initialized';
@@ -271,7 +269,6 @@ function SetupPortal({ route }) {
 
   const signWithPortal = React.useCallback(async () => {
     try {
-      // TODO: check psbt | call sign psbt | log response | dispatch response to store | call signTnx | go back
       // TODO: cvc flow need to check
 
       await signTransaction({ portalCVC: cvc });
