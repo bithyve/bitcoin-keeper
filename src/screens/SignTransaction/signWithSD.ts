@@ -186,6 +186,7 @@ export const signTransactionWithPortal = async ({
     const psbtForPortal = await getPsbtForHwi(serializedPSBTEnvelop.serializedPSBT, vault); // portal requires non-witness utxo also.
     setPortalModal(false);
     return await withNfcModal(async () => {
+      await PORTAL.startReading();
       await PORTAL.getStatus();
       const signedRes = await PORTAL.signPSBT(psbtForPortal.serializedPSBT);
       return { signedSerializedPSBT: signedRes };

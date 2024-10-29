@@ -77,11 +77,7 @@ function SetupPortal({ route }) {
     console.log('🚀 ~ SetupPortal ~ vaultDescriptor:', vaultDescriptor);
   }
 
-  React.useEffect(() => {
-    return () => {
-      PORTAL.stopReading();
-    };
-  }, []);
+
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -147,6 +143,7 @@ function SetupPortal({ route }) {
 
   const getPortalDetails = async () => {
     try {
+      await PORTAL.startReading();
       const status: CardStatus = await PORTAL.getStatus();
       if (!status.initialized) {
         await PORTAL.initializePortal(

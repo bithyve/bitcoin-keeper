@@ -8,6 +8,7 @@ import {
 } from 'libportal-react-native';
 import { XpubTypes } from 'src/services/wallets/enums';
 import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
+import { Platform } from 'react-native';
 
 const sdk = new PortalSdk(true);
 let keepReading = false;
@@ -45,22 +46,24 @@ async function manageTag() {
 }
 
 async function listenForTags() {
-  // while (keepReading) {
   console.info('Looking for a Portal...');
 
-  try {
-    await NfcManager.registerTagEvent();
-    await NfcManager.requestTechnology(NfcTech.NfcA, {});
-    await manageTag();
-  } catch (ex) {
-    console.warn('Oops!', ex);
-    throw ex;
-  } finally {
-    await NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
+  while (keepReading) {
+    try {
+      if (Platform.OS === 'android') {
+        await NfcManager.registerTagEvent();
+      }
+      await NfcManager.requestTechnology(NfcTech.NfcA, {});
+      await manageTag();
+    } catch (ex) {
+      console.warn('Oops!', ex);
+      alreadyInited = false;
+      throw ex;
+    } finally {
+      // stopReading();
+    }
+    // await new Promise((resolve) => setTimeout(resolve, 100)); // chance for UI to propagate
   }
-
-  // await new Promise(resolve => setTimeout(resolve, 100)); // chance for UI to propagate
-  // }
 }
 
 export const init = () => {
@@ -81,7 +84,6 @@ export const init = () => {
 };
 
 export const startReading = () => {
-  console.log('startReading ');
   if (!alreadyInited) return init();
 
   if (keepReading) return; // protect from double calls
@@ -93,24 +95,15 @@ export const startReading = () => {
 export const stopReading = () => {
   console.log('stopReading');
   keepReading = false;
+  alreadyInited = false;
   clearTimeout(livenessCheckInterval);
   NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
   // return NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
 };
 
 export const getStatus = async (): Promise<CardStatus> => {
-  // if (!keepReading) throw new Error('getStatus(): not reading');
   console.log('Called get status ');
   return sdk.getStatus();
-
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error('Timeout')), 2_000);
-
-    sdk.getStatus().then((result: CardStatus) => {
-      clearTimeout(timeout);
-      resolve(result);
-    });
-  });
 };
 
 export const unlock = async (pass: string) => {
@@ -130,9 +123,7 @@ export const getPortalDetailsFromDescriptor = (descriptor: string) => {
   console.log('🚀 ~ getPortalDetailsFromDescriptor ~ descriptor:', descriptor);
   // Regular expression to extract the fingerprint, BIP32 path, and xpub
   const regex = /\[([0-9a-fA-F]+)\/([0-9'\/]+)\]([xtyz][A-Za-z0-9]+)/;
-  // const regex = /^\[(\w+\/(?:\d+'?\/)*\d+')\]([xt]pub[a-zA-Z0-9]+)$/; // multisig test/mainnet
   //  /^\[(\w+\/(?:\d+'?\/)*\d+')\](tpub[a-zA-Z0-9]+)$/; // single sig
-  // /^\[([0-9a-fA-F]+)\/([0-9]+'?\/[0-9]+'?\/[0-9]+'?\/[0-9]+'?)\](tpub[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$/; // multisig testnet
   const match = descriptor.match(regex);
   console.log('🚀 ~ getPortalDetailsFromDescriptor ~ match:', match);
   if (match) {
@@ -143,19 +134,12 @@ export const getPortalDetailsFromDescriptor = (descriptor: string) => {
     // const xpub = match[2]; // The extended public key (xpub)
     // xpubDetails[XpubTypes.P2WPKH] = { xpub, derivationPath };
 
-    // Multi
-    // const mfp = match[1].split('/')[0].replace('[', '');
-    // const derivationPath = match[1]; // The full BIP-32 derivation path
-    // const xpub = match[2]; // The extended public key (xpub/tpub)
-    // xpubDetails[XpubTypes.P2WSH] = { xpub, derivationPath };
-
-    // NEW
+    // Multisig
     const mfp = match[1].toUpperCase();
     const derivationPath = 'm/' + match[2];
     const xpub = match[3];
     xpubDetails[XpubTypes.P2WSH] = { xpub, derivationPath };
 
-    console.log('🚀xpubDetails:', { xpub, derivationPath, masterFingerprint: mfp, xpubDetails });
     return { xpub, derivationPath, masterFingerprint: mfp, xpubDetails };
   } else {
     throw new Error('Invalid descriptor format');
@@ -163,7 +147,6 @@ export const getPortalDetailsFromDescriptor = (descriptor: string) => {
 };
 
 export const initializePortal = (words: MnemonicWords, network: Network, pair_code?: string) => {
-  console.log('🚀 ~ initializePortal ~ network:', network);
   return sdk.generateMnemonic(words, network, pair_code);
 };
 
