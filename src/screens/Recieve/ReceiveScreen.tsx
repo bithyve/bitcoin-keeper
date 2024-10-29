@@ -62,6 +62,7 @@ const SignerTypesNeedingRegistration = [
   SignerType.JADE,
   SignerType.PASSPORT,
   SignerType.KEYSTONE,
+  SignerType.SPECTER,
 ];
 
 function ReceiveScreen({ route }: { route }) {
