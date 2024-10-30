@@ -1,58 +1,45 @@
 import {
-  FlatList,
   InteractionManager,
   KeyboardAvoidingView,
   Keyboard,
   Platform,
-  TextInput,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Pressable,
 } from 'react-native';
-// libraries
-import { Box, useColorMode, View } from 'native-base';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
+import { Box, useColorMode } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
-import { QRreader } from 'react-native-qr-decode-image-camera';
-
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import WalletSmallIcon from 'src/assets/images/daily-wallet-small.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import CollaborativeSmallIcon from 'src/assets/images/collaborative-icon-small.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-
+import VaultSmallIcon from 'src/assets/images/vault-icon-small.svg';
+import ArrowIcon from 'src/assets/images/icon_arrow.svg';
+import RemoveIcon from 'src/assets/images/remove-green-icon.svg';
+import RemoveIconDark from 'src/assets/images/remove-white-icon.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import {
-  EntityKind,
-  NetworkType,
-  PaymentInfoKind,
-  VaultType,
-  VisibilityType,
-} from 'src/services/wallets/enums';
-import { RNCamera } from 'react-native-camera';
+import { EntityKind, NetworkType, PaymentInfoKind, VaultType } from 'src/services/wallets/enums';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import { TransferType } from 'src/models/enums/TransferType';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/services/wallets/operations';
-import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/services/wallets/interfaces';
-import useVault from 'src/hooks/useVault';
 import HexagonIcon from 'src/components/HexagonIcon';
 import idx from 'idx';
-import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 import Buttons from 'src/components/Buttons';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
@@ -62,7 +49,9 @@ import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
-import Clipboard from '@react-native-community/clipboard';
+import KeeperTextInput from 'src/components/KeeperTextInput';
+import ScannerIcon from 'src/assets/images/scanner-icon.svg';
+import ScannerIconDark from 'src/assets/images/scanner-icon-white.svg';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -78,37 +67,26 @@ function SendScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [note, setNote] = useState('');
+  const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(null);
   const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
   const network = WalletUtilities.getNetworkByType(sender.networkType);
-  const { wallets } = useWallets({ getAll: true });
-  const { allVaults } = useVault({ includeArchived: false });
-  const otherWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter(
-    (item) =>
-      item && item.presentationData.visibility !== VisibilityType.HIDDEN && item.id !== sender.id
-  );
-
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
   const isSmallDevice = useIsSmallDevices();
   const { signerMap } = useSignerMap();
-  const { signers: vaultKeys } = selectedItem || { signers: [] };
+  const { signers: vaultKeys } = selectedWallet || { signers: [] };
   const { vaultSigners: keys } = useSigners(
-    selectedItem?.entityKind === EntityKind.VAULT ? selectedItem?.id : ''
+    selectedWallet?.entityKind === EntityKind.VAULT ? selectedWallet?.id : ''
   );
-  const [isFocused, setIsFocused] = useState(false);
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
-  const prevTextRef = useRef('');
-
-  useFocusEffect(
-    useCallback(() => {
-      setIsFocused(true);
-      return () => {
-        setIsFocused(false);
-      };
-    }, [])
-  );
+  const isDarkMode = colorMode === 'dark';
+  const availableBalance =
+    sender.networkType === NetworkType.MAINNET
+      ? sender.specs.balances.confirmed
+      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -141,39 +119,9 @@ function SendScreen({ route }) {
     };
   }, []);
 
-  const handleChooseImage = () => {
-    const options = {
-      quality: 1.0,
-      maxWidth: 500,
-      maxHeight: 500,
-      storageOptions: {
-        skipBackup: true,
-      },
-      mediaType: 'photo',
-    } as ImageLibraryOptions;
-
-    launchImageLibrary(options, async (response) => {
-      if (response.didCancel) {
-        showToast('Camera device has been canceled');
-      } else if (response.errorCode === 'camera_unavailable') {
-        showToast('Camera not available on device');
-      } else if (response.errorCode === 'permission') {
-        showToast('Permission not satisfied');
-      } else if (response.errorCode === 'others') {
-        showToast(response.errorMessage);
-      } else {
-        QRreader(response.assets[0].uri)
-          .then((data) => {
-            validateAddress(data);
-          })
-          .catch((err) => {
-            showToast('Invalid or No related QR code');
-          });
-      }
-    });
+  const handleSelectWallet = (wallet) => {
+    setSelectedWallet(wallet);
   };
-
-  const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
   const navigateToNext = (
     address: string,
@@ -186,15 +134,17 @@ function SendScreen({ route }) {
       return;
     }
 
-    navigation.navigate('AddSendAmount', {
-      sender,
-      recipient,
-      address,
-      amount,
-      transferType,
-      selectedUTXOs,
-      parentScreen,
-    });
+    navigation.dispatch(
+      CommonActions.navigate('AddSendAmount', {
+        sender,
+        recipient,
+        address,
+        amount,
+        transferType,
+        selectedUTXOs,
+        parentScreen,
+      })
+    );
   };
 
   const getWalletIcon = (wallet) => {
@@ -205,17 +155,26 @@ function SendScreen({ route }) {
     }
   };
 
-  const handleChangeText = async (text: string) => {
-    setPaymentInfo(text);
-
-    if (Math.abs(text.length - prevTextRef.current.length) > 1) {
-      const clipboardContent = await Clipboard.getString();
-      if (text === clipboardContent) {
-        validateAddress(text);
-      }
+  const getSmallWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      return wallet.type === VaultType.COLLABORATIVE ? (
+        <CollaborativeSmallIcon />
+      ) : (
+        <VaultSmallIcon />
+      );
+    } else {
+      return <WalletSmallIcon />;
     }
+  };
 
-    prevTextRef.current = text;
+  const onQrScan = async (qrData, resetQR) => {
+    try {
+      setPaymentInfo(qrData);
+      navigation.goBack();
+      resetQR();
+    } catch (error) {
+      showToast('Invalid bitcoin address', <ToastErrorIcon />);
+    }
   };
 
   const validateAddress = (info: string) => {
@@ -246,83 +205,55 @@ function SendScreen({ route }) {
     }
   };
   const handleProceed = (skipHealthCheck = false) => {
-    if (selectedItem) {
-      if (selectedItem.entityKind === EntityKind.VAULT) {
+    if (selectedWallet) {
+      if (selectedWallet.entityKind === EntityKind.VAULT) {
         if (sender.entityKind === EntityKind.VAULT) {
           navigateToNext(
-            WalletOperations.getNextFreeAddress(selectedItem),
+            WalletOperations.getNextFreeAddress(selectedWallet),
             TransferType.VAULT_TO_VAULT,
             null,
-            selectedItem
+            selectedWallet
           );
         } else if (sender.entityKind === EntityKind.WALLET) {
-          if (!skipHealthCheck && pendingHealthCheckCount >= selectedItem.scheme.m) {
+          if (!skipHealthCheck && pendingHealthCheckCount >= selectedWallet.scheme.m) {
             setShowHealthCheckModal(true);
           } else {
             navigateToNext(
-              WalletOperations.getNextFreeAddress(selectedItem),
+              WalletOperations.getNextFreeAddress(selectedWallet),
               TransferType.VAULT_TO_WALLET,
               null,
-              selectedItem
+              selectedWallet
             );
           }
         }
-      } else if (selectedItem.entityKind === EntityKind.WALLET) {
+      } else if (selectedWallet.entityKind === EntityKind.WALLET) {
         if (sender.entityKind === EntityKind.VAULT) {
           navigateToNext(
-            WalletOperations.getNextFreeAddress(selectedItem),
+            WalletOperations.getNextFreeAddress(selectedWallet),
             TransferType.WALLET_TO_VAULT,
             null,
-            selectedItem
+            selectedWallet
           );
         } else if (sender.entityKind === EntityKind.WALLET) {
           navigateToNext(
-            WalletOperations.getNextFreeAddress(selectedItem),
+            WalletOperations.getNextFreeAddress(selectedWallet),
             TransferType.WALLET_TO_WALLET,
             null,
-            selectedItem
+            selectedWallet
           );
         }
+      }
+    } else if (paymentInfo) {
+      try {
+        validateAddress(paymentInfo);
+      } catch (error) {
+        showToast('Invalid bitcoin address', <ToastErrorIcon />);
       }
     } else {
       showToast('Please select a wallet or vault');
     }
   };
 
-  const renderWallets = ({ item }: { item: Wallet }) => {
-    const onPress = () => {
-      setSelectedItem(item);
-    };
-
-    return (
-      <Box
-        justifyContent="center"
-        alignItems="center"
-        style={{ marginRight: wp(10) }}
-        width={wp(60)}
-      >
-        <TouchableOpacity onPress={onPress}>
-          <HexagonIcon
-            width={42}
-            height={36}
-            backgroundColor={Colors.RussetBrown}
-            icon={getWalletIcon(item)}
-            showSelection={item?.id === selectedItem?.id}
-          />
-        </TouchableOpacity>
-        <Box>
-          <Text light fontSize={12} mt="1" numberOfLines={1}>
-            {item.presentationData.name}
-          </Text>
-        </Box>
-      </Box>
-    );
-  };
-
-  const availableBalance =
-    sender.networkType === NetworkType.MAINNET
-      ? sender.specs.balances.confirmed
-      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -334,11 +265,12 @@ function SendScreen({ route }) {
         <KeeperHeader
           title="Sending from"
           subtitle={sender.presentationData.name}
+          subTitleSize={16}
           icon={
             <HexagonIcon
               width={44}
               height={38}
-              backgroundColor={Colors.pantoneGreen}
+              backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
               icon={getWalletIcon(sender)}
             />
           }
@@ -346,9 +278,10 @@ function SendScreen({ route }) {
             <CurrencyInfo
               hideAmounts={false}
               amount={availableBalance}
-              fontSize={14}
+              fontSize={16}
+              satsFontSize={12}
               color={`${colorMode}.primaryText`}
-              variation={colorMode === 'light' ? 'dark' : 'light'}
+              variation={!isDarkMode ? 'dark' : 'light'}
             />
           }
         />
@@ -357,63 +290,122 @@ function SendScreen({ route }) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={isSmallDevice && { paddingBottom: hp(100) }}
         >
-          <Box>
-            <Box style={styles.qrcontainer}>
-              {isFocused && (
-                <RNCamera
-                  testID="qrscanner"
-                  style={styles.cameraView}
-                  captureAudio={false}
-                  onBarCodeRead={(data) => {
-                    validateAddress(data.data);
-                  }}
-                  notAuthorizedView={<CameraUnauthorized />}
-                />
-              )}
-            </Box>
-            <UploadImage onPress={handleChooseImage} />
-            <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <TextInput
+          <Box style={styles.container}>
+            <Box style={styles.inputWrapper}>
+              <KeeperTextInput
                 testID="input_receive_address"
-                placeholder="or enter address manually"
-                placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
-                style={styles.textInput}
+                placeholder="Enter Address"
+                inpuBackgroundColor={`${colorMode}.textInputBackground`}
+                inpuBorderColor={`${colorMode}.dullGreyBorder`}
+                height={50}
                 value={paymentInfo}
-                onChangeText={handleChangeText}
-                onSubmitEditing={() => validateAddress(paymentInfo)}
-                blurOnSubmit={true}
+                onChangeText={(data: string) => {
+                  setPaymentInfo(data);
+                }}
+                paddingLeft={5}
+                isDisabled={selectedWallet}
+                InputRightComponent={
+                  <Pressable
+                    onPress={() => {
+                      navigation.dispatch(
+                        CommonActions.navigate({
+                          name: 'ScanQR',
+                          params: {
+                            title: 'Scan Address',
+                            subtitle: 'Please scan until all the QR data has been retrieved',
+                            onQrScan,
+                          },
+                        })
+                      );
+                    }}
+                  >
+                    <Box style={styles.scannerContainer}>
+                      {isDarkMode ? <ScannerIconDark /> : <ScannerIcon />}
+                    </Box>
+                  </Pressable>
+                }
               />
-            </Box>
-            <Box style={styles.sendToWalletWrapper}>
-              <Text
-                color={`${colorMode}.headerText`}
-                marginX={2}
-                fontSize={14}
-                letterSpacing={1.12}
-              >
-                or send to a wallet
-              </Text>
-              <View>
-                <View style={styles.walletContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-                  <FlatList
-                    data={otherWallets}
-                    renderItem={renderWallets}
-                    keyExtractor={(item) => item?.id}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    ListEmptyComponent={
-                      <Box style={styles.emptyWalletsContainer}>
-                        <EmptyWalletIcon />
-                        <Box style={styles.emptyWalletText}>
-                          <Text color={`${colorMode}.hexagonIconBackColor`}>
-                            You don't have any wallets yet
-                          </Text>
+              <KeeperTextInput
+                testID="input_receive_address"
+                placeholder="Add a note (Optional)"
+                inpuBackgroundColor={`${colorMode}.textInputBackground`}
+                inpuBorderColor={`${colorMode}.dullGreyBorder`}
+                height={50}
+                value={note}
+                onChangeText={(text: string) => {
+                  setNote(text);
+                }}
+                blurOnSubmit={true}
+                paddingLeft={5}
+              />
+              <Box style={styles.sendToWalletContainer}>
+                <Pressable
+                  onPress={
+                    !selectedWallet
+                      ? () => {
+                          navigation.dispatch(
+                            CommonActions.navigate('SelectWallet', { sender, handleSelectWallet })
+                          );
+                        }
+                      : () => {
+                          setSelectedWallet(null);
+                        }
+                  }
+                >
+                  <Box
+                    flexDirection={'row'}
+                    justifyContent={'space-between'}
+                    alignItems={'center'}
+                    style={styles.sendToWalletWrapper}
+                  >
+                    <Text color={`${colorMode}.primaryText`}>Send to one of your wallets</Text>
+                    {!selectedWallet ? (
+                      <ArrowIcon />
+                    ) : isDarkMode ? (
+                      <RemoveIconDark />
+                    ) : (
+                      <RemoveIcon />
+                    )}
+                  </Box>
+                </Pressable>
+                {selectedWallet && (
+                  <Pressable
+                    onPress={() => {
+                      navigation.dispatch(
+                        CommonActions.navigate('SelectWallet', {
+                          sender,
+                          handleSelectWallet,
+                          selectedWalletIdFromParams: selectedWallet?.id,
+                        })
+                      );
+                    }}
+                  >
+                    <Box
+                      flexDirection={'row'}
+                      justifyContent={'space-between'}
+                      alignItems={'center'}
+                      style={styles.sendToWalletWrapper}
+                    >
+                      <Box style={styles.walletDetails}>
+                        <Box>
+                          <HexagonIcon
+                            width={29}
+                            height={26}
+                            icon={getSmallWalletIcon(selectedWallet)}
+                            backgroundColor={
+                              isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen
+                            }
+                          />
                         </Box>
+                        <Text color={`${colorMode}.primaryText`}>
+                          {selectedWallet?.presentationData.name}
+                        </Text>
                       </Box>
-                    }
-                  />
-                </View>
-              </View>
+                      <Text color={`${colorMode}.greenText`}>Change Wallet</Text>
+                    </Box>
+                  </Pressable>
+                )}
+              </Box>
             </Box>
           </Box>
         </ScrollView>
@@ -437,7 +429,7 @@ function SendScreen({ route }) {
       </Box>
 
       <PendingHealthCheckModal
-        selectedItem={selectedItem}
+        selectedItem={selectedWallet}
         vaultKeys={vaultKeys}
         signerMap={signerMap}
         keys={keys}
@@ -455,6 +447,9 @@ function SendScreen({ route }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    marginTop: hp(30),
+  },
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -479,13 +474,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputWrapper: {
-    flexDirection: 'row',
-    marginTop: hp(10),
-    marginHorizontal: hp(5),
-    width: '98%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
+    alignSelf: 'center',
+    width: '100%',
+    paddingLeft: wp(11),
+    paddingRight: wp(21),
   },
   textInput: {
     width: '100%',
@@ -517,6 +509,7 @@ const styles = StyleSheet.create({
   noteWrapper: {
     marginLeft: wp(20),
     marginBottom: hp(10),
+    paddingHorizontal: wp(11),
     position: 'absolute',
     bottom: windowHeight > 680 ? hp(15) : hp(8),
     width: '100%',
@@ -535,6 +528,20 @@ const styles = StyleSheet.create({
   },
   proceedButton: {
     marginVertical: 5,
+  },
+  scannerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: wp(11),
+    paddingVertical: hp(14),
+  },
+  walletDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  sendToWalletContainer: {
+    gap: 10,
   },
 });
 export default Sentry.withErrorBoundary(SendScreen, errorBourndaryOptions);
