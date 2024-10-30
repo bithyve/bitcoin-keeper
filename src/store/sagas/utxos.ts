@@ -5,7 +5,7 @@ import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
 import { LabelRefType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
@@ -27,7 +27,7 @@ export function* addLabelsWorker({
   try {
     yield put(setSyncingUTXOs(true));
     const { txId, vout, wallet, labels, type } = payload;
-    const origin = genrateOutputDescriptors(wallet, false);
+    const origin = generateAbbreviatedOutputDescriptors(wallet);
     const tags = [];
     labels.forEach((label) => {
       const ref = vout !== undefined ? `${txId}:${vout}` : txId;
@@ -71,7 +71,7 @@ export function* bulkUpdateLabelsWorker({
   try {
     yield put(setSyncingUTXOs(true));
     const { labelChanges, wallet, UTXO, txId, address } = payload;
-    const origin = genrateOutputDescriptors(wallet, false);
+    const origin = generateAbbreviatedOutputDescriptors(wallet);
     let addedTags: BIP329Label[] = [];
     let deletedTagIds: string[] = [];
     const idSuffix = txId || address || `${UTXO.txId}:${UTXO.vout}`;

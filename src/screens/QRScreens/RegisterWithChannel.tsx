@@ -18,7 +18,7 @@ import crypto from 'crypto';
 import {
   createCipherGcm,
   createDecipherGcm,
-  genrateOutputDescriptors,
+  generateOutputDescriptors,
 } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
@@ -36,16 +36,12 @@ function ScanAndInstruct({ onBarCodeRead }) {
   return !channelCreated ? (
     <QRScanner onScanCompleted={callback} />
   ) : (
-    <VStack>
+    // TODO: Move this to a component
+    <VStack marginTop={'40%'}>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {'\u2022 Please resigter the vault from the Keeper Desktop App'}
+        {'Please continue resigtering the vault from the Keeper Desktop App'}
       </Text>
-      <Text numberOfLines={4} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {
-          '\u2022 If the web interface does not update, please make sure to stay on the same internet connection and rescan the QR code.'
-        }
-      </Text>
-      <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+      <ActivityIndicator style={{ marginTop: hp(20), alignSelf: 'center', padding: '2%' }} />
     </VStack>
   );
 }
@@ -67,7 +63,8 @@ function RegisterWithChannel() {
   const dispatch = useDispatch();
 
   const { activeVault: vault } = useVault({ vaultId });
-  const descriptorString = genrateOutputDescriptors(vault).split('\n')[0];
+  // TODO: Should migrate to regualr descriptor format
+  const descriptorString = generateOutputDescriptors(vault, true).split('\n')[0];
   const firstExtAdd = vault.specs.addresses.external[0]; // for cross validation from desktop app.
 
   const onBarCodeRead = (data) => {
@@ -144,9 +141,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   instructions: {
-    width: windowWidth * 0.8,
+    width: windowWidth * 0.75,
     padding: '2%',
     letterSpacing: 0.65,
     fontSize: 13,
+    textAlign: 'center',
   },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Pressable } from 'native-base';
 import { Image, StyleSheet, ViewStyle } from 'react-native';
-import { windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import Colors from 'src/theme/Colors';
@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
   walletName: {
     fontSize: 12,
     letterSpacing: 0.12,
+    marginTop: hp(6),
   },
   walletSubtTitle: {
     fontSize: 11,

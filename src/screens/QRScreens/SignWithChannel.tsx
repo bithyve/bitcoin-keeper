@@ -36,16 +36,11 @@ function ScanAndInstruct({ onBarCodeRead }) {
   return !channelCreated ? (
     <QRScanner onScanCompleted={callback} />
   ) : (
-    <VStack>
+    <VStack marginTop={'40%'}>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {'\u2022 Please sign the transaction from the Keeper Desktop App'}
+        {'Please continue signing the transaction from the Keeper Desktop App'}
       </Text>
-      <Text numberOfLines={4} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {
-          '\u2022 If the web interface does not update, please make sure to stay on the same internet connection and rescan the QR code.'
-        }
-      </Text>
-      <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+      <ActivityIndicator style={{ marginTop: hp(20), alignSelf: 'center', padding: '2%' }} />
     </VStack>
   );
 }
@@ -173,9 +168,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   instructions: {
-    width: windowWidth * 0.8,
+    width: windowWidth * 0.75,
     padding: '2%',
     letterSpacing: 0.65,
     fontSize: 13,
+    textAlign: 'center',
   },
 });

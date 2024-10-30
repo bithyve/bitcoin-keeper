@@ -12,7 +12,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, useColorMode, View } from 'native-base';
+import { Box, ScrollView, useColorMode, View } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import {
   KeyGenerationMode,
@@ -89,6 +89,7 @@ import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritance-key-illustration.svg';
 import Import from 'src/assets/images/import.svg';
+import USBIcon from 'src/assets/images/usb_white.svg';
 import NfcComms from 'src/assets/images/nfc_comms.svg';
 import QRComms from 'src/assets/images/qr_comms.svg';
 import useSigners from 'src/hooks/useSigners';
@@ -149,13 +150,11 @@ const getSignerContent = (
         type: SignerType.COLDCARD,
         Illustration: <ColdCardSetupImage />,
         Instructions: [
-          'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.',
-          'From here choose the account number and transfer over NFC or via file.',
+          'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. Then transfer the file via SD card or NFC.',
+          'Or instead, use the Keeper Desktop app to connect to the Coldcard via USB',
         ],
         title: isHealthcheck ? 'Verify Coldcard' : coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
-        sepInstruction:
-          'Make sure you remember the account you had chosen (This is important for vault recovery)',
         options: [
           {
             title: 'NFC',
@@ -179,6 +178,17 @@ const getSignerContent = (
               />
             ),
             name: KeyGenerationMode.FILE,
+          },
+          {
+            title: 'USB',
+            icon: (
+              <CircleIconWrapper
+                icon={<USBIcon />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.USB,
           },
         ],
       };
@@ -647,21 +657,24 @@ function SignerContent({
           flexDirection: 'row',
         }}
       >
-        {options &&
-          options.map((option) => (
-            <SignerCard
-              disabled={option.disabled}
-              key={option.name}
-              isSelected={keyGenerationMode === option.name}
-              isFullText={true}
-              name={option.title}
-              icon={option.icon}
-              onCardSelect={() => {
-                onSelect(option);
-              }}
-              colorMode={colorMode}
-            />
-          ))}
+        <ScrollView horizontal>
+          {options &&
+            options.map((option) => (
+              <SignerCard
+                disabled={option.disabled}
+                key={option.name}
+                isSelected={keyGenerationMode === option.name}
+                isFullText={true}
+                name={option.title}
+                icon={option.icon}
+                onCardSelect={() => {
+                  onSelect(option);
+                }}
+                colorMode={colorMode}
+                customStyle={{ width: wp(95), height: hp(100) }}
+              />
+            ))}
+        </ScrollView>
       </View>
     </View>
   );
@@ -1967,6 +1980,8 @@ function HardwareModalMap({
       case SignerType.COLDCARD:
         if (keyGenerationMode === KeyGenerationMode.FILE) {
           return navigateToFileBasedSigner(type);
+        } else if (keyGenerationMode === KeyGenerationMode.USB) {
+          return navigateToSetupWithChannel();
         }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:

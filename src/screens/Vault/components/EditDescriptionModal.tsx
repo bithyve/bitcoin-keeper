@@ -93,7 +93,6 @@ function DescriptionModal({
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.primaryText`}
       subTitleColor={`${colorMode}.secondaryText`}
-      DarkCloseIcon={colorMode === 'dark'}
       close={close}
       title="Add Description"
       subTitle="Optionally you can add a short description to the signer"
