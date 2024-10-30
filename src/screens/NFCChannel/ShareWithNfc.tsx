@@ -120,7 +120,7 @@ function ShareWithNfc({
       <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={shareWithNFC} />
       <OptionCTA
         icon={<AirDropIcon />}
-        title={`${isIos ? 'Airdrop / ' : ''}File export`}
+        title={`${isIos ? 'Airdrop / ' : ''}File Export`}
         callback={shareWithAirdrop}
       />
       {/* // ! Hide Remote Key */}
