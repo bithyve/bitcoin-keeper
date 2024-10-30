@@ -64,7 +64,7 @@ function ColdCardContent({
 
   if (isMultisig) {
     message =
-      'Make sure the multisig wallet is registered with the Coldcard before signing the transaction';
+      '\u2022 Make sure the multisig wallet is registered with the Coldcard before signing the transaction';
   }
 
   return (
@@ -248,17 +248,57 @@ function KeystoneContent({
   );
 }
 
-function JadeContent() {
+function JadeContent({
+  isMultisig,
+  supportedSigningOptions,
+  onSelect,
+  signingMode,
+}: {
+  isMultisig: boolean;
+  supportedSigningOptions: any[];
+  onSelect: any;
+  signingMode: SigningMode;
+}) {
+  const { colorMode } = useColorMode();
+
   return (
     <Box alignItems="center">
       <JadeSetup />
       <Box marginTop={2}>
+        {isMultisig && (
+          <Text style={styles.instructionsText}>
+            {
+              '\u2022 Make sure the multisig wallet is registered on the Jade before signing the transaction.'
+            }
+          </Text>
+        )}
         <Text style={styles.instructionsText}>
-          {
-            "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."
-          }
+          {signingMode === SigningMode.USB
+            ? '\u2022 For signing via USB, connect the Jade to your computer and follow the instructions on the Keeper desktop app'
+            : "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."}
+        </Text>
+        <Text semiBold style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>
+          {'Sign transaction via:'}
         </Text>
       </Box>
+      <HStack alignSelf={'flex-start'}>
+        {supportedSigningOptions &&
+          supportedSigningOptions.map((option) => (
+            <SignerCard
+              key={option.name}
+              isSelected={signingMode === option.name}
+              isFullText={true}
+              name={option.title}
+              icon={option.icon}
+              image={option?.extraData?.thumbnailPath}
+              onCardSelect={() => {
+                onSelect(option.name);
+              }}
+              colorMode={colorMode}
+              customStyle={{ width: wp(95), height: hp(100) }}
+            />
+          ))}
+      </HStack>
     </Box>
   );
 }
@@ -830,8 +870,8 @@ function SignerModals({
               close={() => {
                 setLedgerModal(false);
               }}
-              title="Keep Nano X Ready"
-              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Trezor.`}
+              title="Keep your Ledger Ready"
+              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Ledger.`}
               textColor={`${colorMode}.primaryText`}
               Content={() => <LedgerContent />}
               buttonText="Proceed"
@@ -1032,7 +1072,16 @@ function SignerModals({
               title="Keep Jade Ready"
               subTitle="Keep your Jade ready before proceeding"
               textColor={`${colorMode}.primaryText`}
-              Content={() => <JadeContent />}
+              Content={() => (
+                <JadeContent
+                  isMultisig={isMultisig}
+                  supportedSigningOptions={supportedSigningOptions}
+                  onSelect={(mode) => {
+                    setSigningMode(mode);
+                  }}
+                  signingMode={signingMode}
+                />
+              )}
               buttonText={'Start Signing'}
               secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
               secondaryCallback={() => {
@@ -1041,7 +1090,14 @@ function SignerModals({
                   CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
                 );
               }}
-              buttonCallback={() => navigateToQrSigning(vaultKey)}
+              buttonCallback={() => {
+                setJadeModal(false);
+                if (signingMode === SigningMode.USB) {
+                  navigateToChannelSigning(vaultKey, SignerType.JADE);
+                } else {
+                  navigateToQrSigning(vaultKey);
+                }
+              }}
             />
           );
         }

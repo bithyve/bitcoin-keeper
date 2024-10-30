@@ -198,16 +198,22 @@ const getSignerContent = (
       const jadeInstructions = `When unlocked, export the key by going to Options > Wallet > Export Xpub. Then in Options, make sure Script is set to Native Segwit and Wallet is set to ${
         isMultisig ? 'MultiSig' : 'SingleSig'
       }.`;
+
+      let usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} and connect your Jade to the computer.`;
+
+      let instructions =
+        keyGenerationMode === KeyGenerationMode.USB
+          ? [usbInstructions]
+          : [jadeUnlockInstructions, jadeInstructions];
+      if (isTestnet()) {
+        instructions.push(
+          'Make sure you enable Testnet mode on the Jade (Options > Device > Settings > Network) if you are running Keeper in the Testnet mode.'
+        );
+      }
       return {
         type: SignerType.JADE,
         Illustration: <JadeSVG />,
-        Instructions: isTestnet()
-          ? [
-              jadeUnlockInstructions,
-              jadeInstructions,
-              'Make sure you enable Testnet mode on the Jade (Options > Device > Settings > Network) if you are running Keeper in the Testnet mode.',
-            ]
-          : [jadeUnlockInstructions, jadeInstructions],
+        Instructions: instructions,
         title: isHealthcheck
           ? 'Verify Blockstream Jade'
           : isCanaryAddition
