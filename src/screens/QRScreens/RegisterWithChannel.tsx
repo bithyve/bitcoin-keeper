@@ -137,10 +137,6 @@ const styles = StyleSheet.create({
     marginVertical: 25,
     alignItems: 'center',
   },
-  cameraView: {
-    height: hp(280),
-    width: wp(375),
-  },
   noteWrapper: {
     width: '100%',
     bottom: 0,

@@ -40,16 +40,6 @@ function ScanQRFileRecovery({ route }) {
   );
 }
 const styles = StyleSheet.create({
-  qrcontainer: {
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginVertical: 15,
-    alignItems: 'center',
-  },
-  cameraView: {
-    height: width * 0.9,
-    width: width * 0.9,
-  },
   noteWrapper: {
     width: '100%',
     bottom: 0,
