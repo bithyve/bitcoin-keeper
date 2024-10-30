@@ -182,6 +182,7 @@ export const customTheme = extendTheme({
       dullGreyBorder: Colors.SilverMistTranslucent,
       greyBorderTransparent: Colors.SilverMistTransparent,
       greyBorderTranslucent: Colors.SilverMistTranslucent,
+      border: Colors.SilverMist,
       limeText: Colors.LimeYellow,
       greenText: Colors.SeaweedGreen,
       greenTextDisabled: Colors.SlateGreen,
@@ -218,6 +219,8 @@ export const customTheme = extendTheme({
       seedCard: Colors.LightYellow,
       secondaryBackground: Colors.Seashell,
       errorToastBackground: Colors.ErrorToast,
+      transactionDeatilInfo: Colors.GreenishGrey,
+      transactionDeatilAddress: Colors.GreenishGrey,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -351,6 +354,7 @@ export const customTheme = extendTheme({
       greyBorder: Colors.SilverMist,
       greyBorderTransparent: Colors.SilverMistTransparent,
       greyBorderTranslucent: Colors.SilverMistTranslucent,
+      border: Colors.SilverMistTransparent,
       placeHolderTextColor: Colors.Graphite,
       linkPreviewBackground: Colors.Graphite,
       dullGreyBorder: Colors.separator,
@@ -393,6 +397,8 @@ export const customTheme = extendTheme({
       secondaryBackground: Colors.SecondaryBlack,
       thirdBackground: Colors.SecondaryBlack,
       errorToastBackground: Colors.ErrorToastDark,
+      transactionDeatilInfo: Colors.GraphiteLight,
+      transactionDeatilAddress: Colors.SecondaryWhite,
     },
   },
   config: {

@@ -95,16 +95,16 @@ function SigningDeviceList() {
   }, []);
 
   const sortedSigners = [
+    SignerType.BITBOX02,
     SignerType.COLDCARD,
-    SignerType.LEDGER,
-    SignerType.TREZOR,
-    SignerType.TAPSIGNER,
-    SignerType.PASSPORT,
     SignerType.JADE,
+    SignerType.KEYSTONE,
+    SignerType.LEDGER,
+    SignerType.PASSPORT,
     SignerType.SEEDSIGNER,
     SignerType.SPECTER,
-    SignerType.BITBOX02,
-    SignerType.KEYSTONE,
+    SignerType.TAPSIGNER,
+    SignerType.TREZOR,
     SignerType.KEEPER,
     SignerType.MY_KEEPER,
     SignerType.SEED_WORDS,

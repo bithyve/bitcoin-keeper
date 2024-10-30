@@ -248,11 +248,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 0.2,
   },
-  qrContainer: {
-    alignSelf: 'center',
-    marginVertical: hp(40),
-    flex: 1,
-  },
   scrollViewWrapper: {
     flex: 1,
   },
@@ -267,16 +262,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     marginTop: 10,
     flexDirection: 'row',
-  },
-  cameraView: {
-    height: hp(250),
-    width: wp(375),
-  },
-  qrcontainer: {
-    overflow: 'hidden',
-    borderRadius: 10,
-    marginVertical: hp(25),
-    alignItems: 'center',
   },
   walletContainer: {
     flexDirection: 'row',

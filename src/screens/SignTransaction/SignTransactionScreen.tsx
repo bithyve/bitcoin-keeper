@@ -725,6 +725,7 @@ function SignTransactionScreen() {
         onFileSign={onFileSign}
         sendConfirmationRouteParams={sendConfirmationRouteParams}
         tnxDetails={tnxDetails}
+        isRemoteKey={false}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal

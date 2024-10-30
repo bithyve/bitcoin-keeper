@@ -41,6 +41,7 @@ type ModalProps = {
   dismissible?: boolean;
   learnMoreButton?: boolean;
   learnMoreButtonPressed?: () => void;
+  learnMoreButtonText?: string;
   learnButtonBackgroundColor?: string;
   learnButtonTextColor?: string;
   closeOnOverlayClick?: boolean;
@@ -69,6 +70,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   learnMoreButton: false,
   learnMoreButtonPressed: () => {},
+  learnMoreButtonText: null,
   learnButtonBackgroundColor: 'BrownNeedHelp',
   learnButtonTextColor: 'light.learnMoreBorder',
   closeOnOverlayClick: true,
@@ -99,6 +101,7 @@ function KeeperModal(props: ModalProps) {
     dismissible,
     learnMoreButton,
     learnMoreButtonPressed,
+    learnMoreButtonText,
     learnButtonTextColor,
     learnButtonBackgroundColor,
     secButtonTextColor,
@@ -177,7 +180,7 @@ function KeeperModal(props: ModalProps) {
                   style={styles.learnMoreButtonContainer}
                 >
                   <Text color={learnButtonTextColor} style={styles.learnMoreText}>
-                    {common.learnMore}
+                    {learnMoreButtonText ? learnMoreButtonText : common.learnMore}
                   </Text>
                 </Box>
               </TouchableOpacity>

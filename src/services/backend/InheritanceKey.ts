@@ -43,7 +43,7 @@ export default class InheritanceKeyServer {
   ): InheritanceConfiguration => {
     const descriptors = vault.signers.map((signer) => signer.xfp);
 
-    // const bsms = backupBSMSForIKS ? genrateOutputDescriptors(vault) : null;
+    // const bsms = backupBSMSForIKS ? generateOutputDescriptors(vault) : null;
     const bsms = null; // disabled BSMS backup
 
     return {

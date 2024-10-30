@@ -17,10 +17,9 @@ import {
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
-import { updateKeyDetails, updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -79,8 +78,6 @@ import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import Note from 'src/components/Note/Note';
-import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
-import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -237,10 +234,6 @@ function SignerAdvanceSettings({ route }: any) {
     navigation.dispatch(popAction);
   };
 
-  const registerColdCard = async () => {
-    await withNfcModal(() => registerToColcard({ vault: activeVault }));
-  };
-
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -359,23 +352,6 @@ function SignerAdvanceSettings({ route }: any) {
 
   const registerSigner = async () => {
     switch (signer.type) {
-      case SignerType.COLDCARD:
-        await registerColdCard();
-        dispatch(
-          updateKeyDetails(vaultKey, 'registered', {
-            registered: true,
-            vaultId: activeVault.id,
-          })
-        );
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_REGISTRATION,
-            },
-          ])
-        );
-        return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
         navigation.dispatch(
@@ -389,13 +365,18 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.PASSPORT:
-      case SignerType.SEEDSIGNER:
       case SignerType.SPECTER:
       case SignerType.OTHER_SD:
+      case SignerType.COLDCARD:
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
       default:
-        showToast('Coming soon', null, IToastCategory.DEFAULT, 1000);
+        showToast(
+          "This device doesn't require vault registration",
+          null,
+          IToastCategory.DEFAULT,
+          1000
+        );
         break;
     }
   };
@@ -543,7 +524,7 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const signPSBT = async (serializedPSBT, resetQR) => {
+  const signPSBT = async (serializedPSBT) => {
     try {
       let signedSerialisedPSBT;
       try {
@@ -568,7 +549,6 @@ function SignerAdvanceSettings({ route }: any) {
         );
       }
     } catch (e) {
-      resetQR();
       showToast('Please scan a valid PSBT');
     }
   };

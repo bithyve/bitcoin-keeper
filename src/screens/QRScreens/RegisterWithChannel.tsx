@@ -1,67 +1,47 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
-import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
 import { CHANNEL_MESSAGE, EMIT_MODES, JOIN_CHANNEL } from 'src/services/channel/constants';
 import { captureError } from 'src/services/sentry';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
 import {
   createCipherGcm,
   createDecipherGcm,
-  genrateOutputDescriptors,
+  generateOutputDescriptors,
 } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import QRScanner from 'src/components/QRScanner';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
 
-  const [isFocused, setIsFocused] = useState(false);
-  useFocusEffect(
-    useCallback(() => {
-      setIsFocused(true);
-      return () => {
-        setIsFocused(false);
-      };
-    }, [])
-  );
-
   const callback = (data) => {
     onBarCodeRead(data);
     setChannelCreated(true);
   };
-  return !channelCreated && isFocused ? (
-    <RNCamera
-      autoFocus="on"
-      style={styles.cameraView}
-      captureAudio={false}
-      onBarCodeRead={callback}
-      useNativeZoom
-    />
+  return !channelCreated ? (
+    <QRScanner onScanCompleted={callback} />
   ) : (
-    <VStack>
+    // TODO: Move this to a component
+    <VStack marginTop={'40%'}>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {'\u2022 Please resigter the vault from the Keeper Desktop App'}
+        {'Please continue resigtering the vault from the Keeper Desktop App'}
       </Text>
-      <Text numberOfLines={4} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {
-          '\u2022 If the web interface does not update, please make sure to stay on the same internet connection and rescan the QR code.'
-        }
-      </Text>
-      <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+      <ActivityIndicator style={{ marginTop: hp(20), alignSelf: 'center', padding: '2%' }} />
     </VStack>
   );
 }
@@ -83,10 +63,11 @@ function RegisterWithChannel() {
   const dispatch = useDispatch();
 
   const { activeVault: vault } = useVault({ vaultId });
-  const descriptorString = genrateOutputDescriptors(vault).split('\n')[0];
+  // TODO: Should migrate to regualr descriptor format
+  const descriptorString = generateOutputDescriptors(vault, true).split('\n')[0];
   const firstExtAdd = vault.specs.addresses.external[0]; // for cross validation from desktop app.
 
-  const onBarCodeRead = ({ data }) => {
+  const onBarCodeRead = (data) => {
     decryptionKey.current = data;
     const sha = crypto.createHash('sha256');
     sha.update(data);
@@ -135,7 +116,7 @@ function RegisterWithChannel() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Register with Keeper Desktop App"
-        subtitle={`Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to register this signer.`}
+        subtitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to register this signer.`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />
@@ -153,10 +134,6 @@ const styles = StyleSheet.create({
     marginVertical: 25,
     alignItems: 'center',
   },
-  cameraView: {
-    height: hp(280),
-    width: wp(375),
-  },
   noteWrapper: {
     width: '100%',
     bottom: 0,
@@ -164,9 +141,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   instructions: {
-    width: windowWidth * 0.8,
+    width: windowWidth * 0.75,
     padding: '2%',
     letterSpacing: 0.65,
     fontSize: 13,
+    textAlign: 'center',
   },
 });

@@ -33,7 +33,7 @@ import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { CommonActions } from '@react-navigation/native';
 import SwiperModal from './components/SwiperModal';
 import UtxoSummary from './UtxoSummary';
@@ -174,7 +174,7 @@ export default function BroadcastPremix({ route, navigation }) {
             const tags = labels[key].filter((t) => !t.isSystem);
             userLabels.push(...tags);
           });
-          const origin = genrateOutputDescriptors(wallet, false);
+          const origin = generateAbbreviatedOutputDescriptors(wallet);
           outputs.forEach((_, i) => {
             userLabels.forEach((label) => {
               premixTags.push({

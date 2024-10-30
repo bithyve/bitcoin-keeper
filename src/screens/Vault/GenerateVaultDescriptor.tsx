@@ -10,7 +10,6 @@ import { useRoute } from '@react-navigation/native';
 import { captureError } from 'src/services/sentry';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import KeeperQRCode from 'src/components/KeeperQRCode';
-import Note from 'src/components/Note/Note';
 
 function GenerateVaultDescriptor() {
   const route = useRoute();
@@ -44,7 +43,7 @@ function GenerateVaultDescriptor() {
             </Box>
           </TouchableOpacity>
           <Box style={{ paddingBottom: '10%' }}>
-            <ShareWithNfc data={descriptorString} fileName={`wallet-${vaultId}-backup.bsms`} />
+            <ShareWithNfc data={descriptorString} fileName={`${vaultId}-backup.txt`} />
           </Box>
         </Box>
       </ScrollView>
