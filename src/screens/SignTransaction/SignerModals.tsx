@@ -90,7 +90,12 @@ function ColdCardContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
-              customStyle={{ width: wp(95), height: hp(100) }}
+              customStyle={{
+                width: wp(95),
+                height: hp(
+                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
+                ),
+              }}
             />
           ))}
       </HStack>
@@ -144,7 +149,12 @@ function PassportContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
-              customStyle={{ width: wp(95), height: hp(100) }}
+              customStyle={{
+                width: wp(95),
+                height: hp(
+                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
+                ),
+              }}
             />
           ))}
       </HStack>
@@ -240,7 +250,12 @@ function KeystoneContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
-              customStyle={{ width: wp(95), height: hp(100) }}
+              customStyle={{
+                width: wp(95),
+                height: hp(
+                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
+                ),
+              }}
             />
           ))}
       </HStack>
@@ -295,7 +310,12 @@ function JadeContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
-              customStyle={{ width: wp(95), height: hp(100) }}
+              customStyle={{
+                width: wp(95),
+                height: hp(
+                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
+                ),
+              }}
             />
           ))}
       </HStack>

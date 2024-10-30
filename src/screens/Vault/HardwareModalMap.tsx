@@ -700,7 +700,10 @@ function SignerContent({
                   onSelect(option);
                 }}
                 colorMode={colorMode}
-                customStyle={{ width: wp(95), height: hp(100) }}
+                customStyle={{
+                  width: wp(95),
+                  height: hp(options.some((opt) => opt.title.length > 10) ? 115 : 100),
+                }}
               />
             ))}
         </ScrollView>
