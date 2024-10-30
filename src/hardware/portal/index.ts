@@ -12,19 +12,25 @@ import { Platform } from 'react-native';
 
 const sdk = new PortalSdk(true);
 let keepReading = false;
-let alreadyInited = false;
+let alreadyInitiated = false;
 let livenessCheckInterval: NodeJS.Timeout;
+let paused = false;
 
 function livenessCheck(): Promise<NfcOut> {
   return new Promise((_resolve, reject) => {
-    livenessCheckInterval = setInterval(() => {
+    const interval = setInterval(() => {
+      if (paused) {
+        return;
+      }
+
       NfcManager.getTag()
         .then(() => NfcManager.transceive([0x30, 0xed]))
         .catch(() => {
           NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
-          clearInterval(livenessCheckInterval);
-
-          reject(new Error('Removed tag'));
+          clearInterval(interval);
+          alreadyInitiated = false;
+          keepReading = false;
+          reject('Removed tag');
         });
     }, 250);
   });
@@ -32,49 +38,90 @@ function livenessCheck(): Promise<NfcOut> {
 
 async function manageTag() {
   await sdk.newTag();
-  const check = livenessCheck();
+  const check = Platform.select({
+    ios: () => new Promise(() => {}),
+    android: () => livenessCheck(),
+  })();
 
-  // eslint-disable-next-line no-unmodified-loop-condition
   while (keepReading) {
     const msg = await Promise.race([sdk.poll(), check]);
     // console.trace('>', msg.data);
-    const result = await NfcManager.nfcAHandler.transceive(msg.data);
-    // console.trace('<', result);
-    await sdk.incomingData(msg.msgIndex, result);
-    // await new Promise(resolve => setTimeout(resolve, 100)); // chance for UI to propagate
+    if (!paused) {
+      const result = await NfcManager.nfcAHandler.transceive(msg.data);
+      // console.trace('<', result);
+      await sdk.incomingData(msg.msgIndex, result);
+    }
+  }
+}
+
+async function restartPolling() {
+  const timeout = new Promise((_, rej) => setTimeout(rej, 250));
+
+  paused = true;
+  return Promise.race([NfcManager.restartTechnologyRequestIOS(), timeout]).finally(() => {
+    paused = false;
+  });
+}
+
+async function getOneTag() {
+  console.log('Looking for a Portal...');
+  paused = false;
+  let restartInterval = null;
+
+  if (Platform.OS === 'android') {
+    await NfcManager.registerTagEvent();
+  }
+  await NfcManager.requestTechnology(NfcTech.NfcA, {});
+  if (Platform.OS === 'ios') {
+    restartInterval = setInterval(restartPolling, 17500);
+  }
+
+  while (true) {
+    try {
+      await manageTag();
+    } catch (ex) {
+      console.log('Oops!', ex);
+      alreadyInitiated = false;
+      keepReading = false;
+    }
+
+    // Try recovering the tag on iOS
+    if (Platform.OS === 'ios') {
+      try {
+        await restartPolling();
+      } catch (_ex) {
+        console.log('🚀 ~ getOneTag ~ _ex:', _ex);
+        if (restartInterval) {
+          clearInterval(restartInterval);
+        }
+
+        NfcManager.invalidateSessionWithErrorIOS('Portal was lost');
+        alreadyInitiated = false;
+        keepReading = false;
+        break;
+      }
+    } else {
+      NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
+      break;
+    }
   }
 }
 
 async function listenForTags() {
-  console.info('Looking for a Portal...');
-
   while (keepReading) {
-    try {
-      if (Platform.OS === 'android') {
-        await NfcManager.registerTagEvent();
-      }
-      await NfcManager.requestTechnology(NfcTech.NfcA, {});
-      await manageTag();
-    } catch (ex) {
-      console.warn('Oops!', ex);
-      alreadyInited = false;
-      throw ex;
-    } finally {
-      // stopReading();
-    }
-    // await new Promise((resolve) => setTimeout(resolve, 100)); // chance for UI to propagate
+    await getOneTag();
   }
 }
 
 export const init = () => {
   console.log('INITIALIZING PORTAL NFC');
-  if (alreadyInited) return;
+  if (alreadyInitiated) return;
 
   return NfcManager.isSupported().then((value) => {
     if (value) {
       console.log('NFC read starting...');
       NfcManager.start();
-      alreadyInited = true;
+      alreadyInitiated = true;
       keepReading = true;
       listenForTags();
     } else {
@@ -84,7 +131,7 @@ export const init = () => {
 };
 
 export const startReading = () => {
-  if (!alreadyInited) return init();
+  if (!alreadyInitiated) return init();
 
   if (keepReading) return; // protect from double calls
 
@@ -95,7 +142,7 @@ export const startReading = () => {
 export const stopReading = () => {
   console.log('stopReading');
   keepReading = false;
-  alreadyInited = false;
+  alreadyInitiated = false;
   clearTimeout(livenessCheckInterval);
   NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
   // return NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
@@ -121,18 +168,12 @@ export const isReading = () => {
 
 export const getPortalDetailsFromDescriptor = (descriptor: string) => {
   console.log('🚀 ~ getPortalDetailsFromDescriptor ~ descriptor:', descriptor);
-  // Regular expression to extract the fingerprint, BIP32 path, and xpub
   const regex = /\[([0-9a-fA-F]+)\/([0-9'\/]+)\]([xtyz][A-Za-z0-9]+)/;
   //  /^\[(\w+\/(?:\d+'?\/)*\d+')\](tpub[a-zA-Z0-9]+)$/; // single sig
   const match = descriptor.match(regex);
   console.log('🚀 ~ getPortalDetailsFromDescriptor ~ match:', match);
   if (match) {
     const xpubDetails: XpubDetailsType = {};
-    // SingleSig
-    // const mfp = match[1].split('/')[0].replace('[', '');
-    // const derivationPath = match[1]; // The full BIP-32 derivation path
-    // const xpub = match[2]; // The extended public key (xpub)
-    // xpubDetails[XpubTypes.P2WPKH] = { xpub, derivationPath };
 
     // Multisig
     const mfp = match[1].toUpperCase();
