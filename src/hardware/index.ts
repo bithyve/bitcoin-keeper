@@ -175,7 +175,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Keystone';
       break;
     case SignerType.LEDGER:
-      name = 'Nano X';
+      name = 'Ledger';
       break;
     case SignerType.MOBILE_KEY:
       name = 'Recovery Key';
@@ -427,7 +427,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Secure signers from Coinkite';
     }
     case SignerType.LEDGER: {
-      return 'Popular signers like Nano S and Nano X';
+      return 'Ledger signers like Nano S, Nano X, Stax, and Flex';
     }
     case SignerType.PASSPORT: {
       return 'Passport signers from Foundation Devices';

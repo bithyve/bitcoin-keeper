@@ -751,8 +751,7 @@
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up Ledger",
-    "SetupDescription": "Keep your bluetooth enabled Ledger Nano X ready before proceeding",
-    "ScanningBT": "Scanning for bluetooth",
+    "SetupDescription": "Keep your Ledger ready before proceeding",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
   "bitbox": {
