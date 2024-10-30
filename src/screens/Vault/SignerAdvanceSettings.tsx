@@ -543,7 +543,7 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const signPSBT = async (serializedPSBT, resetQR) => {
+  const signPSBT = async (serializedPSBT) => {
     try {
       let signedSerialisedPSBT;
       try {
@@ -568,7 +568,6 @@ function SignerAdvanceSettings({ route }: any) {
         );
       }
     } catch (e) {
-      resetQR();
       showToast('Please scan a valid PSBT');
     }
   };

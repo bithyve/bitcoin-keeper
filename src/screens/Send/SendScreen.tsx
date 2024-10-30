@@ -11,10 +11,8 @@ import {
 } from 'react-native';
 // libraries
 import { Box, useColorMode, View } from 'native-base';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
-import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
@@ -32,19 +30,16 @@ import {
   VaultType,
   VisibilityType,
 } from 'src/services/wallets/enums';
-import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { TransferType } from 'src/models/enums/TransferType';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/services/wallets/operations';
 import useWallets from 'src/hooks/useWallets';
@@ -63,6 +58,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import Clipboard from '@react-native-community/clipboard';
+import QRScanner from 'src/components/QRScanner';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -97,18 +93,8 @@ function SendScreen({ route }) {
   const { vaultSigners: keys } = useSigners(
     selectedItem?.entityKind === EntityKind.VAULT ? selectedItem?.id : ''
   );
-  const [isFocused, setIsFocused] = useState(false);
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const prevTextRef = useRef('');
-
-  useFocusEffect(
-    useCallback(() => {
-      setIsFocused(true);
-      return () => {
-        setIsFocused(false);
-      };
-    }, [])
-  );
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -140,38 +126,6 @@ function SendScreen({ route }) {
       keyboardDidShowListener.remove();
     };
   }, []);
-
-  const handleChooseImage = () => {
-    const options = {
-      quality: 1.0,
-      maxWidth: 500,
-      maxHeight: 500,
-      storageOptions: {
-        skipBackup: true,
-      },
-      mediaType: 'photo',
-    } as ImageLibraryOptions;
-
-    launchImageLibrary(options, async (response) => {
-      if (response.didCancel) {
-        showToast('Camera device has been canceled');
-      } else if (response.errorCode === 'camera_unavailable') {
-        showToast('Camera not available on device');
-      } else if (response.errorCode === 'permission') {
-        showToast('Permission not satisfied');
-      } else if (response.errorCode === 'others') {
-        showToast(response.errorMessage);
-      } else {
-        QRreader(response.assets[0].uri)
-          .then((data) => {
-            validateAddress(data);
-          })
-          .catch((err) => {
-            showToast('Invalid or No related QR code');
-          });
-      }
-    });
-  };
 
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
@@ -358,20 +312,7 @@ function SendScreen({ route }) {
           contentContainerStyle={isSmallDevice && { paddingBottom: hp(100) }}
         >
           <Box>
-            <Box style={styles.qrcontainer}>
-              {isFocused && (
-                <RNCamera
-                  testID="qrscanner"
-                  style={styles.cameraView}
-                  captureAudio={false}
-                  onBarCodeRead={(data) => {
-                    validateAddress(data.data);
-                  }}
-                  notAuthorizedView={<CameraUnauthorized />}
-                />
-              )}
-            </Box>
-            <UploadImage onPress={handleChooseImage} />
+            <QRScanner onScanCompleted={validateAddress} />
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
                 testID="input_receive_address"

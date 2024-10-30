@@ -1,8 +1,7 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { windowWidth, wp } from 'src/constants/responsive';
@@ -16,13 +15,11 @@ import {
   EMIT_MODES,
   JOIN_CHANNEL,
 } from 'src/services/channel/constants';
-import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { getBitbox02Details } from 'src/hardware/bitbox';
-import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType } from 'src/services/wallets/enums';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { SignerType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
@@ -49,36 +46,19 @@ import useVault from 'src/hooks/useVault';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import ReceiveAddress from '../Recieve/ReceiveAddress';
 import ReceiveQR from '../Recieve/ReceiveQR';
+import QRScanner from 'src/components/QRScanner';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
-
-  const [isFocused, setIsFocused] = useState(false);
-  useFocusEffect(
-    useCallback(() => {
-      setIsFocused(true);
-      return () => {
-        setIsFocused(false);
-      };
-    }, [])
-  );
 
   const callback = (data) => {
     onBarCodeRead(data);
     setChannelCreated(true);
   };
 
-  return !channelCreated && isFocused ? (
-    <Box style={styles.qrcontainer}>
-      <RNCamera
-        autoFocus="on"
-        style={styles.cameraView}
-        captureAudio={false}
-        onBarCodeRead={callback}
-        useNativeZoom
-      />
-    </Box>
+  return !channelCreated ? (
+    <QRScanner onScanCompleted={callback} />
   ) : (
     <VStack>
       {mode === InteracationMode.ADDRESS_VERIFICATION ? (
@@ -157,7 +137,7 @@ function ConnectChannel() {
     requestBody.receivingAddress = receivingAddress ?? null;
   }
 
-  const onBarCodeRead = ({ data }) => {
+  const onBarCodeRead = (data) => {
     decryptionKey.current = data;
     const sha = crypto.createHash('sha256');
     sha.update(data);
@@ -441,16 +421,6 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: 25,
     alignItems: 'center',
-  },
-  qrcontainer: {
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginVertical: 25,
-    alignItems: 'center',
-  },
-  cameraView: {
-    height: windowWidth * 0.7,
-    width: windowWidth * 0.8,
   },
   noteWrapper: {
     marginHorizontal: '5%',

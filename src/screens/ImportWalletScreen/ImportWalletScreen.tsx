@@ -1,12 +1,9 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
-import React, { useCallback, useContext, useState } from 'react';
-import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
+import React, { useContext, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
-import { QRreader } from 'react-native-qr-decode-image-camera';
 import { useQuery } from '@realm/react';
-import { RNCamera } from 'react-native-camera';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -14,10 +11,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import CameraUnauthorized from 'src/components/CameraUnauthorized';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { WalletType } from 'src/services/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -28,6 +22,7 @@ import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import QRScanner from 'src/components/QRScanner';
 
 function ImportWalletContent() {
   return (
@@ -56,48 +51,6 @@ function ImportWalletScreen() {
   const { common, importWallet, wallet } = translations;
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
   const [introModal, setIntroModal] = useState(false);
-
-  const [isFocused, setIsFocused] = useState(false);
-  useFocusEffect(
-    useCallback(() => {
-      setIsFocused(true);
-      return () => {
-        setIsFocused(false);
-      };
-    }, [])
-  );
-
-  const handleChooseImage = () => {
-    const options = {
-      quality: 1.0,
-      maxWidth: 500,
-      maxHeight: 500,
-      storageOptions: {
-        skipBackup: true,
-      },
-      mediaType: 'photo',
-    } as ImageLibraryOptions;
-
-    launchImageLibrary(options, async (response) => {
-      if (response.didCancel) {
-        showToast('Camera device has been canceled', <ToastErrorIcon />);
-      } else if (response.errorCode === 'camera_unavailable') {
-        showToast('Camera not available on device', <ToastErrorIcon />);
-      } else if (response.errorCode === 'permission') {
-        showToast('Permission not satisfied', <ToastErrorIcon />);
-      } else if (response.errorCode === 'others') {
-        showToast(response.errorMessage, <ToastErrorIcon />);
-      } else {
-        QRreader(response.assets[0].uri)
-          .then((data) => {
-            initiateWalletImport(data);
-          })
-          .catch((err) => {
-            showToast('Invalid or No related QR code');
-          });
-      }
-    });
-  };
 
   const initiateWalletImport = (data: string) => {
     try {
@@ -134,21 +87,7 @@ function ImportWalletScreen() {
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
-            <Box style={styles.qrcontainer}>
-              {isFocused && (
-                <RNCamera
-                  style={styles.cameraView}
-                  captureAudio={false}
-                  onBarCodeRead={(data) => {
-                    initiateWalletImport(data.data);
-                  }}
-                  notAuthorizedView={<CameraUnauthorized />}
-                />
-              )}
-            </Box>
-            {/* Upload Image */}
-
-            <UploadImage onPress={handleChooseImage} />
+            <QRScanner onScanCompleted={initiateWalletImport} />
 
             {/* Note */}
             <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
@@ -212,11 +151,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 0.2,
   },
-  qrContainer: {
-    alignSelf: 'center',
-    marginVertical: hp(40),
-    flex: 1,
-  },
   scrollViewWrapper: {
     flex: 1,
   },
@@ -236,16 +170,6 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     padding: 15,
     opacity: 0.5,
-  },
-  cameraView: {
-    height: hp(250),
-    width: wp(375),
-  },
-  qrcontainer: {
-    overflow: 'hidden',
-    borderRadius: 10,
-    marginVertical: hp(25),
-    alignItems: 'center',
   },
   walletContainer: {
     flexDirection: 'row',

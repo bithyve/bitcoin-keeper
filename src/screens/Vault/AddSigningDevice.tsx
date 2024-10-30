@@ -536,7 +536,7 @@ function Signers({
 
   const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
 
-  const onQrScan = async (qrData, resetQR) => {
+  const onQrScan = async (qrData) => {
     try {
       let hw: { signer: Signer; key: VaultSigner };
       hw = setupKeeperSigner(qrData);
@@ -549,7 +549,6 @@ function Signers({
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);
-        resetQR();
       } else {
         captureError(error);
         showToast(
