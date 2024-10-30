@@ -60,14 +60,14 @@ function Address({ address, activeTab, colorMode }) {
     <Box style={styles.addressContainer}>
       {activeTab === 0 ? (
         colorMode === 'dark' ? (
-          <IconRecieveDark width={wp(18)} height={hp(18)} />
+          <IconSendDark width={wp(18)} height={hp(18)} />
         ) : (
-          <IconRecieve width={wp(18)} height={hp(18)} />
+          <IconSend width={wp(18)} height={hp(18)} />
         )
       ) : colorMode === 'dark' ? (
-        <IconSendDark width={wp(18)} height={hp(18)} />
+        <IconRecieveDark width={wp(18)} height={hp(18)} />
       ) : (
-        <IconSend width={wp(18)} height={hp(18)} />
+        <IconRecieve width={wp(18)} height={hp(18)} />
       )}
       <Box width={'90%'}>
         <Text
