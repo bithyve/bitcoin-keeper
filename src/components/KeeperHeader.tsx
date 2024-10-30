@@ -12,9 +12,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 type Props = {
   title?: string;
   titleColor?: string;
+  titleSize?: number;
   mediumTitle?: boolean;
   subtitle?: string;
   subTitleColor?: string;
+  subTitleSize?: number;
   onPressHandler?: () => void;
   enableBack?: boolean;
   learnMore?: boolean;
@@ -109,6 +111,8 @@ const KeeperHeader = ({
   subtitle = '',
   titleColor,
   subTitleColor,
+  titleSize = 20,
+  subTitleSize = 14,
   mediumTitle = false,
   onPressHandler,
   enableBack = true,
@@ -130,8 +134,8 @@ const KeeperHeader = ({
   const { common } = translations;
 
   const styles = useMemo(
-    () => getStyles(rightComponentPadding, headerInfoPadding),
-    [rightComponentPadding, headerInfoPadding]
+    () => getStyles(rightComponentPadding, headerInfoPadding, titleSize, subTitleSize),
+    [rightComponentPadding, headerInfoPadding, titleSize, subTitleSize]
   );
 
   if (simple) {
@@ -206,7 +210,9 @@ const KeeperHeader = ({
 
 const getStyles = (
   rightComponentPadding: number | `${number}%`,
-  headerInfoPadding: number | `${number}%`
+  headerInfoPadding: number | `${number}%`,
+  titleSize: number,
+  subTitleSize: number
 ) =>
   StyleSheet.create({
     container: {
@@ -240,10 +246,10 @@ const getStyles = (
     },
     addWalletText: {
       letterSpacing: 0.18,
-      fontSize: 20,
+      fontSize: titleSize,
     },
     addWalletDescription: {
-      fontSize: 14,
+      fontSize: subTitleSize,
       lineHeight: 18,
       width: windowWidth * 0.8,
     },

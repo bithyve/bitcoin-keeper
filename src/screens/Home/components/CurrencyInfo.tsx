@@ -11,6 +11,7 @@ interface ICurrencyInfo {
   hideAmounts: boolean;
   amount: number;
   fontSize: number;
+  satsFontSize?: number;
   bold?: boolean;
   color?: string;
   variation?: 'light' | 'green' | 'dark' | 'grey';
@@ -19,6 +20,7 @@ function CurrencyInfo({
   hideAmounts,
   amount,
   fontSize,
+  satsFontSize = fontSize,
   bold,
   color = Colors.White,
   variation = 'grey',
@@ -36,7 +38,16 @@ function CurrencyInfo({
             numberOfLines={1}
             testID="text_balance"
           >
-            {` ${getBalance(amount)} ${getSatUnit()}`}
+            {` ${getBalance(amount)} `}
+          </Text>
+          <Text
+            color={color}
+            style={{ fontSize: satsFontSize, paddingVertical: 5 }}
+            bold={bold}
+            numberOfLines={1}
+            testID="text_balance"
+          >
+            {getSatUnit()}
           </Text>
         </Box>
       ) : (
