@@ -219,7 +219,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up Blockstream Jade',
-        subTitle: 'Keep your Jade ready and unlocked before proceeding',
+        subTitle: 'Get your Jade ready and powered up before proceeding',
         options: [
           {
             title: 'QR',
@@ -308,7 +308,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up Keystone',
-        subTitle: 'Keep your Keystone ready before proceeding',
+        subTitle: 'Get your Keystone ready before proceeding',
         options: [
           {
             title: 'QR',
@@ -348,11 +348,11 @@ const getSignerContent = (
             ]
           : [passportInstructions],
         title: isHealthcheck
-          ? 'Verify Passport (Batch 2)'
+          ? 'Verify Passport'
           : isCanaryAddition
           ? 'Setting up for Canary'
-          : 'Setting up Passport (Batch 2)',
-        subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
+          : 'Setting up Passport',
+        subTitle: 'Get your Foundation Passport ready before proceeding',
         options: [
           {
             title: 'QR',
@@ -467,7 +467,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up SeedSigner',
-        subTitle: 'Keep your SeedSigner ready and powered before proceeding',
+        subTitle: 'Get your SeedSigner ready and powered before proceeding',
         options: [],
       };
 
@@ -489,7 +489,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up Specter DIY',
-        subTitle: 'Keep your device ready and powered before proceeding',
+        subTitle: 'Get your device ready and powered before proceeding',
         options: [],
       };
     case SignerType.BITBOX02:
@@ -572,7 +572,7 @@ const getSignerContent = (
           'The hardened part of the derivation path of the xpub has to be denoted with a “h” or “”. Please do not use any other character',
         ],
         title: isHealthcheck ? 'Verify Signer' : 'Setting up Signer',
-        subTitle: 'Keep your Signer ready before proceeding',
+        subTitle: 'Get your Signer ready before proceeding',
         options: [],
       };
 

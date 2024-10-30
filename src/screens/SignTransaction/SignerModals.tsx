@@ -792,8 +792,8 @@ function SignerModals({
               key={vaultKey.xfp}
               visible={currentSigner && tapsignerModal}
               close={() => setTapsignerModal(false)}
-              title="Keep your TAPSIGNER ready"
-              subTitle="Keep your TAPSIGNER ready before proceeding"
+              title="Get your TAPSIGNER ready"
+              subTitle="Get your TAPSIGNER ready before proceeding"
               buttonText="Proceed"
               buttonCallback={navigateToSignWithTapsigner}
               Content={() => <TapsignerContent />}
@@ -837,8 +837,8 @@ function SignerModals({
               key={vaultKey.xfp}
               visible={currentSigner && coldCardModal}
               close={() => setColdCardModal(false)}
-              title={'Keep your Coldcard ready'}
-              subTitle="Keep your Coldcard ready before proceeding"
+              title={'Get your Coldcard ready'}
+              subTitle="Get your Coldcard ready before proceeding"
               Content={() => (
                 <ColdCardContent
                   register={isMultisig && !info?.registered}
@@ -870,7 +870,7 @@ function SignerModals({
               close={() => {
                 setLedgerModal(false);
               }}
-              title="Keep your Ledger Ready"
+              title="Get your Ledger Ready"
               subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Ledger.`}
               textColor={`${colorMode}.primaryText`}
               Content={() => <LedgerContent />}
@@ -923,7 +923,7 @@ function SignerModals({
                 setPassportModal(false);
               }}
               title="Keep Passport Ready"
-              subTitle="Keep your Foundation Passport ready before proceeding"
+              subTitle="Get your Foundation Passport ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => (
                 <PassportContent
@@ -976,7 +976,7 @@ function SignerModals({
                 setSeedSignerModal(false);
               }}
               title="Keep SeedSigner Ready"
-              subTitle="Keep your SeedSigner ready before proceeding"
+              subTitle="Get your SeedSigner ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => <SeedSignerContent isMultisig={isMultisig} />}
               buttonText="Proceed"
@@ -993,7 +993,7 @@ function SignerModals({
                 setSpecterModal(false);
               }}
               title="Keep Specter Ready"
-              subTitle="Keep your Specter ready before proceeding"
+              subTitle="Get your Specter ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => <SpecterContent isMultisig={isMultisig} />}
               buttonText={'Start Signing'}
@@ -1017,7 +1017,7 @@ function SignerModals({
                 setKeystoneModal(false);
               }}
               title="Keep Keystone Ready"
-              subTitle="Keep your Keystone ready before proceeding"
+              subTitle="Get your Keystone ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => (
                 <KeystoneContent
@@ -1070,7 +1070,7 @@ function SignerModals({
                 setJadeModal(false);
               }}
               title="Keep Jade Ready"
-              subTitle="Keep your Jade ready before proceeding"
+              subTitle="Get your Jade ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => (
                 <JadeContent
@@ -1144,7 +1144,7 @@ function SignerModals({
                 setOtherSDModal(false);
               }}
               title="Keep the Signer Ready"
-              subTitle="Keep your Signer ready before proceeding"
+              subTitle="Get your Signer ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => <OtherSDContent />}
               buttonText="Proceed"
@@ -1160,8 +1160,8 @@ function SignerModals({
               close={() => {
                 setKeeperModal(false);
               }}
-              title="Keep your Device Ready"
-              subTitle={`Keep your ${getSignerNameFromType(signer.type)} ready before proceeding`}
+              title="Get your Device Ready"
+              subTitle={`Get your ${getSignerNameFromType(signer.type)} ready before proceeding`}
               textColor={`${colorMode}.primaryText`}
               Content={() => (
                 <KeeperContent masterFingerPrint={signer && signer.masterFingerprint} />

@@ -187,7 +187,7 @@ function ChangeTapsignerPin() {
         close={() => setShowPinModal(false)}
         showCloseIcon={false}
         title="Activate New PIN"
-        subTitle="Keep your TAPSIGNER ready before proceeding"
+        subTitle="Get your TAPSIGNER ready before proceeding"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
