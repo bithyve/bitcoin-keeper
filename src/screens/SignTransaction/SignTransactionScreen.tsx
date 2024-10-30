@@ -449,6 +449,7 @@ function SignTransactionScreen() {
             serializedPSBTEnvelop,
             closeNfc,
             vault: defaultVault,
+            portalCVC,
           });
 
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));

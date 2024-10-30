@@ -181,11 +181,21 @@ export const signTransactionWithPortal = async ({
   serializedPSBTEnvelop,
   closeNfc,
   vault,
+  portalCVC,
 }) => {
   const signPsbtPortal = async (psbt) => {
     await PORTAL.startReading();
-    await PORTAL.getStatus();
+    let status = await PORTAL.getStatus();
+    if (!status.unlocked) {
+      if (!portalCVC) throw new Error('Portal is locked. Pin is required');
+      const res = await PORTAL.unlock(portalCVC);
+    }
+    status = await PORTAL.getStatus();
+    if (!status.unlocked) {
+      throw new Error('Portal not unlocked');
+    }
     const signedRes = await PORTAL.signPSBT(psbt);
+    PORTAL.stopReading();
     return { signedSerializedPSBT: signedRes };
   };
 
@@ -193,20 +203,17 @@ export const signTransactionWithPortal = async ({
     const psbtForPortal = await getPsbtForHwi(serializedPSBTEnvelop.serializedPSBT, vault); // portal requires non-witness utxo also.
     setPortalModal(false);
     if (Platform.OS === 'android') {
-      return await withNfcModal(async () => {
-        return await signPsbtPortal(psbtForPortal.serializedPSBT);
-      });
+      return await withNfcModal(async () => await signPsbtPortal(psbtForPortal.serializedPSBT));
     } else {
       // modal not required for ios// created by portal utility
       return signPsbtPortal(psbtForPortal.serializedPSBT);
     }
   } catch (error) {
     console.log('🚀 ~ error:', error);
-    if (error.toString() === 'Error') {
-      // ignore if nfc modal is dismissed
-    } else {
-      closeNfc();
-      captureError(error);
-    }
+    closeNfc();
+
+    throw error;
+  } finally {
+    PORTAL.stopReading();
   }
 };
