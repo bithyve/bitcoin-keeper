@@ -73,7 +73,6 @@ export type AppStackParams = {
   VaultSettings: undefined;
   SignWithColdCard: undefined;
   ChoosePolicyNew: undefined;
-  SigningServerSettings: undefined;
   SigningServer: undefined;
   AddDescription: undefined;
   AllTransactions: undefined;

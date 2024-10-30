@@ -171,8 +171,8 @@ function BackupHealthCheckList({ isUaiFlow }) {
       <KeeperModal
         close={() => setHealthCheckModal(false)}
         visible={healthCheckModal}
-        title={BackupWallet.backupSuccessTitle}
-        subTitle={BackupWallet.backupSuccessSubTitle}
+        title={BackupWallet.healthCheckSuccessTitle}
+        subTitle={BackupWallet.healthCheckSuccessSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

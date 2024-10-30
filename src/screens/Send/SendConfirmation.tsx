@@ -721,34 +721,6 @@ function HighFeeAlert({
     </>
   );
 }
-function AddLabel() {
-  return (
-    <Box
-      flexDirection={'row'}
-      alignItems={'center'}
-      backgroundColor={Colors.MintWhisper}
-      padding={3}
-      borderWidth={1}
-      borderStyle={'dashed'}
-      borderRadius={10}
-      borderColor={Colors.GreenishBlue}
-      marginTop={10}
-    >
-      <Box marginRight={3}>
-        <LabelImg />
-      </Box>
-      <Box>
-        <Text
-          style={{ marginBottom: 3, fontWeight: 'bold', fontSize: 13 }}
-          color={Colors.GreenishBlue}
-        >
-          Add Labels to Transaction
-        </Text>
-        <Box>Lorem ipsum dolor sit amet, consectetu</Box>
-      </Box>
-    </Box>
-  );
-}
 
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
