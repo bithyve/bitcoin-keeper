@@ -13,8 +13,10 @@ function AppNumPad({
   color = '#FDF7F0',
   height = 70,
   darkDeleteIcon = false,
+  decimalPoint = false,
 }) {
-  const numPadArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'ok', 0, 'clear'];
+  let numPadArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'ok', 0, 'clear'];
+  if (decimalPoint) numPadArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0, 'clear'];
 
   const onCharInput = (char) => {
     if (!disable) {
@@ -43,7 +45,7 @@ function AppNumPad({
             />
           );
         }
-        if (typeof char === 'number') {
+        if (typeof char === 'number' || (decimalPoint && char === '.')) {
           return (
             <CharButton
               char={char}
