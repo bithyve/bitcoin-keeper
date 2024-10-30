@@ -971,7 +971,9 @@ function HardwareModalMap({
           subtitle: isExternalKey
             ? 'Please scan a QR or use alternate methods listed below'
             : 'Please scan until all the QR data has been retrieved',
-          onQrScan: isHealthcheck ? onQRScanHealthCheck : onQRScan,
+          onQrScan: (data) => {
+            isHealthcheck ? onQRScanHealthCheck(data, signer) : onQRScan(data);
+          },
           setup: true,
           type,
           mode,
@@ -1211,7 +1213,7 @@ function HardwareModalMap({
     close();
   };
 
-  const onQRScan = async (qrData, resetQR) => {
+  const onQRScan = async (qrData) => {
     let hw: { signer: Signer; key: VaultSigner };
     try {
       switch (type) {
@@ -1289,19 +1291,17 @@ function HardwareModalMap({
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);
-        resetQR();
       } else {
         captureError(error);
         showToast(
           `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
           <ToastErrorIcon />
         );
-        navigation.goBack();
       }
     }
   };
 
-  const onQRScanHealthCheck = async (qrData, resetQR, signer) => {
+  const onQRScanHealthCheck = async (qrData, signer) => {
     let healthcheckStatus: boolean;
     try {
       switch (type) {
@@ -1352,7 +1352,6 @@ function HardwareModalMap({
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);
-        resetQR();
       } else {
         captureError(error);
         showToast(
