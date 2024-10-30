@@ -344,7 +344,13 @@ function SendScreen({ route }) {
                     !selectedWallet
                       ? () => {
                           navigation.dispatch(
-                            CommonActions.navigate('SelectWallet', { sender, handleSelectWallet })
+                            CommonActions.navigate({
+                              name: 'SelectWallet',
+                              params: {
+                                sender,
+                                handleSelectWallet,
+                              },
+                            })
                           );
                         }
                       : () => {

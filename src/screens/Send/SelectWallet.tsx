@@ -1,5 +1,6 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { Pressable, StyleSheet } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import HexagonIcon from 'src/components/HexagonIcon';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Text from 'src/components/KeeperText';
@@ -18,19 +19,34 @@ import { useState } from 'react';
 import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
 
+type SelectWalletParams = {
+  handleSelectWallet: (wallet: Wallet | Vault) => void;
+  selectedWalletIdFromParams?: string;
+  sender: Wallet | Vault;
+};
+
+type Props = NativeStackScreenProps<
+  {
+    SelectWallet: SelectWalletParams;
+  },
+  'SelectWallet'
+>;
+
+interface WalletItemProps {
+  wallet: Wallet | Vault;
+  getWalletIcon: (wallet: Wallet | Vault) => JSX.Element;
+  selectedWalletId: string;
+  setSelectedWalletId: (walletId: string) => void;
+  handleSelectWallet: (wallet: Wallet | Vault) => void;
+}
+
 function WalletItem({
   wallet,
   getWalletIcon,
   selectedWalletId,
   setSelectedWalletId,
   handleSelectWallet,
-}: {
-  wallet: Wallet | Vault;
-  getWalletIcon: (wallet: Wallet | Vault) => JSX.Element;
-  selectedWalletId: string;
-  setSelectedWalletId: (walletId: string) => void;
-  handleSelectWallet: (wallet: Wallet | Vault) => void;
-}) {
+}: WalletItemProps) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const isDarkMode = colorMode === 'dark';
@@ -74,36 +90,26 @@ function WalletItem({
   );
 }
 
-function SelectWallet({
-  sender,
-  route,
-}: {
-  route: {
-    params: {
-      handleSelectWallet: (wallet: Wallet | Vault) => void;
-      selectedWalletIdFromParams?: string;
-    };
-  };
-  sender: Wallet | Vault;
-}) {
-  const { handleSelectWallet, selectedWalletIdFromParams } = route?.params;
+function SelectWalletScreen({ route }: Props) {
+  const { handleSelectWallet, selectedWalletIdFromParams, sender } = route.params;
   const { colorMode } = useColorMode();
   const { wallets } = useWallets({ getAll: true });
   const { allVaults } = useVault({ includeArchived: false });
+
   const otherWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter(
     (item) =>
       item && item.presentationData.visibility !== VisibilityType.HIDDEN && item?.id !== sender?.id
   );
+
   const [selectedWalletId, setSelectedWalletId] = useState<string>(
     selectedWalletIdFromParams || ''
   );
 
-  const getWalletIcon = (wallet) => {
+  const getWalletIcon = (wallet: Wallet | Vault) => {
     if (wallet.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
-    } else {
-      return <WalletIcon />;
     }
+    return <WalletIcon />;
   };
 
   return (
@@ -130,8 +136,6 @@ function SelectWallet({
     </ScreenWrapper>
   );
 }
-
-export default SelectWallet;
 
 const styles = StyleSheet.create({
   walletItemContainer: {
@@ -170,3 +174,5 @@ const styles = StyleSheet.create({
     gap: 20,
   },
 });
+
+export default SelectWalletScreen;
