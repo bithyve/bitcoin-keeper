@@ -8,7 +8,6 @@ import { VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/va
 import NFC from 'src/services/nfc';
 import { CommonActions } from '@react-navigation/native';
 import { xpubToTpub } from 'src/hardware';
-import nfcManager from 'react-native-nfc-manager';
 
 const getScriptSpecificDetails = async (card, cvc, isTestnet, isMultisig) => {
   const xpubDetails: XpubDetailsType = {};
@@ -59,7 +58,12 @@ export const getTapsignerDetails = async (
       await card.set_derivation(status.path, cvc);
       return { xpub, masterFingerprint, derivationPath, xpubDetails };
     }
-    await card.setup(cvc);
+    try {
+      await card.setup(cvc);
+    } catch (e) {
+      // Card likely already set up
+      console.log('Failed to set up TAPSIGNER', e);
+    }
     const newCard = await card.first_look();
     const { xpub, masterFingerprint, derivationPath, xpubDetails } = await getScriptSpecificDetails(
       newCard,
@@ -67,8 +71,6 @@ export const getTapsignerDetails = async (
       isTestnet,
       isMultisig
     );
-    // reset to original path
-    await card.set_derivation(status.path, cvc);
     return { xpub, masterFingerprint, derivationPath, xpubDetails };
   }
 };
@@ -106,9 +108,19 @@ export const downloadBackup = async (card: CKTapCard, cvc: string) => {
         cardId: status.card_ident,
       };
     } else {
-      throw new Error('Please setup card before backup!');
+      throw new Error('Please set up card before backup!');
     }
   }
+};
+
+export const getCardInfo = async (card: CKTapCard) => {
+  const status = await card.first_look();
+  return {
+    backupsCount: status.num_backups,
+    cardId: status.card_ident,
+    birthHeight: status.birth_height,
+    path: status.path,
+  };
 };
 
 export const changePin = async (card: CKTapCard, oldCVC: string, newCVC: string) => {
@@ -152,7 +164,7 @@ export const signWithTapsigner = async (
       }
       return inputsToSign;
     }
-    Alert.alert('Please setup card before signing!');
+    Alert.alert('Please set up card before signing!');
   } catch (e) {
     captureError(e);
     throw e;
