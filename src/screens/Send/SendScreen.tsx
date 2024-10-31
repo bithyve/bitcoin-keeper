@@ -147,6 +147,45 @@ function SendScreen({ route }) {
     );
   };
 
+  const handleScannerPress = () => {
+    if (!selectedWallet) {
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ScanQR',
+          params: {
+            title: 'Scan Address',
+            subtitle: 'Please scan until all the QR data has been retrieved',
+            onQrScan,
+          },
+        })
+      );
+    }
+  };
+  const handleSelectWalletPress = () => {
+    if (!selectedWallet) {
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'SelectWallet',
+          params: {
+            sender,
+            handleSelectWallet,
+          },
+        })
+      );
+    } else {
+      setSelectedWallet(null);
+    }
+  };
+
+  const navigateToSelectWallet = () => {
+    navigation.dispatch(
+      CommonActions.navigate('SelectWallet', {
+        sender,
+        handleSelectWallet,
+        selectedWalletIdFromParams: selectedWallet?.id,
+      })
+    );
+  };
   const getWalletIcon = (wallet) => {
     if (wallet.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
@@ -305,20 +344,7 @@ function SendScreen({ route }) {
                 paddingLeft={5}
                 isDisabled={selectedWallet}
                 InputRightComponent={
-                  <Pressable
-                    onPress={() => {
-                      navigation.dispatch(
-                        CommonActions.navigate({
-                          name: 'ScanQR',
-                          params: {
-                            title: 'Scan Address',
-                            subtitle: 'Please scan until all the QR data has been retrieved',
-                            onQrScan,
-                          },
-                        })
-                      );
-                    }}
-                  >
+                  <Pressable onPress={handleScannerPress}>
                     <Box style={styles.scannerContainer}>
                       {isDarkMode ? <ScannerIconDark /> : <ScannerIcon />}
                     </Box>
@@ -339,25 +365,7 @@ function SendScreen({ route }) {
                 paddingLeft={5}
               />
               <Box style={styles.sendToWalletContainer}>
-                <Pressable
-                  onPress={
-                    !selectedWallet
-                      ? () => {
-                          navigation.dispatch(
-                            CommonActions.navigate({
-                              name: 'SelectWallet',
-                              params: {
-                                sender,
-                                handleSelectWallet,
-                              },
-                            })
-                          );
-                        }
-                      : () => {
-                          setSelectedWallet(null);
-                        }
-                  }
-                >
+                <Pressable onPress={handleSelectWalletPress}>
                   <Box
                     flexDirection={'row'}
                     justifyContent={'space-between'}
@@ -375,17 +383,7 @@ function SendScreen({ route }) {
                   </Box>
                 </Pressable>
                 {selectedWallet && (
-                  <Pressable
-                    onPress={() => {
-                      navigation.dispatch(
-                        CommonActions.navigate('SelectWallet', {
-                          sender,
-                          handleSelectWallet,
-                          selectedWalletIdFromParams: selectedWallet?.id,
-                        })
-                      );
-                    }}
-                  >
+                  <Pressable onPress={navigateToSelectWallet}>
                     <Box
                       flexDirection={'row'}
                       justifyContent={'space-between'}

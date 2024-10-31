@@ -62,7 +62,7 @@ function KeeperTextInput({
             InputRightComponent
           )
         }
-        backgroundColor={`${colorMode}.ChampagneBliss`}
+        backgroundColor={`${colorMode}.textInputBackground`}
         _input={
           colorMode === 'dark' && {
             selectionColor: Colors.SecondaryWhite,

@@ -97,7 +97,7 @@ export const customTheme = extendTheme({
       lightAccent: Colors.MacaroniAndCheese,
       QrCode: Colors.WhiteCoffee,
       recieverAddress: Colors.DimGray,
-      textInputBackground: Colors.SilverMistTranslucent,
+      textInputBackground: Colors.ChampagneBliss,
       thirdBackground: Colors.Warmbeige,
       GreyText: Colors.Feldgrau,
       dateText: Colors.HookerGreen,
