@@ -454,21 +454,6 @@ const styles = StyleSheet.create({
   container: {
     marginTop: hp(30),
   },
-  cardContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(3),
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
-    fontSize: 12,
-    letterSpacing: 0.24,
-  },
-  subtitle: {
-    fontSize: 10,
-    letterSpacing: 0.2,
-  },
   scrollViewWrapper: {
     flex: 1,
   },
@@ -477,13 +462,6 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingLeft: wp(11),
     paddingRight: wp(21),
-  },
-  textInput: {
-    width: '100%',
-    borderRadius: 10,
-    backgroundColor: Colors.Isabelline,
-    padding: 15,
-    opacity: 0.5,
   },
   walletContainer: {
     flexDirection: 'row',
@@ -505,15 +483,6 @@ const styles = StyleSheet.create({
   },
   sendToWalletWrapper: {
     marginTop: windowHeight > 680 ? hp(10) : hp(10),
-  },
-  emptyWalletsContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyWalletText: {
-    position: 'absolute',
-    width: 100,
-    opacity: 0.8,
   },
   proceedButton: {
     marginVertical: 5,

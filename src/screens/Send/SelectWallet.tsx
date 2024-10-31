@@ -18,6 +18,8 @@ import BTC from 'src/assets/images/btc.svg';
 import { useState } from 'react';
 import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
+import Buttons from 'src/components/Buttons';
+import { useNavigation } from '@react-navigation/native';
 
 type SelectWalletParams = {
   handleSelectWallet: (wallet: Wallet | Vault) => void;
@@ -54,13 +56,18 @@ function WalletItem({
   const isSelected = wallet.id === selectedWalletId;
   const borderColor = isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.dullGreyBorder`;
 
+  const handlePress = () => {
+    if (isSelected) {
+      setSelectedWalletId(null);
+      handleSelectWallet(null);
+    } else {
+      setSelectedWalletId(wallet.id);
+      handleSelectWallet(wallet);
+    }
+  };
+
   return (
-    <Pressable
-      onPress={() => {
-        setSelectedWalletId(wallet?.id);
-        handleSelectWallet(wallet);
-      }}
-    >
+    <Pressable onPress={handlePress}>
       <Box
         style={styles.walletItemContainer}
         backgroundColor={`${colorMode}.secondaryBackground`}
@@ -93,6 +100,7 @@ function WalletItem({
 function SelectWalletScreen({ route }: Props) {
   const { handleSelectWallet, selectedWalletIdFromParams, sender } = route.params;
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
   const { wallets } = useWallets({ getAll: true });
   const { allVaults } = useVault({ includeArchived: false });
 
@@ -133,6 +141,15 @@ function SelectWalletScreen({ route }: Props) {
           ))}
         </Box>
       </ScrollView>
+      <Box style={styles.buttonContainer}>
+        <Buttons
+          primaryText="Save Changes"
+          primaryCallback={() => {
+            navigation.goBack();
+          }}
+          fullWidth
+        />
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -172,6 +189,10 @@ const styles = StyleSheet.create({
   },
   walletList: {
     gap: 20,
+  },
+  buttonContainer: {
+    alignSelf: 'center',
+    width: '95%',
   },
 });
 
