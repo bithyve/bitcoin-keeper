@@ -746,6 +746,7 @@ function SignerModals({
                     ctaText: 'Proceed',
                     onFileExtract: onFileSign,
                     fileData: serializedPSBTEnvelop.serializedPSBT,
+                    fileType: 'PSBT',
                     signerType: signer.type,
                   },
                 })
@@ -889,6 +890,7 @@ function SignerModals({
                         ctaText: 'Proceed',
                         onFileExtract: onFileSign,
                         fileData: serializedPSBTEnvelop.serializedPSBT,
+                        fileType: 'PSBT',
                         signerType: signer.type,
                       },
                     })
@@ -983,6 +985,7 @@ function SignerModals({
                         ctaText: 'Proceed',
                         onFileExtract: onFileSign,
                         fileData: serializedPSBTEnvelop.serializedPSBT,
+                        fileType: 'PSBT',
                         signerType: signer.type,
                       },
                     })
