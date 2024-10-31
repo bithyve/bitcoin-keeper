@@ -71,7 +71,7 @@ export const getTapsignerDetails = async (
       isTestnet,
       isMultisig
     );
-    await card.set_derivation('m', cvc);
+    await card.set_derivation(newCard.path, cvc);
     return { xpub, masterFingerprint, derivationPath, xpubDetails };
   }
   throw new Error('Error certificate verification failed! Card may not be legit!');
