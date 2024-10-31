@@ -74,6 +74,7 @@ export const getTapsignerDetails = async (
     await card.set_derivation('m', cvc);
     return { xpub, masterFingerprint, derivationPath, xpubDetails };
   }
+  throw new Error('Error certificate verification failed! Card may not be legit!');
 };
 
 export const unlockRateLimit = async (card: CKTapCard) => {
@@ -83,7 +84,7 @@ export const unlockRateLimit = async (card: CKTapCard) => {
   if (!authDelay) {
     return { authDelay };
   }
-  if (isLegit && status.auth_delay) {
+  if (isLegit) {
     while (authDelay !== 0) {
       if (Platform.OS === 'ios')
         NFC.showiOSMessage(`Keep tapsigner connected for ${authDelay} seconds.`);
@@ -95,6 +96,7 @@ export const unlockRateLimit = async (card: CKTapCard) => {
     }
     return { authDelay };
   }
+  throw new Error('Error certificate verification failed! Card may not be legit!');
 };
 
 export const downloadBackup = async (card: CKTapCard, cvc: string) => {
@@ -112,16 +114,21 @@ export const downloadBackup = async (card: CKTapCard, cvc: string) => {
       throw new Error('Please set up card before backup!');
     }
   }
+  throw new Error('Error certificate verification failed! Card may not be legit!');
 };
 
 export const getCardInfo = async (card: CKTapCard) => {
   const status = await card.first_look();
-  return {
-    backupsCount: status.num_backups,
-    cardId: status.card_ident,
-    birthHeight: status.birth_height,
-    path: status.path,
-  };
+  const isLegit = await card.certificate_check();
+  if (isLegit) {
+    return {
+      backupsCount: status.num_backups,
+      cardId: status.card_ident,
+      birthHeight: status.birth_height,
+      path: status.path,
+    };
+  }
+  throw new Error('Error certificate verification failed! Card may not be legit!');
 };
 
 export const changePin = async (card: CKTapCard, oldCVC: string, newCVC: string) => {
@@ -134,6 +141,7 @@ export const changePin = async (card: CKTapCard, oldCVC: string, newCVC: string)
     const res = await card.change_cvc(oldCVC, newCVC);
     return res;
   }
+  throw new Error('Error certificate verification failed! Card may not be legit!');
 };
 
 export const signWithTapsigner = async (
@@ -151,29 +159,35 @@ export const signWithTapsigner = async (
   isTestnet: boolean
 ) => {
   const status = await card.first_look();
-  try {
-    if (status.path) {
-      if (status.is_testnet !== isTestnet) {
-        card.set_is_testnet(isTestnet);
+  const isLegit = await card.certificate_check();
+  if (isLegit) {
+    try {
+      if (status.path) {
+        if (status.is_testnet !== isTestnet) {
+          card.set_is_testnet(isTestnet);
+        }
+        for (const input of inputsToSign) {
+          const digest = Buffer.from(input.digest, 'hex');
+          const subpath = input.subPath;
+          await card.set_derivation(signer.derivationPath.split("'").join('h'), cvc);
+          const signature = await card.sign_digest(cvc, 0, digest, subpath);
+          input.signature = signature.slice(1).toString('hex');
+        }
+        return inputsToSign;
       }
-      for (const input of inputsToSign) {
-        const digest = Buffer.from(input.digest, 'hex');
-        const subpath = input.subPath;
-        await card.set_derivation(signer.derivationPath.split("'").join('h'), cvc);
-        const signature = await card.sign_digest(cvc, 0, digest, subpath);
-        input.signature = signature.slice(1).toString('hex');
-      }
-      return inputsToSign;
+      Alert.alert('Please set up card before signing!');
+      throw Error('Please set up card before signing!');
+    } catch (e) {
+      captureError(e);
+      throw e;
+    } finally {
+      await card.set_derivation(status.path, cvc);
     }
-    Alert.alert('Please set up card before signing!');
-  } catch (e) {
-    captureError(e);
-    throw e;
-  } finally {
-    await card.set_derivation(status.path, cvc);
   }
+  throw new Error('Error certificate verification failed! Card may not be legit!');
 };
 
+// For test purposes only
 export const readTapsigner = async (card: CKTapCard, cvc: string) => {
   await card.first_look();
   await card.read(cvc);
