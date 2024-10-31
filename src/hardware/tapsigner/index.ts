@@ -71,6 +71,7 @@ export const getTapsignerDetails = async (
       isTestnet,
       isMultisig
     );
+    await card.set_derivation('m', cvc);
     return { xpub, masterFingerprint, derivationPath, xpubDetails };
   }
 };
