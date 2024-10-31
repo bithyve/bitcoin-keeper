@@ -66,6 +66,16 @@ import SPECTERGREENLIGHT from 'src/assets/images/specter-green-light.svg';
 import SPECTERGREENDARK from 'src/assets/images/specter-green-dark.svg';
 import TAPSIGNERGREENLIGHT from 'src/assets/images/tapsigner-green-light.svg';
 import TAPSIGNERGREENDARK from 'src/assets/images/tapsigner-green-dark.svg';
+import INHERITANCEKEYGREENLIGHT from 'src/assets/images/inheritance-key-green-light.svg';
+import INHERITANCEKEYGREENDARK from 'src/assets/images/inheritance-key-green-dark.svg';
+import SERVERGREENLIGHT from 'src/assets/images/server-green-light.svg';
+import SERVERGREENDARK from 'src/assets/images/server-green-dark.svg';
+import MOBILEKEYGREENLIGHT from 'src/assets/images/mobile-key-green-light.svg';
+import MOBILEKEYGREENDARK from 'src/assets/images/mobile-key-green-dark.svg';
+import KEEPERAPPGREENLIGHT from 'src/assets/images/external-key-green-light.svg';
+import KEEPERAPPGREENDARK from 'src/assets/images/external-key-green-dark.svg';
+import SEEDWORDSGREENLIGHT from 'src/assets/images/seed-words-green-light.svg';
+import SEEDWORDSGREENDARK from 'src/assets/images/seed-words-green-dark.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -247,11 +257,23 @@ export const SDColoredIcons = (type: SignerType, light = true, width = 20, heigh
       };
     case SignerType.MY_KEEPER:
       return {
-        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light, width, height),
+        Icon: getColouredIcon(
+          <MOBILEKEYGREENLIGHT />,
+          <MOBILEKEYGREENDARK />,
+          light,
+          width,
+          height
+        ),
       };
     case SignerType.KEEPER:
       return {
-        Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light, width, height),
+        Icon: getColouredIcon(
+          <KEEPERAPPGREENLIGHT />,
+          <KEEPERAPPGREENDARK />,
+          light,
+          width,
+          height
+        ),
       };
     case SignerType.KEYSTONE:
       return {
@@ -265,7 +287,13 @@ export const SDColoredIcons = (type: SignerType, light = true, width = 20, heigh
       };
     case SignerType.MOBILE_KEY:
       return {
-        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light, width, height),
+        Icon: getColouredIcon(
+          <MOBILEKEYGREENLIGHT />,
+          <MOBILEKEYGREENDARK />,
+          light,
+          width,
+          height
+        ),
         type: SignerStorage.HOT,
       };
     case SignerType.PASSPORT:
@@ -275,7 +303,7 @@ export const SDColoredIcons = (type: SignerType, light = true, width = 20, heigh
       };
     case SignerType.POLICY_SERVER:
       return {
-        Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light, width, height),
+        Icon: getColouredIcon(<SERVERGREENLIGHT />, <SERVERGREENDARK />, light, width, height),
         type: SignerStorage.HOT,
       };
     case SignerType.TAPSIGNER:
@@ -327,14 +355,20 @@ export const SDColoredIcons = (type: SignerType, light = true, width = 20, heigh
       };
     case SignerType.SEED_WORDS:
       return {
-        Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light, width, height),
+        Icon: getColouredIcon(
+          <SEEDWORDSGREENLIGHT />,
+          <SEEDWORDSGREENDARK />,
+          light,
+          width,
+          height
+        ),
         type: SignerStorage.WARM,
       };
     case SignerType.INHERITANCEKEY:
       return {
         Icon: getColouredIcon(
-          <INHERITANCEKEYLIGHT />,
-          <INHERITANCEKEYDARK />,
+          <INHERITANCEKEYGREENLIGHT />,
+          <INHERITANCEKEYGREENDARK />,
           light,
           width,
           height
