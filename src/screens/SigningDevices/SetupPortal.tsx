@@ -20,7 +20,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
@@ -75,6 +75,29 @@ function SetupPortal({ route }) {
     vaultDescriptor = vaultDescriptor.replace('No path restrictions', '/0/*,/1/*');
     vaultDescriptor = vaultDescriptor.replace('\n', ' ');
   }
+
+  useEffect(() => {
+    actionDirectly();
+  }, []);
+
+  useEffect(() => {
+    nfcVisible === false && PORTAL.stopReading();
+  }, [nfcVisible]);
+
+  const actionDirectly = async () => {
+    switch (mode) {
+      case InteracationMode.SIGN_TRANSACTION:
+        return signWithPortal();
+      case InteracationMode.IDENTIFICATION:
+        return startRegisterVault();
+      case InteracationMode.HEALTH_CHECK:
+        showToast('Health Check not supported on this device', <ToastErrorIcon />);
+        navigation.goBack();
+        break;
+      default:
+        return addPortal();
+    }
+  };
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -163,9 +186,9 @@ function SetupPortal({ route }) {
 
   const addPortal = React.useCallback(async () => {
     try {
-      const { xpub, derivationPath, masterFingerprint, xpubDetails } = await withNfcModal(
-        async () => getPortalDetails()
-      );
+      const portalDetails = await withNfcModal(async () => getPortalDetails());
+      console.log('portalDetails ', portalDetails);
+      const { xpub, derivationPath, masterFingerprint, xpubDetails } = portalDetails;
 
       let portalSigner: Signer;
       let vaultKey: VaultSigner;
