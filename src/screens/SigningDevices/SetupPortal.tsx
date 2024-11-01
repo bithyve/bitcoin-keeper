@@ -20,7 +20,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
@@ -47,6 +47,8 @@ const isTestNet = config.NETWORK_TYPE === NetworkType.TESTNET;
 function SetupPortal({ route }) {
   const { colorMode } = useColorMode();
   const [cvc, setCvc] = React.useState('');
+  const [confirmCVC, setConfirmCVC] = React.useState('');
+  const [portalStatus, setPortalStatus] = useState();
   const navigation = useNavigation();
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const {
@@ -163,25 +165,18 @@ function SetupPortal({ route }) {
   };
 
   const getPortalDetails = async () => {
-    try {
-      await PORTAL.startReading();
-      const status: CardStatus = await PORTAL.getStatus();
-      if (!status.initialized) {
-        await PORTAL.initializePortal(
-          MnemonicWords[0],
-          isTestNet ? Network.Testnet : Network.Bitcoin
-        );
-      }
-      const derivationPath = 'm/48h/1h/0h/2h'; // for single sig
-      // const derivationPath = 'm/84h/1h/0h';
-      const descriptor = await PORTAL.getXpub(derivationPath);
-      // const descriptor = await PORTAL.publicDescriptors();
-      const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub);
-      return signer;
-    } catch (error) {
-      console.log('🚀 ~ getPortalDetails ~ error:', error);
-      showToast('Something went wrong. Please try again', <ToastErrorIcon />);
+    await PORTAL.startReading();
+    const status: CardStatus = await PORTAL.getStatus();
+    if (!status.initialized) {
+      setPortalStatus(status);
+      await PORTAL.stopReading();
+
+      throw { message: 'Portal not initialized' };
     }
+    const derivationPath = 'm/48h/1h/0h/2h';
+    const descriptor = await PORTAL.getXpub(derivationPath);
+    const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub);
+    return signer;
   };
 
   const addPortal = React.useCallback(async () => {
@@ -286,7 +281,10 @@ function SetupPortal({ route }) {
       }
     } catch (error) {
       console.log('🚀 ~ addPortal ~ error:', error);
-      showToast('Something went wrong. Please try again', <ToastErrorIcon />);
+      showToast(
+        error.message ? error.message : 'Something went wrong. Please try again',
+        <ToastErrorIcon />
+      );
     }
   }, [cvc]);
 
@@ -309,6 +307,62 @@ function SetupPortal({ route }) {
     }
   }, [cvc]);
 
+  const validateAndInitializePortal = React.useCallback(async () => {
+    function validateCVC() {
+      if (cvc === '' && confirmCVC === '') return true;
+      if (cvc !== '' && cvc === confirmCVC) return true;
+      return false;
+    }
+
+    try {
+      if (!validateCVC()) {
+        showToast('CVC does not match', <ToastErrorIcon />);
+        return;
+      }
+      const portalDetails = await withNfcModal(async () => {
+        await PORTAL.startReading();
+        await PORTAL.initializePortal(
+          MnemonicWords[0],
+          isTestNet ? Network.Testnet : Network.Bitcoin,
+          cvc.trim().length ? cvc : null
+        );
+        const portalDetails = await getPortalDetails();
+        return portalDetails;
+      });
+      const { xpub, derivationPath, masterFingerprint, xpubDetails } = portalDetails;
+
+      const { signer: portalSigner, key: vaultKey } = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        masterFingerprint,
+        signerType: SignerType.PORTAL,
+        storageType: SignerStorage.COLD,
+        isMultisig,
+        xpubDetails,
+        isAmf: false,
+      });
+      if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal added successfully!`);
+      dispatch(addSigningDevice([portalSigner]));
+      const navigationState = addSignerFlow
+        ? {
+            name: 'ManageSigners',
+            params: { addedSigner: portalSigner, addSignerFlow, showModal: true },
+          }
+        : {
+            name: 'AddSigningDevice',
+            merge: true,
+            params: { addedSigner: portalSigner, addSignerFlow, showModal: true },
+          };
+      navigation.dispatch(CommonActions.navigate(navigationState));
+    } catch (error) {
+      console.log('🚀 ~ validateAndInitializePortal ~ error:', error);
+      showToast(
+        error.message ? error.message : 'Something went wrong. Please try again',
+        <ToastErrorIcon />
+      );
+    }
+  }, [cvc, confirmCVC, mode]);
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -326,7 +380,7 @@ function SetupPortal({ route }) {
               return 'Setting up Portal';
           }
         })()}
-        subtitle=""
+        subtitle={!portalStatus?.initialized ? 'Initialize portal with 12 words seed' : ''}
       />
       <MockWrapper
         signerType={SignerType.PORTAL}
@@ -335,34 +389,76 @@ function SetupPortal({ route }) {
         signerXfp={signer?.masterFingerprint}
       >
         <ScrollView>
-          <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
-            <TextInput
-              value={cvc}
-              onChangeText={setCvc}
-              secureTextEntry
-              showSoftInputOnFocus={false}
-            />
-          </Box>
-          <Text style={styles.heading} color={`${colorMode}.greenText`}>
-            You will be scanning the Portal after this step
-          </Text>
-          <Box style={styles.btnContainer}>
-            <Buttons
-              primaryText={(() => {
-                switch (mode) {
-                  case InteracationMode.SIGN_TRANSACTION:
-                    return 'Sign';
-                  case InteracationMode.BACKUP_SIGNER:
-                    return 'Save Backup';
-                  case InteracationMode.IDENTIFICATION:
-                    return 'Register';
-                  default:
-                    return 'Proceed';
-                }
-              })()}
-              primaryCallback={continueWithPortal}
-            />
-          </Box>
+          {!portalStatus && (
+            <>
+              <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
+                <TextInput
+                  value={cvc}
+                  onChangeText={setCvc}
+                  secureTextEntry
+                  showSoftInputOnFocus={false}
+                />
+              </Box>
+              <Text style={styles.heading} color={`${colorMode}.greenText`}>
+                You will be scanning the Portal after this step
+              </Text>
+              <Box style={styles.btnContainer}>
+                <Buttons
+                  primaryText={(() => {
+                    switch (mode) {
+                      case InteracationMode.SIGN_TRANSACTION:
+                        return 'Sign';
+                      case InteracationMode.BACKUP_SIGNER:
+                        return 'Save Backup';
+                      case InteracationMode.IDENTIFICATION:
+                        return 'Register';
+                      default:
+                        return 'Proceed';
+                    }
+                  })()}
+                  primaryCallback={continueWithPortal}
+                />
+              </Box>
+            </>
+          )}
+
+          {portalStatus && !portalStatus?.initialized && (
+            <>
+              <Box style={styles.inputWrapper}>
+                <Text style={styles.fieldName} color={`${colorMode}.greenText`}>
+                  New Password(optional)
+                </Text>
+                <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
+                  <TextInput
+                    value={cvc}
+                    onChangeText={setCvc}
+                    secureTextEntry
+                    showSoftInputOnFocus={false}
+                  />
+                </Box>
+              </Box>
+              {/* --- */}
+              <Box style={styles.inputWrapper}>
+                <Text style={styles.fieldName} color={`${colorMode}.greenText`}>
+                  Confirm Password
+                </Text>
+                <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
+                  <TextInput
+                    value={confirmCVC}
+                    onChangeText={setConfirmCVC}
+                    secureTextEntry
+                    showSoftInputOnFocus={false}
+                  />
+                </Box>
+              </Box>
+              <Box style={styles.btnContainer}>
+                <Buttons
+                  primaryText={'Initialize Portal'}
+                  primaryCallback={validateAndInitializePortal}
+                />
+              </Box>
+            </>
+          )}
         </ScrollView>
       </MockWrapper>
       <KeyPadView
@@ -385,7 +481,6 @@ const styles = StyleSheet.create({
     marginBottom: windowHeight > 850 ? 0 : '25%',
   },
   input: {
-    margin: '5%',
     paddingHorizontal: 15,
     width: wp(305),
     height: 50,
@@ -402,6 +497,16 @@ const styles = StyleSheet.create({
     width: windowWidth * 0.8,
     fontSize: 13,
     letterSpacing: 0.65,
+  },
+
+  fieldName: {
+    width: windowWidth * 0.8,
+    fontSize: 13,
+    marginBottom: 5,
+  },
+
+  inputWrapper: {
+    margin: '5%',
   },
   btnContainer: {
     flex: 1,
