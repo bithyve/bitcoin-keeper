@@ -485,7 +485,10 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
         yield put(relayWalletUpdateSuccess());
         return true;
       }
-      yield put(relayWalletUpdateFail(response.error.toString()));
+      const errorMsg = response.error?.message
+        ? response.error.message.toString()
+        : response.error.toString();
+      yield put(relayWalletUpdateFail(errorMsg));
       return false;
     }
   } catch (err) {
@@ -723,7 +726,10 @@ export function* addSigningDeviceWorker({
         );
         yield put(relaySignersUpdateSuccess());
       } else {
-        yield put(relaySignersUpdateFail(response.error.toString()));
+        const errorMsg = response.error?.message
+          ? response.error.message.toString()
+          : response.error.toString();
+        yield put(relaySignersUpdateFail(errorMsg));
       }
     } else if (signers.length === 1) {
       yield put(relaySignersUpdateFail('The signer already exists.'));
@@ -1356,7 +1362,10 @@ function* updateWalletDetailsWorker({ payload }) {
       });
       yield put(relayWalletUpdateSuccess());
     } else {
-      yield put(relayWalletUpdateFail(response.error.toString()));
+      const errorMsg = response.error?.message
+        ? response.error.message.toString()
+        : response.error.toString();
+      yield put(relayWalletUpdateFail(errorMsg));
     }
   } catch (err) {
     yield put(relayWalletUpdateFail('Something went wrong!'));
@@ -1399,7 +1408,10 @@ function* updateVaultDetailsWorker({ payload }) {
         presentationData,
       });
     } else {
-      yield put(relayVaultUpdateFail(response.error.toString()));
+      const errorMsg = response.error?.message
+        ? response.error.message.toString()
+        : response.error.toString();
+      yield put(relayVaultUpdateFail(errorMsg));
     }
   } catch (err) {
     console.log('err', err);
@@ -1445,7 +1457,10 @@ function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
       });
       yield put(relayWalletUpdateSuccess());
     } else {
-      yield put(relayWalletUpdateFail(response.error.toString()));
+      const errorMsg = response.error?.message
+        ? response.error.message.toString()
+        : response.error.toString();
+      yield put(relayWalletUpdateFail(errorMsg));
     }
   } catch (err) {
     yield put(relayWalletUpdateFail('Something went wrong!'));
@@ -1481,7 +1496,10 @@ export function* updateSignerDetailsWorker({ payload }) {
       );
       yield put(relaySignersUpdateSuccess());
     } else {
-      yield put(relaySignersUpdateFail(response.error.toString()));
+      const errorMsg = response.error?.message
+        ? response.error.message.toString()
+        : response.error.toString();
+      yield put(relaySignersUpdateFail(errorMsg));
     }
   } catch (err) {
     console.error(err);
@@ -1558,7 +1576,10 @@ function* updateWalletsPropertyWorker({
       yield call(dbManager.updateObjectById, RealmSchema.Wallet, walletId, { [key]: value });
       yield put(relayWalletUpdateSuccess());
     } else {
-      yield put(relayWalletUpdateFail(response.error.toString()));
+      const errorMsg = response.error?.message
+        ? response.error.message.toString()
+        : response.error.toString();
+      yield put(relayWalletUpdateFail(errorMsg));
     }
   } catch (err) {
     captureError(err);
@@ -1579,7 +1600,10 @@ function* deleteVaultWorker({ payload }) {
       yield call(dbManager.deleteObjectById, RealmSchema.Vault, vaultId);
       yield put(relayVaultUpdateSuccess());
     } else {
-      yield put(relayVaultUpdateFail(response.error.toString()));
+      const errorMsg = response.error?.message
+        ? response.error.message.toString()
+        : response.error.toString();
+      yield put(relayVaultUpdateFail(errorMsg));
     }
   } catch (err) {
     yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
@@ -1627,7 +1651,10 @@ function* reinstateVaultWorker({ payload }) {
       }
       yield put(relayVaultUpdateSuccess());
     } else {
-      yield put(relayVaultUpdateFail(response.error.toString()));
+      const errorMsg = response.error?.message
+        ? response.error.message.toString()
+        : response.error.toString();
+      yield put(relayVaultUpdateFail(errorMsg));
     }
   } catch (err) {
     yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));

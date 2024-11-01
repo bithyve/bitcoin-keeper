@@ -341,7 +341,7 @@ export default class Relay {
       return data;
     } catch (err) {
       captureError(err);
-      throw new Error('Failed to update App Image');
+      throw new Error('Failed to update app backup. Check your internet connection and try again.');
     }
   };
 
@@ -414,7 +414,7 @@ export default class Relay {
       return data;
     } catch (err) {
       captureError(err);
-      throw new Error('Failed to update App Image');
+      throw new Error('Failed to update app backup. Check your internet connection and try again.');
     }
   };
 

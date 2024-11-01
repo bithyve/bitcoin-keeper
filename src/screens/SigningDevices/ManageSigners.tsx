@@ -93,11 +93,12 @@ function ManageSigners({ route }: ScreenProps) {
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
       setInProgress(false);
-      let toastMsg = realySignersUpdateErrorMessage;
-      if (realySignersUpdateErrorMessage.includes('App Image')) {
-        toastMsg = 'Failed to update signers list. Check your internet connection and retry.';
-      }
-      showToast(toastMsg, <ToastErrorIcon />, IToastCategory.SIGNING_DEVICE, 5000);
+      showToast(
+        realySignersUpdateErrorMessage,
+        <ToastErrorIcon />,
+        IToastCategory.SIGNING_DEVICE,
+        5000
+      );
       dispatch(resetSignersUpdateState());
     }
     return () => {
