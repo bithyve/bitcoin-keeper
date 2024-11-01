@@ -182,11 +182,18 @@ function SetupPortal({ route }) {
 
   const getPortalDetails = async () => {
     await PORTAL.startReading();
-    const status: CardStatus = await PORTAL.getStatus();
+    let status: CardStatus = await PORTAL.getStatus();
     if (!status.initialized) {
       setPortalStatus(status);
       await PORTAL.stopReading();
       throw { message: 'Portal not initialized' };
+    }
+
+    if (!status.unlocked) await PORTAL.unlock(cvc);
+
+    status = await PORTAL.getStatus();
+    if (!status.unlocked) {
+      if (!cvc) throw { message: 'Portal us locked. Pin is required' };
     }
     const derivationPath = 'm/48h/1h/0h/2h';
     const descriptor = await PORTAL.getXpub(derivationPath);
