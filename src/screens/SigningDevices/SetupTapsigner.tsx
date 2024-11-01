@@ -7,7 +7,12 @@ import { CKTapCard } from 'cktap-protocol-react-native';
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
-import { downloadBackup, getTapsignerDetails, handleTapsignerError } from 'src/hardware/tapsigner';
+import {
+  downloadBackup,
+  getCardInfo,
+  getTapsignerDetails,
+  handleTapsignerError,
+} from 'src/hardware/tapsigner';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
@@ -60,9 +65,6 @@ function SetupTapsigner({ route }) {
     addSignerFlow?: boolean;
   } = route.params;
   const { mapUnknownSigner } = useUnkownSigners();
-  const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
-  const isSigning = mode === InteracationMode.SIGN_TRANSACTION;
-  const isBackup = mode === InteracationMode.BACKUP_SIGNER;
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -86,7 +88,7 @@ function SetupTapsigner({ route }) {
   const addTapsignerWithProgress = async () => {
     NfcManager.isSupported().then(async (supported) => {
       if (supported) {
-        if (isHealthcheck) verifyTapsginer();
+        if (mode === InteracationMode.HEALTH_CHECK) verifyTapsginer();
         await start(addTapsigner);
       } else if (!(await DeviceInfo.isEmulator())) {
         showToast('NFC not supported on this device', <ToastErrorIcon />);
@@ -304,6 +306,66 @@ function SetupTapsigner({ route }) {
       card.endNfcSession();
     }
   }, [cvc]);
+
+  const getTapsignerBackupsCount = React.useCallback(async () => {
+    try {
+      const { backupsCount } = await withModal(async () => getCardInfo(card))();
+
+      if (backupsCount === 0 || backupsCount) {
+        if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER information retrieved`);
+        closeNfc();
+        card.endNfcSession();
+        if (backupsCount === 0) {
+        } else {
+        }
+      } else {
+        if (Platform.OS === 'ios')
+          NFC.showiOSErrorMessage(`Error while checking TAPSIGNER information. Please try again`);
+        else showToast(`Error while checking TAPSIGNER information. Please try again`);
+      }
+    } catch (error) {
+      const errorMessage = handleTapsignerError(error, navigation);
+      if (errorMessage) {
+        showToast(errorMessage, <ToastErrorIcon />, IToastCategory.DEFAULT, 3000, true);
+      }
+    } finally {
+      closeNfc();
+      card.endNfcSession();
+    }
+  }, []);
+
+  const checkTapsignerSetupStatus = React.useCallback(async () => {
+    try {
+      const { cardId, path, backupsCount } = await withModal(async () => getCardInfo(card))();
+
+      if (cardId) {
+        if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER information retrieved`);
+        closeNfc();
+        card.endNfcSession();
+        if (path) {
+          if (backupsCount) {
+            // Card already set up and backed up
+          } else {
+            // Card already set up but not backed up
+          }
+        } else {
+          // Card not set up
+        }
+      } else {
+        if (Platform.OS === 'ios')
+          NFC.showiOSErrorMessage(`Error while checking TAPSIGNER information. Please try again`);
+        else showToast(`Error while checking TAPSIGNER information. Please try again`);
+      }
+    } catch (error) {
+      const errorMessage = handleTapsignerError(error, navigation);
+      if (errorMessage) {
+        showToast(errorMessage, <ToastErrorIcon />, IToastCategory.DEFAULT, 3000, true);
+      }
+    } finally {
+      closeNfc();
+      card.endNfcSession();
+    }
+  }, []);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
