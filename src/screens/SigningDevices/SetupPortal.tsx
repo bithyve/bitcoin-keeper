@@ -41,16 +41,15 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import { CardStatus, MnemonicWords, Network } from 'modules/libportal-react-native/src';
 import useVault from 'src/hooks/useVault';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { KeeperPasswordInput } from 'src/components/KeeperPasswordInput';
 
 const isTestNet = config.NETWORK_TYPE === NetworkType.TESTNET;
+const INPUTS = {
+  CVC: 'CVC',
+  CONFIRM_CVC: 'CONFIRM_CVC',
+};
 
 function SetupPortal({ route }) {
-  const { colorMode } = useColorMode();
-  const [cvc, setCvc] = React.useState('');
-  const [confirmCVC, setConfirmCVC] = React.useState('');
-  const [portalStatus, setPortalStatus] = useState();
-  const navigation = useNavigation();
-  const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const {
     mode,
     signer,
@@ -66,6 +65,15 @@ function SetupPortal({ route }) {
     addSignerFlow?: boolean;
     vaultId?: string;
   } = route.params;
+  const { colorMode } = useColorMode();
+  const [cvc, setCvc] = React.useState('');
+  const [confirmCVC, setConfirmCVC] = React.useState('');
+  const [portalStatus, setPortalStatus] = useState();
+  const [activeInput, setActiveInput] = useState(null);
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+  const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
 
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
   const isManualRegister = mode === InteracationMode.IDENTIFICATION;
@@ -102,20 +110,28 @@ function SetupPortal({ route }) {
   };
 
   const onPressHandler = (digit) => {
-    let temp = cvc;
-    if (digit !== 'x') {
-      temp += digit;
-      setCvc(temp);
-    }
-    if (cvc && digit === 'x') {
-      setCvc(cvc.slice(0, -1));
+    const temp = (activeInput === INPUTS.CVC ? cvc : confirmCVC) || '';
+    const newTemp = digit === 'x' ? temp.slice(0, -1) : temp + digit;
+    switch (activeInput) {
+      case INPUTS.CVC:
+        setCvc(newTemp);
+        break;
+      case INPUTS.CONFIRM_CVC:
+        setConfirmCVC(newTemp);
+        break;
+      default:
+        break;
     }
   };
-  const dispatch = useDispatch();
-  const { showToast } = useToastMessage();
 
   const onDeletePressed = () => {
-    setCvc(cvc.slice(0, cvc.length - 1));
+    const currentInput = activeInput;
+    if (currentInput) {
+      const inputVal = currentInput === INPUTS.CVC ? cvc : confirmCVC;
+      const newInputVal = inputVal.slice(0, inputVal.length - 1);
+      if (currentInput === INPUTS.CVC) setCvc(newInputVal);
+      else setConfirmCVC(newInputVal);
+    }
   };
 
   const continueWithPortal = async () => {
@@ -170,7 +186,6 @@ function SetupPortal({ route }) {
     if (!status.initialized) {
       setPortalStatus(status);
       await PORTAL.stopReading();
-
       throw { message: 'Portal not initialized' };
     }
     const derivationPath = 'm/48h/1h/0h/2h';
@@ -390,19 +405,15 @@ function SetupPortal({ route }) {
       >
         <ScrollView>
           {!portalStatus && (
-            <>
-              <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
-                <TextInput
-                  value={cvc}
-                  onChangeText={setCvc}
-                  secureTextEntry
-                  showSoftInputOnFocus={false}
-                />
-              </Box>
-              <Text style={styles.heading} color={`${colorMode}.greenText`}>
-                You will be scanning the Portal after this step
-              </Text>
-              <Box style={styles.btnContainer}>
+            <Box style={styles.inputWrapper}>
+              <PasswordField
+                label={'Password'}
+                placeholder="********"
+                value={cvc}
+                onPress={() => setActiveInput(INPUTS.CVC)}
+                isActive={activeInput === INPUTS.CVC}
+              />
+              <Box marginTop={5} marginBottom={9}>
                 <Buttons
                   primaryText={(() => {
                     switch (mode) {
@@ -419,45 +430,32 @@ function SetupPortal({ route }) {
                   primaryCallback={continueWithPortal}
                 />
               </Box>
-            </>
+            </Box>
           )}
 
           {portalStatus && !portalStatus?.initialized && (
-            <>
-              <Box style={styles.inputWrapper}>
-                <Text style={styles.fieldName} color={`${colorMode}.greenText`}>
-                  New Password(optional)
-                </Text>
-                <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
-                  <TextInput
-                    value={cvc}
-                    onChangeText={setCvc}
-                    secureTextEntry
-                    showSoftInputOnFocus={false}
-                  />
-                </Box>
-              </Box>
-              {/* --- */}
-              <Box style={styles.inputWrapper}>
-                <Text style={styles.fieldName} color={`${colorMode}.greenText`}>
-                  Confirm Password
-                </Text>
-                <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
-                  <TextInput
-                    value={confirmCVC}
-                    onChangeText={setConfirmCVC}
-                    secureTextEntry
-                    showSoftInputOnFocus={false}
-                  />
-                </Box>
-              </Box>
-              <Box style={styles.btnContainer}>
+            <Box style={styles.inputWrapper}>
+              <PasswordField
+                label={'New password(optional)'}
+                placeholder="********"
+                value={cvc}
+                onPress={() => setActiveInput(INPUTS.CVC)}
+                isActive={activeInput === INPUTS.CVC}
+              />
+              <PasswordField
+                label={'Confirm password'}
+                placeholder="********"
+                value={confirmCVC}
+                onPress={() => setActiveInput(INPUTS.CONFIRM_CVC)}
+                isActive={activeInput === INPUTS.CONFIRM_CVC}
+              />
+              <Box marginTop={5} marginBottom={9}>
                 <Buttons
                   primaryText={'Initialize Portal'}
                   primaryCallback={validateAndInitializePortal}
                 />
               </Box>
-            </>
+            </Box>
           )}
         </ScrollView>
       </MockWrapper>
@@ -471,6 +469,20 @@ function SetupPortal({ route }) {
     </ScreenWrapper>
   );
 }
+
+const PasswordField = ({ label, value, onPress, isActive, placeholder }) => {
+  return (
+    <Box marginTop={4}>
+      <Text>{label}</Text>
+      <KeeperPasswordInput
+        value={value}
+        onPress={onPress}
+        isActive={isActive}
+        placeholder={placeholder}
+      />
+    </Box>
+  );
+};
 
 export default SetupPortal;
 
@@ -499,19 +511,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
 
-  fieldName: {
-    width: windowWidth * 0.8,
-    fontSize: 13,
-    marginBottom: 5,
-  },
-
   inputWrapper: {
-    margin: '5%',
+    marginHorizontal: 15,
+    marginTop: 6,
   },
   btnContainer: {
     flex: 1,
     justifyContent: 'flex-end',
     flexDirection: 'row',
-    margin: 15,
   },
 });
