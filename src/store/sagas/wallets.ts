@@ -481,32 +481,11 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
       yield put(setRelayWalletUpdateLoading(true));
       const response = yield call(updateAppImageWorker, { payload: { wallets } });
       if (response.updated) {
-        yield put(relayWalletUpdateSuccess());
         yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
+        yield put(relayWalletUpdateSuccess());
         return true;
       }
-      yield put(relayWalletUpdateFail(response.error));
-      return false;
-    }
-    for (const wallet of wallets) {
-      yield put(setRelayWalletUpdateLoading(true));
-      const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
-      if (response.updated) {
-        yield put(relayWalletUpdateSuccess());
-        yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-
-        if (wallet.type === WalletType.IMPORTED) {
-          yield put(
-            refreshWallets([wallet], {
-              hardRefresh: true,
-            })
-          );
-        }
-      } else {
-        yield put(walletGenerationFailed(response.error));
-        yield put(relayWalletUpdateFail(response.error));
-      }
-      yield put(relayWalletUpdateFail(response.error));
+      yield put(relayWalletUpdateFail(response.error.toString()));
       return false;
     }
   } catch (err) {
@@ -627,7 +606,11 @@ export function* addNewVaultWorker({
       })
     );
     captureError(err);
-    yield put(relayVaultUpdateFail('Vault creation failed!'));
+    yield put(
+      relayVaultUpdateFail(
+        'Failed to create the vault. Please check your internet connection and try again'
+      )
+    );
     return false;
   }
 }
@@ -732,9 +715,15 @@ export function* addSigningDeviceWorker({
       yield put(setRelaySignersUpdateLoading(true));
       const response = yield call(updateAppImageWorker, { payload: { signers: signersToUpdate } });
       if (response.updated) {
-        dbManager.createObjectBulk(RealmSchema.Signer, signersToUpdate, Realm.UpdateMode.Modified);
+        yield call(
+          dbManager.createObjectBulk,
+          RealmSchema.Signer,
+          signersToUpdate,
+          Realm.UpdateMode.Modified
+        );
+        yield put(relaySignersUpdateSuccess());
       } else {
-        yield put(relaySignersUpdateFail(response.error));
+        yield put(relaySignersUpdateFail(response.error.toString()));
       }
     } else if (signers.length === 1) {
       yield put(relaySignersUpdateFail('The signer already exists.'));
@@ -1357,17 +1346,17 @@ function* updateWalletDetailsWorker({ payload }) {
       visibility: wallet.presentationData.visibility,
       shell: wallet.presentationData.shell,
     };
-    yield put(setRelayWalletUpdateLoading(true));
-    // API-TODO: based on response call the DB
     wallet.presentationData = presentationData;
-    const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
+
+    yield put(setRelayWalletUpdateLoading(true));
+    const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
     if (response.updated) {
-      yield put(relayWalletUpdateSuccess());
       yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
         presentationData,
       });
+      yield put(relayWalletUpdateSuccess());
     } else {
-      yield put(relayWalletUpdateFail(response.error));
+      yield put(relayWalletUpdateFail(response.error.toString()));
     }
   } catch (err) {
     yield put(relayWalletUpdateFail('Something went wrong!'));
@@ -1410,7 +1399,7 @@ function* updateVaultDetailsWorker({ payload }) {
         presentationData,
       });
     } else {
-      yield put(relayVaultUpdateFail(response.error));
+      yield put(relayVaultUpdateFail(response.error.toString()));
     }
   } catch (err) {
     console.log('err', err);
@@ -1444,21 +1433,19 @@ function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
       WalletUtilities.getNetworkByType(wallet.networkType),
       derivationDetails.xDerivationPath
     ); // recreate the specs
-
-    yield put(setRelayWalletUpdateLoading(true));
-    // API-TODO: based on response call the DB
     wallet.derivationDetails = derivationDetails;
     wallet.specs = specs;
 
-    const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
+    yield put(setRelayWalletUpdateLoading(true));
+    const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
     if (response.updated) {
-      yield put(relayWalletUpdateSuccess());
       yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
         derivationDetails,
         specs,
       });
+      yield put(relayWalletUpdateSuccess());
     } else {
-      yield put(relayWalletUpdateFail(response.error));
+      yield put(relayWalletUpdateFail(response.error.toString()));
     }
   } catch (err) {
     yield put(relayWalletUpdateFail('Something went wrong!'));
@@ -1494,7 +1481,7 @@ export function* updateSignerDetailsWorker({ payload }) {
       );
       yield put(relaySignersUpdateSuccess());
     } else {
-      yield put(relaySignersUpdateFail(response.error));
+      yield put(relaySignersUpdateFail(response.error.toString()));
     }
   } catch (err) {
     console.error(err);
@@ -1571,7 +1558,7 @@ function* updateWalletsPropertyWorker({
       yield call(dbManager.updateObjectById, RealmSchema.Wallet, walletId, { [key]: value });
       yield put(relayWalletUpdateSuccess());
     } else {
-      yield put(relayWalletUpdateFail(response.error));
+      yield put(relayWalletUpdateFail(response.error.toString()));
     }
   } catch (err) {
     captureError(err);
@@ -1592,7 +1579,7 @@ function* deleteVaultWorker({ payload }) {
       yield call(dbManager.deleteObjectById, RealmSchema.Vault, vaultId);
       yield put(relayVaultUpdateSuccess());
     } else {
-      yield put(relayVaultUpdateFail(response.error));
+      yield put(relayVaultUpdateFail(response.error.toString()));
     }
   } catch (err) {
     yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
@@ -1640,7 +1627,7 @@ function* reinstateVaultWorker({ payload }) {
       }
       yield put(relayVaultUpdateSuccess());
     } else {
-      yield put(relayVaultUpdateFail(response.error));
+      yield put(relayVaultUpdateFail(response.error.toString()));
     }
   } catch (err) {
     yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));

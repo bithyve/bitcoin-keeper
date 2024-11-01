@@ -758,12 +758,12 @@ function PasswordEnter({
         const navigationState = addSignerFlow
           ? {
               name: 'ManageSigners',
-              params: { addedSigner: signer, addSignerFlow, showModal: true },
+              params: { addedSigner: signer },
             }
           : {
               name: 'AddSigningDevice',
               merge: true,
-              params: { addedSigner: signer, addSignerFlow, showModal: true },
+              params: { addedSigner: signer },
             };
         navigation.dispatch(CommonActions.navigate(navigationState));
         setInProgress(false);
@@ -1027,12 +1027,12 @@ function HardwareModalMap({
           const navigationState = addSignerFlow
             ? {
                 name: 'ManageSigners',
-                params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+                params: { addedSigner: hw.signer },
               }
             : {
                 name: 'AddSigningDevice',
                 merge: true,
-                params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+                params: { addedSigner: hw.signer },
               };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
@@ -1134,12 +1134,12 @@ function HardwareModalMap({
       const navigationState = addSignerFlow
         ? {
             name: 'ManageSigners',
-            params: { addedSigner: signer, addSignerFlow, showModal: true },
+            params: { addedSigner: signer },
           }
         : {
             name: 'AddSigningDevice',
             merge: true,
-            params: { addedSigner: signer, addSignerFlow, showModal: true },
+            params: { addedSigner: signer },
           };
       navigation.dispatch(CommonActions.navigate(navigationState));
     } catch (err) {
@@ -1169,12 +1169,12 @@ function HardwareModalMap({
                 const navigationState = addSignerFlow
                   ? {
                       name: 'ManageSigners',
-                      params: { addedSigner: signer, addSignerFlow, showModal: true },
+                      params: { addedSigner: signer },
                     }
                   : {
                       name: 'AddSigningDevice',
                       merge: true,
-                      params: { addedSigner: signer, addSignerFlow, showModal: true },
+                      params: { addedSigner: signer },
                     };
                 navigation.dispatch(CommonActions.navigate(navigationState));
               } catch (err) {
@@ -1292,12 +1292,12 @@ function HardwareModalMap({
         const navigationState = addSignerFlow
           ? {
               name: 'ManageSigners',
-              params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+              params: { addedSigner: hw.signer },
             }
           : {
               name: 'AddSigningDevice',
               merge: true,
-              params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+              params: { addedSigner: hw.signer },
             };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
@@ -1471,11 +1471,11 @@ function HardwareModalMap({
     } else {
       dispatch(addSigningDevice([hw]));
       const navigationState = addSignerFlow
-        ? { name: 'ManageSigners', params: { addedSigner: hw, addSignerFlow, showModal: true } }
+        ? { name: 'ManageSigners', params: { addedSigner: hw } }
         : {
             name: 'AddSigningDevice',
             merge: true,
-            params: { addedSigner: hw, addSignerFlow, showModal: true },
+            params: { addedSigner: hw },
           };
       navigation.dispatch(CommonActions.navigate(navigationState));
     }
@@ -1720,12 +1720,12 @@ function HardwareModalMap({
               const navigationState = addSignerFlow
                 ? {
                     name: 'ManageSigners',
-                    params: { addedSigner: signer, addSignerFlow, showModal: true },
+                    params: { addedSigner: signer },
                   }
                 : {
                     name: 'AddSigningDevice',
                     merge: true,
-                    params: { addedSigner: signer, addSignerFlow, showModal: true },
+                    params: { addedSigner: signer },
                   };
               navigation.dispatch(CommonActions.navigate(navigationState));
             } else {

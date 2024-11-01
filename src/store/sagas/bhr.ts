@@ -149,6 +149,7 @@ export function* updateAppImageWorker({
   } catch (err) {
     console.log({ err });
     console.error('App image update failed', err);
+    return { updated: false, error: err };
   }
 }
 

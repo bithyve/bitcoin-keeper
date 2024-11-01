@@ -183,12 +183,12 @@ function SetupTapsigner({ route }) {
         const navigationState = addSignerFlow
           ? {
               name: 'ManageSigners',
-              params: { addedSigner: tapsigner, addSignerFlow, showModal: true },
+              params: { addedSigner: tapsigner },
             }
           : {
               name: 'AddSigningDevice',
               merge: true,
-              params: { addedSigner: tapsigner, addSignerFlow, showModal: true },
+              params: { addedSigner: tapsigner },
             };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
