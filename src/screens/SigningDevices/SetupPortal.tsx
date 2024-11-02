@@ -1,17 +1,11 @@
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import {
-  EntityKind,
-  NetworkType,
-  SignerStorage,
-  SignerType,
-  XpubTypes,
-} from 'src/services/wallets/enums';
+import { NetworkType, SignerStorage, SignerType } from 'src/services/wallets/enums';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
@@ -27,10 +21,8 @@ import { useDispatch } from 'react-redux';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { isTestnet } from 'src/constants/Bitcoin';
-import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import config from 'src/utils/service-utilities/config';
-import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
@@ -189,7 +181,10 @@ function SetupPortal({ route }) {
       throw { message: 'Portal not initialized' };
     }
 
-    if (!status.unlocked) await PORTAL.unlock(cvc);
+    if (!status.unlocked) {
+      // Unlocking portal with cvc
+      await PORTAL.unlock(cvc);
+    }
 
     status = await PORTAL.getStatus();
     if (!status.unlocked) {
@@ -206,79 +201,20 @@ function SetupPortal({ route }) {
       const portalDetails = await withNfcModal(async () => getPortalDetails());
       console.log('portalDetails ', portalDetails);
       const { xpub, derivationPath, masterFingerprint, xpubDetails } = portalDetails;
-
       let portalSigner: Signer;
       let vaultKey: VaultSigner;
-      if (false && isTestnet() && (await DeviceInfo.isEmulator())) {
-        // fetched multi-sig key
-        const {
-          xpub: multiSigXpub,
-          xpriv: multiSigXpriv,
-          derivationPath: multiSigPath,
-          masterFingerprint,
-        } = generateMockExtendedKeyForSigner(
-          EntityKind.VAULT,
-          SignerType.PORTAL,
-          config.NETWORK_TYPE
-        );
-        // fetched single-sig key
-        const {
-          xpub: singleSigXpub,
-          xpriv: singleSigXpriv,
-          derivationPath: singleSigPath,
-        } = generateMockExtendedKeyForSigner(
-          EntityKind.WALLET,
-          SignerType.PORTAL,
-          config.NETWORK_TYPE
-        );
-
-        const xpubDetails: XpubDetailsType = {};
-
-        xpubDetails[XpubTypes.P2WPKH] = {
-          xpub: singleSigXpub,
-          xpriv: singleSigXpriv,
-          derivationPath: singleSigPath,
-        };
-
-        xpubDetails[XpubTypes.P2WSH] = {
-          xpub: multiSigXpub,
-          xpriv: multiSigXpriv,
-          derivationPath: multiSigPath,
-        };
-
-        xpubDetails[XpubTypes.AMF] = {
-          xpub: multiSigXpub,
-          xpriv: multiSigXpriv,
-          derivationPath: multiSigPath,
-        };
-
-        const { signer, key } = generateSignerFromMetaData({
-          xpub: multiSigXpub,
-          derivationPath: multiSigPath,
-          masterFingerprint,
-          signerType: SignerType.PORTAL,
-          storageType: SignerStorage.COLD,
-          isMultisig,
-          xpriv: multiSigXpriv,
-          isMock: false,
-          xpubDetails,
-        });
-        portalSigner = signer;
-        vaultKey = key;
-      } else {
-        const { signer, key } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          masterFingerprint,
-          signerType: SignerType.PORTAL,
-          storageType: SignerStorage.COLD,
-          isMultisig,
-          xpubDetails,
-          isAmf: false,
-        });
-        portalSigner = signer;
-        vaultKey = key;
-      }
+      const { signer, key } = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        masterFingerprint,
+        signerType: SignerType.PORTAL,
+        storageType: SignerStorage.COLD,
+        isMultisig,
+        xpubDetails,
+        isAmf: false,
+      });
+      portalSigner = signer;
+      vaultKey = key;
       if (mode === InteracationMode.RECOVERY) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal health check verified!`);
         dispatch(setSigningDevices(portalSigner));
