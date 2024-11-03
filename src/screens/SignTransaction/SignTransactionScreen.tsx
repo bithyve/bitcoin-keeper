@@ -14,7 +14,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/vaults';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import SuccessIcon from 'src/assets/images/successSvg.svg';
+import SuccessLightIllustration from 'src/assets/images/upgrade-illustration.svg';
+import SuccessDarkIllustration from 'src/assets/images/upgrade-dark-illustration.svg';
 import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
@@ -65,6 +66,7 @@ import Colors from 'src/theme/Colors';
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
 
   const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds, tnxDetails } =
     (route.params || {
@@ -584,7 +586,7 @@ function SignTransactionScreen() {
     return (
       <Box>
         <Box alignSelf="center">
-          <SuccessIcon />
+          {isDarkMode ? <SuccessDarkIllustration /> : <SuccessLightIllustration />}
         </Box>
         <Text color={`${colorMode}.primaryText`} fontSize={13} padding={2}>
           {walletTransactions.sendTransSuccessMsg}
