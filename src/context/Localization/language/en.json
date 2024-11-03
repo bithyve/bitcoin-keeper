@@ -499,7 +499,7 @@
     "sendTransSuccessMsg": "Check transaction details for more information",
     "PRIORITY": "PRIORITY",
     "ARRIVALTIME": "ARRIVAL TIME",
-    "FEE": "FEE",
+    "fees": "Fees",
     "transactionPriority": "Transaction Priority",
     "transactionPrioritySubTitle": "Decide how fast you want to send sats",
     "addCustomPriority": "Add Custom Priority",
