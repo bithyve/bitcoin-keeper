@@ -10,6 +10,7 @@ export interface Props {
   onPressNumber;
   onDeletePressed;
   disabled?;
+  enableDecimal?: boolean;
   keyColor?: string;
   ClearIcon?: JSX.Element;
 }
@@ -17,6 +18,7 @@ const KeyPadView: React.FC<Props> = ({
   onPressNumber,
   onDeletePressed,
   disabled = false,
+  enableDecimal = false,
   keyColor = '#CDD8D6',
   ClearIcon = <DeleteIcon />,
 }: Props) => (
@@ -37,9 +39,13 @@ const KeyPadView: React.FC<Props> = ({
       <KeyPadButton title="9" onPressNumber={() => onPressNumber('9')} keyColor={keyColor} />
     </Box>
     <Box style={styles.keyWrapperView}>
-      <Box style={styles.emptyBtnView}>
-        <Text style={{ padding: 15 }} />
-      </Box>
+      {enableDecimal ? (
+        <KeyPadButton title="." onPressNumber={() => onPressNumber('.')} keyColor={keyColor} />
+      ) : (
+        <Box style={styles.emptyBtnView}>
+          <Text style={{ padding: 15 }} />
+        </Box>
+      )}
       <KeyPadButton title="0" onPressNumber={() => onPressNumber('0')} keyColor={keyColor} />
       <TouchableOpacity
         onPress={() => onDeletePressed()}
