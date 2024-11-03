@@ -643,7 +643,7 @@ function SignTransactionScreen() {
         subtitle={`Choose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
-        contentContainerStyle={{ paddingTop: '5%' }}
+        contentContainerStyle={{ paddingTop: '10%' }}
         data={vaultKeys}
         keyExtractor={(item) => item.xfp}
         renderItem={({ item, index }) => (

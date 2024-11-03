@@ -228,6 +228,7 @@ export const customTheme = extendTheme({
       lightBrownCircle: Colors.RussetBrownLight,
       optionCardTitle: Colors.SecondaryBlack,
       optionCardDesc: Colors.GraniteGray,
+      yellowCircleBackground: Colors.MacaroniAndCheese,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -412,6 +413,7 @@ export const customTheme = extendTheme({
       lightBrownCircle: Colors.DullBrownLight,
       optionCardTitle: Colors.White,
       optionCardDesc: Colors.GraphiteLight,
+      yellowCircleBackground: Colors.MacaroniAndCheese,
     },
   },
   config: {
