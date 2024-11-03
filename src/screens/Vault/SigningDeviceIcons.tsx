@@ -76,6 +76,12 @@ import KEEPERAPPGREENLIGHT from 'src/assets/images/external-key-green-light.svg'
 import KEEPERAPPGREENDARK from 'src/assets/images/external-key-green-dark.svg';
 import SEEDWORDSGREENLIGHT from 'src/assets/images/seed-words-green-light.svg';
 import SEEDWORDSGREENDARK from 'src/assets/images/seed-words-green-dark.svg';
+import OTHERSDGREENLIGHT from 'src/assets/images/other-sd-green-light.svg';
+import OTHERSDGREENDARK from 'src/assets/images/other-sd-green-dark.svg';
+import BITBOXGREENLIGHT from 'src/assets/images/bitbox-green-light.svg';
+import BITBOXGREENDARK from 'src/assets/images/bitbox-green-dark.svg';
+import TREZORGREENLIGHT from 'src/assets/images/trezor-green-light.svg';
+import TREZORGREENDARK from 'src/assets/images/trezor-green-dark.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -319,7 +325,7 @@ export const SDColoredIcons = (type: SignerType, light = true, width = 20, heigh
       };
     case SignerType.TREZOR:
       return {
-        Icon: getColouredIcon(<TREZORICONLIGHT />, <TREZORICON />, light, width, height),
+        Icon: getColouredIcon(<TREZORGREENLIGHT />, <TREZORGREENDARK />, light, width, height),
         type: SignerStorage.COLD,
       };
     case SignerType.SEEDSIGNER:
@@ -340,17 +346,17 @@ export const SDColoredIcons = (type: SignerType, light = true, width = 20, heigh
       };
     case SignerType.BITBOX02:
       return {
-        Icon: getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light, width, height),
+        Icon: getColouredIcon(<BITBOXGREENLIGHT />, <BITBOXGREENDARK />, light, width, height),
         type: SignerStorage.COLD,
       };
     case SignerType.OTHER_SD:
       return {
-        Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light, width, height),
+        Icon: getColouredIcon(<OTHERSDGREENLIGHT />, <OTHERSDGREENDARK />, light, width, height),
         type: SignerStorage.COLD,
       };
     case SignerType.UNKOWN_SIGNER:
       return {
-        Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light, width, height),
+        Icon: getColouredIcon(<OTHERSDGREENLIGHT />, <OTHERSDGREENDARK />, light, width, height),
         type: SignerStorage.COLD,
       };
     case SignerType.SEED_WORDS:
