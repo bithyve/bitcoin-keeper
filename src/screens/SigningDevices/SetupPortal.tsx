@@ -202,8 +202,7 @@ function SetupPortal({ route }) {
       console.log('portalDetails ', portalDetails);
       const { xpub, derivationPath, masterFingerprint, xpubDetails } = portalDetails;
       let portalSigner: Signer;
-      let vaultKey: VaultSigner;
-      const { signer, key } = generateSignerFromMetaData({
+      const { signer } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         masterFingerprint,
@@ -214,7 +213,6 @@ function SetupPortal({ route }) {
         isAmf: false,
       });
       portalSigner = signer;
-      vaultKey = key;
       if (mode === InteracationMode.RECOVERY) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal health check verified!`);
         dispatch(setSigningDevices(portalSigner));
@@ -254,8 +252,9 @@ function SetupPortal({ route }) {
       if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal signed successfully!`);
       navigation.goBack();
     } catch (error) {
+      console.log('🚀 ~ signWithPortal ~ error:', error);
       showToast(
-        'Something went wrong. Please try again',
+        error?.message ? error.message : 'Something went wrong. Please try again',
         <ToastErrorIcon />,
         IToastCategory.DEFAULT,
         3000,
