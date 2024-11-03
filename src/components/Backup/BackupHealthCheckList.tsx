@@ -1,20 +1,18 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { FlatList, Box, useColorMode } from 'native-base';
 import moment from 'moment';
-import Text from 'src/components/KeeperText';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { BackupHistory, BackupType } from 'src/models/enums/BHR';
+import { BackupHistoryItem, BackupType } from 'src/models/enums/BHR';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
-import { hp, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import DotView from 'src/components/DotView';
 import { useQuery } from '@realm/react';
 import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
 import AlertIllustrationDark from 'src/assets/images/upgrade-successfulDark.svg';
@@ -24,6 +22,7 @@ import KeeperFooter from '../KeeperFooter';
 import HealthCheckComponent from './HealthCheckComponent';
 import KeeperModal from '../KeeperModal';
 import { Platform } from 'react-native';
+import SigningDeviceChecklist from 'src/screens/Vault/SigningDeviceChecklist';
 
 function Content() {
   const { colorMode } = useColorMode();
@@ -43,14 +42,14 @@ function BackupHealthCheckList({ isUaiFlow }) {
   const { BackupWallet } = translations;
   const dispatch = useAppDispatch();
   const strings = translations.BackupWallet;
-  const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
   const { primaryMnemonic, backup }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
   const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(isUaiFlow);
-  const history = useMemo(() => data.sorted('date', true), [data]);
+  const data = useQuery(RealmSchema.BackupHistory);
+  const history: BackupHistoryItem[] = useMemo(() => data.sorted('date', true), [data]);
 
   const onPressConfirm = () => {
     setShowConfirmSeedModal(true);
@@ -107,37 +106,16 @@ function BackupHealthCheckList({ isUaiFlow }) {
         <FlatList
           data={history}
           contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
           renderItem={({ item, index }) => (
-            <Box
-              padding={1}
-              marginLeft={2}
-              borderLeftColor={`${colorMode}.RecoveryBorderColor`}
-              borderLeftWidth={1}
-              width="100%"
-              position="relative"
-              key={index}
-            >
-              <Box
-                zIndex={999}
-                position="absolute"
-                left={-8}
-                backgroundColor={`${colorMode}.RecoveryBorderColor`}
-                padding={1}
-                borderRadius={15}
-              >
-                <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
-              </Box>
-              <Text color={`${colorMode}.secondaryText`} fontSize={12} bold ml={5} opacity={0.7}>
-                {strings[item?.title]}
-              </Text>
-              <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
-                {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}
-              </Text>
-            </Box>
+            <SigningDeviceChecklist
+              status={item?.title}
+              key={index.toString()}
+              date={moment.unix(item?.date).toDate()}
+            />
           )}
         />
       </Box>
-
       <KeeperFooter
         wrappedScreen={Platform.OS === 'ios' ? true : false}
         marginX={35}

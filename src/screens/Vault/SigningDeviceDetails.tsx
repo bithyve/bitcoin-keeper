@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { FlatList, Platform, StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
-import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { hp, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -14,9 +13,12 @@ import SeedSigner from 'src/assets/images/seedsigner-setup-horizontal.svg';
 import Ledger from 'src/assets/images/ledger_image.svg';
 import Keystone from 'src/assets/images/keystone_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import AdvnaceOptions from 'src/assets/images/settings.svg';
-import Change from 'src/assets/images/change.svg';
-import HealthCheck from 'src/assets/images/healthcheck_light.svg';
+import ChangeIcon from 'src/assets/images/change-green.svg';
+import ChangeDarkIcon from 'src/assets/images/change.svg';
+import HealthCheckIcon from 'src/assets/images/health-check-green.svg';
+import HealthCheckDarkIcon from 'src/assets/images/health-check-white.svg';
+import KeyDetailsIcon from 'src/assets/images/key-green.svg';
+import KeyDetailsDarkIcon from 'src/assets/images/key-white.svg';
 import SkipHealthCheck from 'src/assets/images/skipHealthCheck.svg';
 import MobileKeyModalIllustration from 'src/assets/images/mobile-key-illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
@@ -38,18 +40,17 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import KeeperFooter from 'src/components/KeeperFooter';
 import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import SettingIcon from 'src/assets/images/settings-gear.svg';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
-import { SDIcons } from './SigningDeviceIcons';
-import { getSignerNameFromType } from 'src/hardware';
+import { SDColoredIcons } from './SigningDeviceIcons';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -62,9 +63,10 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import BackupModalContent from 'src/screens/AppSettings/BackupModal';
-import DotView from 'src/components/DotView';
 import Note from 'src/components/Note/Note';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BackupHistoryItem } from 'src/models/enums/BHR';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -253,7 +255,8 @@ function SigningDeviceDetails({ route }) {
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [showLoader, setShowLoader] = useState(true);
   const data = useQuery(RealmSchema.BackupHistory);
-  const history = useMemo(() => data.sorted('date', true), [data]);
+  const history: BackupHistoryItem[] = useMemo(() => data.sorted('date', true), [data]);
+  const { top } = useSafeAreaInsets();
 
   useEffect(() => {
     return () => {
@@ -280,6 +283,12 @@ function SigningDeviceDetails({ route }) {
   if (!signer) {
     return null;
   }
+
+  const navigateToSettings = () => {
+    navigation.dispatch(
+      CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId, signerId })
+    );
+  };
 
   const { title, subTitle, assert, description, FAQ } = getSignerContent(signer?.type);
   function SignerContent() {
@@ -318,18 +327,52 @@ function SigningDeviceDetails({ route }) {
     );
   }
 
-  function FooterIcon({ Icon, showDot = false }) {
+  const EmptyHistoryView = ({ colorMode }) => (
+    <Box style={styles.emptyWrapper}>
+      <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
+        {'Key History'}
+      </Text>
+      <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
+        {'The history of your key health checks would be visible here.'}
+      </Text>
+      <Box style={styles.emptyStateContainer}>
+        <EmptyState />
+      </Box>
+    </Box>
+  );
+
+  function MenuItem({ Icon, text, onPress }) {
+    return (
+      <TouchableOpacity activeOpacity={0.6} onPress={onPress} testID={`btn${text}`}>
+        <Box style={styles.menuItemContainer}>
+          <Box style={styles.menuItemIcon}>
+            <Icon />
+          </Box>
+          <Text color={`${colorMode}.secondaryText`} medium>
+            {text}
+          </Text>
+        </Box>
+      </TouchableOpacity>
+    );
+  }
+
+  function MenuBar({ menuItems }) {
     return (
       <Box
-        margin="1"
-        width="12"
-        height="12"
-        borderRadius={30}
-        backgroundColor={`${colorMode}.BrownNeedHelp`}
-        justifyContent="center"
-        alignItems="center"
-        position={'relative'}
+        style={styles.menuBarContainer}
+        backgroundColor={`${colorMode}.secondaryBackground`}
+        borderColor={`${colorMode}.border`}
       >
+        {menuItems.map((item, index) => (
+          <MenuItem key={index} Icon={item.Icon} text={item.text} onPress={item.onPress} />
+        ))}
+      </Box>
+    );
+  }
+
+  function FooterIcon({ Icon, showDot = false }) {
+    return (
+      <Box justifyContent="center" alignItems="center">
         <Icon />
         {showDot && <Box style={styles.redDot} />}
       </Box>
@@ -338,12 +381,21 @@ function SigningDeviceDetails({ route }) {
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
 
-  const footerItems = [
+  const menuItems = [
+    {
+      text: 'Key Details',
+      Icon: () => <FooterIcon Icon={colorMode === 'dark' ? KeyDetailsDarkIcon : KeyDetailsIcon} />,
+      onPress: () => {
+        navigation.dispatch(
+          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId, signerId })
+        );
+      },
+    },
     {
       text: 'Health Check',
       Icon: () => (
         <FooterIcon
-          Icon={HealthCheck}
+          Icon={colorMode === 'dark' ? HealthCheckDarkIcon : HealthCheckIcon}
           showDot={entityBasedIndicator?.[signerId]?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]}
         />
       ),
@@ -366,21 +418,12 @@ function SigningDeviceDetails({ route }) {
         }
       },
     },
-    {
-      text: 'Settings',
-      Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
-      onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId, signerId })
-        );
-      },
-    },
   ];
 
   if (vaultKey) {
-    footerItems.push({
+    menuItems.push({
       text: 'Change Key',
-      Icon: () => <FooterIcon Icon={Change} />,
+      Icon: () => <FooterIcon Icon={colorMode === 'dark' ? ChangeDarkIcon : ChangeIcon} />,
       onPress: () =>
         navigation.dispatch(
           CommonActions.navigate({
@@ -393,254 +436,249 @@ function SigningDeviceDetails({ route }) {
   }
 
   return (
-    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box width={'100%'}>
+    <Box
+      backgroundColor={`${colorMode}.pantoneGreen`}
+      style={[styles.wrapper, { paddingTop: top }]}
+    >
+      <Box style={styles.topSection}>
         <KeeperHeader
           learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
           learnMorePressed={() => setDetailModal(true)}
-          learnTextColor={`${colorMode}.buttonText`}
-          title={signerTranslations.keyDetails}
-          subtitle={
+          learnBackgroundColor={`${colorMode}.pantoneGreen`}
+          learnTextColor={`${colorMode}.modalGreenContent`}
+          title={
             !signer.isBIP85
-              ? `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
-                `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
-              : `For ${getSignerNameFromType(signer.type, signer.isMock, false) + ' +'}` ||
-                `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+              ? getSignerNameFromType(signer.type, signer.isMock, false)
+              : `${getSignerNameFromType(signer.type, signer.isMock, false) + ' +'}`
           }
+          titleColor={`${colorMode}.modalGreenContent`}
+          subTitleColor={`${colorMode}.modalGreenContent`}
+          contrastScreen={true}
+          subtitle={getSignerDescription(signer)}
           icon={
             <CircleIconWrapper
-              backgroundColor={`${colorMode}.primaryGreenBackground`}
-              icon={SDIcons(signer.type, true, 26, 26).Icon}
+              backgroundColor={`${colorMode}.whiteCircle`}
+              icon={SDColoredIcons(signer.type, colorMode === 'light', 26, 26).Icon}
             />
+          }
+          rightComponent={
+            <TouchableOpacity onPress={navigateToSettings} testID="btn_manage_singner_setting">
+              <SettingIcon />
+            </TouchableOpacity>
           }
         />
       </Box>
-      <Text style={styles.recentHistoryText}>Recent History</Text>
-      <ScrollView contentContainerStyle={styles.flex1}>
-        <Box style={styles.healthCheckContainer}>
-          {showLoader ? (
-            <ActivityIndicatorView visible={showLoader} showLoader />
-          ) : healthCheckArray.length === 0 ? (
-            <Box style={styles.emptyWrapper}>
-              <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
-                {'Key History'}
-              </Text>
-              <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
-                {'The history of your key health checks would be visible here.'}
-              </Text>
-              <Box style={styles.emptyStateContainer}>
-                <EmptyState />
-              </Box>
-            </Box>
-          ) : (
-            healthCheckArray.map((item, index) => {
-              return currentSigner.type !== SignerType.MY_KEEPER ? (
-                <SigningDeviceChecklist
-                  status={item.type}
-                  key={index.toString()}
-                  date={item.actionDate}
-                />
-              ) : (
-                <Box style={styles.healthCheckListContainer}>
-                  <FlatList
-                    data={history}
-                    contentContainerStyle={styles.healthCheckList}
-                    renderItem={({ item, index }) => (
-                      <Box
-                        style={styles.itemBox}
-                        borderLeftColor={`${colorMode}.RecoveryBorderColor`}
-                        key={index}
-                      >
-                        <Box
-                          style={styles.dotContainer}
-                          backgroundColor={`${colorMode}.RecoveryBorderColor`}
-                        >
-                          <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
-                        </Box>
-                        <Text style={styles.title} color={`${colorMode}.secondaryText`}>
-                          {strings[item?.title]}
-                        </Text>
-                        <Text color={`${colorMode}.GreyText`} style={styles.date}>
-                          {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}
-                        </Text>
-                      </Box>
-                    )}
+      <Box style={styles.bottomSection} backgroundColor={`${colorMode}.primaryBackground`}>
+        <SafeAreaView edges={['bottom']} style={styles.safeArea}>
+          <Text style={styles.recentHistoryText}>Recent History</Text>
+          <ScrollView contentContainerStyle={styles.flex1} showsVerticalScrollIndicator={false}>
+            <Box style={styles.healthCheckContainer}>
+              {showLoader ? (
+                <ActivityIndicatorView visible={showLoader} showLoader />
+              ) : healthCheckArray.length === 0 ? (
+                <EmptyHistoryView colorMode={colorMode} />
+              ) : currentSigner.type !== SignerType.MY_KEEPER ? (
+                healthCheckArray.map((item, index) => (
+                  <SigningDeviceChecklist
+                    status={item.type}
+                    key={index.toString()}
+                    date={item.actionDate}
                   />
-                </Box>
-              );
-            })
+                ))
+              ) : (
+                history.map((item, index) => (
+                  <SigningDeviceChecklist
+                    status={item?.title}
+                    key={index.toString()}
+                    date={moment.unix(item?.date).toDate()}
+                  />
+                ))
+              )}
+            </Box>
+          </ScrollView>
+          {currentSigner.type === SignerType.MY_KEEPER && (
+            <Box style={styles.noteWrapper}>
+              <Note
+                title={common.note}
+                subtitle={signerTranslations.MKHealthCheckNote}
+                subtitleColor="GreyText"
+              />
+            </Box>
           )}
-        </Box>
-      </ScrollView>
-      {currentSigner.type === SignerType.MY_KEEPER && (
-        <Box style={styles.noteWrapper}>
-          <Note
-            title={common.note}
-            subtitle={signerTranslations.MKHealthCheckNote}
-            subtitleColor="GreyText"
+          <Box style={styles.menuWrapper}>
+            <MenuBar menuItems={menuItems} />
+          </Box>
+          <HardwareModalMap
+            type={signer?.type}
+            visible={visible}
+            close={() => setVisible(false)}
+            signer={signer}
+            skipHealthCheckCallBack={() => {
+              setVisible(false);
+              setSkipHealthCheckModalVisible(true);
+            }}
+            mode={InteracationMode.HEALTH_CHECK}
+            isMultisig={activeVault?.isMultiSig || true}
+            primaryMnemonic={primaryMnemonic}
+            vaultId={vaultId}
+            addSignerFlow={false}
+            vaultSigners={vaultSigners}
           />
-        </Box>
-      )}
-      <KeeperFooter
-        marginX={!vaultKey ? 35 : 10}
-        wrappedScreen={Platform.OS === 'ios' ? true : false}
-        items={footerItems}
-      />
-      <HardwareModalMap
-        type={signer?.type}
-        visible={visible}
-        close={() => setVisible(false)}
-        signer={signer}
-        skipHealthCheckCallBack={() => {
-          setVisible(false);
-          setSkipHealthCheckModalVisible(true);
-        }}
-        mode={InteracationMode.HEALTH_CHECK}
-        isMultisig={activeVault?.isMultiSig || true}
-        primaryMnemonic={primaryMnemonic}
-        vaultId={vaultId}
-        addSignerFlow={false}
-        vaultSigners={vaultSigners}
-      />
-      <KeeperModal
-        visible={skipHealthCheckModalVisible}
-        close={() => setSkipHealthCheckModalVisible(false)}
-        title="Skipping Health Check"
-        subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
-        buttonText="Confirm Access"
-        secondaryButtonText="Confirm Later"
-        buttonTextColor={`${colorMode}.buttonText`}
-        buttonCallback={() => {
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_MANAUAL,
-              },
-            ])
-          );
-          showToast('Device verified manually!');
-          setSkipHealthCheckModalVisible(false);
-        }}
-        secondaryCallback={() => {
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SKIPPED,
-              },
-            ])
-          );
-          showToast('Device health check skipped!');
-          setSkipHealthCheckModalVisible(false);
-        }}
-        textColor={`${colorMode}.primaryText`}
-        Content={HealthCheckSkipContent}
-      />
+          <KeeperModal
+            visible={skipHealthCheckModalVisible}
+            close={() => setSkipHealthCheckModalVisible(false)}
+            title="Skipping Health Check"
+            subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
+            buttonText="Confirm Access"
+            secondaryButtonText="Confirm Later"
+            buttonTextColor={`${colorMode}.buttonText`}
+            buttonCallback={() => {
+              dispatch(
+                healthCheckStatusUpdate([
+                  {
+                    signerId: signer.masterFingerprint,
+                    status: hcStatusType.HEALTH_CHECK_MANAUAL,
+                  },
+                ])
+              );
+              showToast('Device verified manually!');
+              setSkipHealthCheckModalVisible(false);
+            }}
+            secondaryCallback={() => {
+              dispatch(
+                healthCheckStatusUpdate([
+                  {
+                    signerId: signer.masterFingerprint,
+                    status: hcStatusType.HEALTH_CHECK_SKIPPED,
+                  },
+                ])
+              );
+              showToast('Device health check skipped!');
+              setSkipHealthCheckModalVisible(false);
+            }}
+            textColor={`${colorMode}.primaryText`}
+            Content={HealthCheckSkipContent}
+          />
 
-      <KeeperModal
-        visible={detailModal}
-        close={() => setDetailModal(false)}
-        title={!signer.isBIP85 ? title : title + ' +'}
-        subTitle={subTitle}
-        modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
-        Content={SignerContent}
-        subTitleWidth={wp(280)}
-        DarkCloseIcon
-        buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
-        secondaryCallback={() => {
-          setDetailModal(false);
-          dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'));
-        }}
-        buttonCallback={() => setDetailModal(false)}
-      />
-      <KeeperModal
-        visible={showMobileKeyModal}
-        close={() => setShowMobileKeyModal(false)}
-        title={signerTranslations.performHealthCheckTitle}
-        subTitle={signerTranslations.performHealthCheckSubTitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalWhiteContent`}
-        subTitleWidth={wp(280)}
-        buttonText={common.continue}
-        buttonCallback={() => {
-          if (data.length === 0) {
-            setConfirmPassVisible(true);
-          } else {
-            setShowMobileKeyModal(false);
-            navigation.navigate('WalletBackHistory', { isUaiFlow: true });
-          }
-        }}
-        secondaryButtonText={common.back}
-        secondaryCallback={() => setShowMobileKeyModal(false)}
-        buttonTextColor={`${colorMode}.buttonText`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
-        Content={MobileKeyModalContent}
-      />
-      <KeeperModal
-        visible={confirmPassVisible}
-        closeOnOverlayClick={false}
-        close={() => setConfirmPassVisible(false)}
-        title={common.confirmPassCode}
-        subTitleWidth={wp(240)}
-        subTitle={signerTranslations.RKBackupPassSubTitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        Content={() => (
-          <PasscodeVerifyModal
-            useBiometrics
-            close={() => {
-              setConfirmPassVisible(false);
+          <KeeperModal
+            visible={detailModal}
+            close={() => setDetailModal(false)}
+            title={!signer.isBIP85 ? title : title + ' +'}
+            subTitle={subTitle}
+            modalBackground={`${colorMode}.modalGreenBackground`}
+            textColor={`${colorMode}.modalGreenContent`}
+            Content={SignerContent}
+            subTitleWidth={wp(280)}
+            DarkCloseIcon
+            buttonText={common.Okay}
+            secondaryButtonText={common.needHelp}
+            buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+            buttonBackground={`${colorMode}.modalWhiteButton`}
+            secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+            secondaryCallback={() => {
+              setDetailModal(false);
+              dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'));
             }}
-            onSuccess={() => {
-              setShowMobileKeyModal(false);
-              setBackupModalVisible(true);
-            }}
+            buttonCallback={() => setDetailModal(false)}
           />
-        )}
-      />
-      <KeeperModal
-        visible={backupModalVisible}
-        close={() => setBackupModalVisible(false)}
-        title={signerTranslations.RKBackupTitle}
-        subTitle={signerTranslations.RKBackupSubTitle}
-        subTitleWidth={wp(300)}
-        modalBackground={`${colorMode}.primaryBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.modalGreenTitle`}
-        showCloseIcon={false}
-        buttonText={common.backupNow}
-        buttonCallback={() => {
-          setBackupModalVisible(false);
-          navigation.dispatch(
-            CommonActions.navigate('ExportSeed', {
-              seed: primaryMnemonic,
-              next: true,
-            })
-          );
-        }}
-        Content={BackupModalContent}
-      />
-      <IdentifySignerModal
-        visible={identifySigner && identifySignerModal}
-        close={() => setIdentifySignerModal(false)}
-        signer={signer}
-        secondaryCallback={() => {
-          setVisible(true);
-        }}
-        vaultId={vaultId}
-      />
-      <ActivityIndicatorView visible={showLoader} showLoader />
-    </ScreenWrapper>
+          <KeeperModal
+            visible={showMobileKeyModal}
+            close={() => setShowMobileKeyModal(false)}
+            title={signerTranslations.performHealthCheckTitle}
+            subTitle={signerTranslations.performHealthCheckSubTitle}
+            modalBackground={`${colorMode}.modalWhiteBackground`}
+            textColor={`${colorMode}.modalWhiteContent`}
+            subTitleWidth={wp(280)}
+            buttonText={common.continue}
+            buttonCallback={() => {
+              if (data.length === 0) {
+                setConfirmPassVisible(true);
+              } else {
+                setShowMobileKeyModal(false);
+                navigation.navigate('WalletBackHistory', { isUaiFlow: true });
+              }
+            }}
+            secondaryButtonText={common.back}
+            secondaryCallback={() => setShowMobileKeyModal(false)}
+            buttonTextColor={`${colorMode}.buttonText`}
+            buttonBackground={`${colorMode}.greenButtonBackground`}
+            Content={MobileKeyModalContent}
+          />
+          <KeeperModal
+            visible={confirmPassVisible}
+            closeOnOverlayClick={false}
+            close={() => setConfirmPassVisible(false)}
+            title={common.confirmPassCode}
+            subTitleWidth={wp(240)}
+            subTitle={signerTranslations.RKBackupPassSubTitle}
+            modalBackground={`${colorMode}.modalWhiteBackground`}
+            subTitleColor={`${colorMode}.secondaryText`}
+            textColor={`${colorMode}.primaryText`}
+            Content={() => (
+              <PasscodeVerifyModal
+                useBiometrics
+                close={() => {
+                  setConfirmPassVisible(false);
+                }}
+                onSuccess={() => {
+                  setShowMobileKeyModal(false);
+                  setBackupModalVisible(true);
+                }}
+              />
+            )}
+          />
+          <KeeperModal
+            visible={backupModalVisible}
+            close={() => setBackupModalVisible(false)}
+            title={signerTranslations.RKBackupTitle}
+            subTitle={signerTranslations.RKBackupSubTitle}
+            subTitleWidth={wp(300)}
+            modalBackground={`${colorMode}.primaryBackground`}
+            subTitleColor={`${colorMode}.secondaryText`}
+            textColor={`${colorMode}.modalGreenTitle`}
+            showCloseIcon={false}
+            buttonText={common.backupNow}
+            buttonCallback={() => {
+              setBackupModalVisible(false);
+              navigation.dispatch(
+                CommonActions.navigate('ExportSeed', {
+                  seed: primaryMnemonic,
+                  next: true,
+                })
+              );
+            }}
+            Content={BackupModalContent}
+          />
+          <IdentifySignerModal
+            visible={identifySigner && identifySignerModal}
+            close={() => setIdentifySignerModal(false)}
+            signer={signer}
+            secondaryCallback={() => {
+              setVisible(true);
+            }}
+            vaultId={vaultId}
+          />
+          <ActivityIndicatorView visible={showLoader} showLoader />
+        </SafeAreaView>
+      </Box>
+    </Box>
   );
 }
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
+  topSection: {
+    height: '27%',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  bottomSection: {
+    paddingHorizontal: '5%',
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    flex: 1,
+  },
   skipHealthIllustration: {
     marginLeft: wp(25),
   },
@@ -671,7 +709,9 @@ const styles = StyleSheet.create({
   },
   recentHistoryText: {
     fontSize: 16,
-    padding: '7%',
+    paddingHorizontal: '4%',
+    paddingTop: '24%',
+    paddingBottom: '6%',
   },
   redDot: {
     width: 10,
@@ -680,7 +720,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     position: 'absolute',
     top: 0,
-    right: 0,
+    left: '25%',
     borderWidth: 1,
     borderColor: 'white',
   },
@@ -699,8 +739,11 @@ const styles = StyleSheet.create({
   flex1: {
     flexGrow: 1,
   },
+  safeArea: {
+    flex: 1,
+  },
   healthCheckContainer: {
-    marginHorizontal: wp(15),
+    marginHorizontal: wp(10),
   },
   mobileKeyIllustration: {
     alignSelf: 'center',
@@ -710,33 +753,12 @@ const styles = StyleSheet.create({
     width: wp(280),
     marginBottom: hp(20),
   },
-  healthCheckListContainer: {
-    height: hp(520),
-  },
-  itemBox: {
-    padding: 4,
-    marginLeft: 10,
-    borderLeftWidth: 1,
-    width: '100%',
-    position: 'relative',
-  },
   dotContainer: {
     zIndex: 999,
     position: 'absolute',
     left: -8,
     padding: 4,
     borderRadius: 15,
-  },
-  title: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginLeft: 20,
-    opacity: 0.7,
-  },
-  date: {
-    fontSize: 11,
-    marginLeft: 20,
-    opacity: 0.7,
   },
   noteWrapper: {
     marginHorizontal: '5%',
@@ -764,6 +786,33 @@ const styles = StyleSheet.create({
     width: wp(250),
     textAlign: 'center',
     marginBottom: hp(30),
+  },
+  menuWrapper: {
+    width: '100%',
+    position: 'absolute',
+    alignSelf: 'center',
+    top: '-8%',
+    left: '2.5%',
+  },
+  menuBarContainer: {
+    width: '95%',
+    height: hp(91),
+    borderWidth: 1,
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 30,
+    paddingHorizontal: 20,
+  },
+  menuItemContainer: {
+    gap: 6,
+    alignItems: 'center',
+  },
+  menuItemIcon: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: hp(30),
   },
 });
 

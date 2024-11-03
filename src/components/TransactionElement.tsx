@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   },
   cachedContainer: {
     borderBottomWidth: 0,
-    marginBottom: -5,
+    marginBottom: 5,
     paddingVertical: 12,
   },
 });

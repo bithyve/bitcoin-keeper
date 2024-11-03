@@ -49,7 +49,7 @@ const LearnMoreButton = ({
       borderColor={
         learnTextColor === 'light.white' || learnTextColor === 'light.buttonText'
           ? 'light.white'
-          : `${colorMode}.learnMoreBorder`
+          : `${colorMode}.modalGreenContent`
       }
       backgroundColor={
         learnBackgroundColor == 'BrownNeedHelp'

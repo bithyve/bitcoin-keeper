@@ -2,18 +2,18 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import CheckIcon from 'src/assets/images/checked.svg';
+import CheckDarkIcon from 'src/assets/images/checked-dark.svg';
 import TimeIcon from 'src/assets/images/time.svg';
 import Next from 'src/assets/images/icon_arrow.svg';
+import NextDark from 'src/assets/images/icon_arrow_white.svg';
 import React, { useEffect, useState } from 'react';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import moment from 'moment';
-import { getSignerNameFromType } from 'src/hardware';
-import { NetworkType, SignerType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
+import { SignerType } from 'src/services/wallets/enums';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import Colors from 'src/theme/Colors';
+import { wp } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('screen');
 
@@ -39,6 +39,7 @@ function SignerList({
   isLast: boolean;
 }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const hasSignerSigned = !!envelops.filter(
     (envelop) => envelop.xfp === vaultKey.xfp && envelop.isSigned
   ).length;
@@ -88,73 +89,44 @@ function SignerList({
   }, [hasSignerSigned, isIKS, isIKSClicked, isIKSDeclined]);
 
   return (
-    <TouchableOpacity
-      testID={`btn_transactionSigner`}
-      onPress={callback}
-      style={[
-        isFirst && { borderTopLeftRadius: 10, borderTopRightRadius: 10 },
-        isLast && { borderBottomLeftRadius: 10, borderBottomRightRadius: 10 },
-        {
-          paddingVertical: 10,
-          backgroundColor: colorMode === 'light' ? Colors.White : Colors.SecondaryBlack,
-        },
-      ]}
-    >
-      <Box margin={5}>
+    <TouchableOpacity testID={`btn_transactionSigner`} onPress={callback}>
+      <Box style={styles.container}>
         <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
           <Box flexDirection="row">
             <View style={styles.inheritenceView}>
               <Box
-                width={30}
-                height={30}
-                borderRadius={30}
-                backgroundColor={`${colorMode}.accent`}
+                width={35}
+                height={35}
+                borderRadius={100}
+                backgroundColor={`${colorMode}.yellowCircleBackground`}
                 justifyContent="center"
                 alignItems="center"
                 marginX={1}
               >
-                {SDIcons(signer.type).Icon}
+                {SDIcons(signer.type, !isDarkMode).Icon}
               </Box>
             </View>
-            <View style={{ flexDirection: 'column' }}>
-              <Text
-                color={`${colorMode}.textBlack`}
-                fontSize={14}
-                letterSpacing={1.12}
-                maxWidth={width * 0.6}
-              >
+            <View style={{ flexDirection: 'column', gap: 2.5 }}>
+              <Text color={`${colorMode}.primaryText`} fontSize={15} maxWidth={width * 0.6}>
                 {`${getSignerNameFromType(signer.type, signer.isMock, false)} (${
                   signer.masterFingerprint
                 })`}
               </Text>
-              {signer.signerDescription ? (
-                <Text
-                  numberOfLines={1}
-                  color={`${colorMode}.greenText`}
-                  fontSize={12}
-                  letterSpacing={0.6}
-                  fontStyle={null}
-                  maxWidth={width * 0.6}
-                >
-                  {signer.signerDescription}
-                </Text>
-              ) : (
-                <Text
-                  color={`${colorMode}.GreyText`}
-                  fontSize={12}
-                  marginRight={10}
-                  letterSpacing={0.6}
-                >
-                  {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
-                </Text>
-              )}
+              <Text
+                numberOfLines={1}
+                color={`${colorMode}.textGreenGrey`}
+                fontSize={13}
+                maxWidth={width * 0.6}
+              >
+                {getSignerDescription(signer)}
+              </Text>
             </View>
           </Box>
           <Box alignItems="center" justifyContent="center">
-            {showIcon === 'check' && <CheckIcon />}
+            {showIcon === 'check' ? isDarkMode ? <CheckDarkIcon /> : <CheckIcon /> : null}
             {showIcon === 'cross' && <ToastErrorIcon />}
             {showIcon === 'time' && <TimeIcon width={15} height={15} />}
-            {showIcon === 'next' && <Next />}
+            {showIcon === 'next' ? isDarkMode ? <NextDark /> : <Next /> : null}
             {isIKS && !isIKSDeclined && !hasSignerSigned && isIKSClicked && (
               <Text style={{ fontSize: 13 - formatDuration(IKSSignTime).length * 0.5 }}>
                 {formatDuration(IKSSignTime)}
@@ -170,6 +142,10 @@ function SignerList({
 export default SignerList;
 
 const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: wp(10),
+    paddingVertical: wp(10),
+  },
   inheritenceView: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -177,7 +153,7 @@ const styles = StyleSheet.create({
     height: 30,
     backgroundColor: '#E3E3E3',
     borderRadius: 30,
-    marginRight: 20,
+    marginRight: 15,
     alignSelf: 'center',
   },
 });

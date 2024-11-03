@@ -3,60 +3,92 @@ import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import DotView from 'src/components/DotView';
 import moment from 'moment';
-import { Signer } from 'src/services/wallets/interfaces/vault';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { StyleSheet } from 'react-native';
+import { hp } from 'src/constants/responsive';
+import { BackupAction } from 'src/models/enums/BHR';
 
-const getHealthCheckStatusText = (status) => {
-  switch (status) {
-    case hcStatusType.HEALTH_CHECK_SUCCESSFULL:
-      return 'Health check successful';
-    case hcStatusType.HEALTH_CHECK_FAILED:
-      return 'Health check failed';
-    case hcStatusType.HEALTH_CHECK_SKIPPED:
-      return 'Health check skipped';
-    case hcStatusType.HEALTH_CHECK_SD_ADDITION:
-      return 'Signer added';
-    case hcStatusType.HEALTH_CHECK_MANAUAL:
-      return 'Manual health confirmation';
-    case hcStatusType.HEALTH_CHECK_SIGNING:
-      return 'Key used for signing';
-    case hcStatusType.HEALTH_CHECK_REGISTRATION:
-      return 'Signer used for vault registration';
-    case hcStatusType.HEALTH_CHECK_VERIFICATION:
-      return 'Signer used for vault address verification';
-  }
+const statusTextMapping = {
+  [hcStatusType.HEALTH_CHECK_SUCCESSFULL]: 'Health check successful',
+  [hcStatusType.HEALTH_CHECK_FAILED]: 'Health check failed',
+  [hcStatusType.HEALTH_CHECK_SKIPPED]: 'Health check skipped',
+  [hcStatusType.HEALTH_CHECK_SD_ADDITION]: 'Signer added',
+  [hcStatusType.HEALTH_CHECK_MANAUAL]: 'Manual health confirmation',
+  [hcStatusType.HEALTH_CHECK_SIGNING]: 'Key used for signing',
+  [hcStatusType.HEALTH_CHECK_REGISTRATION]: 'Signer used for vault registration',
+  [hcStatusType.HEALTH_CHECK_VERIFICATION]: 'Signer used for vault address verification',
+  [BackupAction.SEED_BACKUP_CREATED]: 'Recovery Phrase backup is created',
+  [BackupAction.SEED_BACKUP_CONFIRMED]: 'Recovery Phrase backup is confirmed',
+  [BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED]: 'Recovery Phrase health confirmation is skipped',
+};
+
+const getHealthCheckStatusText = (status) => statusTextMapping[status] || 'Unknown status';
+
+const getFormattedDate = (date) => {
+  return moment().diff(date, 'days') < 7
+    ? moment(date).calendar(null, {
+        sameDay: '[Today at] HH:mmA',
+        nextDay: '[Tomorrow at] HH:mmA',
+        nextWeek: 'dddd [at] HH:mmA',
+        lastDay: '[Yesterday at] HH:mmA',
+        lastWeek: '[Last] dddd [at] HH:mmA',
+        sameElse: 'DD MMM YYYY, HH:mmA',
+      })
+    : moment(date).format('DD MMM YYYY, HH:mmA');
 };
 
 function SigningDeviceChecklist({ status, date }: { status: string; date: Date }) {
   const { colorMode } = useColorMode();
   return (
-    <Box padding={1}>
-      <Box
-        padding={1}
-        borderLeftColor={`${colorMode}.RecoveryBorderColor`}
-        borderLeftWidth={1}
-        width="100%"
-        position="relative"
-        borderLeftStyle="dashed"
-      >
-        <Box
-          zIndex={99}
-          position="absolute"
-          left={-8}
-          backgroundColor={`${colorMode}.RecoveryBorderColor`}
-          padding={1}
-          borderRadius={15}
-        >
-          <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
+    <Box style={styles.container}>
+      <Box>
+        <Box style={styles.timeLineWrapper}>
+          <Box
+            zIndex={99}
+            backgroundColor={`${colorMode}.lightBrownCircle`}
+            width={30}
+            height={30}
+            borderRadius={50}
+            alignItems={'center'}
+            justifyContent={'center'}
+          >
+            <DotView height={3.5} width={3.5} color={`${colorMode}.darkBrownCircle`} />
+          </Box>
+          <Box
+            py={5}
+            borderLeftColor={`${colorMode}.RecoveryBorderColor`}
+            borderLeftWidth={1}
+          ></Box>
         </Box>
-        <Text color={`${colorMode}.secondaryText`} fontSize={12} bold ml={5} opacity={0.7}>
+      </Box>
+      <Box style={styles.contentWrapper}>
+        <Text color={`${colorMode}.secondaryText`} medium ml={2}>
           {getHealthCheckStatusText(status)}
         </Text>
-        <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
-          {moment(date).calendar()}
+        <Text color={`${colorMode}.GreyText`} fontSize={12} ml={2} opacity={0.7}>
+          {getFormattedDate(date)}
         </Text>
       </Box>
     </Box>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    marginBottom: hp(5),
+  },
+  timeLineWrapper: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contentWrapper: {
+    width: '90%',
+    paddingTop: hp(5),
+    gap: 5,
+  },
+});
+
 export default SigningDeviceChecklist;
