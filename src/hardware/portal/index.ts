@@ -76,13 +76,14 @@ async function getOneTag() {
     restartInterval = setInterval(restartPolling, 17500);
   }
 
-  while (true) {
+  while (keepReading) {
     try {
       await manageTag();
     } catch (ex) {
       console.log('Oops!', ex);
       alreadyInitiated = false;
       keepReading = false;
+      paused = true;
     }
 
     // Try recovering the tag on iOS
@@ -143,14 +144,16 @@ export const stopReading = () => {
   console.log('stopReading');
   keepReading = false;
   alreadyInitiated = false;
+  paused = false;
   clearTimeout(livenessCheckInterval);
   NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
   // return NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
 };
 
 export const getStatus = async (): Promise<CardStatus> => {
-  console.log('Called get status ');
-  return sdk.getStatus();
+  const status = await sdk.getStatus();
+  console.log('🚀 ~ getStatus ~ status:', status);
+  return status;
 };
 
 export const unlock = async (pass: string) => {
