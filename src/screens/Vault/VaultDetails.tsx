@@ -232,7 +232,13 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const { vaultSigners: keys } = useSigners(vault.id);
-  const transactions = vault?.specs?.transactions || [];
+  const transactions =
+    vault?.specs?.transactions.sort((a, b) => {
+      if (!a.blockTime && !b.blockTime) return 0;
+      if (!a.blockTime) return -1;
+      if (!b.blockTime) return 1;
+      return b.blockTime - a.blockTime;
+    }) || [];
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const isCanaryWallet = vault.type === VaultType.CANARY;
   const exchangeRates = useExchangeRates();
@@ -545,6 +551,7 @@ const styles = StyleSheet.create({
   transactionHeading: {
     fontSize: 16,
     letterSpacing: 0.16,
+    paddingBottom: 16,
   },
   IconText: {
     justifyContent: 'center',

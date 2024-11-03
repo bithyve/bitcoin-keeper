@@ -35,7 +35,6 @@ const KeyAddedModal = ({ visible, close, signer }) => {
       subTitle="Access key details from Manage Keys and sign transactions from within wallets."
       close={close}
       showCloseIcon
-      DarkCloseIcon={colorMode === 'dark'}
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.modalWhiteContent`}
       buttonText={buttonText}

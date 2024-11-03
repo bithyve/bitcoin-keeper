@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import DownArrow from 'src/assets/images/files.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
@@ -37,7 +37,7 @@ function WalletConfigurationFiles() {
     let VaultArray = [];
     if (allVault) {
       allVault[0]?.map((vault: any) => {
-        const descriptorString = genrateOutputDescriptors(vault);
+        const descriptorString = generateOutputDescriptors(vault);
         //WORK IN PROGRESS
         VaultArray.push({ name: vault.presentationData.name, file: descriptorString });
       });

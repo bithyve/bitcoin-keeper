@@ -910,6 +910,7 @@ function SendConfirmation({ route }) {
   useEffect(() => {
     const remove = navigation.addListener('beforeRemove', (e) => {
       e.preventDefault();
+      remove();
       if (navigation.getState().index > 2 && isCachedTransaction) {
         navigation.dispatch(
           CommonActions.reset({
@@ -1747,7 +1748,6 @@ const styles = StyleSheet.create({
   sendingFromText: {
     fontSize: 14,
     letterSpacing: 1.12,
-    marginY: windowHeight > 570 ? windowHeight * 0.011 : 1,
   },
   cardContainer: {
     flexDirection: 'row',

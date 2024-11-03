@@ -24,7 +24,7 @@ export type AppStackParams = {
   Send: undefined;
   UTXOLabeling: undefined;
   Receive: undefined;
-  VerifyAddressSelectionScreen: undefined;
+  SignerSelectionListScreen: undefined;
   ChangeLanguage: undefined;
   ChoosePlan: undefined;
   EnterWalletDetail: undefined;
@@ -78,6 +78,7 @@ export type AppStackParams = {
   AddDescription: undefined;
   AllTransactions: undefined;
   TransactionDetails: undefined;
+  TransactionAdvancedDetails: undefined;
   TimelockScreen: undefined;
   SignerAdvanceSettings: undefined;
   ScanQR: undefined;

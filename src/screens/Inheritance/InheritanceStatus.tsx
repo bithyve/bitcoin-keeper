@@ -23,7 +23,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/services/wallets/enums';
 import GenerateRecoveryInstrPDF from 'src/utils/GenerateRecoveryInstrPDF';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import GenerateSecurityTipsPDF from 'src/utils/GenerateSecurityTipsPDF';
 import GenerateLetterToAtternyPDF from 'src/utils/GenerateLetterToAtternyPDF';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -48,7 +48,7 @@ function InheritanceStatus({ route }) {
   const { activeVault } = useVault({ vaultId, getFirst: true });
   const fingerPrints = activeVault.signers.map((signer) => signer.masterFingerprint);
 
-  const descriptorString = genrateOutputDescriptors(activeVault);
+  const descriptorString = generateOutputDescriptors(activeVault);
   const [isSetupDone, setIsSetupDone] = useState(false);
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
 

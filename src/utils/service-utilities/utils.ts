@@ -8,14 +8,22 @@ const crypto = require('crypto');
 export const getDerivationPath = (derivationPath: string) =>
   derivationPath.substring(2).split("'").join('h');
 
-export const getMultiKeyExpressions = (signers: VaultSigner[], nextFreeAddressIndex?: number) => {
+export const getMultiKeyExpressions = (
+  signers: VaultSigner[],
+  withPathRestrictions: boolean = true,
+  nextFreeAddressIndex?: number,
+  forDescriptor: boolean = false,
+  abbreviated: boolean = false
+) => {
   const keyExpressions = signers.map((signer: VaultSigner) =>
     getKeyExpression(
       signer.masterFingerprint,
       signer.derivationPath,
       signer.xpub,
-      true,
-      nextFreeAddressIndex
+      withPathRestrictions,
+      nextFreeAddressIndex,
+      forDescriptor,
+      abbreviated
     )
   );
   return keyExpressions.join();
@@ -25,32 +33,37 @@ export const getKeyExpression = (
   masterFingerprint: string,
   derivationPath: string,
   xpub: string,
-  withPathRestrictions: boolean = true,
-  nextFreeAddressIndex?: number
+  withPathRestrictions: boolean = false,
+  nextFreeAddressIndex?: number,
+  forDescriptor: boolean = false,
+  abbreviated: boolean = false
 ) => {
   if (nextFreeAddressIndex != undefined)
     return `[${masterFingerprint}/${getDerivationPath(
       derivationPath
     )}]${xpub}/0/${nextFreeAddressIndex}`;
+  else if (abbreviated) return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]`;
   else
     return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
-      withPathRestrictions ? '/**' : ''
+      withPathRestrictions ? '/**' : forDescriptor ? '/<0;1>/*' : ''
     }`;
 };
 
-export const genrateOutputDescriptors = (
-  wallet: Vault | Wallet,
-  includePatchRestrictions: boolean = true
-) => {
-  const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
+export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => {
   if (wallet.entityKind === EntityKind.WALLET) {
     const {
       derivationDetails: { xDerivationPath },
       specs: { xpub },
     } = wallet as Wallet;
-    const des = `wpkh(${getKeyExpression(wallet.id, xDerivationPath, xpub)})${
-      includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
-    }`;
+    const des = `wpkh(${getKeyExpression(
+      wallet.id,
+      xDerivationPath,
+      xpub,
+      false,
+      undefined,
+      false,
+      true
+    )})`;
     return des;
   }
   const { signers, scheme, isMultiSig } = wallet as Vault;
@@ -60,13 +73,63 @@ export const genrateOutputDescriptors = (
     const des = `wpkh(${getKeyExpression(
       signer.masterFingerprint,
       signer.derivationPath,
-      signer.xpub
-    )})${includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''}`;
+      signer.xpub,
+      false,
+      undefined,
+      false,
+      true
+    )})`;
     return des;
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)}))${
-    includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
-  }`;
+  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
+    signers,
+    false,
+    undefined,
+    false,
+    true
+  )}))`;
+};
+
+export const generateOutputDescriptors = (
+  wallet: Vault | Wallet,
+  includePatchRestrictions: boolean = false
+) => {
+  const receivingAddress = WalletOperations.getExternalAddressAtIdx(wallet, 0);
+  if (wallet.entityKind === EntityKind.WALLET) {
+    const {
+      derivationDetails: { xDerivationPath },
+      specs: { xpub },
+    } = wallet as Wallet;
+    const des = `wpkh(${getKeyExpression(
+      wallet.id,
+      xDerivationPath,
+      xpub,
+      includePatchRestrictions,
+      undefined,
+      true
+    )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
+    return des;
+  }
+  const { signers, scheme, isMultiSig } = wallet as Vault;
+  if (!isMultiSig) {
+    const signer: VaultSigner = signers[0];
+
+    const des = `wpkh(${getKeyExpression(
+      signer.masterFingerprint,
+      signer.derivationPath,
+      signer.xpub,
+      includePatchRestrictions,
+      undefined,
+      true
+    )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
+    return des;
+  }
+  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
+    signers,
+    includePatchRestrictions,
+    undefined,
+    true
+  )}))${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
 };
 
 export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
@@ -109,6 +172,7 @@ export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
   return {
     descriptorString: `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
       signers,
+      true,
       nextFreeAddressIndex
     )}))`,
     receivingAddress,

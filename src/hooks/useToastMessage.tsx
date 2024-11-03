@@ -29,14 +29,10 @@ const useToastMessage = () => {
       </Text>
     )
   ) {
-    const id = title;
-    if (!Toast.isActive(id)) {
-      Toast.show({
-        render: () => <HexaToastMessages Image={image} error={error} ToastBody={ToastBody} />,
-        duration,
-        id,
-      });
-    }
+    Toast.show({
+      render: () => <HexaToastMessages Image={image} error={error} ToastBody={ToastBody} />,
+      duration,
+    });
   }
 
   return { showToast };

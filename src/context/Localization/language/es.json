@@ -315,7 +315,7 @@
     "amountText2": "0.000004",
     "TransactionConfirmed": "Transaction Confirmed",
     "TransactionDetails": "Transaction Details",
-    "TransactionDetailsSubTitle": "Detailed information for this Transaction",
+    "TransactionDetailsSubTitle": "Detailed information for this transaction",
     "UserTags": "User Tags",
     "AddNew": "Add New",
     "EditTags": "Edit Tags",
@@ -325,7 +325,8 @@
     "transactionNote": "Transaction Note",
     "inputs": "Inputs",
     "outputs": "Outputs",
-    "updateLabelSubTitle": "Optionally you can add a short note to the transactions"
+    "updateLabelSubTitle": "Optionally you can add a short note to the transactions",
+    "advancedDetails": "Advanced Details"
   },
   "DiscountCodes": {
     "DiscountCodesTitle": "Buy new Hardware Signers",

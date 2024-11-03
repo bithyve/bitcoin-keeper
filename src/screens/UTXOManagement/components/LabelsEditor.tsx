@@ -49,6 +49,11 @@ function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
   }, []);
 
   useEffect(() => {
+    // Clean up any existing error when first loading the component
+    dispatch(setSyncingUTXOError(null));
+  }, []);
+
+  useEffect(() => {
     if (apiError) {
       showToast(apiError.toString(), <ToastErrorIcon />);
       dispatch(setSyncingUTXOError(null));

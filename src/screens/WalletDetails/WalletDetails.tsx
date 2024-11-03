@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
   },
   walletContainer: {
-    paddingHorizontal: wp(28),
+    paddingHorizontal: wp(20),
     paddingTop: wp(60),
     paddingBottom: 20,
     flex: 1,
@@ -353,6 +353,8 @@ const styles = StyleSheet.create({
   transactionHeading: {
     fontSize: 16,
     letterSpacing: 0.16,
+    paddingBottom: 16,
+    paddingLeft: 10,
   },
   settingBtn: {
     width: wp(24),
