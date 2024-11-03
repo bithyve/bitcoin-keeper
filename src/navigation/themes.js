@@ -221,6 +221,11 @@ export const customTheme = extendTheme({
       errorToastBackground: Colors.ErrorToast,
       transactionDeatilInfo: Colors.GreenishGrey,
       transactionDeatilAddress: Colors.GreenishGrey,
+      greenishGreyText: Colors.GreenishGrey,
+      pitchBlackText: Colors.Black,
+      receiptBackground: Colors.ChampagneBliss,
+      receiptBorder: Colors.SilverMist,
+      receiptModalUnitColor: Colors.MediumJungleGreen,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -399,6 +404,11 @@ export const customTheme = extendTheme({
       errorToastBackground: Colors.ErrorToastDark,
       transactionDeatilInfo: Colors.GraphiteLight,
       transactionDeatilAddress: Colors.SecondaryWhite,
+      greenishGreyText: Colors.GraphiteLight,
+      pitchBlackText: Colors.White,
+      receiptBackground: Colors.SecondaryBackgroundDark,
+      receiptBorder: Colors.separator,
+      modalUnitColor: Colors.SoftGray,
     },
   },
   config: {

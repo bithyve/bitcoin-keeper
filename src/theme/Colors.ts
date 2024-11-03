@@ -2,6 +2,7 @@ const Colors = {
   // Light
   White: 'rgba(255,255,255,1)',
   SecondaryWhite: 'rgba(231, 231, 231,1)',
+  SoftGray: 'rgba(241, 241, 241, 1)',
   paleWhite: 'rgba(248, 255, 254, 1)',
   disabledGrey: 'rgba(248,242,234,1)',
   // Glass: 'rgba(255,255,255,2)',
@@ -27,6 +28,7 @@ const Colors = {
   DarkGreen: 'rgba(9,44,39,1)',
   MediumJungleGreen: 'rgba(17,56,52,1)',
   RichGreen: 'rgba(7,62,57,1)',
+  SoftGreen: 'rgba(73, 108, 102, 1)',
   BlueGreen: 'rgba(6,77,65,1)',
   CastletonGreen: 'rgba(0,85,69,1)',
   TropicalRainForest: 'rgba(1,121,99,1)',
