@@ -429,7 +429,12 @@ function SendScreen({ route }) {
           />
         )}
         <Box style={styles.proceedButton}>
-          <Buttons primaryCallback={handleProceed} primaryText={common.proceed} fullWidth />
+          <Buttons
+            primaryCallback={handleProceed}
+            primaryText={common.proceed}
+            primaryDisable={!paymentInfo.trim() && !selectedWallet}
+            fullWidth
+          />
         </Box>
       </Box>
 
