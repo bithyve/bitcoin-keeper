@@ -140,6 +140,7 @@ function SendScreen({ route }) {
         recipient,
         address,
         amount,
+        note,
         transferType,
         selectedUTXOs,
         parentScreen,
