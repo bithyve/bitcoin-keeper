@@ -209,3 +209,7 @@ export const registerVault = (descriptor: string) => {
 export const wipePortal = () => {
   return sdk.debugWipeDevice();
 };
+
+export const resumeMnemonicGeneration = () => {
+  return sdk.resume();
+};

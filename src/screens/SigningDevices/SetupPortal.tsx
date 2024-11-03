@@ -278,11 +278,18 @@ function SetupPortal({ route }) {
       }
       const portalDetails = await withNfcModal(async () => {
         await PORTAL.startReading();
-        await PORTAL.initializePortal(
-          MnemonicWords[0],
-          isTestNet ? Network.Testnet : Network.Bitcoin,
-          cvc.trim().length ? cvc : null
-        );
+        try {
+          // Throws error if portal is partially initialized already.
+          await PORTAL.initializePortal(
+            MnemonicWords[0],
+            isTestNet ? Network.Testnet : Network.Bitcoin,
+            cvc.trim().length ? cvc : null
+          );
+        } catch (error) {
+          if (error.message.includes('Unverified mnemonic')) {
+            await PORTAL.resumeMnemonicGeneration();
+          }
+        }
         const portalDetails = await getPortalDetails();
         return portalDetails;
       });
