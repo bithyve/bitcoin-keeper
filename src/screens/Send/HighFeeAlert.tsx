@@ -1,11 +1,12 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { hp, windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import FeerateStatement from '../FeeInsights/FeerateStatement';
 import Colors from 'src/theme/Colors';
+import Text from 'src/components/KeeperText';
 
 function HighFeeAlert({
   transactionPriority,
@@ -39,7 +40,9 @@ function HighFeeAlert({
   const renderFeeDetails = () => (
     <View style={styles.boxWrapper}>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-        <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
+        <Text color={`${colorMode}.primaryText`} style={styles.highFeeTitle}>
+          {walletTransactions.networkFee}
+        </Text>
         <CurrencyInfo
           amount={selectedFee}
           hideAmounts={false}
@@ -51,7 +54,9 @@ function HighFeeAlert({
       </Box>
       <View style={styles.divider} />
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-        <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
+        <Text color={`${colorMode}.primaryText`} style={styles.highFeeTitle}>
+          {walletTransactions.amtBeingSent}
+        </Text>
         <CurrencyInfo
           amount={amountToSend}
           hideAmounts={false}

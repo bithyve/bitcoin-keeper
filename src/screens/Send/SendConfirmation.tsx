@@ -699,6 +699,7 @@ function SendConfirmation({ route }) {
         buttonText={
           !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
         }
+        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
