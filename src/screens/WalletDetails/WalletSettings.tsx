@@ -131,7 +131,7 @@ function WalletSettings({ route }) {
         />
         <OptionCard
           title="Hide Wallet"
-          description="Hidden wallets can be managed from manage wallets"
+          description="Hidden wallets can be managed from Manage Wallets"
           callback={() => updateWalletVisibility()}
         />
         {walletMnemonic && (

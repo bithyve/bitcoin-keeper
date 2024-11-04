@@ -19,18 +19,24 @@ export function Instruction({
     <Box style={styles.bulletContainer}>
       <Box style={styles.bullet} backgroundColor={`${colorMode}.black`}></Box>
       <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
-        {text.split(/\b(https?:\/\/[^\s]+)\b/).map((part) => {
-          if (part.match(/^https?:\/\//)) {
-            return (
-              <TouchableOpacity onPress={() => openLink(part)} style={styles.linkContainer}>
-                <Text color={`${colorMode}.greenWhiteText`} style={styles.linkText} bold>
-                  {part.replace('https://', '').replace('http://', '')}
-                </Text>
-              </TouchableOpacity>
-            );
-          }
-          return part;
-        })}
+        {typeof text === 'string'
+          ? text.split(/\b(https?:\/\/[^\s]+)\b/).map((part) => {
+              if (part.match(/^https?:\/\//)) {
+                return (
+                  <TouchableOpacity onPress={() => openLink(part)} style={styles.linkContainer}>
+                    <Text
+                      color={`${colorMode}.greenWhiteText`}
+                      style={styles.linkText}
+                      bold
+                    >
+                      {part.replace('https://', '').replace('http://', '')}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }
+              return part;
+            })
+          : text}
       </Text>
     </Box>
   );

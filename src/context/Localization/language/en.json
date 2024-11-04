@@ -18,7 +18,6 @@
     "share": "Share",
     "dontShare": "Don't Share",
     "note": "Note",
-    "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et",
     "smalldesc": "Provide a bitcoin address or select a wallet",
     "optional": "Optional",
     "tryAgain": "Try again",
@@ -140,7 +139,9 @@
     "disconnectingFromServerText": "You are about to disconnect from the current Electrum server. Fetching your balances, receiving incoming transactions, and broadcasting new transactions will not be possible until you connect to another server.",
     "offline": "Offline",
     "retry": "Retry",
-    "Address": "Address"
+    "Address": "Address",
+    "time": "time",
+    "times": "times"
   },
   "noInternet": {
     "no": "No Internet",
@@ -165,7 +166,7 @@
     "MismatchPasscode": "Passcodes do NOT match",
     "enter_your": "Enter your ",
     "ForgotPasscode": "Forgot Passcode?",
-    "forgotPasscodeDesc": "Key in the word exactly like it was displayed",
+    "forgotPasscodeDesc": "Type in the words exactly like they were displayed",
     "StoreBicoin": "You can use these wallets to store small amounts of bitcoin for day to day transactions.",
     "CreateMultiKeyWallet": "Create new multi-key wallets:",
     "CreateMultiKeyWalletDesc": "Setup multi-key wallets as per your needs and convenience for long term hodling. You would be able to choose your desired configuration of keys. Note that we call multi-key wallets as vault within Keeper.",
@@ -256,7 +257,7 @@
     "BackupKey": "Backup Key",
     "Usedforsecuringfunds": "Used for securing funds",
     "Insertaseed": "Insert a seed to import your existing wallet",
-    "AddingTapsigner": "Adding Tapsigner",
+    "AddingTapsigner": "Adding TAPSIGNER",
     "AddBackupKey": "Add Backup Key",
     "Strengthenyoursecurity": "Strengthen your security",
     "ScanQRAddBackup": "Scan the QR below to add Backup Key",
@@ -398,7 +399,6 @@
     "CreateNew": "Create New",
     "Recoverexisting": "Recover an existing wallet",
     "UsingSeed": "Using Seed Words",
-    "WalletDesc": "Lorem ipsumdolor sit amet,",
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
@@ -540,7 +540,7 @@
     "walletFundsSubtitle": "You have sats in your wallet. Are you sure you want to hide it?",
     "somethingWentWrong": "Something went wrong!",
     "hideWalletTitle": "Hide Wallet",
-    "hideWalletDesc": "Hidden wallets can be managed from manage wallets",
+    "hideWalletDesc": "Hidden wallets can be managed from Manage Wallets",
     "walletFingerPrint": "Wallet Fingerprint",
     "mnemonicDoesNotExist": "Mnemonic doesn't exists",
     "createNew:": "Create New",
@@ -671,7 +671,7 @@
     "vaultArchiveTitle": "Archived vault",
     "vaultArchiveDesc": "View details of old vaults",
     "vaultHideTitle": "Hide vault",
-    "vaultHideDesc": "Hidden vaults can be managed from manage wallets",
+    "vaultHideDesc": "Hidden vaults can be managed from Manage Wallets",
     "vaultSchemeTitle": "Update scheme",
     "vaultSchemeDesc": "Update your vault configuration and transfer funds",
     "vaultFingerprint": "Vault Fingerprint",
@@ -740,31 +740,30 @@
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up TAPSIGNER",
-    "SetupDescription": "Keep your TAPSIGNER ready before proceeding"
+    "SetupDescription": "Get your TAPSIGNER ready before proceeding"
   },
   "coldcard": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up Coldcard",
-    "SetupDescription": "Keep your Coldcard ready before proceeding"
+    "SetupDescription": "Get your Coldcard ready before proceeding"
   },
   "ledger": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up Ledger",
-    "SetupDescription": "Keep your bluetooth enabled Ledger Nano X ready before proceeding",
-    "ScanningBT": "Scanning for bluetooth",
+    "SetupDescription": "Connect the Ledger to your computer and open the Bitcoin Keeper desktop app",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
   "bitbox": {
     "SetupTitle": "Setting up BitBox02",
-    "SetupDescription": "Keep your BitBox02 connected to the computer before proceeding"
+    "SetupDescription": "Connect the BitBox02 to your computer and open the Bitcoin Keeper desktop app"
   },
   "trezor": {
     "SetupTitle": "Setting up Trezor",
-    "SetupDescription": "Keep your Trezor connected to the computer before proceeding"
+    "SetupDescription": "Connect the Trezor to your computer and open the Bitcoin Keeper desktop app"
   },
   "signingServer": {
     "choosePolicy": "Choose Policy",
@@ -784,6 +783,7 @@
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",
     "UseBiometricSubTitle": "Use {0} to login to the app",
+    "NoBiometricSubTitle": "Your device doesn't support biometrics",
     "DarkMode": "Dark Mode",
     "DarkModeSubTitle": "Turn on dark mode for the app",
     "VersionHistory": "Version History",
@@ -997,12 +997,12 @@
     "enterStrongPass": "Enter App Generated Strong Password",
     "healthCheckNote": "This step ensures that you have access to the recovery of your wallet ",
     "healthCheckSuccessTitle": "Health Check Successful",
-    "healthCheckSuccessSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
-    "healthCheckSuccessParagraph": "You will again be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+    "healthCheckSuccessSubTitle": "",
+    "healthCheckSuccessParagraph": "You will again be reminded in 90 days",
     "skipHealthCheckTitle": "Skipping Health Check",
-    "skipHealthCheckSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
-    "skipHealthCheckPara01": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    "skipHealthCheckPara02": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris",
+    "skipHealthCheckSubTitle": "",
+    "skipHealthCheckPara01": "",
+    "skipHealthCheckPara02": "",
     "myWalletBackupTitle": "My Wallet Backup",
     "SEED_BACKUP_CREATED": "Recovery Phrase backup is created",
     "SEED_BACKUP_CONFIRMED": "Recovery Phrase backup is confirmed",
@@ -1129,7 +1129,24 @@
     "linkExternalWallet": "Use to link external wallet to keeper",
     "mobileKeySeedOptionSubtitle": "Use to backup/ export mobile key",
     "NoKeysFound": "No Keys Found",
-    "PleaseAddAKeyToGetStarted": "Please add a key to get started"
+    "PleaseAddAKeyToGetStarted": "Please add a key to get started",
+    "TapsignerBackupDetails": "TAPSIGNER Backup Details",
+    "TapsignerBackupDetailsSubtitle": "Review the number of times your TAPSIGNER backup was exported",
+    "TapsignerBackupDetailsModalBottomText": "Backup export count helps track unauthorized access",
+    "NoBackupExported": "No backup has been exported yet",
+    "BackupExported": "Backup exported",
+    "BackupDetails": "Backup Details",
+    "BackupDetailsSubtitle": "Check how many times the backup was exported",
+    "TapsignerSetupStatus": "TAPSIGNER Setup Status",
+    "TapsignerSetupStatusSubtitle": "Keeper allows you to check if the TAPSIGNER has been initialized previously",
+    "EnterTapsignerPinSubtitle": "Enter the 6-32 digit pin (default one is printed on the back)",
+    "VerifyTapsigner": "Verify TAPSIGNER",
+    "SignWithTapsigner": "Sign with TAPSIGNER",
+    "SaveTapsignerBackup": "Save TAPSIGNER Backup",
+    "SettingUpTapsigner": "Setting up TAPSIGNER",
+    "AlreadyInitialized": "Already Initialized",
+    "Uninitialized": "Uninitialized",
+    "NotBeenInitializedBottomText": "This card has not been initialized before. You may proceed with the setup."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",

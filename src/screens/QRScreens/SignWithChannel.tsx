@@ -95,6 +95,12 @@ function SignWithChannel() {
   };
 
   useEffect(() => {
+    let channelConnectionInterval = setInterval(() => {
+      if (!channel.connect) {
+        channel.connect();
+      }
+    }, 10000);
+
     channel.on(CHANNEL_MESSAGE, async ({ data }) => {
       try {
         const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
@@ -136,6 +142,7 @@ function SignWithChannel() {
     };
     return () => {
       channel.disconnect();
+      clearInterval(channelConnectionInterval);
     };
   }, [channel]);
 

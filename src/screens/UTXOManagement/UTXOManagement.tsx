@@ -280,28 +280,30 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
           selectedAccount={selectedAccount}
           initateWhirlpoolMix={initateWhirlpoolMix}
         />
-        {utxos?.length ? (
-          <Footer
-            utxos={utxos}
-            setInitiateWhirlpool={setInitiateWhirlpool}
-            setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-            depositWallet={depositWallet}
-            wallet={selectedWallet}
-            setEnableSelection={setEnableSelection}
-            initiateWhirlpool={initiateWhirlpool}
-            initateWhirlpoolMix={initateWhirlpoolMix}
-            setIsRemix={setIsRemix}
-            isRemix={isRemix}
-            enableSelection={enableSelection}
-            selectedUTXOs={selectedUTXOs}
-            setShowBatteryWarningModal={setShowBatteryWarningModal}
-            setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
-            selectedAccount={selectedAccount}
-            setRemixingToVault={setRemixingToVault}
-            remixingToVault={remixingToVault}
-            vaultId={vaultId}
-          />
-        ) : null}
+        <Box marginTop={hp(15)}>
+          {utxos?.length ? (
+            <Footer
+              utxos={utxos}
+              setInitiateWhirlpool={setInitiateWhirlpool}
+              setInitateWhirlpoolMix={setInitateWhirlpoolMix}
+              depositWallet={depositWallet}
+              wallet={selectedWallet}
+              setEnableSelection={setEnableSelection}
+              initiateWhirlpool={initiateWhirlpool}
+              initateWhirlpoolMix={initateWhirlpoolMix}
+              setIsRemix={setIsRemix}
+              isRemix={isRemix}
+              enableSelection={enableSelection}
+              selectedUTXOs={selectedUTXOs}
+              setShowBatteryWarningModal={setShowBatteryWarningModal}
+              setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
+              selectedAccount={selectedAccount}
+              setRemixingToVault={setRemixingToVault}
+              remixingToVault={remixingToVault}
+              vaultId={vaultId}
+            />
+          ) : null}
+        </Box>
       </Box>
       <KeeperModal
         justifyContent="flex-end"

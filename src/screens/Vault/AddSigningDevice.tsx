@@ -1,4 +1,4 @@
-import { Dimensions, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -9,23 +9,16 @@ import {
   VaultSigner,
   signerXpubs,
 } from 'src/services/wallets/interfaces/vault';
-import {
-  NetworkType,
-  SignerStorage,
-  SignerType,
-  VaultType,
-  XpubTypes,
-} from 'src/services/wallets/enums';
+import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
@@ -63,6 +56,7 @@ import KeyAddedModal from 'src/components/KeyAddedModal';
 import AddKeyButton from '../SigningDevices/components/AddKeyButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 const onSignerSelect = (
   selected,
@@ -693,8 +687,6 @@ function AddSigningDevice() {
     coSigners,
     isSSAddition = false,
     addedSigner,
-    addSignerFlow = false,
-    showModal = false,
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
@@ -725,7 +717,9 @@ function AddSigningDevice() {
     relayVaultUpdate,
     relayVaultError,
     realyVaultErrorMessage,
+    relaySignersUpdate,
     realySignersUpdateErrorMessage,
+    relaySignersUpdateLoading,
   } = useAppSelector((state) => state.bhr);
 
   const dispatch = useDispatch();
@@ -737,19 +731,44 @@ function AddSigningDevice() {
   const { vaultSigners: keys } = useSigners(newVault?.id);
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
 
+  const [inProgress, setInProgress] = useState(false);
+
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
-    navigation.dispatch(CommonActions.setParams({ showModal: false }));
   };
+
+  useEffect(() => {
+    if (relaySignersUpdateLoading) {
+      setInProgress(true);
+    }
+  }, [relaySignersUpdateLoading]);
+
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
-      showToast(realySignersUpdateErrorMessage);
+      setInProgress(false);
+      showToast(
+        realySignersUpdateErrorMessage,
+        <ToastErrorIcon />,
+        IToastCategory.SIGNING_DEVICE,
+        5000
+      );
       dispatch(resetSignersUpdateState());
     }
     return () => {
       dispatch(resetSignersUpdateState());
     };
   }, [realySignersUpdateErrorMessage]);
+
+  useEffect(() => {
+    if (relaySignersUpdate) {
+      setInProgress(false);
+      setKeyAddedModalVisible(true);
+      dispatch(resetSignersUpdateState());
+    }
+    return () => {
+      dispatch(resetSignersUpdateState());
+    };
+  }, [relaySignersUpdate]);
 
   useEffect(() => {
     if (relayVaultUpdate && newVault) {
@@ -763,7 +782,7 @@ function AddSigningDevice() {
     }
 
     if (relayVaultError) {
-      showToast(`Error: ${realyVaultErrorMessage}`, <ToastErrorIcon />);
+      showToast(realyVaultErrorMessage, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
       setCreating(false);
     }
@@ -780,12 +799,6 @@ function AddSigningDevice() {
       keyToRotate
     );
   }, []);
-
-  useEffect(() => {
-    if (showModal) {
-      setKeyAddedModalVisible(true);
-    }
-  }, [showModal]);
 
   const subtitle = isSSAddition
     ? 'Choose a single sig key to create a wallet'
@@ -1056,6 +1069,7 @@ function AddSigningDevice() {
           signer={addedSigner}
         />
       </SafeAreaView>
+      {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </Box>
   );
 }

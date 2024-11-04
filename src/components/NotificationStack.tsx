@@ -50,6 +50,8 @@ import useSigners from 'src/hooks/useSigners';
 import { EntityKind } from 'src/services/wallets/enums';
 import SelectWalletModal from './SelectWalletModal';
 import Instruction from './Instruction';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 const { width } = Dimensions.get('window');
 
@@ -69,6 +71,7 @@ type CardProps = {
   uai: any;
   activeIndex: SharedValue<number>;
   skipUaiHandler: (uai: any, action?: boolean) => void;
+  wallet: Wallet | Vault | null;
 };
 interface uaiDefinationInterface {
   heading: string;
@@ -134,7 +137,7 @@ function ModalCard({ preTitle = '', title, subTitle = '', isVault = false, icon 
   );
 }
 
-const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: CardProps) => {
+const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler, wallet }: CardProps) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
@@ -145,7 +148,6 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
   const { translations } = useContext(LocalizationContext);
   const { notification } = translations;
   const { activeVault } = useVault({ getFirst: true });
-  const { wallets: allWallets } = useWallets({ getAll: true });
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { vaultSigners: keys } = useSigners(
@@ -169,8 +171,6 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     const { activeVault } = useVault({ getFirst: true });
-    const { wallets } = useWallets({ walletIds: [uai.entityId] });
-    const wallet = wallets[0];
 
     switch (uai.uaiType) {
       case uaiType.SECURE_VAULT:
@@ -453,8 +453,6 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
     dispatch(uaiActioned({ uaiId: uai.id, action: true }));
   };
 
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
-
   const entryAnimation = useSharedValue(0);
 
   useEffect(() => {
@@ -574,9 +572,8 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         onlyWallets={false}
         hideHiddenVaults={uaiConfig?.modalDetails?.hideHiddenVaults}
         buttonCallback={(vault) => {
-          const entityWallet = allWallets.find((wallet) => wallet.id === uai.entityId);
           navigtaion.navigate('AddSendAmount', {
-            sender: entityWallet,
+            sender: wallet,
             recipient: vault,
             transferType: TransferType.WALLET_TO_VAULT,
             isSendMax: true,
@@ -597,6 +594,7 @@ export default function NotificationStack() {
   const { uaiStack, isLoading } = useUaiStack();
   const activeIndex = useSharedValue(0);
   const dispatch = useDispatch();
+  const { wallets: allWallets } = useWallets({ getAll: true });
 
   const dispatchActionWithDelay = useCallback(
     (uaiId, action) => {
@@ -639,7 +637,7 @@ export default function NotificationStack() {
           {isLoading ? null : uaiStack.length === 0 ? (
             <UAIEmptyState />
           ) : (
-            uaiStack.map((uai, index) => {
+            uaiStack.slice(0, 4).map((uai, index) => {
               return (
                 <Card
                   uai={uai}
@@ -648,6 +646,7 @@ export default function NotificationStack() {
                   totalLength={uaiStack.length - 1}
                   activeIndex={activeIndex}
                   skipUaiHandler={skipUaiHandler}
+                  wallet={allWallets.find((wallet) => wallet.id === uai.entityId)}
                 />
               );
             })
