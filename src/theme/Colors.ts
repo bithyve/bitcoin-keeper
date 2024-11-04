@@ -55,6 +55,7 @@ const Colors = {
   DustySageGreen: 'rgba(139,160,153,1)',
   ForestGreen: 'rgba(0,131,105,1)',
   DullGreen: 'rgba(53, 132, 117, 1)',
+  DullBrown: 'rgba(111, 98, 89, 1)',
   // PearlGrey: 'rgba(250,252,252,1)',
   pantoneGreen: 'rgba(45,103,89,1)',
   pantoneGreenLight: 'rgba(45,103,89,0.08)',
