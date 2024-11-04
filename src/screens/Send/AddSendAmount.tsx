@@ -47,7 +47,7 @@ function AddSendAmount({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation } = translations;
+  const { wallet: walletTranslation, common } = translations;
   const {
     sender,
     recipient,
@@ -274,14 +274,6 @@ function AddSendAmount({ route }) {
   );
   useEffect(() => {
     const initialLabels = [];
-    if (recipient && recipient.presentationData) {
-      const name =
-        recipient?.entityKind === EntityKind.VAULT
-          ? sender.presentationData.name
-          : recipient.presentationData.name;
-      const isSystem = true;
-      initialLabels.push({ name, isSystem });
-    }
     selectedUTXOs.forEach((utxo) => {
       if (labels[`${utxo.txId}:${utxo.vout}`]) {
         const useLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((item) => !item.isSystem);
@@ -424,6 +416,12 @@ function AddSendAmount({ route }) {
                     }
                   }}
                   keyboardType="decimal-pad"
+                  _input={
+                    colorMode === 'dark' && {
+                      selectionColor: Colors.SecondaryWhite,
+                      cursorColor: Colors.SecondaryWhite,
+                    }
+                  }
                 />
               </Box>
               <HStack style={styles.inputInnerStyle}>
@@ -468,6 +466,12 @@ function AddSendAmount({ route }) {
                 letterSpacing={1.04}
                 borderWidth="0"
                 value={note}
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
                 onChangeText={(value) => {
                   setNote(value);
                 }}
@@ -513,20 +517,19 @@ function AddSendAmount({ route }) {
               />
             </VStack> */}
             <Box style={styles.ctaBtnWrapper}>
-              <Box ml={windowWidth * -0.09}>
-                <Buttons
-                  // secondaryText="Select UTXOs"
-                  // secondaryCallback={() => {
-                  //   navigation.dispatch(
-                  //     CommonActions.navigate('UTXOSelection', { sender, amount, address })
-                  //   );
-                  // }}
-                  // secondaryDisable={Boolean(!amount || errorMessage)}
-                  primaryText="Send"
-                  primaryDisable={Boolean(!amount || errorMessage)}
-                  primaryCallback={executeSendPhaseOne}
-                />
-              </Box>
+              <Buttons
+                // secondaryText="Select UTXOs"
+                // secondaryCallback={() => {
+                //   navigation.dispatch(
+                //     CommonActions.navigate('UTXOSelection', { sender, amount, address })
+                //   );
+                // }}
+                // secondaryDisable={Boolean(!amount || errorMessage)}
+                primaryText={common.send}
+                primaryDisable={Boolean(!amount || errorMessage)}
+                primaryCallback={executeSendPhaseOne}
+                fullWidth
+              />
             </Box>
           </Box>
         </ScrollView>
@@ -596,8 +599,6 @@ const styles = StyleSheet.create({
   },
   ctaBtnWrapper: {
     marginTop: hp(10),
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
   },
   appNumPadWrapper: {
     width: '110%',

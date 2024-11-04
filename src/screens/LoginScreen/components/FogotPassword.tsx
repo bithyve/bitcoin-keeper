@@ -7,6 +7,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hash512 } from 'src/utils/service-utilities/encryption';
 import Close from 'src/assets/images/modal_close.svg';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function FogotPassword(props) {
   const [passwordText, setPasswordText] = useState('');
@@ -105,6 +106,12 @@ function FogotPassword(props) {
             autoComplete="off"
             autoFocus
             secureTextEntry
+            _input={
+              colorMode === 'dark' && {
+                selectionColor: Colors.SecondaryWhite,
+                cursorColor: Colors.SecondaryWhite,
+              }
+            }
           />
 
           {invalid && <Text color="#FF0000">{login.Invalidword}</Text>}
@@ -125,6 +132,12 @@ function FogotPassword(props) {
             py={4}
             my={6}
             value={passwordText}
+            _input={
+              colorMode === 'dark' && {
+                selectionColor: Colors.SecondaryWhite,
+                cursorColor: Colors.SecondaryWhite,
+              }
+            }
           />
         </Box>
       )}

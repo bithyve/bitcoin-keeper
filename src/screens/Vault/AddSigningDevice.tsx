@@ -25,11 +25,9 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
-import AddCard from 'src/components/AddCard';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -62,8 +60,9 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import HWError from 'src/hardware/HWErrorState';
 import KeyAddedModal from 'src/components/KeyAddedModal';
-
-const { width } = Dimensions.get('screen');
+import AddKeyButton from '../SigningDevices/components/AddKeyButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import EmptyListIllustration from '../../components/EmptyListIllustration';
 
 const onSignerSelect = (
   selected,
@@ -287,7 +286,7 @@ function Footer({
 
   const isProceedDisabled = isCollaborativeFlow && selectedSigners.size === 0;
   return (
-    <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
+    <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.thirdBackground`}>
       {!isCollaborativeFlow && renderNotes()}
       {!isCollaborativeFlow ? (
         <Buttons
@@ -401,7 +400,7 @@ function Signers({
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
+          icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}
           isFullText
@@ -437,7 +436,7 @@ function Signers({
               : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
           }
           description={getSignerDescription(signer)}
-          icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+          icon={SDIcons(signer.type).Icon}
           image={signer?.extraData?.thumbnailPath}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) => {
@@ -509,7 +508,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+            icon={SDIcons(signer.type).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
             onCardSelect={handleCardSelect}
@@ -537,7 +536,7 @@ function Signers({
 
   const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
 
-  const onQrScan = async (qrData, resetQR) => {
+  const onQrScan = async (qrData) => {
     try {
       let hw: { signer: Signer; key: VaultSigner };
       hw = setupKeeperSigner(qrData);
@@ -550,7 +549,6 @@ function Signers({
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);
-        resetQR();
       } else {
         captureError(error);
         showToast(
@@ -563,89 +561,102 @@ function Signers({
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <Box style={styles.signerContainer}>
-        {signers.length ? (
-          <Box style={styles.gap10}>
-            <Text color={`${colorMode}.headerText`} bold style={styles.title} numberOfLines={2}>
+    <Box
+      style={styles.signerContainer}
+      backgroundColor={`${colorMode}.thirdBackground`}
+      borderColor={colorMode === 'light' ? Colors.SilverMist : Colors.separator}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Box style={styles.signerInnetContainer}>
+          <Box style={{ marginRight: wp(10), marginBottom: hp(20), flexDirection: 'row' }}>
+            <Text
+              color={`${colorMode}.primaryText`}
+              semiBold
+              style={styles.title}
+              numberOfLines={2}
+            >
               {keyToRotate
                 ? `Choose the key to be rotated with ${getSignerNameFromType(signer.type)} (${
                     keyToRotate.masterFingerprint
                   })`
-                : 'Choose from already added keys'}
+                : 'Choose keys or add a new one'}
             </Text>
-            <Box style={styles.addedSigners}>
-              {!isCollaborativeFlow ? (
-                <>
-                  {renderSigners()}
-                  {renderAssistedKeysShell()}
-                </>
-              ) : (
-                <>{renderCollaborativeSigners()}</>
-              )}
+            <Box style={styles.addKeyBtnWrapper}>
+              <AddKeyButton
+                short
+                onPress={
+                  !isCollaborativeFlow
+                    ? () =>
+                        navigation.dispatch(
+                          CommonActions.navigate('SigningDeviceList', {
+                            scheme,
+                            vaultId,
+                            vaultSigners: vaultKeys,
+                          })
+                        )
+                    : () => {
+                        navigation.dispatch(
+                          CommonActions.navigate({
+                            name: 'ScanQR',
+                            params: {
+                              title: `Setting up ${getSignerNameFromType(SignerType.KEEPER)}`,
+                              subtitle: 'Please scan until all the QR data has been retrieved',
+                              onQrScan,
+                              setup: true,
+                              type: SignerType.KEEPER,
+                            },
+                          })
+                        );
+                      }
+                }
+              />
             </Box>
           </Box>
-        ) : null}
-        {
-          <Box style={styles.gap10}>
-            <Text color={`${colorMode}.headerText`} bold style={styles.title}>
-              {signers.length ? 'or' : ''} add a new key
-            </Text>
-            <AddCard
-              name="Add a key"
-              cardStyles={styles.addCard}
-              callback={
-                !isCollaborativeFlow
-                  ? () =>
-                      navigation.dispatch(
-                        CommonActions.navigate('SigningDeviceList', {
-                          scheme,
-                          vaultId,
-                          vaultSigners: vaultKeys,
-                        })
-                      )
-                  : () => {
-                      navigation.dispatch(
-                        CommonActions.navigate({
-                          name: 'ScanQR',
-                          params: {
-                            title: `Setting up ${getSignerNameFromType(SignerType.KEEPER)}`,
-                            subtitle: 'Please scan until all the QR data has been retrieved',
-                            onQrScan,
-                            setup: true,
-                            type: SignerType.KEEPER,
-                          },
-                        })
-                      );
-                    }
-              }
-            />
-          </Box>
-        }
-        <HardwareModalMap
-          visible={visible}
-          close={close}
-          type={SignerType.INHERITANCEKEY}
-          mode={InteracationMode.VAULT_ADDITION}
-          isMultisig={isMultisig}
-          primaryMnemonic={primaryMnemonic}
-          addSignerFlow={false}
-          vaultId={vaultId}
-          vaultSigners={vaultKeys}
-        />
-        <HardwareModalMap
-          visible={showSSModal}
-          close={closeSSModal}
-          type={SignerType.POLICY_SERVER}
-          mode={InteracationMode.VAULT_ADDITION}
-          isMultisig={isMultisig}
-          primaryMnemonic={primaryMnemonic}
-          addSignerFlow={false}
-          vaultId={vaultId}
-          vaultSigners={vaultKeys}
-        />
-      </Box>
-    </ScrollView>
+          {signers.length ? (
+            <Box>
+              <Box style={styles.addedSigners}>
+                {!isCollaborativeFlow ? (
+                  <>
+                    {renderSigners()}
+                    {renderAssistedKeysShell()}
+                  </>
+                ) : signers.filter(
+                    (signer) => signer.type === SignerType.KEEPER && !signer.archived
+                  ).length ? (
+                  <>{renderCollaborativeSigners()}</>
+                ) : (
+                  <EmptyListIllustration listType="keys" />
+                )}
+              </Box>
+            </Box>
+          ) : (
+            <EmptyListIllustration listType="keys" />
+          )}
+          <HardwareModalMap
+            visible={visible}
+            close={close}
+            type={SignerType.INHERITANCEKEY}
+            mode={InteracationMode.VAULT_ADDITION}
+            isMultisig={isMultisig}
+            primaryMnemonic={primaryMnemonic}
+            addSignerFlow={false}
+            vaultId={vaultId}
+            vaultSigners={vaultKeys}
+          />
+          <HardwareModalMap
+            visible={showSSModal}
+            close={closeSSModal}
+            type={SignerType.POLICY_SERVER}
+            mode={InteracationMode.VAULT_ADDITION}
+            isMultisig={isMultisig}
+            primaryMnemonic={primaryMnemonic}
+            addSignerFlow={false}
+            vaultId={vaultId}
+            vaultSigners={vaultKeys}
+          />
+        </Box>
+      </ScrollView>
+    </Box>
   );
 }
 
@@ -925,187 +936,176 @@ function AddSigningDevice() {
   };
 
   return (
-    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title={signer.addKeys}
-        subtitle={subtitle}
-        icon={
-          <HexagonIcon
-            width={44}
-            height={38}
-            backgroundColor={Colors.pantoneGreen}
-            icon={<VaultIcon />}
+    <Box backgroundColor={`${colorMode}.primaryBackground`} flex={1}>
+      <SafeAreaView style={styles.topContainer}>
+        <Box style={styles.topSection}>
+          <KeeperHeader
+            title={signer.addKeys}
+            subtitle={subtitle}
+            icon={
+              <HexagonIcon
+                width={44}
+                height={38}
+                backgroundColor={Colors.pantoneGreen}
+                icon={<VaultIcon />}
+              />
+            }
+            // To-Do-Learn-More
           />
-        }
-        // To-Do-Learn-More
-      />
-      <VaultMigrationController
-        vaultCreating={vaultCreating}
-        vaultKeys={vaultKeys}
-        scheme={scheme}
-        name={name}
-        description={description}
-        vaultId={vaultId}
-        setGeneratedVaultId={setGeneratedVaultId}
-        vaultType={
-          isCollaborativeWallet
-            ? VaultType.COLLABORATIVE
-            : isSSAddition
-            ? VaultType.SINGE_SIG
-            : VaultType.DEFAULT
-        }
-      />
-      <Signers
-        keyToRotate={keyToRotate}
-        showSelection={!keyToRotate}
-        signers={activeSigners}
-        selectedSigners={selectedSigners}
-        setSelectedSigners={setSelectedSigners}
-        scheme={scheme}
-        colorMode={colorMode}
-        vaultKeys={vaultKeys}
-        setVaultKeys={setVaultKeys}
-        showToast={showToast}
-        navigation={navigation}
-        vaultId={vaultId}
-        signerMap={signerMap}
-        setCreating={setCreating}
-        isCollaborativeFlow={isCollaborativeFlow}
-        coSigners={coSigners}
-        setExternalKeyAddedModal={setExternalKeyAddedModal}
-        setAddedKey={setAddedKey}
-      />
-      <Footer
-        amfSigners={amfSigners}
-        invalidSS={invalidSS}
-        invalidIKS={invalidIKS}
-        invalidMessage={invalidMessage}
-        areSignersValid={areSignersValid}
-        relayVaultUpdateLoading={relayVaultUpdateLoading}
-        common={common}
-        colorMode={colorMode}
-        setCreating={setCreating}
-        isCollaborativeFlow={isCollaborativeFlow}
-        onGoBack={onGoBack}
-        vaultKeys={vaultKeys}
-        selectedSigners={selectedSigners}
-      />
-      <KeeperModal
-        dismissible
-        close={() => {}}
-        visible={vaultCreatedModalVisible}
-        title={
-          isSSAddition ? 'Wallet Created Successfully' : vaultTranslation.vaultCreatedSuccessTitle
-        }
-        subTitle={
-          inheritanceSigner
-            ? `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been setup successfully. You can start receiving/transferring bitcoin`
-            : `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`
-        }
-        Content={
-          isSSAddition
-            ? () => SingleSigWallet(newVault)
-            : inheritanceSigner
-            ? () => Vault3_5CreatedModalContent(newVault)
-            : () => VaultCreatedModalContent(newVault)
-        }
-        buttonText={
-          inheritanceSigner
-            ? vaultTranslation.addEmail
-            : isSSAddition
-            ? 'View Wallet'
-            : vaultTranslation.ViewVault
-        }
-        buttonCallback={inheritanceSigner ? viewAddEmail : viewVault}
-        secondaryButtonText={inheritanceSigner && common.cancel}
-        secondaryCallback={viewVault}
-        showButtons
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.buttonText`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        subTitleWidth={wp(280)}
-        showCloseIcon={false}
-      />
-      <KeyAddedModal
-        visible={externalKeyAddedModal}
-        close={() => {
-          setExternalKeyAddedModal(false);
-        }}
-        signer={addedKey}
-      />
-      <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
-    </ScreenWrapper>
+        </Box>
+        <VaultMigrationController
+          vaultCreating={vaultCreating}
+          vaultKeys={vaultKeys}
+          scheme={scheme}
+          name={name}
+          description={description}
+          vaultId={vaultId}
+          setGeneratedVaultId={setGeneratedVaultId}
+          vaultType={
+            isCollaborativeWallet
+              ? VaultType.COLLABORATIVE
+              : isSSAddition
+              ? VaultType.SINGE_SIG
+              : VaultType.DEFAULT
+          }
+        />
+        <Box flex={1}>
+          <Signers
+            keyToRotate={keyToRotate}
+            showSelection={!keyToRotate}
+            signers={activeSigners}
+            selectedSigners={selectedSigners}
+            setSelectedSigners={setSelectedSigners}
+            scheme={scheme}
+            colorMode={colorMode}
+            vaultKeys={vaultKeys}
+            setVaultKeys={setVaultKeys}
+            showToast={showToast}
+            navigation={navigation}
+            vaultId={vaultId}
+            signerMap={signerMap}
+            setCreating={setCreating}
+            isCollaborativeFlow={isCollaborativeFlow}
+            coSigners={coSigners}
+            setExternalKeyAddedModal={setExternalKeyAddedModal}
+            setAddedKey={setAddedKey}
+          />
+        </Box>
+        <Footer
+          amfSigners={amfSigners}
+          invalidSS={invalidSS}
+          invalidIKS={invalidIKS}
+          invalidMessage={invalidMessage}
+          areSignersValid={areSignersValid}
+          relayVaultUpdateLoading={relayVaultUpdateLoading}
+          common={common}
+          colorMode={colorMode}
+          setCreating={setCreating}
+          isCollaborativeFlow={isCollaborativeFlow}
+          onGoBack={onGoBack}
+          vaultKeys={vaultKeys}
+          selectedSigners={selectedSigners}
+        />
+        <KeeperModal
+          dismissible
+          close={() => {}}
+          visible={vaultCreatedModalVisible}
+          title={
+            isSSAddition ? 'Wallet Created Successfully' : vaultTranslation.vaultCreatedSuccessTitle
+          }
+          subTitle={
+            inheritanceSigner
+              ? `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been setup successfully. You can start receiving/transferring bitcoin`
+              : `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`
+          }
+          Content={
+            isSSAddition
+              ? () => SingleSigWallet(newVault)
+              : inheritanceSigner
+              ? () => Vault3_5CreatedModalContent(newVault)
+              : () => VaultCreatedModalContent(newVault)
+          }
+          buttonText={
+            inheritanceSigner
+              ? vaultTranslation.addEmail
+              : isSSAddition
+              ? 'View Wallet'
+              : vaultTranslation.ViewVault
+          }
+          buttonCallback={inheritanceSigner ? viewAddEmail : viewVault}
+          secondaryButtonText={inheritanceSigner && common.cancel}
+          secondaryCallback={viewVault}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.primaryText`}
+          buttonTextColor={`${colorMode}.buttonText`}
+          buttonBackground={`${colorMode}.greenButtonBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          subTitleWidth={wp(280)}
+          showCloseIcon={false}
+        />
+        <KeyAddedModal
+          visible={externalKeyAddedModal}
+          close={() => {
+            setExternalKeyAddedModal(false);
+          }}
+          signer={addedKey}
+        />
+        <KeyAddedModal
+          visible={keyAddedModalVisible}
+          close={handleModalClose}
+          signer={addedSigner}
+        />
+      </SafeAreaView>
+    </Box>
   );
 }
 
 const styles = StyleSheet.create({
-  signerItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 10,
-    marginBottom: hp(25),
+  topContainer: {
+    flex: 1,
+  },
+  topSection: {
+    height: '17%',
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   addedSigners: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    marginLeft: hp(20),
   },
   signerItem: {
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
   },
-  remove: {
-    height: 26,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    backgroundColor: '#FAC48B',
-    justifyContent: 'center',
-  },
   bottomContainer: {
     gap: 20,
+    paddingHorizontal: wp(15),
+    paddingBottom: hp(15),
   },
   noteContainer: {
     width: wp(330),
   },
-  descriptionBox: {
-    height: 24,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    justifyContent: 'center',
-  },
-  descriptionEdit: {
-    height: 50,
-    backgroundColor: '#FDF7F0',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-  },
-  descriptionContainer: {
-    width: width * 0.8,
-  },
-  backArrow: {
-    width: '15%',
-    alignItems: 'center',
-  },
   signerContainer: {
-    width: windowWidth,
-    gap: 60,
-    paddingBottom: 20,
-    marginTop: 20,
+    width: windowWidth + 2,
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    marginLeft: -1,
+    marginTop: hp(35),
+    flex: 1,
   },
-  addCard: {
-    height: 125,
-    width: windowWidth / 3 - windowWidth * 0.05,
-    margin: 3,
-  },
-  gap10: {
-    gap: 10,
+  signerInnetContainer: {
+    flex: 1,
+    marginTop: hp(35),
   },
   title: {
-    width: '90%',
-    marginLeft: 15,
+    marginLeft: wp(25),
     fontSize: 14,
+    flex: -1,
   },
   walletVaultInfoContainer: {
     paddingHorizontal: 15,
@@ -1133,26 +1133,6 @@ const styles = StyleSheet.create({
     width: wp(300),
     marginBottom: hp(18),
   },
-  addPhoneEmailWrapper: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: hp(20),
-    paddingVertical: hp(10),
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-  },
-  titleWrapper: {
-    width: '75%',
-  },
-  addPhoneEmailTitle: {
-    fontSize: 14,
-  },
-  addPhoneEmailSubTitle: {
-    fontSize: 12,
-  },
   illustrationContainer: {
     alignSelf: 'center',
     marginTop: hp(18),
@@ -1161,14 +1141,12 @@ const styles = StyleSheet.create({
   desc: {
     marginBottom: hp(18),
   },
-  externalKeyModal: {
-    alignItems: 'center',
-  },
-  externalKeyIllustration: {
-    marginBottom: hp(20),
-  },
-  externalKeyText: {
-    marginBottom: hp(20),
+  addKeyBtnWrapper: {
+    flex: 1,
+    minWidth: wp(110),
+    marginLeft: wp(15),
+    marginRight: wp(25),
+    marginTop: hp(1),
   },
 });
 

@@ -29,12 +29,11 @@ export function* connectToNodeWorker() {
     );
 
     if (!areInitialNodesSaved) {
-      let addInitialNode = true;
-      try {
-        const defaultNodes = yield call(dbManager.getCollection, RealmSchema.DefaultNodeConnect);
-        addInitialNode = defaultNodes && defaultNodes.length != 0;
-      } catch {
-        // New app installation, just has to continue adding initial nodes
+      const currentNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+      const defaultNodes = yield call(dbManager.getCollection, RealmSchema.DefaultNodeConnect);
+      let addInitialNode = defaultNodes && defaultNodes.length != 0;
+      if (!addInitialNode && currentNodes.length == 0) {
+        addInitialNode = true;
       }
 
       if (addInitialNode) {

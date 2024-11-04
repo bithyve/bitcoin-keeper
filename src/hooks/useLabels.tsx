@@ -49,10 +49,10 @@ const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault })
           });
         } else {
           // add only the wallet label for non-whirlpool wallets
-          utxoLabels.push({
-            name: wallet.presentationData.name,
-            type: LabelType.SYSTEM,
-          });
+          // utxoLabels.push({
+          //   name: wallet.presentationData.name,
+          //   type: LabelType.SYSTEM,
+          // });
           // workaround for deposit wallet as it's the default wallet and not a whirlpool wallet
           if (wallet.type === WalletType.DEFAULT) {
             utxoLabels.push({

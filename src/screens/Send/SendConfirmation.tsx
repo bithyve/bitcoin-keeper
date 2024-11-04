@@ -910,6 +910,7 @@ function SendConfirmation({ route }) {
   useEffect(() => {
     const remove = navigation.addListener('beforeRemove', (e) => {
       e.preventDefault();
+      remove();
       if (navigation.getState().index > 2 && isCachedTransaction) {
         navigation.dispatch(
           CommonActions.reset({
@@ -1434,8 +1435,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
-        DarkCloseIcon={colorMode === 'dark'}
+        buttonTextColor={`${colorMode}.buttonText`}
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
@@ -1470,7 +1470,6 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics
@@ -1492,7 +1491,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={common.confirm}
         buttonCallback={() => {
           setTransPriorityModalVisible(false), setTransactionPriority;
@@ -1530,7 +1529,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         secButtonTextColor={`${colorMode}.greenText`}
         buttonText={common.proceed}
@@ -1561,7 +1560,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonText={common.proceed}
         buttonCallback={toogleFeesInsightModal}
@@ -1581,8 +1580,7 @@ function SendConfirmation({ route }) {
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonText={'Discard'}
         buttonCallback={discardCachedTransaction}
-        buttonTextColor={`${colorMode}.white`}
-        showButtons
+        buttonTextColor={`${colorMode}.buttonText`}
         secondaryButtonText={'Cancel'}
         secondaryCallback={() => {
           setProgress(false);
@@ -1624,7 +1622,6 @@ const styles = StyleSheet.create({
   },
   priorityTableText: {
     fontSize: 16,
-    color: '#24312E',
   },
   transPriorityWrapper: {
     flexDirection: 'row',
@@ -1751,7 +1748,6 @@ const styles = StyleSheet.create({
   sendingFromText: {
     fontSize: 14,
     letterSpacing: 1.12,
-    marginY: windowHeight > 570 ? windowHeight * 0.011 : 1,
   },
   cardContainer: {
     flexDirection: 'row',

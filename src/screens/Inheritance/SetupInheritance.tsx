@@ -122,7 +122,7 @@ function SetupInheritance({ route }) {
         learnMorePressed={() => {
           dispatch(setInheritance(true));
         }}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
       />
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={windowHeight > 600 ? 50 : 20} />

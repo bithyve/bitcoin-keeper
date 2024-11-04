@@ -31,7 +31,7 @@ function CurrencyInfo({
         <Box style={styles.rowCenter}>
           <Text
             color={color}
-            style={{ fontSize, paddingVertical:5 }}
+            style={{ fontSize, paddingVertical: 5 }}
             bold={bold}
             numberOfLines={1}
             testID="text_balance"
@@ -44,7 +44,7 @@ function CurrencyInfo({
           style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]}
           testID="view_hideCurrencyView"
         >
-          <Hidden color={`${color}`} />
+          <Hidden color={color} />
         </Box>
       )}
     </HStack>

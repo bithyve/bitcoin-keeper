@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Animated } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 function BounceLoader() {
+  const { colorMode } = useColorMode();
+
   useEffect(() => {
     onStartAnimation();
   }, []);
@@ -54,6 +56,7 @@ function BounceLoader() {
                 scale: animations.first,
               },
             ],
+            backgroundColor: colorMode === 'light' ? '#6B9B92' : 'rgba(65,89,76,1)',
           },
         ]}
       />
@@ -66,6 +69,7 @@ function BounceLoader() {
                 scale: animations.second,
               },
             ],
+            backgroundColor: colorMode === 'light' ? '#6B9B92' : 'rgba(65,89,76,1)',
           },
         ]}
       />
@@ -78,6 +82,7 @@ function BounceLoader() {
                 scale: animations.third,
               },
             ],
+            backgroundColor: colorMode === 'light' ? '#6B9B92' : 'rgba(65,89,76,1)',
           },
         ]}
       />
@@ -90,6 +95,7 @@ function BounceLoader() {
                 scale: animations.fourth,
               },
             ],
+            backgroundColor: colorMode === 'light' ? '#6B9B92' : 'rgba(65,89,76,1)',
           },
         ]}
       />
@@ -104,7 +110,6 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 10,
-    backgroundColor: '#6B9B92',
     marginHorizontal: 5,
   },
 });

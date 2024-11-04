@@ -1,10 +1,11 @@
 import React from 'react';
 import { Box, Pressable } from 'native-base';
 import { Image, StyleSheet, ViewStyle } from 'react-native';
-import { windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
+import Colors from 'src/theme/Colors';
 
 type SignerCardProps = {
   name: string;
@@ -60,6 +61,7 @@ function SignerCard({
     <Pressable
       disabled={disabled}
       backgroundColor={`${colorMode}.seashellWhite`}
+      borderColor={colorMode === 'light' ? Colors.SilverMist : Colors.separator}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
@@ -86,7 +88,7 @@ function SignerCard({
         )}
         {titleComp}
         <Text
-          color={`${colorMode}.primaryText`}
+          color={`${colorMode}.modalWhiteContent`}
           style={styles.walletName}
           numberOfLines={isFullText ? 0 : 1}
           medium
@@ -123,11 +125,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 3,
     position: 'relative',
+    borderWidth: 1,
   },
   walletName: {
     fontSize: 12,
     letterSpacing: 0.12,
-    opacity: 0.8,
+    marginTop: hp(6),
   },
   walletSubtTitle: {
     fontSize: 11,

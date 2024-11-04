@@ -51,7 +51,7 @@ function TierUpgradeModal({
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
       buttonText={common.Okay}
-      buttonTextColor={`${colorMode}.white`}
+      buttonTextColor={`${colorMode}.buttonText`}
       buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonCallback={onPress}
       Content={() => <Content isUpgrade={isUpgrade} />}

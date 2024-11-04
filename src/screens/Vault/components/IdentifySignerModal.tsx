@@ -47,7 +47,6 @@ function IdentifySignerModal({ visible, close, signer, secondaryCallback, vaultI
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.primaryText`}
       subTitleColor={`${colorMode}.secondaryText`}
-      DarkCloseIcon={colorMode === 'dark'}
       close={close}
       title="Assign signer type"
       subTitle="Identify your signer type for enhanced connectivity and communication"

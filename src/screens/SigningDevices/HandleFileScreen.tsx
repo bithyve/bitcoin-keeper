@@ -10,6 +10,7 @@ import { hp, windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { exportFile, importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const HandleFileScreen = ({ route, navigation }) => {
   const { title, subTitle, onFileExtract, ctaText, fileData = '', signerType } = route.params;
@@ -56,6 +57,12 @@ const HandleFileScreen = ({ route, navigation }) => {
                 setInputText(text);
               }}
               multiline
+              _input={
+                colorMode === 'dark' && {
+                  selectionColor: Colors.SecondaryWhite,
+                  cursorColor: Colors.SecondaryWhite,
+                }
+              }
             />
           </Box>
           <Box style={styles.tileWrapper}>
@@ -71,6 +78,7 @@ const HandleFileScreen = ({ route, navigation }) => {
               }}
               primaryText={ctaText}
               primaryDisable={!inputText}
+              fullWidth
             />
           </Box>
         </View>
@@ -107,5 +115,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
+    paddingHorizontal: '3%',
   },
 });

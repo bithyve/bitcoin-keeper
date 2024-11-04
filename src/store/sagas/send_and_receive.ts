@@ -218,10 +218,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         throw new Error('Invalid Entity: not a vault/Wallet');
     }
     if (wallet.entityKind === EntityKind.WALLET) {
-      const enabledTransferTypes = [TransferType.WALLET_TO_VAULT];
-      if (enabledTransferTypes.includes(transferType)) {
-        label.push({ name: wallet.presentationData.name, isSystem: true });
-      }
       if (label && label.length) {
         const vout = finalOutputs.findIndex((o) => o.address === recipients[0].address);
         yield call(addLabelsWorker, {

@@ -58,7 +58,7 @@ describe('Wallet primitives', () => {
     );
     [wallet] = synchedWallets;
 
-    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = wallet.specs;
+    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = wallet.synchedWallet.specs;
 
     let netBalance = 0;
     confirmedUTXOs.forEach((utxo) => {

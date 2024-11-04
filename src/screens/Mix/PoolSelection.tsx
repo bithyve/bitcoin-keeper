@@ -188,7 +188,7 @@ export default function PoolSelection({ route, navigation }) {
         title="Selecting Pool"
         subtitle="Choose a pool based on total sats shown below"
         learnMore
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => setLearnModalVisible(true)}
       />
 
