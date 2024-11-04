@@ -208,12 +208,12 @@ function ConnectChannel() {
           const navigationState = addSignerFlow
             ? {
                 name: 'ManageSigners',
-                params: { addedSigner: signer, addSignerFlow, showModal: true },
+                params: { addedSigner: signer },
               }
             : {
                 name: 'AddSigningDevice',
                 merge: true,
-                params: { addedSigner: signer, addSignerFlow, showModal: true },
+                params: { addedSigner: signer },
               };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }

@@ -84,12 +84,12 @@ function SetupSigningServer({ route }: { route }) {
     const navigationState = addSignerFlow
       ? {
           name: 'ManageSigners',
-          params: { addedSigner: signingServerKey, addSignerFlow, showModal: true },
+          params: { addedSigner: signingServerKey },
         }
       : {
           name: 'AddSigningDevice',
           merge: true,
-          params: { addedSigner: signingServerKey, addSignerFlow, showModal: true },
+          params: { addedSigner: signingServerKey },
         };
     navigation.dispatch(CommonActions.navigate(navigationState));
   };

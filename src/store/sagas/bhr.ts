@@ -149,6 +149,7 @@ export function* updateAppImageWorker({
   } catch (err) {
     console.log({ err });
     console.error('App image update failed', err);
+    return { updated: false, error: err };
   }
 }
 
@@ -183,9 +184,7 @@ export function* updateVaultImageWorker({
     signerId: string;
     xfpHash: string;
   }> = [];
-  const signerIdXpubMap = {};
   for (const signer of vault.signers) {
-    signerIdXpubMap[signer.xfp] = signer.xpub;
     signersData.push({
       signerId: signer.xfp,
       xfpHash: hash256(signer.masterFingerprint),

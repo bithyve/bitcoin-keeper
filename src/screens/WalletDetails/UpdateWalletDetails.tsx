@@ -84,6 +84,7 @@ function UpdateWalletDetails({ route }) {
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
+  // TODO: Need to check this function
   const updateWallet = () => {
     try {
       const derivationDetails: WalletDerivationDetails = {
