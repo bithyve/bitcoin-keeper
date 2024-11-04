@@ -7,7 +7,6 @@ import { StyleSheet } from 'react-native';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 
 const KeyAddedModal = ({ visible, close, signer }) => {
-  console.log('🚀 ~ KeyAddedModal ~ signer:', signer);
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
 
