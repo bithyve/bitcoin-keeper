@@ -22,7 +22,7 @@ const EditContact = ({ route }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signer } = route.params;
-  const fullName = signer.extraData.givenName + ' ' + signer.extraData.familyName;
+  const fullName = generateFullName(signer);
   const [defaultName, setDefaultName] = useState(fullName);
   const [userImage] = useState(getPersistedDocument(signer.extraData.thumbnailPath));
   const [selectedImage, setSelectedImage] = useState(null);
@@ -53,7 +53,7 @@ const EditContact = ({ route }) => {
       const extraData = {
         ...signer.extraData,
         givenName: fullNameSplit[0],
-        familyName: fullNameSplit[1],
+        familyName: fullNameSplit.slice(1).join(' '),
         thumbnailPath: selectedImage ?? userImage,
       };
       dispatch(updateSignerDetails(signer, 'extraData', extraData));
@@ -165,4 +165,10 @@ const styles = StyleSheet.create({
   },
 });
 
+const generateFullName = (signer) => {
+  let fullName = '';
+  if (signer.extraData.givenName) fullName += signer.extraData.givenName;
+  if (signer.extraData.familyName) fullName += ' ' + signer.extraData.familyName;
+  return fullName;
+};
 export default EditContact;
