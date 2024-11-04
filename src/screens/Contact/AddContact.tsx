@@ -13,9 +13,7 @@ import ContactImagePlaceholder from 'src/assets/images/contact-image-placeholder
 import PlusIcon from 'src/assets/images/add-icon-brown.svg';
 import Buttons from 'src/components/Buttons';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useDispatch } from 'react-redux';
-import useToastMessage from 'src/hooks/useToastMessage';
 import { persistDocument } from 'src/services/documents';
 
 const AddContact = ({ route }) => {
@@ -26,7 +24,6 @@ const AddContact = ({ route }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [disableSave, setDisableSave] = useState(true);
   const dispatch = useDispatch();
-  const { showToast } = useToastMessage();
 
   const saveContactDetails = () => {
     if (validateData()) {
@@ -38,7 +35,6 @@ const AddContact = ({ route }) => {
         thumbnailPath: selectedImage,
       };
       dispatch(updateSignerDetails(signer, 'extraData', extraData));
-      showToast('Contact Updated Successfully', <TickIcon />);
       navigation.goBack();
     }
   };
