@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Image, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -6,7 +6,7 @@ import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
@@ -24,8 +24,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { NetworkType, SignerStorage, SignerType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import * as Sentry from '@sentry/react-native';
@@ -49,24 +48,21 @@ import { notificationType } from 'src/models/enums/Notifications';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import AddKeyButton from './components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
 function ManageSigners({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const {
-    vaultId = '',
-    addedSigner,
-    addSignerFlow,
-    showModal,
-    receivedExternalSigner,
-  } = route.params || {};
+  const { vaultId = '', addedSigner, receivedExternalSigner } = route.params || {};
   const { activeVault } = useVault({ vaultId });
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
-  const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
+  const { realySignersUpdateErrorMessage, relaySignersUpdate, relaySignersUpdateLoading } =
+    useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
@@ -86,21 +82,37 @@ function ManageSigners({ route }: ScreenProps) {
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
   });
 
+  const [inProgress, setInProgress] = useState(false);
+
   useEffect(() => {
-    if (showModal) {
-      setKeyAddedModalVisible(true);
-    }
-  }, [showModal]);
+    setInProgress(relaySignersUpdateLoading);
+  }, [relaySignersUpdateLoading]);
 
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
-      showToast(realySignersUpdateErrorMessage, null, IToastCategory.SIGNING_DEVICE);
+      setInProgress(false);
+      showToast(
+        realySignersUpdateErrorMessage,
+        <ToastErrorIcon />,
+        IToastCategory.SIGNING_DEVICE,
+        5000
+      );
       dispatch(resetSignersUpdateState());
     }
     return () => {
       dispatch(resetSignersUpdateState());
     };
   }, [realySignersUpdateErrorMessage]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (relaySignersUpdate) {
+        setInProgress(false);
+        setKeyAddedModalVisible(true);
+        dispatch(resetSignersUpdateState());
+      }
+    }, [relaySignersUpdate])
+  );
 
   const handleTimerEnd = () => {
     setIsTimerActive(false);
@@ -129,7 +141,6 @@ function ManageSigners({ route }: ScreenProps) {
 
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
-    navigation.dispatch(CommonActions.setParams({ showModal: false }));
   };
 
   const acceptRemoteKey = async () => {
@@ -286,6 +297,7 @@ function ManageSigners({ route }: ScreenProps) {
           </Box>
         )}
       />
+      {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </Box>
   );
 }

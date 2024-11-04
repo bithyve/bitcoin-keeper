@@ -154,6 +154,11 @@ function ConnectChannel() {
   };
 
   useEffect(() => {
+    let channelConnectionInterval = setInterval(() => {
+      if (!channel.connect) {
+        channel.connect();
+      }
+    }, 10000);
     channel.on(CHANNEL_MESSAGE, async ({ data }) => {
       try {
         const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
@@ -203,12 +208,12 @@ function ConnectChannel() {
           const navigationState = addSignerFlow
             ? {
                 name: 'ManageSigners',
-                params: { addedSigner: signer, addSignerFlow, showModal: true },
+                params: { addedSigner: signer },
               }
             : {
                 name: 'AddSigningDevice',
                 merge: true,
-                params: { addedSigner: signer, addSignerFlow, showModal: true },
+                params: { addedSigner: signer },
               };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
@@ -275,6 +280,7 @@ function ConnectChannel() {
 
     return () => {
       channel.disconnect();
+      clearInterval(channelConnectionInterval);
     };
   }, [channel]);
 

@@ -252,6 +252,7 @@ const getStyles = (
       fontSize: subTitleSize,
       lineHeight: 18,
       width: windowWidth * 0.8,
+      marginTop: hp(5),
     },
     backContainer: {
       justifyContent: 'space-between',

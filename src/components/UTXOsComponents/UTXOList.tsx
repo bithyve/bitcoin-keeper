@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { hp, wp, windowHeight } from 'src/constants/responsive';
@@ -118,7 +118,7 @@ function UTXOElement({
   initateWhirlpoolMix,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
-  const allowSelection = enableSelection && item.confirmed;
+  const allowSelection = enableSelection;
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
@@ -130,10 +130,6 @@ function UTXOElement({
       <TouchableOpacity
         style={styles.utxoCardContainer}
         onPress={() => {
-          if (enableSelection && !item.confirmed) {
-            showToast(walletTranslation.intiatePremixToastMsg, <ToastErrorIcon />);
-            return;
-          }
           if (allowSelection) {
             const mapToUpdate = selectedUTXOMap;
             if (selectedUTXOMap[utxoId]) {
@@ -268,9 +264,22 @@ function UTXOList({
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
   const pullDownRefresh = () => dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
+  const sortedUTXOs = useMemo(
+    () =>
+      [...utxoState].sort((a, b) => {
+        console.log(a);
+        console.log(b);
+        if (!a.height && !b.height) return 0;
+        if (!a.height) return -1;
+        if (!b.height) return 1;
+        return b.height - a.height;
+      }) || [],
+    [utxoState]
+  );
+
   return (
     <FlatList
-      data={utxoState}
+      data={sortedUTXOs}
       refreshing={!!syncing}
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (

@@ -161,7 +161,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
           visible={visible && type === SignerType.COLDCARD}
           close={close}
           title="Recover using Coldcard"
-          subTitle="Keep your Coldcard ready"
+          subTitle="Get your Coldcard ready"
           buttonText="Proceed"
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
@@ -181,8 +181,8 @@ function SigningDeviceConfigRecovery({ navigation }) {
         <KeeperModal
           visible={visible && type === SignerType.PASSPORT}
           close={close}
-          title="Recover using Passport (Batch 2)"
-          subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
+          title="Recover using Passport"
+          subTitle="Get your Foundation Passport ready before proceeding"
           subTitleColor={`${colorMode}.secondaryText`}
           buttonText="Continue"
           buttonTextColor={`${colorMode}.buttonText`}

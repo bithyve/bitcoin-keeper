@@ -7,6 +7,7 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import AppIcon from 'src/assets/images/new-app-icon.svg';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
+import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Recover from 'src/assets/images/recover-app-icon.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -36,7 +37,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
       alignItems="center"
       width="100%"
       testID="btn_startNew"
-      style={{ marginTop: hp(20), height: hp(110), borderRadius: hp(10) }}
+      style={{ height: hp(80), borderRadius: hp(10) }}
       paddingX={2}
     >
       {Icon && <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>}
@@ -44,13 +45,13 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
         style={{
           paddingVertical: hp(20),
           paddingLeft: wp(24),
-          width: '75%',
+          flex: 1,
         }}
       >
-        <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
+        <Text color={`${colorMode}.primaryText`} fontSize={14} style={{ marginBottom: hp(5) }}>
           {title}
         </Text>
-        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
+        <Text color={`${colorMode}.placeHolderTextColor`} fontSize={12}>
           {subTitle}
         </Text>
       </Box>
@@ -59,8 +60,10 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
           <Box marginRight="10">
             <ActivityIndicator />
           </Box>
-        ) : (
+        ) : colorMode === 'light' ? (
           <ArrowIcon />
+        ) : (
+          <ArrowIconWhite />
         )}
       </Box>
     </Pressable>
@@ -378,8 +381,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
 const styles = StyleSheet.create({
   iconContainer: {
-    marginRight: 20,
-    flexDirection: 'row-reverse',
+    marginRight: wp(25),
   },
   settingIconWrapper: {
     marginTop: hp(14),
