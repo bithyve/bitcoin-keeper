@@ -25,7 +25,8 @@ def common_pods
     use_frameworks! :linkage => linkage.to_sym
   end
   config = use_native_modules!
-  pod 'libportal-ios', :path => '../modules/libportal-ios'
+  # pod 'libportal-ios', :path => '../modules/libportal-ios'
+  pod 'libportal-ios', :git => 'https://github.com/cakesoft-vaibhav/libportal-ios.git'
   pod 'PDFGenerator'
   pod 'QRCoder'
   # Flags change depending on the env values.
