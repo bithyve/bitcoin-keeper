@@ -198,23 +198,52 @@ const getSignerContent = (
       const jadeInstructions = `When unlocked, export the key by going to Options > Wallet > Export Xpub. Then in Options, make sure Script is set to Native Segwit and Wallet is set to ${
         isMultisig ? 'MultiSig' : 'SingleSig'
       }.`;
+
+      let usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} and connect your Jade to the computer.`;
+
+      let instructions =
+        keyGenerationMode === KeyGenerationMode.USB
+          ? [usbInstructions]
+          : [jadeUnlockInstructions, jadeInstructions];
+      if (isTestnet()) {
+        instructions.push(
+          'Make sure you enable Testnet mode on the Jade (Options > Device > Settings > Network) if you are running Keeper in the Testnet mode.'
+        );
+      }
       return {
         type: SignerType.JADE,
         Illustration: <JadeSVG />,
-        Instructions: isTestnet()
-          ? [
-              jadeUnlockInstructions,
-              jadeInstructions,
-              'Make sure you enable Testnet mode on the Jade (Options > Device > Settings > Network) if you are running Keeper in the Testnet mode.',
-            ]
-          : [jadeUnlockInstructions, jadeInstructions],
+        Instructions: instructions,
         title: isHealthcheck
           ? 'Verify Blockstream Jade'
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up Blockstream Jade',
-        subTitle: 'Keep your Jade ready and unlocked before proceeding',
-        options: [],
+        subTitle: 'Get your Jade ready and powered up before proceeding',
+        options: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.QR,
+          },
+          {
+            title: 'USB',
+            icon: (
+              <CircleIconWrapper
+                icon={<USBIcon />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.USB,
+          },
+        ],
       };
     case SignerType.KEEPER:
       return {
@@ -279,7 +308,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up Keystone',
-        subTitle: 'Keep your Keystone ready before proceeding',
+        subTitle: 'Get your Keystone ready before proceeding',
         options: [
           {
             title: 'QR',
@@ -319,11 +348,11 @@ const getSignerContent = (
             ]
           : [passportInstructions],
         title: isHealthcheck
-          ? 'Verify Passport (Batch 2)'
+          ? 'Verify Passport'
           : isCanaryAddition
           ? 'Setting up for Canary'
-          : 'Setting up Passport (Batch 2)',
-        subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
+          : 'Setting up Passport',
+        subTitle: 'Get your Foundation Passport ready before proceeding',
         options: [
           {
             title: 'QR',
@@ -438,7 +467,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up SeedSigner',
-        subTitle: 'Keep your SeedSigner ready and powered before proceeding',
+        subTitle: 'Get your SeedSigner ready and powered before proceeding',
         options: [],
       };
 
@@ -460,7 +489,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up Specter DIY',
-        subTitle: 'Keep your device ready and powered before proceeding',
+        subTitle: 'Get your device ready and powered before proceeding',
         options: [],
       };
     case SignerType.BITBOX02:
@@ -543,7 +572,7 @@ const getSignerContent = (
           'The hardened part of the derivation path of the xpub has to be denoted with a “h” or “”. Please do not use any other character',
         ],
         title: isHealthcheck ? 'Verify Signer' : 'Setting up Signer',
-        subTitle: 'Keep your Signer ready before proceeding',
+        subTitle: 'Get your Signer ready before proceeding',
         options: [],
       };
 
@@ -671,7 +700,10 @@ function SignerContent({
                   onSelect(option);
                 }}
                 colorMode={colorMode}
-                customStyle={{ width: wp(95), height: hp(100) }}
+                customStyle={{
+                  width: wp(95),
+                  height: hp(options.some((opt) => opt.title.length > 10) ? 115 : 100),
+                }}
               />
             ))}
         </ScrollView>
@@ -1947,6 +1979,7 @@ function HardwareModalMap({
       case SignerType.KEEPER:
       case SignerType.SEED_WORDS:
       case SignerType.COLDCARD:
+      case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.KEYSTONE:
         setKeyGenerationMode(option.name);
@@ -2011,7 +2044,11 @@ function HardwareModalMap({
         return navigateToAddQrBasedSigner();
       case SignerType.SEEDSIGNER:
       case SignerType.SPECTER:
+        return navigateToAddQrBasedSigner();
       case SignerType.JADE:
+        if (keyGenerationMode === KeyGenerationMode.USB) {
+          return navigateToSetupWithChannel();
+        }
         return navigateToAddQrBasedSigner();
       case SignerType.KEEPER:
         return navigateToAddQrBasedSigner();

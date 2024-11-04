@@ -738,31 +738,30 @@
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up TAPSIGNER",
-    "SetupDescription": "Keep your TAPSIGNER ready before proceeding"
+    "SetupDescription": "Get your TAPSIGNER ready before proceeding"
   },
   "coldcard": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up Coldcard",
-    "SetupDescription": "Keep your Coldcard ready before proceeding"
+    "SetupDescription": "Get your Coldcard ready before proceeding"
   },
   "ledger": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up Ledger",
-    "SetupDescription": "Keep your bluetooth enabled Ledger Nano X ready before proceeding",
-    "ScanningBT": "Scanning for bluetooth",
+    "SetupDescription": "Connect the Ledger to your computer and open the Bitcoin Keeper desktop app",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
   "bitbox": {
     "SetupTitle": "Setting up BitBox02",
-    "SetupDescription": "Keep your BitBox02 ready before proceeding"
+    "SetupDescription": "Connect the BitBox02 to your computer and open the Bitcoin Keeper desktop app"
   },
   "trezor": {
     "SetupTitle": "Setting up Trezor",
-    "SetupDescription": "Keep your Trezor connected to the computer before proceeding"
+    "SetupDescription": "Connect the Trezor to your computer and open the Bitcoin Keeper desktop app"
   },
   "signingServer": {
     "choosePolicy": "Choose Policy",

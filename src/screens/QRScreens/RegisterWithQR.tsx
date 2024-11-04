@@ -16,7 +16,6 @@ import DisplayQR from './DisplayQR';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import KeeperQRCode from 'src/components/KeeperQRCode';
-import { exportFile } from 'src/services/fs';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';

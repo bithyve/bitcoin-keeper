@@ -64,7 +64,7 @@ function ColdCardContent({
 
   if (isMultisig) {
     message =
-      'Make sure the multisig wallet is registered with the Coldcard before signing the transaction';
+      '\u2022 Make sure the multisig wallet is registered with the Coldcard before signing the transaction';
   }
 
   return (
@@ -90,7 +90,12 @@ function ColdCardContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
-              customStyle={{ width: wp(95), height: hp(100) }}
+              customStyle={{
+                width: wp(95),
+                height: hp(
+                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
+                ),
+              }}
             />
           ))}
       </HStack>
@@ -144,7 +149,12 @@ function PassportContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
-              customStyle={{ width: wp(95), height: hp(100) }}
+              customStyle={{
+                width: wp(95),
+                height: hp(
+                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
+                ),
+              }}
             />
           ))}
       </HStack>
@@ -240,7 +250,12 @@ function KeystoneContent({
                 onSelect(option.name);
               }}
               colorMode={colorMode}
-              customStyle={{ width: wp(95), height: hp(100) }}
+              customStyle={{
+                width: wp(95),
+                height: hp(
+                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
+                ),
+              }}
             />
           ))}
       </HStack>
@@ -248,17 +263,62 @@ function KeystoneContent({
   );
 }
 
-function JadeContent() {
+function JadeContent({
+  isMultisig,
+  supportedSigningOptions,
+  onSelect,
+  signingMode,
+}: {
+  isMultisig: boolean;
+  supportedSigningOptions: any[];
+  onSelect: any;
+  signingMode: SigningMode;
+}) {
+  const { colorMode } = useColorMode();
+
   return (
     <Box alignItems="center">
       <JadeSetup />
       <Box marginTop={2}>
+        {isMultisig && (
+          <Text style={styles.instructionsText}>
+            {
+              '\u2022 Make sure the multisig wallet is registered on the Jade before signing the transaction.'
+            }
+          </Text>
+        )}
         <Text style={styles.instructionsText}>
-          {
-            "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."
-          }
+          {signingMode === SigningMode.USB
+            ? '\u2022 For signing via USB, connect the Jade to your computer and follow the instructions on the Keeper desktop app'
+            : "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."}
+        </Text>
+        <Text semiBold style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>
+          {'Sign transaction via:'}
         </Text>
       </Box>
+      <HStack alignSelf={'flex-start'}>
+        {supportedSigningOptions &&
+          supportedSigningOptions.map((option) => (
+            <SignerCard
+              key={option.name}
+              isSelected={signingMode === option.name}
+              isFullText={true}
+              name={option.title}
+              icon={option.icon}
+              image={option?.extraData?.thumbnailPath}
+              onCardSelect={() => {
+                onSelect(option.name);
+              }}
+              colorMode={colorMode}
+              customStyle={{
+                width: wp(95),
+                height: hp(
+                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
+                ),
+              }}
+            />
+          ))}
+      </HStack>
     </Box>
   );
 }
@@ -563,6 +623,33 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
           },
         ],
       };
+    case SignerType.JADE:
+      return {
+        supportedSigningOptions: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.QR,
+          },
+          {
+            title: 'USB',
+            icon: (
+              <CircleIconWrapper
+                icon={<USBIcon />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.USB,
+          },
+        ],
+      };
     default:
       return {
         supportedSigningOptions: [],
@@ -725,8 +812,8 @@ function SignerModals({
               key={vaultKey.xfp}
               visible={currentSigner && tapsignerModal}
               close={() => setTapsignerModal(false)}
-              title="Keep your TAPSIGNER ready"
-              subTitle="Keep your TAPSIGNER ready before proceeding"
+              title="Get your TAPSIGNER ready"
+              subTitle="Get your TAPSIGNER ready before proceeding"
               buttonText="Proceed"
               buttonCallback={navigateToSignWithTapsigner}
               Content={() => <TapsignerContent />}
@@ -770,8 +857,8 @@ function SignerModals({
               key={vaultKey.xfp}
               visible={currentSigner && coldCardModal}
               close={() => setColdCardModal(false)}
-              title={'Keep your Coldcard ready'}
-              subTitle="Keep your Coldcard ready before proceeding"
+              title={'Get your Coldcard ready'}
+              subTitle="Get your Coldcard ready before proceeding"
               Content={() => (
                 <ColdCardContent
                   register={isMultisig && !info?.registered}
@@ -803,8 +890,8 @@ function SignerModals({
               close={() => {
                 setLedgerModal(false);
               }}
-              title="Keep Nano X Ready"
-              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Trezor.`}
+              title="Get your Ledger Ready"
+              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Ledger.`}
               textColor={`${colorMode}.primaryText`}
               Content={() => <LedgerContent />}
               buttonText="Proceed"
@@ -856,7 +943,7 @@ function SignerModals({
                 setPassportModal(false);
               }}
               title="Keep Passport Ready"
-              subTitle="Keep your Foundation Passport ready before proceeding"
+              subTitle="Get your Foundation Passport ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => (
                 <PassportContent
@@ -909,7 +996,7 @@ function SignerModals({
                 setSeedSignerModal(false);
               }}
               title="Keep SeedSigner Ready"
-              subTitle="Keep your SeedSigner ready before proceeding"
+              subTitle="Get your SeedSigner ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => <SeedSignerContent isMultisig={isMultisig} />}
               buttonText="Proceed"
@@ -926,7 +1013,7 @@ function SignerModals({
                 setSpecterModal(false);
               }}
               title="Keep Specter Ready"
-              subTitle="Keep your Specter ready before proceeding"
+              subTitle="Get your Specter ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => <SpecterContent isMultisig={isMultisig} />}
               buttonText={'Start Signing'}
@@ -950,7 +1037,7 @@ function SignerModals({
                 setKeystoneModal(false);
               }}
               title="Keep Keystone Ready"
-              subTitle="Keep your Keystone ready before proceeding"
+              subTitle="Get your Keystone ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => (
                 <KeystoneContent
@@ -1003,9 +1090,18 @@ function SignerModals({
                 setJadeModal(false);
               }}
               title="Keep Jade Ready"
-              subTitle="Keep your Jade ready before proceeding"
+              subTitle="Get your Jade ready before proceeding"
               textColor={`${colorMode}.primaryText`}
-              Content={() => <JadeContent />}
+              Content={() => (
+                <JadeContent
+                  isMultisig={isMultisig}
+                  supportedSigningOptions={supportedSigningOptions}
+                  onSelect={(mode) => {
+                    setSigningMode(mode);
+                  }}
+                  signingMode={signingMode}
+                />
+              )}
               buttonText={'Start Signing'}
               secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
               secondaryCallback={() => {
@@ -1014,7 +1110,14 @@ function SignerModals({
                   CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
                 );
               }}
-              buttonCallback={() => navigateToQrSigning(vaultKey)}
+              buttonCallback={() => {
+                setJadeModal(false);
+                if (signingMode === SigningMode.USB) {
+                  navigateToChannelSigning(vaultKey, SignerType.JADE);
+                } else {
+                  navigateToQrSigning(vaultKey);
+                }
+              }}
             />
           );
         }
@@ -1061,7 +1164,7 @@ function SignerModals({
                 setOtherSDModal(false);
               }}
               title="Keep the Signer Ready"
-              subTitle="Keep your Signer ready before proceeding"
+              subTitle="Get your Signer ready before proceeding"
               textColor={`${colorMode}.primaryText`}
               Content={() => <OtherSDContent />}
               buttonText="Proceed"
@@ -1077,8 +1180,8 @@ function SignerModals({
               close={() => {
                 setKeeperModal(false);
               }}
-              title="Keep your Device Ready"
-              subTitle={`Keep your ${getSignerNameFromType(signer.type)} ready before proceeding`}
+              title="Get your Device Ready"
+              subTitle={`Get your ${getSignerNameFromType(signer.type)} ready before proceeding`}
               textColor={`${colorMode}.primaryText`}
               Content={() => (
                 <KeeperContent masterFingerPrint={signer && signer.masterFingerprint} />
