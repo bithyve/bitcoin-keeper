@@ -194,7 +194,7 @@ function PrivacyAndDisplay({ route }) {
     oldPasscode?: string;
   } = route?.params || {};
 
-  const [sensorType, setSensorType] = useState('Biometrics');
+  const [sensorType, setSensorType] = useState(null);
   const [sensorAvailable, setSensorAvailable] = useState(false);
   const [visiblePasscode, setVisiblePassCode] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
@@ -301,6 +301,7 @@ function PrivacyAndDisplay({ route }) {
       console.log(error);
     }
   };
+
   const requestPermission = () => {
     Linking.openSettings();
   };
@@ -344,15 +345,21 @@ function PrivacyAndDisplay({ route }) {
         <Box style={styles.wrapper}>
           <Box>
             <OptionCard
-              title={sensorType}
-              description={formatString(settings.UseBiometricSubTitle, sensorType)}
+              title={sensorType || 'Biometrics'}
+              description={
+                sensorType
+                  ? formatString(settings.UseBiometricSubTitle, sensorType)
+                  : settings.NoBiometricSubTitle
+              }
               callback={() => onChangeLoginMethod()}
+              disabled={!sensorType}
               Icon={
-                sensorAvailable ? (
+                sensorAvailable || !sensorType ? (
                   <Switch
                     onValueChange={onChangeLoginMethod}
                     value={loginMethod === LoginMethod.BIOMETRIC}
                     testID="switch_biometrics"
+                    loading={!sensorType}
                   />
                 ) : (
                   <TouchableOpacity onPress={requestPermission}>

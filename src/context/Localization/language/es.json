@@ -783,6 +783,7 @@
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",
     "UseBiometricSubTitle": "Use {0} to login to the app",
+    "NoBiometricSubTitle": "Your device doesn't support biometrics",
     "DarkMode": "Dark Mode",
     "DarkModeSubTitle": "Turn on dark mode for the app",
     "VersionHistory": "Version History",
