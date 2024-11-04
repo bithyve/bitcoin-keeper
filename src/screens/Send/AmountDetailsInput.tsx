@@ -50,19 +50,26 @@ const AmountDetailsInput = ({
   const getDisplayAmount = () => {
     if (!currentAmount || currentAmount === '0') return '0';
     if (currentAmount === '.') return '0.';
+
     try {
       const currentAmountStr = currentAmount.toString();
-      if (currentAmountStr.endsWith('.')) return currentAmountStr;
+      const maxDigits = 10;
+      const formattedAmount =
+        currentAmountStr.length > maxDigits
+          ? currentAmountStr.slice(0, maxDigits) + '...'
+          : currentAmountStr;
+
+      if (currentAmountStr.endsWith('.')) return formattedAmount;
       const parsedAmount = parseFloat(currentAmountStr);
       if (currentAmountStr.includes('.') && !isNaN(parsedAmount)) {
-        return currentAmountStr;
+        return formattedAmount;
       }
       if (localCurrencyKind === CurrencyKind.FIAT) {
-        return numberWithCommas(currentAmountStr);
+        return numberWithCommas(formattedAmount);
       } else if (satsEnabled) {
-        return numberWithCommas(currentAmountStr);
+        return numberWithCommas(formattedAmount);
       } else {
-        return currentAmountStr;
+        return formattedAmount;
       }
     } catch (error) {
       console.log('Display formatting error:', error);
