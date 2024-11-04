@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Image, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -6,7 +6,7 @@ import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
@@ -85,9 +85,7 @@ function ManageSigners({ route }: ScreenProps) {
   const [inProgress, setInProgress] = useState(false);
 
   useEffect(() => {
-    if (relaySignersUpdateLoading) {
-      setInProgress(true);
-    }
+    setInProgress(relaySignersUpdateLoading);
   }, [relaySignersUpdateLoading]);
 
   useEffect(() => {
@@ -106,16 +104,15 @@ function ManageSigners({ route }: ScreenProps) {
     };
   }, [realySignersUpdateErrorMessage]);
 
-  useEffect(() => {
-    if (relaySignersUpdate) {
-      setInProgress(false);
-      setKeyAddedModalVisible(true);
-      dispatch(resetSignersUpdateState());
-    }
-    return () => {
-      dispatch(resetSignersUpdateState());
-    };
-  }, [relaySignersUpdate]);
+  useFocusEffect(
+    useCallback(() => {
+      if (relaySignersUpdate) {
+        setInProgress(false);
+        setKeyAddedModalVisible(true);
+        dispatch(resetSignersUpdateState());
+      }
+    }, [relaySignersUpdate])
+  );
 
   const handleTimerEnd = () => {
     setIsTimerActive(false);

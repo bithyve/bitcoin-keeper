@@ -12,8 +12,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import ContactImagePlaceholder from 'src/assets/images/contact-image-placeholder.svg';
 import PlusIcon from 'src/assets/images/add-icon-brown.svg';
 import Buttons from 'src/components/Buttons';
-import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { getPersistedDocument, persistDocument } from 'src/services/documents';
@@ -27,7 +25,6 @@ const EditContact = ({ route }) => {
   const [userImage] = useState(getPersistedDocument(signer.extraData.thumbnailPath));
   const [selectedImage, setSelectedImage] = useState(null);
   const [disableSave, setDisableSave] = useState(true);
-  const { showToast } = useToastMessage();
   const dispatch = useDispatch();
 
   const openImagePicker = () => {
@@ -57,7 +54,6 @@ const EditContact = ({ route }) => {
         thumbnailPath: selectedImage ?? userImage,
       };
       dispatch(updateSignerDetails(signer, 'extraData', extraData));
-      showToast('Contact Updated Successfully', <TickIcon />);
       navigation.goBack();
     }
   };
