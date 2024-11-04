@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import CheckIcon from 'src/assets/images/checked.svg';
 import TimeIcon from 'src/assets/images/time.svg';
 import Next from 'src/assets/images/icon_arrow.svg';
@@ -13,6 +13,7 @@ import { NetworkType, SignerType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { getPersistedDocument } from 'src/services/documents';
 import Colors from 'src/theme/Colors';
 
 const { width } = Dimensions.get('screen');
@@ -113,7 +114,14 @@ function SignerList({
                 alignItems="center"
                 marginX={1}
               >
-                {SDIcons(signer.type).Icon}
+                {signer?.extraData?.thumbnailPath ? (
+                  <Image
+                    src={getPersistedDocument(signer.extraData.thumbnailPath)}
+                    style={styles.associatedContactImage}
+                  />
+                ) : (
+                  SDIcons(signer.type).Icon
+                )}
               </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>
@@ -179,5 +187,12 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginRight: 20,
     alignSelf: 'center',
+  },
+  associatedContactImage: {
+    width: '60%',
+    height: '60%',
+    borderRadius: 100,
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
 });

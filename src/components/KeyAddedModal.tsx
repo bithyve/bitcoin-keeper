@@ -14,12 +14,13 @@ const KeyAddedModal = ({ visible, close, signer }) => {
     buttonText: 'Add Description',
     buttonCallback: () => {
       close();
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'AdditionalDetails',
-          params: { signer },
-        })
-      );
+      signer &&
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'AdditionalDetails',
+            params: { signer },
+          })
+        );
     },
     secondaryButtonText: 'Cancel',
     secondaryButtonCallback: close,

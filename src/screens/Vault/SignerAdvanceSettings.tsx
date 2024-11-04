@@ -82,6 +82,7 @@ import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
+import { getPersistedDocument } from 'src/services/documents';
 
 const { width } = Dimensions.get('screen');
 
@@ -869,7 +870,7 @@ function SignerAdvanceSettings({ route }: any) {
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
             icon={SDIcons(signer.type, true).Icon}
-            image={signer?.extraData?.thumbnailPath}
+            image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
           />
         }
       />

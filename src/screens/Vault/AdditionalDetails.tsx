@@ -20,6 +20,7 @@ import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
+import { getPersistedDocument } from 'src/services/documents';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -67,7 +68,7 @@ function AdditionalDetails({ route }: ScreenProps) {
                 });
           }}
           icon={<PhoneBookIcon />}
-          image={signer?.extraData?.thumbnailPath}
+          image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
         />
       </VStack>
       <KeeperModal
@@ -99,7 +100,7 @@ function AdditionalDetails({ route }: ScreenProps) {
             <Box style={styles.iconContainer}>
               {thumbnailPath ? (
                 <Image
-                  source={{ uri: thumbnailPath || 'default-avatar-url' }}
+                  source={{ uri: getPersistedDocument(thumbnailPath) || 'default-avatar-url' }}
                   style={styles.modalAvatar}
                 />
               ) : (
