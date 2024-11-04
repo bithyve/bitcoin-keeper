@@ -246,8 +246,6 @@ function SetupPortal({ route }) {
 
   const signWithPortal = React.useCallback(async () => {
     try {
-      // TODO: cvc flow need to check
-
       await signTransaction({ portalCVC: cvc });
       if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal signed successfully!`);
       navigation.goBack();

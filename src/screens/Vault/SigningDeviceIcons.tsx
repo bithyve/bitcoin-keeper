@@ -45,6 +45,7 @@ import INHERITANCEKEYLIGHT from 'src/assets/images/inheritance_key_light.svg';
 import INHERITANCEKEYDARK from 'src/assets/images/inheritance_key_dark.svg';
 import PortalLogo from 'src/assets/images/portalLogo.svg';
 import PortalIcon from 'src/assets/images/portalIcon.svg';
+import PortalIconLight from 'src/assets/images/portalIconLight.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -158,7 +159,7 @@ export const SDIcons = (type: SignerType, light = false, width = 20, height = 20
       };
     case SignerType.PORTAL:
       return {
-        Icon: getColouredIcon(<PortalIcon />, <PortalIcon />, light, width, height),
+        Icon: getColouredIcon(<PortalIconLight />, <PortalIcon />, light, width, height),
         Logo: <PortalLogo />,
         type: SignerStorage.COLD,
       };
