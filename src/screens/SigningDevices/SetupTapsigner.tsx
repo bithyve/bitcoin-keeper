@@ -21,7 +21,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useContext, useRef, useState } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
@@ -52,11 +52,14 @@ import TAPSIGNERICONLIGHT from 'src/assets/images/tapsigner_light.svg';
 import NFCIcon from 'src/assets/images/nfc_lines.svg';
 import NFCIconWhite from 'src/assets/images/nfc_lines_white.svg';
 import Colors from 'src/theme/Colors';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
   const [cvc, setCvc] = useState('');
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslations, common } = translations;
   const card = useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
   const {
@@ -318,33 +321,6 @@ function SetupTapsigner({ route }) {
     }
   }, [cvc]);
 
-  const getTapsignerBackupsCount = useCallback(async () => {
-    try {
-      const { backupsCount } = await withModal(async () => getCardInfo(card))();
-
-      if (backupsCount === 0 || backupsCount) {
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER information retrieved`);
-        closeNfc();
-        card.endNfcSession();
-        if (backupsCount === 0) {
-        } else {
-        }
-      } else {
-        if (Platform.OS === 'ios')
-          NFC.showiOSErrorMessage(`Error while checking TAPSIGNER information. Please try again`);
-        else showToast(`Error while checking TAPSIGNER information. Please try again`);
-      }
-    } catch (error) {
-      const errorMessage = handleTapsignerError(error, navigation);
-      if (errorMessage) {
-        showToast(errorMessage, <ToastErrorIcon />, IToastCategory.DEFAULT, 3000, true);
-      }
-    } finally {
-      closeNfc();
-      card.endNfcSession();
-    }
-  }, []);
-
   const checkTapsignerSetupStatus = useCallback(async () => {
     try {
       const { cardId, path, backupsCount } = await withModal(async () => getCardInfo(card))();
@@ -384,7 +360,7 @@ function SetupTapsigner({ route }) {
         <Box
           padding={hp(20)}
           borderRadius={7}
-          backgroundColor={`${colorMode}.seashellWhite`}
+          backgroundColor={`${colorMode}.secondaryBackground`}
           flexDirection="row"
         >
           <HexagonIcon
@@ -397,8 +373,10 @@ function SetupTapsigner({ route }) {
             <Text color={`${colorMode}.greenText`} fontSize={15}>
               TAPSIGNER
             </Text>
-            <Text fontSize={13}>{`Status: ${
-              tapsignerDerivationPath ? 'Already Initialized' : 'Uninitialized'
+            <Text fontSize={13}>{`${common.status}: ${
+              tapsignerDerivationPath
+                ? signerTranslations.AlreadyInitialized
+                : signerTranslations.Uninitialized
             }`}</Text>
           </Box>
         </Box>
@@ -420,14 +398,12 @@ function SetupTapsigner({ route }) {
               </Text>
             </Box>
           ) : (
-            <Text style={styles.statusText}>
-              {`This card has not been initialized before. You may proceed with the setup.`}
-            </Text>
+            <Text style={styles.statusText}>{signerTranslations.NotBeenInitializedBottomText}</Text>
           )}
         </Box>
         <Buttons
           fullWidth
-          primaryText="Okay"
+          primaryText={common.Okay}
           primaryCallback={() => {
             setStatusModalVisible(false);
           }}
@@ -442,16 +418,16 @@ function SetupTapsigner({ route }) {
         title={(() => {
           switch (mode) {
             case InteracationMode.HEALTH_CHECK:
-              return 'Verify TAPSIGNER';
+              return signerTranslations.VerifyTapsigner;
             case InteracationMode.SIGN_TRANSACTION:
-              return 'Sign with TAPSIGNER';
+              return signerTranslations.SignWithTapsigner;
             case InteracationMode.BACKUP_SIGNER:
-              return 'Save TAPSIGNER Backup';
+              return signerTranslations.SaveTapsignerBackup;
             default:
-              return 'Setting up TAPSIGNER';
+              return signerTranslations.SettingUpTapsigner;
           }
         })()}
-        subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
+        subtitle={signerTranslations.EnterTapsignerPinSubtitle}
       />
       <MockWrapper
         signerType={SignerType.TAPSIGNER}
@@ -527,8 +503,8 @@ function SetupTapsigner({ route }) {
       <KeeperModal
         visible={statusModalVisible}
         close={() => setStatusModalVisible(false)}
-        title={'TAPSIGNER Setup Status'}
-        subTitle={'Keeper allows you to check if the TAPSIGNER has been initialized previously'}
+        title={signerTranslations.TapsignerSetupStatus}
+        subTitle={signerTranslations.TapsignerSetupStatusSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

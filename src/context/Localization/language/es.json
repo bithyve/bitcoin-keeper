@@ -140,7 +140,9 @@
     "disconnectingFromServerText": "You are about to disconnect from the current Electrum server. Fetching your balances, receiving incoming transactions, and broadcasting new transactions will not be possible until you connect to another server.",
     "offline": "Offline",
     "retry": "Retry",
-    "Address": "Address"
+    "Address": "Address",
+    "time": "time",
+    "times": "times"
   },
   "noInternet": {
     "no": "No Internet",
@@ -257,7 +259,7 @@
     "BackupKey": "Backup Key",
     "Usedforsecuringfunds": "Used for securing funds",
     "Insertaseed": "Insert a seed to import your existing wallet",
-    "AddingTapsigner": "Adding Tapsigner",
+    "AddingTapsigner": "Adding TAPSIGNER",
     "AddBackupKey": "Add Backup Key",
     "Strengthenyoursecurity": "Strengthen your security",
     "ScanQRAddBackup": "Scan the QR below to add Backup Key",
@@ -1125,7 +1127,24 @@
     "linkExternalWallet": "Use to link external wallet to keeper",
     "mobileKeySeedOptionSubtitle": "Use to backup/ export mobile key",
     "NoKeysFound": "No Keys Found",
-    "PleaseAddAKeyToGetStarted": "Please add a key to get started"
+    "PleaseAddAKeyToGetStarted": "Please add a key to get started",
+    "TapsignerBackupDetails": "TAPSIGNER Backup Details",
+    "TapsignerBackupDetailsSubtitle": "Review the number of times your TAPSIGNER backup was exported",
+    "TapsignerBackupDetailsModalBottomText": "Backup export count helps track unauthorized access",
+    "NoBackupExported": "No backup has been exported yet",
+    "BackupExported": "Backup exported",
+    "BackupDetails": "Backup Details",
+    "BackupDetailsSubtitle": "Check how many times the backup was exported",
+    "TapsignerSetupStatus": "TAPSIGNER Setup Status",
+    "TapsignerSetupStatusSubtitle": "Keeper allows you to check if the TAPSIGNER has been initialized previously",
+    "EnterTapsignerPinSubtitle": "Enter the 6-32 digit pin (default one is printed on the back)",
+    "VerifyTapsigner": "Verify TAPSIGNER",
+    "SignWithTapsigner": "Sign with TAPSIGNER",
+    "SaveTapsignerBackup": "Save TAPSIGNER Backup",
+    "SettingUpTapsigner": "Setting up TAPSIGNER",
+    "AlreadyInitialized": "Already Initialized",
+    "Uninitialized": "Uninitialized",
+    "NotBeenInitializedBottomText": "This card has not been initialized before. You may proceed with the setup."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
