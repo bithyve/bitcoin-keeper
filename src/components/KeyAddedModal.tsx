@@ -32,7 +32,7 @@ const KeyAddedModal = ({ visible, close, signer }) => {
   return (
     <KeeperModal
       visible={visible}
-      title="Key added successfully!"
+      title="Key Added Successfully!"
       subTitle="Access key details from Manage Keys and sign transactions from within wallets."
       close={close}
       showCloseIcon
