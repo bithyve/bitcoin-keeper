@@ -141,7 +141,8 @@
     "retry": "Retry",
     "Address": "Address",
     "time": "time",
-    "times": "times"
+    "times": "times",
+    "shareDetails": "Share Details"
   },
   "noInternet": {
     "no": "No Internet",

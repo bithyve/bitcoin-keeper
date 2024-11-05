@@ -41,6 +41,8 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ShareGreen from 'src/assets/images/share-arrow-green.svg';
+import ShareWhite from 'src/assets/images/share-arrow-white.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -64,6 +66,8 @@ import AmountDetails from './AmountDetails';
 import SendingPriority from './SendingPriority';
 import ApproveTransVaultContent from './ApproveTransVaultContent';
 import SendSuccessfulContent from './SendSuccessfulContent';
+import openLink from 'src/utils/OpenLink';
+import config from 'src/utils/service-utilities/config';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -145,6 +149,7 @@ function SendConfirmation({ route }) {
 
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
+  const isDarkMode = colorMode === 'dark';
   const isAutoTransferFlow = isAutoTransfer || false;
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
@@ -471,6 +476,14 @@ function SendConfirmation({ route }) {
       });
   };
 
+  const redirectToBlockExplorer = () => {
+    openLink(
+      `https://mempool.space${
+        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      }/tx/${walletSendSuccessful}`
+    );
+  };
+
   useEffect(() => {
     if (walletSendSuccessful) {
       setProgress(false);
@@ -696,15 +709,10 @@ function SendConfirmation({ route }) {
         close={!isMoveAllFunds ? viewDetails : viewManageWallets}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={
-          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
-        }
         DarkCloseIcon={colorMode === 'dark'}
-        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.buttonText`}
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
@@ -712,6 +720,13 @@ function SendConfirmation({ route }) {
             sender={sender || sourceWallet}
             recipient={recipient || defaultVault}
             address={address}
+            primaryText={
+              !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+            }
+            primaryCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
+            secondaryCallback={redirectToBlockExplorer}
+            secondaryText={common.shareDetails}
+            SecondaryIcon={isDarkMode ? ShareWhite : ShareGreen}
           />
         )}
       />

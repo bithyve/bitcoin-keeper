@@ -8,8 +8,20 @@ import ReceiptWrapper from './ReceiptWrapper';
 import TransferCard from './TransferCard';
 import Text from 'src/components/KeeperText';
 import { hp } from 'src/constants/responsive';
+import Buttons from 'src/components/Buttons';
 
-function SendSuccessfulContent({ transactionPriority, amount, sender, recipient, address }) {
+function SendSuccessfulContent({
+  transactionPriority,
+  amount,
+  sender,
+  recipient,
+  address,
+  primaryText,
+  primaryCallback,
+  secondaryText,
+  secondaryCallback,
+  SecondaryIcon,
+}) {
   const { colorMode } = useColorMode();
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const { translations } = useContext(LocalizationContext);
@@ -87,6 +99,16 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
         <Text color={`${colorMode}.placeHolderTextColor`} fontSize={13}>
           {walletTransactions.sendTransSuccessMsg}
         </Text>
+      </Box>
+      <Box>
+        <Buttons
+          primaryText={primaryText}
+          primaryCallback={primaryCallback}
+          primaryTextColor={`${colorMode}.buttonText`}
+          secondaryText={secondaryText}
+          secondaryCallback={secondaryCallback}
+          SecondaryIcon={SecondaryIcon}
+        />
       </Box>
     </Box>
   );
