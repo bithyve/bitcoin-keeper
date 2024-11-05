@@ -245,13 +245,15 @@ function AddSendAmount({ route }) {
       const sendMaxBalance = Math.max(availableToSpend - sendMaxFee, 0);
 
       if (localCurrencyKind === CurrencyKind.BITCOIN) {
+        const amountToSet = Number(sendMaxBalance);
         if (satsEnabled) {
-          setAmount(sendMaxBalance.toString());
+          setAmount(amountToSet.toFixed(8));
         } else {
-          setAmount(SatsToBtc(sendMaxBalance).toString());
+          setAmount(Number(SatsToBtc(amountToSet)).toFixed(8));
         }
       } else {
-        setAmount(convertSatsToFiat(sendMaxBalance).toString());
+        const amountToSet = Number(sendMaxBalance);
+        setAmount(convertSatsToFiat(amountToSet).toFixed(2));
       }
     }
   };
@@ -471,7 +473,7 @@ function AddSendAmount({ route }) {
       <Box style={styles.ctaBtnWrapper}>
         <Buttons
           primaryText={common.send}
-          primaryDisable={Boolean(amount === '0' || errorMessage)}
+          primaryDisable={Boolean(Number(amount) <= 0 || errorMessage)}
           primaryCallback={executeSendPhaseOne}
           fullWidth
         />

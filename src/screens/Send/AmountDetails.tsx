@@ -60,7 +60,7 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
               fontSize={amountFontSize}
               fontWeight={amountFontWeight}
             >
-              {`${getBalance(Number(amount))} `}
+              {`${getBalance(Number(amount))}`}
             </Text>
             <Text
               color={unitColor || `${colorMode}.secondaryText`}
