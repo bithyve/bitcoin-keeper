@@ -346,6 +346,7 @@ export const MOCK_SD_MNEMONIC_MAP = {
     'journey gospel position invite winter pattern inquiry scrub sorry early enable badge',
   [SignerType.SPECTER]:
     'journey invite inquiry day among poverty inquiry affair keen pave nasty position',
+  [SignerType.PORTAL]: 'spring input elevator wire people floor scan weird weekend belt hip lava',
 };
 
 export const generateMockExtendedKeyForSigner = (
