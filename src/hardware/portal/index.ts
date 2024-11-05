@@ -161,7 +161,6 @@ export const unlock = async (pass: string) => {
 };
 
 export const publicDescriptors = async () => {
-  console.log('Called descriptio');
   return sdk.publicDescriptors();
 };
 
@@ -170,14 +169,11 @@ export const isReading = () => {
 };
 
 export const getPortalDetailsFromDescriptor = (descriptor: string) => {
-  console.log('🚀 ~ getPortalDetailsFromDescriptor ~ descriptor:', descriptor);
   const regex = /\[([0-9a-fA-F]+)\/([0-9'\/]+)\]([xtyz][A-Za-z0-9]+)/;
   //  /^\[(\w+\/(?:\d+'?\/)*\d+')\](tpub[a-zA-Z0-9]+)$/; // single sig
   const match = descriptor.match(regex);
-  console.log('🚀 ~ getPortalDetailsFromDescriptor ~ match:', match);
   if (match) {
     const xpubDetails: XpubDetailsType = {};
-
     // Multisig
     const mfp = match[1].toUpperCase();
     const derivationPath = 'm/' + match[2];
@@ -198,7 +194,8 @@ export const signPSBT = (psbt: string) => {
   return sdk.signPsbt(psbt);
 };
 
-export const getXpub = (derivationPath: string) => {
+export const getXpub = ({ isMultisig = true }) => {
+  const derivationPath = isMultisig ? 'm/48h/1h/0h/2h' : 'm/84h/1h/0h';
   return sdk.getXpub(derivationPath);
 };
 
@@ -212,4 +209,12 @@ export const wipePortal = () => {
 
 export const resumeMnemonicGeneration = () => {
   return sdk.resume();
+};
+
+export const PORTAL_ERRORS = {
+  INCORRECT_PIN: 'Incorrect Pin. Please try again',
+  PORTAL_LOCKED: 'Portal is locked. Pin is required',
+  PORTAL_NOT_INITIALIZED: 'Portal not initialized',
+  CVC_MISMATCH: 'CVC does not match',
+  UNVERIFIED_MNEMONIC: 'Unverified mnemonic',
 };

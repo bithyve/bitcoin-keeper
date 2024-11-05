@@ -29,6 +29,7 @@ import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import * as PORTAL from 'src/hardware/portal';
+import { PORTAL_ERRORS } from 'src/hardware/portal';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { CardStatus, MnemonicWords, Network } from 'modules/libportal-react-native/src';
 import useVault from 'src/hooks/useVault';
@@ -60,7 +61,7 @@ function SetupPortal({ route }) {
   const { colorMode } = useColorMode();
   const [cvc, setCvc] = React.useState('');
   const [confirmCVC, setConfirmCVC] = React.useState('');
-  const [portalStatus, setPortalStatus] = useState();
+  const [portalStatus, setPortalStatus] = useState(null);
   const [activeInput, setActiveInput] = useState(null);
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -161,6 +162,8 @@ function SetupPortal({ route }) {
         error.message ? error.message : 'Something went wrong. Please try again',
         <ToastErrorIcon />
       );
+      if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
+
       return false;
     }
   };
@@ -176,8 +179,7 @@ function SetupPortal({ route }) {
   const getPortalDetails = async () => {
     await PORTAL.startReading();
     await checkAndUnlock(cvc, setPortalStatus);
-    const derivationPath = 'm/48h/1h/0h/2h';
-    const descriptor = await PORTAL.getXpub(derivationPath);
+    const descriptor = await PORTAL.getXpub({ isMultisig: true });
     const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub);
     return signer;
   };
@@ -185,7 +187,6 @@ function SetupPortal({ route }) {
   const addPortal = React.useCallback(async () => {
     try {
       const portalDetails = await withNfcModal(async () => getPortalDetails());
-      console.log('portalDetails ', portalDetails);
       const { xpub, derivationPath, masterFingerprint, xpubDetails } = portalDetails;
       let portalSigner: Signer;
       const { signer } = generateSignerFromMetaData({
@@ -245,6 +246,7 @@ function SetupPortal({ route }) {
         3000,
         true
       );
+      if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
     }
   }, [cvc]);
 
@@ -257,7 +259,7 @@ function SetupPortal({ route }) {
 
     try {
       if (!validateCVC()) {
-        showToast('CVC does not match', <ToastErrorIcon />);
+        showToast(PORTAL_ERRORS.CVC_MISMATCH, <ToastErrorIcon />);
         return;
       }
       const portalDetails = await withNfcModal(async () => {
@@ -270,11 +272,13 @@ function SetupPortal({ route }) {
             cvc.trim().length ? cvc : null
           );
         } catch (error) {
-          if (error.message.includes('Unverified mnemonic')) {
+          if (error.message.includes(PORTAL_ERRORS.UNVERIFIED_MNEMONIC)) {
             await PORTAL.resumeMnemonicGeneration();
           }
         }
+
         const portalDetails = await getPortalDetails();
+        setPortalStatus(null);
         return portalDetails;
       });
       const { xpub, derivationPath, masterFingerprint, xpubDetails } = portalDetails;
@@ -328,7 +332,11 @@ function SetupPortal({ route }) {
               return 'Setting up Portal';
           }
         })()}
-        subtitle={!portalStatus?.initialized ? 'Initialize portal with 12 words seed' : ''}
+        subtitle={
+          portalStatus?.initialized == false
+            ? 'Initialize portal with 12 words seed'
+            : 'Enter your device password'
+        }
       />
       <MockWrapper
         signerType={SignerType.PORTAL}
@@ -408,16 +416,15 @@ export const checkAndUnlock = async (cvc: string, setPortalStatus) => {
   if (!status.initialized) {
     setPortalStatus(status);
     await PORTAL.stopReading();
-    throw { message: 'Portal not initialized' };
+    throw { message: PORTAL_ERRORS.PORTAL_NOT_INITIALIZED };
   }
   if (!status.unlocked) {
     // Unlocking portal with cvc
-    if (!cvc) throw { message: 'Portal is locked. Pin is required' };
-    console.log('unlocking portal with cvc:', cvc);
+    if (!cvc) throw { message: PORTAL_ERRORS.PORTAL_LOCKED };
     await PORTAL.unlock(cvc);
     status = await PORTAL.getStatus();
     if (!status.unlocked) {
-      if (!cvc) throw { message: 'Incorrect Pin. Please try again' };
+      if (!cvc) throw { message: PORTAL_ERRORS.INCORRECT_PIN };
     }
   }
   return status;
