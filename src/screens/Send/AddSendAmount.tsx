@@ -456,7 +456,7 @@ function AddSendAmount({ route }) {
           color={`${colorMode}.primaryText`}
           medium
           numberOfLines={isAddress ? 1 : undefined}
-          ellipsizeMode="tail"
+          ellipsizeMode="middle"
           style={styles.receipientText}
         >
           {isAddress ? address : recipient?.presentationData?.name}

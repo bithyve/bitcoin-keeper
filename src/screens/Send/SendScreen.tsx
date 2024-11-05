@@ -227,7 +227,6 @@ function SendScreen({ route }) {
           sender?.entityKind === EntityKind.VAULT
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
-        setPaymentInfo('');
         navigateToNext(address, type, amount ? amount.toString() : null, null);
         break;
       case PaymentInfoKind.PAYMENT_URI:
@@ -235,7 +234,6 @@ function SendScreen({ route }) {
           sender?.entityKind === EntityKind.VAULT
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
-        setPaymentInfo('');
         navigateToNext(address, transferType, amount ? amount.toString() : null, null);
         break;
       default:
