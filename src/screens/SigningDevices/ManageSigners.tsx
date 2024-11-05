@@ -50,6 +50,10 @@ import AddKeyButton from './components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { useQuery } from '@realm/react';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -79,7 +83,7 @@ function ManageSigners({ route }: ScreenProps) {
   const { signer: signerTranslation, common } = translations;
 
   const { typeBasedIndicator } = useIndicatorHook({
-    types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
+    types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
 
   const [inProgress, setInProgress] = useState(false);
@@ -328,6 +332,9 @@ function SignersList({
   const { showToast } = useToastMessage();
   const isNonVaultManageSignerFlow = !vault; // Manage Signers flow accessible via home screen
   const shellKeys = [];
+  const { id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
 
   const shellAssistedKeys = useMemo(() => {
     const generateShellAssistedKey = (signerType: SignerType) => ({
@@ -415,7 +422,12 @@ function SignersList({
                 !isRegistered &&
                 !signer.isMock &&
                 vault.isMultiSig) ||
-              typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
+              (signer.type !== SignerType.MY_KEEPER &&
+                typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[
+                  item.masterFingerprint
+                ]) ||
+              (signer.type === SignerType.MY_KEEPER &&
+                typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId]);
 
             return (
               <SignerCard
