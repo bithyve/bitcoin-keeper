@@ -17,12 +17,16 @@ export const generateFeeStatement = (data: HistoricalInisightData[]) => {
 
   // Generate the statement
   let resultStatement = '';
-  if (difference === 0) {
-    resultStatement = 'Fees are the same as the usual average.';
+  if (recentFee <= 10) {
+    resultStatement = 'Network fees are currently low';
+  } else if (recentFee >= 100) {
+    resultStatement = 'Network fees are extremely high';
+  } else if (difference === 0 && Math.abs(percentageDifference) > 10) {
+    resultStatement = 'Fees are the same as the recent average';
   } else if (difference > 0) {
-    resultStatement = `Fees are ${percentageDifference.toFixed(2)}% higher than usual.`;
+    resultStatement = `Fees are ${percentageDifference.toFixed(2)}% higher than usual`;
   } else {
-    resultStatement = `Fees are ${Math.abs(percentageDifference).toFixed(2)}% lower than usual.`;
+    resultStatement = `Fees are ${Math.abs(percentageDifference).toFixed(2)}% lower than usual`;
   }
   return resultStatement;
 };
@@ -65,11 +69,10 @@ export const generateFeeInsightStatement = (data: HistoricalInisightData[]) => {
   const dayComparison = latestFee > oneDayAgoFee ? 'up' : 'down';
   const weekComparison = latestFee > oneWeekAgoFee ? 'up' : 'down';
 
-
   return {
     latestFee: `${latestFee}`,
     dayComparisonText: dayComparison,
-    oneDayAgoFee:`${oneDayAgoFee}`,
+    oneDayAgoFee: `${oneDayAgoFee}`,
     weekComparisonText: weekComparison,
     oneWeekAgoFee: `${oneWeekAgoFee}`,
   };

@@ -8,6 +8,8 @@ import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 import BTC_DOWN from 'src/assets/images/btc_down.svg';
 import BTC_UP from 'src/assets/images/btc_up.svg';
 import { Box, useColorMode } from 'native-base';
+import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
+import { hp, wp } from 'src/constants/responsive';
 
 interface Props {
   showFeesInsightModal: () => void;
@@ -17,50 +19,30 @@ interface Props {
 const FeerateStatement = (props: Props) => {
   const [shortFeeStatement, setShortFeeStatement] = useState('');
   const [arrowPointer, setArrowPointer] = useState('higher');
-  const [percentageDifference, setPercentageDifference] = useState(0);
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
 
   const { showFeesInsightModal, feeInsightData } = props;
   useEffect(() => {
     if (feeInsightData.length > 0) {
-      generateFeeStatement(feeInsightData);
+      updateFeeStatement(feeInsightData);
     }
   }, [feeInsightData]);
 
-  function generateFeeStatement(data: any[]) {
+  function updateFeeStatement(data: any[]) {
     if (data.length === 0) {
+      setShortFeeStatement('Failed to fetch fee stats');
       return;
     }
 
-    // Calculate the historical average of avgFee_75
-    const total = data.reduce((sum, record) => sum + record.avgFee_75, 0);
-    const historicalAverage = total / data.length;
-
-    // Get the most recent avgFee_75
-    const recentFee = data[data.length - 1].avgFee_75;
-
-    // Calculate the percentage difference
-    const difference = recentFee - historicalAverage;
-    const percentageDifference = (difference / historicalAverage) * 100;
-
-    // Generate the statement
-    let resultStatement = '';
-    if (difference === 0) {
-      resultStatement = 'Fees are the same as the usual average.';
-    } else if (difference > 0) {
-      setArrowPointer('higher');
-      resultStatement = `Fees are ${percentageDifference.toFixed(2)}% higher than usual.`;
-    } else {
+    let resultStatement = generateFeeStatement(data);
+    if (resultStatement.includes('low')) {
       setArrowPointer('lower');
-      resultStatement = `Fees are ${Math.abs(percentageDifference).toFixed(2)}% lower than usual.`;
+    } else if (resultStatement.includes('high')) {
+      setArrowPointer('higher');
     }
-    setPercentageDifference(percentageDifference);
-    setShortFeeStatement(resultStatement);
-  }
 
-  if (shortFeeStatement.length === 0) {
-    return null;
+    setShortFeeStatement(resultStatement);
   }
 
   return (
@@ -74,18 +56,35 @@ const FeerateStatement = (props: Props) => {
 
         <Box style={styles.statementWrapper}>
           <Box style={styles.textWrapper}>
-            <Text style={styles.highAlertSatsFee} color={`${colorMode}.feeInfoTitleColor`}>
-              {`Fees are `}
-            </Text>
-            <Box style={styles.arrowWrapper}>
-              {arrowPointer === 'lower' ? <BTC_DOWN /> : <BTC_UP />}
-            </Box>
-            <Text style={styles.percentageStatement} bold color={`${colorMode}.feeInfoColor`}>
-              {Math.abs(Number(percentageDifference.toFixed(2)))}%
-            </Text>
-            <Text style={styles.highAlertSatsFee} color={`${colorMode}.feeInfoColor`}>
-              {`  ${arrowPointer} than usual`}
-            </Text>
+            {shortFeeStatement.includes('higher than usual') ||
+            shortFeeStatement.includes('lower than usual') ? (
+              <>
+                <Text style={styles.highAlertSatsFee} color={`${colorMode}.feeInfoTitleColor`}>
+                  {`Fees are `}
+                </Text>
+                <Box style={styles.arrowWrapper}>
+                  {arrowPointer === 'lower' ? <BTC_DOWN /> : <BTC_UP />}
+                </Box>
+                <Text style={styles.percentageStatement} bold color={`${colorMode}.feeInfoColor`}>
+                  {Number(shortFeeStatement.match(/\d+\.?\d*/)?.[0] || 0)}%
+                </Text>
+                <Text style={styles.highAlertSatsFee} color={`${colorMode}.feeInfoColor`}>
+                  {`  ${arrowPointer} than usual`}
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.highAlertSatsFee} color={`${colorMode}.feeInfoTitleColor`}>
+                  {shortFeeStatement}
+                </Text>
+
+                {(shortFeeStatement.includes('low') || shortFeeStatement.includes('high')) && (
+                  <Box style={styles.arrowWrapper}>
+                    {arrowPointer === 'lower' ? <BTC_DOWN /> : <BTC_UP />}
+                  </Box>
+                )}
+              </>
+            )}
           </Box>
         </Box>
       </Box>
@@ -124,10 +123,12 @@ const styles = StyleSheet.create({
   arrowWrapper: {
     width: 15,
     height: 20,
-    marginTop: 10,
+    marginTop: hp(3),
+    marginHorizontal: wp(5),
   },
   textWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: hp(5),
   },
 });
