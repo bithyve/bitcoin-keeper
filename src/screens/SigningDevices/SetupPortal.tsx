@@ -9,6 +9,7 @@ import { NetworkType, SignerStorage, SignerType } from 'src/services/wallets/enu
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 import KeeperHeader from 'src/components/KeeperHeader';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -35,6 +36,8 @@ import { CardStatus, MnemonicWords, Network } from 'modules/libportal-react-nati
 import useVault from 'src/hooks/useVault';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { KeeperPasswordInput } from 'src/components/KeeperPasswordInput';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 const isTestNet = config.NETWORK_TYPE === NetworkType.TESTNET;
 const INPUTS = {
@@ -54,7 +57,7 @@ function SetupPortal({ route }) {
     mode: InteracationMode;
     signer: Signer;
     isMultisig: boolean;
-    signTransaction?: (options: { tapsignerCVC?: string }) => {};
+    signTransaction?: (options: { portalCVC?: string }) => {};
     addSignerFlow?: boolean;
     vaultId?: string;
   } = route.params;
@@ -92,9 +95,7 @@ function SetupPortal({ route }) {
       case InteracationMode.IDENTIFICATION:
         return startRegisterVault();
       case InteracationMode.HEALTH_CHECK:
-        showToast('Health Check not supported on this device', <ToastErrorIcon />);
-        navigation.goBack();
-        break;
+        return healthCheckPortal();
       case InteracationMode.IDENTIFICATION:
         return startRegisterVault();
       default:
@@ -130,16 +131,13 @@ function SetupPortal({ route }) {
   const continueWithPortal = async () => {
     NfcManager.isSupported().then(async (supported) => {
       if (supported) {
-        if (isHealthcheck) await addPortal();
-
         switch (mode) {
           case InteracationMode.SIGN_TRANSACTION:
             return signWithPortal();
           case InteracationMode.IDENTIFICATION:
             return startRegisterVault();
           case InteracationMode.HEALTH_CHECK:
-            showToast('Health Check not supported on this device', <ToastErrorIcon />);
-            break;
+            return healthCheckPortal();
           default:
             addPortal();
         }
@@ -147,6 +145,39 @@ function SetupPortal({ route }) {
         showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
+  };
+
+  const healthCheckPortal = async () => {
+    try {
+      return await withNfcModal(async () => {
+        // call register then check the value of it
+        await PORTAL.startReading();
+        await checkAndUnlock(cvc, setPortalStatus);
+        const res = await PORTAL.getXpub({ isMultisig: true });
+        if (res) {
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+              },
+            ])
+          );
+        }
+        navigation.dispatch(CommonActions.goBack());
+        if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal verified successfully!`);
+        showToast('Portal verified successfully', <TickIcon />);
+        return true;
+      });
+    } catch (error) {
+      console.log('🚀 ~ healthCheckPortal ~ error:', error);
+      showToast(
+        error.message ? error.message : 'Something went wrong. Please try again',
+        <ToastErrorIcon />
+      );
+      if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
+      return false;
+    }
   };
 
   const registerVault = async () => {
@@ -360,10 +391,10 @@ function SetupPortal({ route }) {
                     switch (mode) {
                       case InteracationMode.SIGN_TRANSACTION:
                         return 'Sign';
-                      case InteracationMode.BACKUP_SIGNER:
-                        return 'Save Backup';
                       case InteracationMode.IDENTIFICATION:
                         return 'Register';
+                      case InteracationMode.HEALTH_CHECK:
+                        return 'Verify';
                       default:
                         return 'Proceed';
                     }
