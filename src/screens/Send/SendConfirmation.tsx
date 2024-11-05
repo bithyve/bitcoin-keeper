@@ -3,6 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import Share from 'react-native-share';
 import {
   calculateSendMaxFee,
   crossTransfer,
@@ -66,7 +67,6 @@ import AmountDetails from './AmountDetails';
 import SendingPriority from './SendingPriority';
 import ApproveTransVaultContent from './ApproveTransVaultContent';
 import SendSuccessfulContent from './SendSuccessfulContent';
-import openLink from 'src/utils/OpenLink';
 import config from 'src/utils/service-utilities/config';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
@@ -476,12 +476,20 @@ function SendConfirmation({ route }) {
       });
   };
 
-  const redirectToBlockExplorer = () => {
-    openLink(
-      `https://mempool.space${
-        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
-      }/tx/${walletSendSuccessful}`
-    );
+  const handleShare = async () => {
+    const url = `https://mempool.space${
+      config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+    }/tx/${walletSendSuccessful}`;
+
+    try {
+      await Share.open({
+        message: 'The transaction has been successfully sent. You can track its status here:',
+        url: url,
+        title: 'Transaction Details',
+      });
+    } catch (err) {
+      console.error('Share error:', err);
+    }
   };
 
   useEffect(() => {
@@ -724,7 +732,7 @@ function SendConfirmation({ route }) {
               !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
             }
             primaryCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
-            secondaryCallback={redirectToBlockExplorer}
+            secondaryCallback={handleShare}
             secondaryText={common.shareDetails}
             SecondaryIcon={isDarkMode ? ShareWhite : ShareGreen}
           />

@@ -245,9 +245,9 @@ function AddSendAmount({ route }) {
       const sendMaxBalance = Math.max(availableToSpend - sendMaxFee, 0);
 
       if (localCurrencyKind === CurrencyKind.BITCOIN) {
-        const amountToSet = Number(sendMaxBalance);
+        const amountToSet = sendMaxBalance;
         if (satsEnabled) {
-          setAmount(amountToSet.toFixed(8));
+          setAmount(amountToSet.toFixed(0));
         } else {
           setAmount(Number(SatsToBtc(amountToSet)).toFixed(8));
         }
@@ -364,7 +364,7 @@ function AddSendAmount({ route }) {
     }
     if (text === '.') {
       if (
-        (currentCurrency === CurrencyKind.BITCOIN && satsEnabled) ||
+        (localCurrencyKind === CurrencyKind.BITCOIN && satsEnabled) ||
         currentAmount.includes('.')
       ) {
         return;
@@ -376,7 +376,7 @@ function AddSendAmount({ route }) {
       setAmount(currentAmount + '.');
       return;
     }
-    const maxDecimalPlaces = currentCurrency === CurrencyKind.BITCOIN && !satsEnabled ? 8 : 2;
+    const maxDecimalPlaces = localCurrencyKind === CurrencyKind.BITCOIN && !satsEnabled ? 8 : 2;
     if (currentAmount === '0' && text !== '.') {
       setAmount(text);
       return;

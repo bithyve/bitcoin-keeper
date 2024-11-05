@@ -43,7 +43,7 @@ import CurrencyInfo from '../Home/components/CurrencyInfo';
 import LearnMoreModal from './components/LearnMoreModal';
 import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export const allowedSendTypes = [
@@ -121,7 +121,12 @@ function WalletDetails({ route }: ScreenProps) {
 
   useEffect(() => {
     if (!syncing && syncingCompleted && transactionToast) {
-      showToast(walletTranslations.transactionToastMessage, <TickIcon />);
+      showToast(
+        walletTranslations.transactionToastMessage,
+        <TickIcon />,
+        IToastCategory.DEFAULT,
+        5000
+      );
       navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
     }
   }, [syncingCompleted, transactionToast]);

@@ -146,14 +146,13 @@ const AmountDetailsInput = ({
 
           <Pressable
             onPress={handleSendMax}
-            borderColor={`${colorMode}.BrownNeedHelp`}
-            backgroundColor={`${colorMode}.BrownNeedHelp`}
+            backgroundColor={`${colorMode}.brownBackground`}
             style={styles.sendMaxWrapper}
             testID="btn_sendMax"
           >
             <Text
               testID="text_sendmax"
-              color={`${colorMode}.seashellWhite`}
+              color={`${colorMode}.buttonText`}
               style={styles.sendMaxText}
             >
               Send Max
@@ -220,7 +219,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: hp(12),
     paddingVertical: hp(3),
     borderRadius: 5,
-    borderWidth: 1,
   },
   sendMaxText: {
     textAlign: 'center',

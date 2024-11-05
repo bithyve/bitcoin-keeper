@@ -44,7 +44,7 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import ImportIcon from 'src/assets/images/import.svg';
 import { reinstateVault } from 'src/store/sagaActions/vaults';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
@@ -289,7 +289,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   useEffect(() => {
     if (transactionToast) {
-      showToast(vaultTranslation.transactionToastMessage, <TickIcon />);
+      showToast(
+        vaultTranslation.transactionToastMessage,
+        <TickIcon />,
+        IToastCategory.DEFAULT,
+        5000
+      );
       navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
     }
   }, [transactionToast]);

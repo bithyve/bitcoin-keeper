@@ -5,6 +5,7 @@ import { NetworkType, SignerType, TxPriority } from 'src/services/wallets/enums'
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
+import Share from 'react-native-share';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -63,7 +64,6 @@ import {
 } from 'src/store/reducers/cachedTxn';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
-import openLink from 'src/utils/OpenLink';
 import config from 'src/utils/service-utilities/config';
 
 function SignTransactionScreen() {
@@ -655,12 +655,20 @@ function SignTransactionScreen() {
       });
   };
 
-  const redirectToBlockExplorer = () => {
-    openLink(
-      `https://mempool.space${
-        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
-      }/tx/${sendSuccessful}`
-    );
+  const handleShare = async () => {
+    const url = `https://mempool.space${
+      config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+    }/tx/${sendSuccessful}`;
+
+    try {
+      await Share.open({
+        message: 'The transaction has been successfully sent. You can track its status here:',
+        url: url,
+        title: 'Transaction Details',
+      });
+    } catch (err) {
+      console.error('Share error:', err);
+    }
   };
 
   return (
@@ -773,7 +781,7 @@ function SignTransactionScreen() {
               !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
             }
             primaryCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
-            secondaryCallback={redirectToBlockExplorer}
+            secondaryCallback={handleShare}
             secondaryText={common.shareDetails}
             SecondaryIcon={isDarkMode ? ShareWhite : ShareGreen}
           />
