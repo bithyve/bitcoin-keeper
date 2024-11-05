@@ -65,6 +65,7 @@ import BackupModalContent from 'src/screens/AppSettings/BackupModal';
 import DotView from 'src/components/DotView';
 import Note from 'src/components/Note/Note';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { getPersistedDocument } from 'src/services/documents';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -411,7 +412,7 @@ function SigningDeviceDetails({ route }) {
             <CircleIconWrapper
               backgroundColor={`${colorMode}.primaryGreenBackground`}
               icon={SDIcons(signer.type, true, 26, 26).Icon}
-              image={signer.extraData.thumbnailPath}
+              image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
             />
           }
         />
