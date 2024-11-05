@@ -47,6 +47,7 @@ import AmountDetailsInput from './AmountDetailsInput';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
+  const { showToast } = useToastMessage();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -77,6 +78,7 @@ function AddSendAmount({ route }) {
   const [amountToSend, setAmountToSend] = useState('0');
   const [currentAmount, setCurrentAmount] = useState(amount);
   const [equivalentAmount, setEquivalentAmount] = useState<string | number>('0');
+  const [lastToastTime, setLastToastTime] = useState(0);
   const [labelsToAdd, setLabelsToAdd] = useState([]);
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
   const recipientCount = 1;
@@ -276,7 +278,6 @@ function AddSendAmount({ route }) {
       })
     );
   };
-  const { showToast } = useToastMessage();
 
   const handleSendMax = () => {
     if (availableBalance) {
@@ -355,7 +356,7 @@ function AddSendAmount({ route }) {
 
   const onPressNumber = (text) => {
     if (errorMessage) {
-      showToast(errorMessage, <ToastErrorIcon />);
+      showDebouncedToast(errorMessage);
       return;
     }
     if (text === 'x') {
@@ -402,6 +403,16 @@ function AddSendAmount({ route }) {
       return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
     } else {
       return <WalletIcon />;
+    }
+  };
+
+  const showDebouncedToast = (message) => {
+    const currentTime = Date.now();
+    const debounceTime = 3000;
+
+    if (currentTime - lastToastTime > debounceTime) {
+      showToast(message, <ToastErrorIcon />);
+      setLastToastTime(currentTime);
     }
   };
 
