@@ -70,8 +70,6 @@ function SetupPortal({ route }) {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
-
-  const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
   const isManualRegister = mode === InteracationMode.IDENTIFICATION;
   let vaultDescriptor = '';
   if (isManualRegister) {

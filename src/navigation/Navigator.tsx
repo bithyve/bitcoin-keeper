@@ -132,7 +132,6 @@ import AddContact from 'src/screens/Contact/AddContact';
 import ContactProfile from 'src/screens/Contact/ContactProfile';
 import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
-import TestingScreen from 'src/screens/TestingScreen';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 
 const defaultTheme = {
@@ -315,7 +314,6 @@ function AppStack() {
         <Stack.Screen name="ContactProfile" component={ContactProfile} />
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
-        <Stack.Screen name="TestingScreen" component={TestingScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );

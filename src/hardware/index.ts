@@ -353,7 +353,7 @@ export const getDeviceStatus = (
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
     case SignerType.INHERITANCEKEY:
       return getInheritanceKeyStatus(type, isOnL1, isOnL2, scheme, addSignerFlow, existingSigners);
-    case SignerType.TAPSIGNER:
+    case SignerType.PORTAL:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
