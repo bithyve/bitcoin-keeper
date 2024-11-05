@@ -40,11 +40,7 @@ const AssociateContact = ({ route }) => {
 
   useEffect(() => {
     if (Platform.OS === 'android') {
-      PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
-        title: 'Contacts',
-        message: 'Keeper would like to access your contacts.',
-        buttonPositive: 'Accept',
-      }).then((value) => {
+      PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS).then((value) => {
         if (value === 'granted') {
           Contacts.getAll().then(setContacts);
         }
