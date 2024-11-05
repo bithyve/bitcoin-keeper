@@ -587,7 +587,9 @@
     "addWalletOption2Title": "Importing Wallets",
     "addWalletOption2Description": "Easily recover or recreate existing wallets from backups, configuration files, and xPubs (watch-only).",
     "addWalletOption3Title": "Advanced Customization",
-    "addWalletOption3Description": "Explore advanced options to build custom multi-sig wallets or import vaults from a signer. Coming soon: features like Time Lock and Degrading Multisig for added control over your wallet security and spending conditions."
+    "addWalletOption3Description": "Explore advanced options to build custom multi-sig wallets or import vaults from a signer. Coming soon: features like Time Lock and Degrading Multisig for added control over your wallet security and spending conditions.",
+    "selectWalletTitle": "Select Wallet",
+    "selectWalletSubtitle": "Select a wallet to send funds to"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

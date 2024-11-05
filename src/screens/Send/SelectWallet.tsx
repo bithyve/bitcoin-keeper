@@ -15,11 +15,12 @@ import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import BTC from 'src/assets/images/btc.svg';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
 import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type SelectWalletParams = {
   handleSelectWallet: (wallet: Wallet | Vault) => void;
@@ -103,6 +104,8 @@ function SelectWalletScreen({ route }: Props) {
   const navigation = useNavigation();
   const { wallets } = useWallets({ getAll: true });
   const { allVaults } = useVault({ includeArchived: false });
+  const { translations } = useContext(LocalizationContext);
+  const { common, wallet: walletText } = translations;
 
   const otherWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter(
     (item) =>
@@ -123,11 +126,11 @@ function SelectWalletScreen({ route }: Props) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Select Wallet"
-        subtitle="Select a wallet to send funds to"
+        title={walletText.selectWalletTitle}
+        subtitle={walletText.selectWalletSubtitle}
         subTitleSize={15}
       />
-      <ScrollView style={styles.walletListContainer}>
+      <ScrollView style={styles.walletListContainer} showsVerticalScrollIndicator={false}>
         <Box style={styles.walletList}>
           {otherWallets.map((wallet) => (
             <WalletItem
@@ -143,7 +146,7 @@ function SelectWalletScreen({ route }: Props) {
       </ScrollView>
       <Box style={styles.buttonContainer}>
         <Buttons
-          primaryText="Save Changes"
+          primaryText={common.confirm}
           primaryCallback={() => {
             navigation.goBack();
           }}
@@ -189,8 +192,10 @@ const styles = StyleSheet.create({
   },
   walletList: {
     gap: 20,
+    paddingBottom: hp(20),
   },
   buttonContainer: {
+    paddingTop: hp(10),
     alignSelf: 'center',
     width: '95%',
   },

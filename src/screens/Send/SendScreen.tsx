@@ -23,7 +23,6 @@ import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import RemoveIcon from 'src/assets/images/remove-green-icon.svg';
 import RemoveIconDark from 'src/assets/images/remove-white-icon.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Note from 'src/components/Note/Note';
 import { EntityKind, NetworkType, PaymentInfoKind, VaultType } from 'src/services/wallets/enums';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -416,18 +415,7 @@ function SendScreen({ route }) {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-        {showNote && (
-          <Note
-            title={sender.entityKind === EntityKind.VAULT ? 'Security Tip' : common.note}
-            subtitle={
-              sender.entityKind === EntityKind.VAULT
-                ? 'Check the send-to address on a signer you are going to use to sign the transaction.'
-                : 'Make sure the address or QR is the one where you want to send the funds to'
-            }
-            subtitleColor="GreyText"
-          />
-        )}
+      <Box style={styles.CTAWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.proceedButton}>
           <Buttons
             primaryCallback={handleProceed}
@@ -479,7 +467,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(25),
     marginTop: hp(5),
   },
-  noteWrapper: {
+  CTAWrapper: {
     marginLeft: wp(20),
     marginBottom: hp(10),
     paddingHorizontal: wp(11),
