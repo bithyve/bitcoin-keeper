@@ -203,7 +203,7 @@ export const getXpub = (derivationPath: string) => {
 };
 
 export const registerVault = (descriptor: string) => {
-  return sdk.setDescriptor(descriptor);
+  return sdk.setDescriptor(descriptor, null);
 };
 
 export const wipePortal = () => {

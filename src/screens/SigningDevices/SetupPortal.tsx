@@ -72,10 +72,8 @@ function SetupPortal({ route }) {
   let vaultDescriptor = '';
   if (isManualRegister) {
     const { activeVault } = useVault({ includeArchived: true, vaultId });
-    vaultDescriptor = genrateOutputDescriptors(activeVault);
+    vaultDescriptor = genrateOutputDescriptors(activeVault, false);
     vaultDescriptor = vaultDescriptor.replaceAll('/**', '/*');
-    vaultDescriptor = vaultDescriptor.replace('No path restrictions', '/0/*,/1/*');
-    vaultDescriptor = vaultDescriptor.replace('\n', ' ');
   }
 
   useEffect(() => {
@@ -96,6 +94,8 @@ function SetupPortal({ route }) {
         showToast('Health Check not supported on this device', <ToastErrorIcon />);
         navigation.goBack();
         break;
+      case InteracationMode.IDENTIFICATION:
+        return startRegisterVault();
       default:
         return addPortal();
     }
@@ -151,25 +151,39 @@ function SetupPortal({ route }) {
   const registerVault = async () => {
     try {
       await PORTAL.startReading();
-      const status: CardStatus = await PORTAL.getStatus();
+      let status: CardStatus = await PORTAL.getStatus();
       if (!status.initialized) {
         throw 'Portal not initialized';
       }
+
+      if (!status.unlocked) {
+        // Unlocking portal with cvc
+        if (!cvc) throw { message: 'Portal us locked. Pin is required' };
+        await PORTAL.unlock(cvc);
+      }
+      status = await PORTAL.getStatus();
+      if (!status.unlocked) {
+        if (!cvc) throw { message: 'Portal us locked. Pin is required' };
+      }
       const updatedDescriptor = vaultDescriptor.trim();
-      const res = await PORTAL.registerVault(updatedDescriptor);
-      console.log('🚀', { res });
-      return res;
+      await PORTAL.registerVault(updatedDescriptor);
+      return true;
     } catch (error) {
       console.log('🚀 ~ registerVault ~ error:', error);
-      showToast('Something went wrong. Please try again', <ToastErrorIcon />);
+      showToast(
+        error.message ? error.message : 'Something went wrong. Please try again',
+        <ToastErrorIcon />
+      );
+      return false;
     }
   };
 
   const startRegisterVault = async () => {
     const res = await withNfcModal(async () => registerVault());
-    console.log('🚀 ~ registerVault ~ res:', res);
-    showToast('Vault Registered Successfully');
-    // navigation.goBack();
+    if (res) {
+      showToast('Vault Registered Successfully');
+      navigation.goBack();
+    }
   };
 
   const getPortalDetails = async () => {
@@ -258,7 +272,6 @@ function SetupPortal({ route }) {
         3000,
         true
       );
-    } finally {
     }
   }, [cvc]);
 
