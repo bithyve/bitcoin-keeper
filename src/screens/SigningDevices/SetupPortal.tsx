@@ -22,7 +22,7 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import config from 'src/utils/service-utilities/config';
-import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
@@ -151,20 +151,7 @@ function SetupPortal({ route }) {
   const registerVault = async () => {
     try {
       await PORTAL.startReading();
-      let status: CardStatus = await PORTAL.getStatus();
-      if (!status.initialized) {
-        throw 'Portal not initialized';
-      }
-
-      if (!status.unlocked) {
-        // Unlocking portal with cvc
-        if (!cvc) throw { message: 'Portal us locked. Pin is required' };
-        await PORTAL.unlock(cvc);
-      }
-      status = await PORTAL.getStatus();
-      if (!status.unlocked) {
-        if (!cvc) throw { message: 'Portal us locked. Pin is required' };
-      }
+      await checkAndUnlock(cvc, setPortalStatus);
       const updatedDescriptor = vaultDescriptor.trim();
       await PORTAL.registerVault(updatedDescriptor);
       return true;
@@ -188,22 +175,7 @@ function SetupPortal({ route }) {
 
   const getPortalDetails = async () => {
     await PORTAL.startReading();
-    let status: CardStatus = await PORTAL.getStatus();
-    if (!status.initialized) {
-      setPortalStatus(status);
-      await PORTAL.stopReading();
-      throw { message: 'Portal not initialized' };
-    }
-
-    if (!status.unlocked) {
-      // Unlocking portal with cvc
-      await PORTAL.unlock(cvc);
-    }
-
-    status = await PORTAL.getStatus();
-    if (!status.unlocked) {
-      if (!cvc) throw { message: 'Portal us locked. Pin is required' };
-    }
+    await checkAndUnlock(cvc, setPortalStatus);
     const derivationPath = 'm/48h/1h/0h/2h';
     const descriptor = await PORTAL.getXpub(derivationPath);
     const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub);
@@ -430,6 +402,26 @@ function SetupPortal({ route }) {
     </ScreenWrapper>
   );
 }
+
+export const checkAndUnlock = async (cvc: string, setPortalStatus) => {
+  let status: CardStatus = await PORTAL.getStatus();
+  if (!status.initialized) {
+    setPortalStatus(status);
+    await PORTAL.stopReading();
+    throw { message: 'Portal not initialized' };
+  }
+  if (!status.unlocked) {
+    // Unlocking portal with cvc
+    if (!cvc) throw { message: 'Portal is locked. Pin is required' };
+    console.log('unlocking portal with cvc:', cvc);
+    await PORTAL.unlock(cvc);
+    status = await PORTAL.getStatus();
+    if (!status.unlocked) {
+      if (!cvc) throw { message: 'Incorrect Pin. Please try again' };
+    }
+  }
+  return status;
+};
 
 const PasswordField = ({ label, value, onPress, isActive, placeholder }) => {
   return (

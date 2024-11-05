@@ -12,6 +12,7 @@ import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import SigningServer from 'src/services/backend/SigningServer';
 import { isTestnet } from 'src/constants/Bitcoin';
 import * as PORTAL from 'src/hardware/portal';
+import { checkAndUnlock } from '../SigningDevices/SetupPortal';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -185,15 +186,7 @@ export const signTransactionWithPortal = async ({
 }) => {
   const signPsbtPortal = async (psbt) => {
     await PORTAL.startReading();
-    let status = await PORTAL.getStatus();
-    if (!status.unlocked) {
-      if (!portalCVC) throw { message: 'Portal is locked. Pin is required' };
-      await PORTAL.unlock(portalCVC);
-    }
-    status = await PORTAL.getStatus();
-    if (!status.unlocked) {
-      throw { message: 'Portal not unlocked' };
-    }
+    await checkAndUnlock(portalCVC, () => {});
     const signedRes = await PORTAL.signPSBT(psbt);
     // Check if psbt and signed psbt are same, if yes then vault registration is required.
     if (psbt == signedRes) {
