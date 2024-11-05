@@ -264,6 +264,7 @@ function SetupPortal({ route }) {
       if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal signed successfully!`);
       navigation.goBack();
     } catch (error) {
+      PORTAL.stopReading();
       console.log('🚀 ~ signWithPortal ~ error:', error);
       showToast(
         error?.message ? error.message : 'Something went wrong. Please try again',

@@ -188,7 +188,7 @@ export const signTransactionWithPortal = async ({
     let status = await PORTAL.getStatus();
     if (!status.unlocked) {
       if (!portalCVC) throw { message: 'Portal is locked. Pin is required' };
-      const res = await PORTAL.unlock(portalCVC);
+      await PORTAL.unlock(portalCVC);
     }
     status = await PORTAL.getStatus();
     if (!status.unlocked) {
@@ -199,7 +199,7 @@ export const signTransactionWithPortal = async ({
     if (psbt == signedRes) {
       throw { message: 'Please register the vault before signing.' };
     }
-
+    await PORTAL.stopReading();
     return { signedSerializedPSBT: signedRes };
   };
 
@@ -213,7 +213,6 @@ export const signTransactionWithPortal = async ({
       return signPsbtPortal(psbtForPortal.serializedPSBT);
     }
   } catch (error) {
-    console.log('🚀 ~ error:1', error);
     closeNfc();
     throw error;
   }
