@@ -597,13 +597,12 @@ function SignTransactionScreen() {
 
   const viewDetails = () => {
     setVisibleModal(false);
-    showToast('If the transaction isn’t visible, wait a moment and refresh.');
     navigation.dispatch(
       CommonActions.reset({
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, vaultId } },
+          { name: 'VaultDetails', params: { autoRefresh: true, vaultId, transactionToast: true } },
         ],
       })
     );

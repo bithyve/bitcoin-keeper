@@ -289,7 +289,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   useEffect(() => {
     if (transactionToast) {
-      showToast(vaultTranslation.transactionToastMessage);
+      showToast(vaultTranslation.transactionToastMessage, <TickIcon />);
       navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
     }
   }, [transactionToast]);
