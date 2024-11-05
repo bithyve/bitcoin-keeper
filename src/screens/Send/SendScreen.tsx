@@ -206,13 +206,19 @@ function SendScreen({ route }) {
     }
   };
 
-  const onQrScan = async (qrData, resetQR) => {
+  const onQrScan = async (qrData) => {
     try {
-      setPaymentInfo(qrData);
+      const { address } = WalletUtilities.addressDiff(qrData, network);
+      if (address) {
+        setPaymentInfo(qrData);
+      } else {
+        setPaymentInfo('');
+        showToast('Invalid bitcoin address', <ToastErrorIcon />);
+      }
       navigation.goBack();
-      resetQR();
     } catch (error) {
       showToast('Invalid bitcoin address', <ToastErrorIcon />);
+      showToast(error.message, <ToastErrorIcon />);
     }
   };
 
