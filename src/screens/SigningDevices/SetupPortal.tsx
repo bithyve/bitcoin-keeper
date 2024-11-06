@@ -32,9 +32,9 @@ import { InteracationMode } from '../Vault/HardwareModalMap';
 import * as PORTAL from 'src/hardware/portal';
 import { PORTAL_ERRORS } from 'src/hardware/portal';
 import useNfcModal from 'src/hooks/useNfcModal';
-import { CardStatus, MnemonicWords, Network } from 'modules/libportal-react-native/src';
+import { CardStatus, MnemonicWords, Network } from 'libportal-react-native';
 import useVault from 'src/hooks/useVault';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { KeeperPasswordInput } from 'src/components/KeeperPasswordInput';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
@@ -74,8 +74,8 @@ function SetupPortal({ route }) {
   let vaultDescriptor = '';
   if (isManualRegister) {
     const { activeVault } = useVault({ includeArchived: true, vaultId });
-    vaultDescriptor = genrateOutputDescriptors(activeVault, false);
-    vaultDescriptor = vaultDescriptor.replaceAll('/**', '/*');
+    vaultDescriptor = generateOutputDescriptors(activeVault, false);
+    vaultDescriptor = vaultDescriptor.replaceAll('/<0;1>', '');
   }
 
   useEffect(() => {
