@@ -71,7 +71,9 @@ async function getOneTag() {
   if (Platform.OS === 'android') {
     await NfcManager.registerTagEvent();
   }
-  await NfcManager.requestTechnology(NfcTech.NfcA, {});
+  await NfcManager.requestTechnology(NfcTech.NfcA, {}).catch(() => {
+    stopReading();
+  });
   if (Platform.OS === 'ios') {
     restartInterval = setInterval(restartPolling, 17500);
   }
@@ -133,12 +135,16 @@ export const init = () => {
 };
 
 export const startReading = () => {
-  if (!alreadyInitiated) return init();
+  try {
+    if (!alreadyInitiated) return init();
 
-  if (keepReading) return; // protect from double calls
+    if (keepReading) return; // protect from double calls
 
-  keepReading = true;
-  return listenForTags();
+    keepReading = true;
+    return listenForTags();
+  } catch (error) {
+    console.log('🚀 ~ startReading ~ error:', error);
+  }
 };
 
 export const stopReading = () => {
