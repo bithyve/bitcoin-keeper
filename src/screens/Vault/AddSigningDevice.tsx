@@ -720,6 +720,7 @@ function AddSigningDevice() {
     relaySignersUpdate,
     realySignersUpdateErrorMessage,
     relaySignersUpdateLoading,
+    realySignersAdded,
   } = useAppSelector((state) => state.bhr);
 
   const dispatch = useDispatch();
@@ -762,7 +763,9 @@ function AddSigningDevice() {
   useEffect(() => {
     if (relaySignersUpdate) {
       setInProgress(false);
-      setKeyAddedModalVisible(true);
+      if (realySignersAdded && navigation.isFocused()) {
+        setKeyAddedModalVisible(true);
+      }
       dispatch(resetSignersUpdateState());
     }
     return () => {
