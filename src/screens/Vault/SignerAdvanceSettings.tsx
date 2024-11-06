@@ -371,6 +371,16 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.COLDCARD:
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
+      case SignerType.PORTAL:
+        navigation.dispatch(
+          CommonActions.navigate('SetupPortal', {
+            vaultKey,
+            vaultId,
+            mode: InteracationMode.IDENTIFICATION,
+          })
+        );
+        break;
+
       default:
         showToast(
           "This device doesn't require vault registration",

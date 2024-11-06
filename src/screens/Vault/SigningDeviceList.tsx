@@ -101,6 +101,7 @@ function SigningDeviceList() {
     SignerType.KEYSTONE,
     SignerType.LEDGER,
     SignerType.PASSPORT,
+    SignerType.PORTAL,
     SignerType.SEEDSIGNER,
     SignerType.SPECTER,
     SignerType.TAPSIGNER,

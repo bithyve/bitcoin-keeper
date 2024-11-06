@@ -164,6 +164,7 @@ export type AppStackParams = {
   ContactProfile: undefined;
   EditContact: undefined;
   ManageTapsignerSettings: undefined;
+  SetupPortal: undefined;
 };
 
 // Usage:

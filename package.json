@@ -92,7 +92,7 @@
     "react-native-localize": "2.2.2",
     "react-native-mmkv": "2.11.0",
     "react-native-modal": "13.0.1",
-    "react-native-nfc-manager": "3.14.7",
+    "react-native-nfc-manager": "3.16.0",
     "react-native-pdf": "6.7.1",
     "react-native-qr-decode-image-camera": "1.1.2",
     "react-native-qrcode-svg": "6.3.2",
@@ -120,7 +120,8 @@
     "stream": "0.0.2",
     "stream-browserify": "1.0.0",
     "url": "0.10.1",
-    "uuid": "8.3.2"
+    "uuid": "8.3.2",
+    "libportal-react-native": "git+https://github.com/bithyve/libportal-react-native.git#3f9373785265f3e18218eefb8958109feec8f7c3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -46,6 +46,7 @@ import KeeperSetupImage from 'src/assets/images/mobile-key-illustration.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
@@ -563,6 +564,18 @@ const getSignerContent = (
         subTitle: tapsigner.SetupDescription,
         options: [],
       };
+    case SignerType.PORTAL:
+      return {
+        type: SignerType.PORTAL,
+        Illustration: <PortalIllustration />,
+        Instructions: [
+          'The Portal device requires continuous power from the mobile device via NFC to function. ',
+          'Place the Portal device on a flat surface, then position the mobile device so that its NFC aligns with the Portal.',
+        ],
+        title: 'Setting up Portal',
+        subTitle: 'Please keep your device ready before proceeding',
+        options: [],
+      };
     case SignerType.OTHER_SD:
       return {
         type: SignerType.OTHER_SD,
@@ -977,6 +990,15 @@ function HardwareModalMap({
     navigation.dispatch(
       CommonActions.navigate({
         name: 'TapsignerAction',
+        params: { mode, signer, isMultisig, addSignerFlow },
+      })
+    );
+  };
+
+  const navigateToPortalSetup = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'SetupPortal',
         params: { mode, signer, isMultisig, addSignerFlow },
       })
     );
@@ -2056,6 +2078,8 @@ function HardwareModalMap({
         return navigateToSetupWithOtherSD();
       case SignerType.INHERITANCEKEY:
         return handleInheritanceKey();
+      case SignerType.PORTAL:
+        return navigateToPortalSetup();
       default:
         return null;
     }

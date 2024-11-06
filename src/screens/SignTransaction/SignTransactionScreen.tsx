@@ -39,6 +39,7 @@ import {
   signTransactionWithColdCard,
   signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
+  signTransactionWithPortal,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
@@ -65,6 +66,7 @@ import {
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import config from 'src/utils/service-utilities/config';
+import { isReading, stopReading } from 'src/hardware/portal';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -118,6 +120,7 @@ function SignTransactionScreen() {
   const [isIKSDeclined, setIsIKSDeclined] = useState(false);
   const [isIKSApproved, setIsIKSApproved] = useState(false);
   const [IKSSignTime, setIKSSignTime] = useState(0);
+  const [portalModal, setPortalModal] = useState(false);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
 
@@ -287,6 +290,10 @@ function SignTransactionScreen() {
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const { inheritanceSigningRequestId } = useAppSelector((state) => state.sendAndReceive);
 
+  useEffect(() => {
+    if (nfcVisible == false && isReading()) stopReading();
+  }, [nfcVisible]);
+
   const signTransaction = useCallback(
     async ({
       xfp,
@@ -294,12 +301,14 @@ function SignTransactionScreen() {
       seedBasedSingerMnemonic,
       inheritanceConfiguration,
       tapsignerCVC,
+      portalCVC,
     }: {
       xfp?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
       inheritanceConfiguration?: InheritanceConfiguration;
       tapsignerCVC?: string;
+      portalCVC?: string;
     } = {}) => {
       const activeId = xfp || activeXfp;
       const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
@@ -444,6 +453,25 @@ function SignTransactionScreen() {
               },
             ])
           );
+        } else if (SignerType.PORTAL === signerType) {
+          const { signedSerializedPSBT } = await signTransactionWithPortal({
+            setPortalModal,
+            withNfcModal,
+            serializedPSBTEnvelop,
+            closeNfc,
+            vault: defaultVault,
+            portalCVC,
+          });
+
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         }
       }
     },
@@ -577,6 +605,9 @@ function SignTransactionScreen() {
         break;
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
+        break;
+      case SignerType.PORTAL:
+        setPortalModal(true);
         break;
       default:
         showToast(`action not set for ${signer.type}`);
@@ -729,6 +760,7 @@ function SignTransactionScreen() {
         activeXfp={activeXfp}
         coldCardModal={coldCardModal}
         tapsignerModal={tapsignerModal}
+        portalModal={portalModal}
         ledgerModal={ledgerModal}
         otpModal={otpModal}
         passwordModal={passwordModal}
@@ -755,6 +787,7 @@ function SignTransactionScreen() {
         setPasswordModal={setPasswordModal}
         setTapsignerModal={setTapsignerModal}
         showOTPModal={showOTPModal}
+        setPortalModal={setPortalModal}
         signTransaction={signTransaction}
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}
