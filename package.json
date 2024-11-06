@@ -92,7 +92,7 @@
     "react-native-localize": "2.2.2",
     "react-native-mmkv": "2.11.0",
     "react-native-modal": "13.0.1",
-    "react-native-nfc-manager": "^3.16.0",
+    "react-native-nfc-manager": "3.16.0",
     "react-native-pdf": "6.7.1",
     "react-native-qr-decode-image-camera": "1.1.2",
     "react-native-qrcode-svg": "6.1.2",
