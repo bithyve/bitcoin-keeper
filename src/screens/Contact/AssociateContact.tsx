@@ -165,7 +165,7 @@ const AssociateContact = ({ route }) => {
           title="Associated Contact"
           subTitle="The contact you associated with the Key will be displayed here"
           secondaryButtonText="Cancel"
-          secondaryCallback={setShowModal(false)}
+          secondaryCallback={() => setShowModal(false)}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
           buttonTextColor={`${colorMode}.buttonText`}
