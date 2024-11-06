@@ -195,10 +195,20 @@ function ReceiveScreen({ route }: { route }) {
                 backgroundColor={`${colorMode}.secondaryText`}
               />
               <Input
-                placeholder={home.ConvertedAmount}
+                placeholder={`Enter amount in ${
+                  currentCurrency === CurrencyKind.BITCOIN
+                    ? satsEnabled
+                      ? 'sats'
+                      : 'BTC'
+                    : currencyCode
+                }`}
                 style={styles.inputField}
                 borderWidth="0"
-                value={amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                value={amount
+                  .toString()
+                  .split('.')
+                  .map((part, i) => (i === 0 ? part.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : part))
+                  .join('.')}
                 onChangeText={(value) => setAmount(value)}
                 onFocus={() => Keyboard.dismiss()}
                 testID="input_receiveAmount"
@@ -513,7 +523,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 10,
-    marginVertical: 5,
+    marginVertical: hp(15),
     padding: 5,
   },
   verticalDeviderLine: {
