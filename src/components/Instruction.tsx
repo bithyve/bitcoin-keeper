@@ -3,7 +3,6 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
-import { TouchableOpacity } from 'react-native';
 import openLink from 'src/utils/OpenLink';
 
 export function Instruction({
@@ -23,11 +22,14 @@ export function Instruction({
           ? text.split(/\b(https?:\/\/[^\s]+)\b/).map((part) => {
               if (part.match(/^https?:\/\//)) {
                 return (
-                  <TouchableOpacity onPress={() => openLink(part)} style={styles.linkContainer}>
-                    <Text color={`${colorMode}.greenWhiteText`} style={styles.linkText} bold>
-                      {part.replace('https://', '').replace('http://', '')}
-                    </Text>
-                  </TouchableOpacity>
+                  <Text
+                    color={`${colorMode}.greenWhiteText`}
+                    bold
+                    style={styles.linkText}
+                    onPress={() => openLink(part)}
+                  >
+                    {part.replace('https://', '').replace('http://', '')}
+                  </Text>
                 );
               }
               return part;
@@ -62,12 +64,6 @@ const getStyles = (textWidth: DimensionValue) =>
       padding: 3,
       fontSize: 13,
       width: textWidth,
-    },
-    linkContainer: {
-      justifyContent: 'flex-end',
-      verticalAlign: 'bottom',
-      marginTop: hp(-2),
-      paddingLeft: wp(3),
     },
     linkText: {
       letterSpacing: 0.65,
