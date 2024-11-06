@@ -724,7 +724,7 @@ export function* addSigningDeviceWorker({
           signersToUpdate,
           Realm.UpdateMode.Modified
         );
-        yield put(relaySignersUpdateSuccess());
+        yield put(relaySignersUpdateSuccess(true));
       } else {
         const errorMsg = response.error?.message
           ? response.error.message.toString()
@@ -1494,7 +1494,7 @@ export function* updateSignerDetailsWorker({ payload }) {
           [key]: value,
         }
       );
-      yield put(relaySignersUpdateSuccess());
+      yield put(relaySignersUpdateSuccess(false));
     } else {
       const errorMsg = response.error?.message
         ? response.error.message.toString()

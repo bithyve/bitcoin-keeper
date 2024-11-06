@@ -65,8 +65,12 @@ function ManageSigners({ route }: ScreenProps) {
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
-  const { realySignersUpdateErrorMessage, relaySignersUpdate, relaySignersUpdateLoading } =
-    useAppSelector((state) => state.bhr);
+  const {
+    realySignersUpdateErrorMessage,
+    relaySignersUpdate,
+    relaySignersUpdateLoading,
+    realySignersAdded,
+  } = useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
@@ -112,7 +116,9 @@ function ManageSigners({ route }: ScreenProps) {
     useCallback(() => {
       if (relaySignersUpdate) {
         setInProgress(false);
-        setKeyAddedModalVisible(true);
+        if (realySignersAdded && navigation.isFocused()) {
+          setKeyAddedModalVisible(true);
+        }
         dispatch(resetSignersUpdateState());
       }
     }, [relaySignersUpdate])
