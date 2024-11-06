@@ -1,10 +1,11 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { SignerType, TxPriority } from 'src/services/wallets/enums';
+import { NetworkType, SignerType, TxPriority } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
+import Share from 'react-native-share';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -14,7 +15,10 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/vaults';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import SuccessIcon from 'src/assets/images/successSvg.svg';
+import SuccessLightIllustration from 'src/assets/images/upgrade-illustration.svg';
+import SuccessDarkIllustration from 'src/assets/images/upgrade-dark-illustration.svg';
+import ShareGreen from 'src/assets/images/share-arrow-green.svg';
+import ShareWhite from 'src/assets/images/share-arrow-white.svg';
 import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
@@ -60,11 +64,12 @@ import {
 } from 'src/store/reducers/cachedTxn';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
-import Colors from 'src/theme/Colors';
+import config from 'src/utils/service-utilities/config';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
 
   const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds, tnxDetails } =
     (route.params || {
@@ -579,29 +584,44 @@ function SignTransactionScreen() {
     }
   };
 
-  function SendSuccessfulContent() {
+  function SendSuccessfulContent({
+    primaryText,
+    primaryCallback,
+    secondaryText,
+    secondaryCallback,
+    SecondaryIcon,
+  }) {
     const { colorMode } = useColorMode();
     return (
       <Box>
         <Box alignSelf="center">
-          <SuccessIcon />
+          {isDarkMode ? <SuccessDarkIllustration /> : <SuccessLightIllustration />}
         </Box>
         <Text color={`${colorMode}.primaryText`} fontSize={13} padding={2}>
           {walletTransactions.sendTransSuccessMsg}
         </Text>
+        <Box paddingTop={6}>
+          <Buttons
+            primaryText={primaryText}
+            primaryCallback={primaryCallback}
+            primaryTextColor={`${colorMode}.buttonText`}
+            secondaryText={secondaryText}
+            secondaryCallback={secondaryCallback}
+            SecondaryIcon={SecondaryIcon}
+          />
+        </Box>
       </Box>
     );
   }
 
   const viewDetails = () => {
     setVisibleModal(false);
-    showToast('If the transaction isn’t visible, wait a moment and refresh.');
     navigation.dispatch(
       CommonActions.reset({
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, vaultId } },
+          { name: 'VaultDetails', params: { autoRefresh: true, vaultId, transactionToast: true } },
         ],
       })
     );
@@ -633,6 +653,22 @@ function SignTransactionScreen() {
       .catch((error) => {
         console.error('Error refreshing wallets:', error);
       });
+  };
+
+  const handleShare = async () => {
+    const url = `https://mempool.space${
+      config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+    }/tx/${sendSuccessful}`;
+
+    try {
+      await Share.open({
+        message: 'The transaction has been successfully sent. You can track its status here:',
+        url: url,
+        title: 'Transaction Details',
+      });
+    } catch (err) {
+      console.error('Share error:', err);
+    }
   };
 
   return (
@@ -736,16 +772,20 @@ function SignTransactionScreen() {
         }}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={
-          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
-        }
-        buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
-        buttonTextColor={`${colorMode}.buttonText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        Content={SendSuccessfulContent}
+        Content={() => (
+          <SendSuccessfulContent
+            primaryText={
+              !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+            }
+            primaryCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
+            secondaryCallback={handleShare}
+            secondaryText={common.shareDetails}
+            SecondaryIcon={isDarkMode ? ShareWhite : ShareGreen}
+          />
+        )}
         DarkCloseIcon={colorMode === 'dark' ? 'light' : 'dark'}
       />
       <KeeperModal

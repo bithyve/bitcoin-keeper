@@ -15,6 +15,7 @@ import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import SettingIcon from 'src/assets/images/settings.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -42,7 +43,7 @@ import CurrencyInfo from '../Home/components/CurrencyInfo';
 import LearnMoreModal from './components/LearnMoreModal';
 import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export const allowedSendTypes = [
@@ -120,7 +121,12 @@ function WalletDetails({ route }: ScreenProps) {
 
   useEffect(() => {
     if (!syncing && syncingCompleted && transactionToast) {
-      showToast(walletTranslations.transactionToastMessage);
+      showToast(
+        walletTranslations.transactionToastMessage,
+        <TickIcon />,
+        IToastCategory.DEFAULT,
+        5000
+      );
       navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
     }
   }, [syncingCompleted, transactionToast]);

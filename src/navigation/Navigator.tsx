@@ -131,6 +131,7 @@ import AddContact from 'src/screens/Contact/AddContact';
 import ContactProfile from 'src/screens/Contact/ContactProfile';
 import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
+import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -200,6 +201,7 @@ function AppStack() {
         <Stack.Screen name="IKSAddEmailPhone" component={IKSAddEmailPhone} />
         <Stack.Screen name="EnterOTPEmailConfirmation" component={EnterOTPEmailConfirmation} />
         <Stack.Screen name="Send" component={SendScreen} />
+        <Stack.Screen name="SelectWallet" component={SelectWalletScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="SignerSelectionListScreen" component={SignerSelectionListScreen} />
