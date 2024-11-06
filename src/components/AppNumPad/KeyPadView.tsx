@@ -46,7 +46,7 @@ const KeyPadView: React.FC<Props> = ({
         <Box style={styles.emptyBtnView}>
           {enableDecimal ? (
             <TouchableOpacity
-              onPress={() => onDeletePressed()}
+              onPress={() => onPressNumber('.')}
               activeOpacity={0.5}
               testID="btn-decimal"
               style={styles.decimalBtnView}
