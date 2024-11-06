@@ -95,7 +95,7 @@
     "react-native-nfc-manager": "3.14.7",
     "react-native-pdf": "6.7.1",
     "react-native-qr-decode-image-camera": "1.1.2",
-    "react-native-qrcode-svg": "6.3.2",
+    "react-native-qrcode-svg": "6.3.12",
     "react-native-randombytes": "3.6.1",
     "react-native-reanimated": "3.6.1",
     "react-native-responsive-screen": "1.4.2",
