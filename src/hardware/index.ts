@@ -483,7 +483,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return '';
     }
     case SignerType.PORTAL: {
-      return 'Phone-specific hardware wallet';
+      return 'Mobile-specific signer from TwentyTwo';
     }
     default:
       return null;
