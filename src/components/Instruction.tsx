@@ -19,11 +19,10 @@ export function Instruction({
       <Box style={styles.bullet} backgroundColor={`${colorMode}.black`}></Box>
       <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
         {typeof text === 'string'
-          ? text.split(/\b(https?:\/\/[^\s]+)\b/).map((part, index) => {
+          ? text.split(/\b(https?:\/\/[^\s]+)\b/).map((part) => {
               if (part.match(/^https?:\/\//)) {
                 return (
                   <Text
-                    key={index}
                     color={`${colorMode}.greenWhiteText`}
                     bold
                     style={styles.linkText}
