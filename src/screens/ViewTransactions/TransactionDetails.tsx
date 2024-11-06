@@ -302,7 +302,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topSection: {
-    height: '25%',
     paddingHorizontal: 20,
   },
   bottomSection: {
@@ -318,7 +317,7 @@ const styles = StyleSheet.create({
   transViewWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: hp(40),
+    marginTop: hp(30),
     width: wp(320),
     justifyContent: 'space-between',
     paddingBottom: hp(25),
