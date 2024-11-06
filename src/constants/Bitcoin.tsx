@@ -100,7 +100,7 @@ export const getCustomConvertedAmt = (
       return amount;
     } else if (toKind === CurrencyKind.FIAT) {
       const convertedAmount = satsEnabled
-        ? ((amount / SATOSHIS_IN_BTC) * rate).toFixed(1)
+        ? ((amount / SATOSHIS_IN_BTC) * rate).toFixed(0)
         : (amount * rate).toFixed(0);
       return convertedAmount;
     }
