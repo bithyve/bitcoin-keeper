@@ -586,7 +586,7 @@ PODS:
     - Sentry/HybridSDK (= 8.36.0)
   - RNShare (9.2.3):
     - React-Core
-  - RNSVG (13.13.0):
+  - RNSVG (15.8.0):
     - React-Core
   - Sentry/HybridSDK (8.36.0)
   - SocketRocket (0.6.1)
@@ -972,7 +972,7 @@ SPEC CHECKSUMS:
   RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa
   RNSentry: 0744d3c79504bc4778190d047d1b60daf4a378cd
   RNShare: da6d90b6dc332f51f86498041d6e34211f96b630
-  RNSVG: ed492aaf3af9ca01bc945f7a149d76d62e73ec82
+  RNSVG: 8b1a777d54096b8c2a0fd38fc9d5a454332bbb4d
   Sentry: f8374b5415bc38dfb5645941b3ae31230fbeae57
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
