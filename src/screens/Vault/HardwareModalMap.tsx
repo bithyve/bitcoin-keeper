@@ -198,7 +198,7 @@ const getSignerContent = (
           {`If Jade is locked, unlock it by selecting "QR Mode" > QR PIN Unlock > then open `}
           <Text
             medium
-            style={styles.url}
+            style={styles.learnHow}
             color={`${colorMode}.greenText`}
             onPress={() => Linking.openURL('https://blkstrm.com/pn')}
           >
@@ -217,7 +217,7 @@ const getSignerContent = (
           {`To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: `}
           <Text
             medium
-            style={styles.url}
+            style={styles.learnHow}
             color={`${colorMode}.greenText`}
             onPress={() => Linking.openURL(KEEPER_WEBSITE_BASE_URL)}
           >
@@ -2255,12 +2255,6 @@ const styles = StyleSheet.create({
     width: wp(285),
   },
   learnHow: {
-    fontSize: 13,
-    letterSpacing: 0.65,
-    fontWeight: '500',
-    textDecorationLine: 'underline',
-  },
-  url: {
     fontSize: 13,
     fontWeight: '500',
     textDecorationLine: 'underline',
