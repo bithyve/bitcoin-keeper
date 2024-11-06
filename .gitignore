@@ -69,4 +69,4 @@ env*
 !.env.example
 
 # testing
-/coverage
+modules/ 

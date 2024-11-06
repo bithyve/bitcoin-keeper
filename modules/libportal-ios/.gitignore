@@ -1,9 +1,0 @@
-Sources/
-portalFFI.xcframework/ios-arm64_x86_64-simulator/portalFFI.framework/portalFFI
-portalFFI.xcframework/ios-arm64/portalFFI.framework/portalFFI
-
-portalFFI.xcframework/ios-arm64_x86_64-simulator/portalFFI.framework/Headers/portalFFI.
-portalFFI.xcframework/ios-arm64/portalFFI.framework/Headers/portalFFI.h
-
-portalFFI.xcframework.zip
-.swiftpm
