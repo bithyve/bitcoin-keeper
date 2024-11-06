@@ -187,8 +187,6 @@ export const getCurrencyImageByRegion = (
   currentCurrency: CurrencyKind,
   BTCIcon: any
 ) => {
-  const { colorMode } = useColorMode();
-  const isDarkMode = colorMode === 'dark';
   const styles = {} as any;
   switch (type) {
     case 'light':
@@ -198,7 +196,7 @@ export const getCurrencyImageByRegion = (
       styles.color = Colors.GenericViridian;
       break;
     case 'dark':
-      styles.color = isDarkMode ? Colors.SoftGray : Colors.RichGreen;
+      styles.color = Colors.RichGreen;
       break;
     case 'grey':
       styles.color = Colors.White;
