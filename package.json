@@ -121,7 +121,7 @@
     "stream-browserify": "1.0.0",
     "url": "0.10.1",
     "uuid": "8.3.2",
-    "libportal-react-native": "git+https://github.com/cakesoft-vaibhav/libportal-react-native.git"
+    "libportal-react-native": "git+https://github.com/bithyve/libportal-react-native.git#3f9373785265f3e18218eefb8958109feec8f7c3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
