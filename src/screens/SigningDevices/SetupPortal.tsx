@@ -172,7 +172,6 @@ function SetupPortal({ route }) {
         return true;
       });
     } catch (error) {
-      console.log('🚀 ~ healthCheckPortal ~ error:', error);
       showToast(
         error.message ? error.message : 'Something went wrong. Please try again',
         <ToastErrorIcon />
@@ -190,7 +189,6 @@ function SetupPortal({ route }) {
       await PORTAL.registerVault(updatedDescriptor);
       return true;
     } catch (error) {
-      console.log('🚀 ~ registerVault ~ error:', error);
       showToast(
         error.message ? error.message : 'Something went wrong. Please try again',
         <ToastErrorIcon />
@@ -241,7 +239,6 @@ function SetupPortal({ route }) {
         );
       } else {
         if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal added successfully!`);
-        console.log('Adding');
         dispatch(addSigningDevice([portalSigner]));
         const navigationState = addSignerFlow
           ? {
@@ -256,7 +253,6 @@ function SetupPortal({ route }) {
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
     } catch (error) {
-      console.log('🚀 ~ addPortal ~ error:', error);
       showToast(
         error.message ? error.message : 'Something went wrong. Please try again',
         <ToastErrorIcon />
@@ -271,7 +267,6 @@ function SetupPortal({ route }) {
       navigation.goBack();
     } catch (error) {
       PORTAL.stopReading();
-      console.log('🚀 ~ signWithPortal ~ error:', error);
       showToast(
         error?.message ? error.message : 'Something went wrong. Please try again',
         <ToastErrorIcon />,
@@ -340,7 +335,6 @@ function SetupPortal({ route }) {
           };
       navigation.dispatch(CommonActions.navigate(navigationState));
     } catch (error) {
-      console.log('🚀 ~ validateAndInitializePortal ~ error:', error);
       showToast(
         error.message ? error.message : 'Something went wrong. Please try again',
         <ToastErrorIcon />

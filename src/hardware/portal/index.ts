@@ -64,7 +64,6 @@ async function restartPolling() {
 }
 
 async function getOneTag() {
-  console.log('Looking for a Portal...');
   paused = false;
   let restartInterval = null;
 
@@ -82,7 +81,6 @@ async function getOneTag() {
     try {
       await manageTag();
     } catch (ex) {
-      console.log('Oops!', ex);
       alreadyInitiated = false;
       keepReading = false;
       paused = true;
@@ -93,7 +91,6 @@ async function getOneTag() {
       try {
         await restartPolling();
       } catch (_ex) {
-        console.log('🚀 ~ getOneTag ~ _ex:', _ex);
         if (restartInterval) {
           clearInterval(restartInterval);
         }
@@ -117,13 +114,11 @@ async function listenForTags() {
 }
 
 export const init = () => {
-  console.log('INITIALIZING PORTAL NFC');
   if (alreadyInitiated) return;
 
   return NfcManager.isSupported().then((value) => {
     if (value) {
       sdk ??= new PortalSdk(true);
-      console.log('NFC read starting...');
       NfcManager.start();
       alreadyInitiated = true;
       keepReading = true;
@@ -142,13 +137,10 @@ export const startReading = () => {
 
     keepReading = true;
     return listenForTags();
-  } catch (error) {
-    console.log('🚀 ~ startReading ~ error:', error);
-  }
+  } catch (error) {}
 };
 
 export const stopReading = () => {
-  console.log('stopReading');
   keepReading = false;
   alreadyInitiated = false;
   paused = false;
@@ -160,7 +152,6 @@ export const stopReading = () => {
 
 export const getStatus = async (): Promise<CardStatus> => {
   const status = await sdk.getStatus();
-  console.log('🚀 ~ getStatus ~ status:', status);
   return status;
 };
 
