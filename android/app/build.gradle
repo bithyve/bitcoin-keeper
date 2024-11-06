@@ -158,9 +158,6 @@ android {
 
     repositories{
         mavenLocal()
-         flatDir {
-        dirs '../../modules'  // Points to the module directory from the Android app folder
-    }
     }
 
 dependencies {

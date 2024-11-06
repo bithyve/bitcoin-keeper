@@ -65,7 +65,7 @@ function SetupPortal({ route }) {
   const [cvc, setCvc] = React.useState('');
   const [confirmCVC, setConfirmCVC] = React.useState('');
   const [portalStatus, setPortalStatus] = useState(null);
-  const [activeInput, setActiveInput] = useState(null);
+  const [activeInput, setActiveInput] = useState(INPUTS.CVC);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -81,6 +81,10 @@ function SetupPortal({ route }) {
   useEffect(() => {
     actionDirectly();
   }, []);
+
+  useEffect(() => {
+    setActiveInput(INPUTS.CVC);
+  }, [portalStatus]);
 
   useEffect(() => {
     nfcVisible === false && PORTAL.stopReading();
