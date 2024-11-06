@@ -293,7 +293,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               color={`${colorMode}.headerText`}
               italic
               bold
-              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
+              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/terms-of-service/`)}
             >
               {' '}
               {login.TermsOfService}{' '}
@@ -303,7 +303,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               color={`${colorMode}.headerText`}
               italic
               bold
-              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
+              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/privacy-policy/`)}
             >
               {' '}
               {login.PrivacyPolicy}

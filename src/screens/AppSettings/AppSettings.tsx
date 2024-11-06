@@ -189,7 +189,7 @@ function AppSettings({ navigation, route }) {
         </Box>
         <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Pressable
-            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
+            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/terms-of-service/`)}
             testID="btn_termsCondition"
           >
             <Text
@@ -202,7 +202,7 @@ function AppSettings({ navigation, route }) {
           </Pressable>
           <Text color={`${colorMode}.textColor2`}>|</Text>
           <Pressable
-            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
+            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/privacy-policy/`)}
             testID="btn_privacyPolicy"
           >
             <Text
