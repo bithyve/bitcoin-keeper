@@ -193,39 +193,13 @@ const getSignerContent = (
         ],
       };
     case SignerType.JADE:
-      const jadeUnlockInstructions = (
-        <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
-          {`If Jade is locked, unlock it by selecting "QR Mode" > QR PIN Unlock > then open `}
-          <Text
-            medium
-            style={styles.learnHow}
-            color={`${colorMode}.greenText`}
-            onPress={() => Linking.openURL('https://blkstrm.com/pn')}
-          >
-            {'blkstrm.com/pn'}
-          </Text>
-          {` in your browser and follow the instructions to unlock the Jade.`}
-        </Text>
-      );
-
+      const jadeUnlockInstructions =
+        'If Jade is locked, unlock it by selecting "QR Mode" > QR PIN Unlock > then open https://blkstrm.com/pn in your browser and follow the instructions to unlock the Jade.';
       const jadeInstructions = `When unlocked, export the key by going to Options > Wallet > Export Xpub. Then in Options, make sure Script is set to Native Segwit and Wallet is set to ${
         isMultisig ? 'MultiSig' : 'SingleSig'
       }.`;
 
-      let usbInstructions = (
-        <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
-          {`To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: `}
-          <Text
-            medium
-            style={styles.learnHow}
-            color={`${colorMode}.greenText`}
-            onPress={() => Linking.openURL(KEEPER_WEBSITE_BASE_URL)}
-          >
-            {KEEPER_WEBSITE_BASE_URL.replace(/^https?:\/\//, '')}
-          </Text>
-          {` and connect your Jade to the computer.`}
-        </Text>
-      );
+      let usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} and connect your Jade to the computer.`;
 
       let instructions =
         keyGenerationMode === KeyGenerationMode.USB
@@ -2256,6 +2230,7 @@ const styles = StyleSheet.create({
   },
   learnHow: {
     fontSize: 13,
+    letterSpacing: 0.65,
     fontWeight: '500',
     textDecorationLine: 'underline',
   },
