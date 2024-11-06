@@ -540,7 +540,13 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      {!isRemoteFlow && <KeeperHeader title="Send Confirmation" subtitle={subTitle} />}
+      {!isRemoteFlow && (
+        <KeeperHeader
+          title="Send Confirmation"
+          subtitle={subTitle}
+          rightComponent={<CurrencyTypeSwitch />}
+        />
+      )}
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
