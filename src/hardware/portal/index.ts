@@ -10,7 +10,7 @@ import { XpubTypes } from 'src/services/wallets/enums';
 import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { Platform } from 'react-native';
 
-const sdk = new PortalSdk(true);
+let sdk = new PortalSdk(true);
 let keepReading = false;
 let alreadyInitiated = false;
 let livenessCheckInterval: NodeJS.Timeout;
@@ -120,6 +120,7 @@ export const init = () => {
 
   return NfcManager.isSupported().then((value) => {
     if (value) {
+      sdk ??= new PortalSdk(true);
       console.log('NFC read starting...');
       NfcManager.start();
       alreadyInitiated = true;
@@ -147,6 +148,7 @@ export const stopReading = () => {
   paused = false;
   clearTimeout(livenessCheckInterval);
   NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
+  sdk = null;
   // return NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
 };
 

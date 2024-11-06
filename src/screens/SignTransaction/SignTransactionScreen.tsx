@@ -62,6 +62,7 @@ import {
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import Colors from 'src/theme/Colors';
+import { isReading, stopReading } from 'src/hardware/portal';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -283,6 +284,10 @@ function SignTransactionScreen() {
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const { inheritanceSigningRequestId } = useAppSelector((state) => state.sendAndReceive);
+
+  useEffect(() => {
+    if (nfcVisible == false && isReading()) stopReading();
+  }, [nfcVisible]);
 
   const signTransaction = useCallback(
     async ({
