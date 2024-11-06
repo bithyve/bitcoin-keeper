@@ -1,10 +1,9 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { hp, windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import FeerateStatement from '../FeeInsights/FeerateStatement';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 
@@ -12,8 +11,6 @@ function HighFeeAlert({
   transactionPriority,
   txFeeInfo,
   amountToSend,
-  showFeesInsightModal,
-  OneDayHistoricalFee,
   isFeeHigh,
   isUsualFeeHigh,
   setTopText,
@@ -23,18 +20,11 @@ function HighFeeAlert({
   const { wallet: walletTransactions } = translations;
 
   const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()]?.amount;
-  const [bottomText, setBottomText] = useState('');
 
   useEffect(() => {
     const topText = isFeeHigh ? walletTransactions.highCustom : walletTransactions.highWait;
-    const bottomText = isFeeHigh
-      ? isUsualFeeHigh
-        ? walletTransactions.highWait
-        : walletTransactions.highUsual
-      : walletTransactions.lowFee;
 
     setTopText(topText);
-    setBottomText(bottomText);
   }, [isFeeHigh, isUsualFeeHigh, setTopText]);
 
   const renderFeeDetails = () => (
@@ -69,48 +59,14 @@ function HighFeeAlert({
     </View>
   );
 
-  const renderFeeStats = () => (
-    <>
-      <Text style={styles.statsTitle}>Fee Stats</Text>
-      {OneDayHistoricalFee.length > 0 && (
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
-          <FeerateStatement
-            showFeesInsightModal={showFeesInsightModal}
-            feeInsightData={OneDayHistoricalFee}
-          />
-        </Box>
-      )}
-    </>
-  );
-
   return (
     <>
       {isFeeHigh && isUsualFeeHigh ? (
-        <>
-          {renderFeeDetails()}
-          {renderFeeStats()}
-          <Box width={'70%'}>
-            <Text style={styles.highFeeNote}>{bottomText}</Text>
-          </Box>
-        </>
+        <>{renderFeeDetails()}</>
       ) : isFeeHigh ? (
-        <>
-          {renderFeeDetails()}
-          {renderFeeStats()}
-          <Box width={'70%'}>
-            <Text style={styles.highFeeNote}>{bottomText}</Text>
-          </Box>
-        </>
+        <>{renderFeeDetails()}</>
       ) : (
-        isUsualFeeHigh && (
-          <>
-            <Box style={styles.marginBottom}>{renderFeeStats()}</Box>
-            {renderFeeDetails()}
-            <Box width={'70%'}>
-              <Text style={styles.highFeeNote}>{bottomText}</Text>
-            </Box>
-          </>
-        )
+        isUsualFeeHigh && <>{renderFeeDetails()}</>
       )}
     </>
   );
