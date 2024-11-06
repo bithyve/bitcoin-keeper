@@ -54,23 +54,31 @@ const AmountDetailsInput = ({
     try {
       const currentAmountStr = currentAmount.toString();
       const maxDigits = 10;
-      const formattedAmount =
-        currentAmountStr.length > maxDigits
-          ? currentAmountStr.slice(0, maxDigits) + '...'
-          : currentAmountStr;
 
-      if (currentAmountStr.endsWith('.')) return formattedAmount;
-      const parsedAmount = parseFloat(currentAmountStr);
-      if (currentAmountStr.includes('.') && !isNaN(parsedAmount)) {
-        return formattedAmount;
+      if (currentAmountStr.endsWith('.')) {
+        return localCurrencyKind === CurrencyKind.FIAT
+          ? numberWithCommas(currentAmountStr.slice(0, -1)) + '.'
+          : currentAmountStr;
       }
-      if (localCurrencyKind === CurrencyKind.FIAT) {
-        return numberWithCommas(formattedAmount);
-      } else if (satsEnabled) {
-        return numberWithCommas(formattedAmount);
-      } else {
-        return formattedAmount;
+
+      const [wholePart, decimalPart] = currentAmountStr.split('.');
+
+      const formattedWholePart =
+        localCurrencyKind === CurrencyKind.FIAT
+          ? numberWithCommas(wholePart)
+          : satsEnabled
+          ? numberWithCommas(wholePart)
+          : wholePart;
+
+      let formattedAmount = decimalPart
+        ? `${formattedWholePart}.${decimalPart}`
+        : formattedWholePart;
+
+      if (formattedAmount.replace(/[,\.]/g, '').length > maxDigits) {
+        formattedAmount = formattedAmount.slice(0, maxDigits) + '...';
       }
+
+      return formattedAmount;
     } catch (error) {
       console.log('Display formatting error:', error);
       return '0';
