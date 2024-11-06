@@ -3,6 +3,7 @@ import React from 'react';
 import { Input, useColorMode, Box } from 'native-base';
 import KeeperText from './KeeperText';
 import Colors from 'src/theme/Colors';
+import Fonts from 'src/constants/Fonts';
 
 function KeeperTextInput({
   placeholder,
@@ -17,14 +18,17 @@ function KeeperTextInput({
   isError = false,
   onBlur = (_) => {},
   onFocus = (_) => {},
+  InputRightComponent = null,
+  inpuBackgroundColor = null,
+  inpuBorderColor = null,
   ...props
 }) {
   const { colorMode } = useColorMode();
   return (
     <Box
-      backgroundColor={`${colorMode}.seashellWhite`}
+      backgroundColor={inpuBackgroundColor || `${colorMode}.seashellWhite`}
       style={styles.container}
-      borderColor={`${colorMode}.greyBorder`}
+      borderColor={inpuBorderColor || `${colorMode}.greyBorder`}
     >
       <Input
         variant={'unstyled'}
@@ -35,6 +39,7 @@ function KeeperTextInput({
         borderColor={isError ? Colors.CarmineRed : 'transparent'}
         color={isError ? Colors.CarmineRed : `${colorMode}.primaryText`}
         value={value}
+        fontFamily={value === '' ? 'Inter' : Fonts.FiraSansSemiBold}
         onChangeText={onChangeText}
         style={styles.inputField}
         borderWidth={1}
@@ -53,9 +58,11 @@ function KeeperTextInput({
                 {value ? value.length : '0'}/{maxLength}
               </KeeperText>
             </Box>
-          ) : null
+          ) : (
+            InputRightComponent
+          )
         }
-        backgroundColor={`${colorMode}.ChampagneBliss`}
+        backgroundColor={`${colorMode}.textInputBackground`}
         _input={
           colorMode === 'dark' && {
             selectionColor: Colors.SecondaryWhite,
@@ -78,7 +85,6 @@ const styles = StyleSheet.create({
   },
   inputField: {
     fontSize: 12,
-    letterSpacing: 0.96,
   },
   limitText: {
     marginRight: 10,

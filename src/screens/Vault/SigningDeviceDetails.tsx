@@ -65,6 +65,7 @@ import BackupModalContent from 'src/screens/AppSettings/BackupModal';
 import DotView from 'src/components/DotView';
 import Note from 'src/components/Note/Note';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { getPersistedDocument } from 'src/services/documents';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -242,11 +243,14 @@ function SigningDeviceDetails({ route }) {
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const { showToast } = useToastMessage();
   const { activeVault } = useVault({ vaultId });
-  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+  const { primaryMnemonic, id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
   const { keyHeathCheckSuccess, keyHeathCheckError } = useAppSelector((state) => state.vault);
   const { entityBasedIndicator } = useIndicatorHook({ entityId: signerId });
+  const { typeBasedIndicator } = useIndicatorHook({
+    types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
+  });
   const [healthCheckArray, setHealthCheckArray] = useState([]);
   const [showMobileKeyModal, setShowMobileKeyModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -344,7 +348,12 @@ function SigningDeviceDetails({ route }) {
       Icon: () => (
         <FooterIcon
           Icon={HealthCheck}
-          showDot={entityBasedIndicator?.[signerId]?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]}
+          showDot={
+            (signer.type !== SignerType.MY_KEEPER &&
+              entityBasedIndicator?.[signerId]?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]) ||
+            (signer.type === SignerType.MY_KEEPER &&
+              typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId])
+          }
         />
       ),
       onPress: () => {
@@ -411,7 +420,7 @@ function SigningDeviceDetails({ route }) {
             <CircleIconWrapper
               backgroundColor={`${colorMode}.primaryGreenBackground`}
               icon={SDIcons(signer.type, true, 26, 26).Icon}
-              image={signer.extraData.thumbnailPath}
+              image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
             />
           }
         />

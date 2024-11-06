@@ -100,7 +100,9 @@ export const arrayChunks = (arr, size) =>
   );
 
 export function numberWithCommas(x: string) {
-  return x.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const parts = x.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
 }
 
 export const getPlaceholder = (index: number) => {

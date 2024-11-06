@@ -42,7 +42,7 @@ function AddressUsageBadge({ used }: Props) {
 
 const styles = StyleSheet.create({
   addressTypeBadge: {
-    width: wp(100),
+    width: wp(110),
     height: hp(25),
     marginLeft: wp(14),
     marginBottom: hp(5),

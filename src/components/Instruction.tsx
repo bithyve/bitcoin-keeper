@@ -24,11 +24,7 @@ export function Instruction({
               if (part.match(/^https?:\/\//)) {
                 return (
                   <TouchableOpacity onPress={() => openLink(part)} style={styles.linkContainer}>
-                    <Text
-                      color={`${colorMode}.greenWhiteText`}
-                      style={styles.linkText}
-                      bold
-                    >
+                    <Text color={`${colorMode}.greenWhiteText`} style={styles.linkText} bold>
                       {part.replace('https://', '').replace('http://', '')}
                     </Text>
                   </TouchableOpacity>

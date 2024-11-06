@@ -141,7 +141,8 @@
     "retry": "Retry",
     "Address": "Address",
     "time": "time",
-    "times": "times"
+    "times": "times",
+    "shareDetails": "Share Details"
   },
   "noInternet": {
     "no": "No Internet",
@@ -499,7 +500,7 @@
     "sendTransSuccessMsg": "Check transaction details for more information",
     "PRIORITY": "PRIORITY",
     "ARRIVALTIME": "ARRIVAL TIME",
-    "FEE": "FEE",
+    "fees": "Fees",
     "transactionPriority": "Transaction Priority",
     "transactionPrioritySubTitle": "Decide how fast you want to send sats",
     "addCustomPriority": "Add Custom Priority",
@@ -561,7 +562,6 @@
     "CollaborativeWalletDesc": "You should ensure you have a copy of the wallet configuration file for this vault",
     "highCustom": "Network fee is more than 10% of the amount being sent. Consider using custom fee option.",
     "highWait": "Network fee is 10% higher than usual. If not urgent, consider waiting for the fee to go down.",
-    "highUsual": "Network fee is within usual range or lower. A good time to broadcast transactions.",
     "lowFee": "Network fee is less than 10% of the amount being sent.",
     "discardTnxTitle": "Invalid UTXO set",
     "discardTnxSubTitle": "This transaction's UTXO has already been used.",
@@ -571,7 +571,7 @@
     "ReviewTransaction": "Review the Transaction",
     "SignTransaction": "Sign Transaction",
     "DenyTransaction": "Deny Transaction",
-    "transactionToastMessage": "If the transaction isn’t visible, wait a moment and refresh.",
+    "transactionToastMessage": "Transaction sent successfully! If the transaction isn’t visible, wait a moment and refresh.",
     "NewAddress": "New Address",
     "UsedAddress": "Used Address",
     "addressAlreadyUsedLabelWarning": "Address already used. Editing labels here affects only new transactions",
@@ -587,7 +587,9 @@
     "addWalletOption2Title": "Importing Wallets",
     "addWalletOption2Description": "Easily recover or recreate existing wallets from backups, configuration files, and xPubs (watch-only).",
     "addWalletOption3Title": "Advanced Customization",
-    "addWalletOption3Description": "Explore advanced options to build custom multi-sig wallets or import vaults from a signer. Coming soon: features like Time Lock and Degrading Multisig for added control over your wallet security and spending conditions."
+    "addWalletOption3Description": "Explore advanced options to build custom multi-sig wallets or import vaults from a signer. Coming soon: features like Time Lock and Degrading Multisig for added control over your wallet security and spending conditions.",
+    "selectWalletTitle": "Select Wallet",
+    "selectWalletSubtitle": "Select a wallet to send funds to"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -685,7 +687,7 @@
     "archivedVaultEmptyTitle": "View Archived Vaults",
     "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here.",
     "verifyAddDesc": "Please download the Bitcoin Keeper desktop app from our website to connect",
-    "transactionToastMessage": "If the transaction isn’t visible, wait a moment and refresh.",
+    "transactionToastMessage": "Transaction sent successfully! If the transaction isn’t visible, wait a moment and refresh.",
     "totalKeysForVaultConfiguration": "Total Keys for Vault Configuration",
     "selectTheTotalNumberOfKeys": "Select the total number of keys",
     "requiredKeys": "Required Keys",

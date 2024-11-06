@@ -22,6 +22,7 @@ export type AppStackParams = {
   IKSAddEmailPhone: undefined;
   EnterOTPEmailConfirmation: undefined;
   Send: undefined;
+  SelectWallet: undefined;
   UTXOLabeling: undefined;
   Receive: undefined;
   SignerSelectionListScreen: undefined;
