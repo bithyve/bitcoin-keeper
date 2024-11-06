@@ -45,7 +45,16 @@ const KeyPadView: React.FC<Props> = ({
       <Box style={styles.keyWrapperView}>
         <Box style={styles.emptyBtnView}>
           {enableDecimal ? (
-            <KeyPadButton title="." onPressNumber={() => onPressNumber('.')} keyColor={keyColor} />
+            <TouchableOpacity
+              onPress={() => onDeletePressed()}
+              activeOpacity={0.5}
+              testID="btn-decimal"
+              style={styles.decimalBtnView}
+            >
+              <Text fontSize={25} color={keyColor}>
+                .
+              </Text>
+            </TouchableOpacity>
           ) : (
             <Box style={styles.emptyBtnView}>
               <Text style={{ padding: 15 }} />
@@ -81,6 +90,12 @@ const styles = StyleSheet.create({
     flex: 1,
     height: hp('8%'),
     fontSize: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  decimalBtnView: {
+    flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
