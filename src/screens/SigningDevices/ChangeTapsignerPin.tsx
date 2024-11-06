@@ -166,13 +166,6 @@ function ChangeTapsignerPin() {
             isActive={activeInput === INPUTS.CONFIRM_CVC}
           />
         </Box>
-        <Box marginTop={5} marginBottom={9}>
-          <Buttons
-            primaryText="Continue"
-            primaryCallback={() => setShowPinModal(true)}
-            primaryDisable={ctaDisabled}
-          />
-        </Box>
       </ScrollView>
 
       <KeyPadView
@@ -181,12 +174,20 @@ function ChangeTapsignerPin() {
         keyColor={colorMode === 'light' ? '#041513' : '#FFF'}
         ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
       />
+      <Box style={styles.ctaContainer}>
+        <Buttons
+          primaryText="Continue"
+          primaryCallback={() => setShowPinModal(true)}
+          primaryDisable={ctaDisabled}
+          fullWidth
+        />
+      </Box>
       <KeeperModal
         visible={showPinModal}
         close={() => setShowPinModal(false)}
         showCloseIcon={false}
         title="Activate New PIN"
-        subTitle="Keep your TAPSIGNER ready before proceeding"
+        subTitle="Get your TAPSIGNER ready before proceeding"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -243,7 +244,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     marginTop: 6,
   },
-
   modalIllustration: {
     alignSelf: 'center',
     marginBottom: hp(20),
@@ -265,5 +265,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     padding: 1,
     letterSpacing: 0.65,
+  },
+  ctaContainer: {
+    marginHorizontal: 15,
+    marginTop: '3%',
   },
 });

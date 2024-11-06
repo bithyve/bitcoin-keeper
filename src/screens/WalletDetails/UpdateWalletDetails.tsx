@@ -84,6 +84,7 @@ function UpdateWalletDetails({ route }) {
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
+  // TODO: Need to check this function
   const updateWallet = () => {
     try {
       const derivationDetails: WalletDerivationDetails = {
@@ -223,7 +224,6 @@ function UpdateWalletDetails({ route }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           Content={WaringsContent}
         />
       </KeyboardAvoidingView>

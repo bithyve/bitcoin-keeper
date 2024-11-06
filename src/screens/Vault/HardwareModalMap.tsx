@@ -12,7 +12,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, useColorMode, View } from 'native-base';
+import { Box, ScrollView, useColorMode, View } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import {
   KeyGenerationMode,
@@ -50,7 +50,7 @@ import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
@@ -69,17 +69,15 @@ import { useDispatch } from 'react-redux';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
-import { HWErrorType } from 'src/models/enums/Hardware';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { crossInteractionHandler } from 'src/utils/utilities';
 import { isTestnet } from 'src/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import SigningServer from 'src/services/backend/SigningServer';
 import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import {
   setInheritanceKeyExistingEmailCount,
@@ -92,6 +90,7 @@ import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritance-key-illustration.svg';
 import Import from 'src/assets/images/import.svg';
+import USBIcon from 'src/assets/images/usb_white.svg';
 import NfcComms from 'src/assets/images/nfc_comms.svg';
 import QRComms from 'src/assets/images/qr_comms.svg';
 import useSigners from 'src/hooks/useSigners';
@@ -145,20 +144,18 @@ const getSignerContent = (
   isNfcSupported: boolean,
   keyGenerationMode: KeyGenerationMode
 ) => {
-  const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
+  const { tapsigner, coldcard, ledger, bitbox, trezor, externalKey, common } = translations;
   switch (type) {
     case SignerType.COLDCARD:
       return {
         type: SignerType.COLDCARD,
         Illustration: <ColdCardSetupImage />,
         Instructions: [
-          'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.',
-          'From here choose the account number and transfer over NFC or via file.',
+          'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. Then transfer the file via SD card or NFC.',
+          'Or instead, use the Keeper Desktop app to connect to the Coldcard via USB',
         ],
         title: isHealthcheck ? 'Verify Coldcard' : coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
-        sepInstruction:
-          'Make sure you remember the account you had chosen (This is important for vault recovery)',
         options: [
           {
             title: 'NFC',
@@ -183,46 +180,83 @@ const getSignerContent = (
             ),
             name: KeyGenerationMode.FILE,
           },
+          {
+            title: 'USB',
+            icon: (
+              <CircleIconWrapper
+                icon={<USBIcon />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.USB,
+          },
         ],
       };
     case SignerType.JADE:
       const jadeUnlockInstructions =
-        'If Jade is locked, unlock it by selecting "QR Mode" > QR PIN Unlock > then open blkstrm.com/pn in your browser and follow the instructions to unlock the Jade.';
+        'If Jade is locked, unlock it by selecting "QR Mode" > QR PIN Unlock > then open https://blkstrm.com/pn in your browser and follow the instructions to unlock the Jade.';
       const jadeInstructions = `When unlocked, export the key by going to Options > Wallet > Export Xpub. Then in Options, make sure Script is set to Native Segwit and Wallet is set to ${
         isMultisig ? 'MultiSig' : 'SingleSig'
       }.`;
+
+      let usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} and connect your Jade to the computer.`;
+
+      let instructions =
+        keyGenerationMode === KeyGenerationMode.USB
+          ? [usbInstructions]
+          : [jadeUnlockInstructions, jadeInstructions];
+      if (isTestnet()) {
+        instructions.push(
+          'Make sure you enable Testnet mode on the Jade (Options > Device > Settings > Network) if you are running Keeper in the Testnet mode.'
+        );
+      }
       return {
         type: SignerType.JADE,
         Illustration: <JadeSVG />,
-        Instructions: isTestnet()
-          ? [
-              jadeUnlockInstructions,
-              jadeInstructions,
-              'Make sure you enable Testnet mode on the Jade (Options > Device > Settings > Network) if you are running Keeper in the Testnet mode.',
-            ]
-          : [jadeUnlockInstructions, jadeInstructions],
+        Instructions: instructions,
         title: isHealthcheck
           ? 'Verify Blockstream Jade'
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up Blockstream Jade',
-        subTitle: 'Keep your Jade ready and unlocked before proceeding',
-        options: [],
+        subTitle: 'Get your Jade ready and powered up before proceeding',
+        options: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.QR,
+          },
+          {
+            title: 'USB',
+            icon: (
+              <CircleIconWrapper
+                icon={<USBIcon />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.USB,
+          },
+        ],
       };
     case SignerType.KEEPER:
       return {
         type: SignerType.KEEPER,
         Illustration: <ExternalKeySetupImage />,
-        Instructions: [
-          'Choose a Mobile Key from another Keeper app',
-          'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
-        ],
+        Instructions: [externalKey.modalInstruction1, externalKey.modalInstruction2],
         title: isHealthcheck
-          ? `Verify ${getSignerNameFromType(type)}`
+          ? `${common.verify} ${getSignerNameFromType(type)}`
           : isCanaryAddition
-          ? 'Setting up for Canary'
-          : 'Keep your Device Ready',
-        subTitle: isHealthcheck ? '' : `Importing ${getSignerNameFromType(type)}`,
+          ? externalKey.setupCanaryTitle
+          : `${common.importing} ${getSignerNameFromType(type)}`,
+        subTitle: isHealthcheck ? '' : externalKey.modalSubtitle,
         options: [],
       };
     case SignerType.MY_KEEPER:
@@ -275,7 +309,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up Keystone',
-        subTitle: 'Keep your Keystone ready before proceeding',
+        subTitle: 'Get your Keystone ready before proceeding',
         options: [
           {
             title: 'QR',
@@ -315,11 +349,11 @@ const getSignerContent = (
             ]
           : [passportInstructions],
         title: isHealthcheck
-          ? 'Verify Passport (Batch 2)'
+          ? 'Verify Passport'
           : isCanaryAddition
           ? 'Setting up for Canary'
-          : 'Setting up Passport (Batch 2)',
-        subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
+          : 'Setting up Passport',
+        subTitle: 'Get your Foundation Passport ready before proceeding',
         options: [
           {
             title: 'QR',
@@ -434,7 +468,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up SeedSigner',
-        subTitle: 'Keep your SeedSigner ready and powered before proceeding',
+        subTitle: 'Get your SeedSigner ready and powered before proceeding',
         options: [],
       };
 
@@ -456,7 +490,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Setting up Specter DIY',
-        subTitle: 'Keep your device ready and powered before proceeding',
+        subTitle: 'Get your device ready and powered before proceeding',
         options: [],
       };
     case SignerType.BITBOX02:
@@ -464,7 +498,7 @@ const getSignerContent = (
         type: SignerType.BITBOX02,
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with BitBox02.`,
+          `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with BitBox02.`,
           'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
@@ -476,7 +510,7 @@ const getSignerContent = (
         type: SignerType.TREZOR,
         Illustration: <TrezorSetup />,
         Instructions: [
-          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Trezor.`,
+          `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Trezor.`,
           'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
@@ -488,7 +522,7 @@ const getSignerContent = (
         type: SignerType.LEDGER,
         Illustration: <LedgerImage />,
         Instructions: [
-          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Ledger.`,
+          `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Ledger.`,
           'Please Make sure you have the BTC app downloaded on Ledger before this step.',
         ],
         title: isHealthcheck ? 'Verify Ledger' : ledger.SetupTitle,
@@ -551,7 +585,7 @@ const getSignerContent = (
           'The hardened part of the derivation path of the xpub has to be denoted with a “h” or “”. Please do not use any other character',
         ],
         title: isHealthcheck ? 'Verify Signer' : 'Setting up Signer',
-        subTitle: 'Keep your Signer ready before proceeding',
+        subTitle: 'Get your Signer ready before proceeding',
         options: [],
       };
 
@@ -665,21 +699,27 @@ function SignerContent({
           flexDirection: 'row',
         }}
       >
-        {options &&
-          options.map((option) => (
-            <SignerCard
-              disabled={option.disabled}
-              key={option.name}
-              isSelected={keyGenerationMode === option.name}
-              isFullText={true}
-              name={option.title}
-              icon={option.icon}
-              onCardSelect={() => {
-                onSelect(option);
-              }}
-              colorMode={colorMode}
-            />
-          ))}
+        <ScrollView horizontal>
+          {options &&
+            options.map((option) => (
+              <SignerCard
+                disabled={option.disabled}
+                key={option.name}
+                isSelected={keyGenerationMode === option.name}
+                isFullText={true}
+                name={option.title}
+                icon={option.icon}
+                onCardSelect={() => {
+                  onSelect(option);
+                }}
+                colorMode={colorMode}
+                customStyle={{
+                  width: wp(95),
+                  height: hp(options.some((opt) => opt.title.length > 10) ? 115 : 100),
+                }}
+              />
+            ))}
+        </ScrollView>
       </View>
     </View>
   );
@@ -763,12 +803,12 @@ function PasswordEnter({
         const navigationState = addSignerFlow
           ? {
               name: 'ManageSigners',
-              params: { addedSigner: signer, addSignerFlow, showModal: true },
+              params: { addedSigner: signer },
             }
           : {
               name: 'AddSigningDevice',
               merge: true,
-              params: { addedSigner: signer, addSignerFlow, showModal: true },
+              params: { addedSigner: signer },
             };
         navigation.dispatch(CommonActions.navigate(navigationState));
         setInProgress(false);
@@ -998,7 +1038,9 @@ function HardwareModalMap({
           subtitle: isExternalKey
             ? 'Please scan a QR or use alternate methods listed below'
             : 'Please scan until all the QR data has been retrieved',
-          onQrScan: isHealthcheck ? onQRScanHealthCheck : onQRScan,
+          onQrScan: (data) => {
+            isHealthcheck ? onQRScanHealthCheck(data, signer) : onQRScan(data);
+          },
           setup: true,
           type,
           mode,
@@ -1039,12 +1081,12 @@ function HardwareModalMap({
           const navigationState = addSignerFlow
             ? {
                 name: 'ManageSigners',
-                params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+                params: { addedSigner: hw.signer },
               }
             : {
                 name: 'AddSigningDevice',
                 merge: true,
-                params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+                params: { addedSigner: hw.signer },
               };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
@@ -1115,7 +1157,7 @@ function HardwareModalMap({
           title: `${
             isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary' : 'Setting up'
           } ${getSignerNameFromType(type)}`,
-          subtitle: `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect.`,
+          subtitle: `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect.`,
           type,
           signer,
           mode,
@@ -1146,12 +1188,12 @@ function HardwareModalMap({
       const navigationState = addSignerFlow
         ? {
             name: 'ManageSigners',
-            params: { addedSigner: signer, addSignerFlow, showModal: true },
+            params: { addedSigner: signer },
           }
         : {
             name: 'AddSigningDevice',
             merge: true,
-            params: { addedSigner: signer, addSignerFlow, showModal: true },
+            params: { addedSigner: signer },
           };
       navigation.dispatch(CommonActions.navigate(navigationState));
     } catch (err) {
@@ -1181,12 +1223,12 @@ function HardwareModalMap({
                 const navigationState = addSignerFlow
                   ? {
                       name: 'ManageSigners',
-                      params: { addedSigner: signer, addSignerFlow, showModal: true },
+                      params: { addedSigner: signer },
                     }
                   : {
                       name: 'AddSigningDevice',
                       merge: true,
-                      params: { addedSigner: signer, addSignerFlow, showModal: true },
+                      params: { addedSigner: signer },
                     };
                 navigation.dispatch(CommonActions.navigate(navigationState));
               } catch (err) {
@@ -1238,7 +1280,7 @@ function HardwareModalMap({
     close();
   };
 
-  const onQRScan = async (qrData, resetQR) => {
+  const onQRScan = async (qrData) => {
     let hw: { signer: Signer; key: VaultSigner };
     try {
       switch (type) {
@@ -1304,31 +1346,29 @@ function HardwareModalMap({
         const navigationState = addSignerFlow
           ? {
               name: 'ManageSigners',
-              params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+              params: { addedSigner: hw.signer },
             }
           : {
               name: 'AddSigningDevice',
               merge: true,
-              params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+              params: { addedSigner: hw.signer },
             };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);
-        resetQR();
       } else {
         captureError(error);
         showToast(
           `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
           <ToastErrorIcon />
         );
-        navigation.goBack();
       }
     }
   };
 
-  const onQRScanHealthCheck = async (qrData, resetQR, signer) => {
+  const onQRScanHealthCheck = async (qrData, signer) => {
     let healthcheckStatus: boolean;
     try {
       switch (type) {
@@ -1379,7 +1419,6 @@ function HardwareModalMap({
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);
-        resetQR();
       } else {
         captureError(error);
         showToast(
@@ -1486,11 +1525,11 @@ function HardwareModalMap({
     } else {
       dispatch(addSigningDevice([hw]));
       const navigationState = addSignerFlow
-        ? { name: 'ManageSigners', params: { addedSigner: hw, addSignerFlow, showModal: true } }
+        ? { name: 'ManageSigners', params: { addedSigner: hw } }
         : {
             name: 'AddSigningDevice',
             merge: true,
-            params: { addedSigner: hw, addSignerFlow, showModal: true },
+            params: { addedSigner: hw },
           };
       navigation.dispatch(CommonActions.navigate(navigationState));
     }
@@ -1735,12 +1774,12 @@ function HardwareModalMap({
               const navigationState = addSignerFlow
                 ? {
                     name: 'ManageSigners',
-                    params: { addedSigner: signer, addSignerFlow, showModal: true },
+                    params: { addedSigner: signer },
                   }
                 : {
                     name: 'AddSigningDevice',
                     merge: true,
-                    params: { addedSigner: signer, addSignerFlow, showModal: true },
+                    params: { addedSigner: signer },
                   };
               navigation.dispatch(CommonActions.navigate(navigationState));
             } else {
@@ -1962,6 +2001,7 @@ function HardwareModalMap({
       case SignerType.KEEPER:
       case SignerType.SEED_WORDS:
       case SignerType.COLDCARD:
+      case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.KEYSTONE:
         setKeyGenerationMode(option.name);
@@ -1995,6 +2035,8 @@ function HardwareModalMap({
       case SignerType.COLDCARD:
         if (keyGenerationMode === KeyGenerationMode.FILE) {
           return navigateToFileBasedSigner(type);
+        } else if (keyGenerationMode === KeyGenerationMode.USB) {
+          return navigateToSetupWithChannel();
         }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
@@ -2024,7 +2066,11 @@ function HardwareModalMap({
         return navigateToAddQrBasedSigner();
       case SignerType.SEEDSIGNER:
       case SignerType.SPECTER:
+        return navigateToAddQrBasedSigner();
       case SignerType.JADE:
+        if (keyGenerationMode === KeyGenerationMode.USB) {
+          return navigateToSetupWithChannel();
+        }
         return navigateToAddQrBasedSigner();
       case SignerType.KEEPER:
         return navigateToAddQrBasedSigner();
@@ -2047,9 +2093,8 @@ function HardwareModalMap({
         title={title}
         subTitle={subTitle}
         buttonText={signerType === SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={buttonCallback}
-        DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}

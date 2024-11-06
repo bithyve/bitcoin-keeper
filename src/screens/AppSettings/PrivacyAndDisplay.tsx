@@ -32,6 +32,7 @@ import { BackupType } from 'src/models/enums/BHR';
 import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import PasscodeLockIllustration from 'src/assets/images/passwordlock.svg';
 import BackupModalContent from './BackupModal';
@@ -131,24 +132,16 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
     <Box>
       <Box>
         {login.newPasscode}
-        <PinInputsView
-          backgroundColor={true}
-          passCode={passcode}
-          passcodeFlag={passcodeFlag}
-          borderColor="transparent"
-          textColor={true}
-        />
+        <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} borderColor="transparent" />
       </Box>
       {passcode.length === 4 && (
         <>
           <Box>
             {login.confirmNewPasscode}
             <PinInputsView
-              backgroundColor={true}
               passCode={confirmPasscode}
               passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
               borderColor="transparent"
-              textColor={true}
             />
             <Box mb={5}>
               {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
@@ -180,7 +173,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
         disabled={false}
         onDeletePressed={onDeletePressed}
         onPressNumber={onPressNumber}
-        ClearIcon={<DeleteIcon />}
+        ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         keyColor={`${colorMode}.primaryText`}
       />
     </Box>
@@ -201,7 +194,7 @@ function PrivacyAndDisplay({ route }) {
     oldPasscode?: string;
   } = route?.params || {};
 
-  const [sensorType, setSensorType] = useState('Biometrics');
+  const [sensorType, setSensorType] = useState(null);
   const [sensorAvailable, setSensorAvailable] = useState(false);
   const [visiblePasscode, setVisiblePassCode] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
@@ -308,6 +301,7 @@ function PrivacyAndDisplay({ route }) {
       console.log(error);
     }
   };
+
   const requestPermission = () => {
     Linking.openSettings();
   };
@@ -351,21 +345,27 @@ function PrivacyAndDisplay({ route }) {
         <Box style={styles.wrapper}>
           <Box>
             <OptionCard
-              title={sensorType}
-              description={formatString(settings.UseBiometricSubTitle, sensorType)}
+              title={sensorType || 'Biometrics'}
+              description={
+                sensorType
+                  ? formatString(settings.UseBiometricSubTitle, sensorType)
+                  : settings.NoBiometricSubTitle
+              }
               callback={() => onChangeLoginMethod()}
+              disabled={!sensorType}
               Icon={
-                sensorAvailable ? (
+                sensorAvailable || !sensorType ? (
                   <Switch
                     onValueChange={onChangeLoginMethod}
                     value={loginMethod === LoginMethod.BIOMETRIC}
                     testID="switch_biometrics"
+                    loading={!sensorType}
                   />
                 ) : (
                   <TouchableOpacity onPress={requestPermission}>
                     <Box
                       style={styles.settingsCTA}
-                      backgroundColor={`${colorMode}.learnMoreBorder`}
+                      backgroundColor={`${colorMode}.coffeeBackground`}
                     >
                       <Text style={styles.settingsCTAText} bold color={`${colorMode}.whiteText`}>
                         Enable {sensorType}
@@ -414,7 +414,6 @@ function PrivacyAndDisplay({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             primaryText="Confirm"
@@ -448,7 +447,6 @@ function PrivacyAndDisplay({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <Box style={styles.PasscodeHCModal}>
             <PasscodeLockIllustration width={wp(160)} height={hp(125)} />
@@ -489,7 +487,6 @@ function PrivacyAndDisplay({ route }) {
         }}
         title={settings.changePasscode}
         subTitleWidth={wp(240)}
-        modalBackground={`${colorMode}.learMoreTextcolor`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => (

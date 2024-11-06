@@ -134,7 +134,7 @@ export const getBackupDuration = () =>
   config.ENVIRONMENT === APP_STAGE.PRODUCTION ? 1.555e7 : 1800;
 
 export const emailCheck = (email) => {
-  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+  const reg = /^\w+([.\-+]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
   return reg.test(email);
 };
 

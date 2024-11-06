@@ -14,7 +14,12 @@ function VaultFooter({ vault, onPressBuy }: { vault: Vault; onPressBuy: () => vo
   const { colorMode } = useColorMode();
   return (
     <Box>
-      <Box borderWidth={0.5} borderColor={`${colorMode}.GreyText`} borderRadius={20} opacity={0.2} />
+      <Box
+        borderWidth={0.5}
+        borderColor={`${colorMode}.GreyText`}
+        borderRadius={20}
+        opacity={0.2}
+      />
       <Box flexDirection="row" justifyContent="space-between" marginX={10} marginTop={3}>
         <TouchableOpacity
           style={styles.IconText}

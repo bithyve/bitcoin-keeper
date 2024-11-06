@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import MixIcon from 'src/assets/images/icon_mix.svg';
-import Send from 'src/assets/images/send.svg';
+import SendGreen from 'src/assets/images/send-green.svg';
+import SendWhite from 'src/assets/images/send-white.svg';
 import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -10,6 +11,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
 import KeeperFooter from '../KeeperFooter';
+import { useColorMode } from 'native-base';
 
 function UTXOFooter({
   setEnableSelection,
@@ -26,6 +28,7 @@ function UTXOFooter({
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
+  const { colorMode } = useColorMode();
 
   const isVault = wallet?.entityKind === EntityKind.VAULT;
   let isTaprootWallet = false;
@@ -80,7 +83,7 @@ function UTXOFooter({
     // },
     {
       text: walletTranslation.selectToSend,
-      Icon: Send,
+      Icon: colorMode === 'light' ? SendGreen : SendWhite,
       onPress: () => setEnableSelection(!enableSelection),
       disabled: !utxos.length,
       hideItem: !allowedSendTypes.includes(wallet?.type),

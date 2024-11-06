@@ -61,6 +61,7 @@ import {
 } from 'src/store/reducers/cachedTxn';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
+import Colors from 'src/theme/Colors';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -671,7 +672,7 @@ function SignTransactionScreen() {
         contentContainerStyle={{ paddingTop: '5%' }}
         data={vaultKeys}
         keyExtractor={(item) => item.xfp}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <SignerList
             isIKSClicked={isIKSClicked}
             isIKSDeclined={isIKSDeclined}
@@ -680,6 +681,8 @@ function SignTransactionScreen() {
             callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
             envelops={serializedPSBTEnvelops}
             signerMap={signerMap}
+            isFirst={index === 0}
+            isLast={index === vaultKeys.length - 1}
           />
         )}
       />
@@ -750,6 +753,7 @@ function SignTransactionScreen() {
         onFileSign={onFileSign}
         sendConfirmationRouteParams={sendConfirmationRouteParams}
         tnxDetails={tnxDetails}
+        isRemoteKey={false}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal
@@ -765,7 +769,7 @@ function SignTransactionScreen() {
         }
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

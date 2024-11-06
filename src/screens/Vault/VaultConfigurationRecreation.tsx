@@ -1,5 +1,5 @@
 import { Platform, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { Box, Input, ScrollView, View, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -7,26 +7,17 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ImportIcon from 'src/assets/images/import.svg';
-
-import { RNCamera } from 'react-native-camera';
-import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
-import { decodeURBytes } from 'src/services/qr';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import OptionCard from 'src/components/OptionCard';
 import RNFS from 'react-native-fs';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import Colors from 'src/theme/Colors';
-import UploadImage from 'src/components/UploadImage';
-import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
-import useToastMessage from 'src/hooks/useToastMessage';
 import Text from 'src/components/KeeperText';
-import { QRreader } from 'react-native-qr-decode-image-camera';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import { useFocusEffect } from '@react-navigation/native';
-import CameraUnauthorized from 'src/components/CameraUnauthorized';
+import QRScanner from 'src/components/QRScanner';
 
 function WrappedImportIcon() {
   return (
@@ -41,61 +32,10 @@ function VaultConfigurationCreation() {
   const [inputText, setInputText] = useState('');
   const { recoveryLoading, initateRecovery } = useConfigRecovery();
 
-  const [qrPercent, setQrPercent] = useState(0);
-  const [qrData, setData] = useState(0);
   const { translations } = useContext(LocalizationContext);
-  const { showToast } = useToastMessage();
-  let decoder = new URRegistryDecoder();
   const { common, importWallet } = translations;
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
-
-  const [isFocused, setIsFocused] = useState(false);
-  useFocusEffect(
-    useCallback(() => {
-      setIsFocused(true);
-      return () => {
-        setIsFocused(false);
-      };
-    }, [])
-  );
-
-  // eslint-disable-next-line no-promise-executor-return
-  const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const resetQR = async () => {
-    await sleep(3000);
-    setData(0);
-    setQrPercent(0);
-  };
-
-  useEffect(() => {
-    if (qrData) {
-      initateRecovery(qrData.toString());
-      resetQR();
-    }
-    return () => {
-      decoder = new URRegistryDecoder();
-    };
-  }, [qrData]);
-
-  const onBarCodeRead = (data, fromImage = false) => {
-    if (
-      !qrData &&
-      data.data &&
-      (data.type === 'QR_CODE' || data.type === 'org.iso.QRCode' || fromImage)
-    ) {
-      if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
-        setData(data.data);
-        setQrPercent(100);
-      } else {
-        const { data: qrInfo, percentage } = decodeURBytes(decoder, data.data);
-        if (qrInfo) {
-          setData(qrInfo);
-        }
-        setQrPercent(percentage);
-      }
-    }
-  };
 
   const handleDocumentSelection = useCallback(async () => {
     try {
@@ -110,38 +50,6 @@ function VaultConfigurationCreation() {
       console.log(err);
     }
   }, []);
-
-  const handleChooseImage = () => {
-    const options = {
-      quality: 1.0,
-      maxWidth: 500,
-      maxHeight: 500,
-      storageOptions: {
-        skipBackup: true,
-      },
-      mediaType: 'photo',
-    } as ImageLibraryOptions;
-
-    launchImageLibrary(options, async (response) => {
-      if (response.didCancel) {
-        showToast('Camera device has been canceled');
-      } else if (response.errorCode === 'camera_unavailable') {
-        showToast('Camera not available on device');
-      } else if (response.errorCode === 'permission') {
-        showToast('Permission not satisfied');
-      } else if (response.errorCode === 'others') {
-        showToast(response.errorMessage);
-      } else {
-        QRreader(response.assets[0].uri)
-          .then((data) => {
-            onBarCodeRead({ data }, true);
-          })
-          .catch((err) => {
-            showToast('Invalid or No related QR code');
-          });
-      }
-    });
-  };
 
   function ImportVaultContent() {
     return (
@@ -176,28 +84,12 @@ function VaultConfigurationCreation() {
           title={importWallet.usingConfigFile}
           subtitle={importWallet.insertTextfromFile}
           learnMore
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setShowModal(true)}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
-            <Box style={styles.qrcontainer}>
-              {isFocused && (
-                <RNCamera
-                  style={styles.cameraView}
-                  captureAudio={false}
-                  onBarCodeRead={onBarCodeRead}
-                  useNativeZoom
-                  notAuthorizedView={<CameraUnauthorized />}
-                />
-              )}
-            </Box>
-            <Box style={styles.qrStatus}>
-              <UploadImage
-                backgroundColor={`${colorMode}.brownColor`}
-                onPress={handleChooseImage}
-              />
-            </Box>
+            <QRScanner onScanCompleted={initateRecovery} />
             <Box style={styles.optionsWrapper}>
               <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
                 <Input
@@ -213,6 +105,12 @@ function VaultConfigurationCreation() {
                   textAlignVertical="top"
                   textAlign="left"
                   multiline
+                  _input={
+                    colorMode === 'dark' && {
+                      selectionColor: Colors.SecondaryWhite,
+                      cursorColor: Colors.SecondaryWhite,
+                    }
+                  }
                 />
               </Box>
               <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box>
@@ -287,7 +185,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     height: hp(60),
   },
-
   tileContainer: {
     position: 'absolute',
     bottom: -50,
@@ -295,17 +192,6 @@ const styles = StyleSheet.create({
   },
   tileWrapper: {
     marginBottom: 15,
-  },
-  qrcontainer: {
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginVertical: 15,
-    alignItems: 'center',
-    alignSelf: 'center',
-  },
-  cameraView: {
-    height: hp(285),
-    width: wp(330),
   },
   noteWrapper: {
     width: '100%',

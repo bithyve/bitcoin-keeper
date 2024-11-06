@@ -721,34 +721,6 @@ function HighFeeAlert({
     </>
   );
 }
-function AddLabel() {
-  return (
-    <Box
-      flexDirection={'row'}
-      alignItems={'center'}
-      backgroundColor={Colors.MintWhisper}
-      padding={3}
-      borderWidth={1}
-      borderStyle={'dashed'}
-      borderRadius={10}
-      borderColor={Colors.GreenishBlue}
-      marginTop={10}
-    >
-      <Box marginRight={3}>
-        <LabelImg />
-      </Box>
-      <Box>
-        <Text
-          style={{ marginBottom: 3, fontWeight: 'bold', fontSize: 13 }}
-          color={Colors.GreenishBlue}
-        >
-          Add Labels to Transaction
-        </Text>
-        <Box>Lorem ipsum dolor sit amet, consectetu</Box>
-      </Box>
-    </Box>
-  );
-}
 
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
@@ -908,8 +880,9 @@ function SendConfirmation({ route }) {
   }, [OneDayHistoricalFee]);
 
   useEffect(() => {
-    navigation.addListener('beforeRemove', (e) => {
+    const remove = navigation.addListener('beforeRemove', (e) => {
       e.preventDefault();
+      remove();
       if (navigation.getState().index > 2 && isCachedTransaction) {
         navigation.dispatch(
           CommonActions.reset({
@@ -922,6 +895,7 @@ function SendConfirmation({ route }) {
         navigation.dispatch(e.data.action);
       }
     });
+    return remove;
   }, [navigation, isCachedTransaction]);
 
   useEffect(() => {
@@ -1433,8 +1407,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
-        DarkCloseIcon={colorMode === 'dark'}
+        buttonTextColor={`${colorMode}.buttonText`}
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
@@ -1469,7 +1442,6 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics
@@ -1491,7 +1463,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={common.confirm}
         buttonCallback={() => {
           setTransPriorityModalVisible(false), setTransactionPriority;
@@ -1529,7 +1501,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         secButtonTextColor={`${colorMode}.greenText`}
         buttonText={common.proceed}
@@ -1560,7 +1532,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonText={common.proceed}
         buttonCallback={toogleFeesInsightModal}
@@ -1580,8 +1552,7 @@ function SendConfirmation({ route }) {
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonText={'Discard'}
         buttonCallback={discardCachedTransaction}
-        buttonTextColor={`${colorMode}.white`}
-        showButtons
+        buttonTextColor={`${colorMode}.buttonText`}
         secondaryButtonText={'Cancel'}
         secondaryCallback={() => {
           setProgress(false);
@@ -1623,7 +1594,6 @@ const styles = StyleSheet.create({
   },
   priorityTableText: {
     fontSize: 16,
-    color: '#24312E',
   },
   transPriorityWrapper: {
     flexDirection: 'row',
@@ -1750,7 +1720,6 @@ const styles = StyleSheet.create({
   sendingFromText: {
     fontSize: 14,
     letterSpacing: 1.12,
-    marginY: windowHeight > 570 ? windowHeight * 0.011 : 1,
   },
   cardContainer: {
     flexDirection: 'row',

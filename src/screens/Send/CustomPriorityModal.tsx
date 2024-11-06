@@ -4,14 +4,15 @@ import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import BtcInput from 'src/assets/images/btc_input.svg';
+import BtcInput from 'src/assets/images/btc_black.svg';
 import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 import { calculateCustomFee } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
+import Buttons from 'src/components/Buttons';
 
 function CustomPriorityModal(props) {
   const { colorMode } = useColorMode();
@@ -25,7 +26,7 @@ function CustomPriorityModal(props) {
     buttonCallback,
     secondaryButtonText,
     secondaryCallback,
-    textColor = '#000',
+    textColor,
     network,
     recipients,
     sender,
@@ -126,67 +127,46 @@ function CustomPriorityModal(props) {
               flexDirection="row"
             >
               <Box w="80%">
-                <Text style={styles.title} color={textColor} paddingBottom={2}>
+                <Text style={styles.title} paddingBottom={2}>
                   {title}
                 </Text>
-                <Text style={styles.subTitle} color={textColor}>
-                  {subTitle}
-                </Text>
+                <Text style={styles.subTitle}>{subTitle}</Text>
               </Box>
             </Modal.Header>
             <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.priorityContainer}>
-              <Box borderRightWidth={0.5} borderRightColor={`${colorMode}.Border`} px="2">
+              <Box
+                borderRightWidth={0.5}
+                borderRightColor={`${colorMode}.Border`}
+                paddingLeft={wp(10)}
+                paddingRight={wp(8)}
+              >
                 <Box>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</Box>
               </Box>
               <Text
-                color={customPriorityFee ? `${colorMode}.greenText` : `${colorMode}.SlateGreen`}
+                color={
+                  customPriorityFee ? `${colorMode}.greenText` : `${colorMode}.placeHolderTextColor`
+                }
                 fontSize={13}
                 bold
               >
-                {customPriorityFee || 'Enter Amount'}
+                {customPriorityFee || 'Enter amount'}
               </Text>
             </Box>
             <Box my={windowHeight * 0.03} flexDirection="row" justifyContent="space-between" mx={1}>
               <Text medium color={`${colorMode}.greenText`}>
-                {walletTranslation.estimateArrvlTime}
+                {walletTranslation.estimateArrvlTime}:
               </Text>
               <Text fontSize={15}>
                 {customEstBlocks ? `${estimationSign} ${customEstBlocks * 10} mins` : ''}
               </Text>
             </Box>
 
-            <Box
-              alignSelf="flex-end"
-              flexDirection="row"
-              backgroundColor="transparent"
-              alignItems="center"
-              my={windowWidth * 0.031}
-            >
-              <TouchableOpacity onPress={secondaryCallback}>
-                <Text
-                  mr={windowWidth * 0.07}
-                  color={`${colorMode}.greenText`}
-                  bold
-                  letterSpacing={1.6}
-                >
-                  {secondaryButtonText}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleCustomFee}>
-                <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                  <Text
-                    fontSize={13}
-                    bold
-                    letterSpacing={1.6}
-                    color={buttonTextColor}
-                    mx={windowWidth * 0.04}
-                    my={windowHeight * 0.001}
-                  >
-                    {buttonText}
-                  </Text>
-                </Box>
-              </TouchableOpacity>
-            </Box>
+            <Buttons
+              primaryText={buttonText}
+              primaryCallback={handleCustomFee}
+              secondaryText={secondaryButtonText}
+              secondaryCallback={secondaryCallback}
+            />
             <KeyPadView
               onPressNumber={onPressNumber}
               onDeletePressed={onDeletePressed}
@@ -214,11 +194,6 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 12,
     letterSpacing: 1,
-  },
-  cta: {
-    paddingVertical: 10,
-    paddingHorizontal: 17,
-    borderRadius: 10,
   },
   priorityContainer: {
     flexDirection: 'row',

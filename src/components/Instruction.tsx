@@ -1,8 +1,10 @@
 import { DimensionValue, StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
+import { TouchableOpacity } from 'react-native';
+import openLink from 'src/utils/OpenLink';
 
 export function Instruction({
   text,
@@ -17,7 +19,24 @@ export function Instruction({
     <Box style={styles.bulletContainer}>
       <Box style={styles.bullet} backgroundColor={`${colorMode}.black`}></Box>
       <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
-        {text}
+        {typeof text === 'string'
+          ? text.split(/\b(https?:\/\/[^\s]+)\b/).map((part) => {
+              if (part.match(/^https?:\/\//)) {
+                return (
+                  <TouchableOpacity onPress={() => openLink(part)} style={styles.linkContainer}>
+                    <Text
+                      color={`${colorMode}.greenWhiteText`}
+                      style={styles.linkText}
+                      bold
+                    >
+                      {part.replace('https://', '').replace('http://', '')}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }
+              return part;
+            })
+          : text}
       </Text>
     </Box>
   );
@@ -47,5 +66,17 @@ const getStyles = (textWidth: DimensionValue) =>
       padding: 3,
       fontSize: 13,
       width: textWidth,
+    },
+    linkContainer: {
+      justifyContent: 'flex-end',
+      verticalAlign: 'bottom',
+      marginTop: hp(-2),
+      paddingLeft: wp(3),
+    },
+    linkText: {
+      letterSpacing: 0.65,
+      fontSize: 13,
+      textDecorationStyle: 'solid',
+      textDecorationLine: 'underline',
     },
   });

@@ -6,6 +6,7 @@ import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAppDispatch } from 'src/store/hooks';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function HealthCheckModal(props) {
   const { colorMode } = useColorMode();
@@ -82,6 +83,12 @@ function HealthCheckModal(props) {
             onChangeText={(text) => {
               setInputText(text);
             }}
+            _input={
+              colorMode === 'dark' && {
+                selectionColor: Colors.SecondaryWhite,
+                cursorColor: Colors.SecondaryWhite,
+              }
+            }
           />
           <Box alignSelf="flex-end" flexDirection="row" backgroundColor="transparent">
             <TouchableOpacity onPress={onPress}>

@@ -104,6 +104,7 @@ export const generateVault = async ({
     xpubs,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
+    totalExternalAddresses: 1,
     confirmedUTXOs: [],
     unconfirmedUTXOs: [],
     balances: {

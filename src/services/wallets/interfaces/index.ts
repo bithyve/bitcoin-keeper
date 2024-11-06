@@ -6,6 +6,8 @@ import {
   TransactionType,
   TxPriorityDefault,
 } from '../enums';
+import { Vault } from './vault';
+import { Wallet } from './wallet';
 
 export interface InputUTXOs {
   txId: string;
@@ -195,4 +197,9 @@ export interface NodeDetail {
   isConnected: boolean;
   useKeeperNode: boolean;
   useSSL: boolean;
+}
+
+export interface SyncedWallet {
+  synchedWallet: Wallet | Vault;
+  newUTXOs: UTXO[];
 }

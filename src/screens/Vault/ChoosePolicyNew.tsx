@@ -222,9 +222,6 @@ function ChoosePolicyNew({ navigation, route }) {
           value={numberWithCommas(maxTransaction)}
         />
       </Box>
-      <Box style={styles.btnWrapper}>
-        <Buttons primaryText={common.next} primaryCallback={onNext} />
-      </Box>
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
@@ -233,6 +230,9 @@ function ChoosePolicyNew({ navigation, route }) {
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
         />
+      </Box>
+      <Box style={styles.btnWrapper}>
+        <Buttons primaryText={common.next} primaryCallback={onNext} fullWidth />
       </Box>
       <KeeperModal
         visible={validationModal}
@@ -245,7 +245,6 @@ function ChoosePolicyNew({ navigation, route }) {
         textColor={`${colorMode}.primaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={otpContent}
       />
     </ScreenWrapper>
@@ -254,7 +253,8 @@ function ChoosePolicyNew({ navigation, route }) {
 
 const styles = StyleSheet.create({
   btnWrapper: {
-    marginVertical: hp(windowHeight > 700 ? 25 : 0),
+    paddingTop: hp(windowHeight > 700 ? 18 : 0),
+    paddingHorizontal: '3%',
   },
   cvvInputInfoText: {
     fontSize: 13,

@@ -187,12 +187,14 @@ export enum KeyGenerationMode {
   NFC = 'NFC',
   FILE = 'FILE',
   QR = 'QR',
+  USB = 'USB',
 }
 
 export enum SigningMode {
   NFC = 'NFC',
   FILE = 'FILE',
   QR = 'QR',
+  USB = 'USB',
 }
 
 export enum RKInteractionMode {

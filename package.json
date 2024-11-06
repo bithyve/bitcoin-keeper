@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "1.2.17",
+  "version": "1.2.18",
   "private": true,
   "scripts": {
     "ios": "react-native run-ios",

@@ -90,7 +90,7 @@ function CloudBackupScreen() {
         subtitle={`On your ${cloudName}`}
         learnMore={true}
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => setShowModal(true)}
         icon={
           <CircleIconWrapper
@@ -138,19 +138,25 @@ function CloudBackupScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-      <Buttons
-        primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
-        primaryCallback={() => {
-          if (allVaults.length === 0) {
-            showToast('No vaults found.', <ToastErrorIcon />);
-          } else {
-            setShowPasswordModal(true);
-          }
-        }}
-        primaryLoading={loading}
-        secondaryText={isBackupAllowed ? strings.healthCheck : ''}
-        secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
-      />
+      <Box
+        alignSelf={!isBackupAllowed ? 'center' : 'flex-end'}
+        width={!isBackupAllowed ? '93%' : '100%'}
+      >
+        <Buttons
+          primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
+          primaryCallback={() => {
+            if (allVaults.length === 0) {
+              showToast('No vaults found.', <ToastErrorIcon />);
+            } else {
+              setShowPasswordModal(true);
+            }
+          }}
+          primaryLoading={loading}
+          secondaryText={isBackupAllowed ? strings.healthCheck : ''}
+          secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
+          fullWidth
+        />
+      </Box>
       <KeeperModal
         visible={showModal}
         close={() => {
@@ -162,7 +168,6 @@ function CloudBackupScreen() {
         title={strings.cloudBackupModalTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}

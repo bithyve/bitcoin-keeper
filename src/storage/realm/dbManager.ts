@@ -68,7 +68,14 @@ const getObjectByIndex = (schema: RealmSchema, index: number = 0, all: boolean =
  */
 const getObjectById = (schema: RealmSchema, id: string) => {
   const objects = realm.get(schema);
-  return objects.filtered(`id == '${id}'`)[0];
+  if (
+    objects.length > 0 &&
+    typeof objects[0].toJSON()['id'] == 'number' &&
+    parseInt(id).toString() === id
+  ) {
+    return objects.filtered(`id == $0`, parseInt(id))[0];
+  }
+  return objects.filtered(`id == $0`, id)[0];
 };
 
 /**
@@ -78,7 +85,14 @@ const getObjectById = (schema: RealmSchema, id: string) => {
  */
 const getObjectByPrimaryId = (schema: RealmSchema, name: string, primaryId: string) => {
   const objects = realm.get(schema);
-  return objects.filtered(`${name} == '${primaryId}'`)[0];
+  if (
+    objects.length > 0 &&
+    typeof objects[0].toJSON()[name] == 'number' &&
+    parseInt(primaryId).toString() === primaryId
+  ) {
+    return objects.filtered(`${name} == $0`, parseInt(primaryId))[0];
+  }
+  return objects.filtered(`${name} == $0`, primaryId)[0];
 };
 
 /**
@@ -136,7 +150,14 @@ const updateObjectByPrimaryId = (
  */
 const getObjectByField = (schema: RealmSchema, value: string, fieldName: string) => {
   const objects = realm.get(schema);
-  return objects.filtered(`${fieldName} == '${value}'`);
+  if (
+    objects.length > 0 &&
+    typeof objects[0].toJSON()[fieldName] == 'number' &&
+    parseInt(value).toString() === value
+  ) {
+    return objects.filtered(`${fieldName} == $0`, parseInt(value))[0];
+  }
+  return objects.filtered(`${fieldName} == $0`, value);
 };
 
 /**

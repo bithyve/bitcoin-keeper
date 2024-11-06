@@ -14,7 +14,8 @@ import TribeWalletIcon from 'src/assets/images/hexagontile_wallet.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import { wp } from 'src/constants/responsive';
+import SettingIcon from 'src/assets/images/settings.svg';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
@@ -42,6 +43,7 @@ import LearnMoreModal from './components/LearnMoreModal';
 import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -162,16 +164,26 @@ function WalletDetails({ route }: ScreenProps) {
       <Box style={styles.topContainer}>
         <KeeperHeader
           learnMore
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           learnBackgroundColor={`${colorMode}.pantoneGreen`}
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}
           title={name}
-          titleColor={`${colorMode}.seashellWhite`}
+          titleColor={`${colorMode}.seashellWhiteText`}
           mediumTitle
           subtitle={walletType === 'IMPORTED' ? 'Imported wallet' : description}
-          subTitleColor={`${colorMode}.seashellWhite`}
+          subTitleColor={`${colorMode}.seashellWhiteText`}
           icon={getWalletIcon(wallet)}
+          rightComponent={
+            <TouchableOpacity
+              style={styles.settingBtn}
+              onPress={() =>
+                navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
+              }
+            >
+              <SettingIcon width={24} height={24} />
+            </TouchableOpacity>
+          }
         />
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
@@ -186,8 +198,8 @@ function WalletDetails({ route }: ScreenProps) {
               hideAmounts={false}
               amount={unconfirmed + confirmed}
               fontSize={24}
-              color={`${colorMode}.white`}
-              variation={colorMode === 'light' ? 'light' : 'dark'}
+              color={`${colorMode}.buttonText`}
+              variation="light"
             />
           </Box>
         </Box>
@@ -264,7 +276,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
   },
   walletContainer: {
-    paddingHorizontal: wp(28),
+    paddingHorizontal: wp(20),
     paddingTop: wp(60),
     paddingBottom: 20,
     flex: 1,
@@ -341,6 +353,13 @@ const styles = StyleSheet.create({
   transactionHeading: {
     fontSize: 16,
     letterSpacing: 0.16,
+    paddingBottom: 16,
+    paddingLeft: 10,
+  },
+  settingBtn: {
+    width: wp(24),
+    height: hp(24),
+    marginRight: wp(7),
   },
 });
 export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);

@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Image, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
@@ -24,8 +24,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { NetworkType, SignerStorage, SignerType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import * as Sentry from '@sentry/react-native';
@@ -47,24 +46,23 @@ import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import Relay from 'src/services/backend/Relay';
 import { notificationType } from 'src/models/enums/Notifications';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import AddKeyButton from './components/AddKeyButton';
+import EmptyListIllustration from '../../components/EmptyListIllustration';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
 function ManageSigners({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const {
-    vaultId = '',
-    addedSigner,
-    addSignerFlow,
-    showModal,
-    receivedExternalSigner,
-  } = route.params || {};
+  const { vaultId = '', addedSigner, receivedExternalSigner } = route.params || {};
   const { activeVault } = useVault({ vaultId });
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
-  const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
+  const { realySignersUpdateErrorMessage, relaySignersUpdate, relaySignersUpdateLoading } =
+    useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
@@ -84,21 +82,37 @@ function ManageSigners({ route }: ScreenProps) {
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
   });
 
+  const [inProgress, setInProgress] = useState(false);
+
   useEffect(() => {
-    if (showModal) {
-      setKeyAddedModalVisible(true);
-    }
-  }, [showModal]);
+    setInProgress(relaySignersUpdateLoading);
+  }, [relaySignersUpdateLoading]);
 
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
-      showToast(realySignersUpdateErrorMessage, null, IToastCategory.SIGNING_DEVICE);
+      setInProgress(false);
+      showToast(
+        realySignersUpdateErrorMessage,
+        <ToastErrorIcon />,
+        IToastCategory.SIGNING_DEVICE,
+        5000
+      );
       dispatch(resetSignersUpdateState());
     }
     return () => {
       dispatch(resetSignersUpdateState());
     };
   }, [realySignersUpdateErrorMessage]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (relaySignersUpdate) {
+        setInProgress(false);
+        setKeyAddedModalVisible(true);
+        dispatch(resetSignersUpdateState());
+      }
+    }, [relaySignersUpdate])
+  );
 
   const handleTimerEnd = () => {
     setIsTimerActive(false);
@@ -127,7 +141,6 @@ function ManageSigners({ route }: ScreenProps) {
 
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
-    navigation.dispatch(CommonActions.setParams({ showModal: false }));
   };
 
   const acceptRemoteKey = async () => {
@@ -179,9 +192,9 @@ function ManageSigners({ route }: ScreenProps) {
           mediumTitle
           learnMore
           learnMorePressed={() => setShowLearnMoreModal(true)}
-          learnTextColor={`${colorMode}.white`}
-          titleColor={`${colorMode}.seashellWhite`}
-          subTitleColor={`${colorMode}.seashellWhite`}
+          learnTextColor={`${colorMode}.buttonText`}
+          titleColor={`${colorMode}.seashellWhiteText`}
+          subTitleColor={`${colorMode}.seashellWhiteText`}
           rightComponent={
             <TouchableOpacity onPress={navigateToSettings} testID="btn_manage_singner_setting">
               <SettingIcon />
@@ -189,7 +202,7 @@ function ManageSigners({ route }: ScreenProps) {
           }
           icon={
             <CircleIconWrapper
-              backgroundColor={`${colorMode}.seashellWhite`}
+              backgroundColor={`${colorMode}.seashellWhiteText`}
               icon={<SignerIcon />}
             />
           }
@@ -211,13 +224,12 @@ function ManageSigners({ route }: ScreenProps) {
       <KeeperModal
         title={signerTranslation.keyReceived}
         subTitle={signerTranslation.keyReceiveMessage}
-        DarkCloseIcon={colorMode === 'dark'}
         close={() => setTimerModal(false)}
         visible={timerModal}
         textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.modalGreenButton`}
         secButtonTextColor={`${colorMode}.modalGreenButton`}
         buttonText={signerTranslation.addKey}
@@ -239,13 +251,12 @@ function ManageSigners({ route }: ScreenProps) {
       <KeeperModal
         title={signerTranslation.keyExpired}
         subTitle={signerTranslation.keyExpireMessage}
-        DarkCloseIcon={colorMode === 'dark'}
         close={() => setTimerExpiredModal(false)}
         visible={timerExpiredModal}
         textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         Content={() => (
           <Box>
             <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
@@ -286,6 +297,7 @@ function ManageSigners({ route }: ScreenProps) {
           </Box>
         )}
       />
+      {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </Box>
   );
 }
@@ -366,10 +378,9 @@ function SignersList({
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, false)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
+          icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}
-          isFullText
           colorVarient="green"
           colorMode={colorMode}
         />
@@ -382,8 +393,12 @@ function SignersList({
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        style={styles.scrollMargin}
       >
+        {!vaultKeys.length && (
+          <Box style={{ marginBottom: hp(25), marginRight: wp(15) }}>
+            <AddKeyButton onPress={handleAddSigner} />
+          </Box>
+        )}
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
             const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
@@ -414,24 +429,19 @@ function SignersList({
                     : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
                 description={getSignerDescription(signer)}
-                icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+                icon={SDIcons(signer.type, true).Icon}
                 image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}
-                isFullText
                 colorVarient="green"
                 colorMode={colorMode}
               />
             );
           })}
           {isNonVaultManageSignerFlow && renderAssistedKeysShell()}
-          {!vaultKeys.length ? (
-            <AddCard
-              name={signerTranslation.addKey}
-              cardStyles={styles.addCard}
-              callback={handleAddSigner}
-            />
-          ) : null}
+          {isNonVaultManageSignerFlow && list.length == 0 && shellAssistedKeys.length == 0 && (
+            <EmptyListIllustration listType="keys" />
+          )}
         </Box>
       </ScrollView>
     </SafeAreaView>
@@ -451,22 +461,20 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   topSection: {
-    height: '35%',
+    height: '25%',
     paddingHorizontal: 20,
     paddingTop: 20,
   },
   signersContainer: {
     paddingHorizontal: '5%',
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
     flex: 1,
   },
   scrollContainer: {
     zIndex: 2,
-    gap: 40,
-    marginVertical: 30,
-    paddingBottom: 30,
-  },
-  scrollMargin: {
-    marginTop: '-30%',
+    marginVertical: wp(30),
+    paddingBottom: hp(30),
   },
   addedSignersContainer: {
     flexDirection: 'row',

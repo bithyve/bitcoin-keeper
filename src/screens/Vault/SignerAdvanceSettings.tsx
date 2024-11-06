@@ -17,10 +17,9 @@ import {
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
-import { updateKeyDetails, updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -79,12 +78,11 @@ import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import Note from 'src/components/Note/Note';
-import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
-import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
+import { getPersistedDocument } from 'src/services/documents';
 
 const { width } = Dimensions.get('screen');
 
@@ -209,7 +207,7 @@ function SignerAdvanceSettings({ route }: any) {
   });
   const signerVaults: Vault[] = [];
 
-  allVaults.forEach((vault) => {
+  allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
     for (const key of keys) {
       if (signer.masterFingerprint === key.masterFingerprint) {
@@ -235,10 +233,6 @@ function SignerAdvanceSettings({ route }: any) {
     showToast('Key hidden successfully', <TickIcon />);
     const popAction = StackActions.pop(2);
     navigation.dispatch(popAction);
-  };
-
-  const registerColdCard = async () => {
-    await withNfcModal(() => registerToColcard({ vault: activeVault }));
   };
 
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
@@ -359,23 +353,6 @@ function SignerAdvanceSettings({ route }: any) {
 
   const registerSigner = async () => {
     switch (signer.type) {
-      case SignerType.COLDCARD:
-        await registerColdCard();
-        dispatch(
-          updateKeyDetails(vaultKey, 'registered', {
-            registered: true,
-            vaultId: activeVault.id,
-          })
-        );
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_REGISTRATION,
-            },
-          ])
-        );
-        return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
         navigation.dispatch(
@@ -389,9 +366,9 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.PASSPORT:
-      case SignerType.SEEDSIGNER:
       case SignerType.SPECTER:
       case SignerType.OTHER_SD:
+      case SignerType.COLDCARD:
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
       case SignerType.PORTAL:
@@ -405,7 +382,12 @@ function SignerAdvanceSettings({ route }: any) {
         break;
 
       default:
-        showToast('Coming soon', null, IToastCategory.DEFAULT, 1000);
+        showToast(
+          "This device doesn't require vault registration",
+          null,
+          IToastCategory.DEFAULT,
+          1000
+        );
         break;
     }
   };
@@ -452,7 +434,7 @@ function SignerAdvanceSettings({ route }: any) {
             placeholder="pleb@bitcoin.com"
             value={email}
             onChangeText={(value) => {
-              setEmail(value);
+              setEmail(value.trim());
               emailStatusFail && setEmailStatusFail(false);
             }}
           />
@@ -553,7 +535,7 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const signPSBT = async (serializedPSBT, resetQR) => {
+  const signPSBT = async (serializedPSBT) => {
     try {
       let signedSerialisedPSBT;
       try {
@@ -578,7 +560,6 @@ function SignerAdvanceSettings({ route }: any) {
         );
       }
     } catch (e) {
-      resetQR();
       showToast('Please scan a valid PSBT');
     }
   };
@@ -899,7 +880,7 @@ function SignerAdvanceSettings({ route }: any) {
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
             icon={SDIcons(signer.type, true).Icon}
-            image={signer?.extraData?.thumbnailPath}
+            image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
           />
         }
       />
@@ -1060,7 +1041,6 @@ function SignerAdvanceSettings({ route }: any) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonText="Continue"
         secondaryButtonText="Cancel"
         secondaryCallback={() => setWarning(false)}
@@ -1075,7 +1055,6 @@ function SignerAdvanceSettings({ route }: any) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={EditModalContent}
       />
       <KeeperModal
@@ -1106,9 +1085,8 @@ function SignerAdvanceSettings({ route }: any) {
         secondaryCallback={() => setHideWarning(false)}
         secButtonTextColor={`${colorMode}.greenText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));

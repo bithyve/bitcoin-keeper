@@ -128,12 +128,12 @@ function SetupColdCard({ route }) {
         const navigationState = addSignerFlow
           ? {
               name: 'ManageSigners',
-              params: { addedSigner: coldcard, addSignerFlow, showModal: true },
+              params: { addedSigner: coldcard },
             }
           : {
               name: 'AddSigningDevice',
               merge: true,
-              params: { addedSigner: coldcard, addSignerFlow, showModal: true },
+              params: { addedSigner: coldcard },
             };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }

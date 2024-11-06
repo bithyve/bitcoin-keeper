@@ -32,7 +32,7 @@ function SetupSeedWordSigner({ route }) {
         }}
       >
         <Box
-          backgroundColor={`${colorMode}.primaryBackground`}
+          backgroundColor={`${colorMode}.seedCard`}
           flexDirection="row"
           justifyContent="space-evenly"
           padding={4}
