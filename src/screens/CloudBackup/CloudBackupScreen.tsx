@@ -84,22 +84,22 @@ function CloudBackupScreen() {
           dispatch(backupBsmsOnCloud(value || ''));
         }}
       />
-
-      <KeeperHeader
-        title={strings.cloudBackup}
-        subtitle={`On your ${cloudName}`}
-        learnMore={true}
-        learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-        learnTextColor={`${colorMode}.buttonText`}
-        learnMorePressed={() => setShowModal(true)}
-        icon={
-          <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={<CloudIcon />}
-          />
-        }
-      />
-
+      <Box width={'100%'}>
+        <KeeperHeader
+          title={strings.cloudBackup}
+          subtitle={`On your ${cloudName}`}
+          learnMore={true}
+          learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
+          learnTextColor={`${colorMode}.buttonText`}
+          learnMorePressed={() => setShowModal(true)}
+          icon={
+            <CircleIconWrapper
+              backgroundColor={`${colorMode}.primaryGreenBackground`}
+              icon={<CloudIcon />}
+            />
+          }
+        />
+      </Box>
       <Text style={styles.textTitle}>{strings.recentHistory}</Text>
 
       <FlatList
@@ -205,9 +205,7 @@ const styles = StyleSheet.create({
   },
   textTitle: {
     fontSize: 16,
-    marginTop: 25,
-    letterSpacing: 0.16,
-    marginHorizontal: 20,
+    padding: '7%',
   },
   backupModalDesc: {
     fontWeight: 400,
