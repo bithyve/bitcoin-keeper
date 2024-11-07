@@ -79,7 +79,7 @@ function SetupPortal({ route }) {
   }
 
   useEffect(() => {
-    actionDirectly();
+    continueWithPortal();
   }, []);
 
   useEffect(() => {
@@ -90,20 +90,6 @@ function SetupPortal({ route }) {
     nfcVisible === false && PORTAL.stopReading();
   }, [nfcVisible]);
 
-  const actionDirectly = async () => {
-    switch (mode) {
-      case InteracationMode.SIGN_TRANSACTION:
-        return signWithPortal();
-      case InteracationMode.IDENTIFICATION:
-        return startRegisterVault();
-      case InteracationMode.HEALTH_CHECK:
-        return healthCheckPortal();
-      case InteracationMode.IDENTIFICATION:
-        return startRegisterVault();
-      default:
-        return addPortal();
-    }
-  };
 
   const onPressHandler = (digit) => {
     const temp = (activeInput === INPUTS.CVC ? cvc : confirmCVC) || '';
