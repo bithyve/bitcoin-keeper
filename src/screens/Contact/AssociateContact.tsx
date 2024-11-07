@@ -64,7 +64,7 @@ const AssociateContact = ({ route }) => {
   }, []);
 
   const filteredContacts = contacts.filter((contact) =>
-    contact.givenName.toLowerCase().includes(search.toLowerCase())
+    contact?.givenName?.toLowerCase()?.includes(search?.toLowerCase())
   );
 
   const handleContactPress = (contact) => {
@@ -179,7 +179,6 @@ const AssociateContact = ({ route }) => {
           textColor={`${colorMode}.modalWhiteContent`}
           buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
-          secButtonTextColor={`${colorMode}.buttonText`}
           buttonText="Continue"
           buttonCallback={onAddAssociateContact}
           Content={() => (

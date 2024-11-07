@@ -724,7 +724,13 @@ export function* addSigningDeviceWorker({
           signersToUpdate,
           Realm.UpdateMode.Modified
         );
-        yield put(relaySignersUpdateSuccess(true));
+
+        yield put(
+          relaySignersUpdateSuccess(
+            signersToUpdate.length !== 1 ||
+              (signersToUpdate[0]?.extraData?.instanceNumber !== 1 && !signersToUpdate[0]?.hidden)
+          )
+        );
       } else {
         const errorMsg = response.error?.message
           ? response.error.message.toString()

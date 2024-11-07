@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 
@@ -24,7 +25,7 @@ const pickDocument = async () => {
 
 const persistDocument = async (sourcePath: string, desPath?: string) => {
   try {
-    const ext = sourcePath.split('.').pop();
+    const ext = Platform.OS === 'ios' ? sourcePath.split('.').pop() : 'jpg';
     const defaultDestPath =
       desPath ?? `file://${RNFS.DocumentDirectoryPath}/dp_${Date.now()}.${ext}`;
     await RNFS.copyFile(sourcePath, desPath ?? defaultDestPath);

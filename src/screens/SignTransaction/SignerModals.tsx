@@ -1229,6 +1229,17 @@ function SignerModals({
               subTitle="Keep your Portal ready before proceeding"
               buttonText="Proceed"
               buttonCallback={navigateToSignWithPortal}
+              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryCallback={() => {
+                setPortalModal(false);
+                navigation.dispatch(
+                  CommonActions.navigate('SetupPortal', {
+                    vaultKey,
+                    vaultId,
+                    mode: InteracationMode.VAULT_REGISTER,
+                  })
+                );
+              }}
               Content={() => <PortalContent />}
             />
           );
