@@ -16,6 +16,10 @@ type ActionCardProps = {
   showDot?: boolean;
   smallDeviceHeight?: number;
   smallDeviceWidth?: number;
+  disable?: boolean;
+  cardPillColor?: string;
+  circleColor?: string;
+  pillTextColor?: string;
 };
 
 function ActionCard({
@@ -29,11 +33,21 @@ function ActionCard({
   showDot = false,
   smallDeviceHeight = hp(110),
   smallDeviceWidth = wp(110),
+  disable = false,
+  cardPillColor,
+  circleColor,
+  pillTextColor,
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
+
   return (
-    <TouchableOpacity testID={`btn_${cardName}`} activeOpacity={0.95} onPress={callback}>
+    <TouchableOpacity
+      testID={`btn_${cardName}`}
+      activeOpacity={0.95}
+      onPress={callback}
+      disabled={disable}
+    >
       <Box
         style={[
           styles.cardContainer,
@@ -45,10 +59,14 @@ function ActionCard({
       >
         {cardPillText && (
           <Box style={styles.cardPillContainer}>
-            <CardPill heading={cardPillText} backgroundColor={`${colorMode}.btcLabelBack`} />
+            <CardPill
+              heading={cardPillText}
+              backgroundColor={cardPillColor || `${colorMode}.btcLabelBack`}
+              headingColor={pillTextColor}
+            />
           </Box>
         )}
-        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
+        <Box backgroundColor={circleColor || `${colorMode}.BrownNeedHelp`} style={styles.circle}>
           {dottedBorder && (
             <Box borderColor={`${colorMode}.choosePlanHome`} style={styles.dottedBorder} />
           )}
@@ -63,6 +81,9 @@ function ActionCard({
             {description}
           </Text>
         )}
+        {disable && (
+          <Box style={styles.disabledOverlay} backgroundColor={`${colorMode}.thirdBackground`} />
+        )}
       </Box>
     </TouchableOpacity>
   );
@@ -76,6 +97,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 6,
     borderRadius: 10,
+    overflow: 'hidden',
   },
   circle: {
     width: 34,
@@ -86,6 +108,7 @@ const styles = StyleSheet.create({
     marginTop: '4%',
     marginBottom: hp(10),
     marginLeft: 2,
+    zIndex: 1,
   },
   dottedBorder: {
     position: 'absolute',
@@ -103,6 +126,7 @@ const styles = StyleSheet.create({
   cardPillContainer: {
     maxWidth: wp(100),
     alignSelf: 'flex-end',
+    zIndex: 1,
   },
   dot: {
     height: 7,
@@ -120,6 +144,11 @@ const styles = StyleSheet.create({
     right: 0,
     borderWidth: 1,
     borderColor: 'white',
+  },
+  disabledOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.6,
+    borderRadius: 10,
   },
 });
 

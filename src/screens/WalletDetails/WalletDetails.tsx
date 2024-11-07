@@ -108,6 +108,18 @@ function WalletDetails({ route }: ScreenProps) {
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
 
+  const disableBuy = true;
+  const cardProps = {
+    circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
+    pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
+    cardPillText: disableBuy
+      ? common.comingSoon
+      : `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+          currencyCodeExchangeRate.buy.toFixed(0)
+        )}`,
+    cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
+  };
+
   useEffect(() => {
     if (!syncing) {
       // temporarily disabled due to huge performance lag (never call dispatch in useEffect)
@@ -212,15 +224,17 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <Box style={styles.actionCard}>
         <ActionCard
+          disable={disableBuy}
           cardName={common.buyBitCoin}
           description={common.inToThisWallet}
           callback={() =>
             navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
           }
           icon={<BTC />}
-          cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-            currencyCodeExchangeRate.buy.toFixed(0)
-          )}`}
+          cardPillText={cardProps.cardPillText}
+          pillTextColor={cardProps.pillTextColor}
+          circleColor={cardProps.circleColor}
+          cardPillColor={cardProps.cardPillColor}
         />
         <ActionCard
           cardName={common.viewAllCoins}

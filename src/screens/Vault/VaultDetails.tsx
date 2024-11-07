@@ -250,6 +250,18 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [cachedTransactions, setCachedTransactions] = useState([]);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
 
+  const disableBuy = true;
+  const cardProps = {
+    circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
+    pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
+    cardPillText: disableBuy
+      ? common.comingSoon
+      : `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+          currencyCodeExchangeRate.buy.toFixed(0)
+        )}`,
+    cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
+  };
+
   useEffect(() => {
     const cached = [];
     for (const cachedTxid in snapshots) {
@@ -391,17 +403,19 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <HStack style={styles.actionCardContainer}>
           {!isCanaryWallet && (
             <ActionCard
+              disable={disableBuy}
               cardName={common.buyBitCoin}
               description={common.inToThisWallet}
               callback={() =>
                 navigation.dispatch(
-                  CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
+                  CommonActions.navigate({ name: 'BuyBitcoin', params: { vault } })
                 )
               }
               icon={<BTC />}
-              cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-                currencyCodeExchangeRate.buy.toFixed(0)
-              )}`}
+              cardPillText={cardProps.cardPillText}
+              pillTextColor={cardProps.pillTextColor}
+              circleColor={cardProps.circleColor}
+              cardPillColor={cardProps.cardPillColor}
             />
           )}
           <ActionCard
