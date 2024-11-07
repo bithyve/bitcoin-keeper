@@ -177,5 +177,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 999,
     justifyContent: 'center',
+    maxHeight: hp(35),
   },
 });
