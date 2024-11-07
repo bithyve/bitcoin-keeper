@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { FlatList, RefreshControl, StyleSheet } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
@@ -250,6 +250,18 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [cachedTransactions, setCachedTransactions] = useState([]);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
 
+  const disableBuy = Platform.OS === 'ios' ? true : false;
+  const cardProps = {
+    circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
+    pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
+    cardPillText: disableBuy
+      ? common.comingSoon
+      : `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+          currencyCodeExchangeRate.buy.toFixed(0)
+        )}`,
+    cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
+  };
+
   useEffect(() => {
     const cached = [];
     for (const cachedTxid in snapshots) {
@@ -391,6 +403,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <HStack style={styles.actionCardContainer}>
           {!isCanaryWallet && (
             <ActionCard
+              disable={disableBuy}
               cardName={common.buyBitCoin}
               description={common.inToThisWallet}
               callback={() =>
@@ -399,9 +412,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                 )
               }
               icon={<BTC />}
-              cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-                currencyCodeExchangeRate.buy.toFixed(0)
-              )}`}
+              cardPillText={cardProps.cardPillText}
+              pillTextColor={cardProps.pillTextColor}
+              circleColor={cardProps.circleColor}
+              cardPillColor={cardProps.cardPillColor}
             />
           )}
           <ActionCard
