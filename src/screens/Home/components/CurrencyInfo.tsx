@@ -61,10 +61,6 @@ const styles = StyleSheet.create({
   vaultBalanceContainer: {
     alignItems: 'center',
   },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-  },
   rowCenter: {
     flexDirection: 'row',
     justifyContent: 'center',
