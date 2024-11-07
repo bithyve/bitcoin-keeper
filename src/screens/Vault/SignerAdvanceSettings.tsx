@@ -470,7 +470,7 @@ function SignerAdvanceSettings({ route }: any) {
             Note:
           </Text>
           <Text color={`${colorMode}.greenText`} style={styles.noteDescription}>
-            If notification is not declined continuously for 30 days, the Key would be activated
+            If notification is not declined continuously for 30 days, the key will be activated
           </Text>
         </Box>
         {currentEmail !== email && (
