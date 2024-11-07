@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     height: '100%',
     textAlign: 'center',
     marginTop: hp(5.5),
-    width: wp(70),
+    minWidth: wp(75),
   },
 });
 
