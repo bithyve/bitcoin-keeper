@@ -64,7 +64,7 @@ const AssociateContact = ({ route }) => {
   }, []);
 
   const filteredContacts = contacts.filter((contact) =>
-    contact.givenName.toLowerCase().includes(search.toLowerCase())
+    contact?.givenName?.toLowerCase()?.includes(search?.toLowerCase())
   );
 
   const handleContactPress = (contact) => {
