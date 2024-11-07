@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { FlatList, RefreshControl, StyleSheet } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
@@ -250,7 +250,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [cachedTransactions, setCachedTransactions] = useState([]);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
 
-  const disableBuy = true;
+  const disableBuy = Platform.OS === 'ios' ? true : false;
   const cardProps = {
     circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
     pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
@@ -408,7 +408,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               description={common.inToThisWallet}
               callback={() =>
                 navigation.dispatch(
-                  CommonActions.navigate({ name: 'BuyBitcoin', params: { vault } })
+                  CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
                 )
               }
               icon={<BTC />}

@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -108,7 +108,7 @@ function WalletDetails({ route }: ScreenProps) {
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
 
-  const disableBuy = true;
+  const disableBuy = Platform.OS === 'ios' ? true : false;
   const cardProps = {
     circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
     pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
