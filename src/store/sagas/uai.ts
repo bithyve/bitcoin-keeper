@@ -236,6 +236,7 @@ function* uaiChecksWorker({ payload }) {
               : healthCheckReminderDays(signer.lastHealthCheck);
             if (
               lastHealthCheck < healthCheckReminderThreshold ||
+              signer.hidden ||
               signer.type === SignerType.MY_KEEPER
             ) {
               yield put(uaiActioned({ uaiId: uai.id, action: true }));
