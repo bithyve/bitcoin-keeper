@@ -56,6 +56,7 @@ const AddressVerifiableSigners = [
   SignerType.TREZOR,
   SignerType.COLDCARD,
   SignerType.JADE,
+  SignerType.PORTAL,
 ];
 
 const SignerTypesNeedingRegistration = [
@@ -64,6 +65,7 @@ const SignerTypesNeedingRegistration = [
   SignerType.PASSPORT,
   SignerType.KEYSTONE,
   SignerType.SPECTER,
+  SignerType.PORTAL,
 ];
 
 function ReceiveScreen({ route }: { route }) {
@@ -283,14 +285,25 @@ function ReceiveScreen({ route }: { route }) {
         title: 'Register vault on Device', //TODO: Move to translations
         description: 'Select a signer',
         callback: (signer, signerName) => {
-          navigation.dispatch(
-            CommonActions.navigate('RegisterWithQR', {
-              vaultKey: (wallet as Vault).signers.find(
-                (vaultSigner) => vaultSigner.masterFingerprint === signer.masterFingerprint
-              ),
-              vaultId: wallet.id,
-            })
+          const vaultKey = (wallet as Vault).signers.find(
+            (vaultSigner) => vaultSigner.masterFingerprint === signer.masterFingerprint
           );
+          if (signer.type === SignerType.PORTAL) {
+            navigation.dispatch(
+              CommonActions.navigate('SetupPortal', {
+                vaultKey,
+                vaultId: wallet.id,
+                mode: InteracationMode.IDENTIFICATION,
+              })
+            );
+          } else {
+            navigation.dispatch(
+              CommonActions.navigate('RegisterWithQR', {
+                vaultKey,
+                vaultId: wallet.id,
+              })
+            );
+          }
         },
       })
     );
