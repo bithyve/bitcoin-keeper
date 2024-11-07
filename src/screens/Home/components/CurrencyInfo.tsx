@@ -14,6 +14,7 @@ interface ICurrencyInfo {
   satsFontSize?: number;
   bold?: boolean;
   color?: string;
+  balanceMaxWidth?: number;
   variation?: 'light' | 'green' | 'dark' | 'grey';
 }
 function CurrencyInfo({
@@ -23,6 +24,7 @@ function CurrencyInfo({
   satsFontSize = fontSize,
   bold,
   color = Colors.White,
+  balanceMaxWidth,
   variation = 'grey',
 }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
@@ -33,7 +35,7 @@ function CurrencyInfo({
         <Box style={styles.rowCenter}>
           <Text
             color={color}
-            style={{ fontSize, paddingVertical: 5 }}
+            style={{ fontSize, paddingVertical: 5, maxWidth: balanceMaxWidth || null }}
             bold={bold}
             numberOfLines={1}
             testID="text_balance"

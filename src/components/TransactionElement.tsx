@@ -81,7 +81,11 @@ function TransactionElement({
             >
               {labels[transaction.txid]?.[0]?.name || transaction?.txid}
             </Text>
-            <Text color={`${colorMode}.secondaryText`} style={styles.transactionDate}>
+            <Text
+              color={`${colorMode}.secondaryText`}
+              style={styles.transactionDate}
+              numberOfLines={1}
+            >
               {date}
             </Text>
           </Box>
@@ -90,13 +94,20 @@ function TransactionElement({
           <CurrencyInfo
             hideAmounts={false}
             amount={transaction?.amount}
-            fontSize={18}
+            fontSize={16}
             color={`${colorMode}.dateText`}
+            balanceMaxWidth={transaction?.amount < 10000000 ? wp(75) : wp(90)}
             variation={colorMode === 'light' ? 'dark' : 'light'}
           />
-          <Box style={styles.unconfirmIconWrapper}>
-            {colorMode === 'dark' ? <IconArrowWhite /> : <IconArrow />}
-          </Box>
+          {transaction?.amount < 10000000 && (
+            <Box style={[styles.arrowIconWrapper]}>
+              {colorMode === 'dark' ? (
+                <IconArrowWhite width={6.63} height={11.33} />
+              ) : (
+                <IconArrow width={6.63} height={11.33} />
+              )}
+            </Box>
+          )}
         </Box>
       </Box>
     </TouchableOpacity>
@@ -123,20 +134,22 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   transactionDate: {
-    fontSize: 13,
+    fontSize: 11.5,
     letterSpacing: 0.12,
     width: wp(125),
     marginHorizontal: 3,
   },
   transactionIdText: {
     marginHorizontal: 4,
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 20,
     letterSpacing: 0.5,
-    width: 125,
+    width: wp(125),
   },
-  unconfirmIconWrapper: {
-    paddingHorizontal: 5,
+  arrowIconWrapper: {
+    paddingRight: wp(5),
+    paddingLeft: wp(10),
+    paddingTop: hp(2),
   },
   circle: {
     width: 30,
