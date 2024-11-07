@@ -34,7 +34,10 @@ import { PORTAL_ERRORS } from 'src/hardware/portal';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { CardStatus, MnemonicWords, Network } from 'libportal-react-native';
 import useVault from 'src/hooks/useVault';
-import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import {
+  generateOutputDescriptors,
+  generateVaultAddressDescriptors,
+} from 'src/utils/service-utilities/utils';
 import { KeeperPasswordInput } from 'src/components/KeeperPasswordInput';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
@@ -71,9 +74,13 @@ function SetupPortal({ route }) {
   const { showToast } = useToastMessage();
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const isManualRegister = mode === InteracationMode.IDENTIFICATION;
+  const isAddressVerification = mode === InteracationMode.ADDRESS_VERIFICATION;
+
   let vaultDescriptor = '';
-  if (isManualRegister) {
+  let vault = null;
+  if (isManualRegister || isAddressVerification) {
     const { activeVault } = useVault({ includeArchived: true, vaultId });
+    vault = activeVault;
     vaultDescriptor = generateOutputDescriptors(activeVault, false);
     vaultDescriptor = vaultDescriptor.replaceAll('/<0;1>', '');
   }
@@ -89,7 +96,6 @@ function SetupPortal({ route }) {
   useEffect(() => {
     nfcVisible === false && PORTAL.stopReading();
   }, [nfcVisible]);
-
 
   const onPressHandler = (digit) => {
     const temp = (activeInput === INPUTS.CVC ? cvc : confirmCVC) || '';
@@ -126,6 +132,8 @@ function SetupPortal({ route }) {
             return startRegisterVault();
           case InteracationMode.HEALTH_CHECK:
             return healthCheckPortal();
+          case InteracationMode.ADDRESS_VERIFICATION:
+            return verifyAddressPortal();
           default:
             addPortal();
         }
@@ -133,6 +141,35 @@ function SetupPortal({ route }) {
         showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
+  };
+
+  const verifyAddressPortal = async () => {
+    try {
+      return await withNfcModal(async () => {
+        await PORTAL.startReading();
+        await checkAndUnlock(cvc, setPortalStatus);
+        const { receivingAddress } = generateVaultAddressDescriptors(vault);
+        const { nextFreeAddressIndex } = vault.specs;
+        const res = await PORTAL.verifyAddress(nextFreeAddressIndex);
+        if (res == receivingAddress) {
+          navigation.dispatch(CommonActions.goBack());
+          if (Platform.OS === 'ios') NFC.showiOSMessage(`Address verified successfully!`);
+          showToast('Address verified successfully', <TickIcon />);
+          return true;
+        } else {
+          if (Platform.OS === 'ios') NFC.showiOSMessage(`Address verification failed!`);
+          showToast('Address verification failed!');
+          return false;
+        }
+      });
+    } catch (error) {
+      showToast(
+        error.message ? error.message : 'Something went wrong. Please try again',
+        <ToastErrorIcon />
+      );
+      if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
+      return false;
+    }
   };
 
   const healthCheckPortal = async () => {

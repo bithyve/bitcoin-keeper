@@ -210,6 +210,10 @@ export const resumeMnemonicGeneration = () => {
   return sdk.resume();
 };
 
+export const verifyAddress = (addressIndex: number) => {
+  return sdk.displayAddress(addressIndex);
+};
+
 export const PORTAL_ERRORS = {
   INCORRECT_PIN: 'Incorrect Pin. Please try again',
   PORTAL_LOCKED: 'Portal is locked. Pin is required',

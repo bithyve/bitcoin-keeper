@@ -259,16 +259,25 @@ function ReceiveScreen({ route }: { route }) {
         title: 'Verify Address on Device', //TODO: Move to translations
         description: 'Select a signer',
         callback: (signer, signerName) => {
-          navigation.dispatch(
-            CommonActions.navigate('ConnectChannel', {
-              signer,
-              vaultId: wallet.id,
-              type: signer.type,
-              mode: InteracationMode.ADDRESS_VERIFICATION,
-              title: `Connecting to ${signerName}`,
-              subtitle: vaultTranslations.verifyAddDesc,
-            })
-          );
+          if (signer.type === SignerType.PORTAL) {
+            navigation.dispatch(
+              CommonActions.navigate('SetupPortal', {
+                vaultId: wallet.id,
+                mode: InteracationMode.ADDRESS_VERIFICATION,
+              })
+            );
+          } else {
+            navigation.dispatch(
+              CommonActions.navigate('ConnectChannel', {
+                signer,
+                vaultId: wallet.id,
+                type: signer.type,
+                mode: InteracationMode.ADDRESS_VERIFICATION,
+                title: `Connecting to ${signerName}`,
+                subtitle: vaultTranslations.verifyAddDesc,
+              })
+            );
+          }
         },
       })
     );
