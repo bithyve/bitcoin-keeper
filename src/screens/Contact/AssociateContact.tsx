@@ -179,7 +179,6 @@ const AssociateContact = ({ route }) => {
           textColor={`${colorMode}.modalWhiteContent`}
           buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
-          secButtonTextColor={`${colorMode}.buttonText`}
           buttonText="Continue"
           buttonCallback={onAddAssociateContact}
           Content={() => (
