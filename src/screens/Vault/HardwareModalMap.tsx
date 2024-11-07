@@ -122,6 +122,7 @@ const RNBiometrics = new ReactNativeBiometrics();
 
 export const enum InteracationMode {
   VAULT_ADDITION = 'VAULT_ADDITION',
+  VAULT_REGISTER = 'VAULT_REGISTER',
   HEALTH_CHECK = 'HEALTH_CHECK',
   RECOVERY = 'RECOVERY',
   CONFIG_RECOVERY = 'CONFIG_RECOVERY',

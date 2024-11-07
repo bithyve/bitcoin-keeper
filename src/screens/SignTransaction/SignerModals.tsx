@@ -1236,7 +1236,7 @@ function SignerModals({
                   CommonActions.navigate('SetupPortal', {
                     vaultKey,
                     vaultId,
-                    mode: InteracationMode.IDENTIFICATION,
+                    mode: InteracationMode.VAULT_REGISTER,
                   })
                 );
               }}

@@ -302,7 +302,7 @@ function ReceiveScreen({ route }: { route }) {
               CommonActions.navigate('SetupPortal', {
                 vaultKey,
                 vaultId: wallet.id,
-                mode: InteracationMode.IDENTIFICATION,
+                mode: InteracationMode.VAULT_REGISTER,
               })
             );
           } else {

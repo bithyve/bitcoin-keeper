@@ -73,7 +73,7 @@ function SetupPortal({ route }) {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
-  const isManualRegister = mode === InteracationMode.IDENTIFICATION;
+  const isManualRegister = mode === InteracationMode.VAULT_REGISTER;
   const isAddressVerification = mode === InteracationMode.ADDRESS_VERIFICATION;
 
   let vaultDescriptor = '';
@@ -128,7 +128,7 @@ function SetupPortal({ route }) {
         switch (mode) {
           case InteracationMode.SIGN_TRANSACTION:
             return signWithPortal();
-          case InteracationMode.IDENTIFICATION:
+          case InteracationMode.VAULT_REGISTER:
             return startRegisterVault();
           case InteracationMode.HEALTH_CHECK:
             return healthCheckPortal();
@@ -376,7 +376,7 @@ function SetupPortal({ route }) {
               return 'Sign with Portal';
             case InteracationMode.BACKUP_SIGNER:
               return 'Save Portal Backup';
-            case InteracationMode.IDENTIFICATION:
+            case InteracationMode.VAULT_REGISTER:
               return 'Register Vault with Portal';
             default:
               return 'Setting up Portal';
@@ -410,7 +410,7 @@ function SetupPortal({ route }) {
                     switch (mode) {
                       case InteracationMode.SIGN_TRANSACTION:
                         return 'Sign';
-                      case InteracationMode.IDENTIFICATION:
+                      case InteracationMode.VAULT_REGISTER:
                         return 'Register';
                       case InteracationMode.HEALTH_CHECK:
                         return 'Verify';
