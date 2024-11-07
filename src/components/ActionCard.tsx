@@ -31,7 +31,7 @@ function ActionCard({
   dottedBorder = false,
   cardPillText = '',
   showDot = false,
-  smallDeviceHeight = hp(110),
+  smallDeviceHeight = hp(140),
   smallDeviceWidth = wp(110),
   disable = false,
   cardPillColor,
