@@ -200,7 +200,7 @@ const getSignerContent = (
         isMultisig ? 'MultiSig' : 'SingleSig'
       }.`;
 
-      let usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} and connect your Jade to the computer.`;
+      let usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop and connect your Jade to the computer.`;
 
       let instructions =
         keyGenerationMode === KeyGenerationMode.USB
@@ -498,7 +498,7 @@ const getSignerContent = (
         type: SignerType.BITBOX02,
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with BitBox02.`,
+          `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with BitBox02.`,
           'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
@@ -510,7 +510,7 @@ const getSignerContent = (
         type: SignerType.TREZOR,
         Illustration: <TrezorSetup />,
         Instructions: [
-          `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Trezor.`,
+          `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Trezor.`,
           'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
@@ -522,7 +522,7 @@ const getSignerContent = (
         type: SignerType.LEDGER,
         Illustration: <LedgerImage />,
         Instructions: [
-          `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Ledger.`,
+          `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Ledger.`,
           'Please Make sure you have the BTC app downloaded on Ledger before this step.',
         ],
         title: isHealthcheck ? 'Verify Ledger' : ledger.SetupTitle,
@@ -1157,7 +1157,7 @@ function HardwareModalMap({
           title: `${
             isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary' : 'Setting up'
           } ${getSignerNameFromType(type)}`,
-          subtitle: `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect.`,
+          subtitle: `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect.`,
           type,
           signer,
           mode,
