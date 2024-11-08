@@ -21,6 +21,7 @@ function SendSuccessfulContent({
   secondaryText,
   secondaryCallback,
   SecondaryIcon,
+  primaryButtonWidth,
 }) {
   const { colorMode } = useColorMode();
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
@@ -108,6 +109,7 @@ function SendSuccessfulContent({
           secondaryText={secondaryText}
           secondaryCallback={secondaryCallback}
           SecondaryIcon={SecondaryIcon}
+          width={primaryButtonWidth}
         />
       </Box>
     </Box>
