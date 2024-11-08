@@ -8,7 +8,7 @@ import {
   Pressable,
 } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
@@ -23,7 +23,13 @@ import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import RemoveIcon from 'src/assets/images/remove-green-icon.svg';
 import RemoveIconDark from 'src/assets/images/remove-white-icon.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { EntityKind, NetworkType, PaymentInfoKind, VaultType } from 'src/services/wallets/enums';
+import {
+  EntityKind,
+  NetworkType,
+  PaymentInfoKind,
+  VaultType,
+  VisibilityType,
+} from 'src/services/wallets/enums';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -51,12 +57,17 @@ import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import ScannerIcon from 'src/assets/images/scanner-icon.svg';
 import ScannerIconDark from 'src/assets/images/scanner-icon-white.svg';
+import useWallets from 'src/hooks/useWallets';
+import useVault from 'src/hooks/useVault';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-
+  const { wallets } = useWallets({ getAll: true });
+  const { allVaults: vaults } = useVault({});
+  const allWallets = useMemo(() => [...wallets, ...vaults], [wallets, vaults]);
+  const [isSendToWalletDisabled, setIsSendToWalletDisabled] = useState(false);
   const { sender, selectedUTXOs, parentScreen } = route.params as {
     sender: Wallet | Vault;
     selectedUTXOs?: UTXO[];
@@ -86,6 +97,15 @@ function SendScreen({ route }) {
       ? sender.specs.balances.confirmed
       : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
+
+  const visibleWallets = useMemo(
+    () =>
+      allWallets.filter(
+        (wallet) =>
+          wallet.presentationData.visibility !== VisibilityType.HIDDEN && wallet.id !== sender.id
+      ),
+    [allWallets, sender.id]
+  );
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -117,6 +137,10 @@ function SendScreen({ route }) {
       keyboardDidShowListener.remove();
     };
   }, []);
+
+  useEffect(() => {
+    setIsSendToWalletDisabled(visibleWallets.length <= 0);
+  }, [visibleWallets]);
 
   const handleSelectWallet = (wallet) => {
     setSelectedWallet(wallet);
@@ -162,6 +186,10 @@ function SendScreen({ route }) {
     }
   };
   const handleSelectWalletPress = () => {
+    if (isSendToWalletDisabled) {
+      return;
+    }
+
     if (!selectedWallet) {
       navigation.dispatch(
         CommonActions.navigate({
@@ -369,16 +397,19 @@ function SendScreen({ route }) {
                 paddingLeft={5}
               />
               <Box style={styles.sendToWalletContainer}>
-                <Pressable onPress={handleSelectWalletPress}>
+                <Pressable onPress={handleSelectWalletPress} disabled={isSendToWalletDisabled}>
                   <Box
                     flexDirection={'row'}
                     justifyContent={'space-between'}
                     alignItems={'center'}
-                    style={styles.sendToWalletWrapper}
+                    style={[
+                      styles.sendToWalletWrapper,
+                      isSendToWalletDisabled && styles.disabledButton,
+                    ]}
                   >
                     <Text color={`${colorMode}.primaryText`}>Send to one of your wallets</Text>
                     {!selectedWallet ? (
-                      <ArrowIcon />
+                      <ArrowIcon opacity={isSendToWalletDisabled ? 0.5 : 1} />
                     ) : isDarkMode ? (
                       <RemoveIconDark />
                     ) : (
@@ -498,6 +529,9 @@ const styles = StyleSheet.create({
   },
   sendToWalletContainer: {
     gap: 10,
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
 });
 export default Sentry.withErrorBoundary(SendScreen, errorBourndaryOptions);
