@@ -6,6 +6,9 @@ import idx from 'idx';
 import { VaultType, WalletType } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
+import { Signer } from 'src/services/wallets/interfaces/vault';
+import * as bitcoin from 'bitcoinjs-lib';
+
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
     decimalCount = Math.abs(decimalCount);
@@ -240,3 +243,90 @@ export const calculateTimeLeft = (createdAt: string) => {
   // @ts-ignore
   return Math.max(0, Math.floor((targetTime - currentTime) / 1000));
 };
+
+export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
+  try {
+    const psbt = bitcoin.Psbt.fromBase64(base64Str);
+
+    const signersList = [];
+    let signerMatched = false;
+
+    psbt.data.inputs.forEach((input) => {
+      if (input.bip32Derivation) {
+        // Loop through all derivations (in case there are multiple keys)
+        input.bip32Derivation.forEach((derivation) => {
+          const data = {
+            derivationPath: shortDerivationPath(derivation.path),
+            masterFingerprint: derivation.masterFingerprint.toString('hex'),
+            xpriv: '',
+            xpub: derivation.pubkey.toString('hex'),
+          };
+          signersList.push(data);
+          if (data.masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
+            signerMatched = true;
+          }
+
+          // const val = WalletUtilities.getFingerprintFromExtendedKey(
+          //   derivation.pubkey.toString('hex'),
+          //   network
+          // );
+        });
+      }
+    });
+
+    // Check if signer exists in the psbt
+    const currentSignerFromPSBT = signersList.find(
+      (psbtSigner) => psbtSigner.masterFingerprint === signer.masterFingerprint.toLowerCase()
+    );
+
+    // Extract input addresses
+    const senderAddresses = psbt.txInputs.map((input) => input.hash.toString('hex'));
+
+    // Extract outputs (receiver information)
+    const outputs = psbt.txOutputs.map((output) => {
+      return {
+        address: bitcoin.address.fromOutputScript(output.script), // Receiver address
+        amount: output.value, // Amount in satoshis
+      };
+    });
+
+    // Calculate the total input and output amounts
+    let totalInput = 0;
+    let totalOutput = 0;
+
+    psbt.data.inputs.forEach((input, index) => {
+      if (input.witnessUtxo) {
+        totalInput += input.witnessUtxo.value;
+      } else if (input.nonWitnessUtxo) {
+        const tx = bitcoin.Transaction.fromBuffer(input.nonWitnessUtxo);
+        const voutIndex = psbt.txInputs[index].index;
+        totalInput += tx.outs[voutIndex].value;
+      }
+    });
+
+    outputs.forEach((output) => (totalOutput += output.amount));
+    const receiverAddresses = outputs.map((op) => op.address);
+
+    // Calculate transaction fees
+    const fees = totalInput - totalOutput;
+    return {
+      senderAddresses: senderAddresses,
+      receiverAddresses: receiverAddresses,
+      fees,
+      sendAmount: totalOutput,
+      totalAmount: totalInput,
+      currentSignerFromPSBT,
+      signerMatched,
+    };
+  } catch (error) {
+    console.log('🚀 ~ dataFromPSBT ~ error:', error);
+    throw 'Something went wrong';
+  }
+};
+
+function shortDerivationPath(longerPath) {
+  const parts = longerPath.split('/');
+  // Remove the last two components (address index and chain index)
+  const shorterPath = parts.slice(0, -2).join('/');
+  return shorterPath;
+}
