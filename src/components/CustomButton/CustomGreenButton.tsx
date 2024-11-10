@@ -28,7 +28,7 @@ function CustomGreenButton(props: Props) {
         ]}
         backgroundColor={`${colorMode}.greenButtonBackground`}
       >
-        <Text color={`${colorMode}.white`} fontSize={13} bold letterSpacing={0.78}>
+        <Text color={`${colorMode}.buttonText`} fontSize={13} bold letterSpacing={0.78}>
           {props.value}
         </Text>
       </Box>

@@ -9,6 +9,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import ContactImagePlaceholder from 'src/assets/images/contact-image-placeholder.svg';
 import Buttons from 'src/components/Buttons';
 import { hp, wp } from 'src/constants/responsive';
+import { getPersistedDocument } from 'src/services/documents';
 
 const ContactProfile = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -23,7 +24,10 @@ const ContactProfile = ({ route }) => {
         <Box style={styles.contentContainer}>
           <Box style={styles.iconContainer}>
             {contact.thumbnailPath ? (
-              <Image source={{ uri: contact.thumbnailPath }} style={styles.selectedImage} />
+              <Image
+                source={{ uri: getPersistedDocument(contact.thumbnailPath) }}
+                style={styles.selectedImage}
+              />
             ) : (
               <ContactImagePlaceholder width={wp(161)} height={hp(161)} />
             )}

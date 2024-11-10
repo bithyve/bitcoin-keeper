@@ -100,7 +100,6 @@ function WalletDetailsSettings({ route }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           showCloseIcon={false}
           Content={() => (
             <EditWalletDetailsModal wallet={wallet} close={() => setWalletDetailVisible(false)} />

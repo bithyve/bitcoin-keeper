@@ -245,7 +245,6 @@ function ChoosePolicyNew({ navigation, route }) {
         textColor={`${colorMode}.primaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={otpContent}
       />
     </ScreenWrapper>

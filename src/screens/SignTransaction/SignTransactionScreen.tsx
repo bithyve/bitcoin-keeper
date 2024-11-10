@@ -1,10 +1,11 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { SignerType, TxPriority } from 'src/services/wallets/enums';
+import { NetworkType, SignerType, TxPriority } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
+import Share from 'react-native-share';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -14,7 +15,10 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/vaults';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import SuccessIcon from 'src/assets/images/successSvg.svg';
+import SuccessLightIllustration from 'src/assets/images/upgrade-illustration.svg';
+import SuccessDarkIllustration from 'src/assets/images/upgrade-dark-illustration.svg';
+import ShareGreen from 'src/assets/images/share-arrow-green.svg';
+import ShareWhite from 'src/assets/images/share-arrow-white.svg';
 import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
@@ -35,6 +39,7 @@ import {
   signTransactionWithColdCard,
   signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
+  signTransactionWithPortal,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
@@ -60,10 +65,14 @@ import {
 } from 'src/store/reducers/cachedTxn';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
+import config from 'src/utils/service-utilities/config';
+import { isReading, stopReading } from 'src/hardware/portal';
+import { wp } from 'src/constants/responsive';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
 
   const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds, tnxDetails } =
     (route.params || {
@@ -112,6 +121,7 @@ function SignTransactionScreen() {
   const [isIKSDeclined, setIsIKSDeclined] = useState(false);
   const [isIKSApproved, setIsIKSApproved] = useState(false);
   const [IKSSignTime, setIKSSignTime] = useState(0);
+  const [portalModal, setPortalModal] = useState(false);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
 
@@ -281,6 +291,10 @@ function SignTransactionScreen() {
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const { inheritanceSigningRequestId } = useAppSelector((state) => state.sendAndReceive);
 
+  useEffect(() => {
+    if (nfcVisible == false && isReading()) stopReading();
+  }, [nfcVisible]);
+
   const signTransaction = useCallback(
     async ({
       xfp,
@@ -288,12 +302,14 @@ function SignTransactionScreen() {
       seedBasedSingerMnemonic,
       inheritanceConfiguration,
       tapsignerCVC,
+      portalCVC,
     }: {
       xfp?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
       inheritanceConfiguration?: InheritanceConfiguration;
       tapsignerCVC?: string;
+      portalCVC?: string;
     } = {}) => {
       const activeId = xfp || activeXfp;
       const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
@@ -438,6 +454,25 @@ function SignTransactionScreen() {
               },
             ])
           );
+        } else if (SignerType.PORTAL === signerType) {
+          const { signedSerializedPSBT } = await signTransactionWithPortal({
+            setPortalModal,
+            withNfcModal,
+            serializedPSBTEnvelop,
+            closeNfc,
+            vault: defaultVault,
+            portalCVC,
+          });
+
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         }
       }
     },
@@ -572,35 +607,55 @@ function SignTransactionScreen() {
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
         break;
+      case SignerType.PORTAL:
+        setPortalModal(true);
+        break;
       default:
         showToast(`action not set for ${signer.type}`);
         break;
     }
   };
 
-  function SendSuccessfulContent() {
+  function SendSuccessfulContent({
+    primaryText,
+    primaryCallback,
+    secondaryText,
+    secondaryCallback,
+    SecondaryIcon,
+    primaryButtonWidth,
+  }) {
     const { colorMode } = useColorMode();
     return (
       <Box>
         <Box alignSelf="center">
-          <SuccessIcon />
+          {isDarkMode ? <SuccessDarkIllustration /> : <SuccessLightIllustration />}
         </Box>
         <Text color={`${colorMode}.primaryText`} fontSize={13} padding={2}>
           {walletTransactions.sendTransSuccessMsg}
         </Text>
+        <Box paddingTop={6}>
+          <Buttons
+            primaryText={primaryText}
+            primaryCallback={primaryCallback}
+            primaryTextColor={`${colorMode}.buttonText`}
+            secondaryText={secondaryText}
+            secondaryCallback={secondaryCallback}
+            SecondaryIcon={SecondaryIcon}
+            width={primaryButtonWidth}
+          />
+        </Box>
       </Box>
     );
   }
 
   const viewDetails = () => {
     setVisibleModal(false);
-    showToast('If the transaction isn’t visible, wait a moment and refresh.');
     navigation.dispatch(
       CommonActions.reset({
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, vaultId } },
+          { name: 'VaultDetails', params: { autoRefresh: true, vaultId, transactionToast: true } },
         ],
       })
     );
@@ -634,6 +689,22 @@ function SignTransactionScreen() {
       });
   };
 
+  const handleShare = async () => {
+    const url = `https://mempool.space${
+      config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+    }/tx/${sendSuccessful}`;
+
+    try {
+      await Share.open({
+        message: 'The transaction has been successfully sent. You can track its status here:',
+        url: url,
+        title: 'Transaction Details',
+      });
+    } catch (err) {
+      console.error('Share error:', err);
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
@@ -645,7 +716,7 @@ function SignTransactionScreen() {
         contentContainerStyle={{ paddingTop: '5%' }}
         data={vaultKeys}
         keyExtractor={(item) => item.xfp}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <SignerList
             isIKSClicked={isIKSClicked}
             isIKSDeclined={isIKSDeclined}
@@ -654,6 +725,8 @@ function SignTransactionScreen() {
             callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
             envelops={serializedPSBTEnvelops}
             signerMap={signerMap}
+            isFirst={index === 0}
+            isLast={index === vaultKeys.length - 1}
           />
         )}
       />
@@ -690,6 +763,7 @@ function SignTransactionScreen() {
         activeXfp={activeXfp}
         coldCardModal={coldCardModal}
         tapsignerModal={tapsignerModal}
+        portalModal={portalModal}
         ledgerModal={ledgerModal}
         otpModal={otpModal}
         passwordModal={passwordModal}
@@ -716,12 +790,14 @@ function SignTransactionScreen() {
         setPasswordModal={setPasswordModal}
         setTapsignerModal={setTapsignerModal}
         showOTPModal={showOTPModal}
+        setPortalModal={setPortalModal}
         signTransaction={signTransaction}
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}
         onFileSign={onFileSign}
         sendConfirmationRouteParams={sendConfirmationRouteParams}
         tnxDetails={tnxDetails}
+        isRemoteKey={false}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal
@@ -732,16 +808,21 @@ function SignTransactionScreen() {
         }}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={
-          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
-        }
-        buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
-        buttonTextColor={`${colorMode}.white`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        Content={SendSuccessfulContent}
+        Content={() => (
+          <SendSuccessfulContent
+            primaryText={
+              !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+            }
+            primaryCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
+            secondaryCallback={handleShare}
+            secondaryText={common.shareDetails}
+            SecondaryIcon={isDarkMode ? ShareWhite : ShareGreen}
+            primaryButtonWidth={wp(142)}
+          />
+        )}
         DarkCloseIcon={colorMode === 'dark' ? 'light' : 'dark'}
       />
       <KeeperModal

@@ -1,4 +1,4 @@
-import { Box, Modal } from 'native-base';
+import { Box, Modal, useColorMode } from 'native-base';
 import {
   Platform,
   ScrollView,
@@ -41,6 +41,7 @@ type ModalProps = {
   dismissible?: boolean;
   learnMoreButton?: boolean;
   learnMoreButtonPressed?: () => void;
+  learnMoreButtonText?: string;
   learnButtonBackgroundColor?: string;
   learnButtonTextColor?: string;
   closeOnOverlayClick?: boolean;
@@ -54,22 +55,23 @@ KeeperModal.defaultProps = {
   title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: 'light.primaryBackground',
-  buttonBackground: 'light.greenButtonBackground',
+  modalBackground: 'primaryBackground',
+  buttonBackground: 'greenButtonBackground',
   buttonText: null,
-  buttonTextColor: 'white',
-  secButtonTextColor: 'light.headerText',
+  buttonTextColor: 'buttonText',
+  secButtonTextColor: 'headerText',
   buttonCallback: () => {},
   secondaryButtonText: null,
   secondaryCallback: () => {},
-  textColor: '#000',
+  textColor: 'black',
   subTitleColor: null,
   DarkCloseIcon: false,
   Content: () => null,
   dismissible: true,
   learnMoreButton: false,
   learnMoreButtonPressed: () => {},
-  learnButtonBackgroundColor: 'light.BrownNeedHelp',
+  learnMoreButtonText: null,
+  learnButtonBackgroundColor: 'BrownNeedHelp',
   learnButtonTextColor: 'light.learnMoreBorder',
   closeOnOverlayClick: true,
   showCloseIcon: true,
@@ -99,6 +101,7 @@ function KeeperModal(props: ModalProps) {
     dismissible,
     learnMoreButton,
     learnMoreButtonPressed,
+    learnMoreButtonText,
     learnButtonTextColor,
     learnButtonBackgroundColor,
     secButtonTextColor,
@@ -117,6 +120,7 @@ function KeeperModal(props: ModalProps) {
   const maxModalHeight = Math.min(availableHeight, screenHeight * 0.85);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { colorMode } = useColorMode();
 
   if (!visible) {
     return null;
@@ -140,7 +144,14 @@ function KeeperModal(props: ModalProps) {
         width="95%"
       >
         <GestureHandlerRootView>
-          <Box backgroundColor={modalBackground} style={styles.container}>
+          <Box
+            backgroundColor={
+              modalBackground === 'primaryBackground'
+                ? `${colorMode}.primaryBackground`
+                : modalBackground
+            }
+            style={styles.container}
+          >
             {showCloseIcon ? (
               <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
                 {getCloseIcon()}
@@ -161,22 +172,34 @@ function KeeperModal(props: ModalProps) {
                   borderColor={
                     learnButtonTextColor === 'light.white' ? 'light.white' : 'light.learnMoreBorder'
                   }
-                  backgroundColor={learnButtonBackgroundColor}
+                  backgroundColor={
+                    learnButtonBackgroundColor == 'BrownNeedHelp'
+                      ? `${colorMode}.BrownNeedHelp`
+                      : learnButtonBackgroundColor
+                  }
                   style={styles.learnMoreButtonContainer}
                 >
                   <Text color={learnButtonTextColor} style={styles.learnMoreText}>
-                    {common.learnMore}
+                    {learnMoreButtonText ? learnMoreButtonText : common.learnMore}
                   </Text>
                 </Box>
               </TouchableOpacity>
             )}
             {title || subTitle ? (
               <Modal.Header style={styles.headerContainer}>
-                <Text testID="text_modal_title" style={styles.title} color={textColor}>
+                <Text
+                  testID="text_modal_title"
+                  style={styles.title}
+                  color={textColor === 'black' ? `${colorMode}.black` : textColor}
+                >
                   {title}
                 </Text>
                 {subTitle ? (
-                  <Text testID="text_modal_subtitle" style={styles.subTitle} color={subTitleColor}>
+                  <Text
+                    testID="text_modal_subtitle"
+                    style={styles.subTitle}
+                    color={subTitleColor === 'black' ? `${colorMode}.black` : subTitleColor}
+                  >
                     {`${subTitle}`}
                   </Text>
                 ) : null}
@@ -203,11 +226,23 @@ function KeeperModal(props: ModalProps) {
                       primaryLoading={loading}
                       primaryText={buttonText}
                       primaryCallback={buttonCallback}
-                      primaryBackgroundColor={buttonBackground}
-                      primaryTextColor={buttonTextColor}
+                      primaryBackgroundColor={
+                        buttonBackground == 'greenButtonBackground'
+                          ? `${colorMode}.greenButtonBackground`
+                          : buttonBackground
+                      }
+                      primaryTextColor={
+                        buttonTextColor == 'buttonText'
+                          ? `${colorMode}.buttonText`
+                          : buttonTextColor
+                      }
                       secondaryCallback={secondaryCallback}
                       secondaryText={secondaryButtonText}
-                      secondaryTextColor={secButtonTextColor}
+                      secondaryTextColor={
+                        secButtonTextColor == 'headerText'
+                          ? `${colorMode}.headerText`
+                          : secButtonTextColor
+                      }
                       fullWidth={!secondaryButtonText}
                     />
                   )}

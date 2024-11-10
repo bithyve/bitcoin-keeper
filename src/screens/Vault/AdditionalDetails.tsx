@@ -1,5 +1,5 @@
 import { Image, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, useColorMode, VStack } from 'native-base';
@@ -17,9 +17,12 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import OptionTile from 'src/components/OptionTile';
 import PhoneBookIcon from 'src/assets/images/phone-book-circle.svg';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
+import { getPersistedDocument } from 'src/services/documents';
+import { useAppSelector } from 'src/store/hooks';
+import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -34,12 +37,22 @@ function AdditionalDetails({ route }: ScreenProps) {
   const [description, setDescription] = useState(signer?.signerDescription || '');
   const [editContactModal, setEditContactModal] = useState(false);
   const { thumbnailPath, givenName, familyName } = signer.extraData;
+  const { relaySignersUpdate } = useAppSelector((state) => state.bhr);
+
+  useEffect(() => {
+    if (relaySignersUpdate) {
+      showToast('Details updated successfully', <TickIcon />);
+    }
+    return () => {
+      dispatch(resetSignersUpdateState());
+    };
+  }, [relaySignersUpdate]);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Additional Details"
-        subtitle="Optionally you can add description and associate a contact to key"
+        subtitle="Optionally you can add description and associate a contact with the key"
       />
       <VStack style={styles.descriptionContainer}>
         <Box style={styles.inputWrapper}>
@@ -47,13 +60,12 @@ function AdditionalDetails({ route }: ScreenProps) {
             autoCapitalize="sentences"
             onChangeText={(text) => setDescription(text)}
             style={styles.descriptionEdit}
-            placeholder="Add a Description (Optional)"
+            placeholder="Add a description (Optional)" // TODO: Use translations
             placeholderTextColor={Colors.Graphite}
             value={description}
             maxLength={20}
             onSubmitEditing={() => {
               dispatch(updateSignerDetails(signer, 'signerDescription', description));
-              showToast('Description updated successfully', <TickIcon />);
             }}
           />
         </Box>
@@ -67,7 +79,7 @@ function AdditionalDetails({ route }: ScreenProps) {
                 });
           }}
           icon={<PhoneBookIcon />}
-          image={signer?.extraData?.thumbnailPath}
+          image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
         />
       </VStack>
       <KeeperModal
@@ -80,9 +92,8 @@ function AdditionalDetails({ route }: ScreenProps) {
         secondaryButtonText="Cancel"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalWhiteContent`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        secButtonTextColor={`${colorMode}.greenButtonBackground`}
         secondaryCallback={() => setEditContactModal(false)}
         buttonCallback={() => {
           setEditContactModal(false);
@@ -99,7 +110,7 @@ function AdditionalDetails({ route }: ScreenProps) {
             <Box style={styles.iconContainer}>
               {thumbnailPath ? (
                 <Image
-                  source={{ uri: thumbnailPath || 'default-avatar-url' }}
+                  source={{ uri: getPersistedDocument(thumbnailPath) || 'default-avatar-url' }}
                   style={styles.modalAvatar}
                 />
               ) : (

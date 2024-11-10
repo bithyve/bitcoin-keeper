@@ -151,6 +151,12 @@ function TransferPolicy({
                 editable={false}
                 variant="unstyled"
                 color={policyText ? `${colorMode}.greenText` : `${colorMode}.SlateGreen`}
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
               >
                 {policyText ? `${numberWithCommas(policyText)}` : 'Enter Amount'}
               </Input>

@@ -220,8 +220,7 @@ function DeleteKeys({ route }) {
         secButtonTextColor={`${colorMode}.greenText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonTextColor={`${colorMode}.white`}
-        DarkCloseIcon={colorMode === 'dark'}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
@@ -251,7 +250,7 @@ function DeleteKeys({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={signerText.manageKeys}
         buttonCallback={() => {
           dispatch(hideKeyDeletedSuccessModal());

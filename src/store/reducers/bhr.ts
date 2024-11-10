@@ -32,6 +32,7 @@ const initialState: {
   relaySignersUpdate: boolean;
   relaySignerUpdateError: boolean;
   realySignersUpdateErrorMessage: string;
+  realySignersAdded: boolean;
 
   relayVaultUpdateLoading: boolean;
   relayVaultUpdate: boolean;
@@ -169,22 +170,27 @@ const bhrSlice = createSlice({
     setRelaySignersUpdateLoading: (state, action: PayloadAction<boolean>) => {
       state.relaySignersUpdateLoading = action.payload;
     },
-    relaySignersUpdateSuccess: (state) => {
+
+    // Action payload is whether a new signer has been added
+    relaySignersUpdateSuccess: (state, action: PayloadAction<boolean>) => {
       state.relaySignersUpdate = true;
       state.relaySignerUpdateError = false;
       state.relaySignersUpdateLoading = false;
       state.realySignersUpdateErrorMessage = null;
+      state.realySignersAdded = action.payload;
     },
     relaySignersUpdateFail: (state, action: PayloadAction<string>) => {
       state.relaySignerUpdateError = true;
       state.relaySignersUpdateLoading = false;
       state.realySignersUpdateErrorMessage = action.payload;
+      state.realySignersAdded = false;
     },
     resetSignersUpdateState: (state) => {
       state.relaySignersUpdate = false;
       state.relaySignerUpdateError = false;
       state.relaySignersUpdateLoading = false;
       state.realySignersUpdateErrorMessage = null;
+      state.realySignersAdded = false;
     },
 
     setRelayVaultUpdateLoading: (state, action: PayloadAction<boolean>) => {

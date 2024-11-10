@@ -109,7 +109,7 @@ function SignWithQR() {
     }
   }, []);
 
-  const signTransaction = (signedSerializedPSBT, resetQR) => {
+  const signTransaction = (signedSerializedPSBT) => {
     try {
       Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
       dispatch(
@@ -157,7 +157,6 @@ function SignWithQR() {
       }
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (err) {
-      resetQR();
       captureError(err);
       Alert.alert('Invalid QR, please scan the signed PSBT!');
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));

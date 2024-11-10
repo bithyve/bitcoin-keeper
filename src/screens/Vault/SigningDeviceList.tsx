@@ -60,8 +60,6 @@ function SigningDeviceList() {
   const reduxDispatch = useDispatch();
   const isOnL1L2 = isOnL1 || isOnL2;
 
-  console.log(plan, 'plan');
-
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -97,19 +95,20 @@ function SigningDeviceList() {
   }, []);
 
   const sortedSigners = [
+    SignerType.BITBOX02,
     SignerType.COLDCARD,
-    SignerType.LEDGER,
-    SignerType.TREZOR,
-    SignerType.TAPSIGNER,
-    SignerType.PASSPORT,
     SignerType.JADE,
+    SignerType.KEYSTONE,
+    SignerType.LEDGER,
+    SignerType.PASSPORT,
+    SignerType.PORTAL,
     SignerType.SEEDSIGNER,
     SignerType.SPECTER,
-    SignerType.BITBOX02,
+    SignerType.TAPSIGNER,
+    SignerType.TREZOR,
     SignerType.KEEPER,
     SignerType.MY_KEEPER,
     SignerType.SEED_WORDS,
-    SignerType.KEYSTONE,
     // SignerType.MOBILE_KEY,
     SignerType.OTHER_SD,
     SignerType.POLICY_SERVER,
@@ -210,7 +209,7 @@ function SigningDeviceList() {
         subtitle={vault.SelectSignerSubtitle}
         learnMore
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}

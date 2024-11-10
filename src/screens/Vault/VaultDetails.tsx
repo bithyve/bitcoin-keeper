@@ -1,15 +1,17 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { FlatList, RefreshControl, StyleSheet } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import SendIcon from 'src/assets/images/icon_sent_footer.svg';
-import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
-import SettingIcon from 'src/assets/images/settings_footer.svg';
+import SendIcon from 'src/assets/images/send.svg';
+import SendIconWhite from 'src/assets/images/send-white.svg';
+import RecieveIcon from 'src/assets/images/receive.svg';
+import RecieveIconWhite from 'src/assets/images/receive-white.svg';
+import SettingIcon from 'src/assets/images/settings.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
@@ -42,13 +44,14 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import ImportIcon from 'src/assets/images/import.svg';
 import { reinstateVault } from 'src/store/sagaActions/vaults';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 function Footer({
   vault,
@@ -66,6 +69,7 @@ function Footer({
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { colorMode } = useColorMode();
 
   const footerItems = vault.archived
     ? [
@@ -80,14 +84,14 @@ function Footer({
       ]
     : [
         {
-          Icon: SendIcon,
+          Icon: colorMode === 'light' ? SendIcon : SendIconWhite,
           text: common.send,
           onPress: () => {
             navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           },
         },
         {
-          Icon: RecieveIcon,
+          Icon: colorMode === 'light' ? RecieveIcon : RecieveIconWhite,
           text: common.receive,
           onPress: () => {
             if (pendingHealthCheckCount >= vault.scheme.m) {
@@ -95,13 +99,6 @@ function Footer({
             } else {
               navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
             }
-          },
-        },
-        {
-          Icon: SettingIcon,
-          text: common.settings,
-          onPress: () => {
-            navigation.dispatch(CommonActions.navigate('VaultSettings', { vaultId: vault.id }));
           },
         },
       ];
@@ -144,8 +141,8 @@ function VaultInfo({ vault }: { vault: Vault }) {
         hideAmounts={false}
         amount={confirmed + unconfirmed}
         fontSize={24}
-        color={`${colorMode}.white`}
-        variation={colorMode === 'light' ? 'light' : 'dark'}
+        color={`${colorMode}.buttonText`}
+        variation="light"
       />
     </HStack>
   );
@@ -235,7 +232,13 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const { vaultSigners: keys } = useSigners(vault.id);
-  const transactions = vault?.specs?.transactions || [];
+  const transactions =
+    vault?.specs?.transactions.sort((a, b) => {
+      if (!a.blockTime && !b.blockTime) return 0;
+      if (!a.blockTime) return -1;
+      if (!b.blockTime) return 1;
+      return b.blockTime - a.blockTime;
+    }) || [];
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const isCanaryWallet = vault.type === VaultType.CANARY;
   const exchangeRates = useExchangeRates();
@@ -246,6 +249,18 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const [cachedTransactions, setCachedTransactions] = useState([]);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
+
+  const disableBuy = Platform.OS === 'ios' ? true : false;
+  const cardProps = {
+    circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
+    pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
+    cardPillText: disableBuy
+      ? common.comingSoon
+      : `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+          currencyCodeExchangeRate.buy.toFixed(0)
+        )}`,
+    cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
+  };
 
   useEffect(() => {
     const cached = [];
@@ -286,7 +301,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   useEffect(() => {
     if (transactionToast) {
-      showToast(vaultTranslation.transactionToastMessage);
+      showToast(
+        vaultTranslation.transactionToastMessage,
+        <TickIcon />,
+        IToastCategory.DEFAULT,
+        5000
+      );
       navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
     }
   }, [transactionToast]);
@@ -338,8 +358,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <VStack style={styles.topSection}>
           <KeeperHeader
             title={vault.presentationData?.name}
-            titleColor={`${colorMode}.seashellWhite`}
-            subTitleColor={`${colorMode}.seashellWhite`}
+            titleColor={`${colorMode}.seashellWhiteText`}
+            subTitleColor={`${colorMode}.seashellWhiteText`}
             // TODO: Add collaborativeWalletIcon
             icon={
               <HexagonIcon
@@ -359,10 +379,22 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             }
             subtitle={vault.presentationData?.description}
             learnMore
-            learnTextColor={`${colorMode}.white`}
+            learnTextColor={`${colorMode}.buttonText`}
             learnBackgroundColor="rgba(0,0,0,.2)"
             learnMorePressed={() => dispatch(setIntroModal(true))}
             contrastScreen={true}
+            rightComponent={
+              <TouchableOpacity
+                style={styles.settingBtn}
+                onPress={() =>
+                  navigation.dispatch(
+                    CommonActions.navigate('VaultSettings', { vaultId: vault.id })
+                  )
+                }
+              >
+                <SettingIcon width={24} height={24} />
+              </TouchableOpacity>
+            }
           />
           <VaultInfo vault={vault} />
         </VStack>
@@ -371,6 +403,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <HStack style={styles.actionCardContainer}>
           {!isCanaryWallet && (
             <ActionCard
+              disable={disableBuy}
               cardName={common.buyBitCoin}
               description={common.inToThisWallet}
               callback={() =>
@@ -379,9 +412,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                 )
               }
               icon={<BTC />}
-              cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-                currencyCodeExchangeRate.buy.toFixed(0)
-              )}`}
+              cardPillText={cardProps.cardPillText}
+              pillTextColor={cardProps.pillTextColor}
+              circleColor={cardProps.circleColor}
+              cardPillColor={cardProps.cardPillColor}
             />
           )}
           <ActionCard
@@ -536,6 +570,7 @@ const styles = StyleSheet.create({
   transactionHeading: {
     fontSize: 16,
     letterSpacing: 0.16,
+    paddingBottom: 16,
   },
   IconText: {
     justifyContent: 'center',
@@ -687,6 +722,11 @@ const styles = StyleSheet.create({
   desc: {
     marginTop: hp(15),
     fontSize: 13,
+  },
+  settingBtn: {
+    width: wp(24),
+    height: hp(24),
+    marginRight: wp(7),
   },
 });
 

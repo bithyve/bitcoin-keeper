@@ -1,8 +1,9 @@
 import { DimensionValue, StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
+import openLink from 'src/utils/OpenLink';
 
 export function Instruction({
   text,
@@ -17,7 +18,23 @@ export function Instruction({
     <Box style={styles.bulletContainer}>
       <Box style={styles.bullet} backgroundColor={`${colorMode}.black`}></Box>
       <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
-        {text}
+        {typeof text === 'string'
+          ? text.split(/\b(https?:\/\/[^\s]+)\b/).map((part) => {
+              if (part.match(/^https?:\/\//)) {
+                return (
+                  <Text
+                    color={`${colorMode}.greenWhiteText`}
+                    bold
+                    style={styles.linkText}
+                    onPress={() => openLink(part)}
+                  >
+                    {part.replace('https://', '').replace('http://', '')}
+                  </Text>
+                );
+              }
+              return part;
+            })
+          : text}
       </Text>
     </Box>
   );
@@ -47,5 +64,11 @@ const getStyles = (textWidth: DimensionValue) =>
       padding: 3,
       fontSize: 13,
       width: textWidth,
+    },
+    linkText: {
+      letterSpacing: 0.65,
+      fontSize: 13,
+      textDecorationStyle: 'solid',
+      textDecorationLine: 'underline',
     },
   });

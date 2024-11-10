@@ -33,27 +33,60 @@ import NewQRWhite from 'src/assets/images/qr-new-white.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { generateNewAddress } from 'src/store/sagaActions/wallets';
-import { useAppDispatch } from 'src/store/hooks';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import Close from 'src/assets/images/modal_close.svg';
+import ErrorIcon from 'src/assets/images/error.svg';
+import ErrorDarkIcon from 'src/assets/images/error-dark.svg';
+import useLabelsNew from 'src/hooks/useLabelsNew';
+import { UTXOLabel } from 'src/components/UTXOsComponents/UTXOList';
+import LabelsEditor from '../UTXOManagement/components/LabelsEditor';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
-const AddressVerifiableSigners = [SignerType.BITBOX02, SignerType.LEDGER, SignerType.TREZOR];
+const AddressVerifiableSigners = [
+  SignerType.BITBOX02,
+  SignerType.LEDGER,
+  SignerType.TREZOR,
+  SignerType.COLDCARD,
+  SignerType.JADE,
+  SignerType.PORTAL,
+];
+
+const SignerTypesNeedingRegistration = [
+  SignerType.COLDCARD,
+  SignerType.JADE,
+  SignerType.PASSPORT,
+  SignerType.KEYSTONE,
+  SignerType.SPECTER,
+  SignerType.PORTAL,
+];
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
   const { getCurrencyIcon } = useBalance();
   const [modalVisible, setModalVisible] = useState(false);
+  const [labelsModalVisible, setLabelsModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
 
-  const wallet: Wallet = route?.params?.wallet;
+  const wallet: Wallet | Vault = route?.params?.wallet;
   // const amount = route?.params?.amount;
   const [receivingAddress, setReceivingAddress] = useState(null);
   const [paymentURI, setPaymentURI] = useState(null);
 
   const { translations } = useContext(LocalizationContext);
-  const { common, home, wallet: walletTranslation } = translations;
+  const { common, home, wallet: walletTranslation, vault: vaultTranslations } = translations;
 
   const navigation = useNavigation();
   const { vaultSigners } = useSigners(wallet.id);
   const [addVerifiableSigners, setAddVerifiableSigners] = useState([]);
+  const [signersNeedRegistration, setSignersNeedRegistration] = useState([]);
 
   const [currentAddressIdx, setCurrentAddressIdx] = useState(0);
   const [currentAddressIdxTempText, setCurrentAddressIdxTempText] = useState('');
@@ -62,6 +95,16 @@ function ReceiveScreen({ route }: { route }) {
   const [addressUsed, setAddressUsed] = useState(false);
 
   const dispatch = useAppDispatch();
+
+  const { showToast } = useToastMessage();
+
+  const { labels: addressLabels } = useLabelsNew({ address: receivingAddress, wallet });
+  const labels = addressLabels ? addressLabels[receivingAddress] || [] : [];
+
+  const { satsEnabled }: { satsEnabled: boolean } = useAppSelector((state) => state.settings);
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
 
   const generateNewReceiveAddress = () => {
     dispatch(generateNewAddress(wallet));
@@ -92,10 +135,24 @@ function ReceiveScreen({ route }: { route }) {
     }
   }, [currentAddressIdx]);
 
+  function convertFiatToSats(fiatAmount: number) {
+    return exchangeRates && exchangeRates[currencyCode]
+      ? (fiatAmount / exchangeRates[currencyCode].last) * SATOSHIS_IN_BTC
+      : 0;
+  }
+
   useEffect(() => {
     if (amount) {
+      let convertedAmount;
+      if (currentCurrency === CurrencyKind.BITCOIN) {
+        if (satsEnabled) convertedAmount = parseInt(amount) / 1e8;
+        else convertedAmount = parseFloat(amount);
+      } else
+        convertedAmount =
+          parseInt(convertFiatToSats(parseFloat(amount)).toFixed(0).toString()) / 1e8;
+
       const newPaymentURI = WalletUtilities.generatePaymentURI(receivingAddress, {
-        amount: parseInt(amount) / 1e8,
+        amount: convertedAmount,
       }).paymentURI;
       setPaymentURI(newPaymentURI);
     } else if (paymentURI) setPaymentURI(null);
@@ -107,6 +164,24 @@ function ReceiveScreen({ route }: { route }) {
     );
     setAddVerifiableSigners(avSigner);
   }, []);
+
+  useEffect(() => {
+    if (wallet.entityKind === 'VAULT' && (wallet as Vault).isMultiSig) {
+      const signersFingerprintsToCheck = vaultSigners
+        .filter((signer) => SignerTypesNeedingRegistration.includes(signer.type))
+        .map((signer) => signer.masterFingerprint);
+      const unregisteredSigners = (wallet as Vault).signers.filter((signer) => {
+        {
+          return (
+            signersFingerprintsToCheck.includes(signer.masterFingerprint) &&
+            signer.registeredVaults.find((info) => info.vaultId === wallet.id)?.registered !== true
+          );
+        }
+      });
+
+      setSignersNeedRegistration(unregisteredSigners);
+    }
+  }, [wallet]);
 
   function AddAmountContent() {
     return (
@@ -122,14 +197,29 @@ function ReceiveScreen({ route }: { route }) {
                 backgroundColor={`${colorMode}.secondaryText`}
               />
               <Input
-                placeholder={home.ConvertedAmount}
-                placeholderTextColor={`${colorMode}.greenText`}
+                placeholder={`Enter amount in ${
+                  currentCurrency === CurrencyKind.BITCOIN
+                    ? satsEnabled
+                      ? 'sats'
+                      : 'BTC'
+                    : currencyCode
+                }`}
                 style={styles.inputField}
                 borderWidth="0"
-                value={amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                value={amount
+                  .toString()
+                  .split('.')
+                  .map((part, i) => (i === 0 ? part.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : part))
+                  .join('.')}
                 onChangeText={(value) => setAmount(value)}
                 onFocus={() => Keyboard.dismiss()}
                 testID="input_receiveAmount"
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
               />
             </Box>
 
@@ -153,6 +243,7 @@ function ReceiveScreen({ route }: { route }) {
             clear={() => setAmount('')}
             color={colorMode === 'light' ? '#041513' : '#FFF'}
             darkDeleteIcon={colorMode === 'light'}
+            decimalPoint
           />
         </View>
       </View>
@@ -162,29 +253,68 @@ function ReceiveScreen({ route }: { route }) {
   const onVerifyAddress = () => {
     const signersMFP = addVerifiableSigners.map((signer) => signer.masterFingerprint);
     navigation.dispatch(
-      CommonActions.navigate('VerifyAddressSelectionScreen', {
+      CommonActions.navigate('SignerSelectionListScreen', {
         signersMFP,
         vaultId: wallet.id,
+        title: 'Verify Address on Device', //TODO: Move to translations
+        description: 'Select a signer',
+        callback: (signer, signerName) => {
+          if (signer.type === SignerType.PORTAL) {
+            navigation.dispatch(
+              CommonActions.navigate('SetupPortal', {
+                vaultId: wallet.id,
+                mode: InteracationMode.ADDRESS_VERIFICATION,
+              })
+            );
+          } else {
+            navigation.dispatch(
+              CommonActions.navigate('ConnectChannel', {
+                signer,
+                vaultId: wallet.id,
+                type: signer.type,
+                mode: InteracationMode.ADDRESS_VERIFICATION,
+                title: `Connecting to ${signerName}`,
+                subtitle: vaultTranslations.verifyAddDesc,
+              })
+            );
+          }
+        },
       })
     );
   };
 
-  const VerifyAddressBtn = () => {
-    return (
-      <Pressable
-        style={[styles.verifyAddressBtn]}
-        backgroundColor={`${colorMode}.greenButtonBackground`}
-        onPress={onVerifyAddress}
-      >
-        <Text
-          numberOfLines={1}
-          style={styles.verifyAddressBtnText}
-          color={`${colorMode}.buttonText`}
-          bold
-        >
-          {'Verify Address on Device'}
-        </Text>
-      </Pressable>
+  const onRegisterVault = () => {
+    const signersMFP = vaultSigners
+      .filter((signer) => SignerTypesNeedingRegistration.includes(signer.type))
+      .map((signer) => signer.masterFingerprint);
+    navigation.dispatch(
+      CommonActions.navigate('SignerSelectionListScreen', {
+        signersMFP,
+        vaultId: wallet.id,
+        title: 'Register vault on Device', //TODO: Move to translations
+        description: 'Select a signer',
+        callback: (signer, signerName) => {
+          const vaultKey = (wallet as Vault).signers.find(
+            (vaultSigner) => vaultSigner.masterFingerprint === signer.masterFingerprint
+          );
+          if (signer.type === SignerType.PORTAL) {
+            navigation.dispatch(
+              CommonActions.navigate('SetupPortal', {
+                vaultKey,
+                vaultId: wallet.id,
+                mode: InteracationMode.VAULT_REGISTER,
+              })
+            );
+          } else {
+            navigation.dispatch(
+              CommonActions.navigate('RegisterWithQR', {
+                vaultKey,
+                vaultId: wallet.id,
+              })
+            );
+          }
+        },
+      })
     );
   };
 
@@ -217,7 +347,18 @@ function ReceiveScreen({ route }: { route }) {
           borderColor={`${colorMode}.greyBorder`}
         >
           <AddressUsageBadge used={addressUsed} />
-          <ReceiveQR qrValue={paymentURI || receivingAddress} qrSize={wp(windowWidth * 0.5)} />
+          <TouchableOpacity onPress={() => setLabelsModalVisible(true)}>
+            {labels.length > 0 ? (
+              <Box style={styles.labelsRow}>
+                <UTXOLabel labels={labels} center addMoreBtn />
+              </Box>
+            ) : (
+              <Text color={`${colorMode}.textGreen`} style={styles.addLablesText} semiBold>
+                + Add labels to your address
+              </Text>
+            )}
+          </TouchableOpacity>
+          <ReceiveQR qrValue={paymentURI || receivingAddress} qrSize={wp(windowWidth * 0.45)} />
           <Box style={styles.addressContainer}>
             <ReceiveAddress address={paymentURI || receivingAddress} />
           </Box>
@@ -296,10 +437,19 @@ function ReceiveScreen({ route }: { route }) {
         </TouchableOpacity>
         {
           <Box>
-            {wallet.entityKind === 'VAULT' && addVerifiableSigners?.length > 0 ? (
-              <VerifyAddressBtn />
+            {wallet.entityKind === 'VAULT' &&
+            (addVerifiableSigners?.length || signersNeedRegistration.length) ? (
+              <Box marginTop={hp(33)}>
+                <Buttons
+                  fullWidth
+                  primaryText={addVerifiableSigners?.length ? 'Verify Address' : null}
+                  primaryCallback={onVerifyAddress}
+                  secondaryText={signersNeedRegistration.length ? 'Register vault' : null}
+                  secondaryCallback={onRegisterVault}
+                />
+              </Box>
             ) : (
-              <Box marginBottom={hp(84)}></Box>
+              <Box marginBottom={hp(84)} />
             )}
           </Box>
         }
@@ -315,6 +465,63 @@ function ReceiveScreen({ route }: { route }) {
         textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}
       />
+      {labelsModalVisible && (
+        <Pressable
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          backgroundColor="rgba(0, 0, 0, 0.5)"
+          justifyContent="center"
+          alignItems="center"
+          onPress={() => {
+            setLabelsModalVisible(false);
+          }}
+        >
+          <Pressable
+            width="90%"
+            backgroundColor={`${colorMode}.primaryBackground`}
+            borderRadius={10}
+            style={styles.overlayContainer}
+            onPress={() => {}}
+          >
+            <TouchableOpacity style={styles.close} onPress={() => setLabelsModalVisible(false)}>
+              <Close />
+            </TouchableOpacity>
+            <Text color={`${colorMode}.primaryText`} style={styles.overlayTitle}>
+              {walletTranslation.AddLabels}
+            </Text>
+            <Text color={`${colorMode}.secondaryText`} style={styles.overlaySubtitle}>
+              {walletTranslation.AddLabelsReceiveSubtitle}
+            </Text>
+            {receivingAddress && (
+              <LabelsEditor
+                address={receivingAddress}
+                wallet={wallet}
+                onLabelsSaved={() => {
+                  showToast(walletTranslation.LabelsSavedSuccessfully, <TickIcon />);
+                  setLabelsModalVisible(false);
+                }}
+              />
+            )}
+            {addressUsed && (
+              <Box
+                style={styles.addressUsedLabelsWarning}
+                backgroundColor={`${colorMode}.errorToastBackground`}
+                borderColor={`${colorMode}.alertRed`}
+              >
+                <Box style={styles.addressUsedLabelsWarningIcon}>
+                  {colorMode === 'light' ? <ErrorIcon /> : <ErrorDarkIcon />}
+                </Box>
+                <Text style={styles.addressUsedLabelsWarningText}>
+                  {walletTranslation.addressAlreadyUsedLabelWarning}
+                </Text>
+              </Box>
+            )}
+          </Pressable>
+        </Pressable>
+      )}
     </ScreenWrapper>
   );
 }
@@ -329,7 +536,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   inputField: {
-    color: '#073E39',
     opacity: 0.8,
     fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1.04,
@@ -339,7 +545,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 10,
-    marginVertical: 5,
+    marginVertical: hp(15),
     padding: 5,
   },
   verticalDeviderLine: {
@@ -372,7 +578,7 @@ const styles = StyleSheet.create({
   },
   receiveDataContainer: {
     paddingTop: hp(17),
-    paddingBottom: hp(15),
+    paddingBottom: hp(10),
     borderRadius: 10,
     borderWidth: 1,
   },
@@ -380,7 +586,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     width: '100%',
     textAlign: 'center',
-    marginVertical: hp(20),
+    marginBottom: hp(20),
   },
   addressPagesBar: {
     marginTop: hp(5),
@@ -412,6 +618,59 @@ const styles = StyleSheet.create({
     marginLeft: wp(9),
     marginRight: wp(10),
     marginTop: hp(1),
+  },
+  addLablesText: {
+    fontSize: 14,
+    width: '100%',
+    textAlign: 'center',
+    marginTop: hp(10),
+  },
+  overlayContainer: {
+    paddingTop: hp(30),
+    paddingBottom: hp(50),
+    paddingHorizontal: wp(15),
+  },
+  overlayTitle: {
+    fontSize: 19,
+    letterSpacing: 0.19,
+    marginBottom: hp(5),
+  },
+  overlaySubtitle: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+    marginBottom: hp(15),
+  },
+  close: {
+    width: '100%',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+  },
+  labelsRow: {
+    alignSelf: 'center',
+    marginVertical: hp(1),
+    width: '70%',
+  },
+  addressUsedLabelsWarning: {
+    width: '97%',
+    alignSelf: 'center',
+    marginTop: hp(20),
+    paddingVertical: hp(17),
+    paddingHorizontal: hp(9),
+    borderWidth: 0.5,
+    borderRadius: 10,
+    flexDirection: 'row',
+  },
+  addressUsedLabelsWarningText: {
+    fontSize: 13,
+    textAlign: 'left',
+    width: '80%',
+    marginLeft: wp(10),
+  },
+  addressUsedLabelsWarningIcon: {
+    width: wp(30),
+    height: hp(30),
+    marginTop: hp(5),
+    marginHorizontal: hp(2),
   },
 });
 

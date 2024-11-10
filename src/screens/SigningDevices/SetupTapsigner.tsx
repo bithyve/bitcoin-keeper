@@ -1,5 +1,5 @@
-import { Platform, Share, StyleSheet, TextInput } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, Input, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -7,7 +7,12 @@ import { CKTapCard } from 'cktap-protocol-react-native';
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
-import { downloadBackup, getTapsignerDetails, handleTapsignerError } from 'src/hardware/tapsigner';
+import {
+  downloadBackup,
+  getCardInfo,
+  getTapsignerDetails,
+  handleTapsignerError,
+} from 'src/hardware/tapsigner';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
@@ -16,14 +21,14 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React from 'react';
+import { useCallback, useContext, useRef, useState } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
@@ -39,12 +44,23 @@ import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { exportFile } from 'src/services/fs';
+import KeeperModal from 'src/components/KeeperModal';
+import ErrorIcon from 'src/assets/images/error.svg';
+import ErrorDarkIcon from 'src/assets/images/error-dark.svg';
+import HexagonIcon from 'src/components/HexagonIcon';
+import TAPSIGNERICONLIGHT from 'src/assets/images/tapsigner_light.svg';
+import NFCIcon from 'src/assets/images/nfc_lines.svg';
+import NFCIconWhite from 'src/assets/images/nfc_lines_white.svg';
+import Colors from 'src/theme/Colors';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
-  const [cvc, setCvc] = React.useState('');
+  const [cvc, setCvc] = useState('');
   const navigation = useNavigation();
-  const card = React.useRef(new CKTapCard()).current;
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslations, common } = translations;
+  const card = useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
   const {
     mode,
@@ -60,9 +76,9 @@ function SetupTapsigner({ route }) {
     addSignerFlow?: boolean;
   } = route.params;
   const { mapUnknownSigner } = useUnkownSigners();
-  const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
-  const isSigning = mode === InteracationMode.SIGN_TRANSACTION;
-  const isBackup = mode === InteracationMode.BACKUP_SIGNER;
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
+  const [tapsignerDerivationPath, setTapsignerDerivationPath] = useState(null);
+  const [tapsignerBackupsCount, setTapsignerBackupsCount] = useState(null);
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -86,7 +102,7 @@ function SetupTapsigner({ route }) {
   const addTapsignerWithProgress = async () => {
     NfcManager.isSupported().then(async (supported) => {
       if (supported) {
-        if (isHealthcheck) verifyTapsginer();
+        if (mode === InteracationMode.HEALTH_CHECK) verifyTapsginer();
         await start(addTapsigner);
       } else if (!(await DeviceInfo.isEmulator())) {
         showToast('NFC not supported on this device', <ToastErrorIcon />);
@@ -94,7 +110,7 @@ function SetupTapsigner({ route }) {
     });
   };
 
-  const addTapsigner = React.useCallback(async () => {
+  const addTapsigner = useCallback(async () => {
     try {
       const { xpub, derivationPath, masterFingerprint, xpubDetails } = await withModal(async () =>
         getTapsignerDetails(card, cvc, isTestnet(), isMultisig)
@@ -183,12 +199,12 @@ function SetupTapsigner({ route }) {
         const navigationState = addSignerFlow
           ? {
               name: 'ManageSigners',
-              params: { addedSigner: tapsigner, addSignerFlow, showModal: true },
+              params: { addedSigner: tapsigner },
             }
           : {
               name: 'AddSigningDevice',
               merge: true,
-              params: { addedSigner: tapsigner, addSignerFlow, showModal: true },
+              params: { addedSigner: tapsigner },
             };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
@@ -203,7 +219,7 @@ function SetupTapsigner({ route }) {
     }
   }, [cvc]);
 
-  const verifyTapsginer = React.useCallback(async () => {
+  const verifyTapsginer = useCallback(async () => {
     try {
       const { masterFingerprint } = await withModal(async () =>
         getTapsignerDetails(card, cvc, isTestnet(), isMultisig)
@@ -253,7 +269,7 @@ function SetupTapsigner({ route }) {
     }
   }, [cvc]);
 
-  const signWithTapsigner = React.useCallback(async () => {
+  const signWithTapsigner = useCallback(async () => {
     try {
       await signTransaction({ tapsignerCVC: cvc });
       if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER signed successfully!`);
@@ -269,7 +285,7 @@ function SetupTapsigner({ route }) {
     }
   }, [cvc]);
 
-  const downloadTapsignerBackup = React.useCallback(async () => {
+  const downloadTapsignerBackup = useCallback(async () => {
     try {
       const { backup, cardId } = await withModal(async () => downloadBackup(card, cvc))();
       if (backup) {
@@ -305,22 +321,113 @@ function SetupTapsigner({ route }) {
     }
   }, [cvc]);
 
+  const checkTapsignerSetupStatus = useCallback(async () => {
+    try {
+      const { cardId, path, backupsCount } = await withModal(async () => getCardInfo(card))();
+
+      if (cardId) {
+        if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER information retrieved`);
+        closeNfc();
+        card.endNfcSession();
+
+        if (path) {
+          setTapsignerDerivationPath(path);
+          setTapsignerBackupsCount(backupsCount);
+        } else {
+          setTapsignerDerivationPath(null);
+          setTapsignerBackupsCount(null);
+        }
+        setStatusModalVisible(true);
+      } else {
+        if (Platform.OS === 'ios')
+          NFC.showiOSErrorMessage(`Error while checking TAPSIGNER information. Please try again`);
+        else showToast(`Error while checking TAPSIGNER information. Please try again`);
+      }
+    } catch (error) {
+      const errorMessage = handleTapsignerError(error, navigation);
+      if (errorMessage) {
+        showToast(errorMessage, <ToastErrorIcon />, IToastCategory.DEFAULT, 3000, true);
+      }
+    } finally {
+      closeNfc();
+      card.endNfcSession();
+    }
+  }, []);
+
+  function StatusModalContent() {
+    return (
+      <Box>
+        <Box
+          padding={hp(20)}
+          borderRadius={7}
+          backgroundColor={`${colorMode}.secondaryBackground`}
+          flexDirection="row"
+        >
+          <HexagonIcon
+            width={wp(43)}
+            height={hp(38)}
+            backgroundColor={colorMode === 'light' ? Colors.pantoneGreen : Colors.NewBadgeGreenDark}
+            icon={<TAPSIGNERICONLIGHT />}
+          />
+          <Box marginLeft={wp(12)}>
+            <Text color={`${colorMode}.greenText`} fontSize={15}>
+              TAPSIGNER
+            </Text>
+            <Text fontSize={13}>{`${common.status}: ${
+              tapsignerDerivationPath
+                ? signerTranslations.AlreadyInitialized
+                : signerTranslations.Uninitialized
+            }`}</Text>
+          </Box>
+        </Box>
+        <Box marginTop={hp(10)} marginBottom={hp(40)}>
+          {tapsignerDerivationPath ? (
+            // TODO: Move warning to component
+            <Box
+              style={styles.warningContainer}
+              backgroundColor={`${colorMode}.errorToastBackground`}
+              borderColor={`${colorMode}.alertRed`}
+            >
+              <Box style={styles.warningIcon}>
+                {colorMode === 'light' ? <ErrorIcon /> : <ErrorDarkIcon />}
+              </Box>
+              <Text style={styles.warningText}>
+                {`This TAPSIGNER has already been set up ${
+                  tapsignerBackupsCount ? 'and backed up ' : ''
+                }before. Proceed only if you trust its source.`}
+              </Text>
+            </Box>
+          ) : (
+            <Text style={styles.statusText}>{signerTranslations.NotBeenInitializedBottomText}</Text>
+          )}
+        </Box>
+        <Buttons
+          fullWidth
+          primaryText={common.Okay}
+          primaryCallback={() => {
+            setStatusModalVisible(false);
+          }}
+        />
+      </Box>
+    );
+  }
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={(() => {
           switch (mode) {
             case InteracationMode.HEALTH_CHECK:
-              return 'Verify TAPSIGNER';
+              return signerTranslations.VerifyTapsigner;
             case InteracationMode.SIGN_TRANSACTION:
-              return 'Sign with TAPSIGNER';
+              return signerTranslations.SignWithTapsigner;
             case InteracationMode.BACKUP_SIGNER:
-              return 'Save TAPSIGNER Backup';
+              return signerTranslations.SaveTapsignerBackup;
             default:
-              return 'Setting up TAPSIGNER';
+              return signerTranslations.SettingUpTapsigner;
           }
         })()}
-        subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
+        subtitle={signerTranslations.EnterTapsignerPinSubtitle}
       />
       <MockWrapper
         signerType={SignerType.TAPSIGNER}
@@ -330,7 +437,8 @@ function SetupTapsigner({ route }) {
       >
         <ScrollView>
           <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
-            <TextInput
+            <Input
+              borderWidth={0}
               value={cvc}
               onChangeText={setCvc}
               secureTextEntry
@@ -342,6 +450,20 @@ function SetupTapsigner({ route }) {
           </Text>
         </ScrollView>
       </MockWrapper>
+      {(mode === InteracationMode.APP_ADDITION || mode === InteracationMode.VAULT_ADDITION) && (
+        <TouchableOpacity
+          onPress={() => {
+            checkTapsignerSetupStatus();
+          }}
+        >
+          <Box flexDirection="row">
+            <Text color={`${colorMode}.textGreen`} style={styles.checkInitialStatus} medium>
+              Check Initial Setup Status
+            </Text>
+            <Box paddingTop={hp(1)}>{colorMode === 'light' ? <NFCIcon /> : <NFCIconWhite />}</Box>
+          </Box>
+        </TouchableOpacity>
+      )}
       <KeyPadView
         onPressNumber={onPressHandler}
         onDeletePressed={onDeletePressed}
@@ -378,6 +500,16 @@ function SetupTapsigner({ route }) {
         />
       </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
+      <KeeperModal
+        visible={statusModalVisible}
+        close={() => setStatusModalVisible(false)}
+        title={signerTranslations.TapsignerSetupStatus}
+        subTitle={signerTranslations.TapsignerSetupStatusSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={StatusModalContent}
+      />
     </ScreenWrapper>
   );
 }
@@ -415,5 +547,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: '3%',
     paddingTop: '5%',
+  },
+  checkInitialStatus: {
+    fontSize: 13,
+    textAlign: 'left',
+    marginBottom: hp(30),
+    marginLeft: hp(15),
+    marginRight: wp(7),
+  },
+  warningContainer: {
+    width: '97%',
+    alignSelf: 'center',
+    marginTop: hp(20),
+    paddingVertical: hp(17),
+    paddingHorizontal: hp(9),
+    borderWidth: 0.5,
+    borderRadius: 10,
+    flexDirection: 'row',
+  },
+  warningText: {
+    fontSize: 13,
+    textAlign: 'left',
+    width: '80%',
+    marginLeft: wp(10),
+  },
+  warningIcon: {
+    width: wp(30),
+    height: hp(30),
+    marginTop: hp(5),
+    marginHorizontal: hp(2),
+  },
+  statusText: {
+    fontSize: 14,
+    textAlign: 'left',
+    marginLeft: wp(10),
+    marginTop: wp(15),
   },
 });

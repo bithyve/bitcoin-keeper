@@ -83,6 +83,41 @@ export const getConvertedAmt = (
   return null;
 };
 
+export const getCustomConvertedAmt = (
+  amount: number,
+  exchangeRates,
+  fromKind,
+  toKind,
+  currencyCode,
+  satsEnabled = false
+) => {
+  if (amount == null || exchangeRates == null || !exchangeRates[currencyCode]) {
+    return null;
+  }
+  const rate = exchangeRates[currencyCode].last;
+  if (fromKind === CurrencyKind.BITCOIN) {
+    if (toKind === CurrencyKind.BITCOIN) {
+      return amount;
+    } else if (toKind === CurrencyKind.FIAT) {
+      const convertedAmount = satsEnabled
+        ? ((amount / SATOSHIS_IN_BTC) * rate).toFixed(0)
+        : (amount * rate).toFixed(0);
+      return convertedAmount;
+    }
+  } else if (fromKind === CurrencyKind.FIAT) {
+    if (toKind === CurrencyKind.BITCOIN) {
+      const bitcoinAmount = amount / rate;
+      const convertedAmount = satsEnabled
+        ? (bitcoinAmount * SATOSHIS_IN_BTC).toFixed(0)
+        : bitcoinAmount.toFixed(8);
+      return convertedAmount;
+    } else if (toKind === CurrencyKind.FIAT) {
+      return amount.toFixed(0);
+    }
+  }
+  return null;
+};
+
 export const NetworkAmount = (
   amountInSats: number,
   exchangeRates,

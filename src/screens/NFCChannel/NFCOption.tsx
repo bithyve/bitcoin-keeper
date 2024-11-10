@@ -143,7 +143,6 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonCallback={() => setRemoteShareModal(false)}
         subTitleWidth={wp(280)}

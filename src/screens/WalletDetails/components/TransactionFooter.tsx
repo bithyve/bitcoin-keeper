@@ -1,36 +1,33 @@
 import React from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import SendIcon from 'src/assets/images/icon_sent_footer.svg';
-import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
-import SettingIcon from 'src/assets/images/settings_footer.svg';
+import SendIcon from 'src/assets/images/send.svg';
+import SendIconWhite from 'src/assets/images/send-white.svg';
+import RecieveIcon from 'src/assets/images/receive.svg';
+import RecieveIconWhite from 'src/assets/images/receive-white.svg';
 
 import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
+import { useColorMode } from 'native-base';
 
 function TransactionFooter({ currentWallet }) {
   const navigation = useNavigation();
   const isWatchOnly = !idx(currentWallet, (_) => _.specs.xpriv);
+  const { colorMode } = useColorMode();
 
   const footerItems = [
     {
-      Icon: SendIcon,
+      Icon: colorMode === 'light' ? SendIcon : SendIconWhite,
       text: 'Send',
       onPress: () => navigation.dispatch(CommonActions.navigate('Send', { sender: currentWallet })),
       hideItems: !allowedSendTypes.includes(currentWallet.type),
     },
     {
-      Icon: RecieveIcon,
+      Icon: colorMode === 'light' ? RecieveIcon : RecieveIconWhite,
       text: 'Receive',
       onPress: () =>
         navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet })),
       hideItems: !allowedRecieveTypes.includes(currentWallet.type),
-    },
-    {
-      Icon: SettingIcon,
-      text: 'Settings',
-      onPress: () =>
-        navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet: currentWallet })),
     },
   ];
 

@@ -1,292 +1,274 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet, TouchableOpacity, View, ScrollView, Keyboard } from 'react-native';
-import { Box, Input, useColorMode } from 'native-base';
-import Buttons from 'src/components/Buttons';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
+import { Box, useColorMode } from 'native-base';
+import { hp, wp } from 'src/constants/responsive';
 import { UTXO } from 'src/services/wallets/interfaces';
-import { NetworkType } from 'src/services/wallets/enums';
+import { LabelRefType, NetworkType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
-import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
-import LinkIcon from 'src/assets/images/link.svg';
+import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
+import BtcWhite from 'src/assets/images/btc_white.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import config from 'src/utils/service-utilities/config';
-import Done from 'src/assets/images/selected.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/constants/Bitcoin';
 import useToastMessage from 'src/hooks/useToastMessage';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import { resetState } from 'src/store/reducers/utxos';
-import LabelItem from './components/LabelItem';
+import Link from 'src/assets/images/link.svg';
+import LinkWhite from 'src/assets/images/link-white.svg';
+import Edit from 'src/assets/images/edit.svg';
+import EditWhite from 'src/assets/images/edit-white.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { EditNoteContent } from '../ViewTransactions/TransactionDetails';
+import KeeperModal from 'src/components/KeeperModal';
+import LabelsEditor, { getLabelChanges } from './components/LabelsEditor';
 
 function UTXOLabeling() {
-  const processDispatched = useRef(false);
+  const { showToast } = useToastMessage();
   const navigation = useNavigation();
+
   const {
     params: { utxo, wallet },
   } = useRoute() as { params: { utxo: UTXO; wallet: any } };
-  const [label, setLabel] = useState('');
-  const { labels } = useLabelsNew({ utxos: [utxo], wallet });
-  const [existingLabels, setExistingLabels] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(-1);
+  const { labels: txNoteLabels } = useLabelsNew({ txid: utxo.txId, wallet });
+
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
+  const [txNoteModalVisible, setTxNoteModalVisible] = useState(false);
+  const [updatingTxNote, setUpdatingTxNote] = useState(false);
+  const noteRef = useRef();
   const { colorMode } = useColorMode();
-  const getSortedNames = (labels) =>
-    labels
-      .sort((a, b) =>
-        a.isSystem < b.isSystem ? 1 : a.isSystem > b.isSystem ? -1 : a.name > b.name ? 1 : -1
-      )
-      .reduce((a, c) => {
-        a += c.name;
-        return a;
-      }, '');
-  const lablesUpdated =
-    getSortedNames(labels[`${utxo.txId}:${utxo.vout}`]) !== getSortedNames(existingLabels);
+  const { translations } = useContext(LocalizationContext);
+  const { transactions: txTranslations, wallet: walletTranslations, common } = translations;
 
   const dispatch = useDispatch();
-  const { showToast } = useToastMessage();
 
-  const { syncingUTXOs, apiError } = useAppSelector((state) => state.utxos);
-
-  useEffect(() => {
-    setExistingLabels(labels ? labels[`${utxo.txId}:${utxo.vout}`] || [] : []);
-    return () => {
-      dispatch(resetState());
-    };
-  }, []);
-
-  const onCloseClick = (index) => {
-    existingLabels.splice(index, 1);
-    setExistingLabels([...existingLabels]);
-  };
-  const onEditClick = (item, index) => {
-    setLabel(item.name);
-    setEditingIndex(index);
-  };
-
-  const onAdd = () => {
-    if (label) {
-      if (editingIndex !== -1) {
-        existingLabels[editingIndex] = { name: label, isSystem: false };
-      } else {
-        existingLabels.push({ name: label, isSystem: false });
-      }
-      setEditingIndex(-1);
-      setExistingLabels(existingLabels);
-      setLabel('');
-    }
-  };
-
-  useEffect(() => {
-    if (apiError) {
-      showToast(apiError.toString(), <ToastErrorIcon />);
-      processDispatched.current = false;
-    }
-    if (processDispatched.current && !syncingUTXOs) {
-      processDispatched.current = false;
-      navigation.goBack();
-    }
-  }, [apiError, syncingUTXOs]);
-
-  function getLabelChanges(existingLabels, updatedLabels) {
-    const existingNames = new Set(existingLabels.map((label) => label.name));
-    const updatedNames = new Set(updatedLabels.map((label) => label.name));
-
-    const addedLabels = updatedLabels.filter((label) => !existingNames.has(label.name));
-    const deletedLabels = existingLabels.filter((label) => !updatedNames.has(label.name));
-
-    const labelChanges = {
-      added: addedLabels,
-      deleted: deletedLabels,
-    };
-
-    return labelChanges;
+  function InfoCard({
+    title,
+    description = '',
+    descComponent = null,
+    showIcon = false,
+    numberOfLines = 1,
+    Icon = null,
+    Content = null,
+    onIconPress = () => {},
+  }) {
+    return (
+      <Box style={styles.infoCardContainer} borderBottomColor={`${colorMode}.separator`}>
+        <Box style={[showIcon && { flexDirection: 'row', width: '100%', alignItems: 'center' }]}>
+          <Box width={showIcon ? '90%' : '100%'}>
+            <Text color={`${colorMode}.headerText`} style={styles.titleText} numberOfLines={1}>
+              {title}
+            </Text>
+            {Content ? (
+              <Content />
+            ) : descComponent ? (
+              descComponent
+            ) : (
+              <Text
+                style={[styles.descText, { width: showIcon ? '60%' : '90%' }]}
+                color={`${colorMode}.GreyText`}
+                numberOfLines={numberOfLines}
+              >
+                {description}
+              </Text>
+            )}
+          </Box>
+          {showIcon && (
+            <TouchableOpacity style={{ padding: 10 }} onPress={onIconPress}>
+              {Icon}
+            </TouchableOpacity>
+          )}
+        </Box>
+      </Box>
+    );
   }
 
-  const onSaveChangeClick = async () => {
-    Keyboard.dismiss();
-    const finalLabels = existingLabels.filter(
-      (label) => !label.isSystem // ignore the system label since they are internal references
-    );
-    const initialLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((label) => !label.isSystem);
-    const labelChanges = getLabelChanges(initialLabels, finalLabels);
-    processDispatched.current = true;
-    dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
-  };
+  useEffect(() => {
+    if (txNoteLabels[utxo.txId][0] && noteRef.current) {
+      if (txNoteLabels[utxo.txId][0].name === noteRef.current) setUpdatingTxNote(false);
+    }
+    if (!txNoteLabels[utxo.txId][0] && !noteRef.current) setUpdatingTxNote(false);
+  }, [txNoteLabels]);
 
-  const redirectToBlockExplorer = () => {
+  useEffect(() => {
+    if (updatingTxNote) {
+      if (noteRef.current) {
+        const finalLabels = [{ name: noteRef.current, isSystem: false }];
+        if (txNoteLabels[utxo.txId][0]?.name) {
+          const labelChanges = getLabelChanges(txNoteLabels[utxo.txId], finalLabels);
+          dispatch(bulkUpdateLabels({ labelChanges, txId: utxo.txId, wallet }));
+        } else {
+          dispatch(
+            addLabels({
+              labels: finalLabels,
+              txId: utxo.txId,
+              wallet,
+              type: LabelRefType.TXN,
+            })
+          );
+        }
+      } else {
+        if (txNoteLabels[utxo.txId][0]?.name) {
+          const labelChanges = getLabelChanges(txNoteLabels[utxo.txId], []);
+          dispatch(bulkUpdateLabels({ labelChanges, txId: utxo.txId, wallet }));
+        }
+      }
+    }
+  }, [updatingTxNote]);
+
+  const EditTxNoteContent = React.useCallback(
+    () => (
+      <EditNoteContent existingNote={txNoteLabels[utxo.txId][0]?.name || ''} noteRef={noteRef} />
+    ),
+    [utxo, txNoteLabels]
+  );
+
+  const redirectToBlockExplorer = (type: 'address' | 'tx') => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        utxo.txId
-      }`
+      `https://mempool.space${
+        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      }/${type}/${type == 'tx' ? utxo.txId : utxo.address}`
     );
   };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="UTXO Details"
-        subtitle="Easily identify specific aspects of various UTXOs"
+        title={walletTranslations.UTXODetails}
+        subtitle={walletTranslations.UTXODetailsSubtitle}
       />
       <ScrollView
         style={styles.scrollViewWrapper}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="always"
       >
-        <View style={styles.subHeader} testID="view_utxosLabelSubHeader">
-          <View style={{ flex: 1 }}>
-            <Text style={styles.subHeaderTitle}>Transaction ID</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.subHeaderValue} numberOfLines={1}>
-                {utxo.txId}
-              </Text>
-              <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
-                <LinkIcon />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.subHeaderTitle}>UTXO Value</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Box style={{ marginHorizontal: 5 }}>
-                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
-              </Box>
-              <Text style={styles.subHeaderValue} numberOfLines={1}>
-                {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-                <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                  {getUnit(currentCurrency, satsEnabled)}
-                </Text>
-              </Text>
-            </View>
-          </View>
-        </View>
-        <Box style={styles.listContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-          <View style={{ flexDirection: 'row' }}>
-            <Text style={styles.listHeader}>Labels</Text>
-          </View>
-          <View style={styles.listSubContainer}>
-            {existingLabels.map((item, index) => (
-              <LabelItem
-                item={item}
-                index={index}
-                key={`${item.name}:${item.isSystem}`}
-                editingIndex={editingIndex}
-                onCloseClick={onCloseClick}
-                onEditClick={onEditClick}
-              />
-            ))}
-          </View>
-          <Box style={styles.inputLabeWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-            <Box style={styles.inputLabelBox}>
-              <Input
-                testID="input_utxoLabel"
-                onChangeText={(text) => {
-                  setLabel(text);
-                }}
-                style={styles.inputLabel}
-                borderWidth={0}
-                height={hp(40)}
-                placeholder="Type to add label or Select to edit"
-                color="#E0B486"
-                value={label}
-                autoCorrect={false}
-                autoCapitalize="characters"
-                backgroundColor={`${colorMode}.seashellWhite`}
-              />
-            </Box>
-            <TouchableOpacity
-              style={styles.addBtnWrapper}
-              onPress={onAdd}
-              testID="btn_addUtxoLabel"
-            >
-              <Done />
-            </TouchableOpacity>
+        <LabelsEditor
+          utxo={utxo}
+          wallet={wallet}
+          onLabelsSaved={() => {
+            showToast(walletTranslations.LabelsSavedSuccessfully, <TickIcon />);
+            navigation.goBack();
+          }}
+        />
+        <Box style={styles.detailsBox}>
+          <Box>
+            <InfoCard
+              title={walletTranslations.UTXOValue}
+              descComponent={
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Box style={{ marginHorizontal: 5, marginBottom: hp(7) }}>
+                    {getCurrencyImageByRegion(
+                      currencyCode,
+                      colorMode === 'light' ? 'green' : 'light',
+                      currentCurrency,
+                      colorMode === 'light' ? BtcBlack : BtcWhite
+                    )}
+                  </Box>
+                  <Text
+                    style={styles.subHeaderValue}
+                    color={`${colorMode}.secondaryText`}
+                    numberOfLines={1}
+                  >
+                    {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                    <Box width={wp(2)}></Box>
+                    <Text color={`${colorMode}.secondaryText`} style={styles.unitText}>
+                      {getUnit(currentCurrency, satsEnabled)}
+                    </Text>
+                  </Text>
+                </View>
+              }
+              showIcon={false}
+            />
+            <InfoCard
+              title={common.Address}
+              description={utxo.address}
+              showIcon={true}
+              Icon={colorMode === 'light' ? <Link /> : <LinkWhite />}
+              onIconPress={() => redirectToBlockExplorer('address')}
+            />
+            <InfoCard
+              title={txTranslations.transactionNote}
+              description={
+                txNoteLabels[utxo.txId]?.[0]?.name ||
+                common.addNote.charAt(0) + common.addNote.slice(1).toLowerCase()
+              }
+              showIcon={true}
+              Icon={colorMode === 'light' ? <Edit /> : <EditWhite />}
+              onIconPress={() => setTxNoteModalVisible(true)}
+            />
+            <InfoCard
+              title={txTranslations.transactionID}
+              description={utxo.txId}
+              showIcon={true}
+              Icon={colorMode === 'light' ? <Link /> : <LinkWhite />}
+              onIconPress={() => redirectToBlockExplorer('tx')}
+            />
           </Box>
         </Box>
-        <View style={{ flex: 1 }} />
       </ScrollView>
-      <Box style={styles.ctaBtnWrapper}>
-        <Box ml={windowWidth * -0.09}>
-          <Buttons
-            primaryLoading={syncingUTXOs}
-            primaryDisable={!lablesUpdated}
-            primaryCallback={onSaveChangeClick}
-            primaryText="Save Changes"
-            secondaryCallback={navigation.goBack}
-            secondaryText="Cancel"
-          />
-        </Box>
-      </Box>
+      <KeeperModal
+        visible={txNoteModalVisible}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        close={() => setTxNoteModalVisible(false)}
+        title={common.addNote}
+        subTitle={txTranslations.updateLabelSubTitle}
+        buttonText={common.save}
+        justifyContent="center"
+        Content={EditTxNoteContent}
+        buttonCallback={() => {
+          setUpdatingTxNote(true);
+          setTxNoteModalVisible(false);
+        }}
+      />
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
   scrollViewWrapper: {
+    marginTop: hp(15),
     flex: 1,
   },
-  itemWrapper: {
-    flexDirection: 'row',
-    backgroundColor: '#FDF7F0',
-    marginVertical: 5,
-    borderRadius: 10,
-    padding: 20,
-  },
   ctaBtnWrapper: {
-    marginBottom: hp(5),
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  addnewWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: hp(30),
-    marginBottom: hp(10),
-  },
-  addNewIcon: {
-    height: 25,
-    width: 25,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  plusText: {
-    fontSize: 18,
-    color: 'white',
+    marginTop: wp(20),
+    marginHorizontal: wp(5),
   },
   inputLabeWrapper: {
     flexDirection: 'row',
-    height: 50,
-    width: '100%',
+    height: hp(40),
+    width: '98%',
     alignItems: 'center',
     borderRadius: 10,
-    paddingLeft: 5,
+    paddingLeft: wp(5),
+    borderWidth: 1,
   },
   inputLabelBox: {
-    width: '88%',
+    flex: 1,
   },
   inputLabel: {
     fontSize: 13,
-    fontWeight: '900',
   },
   addBtnWrapper: {
-    width: '12%',
+    width: wp(32),
+    height: hp(32),
     alignItems: 'center',
+    marginRight: 3,
   },
   unitText: {
     letterSpacing: 0.6,
-    fontSize: hp(12),
+    fontSize: 13,
   },
   subHeader: {
     flexDirection: 'row',
@@ -295,32 +277,52 @@ const styles = StyleSheet.create({
   },
   subHeaderTitle: {
     fontSize: 14,
-    color: '#00715B',
     marginEnd: 5,
   },
   subHeaderValue: {
-    color: '#4F5955',
-    fontSize: 12,
+    fontSize: 14,
     marginEnd: 5,
-    letterSpacing: 2.4,
-    width: '50%',
+    letterSpacing: 2,
+    marginBottom: hp(7),
   },
   listHeader: {
     flex: 1,
-    color: '#00715B',
     fontSize: 14,
   },
   listContainer: {
     marginTop: 18,
     marginHorizontal: 5,
     paddingHorizontal: 15,
-    paddingVertical: 12,
+    paddingTop: hp(26),
+    paddingBottom: hp(21),
     borderRadius: 10,
   },
   listSubContainer: {
     flexWrap: 'wrap',
-    marginBottom: 20,
+    marginTop: hp(15),
+    marginBottom: hp(5),
     flexDirection: 'row',
+  },
+  detailsBox: {
+    height: '100%',
+    marginTop: hp(30),
+    paddingHorizontal: wp(15),
+  },
+  infoCardContainer: {
+    marginVertical: hp(7),
+    justifyContent: 'center',
+    paddingVertical: hp(5),
+    borderBottomWidth: 1,
+  },
+  titleText: {
+    fontSize: 14,
+    letterSpacing: 1.12,
+    width: '90%',
+    marginBottom: hp(5),
+  },
+  descText: {
+    fontSize: 12,
+    marginBottom: hp(7),
   },
 });
 

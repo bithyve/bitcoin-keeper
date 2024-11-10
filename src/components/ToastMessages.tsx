@@ -2,7 +2,7 @@ import { Box, useColorMode } from 'native-base';
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { windowWidth, hp } from 'src/constants/responsive';
+import { windowWidth, hp, wp } from 'src/constants/responsive';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from './KeeperText';
 
@@ -21,9 +21,15 @@ function HexaToastMessages({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={`${colorMode}.accent`} style={styles.toast} testID='toast_message'>
+    <Box backgroundColor={`${colorMode}.accent`} style={styles.toast} testID="toast_message">
       {error ? <ToastErrorIcon /> : Image ? <Box>{Image}</Box> : null}
-      <Text color={`${colorMode}.textBlack`} style={styles.toastMsgText}>
+      <Text
+        color={`${colorMode}.textBlack`}
+        style={[
+          styles.toastMsgText,
+          { marginLeft: Image ? wp(15) : wp(5), marginRight: wp(5), flex: -1 },
+        ]}
+      >
         {ToastBody}
       </Text>
     </Box>

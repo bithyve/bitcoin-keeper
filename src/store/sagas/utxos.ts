@@ -5,7 +5,7 @@ import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
 import { LabelRefType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
@@ -27,7 +27,7 @@ export function* addLabelsWorker({
   try {
     yield put(setSyncingUTXOs(true));
     const { txId, vout, wallet, labels, type } = payload;
-    const origin = genrateOutputDescriptors(wallet, false);
+    const origin = generateAbbreviatedOutputDescriptors(wallet);
     const tags = [];
     labels.forEach((label) => {
       const ref = vout !== undefined ? `${txId}:${vout}` : txId;
@@ -64,19 +64,20 @@ export function* bulkUpdateLabelsWorker({
     };
     UTXO?: UTXO;
     txId?: string;
+    address?: string;
     wallet: Wallet;
   };
 }) {
   try {
     yield put(setSyncingUTXOs(true));
-    const { labelChanges, wallet, UTXO, txId } = payload;
-    const origin = genrateOutputDescriptors(wallet, false);
+    const { labelChanges, wallet, UTXO, txId, address } = payload;
+    const origin = generateAbbreviatedOutputDescriptors(wallet);
     let addedTags: BIP329Label[] = [];
     let deletedTagIds: string[] = [];
-    const idSuffix = txId || `${UTXO.txId}:${UTXO.vout}`;
+    const idSuffix = txId || address || `${UTXO.txId}:${UTXO.vout}`;
     if (labelChanges.added) {
-      const ref = txId || `${UTXO.txId}:${UTXO.vout}`;
-      const type = txId ? LabelRefType.TXN : LabelRefType.OUTPUT;
+      const ref = txId || address || `${UTXO.txId}:${UTXO.vout}`;
+      const type = txId ? LabelRefType.TXN : address ? LabelRefType.ADDR : LabelRefType.OUTPUT;
       addedTags = labelChanges.added.map((label) => ({
         id: `${idSuffix}${label.name}`,
         ref,

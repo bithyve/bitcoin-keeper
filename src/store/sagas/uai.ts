@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind, VaultType } from 'src/services/wallets/enums';
+import { EntityKind, SignerType, VaultType } from 'src/services/wallets/enums';
 import { BackupHistory } from 'src/models/enums/BHR';
 import {
   createUaiMap,
@@ -180,7 +180,7 @@ function* uaiChecksWorker({ payload }) {
       // check for each signer if health check uai is needed
       const signers: Signer[] = dbManager
         .getCollection(RealmSchema.Signer)
-        .filter((signer) => !signer.hidden);
+        .filter((signer) => !signer.hidden && signer.type !== SignerType.MY_KEEPER);
       if (signers.length > 0) {
         for (const signer of signers) {
           const lastHealthCheck = isTestnet()
@@ -234,7 +234,11 @@ function* uaiChecksWorker({ payload }) {
             const lastHealthCheck = isTestnet()
               ? healthCheckReminderHours(signer.lastHealthCheck)
               : healthCheckReminderDays(signer.lastHealthCheck);
-            if (lastHealthCheck < healthCheckReminderThreshold) {
+            if (
+              lastHealthCheck < healthCheckReminderThreshold ||
+              signer.hidden ||
+              signer.type === SignerType.MY_KEEPER
+            ) {
               yield put(uaiActioned({ uaiId: uai.id, action: true }));
             }
           } //no signer for the UAI that alreay exisists

@@ -10,9 +10,18 @@ import { hp, windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { exportFile, importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const HandleFileScreen = ({ route, navigation }) => {
-  const { title, subTitle, onFileExtract, ctaText, fileData = '', signerType } = route.params;
+  const {
+    title,
+    subTitle,
+    onFileExtract,
+    ctaText,
+    fileData = '',
+    fileType = '',
+    signerType,
+  } = route.params;
   const [inputText, setInputText] = useState('');
 
   const { colorMode } = useColorMode();
@@ -44,27 +53,48 @@ const HandleFileScreen = ({ route, navigation }) => {
       >
         <View style={styles.wrapper}>
           <KeeperHeader title={title} subtitle={subTitle} />
-          <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-            <Input
-              testID="input_container"
-              placeholder="Enter the contents of the file"
-              placeholderTextColor={'grey'}
-              style={styles.textInput}
-              variant="unstyled"
-              value={inputText}
-              onChangeText={(text) => {
-                setInputText(text);
-              }}
-              multiline
-            />
-          </Box>
-          <Box style={styles.tileWrapper}>
-            <Tile title="Import a file" subTitle="From your phone" onPress={importCallback} />
+          <Box marginTop={hp(35)}>
+            {fileData && (
+              <Box style={styles.tileWrapper}>
+                <Tile
+                  title={fileType === 'PSBT' ? 'Export transaction file' : 'Export file'}
+                  subTitle={fileType === 'PSBT' ? 'Export the PSBT file to sign' : 'to your phone'}
+                  onPress={exportCallback}
+                />
+              </Box>
+            )}
+            <Box style={styles.tileWrapper}>
+              <Tile
+                title={fileType === 'PSBT' ? 'Import signed transaction file' : 'Import file'}
+                subTitle={
+                  fileType === 'PSBT' ? 'Import signed PSBT file into Keeper' : 'from your phone'
+                }
+                onPress={importCallback}
+              />
+            </Box>
+            <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <Input
+                testID="input_container"
+                placeholder="Manually enter the contents of the file to import"
+                placeholderTextColor={`${colorMode}.placeHolderTextColor`}
+                style={styles.textInput}
+                variant="unstyled"
+                value={inputText}
+                onChangeText={(text) => {
+                  setInputText(text);
+                }}
+                multiline
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
+              />
+            </Box>
           </Box>
           <Box style={styles.footerWrapper}>
             <Buttons
-              secondaryText={fileData ? 'Export File' : ''}
-              secondaryCallback={exportCallback}
               primaryCallback={() => {
                 navigation.goBack();
                 onFileExtract(inputText);
@@ -89,18 +119,20 @@ const styles = StyleSheet.create({
   inputWrapper: {
     marginHorizontal: windowWidth * 0.1 - 20,
     width: windowWidth * 0.8,
-    marginTop: hp(30),
+    marginTop: hp(10),
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
+    paddingVertical: hp(15),
+    paddingHorizontal: hp(10),
   },
   textInput: {
     width: '100%',
-    padding: 20,
-    height: 150,
+    height: hp(110),
+    fontSize: 11,
   },
   tileWrapper: {
-    marginBottom: 15,
+    marginBottom: hp(15),
     marginHorizontal: windowWidth * 0.1 - 20,
     width: windowWidth * 0.8,
   },

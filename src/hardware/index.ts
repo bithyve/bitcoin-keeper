@@ -175,7 +175,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Keystone';
       break;
     case SignerType.LEDGER:
-      name = 'Nano X';
+      name = 'Ledger';
       break;
     case SignerType.MOBILE_KEY:
       name = 'Recovery Key';
@@ -212,6 +212,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       break;
     case SignerType.INHERITANCEKEY:
       name = 'Inheritance Key';
+      break;
+    case SignerType.PORTAL:
+      name = 'Portal';
       break;
     default:
       name = type;
@@ -350,6 +353,11 @@ export const getDeviceStatus = (
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
     case SignerType.INHERITANCEKEY:
       return getInheritanceKeyStatus(type, isOnL1, isOnL2, scheme, addSignerFlow, existingSigners);
+    case SignerType.PORTAL:
+      return {
+        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
+      };
     default:
       return { message: '', disabled: false };
   }
@@ -427,7 +435,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Secure signers from Coinkite';
     }
     case SignerType.LEDGER: {
-      return 'Popular signers like Nano S and Nano X';
+      return 'Ledger signers like Nano S, Nano X, Stax, and Flex';
     }
     case SignerType.PASSPORT: {
       return 'Passport signers from Foundation Devices';
@@ -473,6 +481,9 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     }
     case SignerType.INHERITANCEKEY: {
       return '';
+    }
+    case SignerType.PORTAL: {
+      return 'Mobile-specific signer from TwentyTwo';
     }
     default:
       return null;
@@ -534,7 +545,6 @@ export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
 
     psbt.updateGlobal({
       globalXpub: vault.signers.map((signer) => {
-        console.log(signer.xpub);
         const extendedPubkey = base58check.decode(signer.xpub);
         return {
           extendedPubkey: Buffer.concat([extendedPubkey.prefix, extendedPubkey.data]),

@@ -12,22 +12,19 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import ContactImagePlaceholder from 'src/assets/images/contact-image-placeholder.svg';
 import PlusIcon from 'src/assets/images/add-icon-brown.svg';
 import Buttons from 'src/components/Buttons';
-import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import { persistDocument } from 'src/services/documents';
+import { getPersistedDocument, persistDocument } from 'src/services/documents';
 
 const EditContact = ({ route }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signer } = route.params;
-  const fullName = signer.extraData.givenName + ' ' + signer.extraData.familyName;
+  const fullName = generateFullName(signer);
   const [defaultName, setDefaultName] = useState(fullName);
-  const [userImage] = useState(signer.extraData.thumbnailPath);
+  const [userImage] = useState(getPersistedDocument(signer.extraData.thumbnailPath));
   const [selectedImage, setSelectedImage] = useState(null);
   const [disableSave, setDisableSave] = useState(true);
-  const { showToast } = useToastMessage();
   const dispatch = useDispatch();
 
   const openImagePicker = () => {
@@ -53,11 +50,10 @@ const EditContact = ({ route }) => {
       const extraData = {
         ...signer.extraData,
         givenName: fullNameSplit[0],
-        familyName: fullNameSplit[1],
+        familyName: fullNameSplit.slice(1).join(' '),
         thumbnailPath: selectedImage ?? userImage,
       };
       dispatch(updateSignerDetails(signer, 'extraData', extraData));
-      showToast('Contact Updated Successfully', <TickIcon />);
       navigation.goBack();
     }
   };
@@ -165,4 +161,10 @@ const styles = StyleSheet.create({
   },
 });
 
+const generateFullName = (signer) => {
+  let fullName = '';
+  if (signer.extraData.givenName) fullName += signer.extraData.givenName;
+  if (signer.extraData.familyName) fullName += ' ' + signer.extraData.familyName;
+  return fullName;
+};
 export default EditContact;

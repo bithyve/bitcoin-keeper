@@ -27,6 +27,9 @@ import { Signer } from 'src/services/wallets/interfaces/vault';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { persistDocument } from 'src/services/documents';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { captureError } from 'src/services/sentry';
 
 const AssociateContact = ({ route }) => {
   const { signer }: { signer: Signer } = route.params;
@@ -37,25 +40,31 @@ const AssociateContact = ({ route }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
-        title: 'Contacts',
-        message: 'Keeper would like to access your contacts.',
-        buttonPositive: 'Accept',
-      }).then((value) => {
-        if (value === 'granted') {
-          Contacts.getAll().then(setContacts);
-        }
-      });
-    } else {
-      Contacts.getAll().then(setContacts);
+    try {
+      if (Platform.OS === 'android') {
+        PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS).then((value) => {
+          if (value === 'granted') {
+            Contacts.getAll().then(setContacts);
+          }
+        });
+      } else {
+        Contacts.getAll().then(setContacts);
+      }
+    } catch (err) {
+      console.log('Error loading contacts: ', err);
+      captureError(err);
+      showToast(
+        'Failed to load contacts, please check app permissions and try again',
+        <ToastErrorIcon />
+      );
     }
   }, []);
 
   const filteredContacts = contacts.filter((contact) =>
-    contact.givenName.toLowerCase().includes(search.toLowerCase())
+    contact?.givenName?.toLowerCase()?.includes(search?.toLowerCase())
   );
 
   const handleContactPress = (contact) => {
@@ -165,11 +174,11 @@ const AssociateContact = ({ route }) => {
           title="Associated Contact"
           subTitle="The contact you associated with the Key will be displayed here"
           secondaryButtonText="Cancel"
+          secondaryCallback={() => setShowModal(false)}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
-          buttonTextColor={`${colorMode}.white`}
+          buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
-          secButtonTextColor={`${colorMode}.greenButtonBackground`}
           buttonText="Continue"
           buttonCallback={onAddAssociateContact}
           Content={() => (

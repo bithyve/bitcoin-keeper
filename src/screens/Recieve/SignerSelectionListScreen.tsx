@@ -1,6 +1,6 @@
 import { Dimensions, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import React, { useState } from 'react';
 import { Box, Image, Text, useColorMode } from 'native-base';
 import Next from 'src/assets/images/icon_arrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -11,18 +11,19 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
-import { InteracationMode } from '../Vault/HardwareModalMap';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 
 const { width } = Dimensions.get('screen');
 
-function VerifyAddressSelectionScreen() {
+function SignerSelectionListScreen() {
   const { params } = useRoute();
   const { colorMode } = useColorMode();
-  const { vaultId, signersMFP } = params as {
+  const { vaultId, signersMFP, title, description, callback } = params as {
     vaultId: string;
     signersMFP: string[];
+    title: string;
+    description: string;
+    callback: (signer, signerName) => void;
   };
 
   const { vaultSigners } = useSigners(vaultId);
@@ -30,14 +31,10 @@ function VerifyAddressSelectionScreen() {
     vaultSigners.filter((signer) => signersMFP?.includes(signer.masterFingerprint))
   );
 
-  const navigation = useNavigation();
-  const { translations } = useContext(LocalizationContext);
-  const { vault: vaultText } = translations;
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={false} showLoader />
-      <KeeperHeader title="Verify Address" subtitle={vaultText.SelectSigner} />
+      <KeeperHeader title={title} subtitle={description} />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
         data={availableSigners}
@@ -45,16 +42,7 @@ function VerifyAddressSelectionScreen() {
         renderItem={({ item }) => (
           <SignerCard
             onPress={(signer, signerName) => {
-              navigation.dispatch(
-                CommonActions.navigate('ConnectChannel', {
-                  signer,
-                  vaultId,
-                  type: signer.type,
-                  mode: InteracationMode.ADDRESS_VERIFICATION,
-                  title: `Connecting to ${signerName}`,
-                  subtitle: vaultText.verifyAddDesc,
-                })
-              );
+              callback(signer, signerName);
             }}
             signer={item}
           />
@@ -64,7 +52,7 @@ function VerifyAddressSelectionScreen() {
   );
 }
 
-export default Sentry.withErrorBoundary(VerifyAddressSelectionScreen, errorBourndaryOptions);
+export default Sentry.withErrorBoundary(SignerSelectionListScreen, errorBourndaryOptions);
 
 const styles = StyleSheet.create({
   inheritenceView: {
@@ -93,6 +81,7 @@ const SignerCard = ({ onPress, signer }) => {
     <TouchableOpacity testID={`btn_transactionSigner`} onPress={() => onPress(signer, signerName)}>
       <Box margin={5}>
         <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
+          {/* TODO: Move to a component as it is the same as in SignerList.tsx */}
           <Box flexDirection="row">
             <View style={styles.inheritenceView}>
               <Box
@@ -104,28 +93,41 @@ const SignerCard = ({ onPress, signer }) => {
                 alignItems="center"
                 marginX={1}
               >
-                {signer.extraData.thumbnailPath ? (
-                  <Image
-                    src={signer.extraData.thumbnailPath}
-                    style={styles.associatedContactImage}
-                  />
-                ) : (
-                  SDIcons(signer.type).Icon
-                )}
+                {SDIcons(signer.type).Icon}
               </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>
-              <Text fontSize={14} letterSpacing={1.12} maxWidth={width * 0.6}>
-                {`${signerName}`}
-              </Text>
               <Text
-                color={`${colorMode}.GreyText`}
-                fontSize={12}
-                marginRight={10}
-                letterSpacing={0.6}
+                color={`${colorMode}.textBlack`}
+                fontSize={14}
+                letterSpacing={1.12}
+                maxWidth={width * 0.6}
               >
-                {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
+                {`${getSignerNameFromType(signer.type, signer.isMock, false)} (${
+                  signer.masterFingerprint
+                })`}
               </Text>
+              {signer.signerDescription ? (
+                <Text
+                  numberOfLines={1}
+                  color={`${colorMode}.greenText`}
+                  fontSize={12}
+                  letterSpacing={0.6}
+                  fontStyle={null}
+                  maxWidth={width * 0.6}
+                >
+                  {signer.signerDescription}
+                </Text>
+              ) : (
+                <Text
+                  color={`${colorMode}.GreyText`}
+                  fontSize={12}
+                  marginRight={10}
+                  letterSpacing={0.6}
+                >
+                  {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
+                </Text>
+              )}
             </View>
           </Box>
           <Box alignItems="center" justifyContent="center">

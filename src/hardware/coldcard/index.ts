@@ -12,6 +12,7 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   const enc = NFC.encodeTextRecord(config);
   await NFC.send(NfcTech.Ndef, enc);
 };
+
 export const extractColdCardExport = (data, isMultisig) => {
   const xpubDetails: XpubDetailsType = {};
   const { bip84, bip48_2: bip48 } = data;
