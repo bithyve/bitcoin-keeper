@@ -66,7 +66,7 @@ const NotificationHandler = () => {
         subTitle={foregroundNotifcation?.notification?.title}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={'Decline'}
         buttonCallback={() => declineRequest()}
         Content={() => (
@@ -84,7 +84,7 @@ const NotificationHandler = () => {
         subTitle={foregroundNotifcation?.notification?.body}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={'Ok'}
         buttonCallback={() => setShowRemoteNotificationModel(false)}
       />

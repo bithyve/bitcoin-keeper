@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -14,15 +14,18 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { CommonActions } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import MasterKey from 'src/assets/images/master_key.svg';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import KeeperModal from 'src/components/KeeperModal';
 
 function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
@@ -49,13 +52,7 @@ function MasterRecoveryKey({ navigation }) {
             icon={<MasterKey />}
             description="Please view in a private location"
             callback={() => {
-              navigation.dispatch(
-                CommonActions.navigate('ExportSeed', {
-                  seed: primaryMnemonic,
-                  next: true,
-                  isInheritancePlaning: true,
-                })
-              );
+              setConfirmPassVisible(true);
             }}
             name="View Recovery Key"
           />
@@ -68,6 +65,35 @@ function MasterRecoveryKey({ navigation }) {
           <Text color={`${colorMode}.modalGreenContent`}>{inheritancePlanning.masterKeyNote}</Text>
         </Box>
       </ScrollView>
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Confirm Passcode"
+        subTitleWidth={wp(240)}
+        subTitle="To backup app Recovery Key"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={() => {
+              setConfirmPassVisible(false);
+              navigation.dispatch(
+                CommonActions.navigate('ExportSeed', {
+                  seed: primaryMnemonic,
+                  next: true,
+                  isInheritancePlaning: true,
+                })
+              );
+            }}
+          />
+        )}
+      />
     </ScreenWrapper>
   );
 }

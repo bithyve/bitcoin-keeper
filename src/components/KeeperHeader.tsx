@@ -12,9 +12,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 type Props = {
   title?: string;
   titleColor?: string;
+  titleSize?: number;
   mediumTitle?: boolean;
   subtitle?: string;
   subTitleColor?: string;
+  subTitleSize?: number;
   onPressHandler?: () => void;
   enableBack?: boolean;
   learnMore?: boolean;
@@ -40,16 +42,25 @@ const LearnMoreButton = ({
   onPress,
   learnBackgroundColor,
   learnTextColor,
+  colorMode,
   common,
   styles,
 }: any) => (
   <TouchableOpacity onPress={onPress} testID="btn_learnMore">
     <Box
-      borderColor={learnTextColor === 'light.white' ? 'light.white' : 'light.learnMoreBorder'}
-      backgroundColor={learnBackgroundColor}
+      borderColor={
+        learnTextColor === 'light.white' || learnTextColor === 'light.buttonText'
+          ? 'light.white'
+          : `${colorMode}.learnMoreBorder`
+      }
+      backgroundColor={
+        learnBackgroundColor == 'BrownNeedHelp'
+          ? `${colorMode}.BrownNeedHelp`
+          : learnBackgroundColor
+      }
       style={styles.learnMoreContainer}
     >
-      <Text color={learnTextColor} style={styles.learnMoreText}>
+      <Text color={learnTextColor || `${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
         {common.learnMore}
       </Text>
     </Box>
@@ -100,13 +111,15 @@ const KeeperHeader = ({
   subtitle = '',
   titleColor,
   subTitleColor,
+  titleSize = 20,
+  subTitleSize = 14,
   mediumTitle = false,
   onPressHandler,
   enableBack = true,
   learnMore = false,
   learnMorePressed = () => {},
-  learnBackgroundColor = 'light.BrownNeedHelp',
-  learnTextColor = 'light.learnMoreBorder',
+  learnBackgroundColor = 'BrownNeedHelp',
+  learnTextColor,
   rightComponent = null,
   availableBalance = null,
   contrastScreen = false,
@@ -121,8 +134,8 @@ const KeeperHeader = ({
   const { common } = translations;
 
   const styles = useMemo(
-    () => getStyles(rightComponentPadding, headerInfoPadding),
-    [rightComponentPadding, headerInfoPadding]
+    () => getStyles(rightComponentPadding, headerInfoPadding, titleSize, subTitleSize),
+    [rightComponentPadding, headerInfoPadding, titleSize, subTitleSize]
   );
 
   if (simple) {
@@ -171,6 +184,7 @@ const KeeperHeader = ({
               learnTextColor={learnTextColor}
               common={common}
               styles={styles}
+              colorMode={colorMode}
             />
           )}
         </Box>
@@ -196,7 +210,9 @@ const KeeperHeader = ({
 
 const getStyles = (
   rightComponentPadding: number | `${number}%`,
-  headerInfoPadding: number | `${number}%`
+  headerInfoPadding: number | `${number}%`,
+  titleSize: number,
+  subTitleSize: number
 ) =>
   StyleSheet.create({
     container: {
@@ -230,12 +246,13 @@ const getStyles = (
     },
     addWalletText: {
       letterSpacing: 0.18,
-      fontSize: 20,
+      fontSize: titleSize,
     },
     addWalletDescription: {
-      fontSize: 14,
+      fontSize: subTitleSize,
       lineHeight: 18,
       width: windowWidth * 0.8,
+      marginTop: hp(5),
     },
     backContainer: {
       justifyContent: 'space-between',

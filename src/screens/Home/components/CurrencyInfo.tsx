@@ -11,42 +11,48 @@ interface ICurrencyInfo {
   hideAmounts: boolean;
   amount: number;
   fontSize: number;
+  satsFontSize?: number;
   bold?: boolean;
   color?: string;
+  balanceMaxWidth?: number;
   variation?: 'light' | 'green' | 'dark' | 'grey';
 }
 function CurrencyInfo({
   hideAmounts,
   amount,
   fontSize,
+  satsFontSize = fontSize,
   bold,
   color = Colors.White,
+  balanceMaxWidth,
   variation = 'grey',
 }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   return (
     <HStack style={styles.vaultBalanceContainer} testID="view_currencyView">
-      {getCurrencyIcon(BTC, variation)}
-      {!hideAmounts ? (
-        <Box style={styles.rowCenter}>
-          <Text
-            color={color}
-            style={{ fontSize, paddingVertical:5 }}
-            bold={bold}
-            numberOfLines={1}
-            testID="text_balance"
+      <Box style={styles.rowCenter}>
+        {getCurrencyIcon(BTC, variation)}
+        {!hideAmounts ? (
+          <Box style={styles.rowCenter}>
+            <Text
+              color={color}
+              style={{ fontSize, paddingVertical: 5, maxWidth: balanceMaxWidth || null }}
+              bold={bold}
+              numberOfLines={1}
+              testID="text_balance"
+            >
+              {` ${getBalance(amount)} ${getSatUnit()}`}
+            </Text>
+          </Box>
+        ) : (
+          <Box
+            style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]}
+            testID="view_hideCurrencyView"
           >
-            {` ${getBalance(amount)} ${getSatUnit()}`}
-          </Text>
-        </Box>
-      ) : (
-        <Box
-          style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]}
-          testID="view_hideCurrencyView"
-        >
-          <Hidden color={`${color}`} />
-        </Box>
-      )}
+            <Hidden color={color} />
+          </Box>
+        )}
+      </Box>
     </HStack>
   );
 }

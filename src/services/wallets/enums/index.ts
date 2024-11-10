@@ -108,6 +108,7 @@ export enum SignerType {
   INHERITANCEKEY = 'INHERITANCEKEY',
   UNKOWN_SIGNER = 'UNKNOWN_SIGNER',
   SPECTER = 'SPECTER',
+  PORTAL = 'PORTAL',
 }
 
 export enum PaymentInfoKind {
@@ -186,12 +187,14 @@ export enum KeyGenerationMode {
   NFC = 'NFC',
   FILE = 'FILE',
   QR = 'QR',
+  USB = 'USB',
 }
 
 export enum SigningMode {
   NFC = 'NFC',
   FILE = 'FILE',
   QR = 'QR',
+  USB = 'USB',
 }
 
 export enum RKInteractionMode {

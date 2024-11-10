@@ -114,7 +114,7 @@ function SignerItem({
       key={signer.masterFingerprint}
       name={getSignerNameFromType(signer.type, signer.isMock, false)}
       description={getSignerDescription(signer)}
-      icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+      icon={SDIcons(signer.type).Icon}
       image={signer?.extraData?.thumbnailPath}
       isSelected={false}
       showSelection={false}
@@ -174,7 +174,9 @@ function SetupCollaborativeWallet() {
   };
 
   const { signers } = useSigners();
-  const myAppKeys = signers.filter((signer) => signer.type === SignerType.MY_KEEPER);
+  const myAppKeys = signers.filter(
+    (signer) => !signer.hidden && signer.type === SignerType.MY_KEEPER
+  );
   const myAppKeyCount = myAppKeys.length;
 
   useEffect(() => {
@@ -288,7 +290,7 @@ function SetupCollaborativeWallet() {
         subtitle={wallet.CollaborativeWalletCreated}
         learnMore
         learnMorePressed={() => dispatch(setCosginerModal(true))}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
       />
       <FlatList
         horizontal

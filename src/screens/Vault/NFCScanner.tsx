@@ -19,7 +19,6 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/services/sentry';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function NFCScanner({ route }) {
   const { colorMode } = useColorMode();
@@ -49,12 +48,12 @@ function NFCScanner({ route }) {
       const navigationState = addSignerFlow
         ? {
             name: 'ManageSigners',
-            params: { addedSigner: signer, addSignerFlow, showModal: true },
+            params: { addedSigner: signer },
           }
         : {
             name: 'AddSigningDevice',
             merge: true,
-            params: { addedSigner: signer, addSignerFlow, showModal: true },
+            params: { addedSigner: signer },
           };
       navigation.dispatch(CommonActions.navigate(navigationState));
     } catch (error) {

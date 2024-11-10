@@ -25,6 +25,7 @@ import SigningServer from 'src/services/backend/SigningServer';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperQRCode from 'src/components/KeeperQRCode';
+import WalletCopiableData from 'src/components/WalletCopiableData';
 
 function SetupSigningServer({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -83,12 +84,12 @@ function SetupSigningServer({ route }: { route }) {
     const navigationState = addSignerFlow
       ? {
           name: 'ManageSigners',
-          params: { addedSigner: signingServerKey, addSignerFlow, showModal: true },
+          params: { addedSigner: signingServerKey },
         }
       : {
           name: 'AddSigningDevice',
           merge: true,
-          params: { addedSigner: signingServerKey, addSignerFlow, showModal: true },
+          params: { addedSigner: signingServerKey },
         };
     navigation.dispatch(CommonActions.navigate(navigationState));
   };
@@ -161,73 +162,48 @@ function SetupSigningServer({ route }: { route }) {
         <Box>
           <KeeperHeader title="Set up 2FA for signer" subtitle="Scan on any 2FA auth app" />
         </Box>
-        <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
+        <Box marginTop={hp(50)} alignItems="center" alignSelf="center">
           {validationKey === '' ? (
             <Box height={hp(250)} justifyContent="center">
               <ActivityIndicator animating size="small" />
             </Box>
           ) : (
-            <Box
-              alignItems="center"
-              alignSelf="center"
-              width={hp(200)}
-              style={{
-                marginTop: hp(30),
-              }}
-            >
-              <KeeperQRCode
-                qrData={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', validationKey)}
-                logoBackgroundColor="transparent"
-                size={hp(200)}
-              />
+            <Box alignItems="center" alignSelf="center" width="100%">
               <Box
-                background={`${colorMode}.QrCode`}
-                height={6}
-                width="100%"
-                justifyContent="center"
+                alignItems="center"
+                alignSelf="center"
+                width={wp(200)}
+                style={{
+                  marginTop: hp(30),
+                }}
               >
-                <Text
-                  textAlign="center"
-                  color={`${colorMode}.recieverAddress`}
-                  bold
-                  fontSize={12}
-                  letterSpacing={1.08}
-                  width="100%"
-                  numberOfLines={1}
-                >
-                  2FA signer
-                </Text>
-              </Box>
-              <Box alignItems="center" marginTop={hp(30)} width={wp(320)}>
+                <KeeperQRCode
+                  qrData={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', validationKey)}
+                  logoBackgroundColor="transparent"
+                  size={wp(200)}
+                  showLogo
+                />
                 <Box
-                  flexDirection="row"
-                  width="90%"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  backgroundColor={`${colorMode}.textInputBackground`}
-                  borderBottomLeftRadius={10}
-                  borderTopLeftRadius={10}
+                  background={`${colorMode}.QrCode`}
+                  height={6}
+                  width={wp(220)}
+                  justifyContent="center"
                 >
-                  <Text width="80%" marginLeft={4} numberOfLines={1}>
-                    {validationKey}
-                  </Text>
-                  <TouchableOpacity
-                    activeOpacity={0.4}
-                    onPress={() => {
-                      Clipboard.setString(validationKey);
-                      showToast('Address Copied Successfully', <TickIcon />);
-                    }}
+                  <Text
+                    textAlign="center"
+                    color={`${colorMode}.recieverAddress`}
+                    bold
+                    fontSize={12}
+                    letterSpacing={1.08}
+                    width={wp(220)}
+                    numberOfLines={1}
                   >
-                    <Box
-                      backgroundColor={`${colorMode}.copyBackground`}
-                      padding={3}
-                      borderTopRightRadius={10}
-                      borderBottomRightRadius={10}
-                    >
-                      <CopyIcon />
-                    </Box>
-                  </TouchableOpacity>
+                    2FA signer
+                  </Text>
                 </Box>
+              </Box>
+              <Box flex={1}>
+                <WalletCopiableData data={validationKey} dataType="2fa"></WalletCopiableData>
               </Box>
             </Box>
           )}

@@ -19,7 +19,7 @@ function TrustedContactTemplates({}) {
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>

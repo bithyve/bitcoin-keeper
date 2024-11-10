@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 5,
-    paddingRight: 20,
+    paddingRight: wp(10),
   },
   preTitle: {
     fontSize: 13,

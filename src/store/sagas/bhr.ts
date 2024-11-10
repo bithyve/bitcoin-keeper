@@ -33,7 +33,7 @@ import { NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
@@ -149,6 +149,7 @@ export function* updateAppImageWorker({
   } catch (err) {
     console.log({ err });
     console.error('App image update failed', err);
+    return { updated: false, error: err };
   }
 }
 
@@ -183,9 +184,7 @@ export function* updateVaultImageWorker({
     signerId: string;
     xfpHash: string;
   }> = [];
-  const signerIdXpubMap = {};
   for (const signer of vault.signers) {
-    signerIdXpubMap[signer.xfp] = signer.xpub;
     signersData.push({
       signerId: signer.xfp,
       xfpHash: hash256(signer.masterFingerprint),
@@ -735,7 +734,7 @@ function* backupBsmsOnCloudWorker({
     }
     vaults.forEach((vault) => {
       if (!excludeVaultTypesForBackup.includes(vault.type)) {
-        const bsms = genrateOutputDescriptors(vault);
+        const bsms = 'BSMS 1.0\n' + generateOutputDescriptors(vault, true);
         bsmsToBackup.push({
           bsms,
           name: vault.presentationData.name,

@@ -43,8 +43,8 @@ function UAIView({
           onPress={primaryCallback}
           testID="btn_uaiPrimary"
         >
-          <Box style={styles.addNowCTAWrapper} backgroundColor={`${colorMode}.greenText`}>
-            <Text style={styles.addNowCTAText} bold color={`${colorMode}.white`}>
+          <Box style={styles.addNowCTAWrapper} backgroundColor={`${colorMode}.modalGreenButton`}>
+            <Text style={styles.addNowCTAText} bold color={`${colorMode}.buttonText`}>
               {primaryCallbackText.toUpperCase()}
             </Text>
           </Box>
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
-    paddingHorizontal:3
+    paddingHorizontal: 3,
   },
   addNowCTAText: {
     fontSize: 10,

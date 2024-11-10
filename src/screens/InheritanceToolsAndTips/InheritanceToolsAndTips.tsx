@@ -15,7 +15,6 @@ import KeySecuriy from './KeySecurity';
 import BackupRecovery from './BackupRecovery';
 import InheritanceTool from './InheritanceTool';
 import { hp, wp } from 'src/constants/responsive';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import KeeperModal from 'src/components/KeeperModal';
 import BTCModalIcon from 'src/assets/images/btc-illustration.svg';
 import { useDispatch } from 'react-redux';
@@ -24,19 +23,11 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 function InheritanceToolsAndTips({ navigation }) {
   const { colorMode } = useColorMode();
-  const isSmallDevice = useIsSmallDevices();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common, inheritence: inheritanceTranslation } = translations;
   const [selectedCard, selectCard] = useState(1);
   const [inheritanceModal, setInheritanceModal] = useState(false);
-
-  let setPadding;
-  if (selectedCard === 3) {
-    setPadding = hp(20);
-  } else {
-    setPadding = isSmallDevice && selectedCard === 3 ? hp(30) : 0;
-  }
 
   const onCardSelect = (id: number) => {
     selectCard(id);
@@ -62,10 +53,10 @@ function InheritanceToolsAndTips({ navigation }) {
         subtitle={inheritanceTranslation.SecurityAndInheritanceDescp}
         learnMore={true}
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => setInheritanceModal(true)}
       />
-      <HStack style={[styles.container, { paddingBottom: setPadding }]}>
+      <HStack style={[styles.container]}>
         <WalletCard
           id={1}
           numberOfLines={2}
@@ -97,9 +88,11 @@ function InheritanceToolsAndTips({ navigation }) {
           arrowStyles={{ marginLeft: 10 }}
         />
       </HStack>
-      {selectedCard === 1 && <KeySecuriy navigation={navigation} />}
-      {selectedCard === 2 && <BackupRecovery navigation={navigation} />}
-      {selectedCard === 3 && <InheritanceTool navigation={navigation} />}
+      <Box flex={1}>
+        {selectedCard === 1 && <KeySecuriy navigation={navigation} />}
+        {selectedCard === 2 && <BackupRecovery navigation={navigation} />}
+        {selectedCard === 3 && <InheritanceTool navigation={navigation} />}
+      </Box>
       <KeeperModal
         visible={inheritanceModal}
         close={() => {

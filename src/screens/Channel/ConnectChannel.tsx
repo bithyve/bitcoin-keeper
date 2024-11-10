@@ -1,35 +1,22 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { io } from 'src/services/channel';
-import {
-  BITBOX_HEALTHCHECK,
-  CHANNEL_MESSAGE,
-  LEDGER_HEALTHCHECK,
-  TREZOR_HEALTHCHECK,
-  EMIT_MODES,
-  JOIN_CHANNEL,
-} from 'src/services/channel/constants';
-import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { getBitbox02Details } from 'src/hardware/bitbox';
-import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType } from 'src/services/wallets/enums';
+import { CHANNEL_MESSAGE, EMIT_MODES, JOIN_CHANNEL } from 'src/services/channel/constants';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/services/sentry';
 import config from 'src/utils/service-utilities/config';
-import { getTrezorDetails } from 'src/hardware/trezor';
-import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
@@ -41,7 +28,7 @@ import {
 } from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
-import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
+import { setupUSBSigner } from 'src/hardware/signerSetup';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
@@ -49,36 +36,20 @@ import useVault from 'src/hooks/useVault';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import ReceiveAddress from '../Recieve/ReceiveAddress';
 import ReceiveQR from '../Recieve/ReceiveQR';
+import QRScanner from 'src/components/QRScanner';
+import { getUSBSignerDetails } from 'src/hardware/usbSigner';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
-
-  const [isFocused, setIsFocused] = useState(false);
-  useFocusEffect(
-    useCallback(() => {
-      setIsFocused(true);
-      return () => {
-        setIsFocused(false);
-      };
-    }, [])
-  );
 
   const callback = (data) => {
     onBarCodeRead(data);
     setChannelCreated(true);
   };
 
-  return !channelCreated && isFocused ? (
-    <Box style={styles.qrcontainer}>
-      <RNCamera
-        autoFocus="on"
-        style={styles.cameraView}
-        captureAudio={false}
-        onBarCodeRead={callback}
-        useNativeZoom
-      />
-    </Box>
+  return !channelCreated ? (
+    <QRScanner onScanCompleted={callback} />
   ) : (
     <VStack>
       {mode === InteracationMode.ADDRESS_VERIFICATION ? (
@@ -87,22 +58,16 @@ function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
           <ReceiveAddress address={receivingAddress} />
         </Box>
       ) : (
-        <Box>
+        <VStack marginTop={'40%'}>
           <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-            {`\u2022 Please continue on the Keeper Desktop App`}
+            {`Please continue on the Keeper Desktop App`}
           </Text>
-          <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
-        </Box>
+          <ActivityIndicator style={{ marginTop: hp(20), alignSelf: 'center', padding: '2%' }} />
+        </VStack>
       )}
     </VStack>
   );
 }
-
-const HEALTH_CHECK_TYPES = {
-  BITBOX02: BITBOX_HEALTHCHECK,
-  LEDGER: LEDGER_HEALTHCHECK,
-  TREZOR: TREZOR_HEALTHCHECK,
-};
 
 function ConnectChannel() {
   const { colorMode } = useColorMode();
@@ -157,7 +122,7 @@ function ConnectChannel() {
     requestBody.receivingAddress = receivingAddress ?? null;
   }
 
-  const onBarCodeRead = ({ data }) => {
+  const onBarCodeRead = (data) => {
     decryptionKey.current = data;
     const sha = crypto.createHash('sha256');
     sha.update(data);
@@ -189,13 +154,17 @@ function ConnectChannel() {
   };
 
   useEffect(() => {
+    let channelConnectionInterval = setInterval(() => {
+      if (!channel.connect) {
+        channel.connect();
+      }
+    }, 10000);
     channel.on(CHANNEL_MESSAGE, async ({ data }) => {
       try {
         const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
         const responseData = decrypted.responseData.data;
         if (mode == EMIT_MODES.HEALTH_CHECK) {
-          const type = HEALTH_CHECK_TYPES[signerType];
-          await handleVerification(responseData, type);
+          await handleVerification(responseData, signerType);
         } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
           const resAdd = responseData.address;
           if (resAdd != receivingAddress) return;
@@ -216,103 +185,35 @@ function ConnectChannel() {
           navigation.goBack();
           showToast(`Address verified successfully`, <TickIcon />);
         } else {
-          signerType == SignerType.LEDGER && ledgerSetup(responseData);
-          signerType == SignerType.BITBOX02 && bitBoxSetup(responseData);
-          signerType == SignerType.TREZOR && trezorSetup(responseData);
+          signerSetup(signerType, responseData);
         }
       } catch (error) {
         console.log('🚀 ~ channel.on ~ error:', error);
       }
     });
 
-    const bitBoxSetup = (signerData) => {
+    const signerSetup = (signerType, signerData) => {
       try {
-        const { signer: bitbox02 } = setupBitbox(signerData, isMultisig);
+        const { signer } = setupUSBSigner(signerType, signerData, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
-          dispatch(setSigningDevices(bitbox02));
+          dispatch(setSigningDevices(signer));
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else if (mode === InteracationMode.CANARY_ADDITION) {
-          dispatch(addSigningDevice([bitbox02]));
-          createCreateCanaryWallet(bitbox02);
+          dispatch(addSigningDevice([signer]));
+          createCreateCanaryWallet(signer);
         } else {
-          dispatch(addSigningDevice([bitbox02]));
+          dispatch(addSigningDevice([signer]));
           const navigationState = addSignerFlow
             ? {
                 name: 'ManageSigners',
-                params: { addedSigner: bitbox02, addSignerFlow, showModal: true },
+                params: { addedSigner: signer },
               }
             : {
                 name: 'AddSigningDevice',
                 merge: true,
-                params: { addedSigner: bitbox02, addSignerFlow, showModal: true },
-              };
-          navigation.dispatch(CommonActions.navigate(navigationState));
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
-    };
-    const ledgerSetup = (signerData) => {
-      try {
-        const { signer: ledger } = setupLedger(signerData, isMultisig);
-        if (mode === InteracationMode.RECOVERY) {
-          dispatch(setSigningDevices(ledger));
-          navigation.dispatch(
-            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
-          );
-        } else if (mode === InteracationMode.CANARY_ADDITION) {
-          dispatch(addSigningDevice([ledger]));
-          createCreateCanaryWallet(ledger);
-        } else {
-          dispatch(addSigningDevice([ledger]));
-          const navigationState = addSignerFlow
-            ? {
-                name: 'ManageSigners',
-                params: { addedSigner: ledger, addSignerFlow, showModal: true },
-              }
-            : {
-                name: 'AddSigningDevice',
-                merge: true,
-                params: { addedSigner: ledger, addSignerFlow, showModal: true },
-              };
-          navigation.dispatch(CommonActions.navigate(navigationState));
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
-    };
-    const trezorSetup = (signerData) => {
-      try {
-        const { signer: trezor } = setupTrezor(signerData, isMultisig);
-        if (mode === InteracationMode.RECOVERY) {
-          dispatch(setSigningDevices(trezor));
-          navigation.dispatch(
-            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
-          );
-        } else if (mode === InteracationMode.CANARY_ADDITION) {
-          dispatch(addSigningDevice([trezor]));
-          createCreateCanaryWallet(trezor);
-        } else {
-          dispatch(addSigningDevice([trezor]));
-          const navigationState = addSignerFlow
-            ? {
-                name: 'ManageSigners',
-                params: { addedSigner: trezor, addSignerFlow, showModal: true },
-              }
-            : {
-                name: 'AddSigningDevice',
-                merge: true,
-                params: { addedSigner: trezor, addSignerFlow, showModal: true },
+                params: { addedSigner: signer },
               };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
@@ -325,7 +226,7 @@ function ConnectChannel() {
       }
     };
 
-    const handleVerification = async (signerData, deviceType) => {
+    const handleVerification = async (signerData, signerType) => {
       const handleSuccess = () => {
         dispatch(
           healthCheckStatusUpdate([
@@ -350,23 +251,7 @@ function ConnectChannel() {
       };
 
       try {
-        let masterFingerprint, signerType;
-        switch (deviceType) {
-          case LEDGER_HEALTHCHECK:
-            ({ masterFingerprint } = getLedgerDetailsFromChannel(signerData, isMultisig));
-            signerType = SignerType.LEDGER;
-            break;
-          case TREZOR_HEALTHCHECK:
-            ({ masterFingerprint } = getTrezorDetails(signerData, isMultisig));
-            signerType = SignerType.TREZOR;
-            break;
-          case BITBOX_HEALTHCHECK:
-            ({ masterFingerprint } = getTrezorDetails(signerData, isMultisig));
-            signerType = SignerType.BITBOX02;
-            break;
-          default:
-            break;
-        }
+        let { masterFingerprint } = getUSBSignerDetails(signerData, isMultisig);
 
         if (mode === InteracationMode.IDENTIFICATION) {
           const mapped = mapUnknownSigner({ masterFingerprint, type: signerType });
@@ -395,6 +280,7 @@ function ConnectChannel() {
 
     return () => {
       channel.disconnect();
+      clearInterval(channelConnectionInterval);
     };
   }, [channel]);
 
@@ -442,24 +328,15 @@ const styles = StyleSheet.create({
     marginVertical: 25,
     alignItems: 'center',
   },
-  qrcontainer: {
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginVertical: 25,
-    alignItems: 'center',
-  },
-  cameraView: {
-    height: windowWidth * 0.7,
-    width: windowWidth * 0.8,
-  },
   noteWrapper: {
     marginHorizontal: '5%',
   },
   instructions: {
-    width: windowWidth * 0.8,
+    width: windowWidth * 0.75,
     padding: '2%',
     letterSpacing: 0.65,
     fontSize: 13,
+    textAlign: 'center',
   },
   addressContainer: {
     marginHorizontal: wp(20),

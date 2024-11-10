@@ -7,6 +7,7 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import AppIcon from 'src/assets/images/new-app-icon.svg';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
+import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Recover from 'src/assets/images/recover-app-icon.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -20,6 +21,10 @@ import BounceLoader from 'src/components/BounceLoader';
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
+import IconSettings from 'src/assets/images/settings.svg';
+import IconGreySettings from 'src/assets/images/settings_grey.svg';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Colors from 'src/theme/Colors';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -32,7 +37,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
       alignItems="center"
       width="100%"
       testID="btn_startNew"
-      style={{ marginTop: hp(20), height: hp(110), borderRadius: hp(10) }}
+      style={{ height: hp(80), borderRadius: hp(10) }}
       paddingX={2}
     >
       {Icon && <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>}
@@ -40,13 +45,13 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
         style={{
           paddingVertical: hp(20),
           paddingLeft: wp(24),
-          width: '75%',
+          flex: 1,
         }}
       >
-        <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
+        <Text color={`${colorMode}.primaryText`} fontSize={14} style={{ marginBottom: hp(5) }}>
           {title}
         </Text>
-        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
+        <Text color={`${colorMode}.placeHolderTextColor`} fontSize={12}>
           {subTitle}
         </Text>
       </Box>
@@ -55,8 +60,10 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
           <Box marginRight="10">
             <ActivityIndicator />
           </Box>
-        ) : (
+        ) : colorMode === 'light' ? (
           <ArrowIcon />
+        ) : (
+          <ArrowIconWhite />
         )}
       </Box>
     </Pressable>
@@ -201,21 +208,39 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Pressable
-        backgroundColor={`${colorMode}.BrownNeedHelp`}
-        borderColor={`${colorMode}.BrownNeedHelp`}
-        style={styles.learnMoreContainer}
-        onPress={() => setIntroModalVisible(true)}
-      >
-        <Text style={styles.learnMoreText} medium color={`${colorMode}.white`}>
-          {common.learnMore}
-        </Text>
-      </Pressable>
+      <Box flexDir={'row'} width="100%">
+        <TouchableOpacity
+          style={styles.settingIconWrapper}
+          onPress={() => navigation.navigate('NodeSettings')}
+          testID="btn_AppSettingsIcon"
+        >
+          {colorMode === 'light' ? <IconGreySettings /> : <IconSettings />}
+          <Text
+            style={styles.settingIconText}
+            color={colorMode === 'light' ? Colors.MediumGrey : Colors.SecondaryWhite}
+            semiBold
+          >
+            Server Settings
+          </Text>
+        </TouchableOpacity>
+        <Box flex={1}>
+          <Pressable
+            backgroundColor={`${colorMode}.BrownNeedHelp`}
+            borderColor={`${colorMode}.BrownNeedHelp`}
+            style={styles.learnMoreContainer}
+            onPress={() => setIntroModalVisible(true)}
+          >
+            <Text style={styles.learnMoreText} medium color={`${colorMode}.buttonText`}>
+              {common.learnMore}
+            </Text>
+          </Pressable>
+        </Box>
+      </Box>
       <Box style={styles.contentContainer}>
         <Box>
           <Box style={styles.headingContainer}>
             <Text color={`${colorMode}.headerText`} fontSize={18}>
-              {login.welcome}
+              {login.welcomeToBitcoinKeeper}
             </Text>
             <Text fontSize={14} color={`${colorMode}.secondaryText`}>
               {login.CreateApp}
@@ -231,7 +256,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
           >
             <AppIcon />
             <Box>
-              <Text fontSize={13}>Start New</Text>
+              <Text fontSize={13} color={`${colorMode}.black`}>
+                Start New
+              </Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
                 {login.newWalletsAndVaults}
               </Text>
@@ -247,14 +274,16 @@ function NewKeeperApp({ navigation }: { navigation }) {
           >
             <Recover />
             <Box>
-              <Text fontSize={13}>Recover an existing app</Text>
+              <Text fontSize={13} color={`${colorMode}.black`}>
+                Recover an existing app
+              </Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
                 {login.Enter12WordsRecovery}
               </Text>
             </Box>
           </Pressable>
         </Box>
-        <Box style={styles.note}>
+        <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
           <Text color={`${colorMode}.headerText`} medium fontSize={14}>
             {login.Note}
           </Text>
@@ -264,7 +293,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               color={`${colorMode}.headerText`}
               italic
               bold
-              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
+              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/terms-of-service/`)}
             >
               {' '}
               {login.TermsOfService}{' '}
@@ -274,7 +303,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               color={`${colorMode}.headerText`}
               italic
               bold
-              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
+              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/privacy-policy/`)}
             >
               {' '}
               {login.PrivacyPolicy}
@@ -343,7 +372,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         }}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(300)}
       />
     </ScreenWrapper>
@@ -352,8 +381,16 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
 const styles = StyleSheet.create({
   iconContainer: {
-    marginRight: 20,
-    flexDirection: 'row-reverse',
+    marginRight: wp(25),
+  },
+  settingIconWrapper: {
+    marginTop: hp(14),
+    marginLeft: wp(20),
+    flexDirection: 'row',
+  },
+  settingIconText: {
+    marginLeft: wp(8),
+    fontSize: 12,
   },
   tileContainer: {
     marginBottom: hp(40),

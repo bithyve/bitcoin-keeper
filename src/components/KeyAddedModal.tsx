@@ -14,12 +14,13 @@ const KeyAddedModal = ({ visible, close, signer }) => {
     buttonText: 'Add Description',
     buttonCallback: () => {
       close();
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'AdditionalDetails',
-          params: { signer },
-        })
-      );
+      signer &&
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'AdditionalDetails',
+            params: { signer },
+          })
+        );
     },
     secondaryButtonText: 'Cancel',
     secondaryButtonCallback: close,
@@ -31,11 +32,10 @@ const KeyAddedModal = ({ visible, close, signer }) => {
   return (
     <KeeperModal
       visible={visible}
-      title="Key added successfully!"
+      title="Key Added Successfully!"
       subTitle="Access key details from Manage Keys and sign transactions from within wallets."
       close={close}
       showCloseIcon
-      DarkCloseIcon={colorMode === 'dark'}
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.modalWhiteContent`}
       buttonText={buttonText}

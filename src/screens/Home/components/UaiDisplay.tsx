@@ -54,10 +54,10 @@ function UaiDisplay({ uaiStack, vaultId }) {
           cta: () => {
             activeVault
               ? navigtaion.navigate('SendConfirmation', {
-                uaiSetActionFalse,
-                walletId: uai?.entityId,
-                transferType: TransferType.WALLET_TO_VAULT,
-              })
+                  uaiSetActionFalse,
+                  walletId: uai?.entityId,
+                  transferType: TransferType.WALLET_TO_VAULT,
+                })
               : showToast('No vaults found', <ToastErrorIcon />);
 
             setShowModal(false);
@@ -171,7 +171,7 @@ function UaiDisplay({ uaiStack, vaultId }) {
           title={uaiConfig?.modalDetails?.heading}
           subTitle={uaiConfig?.modalDetails?.subTitle}
           buttonText={uaiConfig?.modalDetails?.btnText}
-          buttonTextColor={`${colorMode}.white`}
+          buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={() => uaiConfig?.cta(uai?.entityId)}
           Content={() => <Text color={`${colorMode}.greenText`}>{uai?.displayText}</Text>}
         />

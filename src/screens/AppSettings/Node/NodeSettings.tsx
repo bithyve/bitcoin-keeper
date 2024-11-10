@@ -7,13 +7,13 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import KeeperHeader from 'src/components/KeeperHeader';
-import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import AddIcon from 'src/assets/images/add.svg';
-import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import ConnectIcon from 'src/assets/images/connectNode.svg';
+import ConnectIconWhite from 'src/assets/images/connectNodeWhite.svg';
 import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
+import DisconnectIconWhite from 'src/assets/images/disconnectNodeWhite.svg';
 import DeleteIcon from 'src/assets/images/deleteNode.svg';
+import DeleteIconWhite from 'src/assets/images/deleteNodeWhite.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -27,6 +27,9 @@ import AddNode from './AddNodeModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
+import Buttons from 'src/components/Buttons';
+import EmptyListIllustration from 'src/components/EmptyListIllustration';
+import Colors from 'src/theme/Colors';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -108,13 +111,6 @@ function NodeSettings() {
   };
 
   const onDelete = async (selectedItem: NodeDetail) => {
-    if (nodeList.length === 1) {
-      showToast(
-        'Unable to delete. Please add another node before deleting this.',
-        <ToastErrorIcon />
-      );
-      return;
-    }
     const isConnected = Node.nodeConnectionStatus(selectedItem);
     if (isConnected) await Node.disconnect(selectedItem);
 
@@ -202,8 +198,8 @@ function NodeSettings() {
         title={settings.nodeSettings}
         subtitle={settings.manageElectrumServersSubtitle}
       />
-      {nodeList.length > 0 && (
-        <Box style={styles.nodesListWrapper}>
+      <Box style={styles.nodesListWrapper}>
+        {nodeList.length > 0 ? (
           <FlatList
             data={nodeList}
             showsVerticalScrollIndicator={false}
@@ -214,24 +210,57 @@ function NodeSettings() {
                   onPress={() => onSelectedNodeitem(item)}
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
-                  <Box backgroundColor={`${colorMode}.seashellWhite`} style={[styles.nodeList]}>
+                  <Box
+                    backgroundColor={`${colorMode}.seashellWhite`}
+                    style={[styles.nodeList]}
+                    borderColor={colorMode === 'light' ? 'transparent' : Colors.separator}
+                  >
                     <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
-                      <Box style={{ width: '53%' }}>
-                        <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
+                      <Box flex={1}>
+                        <Text
+                          color={`${colorMode}.secondaryText`}
+                          style={[styles.nodeTextHeader]}
+                          medium
+                        >
                           {settings.host}
                         </Text>
                         <Text numberOfLines={1} style={styles.nodeTextValue}>
                           {item.host}
                         </Text>
                       </Box>
-                      <Box style={styles.portContainer}>
-                        <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
+                      <Box flex={-1}>
+                        <Text
+                          color={`${colorMode}.secondaryText`}
+                          style={[styles.nodeTextHeader]}
+                          medium
+                        >
                           {settings.portNumber}
                         </Text>
                         <Text style={styles.nodeTextValue}>{item.port}</Text>
                       </Box>
                     </Box>
-                    <Box style={styles.nodeButtons} backgroundColor={`${colorMode}.seashellWhite`}>
+                    <Box
+                      style={styles.nodeButtons}
+                      borderColor={`${colorMode}.greyBorder`}
+                      backgroundColor={`${colorMode}.seashellWhite`}
+                    >
+                      <TouchableOpacity
+                        testID="btn_deleteNode"
+                        onPress={() => {
+                          if (!isConnected) onDelete(item);
+                          else {
+                            setNodeToDelete(item);
+                            setElectrumDisconnectWarningVisible(true);
+                          }
+                        }}
+                      >
+                        <Box style={[styles.actionArea, { width: wp(70), marginRight: wp(20) }]}>
+                          {colorMode === 'light' ? <DeleteIcon /> : <DeleteIconWhite />}
+                          <Text style={[styles.actionText, { paddingTop: 1 }]}>
+                            {common.delete}
+                          </Text>
+                        </Box>
+                      </TouchableOpacity>
                       <TouchableOpacity
                         testID="btn_disconnetNode"
                         onPress={async () => {
@@ -245,30 +274,24 @@ function NodeSettings() {
                         <Box
                           style={[
                             styles.actionArea,
-                            { width: 60, paddingTop: isConnected ? 4 : 5, marginRight: 8 },
+                            {
+                              paddingTop: isConnected ? hp(6) : hp(6),
+                            },
                           ]}
                         >
-                          {isConnected ? <DisconnectIcon /> : <ConnectIcon />}
+                          {isConnected ? (
+                            colorMode === 'light' ? (
+                              <DisconnectIcon />
+                            ) : (
+                              <DisconnectIconWhite />
+                            )
+                          ) : colorMode === 'light' ? (
+                            <ConnectIcon />
+                          ) : (
+                            <ConnectIconWhite />
+                          )}
                           <Text style={[styles.actionText, { paddingTop: isConnected ? 0 : 1 }]}>
                             {isConnected ? common.disconnect : common.connect}
-                          </Text>
-                        </Box>
-                      </TouchableOpacity>
-                      <Box borderColor={`${colorMode}.GreyText`} style={styles.verticleSplitter} />
-                      <TouchableOpacity
-                        testID="btn_deleteNode"
-                        onPress={() => {
-                          if (!isConnected) onDelete(item);
-                          else {
-                            setNodeToDelete(item);
-                            setElectrumDisconnectWarningVisible(true);
-                          }
-                        }}
-                      >
-                        <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
-                          <DeleteIcon />
-                          <Text style={[styles.actionText, { paddingTop: 2 }]}>
-                            {common.delete}
                           </Text>
                         </Box>
                       </TouchableOpacity>
@@ -278,18 +301,14 @@ function NodeSettings() {
               );
             }}
           />
-        </Box>
-      )}
-      <TouchableOpacity testID="btn_addNode" onPress={onAdd}>
-        <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
-          {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
-          <Text style={[styles.addNewNodeText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>
-            {settings.addNewNode}
-          </Text>
-        </Box>
-      </TouchableOpacity>
-      <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
-        <Note title={common.note} subtitle={settings.nodeSettingsNote} subtitleColor="GreyText" />
+        ) : (
+          <Box flex={1}>
+            <EmptyListIllustration listType="nodes" />
+          </Box>
+        )}
+      </Box>
+      <Box>
+        <Buttons primaryCallback={onAdd} primaryText={`+ ${settings.addNewNode}`} fullWidth />
       </Box>
       <KeeperModal
         justifyContent="center"
@@ -301,9 +320,8 @@ function NodeSettings() {
         buttonBackground={`${colorMode}.gradientStart`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonText=""
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
@@ -321,8 +339,7 @@ function NodeSettings() {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
-        DarkCloseIcon={colorMode === 'dark'}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={async () => {
           setElectrumDisconnectWarningVisible(false);
           if (nodeToDisconnect) {
@@ -346,15 +363,6 @@ function NodeSettings() {
   );
 }
 const styles = StyleSheet.create({
-  nodeConnectSwitchWrapper: {
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 30,
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingLeft: 47,
-  },
   appSettingTitle: {
     fontSize: 18,
     letterSpacing: 1.2,
@@ -369,13 +377,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1.12,
     paddingBottom: 5,
   },
-  note: {
-    position: 'absolute',
-    bottom: hp(25),
-    marginLeft: 22.3,
-    width: '100%',
-    paddingTop: hp(5),
-  },
   splitter: {
     marginTop: 35,
     marginBottom: 25,
@@ -388,67 +389,52 @@ const styles = StyleSheet.create({
     height: 45,
   },
   nodesListWrapper: {
-    marginVertical: 10,
+    marginVertical: hp(30),
     flexDirection: 'row',
     width: '100%',
-    height: windowHeight > 800 ? '65%' : '56%',
+    flex: 1,
   },
   nodeListTitle: {
     fontSize: 14,
     letterSpacing: 1.12,
   },
-  nodeListHeader: {
-    marginHorizontal: 5,
-    marginVertical: 20,
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingRight: 40,
-  },
   nodeDetail: {
     overflow: 'hidden',
-    width: '64%',
+    width: '95%',
     flexDirection: 'row',
-    paddingHorizontal: 3,
-    paddingVertical: 22,
   },
   nodeList: {
-    flexDirection: 'row',
     width: '100%',
-    marginBottom: 4,
-    alignItems: 'center',
-    borderRadius: 5,
-    paddingHorizontal: 10,
+    borderRadius: 7,
+    paddingHorizontal: wp(14),
+    paddingTop: hp(20),
+    paddingBottom: hp(18),
+    marginBottom: hp(10),
+    borderWidth: 1,
   },
   nodeButtons: {
     flexDirection: 'row',
+    borderTopWidth: 1,
+    paddingTop: hp(10),
+    marginTop: hp(15),
   },
   selectedItem: {
     borderRadius: 5,
   },
-  edit: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   actionText: {
-    fontSize: 11,
-    letterSpacing: 0.36,
-    fontWeight: '600',
-    paddingTop: 4,
+    fontSize: 12,
+    paddingTop: hp(4),
+    marginLeft: wp(8),
   },
   actionArea: {
-    alignItems: 'center',
-    justifyContent: 'center',
     paddingTop: 5,
-  },
-  delete: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   nodeTextHeader: {
     marginHorizontal: 10,
-    fontSize: 11,
+    fontSize: 12,
     letterSpacing: 0.6,
   },
   nodeTextValue: {
@@ -461,21 +447,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  addNewNode: {
-    height: 60,
-    borderRadius: 10,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  addNewNodeText: {
-    fontSize: 15,
-    fontWeight: '400',
-    letterSpacing: 0.6,
-  },
-  portContainer: {
-    // marginLeft: wp(-5),
   },
 });
 

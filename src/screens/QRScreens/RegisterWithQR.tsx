@@ -10,12 +10,15 @@ import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import Buttons from 'src/components/Buttons';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/services/wallets/enums';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import DisplayQR from './DisplayQR';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import KeeperQRCode from 'src/components/KeeperQRCode';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 const { width } = Dimensions.get('window');
 
@@ -29,11 +32,14 @@ function RegisterWithQR({ route, navigation }: any) {
   const { signer } = useSignerFromKey(vaultKey);
   const walletConfig =
     signer.type === SignerType.SPECTER
-      ? `${SPECTER_PREFIX}${genrateOutputDescriptors(activeVault, false).replaceAll('/**', '')}${
-          activeVault.isMultiSig ? ' )' : ''
-        }`
+      ? `${SPECTER_PREFIX}${generateOutputDescriptors(activeVault, false).replaceAll(
+          '/<0;1>/*',
+          ''
+        )}${activeVault.isMultiSig ? ' )' : ''}`
       : getWalletConfig({ vault: activeVault });
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
+  const { showToast } = useToastMessage();
+
   const markAsRegistered = () => {
     dispatch(
       updateKeyDetails(vaultKey, 'registered', {
@@ -49,6 +55,7 @@ function RegisterWithQR({ route, navigation }: any) {
         },
       ])
     );
+    showToast('Vault registration confirmed', <TickIcon />);
     navigation.goBack();
   };
 
@@ -58,14 +65,24 @@ function RegisterWithQR({ route, navigation }: any) {
         title="Register signer"
         subtitle="Register the vault with any of the QR based signers"
       />
-      <Box style={styles.center}>
-        {signer.type === SignerType.SPECTER ? (
-          <KeeperQRCode qrData={walletConfig} size={width * 0.85} ecl="L" />
-        ) : (
-          <DisplayQR qrContents={qrContents} toBytes type="hex" />
-        )}
+      <Box flex={1}>
+        <Box style={styles.center}>
+          {signer.type === SignerType.SPECTER ? (
+            <KeeperQRCode qrData={walletConfig} size={width * 0.85} ecl="L" />
+          ) : (
+            <DisplayQR qrContents={qrContents} toBytes type="hex" />
+          )}
+        </Box>
+        <Box style={styles.centerBottom}>
+          <ShareWithNfc data={walletConfig} signer={signer} />
+        </Box>
+        <Buttons
+          primaryText="Confirm Registration"
+          primaryCallback={markAsRegistered}
+          secondaryText="Finish later"
+          secondaryCallback={() => navigation.goBack()}
+        />
       </Box>
-      <Buttons primaryText="Done" primaryCallback={markAsRegistered} />
     </ScreenWrapper>
   );
 }
@@ -74,8 +91,12 @@ export default RegisterWithQR;
 
 const styles = StyleSheet.create({
   center: {
-    flex: 1,
     alignItems: 'center',
-    marginTop: '20%',
+    marginTop: '5%',
+  },
+  centerBottom: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
   },
 });

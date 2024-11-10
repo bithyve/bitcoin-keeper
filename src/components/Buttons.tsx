@@ -20,6 +20,7 @@ function Buttons({
   primaryBackgroundColor = null,
   primaryTextColor = null,
   secondaryTextColor = null,
+  SecondaryIcon = null,
 }) {
   const { colorMode } = useColorMode();
 
@@ -86,6 +87,7 @@ function Buttons({
           activeOpacity={0.5}
           testID="btn_secondaryText"
         >
+          <Box>{SecondaryIcon && <SecondaryIcon />}</Box>
           <Text
             numberOfLines={1}
             medium
@@ -112,6 +114,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   cancelBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
     borderRadius: 10,
   },
   btnText: {

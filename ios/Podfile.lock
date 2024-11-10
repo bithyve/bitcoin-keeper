@@ -75,6 +75,10 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.4)
   - hermes-engine/Pre-built (0.72.4)
   - libevent (2.1.12)
+  - libportal-ios (0.3.0)
+  - libportal-react-native (0.3.0):
+    - libportal-ios
+    - React-Core
   - MMKV (1.3.5):
     - MMKVCore (~> 1.3.5)
   - MMKVCore (1.3.5)
@@ -419,7 +423,7 @@ PODS:
   - react-native-mmkv (2.11.0):
     - MMKV (>= 1.2.13)
     - React-Core
-  - react-native-nfc-manager (3.14.7):
+  - react-native-nfc-manager (3.16.0):
     - React-Core
   - react-native-pdf (6.7.1):
     - React-Core
@@ -626,6 +630,8 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
+  - libportal-ios (from `https://github.com/bithyve/libportal-ios.git`)
+  - libportal-react-native (from `../node_modules/libportal-react-native`)
   - PDFGenerator
   - QrCode (from `../node_modules/react-native-qr-decode-image-camera`)
   - QRCoder
@@ -745,6 +751,10 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2023-08-07-RNv0.72.4-813b2def12bc9df02654b3e3653ae4a68d0572e0
+  libportal-ios:
+    :git: https://github.com/bithyve/libportal-ios.git
+  libportal-react-native:
+    :path: "../node_modules/libportal-react-native"
   QrCode:
     :path: "../node_modules/react-native-qr-decode-image-camera"
   RCT-Folly:
@@ -882,6 +892,11 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
+CHECKOUT OPTIONS:
+  libportal-ios:
+    :commit: 01a465760f56fca19473c83553707067f82995dc
+    :git: https://github.com/bithyve/libportal-ios.git
+
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
@@ -900,6 +915,8 @@ SPEC CHECKSUMS:
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   hermes-engine: 81191603c4eaa01f5e4ae5737a9efcf64756c7b2
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
+  libportal-ios: d9aa55474e2d5be8e38e96345dd37be34fda45b4
+  libportal-react-native: 33497db38793824d5e5d13210aa1879b012c7718
   MMKV: 506311d0494023c2f7e0b62cc1f31b7370fa3cfb
   MMKVCore: 9e2e5fd529b64a9fe15f1a7afb3d73b2e27b4db9
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
@@ -933,7 +950,7 @@ SPEC CHECKSUMS:
   react-native-html-to-pdf: 4c5c6e26819fe202971061594058877aa9b25265
   react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
   react-native-mmkv: e97c0c79403fb94577e5d902ab1ebd42b0715b43
-  react-native-nfc-manager: ca60627c7b9270019b9442d86f9e20fe9cb2ee28
+  react-native-nfc-manager: 1bcdf6f96c9065a8f4c8d9a0c6fb2db625205b2c
   react-native-pdf: 7c0e91ada997bac8bac3bb5bea5b6b81f5a3caae
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-rsa-native: 12132eb627797529fdb1f0d22fd0f8f9678df64a
@@ -987,6 +1004,6 @@ SPEC CHECKSUMS:
   ZendeskSDKStorage: 00d6f78a39a42b71c3730b1c39cc0a5c12690685
   ZendeskSDKUIComponents: 59fab9ac52f3ac5ef3136188da8dc38b06d100f7
 
-PODFILE CHECKSUM: b80fbe055eecdd5724e90f6e5ced79eb74133804
+PODFILE CHECKSUM: a4c7b760460d07fb6239ffdc46fb20e0afda1e7a
 
 COCOAPODS: 1.15.2

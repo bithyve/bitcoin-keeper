@@ -36,7 +36,7 @@ function TipsSlider({ items }) {
   };
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.modalGreenBackground`}>
+    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
       <SafeAreaView style={styles.safeAreaViewWrapper}>
         <Box>
           <FlatList

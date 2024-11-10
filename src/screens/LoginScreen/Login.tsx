@@ -29,7 +29,11 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { credsAuth } from 'src/store/sagaActions/login';
-import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
+import {
+  credsAuthenticated,
+  setOfflineStatus,
+  setRecepitVerificationError,
+} from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { increasePinFailAttempts, resetPinFailAttempts } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -370,6 +374,7 @@ function LoginScreen({ navigation, route }) {
     dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
       subscription: updatedSubscription,
     });
+    dispatch(setOfflineStatus(true));
     navigation.replace('App');
   }
 
@@ -382,7 +387,7 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.content} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+    <Box style={styles.content} backgroundColor={`${colorMode}.pantoneGreen`}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -417,7 +422,11 @@ function LoginScreen({ navigation, route }) {
                   marginTop: hp(50),
                 }}
               >
-                <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+                <PinInputsView
+                  passCode={passcode}
+                  passcodeFlag={passcodeFlag}
+                  textColor={`${colorMode}.buttonText`}
+                />
               </Box>
               {/*  */}
             </Box>
@@ -474,8 +483,8 @@ function LoginScreen({ navigation, route }) {
               primaryLoading={loggingIn}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
-              primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
-              primaryTextColor={`${colorMode}.modalWhiteButtonText`}
+              primaryBackgroundColor={`${colorMode}.buttonText`}
+              primaryTextColor={`${colorMode}.pantoneGreen`}
               fullWidth
             />
           </Box>
@@ -522,13 +531,12 @@ function LoginScreen({ navigation, route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
         // buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         Content={LoginModalContent}
         subTitleWidth={wp(280)}
       />

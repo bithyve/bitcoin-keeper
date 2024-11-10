@@ -86,8 +86,8 @@ android {
         applicationId "io.hexawallet.keeper"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 405
-        versionName "1.2.17"
+        versionCode 413
+        versionName "1.2.18"
         missingDimensionStrategy 'react-native-camera', 'general'
         missingDimensionStrategy 'store', 'play'
         multiDexEnabled true
@@ -154,6 +154,11 @@ android {
         exclude 'META-INF/ASL2.0'
     }
 }
+
+
+    repositories{
+        mavenLocal()
+    }
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin

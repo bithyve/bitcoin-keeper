@@ -42,13 +42,12 @@ import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
 import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
-import SigningServer from 'src/screens/Vault/SigningServer';
-import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import ManageWallets from 'src/screens/AppSettings/ManageWallets';
 import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
+import TransactionAdvancedDetails from 'src/screens/ViewTransactions/TransactionAdvancedDetails';
 import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import AllTransactions from 'src/screens/Vault/AllTransactions';
@@ -124,7 +123,7 @@ import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRec
 import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
-import VerifyAddressSelectionScreen from 'src/screens/Recieve/VerifyAddressSelectionScreen';
+import SignerSelectionListScreen from 'src/screens/Recieve/SignerSelectionListScreen';
 import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
 import AssociateContact from 'src/screens/Contact/AssociateContact';
@@ -132,6 +131,8 @@ import AddContact from 'src/screens/Contact/AddContact';
 import ContactProfile from 'src/screens/Contact/ContactProfile';
 import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
+import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
+import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -150,6 +151,7 @@ function LoginStack() {
       <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
       <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
+      <Stack.Screen name="NodeSettings" component={NodeSettings} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="OnBoardingSlides"
@@ -160,7 +162,6 @@ function LoginStack() {
         options={{ gestureEnabled: false }}
         component={NewKeeperApp}
       />
-
       {/* Cold Card */}
       <Stack.Screen name="AddColdCardRecovery" component={SetupColdCard} />
       {/* Tap Signer  */}
@@ -188,6 +189,7 @@ function AppStack() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="TapsignerAction" component={SetupTapsigner} />
+        <Stack.Screen name="SetupPortal" component={SetupPortal} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="PassportConfigRecovery" component={PassportConfigRecovery} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
@@ -201,12 +203,10 @@ function AppStack() {
         <Stack.Screen name="IKSAddEmailPhone" component={IKSAddEmailPhone} />
         <Stack.Screen name="EnterOTPEmailConfirmation" component={EnterOTPEmailConfirmation} />
         <Stack.Screen name="Send" component={SendScreen} />
+        <Stack.Screen name="SelectWallet" component={SelectWalletScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
-        <Stack.Screen
-          name="VerifyAddressSelectionScreen"
-          component={VerifyAddressSelectionScreen}
-        />
+        <Stack.Screen name="SignerSelectionListScreen" component={SignerSelectionListScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
@@ -258,11 +258,10 @@ function AppStack() {
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
         <Stack.Screen name="ChoosePolicyNew" component={ChoosePolicyNew} />
-        <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
-        <Stack.Screen name="SigningServer" component={SigningServer} />
         <Stack.Screen name="AddDescription" component={AddDescription} />
         <Stack.Screen name="AllTransactions" component={AllTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
+        <Stack.Screen name="TransactionAdvancedDetails" component={TransactionAdvancedDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
         <Stack.Screen name="ScanQR" component={ScanQR} />
