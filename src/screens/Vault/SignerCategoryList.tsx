@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
-import { hp, windowHeight } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
@@ -46,75 +46,56 @@ function SignerCategoryList() {
   const reduxDispatch = useDispatch();
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const isDarkMode = colorMode === 'dark';
-  const { vault, common } = translations;
+  const { vault, signer, common } = translations;
 
-  const signerCategories = [
+  const signerCategoriesData = [
     {
-      title: 'Add key from a hardware',
-      description: 'Connect your hardware device',
-
+      title: signer.addKeyHardware,
+      description: signer.connectHardware,
+      signerCategory: SignerCategory.HARDWARE,
+      headerTitle: signer.hardwareKeysHeader,
+      headerSubtitle: signer.connectHardwareDevices,
       Icon: isDarkMode ? <HardwareSignerWhite /> : <HardwareSignerBlack />,
-      onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'SigningDeviceList',
-            params: {
-              scheme,
-              addSignerFlow,
-              vaultId,
-              vaultSigners,
-              signerCategory: SignerCategory.HARDWARE,
-              headerTitle: 'Hardware Keys',
-              headerSubtitle: 'Connect your Hardware devices',
-            },
-          })
-        );
-      },
     },
     {
-      title: 'Add a software key',
-      description: 'Keys generated within Keeper App',
-
+      title: signer.addSoftwareKey,
+      description: signer.keysInApp,
+      signerCategory: SignerCategory.SOFTWARE,
+      headerTitle: signer.softwareKeysHeader,
+      headerSubtitle: signer.keysNoHardwareNeeded,
       Icon: isDarkMode ? <MobileKeyWhite /> : <MobileKeyBlack />,
-      onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'SigningDeviceList',
-            params: {
-              scheme,
-              addSignerFlow,
-              vaultId,
-              vaultSigners,
-              signerCategory: SignerCategory.SOFTWARE,
-              headerTitle: 'Software Keys',
-              headerSubtitle: 'Keys not needing hardware device',
-            },
-          })
-        );
-      },
     },
     {
-      title: 'Add an assisted key',
-      description: "Keys on Keeper's servers",
+      title: signer.addAssistedKey,
+      description: signer.keysOnServer,
+      signerCategory: SignerCategory.ASSISTED,
+      headerTitle: signer.assistedKeysHeader,
+      headerSubtitle: signer.keysKeptOnServer,
       Icon: isDarkMode ? <AssistedSignerWhite /> : <AssistedSignerBlack />,
-      onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'SigningDeviceList',
-            params: {
-              scheme,
-              addSignerFlow,
-              vaultId,
-              vaultSigners,
-              signerCategory: SignerCategory.ASSISTED,
-              headerTitle: 'Assisted Keys',
-              headerSubtitle: 'Keys kept on server',
-            },
-          })
-        );
-      },
     },
   ];
+
+  const handlePress = (category) => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'SigningDeviceList',
+        params: {
+          scheme,
+          addSignerFlow,
+          vaultId,
+          vaultSigners,
+          signerCategory: category.signerCategory,
+          headerTitle: category.headerTitle,
+          headerSubtitle: category.headerSubtitle,
+        },
+      })
+    );
+  };
+
+  const signerCategories = signerCategoriesData.map((category) => ({
+    ...category,
+    onPress: () => handlePress(category),
+  }));
 
   function VaultSetupContent() {
     return (
@@ -123,7 +104,7 @@ function SignerCategoryList() {
           <SigningDevicesIllustration />
         </Box>
         <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
-          {`You can add all hardware devices from the ${SubscriptionTier.L1} Tier. Signing Server is unlocked at the ${SubscriptionTier.L2} Tier and Inheritance Key at ${SubscriptionTier.L3}.\n\nIf a particular signer is not supported, it will be indicated.`}
+          {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
         </Text>
       </View>
     );
@@ -141,30 +122,33 @@ function SignerCategoryList() {
           dispatch(setSdIntroModal(true));
         }}
       />
-      <ScrollView
-        style={styles.scrollViewWrapper}
-        showsVerticalScrollIndicator={false}
-        testID={'Signer_Scroll'}
-      >
-        <Box style={styles.categoryContainer}>
-          {signerCategories.map((item, index) => (
-            <SDCategoryCard
-              key={index}
-              title={item.title}
-              description={item.description}
-              Icon={item.Icon}
-              onPress={item.onPress}
-            />
-          ))}
-        </Box>
-      </ScrollView>
+      <Box style={styles.scrollViewWrapper}>
+        <ScrollView
+          style={styles.scrollViewContainer}
+          contentContainerStyle={styles.contentContainerStyle}
+          showsVerticalScrollIndicator={false}
+          testID={'Signer_Scroll'}
+        >
+          <Box style={styles.categoryContainer}>
+            {signerCategories.map((item, index) => (
+              <SDCategoryCard
+                key={index}
+                title={item.title}
+                description={item.description}
+                Icon={item.Icon}
+                onPress={item.onPress}
+              />
+            ))}
+          </Box>
+        </ScrollView>
+      </Box>
       <KeeperModal
         visible={sdModal}
         close={() => {
           dispatch(setSdIntroModal(false));
         }}
-        title="Signers"
-        subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
+        title={signer.signers}
+        subTitle={signer.signerDescription}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultSetupContent}
@@ -194,9 +178,15 @@ const styles = StyleSheet.create({
     padding: 1,
   },
   scrollViewWrapper: {
-    height: windowHeight > 800 ? '76%' : '74%',
+    flex: 1,
     paddingHorizontal: '2.5%',
     paddingTop: '8%',
+  },
+  scrollViewContainer: {
+    flex: 1,
+  },
+  contentContainerStyle: {
+    flexGrow: 1,
   },
   categoryContainer: {
     gap: hp(10),
