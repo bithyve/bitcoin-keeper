@@ -4,6 +4,7 @@ import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import RightArrow from 'src/assets/images/icon_arrow.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
+import { hp, wp } from 'src/constants/responsive';
 
 interface SDCategoryCardProps {
   title: string;
@@ -23,13 +24,15 @@ const SDCategoryCard: React.FC<SDCategoryCardProps> = ({ title, description, Ico
         borderColor={`${colorMode}.dullGreyBorder`}
       >
         <Box style={styles.iconContainer}>{Icon}</Box>
-
         <Box style={styles.textContainer}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.description}>{description}</Text>
+          <Text style={styles.title} color={`${colorMode}.primaryText`}>
+            {title}
+          </Text>
+          <Text style={styles.description} color={`${colorMode}.secondarySubtitle`}>
+            {description}
+          </Text>
         </Box>
-
-        <Box style={styles.arrowContainer}>{isDarkMode ? <RightArrowWhite /> : <RightArrow />}</Box>
+        <Box>{isDarkMode ? <RightArrowWhite /> : <RightArrow />}</Box>
       </Box>
     </Pressable>
   );
@@ -39,27 +42,28 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 95,
-    padding: 16,
-    borderRadius: 8,
+    height: hp(95),
+    paddingVertical: hp(16),
+    paddingHorizontal: wp(22),
+    borderRadius: 10,
     borderWidth: 1,
   },
   iconContainer: {
-    marginRight: 16,
-    marginLeft: 10,
+    width: wp(30),
+    marginRight: wp(21),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textContainer: {
     flex: 1,
+    gap: -5,
   },
   title: {
-    fontSize: 16,
+    fontSize: 15,
     marginBottom: 4,
   },
   description: {
-    fontSize: 14,
-  },
-  arrowContainer: {
-    marginLeft: 16,
+    fontSize: 12,
   },
 });
 

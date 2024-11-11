@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { windowHeight } from 'src/constants/responsive';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
 import SigningDeviceCard from './components/SigningDeviceCard';
@@ -77,6 +76,7 @@ const SigningDeviceList = () => {
   useEffect(() => {
     getNfcSupport();
   }, []);
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -86,56 +86,59 @@ const SigningDeviceList = () => {
         learnBackgroundColor={`${colorMode}.brownBackground`}
         learnTextColor={`${colorMode}.buttonText`}
       />
-      <ScrollView
-        style={styles.scrollViewWrapper}
-        contentContainerStyle={styles.contentContainerStyle}
-        showsVerticalScrollIndicator={false}
-        testID={'Signer_Scroll'}
-      >
-        {!signersLoaded ? (
-          <ActivityIndicator />
-        ) : (
-          <>
-            <Box paddingY="4">
-              {sortedSigners[signerCategory]?.map((type: SignerType, index: number) => {
-                const { disabled, message: connectivityStatus } = getDeviceStatus(
-                  type,
-                  isNfcSupported,
-                  isOnL1,
-                  isOnL2,
-                  scheme,
-                  signers,
-                  addSignerFlow
-                );
-                let message = connectivityStatus;
-                if (!connectivityStatus) {
-                  message = getSDMessage({ type });
-                }
-                return (
-                  <SigningDeviceCard
-                    key={type}
-                    type={type}
-                    first={index === 0}
-                    last={index === sortedSigners[signerCategory].length - 1}
-                    isOnL1={isOnL1}
-                    isOnL2={isOnL2}
-                    addSignerFlow={addSignerFlow}
-                    vaultId={vaultId}
-                    vaultSigners={vaultSigners}
-                    isMultisig={isMultisig}
-                    primaryMnemonic={primaryMnemonic}
-                    disabled={disabled}
-                    message={message}
-                  />
-                );
-              })}
-            </Box>
-          </>
-        )}
-      </ScrollView>
+      <Box style={styles.scrollViewWrapper}>
+        <ScrollView
+          style={styles.scrollViewContainer}
+          contentContainerStyle={styles.contentContainerStyle}
+          showsVerticalScrollIndicator={false}
+          testID={'Signer_Scroll'}
+        >
+          {!signersLoaded ? (
+            <ActivityIndicator />
+          ) : (
+            <>
+              <Box paddingY="4">
+                {sortedSigners[signerCategory]?.map((type: SignerType, index: number) => {
+                  const { disabled, message: connectivityStatus } = getDeviceStatus(
+                    type,
+                    isNfcSupported,
+                    isOnL1,
+                    isOnL2,
+                    scheme,
+                    signers,
+                    addSignerFlow
+                  );
+                  let message = connectivityStatus;
+                  if (!connectivityStatus) {
+                    message = getSDMessage({ type });
+                  }
+                  return (
+                    <SigningDeviceCard
+                      key={type}
+                      type={type}
+                      first={index === 0}
+                      last={index === sortedSigners[signerCategory].length - 1}
+                      isOnL1={isOnL1}
+                      isOnL2={isOnL2}
+                      addSignerFlow={addSignerFlow}
+                      vaultId={vaultId}
+                      vaultSigners={vaultSigners}
+                      isMultisig={isMultisig}
+                      primaryMnemonic={primaryMnemonic}
+                      disabled={disabled}
+                      message={message}
+                    />
+                  );
+                })}
+              </Box>
+            </>
+          )}
+        </ScrollView>
+      </Box>
     </ScreenWrapper>
   );
 };
+
 const styles = StyleSheet.create({
   modalText: {
     letterSpacing: 0.65,
@@ -145,9 +148,11 @@ const styles = StyleSheet.create({
   },
   scrollViewWrapper: {
     flex: 1,
-    height: windowHeight > 800 ? '76%' : '74%',
     paddingHorizontal: '2.5%',
     paddingTop: '8%',
+  },
+  scrollViewContainer: {
+    flex: 1,
   },
   contentContainerStyle: {
     flexGrow: 1,

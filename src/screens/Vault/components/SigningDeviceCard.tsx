@@ -10,6 +10,8 @@ import UpgradeSubscription from 'src/screens/InheritanceToolsAndTips/components/
 import HardwareModalMap, { InteracationMode } from '../HardwareModalMap';
 import { SDIcons } from '../SigningDeviceIcons';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import RightArrow from 'src/assets/images/icon_arrow.svg';
+import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 
 type SigningDeviceCardProps = {
   type: SignerType;
@@ -107,6 +109,10 @@ const SigningDeviceCard = ({
             <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
             <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.divider} />
             <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
+
+            <Box style={styles.arrowIconWrapper}>
+              {isDarkMode ? <RightArrowWhite /> : <RightArrow />}
+            </Box>
           </Box>
         </Box>
       </TouchableOpacity>
@@ -128,8 +134,9 @@ const SigningDeviceCard = ({
 const styles = StyleSheet.create({
   walletMapContainer: {
     alignItems: 'center',
-    minHeight: windowHeight * 0.08,
+    minHeight: windowHeight * 0.075,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   walletMapWrapper: {
     marginRight: wp(13.2),
@@ -139,7 +146,7 @@ const styles = StyleSheet.create({
     marginLeft: wp(20),
     justifyContent: 'flex-end',
     marginVertical: hp(20),
-    width: windowWidth * 0.6,
+    width: windowWidth * 0.53,
   },
   messageText: {
     fontSize: 10,
@@ -161,6 +168,11 @@ const styles = StyleSheet.create({
     },
   },
   container: {
+    alignItems: 'center',
+  },
+  arrowIconWrapper: {
+    marginLeft: wp(10),
+    justifyContent: 'center',
     alignItems: 'center',
   },
 });
