@@ -122,7 +122,6 @@ export type AppStackParams = {
   SigningDeviceConfigRecovery: undefined;
   MixProgress: undefined;
   AssignSignerType: undefined;
-  NFCScanner: undefined;
   AddWallet: undefined;
   CanaryWallets: undefined;
   AssistedKeys: undefined;

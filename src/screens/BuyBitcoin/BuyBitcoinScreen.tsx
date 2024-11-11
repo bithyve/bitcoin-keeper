@@ -21,7 +21,7 @@ function BuyBitcoinScreen({ route }) {
   const { colorMode } = useColorMode();
   const { currencyCode } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, ramp: rampTranslations } = translations;
 
   const { wallet } = route.params;
   const receivingAddress = wallet.specs.receivingAddress;
@@ -86,7 +86,7 @@ function BuyBitcoinScreen({ route }) {
 
         <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
-            Address for ramp transactions
+            {rampTranslations.addressForRamp}
           </Text>
           <Box style={styles.iconContainer}>
             <HexagonIcon
