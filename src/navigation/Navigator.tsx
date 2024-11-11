@@ -41,6 +41,7 @@ import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
 import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
+import SignerCategoryList from 'src/screens/Vault/SignerCategoryList';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import TimelockScreen from 'src/screens/Vault/TimelockScreen';
@@ -133,9 +134,6 @@ import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
-import HardwareSignerList from 'src/screens/Vault/HardwareSignerList';
-import SoftwareSignerList from 'src/screens/Vault/SoftwareSignerList';
-import AssistedSignerList from 'src/screens/Vault/AssistedSignerList';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -190,6 +188,7 @@ function AppStack() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="SignerCategoryList" component={SignerCategoryList} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="TapsignerAction" component={SetupTapsigner} />
         <Stack.Screen name="SetupPortal" component={SetupPortal} />
@@ -234,9 +233,6 @@ function AppStack() {
         <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
-        <Stack.Screen name="HardwareSignerList" component={HardwareSignerList} />
-        <Stack.Screen name="SoftwareSignerList" component={SoftwareSignerList} />
-        <Stack.Screen name="AssistedSignerList" component={AssistedSignerList} />
         <Stack.Screen name="InheritanceToolsAndTips" component={InheritanceToolsAndTips} />
         <Stack.Screen name="DiscountCodes" component={DiscountCodes} />
         <Stack.Screen name="CanaryWallets" component={CanaryWallets} />
