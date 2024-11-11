@@ -5,17 +5,26 @@ import Text from 'src/components/KeeperText';
 import RightArrow from 'src/assets/images/icon_arrow.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 import { hp, wp } from 'src/constants/responsive';
+import StackedCirclesList from './StackedCircleList';
 
 interface SDCategoryCardProps {
   title: string;
   description: string;
   Icon: Element;
   onPress: () => void;
+  snippet: { Icon: Element; backgroundColor: string }[];
 }
 
-const SDCategoryCard: React.FC<SDCategoryCardProps> = ({ title, description, Icon, onPress }) => {
+const SDCategoryCard: React.FC<SDCategoryCardProps> = ({
+  title,
+  description,
+  Icon,
+  onPress,
+  snippet,
+}) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+
   return (
     <Pressable onPress={onPress}>
       <Box
@@ -31,6 +40,11 @@ const SDCategoryCard: React.FC<SDCategoryCardProps> = ({ title, description, Ico
           <Text style={styles.description} color={`${colorMode}.secondarySubtitle`}>
             {description}
           </Text>
+          {snippet.length > 0 && (
+            <Box style={styles.snippetContainer}>
+              <StackedCirclesList items={snippet} />
+            </Box>
+          )}
         </Box>
         <Box>{isDarkMode ? <RightArrowWhite /> : <RightArrow />}</Box>
       </Box>
@@ -64,6 +78,9 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 12,
+  },
+  snippetContainer: {
+    marginTop: hp(7),
   },
 });
 

@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -15,6 +15,15 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import KeeperModal from 'src/components/KeeperModal';
+import { setSdIntroModal } from 'src/store/reducers/vaults';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from 'src/store/hooks';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import Text from 'src/components/KeeperText';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
 
 const SigningDeviceList = () => {
   const route = useRoute();
@@ -38,8 +47,12 @@ const SigningDeviceList = () => {
   const { colorMode } = useColorMode();
   const { isOnL1, isOnL2 } = usePlan();
   const { signers } = useSigners();
+  const { translations } = useContext(LocalizationContext);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
+  const dispatch = useDispatch();
+  const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
+  const { signer, common } = translations;
   const isMultisig = addSignerFlow ? true : scheme.n !== 1;
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -77,6 +90,19 @@ const SigningDeviceList = () => {
     getNfcSupport();
   }, []);
 
+  function LearnMoreModalContent() {
+    return (
+      <Box>
+        <Box style={styles.alignCenter}>
+          <SigningDevicesIllustration />
+        </Box>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
+          {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
+        </Text>
+      </Box>
+    );
+  }
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -84,7 +110,11 @@ const SigningDeviceList = () => {
         subtitle={headerSubtitle}
         learnMore
         learnBackgroundColor={`${colorMode}.brownBackground`}
+        learnMoreBorderColor={`${colorMode}.brownBackground`}
         learnTextColor={`${colorMode}.buttonText`}
+        learnMorePressed={() => {
+          dispatch(setSdIntroModal(true));
+        }}
       />
       <Box style={styles.scrollViewWrapper}>
         <ScrollView
@@ -135,6 +165,30 @@ const SigningDeviceList = () => {
           )}
         </ScrollView>
       </Box>
+      <KeeperModal
+        visible={sdModal}
+        close={() => {
+          dispatch(setSdIntroModal(false));
+        }}
+        title={signer.signers}
+        subTitle={signer.signerDescription}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={LearnMoreModalContent}
+        DarkCloseIcon
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryCallback={() => {
+          dispatch(setSdIntroModal(false));
+          dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-list'));
+        }}
+        buttonCallback={() => {
+          dispatch(setSdIntroModal(false));
+        }}
+      />
     </ScreenWrapper>
   );
 };
@@ -156,6 +210,9 @@ const styles = StyleSheet.create({
   },
   contentContainerStyle: {
     flexGrow: 1,
+  },
+  alignCenter: {
+    alignSelf: 'center',
   },
 });
 

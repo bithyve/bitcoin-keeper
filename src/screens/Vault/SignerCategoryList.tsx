@@ -24,7 +24,8 @@ import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import SDCategoryCard from './components/SDCategoryCard';
-import { SignerCategory } from 'src/services/wallets/enums';
+import { SignerCategory, SignerType } from 'src/services/wallets/enums';
+import { SDIcons } from './SigningDeviceIcons';
 
 function SignerCategoryList() {
   const route = useRoute();
@@ -48,6 +49,24 @@ function SignerCategoryList() {
   const isDarkMode = colorMode === 'dark';
   const { vault, signer, common } = translations;
 
+  const hardwareSigners = [
+    { type: SignerType.COLDCARD, background: 'dullCreamBackground', isTrue: false },
+    { type: SignerType.TAPSIGNER, background: 'pantoneGreen', isTrue: true },
+    { type: SignerType.JADE, background: 'brownBackground', isTrue: true },
+    { type: SignerType.PASSPORT, background: 'dullCreamBackground', isTrue: false },
+    { type: SignerType.SPECTER, background: 'pantoneGreen', isTrue: false },
+    { type: SignerType.KEYSTONE, background: 'brownBackground', isTrue: false },
+    { type: SignerType.LEDGER, background: 'dullCreamBackground', isTrue: false },
+    { type: SignerType.PORTAL, background: 'pantoneGreen', isTrue: false },
+    { type: SignerType.TREZOR, background: 'brownBackground', isTrue: false },
+    { type: SignerType.BITBOX02, background: 'dullCreamBackground', isTrue: false },
+  ];
+
+  const hardwareSnippet = hardwareSigners.map(({ type, background, isTrue }) => ({
+    Icon: SDIcons(type, isTrue, 9, 13).Icon,
+    backgroundColor: `${colorMode}.${background}`,
+  }));
+
   const signerCategoriesData = [
     {
       title: signer.addKeyHardware,
@@ -56,6 +75,7 @@ function SignerCategoryList() {
       headerTitle: signer.hardwareKeysHeader,
       headerSubtitle: signer.connectHardwareDevices,
       Icon: isDarkMode ? <HardwareSignerWhite /> : <HardwareSignerBlack />,
+      snippet: hardwareSnippet,
     },
     {
       title: signer.addSoftwareKey,
@@ -64,6 +84,7 @@ function SignerCategoryList() {
       headerTitle: signer.softwareKeysHeader,
       headerSubtitle: signer.keysNoHardwareNeeded,
       Icon: isDarkMode ? <MobileKeyWhite /> : <MobileKeyBlack />,
+      snippet: [],
     },
     {
       title: signer.addAssistedKey,
@@ -72,6 +93,7 @@ function SignerCategoryList() {
       headerTitle: signer.assistedKeysHeader,
       headerSubtitle: signer.keysKeptOnServer,
       Icon: isDarkMode ? <AssistedSignerWhite /> : <AssistedSignerBlack />,
+      snippet: [],
     },
   ];
 
@@ -97,7 +119,7 @@ function SignerCategoryList() {
     onPress: () => handlePress(category),
   }));
 
-  function VaultSetupContent() {
+  function LearnMoreModalContent() {
     return (
       <View>
         <Box style={styles.alignCenter}>
@@ -116,7 +138,8 @@ function SignerCategoryList() {
         title={vault.Addsigner}
         subtitle={vault.SelectSignerSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
+        learnBackgroundColor={`${colorMode}.brownBackground`}
+        learnMoreBorderColor={`${colorMode}.brownBackground`}
         learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
@@ -137,6 +160,7 @@ function SignerCategoryList() {
                 description={item.description}
                 Icon={item.Icon}
                 onPress={item.onPress}
+                snippet={item.snippet}
               />
             ))}
           </Box>
@@ -151,7 +175,7 @@ function SignerCategoryList() {
         subTitle={signer.signerDescription}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        Content={VaultSetupContent}
+        Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
