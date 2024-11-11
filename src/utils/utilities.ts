@@ -8,6 +8,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import * as bitcoin from 'bitcoinjs-lib';
+import { isTestnet } from 'src/constants/Bitcoin';
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
@@ -247,6 +248,7 @@ export const calculateTimeLeft = (createdAt: string) => {
 export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
+    const changeAddress = getChangeAddress(base64Str);
 
     const signersList = [];
     let signerMatched = false;
@@ -285,7 +287,10 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     // Extract outputs (receiver information)
     const outputs = psbt.txOutputs.map((output) => {
       return {
-        address: bitcoin.address.fromOutputScript(output.script), // Receiver address
+        address: bitcoin.address.fromOutputScript(
+          output.script,
+          isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+        ), // Receiver address
         amount: output.value, // Amount in satoshis
       };
     });
@@ -293,6 +298,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     // Calculate the total input and output amounts
     let totalInput = 0;
     let totalOutput = 0;
+    let totalAmount = 0;
 
     psbt.data.inputs.forEach((input, index) => {
       if (input.witnessUtxo) {
@@ -304,7 +310,13 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       }
     });
 
-    outputs.forEach((output) => (totalOutput += output.amount));
+    outputs.forEach((output) => {
+      totalOutput += output.amount;
+      if (!changeAddress.includes(output.address)) {
+        totalAmount += output.amount;
+      }
+    });
+
     const receiverAddresses = outputs.map((op) => op.address);
 
     // Calculate transaction fees
@@ -313,16 +325,63 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       senderAddresses: senderAddresses,
       receiverAddresses: receiverAddresses,
       fees,
-      sendAmount: totalOutput,
-      totalAmount: totalInput,
+      sendAmount: totalAmount,
       currentSignerFromPSBT,
       signerMatched,
+      changeAddress,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
     throw 'Something went wrong';
   }
 };
+
+export const getChangeAddress = (psbt) => {
+  // Decode the PSBT
+  const decodedPsbt = bitcoin.Psbt.fromBase64(psbt);
+
+  // Gather BIP32 derivation information from the inputs to determine the policy
+  const inputPolicy = decodedPsbt.data.inputs[0].bip32Derivation.map((derivation) => ({
+    pubkey: derivation.pubkey,
+    path: derivation.path,
+    fingerprint: derivation.masterFingerprint.toString('hex'),
+  }));
+
+  // Helper function to check if two arrays of public keys and paths match
+  const compareMultisigPolicy = (policy1, policy2) => {
+    if (policy1.length !== policy2.length) return false;
+    return policy1.every(
+      // (key1, i) => key1.pubkey.equals(policy2[i].pubkey) && key1.path === policy2[i].path
+      (key1, i) => key1.fingerprint.includes(policy2[i].fingerprint)
+    );
+  };
+
+  // Iterate over each output to see if it matches the input policy (change output)
+  const changeAddresses = [];
+  decodedPsbt.data.outputs.forEach((output, index) => {
+    if (!output.bip32Derivation) return;
+
+    const outputPolicy = output.bip32Derivation.map((derivation) => ({
+      pubkey: derivation.pubkey,
+      path: derivation.path,
+      fingerprint: derivation.masterFingerprint.toString('hex'),
+    }));
+
+    console.log({ inputPolicy, outputPolicy });
+
+    // Check if the output's policy matches the input policy
+    if (compareMultisigPolicy(inputPolicy, outputPolicy)) {
+      const address = bitcoin.address.fromOutputScript(
+        decodedPsbt.txOutputs[index].script,
+        bitcoin.networks.testnet // or the correct network
+      );
+      changeAddresses.push(address);
+    }
+  });
+  return changeAddresses;
+};
+
+
 
 function shortDerivationPath(longerPath) {
   const parts = longerPath.split('/');
