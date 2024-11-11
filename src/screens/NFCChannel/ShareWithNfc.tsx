@@ -31,6 +31,7 @@ function ShareWithNfc({
   sendConfirmationRouteParams,
   tnxDetails,
   fileName,
+  useNdef = false,
 }: {
   data: string;
   signer?: Signer;
@@ -43,6 +44,7 @@ function ShareWithNfc({
   sendConfirmationRouteParams?: SendConfirmationRouteParams;
   tnxDetails?: tnxDetailsProps;
   fileName?: string;
+  useNdef?: boolean; // For hardware wallets interactions
 }) {
   const { session } = useContext(HCESessionContext);
   const navigation = useNavigation<any>();
@@ -53,7 +55,7 @@ function ShareWithNfc({
   const cleanUp = () => {
     setVisible(false);
     Vibration.cancel();
-    if (isAndroid) {
+    if (isAndroid && !useNdef) {
       NFC.stopTagSession(session);
     }
   };
@@ -61,9 +63,7 @@ function ShareWithNfc({
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });
-    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {
-      showToast('Cosigner details shared successfully', <TickIcon />);
-    });
+    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {});
     return () => {
       cleanUp();
       unsubRead();
@@ -76,7 +76,10 @@ function ShareWithNfc({
 
   const shareWithNFC = async () => {
     try {
-      if (isIos) {
+      if (isIos || useNdef) {
+        if (!isIos) {
+          setVisible(true);
+        }
         Vibration.vibrate([700, 50, 100, 50], true);
         const enc = NFC.encodeTextRecord(data);
         await NFC.send([NfcTech.Ndef], enc);

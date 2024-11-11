@@ -12,6 +12,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from './useToastMessage';
 import useVault from './useVault';
 
@@ -105,6 +106,8 @@ const useConfigRecovery = () => {
       setRecoveryLoading(false);
       recoveryError.failed = true;
       recoveryError.message = err;
+      showToast(err.message ? err.message : err.toString(), <ToastErrorIcon />);
+      navigation.goBack();
     }
   };
 
