@@ -146,6 +146,7 @@ export const changePin = async (card: CKTapCard, oldCVC: string, newCVC: string)
 
 export const signWithTapsigner = async (
   card: CKTapCard,
+  cardMfp: string,
   inputsToSign: {
     digest: string;
     subPath: string;
@@ -161,6 +162,14 @@ export const signWithTapsigner = async (
   const status = await card.first_look();
   const isLegit = await card.certificate_check();
   if (isLegit) {
+    if (cardMfp) {
+      const xfp = (await card.get_xfp(cvc)).toString('hex').toUpperCase();
+      if (xfp !== cardMfp.toUpperCase()) {
+        throw Error(
+          'Wrong TAPSIGNER used, please ensure you use the same one slected for signing.'
+        );
+      }
+    }
     try {
       if (status.path) {
         if (status.is_testnet !== isTestnet) {
@@ -175,7 +184,6 @@ export const signWithTapsigner = async (
         }
         return inputsToSign;
       }
-      Alert.alert('Please set up card before signing!');
       throw Error('Please set up card before signing!');
     } catch (e) {
       captureError(e);
@@ -205,6 +213,8 @@ export const handleTapsignerError = (error, navigation) => {
     errorMessage = 'Something went wrong, please try again!';
   } else if (error.toString() === 'Error' || error.toString() === '[Error]') {
     errorMessage = 'Operation cancelled. Please try again.';
+  } else {
+    errorMessage = error?.message || null;
   }
 
   if (errorMessage) {
