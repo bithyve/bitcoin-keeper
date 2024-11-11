@@ -350,10 +350,8 @@ export const getChangeAddress = (psbt) => {
   // Helper function to check if two arrays of public keys and paths match
   const compareMultisigPolicy = (policy1, policy2) => {
     if (policy1.length !== policy2.length) return false;
-    return policy1.every(
-      // (key1, i) => key1.pubkey.equals(policy2[i].pubkey) && key1.path === policy2[i].path
-      (key1, i) => key1.fingerprint.includes(policy2[i].fingerprint)
-    );
+    const mfpSet = new Set(policy1.map((obj) => obj.mfp));
+    return policy2.every((obj) => mfpSet.has(obj.mfp));
   };
 
   // Iterate over each output to see if it matches the input policy (change output)
@@ -366,8 +364,6 @@ export const getChangeAddress = (psbt) => {
       path: derivation.path,
       fingerprint: derivation.masterFingerprint.toString('hex'),
     }));
-
-    console.log({ inputPolicy, outputPolicy });
 
     // Check if the output's policy matches the input policy
     if (compareMultisigPolicy(inputPolicy, outputPolicy)) {
