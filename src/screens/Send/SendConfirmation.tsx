@@ -741,6 +741,7 @@ function SendConfirmation({ route }) {
             secondaryCallback={handleShare}
             secondaryText={common.shareDetails}
             SecondaryIcon={isDarkMode ? ShareWhite : ShareGreen}
+            primaryButtonWidth={wp(142)}
           />
         )}
       />

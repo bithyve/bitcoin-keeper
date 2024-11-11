@@ -67,6 +67,7 @@ import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfir
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import config from 'src/utils/service-utilities/config';
 import { isReading, stopReading } from 'src/hardware/portal';
+import { wp } from 'src/constants/responsive';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -621,6 +622,7 @@ function SignTransactionScreen() {
     secondaryText,
     secondaryCallback,
     SecondaryIcon,
+    primaryButtonWidth,
   }) {
     const { colorMode } = useColorMode();
     return (
@@ -639,6 +641,7 @@ function SignTransactionScreen() {
             secondaryText={secondaryText}
             secondaryCallback={secondaryCallback}
             SecondaryIcon={SecondaryIcon}
+            width={primaryButtonWidth}
           />
         </Box>
       </Box>
@@ -817,6 +820,7 @@ function SignTransactionScreen() {
             secondaryCallback={handleShare}
             secondaryText={common.shareDetails}
             SecondaryIcon={isDarkMode ? ShareWhite : ShareGreen}
+            primaryButtonWidth={wp(142)}
           />
         )}
         DarkCloseIcon={colorMode === 'dark' ? 'light' : 'dark'}
