@@ -133,6 +133,9 @@ import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
+import HardwareSignerList from 'src/screens/Vault/HardwareSignerList';
+import SoftwareSignerList from 'src/screens/Vault/SoftwareSignerList';
+import AssistedSignerList from 'src/screens/Vault/AssistedSignerList';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -231,6 +234,9 @@ function AppStack() {
         <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
+        <Stack.Screen name="HardwareSignerList" component={HardwareSignerList} />
+        <Stack.Screen name="SoftwareSignerList" component={SoftwareSignerList} />
+        <Stack.Screen name="AssistedSignerList" component={AssistedSignerList} />
         <Stack.Screen name="InheritanceToolsAndTips" component={InheritanceToolsAndTips} />
         <Stack.Screen name="DiscountCodes" component={DiscountCodes} />
         <Stack.Screen name="CanaryWallets" component={CanaryWallets} />

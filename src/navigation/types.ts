@@ -68,6 +68,9 @@ export type AppStackParams = {
   WalletBackHistory: undefined;
   SignTransactionScreen: undefined;
   AddSigningDevice: undefined;
+  HardwareSignerList: undefined;
+  SoftwareSignerList: undefined;
+  AssistedSignerList: undefined;
   SetupSigningServer: undefined;
   SetupSeedWordSigner: undefined;
   ArchivedVault: undefined;
