@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   scrollViewWrapper: {
     flex: 1,
     paddingHorizontal: '2.5%',
-    paddingTop: '8%',
+    paddingTop: '5%',
   },
   scrollViewContainer: {
     flex: 1,
