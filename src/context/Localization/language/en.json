@@ -1055,7 +1055,7 @@
   "ramp": {
     "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
     "bitcoinTransfer": "Bitcoin will be transferred to",
-    "addressForRamp": "Address for ramp transactions",
+    "addressForRamp": "Address for Ramp transactions",
     "buyBitcoinRamp": "Buy bitcoin with Ramp",
     "buyBitcoinRampSubTitle": "Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
   },
