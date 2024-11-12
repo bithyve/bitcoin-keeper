@@ -356,7 +356,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       }
     >
       <StatusBar barStyle="light-content" />
-      {/* <VStack zIndex={1}> */}
       <VStack style={styles.topSection}>
         <KeeperHeader
           title={vault.presentationData?.name}
@@ -398,7 +397,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         />
         <VaultInfo vault={vault} />
       </VStack>
-      {/* </VStack> */}
       {!vault.archived && (
         <HStack style={styles.actionCardContainer}>
           {!isCanaryWallet && (
