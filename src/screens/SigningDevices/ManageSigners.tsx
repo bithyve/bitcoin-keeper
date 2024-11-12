@@ -193,7 +193,7 @@ function ManageSigners({ route }: ScreenProps) {
   return (
     <Box
       backgroundColor={`${colorMode}.BrownNeedHelp`}
-      style={[styles.wrapper, { paddingTop: top }]}
+      style={[styles.wrapper, { paddingTop: top - 5 }]}
     >
       <Box style={styles.topSection}>
         <KeeperHeader
@@ -206,7 +206,11 @@ function ManageSigners({ route }: ScreenProps) {
           titleColor={`${colorMode}.seashellWhiteText`}
           subTitleColor={`${colorMode}.seashellWhiteText`}
           rightComponent={
-            <TouchableOpacity onPress={navigateToSettings} testID="btn_manage_singner_setting">
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={navigateToSettings}
+              testID="btn_manage_singner_setting"
+            >
               <SettingIcon />
             </TouchableOpacity>
           }
@@ -525,6 +529,10 @@ const styles = StyleSheet.create({
   },
   modalDesc: {
     width: '95%',
+  },
+  settingsButton: {
+    paddingHorizontal: 22,
+    paddingVertical: 22,
   },
 });
 

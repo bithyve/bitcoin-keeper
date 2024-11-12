@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   vaultInfoContainer: {
-    paddingLeft: '10%',
+    paddingLeft: '3%',
     marginVertical: 20,
     justifyContent: 'space-between',
   },
@@ -724,9 +724,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   settingBtn: {
-    width: wp(24),
-    height: hp(24),
-    marginRight: wp(7),
+    paddingHorizontal: 22,
+    paddingVertical: 22,
   },
 });
 

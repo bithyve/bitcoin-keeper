@@ -409,6 +409,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     alignItems: 'center',
+    paddingHorizontal: 22,
+    paddingVertical: 22,
   },
   tapRootContainer: {
     flexDirection: 'row',

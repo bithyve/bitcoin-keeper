@@ -545,6 +545,8 @@ function SendConfirmation({ route }) {
           title="Send Confirmation"
           subtitle={subTitle}
           rightComponent={<CurrencyTypeSwitch />}
+          rightComponentPadding={wp(10)}
+          rightComponentBottomPadding={hp(5)}
         />
       )}
       <ScrollView

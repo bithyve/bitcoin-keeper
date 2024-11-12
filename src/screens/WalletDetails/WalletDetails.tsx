@@ -342,9 +342,9 @@ const styles = StyleSheet.create({
   },
   balanceWrapper: {
     flexDirection: 'row',
-    width: '90%',
-    marginVertical: wp(30),
-    marginHorizontal: wp(20),
+    paddingLeft: '3%',
+    marginVertical: 20,
+    justifyContent: 'space-between',
   },
   unconfirmBalanceView: {
     width: '50%',
@@ -377,9 +377,8 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   settingBtn: {
-    width: wp(24),
-    height: hp(24),
-    marginRight: wp(7),
+    paddingHorizontal: 22,
+    paddingVertical: 22,
   },
 });
 export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);
