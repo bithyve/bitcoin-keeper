@@ -1154,7 +1154,7 @@
     "hardwareKeysHeader": "Hardware Keys",
     "connectHardwareDevices": "Connect your Hardware devices",
     "addSoftwareKey": "Add a software key",
-    "keysInApp": "Keys generated within Keeper App",
+    "keysInApp": "In-app or external software signers",
     "softwareKeysHeader": "Software Keys",
     "keysNoHardwareNeeded": "Keys not needing hardware device",
     "addAssistedKey": "Add an assisted key",

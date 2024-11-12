@@ -75,10 +75,10 @@ const SigningDeviceList = () => {
     [SignerCategory.SOFTWARE]: [
       SignerType.KEEPER,
       SignerType.MY_KEEPER,
-      SignerType.OTHER_SD,
       SignerType.SEED_WORDS,
+      SignerType.OTHER_SD,
     ],
-    [SignerCategory.ASSISTED]: [SignerType.INHERITANCEKEY, SignerType.POLICY_SERVER],
+    [SignerCategory.ASSISTED]: [SignerType.POLICY_SERVER, SignerType.INHERITANCEKEY],
   };
 
   const getNfcSupport = async () => {
