@@ -1,7 +1,7 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from '../screens/SignTransaction/SignerModals';
-import { RKInteractionMode, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { ScriptTypes, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   signTransactionWithColdCard,
@@ -22,8 +22,12 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 
-const RKSignersModal = ({ data }, ref) => {
-  const { serializedPSBTEnvelop, signer, vault, vaultId, vaultKey, isMultisig } = data;
+const RKSignersModal = ({ signer, psbt }, ref) => {
+  const serializedPSBTEnvelop = {
+    serializedPSBT: psbt,
+  };
+  const isMultisig = true;
+
   const { colorMode } = useColorMode();
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -97,7 +101,7 @@ const RKSignersModal = ({ data }, ref) => {
             name: 'EnterSeedScreen',
             params: {
               parentScreen: SIGNTRANSACTION,
-              xfp: vaultKey.xfp,
+              xfp: vaultKeys.xfp,
               onSuccess: signTransaction,
             },
           })
@@ -233,6 +237,13 @@ const RKSignersModal = ({ data }, ref) => {
     });
   };
 
+  const vaultKeys = {
+    masterFingerprint: signer.masterFingerprint,
+    xpub: signer.signerXpubs[ScriptTypes.P2WSH][0].xpub,
+    xfp: signer.masterFingerprint,
+    derivationPath: signer.signerXpubs[ScriptTypes.P2WSH][0].derivationPath,
+    registeredVaults: [],
+  };
   return (
     <>
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
@@ -257,9 +268,9 @@ const RKSignersModal = ({ data }, ref) => {
         )}
       />
       <SignerModals
-        vaultId={vaultId}
-        vaultKeys={[vaultKey]}
-        activeXfp={vaultKey.xfp}
+        vaultId={''}
+        vaultKeys={[vaultKeys]}
+        activeXfp={vaultKeys.masterFingerprint}
         coldCardModal={coldCardModal}
         tapsignerModal={tapSignerModal}
         ledgerModal={ledgerModal}
@@ -294,7 +305,12 @@ const RKSignersModal = ({ data }, ref) => {
         signerMap={signerMap}
         onFileSign={onFileSign}
         isRemoteKey={true}
-        serializedPSBTEnvelopFromProps={serializedPSBTEnvelop}
+        serializedPSBTEnvelopFromProps={{
+          serializedPSBT: psbt,
+          isSigned: false,
+          signerType,
+          xfp: vaultKeys.xfp,
+        }}
       />
     </>
   );

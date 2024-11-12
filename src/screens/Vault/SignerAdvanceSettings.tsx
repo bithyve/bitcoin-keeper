@@ -43,7 +43,7 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import { emailCheck } from 'src/utils/utilities';
+import { emailCheck, generateDataFromPSBT } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -83,15 +83,11 @@ import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import { getPersistedDocument } from 'src/services/documents';
+import { TransferType } from 'src/models/enums/TransferType';
 
 const { width } = Dimensions.get('screen');
 
-const SignersWithoutRKSigningSupport = [
-  SignerType.POLICY_SERVER,
-  SignerType.OTHER_SD,
-  SignerType.UNKOWN_SIGNER,
-  SignerType.INHERITANCEKEY,
-];
+const SignersWithRKSupport = [SignerType.MY_KEEPER, SignerType.JADE];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -163,7 +159,7 @@ function SignerAdvanceSettings({ route }: any) {
   const [actionAfterPasscode, setActionAfterPasscode] = useState<
     null | 'hideKey' | 'mobileKeySeed'
   >(null);
-  const supportsRKSigning = !SignersWithoutRKSigningSupport.includes(signer.type);
+  const supportsRKSigning = SignersWithRKSupport.includes(signer.type);
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
@@ -536,6 +532,43 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const signPSBT = async (serializedPSBT) => {
+    if (signer.type != SignerType.MY_KEEPER) {
+      try {
+        const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount } =
+          generateDataFromPSBT(serializedPSBT, signer);
+
+        if (!signerMatched) {
+          showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
+          navigation.goBack();
+          return;
+        }
+
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'SendConfirmation',
+            params: {
+              sender: senderAddresses,
+              receiver: null,
+              address: receiverAddresses,
+              amount: sendAmount,
+              fees: fees,
+              data: serializedPSBT,
+              isRemoteFlow: true,
+              signingDetails: signer,
+              transferType: TransferType.VAULT_TO_ADDRESS,
+              signer,
+              psbt: serializedPSBT,
+            },
+          })
+        );
+      } catch (error) {
+        console.log('🚀 ~ signPSBT ~ error:', error);
+        showToast(error.message);
+        captureError(error);
+      }
+      return;
+    }
+
     try {
       let signedSerialisedPSBT;
       try {
@@ -928,9 +961,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={openTapsignerSettings}
           />
         )}
-        {/* // ! Hide Remote Key */}
-        {/* {!isAssistedKey && ( */}
-        {(isAssistedKey || isMyAppKey) && (
+        {supportsRKSigning && (
           <OptionCard
             title={signerTranslation.keyDetails}
             description={signerTranslation.keyDetailsSubtitle}
@@ -952,9 +983,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
-        {/* // ! Hide Remote Key */}
-        {/* {supportsRKSigning && ( */}
-        {isMyAppKey && (
+        {supportsRKSigning && (
           <OptionCard
             title="Sign a transaction"
             description="Using a PSBT file"
