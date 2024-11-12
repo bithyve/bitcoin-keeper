@@ -22,18 +22,26 @@ const FeeInsightCard = (props: Props) => {
       <View style={styles.textWrapper}>
         {props.showArrow && (
           <View style={styles.arrowWrapper}>
-            {props.pointer==='up'?<BTC_UP />:<BTC_DOWN />}
+            {props.pointer === 'up' ? <BTC_UP /> : <BTC_DOWN />}
           </View>
         )}
         <Box>
-          <Text style={styles.lineOneStyle} color={`${colorMode}.GreyText`}>{props.line1}</Text>
-          <Text style={styles.lineOneStyle} color={`${colorMode}.GreyText`}>{props.line2}</Text>
+          <Text style={styles.lineOneStyle} color={`${colorMode}.GreyText`}>
+            {props.line1}
+          </Text>
+          <Text style={styles.lineOneStyle} color={`${colorMode}.GreyText`}>
+            {props.line2}
+          </Text>
         </Box>
       </View>
       <Box style={styles.statsWrapper}>
         <Text>
-          <Text style={styles.statsWrapper} color={`${colorMode}.GreyText`}>{props.stats}</Text>
-          <Text style={styles.statStyle} color={`${colorMode}.GreyText`}>{props.suffix}</Text>
+          <Text style={styles.statsWrapper} color={`${colorMode}.GreyText`}>
+            {props.stats}
+          </Text>
+          <Text style={styles.statStyle} color={`${colorMode}.GreyText`}>
+            {props.suffix}
+          </Text>
         </Text>
       </Box>
     </Box>
@@ -50,26 +58,26 @@ const styles = StyleSheet.create({
   },
   lineOneStyle: {
     fontSize: 12,
-    fontFamily: Fonts.FiraSansRegular,
+    fontFamily: Fonts.InterRegular,
     lineHeight: 14,
   },
   statsWrapper: {
     marginTop: 5,
-    fontFamily:Fonts.FiraSansSemiBold
+    fontFamily: Fonts.InterSemiBold,
   },
   statStyle: {
     fontSize: 11,
-    fontFamily: Fonts.FiraSansCondensedMedium,
+    fontFamily: Fonts.InterMedium,
   },
   statsSuffix: {
     fontSize: 11,
-    fontFamily: Fonts.FiraSansCondensedMedium,
+    fontFamily: Fonts.InterMedium,
   },
   arrowWrapper: {
     width: 15,
     height: 20,
-    paddingTop:2,
-    paddingRight:2
+    paddingTop: 2,
+    paddingRight: 2,
   },
   textWrapper: {
     flexDirection: 'row',

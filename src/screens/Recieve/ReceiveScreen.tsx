@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
   },
   inputField: {
     opacity: 0.8,
-    fontFamily: Fonts.FiraSansBold,
+    fontFamily: Fonts.InterBold,
     letterSpacing: 1.04,
   },
   inputWrapper01: {

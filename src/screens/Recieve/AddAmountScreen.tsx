@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.FiraSansBold,
+    fontFamily: Fonts.InterBold,
     letterSpacing: 1.04,
   },
   inputParentView: {
