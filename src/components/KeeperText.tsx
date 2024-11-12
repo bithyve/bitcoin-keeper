@@ -15,15 +15,15 @@ interface KeeperTextProps extends TextProps {
 
 function Text(props: KeeperTextProps) {
   const { children, style, fontSize, medium, semiBold, bold, light, italic } = props;
-  let fontWeight = 200; // regular
+  let fontWeight = 400; // regular
   if (bold) {
-    fontWeight = 500;
+    fontWeight = 700;
   } else if (light) {
-    fontWeight = 100;
-  } else if (medium) {
     fontWeight = 300;
+  } else if (medium) {
+    fontWeight = 500;
   } else if (semiBold) {
-    fontWeight = 400;
+    fontWeight = 600;
   }
 
   const updatedProps = { ...props, bold: undefined, light: undefined };
@@ -32,10 +32,8 @@ function Text(props: KeeperTextProps) {
   return (
     <NativeBaseText
       {...updatedProps}
-      fontSize={fontSize}
-      fontWeight={fontWeight}
       fontStyle={italic && 'italic'}
-      style={[{ ...passedStyles }]}
+      style={[{ fontSize: fontSize, fontWeight: fontWeight }, { ...passedStyles }]}
     >
       {children}
     </NativeBaseText>

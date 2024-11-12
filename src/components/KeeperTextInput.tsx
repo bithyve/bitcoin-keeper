@@ -3,7 +3,6 @@ import React from 'react';
 import { Input, useColorMode, Box } from 'native-base';
 import KeeperText from './KeeperText';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/constants/Fonts';
 
 function KeeperTextInput({
   placeholder,
@@ -39,7 +38,6 @@ function KeeperTextInput({
         borderColor={isError ? Colors.CarmineRed : 'transparent'}
         color={isError ? Colors.CarmineRed : `${colorMode}.primaryText`}
         value={value}
-        fontFamily={value === '' ? 'Inter' : Fonts.FiraSansSemiBold}
         onChangeText={onChangeText}
         style={styles.inputField}
         borderWidth={1}
