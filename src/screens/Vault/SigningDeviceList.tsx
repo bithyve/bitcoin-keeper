@@ -60,25 +60,25 @@ const SigningDeviceList = () => {
 
   const sortedSigners = {
     [SignerCategory.HARDWARE]: [
+      SignerType.BITBOX02,
       SignerType.COLDCARD,
-      SignerType.TAPSIGNER,
       SignerType.JADE,
-      SignerType.SEEDSIGNER,
-      SignerType.PASSPORT,
-      SignerType.SPECTER,
       SignerType.KEYSTONE,
       SignerType.LEDGER,
+      SignerType.PASSPORT,
       SignerType.PORTAL,
+      SignerType.SEEDSIGNER,
+      SignerType.SPECTER,
+      SignerType.TAPSIGNER,
       SignerType.TREZOR,
-      SignerType.BITBOX02,
     ],
     [SignerCategory.SOFTWARE]: [
-      SignerType.SEED_WORDS,
-      SignerType.MY_KEEPER,
       SignerType.KEEPER,
+      SignerType.MY_KEEPER,
       SignerType.OTHER_SD,
+      SignerType.SEED_WORDS,
     ],
-    [SignerCategory.ASSISTED]: [SignerType.POLICY_SERVER, SignerType.INHERITANCEKEY],
+    [SignerCategory.ASSISTED]: [SignerType.INHERITANCEKEY, SignerType.POLICY_SERVER],
   };
 
   const getNfcSupport = async () => {
