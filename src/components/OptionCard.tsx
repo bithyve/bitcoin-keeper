@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.13,
   },
   title: {
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.13,
   },
   description: {
