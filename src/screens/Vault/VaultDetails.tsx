@@ -52,6 +52,7 @@ import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function Footer({
   vault,
@@ -227,6 +228,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     transactionToast = false,
   } = route.params || {};
   const dispatch = useDispatch();
+  const { top } = useSafeAreaInsets();
   const { showToast } = useToastMessage();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
@@ -348,57 +350,55 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   return (
     <Box
-      style={styles.container}
+      style={[styles.wrapper, { paddingTop: top - 5 }]}
       backgroundColor={
         isCollaborativeWallet ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
       }
     >
       <StatusBar barStyle="light-content" />
-      <VStack zIndex={1}>
-        <VStack style={styles.topSection}>
-          <KeeperHeader
-            title={vault.presentationData?.name}
-            titleColor={`${colorMode}.seashellWhiteText`}
-            subTitleColor={`${colorMode}.seashellWhiteText`}
-            // TODO: Add collaborativeWalletIcon
-            icon={
-              <HexagonIcon
-                width={58}
-                height={50}
-                backgroundColor={'rgba(9, 44, 39, 0.6)'}
-                icon={
-                  isCollaborativeWallet ? (
-                    <CollaborativeIcon />
-                  ) : vault.type === VaultType.SINGE_SIG ? (
-                    <WalletIcon />
-                  ) : (
-                    <VaultIcon />
-                  )
-                }
-              />
-            }
-            subtitle={vault.presentationData?.description}
-            learnMore
-            learnTextColor={`${colorMode}.buttonText`}
-            learnBackgroundColor="rgba(0,0,0,.2)"
-            learnMorePressed={() => dispatch(setIntroModal(true))}
-            contrastScreen={true}
-            rightComponent={
-              <TouchableOpacity
-                style={styles.settingBtn}
-                onPress={() =>
-                  navigation.dispatch(
-                    CommonActions.navigate('VaultSettings', { vaultId: vault.id })
-                  )
-                }
-              >
-                <SettingIcon width={24} height={24} />
-              </TouchableOpacity>
-            }
-          />
-          <VaultInfo vault={vault} />
-        </VStack>
+      {/* <VStack zIndex={1}> */}
+      <VStack style={styles.topSection}>
+        <KeeperHeader
+          title={vault.presentationData?.name}
+          titleColor={`${colorMode}.seashellWhiteText`}
+          subTitleColor={`${colorMode}.seashellWhiteText`}
+          // TODO: Add collaborativeWalletIcon
+          icon={
+            <HexagonIcon
+              width={58}
+              height={50}
+              backgroundColor={'rgba(9, 44, 39, 0.6)'}
+              icon={
+                isCollaborativeWallet ? (
+                  <CollaborativeIcon />
+                ) : vault.type === VaultType.SINGE_SIG ? (
+                  <WalletIcon />
+                ) : (
+                  <VaultIcon />
+                )
+              }
+            />
+          }
+          subtitle={vault.presentationData?.description}
+          learnMore
+          learnTextColor={`${colorMode}.buttonText`}
+          learnBackgroundColor="rgba(0,0,0,.2)"
+          learnMorePressed={() => dispatch(setIntroModal(true))}
+          contrastScreen={true}
+          rightComponent={
+            <TouchableOpacity
+              style={styles.settingBtn}
+              onPress={() =>
+                navigation.dispatch(CommonActions.navigate('VaultSettings', { vaultId: vault.id }))
+              }
+            >
+              <SettingIcon width={24} height={24} />
+            </TouchableOpacity>
+          }
+        />
+        <VaultInfo vault={vault} />
       </VStack>
+      {/* </VStack> */}
       {!vault.archived && (
         <HStack style={styles.actionCardContainer}>
           {!isCanaryWallet && (
@@ -527,9 +527,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: '10%',
-    justifyContent: 'space-between',
+  wrapper: {
     flex: 1,
   },
   vaultInfoContainer: {
@@ -550,7 +548,7 @@ const styles = StyleSheet.create({
   },
   topSection: {
     paddingHorizontal: 20,
-    paddingTop: 15,
+    paddingTop: 20,
   },
   bottomSection: {
     flex: 1,
