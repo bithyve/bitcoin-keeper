@@ -296,7 +296,6 @@ const getStyles = (
     },
     headerInfoText: {
       flex: 1,
-      gap: 5,
     },
     smallWidth: {
       width: windowWidth * 0.5,

@@ -110,12 +110,13 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     letterSpacing: 0.12,
+    width: windowWidth * 0.7,
   },
   iconWrapper: {
     width: wp(25),
   },
   arrowWrapper: {
-    paddingRight: 14,
+    paddingRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
