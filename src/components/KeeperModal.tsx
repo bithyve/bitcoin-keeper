@@ -190,6 +190,7 @@ function KeeperModal(props: ModalProps) {
                 <Text
                   testID="text_modal_title"
                   style={styles.title}
+                  semiBold
                   color={textColor === 'black' ? `${colorMode}.black` : textColor}
                 >
                   {title}
