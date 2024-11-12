@@ -248,6 +248,11 @@ export const calculateTimeLeft = (createdAt: string) => {
 export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
+
+    // Convert the buffer to a hex string and reverse it to get the transaction ID
+    const txId = Buffer.from(psbt.txInputs[0].hash).reverse().toString('hex');
+    const vout = psbt.txInputs[0].index;
+
     const changeAddress = getChangeAddress(base64Str);
 
     const signersList = [];
@@ -329,6 +334,8 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       currentSignerFromPSBT,
       signerMatched,
       changeAddress,
+      txId,
+      vout,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
