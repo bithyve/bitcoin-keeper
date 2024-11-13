@@ -81,7 +81,7 @@ function MenuCard({
 
 const styles = StyleSheet.create({
   menuCardContainer: {
-    height: hp(115),
+    height: 115,
     width: wp(114),
   },
   circle: {
