@@ -16,7 +16,8 @@ import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/services/wallets/operations';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import BitcoinInput from 'src/assets/images/btc_input.svg';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import useBalance from 'src/hooks/useBalance';
 import ReceiveAddress from './ReceiveAddress';
 import useSigners from 'src/hooks/useSigners';
@@ -49,6 +50,8 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { Vault } from 'src/services/wallets/interfaces/vault';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import AmountDetailsInput from '../Send/AmountDetailsInput';
 
 const AddressVerifiableSigners = [
   SignerType.BITBOX02,
@@ -74,6 +77,7 @@ function ReceiveScreen({ route }: { route }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [labelsModalVisible, setLabelsModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
+  const [equivalentAmount, setEquivalentAmount] = useState<string | number>('0');
 
   const wallet: Wallet | Vault = route?.params?.wallet;
   // const amount = route?.params?.amount;
@@ -105,6 +109,8 @@ function ReceiveScreen({ route }: { route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
+
+  const [localCurrencyKind, setLocalCurrencyKind] = useState(currentCurrency);
 
   const generateNewReceiveAddress = () => {
     dispatch(generateNewAddress(wallet));
@@ -144,17 +150,18 @@ function ReceiveScreen({ route }: { route }) {
   useEffect(() => {
     if (amount) {
       let convertedAmount;
-      if (currentCurrency === CurrencyKind.BITCOIN) {
+      if (localCurrencyKind === CurrencyKind.BITCOIN) {
         if (satsEnabled) convertedAmount = parseInt(amount) / 1e8;
         else convertedAmount = parseFloat(amount);
       } else
         convertedAmount =
           parseInt(convertFiatToSats(parseFloat(amount)).toFixed(0).toString()) / 1e8;
-
-      const newPaymentURI = WalletUtilities.generatePaymentURI(receivingAddress, {
-        amount: convertedAmount,
-      }).paymentURI;
-      setPaymentURI(newPaymentURI);
+      if (convertedAmount) {
+        const newPaymentURI = WalletUtilities.generatePaymentURI(receivingAddress, {
+          amount: convertedAmount,
+        }).paymentURI;
+        setPaymentURI(newPaymentURI);
+      } else setPaymentURI(null);
     } else if (paymentURI) setPaymentURI(null);
   }, [amount]);
 
@@ -184,9 +191,73 @@ function ReceiveScreen({ route }: { route }) {
   }, [wallet]);
 
   function AddAmountContent() {
+    const onPressNumber = (text) => {
+      if (text === 'x') {
+        onDeletePressed();
+        return;
+      }
+      if (text === '.') {
+        if ((localCurrencyKind === CurrencyKind.BITCOIN && satsEnabled) || amount.includes('.')) {
+          return;
+        }
+        if (!amount || amount === '0') {
+          setAmount('0.');
+          return;
+        }
+        setAmount(amount + '.');
+        return;
+      }
+      const maxDecimalPlaces = localCurrencyKind === CurrencyKind.BITCOIN && !satsEnabled ? 8 : 2;
+      if (amount === '0' && text !== '.') {
+        setAmount(text);
+        return;
+      }
+      let newAmount = amount + text;
+      const parts = newAmount.split('.');
+      if (parts[1] && parts[1].length > maxDecimalPlaces) {
+        return;
+      }
+      setAmount(newAmount);
+    };
+
+    const onDeletePressed = () => {
+      if (amount.length <= 1) {
+        setAmount('0');
+        return;
+      }
+      setAmount(amount.slice(0, amount.length - 1));
+    };
+
     return (
-      <View>
-        <View style={styles.Container}>
+      <Box>
+        <AmountDetailsInput
+          amount={amount}
+          currentAmount={amount}
+          setCurrentAmount={setAmount}
+          equivalentAmount={equivalentAmount}
+          setEquivalentAmount={setEquivalentAmount}
+          satsEnabled={satsEnabled}
+          localCurrencyKind={localCurrencyKind}
+          setLocalCurrencyKind={setLocalCurrencyKind}
+          currencyCode={currencyCode}
+        />
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          enableDecimal
+          keyColor={`${colorMode}.keyPadText`}
+          ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
+        />
+        <Box marginTop={hp(20)}>
+          <Buttons
+            fullWidth
+            primaryText={common.confirm}
+            primaryCallback={() => {
+              setModalVisible(false);
+            }}
+          />
+        </Box>
+        {/* <View style={styles.Container}>
           <View>
             <Box style={styles.inputWrapper01} backgroundColor={`${colorMode}.seashellWhite`}>
               <View style={styles.btcIconWrapper}>
@@ -245,8 +316,8 @@ function ReceiveScreen({ route }: { route }) {
             darkDeleteIcon={colorMode === 'light'}
             decimalPoint
           />
-        </View>
-      </View>
+        </View> */}
+      </Box>
     );
   }
 
@@ -456,9 +527,9 @@ function ReceiveScreen({ route }: { route }) {
       </Box>
       <KeeperModal
         visible={modalVisible}
-        showCloseIcon={false}
+        showCloseIcon
         close={() => setModalVisible(false)}
-        title={home.AddAmount}
+        title={home.RequestSpecificAmount}
         subTitle={home.amountdesc}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}

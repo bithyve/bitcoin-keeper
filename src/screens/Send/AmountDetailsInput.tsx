@@ -18,7 +18,7 @@ const AmountDetailsInput = ({
   equivalentAmount,
   setEquivalentAmount,
   satsEnabled,
-  handleSendMax,
+  handleSendMax = null,
   currencyCode,
   localCurrencyKind,
   setLocalCurrencyKind,
@@ -105,18 +105,14 @@ const AmountDetailsInput = ({
   };
 
   const handleSwitch = () => {
+    const newCurrencyKind =
+      localCurrencyKind === CurrencyKind.FIAT ? CurrencyKind.BITCOIN : CurrencyKind.FIAT;
+    setLocalCurrencyKind(newCurrencyKind);
     if (!currentAmount || currentAmount === '0') {
-      setLocalCurrencyKind(
-        localCurrencyKind === CurrencyKind.FIAT ? CurrencyKind.BITCOIN : CurrencyKind.FIAT
-      );
       return;
     }
 
-    const newCurrencyKind =
-      localCurrencyKind === CurrencyKind.FIAT ? CurrencyKind.BITCOIN : CurrencyKind.FIAT;
     const newEquivalentAmount = convertAmount(currentAmount, localCurrencyKind, newCurrencyKind);
-
-    setLocalCurrencyKind(newCurrencyKind);
     setEquivalentAmount(currentAmount);
     setCurrentAmount(newEquivalentAmount);
   };
@@ -151,21 +147,22 @@ const AmountDetailsInput = ({
               {getEquivalentAmount()}
             </Text>
           </Box>
-
-          <Pressable
-            onPress={handleSendMax}
-            backgroundColor={`${colorMode}.brownBackground`}
-            style={styles.sendMaxWrapper}
-            testID="btn_sendMax"
-          >
-            <Text
-              testID="text_sendmax"
-              color={`${colorMode}.buttonText`}
-              style={styles.sendMaxText}
+          {handleSendMax && (
+            <Pressable
+              onPress={handleSendMax}
+              backgroundColor={`${colorMode}.brownBackground`}
+              style={styles.sendMaxWrapper}
+              testID="btn_sendMax"
             >
-              Send Max
-            </Text>
-          </Pressable>
+              <Text
+                testID="text_sendmax"
+                color={`${colorMode}.buttonText`}
+                style={styles.sendMaxText}
+              >
+                Send Max
+              </Text>
+            </Pressable>
+          )}
         </Box>
       </Box>
       <Pressable style={styles.switchButtonWrapper} onPress={handleSwitch}>
