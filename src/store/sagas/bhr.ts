@@ -876,8 +876,6 @@ function* bsmsCloudHealthCheckWorker() {
       subtitle: error.message || 'Unknown error occurred',
       date: Date.now(),
     });
-  } finally {
-    yield put(setBackupLoading(false));
   }
 }
 
