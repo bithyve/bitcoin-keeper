@@ -344,10 +344,7 @@ function SendConfirmation({ route }) {
     const unconfirmedUTXOs: InputUTXOs[] =
       idx(currentSender, (_) => _.specs.unconfirmedUTXOs) || [];
 
-    const currentUTXOSet =
-      currentSender.networkType === NetworkType.MAINNET
-        ? confirmedUTXOs
-        : [...confirmedUTXOs, ...unconfirmedUTXOs];
+    const currentUTXOSet = [...confirmedUTXOs, ...unconfirmedUTXOs];
 
     for (const cachedUTXO of cachedInputUTXOs) {
       let found = false;
