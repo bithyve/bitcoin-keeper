@@ -85,7 +85,6 @@ import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 import ChangeTapsignerPin from 'src/screens/SigningDevices/ChangeTapsignerPin';
 import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
-import NFCScanner from 'src/screens/Vault/NFCScanner';
 import PrivacyAndDisplay from 'src/screens/AppSettings/PrivacyAndDisplay';
 import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
@@ -298,7 +297,6 @@ function AppStack() {
           options={{ gestureEnabled: false }}
         />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
-        <Stack.Screen name="NFCScanner" component={NFCScanner} />
         <Stack.Screen name="AddWallet" component={AddWallet} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />

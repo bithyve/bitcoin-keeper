@@ -558,7 +558,7 @@
     "Desc2of3": "2-of-3 Multi-key",
     "CollaborativeWalletCreated": "A 2 of 3 collaborative wallet will be created",
     "WalletCreated": "Wallet Created Successfully!",
-    "CollaborativeWalletSubtitle": "A collaborative with three App Keys on three separate devices.",
+    "CollaborativeWalletSubtitle": "You have successfully created a collaborative wallet with three app keys on three separate devices.",
     "CollaborativeWalletDesc": "You should ensure you have a copy of the wallet configuration file for this vault",
     "highCustom": "Network fee is more than 10% of the amount being sent. Consider using custom fee option.",
     "highWait": "Network fee is 10% higher than usual. If not urgent, consider waiting for the fee to go down.",
@@ -1055,7 +1055,7 @@
   "ramp": {
     "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
     "bitcoinTransfer": "Bitcoin will be transferred to",
-    "addressForRamp": "Address for ramp transactions",
+    "addressForRamp": "Address for Ramp transactions",
     "buyBitcoinRamp": "Buy bitcoin with Ramp",
     "buyBitcoinRampSubTitle": "Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
   },
