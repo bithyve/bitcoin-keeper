@@ -473,6 +473,8 @@ function ChoosePlan() {
         rightComponent={
           <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
         }
+        rightComponentPadding={wp(0)}
+        rightComponentBottomPadding={hp(5)}
         // To-Do-Learn-More
       />
       <KeeperModal
