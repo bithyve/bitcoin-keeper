@@ -1,24 +1,22 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 
-import { Box, Input, useColorMode, Pressable, HStack, Center, theme } from 'native-base';
-import { Keyboard, ScrollView, StyleSheet, Vibration, View } from 'react-native';
+import { Box, useColorMode, Pressable, HStack } from 'native-base';
+import { ScrollView, StyleSheet, Vibration } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/services/wallets/operations';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
-import useBalance from 'src/hooks/useBalance';
 import ReceiveAddress from './ReceiveAddress';
 import useSigners from 'src/hooks/useSigners';
 import { SignerType } from 'src/services/wallets/enums';
@@ -35,7 +33,6 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { generateNewAddress } from 'src/store/sagaActions/wallets';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Close from 'src/assets/images/modal_close.svg';
@@ -73,7 +70,6 @@ const SignerTypesNeedingRegistration = [
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
-  const { getCurrencyIcon } = useBalance();
   const [modalVisible, setModalVisible] = useState(false);
   const [labelsModalVisible, setLabelsModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
@@ -257,66 +253,6 @@ function ReceiveScreen({ route }: { route }) {
             }}
           />
         </Box>
-        {/* <View style={styles.Container}>
-          <View>
-            <Box style={styles.inputWrapper01} backgroundColor={`${colorMode}.seashellWhite`}>
-              <View style={styles.btcIconWrapper}>
-                {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
-              </View>
-              <Box
-                style={styles.verticalDeviderLine}
-                backgroundColor={`${colorMode}.secondaryText`}
-              />
-              <Input
-                placeholder={`Enter amount in ${
-                  currentCurrency === CurrencyKind.BITCOIN
-                    ? satsEnabled
-                      ? 'sats'
-                      : 'BTC'
-                    : currencyCode
-                }`}
-                style={styles.inputField}
-                borderWidth="0"
-                value={amount
-                  .toString()
-                  .split('.')
-                  .map((part, i) => (i === 0 ? part.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : part))
-                  .join('.')}
-                onChangeText={(value) => setAmount(value)}
-                onFocus={() => Keyboard.dismiss()}
-                testID="input_receiveAmount"
-                _input={
-                  colorMode === 'dark' && {
-                    selectionColor: Colors.SecondaryWhite,
-                    cursorColor: Colors.SecondaryWhite,
-                  }
-                }
-              />
-            </Box>
-
-            <View style={styles.bottomBtnView}>
-              <Buttons
-                secondaryText={common.cancel}
-                secondaryCallback={() => {
-                  setModalVisible(false);
-                }}
-                primaryText="Add"
-                primaryCallback={() => {
-                  setModalVisible(false);
-                }}
-              />
-            </View>
-          </View>
-        </View>
-        <View>
-          <AppNumPad
-            setValue={setAmount}
-            clear={() => setAmount('')}
-            color={colorMode === 'light' ? '#041513' : '#FFF'}
-            darkDeleteIcon={colorMode === 'light'}
-            decimalPoint
-          />
-        </View> */}
       </Box>
     );
   }
