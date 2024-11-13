@@ -6,6 +6,7 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import DotGreen from 'src/assets/images/dot-green.svg';
 import DotWhite from 'src/assets/images/dot-white.svg';
+import DotCream from 'src/assets/images/dot-cream.svg';
 
 type Props = {
   used: boolean;
@@ -26,7 +27,8 @@ function AddressUsageBadge({ used }: Props) {
       style={styles.addressTypeBadge}
     >
       <Box style={styles.container}>
-        {isDarkMode ? <DotWhite /> : <DotGreen />}
+        {isDarkMode ? <DotWhite /> : used ? <DotCream /> : <DotGreen />}
+
         <Text
           color={used ? `${colorMode}.textWhite` : `${colorMode}.textGreen`}
           style={styles.addressTypeText}
