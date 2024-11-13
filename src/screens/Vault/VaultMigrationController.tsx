@@ -90,30 +90,26 @@ function VaultMigrationController({
   }, [sendPhaseOneState]);
 
   const initiateSweep = () => {
-    if (!unconfirmed) {
-      const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
-      const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
-      const network = WalletUtilities.getNetworkByType(activeVault.networkType);
-      const { fee: sendMaxFee } = WalletOperations.calculateSendMaxFee(
-        activeVault,
-        1,
-        feePerByte,
-        network
-      );
-      if (sendMaxFee && temporaryVault) {
-        const maxBalance = confirmed - sendMaxFee;
+    const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
+    const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
+    const network = WalletUtilities.getNetworkByType(activeVault.networkType);
+    const { fee: sendMaxFee } = WalletOperations.calculateSendMaxFee(
+      activeVault,
+      1,
+      feePerByte,
+      network
+    );
+    if (sendMaxFee && temporaryVault) {
+      const maxBalance = confirmed - sendMaxFee;
 
-        const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
-        setRecepients([{ address: receivingAddress, amount: maxBalance }]);
-        dispatch(
-          sendPhaseOne({
-            wallet: activeVault,
-            recipients: [{ address: receivingAddress, amount: maxBalance }],
-          })
-        );
-      }
-    } else {
-      showToast('You have unconfirmed balance, please try again in some time', <ToastErrorIcon />);
+      const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+      setRecepients([{ address: receivingAddress, amount: maxBalance }]);
+      dispatch(
+        sendPhaseOne({
+          wallet: activeVault,
+          recipients: [{ address: receivingAddress, amount: maxBalance }],
+        })
+      );
     }
   };
 
@@ -155,26 +151,6 @@ function VaultMigrationController({
 
   const initiateNewVault = () => {
     if (activeVault) {
-      if (unconfirmed) {
-        showToast(
-          'You have unconfirmed balance, please try again in some time',
-          <ToastErrorIcon />
-        );
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 1,
-            routes: [
-              { name: 'Home' },
-              {
-                name: 'VaultDetails',
-                params: { autoRefresh: true, vaultId: activeVault.id },
-              },
-            ],
-          })
-        );
-        return;
-      }
-
       const vaultInfo: NewVaultInfo = {
         vaultType: vaultType,
         vaultScheme: scheme,
