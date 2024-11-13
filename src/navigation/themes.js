@@ -227,6 +227,7 @@ export const customTheme = extendTheme({
       receiptModalUnitColor: Colors.MediumJungleGreen,
       brownBackground: Colors.brownColor,
       keyPadText: Colors.GreenishGrey,
+      menuCardTitleColor: Colors.Graphite,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -411,6 +412,7 @@ export const customTheme = extendTheme({
       modalUnitColor: Colors.SoftGray,
       brownBackground: Colors.DullBrown,
       keyPadText: Colors.SoftGray,
+      menuCardTitleColor: Colors.GraphiteLight,
     },
   },
   config: {
