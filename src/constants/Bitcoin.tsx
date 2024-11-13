@@ -100,8 +100,8 @@ export const getCustomConvertedAmt = (
       return amount;
     } else if (toKind === CurrencyKind.FIAT) {
       const convertedAmount = satsEnabled
-        ? ((amount / SATOSHIS_IN_BTC) * rate).toFixed(2)
-        : (amount * rate).toFixed(2);
+        ? parseFloat(((amount / SATOSHIS_IN_BTC) * rate).toFixed(2)).toString()
+        : parseFloat((amount * rate).toFixed(2)).toString();
       return convertedAmount;
     }
   } else if (fromKind === CurrencyKind.FIAT) {
@@ -109,10 +109,10 @@ export const getCustomConvertedAmt = (
       const bitcoinAmount = amount / rate;
       const convertedAmount = satsEnabled
         ? (bitcoinAmount * SATOSHIS_IN_BTC).toFixed(0)
-        : bitcoinAmount.toFixed(8);
+        : parseFloat(bitcoinAmount.toFixed(8)).toString();
       return convertedAmount;
     } else if (toKind === CurrencyKind.FIAT) {
-      return amount.toFixed(2);
+      return parseFloat(amount.toFixed(2)).toString();
     }
   }
   return null;
