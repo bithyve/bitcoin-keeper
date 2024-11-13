@@ -74,7 +74,7 @@ function RegisterWithQR({ route, navigation }: any) {
           )}
         </Box>
         <Box style={styles.centerBottom}>
-          <ShareWithNfc data={walletConfig} signer={signer} />
+          <ShareWithNfc data={walletConfig} signer={signer} useNdef />
         </Box>
         <Buttons
           primaryText="Confirm Registration"

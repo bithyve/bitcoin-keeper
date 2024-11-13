@@ -31,7 +31,7 @@ function ShareWithNfc({
   sendConfirmationRouteParams,
   tnxDetails,
   fileName,
-  useNdef = true,
+  useNdef = false,
 }: {
   data: string;
   signer?: Signer;
@@ -44,7 +44,7 @@ function ShareWithNfc({
   sendConfirmationRouteParams?: SendConfirmationRouteParams;
   tnxDetails?: tnxDetailsProps;
   fileName?: string;
-  useNdef?: boolean;
+  useNdef?: boolean; // For hardware wallets interactions
 }) {
   const { session } = useContext(HCESessionContext);
   const navigation = useNavigation<any>();
