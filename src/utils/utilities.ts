@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import moment from 'moment';
 import idx from 'idx';
 
-import { VaultType, WalletType } from 'src/services/wallets/enums';
+import { TxPriority, VaultType, WalletType } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 import { Signer } from 'src/services/wallets/interfaces/vault';
@@ -254,6 +254,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     const vout = psbt.txInputs[0].index;
 
     const changeAddress = getChangeAddress(base64Str);
+    const vBytes = estimateVByteFromPSBT(base64Str);
 
     const signersList = [];
     let signerMatched = false;
@@ -326,6 +327,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
 
     // Calculate transaction fees
     const fees = totalInput - totalOutput;
+    const feeRate = (fees / vBytes).toFixed(2);
     return {
       senderAddresses: senderAddresses,
       receiverAddresses: receiverAddresses,
@@ -336,6 +338,8 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       changeAddress,
       txId,
       vout,
+      feeRate,
+      vBytes,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
@@ -343,6 +347,40 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   }
 };
 
+export const estimateVByteFromPSBT = (base64Str: string) => {
+  const psbt = bitcoin.Psbt.fromBase64(base64Str);
+  const unsignedTxHex =
+    psbt.txInputs.length > 0 && psbt.txOutputs.length > 0 ? psbt.__CACHE.__TX.toHex() : null;
+  const tx = bitcoin.Transaction.fromHex(unsignedTxHex);
+
+  // Calculate the base size (without witness data)
+  const baseSize = tx.toBuffer().length;
+
+  // Check if there is witness data and calculate the total size accordingly
+  const totalSize = tx.hasWitnesses() ? tx.virtualSize() : baseSize;
+
+  // Calculate vBytes using the formula
+  return Math.ceil((baseSize * 3 + totalSize) / 4);
+};
+
+export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
+  let estimatedBlocksBeforeConfirmation = 0;
+  let tnxPriority = TxPriority.LOW;
+  if (averageTxFees && averageTxFees[config.NETWORK_TYPE]) {
+    const { high, medium, low } = averageTxFees[config.NETWORK_TYPE];
+    const customFeeRatePerByte = parseInt(feeRate);
+    if (customFeeRatePerByte >= high.feePerByte) {
+      estimatedBlocksBeforeConfirmation = high.estimatedBlocks;
+      tnxPriority = TxPriority.HIGH;
+    } else if (customFeeRatePerByte <= low.feePerByte) {
+      estimatedBlocksBeforeConfirmation = low.estimatedBlocks;
+    } else {
+      estimatedBlocksBeforeConfirmation = medium.estimatedBlocks;
+      tnxPriority = TxPriority.MEDIUM;
+    }
+  }
+  return { estimatedBlocksBeforeConfirmation, tnxPriority };
+};
 export const getChangeAddress = (psbt) => {
   // Decode the PSBT
   const decodedPsbt = bitcoin.Psbt.fromBase64(psbt);

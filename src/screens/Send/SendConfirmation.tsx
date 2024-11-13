@@ -94,9 +94,13 @@ export interface SendConfirmationRouteParams {
   isRemoteFlow?: boolean;
   timeLeft?: number;
   // For remote key signing
-  fees?: string;
-  signer: Signer;
-  psbt: string;
+  remoteKeyProps?: {
+    fees: string;
+    signer: Signer;
+    psbt: string;
+    estimatedBlocksBeforeConfirmation: number;
+    tnxPriority: TxPriority;
+  };
 }
 
 export interface tnxDetailsProps {
@@ -123,22 +127,20 @@ function SendConfirmation({ route }) {
     isAutoTransfer,
     parentScreen,
     isRemoteFlow = false,
+    remoteKeyProps,
     timeLeft,
-    fees,
-    signer,
-    psbt,
   }: SendConfirmationRouteParams = route.params;
   const txFeeInfo = isRemoteFlow
     ? {
-        low: {
-          amount: fees,
-          estimatedBlocksBeforeConfirmation: 6, // ! need to calculate this
+        [remoteKeyProps.tnxPriority]: {
+          amount: remoteKeyProps.fees,
+          estimatedBlocksBeforeConfirmation: remoteKeyProps.estimatedBlocksBeforeConfirmation,
         },
       }
     : useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendMaxFeeEstimatedBlocks = isRemoteFlow
-    ? 6
+    ? remoteKeyProps.estimatedBlocksBeforeConfirmation
     : useAppSelector((state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks);
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
@@ -192,7 +194,7 @@ function SendConfirmation({ route }) {
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
   const [transactionPriority, setTransactionPriority] = useState(
     isRemoteFlow
-      ? TxPriority.LOW
+      ? remoteKeyProps.tnxPriority
       : isCachedTransaction
       ? cachedTxPriority || TxPriority.LOW
       : TxPriority.LOW
@@ -911,7 +913,13 @@ function SendConfirmation({ route }) {
           }}
         />
       )}
-      {isRemoteFlow && <RKSignersModal signer={signer} psbt={psbt} ref={signerModalRef} />}
+      {isRemoteFlow && (
+        <RKSignersModal
+          signer={remoteKeyProps.signer}
+          psbt={remoteKeyProps.psbt}
+          ref={signerModalRef}
+        />
+      )}
     </ScreenWrapper>
   );
 }

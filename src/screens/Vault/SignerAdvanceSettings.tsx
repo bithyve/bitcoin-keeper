@@ -43,7 +43,7 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import { emailCheck, generateDataFromPSBT } from 'src/utils/utilities';
+import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -160,6 +160,7 @@ function SignerAdvanceSettings({ route }: any) {
     null | 'hideKey' | 'mobileKeySeed'
   >(null);
   const supportsRKSigning = SignersWithRKSupport.includes(signer.type);
+  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
@@ -534,8 +535,9 @@ function SignerAdvanceSettings({ route }: any) {
   const signPSBT = async (serializedPSBT) => {
     if (signer.type != SignerType.MY_KEEPER) {
       try {
-        const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount } =
+        const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount, feeRate } =
           generateDataFromPSBT(serializedPSBT, signer);
+        const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
         if (!signerMatched) {
           showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
@@ -551,13 +553,17 @@ function SignerAdvanceSettings({ route }: any) {
               receiver: null,
               address: receiverAddresses,
               amount: sendAmount,
-              fees: fees,
               data: serializedPSBT,
               isRemoteFlow: true,
               signingDetails: signer,
               transferType: TransferType.VAULT_TO_ADDRESS,
-              signer,
-              psbt: serializedPSBT,
+              remoteKeyProps: {
+                fees: fees,
+                estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
+                tnxPriority: tnxDetails.tnxPriority,
+                signer,
+                psbt: serializedPSBT,
+              },
             },
           })
         );
