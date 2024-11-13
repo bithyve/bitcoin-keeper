@@ -19,6 +19,7 @@ const AmountDetailsInput = ({
   setEquivalentAmount,
   satsEnabled,
   handleSendMax = null,
+  specificBitcoinAmount = null,
   currencyCode,
   localCurrencyKind,
   setLocalCurrencyKind,
@@ -52,7 +53,11 @@ const AmountDetailsInput = ({
     if (currentAmount === '.') return '0.';
 
     try {
-      const currentAmountStr = currentAmount.toString();
+      const currentAmountStr = (
+        specificBitcoinAmount && localCurrencyKind === CurrencyKind.BITCOIN
+          ? specificBitcoinAmount
+          : currentAmount
+      ).toString();
       const maxDigits = 10;
 
       if (currentAmountStr.endsWith('.')) {
@@ -89,8 +94,11 @@ const AmountDetailsInput = ({
     if (!equivalentAmount || equivalentAmount === '0') return '0';
 
     try {
-      const equivalent = parseFloat(equivalentAmount);
+      let equivalent = parseFloat(equivalentAmount);
       if (localCurrencyKind === CurrencyKind.FIAT) {
+        if (specificBitcoinAmount) {
+          equivalent = specificBitcoinAmount;
+        }
         if (satsEnabled) {
           return numberWithCommas(equivalent.toString());
         }
