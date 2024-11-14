@@ -1,15 +1,13 @@
 import React, { useMemo } from 'react';
 import { Box, useColorMode, HStack } from 'native-base';
 import { Pressable, StyleSheet } from 'react-native';
-import { hp, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import PlebIcon from 'src/assets/images/pleb_white.svg';
 import HodlerIcon from 'src/assets/images/hodler.svg';
 import DiamondIcon from 'src/assets/images/diamond_hands.svg';
-import CustomYellowButton from '../CustomButton/CustomYellowButton';
-import Colors from 'src/theme/Colors';
 import PlanCheckMarkSelected from 'src/assets/images/planCheckMarkSelected.svg';
 
 const styles = StyleSheet.create({
@@ -19,7 +17,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     paddingVertical: 20,
     borderWidth: 1,
-    borderColor: Colors.GrayX11,
     height: 135,
   },
 
@@ -108,13 +105,14 @@ function ChoosePlanCarouselItem({
   return (
     <Pressable onPress={() => onPress(index)} testID="btn_selectPlan">
       {isSelected && (
-        <Box position={'absolute'} top={13} right={17} zIndex={1}>
+        <Box position={'absolute'} top={15} right={19} zIndex={1}>
           <PlanCheckMarkSelected />
         </Box>
       )}
       <HStack
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.choosePlanCard`}
         style={[styles.wrapperView, { width: wp(itemWidth) }]}
+        borderColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.solidGreyBorder`}
       >
         {/* Icon */}
         <Box>
@@ -148,8 +146,8 @@ function ChoosePlanCarouselItem({
             {`(${item.subTitle})`}
           </Text>
           <Text
-            fontSize={14}
-            lineHeight={20}
+            fontSize={12}
+            medium
             color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.greenWhiteText`}
           >
             {getAmt +
@@ -161,9 +159,9 @@ function ChoosePlanCarouselItem({
           </Text>
 
           <Text
-            bold={true}
-            fontSize={14}
-            color={isSelected ? `${colorMode}.white` : `${colorMode}.pantoneGreen`}
+            medium
+            fontSize={12}
+            color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.greenWhiteText`}
           >
             {getFreeTrail ? '- ' + getFreeTrail : ''}
           </Text>
