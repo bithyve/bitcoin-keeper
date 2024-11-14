@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     paddingHorizontal: wp(10),
-    paddingTop: hp(28),
+    paddingTop: 28,
   },
   arrow: {
     zIndex: -1,
