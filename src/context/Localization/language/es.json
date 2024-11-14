@@ -142,7 +142,8 @@
     "Address": "Address",
     "time": "time",
     "times": "times",
-    "shareDetails": "Share Details"
+    "shareDetails": "Share Details",
+    "upgrade": "Upgrade"
   },
   "noInternet": {
     "no": "No Internet",
