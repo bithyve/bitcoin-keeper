@@ -7,6 +7,7 @@
     "done": "Done",
     "create": "Create",
     "cancel": "Cancel",
+    "clear": "Clear",
     "settings": "Settings",
     "add_new": "Add New",
     "add": "Add",
@@ -304,6 +305,7 @@
     "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed",
     "Balance": "Balance",
     "requestSpecificAmount": "Request specific amount",
+    "RequestSpecificAmount": "Request Specific Amount",
     "GetNewAddress": "Get New Address"
   },
   "transactions": {

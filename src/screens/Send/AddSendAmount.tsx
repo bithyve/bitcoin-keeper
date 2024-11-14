@@ -106,6 +106,7 @@ function AddSendAmount({ route }) {
 
   const isDarkMode = colorMode === 'dark';
   const [localCurrencyKind, setLocalCurrencyKind] = useState(currentCurrency);
+  const [maxAmountToSend, setMaxAmountToSend] = useState(null);
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -245,6 +246,9 @@ function AddSendAmount({ route }) {
 
     if (availableToSpend) {
       const sendMaxBalance = Math.max(availableToSpend - sendMaxFee, 0);
+      setMaxAmountToSend(
+        satsEnabled ? Number(sendMaxBalance) : Number(sendMaxBalance) / SATOSHIS_IN_BTC
+      );
 
       if (localCurrencyKind === CurrencyKind.BITCOIN) {
         const amountToSet = sendMaxBalance;
@@ -359,6 +363,9 @@ function AddSendAmount({ route }) {
       showDebouncedToast(errorMessage);
       return;
     }
+
+    setMaxAmountToSend(null);
+
     if (text === 'x') {
       onDeletePressed();
       return;
@@ -391,6 +398,8 @@ function AddSendAmount({ route }) {
   };
 
   const onDeletePressed = () => {
+    setMaxAmountToSend(null);
+
     if (currentAmount.length <= 1) {
       setAmount('0');
       return;
@@ -452,6 +461,7 @@ function AddSendAmount({ route }) {
         localCurrencyKind={localCurrencyKind}
         setLocalCurrencyKind={setLocalCurrencyKind}
         currencyCode={currencyCode}
+        specificBitcoinAmount={maxAmountToSend}
       />
       <Box style={styles.RecipientInfo}>
         <HexagonIcon
