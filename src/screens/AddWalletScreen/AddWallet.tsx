@@ -97,7 +97,7 @@ function AddWallet({ navigation }) {
     },
     {
       title: wallet.advanced,
-      description: wallet.CustomMultiKey,
+      description: wallet.forProfessionals,
       icon: <AdvancedIcon />,
       selectCard: selectedCard,
       selectedIcon: <AdvancedGreenIcon />,
