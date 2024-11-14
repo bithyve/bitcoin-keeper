@@ -1290,7 +1290,7 @@
     "healthCheck": "Health Check",
     "CLOUD_BACKUP_CREATED": "Cloud backup created",
     "CLOUD_BACKUP_FAILED": "Cloud backup failed",
-    "CLOUD_BACKUP_HEALTH": "Health check success",
+    "CLOUD_BACKUP_HEALTH": "Health check successful",
     "CLOUD_BACKUP_HEALTH_FAILED": "Health check failed",
     "cloudBackupSubtitle": "Keeper's Cloud Backup feature allows you to securely store your multikey configuration files and metadata on your preferred cloud service. This ensures that even if your device is lost or damaged, your multikey setup and related data can be easily recovered. The file itself is protected by a password setup by you within the app. This enhances the security of your BSMS file folder on your cloud.",
     "cloudBackupModalTitle": "Backup vaults on your cloud",
