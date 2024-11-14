@@ -111,6 +111,12 @@ export enum SignerType {
   PORTAL = 'PORTAL',
 }
 
+export enum SignerCategory {
+  HARDWARE = 'HARDWARE',
+  SOFTWARE = 'SOFTWARE',
+  ASSISTED = 'ASSISTED',
+}
+
 export enum PaymentInfoKind {
   ADDRESS = 'address',
   PAYMENT_URI = 'paymentURI',

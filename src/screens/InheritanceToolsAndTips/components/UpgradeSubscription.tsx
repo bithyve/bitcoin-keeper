@@ -24,12 +24,12 @@ function UpgradeSubscription({ type, customStyles }) {
         testID="choosePlan"
       >
         <Box
-          borderColor={`${colorMode}.BrownNeedHelp`}
-          backgroundColor={`${colorMode}.BrownNeedHelp`}
+          borderColor={`${colorMode}.brownBackground`}
+          backgroundColor={`${colorMode}.brownBackground`}
           style={StyleSheet.flatten([styles.learnMoreContainer, customStyles?.learnMoreContainer])}
         >
           <Text
-            color={`${colorMode}.white`}
+            color={`${colorMode}.buttonText`}
             medium
             style={StyleSheet.flatten([styles.learnMoreText, customStyles?.learnMoreText])}
           >
