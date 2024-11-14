@@ -114,7 +114,6 @@ export const fetchOneDayInsight = () => ({
   type: ONE_DAY_INSIGHT,
 });
 
-
 export const fetchFeeRates = () => ({
   type: FETCH_FEE_RATES,
 });
@@ -250,14 +249,20 @@ export const sendingCompleted = (): SendingCompletionAction => ({
 export interface CalculateSendMaxFeeAction extends Action {
   type: typeof CALCULATE_SEND_MAX_FEE;
   payload: {
-    numberOfRecipients: number;
+    recipients: {
+      address: string;
+      amount: number;
+    }[];
     wallet: Wallet | Vault;
     selectedUTXOs?: UTXO[];
   };
 }
 
 export const calculateSendMaxFee = (payload: {
-  numberOfRecipients: number;
+  recipients: {
+    address: string;
+    amount: number;
+  }[];
   wallet: Wallet | Vault;
   selectedUTXOs?: UTXO[];
 }): CalculateSendMaxFeeAction => ({

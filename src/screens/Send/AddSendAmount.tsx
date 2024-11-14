@@ -81,7 +81,6 @@ function AddSendAmount({ route }) {
   const [lastToastTime, setLastToastTime] = useState(0);
   const [labelsToAdd, setLabelsToAdd] = useState([]);
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
-  const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const { averageTxFees } = useAppSelector((state) => state.network);
@@ -211,9 +210,16 @@ function AddSendAmount({ route }) {
       if (sendMaxFee) {
         onSendMax(sendMaxFee, selectedUTXOs);
       } else {
+        // TODO: Should just remove amount from calculateSendMaxFee
+        const recipients = [];
+        recipients.push({
+          address,
+          amount: 1,
+          name: recipient ? recipient.presentationData.name : '',
+        });
         dispatch(
           calculateSendMaxFee({
-            numberOfRecipients: recipientCount,
+            recipients,
             wallet: sender,
             selectedUTXOs,
           })
@@ -289,9 +295,15 @@ function AddSendAmount({ route }) {
         onSendMax(sendMaxFee, selectedUTXOs);
         return;
       }
+      const recipients = [];
+      recipients.push({
+        address,
+        amount: 1,
+        name: recipient ? recipient.presentationData.name : '',
+      });
       dispatch(
         calculateSendMaxFee({
-          numberOfRecipients: recipientCount,
+          recipients,
           wallet: sender,
           selectedUTXOs,
         })

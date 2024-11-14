@@ -2,6 +2,7 @@ import {
   SerializedPSBTEnvelop,
   SigningPayload,
   TransactionPrerequisite,
+  TransactionRecipients,
 } from 'src/services/wallets/interfaces';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
@@ -14,24 +15,16 @@ export interface SendPhaseOneExecutedPayload {
   successful: boolean;
   outputs?: {
     txPrerequisites?: TransactionPrerequisite;
-    recipients?: {
-      address: string;
-      amount: number;
-      name?: string;
-    }[];
+    txRecipients?: TransactionRecipients;
   };
   err?: string;
 }
 
 export interface CustomFeeCalculatedPayload {
   successful: boolean;
-  outputs: {
+  outputs?: {
     customTxPrerequisites: TransactionPrerequisite;
-    recipients?: {
-      address: string;
-      amount: number;
-      name?: string;
-    }[];
+    customTxRecipients?: TransactionRecipients;
   };
   err?: string | null;
 }
@@ -68,7 +61,7 @@ export interface SendAndReceiveState {
     isSuccessful: boolean;
     outputs: {
       txPrerequisites: TransactionPrerequisite;
-      recipients: { address: string; amount: number }[];
+      txRecipients: TransactionRecipients;
     } | null;
   };
   customPrioritySendPhaseOne: {
@@ -78,7 +71,7 @@ export interface SendAndReceiveState {
     isSuccessful: boolean;
     outputs: {
       customTxPrerequisites: TransactionPrerequisite;
-      recipients: { address: string; amount: number }[];
+      customTxRecipients: TransactionRecipients;
     } | null;
   };
   sendPhaseTwo: {
@@ -183,11 +176,11 @@ const sendAndReceiveSlice = createSlice({
     sendPhaseOneExecuted: (state, action: PayloadAction<SendPhaseOneExecutedPayload>) => {
       const { transactionFeeInfo } = state;
       let txPrerequisites: TransactionPrerequisite;
-      let recipients;
+      let txRecipients;
       const { successful, outputs, err } = action.payload;
       if (successful) {
         txPrerequisites = outputs.txPrerequisites;
-        recipients = outputs.recipients;
+        txRecipients = outputs.txRecipients;
         Object.keys(txPrerequisites).forEach((priority) => {
           transactionFeeInfo[priority].amount = txPrerequisites[priority].fee;
           transactionFeeInfo[priority].estimatedBlocksBeforeConfirmation =
@@ -202,7 +195,7 @@ const sendAndReceiveSlice = createSlice({
         isSuccessful: successful,
         outputs: {
           txPrerequisites,
-          recipients,
+          txRecipients,
         },
       };
       state.transactionFeeInfo = transactionFeeInfo;
@@ -211,7 +204,7 @@ const sendAndReceiveSlice = createSlice({
     customFeeCalculated: (state, action: PayloadAction<CustomFeeCalculatedPayload>) => {
       const { transactionFeeInfo } = state;
       let customTxPrerequisites: TransactionPrerequisite;
-      let recipients;
+      let customTxRecipients;
       const { successful, outputs, err } = action.payload;
       if (successful) {
         customTxPrerequisites = outputs.customTxPrerequisites;
@@ -220,7 +213,7 @@ const sendAndReceiveSlice = createSlice({
           transactionFeeInfo[priority].estimatedBlocksBeforeConfirmation =
             customTxPrerequisites[priority].estimatedBlocks;
         });
-        recipients = outputs.recipients;
+        customTxRecipients = outputs.customTxRecipients;
       }
       state.customPrioritySendPhaseOne = {
         ...state.customPrioritySendPhaseOne,
@@ -229,8 +222,11 @@ const sendAndReceiveSlice = createSlice({
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
         outputs: {
-          customTxPrerequisites,
-          recipients,
+          customTxPrerequisites:
+            customTxPrerequisites ||
+            state.customPrioritySendPhaseOne?.outputs?.customTxPrerequisites,
+          customTxRecipients:
+            customTxRecipients || state.customPrioritySendPhaseOne?.outputs?.customTxRecipients,
         },
       };
       state.transactionFeeInfo = transactionFeeInfo;

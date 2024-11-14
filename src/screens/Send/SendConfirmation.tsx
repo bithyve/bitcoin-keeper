@@ -111,7 +111,7 @@ function SendConfirmation({ route }) {
     sender,
     recipient,
     address,
-    amount,
+    amount: originalAmount,
     walletId,
     transferType,
     uaiSetActionFalse,
@@ -128,6 +128,12 @@ function SendConfirmation({ route }) {
   const txFeeInfo = isRemoteFlow
     ? tnxDetails.txFeeInfo
     : useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
+  const txRecipientsOptions = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseOne.outputs.txRecipients
+  );
+  const customTxRecipientsOptions = useAppSelector(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne?.outputs?.customTxRecipients
+  );
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendMaxFeeEstimatedBlocks = isRemoteFlow
     ? tnxDetails.sendMaxFeeEstimatedBlocks
@@ -194,6 +200,19 @@ function SendConfirmation({ route }) {
   const [isFeeHigh, setIsFeeHigh] = useState(false);
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
 
+  const [amount, setAmount] = useState(
+    (txRecipientsOptions?.[transactionPriority] ||
+      customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
+  );
+
+  useEffect(() => {
+    console.log(customTxRecipientsOptions);
+    setAmount(
+      (txRecipientsOptions?.[transactionPriority] ||
+        customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
+    );
+  }, [txRecipientsOptions, customTxRecipientsOptions, transactionPriority]);
+
   const signerModalRef = useRef(null);
 
   const navigation = useNavigation();
@@ -257,7 +276,7 @@ function SendConfirmation({ route }) {
 
   useEffect(() => {
     if (isAutoTransferFlow) {
-      dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: sourceWallet }));
+      dispatch(calculateSendMaxFee({ recipients: [{ address, amount: 0 }], wallet: sourceWallet }));
     }
   }, []);
 
@@ -894,7 +913,7 @@ function SendConfirmation({ route }) {
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
           subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType || sourceWallet?.networkType}
-          recipients={[{ address, amount }]} // TODO: rewire for Batch Send
+          recipients={[{ address, amount: originalAmount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}
           selectedUTXOs={selectedUTXOs}
           buttonCallback={(setCustomTxPriority, customFeePerByte) => {
@@ -902,6 +921,12 @@ function SendConfirmation({ route }) {
             if (setCustomTxPriority) {
               setTransactionPriority(TxPriority.CUSTOM);
               setCustomFeePerByte(customFeePerByte);
+            } else {
+              if (customFeePerByte === '0') {
+                setTransactionPriority(TxPriority.LOW);
+              } else {
+                setTransactionPriority(TxPriority.HIGH);
+              }
             }
           }}
         />

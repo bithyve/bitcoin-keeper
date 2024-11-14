@@ -101,6 +101,13 @@ export interface TransactionPrerequisite {
   [txnPriority: string]: TransactionPrerequisiteElements;
 }
 
+export interface TransactionRecipients {
+  [txnPriority: string]: {
+    address: string;
+    amount: number;
+  }[];
+}
+
 export interface TransactionToAddressMapping {
   txid: string;
   addresses: string[];

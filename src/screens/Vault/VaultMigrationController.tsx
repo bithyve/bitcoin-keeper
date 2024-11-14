@@ -93,17 +93,16 @@ function VaultMigrationController({
     if (!unconfirmed) {
       const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
       const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
-      const network = WalletUtilities.getNetworkByType(activeVault.networkType);
+      const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+
       const { fee: sendMaxFee } = WalletOperations.calculateSendMaxFee(
         activeVault,
-        1,
-        feePerByte,
-        network
+        [{ address: receivingAddress, amount: 1 }],
+        feePerByte
       );
       if (sendMaxFee && temporaryVault) {
         const maxBalance = confirmed - sendMaxFee;
 
-        const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
         setRecepients([{ address: receivingAddress, amount: maxBalance }]);
         dispatch(
           sendPhaseOne({
