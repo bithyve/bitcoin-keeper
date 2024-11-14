@@ -228,6 +228,8 @@ export const customTheme = extendTheme({
       brownBackground: Colors.brownColor,
       keyPadText: Colors.GreenishGrey,
       menuCardTitleColor: Colors.Graphite,
+      secondarySubtitle: Colors.GraniteGray,
+      dullCreamBackground: Colors.Warmbeige,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -413,6 +415,8 @@ export const customTheme = extendTheme({
       brownBackground: Colors.DullBrown,
       keyPadText: Colors.SoftGray,
       menuCardTitleColor: Colors.GraphiteLight,
+      secondarySubtitle: Colors.GraphiteLight,
+      dullCreamBackground: Colors.SoftGray,
     },
   },
   config: {
