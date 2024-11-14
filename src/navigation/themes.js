@@ -229,6 +229,8 @@ export const customTheme = extendTheme({
       keyPadText: Colors.GreenishGrey,
       noteText: Colors.Graphite,
       solidGreyBorder: Colors.SilverMistSolid,
+      secondarySubtitle: Colors.GraniteGray,
+      dullCreamBackground: Colors.Warmbeige,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -415,6 +417,8 @@ export const customTheme = extendTheme({
       keyPadText: Colors.SoftGray,
       noteText: Colors.GraphiteLight,
       solidGreyBorder: Colors.separator,
+      secondarySubtitle: Colors.GraphiteLight,
+      dullCreamBackground: Colors.SoftGray,
     },
   },
   config: {

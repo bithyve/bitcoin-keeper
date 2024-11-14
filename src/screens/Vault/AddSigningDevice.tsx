@@ -582,7 +582,7 @@ function Signers({
                   !isCollaborativeFlow
                     ? () =>
                         navigation.dispatch(
-                          CommonActions.navigate('SigningDeviceList', {
+                          CommonActions.navigate('SignerCategoryList', {
                             scheme,
                             vaultId,
                             vaultSigners: vaultKeys,
