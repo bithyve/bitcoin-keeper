@@ -34,7 +34,7 @@ function CurrentPlanView({ plan }) {
   const { login } = translations;
   const [showModal, setShowModal] = useState(false);
   const { statusMessage, isOffline, isLoading } = useAppSelector((state) => state?.login);
-  const isPleb = plan === SubscriptionTier.L1.toUpperCase();
+  const isDiamondHands = plan === SubscriptionTier.L3.toUpperCase();
 
   useEffect(() => {
     if (statusMessage.message) {
@@ -71,7 +71,7 @@ function CurrentPlanView({ plan }) {
             <AppStatus setShowModal={setShowModal} />
           </Box>
         )}
-        {!isOffline && isPleb && <UpgradePill />}
+        {!isOffline && !isDiamondHands && <UpgradePill />}
       </Box>
       <Box style={styles.settings}>
         <TouchableOpacity

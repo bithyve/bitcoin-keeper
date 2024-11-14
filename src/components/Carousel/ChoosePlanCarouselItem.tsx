@@ -67,10 +67,7 @@ function ChoosePlanCarouselItem({
   const getAmt = useMemo(() => {
     try {
       if (item.productType === 'free') return 'Free';
-      if (isMonthly) {
-        return item.monthlyPlanDetails.price;
-      }
-      return item.yearlyPlanDetails.price;
+      return item.monthlyPlanDetails.price;
     } catch (error) {
       return '';
     }
@@ -150,12 +147,7 @@ function ChoosePlanCarouselItem({
             medium
             color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.greenWhiteText`}
           >
-            {getAmt +
-              (item.productType !== 'free' && item.isActive
-                ? isMonthly
-                  ? '/month'
-                  : '/year'
-                : '')}
+            {getAmt + (item.productType !== 'free' && item.isActive ? '/month' : '')}
           </Text>
 
           <Text
