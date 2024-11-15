@@ -3,8 +3,16 @@ import { Alert } from 'react-native';
 import moment from 'moment';
 import idx from 'idx';
 
-import { VaultType, WalletType } from 'src/services/wallets/enums';
+import { TxPriority, VaultType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
+
+import { Signer } from 'src/services/wallets/interfaces/vault';
+import * as bitcoin from 'bitcoinjs-lib';
+import { isTestnet } from 'src/constants/Bitcoin';
+
+import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
+import BIP32Factory from 'bip32';
+const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
@@ -239,4 +247,124 @@ export const calculateTimeLeft = (createdAt: string) => {
   const currentTime = new Date();
   // @ts-ignore
   return Math.max(0, Math.floor((targetTime - currentTime) / 1000));
+};
+
+export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
+  try {
+    const psbt = bitcoin.Psbt.fromBase64(base64Str);
+    const vBytes = estimateVByteFromPSBT(base64Str);
+
+    let signerMatched = false;
+
+    psbt.data.inputs.forEach((input) => {
+      if (input.bip32Derivation) {
+        // Loop through all derivations (in case there are multiple keys)
+        input.bip32Derivation.forEach((derivation) => {
+          const data = {
+            derivationPath: derivation.path,
+            masterFingerprint: derivation.masterFingerprint.toString('hex'),
+            pubKey: derivation.pubkey.toString('hex'),
+          };
+          if (data.masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
+            // validating further by matching public key
+            const xPub = signer.signerXpubs[XpubTypes.P2WSH][0].xpub; // to enable for taproot in future
+            const node = bip32.fromBase58(
+              xPub,
+              isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+            );
+            const receiveAddPath = data.derivationPath.split('/').slice(-2).join('/');
+            const childNode = node.derivePath(receiveAddPath);
+            const pubkey = childNode.publicKey.toString('hex');
+            if (data.pubKey == pubkey) signerMatched = true;
+          }
+        });
+      }
+    });
+
+    // Extract input addresses
+    const senderAddresses = psbt.txInputs.map((input) => input.hash.toString('hex'));
+
+    // Extract outputs (receiver information)
+    const outputs = psbt.txOutputs.map((output) => {
+      return {
+        address: bitcoin.address.fromOutputScript(
+          output.script,
+          isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+        ), // Receiver address
+        amount: output.value, // Amount in satoshis
+      };
+    });
+
+    // Calculate the total input and output amounts
+    let totalInput = 0;
+    let totalOutput = 0;
+    let totalAmount = 0;
+
+    psbt.data.inputs.forEach((input, index) => {
+      if (input.witnessUtxo) {
+        totalInput += input.witnessUtxo.value;
+      } else if (input.nonWitnessUtxo) {
+        const tx = bitcoin.Transaction.fromBuffer(input.nonWitnessUtxo);
+        const voutIndex = psbt.txInputs[index].index;
+        totalInput += tx.outs[voutIndex].value;
+      }
+    });
+
+    outputs.forEach((output) => {
+      totalOutput += output.amount;
+    });
+
+    const receiverAddresses = outputs.map((op) => op.address);
+
+    // Calculate transaction fees
+    const fees = totalInput - totalOutput;
+    const feeRate = (fees / vBytes).toFixed(2);
+    return {
+      senderAddresses: senderAddresses,
+      receiverAddresses: receiverAddresses,
+      fees,
+      sendAmount: totalOutput,
+      signerMatched,
+      feeRate,
+      vBytes,
+    };
+  } catch (error) {
+    console.log('🚀 ~ dataFromPSBT ~ error:', error);
+    throw 'Something went wrong';
+  }
+};
+
+export const estimateVByteFromPSBT = (base64Str: string) => {
+  const psbt = bitcoin.Psbt.fromBase64(base64Str);
+  const unsignedTxHex =
+    psbt.txInputs.length > 0 && psbt.txOutputs.length > 0 ? psbt.__CACHE.__TX.toHex() : null;
+  const tx = bitcoin.Transaction.fromHex(unsignedTxHex);
+
+  // Calculate the base size (without witness data)
+  const baseSize = tx.toBuffer().length;
+
+  // Check if there is witness data and calculate the total size accordingly
+  const totalSize = tx.hasWitnesses() ? tx.virtualSize() : baseSize;
+
+  // Calculate vBytes using the formula
+  return Math.ceil((baseSize * 3 + totalSize) / 4);
+};
+
+export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
+  let estimatedBlocksBeforeConfirmation = 0;
+  let tnxPriority = TxPriority.LOW;
+  if (averageTxFees && averageTxFees[config.NETWORK_TYPE]) {
+    const { high, medium, low } = averageTxFees[config.NETWORK_TYPE];
+    const customFeeRatePerByte = parseInt(feeRate);
+    if (customFeeRatePerByte >= high.feePerByte) {
+      estimatedBlocksBeforeConfirmation = high.estimatedBlocks;
+      tnxPriority = TxPriority.HIGH;
+    } else if (customFeeRatePerByte <= low.feePerByte) {
+      estimatedBlocksBeforeConfirmation = low.estimatedBlocks;
+    } else {
+      estimatedBlocksBeforeConfirmation = medium.estimatedBlocks;
+      tnxPriority = TxPriority.MEDIUM;
+    }
+  }
+  return { estimatedBlocksBeforeConfirmation, tnxPriority };
 };
