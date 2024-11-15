@@ -214,8 +214,7 @@ function AddSendAmount({ route }) {
         const recipients = [];
         recipients.push({
           address,
-          amount: 1,
-          name: recipient ? recipient.presentationData.name : '',
+          amount: 0,
         });
         dispatch(
           calculateSendMaxFee({
@@ -298,8 +297,7 @@ function AddSendAmount({ route }) {
       const recipients = [];
       recipients.push({
         address,
-        amount: 1,
-        name: recipient ? recipient.presentationData.name : '',
+        amount: 0,
       });
       dispatch(
         calculateSendMaxFee({

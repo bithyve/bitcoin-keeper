@@ -97,7 +97,7 @@ function VaultMigrationController({
 
       const { fee: sendMaxFee } = WalletOperations.calculateSendMaxFee(
         activeVault,
-        [{ address: receivingAddress, amount: 1 }],
+        [{ address: receivingAddress, amount: 0 }],
         feePerByte
       );
       if (sendMaxFee && temporaryVault) {
