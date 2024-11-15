@@ -309,6 +309,18 @@ const sendAndReceiveSlice = createSlice({
         },
       };
     },
+    customPrioritySendPhaseOneStatusReset: (state) => {
+      state.customPrioritySendPhaseOne.failedErrorMessage =
+        initialState.customPrioritySendPhaseOne.failedErrorMessage;
+      state.customPrioritySendPhaseOne.hasFailed =
+        initialState.customPrioritySendPhaseOne.hasFailed;
+      state.customPrioritySendPhaseOne.inProgress =
+        initialState.customPrioritySendPhaseOne.inProgress;
+      state.customPrioritySendPhaseOne.isSuccessful =
+        initialState.customPrioritySendPhaseOne.isSuccessful;
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
+    },
     sendPhaseTwoReset: (state) => {
       state.sendPhaseTwo = initialState.sendPhaseTwo;
       state.sendPhaseThree = initialState.sendPhaseThree;
@@ -345,6 +357,7 @@ export const {
   sendPhasesReset,
   sendPhaseOneReset,
   customPrioritySendPhaseOneReset,
+  customPrioritySendPhaseOneStatusReset,
   sendPhaseTwoReset,
   sendPhaseThreeReset,
   updatePSBTEnvelops,

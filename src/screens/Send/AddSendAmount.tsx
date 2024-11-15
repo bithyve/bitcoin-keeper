@@ -312,6 +312,7 @@ function AddSendAmount({ route }) {
   };
 
   const executeSendPhaseOne = () => {
+    dispatch(sendPhaseOneReset());
     const recipients = [];
     if (!amountToSend) {
       showToast('Please enter a valid amount');

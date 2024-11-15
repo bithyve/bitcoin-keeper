@@ -19,7 +19,7 @@ import { NetworkType, TxPriority } from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import {
-  customPrioritySendPhaseOneReset,
+  customPrioritySendPhaseOneStatusReset,
   sendPhaseTwoReset,
 } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
@@ -68,6 +68,7 @@ import SendingPriority from './SendingPriority';
 import ApproveTransVaultContent from './ApproveTransVaultContent';
 import SendSuccessfulContent from './SendSuccessfulContent';
 import config from 'src/utils/service-utilities/config';
+import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -164,6 +165,7 @@ function SendConfirmation({ route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
+  const [amountChangedAlertVisible, setAmountChangedAlertVisible] = useState(false);
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
@@ -291,6 +293,14 @@ function SendConfirmation({ route }) {
       setIsFeeHigh(true);
       setHighFeeAlertVisible(true);
     } else setHighFeeAlertVisible(false);
+
+    if (
+      originalAmount !==
+      (txRecipientsOptions?.[transactionPriority] ||
+        customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
+    ) {
+      setAmountChangedAlertVisible(true);
+    }
   }, [transactionPriority, amount]);
 
   const onTransferNow = () => {
@@ -828,7 +838,7 @@ function SendConfirmation({ route }) {
             customFeePerByte={customFeePerByte}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
-              dispatch(customPrioritySendPhaseOneReset());
+              dispatch(customPrioritySendPhaseOneStatusReset());
               setVisibleCustomPriorityModal(true);
             }}
           />
@@ -865,6 +875,37 @@ function SendConfirmation({ route }) {
             isUsualFeeHigh={isUsualFeeHigh}
             setTopText={setTopText}
           />
+        )}
+      />
+      {/* Amount changed Modal */}
+      <KeeperModal
+        visible={amountChangedAlertVisible}
+        close={() => setAmountChangedAlertVisible(false)}
+        showCloseIcon={false}
+        title={'Transaction Amount Changed'}
+        subTitle={
+          'Your balance is not sufficient to cover both the selected fee and the specified amount'
+        }
+        buttonText={common.proceed}
+        buttonCallback={() => {
+          setAmountChangedAlertVisible(false);
+        }}
+        Content={() => (
+          <Box
+            marginBottom={hp(15)}
+            alignContent={'center'}
+            justifyContent={'center'}
+            justifyItems={'center'}
+            width={'100%'}
+          >
+            <AmountChangedWarningIllustration
+              style={{ alignSelf: 'center', marginRight: wp(30), marginTop: hp(5) }}
+            />
+            <Text style={{ marginTop: hp(40) }} fontSize={14}>
+              The amount necessary for the fee has been reduced from the recipient's amount. The
+              recipient's amount will automatically go back up if you select a lower fee.
+            </Text>
+          </Box>
         )}
       />
       {/*Fee insight Modal */}
@@ -924,8 +965,6 @@ function SendConfirmation({ route }) {
             } else {
               if (customFeePerByte === '0') {
                 setTransactionPriority(TxPriority.LOW);
-              } else {
-                setTransactionPriority(TxPriority.HIGH);
               }
             }
           }}
