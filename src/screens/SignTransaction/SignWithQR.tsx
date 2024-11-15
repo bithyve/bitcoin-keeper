@@ -62,7 +62,7 @@ function SignWithQR() {
     : serializedPSBTEnvelops.filter((envelop) => vaultKey.xfp === envelop.xfp)[0];
   const { serializedPSBT } = serializedPSBTEnvelop;
   const { activeVault } = useVault({ vaultId });
-  const isSingleSig = isRemoteKey ? isMultisig : activeVault.scheme.n === 1;
+  const isSingleSig = isRemoteKey ? !isMultisig : activeVault.scheme.n === 1;
   const { signer } = isRemoteKey
     ? { signer: signerMap[vaultKey.masterFingerprint] }
     : useSignerFromKey(vaultKey);
@@ -135,15 +135,18 @@ function SignWithQR() {
         }
       } else {
         if (isRemoteKey) {
-          navigation.replace('RemoteSharing', {
-            isPSBTSharing: true,
-            signer: signer,
-            psbt: signedSerializedPSBT,
-            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-            vaultKey: vaultKey,
-            vaultId: vaultId,
-            isMultisig: isMultisig,
-          });
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'ShowQR',
+              params: {
+                data: signedSerializedPSBT,
+                encodeToBytes: false,
+                title: 'Signed PSBT',
+                subtitle: 'Please scan until all the QR data has been retrieved',
+                type: SignerType.KEEPER, // signer used as external key
+              },
+            })
+          );
           return;
         }
 

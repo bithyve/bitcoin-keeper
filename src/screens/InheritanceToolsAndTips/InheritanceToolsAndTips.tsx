@@ -1,16 +1,15 @@
 import React, { useContext, useState } from 'react';
-import { Box, HStack, Text, useColorMode } from 'native-base';
+import { Box, Text, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
-import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
-import AdvancedGreenIcon from 'src/assets/images/advanced_green.svg';
-import AdvancedIcon from 'src/assets/images/advanced.svg';
-import ImportGreenIcon from 'src/assets/images/import_green.svg';
-import ImportIcon from 'src/assets/images/import.svg';
-import WalletCard from 'src/components/WalletCard';
+import WalletActiveIcon from 'src/assets/images/wallet-white-small.svg';
+import WalletGreenIcon from 'src/assets/images/wallet-green-small.svg';
+import AdvancedGreenIcon from 'src/assets/images/advanced-green-small.svg';
+import AdvancedIcon from 'src/assets/images/advanced-white-small.svg';
+import ImportGreenIcon from 'src/assets/images/import-green-small.svg';
+import ImportIcon from 'src/assets/images/import-white-small.svg';
 import KeySecuriy from './KeySecurity';
 import BackupRecovery from './BackupRecovery';
 import InheritanceTool from './InheritanceTool';
@@ -20,6 +19,7 @@ import BTCModalIcon from 'src/assets/images/btc-illustration.svg';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import MenuCardWrapper from 'src/components/MenuCardWrapper';
 
 function InheritanceToolsAndTips({ navigation }) {
   const { colorMode } = useColorMode();
@@ -28,6 +28,27 @@ function InheritanceToolsAndTips({ navigation }) {
   const { common, inheritence: inheritanceTranslation } = translations;
   const [selectedCard, selectCard] = useState(1);
   const [inheritanceModal, setInheritanceModal] = useState(false);
+
+  const menuData = [
+    {
+      title: inheritanceTranslation.KeySecurity,
+      icon: <WalletActiveIcon />,
+      selectedIcon: <WalletGreenIcon />,
+      selectedCard: selectedCard,
+    },
+    {
+      title: inheritanceTranslation.BackupAndRecovery,
+      icon: <ImportIcon />,
+      selectedIcon: <ImportGreenIcon />,
+      selectedCard: selectedCard,
+    },
+    {
+      title: inheritanceTranslation.InheritanceDocuments,
+      icon: <AdvancedIcon />,
+      selectedIcon: <AdvancedGreenIcon />,
+      selectedCard: selectedCard,
+    },
+  ];
 
   const onCardSelect = (id: number) => {
     selectCard(id);
@@ -56,39 +77,13 @@ function InheritanceToolsAndTips({ navigation }) {
         learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => setInheritanceModal(true)}
       />
-      <HStack style={[styles.container]}>
-        <WalletCard
-          id={1}
-          numberOfLines={2}
-          walletName={inheritanceTranslation.KeySecurity}
-          icon={<WalletActiveIcon />}
-          selectedIcon={<WalletGreenIcon />}
-          selectedCard={selectedCard}
-          onCardSelect={onCardSelect}
-          arrowStyles={{ alignSelf: 'flex-end', marginRight: 10 }}
-        />
-        <WalletCard
-          id={2}
-          numberOfLines={2}
-          walletName={inheritanceTranslation.BackupAndRecovery}
-          icon={<ImportIcon />}
-          selectedIcon={<ImportGreenIcon />}
-          selectedCard={selectedCard}
-          onCardSelect={onCardSelect}
-          arrowStyles={{ alignSelf: 'center' }}
-        />
-        <WalletCard
-          id={3}
-          numberOfLines={2}
-          walletName={inheritanceTranslation.InheritanceDocuments}
-          icon={<AdvancedIcon />}
-          selectedIcon={<AdvancedGreenIcon />}
-          selectedCard={selectedCard}
-          onCardSelect={onCardSelect}
-          arrowStyles={{ marginLeft: 10 }}
-        />
-      </HStack>
-      <Box flex={1}>
+      <MenuCardWrapper
+        menuData={menuData}
+        selectedCard={selectedCard}
+        onCardSelect={onCardSelect}
+        numberOfLines={2}
+      />
+      <Box style={styles.optionsContainer}>
         {selectedCard === 1 && <KeySecuriy navigation={navigation} />}
         {selectedCard === 2 && <BackupRecovery navigation={navigation} />}
         {selectedCard === 3 && <InheritanceTool navigation={navigation} />}
@@ -121,9 +116,9 @@ function InheritanceToolsAndTips({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    gap: 4,
-    marginTop: hp(10),
+  optionsContainer: {
+    flex: 1,
+    marginLeft: wp(5),
   },
   ModalContainer: {
     gap: 20,
