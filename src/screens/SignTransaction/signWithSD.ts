@@ -7,12 +7,13 @@ import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
 import { isSignerAMF, getPsbtForHwi } from 'src/hardware';
-import { EntityKind } from 'src/services/wallets/enums';
+import { EntityKind, XpubTypes } from 'src/services/wallets/enums';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import SigningServer from 'src/services/backend/SigningServer';
 import { isTestnet } from 'src/constants/Bitcoin';
 import * as PORTAL from 'src/hardware/portal';
 import { checkAndUnlock } from '../SigningDevices/SetupPortal';
+import { getInputsFromPSBT } from 'src/utils/utilities';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -151,11 +152,17 @@ export const signTransactionWithSeedWords = async ({
   serializedPSBT,
   xfp,
   isMultisig,
+  isRemoteKey = false,
 }) => {
   try {
-    const inputs = idx(signingPayload, (_) => _[0].inputs);
+    const inputs = isRemoteKey
+      ? getInputsFromPSBT(serializedPSBT)
+      : idx(signingPayload, (_) => _[0].inputs);
+
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-    const [signer] = defaultVault.signers.filter((signer) => signer.xfp === xfp);
+    const [signer] = isRemoteKey
+      ? [defaultVault.signers[0]]
+      : defaultVault.signers.filter((signer) => signer.xfp === xfp);
     const networkType = config.NETWORK_TYPE;
     // we need this to generate xpriv that's not stored
     const { xpub, xpriv } = generateSeedWordsKey(
@@ -163,16 +170,25 @@ export const signTransactionWithSeedWords = async ({
       networkType,
       isMultisig ? EntityKind.VAULT : EntityKind.WALLET
     );
-    if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
+
+    const signerXpub = isRemoteKey
+      ? isMultisig
+        ? signer.signerXpubs[XpubTypes.P2WSH][0].xpub
+        : signer.signerXpubs[XpubTypes.P2WPKH][0].xpub
+      : signer.xpub;
+
+    if (signerXpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,
       inputs,
       serializedPSBT,
-      xpriv
+      xpriv,
+      isRemoteKey
     );
     return { signedSerializedPSBT };
   } catch (err) {
     Alert.alert(err?.message);
+    return null;
   }
 };
 
