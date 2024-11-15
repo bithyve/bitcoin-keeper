@@ -66,6 +66,47 @@ const testnetFeeSurcharge = (wallet: Wallet | Vault) =>
 // Helper function for deep cloning
 const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
 
+const updateInputsForFeeCalculation = (wallet: Wallet | Vault, inputUTXOs) => {
+  const isNativeSegwit =
+    wallet.scriptType === ScriptTypes.P2WPKH || wallet.scriptType === ScriptTypes.P2WSH;
+  const isWrappedSegwit =
+    wallet.scriptType === ScriptTypes['P2SH-P2WPKH'] ||
+    wallet.scriptType === ScriptTypes['P2SH-P2WSH'];
+  const isTaproot = wallet.scriptType === ScriptTypes.P2TR;
+
+  return inputUTXOs.map((u) => {
+    if (wallet.entityKind == 'VAULT' && (wallet as Vault).isMultiSig) {
+      const m = (wallet as Vault).scheme.m;
+      const n = (wallet as Vault).scheme.n;
+      // TODO: Update Taproot when implementing Taproot multisig
+      if (isTaproot || isNativeSegwit) {
+        u.script = {
+          length: Math.ceil((8 + m * 74 + n * 34) / 4),
+        };
+      } else if (isWrappedSegwit) {
+        u.script = {
+          length: 35 + Math.ceil((8 + m * 74 + n * 34) / 4),
+        };
+      } else {
+        u.script = {
+          length: 9 + m * 74 + n * 34,
+        };
+      }
+    } else {
+      if (isTaproot) {
+        u.script = { length: 15 }; // P2TR
+      } else if (isNativeSegwit) {
+        u.script = { length: 27 }; // P2WPKH
+      } else if (isWrappedSegwit) {
+        u.script = { length: 50 }; // P2SH-P2WPKH
+      } else {
+        u.script = { length: 107 }; // Legacy P2PKH
+      }
+    }
+    return u;
+  });
+};
+
 export default class WalletOperations {
   public static getExternalAddressAtIdx = (wallet: Wallet | Vault, index: number): string => {
     let receivingAddress;
@@ -645,6 +686,8 @@ export default class WalletOperations {
           : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
     }
 
+    inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
+
     let availableBalance = 0;
     inputUTXOs.forEach((utxo) => {
       availableBalance += utxo.value;
@@ -694,6 +737,8 @@ export default class WalletOperations {
           ? wallet.specs.confirmedUTXOs
           : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
     }
+
+    inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
 
     let availableBalance = 0;
     inputUTXOs.forEach((utxo) => {
@@ -849,6 +894,8 @@ export default class WalletOperations {
           ? wallet.specs.confirmedUTXOs
           : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
     }
+
+    inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
 
     let { inputs, outputs, fee } = coinselect(
       deepClone(inputUTXOs),
