@@ -3,12 +3,16 @@ import { Alert } from 'react-native';
 import moment from 'moment';
 import idx from 'idx';
 
-import { TxPriority, VaultType, WalletType } from 'src/services/wallets/enums';
+import { TxPriority, VaultType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import * as bitcoin from 'bitcoinjs-lib';
 import { isTestnet } from 'src/constants/Bitcoin';
+
+import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
+import BIP32Factory from 'bip32';
+const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
@@ -259,19 +263,22 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
         // Loop through all derivations (in case there are multiple keys)
         input.bip32Derivation.forEach((derivation) => {
           const data = {
-            derivationPath: shortDerivationPath(derivation.path),
+            derivationPath: derivation.path,
             masterFingerprint: derivation.masterFingerprint.toString('hex'),
-            xpriv: '',
-            xpub: derivation.pubkey.toString('hex'),
+            pubKey: derivation.pubkey.toString('hex'),
           };
           if (data.masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
-            signerMatched = true;
+            // validating further by matching public key
+            const xPub = signer.signerXpubs[XpubTypes.P2WSH][0].xpub;
+            const node = bip32.fromBase58(
+              xPub,
+              isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+            );
+            const receiveAddPath = data.derivationPath.split('/').slice(-2).join('/');
+            const childNode = node.derivePath(receiveAddPath);
+            const pubkey = childNode.publicKey.toString('hex');
+            if (data.pubKey == pubkey) signerMatched = true;
           }
-
-          // const val = WalletUtilities.getFingerprintFromExtendedKey(
-          //   derivation.pubkey.toString('hex'),
-          //   network
-          // );
         });
       }
     });
@@ -407,12 +414,3 @@ export const getChangeAddress = (psbt) => {
   });
   return changeAddresses;
 };
-
-
-
-function shortDerivationPath(longerPath) {
-  const parts = longerPath.split('/');
-  // Remove the last two components (address index and chain index)
-  const shorterPath = parts.slice(0, -2).join('/');
-  return shorterPath;
-}
