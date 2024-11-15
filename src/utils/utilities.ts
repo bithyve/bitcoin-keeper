@@ -249,14 +249,9 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
 
-    // Convert the buffer to a hex string and reverse it to get the transaction ID
-    const txId = Buffer.from(psbt.txInputs[0].hash).reverse().toString('hex');
-    const vout = psbt.txInputs[0].index;
-
     const changeAddress = getChangeAddress(base64Str);
     const vBytes = estimateVByteFromPSBT(base64Str);
 
-    const signersList = [];
     let signerMatched = false;
 
     psbt.data.inputs.forEach((input) => {
@@ -269,7 +264,6 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
             xpriv: '',
             xpub: derivation.pubkey.toString('hex'),
           };
-          signersList.push(data);
           if (data.masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
             signerMatched = true;
           }
@@ -281,11 +275,6 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
         });
       }
     });
-
-    // Check if signer exists in the psbt
-    const currentSignerFromPSBT = signersList.find(
-      (psbtSigner) => psbtSigner.masterFingerprint === signer.masterFingerprint.toLowerCase()
-    );
 
     // Extract input addresses
     const senderAddresses = psbt.txInputs.map((input) => input.hash.toString('hex'));
@@ -333,11 +322,8 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       receiverAddresses: receiverAddresses,
       fees,
       sendAmount: totalAmount,
-      currentSignerFromPSBT,
       signerMatched,
       changeAddress,
-      txId,
-      vout,
       feeRate,
       vBytes,
     };
@@ -414,7 +400,7 @@ export const getChangeAddress = (psbt) => {
     if (compareMultisigPolicy(inputPolicy, outputPolicy)) {
       const address = bitcoin.address.fromOutputScript(
         decodedPsbt.txOutputs[index].script,
-        bitcoin.networks.testnet // or the correct network
+        isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin // or the correct network
       );
       changeAddresses.push(address);
     }
