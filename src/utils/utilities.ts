@@ -269,7 +269,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
           };
           if (data.masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
             // validating further by matching public key
-            const xPub = signer.signerXpubs[XpubTypes.P2WSH][0].xpub;
+            const xPub = signer.signerXpubs[XpubTypes.P2WSH][0].xpub; // to enable for taproot in future
             const node = bip32.fromBase58(
               xPub,
               isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
