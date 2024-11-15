@@ -152,7 +152,7 @@ function SendConfirmation({ route }) {
   const availableTransactionPriorities = useAvailableTransactionPriorities();
 
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTransactions, common, vault } = translations;
+  const { wallet: walletTranslations, common, vault } = translations;
 
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
@@ -561,7 +561,7 @@ function SendConfirmation({ route }) {
           <InvalidUTXO />
         </Box>
         <Text color={`${colorMode}.primaryText`} style={styles.highFeeNote}>
-          {walletTransactions.discardTnxDesc}
+          {walletTranslations.discardTnxDesc}
         </Text>
       </Box>
     );
@@ -585,10 +585,10 @@ function SendConfirmation({ route }) {
           <Box style={styles.timerContainer}>
             <Box style={styles.timerTextContainer}>
               <Text fontSize={20} color={`${colorMode}.greenText`}>
-                {walletTransactions.transactionDetailsTitle}
+                {walletTranslations.transactionDetailsTitle}
               </Text>
               <Text fontSize={14} color={`${colorMode}.primaryText`}>
-                {walletTransactions.remoteSigningMessage}
+                {walletTranslations.remoteSigningMessage}
               </Text>
             </Box>
             <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
@@ -603,7 +603,7 @@ function SendConfirmation({ route }) {
                 {common.Receipt}
               </Text>
               <Text fontSize={14} color={`${colorMode}.primaryText`}>
-                {walletTransactions.ReviewTransaction}
+                {walletTranslations.ReviewTransaction}
               </Text>
             </Box>
             <Box style={styles.switchContainer}>
@@ -669,7 +669,7 @@ function SendConfirmation({ route }) {
         </Box>
         <Box style={styles.totalAmountWrapper}>
           <AmountDetails
-            title={walletTransactions.totalAmount}
+            title={walletTranslations.totalAmount}
             titleFontSize={16}
             titleFontWeight={300}
             amount={isAutoTransferFlow ? sourceWalletAmount : amount}
@@ -679,7 +679,7 @@ function SendConfirmation({ route }) {
             unitFontWeight={200}
           />
           <AmountDetails
-            title={walletTransactions.totalFees}
+            title={walletTranslations.totalFees}
             titleFontSize={16}
             titleFontWeight={300}
             amount={
@@ -694,7 +694,7 @@ function SendConfirmation({ route }) {
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
-            title={walletTransactions.total}
+            title={walletTranslations.total}
             titleFontSize={16}
             titleFontWeight={300}
             amount={
@@ -738,11 +738,11 @@ function SendConfirmation({ route }) {
           <Buttons
             primaryDisable={!isTimerActive}
             width={wp(285)}
-            primaryText={walletTransactions.SignTransaction}
+            primaryText={walletTranslations.SignTransaction}
             primaryCallback={() => signerModalRef.current.openModal()}
           />
           <Buttons
-            secondaryText={walletTransactions.DenyTransaction}
+            secondaryText={walletTranslations.DenyTransaction}
             secondaryCallback={() => navigation.goBack()}
           />
         </Box>
@@ -750,8 +750,8 @@ function SendConfirmation({ route }) {
       <KeeperModal
         visible={visibleModal}
         close={!isMoveAllFunds ? viewDetails : viewManageWallets}
-        title={walletTransactions.SendSuccess}
-        subTitle={walletTransactions.transactionBroadcasted}
+        title={walletTranslations.SendSuccess}
+        subTitle={walletTranslations.transactionBroadcasted}
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
@@ -764,7 +764,7 @@ function SendConfirmation({ route }) {
             recipient={recipient || defaultVault}
             address={address}
             primaryText={
-              !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+              !isMoveAllFunds ? walletTranslations.ViewWallets : walletTranslations.ManageWallets
             }
             primaryCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
             secondaryCallback={handleShare}
@@ -777,8 +777,8 @@ function SendConfirmation({ route }) {
       <KeeperModal
         visible={visibleTransVaultModal}
         close={() => setVisibleTransVaultModal(false)}
-        title={walletTransactions.approveTransVault}
-        subTitle={walletTransactions.approveTransVaultSubtitle}
+        title={walletTranslations.approveTransVault}
+        subTitle={walletTranslations.approveTransVaultSubtitle}
         textColor={`${colorMode}.primaryText`}
         Content={() => (
           <ApproveTransVaultContent
@@ -790,7 +790,7 @@ function SendConfirmation({ route }) {
       <KeeperModal
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
-        title={walletTransactions.confirmPassTitle}
+        title={walletTranslations.confirmPassTitle}
         subTitleWidth={wp(240)}
         subTitle=""
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -811,9 +811,9 @@ function SendConfirmation({ route }) {
         visible={transPriorityModalVisible}
         close={() => setTransPriorityModalVisible(false)}
         showCloseIcon={false}
-        title={walletTransactions.transactionPriority}
+        title={walletTranslations.transactionPriority}
         subTitleWidth={wp(240)}
-        subTitle={walletTransactions.transactionPrioritySubTitle}
+        subTitle={walletTranslations.transactionPrioritySubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -849,7 +849,7 @@ function SendConfirmation({ route }) {
         visible={highFeeAlertVisible}
         close={() => setHighFeeAlertVisible(false)}
         showCloseIcon={false}
-        title={walletTransactions.highFeeAlert}
+        title={walletTranslations.highFeeAlert}
         subTitleWidth={wp(240)}
         subTitle={topText}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -882,10 +882,8 @@ function SendConfirmation({ route }) {
         visible={amountChangedAlertVisible}
         close={() => setAmountChangedAlertVisible(false)}
         showCloseIcon={false}
-        title={'Transaction Amount Changed'}
-        subTitle={
-          'Your balance is not sufficient to cover both the selected fee and the specified amount'
-        }
+        title={walletTranslations.transactionAmountChangedTitle}
+        subTitle={walletTranslations.transactionAmountChangedSubtitle}
         buttonText={common.proceed}
         buttonCallback={() => {
           setAmountChangedAlertVisible(false);
@@ -902,8 +900,7 @@ function SendConfirmation({ route }) {
               style={{ alignSelf: 'center', marginRight: wp(30), marginTop: hp(5) }}
             />
             <Text style={{ marginTop: hp(40) }} fontSize={14}>
-              The amount necessary for the fee has been reduced from the recipient's amount. The
-              recipient's amount will automatically go back up if you select a lower fee.
+              {walletTranslations.transactionAmountChangedExplainer}
             </Text>
           </Box>
         )}
@@ -928,8 +925,8 @@ function SendConfirmation({ route }) {
         visible={discardUTXOVisible}
         close={() => {}}
         dismissible={false}
-        title={walletTransactions.discardTnxTitle}
-        subTitle={walletTransactions.discardTnxSubTitle}
+        title={walletTranslations.discardTnxTitle}
+        subTitle={walletTranslations.discardTnxSubTitle}
         subTitleColor={`${colorMode}.secondaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
