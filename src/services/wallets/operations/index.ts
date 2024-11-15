@@ -769,7 +769,7 @@ export default class WalletOperations {
       netAmount += recipient.amount;
     });
 
-    if (!defaultPriorityInputs) {
+    if (!defaultPriorityOutputs) {
       const defaultDebitedAmount = netAmount + defaultPriorityFee;
       if (outputUTXOs && outputUTXOs.length && defaultDebitedAmount > availableBalance) {
         outputUTXOs[0].value = availableBalance - defaultPriorityFee;
@@ -780,16 +780,17 @@ export default class WalletOperations {
         deepClone(outputUTXOs),
         defaultFeePerByte + testnetFeeSurcharge(wallet)
       );
-      defaultPriorityInputs = deepClone(assets.inputs);
-      defaultPriorityOutputs = deepClone(assets.outputs);
-      defaultPriorityFee = assets.fee;
 
-      if (!defaultPriorityInputs) {
+      if (!assets.outputs) {
         return {
           fee: defaultPriorityFee,
           balance: availableBalance,
         };
       }
+
+      defaultPriorityInputs = deepClone(assets.inputs);
+      defaultPriorityOutputs = deepClone(assets.outputs);
+      defaultPriorityFee = assets.fee;
     }
 
     const txPrerequisites: TransactionPrerequisite = {};
@@ -809,7 +810,7 @@ export default class WalletOperations {
           averageTxFees[priority].feePerByte + testnetFeeSurcharge(wallet)
         );
 
-        if (!inputs) {
+        if (!outputs) {
           let netAmount = 0;
           recipients.forEach((recipient) => {
             netAmount += recipient.amount;
@@ -826,7 +827,7 @@ export default class WalletOperations {
           ));
         }
 
-        if (!inputs) {
+        if (!outputs) {
           // to previous priority assets
           if (priority === TxPriority.MEDIUM) {
             txPrerequisites[priority] = txPrerequisites[TxPriority.LOW];
