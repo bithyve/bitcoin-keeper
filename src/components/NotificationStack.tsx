@@ -52,6 +52,8 @@ import SelectWalletModal from './SelectWalletModal';
 import Instruction from './Instruction';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 
 const { width } = Dimensions.get('window');
 
@@ -510,18 +512,12 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler, walle
           setShowModal(false);
           skipUaiHandler(uai);
         }}
-        subTitleColor={`${colorMode}.secondaryText`}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
-        textColor={`${colorMode}.modalWhiteContent`}
         title={uaiConfig?.modalDetails?.heading}
         subTitle={uaiConfig?.modalDetails?.subTitle}
         buttonText={uaiConfig?.modalDetails?.btnConfig.primary.text}
         buttonCallback={uaiConfig?.modalDetails?.btnConfig.primary.cta}
         secondaryButtonText={uaiConfig?.modalDetails?.btnConfig.secondary.text}
         secondaryCallback={uaiConfig?.modalDetails?.btnConfig.secondary.cta}
-        buttonTextColor={`${colorMode}.buttonText`}
         showCloseIcon={false}
         Content={() => <Instruction text={uaiConfig?.modalDetails?.body} />}
       />
@@ -537,10 +533,11 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler, walle
         primaryButtonCallback={() => {
           setShowHealthCheckModal(false);
           if (activeVault) {
-            navigtaion.navigate('SendConfirmation', {
-              walletId: uai.entityId,
-              transferType: TransferType.WALLET_TO_VAULT,
-              isAutoTransfer: true,
+            navigtaion.navigate('Send', {
+              sender: wallet,
+              selectedUTXOs: [],
+              isSendMax: true,
+              internalRecipientWallet: activeVault,
             });
           } else {
             showToast('No vaults found', <ToastErrorIcon />);
