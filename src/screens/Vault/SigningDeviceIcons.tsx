@@ -230,6 +230,6 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
 const styles = StyleSheet.create({
   text: {
     fontSize: 14,
-    letterSpacing: 0.14,
+    fontWeight: '500',
   },
 });
