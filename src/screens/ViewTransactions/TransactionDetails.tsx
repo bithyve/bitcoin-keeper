@@ -159,7 +159,7 @@ function TransactionDetails({ route }) {
   return (
     <Box
       backgroundColor={`${colorMode}.primaryBackground`}
-      style={[styles.wrapper, { paddingTop: top }]}
+      style={[styles.wrapper, { paddingTop: top - 5 }]}
     >
       <StatusBar
         barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'}
@@ -302,6 +302,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topSection: {
+    paddingTop: 20,
     paddingHorizontal: 20,
   },
   bottomSection: {

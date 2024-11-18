@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   inhertianceModalDesc: {
     marginTop: hp(10),
     fontWeight: 400,
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.65,
     padding: 1,
     marginBottom: 25,

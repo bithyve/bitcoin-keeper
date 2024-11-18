@@ -1146,7 +1146,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   descText: {
-    fontSize: 13,
+    fontSize: 14,
     width: wp(300),
     marginBottom: hp(18),
   },

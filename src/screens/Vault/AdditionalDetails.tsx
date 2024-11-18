@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   descriptionEdit: {
     paddingLeft: wp(20),
     borderRadius: 10,
-    fontFamily: Fonts.FiraSansRegular,
+    fontFamily: Fonts.InterRegular,
     letterSpacing: 0.5,
   },
   descriptionContainer: {

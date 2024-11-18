@@ -39,9 +39,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   heading: {
-    fontSize: 8,
+    fontSize: 10,
     lineHeight: 18,
-    letterSpacing: 0.32,
   },
 });
 

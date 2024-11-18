@@ -464,7 +464,7 @@ function SignerAdvanceSettings({ route }: any) {
           <Box style={styles.warningIconWrapper}>
             <WarningIllustration />
           </Box>
-          <Text style={styles.noteText} color={`${colorMode}.primaryGreenBackground`}>
+          <Text style={styles.noteText} medium color={`${colorMode}.primaryGreenBackground`}>
             Note:
           </Text>
           <Text color={`${colorMode}.greenText`} style={styles.noteDescription}>
@@ -1304,13 +1304,11 @@ const styles = StyleSheet.create({
     marginVertical: hp(20),
   },
   noteText: {
-    fontWeight: '900',
-    fontSize: 14,
+    fontSize: 15,
   },
   noteDescription: {
-    fontSize: 13,
+    fontSize: 12,
     padding: 1,
-    letterSpacing: 0.65,
   },
   editModalContainer: {},
   fw800: {
@@ -1324,7 +1322,7 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   warningText: {
-    fontSize: 13,
+    fontSize: 14,
     padding: 1,
     letterSpacing: 0.65,
   },
@@ -1371,7 +1369,7 @@ const styles = StyleSheet.create({
   },
   deleteRegisteredEmailNote: {
     width: wp(200),
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.13,
   },
   emailContainer: {
@@ -1425,8 +1423,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   cvvInputInfoText: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     width: '100%',
     marginTop: 2,
   },

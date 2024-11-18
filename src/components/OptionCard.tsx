@@ -101,21 +101,18 @@ const styles = StyleSheet.create({
   },
   preTitle: {
     fontSize: 13,
-    letterSpacing: 0.13,
   },
   title: {
-    fontSize: 13,
-    letterSpacing: 0.13,
+    fontSize: 14,
   },
   description: {
     fontSize: 12,
-    letterSpacing: 0.12,
   },
   iconWrapper: {
     width: wp(25),
   },
   arrowWrapper: {
-    paddingRight: 14,
+    paddingRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },

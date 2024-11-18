@@ -117,6 +117,8 @@ function AppSettings({ navigation, route }) {
           />
         }
         rightComponent={<CurrencyTypeSwitch />}
+        rightComponentPadding={wp(10)}
+        rightComponentBottomPadding={hp(5)}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}

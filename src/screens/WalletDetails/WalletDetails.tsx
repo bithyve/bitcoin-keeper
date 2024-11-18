@@ -45,6 +45,7 @@ import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -107,6 +108,8 @@ function WalletDetails({ route }: ScreenProps) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
+
+  const { top } = useSafeAreaInsets();
 
   const disableBuy = Platform.OS === 'ios' ? true : false;
   const cardProps = {
@@ -177,7 +180,10 @@ function WalletDetails({ route }: ScreenProps) {
   };
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box
+      backgroundColor={`${colorMode}.pantoneGreen`}
+      style={[styles.wrapper, { paddingTop: top - 5 }]}
+    >
       <StatusBar barStyle="light-content" />
       <Box style={styles.topContainer}>
         <KeeperHeader
@@ -286,14 +292,12 @@ function WalletDetails({ route }: ScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: '10%',
-    justifyContent: 'space-between',
+  wrapper: {
     flex: 1,
   },
   topContainer: {
     paddingHorizontal: 20,
-    paddingTop: 15,
+    paddingTop: 20,
   },
   walletContainer: {
     paddingHorizontal: wp(20),
@@ -342,9 +346,9 @@ const styles = StyleSheet.create({
   },
   balanceWrapper: {
     flexDirection: 'row',
-    width: '90%',
-    marginVertical: wp(30),
-    marginHorizontal: wp(20),
+    paddingLeft: '3%',
+    marginVertical: 20,
+    justifyContent: 'space-between',
   },
   unconfirmBalanceView: {
     width: '50%',
@@ -377,9 +381,8 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   settingBtn: {
-    width: wp(24),
-    height: hp(24),
-    marginRight: wp(7),
+    paddingHorizontal: 22,
+    paddingVertical: 22,
   },
 });
 export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);

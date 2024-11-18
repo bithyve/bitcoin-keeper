@@ -15,7 +15,9 @@ function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
         <Text style={styles.noOfWallet} bold>
           {count}
         </Text>
-        <Text style={styles.noOfWallet}>Wallet{count > 1 && 's'}</Text>
+        <Text style={styles.noOfWallet} bold>
+          Wallet{count > 1 && 's'}
+        </Text>
       </HStack>
       <TouchableOpacity
         testID="btn_hideUnhideAmount"
@@ -43,7 +45,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   noOfWallet: {
-    fontSize: 22,
+    fontSize: 20,
     lineHeight: 27,
     marginBottom: hp(3),
   },

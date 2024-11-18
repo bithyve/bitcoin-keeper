@@ -2,7 +2,7 @@ import Scale from 'src/components/Scale';
 import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import BTC from 'src/assets/images/btc_white.svg';
-import { HStack, useColorMode } from 'native-base';
+import { Box, HStack, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
 import Colors from 'src/theme/Colors';
@@ -166,18 +166,19 @@ export const isTestnet = () => {
 };
 export function CurrencyIcon({ symbol, styles = {} }) {
   return (
-    <Text
-      style={{
-        ...styles,
-        fontSize: 14,
-        letterSpacing: 0.5,
-        fontWeight: '900',
-        lineHeight: 18,
-      }}
-      bold
-    >
-      {symbol}
-    </Text>
+    <Box style={{ alignItems: 'center' }}>
+      <Text
+        style={{
+          ...styles,
+          fontSize: 14,
+          fontWeight: 500,
+          lineHeight: 20,
+        }}
+        bold
+      >
+        {symbol}
+      </Text>
+    </Box>
   );
 }
 

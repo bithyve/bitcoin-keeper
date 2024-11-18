@@ -449,12 +449,7 @@ function ChoosePlan() {
       subscription.productId.toLowerCase()
     );
     if (isSubscribed) return 'Subscribed';
-    return (
-      'Continue - ' +
-      (isMonthly
-        ? items[currentPosition]?.monthlyPlanDetails.price ?? 'Free'
-        : items[currentPosition]?.yearlyPlanDetails.price ?? 'Free')
-    );
+    return 'Continue - ' + (items[currentPosition]?.monthlyPlanDetails.price ?? 'Free');
   };
 
   return (
@@ -465,6 +460,8 @@ function ChoosePlan() {
         topRightComponent={
           <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
         }
+        rightComponentPadding={wp(0)}
+        rightComponentBottomPadding={hp(5)}
         // To-Do-Learn-More
       />
       <KeeperModal

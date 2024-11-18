@@ -257,8 +257,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: '3%',
   },
   cvvInputInfoText: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     width: '100%',
     marginTop: 2,
   },

@@ -119,9 +119,8 @@ const styles = StyleSheet.create({
     borderStyle: 'dotted',
   },
   cardName: {
-    fontSize: 12,
+    fontSize: 13,
     lineHeight: 16,
-    letterSpacing: 0.12,
   },
   cardPillContainer: {
     maxWidth: wp(100),

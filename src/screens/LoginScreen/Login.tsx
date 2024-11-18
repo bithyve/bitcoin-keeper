@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(20),
   },
   modalMessageText: {
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.13,
   },
   modalMessageWrapper: {

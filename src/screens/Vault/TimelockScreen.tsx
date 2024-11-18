@@ -66,7 +66,7 @@ function TimelockScreen() {
       <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={setAmount}
-          clear={() => { }}
+          clear={() => {}}
           color={`${colorMode}.greenText`}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.FiraSansBold,
+    fontFamily: Fonts.InterBold,
     fontSize: 13,
     letterSpacing: 2.6,
     height: hp(50),

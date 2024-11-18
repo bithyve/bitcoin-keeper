@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   },
   desc: {
     marginTop: hp(15),
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '400',
     width: wp(280),
   },

@@ -249,6 +249,12 @@ export const calculateTimeLeft = (createdAt: string) => {
   return Math.max(0, Math.floor((targetTime - currentTime) / 1000));
 };
 
+export const capitalizeEachWord = (text: string): string => {
+  return text
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
 export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);

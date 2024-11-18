@@ -30,14 +30,17 @@ type Props = {
   icon?: Element;
   simple?: boolean;
   rightComponentPadding?: number | `${number}%`;
+  rightComponentBottomPadding?: number | `${number}%`;
   headerInfoPadding?: number | `${number}%`;
   topRightComponent?: Element;
 };
 
 const BackButton = ({ onPress, colorMode, contrastScreen, styles }: any) => (
-  <TouchableOpacity testID="btn_back" onPress={onPress} style={styles.backButton}>
-    {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
-  </TouchableOpacity>
+  <Box style={styles.backButtonWrapper}>
+    <TouchableOpacity testID="btn_back" onPress={onPress} style={styles.backButton}>
+      {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
+    </TouchableOpacity>
+  </Box>
 );
 
 const LearnMoreButton = ({
@@ -49,27 +52,30 @@ const LearnMoreButton = ({
   common,
   styles,
 }: any) => (
-  <TouchableOpacity onPress={onPress} testID="btn_learnMore">
-    <Box
-      borderColor={
-        learnMoreBorderColor ||
-        (learnTextColor === 'light.white' || learnTextColor === 'light.buttonText'
-          ? 'light.white'
-          : `${colorMode}.learnMoreBorder`)
-      }
-      backgroundColor={
-        learnBackgroundColor === 'BrownNeedHelp'
-          ? `${colorMode}.BrownNeedHelp`
-          : learnBackgroundColor
-      }
-      style={styles.learnMoreContainer}
-    >
-      <Text color={learnTextColor || `${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
-        {common.learnMore}
-      </Text>
-    </Box>
-  </TouchableOpacity>
+  <Box style={styles.learnMoreButtonWrapper}>
+    <TouchableOpacity onPress={onPress} testID="btn_learnMore" style={styles.learnMoreButton}>
+      <Box
+        borderColor={
+          learnMoreBorderColor ||
+          (learnTextColor === 'light.white' || learnTextColor === 'light.buttonText'
+            ? 'light.white'
+            : `${colorMode}.learnMoreBorder`)
+        }
+        backgroundColor={
+          learnBackgroundColor === 'BrownNeedHelp'
+            ? `${colorMode}.BrownNeedHelp`
+            : learnBackgroundColor
+        }
+        style={styles.learnMoreContainer}
+      >
+        <Text color={learnTextColor || `${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
+          {common.learnMore}
+        </Text>
+      </Box>
+    </TouchableOpacity>
+  </Box>
 );
+
 const HeaderInfo = ({
   title,
   subtitle,
@@ -128,8 +134,9 @@ const KeeperHeader = ({
   availableBalance = null,
   contrastScreen = false,
   icon = null,
-  rightComponentPadding = 0,
-  headerInfoPadding = 10,
+  rightComponentPadding = -22,
+  rightComponentBottomPadding = -10,
+  headerInfoPadding = 8,
   simple = false,
   topRightComponent = null,
 }: Props) => {
@@ -139,21 +146,30 @@ const KeeperHeader = ({
   const { common } = translations;
 
   const styles = useMemo(
-    () => getStyles(rightComponentPadding, headerInfoPadding, titleSize, subTitleSize),
-    [rightComponentPadding, headerInfoPadding, titleSize, subTitleSize]
+    () =>
+      getStyles(
+        rightComponentPadding,
+        rightComponentBottomPadding,
+        headerInfoPadding,
+        titleSize,
+        subTitleSize
+      ),
+    [rightComponentPadding, rightComponentBottomPadding, headerInfoPadding, titleSize, subTitleSize]
   );
 
   if (simple) {
     return (
       <Box style={styles.simpleContainer}>
         {enableBack && (
-          <TouchableOpacity
-            testID="btn_back"
-            onPress={onPressHandler || navigation.goBack}
-            style={styles.simpleBackButton}
-          >
-            {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
-          </TouchableOpacity>
+          <Box style={styles.backButtonWrapper}>
+            <TouchableOpacity
+              testID="btn_back"
+              onPress={onPressHandler || navigation.goBack}
+              style={styles.backButton}
+            >
+              {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
+            </TouchableOpacity>
+          </Box>
         )}
         <Text
           style={styles.simpleTitleText}
@@ -217,6 +233,7 @@ const KeeperHeader = ({
 
 const getStyles = (
   rightComponentPadding: number | `${number}%`,
+  rightComponentBottomPadding: number | `${number}%`,
   headerInfoPadding: number | `${number}%`,
   titleSize: number,
   subTitleSize: number
@@ -231,7 +248,6 @@ const getStyles = (
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingVertical: 12,
-      paddingHorizontal: 10,
     },
     simpleTitleText: {
       fontSize: 20,
@@ -239,20 +255,41 @@ const getStyles = (
       textAlign: 'center',
       flex: 1,
     },
-    simpleBackButton: {
-      width: 5,
+    backButtonWrapper: {
+      width: 20,
+      height: 20,
+      position: 'relative',
+    },
+    backButton: {
+      position: 'absolute',
+      height: 44,
+      width: 44,
       justifyContent: 'center',
       alignItems: 'center',
-      paddingVertical: 10,
+      top: -22 + 10,
+      left: -22 + 14,
+    },
+    learnMoreButtonWrapper: {
+      width: 83,
+      height: 10,
+      position: 'relative',
+    },
+    learnMoreButton: {
+      position: 'absolute',
+      height: 26,
+      width: 83,
+      justifyContent: 'center',
+      alignItems: 'center',
+      top: -22 + 14,
+      left: 0,
     },
     rightComponentContainer: {
       alignItems: 'flex-end',
     },
     placeholder: {
-      width: 5,
+      width: 20,
     },
     addWalletText: {
-      letterSpacing: 0.18,
       fontSize: titleSize,
     },
     addWalletDescription: {
@@ -267,24 +304,16 @@ const getStyles = (
       alignItems: 'center',
       paddingTop: windowHeight > 680 ? 15 : 7,
     },
-    backButton: {
-      height: 20,
-      width: 20,
-      justifyContent: 'center',
-      paddingHorizontal: 10,
-    },
     learnMoreContainer: {
-      height: wp(26),
-      width: wp(83),
+      height: '100%',
+      width: '100%',
       borderWidth: 0.5,
       borderRadius: 5,
-      paddingHorizontal: 5,
       justifyContent: 'center',
       alignItems: 'center',
     },
     learnMoreText: {
       fontSize: 12,
-      letterSpacing: 0.24,
       alignSelf: 'center',
     },
     headerContainer: {
@@ -304,14 +333,15 @@ const getStyles = (
     },
     headerInfoText: {
       flex: 1,
-      gap: 5,
     },
     smallWidth: {
       width: windowWidth * 0.5,
       flexShrink: 1,
     },
     rightComponent: {
-      paddingRight: rightComponentPadding,
+      position: 'absolute',
+      right: rightComponentPadding,
+      bottom: rightComponentBottomPadding,
     },
     availableBalance: {
       marginLeft: wp(61),

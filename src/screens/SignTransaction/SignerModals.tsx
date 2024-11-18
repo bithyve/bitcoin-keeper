@@ -72,8 +72,8 @@ function ColdCardContent({
     <Box alignItems="center">
       <ColdCardSVG />
       <Box marginTop={2}>
-        <Text style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>{message}</Text>
-        <Text semiBold style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>
+        <Text style={{ fontSize: 14, letterSpacing: 0.65, margin: 7 }}>{message}</Text>
+        <Text semiBold style={{ fontSize: 14, letterSpacing: 0.65, margin: 7 }}>
           {'Sign transaction via:'}
         </Text>
       </Box>
@@ -293,7 +293,7 @@ function JadeContent({
             ? '\u2022 For signing via USB, connect the Jade to your computer and follow the instructions on the Keeper desktop app'
             : "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."}
         </Text>
-        <Text semiBold style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>
+        <Text semiBold style={{ fontSize: 14, letterSpacing: 0.65, margin: 7 }}>
           {'Sign transaction via:'}
         </Text>
       </Box>
@@ -1266,8 +1266,7 @@ export default SignerModals;
 
 const styles = StyleSheet.create({
   instructionsText: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     marginHorizontal: wp(5),
     marginTop: wp(3),
     marginBottom: wp(10),

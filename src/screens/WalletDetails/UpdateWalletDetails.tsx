@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   contentText: {
-    fontSize: 13,
+    fontSize: 14,
     paddingHorizontal: 1,
     paddingVertical: 5,
     letterSpacing: 0.65,

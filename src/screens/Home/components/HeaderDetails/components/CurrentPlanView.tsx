@@ -22,6 +22,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { capitalizeEachWord } from 'src/utils/utilities';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import UpgradePill from './UpgradePill';
 
@@ -62,7 +63,7 @@ function CurrentPlanView({ plan }) {
               color={`${colorMode}.choosePlanHome`}
               bold
             >
-              {plan}
+              {capitalizeEachWord(plan)}
             </Text>
           </TouchableOpacity>
         )}
@@ -147,7 +148,6 @@ const styles = StyleSheet.create({
   },
   currentPlanText: {
     fontSize: 20,
-    letterSpacing: 0.2,
   },
   illustration: {
     marginBottom: hp(30),

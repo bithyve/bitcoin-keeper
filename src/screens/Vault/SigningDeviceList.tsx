@@ -196,7 +196,7 @@ const SigningDeviceList = () => {
 const styles = StyleSheet.create({
   modalText: {
     letterSpacing: 0.65,
-    fontSize: 13,
+    fontSize: 14,
     marginTop: 5,
     padding: 1,
   },

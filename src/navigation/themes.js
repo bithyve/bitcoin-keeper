@@ -4,49 +4,49 @@ import Fonts from 'src/constants/Fonts';
 
 export const customTheme = extendTheme({
   fontConfig: {
-    FiraSans: {
+    Inter: {
       100: {
-        normal: Fonts.FiraSansLight,
-        italic: Fonts.FiraSansLightItalic,
+        normal: Fonts.InterLight,
+        italic: Fonts.InterLightItalic,
       },
       200: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
       300: {
-        normal: Fonts.FiraSansMedium,
-        italic: Fonts.FiraSansMediumItalic,
+        normal: Fonts.InterMedium,
+        italic: Fonts.InterMediumItalic,
       },
       400: {
-        normal: Fonts.FiraSansSemiBold,
-        italic: Fonts.FiraSansSemiBoldItalic,
+        normal: Fonts.InterSemiBold,
+        italic: Fonts.InterSemiBoldItalic,
       },
       500: {
-        normal: Fonts.FiraSansBold,
-        italic: Fonts.FiraSansBoldItalic,
+        normal: Fonts.InterBold,
+        italic: Fonts.InterBoldItalic,
       },
       600: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
       700: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
       800: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
       900: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
     },
   },
   fonts: {
-    heading: 'FiraSans',
-    body: 'FiraSans',
-    mono: 'FiraSans',
+    heading: 'Inter',
+    body: 'Inter',
+    mono: 'Inter',
   },
   colors: {
     light: {
