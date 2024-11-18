@@ -908,7 +908,7 @@ function SignerModals({
                 setLedgerModal(false);
               }}
               title="Get your Ledger Ready"
-              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Ledger.`}
+              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Ledger.`}
               textColor={`${colorMode}.primaryText`}
               Content={() => <LedgerContent />}
               buttonText="Proceed"
@@ -1157,7 +1157,7 @@ function SignerModals({
                 setTrezorModal(false);
               }}
               title="Keep Trezor Ready"
-              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with Trezor.`}
+              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Trezor.`}
               textColor={`${colorMode}.primaryText`}
               Content={() => <TrezorContent />}
               buttonText="Proceed"
@@ -1174,7 +1174,7 @@ function SignerModals({
                 setBitbox02Modal(false);
               }}
               title="Keep BitBox02 Ready"
-              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL} to connect with BitBox02.`}
+              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with BitBox02.`}
               textColor={`${colorMode}.primaryText`}
               Content={() => <BitBox02Content />}
               buttonText="Proceed"

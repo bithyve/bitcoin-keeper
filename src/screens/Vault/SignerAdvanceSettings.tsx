@@ -159,7 +159,8 @@ function SignerAdvanceSettings({ route }: any) {
   const [actionAfterPasscode, setActionAfterPasscode] = useState<
     null | 'hideKey' | 'mobileKeySeed'
   >(null);
-  const supportsRKSigning = SignersWithRKSupport.includes(signer.type);
+  const supportsRKSigning =
+    SignersWithRKSupport.includes(signer.type) && !!signer.signerXpubs[XpubTypes.P2WSH]?.[0];
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
 
   useEffect(() => {

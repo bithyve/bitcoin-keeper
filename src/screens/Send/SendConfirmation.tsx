@@ -601,7 +601,7 @@ function SendConfirmation({ route }) {
               titleFontWeight={300}
               subTitle={
                 isRemoteFlow
-                  ? 'Friends Vault'
+                  ? 'Collaborative Vault'
                   : !isAutoTransferFlow
                   ? sender?.presentationData?.name
                   : sourceWallet?.presentationData?.name

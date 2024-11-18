@@ -7,6 +7,7 @@ export type AppStackParams = {
   Home: undefined;
   Login: undefined;
   SigningDeviceList: undefined;
+  SignerCategoryList: undefined;
   TapsignerAction: undefined;
   SignWithTapsigner: undefined;
   AddColdCard: undefined;
@@ -122,7 +123,6 @@ export type AppStackParams = {
   SigningDeviceConfigRecovery: undefined;
   MixProgress: undefined;
   AssignSignerType: undefined;
-  NFCScanner: undefined;
   AddWallet: undefined;
   CanaryWallets: undefined;
   AssistedKeys: undefined;
