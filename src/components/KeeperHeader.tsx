@@ -51,27 +51,30 @@ const LearnMoreButton = ({
   common,
   styles,
 }: any) => (
-  <TouchableOpacity onPress={onPress} testID="btn_learnMore">
-    <Box
-      borderColor={
-        learnMoreBorderColor ||
-        (learnTextColor === 'light.white' || learnTextColor === 'light.buttonText'
-          ? 'light.white'
-          : `${colorMode}.learnMoreBorder`)
-      }
-      backgroundColor={
-        learnBackgroundColor === 'BrownNeedHelp'
-          ? `${colorMode}.BrownNeedHelp`
-          : learnBackgroundColor
-      }
-      style={styles.learnMoreContainer}
-    >
-      <Text color={learnTextColor || `${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
-        {common.learnMore}
-      </Text>
-    </Box>
-  </TouchableOpacity>
+  <Box style={styles.learnMoreButtonWrapper}>
+    <TouchableOpacity onPress={onPress} testID="btn_learnMore" style={styles.learnMoreButton}>
+      <Box
+        borderColor={
+          learnMoreBorderColor ||
+          (learnTextColor === 'light.white' || learnTextColor === 'light.buttonText'
+            ? 'light.white'
+            : `${colorMode}.learnMoreBorder`)
+        }
+        backgroundColor={
+          learnBackgroundColor === 'BrownNeedHelp'
+            ? `${colorMode}.BrownNeedHelp`
+            : learnBackgroundColor
+        }
+        style={styles.learnMoreContainer}
+      >
+        <Text color={learnTextColor || `${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
+          {common.learnMore}
+        </Text>
+      </Box>
+    </TouchableOpacity>
+  </Box>
 );
+
 const HeaderInfo = ({
   title,
   subtitle,
