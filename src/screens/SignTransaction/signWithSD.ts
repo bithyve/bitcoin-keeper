@@ -178,11 +178,7 @@ export const signTransactionWithSeedWords = async ({
       isMultisig ? EntityKind.VAULT : EntityKind.WALLET
     );
 
-    const signerXpub = isRemoteKey
-      ? isMultisig
-        ? signer.signerXpubs[XpubTypes.P2WSH][0].xpub
-        : signer.signerXpubs[XpubTypes.P2WPKH][0].xpub
-      : signer.xpub;
+    const signerXpub = isRemoteKey ? signer.signerXpubs[XpubTypes.P2WSH][0].xpub : signer.xpub;
 
     if (signerXpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
@@ -194,8 +190,7 @@ export const signTransactionWithSeedWords = async ({
     );
     return { signedSerializedPSBT };
   } catch (err) {
-    Alert.alert(err?.message);
-    return null;
+    throw err.message;
   }
 };
 

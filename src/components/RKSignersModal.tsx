@@ -17,6 +17,7 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import config from 'src/utils/service-utilities/config';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const RKSignersModal = ({ signer, psbt }, ref) => {
   const serializedPSBTEnvelop = {
@@ -42,6 +43,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const textRef = useRef(null);
   const { signerMap } = useSignerMap();
@@ -144,6 +146,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
       }
     } catch (error) {
       console.log('🚀 ~ signTransaction ~ error:', error);
+      showToast(`${error}`);
     }
   };
 

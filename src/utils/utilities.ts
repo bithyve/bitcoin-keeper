@@ -356,7 +356,7 @@ export const getInputsFromPSBT = (base64Str: string) => {
     return psbt.data.inputs;
   } catch (error) {
     console.log('🚀 ~ getInputsFromPSBT ~ error:', error);
-    throw 'Something went wrong';
+    throw `Something went wrong ${error.message}`;
   }
 };
 

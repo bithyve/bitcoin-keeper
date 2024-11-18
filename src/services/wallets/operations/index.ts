@@ -1114,8 +1114,8 @@ export default class WalletOperations {
         if (isRemoteKey) {
           // getting internal and index from psbt inputs
           const res = input.bip32Derivation[0].path.split('/');
-          internal = parseInt(res[5]);
-          index = parseInt(res[6]);
+          internal = parseInt(res[res.length - 2]);
+          index = parseInt(res[res.length - 1]);
         } else if (input.subPath) {
           const [, j, k] = input.subPath.split('/');
           internal = parseInt(j);
