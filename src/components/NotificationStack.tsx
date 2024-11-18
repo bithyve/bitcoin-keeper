@@ -57,7 +57,7 @@ const { width } = Dimensions.get('window');
 
 const _size = width * 0.95;
 const layout = {
-  borderRadius: 16,
+  borderRadius: 10,
   width: _size,
   height: 90,
   spacing: 12,

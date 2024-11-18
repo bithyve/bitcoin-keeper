@@ -27,29 +27,27 @@ function UAIView({
           {subTitle}
         </Text>
       </Box>
-      <TouchableOpacity
-        style={styles.skipWrapper}
-        onPress={secondaryCallback}
-        testID="btn_uaiSkip"
-        disabled={!secondaryCallbackText}
-      >
-        <Text style={styles.skipText} bold color={`${colorMode}.learnMoreBorder`}>
-          {secondaryCallbackText.toUpperCase()}
-        </Text>
-      </TouchableOpacity>
-      {primaryCallbackText && primaryCallback && (
+      <Box style={styles.ctaWrapper}>
         <TouchableOpacity
-          style={styles.addNowWrapper}
-          onPress={primaryCallback}
-          testID="btn_uaiPrimary"
+          style={styles.skipWrapper}
+          onPress={secondaryCallback}
+          testID="btn_uaiSkip"
+          disabled={!secondaryCallbackText}
         >
-          <Box style={styles.addNowCTAWrapper} backgroundColor={`${colorMode}.modalGreenButton`}>
-            <Text style={styles.addNowCTAText} bold color={`${colorMode}.buttonText`}>
-              {primaryCallbackText.toUpperCase()}
-            </Text>
-          </Box>
+          <Text style={styles.skipText} bold color={`${colorMode}.learnMoreBorder`}>
+            {secondaryCallbackText.toUpperCase()}
+          </Text>
         </TouchableOpacity>
-      )}
+        {primaryCallbackText && primaryCallback && (
+          <TouchableOpacity onPress={primaryCallback} testID="btn_uaiPrimary">
+            <Box style={styles.addNowCTAWrapper} backgroundColor={`${colorMode}.modalGreenButton`}>
+              <Text style={styles.addNowCTAText} bold color={`${colorMode}.buttonText`}>
+                {primaryCallbackText.toUpperCase()}
+              </Text>
+            </Box>
+          </TouchableOpacity>
+        )}
+      </Box>
     </Box>
   );
 }
@@ -58,8 +56,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 15,
+    paddingLeft: 15,
   },
   uaiMessageWrapper: {
     width: '60%',
@@ -67,34 +64,36 @@ const styles = StyleSheet.create({
   uaiMessageText: {
     fontSize: 12,
     width: '100%',
-    letterSpacing: 0.12,
   },
   uaiSubtitle: {
     fontSize: 14,
-    letterSpacing: 0.14,
     width: '100%',
   },
+  ctaWrapper: {
+    position: 'absolute',
+    right: 0,
+    bottom: 2,
+    width: '40%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 18,
+  },
   skipWrapper: {
-    width: '16%',
     alignItems: 'center',
   },
   skipText: {
     fontSize: 10,
-    letterSpacing: 0.4,
-  },
-  addNowWrapper: {
-    width: '26%',
   },
   addNowCTAWrapper: {
     paddingVertical: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-    paddingHorizontal: 3,
+    borderRadius: 10,
+    paddingHorizontal: 10,
   },
   addNowCTAText: {
     fontSize: 10,
-    letterSpacing: 0.3,
   },
 });
 export default UAIView;
