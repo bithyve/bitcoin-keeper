@@ -240,3 +240,10 @@ export const calculateTimeLeft = (createdAt: string) => {
   // @ts-ignore
   return Math.max(0, Math.floor((targetTime - currentTime) / 1000));
 };
+
+export const capitalizeEachWord = (text: string): string => {
+  return text
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
