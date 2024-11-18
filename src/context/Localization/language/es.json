@@ -141,7 +141,8 @@
     "Address": "Address",
     "time": "time",
     "times": "times",
-    "shareDetails": "Share Details"
+    "shareDetails": "Share Details",
+    "upgrade": "Upgrade"
   },
   "noInternet": {
     "no": "No Internet",
@@ -961,8 +962,8 @@
   "choosePlan": {
     "choosePlantitle": "Manage Subscription",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "choosePlanSubtitle": "Upgrade or downgrade",
-    "noteSubTitle": "Restore Purchases defaults to your previous plans if issue arises*",
+    "choosePlanSubtitle": "Select a plan that fits your needs",
+    "noteSubTitle": "Defaults to your previous plans if issue arises*",
     "confirming": "Confirming your subscription",
     "pleaseStay": "Please stay on this screen as it may take a little while...",
     "youCanChange": "You can change your subscription at any time within the app or through your App Store/Play Store subscription details.",

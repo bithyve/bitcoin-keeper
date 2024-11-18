@@ -31,6 +31,7 @@ type Props = {
   simple?: boolean;
   rightComponentPadding?: number | `${number}%`;
   headerInfoPadding?: number | `${number}%`;
+  topRightComponent?: Element;
 };
 
 const BackButton = ({ onPress, colorMode, contrastScreen, styles }: any) => (
@@ -130,6 +131,7 @@ const KeeperHeader = ({
   rightComponentPadding = 0,
   headerInfoPadding = 10,
   simple = false,
+  topRightComponent = null,
 }: Props) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -180,7 +182,7 @@ const KeeperHeader = ({
             contrastScreen={contrastScreen}
             styles={styles}
           />
-          {learnMore && (
+          {learnMore && !topRightComponent && (
             <LearnMoreButton
               onPress={learnMorePressed}
               learnBackgroundColor={learnBackgroundColor}
@@ -191,6 +193,7 @@ const KeeperHeader = ({
               colorMode={colorMode}
             />
           )}
+          {topRightComponent && <Box style={styles.topRightContainer}>{topRightComponent}</Box>}
         </Box>
       )}
       <Box style={styles.headerContainer}>
@@ -290,6 +293,7 @@ const getStyles = (
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      position: 'relative',
     },
     headerInfo: {
       flex: 1,
@@ -311,6 +315,9 @@ const getStyles = (
     },
     availableBalance: {
       marginLeft: wp(61),
+    },
+    topRightContainer: {
+      zIndex: 10,
     },
   });
 
