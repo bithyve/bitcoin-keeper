@@ -89,7 +89,7 @@ function WalletItem({
         <Box style={styles.walletBalance}>
           {getCurrencyIcon(BTC, variation)}
           <Text color={`${colorMode}.primaryText`}>
-            {getBalance(wallet?.specs?.balances?.confirmed)}
+            {getBalance(wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed)}
           </Text>
           <Text color={`${colorMode}.primaryText`}>{getSatUnit()}</Text>
         </Box>

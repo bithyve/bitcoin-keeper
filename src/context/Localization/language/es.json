@@ -584,7 +584,10 @@
     "addWalletOption3Title": "Advanced Customization",
     "addWalletOption3Description": "Explore advanced options to build custom multi-sig wallets or import vaults from a signer. Coming soon: features like Time Lock and Degrading Multisig for added control over your wallet security and spending conditions.",
     "selectWalletTitle": "Select Wallet",
-    "selectWalletSubtitle": "Select a wallet to send funds to"
+    "selectWalletSubtitle": "Select a wallet to send funds to",
+    "transactionAmountChangedTitle": "Transaction Amount Changed",
+    "transactionAmountChangedSubtitle": "Your balance is not sufficient to cover both the selected fee and the specified amount",
+    "transactionAmountChangedExplainer": "The amount necessary for the fee has been reduced from the recipient's amount. The recipient's amount will automatically go back up if you select a lower fee."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

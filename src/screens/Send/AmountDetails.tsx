@@ -53,7 +53,8 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
       {amount && (
         <Box style={styles.amtTitleWrapper}>
           <Box style={styles.currencyIcon}>
-            {!isCurrentCurrencyFiat && getCurrencyIcon(BTC, 'dark')}
+            {!isCurrentCurrencyFiat &&
+              getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
             &nbsp;
             <Text
               color={amountColor || `${colorMode}.secondaryText`}
