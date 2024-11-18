@@ -23,6 +23,8 @@ import { hp, wp } from 'src/constants/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { capitalizeEachWord } from 'src/utils/utilities';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import UpgradePill from './UpgradePill';
 
 function CurrentPlanView({ plan }) {
   const navigation = useNavigation();
@@ -33,6 +35,7 @@ function CurrentPlanView({ plan }) {
   const { login } = translations;
   const [showModal, setShowModal] = useState(false);
   const { statusMessage, isOffline, isLoading } = useAppSelector((state) => state?.login);
+  const isDiamondHands = plan === SubscriptionTier.L3.toUpperCase();
 
   useEffect(() => {
     if (statusMessage.message) {
@@ -69,6 +72,7 @@ function CurrentPlanView({ plan }) {
             <AppStatus setShowModal={setShowModal} />
           </Box>
         )}
+        {!isOffline && !isDiamondHands && <UpgradePill />}
       </Box>
       <Box style={styles.settings}>
         <TouchableOpacity

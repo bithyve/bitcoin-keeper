@@ -112,6 +112,7 @@ const Colors = {
   Periwinkle: 'rgba(184, 182, 208, 1)',
   Purple: 'rgba(204, 184, 214, 1)',
   ChampagneBliss: 'rgba(253, 247, 240, 1)',
+  SilverMistSolid: 'rgba(212, 212, 212, 1)',
   SilverMist: 'rgba(212, 212, 212, 0.6)',
   SilverMistTransparent: 'rgba(212, 212, 212, 0.1)',
   SilverMistTranslucent: 'rgba(212, 212, 212, 0.6)',

@@ -141,7 +141,8 @@
     "Address": "Address",
     "time": "time",
     "times": "times",
-    "shareDetails": "Share Details"
+    "shareDetails": "Share Details",
+    "upgrade": "Upgrade"
   },
   "noInternet": {
     "no": "No Internet",
@@ -584,7 +585,10 @@
     "addWalletOption3Title": "Advanced Customization",
     "addWalletOption3Description": "Explore advanced options to build custom multi-sig wallets or import vaults from a signer. Coming soon: features like Time Lock and Degrading Multisig for added control over your wallet security and spending conditions.",
     "selectWalletTitle": "Select Wallet",
-    "selectWalletSubtitle": "Select a wallet to send funds to"
+    "selectWalletSubtitle": "Select a wallet to send funds to",
+    "transactionAmountChangedTitle": "Transaction Amount Changed",
+    "transactionAmountChangedSubtitle": "Your balance is not sufficient to cover both the selected fee and the specified amount",
+    "transactionAmountChangedExplainer": "The amount necessary for the fee has been reduced from the recipient's amount. The recipient's amount will automatically go back up if you select a lower fee."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -958,8 +962,8 @@
   "choosePlan": {
     "choosePlantitle": "Manage Subscription",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "choosePlanSubtitle": "Upgrade or downgrade",
-    "noteSubTitle": "Restore Purchases defaults to your previous plans if issue arises*",
+    "choosePlanSubtitle": "Select a plan that fits your needs",
+    "noteSubTitle": "Defaults to your previous plans if issue arises*",
     "confirming": "Confirming your subscription",
     "pleaseStay": "Please stay on this screen as it may take a little while...",
     "youCanChange": "You can change your subscription at any time within the app or through your App Store/Play Store subscription details.",

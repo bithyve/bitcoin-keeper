@@ -65,7 +65,7 @@ const TransactionPriorityDetails = ({
           </Box>
           <Box style={styles.rightContainer}>
             <Box style={styles.transSatsFeeWrapper}>
-              {getCurrencyIcon(BTC, 'dark')}
+              {getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
               &nbsp;
               <Text color={`${colorMode}.textGreenGrey`} style={styles.transSatsFeeText}>
                 {isAutoTransfer
