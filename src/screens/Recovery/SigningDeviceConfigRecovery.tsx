@@ -144,10 +144,10 @@ function SigningDeviceConfigRecovery({ navigation }) {
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
-              <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
+              <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
               <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
-                {SDIcons(type).Logo}
+                {SDIcons(type, colorMode === 'dark').Logo}
                 <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
                   {message}
                 </Text>

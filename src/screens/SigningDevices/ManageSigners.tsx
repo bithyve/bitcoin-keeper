@@ -140,7 +140,7 @@ function ManageSigners({ route }: ScreenProps) {
   };
 
   const handleAddSigner = () => {
-    navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addSignerFlow: true }));
+    navigation.dispatch(CommonActions.navigate('SignerCategoryList', { addSignerFlow: true }));
   };
 
   const { top } = useSafeAreaInsets();

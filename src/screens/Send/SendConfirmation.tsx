@@ -16,7 +16,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { NetworkType, TxPriority } from 'src/services/wallets/enums';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import {
   customPrioritySendPhaseOneReset,
@@ -92,9 +92,15 @@ export interface SendConfirmationRouteParams {
   date: Date;
   parentScreen: string;
   isRemoteFlow?: boolean;
-  tnxDetails?: tnxDetailsProps;
-  signingDetails?: any;
   timeLeft?: number;
+  // For remote key signing
+  remoteKeyProps?: {
+    fees: string;
+    signer: Signer;
+    psbt: string;
+    estimatedBlocksBeforeConfirmation: number;
+    tnxPriority: TxPriority;
+  };
 }
 
 export interface tnxDetailsProps {
@@ -121,16 +127,20 @@ function SendConfirmation({ route }) {
     isAutoTransfer,
     parentScreen,
     isRemoteFlow = false,
-    tnxDetails,
-    signingDetails,
+    remoteKeyProps,
     timeLeft,
   }: SendConfirmationRouteParams = route.params;
   const txFeeInfo = isRemoteFlow
-    ? tnxDetails.txFeeInfo
+    ? {
+        [remoteKeyProps.tnxPriority]: {
+          amount: remoteKeyProps.fees,
+          estimatedBlocksBeforeConfirmation: remoteKeyProps.estimatedBlocksBeforeConfirmation,
+        },
+      }
     : useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendMaxFeeEstimatedBlocks = isRemoteFlow
-    ? tnxDetails.sendMaxFeeEstimatedBlocks
+    ? remoteKeyProps.estimatedBlocksBeforeConfirmation
     : useAppSelector((state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks);
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
@@ -184,7 +194,7 @@ function SendConfirmation({ route }) {
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
   const [transactionPriority, setTransactionPriority] = useState(
     isRemoteFlow
-      ? tnxDetails.transactionPriority
+      ? remoteKeyProps.tnxPriority
       : isCachedTransaction
       ? cachedTxPriority || TxPriority.LOW
       : TxPriority.LOW
@@ -554,7 +564,7 @@ function SendConfirmation({ route }) {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {isRemoteFlow && (
+        {false && ( // ! Disabled timer for now
           <Box style={styles.timerContainer}>
             <Box style={styles.timerTextContainer}>
               <Text fontSize={20} color={`${colorMode}.greenText`}>
@@ -592,7 +602,9 @@ function SendConfirmation({ route }) {
               titleFontSize={16}
               titleFontWeight={300}
               subTitle={
-                !isAutoTransferFlow
+                isRemoteFlow
+                  ? 'Collaborative Vault'
+                  : !isAutoTransferFlow
                   ? sender?.presentationData?.name
                   : sourceWallet?.presentationData?.name
               }
@@ -707,18 +719,13 @@ function SendConfirmation({ route }) {
           />
         ))}
       {isRemoteFlow && (
-        <Box style={styles.buttonsContainer}>
-          <Buttons
-            primaryDisable={!isTimerActive}
-            width={wp(285)}
-            primaryText={walletTransactions.SignTransaction}
-            primaryCallback={() => signerModalRef.current.openModal()}
-          />
-          <Buttons
-            secondaryText={walletTransactions.DenyTransaction}
-            secondaryCallback={() => navigation.goBack()}
-          />
-        </Box>
+        <Buttons
+          primaryText={walletTransactions.SignTransaction}
+          secondaryText={walletTransactions.DenyTransaction}
+          secondaryCallback={() => navigation.goBack()}
+          primaryCallback={() => signerModalRef.current.openModal()}
+          primaryLoading={inProgress}
+        />
       )}
       <KeeperModal
         visible={visibleModal}
@@ -908,7 +915,13 @@ function SendConfirmation({ route }) {
           }}
         />
       )}
-      {isRemoteFlow && <RKSignersModal data={signingDetails} ref={signerModalRef} />}
+      {isRemoteFlow && (
+        <RKSignersModal
+          signer={remoteKeyProps.signer}
+          psbt={remoteKeyProps.psbt}
+          ref={signerModalRef}
+        />
+      )}
     </ScreenWrapper>
   );
 }

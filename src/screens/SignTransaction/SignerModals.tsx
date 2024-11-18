@@ -887,7 +887,9 @@ function SignerModals({
               )}
               buttonText={'Start Signing'}
               buttonCallback={navigateToSignWithColdCard}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setColdCardModal(false);
                 navigation.dispatch(
@@ -971,7 +973,9 @@ function SignerModals({
                 />
               )}
               buttonText={'Start Signing'}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setPassportModal(false);
                 navigation.dispatch(
@@ -1033,7 +1037,9 @@ function SignerModals({
               textColor={`${colorMode}.primaryText`}
               Content={() => <SpecterContent isMultisig={isMultisig} />}
               buttonText={'Start Signing'}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setKeeperModal(false);
                 navigation.dispatch(
@@ -1066,7 +1072,9 @@ function SignerModals({
                 />
               )}
               buttonText={'Start Signing'}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setKeystoneModal(false);
                 navigation.dispatch(
@@ -1120,7 +1128,9 @@ function SignerModals({
                 />
               )}
               buttonText={'Start Signing'}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setJadeModal(false);
                 navigation.dispatch(
@@ -1229,7 +1239,9 @@ function SignerModals({
               subTitle="Keep your Portal ready before proceeding"
               buttonText="Proceed"
               buttonCallback={navigateToSignWithPortal}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setPortalModal(false);
                 navigation.dispatch(
