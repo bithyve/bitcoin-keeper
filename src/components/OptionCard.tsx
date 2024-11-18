@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     lineHeight: 16,
+    width: windowWidth * 0.7,
   },
   iconContainer: {
     flex: 1,

@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   optionsListContainer: {
-    alignItems: 'center',
+    paddingHorizontal: wp(10),
     marginTop: 20,
   },
   optionContainer: {

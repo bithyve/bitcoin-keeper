@@ -25,7 +25,7 @@ function SignerSettings({ navigation, route }) {
         mediumTitle
         subtitle={settings.SingerSettingsSubtitle}
       />
-      <Box style={{ paddingVertical: '10%', alignItems: 'center' }}>
+      <Box style={{ paddingVertical: '10%', paddingHorizontal: wp(10) }}>
         <OptionCard
           title={settings.deleteKeys}
           description={settings.deleteKeysSubtitle}
