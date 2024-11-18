@@ -360,6 +360,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <KeeperHeader
           title={vault.presentationData?.name}
           titleColor={`${colorMode}.seashellWhiteText`}
+          mediumTitle
           subTitleColor={`${colorMode}.seashellWhiteText`}
           // TODO: Add collaborativeWalletIcon
           icon={
@@ -691,13 +692,11 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     marginTop: hp(20),
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     padding: 1,
   },
   descText: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
   },
   mt3: {
     marginTop: 3,

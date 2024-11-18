@@ -144,10 +144,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.28,
     fontSize: 15,
   },
-  walletDescription: {
-    letterSpacing: 0.24,
-    fontSize: 13,
-  },
   walletBalance: {
     letterSpacing: 1.2,
     fontSize: 23,

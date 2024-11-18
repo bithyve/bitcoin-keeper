@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   contentText: {
     marginTop: hp(20),
     color: 'white',
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.65,
     padding: 1,
   },

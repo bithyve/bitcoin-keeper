@@ -56,7 +56,11 @@ function AddWalletContent() {
             <option.icon />
           </Box>
           <Box style={styles.addWalletContentWrapper}>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletTitleText}>
+            <Text
+              color={`${colorMode}.modalGreenContent`}
+              semiBold
+              style={styles.addWalletTitleText}
+            >
               {option.title}
             </Text>
             <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletDescText}>
@@ -185,9 +189,7 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   addWalletTitleText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
+    fontSize: 15,
     padding: 1,
   },
 });

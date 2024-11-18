@@ -408,6 +408,7 @@ function SigningDeviceDetails({ route }) {
           learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
           learnMorePressed={() => setDetailModal(true)}
           learnTextColor={`${colorMode}.buttonText`}
+          mediumTitle
           title={signerTranslations.keyDetails}
           subtitle={
             !signer.isBIP85
@@ -425,7 +426,9 @@ function SigningDeviceDetails({ route }) {
           }
         />
       </Box>
-      <Text style={styles.recentHistoryText}>Recent History</Text>
+      <Text style={styles.recentHistoryText} medium>
+        Recent History
+      </Text>
       <ScrollView contentContainerStyle={styles.flex1}>
         <Box style={styles.healthCheckContainer}>
           {showLoader ? (
@@ -695,8 +698,7 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   contentDescription: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     marginTop: hp(25),
   },
   circleIcon: {

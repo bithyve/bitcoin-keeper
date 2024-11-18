@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   unhideText: {
-    fontSize: 13,
+    fontSize: 14,
     width: wp(200),
   },
 });

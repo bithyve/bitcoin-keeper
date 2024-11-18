@@ -163,8 +163,7 @@ const styles = StyleSheet.create({
   contentText: {
     marginTop: hp(10),
     color: 'white',
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     padding: 1,
     marginBottom: 10,
   },

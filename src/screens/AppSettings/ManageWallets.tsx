@@ -202,7 +202,7 @@ function ManageWallets() {
         <Text
           color={`${colorMode}.secondaryText`}
           style={styles.unhideText}
-        >{`You can unhide this wallet anytime from App Settings >Manage Wallets > Unhide`}</Text>
+        >{`You can unhide this wallet anytime from App Settings > Manage Wallets > Unhide`}</Text>
         <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
@@ -545,8 +545,8 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   unhideText: {
-    fontSize: 13,
-    width: wp(200),
+    fontSize: 14,
+    width: wp(280),
   },
   emptyWrapper: {
     alignItems: 'center',

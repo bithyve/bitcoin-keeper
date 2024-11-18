@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 12,
     lineHeight: 18,
-    letterSpacing: 0.39,
   },
   iconContainer: {
     borderRadius: 10,

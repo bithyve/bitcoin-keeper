@@ -209,8 +209,7 @@ const styles = StyleSheet.create({
   },
   backupModalDesc: {
     fontWeight: 400,
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     padding: 1,
     marginBottom: 15,
     width: wp(295),
