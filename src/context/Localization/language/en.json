@@ -588,7 +588,13 @@
     "selectWalletSubtitle": "Select a wallet to send funds to",
     "transactionAmountChangedTitle": "Transaction Amount Changed",
     "transactionAmountChangedSubtitle": "Your balance is not sufficient to cover both the selected fee and the specified amount",
-    "transactionAmountChangedExplainer": "The amount necessary for the fee has been reduced from the recipient's amount. The recipient's amount will automatically go back up if you select a lower fee."
+    "transactionAmountChangedExplainer": "The amount necessary for the fee has been reduced from the recipient's amount. The recipient's amount will automatically go back up if you select a lower fee.",
+    "signingTransaction": "Signing Transaction",
+    "reviewTransaction": "Review the transaction",
+    "sendingTo": "Sending To",
+    "advancedDetails": "Advanced Details",
+    "feeRate": "Fee Rate",
+    "networkFees": "Network Fees"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
