@@ -1249,7 +1249,8 @@ export default class WalletOperations {
     wallet: Vault,
     inputs: any,
     serializedPSBT: string,
-    xpriv: string
+    xpriv: string,
+    isRemoteKey?: boolean
   ): { signedSerializedPSBT: string } => {
     try {
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
@@ -1259,7 +1260,12 @@ export default class WalletOperations {
       for (const input of inputs) {
         let internal;
         let index;
-        if (input.subPath) {
+        if (isRemoteKey) {
+          // getting internal and index from psbt inputs
+          const res = input.bip32Derivation[0].path.split('/');
+          internal = parseInt(res[res.length - 2]);
+          index = parseInt(res[res.length - 1]);
+        } else if (input.subPath) {
           const [, j, k] = input.subPath.split('/');
           internal = parseInt(j);
           index = parseInt(k);

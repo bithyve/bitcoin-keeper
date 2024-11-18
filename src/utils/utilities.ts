@@ -356,6 +356,17 @@ export const estimateVByteFromPSBT = (base64Str: string) => {
   return Math.ceil((baseSize * 3 + totalSize) / 4);
 };
 
+export const getInputsFromPSBT = (base64Str: string) => {
+  try {
+    const psbt = bitcoin.Psbt.fromBase64(base64Str);
+    return psbt.data.inputs;
+  } catch (error) {
+    console.log('🚀 ~ getInputsFromPSBT ~ error:', error);
+    throw `Something went wrong ${error.message}`;
+  }
+};
+
+
 export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
   let estimatedBlocksBeforeConfirmation = 0;
   let tnxPriority = TxPriority.LOW;

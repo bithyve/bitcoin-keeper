@@ -87,7 +87,7 @@ import { TransferType } from 'src/models/enums/TransferType';
 
 const { width } = Dimensions.get('screen');
 
-const SignersWithRKSupport = [SignerType.MY_KEEPER, SignerType.JADE];
+const SignersWithRKSupport = [SignerType.MY_KEEPER, SignerType.JADE, SignerType.SEED_WORDS];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (

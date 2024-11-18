@@ -3,6 +3,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from '../screens/SignTransaction/SignerModals';
 import { ScriptTypes, SignerType } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { signTransactionWithSeedWords } from '../screens/SignTransaction/signWithSD';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -15,6 +16,8 @@ import { useDispatch } from 'react-redux';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
+import config from 'src/utils/service-utilities/config';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const RKSignersModal = ({ signer, psbt }, ref) => {
   const serializedPSBTEnvelop = {
@@ -40,6 +43,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const textRef = useRef(null);
   const { signerMap } = useSignerMap();
@@ -105,8 +109,45 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
     }
   };
 
-  const signTransaction = async () => {
-    // handle with each signer implementations
+  const signTransaction = async ({ seedBasedSingerMnemonic }) => {
+    try {
+      if (SignerType.SEED_WORDS === signerType) {
+        const { signedSerializedPSBT } = await signTransactionWithSeedWords({
+          isRemoteKey: true,
+          signingPayload: {},
+          defaultVault: { signers: [signer], networkType: config.NETWORK_TYPE }, // replicating vault details in case of RK
+          seedBasedSingerMnemonic,
+          serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
+          xfp: {},
+          isMultisig: isMultisig,
+        });
+        if (signedSerializedPSBT) {
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'ShowQR',
+              params: {
+                data: signedSerializedPSBT,
+                encodeToBytes: false,
+                title: 'Signed PSBT',
+                subtitle: 'Please scan until all the QR data has been retrieved',
+                type: SignerType.KEEPER, // signer used as external key
+              },
+            })
+          );
+        }
+      }
+    } catch (error) {
+      console.log('🚀 ~ signTransaction ~ error:', error);
+      showToast(`${error}`);
+    }
   };
 
   const onFileSign = (signedSerializedPSBT: string) => {
