@@ -19,7 +19,7 @@ import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { VaultType } from 'src/services/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
-import { LOGIN_WITH_HEXA, refreshWallets } from 'src/store/sagaActions/wallets';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -52,7 +52,6 @@ import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function Footer({
   vault,
@@ -228,7 +227,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     transactionToast = false,
   } = route.params || {};
   const dispatch = useDispatch();
-  const { top } = useSafeAreaInsets();
   const { showToast } = useToastMessage();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
@@ -350,7 +348,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   return (
     <Box
-      style={[styles.wrapper, { paddingTop: top - 5 }]}
+      style={styles.wrapper}
+      safeAreaTop
       backgroundColor={
         isCollaborativeWallet ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
       }
@@ -547,7 +546,7 @@ const styles = StyleSheet.create({
   },
   topSection: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: hp(15),
   },
   bottomSection: {
     flex: 1,

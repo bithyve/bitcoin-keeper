@@ -45,7 +45,6 @@ import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -108,8 +107,6 @@ function WalletDetails({ route }: ScreenProps) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
-
-  const { top } = useSafeAreaInsets();
 
   const disableBuy = Platform.OS === 'ios' ? true : false;
   const cardProps = {
@@ -180,10 +177,7 @@ function WalletDetails({ route }: ScreenProps) {
   };
 
   return (
-    <Box
-      backgroundColor={`${colorMode}.pantoneGreen`}
-      style={[styles.wrapper, { paddingTop: top - 5 }]}
-    >
+    <Box safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`} style={styles.wrapper}>
       <StatusBar barStyle="light-content" />
       <Box style={styles.topContainer}>
         <KeeperHeader
@@ -297,7 +291,7 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: hp(15),
   },
   walletContainer: {
     paddingHorizontal: wp(20),
