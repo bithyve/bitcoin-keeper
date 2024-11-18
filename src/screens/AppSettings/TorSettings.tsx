@@ -155,7 +155,7 @@ function TorSettings() {
 
 const styles = StyleSheet.create({
   note: {
-    marginHorizontal: '5%',
+    marginHorizontal: '2%',
   },
   torStatusContainer: {
     flexDirection: 'row',
@@ -171,16 +171,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   torStatusText: {
-    fontSize: 13,
+    fontSize: 12,
   },
   torStatusButton: {
     flexDirection: 'row',
-    width: '35%',
+    width: '40%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkStatusBtnTitle: {
-    fontSize: 13,
+    fontSize: 12,
   },
   orbotContent: {
     alignItems: 'flex-start',
