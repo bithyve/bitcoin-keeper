@@ -449,12 +449,7 @@ function ChoosePlan() {
       subscription.productId.toLowerCase()
     );
     if (isSubscribed) return 'Subscribed';
-    return (
-      'Continue - ' +
-      (isMonthly
-        ? items[currentPosition]?.monthlyPlanDetails.price ?? 'Free'
-        : items[currentPosition]?.yearlyPlanDetails.price ?? 'Free')
-    );
+    return 'Continue - ' + (items[currentPosition]?.monthlyPlanDetails.price ?? 'Free');
   };
 
   return (
