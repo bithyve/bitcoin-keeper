@@ -213,16 +213,19 @@ function SendConfirmation({ route }) {
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
 
   const [amount, setAmount] = useState(
-    (txRecipientsOptions?.[transactionPriority] ||
-      customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
+    isCachedTransaction
+      ? originalAmount
+      : (txRecipientsOptions?.[transactionPriority] ||
+          customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
   );
 
   useEffect(() => {
-    console.log(customTxRecipientsOptions);
-    setAmount(
-      (txRecipientsOptions?.[transactionPriority] ||
-        customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
-    );
+    if (!isCachedTransaction) {
+      setAmount(
+        (txRecipientsOptions?.[transactionPriority] ||
+          customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
+      );
+    }
   }, [txRecipientsOptions, customTxRecipientsOptions, transactionPriority]);
 
   const signerModalRef = useRef(null);
@@ -305,9 +308,10 @@ function SendConfirmation({ route }) {
     } else setHighFeeAlertVisible(false);
 
     if (
+      !isCachedTransaction &&
       originalAmount !==
-      (txRecipientsOptions?.[transactionPriority] ||
-        customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
+        (txRecipientsOptions?.[transactionPriority] ||
+          customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
     ) {
       setAmountChangedAlertVisible(true);
     }
@@ -660,9 +664,10 @@ function SendConfirmation({ route }) {
             <TouchableOpacity
               testID="btn_transactionPriority"
               onPress={() => setTransPriorityModalVisible(true)}
-              disabled={isAutoTransfer || isRemoteFlow} // disable change priority for AutoTransfers
+              disabled={isAutoTransfer || isRemoteFlow || isCachedTransaction} // disable change priority for AutoTransfers
             >
               <TransactionPriorityDetails
+                disabled={isAutoTransfer || isRemoteFlow || isCachedTransaction}
                 isAutoTransfer={isAutoTransfer}
                 sendMaxFee={`${getBalance(sendMaxFee)} ${getSatUnit()}`}
                 sendMaxFeeEstimatedBlocks={sendMaxFeeEstimatedBlocks}

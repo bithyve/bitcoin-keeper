@@ -17,6 +17,7 @@ const TransactionPriorityDetails = ({
   isAutoTransfer,
   sendMaxFee,
   sendMaxFeeEstimatedBlocks,
+  disabled = false,
 }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -34,7 +35,9 @@ const TransactionPriorityDetails = ({
         <Text style={styles.transTitleText} medium color={`${colorMode}.primaryText`}>
           {walletTransactions.transactionPriority}
         </Text>
-        <Box style={styles.dots}>{isDarkMode ? <ThreeDotsWhite /> : <ThreeDotsGrey />}</Box>
+        {!disabled && (
+          <Box style={styles.dots}>{isDarkMode ? <ThreeDotsWhite /> : <ThreeDotsGrey />}</Box>
+        )}
       </Box>
 
       <Box style={styles.priorityWrapper}>
