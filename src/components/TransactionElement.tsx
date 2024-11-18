@@ -132,18 +132,18 @@ const styles = StyleSheet.create({
   transactionContainer: {
     flexDirection: 'column',
     marginLeft: 5,
+    gap: 2.5,
   },
   transactionDate: {
-    fontSize: 11.5,
-    letterSpacing: 0.12,
+    fontSize: 11,
     width: wp(125),
     marginHorizontal: 3,
+    lineHeight: 17,
   },
   transactionIdText: {
     marginHorizontal: 4,
-    fontSize: 13,
+    fontSize: 14,
     lineHeight: 20,
-    letterSpacing: 0.5,
     width: wp(125),
   },
   arrowIconWrapper: {

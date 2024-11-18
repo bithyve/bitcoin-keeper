@@ -282,7 +282,6 @@ const getStyles = (
       width: 20,
     },
     addWalletText: {
-      letterSpacing: 0.18,
       fontSize: titleSize,
     },
     addWalletDescription: {
@@ -307,7 +306,6 @@ const getStyles = (
     },
     learnMoreText: {
       fontSize: 12,
-      letterSpacing: 0.24,
       alignSelf: 'center',
     },
     headerContainer: {

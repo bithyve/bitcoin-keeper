@@ -101,16 +101,12 @@ const styles = StyleSheet.create({
   },
   preTitle: {
     fontSize: 13,
-    letterSpacing: 0.13,
   },
   title: {
     fontSize: 14,
-    letterSpacing: 0.13,
   },
   description: {
     fontSize: 12,
-    letterSpacing: 0.12,
-    width: windowWidth * 0.7,
   },
   iconWrapper: {
     width: wp(25),

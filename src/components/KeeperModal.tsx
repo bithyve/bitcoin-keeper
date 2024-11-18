@@ -266,13 +266,11 @@ const getStyles = (subTitleWidth) =>
       padding: '3%',
     },
     title: {
-      fontSize: 19,
-      letterSpacing: 0.19,
+      fontSize: 20,
       marginBottom: hp(5),
     },
     subTitle: {
-      fontSize: 13,
-      letterSpacing: 0.13,
+      fontSize: 14,
       width: subTitleWidth,
     },
     secCta: {
@@ -322,7 +320,6 @@ const getStyles = (subTitleWidth) =>
     },
     learnMoreText: {
       fontSize: 12,
-      letterSpacing: 0.24,
       alignSelf: 'center',
     },
     headerContainer: {
