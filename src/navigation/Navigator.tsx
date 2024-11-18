@@ -132,6 +132,7 @@ import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
+import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -220,6 +221,7 @@ function AppStack() {
         <Stack.Screen name="AddDetailsFinal" component={AddDetailsFinalScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
+        <Stack.Screen name="PSBTSendConfirmation" component={PSBTSendConfirmation} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="UTXOManagement" component={UTXOManagement} />

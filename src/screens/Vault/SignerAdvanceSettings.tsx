@@ -548,23 +548,17 @@ function SignerAdvanceSettings({ route }: any) {
 
         navigation.dispatch(
           CommonActions.navigate({
-            name: 'SendConfirmation',
+            name: 'PSBTSendConfirmation',
             params: {
               sender: senderAddresses,
-              receiver: null,
-              address: receiverAddresses,
+              recipient: receiverAddresses,
               amount: sendAmount,
               data: serializedPSBT,
-              isRemoteFlow: true,
-              signingDetails: signer,
-              transferType: TransferType.VAULT_TO_ADDRESS,
-              remoteKeyProps: {
-                fees: fees,
-                estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
-                tnxPriority: tnxDetails.tnxPriority,
-                signer,
-                psbt: serializedPSBT,
-              },
+              fees: fees,
+              estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
+              tnxPriority: tnxDetails.tnxPriority,
+              signer,
+              psbt: serializedPSBT,
             },
           })
         );

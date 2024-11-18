@@ -286,9 +286,16 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
         });
       }
     });
-
-    // Extract input addresses
-    const senderAddresses = psbt.txInputs.map((input) => input.hash.toString('hex'));
+    const inputs = psbt.data.inputs.map((input) => {
+      const p2wsh = bitcoin.payments.p2wsh({
+        redeem: { output: Buffer.from(input.witnessScript) },
+        network: isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin,
+      });
+      return {
+        address: p2wsh.address,
+        amount: input.witnessUtxo.value,
+      };
+    });
 
     // Extract outputs (receiver information)
     const outputs = psbt.txOutputs.map((output) => {
@@ -304,7 +311,6 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     // Calculate the total input and output amounts
     let totalInput = 0;
     let totalOutput = 0;
-    let totalAmount = 0;
 
     psbt.data.inputs.forEach((input, index) => {
       if (input.witnessUtxo) {
@@ -320,14 +326,12 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       totalOutput += output.amount;
     });
 
-    const receiverAddresses = outputs.map((op) => op.address);
-
     // Calculate transaction fees
     const fees = totalInput - totalOutput;
     const feeRate = (fees / vBytes).toFixed(2);
     return {
-      senderAddresses: senderAddresses,
-      receiverAddresses: receiverAddresses,
+      senderAddresses: inputs,
+      receiverAddresses: outputs,
       fees,
       sendAmount: totalOutput,
       signerMatched,
