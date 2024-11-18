@@ -96,7 +96,6 @@ export interface SendAndReceiveState {
     isSuccessful: boolean;
   };
   sendMaxFee: number;
-  setSendMaxFeeEstimatedBlocks: number;
   feeIntelMissing: boolean;
   transactionFeeInfo: TransactionFeeInfo;
   inheritanceSigningRequestId: string;
@@ -139,7 +138,6 @@ const initialState: SendAndReceiveState = {
     isSuccessful: false,
   },
   sendMaxFee: 0,
-  setSendMaxFeeEstimatedBlocks: 0,
   feeIntelMissing: false,
   transactionFeeInfo: {
     [TxPriority.LOW]: {
@@ -168,9 +166,6 @@ const sendAndReceiveSlice = createSlice({
   reducers: {
     setSendMaxFee: (state, action: PayloadAction<Satoshis>) => {
       state.sendMaxFee = action.payload;
-    },
-    setSendMaxFeeEstimatedBlocks: (state, action: PayloadAction<Satoshis>) => {
-      state.setSendMaxFeeEstimatedBlocks = action.payload;
     },
 
     sendPhaseOneExecuted: (state, action: PayloadAction<SendPhaseOneExecutedPayload>) => {
@@ -346,7 +341,6 @@ const sendAndReceiveSlice = createSlice({
 
 export const {
   setSendMaxFee,
-  setSendMaxFeeEstimatedBlocks,
   sendPhaseOneExecuted,
   customFeeCalculated,
   sendPhaseTwoExecuted,

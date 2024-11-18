@@ -232,6 +232,8 @@ export const customTheme = extendTheme({
       menuCardTitleColor: Colors.Graphite,
       secondarySubtitle: Colors.GraniteGray,
       dullCreamBackground: Colors.Warmbeige,
+      dashedButtonBorder: Colors.SeaweedGreen,
+      newDashedButtonBackground: Colors.DashedButtonBackground,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -421,6 +423,8 @@ export const customTheme = extendTheme({
       menuCardTitleColor: Colors.GraphiteLight,
       secondarySubtitle: Colors.GraphiteLight,
       dullCreamBackground: Colors.SoftGray,
+      dashedButtonBorder: Colors.separator,
+      newDashedButtonBackground: Colors.DashedButtonBackgroundDark,
     },
   },
   config: {

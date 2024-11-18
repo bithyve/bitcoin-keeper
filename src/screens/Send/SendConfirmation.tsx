@@ -101,10 +101,11 @@ export interface SendConfirmationRouteParams {
     estimatedBlocksBeforeConfirmation: number;
     tnxPriority: TxPriority;
   };
+  transactionPriority: TxPriority;
+  customFeePerByte: number;
 }
 
 export interface tnxDetailsProps {
-  sendMaxFeeEstimatedBlocks: number;
   transactionPriority: string;
   txFeeInfo: any;
 }
@@ -128,6 +129,8 @@ function SendConfirmation({ route }) {
     isRemoteFlow = false,
     remoteKeyProps,
     timeLeft,
+    transactionPriority: initialTransactionPriority,
+    customFeePerByte: initialCustomFeePerByte,
   }: SendConfirmationRouteParams = route.params;
   const txFeeInfo = isRemoteFlow
     ? {
@@ -144,14 +147,12 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.customPrioritySendPhaseOne?.outputs?.customTxRecipients
   );
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
-  const sendMaxFeeEstimatedBlocks = isRemoteFlow
-    ? remoteKeyProps.estimatedBlocksBeforeConfirmation
-    : useAppSelector((state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks);
+
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
   );
-  const [customFeePerByte, setCustomFeePerByte] = useState('');
+  const [customFeePerByte, setCustomFeePerByte] = useState(initialCustomFeePerByte ?? 0);
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item?.id === walletId);
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
@@ -189,6 +190,7 @@ function SendConfirmation({ route }) {
   const {
     txid: walletSendSuccessful,
     hasFailed: sendPhaseTwoFailed,
+    failedErrorMessage: failedSendPhaseTwoErrorMessage,
     cachedTxid, // generated for new transactions as well(in case they get cached)
     cachedTxPriority,
   } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
@@ -201,7 +203,7 @@ function SendConfirmation({ route }) {
       ? remoteKeyProps.tnxPriority
       : isCachedTransaction
       ? cachedTxPriority || TxPriority.LOW
-      : TxPriority.LOW
+      : initialTransactionPriority || TxPriority.LOW
   );
   const [usualFee, setUsualFee] = useState(0);
   const [topText, setTopText] = useState('');
@@ -410,7 +412,6 @@ function SendConfirmation({ route }) {
           sendConfirmationRouteParams: route.params,
           tnxDetails: {
             txFeeInfo,
-            sendMaxFeeEstimatedBlocks,
             transactionPriority,
           },
         })
@@ -512,6 +513,9 @@ function SendConfirmation({ route }) {
 
   useEffect(() => {
     if (sendPhaseTwoFailed) setProgress(false);
+    if (failedSendPhaseTwoErrorMessage) {
+      showToast(`Failed to send transaction: ${failedSendPhaseTwoErrorMessage}`);
+    }
   }, [sendPhaseTwoFailed]);
 
   useEffect(() => {

@@ -22,11 +22,9 @@ function CustomPriorityModal(props) {
     title = 'Title',
     subTitle = null,
     buttonText = 'Confirm',
-    buttonTextColor = 'white',
     buttonCallback,
     secondaryButtonText,
     secondaryCallback,
-    textColor,
     network,
     recipients,
     sender,
@@ -60,7 +58,6 @@ function CustomPriorityModal(props) {
       let customEstimatedBlock = 0;
       if (customFeeRatePerByte >= high.feePerByte) {
         customEstimatedBlock = high.estimatedBlocks;
-        if (customFeeRatePerByte > high.feePerByte) setEstimationSign('<');
       } else if (customFeeRatePerByte <= low.feePerByte) {
         customEstimatedBlock = low.estimatedBlocks;
         if (customFeeRatePerByte < low.feePerByte) setEstimationSign('>');

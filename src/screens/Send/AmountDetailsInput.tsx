@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   amountDetailsContainer: {
-    marginTop: hp(35),
+    marginTop: hp(30),
     width: '100%',
     height: hp(120),
   },
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   sendMaxWrapper: {
     width: wp(85),
     alignSelf: 'center',
-    marginTop: hp(25),
+    marginTop: hp(20),
     paddingHorizontal: hp(12),
     paddingVertical: hp(3),
     borderRadius: 5,

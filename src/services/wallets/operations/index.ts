@@ -75,32 +75,39 @@ const updateInputsForFeeCalculation = (wallet: Wallet | Vault, inputUTXOs) => {
   const isTaproot = wallet.scriptType === ScriptTypes.P2TR;
 
   return inputUTXOs.map((u) => {
-    if (wallet.entityKind == 'VAULT' && (wallet as Vault).isMultiSig) {
+    if (wallet.entityKind === 'VAULT' && (wallet as Vault).isMultiSig) {
       const m = (wallet as Vault).scheme.m;
       const n = (wallet as Vault).scheme.n;
       // TODO: Update Taproot when implementing Taproot multisig
       if (isTaproot || isNativeSegwit) {
+        // SegWit multisig
         u.script = {
           length: Math.ceil((8 + m * 74 + n * 34) / 4),
         };
       } else if (isWrappedSegwit) {
+        // Wrapped SegWit multisig
         u.script = {
           length: 35 + Math.ceil((8 + m * 74 + n * 34) / 4),
         };
       } else {
+        // Legacy multisig
         u.script = {
           length: 9 + m * 74 + n * 34,
         };
       }
     } else {
       if (isTaproot) {
-        u.script = { length: 15 }; // P2TR
+        u.script = { length: 57 };
       } else if (isNativeSegwit) {
-        u.script = { length: 27 }; // P2WPKH
+        u.script = {
+          length: Math.ceil((41 + 1 + 72 + 1 + 33) / 4),
+        };
       } else if (isWrappedSegwit) {
-        u.script = { length: 50 }; // P2SH-P2WPKH
+        u.script = {
+          length: 35 + Math.ceil((41 + 1 + 72 + 1 + 33) / 4),
+        };
       } else {
-        u.script = { length: 107 }; // Legacy P2PKH
+        u.script = { length: 41 + 72 + 33 };
       }
     }
     return u;

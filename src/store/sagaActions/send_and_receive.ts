@@ -255,6 +255,7 @@ export interface CalculateSendMaxFeeAction extends Action {
     }[];
     wallet: Wallet | Vault;
     selectedUTXOs?: UTXO[];
+    feePerByte?: number;
   };
 }
 
@@ -265,6 +266,7 @@ export const calculateSendMaxFee = (payload: {
   }[];
   wallet: Wallet | Vault;
   selectedUTXOs?: UTXO[];
+  feePerByte?: number;
 }): CalculateSendMaxFeeAction => ({
   type: CALCULATE_SEND_MAX_FEE,
   payload,
