@@ -29,9 +29,12 @@ function CustomPriorityModal(props) {
     recipients,
     sender,
     selectedUTXOs,
+    existingCustomPriorityFee,
   } = props;
   const { bottom } = useSafeAreaInsets();
-  const [customPriorityFee, setCustomPriorityFee] = useState('');
+  const [customPriorityFee, setCustomPriorityFee] = useState(
+    existingCustomPriorityFee.toString() || ''
+  );
   const [customEstBlocks, setCustomEstBlock] = useState();
   const [estimationSign, setEstimationSign] = useState('≈');
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);

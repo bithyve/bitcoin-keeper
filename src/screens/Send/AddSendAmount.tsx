@@ -659,6 +659,7 @@ function AddSendAmount({ route }) {
               }
             }
           }}
+          existingCustomPriorityFee={customFeePerByte}
         />
       )}
     </ScreenWrapper>

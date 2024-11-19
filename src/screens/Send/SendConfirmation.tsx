@@ -9,7 +9,6 @@ import { hp, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { NetworkType, TxPriority } from 'src/services/wallets/enums';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
@@ -19,7 +18,6 @@ import {
   sendPhaseTwoReset,
 } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
-import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import { useDispatch } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/models/enums/TransferType';
@@ -885,6 +883,7 @@ function SendConfirmation({ route }) {
               }
             }
           }}
+          existingCustomPriorityFee={customFeePerByte}
         />
       )}
       {isRemoteFlow && (
