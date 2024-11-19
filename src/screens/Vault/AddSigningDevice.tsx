@@ -397,7 +397,6 @@ function Signers({
           icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}
-          isFullText
           colorVarient="green"
           colorMode={colorMode}
         />
