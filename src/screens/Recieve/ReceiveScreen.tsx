@@ -49,6 +49,7 @@ import { InteracationMode } from '../Vault/HardwareModalMap';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import AmountDetailsInput from '../Send/AmountDetailsInput';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 const AddressVerifiableSigners = [
   SignerType.BITBOX02,
@@ -70,6 +71,7 @@ const SignerTypesNeedingRegistration = [
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
+  const isSmallDevice = useIsSmallDevices();
   const [modalVisible, setModalVisible] = useState(false);
   const [labelsModalVisible, setLabelsModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
@@ -409,7 +411,7 @@ function ReceiveScreen({ route }: { route }) {
                 setCurrentAddressIdxTempText(currentAddressIdx.toString());
               }
             }}
-            width={wp(40 + 5 * Math.max(0, Math.floor(Math.log10(Math.max(1, currentAddressIdx)))))}
+            width={wp(Math.min(120, 40 + 5 * String(currentAddressIdx).length))}
             height={hp(35)}
             keyboardType="numeric"
             style={styles.addressPageInput}
