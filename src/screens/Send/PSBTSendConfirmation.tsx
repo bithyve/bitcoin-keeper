@@ -56,8 +56,8 @@ function SendConfirmation({ route }) {
       fees,
       txid: '',
       address: '',
-      recipientAddresses: sender,
-      senderAddresses: recipient,
+      recipientAddresses: recipient,
+      senderAddresses: sender,
     };
     return data;
   };

@@ -61,7 +61,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
   const isDefaultType = type === 'default';
   const isCTAType = type === 'cta';
   const isListType = type === 'list';
-  const [showList, setShowList] = useState(false);
+  const [showList, setShowList] = useState(true);
 
   return (
     <>
@@ -128,7 +128,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
           )}
         </Box>
       </TouchableOpacity>
-      {showList && (
+      {showList && isListType && (
         <>
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <ScrollView style={{ maxHeight: hp(150) }}>
