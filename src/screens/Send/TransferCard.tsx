@@ -133,7 +133,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <ScrollView style={{ maxHeight: hp(150) }}>
             {list.map((item, index) => (
-              <>
+              <Box key={item.address + index}>
                 <Box style={styles.spacer} borderBottomColor={`${colorMode}.Border`} />
                 <Box key={index} style={styles.listItemContainer}>
                   <Box maxWidth={'60%'}>
@@ -158,7 +158,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
                     <Text>{`${getBalance(item.amount)} ${getSatUnit()}`}</Text>
                   </Box>
                 </Box>
-              </>
+              </Box>
             ))}
           </ScrollView>
         </>
