@@ -120,22 +120,6 @@ function SignWithChannel() {
             },
           ])
         );
-        if (isRemoteKey) {
-          navgation.dispatch(
-            CommonActions.navigate({
-              name: 'ShowQR',
-              params: {
-                data: signedSerializedPSBT,
-                encodeToBytes: false,
-                title: 'Signed PSBT',
-                subtitle: 'Please scan until all the QR data has been retrieved',
-                type: SignerType.KEEPER, // signer used as external key
-              },
-            })
-          );
-          return;
-        }
-
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
         navgation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
       } catch (error) {

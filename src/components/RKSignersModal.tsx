@@ -110,6 +110,21 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
     }
   };
 
+  const navigateToShowPSBT = (signedSerializedPSBT) => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ShowPSBT',
+        params: {
+          data: signedSerializedPSBT,
+          encodeToBytes: false,
+          title: 'Signed PSBT',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          type: SignerType.KEEPER,
+        },
+      })
+    );
+  };
+
   const signTransaction = async ({ seedBasedSingerMnemonic }) => {
     try {
       if (SignerType.SEED_WORDS === signerType) {
@@ -131,36 +146,14 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
               },
             ])
           );
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'ShowQR',
-              params: {
-                data: signedSerializedPSBT,
-                encodeToBytes: false,
-                title: 'Signed PSBT',
-                subtitle: 'Please scan until all the QR data has been retrieved',
-                type: SignerType.KEEPER, // signer used as external key
-              },
-            })
-          );
+          navigateToShowPSBT(signedSerializedPSBT);
         }
       } else if (SignerType.MY_KEEPER === signerType) {
         let signedSerializedPSBT: string;
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
         signedSerializedPSBT = signCosignerPSBT(key.xpriv, serializedPSBTEnvelop.serializedPSBT);
         if (signedSerializedPSBT) {
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'ShowQR',
-              params: {
-                data: signedSerializedPSBT,
-                encodeToBytes: false,
-                title: 'Signed PSBT',
-                subtitle: 'Please scan until all the QR data has been retrieved',
-                type: SignerType.KEEPER,
-              },
-            })
-          );
+          navigateToShowPSBT(signedSerializedPSBT);
         }
       }
     } catch (error) {

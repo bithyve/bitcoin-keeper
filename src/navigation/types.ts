@@ -84,7 +84,7 @@ export type AppStackParams = {
   TimelockScreen: undefined;
   SignerAdvanceSettings: undefined;
   ScanQR: undefined;
-  ShowQR: undefined;
+  ShowPSBT: undefined;
   RegisterWithQR: undefined;
   SignWithQR: undefined;
   NodeSettings: undefined;

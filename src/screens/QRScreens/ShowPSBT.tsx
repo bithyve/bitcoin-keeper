@@ -5,12 +5,12 @@ import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import { SignerType } from 'src/services/wallets/enums';
-import DisplayQR from '../QRScreens/DisplayQR';
+import DisplayQR from './DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import Buttons from 'src/components/Buttons';
 
-function ShowQR() {
+function ShowPSBT() {
   const route = useRoute();
   const {
     data,
@@ -44,7 +44,7 @@ function ShowQR() {
   );
 }
 
-export default ShowQR;
+export default ShowPSBT;
 
 const styles = StyleSheet.create({
   center: {
