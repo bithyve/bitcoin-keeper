@@ -49,7 +49,6 @@ import { InteracationMode } from '../Vault/HardwareModalMap';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import AmountDetailsInput from '../Send/AmountDetailsInput';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 const AddressVerifiableSigners = [
   SignerType.BITBOX02,
@@ -71,7 +70,6 @@ const SignerTypesNeedingRegistration = [
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
-  const isSmallDevice = useIsSmallDevices();
   const [modalVisible, setModalVisible] = useState(false);
   const [labelsModalVisible, setLabelsModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
