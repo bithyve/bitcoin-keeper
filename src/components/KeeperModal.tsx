@@ -147,7 +147,7 @@ function KeeperModal(props: ModalProps) {
           <Box
             backgroundColor={
               modalBackground === 'primaryBackground'
-                ? `${colorMode}.primaryBackground`
+                ? `${colorMode}.modalBackground`
                 : modalBackground
             }
             style={styles.container}
