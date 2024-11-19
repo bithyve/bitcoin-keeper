@@ -669,9 +669,6 @@ function SendConfirmation({ route }) {
           />
         </Box>
       </ScrollView>
-      {transferType === TransferType.VAULT_TO_VAULT ? (
-        <Note title={common.note} subtitle={vault.signingOldVault} />
-      ) : null}
       {!isRemoteFlow && (
         <Buttons
           primaryText={common.confirmProceed}
