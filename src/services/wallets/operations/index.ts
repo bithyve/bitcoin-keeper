@@ -791,7 +791,7 @@ export default class WalletOperations {
       netAmount += recipient.amount;
     });
 
-    if (!defaultPriorityOutputs) {
+    if (!defaultPriorityInputs || !defaultPriorityOutputs) {
       const defaultDebitedAmount = netAmount + defaultPriorityFee;
       if (outputUTXOs && outputUTXOs.length && defaultDebitedAmount > availableBalance) {
         outputUTXOs[0].value = availableBalance - defaultPriorityFee;
@@ -803,7 +803,7 @@ export default class WalletOperations {
         defaultFeePerByte + testnetFeeSurcharge(wallet)
       );
 
-      if (!assets.outputs) {
+      if (!assets.inputs || !assets.outputs) {
         return {
           fee: defaultPriorityFee,
           balance: availableBalance,
@@ -832,7 +832,7 @@ export default class WalletOperations {
           averageTxFees[priority].feePerByte + testnetFeeSurcharge(wallet)
         );
 
-        if (!outputs) {
+        if (!inputs || !outputs) {
           let netAmount = 0;
           recipients.forEach((recipient) => {
             netAmount += recipient.amount;
@@ -849,7 +849,7 @@ export default class WalletOperations {
           ));
         }
 
-        if (!outputs) {
+        if (!inputs || !outputs) {
           // to previous priority assets
           if (priority === TxPriority.MEDIUM) {
             txPrerequisites[priority] = txPrerequisites[TxPriority.LOW];
@@ -1465,7 +1465,8 @@ export default class WalletOperations {
       );
 
     if (balance < outgoingAmount + fee) throw new Error('Insufficient balance');
-    if (Object.keys(txPrerequisites).length) return { txRecipients, txPrerequisites };
+    if (txPrerequisites && Object.keys(txPrerequisites).length)
+      return { txRecipients, txPrerequisites };
 
     throw new Error('Unable to create transaction: inputs failed at coinselect');
   };
