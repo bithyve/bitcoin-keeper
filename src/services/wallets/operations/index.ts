@@ -720,7 +720,31 @@ export default class WalletOperations {
     }
     outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
 
-    const { fee } = coinselect(inputUTXOs, outputUTXOs, feePerByte + testnetFeeSurcharge(wallet));
+    let { inputs, outputs, fee } = coinselect(
+      inputUTXOs,
+      outputUTXOs,
+      feePerByte + testnetFeeSurcharge(wallet)
+    );
+
+    let i = 0;
+    const MAX_RETRIES = 10000; // Could raise to allow more retries in case of many uneconomic UTXOs in a wallet
+    while ((!inputs || !outputs) && i < MAX_RETRIES) {
+      let netAmount = 0;
+      recipients.forEach((recipient) => {
+        netAmount += recipient.amount;
+      });
+      if (outputUTXOs && outputUTXOs.length) {
+        outputUTXOs[0].value = availableBalance - fee - i;
+      }
+
+      ({ inputs, outputs, fee } = coinselect(
+        deepClone(inputUTXOs),
+        deepClone(outputUTXOs),
+        feePerByte + testnetFeeSurcharge(wallet)
+      ));
+      i++;
+    }
+    fee = availableBalance - outputUTXOs[0].value;
 
     return {
       fee,
