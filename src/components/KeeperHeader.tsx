@@ -241,7 +241,6 @@ const getStyles = (
   StyleSheet.create({
     container: {
       backgroundColor: 'transparent',
-      flex: -1,
     },
     simpleContainer: {
       flexDirection: 'row',

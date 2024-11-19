@@ -328,17 +328,25 @@ function ReceiveScreen({ route }: { route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ flexDirection: 'row' }}>
-        <KeeperHeader title={common.receive} titleColor={`${colorMode}.primaryText`} />
-        <TouchableOpacity onPress={generateNewReceiveAddress} style={styles.getNewAddressContainer}>
-          <Text color={`${colorMode}.textGreen`} style={styles.getNewAddressText} semiBold>
-            {home.GetNewAddress}
-          </Text>
-          {colorMode === 'light' ? (
-            <NewQR size={wp(20)} style={styles.getNewAddressIcon} />
-          ) : (
-            <NewQRWhite size={wp(20)} style={styles.getNewAddressIcon} />
-          )}
-        </TouchableOpacity>
+        <KeeperHeader
+          title={common.receive}
+          titleColor={`${colorMode}.primaryText`}
+          topRightComponent={
+            <TouchableOpacity
+              onPress={generateNewReceiveAddress}
+              style={styles.getNewAddressContainer}
+            >
+              <Text color={`${colorMode}.textGreen`} style={styles.getNewAddressText} semiBold>
+                {home.GetNewAddress}
+              </Text>
+              {colorMode === 'light' ? (
+                <NewQR size={wp(20)} style={styles.getNewAddressIcon} />
+              ) : (
+                <NewQRWhite size={wp(20)} style={styles.getNewAddressIcon} />
+              )}
+            </TouchableOpacity>
+          }
+        />
       </Box>
       <ScrollView
         automaticallyAdjustKeyboardInsets={true}
@@ -615,7 +623,6 @@ const styles = StyleSheet.create({
     height: hp(22),
   },
   getNewAddressContainer: {
-    marginTop: hp(20),
     flexDirection: 'row',
   },
   getNewAddressText: {
