@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -39,7 +39,6 @@ import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import AddressIcon from 'src/components/AddressIcon';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
 import { EntityKind, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
@@ -52,12 +51,12 @@ import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/con
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import AmountDetailsInput from './AmountDetailsInput';
 import KeeperModal from 'src/components/KeeperModal';
-import useAvailableTransactisonPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
 import ReceiptIcon from 'src/assets/images/receipt.svg';
 import ReceiptIconDark from 'src/assets/images/receipt-white.svg';
 import CustomPriorityModal from './CustomPriorityModal';
+import PriorityModal from './PriorityModal';
 
 const capitalizeFirstLetter = (string) => {
   if (!string) return '';
@@ -130,7 +129,7 @@ function AddSendAmount({ route }) {
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const [customFeePerByte, setCustomFeePerByte] = useState(0);
   const [customEstBlocks, setCustomEstBlocks] = useState(0);
-  const [estimationSign, setEstimationSign] = useState('~');
+  const [estimationSign, setEstimationSign] = useState('≈');
   const balance = idx(sender, (_) => _.specs.balances);
   let availableToSpend =
     sender.networkType === NetworkType.MAINNET
@@ -174,15 +173,20 @@ function AddSendAmount({ route }) {
     }
 
     try {
-      if (currentCurrency === CurrencyKind.BITCOIN) {
+      if (localCurrencyKind === CurrencyKind.BITCOIN) {
         if (satsEnabled) {
           setAmountToSend(amount);
         } else {
-          const btcAmount = parseFloat(amount).toFixed(8);
+          const btcAmount = (parseFloat(amount) * SATOSHIS_IN_BTC).toFixed(0);
           setAmountToSend(btcAmount);
         }
       } else {
-        const satsAmount = convertFiatToSats(parseFloat(amount)).toFixed(0)?.toString();
+        const satsAmount = isSendingMax
+          ? satsEnabled
+            ? maxAmountToSend
+            : maxAmountToSend / SATOSHIS_IN_BTC
+          : convertFiatToSats(parseFloat(amount)).toFixed(0)?.toString();
+
         setAmountToSend(satsAmount);
       }
     } catch (error) {
@@ -217,7 +221,6 @@ function AddSendAmount({ route }) {
   }, [amountToSend, selectedUTXOs.length]);
 
   useEffect(() => {
-    console.log(sendMaxFee);
     if (sendMaxFee && isSendingMax) {
       onSendMax();
     }
@@ -274,7 +277,11 @@ function AddSendAmount({ route }) {
       return;
     }
 
-    const satsAmount = convertToSats(currentAmount, localCurrencyKind);
+    const satsAmount = isSendingMax
+      ? satsEnabled
+        ? maxAmountToSend
+        : maxAmountToSend * SATOSHIS_IN_BTC
+      : convertToSats(currentAmount, localCurrencyKind);
     setAmountToSend(satsAmount);
   }, [currentAmount, localCurrencyKind]);
 
@@ -367,7 +374,11 @@ function AddSendAmount({ route }) {
       showToast('Please enter a valid amount');
       return;
     }
-    const amountInSats = convertToSats(currentAmount, localCurrencyKind);
+    const amountInSats = isSendingMax
+      ? satsEnabled
+        ? maxAmountToSend
+        : maxAmountToSend * SATOSHIS_IN_BTC
+      : convertToSats(currentAmount, localCurrencyKind);
     recipients.push({
       address,
       amount: amountInSats,
@@ -578,13 +589,6 @@ function AddSendAmount({ route }) {
               </Text>
             </Box>
           </Box>
-
-          {/* <Box style={styles.priorityItemRight}>
-            <Text medium fontSize={13}>
-              {satvByte} sats/vbyte
-            </Text>
-          </Box> */}
-
           {colorMode === 'light' ? <ArrowIcon height="100%" /> : <ArrowIconWhite height="100%" />}
         </Box>
       </TouchableOpacity>
@@ -637,7 +641,7 @@ function AddSendAmount({ route }) {
           visible={visibleCustomPriorityModal}
           close={() => setVisibleCustomPriorityModal(false)}
           title={vault.CustomPriority}
-          secondaryButtonText={common.cancel}
+          secondaryButtonText={common.Goback}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
           subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType}
@@ -658,166 +662,6 @@ function AddSendAmount({ route }) {
         />
       )}
     </ScreenWrapper>
-  );
-}
-
-interface PriorityItemProps {
-  priority: TxPriority;
-  selectedPriority: TxPriority;
-  setSelectedPriority: (priority: TxPriority) => void;
-  satvByte: string;
-  estimatedBlocks: number;
-  openCustomPriorityModal: () => void;
-  estimationSign: string;
-}
-
-function PriorityItem({
-  priority,
-  selectedPriority,
-  setSelectedPriority,
-  satvByte,
-  estimatedBlocks,
-  openCustomPriorityModal,
-  estimationSign,
-}: PriorityItemProps) {
-  const { colorMode } = useColorMode();
-  const isSelected = priority === selectedPriority;
-  const borderColor = isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.dullGreyBorder`;
-
-  const handlePress = () => {
-    if (!isSelected) {
-      setSelectedPriority(priority);
-    }
-  };
-
-  return (
-    <Pressable onPress={handlePress}>
-      <Box
-        style={[styles.priorityItemContainer, satvByte ? {} : { height: hp(48) }]}
-        backgroundColor={`${colorMode}.secondaryBackground`}
-        borderColor={borderColor}
-        borderWidth={isSelected ? 2 : 1}
-      >
-        <Box style={styles.priorityItemLeft}>
-          <Text medium fontSize={14}>
-            {capitalizeFirstLetter(priority)}
-          </Text>
-          {estimatedBlocks ? (
-            <Text fontSize={12}>{`${estimationSign} ${estimatedBlocks * 10} mins`}</Text>
-          ) : null}
-        </Box>
-        {priority !== TxPriority.CUSTOM ? (
-          <Box style={styles.priorityItemRight}>
-            <Text medium fontSize={13} style={{ marginRight: wp(10) }}>
-              {satvByte} sats/vbyte
-            </Text>
-          </Box>
-        ) : (
-          <Pressable
-            onPress={openCustomPriorityModal}
-            height="100%"
-            style={{ alignItems: 'flex-end', flexDirection: 'row' }}
-            paddingRight={wp(4)}
-          >
-            {satvByte ? (
-              <Text
-                medium
-                fontSize={13}
-                style={{ verticalAlign: 'middle', alignSelf: 'center', marginRight: wp(10) }}
-              >
-                {satvByte} sats/vbyte
-              </Text>
-            ) : null}
-            {colorMode === 'light' ? <ArrowIcon height="100%" /> : <ArrowIconWhite height="100%" />}
-          </Pressable>
-        )}
-      </Box>
-    </Pressable>
-  );
-}
-
-interface PriorityModalProps {
-  selectedPriority: TxPriority;
-  setSelectedPriority: (priority: TxPriority) => void;
-  averageTxFees: any;
-  customFeePerByte: number;
-  onOpenCustomPriorityModal: () => void;
-  customEstBlocks: number;
-  setCustomEstBlocks: (blocks: number) => void;
-  estimationSign: string;
-  setEstimationSign: (estimationSign: string) => void;
-}
-
-function PriorityModal({
-  selectedPriority,
-  setSelectedPriority,
-  averageTxFees,
-  customFeePerByte,
-  onOpenCustomPriorityModal,
-  customEstBlocks,
-  setCustomEstBlocks,
-  estimationSign,
-  setEstimationSign,
-}: PriorityModalProps) {
-  const availableTransactionPriorities = useAvailableTransactisonPriorities();
-  const reorderedPriorities = [
-    ...availableTransactionPriorities.filter((priority) => priority !== TxPriority.CUSTOM),
-    ...availableTransactionPriorities.filter((priority) => priority === TxPriority.CUSTOM),
-  ];
-
-  const onSelectedPriority = (priority: TxPriority) => {
-    if (!customFeePerByte && priority === TxPriority.CUSTOM) {
-      openCustomPriorityModal();
-    } else {
-      setSelectedPriority(priority);
-    }
-  };
-
-  const openCustomPriorityModal = () => {
-    onOpenCustomPriorityModal();
-  };
-
-  useEffect(() => {
-    setEstimationSign('~');
-    if (selectedPriority === TxPriority.CUSTOM) {
-      const { high, medium, low } = averageTxFees;
-      let customEstimatedBlock = 0;
-      if (customFeePerByte >= high.feePerByte) {
-        customEstimatedBlock = high.estimatedBlocks;
-      } else if (customFeePerByte <= low.feePerByte) {
-        customEstimatedBlock = low.estimatedBlocks;
-        if (customFeePerByte < low.feePerByte) setEstimationSign('>');
-      } else {
-        customEstimatedBlock = medium.estimatedBlocks;
-      }
-      if (customFeePerByte >= 1) setCustomEstBlocks(customEstimatedBlock);
-    } else {
-      setCustomEstBlocks(0);
-    }
-  }, [averageTxFees, customFeePerByte]);
-
-  return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      {reorderedPriorities?.map((priority) => {
-        return (
-          <PriorityItem
-            priority={priority}
-            selectedPriority={selectedPriority}
-            setSelectedPriority={onSelectedPriority}
-            satvByte={
-              priority === TxPriority.CUSTOM ? customFeePerByte : averageTxFees[priority].feePerByte
-            }
-            estimatedBlocks={
-              priority === TxPriority.CUSTOM
-                ? customEstBlocks
-                : averageTxFees[priority].estimatedBlocks
-            }
-            openCustomPriorityModal={openCustomPriorityModal}
-            estimationSign={priority === TxPriority.CUSTOM ? estimationSign : '~'}
-          />
-        );
-      })}
-    </ScrollView>
   );
 }
 
@@ -849,28 +693,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  priorityItemContainer: {
-    flex: 1,
-    height: hp(77),
-    width: '95%',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 10,
-    paddingHorizontal: wp(18),
-    marginBottom: hp(10),
-  },
   priorityItemLeft: {
     gap: 3,
     flex: 1,
   },
-  priorityItemRight: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 5,
-  },
 });
+
 export default AddSendAmount;

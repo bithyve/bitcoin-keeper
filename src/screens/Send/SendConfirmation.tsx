@@ -1,14 +1,10 @@
 import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Share from 'react-native-share';
-import {
-  calculateSendMaxFee,
-  crossTransfer,
-  sendPhaseTwo,
-} from 'src/store/sagaActions/send_and_receive';
+import { sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -30,7 +26,6 @@ import { TransferType } from 'src/models/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useBalance from 'src/hooks/useBalance';
 import useWallets from 'src/hooks/useWallets';
-import { whirlPoolWalletTypes } from 'src/services/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
@@ -44,13 +39,6 @@ import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ShareGreen from 'src/assets/images/share-arrow-green.svg';
 import ShareWhite from 'src/assets/images/share-arrow-white.svg';
-
-const customFeeOptionTransfers = [
-  TransferType.VAULT_TO_ADDRESS,
-  TransferType.VAULT_TO_WALLET,
-  TransferType.WALLET_TO_WALLET,
-  TransferType.WALLET_TO_ADDRESS,
-];
 import { resetVaultMigration } from 'src/store/reducers/vaults';
 import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -64,11 +52,10 @@ import TransactionPriorityDetails from './TransactionPriorityDetails';
 import HighFeeAlert from './HighFeeAlert';
 import FeeRateStatementCard from '../FeeInsights/FeeRateStatementCard';
 import AmountDetails from './AmountDetails';
-import SendingPriority from './SendingPriority';
-import ApproveTransVaultContent from './ApproveTransVaultContent';
 import SendSuccessfulContent from './SendSuccessfulContent';
 import config from 'src/utils/service-utilities/config';
 import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
+import PriorityModal from './PriorityModal';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -158,7 +145,6 @@ function SendConfirmation({ route }) {
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
 
   const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
-  const availableTransactionPriorities = useAvailableTransactionPriorities();
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslations, common, vault } = translations;
@@ -216,6 +202,9 @@ function SendConfirmation({ route }) {
       : (txRecipientsOptions?.[transactionPriority] ||
           customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
   );
+
+  const [customEstBlocks, setCustomEstBlocks] = useState(0);
+  const [estimationSign, setEstimationSign] = useState('≈');
 
   useEffect(() => {
     if (!isCachedTransaction) {
@@ -635,6 +624,7 @@ function SendConfirmation({ route }) {
                 getBalance={getBalance}
                 getCurrencyIcon={getCurrencyIcon}
                 getSatUnit={getSatUnit}
+                estimationSign={estimationSign}
               />
             </TouchableOpacity>
             {OneDayHistoricalFee.length > 0 && (
@@ -753,14 +743,8 @@ function SendConfirmation({ route }) {
       <KeeperModal
         visible={transPriorityModalVisible}
         close={() => setTransPriorityModalVisible(false)}
-        showCloseIcon={false}
         title={walletTranslations.transactionPriority}
-        subTitleWidth={wp(240)}
         subTitle={walletTranslations.transactionPrioritySubTitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={common.confirm}
         buttonCallback={() => {
           setTransPriorityModalVisible(false), setTransactionPriority;
@@ -768,22 +752,20 @@ function SendConfirmation({ route }) {
         secondaryButtonText={common.cancel}
         secondaryCallback={() => setTransPriorityModalVisible(false)}
         Content={() => (
-          <SendingPriority
+          <PriorityModal
+            selectedPriority={transactionPriority}
+            setSelectedPriority={setTransactionPriority}
+            averageTxFees={averageTxFees[config.NETWORK_TYPE]}
             txFeeInfo={txFeeInfo}
-            averageTxFees={averageTxFees}
-            networkType={sender?.networkType || sourceWallet?.networkType}
-            transactionPriority={transactionPriority}
-            isCachedTransaction={isCachedTransaction}
-            setTransactionPriority={setTransactionPriority}
-            availableTransactionPriorities={availableTransactionPriorities}
-            getBalance={getBalance}
-            getSatUnit={getSatUnit}
             customFeePerByte={customFeePerByte}
-            setVisibleCustomPriorityModal={() => {
-              setTransPriorityModalVisible(false);
+            onOpenCustomPriorityModal={() => {
               dispatch(customPrioritySendPhaseOneStatusReset());
               setVisibleCustomPriorityModal(true);
             }}
+            customEstBlocks={customEstBlocks}
+            setCustomEstBlocks={setCustomEstBlocks}
+            estimationSign={estimationSign}
+            setEstimationSign={setEstimationSign}
           />
         )}
       />
@@ -888,7 +870,7 @@ function SendConfirmation({ route }) {
           visible={visibleCustomPriorityModal}
           close={() => setVisibleCustomPriorityModal(false)}
           title={vault.CustomPriority}
-          secondaryButtonText={common.cancel}
+          secondaryButtonText={common.Goback}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
           subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType || sourceWallet?.networkType}

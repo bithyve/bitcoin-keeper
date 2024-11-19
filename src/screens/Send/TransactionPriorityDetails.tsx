@@ -14,6 +14,7 @@ const TransactionPriorityDetails = ({
   getBalance,
   getCurrencyIcon,
   getSatUnit,
+  estimationSign,
   disabled = false,
 }) => {
   const { colorMode } = useColorMode();
@@ -46,7 +47,7 @@ const TransactionPriorityDetails = ({
           </Box>
           <Box style={styles.rightContainer}>
             <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
-              ≈
+              {estimationSign}
             </Text>
             <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
               {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation *
