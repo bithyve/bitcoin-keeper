@@ -25,12 +25,7 @@ export interface SendConfirmationRouteParams {
   signer: Signer;
   psbt: string;
   tnxPriority: TxPriority;
-}
-
-export interface tnxDetailsProps {
-  sendMaxFeeEstimatedBlocks: number;
-  transactionPriority: string;
-  txFeeInfo: any;
+  feeRate: string;
 }
 
 function SendConfirmation({ route }) {
@@ -42,6 +37,7 @@ function SendConfirmation({ route }) {
     fees,
     signer,
     psbt,
+    feeRate,
   }: SendConfirmationRouteParams = route.params;
 
   const { translations } = useContext(LocalizationContext);
@@ -121,7 +117,7 @@ function SendConfirmation({ route }) {
             title={walletTranslations.feeRate}
             titleFontSize={16}
             titleFontWeight={300}
-            amount={fees}
+            amount={feeRate}
             amountFontSize={16}
             amountFontWeight={200}
             unitFontSize={12}

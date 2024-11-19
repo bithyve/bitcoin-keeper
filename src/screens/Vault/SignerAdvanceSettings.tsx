@@ -558,6 +558,7 @@ function SignerAdvanceSettings({ route }: any) {
             tnxPriority: tnxDetails.tnxPriority,
             signer,
             psbt: serializedPSBT,
+            feeRate,
           },
         })
       );
