@@ -16,7 +16,7 @@ const TitleCard = ({ plansData, currentPosition, restorePurchases, showRestore }
       backgroundColor={`${colorMode}.secondaryBackground`}
       borderColor={`${colorMode}.solidGreyBorder`}
       style={styles.titleContainer}
-      width={showRestore ? wp(195) : null}
+      minWidth={showRestore ? wp(195) : null}
     >
       <Text style={styles.titleText} color={`${colorMode}.primaryText`} bold>
         {plansData?.[currentPosition]?.name + ' Features'}
