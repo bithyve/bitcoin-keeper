@@ -1,11 +1,10 @@
-import { Box, ScrollView } from 'native-base';
+import { ScrollView } from 'native-base';
 import React, { useContext } from 'react';
 import OptionCard from 'src/components/OptionCard';
 import MrkIcon from 'src/assets/images/icon_mrk.svg';
 import CloudUser from 'src/assets/images/cloud_user.svg';
 import File from 'src/assets/images/files.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
-import { hp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
@@ -57,19 +56,17 @@ function BackupRecovery({ navigation }) {
         }}
       />
 
-      <Box mt={hp(40)}>
-        <OptionCard
-          preTitle={`${getTimeDifferenceInWords(
-            inheritanceToolVisitedHistory[BACKUP_AND_RECOVERY_FILES]
-          )}`}
-          title={inheritancePlanning.backupRecoveryTips}
-          description={inheritancePlanning.backupRecoveryDescp}
-          LeftIcon={<VaultGreenIcon />}
-          callback={() => {
-            navigate('BackupAndRecoveryTips', BACKUP_AND_RECOVERY_FILES);
-          }}
-        />
-      </Box>
+      <OptionCard
+        preTitle={`${getTimeDifferenceInWords(
+          inheritanceToolVisitedHistory[BACKUP_AND_RECOVERY_FILES]
+        )}`}
+        title={inheritancePlanning.backupRecoveryTips}
+        description={inheritancePlanning.backupRecoveryDescp}
+        LeftIcon={<VaultGreenIcon />}
+        callback={() => {
+          navigate('BackupAndRecoveryTips', BACKUP_AND_RECOVERY_FILES);
+        }}
+      />
     </ScrollView>
   );
 }
