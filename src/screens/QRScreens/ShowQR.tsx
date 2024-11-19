@@ -1,4 +1,4 @@
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
@@ -8,6 +8,7 @@ import { SignerType } from 'src/services/wallets/enums';
 import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import WalletCopiableData from 'src/components/WalletCopiableData';
+import Buttons from 'src/components/Buttons';
 
 function ShowQR() {
   const route = useRoute();
@@ -20,6 +21,8 @@ function ShowQR() {
   }: { data: any; encodeToBytes: boolean; title: string; subTitle: string; type: SignerType } =
     route.params as any;
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
@@ -34,6 +37,9 @@ function ShowQR() {
           <ShareWithNfc data={data} isPSBTSharing />
         </ScrollView>
       ) : null}
+      <Box style={styles.ctaContainer}>
+        <Buttons primaryText="Done" primaryCallback={() => navigation.pop(2)} />
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -43,10 +49,15 @@ export default ShowQR;
 const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
-    marginTop: '10%',
+    marginTop: '5%',
   },
   fingerprint: {
     alignItems: 'center',
     marginHorizontal: '7%',
+  },
+  ctaContainer: {
+    marginTop: '5%',
+    alignSelf: 'flex-end',
+    paddingHorizontal: '7%',
   },
 });
