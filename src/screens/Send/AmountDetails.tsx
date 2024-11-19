@@ -70,7 +70,7 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
               fontSize={unitFontSize || 12}
               fontWeight={unitFontWeight}
             >
-              {customUnit ?? getSatUnit()}
+              {isCurrentCurrencyFiat ? '' : customUnit ?? getSatUnit()}
               {isCurrentCurrencyFiat && currencyCode}
             </Text>
           </Box>

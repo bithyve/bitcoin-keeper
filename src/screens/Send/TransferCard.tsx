@@ -155,7 +155,11 @@ const TransferCard: React.FC<TransferCardProps> = ({
                   >
                     {!isCurrentCurrencyFiat &&
                       getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
-                    <Text>{`${getBalance(item.amount)} ${getSatUnit()}`}</Text>
+                    <Text>
+                      {` ${getBalance(item.amount)} `}
+                      {getSatUnit()}
+                      {isCurrentCurrencyFiat && currencyCode}
+                    </Text>
                   </Box>
                 </Box>
               </Box>

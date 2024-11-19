@@ -16,6 +16,7 @@ import RKSignersModal from '../../components/RKSignersModal';
 import ReceiptWrapper from './ReceiptWrapper';
 import TransferCard from './TransferCard';
 import AmountDetails from './AmountDetails';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 export interface SendConfirmationRouteParams {
   sender: { address: string; amount: number }[];
@@ -67,6 +68,7 @@ function SendConfirmation({ route }) {
       <KeeperHeader
         title={walletTranslations.signingTransaction}
         subtitle={walletTranslations.reviewTransaction}
+        rightComponent={<CurrencyTypeSwitch />}
         rightComponentPadding={wp(10)}
         rightComponentBottomPadding={hp(5)}
       />
