@@ -57,19 +57,17 @@ function BackupRecovery({ navigation }) {
         }}
       />
 
-      <Box mt={hp(40)}>
-        <OptionCard
-          preTitle={`${getTimeDifferenceInWords(
-            inheritanceToolVisitedHistory[BACKUP_AND_RECOVERY_FILES]
-          )}`}
-          title={inheritancePlanning.backupRecoveryTips}
-          description={inheritancePlanning.backupRecoveryDescp}
-          LeftIcon={<VaultGreenIcon />}
-          callback={() => {
-            navigate('BackupAndRecoveryTips', BACKUP_AND_RECOVERY_FILES);
-          }}
-        />
-      </Box>
+      <OptionCard
+        preTitle={`${getTimeDifferenceInWords(
+          inheritanceToolVisitedHistory[BACKUP_AND_RECOVERY_FILES]
+        )}`}
+        title={inheritancePlanning.backupRecoveryTips}
+        description={inheritancePlanning.backupRecoveryDescp}
+        LeftIcon={<VaultGreenIcon />}
+        callback={() => {
+          navigate('BackupAndRecoveryTips', BACKUP_AND_RECOVERY_FILES);
+        }}
+      />
     </ScrollView>
   );
 }

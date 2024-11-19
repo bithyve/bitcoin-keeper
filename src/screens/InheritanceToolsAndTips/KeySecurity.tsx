@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import OptionCard from 'src/components/OptionCard';
 import ServerIcon from 'src/assets/images/server-network.svg';
 import ServerGreyIcon from 'src/assets/images/server-network-grey.svg';
@@ -19,13 +19,14 @@ import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import usePlan from 'src/hooks/usePlan';
 import UpgradeSubscription from './components/UpgradeSubscription';
-import CardPill from 'src/components/CardPill';
-import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { hp } from 'src/constants/responsive';
+import { StyleSheet } from 'react-native';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
   const { plan } = usePlan();
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
   const isHodlerAndDiamondHand =
@@ -69,7 +70,13 @@ function KeySecurity({ navigation }) {
         LeftIcon={!isHodlerAndDiamondHand ? <ServerGreyIcon /> : <ServerIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
-      <Box paddingTop={4}>
+      {!isHodlerAndDiamondHand && (
+        <Box
+          borderColor={`${colorMode}.lightSkin`}
+          style={StyleSheet.flatten([{ borderWidth: 1, marginTop: hp(10) }])}
+        />
+      )}
+      <Box paddingTop={!isHodlerAndDiamondHand && hp(20)}>
         <OptionCard
           preTitle={`${getTimeDifferenceInWords(
             inheritanceToolVisitedHistory?.[SECURE_USAGE_TIPS]
