@@ -40,13 +40,14 @@ function ShowPSBT() {
       <Box style={styles.ctaContainer}>
         <Buttons
           primaryText="Done"
+          fullWidth={true}
           primaryCallback={() => {
             navigation.dispatch((state) => {
               const index = state.routes.findIndex(
                 (route) => route.name === 'SignerAdvanceSettings'
               );
               if (index === -1) {
-                return StackActions.replace('SignerAdvanceSettings');
+                return StackActions.pop(1);
               }
               return StackActions.pop(state.index - index);
             });
