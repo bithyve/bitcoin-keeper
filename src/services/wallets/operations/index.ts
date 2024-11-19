@@ -75,43 +75,54 @@ const updateInputsForFeeCalculation = (wallet: Wallet | Vault, inputUTXOs) => {
   const isTaproot = wallet.scriptType === ScriptTypes.P2TR;
 
   return inputUTXOs.map((u) => {
-    if (wallet.entityKind === 'VAULT' && (wallet as Vault).isMultiSig) {
+    if (wallet.entityKind == 'VAULT' && (wallet as Vault).isMultiSig) {
       const m = (wallet as Vault).scheme.m;
       const n = (wallet as Vault).scheme.n;
       // TODO: Update Taproot when implementing Taproot multisig
       if (isTaproot || isNativeSegwit) {
-        // SegWit multisig
         u.script = {
           length: Math.ceil((8 + m * 74 + n * 34) / 4),
         };
       } else if (isWrappedSegwit) {
-        // Wrapped SegWit multisig
         u.script = {
           length: 35 + Math.ceil((8 + m * 74 + n * 34) / 4),
         };
       } else {
-        // Legacy multisig
         u.script = {
           length: 9 + m * 74 + n * 34,
         };
       }
     } else {
       if (isTaproot) {
-        u.script = { length: 57 };
+        u.script = { length: 15 }; // P2TR
       } else if (isNativeSegwit) {
-        u.script = {
-          length: Math.ceil((41 + 1 + 72 + 1 + 33) / 4),
-        };
+        u.script = { length: 27 }; // P2WPKH
       } else if (isWrappedSegwit) {
-        u.script = {
-          length: 35 + Math.ceil((41 + 1 + 72 + 1 + 33) / 4),
-        };
+        u.script = { length: 50 }; // P2SH-P2WPKH
       } else {
-        u.script = { length: 41 + 72 + 33 };
+        u.script = { length: 107 }; // Legacy P2PKH
       }
     }
     return u;
   });
+};
+
+const updateOutputsForFeeCalculation = (outputs, network) => {
+  for (const o of outputs) {
+    if (o.address && (o.address.startsWith('bc1') || o.address.startsWith('tb1'))) {
+      // in case address is non-typical and takes more bytes than coinselect library anticipates by default
+      o.script = {
+        length:
+          bitcoinJS.address.toOutputScript(
+            o.address,
+            network === NetworkType.MAINNET
+              ? bitcoinJS.networks.bitcoin
+              : bitcoinJS.networks.testnet
+          ).length + 3,
+      };
+    }
+  }
+  return outputs;
 };
 
 export default class WalletOperations {
@@ -700,13 +711,15 @@ export default class WalletOperations {
       availableBalance += utxo.value;
     });
 
-    const outputUTXOs = [];
+    let outputUTXOs = [];
     for (const recipient of recipients) {
       outputUTXOs.push({
         address: recipient.address,
         value: availableBalance,
       });
     }
+    outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
+
     const { fee } = coinselect(inputUTXOs, outputUTXOs, feePerByte + testnetFeeSurcharge(wallet));
 
     return {
@@ -752,13 +765,15 @@ export default class WalletOperations {
       availableBalance += utxo.value;
     });
 
-    const outputUTXOs = [];
+    let outputUTXOs = [];
     for (const recipient of recipients) {
       outputUTXOs.push({
         address: recipient.address,
         value: recipient.amount,
       });
     }
+
+    outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
 
     const defaultTxPriority = TxPriority.LOW; // doing base calculation with low fee (helps in sending the tx even if higher priority fee isn't possible)
     const defaultFeePerByte = averageTxFees[defaultTxPriority].feePerByte;
@@ -904,6 +919,7 @@ export default class WalletOperations {
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
+    outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
 
     let { inputs, outputs, fee } = coinselect(
       deepClone(inputUTXOs),
