@@ -348,16 +348,43 @@ export const estimateVByteFromPSBT = (base64Str: string) => {
   const psbt = bitcoin.Psbt.fromBase64(base64Str);
   const unsignedTxHex =
     psbt.txInputs.length > 0 && psbt.txOutputs.length > 0 ? psbt.__CACHE.__TX.toHex() : null;
+  if (!unsignedTxHex) {
+    throw new Error('Invalid PSBT: No inputs or outputs.');
+  }
   const tx = bitcoin.Transaction.fromHex(unsignedTxHex);
-
-  // Calculate the base size (without witness data)
+  // Base size (transaction size without witness data)
   const baseSize = tx.toBuffer().length;
-
-  // Check if there is witness data and calculate the total size accordingly
-  const totalSize = tx.hasWitnesses() ? tx.virtualSize() : baseSize;
-
+  // Initialize total size with base size
+  let totalSize = baseSize;
+  // Iterate through inputs to calculate witness size
+  psbt.data.inputs.forEach((input) => {
+    if (!input.witnessScript) {
+      throw new Error('Input is missing witness script for P2WSH.');
+    }
+    // Decode the witness script (redeem script)
+    const witnessScript = bitcoin.script.decompile(input.witnessScript);
+    if (!witnessScript) {
+      throw new Error('Invalid witness script.');
+    }
+    // Determine `m` from the script
+    const m = witnessScript[0] - bitcoin.opcodes.OP_1 + 1; // OP_m
+    // Placeholder (1 byte) for null signature
+    const nullPlaceholderSize = 1;
+    // Each signature: 73 bytes (1-byte opcode + ~72-byte DER-encoded signature)
+    const signaturesSize = m * (1 + 72);
+    // Redeem script size (serialized size of the witness script)
+    const redeemScriptSize = input.witnessScript.length;
+    // Push opcode size for redeem script (1 byte if script < 76 bytes)
+    const redeemScriptPushSize = 1;
+    // Total witness size for this input
+    const witnessSize =
+      nullPlaceholderSize + signaturesSize + redeemScriptPushSize + redeemScriptSize;
+    // Add witness size to total transaction size
+    totalSize += witnessSize;
+  });
   // Calculate vBytes using the formula
-  return Math.ceil((baseSize * 3 + totalSize) / 4);
+  const vBytes = Math.ceil((baseSize * 3 + totalSize) / 4);
+  return vBytes;
 };
 
 export const getInputsFromPSBT = (base64Str: string) => {
