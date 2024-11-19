@@ -1,4 +1,4 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
@@ -38,7 +38,20 @@ function ShowPSBT() {
         </ScrollView>
       ) : null}
       <Box style={styles.ctaContainer}>
-        <Buttons primaryText="Done" primaryCallback={() => navigation.pop(2)} />
+        <Buttons
+          primaryText="Done"
+          primaryCallback={() => {
+            navigation.dispatch((state) => {
+              const index = state.routes.findIndex(
+                (route) => route.name === 'SignerAdvanceSettings'
+              );
+              if (index === -1) {
+                return StackActions.replace('SignerAdvanceSettings');
+              }
+              return StackActions.pop(state.index - index);
+            });
+          }}
+        />
       </Box>
     </ScreenWrapper>
   );
