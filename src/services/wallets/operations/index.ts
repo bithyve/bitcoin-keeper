@@ -791,12 +791,7 @@ export default class WalletOperations {
       netAmount += recipient.amount;
     });
 
-    let retryDefaultCoinSelectionCounter = 0;
-
-    while (
-      (!defaultPriorityInputs || !defaultPriorityOutputs) &&
-      retryDefaultCoinSelectionCounter < 5
-    ) {
+    if (!defaultPriorityInputs || !defaultPriorityOutputs) {
       const defaultDebitedAmount = netAmount + defaultPriorityFee;
       if (outputUTXOs && outputUTXOs.length && defaultDebitedAmount > availableBalance) {
         outputUTXOs[0].value = availableBalance - defaultPriorityFee;
@@ -808,20 +803,16 @@ export default class WalletOperations {
         defaultFeePerByte + testnetFeeSurcharge(wallet)
       );
 
-      defaultPriorityFee = assets.fee;
-      if (defaultPriorityInputs && defaultPriorityOutputs) {
-        defaultPriorityInputs = deepClone(assets.inputs);
-        defaultPriorityOutputs = deepClone(assets.outputs);
-        break;
+      if (!assets.inputs || !assets.outputs) {
+        return {
+          fee: defaultPriorityFee,
+          balance: availableBalance,
+        };
       }
-      retryDefaultCoinSelectionCounter++;
-    }
 
-    if (!defaultPriorityInputs || !defaultPriorityOutputs) {
-      return {
-        fee: defaultPriorityFee,
-        balance: availableBalance,
-      };
+      defaultPriorityInputs = deepClone(assets.inputs);
+      defaultPriorityOutputs = deepClone(assets.outputs);
+      defaultPriorityFee = assets.fee;
     }
 
     const txPrerequisites: TransactionPrerequisite = {};
