@@ -1031,7 +1031,9 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
         <Box style={styles.signerText}>
-          {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
+          <Text color={`${colorMode}.secondaryText`} medium>
+            {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
+          </Text>
         </Box>
         <ScrollView
           horizontal
@@ -1353,7 +1355,6 @@ const styles = StyleSheet.create({
   },
   signerText: {
     marginVertical: hp(15),
-    marginHorizontal: 10,
   },
   signerCard: {
     borderWidth: 1,

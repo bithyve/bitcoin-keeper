@@ -125,9 +125,11 @@ function AddWallet({ navigation }) {
         onCardSelect={onCardSelect}
         numberOfLines={1}
       />
-      {selectedCard === 1 && <Wallets navigation={navigation} />}
-      {selectedCard === 2 && <ImportWallets navigation={navigation} />}
-      {selectedCard === 3 && <AdvancedWallets navigation={navigation} />}
+      <Box style={styles.optionsContainer}>
+        {selectedCard === 1 && <Wallets navigation={navigation} />}
+        {selectedCard === 2 && <ImportWallets navigation={navigation} />}
+        {selectedCard === 3 && <AdvancedWallets navigation={navigation} />}
+      </Box>
       <KeeperModal
         visible={visibleModal}
         close={() => {
@@ -180,6 +182,9 @@ const styles = StyleSheet.create({
   addWalletTitleText: {
     fontSize: 15,
     padding: 1,
+  },
+  optionsContainer: {
+    paddingHorizontal: 5,
   },
 });
 

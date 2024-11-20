@@ -2,6 +2,7 @@ import { Box, Pressable, useColorMode } from 'native-base';
 import React, { StyleSheet } from 'react-native';
 import Text from './KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 type MenuCardProps = {
   id: number;
@@ -10,7 +11,7 @@ type MenuCardProps = {
   icon: Element;
   selectedIcon: Element;
   selectedCard: number;
-  onCardSelect: (cardName: number) => void;
+  onCardSelect: (cardId: number) => void;
   numberOfLines?: number;
   isFirst: boolean;
   isLast: boolean;
@@ -29,7 +30,9 @@ function MenuCard({
   isLast,
 }: MenuCardProps) {
   const { colorMode } = useColorMode();
+  const isSmallDevice = useIsSmallDevices();
   const isSelected = selectedCard === id;
+  const styles = getStyles(isSmallDevice);
 
   return (
     <Pressable testID={`btn_${title}`} onPress={() => onCardSelect(id)}>
@@ -48,7 +51,7 @@ function MenuCard({
           >
             {isSelected ? selectedIcon : icon}
           </Box>
-          <Box>
+          <Box style={styles.textWrapper}>
             <Text
               color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.menuCardTitleColor`}
               numberOfLines={numberOfLines}
@@ -57,14 +60,15 @@ function MenuCard({
             >
               {title}
             </Text>
-            <Text
-              color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.menuCardTitleColor`}
-              fontSize={10}
-              numberOfLines={2}
-              style={styles.description}
-            >
-              {description}
-            </Text>
+            {description && (
+              <Text
+                color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.menuCardTitleColor`}
+                numberOfLines={2}
+                style={styles.description}
+              >
+                {description}
+              </Text>
+            )}
           </Box>
         </Box>
       </Box>
@@ -79,53 +83,57 @@ function MenuCard({
   );
 }
 
-const styles = StyleSheet.create({
-  menuCardContainer: {
-    height: 115,
-    width: wp(114),
-  },
-  circle: {
-    width: 34,
-    height: 34,
-    borderRadius: 34 / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  detailContainer: {
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: 10,
-    paddingHorizontal: wp(10),
-    paddingTop: 28,
-  },
-  arrow: {
-    zIndex: -1,
-    width: 20,
-    height: 20,
-    borderStyle: 'solid',
-    borderWidth: 1,
-    top: -12,
-    borderRadius: 4,
-    transform: [{ rotate: '45deg' }],
-
-    alignSelf: 'flex-end',
-    marginRight: 13,
-  },
-  title: {
-    fontSize: 12,
-    lineHeight: 17,
-  },
-  description: {
-    lineHeight: 17,
-  },
-  firstCard: {
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-  },
-  lastCard: {
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-  },
-});
+const getStyles = (isSmallDevice: boolean) =>
+  StyleSheet.create({
+    menuCardContainer: {
+      height: isSmallDevice ? hp(150) : hp(115),
+      width: wp(114),
+      paddingTop: hp(28),
+    },
+    circle: {
+      width: 34,
+      height: 34,
+      borderRadius: 34 / 2,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    detailContainer: {
+      alignItems: 'flex-start',
+      paddingHorizontal: wp(10),
+      gap: 10,
+    },
+    textWrapper: {
+      width: '100%',
+    },
+    arrow: {
+      zIndex: -1,
+      width: 20,
+      height: 20,
+      borderStyle: 'solid',
+      borderWidth: 1,
+      top: -12,
+      borderRadius: 4,
+      transform: [{ rotate: '45deg' }],
+      alignSelf: 'flex-end',
+      marginRight: 13,
+    },
+    title: {
+      fontSize: 12,
+      lineHeight: 17,
+      marginBottom: 2,
+    },
+    description: {
+      fontSize: 10,
+      lineHeight: 14,
+    },
+    firstCard: {
+      borderTopLeftRadius: 10,
+      borderBottomLeftRadius: 10,
+    },
+    lastCard: {
+      borderTopRightRadius: 10,
+      borderBottomRightRadius: 10,
+    },
+  });
 
 export default MenuCard;

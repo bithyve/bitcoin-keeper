@@ -137,7 +137,7 @@ function VaultSettings({ route }) {
 const styles = StyleSheet.create({
   optionViewWrapper: {
     marginTop: hp(30),
-    alignItems: 'center',
+    paddingHorizontal: wp(10),
   },
   cancelBtn: {
     marginRight: wp(20),
