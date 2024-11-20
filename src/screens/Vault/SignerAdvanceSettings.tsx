@@ -534,73 +534,38 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const signPSBT = async (serializedPSBT) => {
-    if (signer.type != SignerType.MY_KEEPER) {
-      try {
-        const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount, feeRate } =
-          generateDataFromPSBT(serializedPSBT, signer);
-        const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
-
-        if (!signerMatched) {
-          showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
-          navigation.goBack();
-          return;
-        }
-
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'SendConfirmation',
-            params: {
-              sender: senderAddresses,
-              receiver: null,
-              address: receiverAddresses,
-              amount: sendAmount,
-              data: serializedPSBT,
-              isRemoteFlow: true,
-              signingDetails: signer,
-              transferType: TransferType.VAULT_TO_ADDRESS,
-              remoteKeyProps: {
-                fees: fees,
-                estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
-                tnxPriority: tnxDetails.tnxPriority,
-                signer,
-                psbt: serializedPSBT,
-              },
-            },
-          })
-        );
-      } catch (error) {
-        console.log('🚀 ~ signPSBT ~ error:', error);
-        showToast(error.message);
-        captureError(error);
-      }
-      return;
-    }
-
     try {
-      let signedSerialisedPSBT;
-      try {
-        const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
-      } catch (e) {
-        showToast(e.message);
-        captureError(e);
+      const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount, feeRate } =
+        generateDataFromPSBT(serializedPSBT, signer);
+      const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
+
+      if (!signerMatched) {
+        showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
+        navigation.goBack();
+        return;
       }
-      if (signedSerialisedPSBT) {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'ShowQR',
-            params: {
-              data: signedSerialisedPSBT,
-              encodeToBytes: false,
-              title: 'Signed PSBT',
-              subtitle: 'Please scan until all the QR data has been retrieved',
-              type: SignerType.KEEPER,
-            },
-          })
-        );
-      }
-    } catch (e) {
-      showToast('Please scan a valid PSBT');
+
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'PSBTSendConfirmation',
+          params: {
+            sender: senderAddresses,
+            recipient: receiverAddresses,
+            amount: sendAmount,
+            data: serializedPSBT,
+            fees: fees,
+            estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
+            tnxPriority: tnxDetails.tnxPriority,
+            signer,
+            psbt: serializedPSBT,
+            feeRate,
+          },
+        })
+      );
+    } catch (error) {
+      console.log('🚀 ~ signPSBT ~ error:', error);
+      showToast(error.message);
+      captureError(error);
     }
   };
 

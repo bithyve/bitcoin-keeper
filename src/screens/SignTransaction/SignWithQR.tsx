@@ -137,7 +137,7 @@ function SignWithQR() {
         if (isRemoteKey) {
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'ShowQR',
+              name: 'ShowPSBT',
               params: {
                 data: signedSerializedPSBT,
                 encodeToBytes: false,

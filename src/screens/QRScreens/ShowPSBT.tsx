@@ -1,15 +1,16 @@
-import { useRoute } from '@react-navigation/native';
+import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import { SignerType } from 'src/services/wallets/enums';
-import DisplayQR from '../QRScreens/DisplayQR';
+import DisplayQR from './DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import WalletCopiableData from 'src/components/WalletCopiableData';
+import Buttons from 'src/components/Buttons';
 
-function ShowQR() {
+function ShowPSBT() {
   const route = useRoute();
   const {
     data,
@@ -20,6 +21,8 @@ function ShowQR() {
   }: { data: any; encodeToBytes: boolean; title: string; subTitle: string; type: SignerType } =
     route.params as any;
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
@@ -34,19 +37,41 @@ function ShowQR() {
           <ShareWithNfc data={data} isPSBTSharing />
         </ScrollView>
       ) : null}
+      <Box style={styles.ctaContainer}>
+        <Buttons
+          primaryText="Done"
+          fullWidth={true}
+          primaryCallback={() => {
+            navigation.dispatch((state) => {
+              const index = state.routes.findIndex(
+                (route) => route.name === 'SignerAdvanceSettings'
+              );
+              if (index === -1) {
+                return StackActions.pop(1);
+              }
+              return StackActions.pop(state.index - index);
+            });
+          }}
+        />
+      </Box>
     </ScreenWrapper>
   );
 }
 
-export default ShowQR;
+export default ShowPSBT;
 
 const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
-    marginTop: '10%',
+    marginTop: '5%',
   },
   fingerprint: {
     alignItems: 'center',
     marginHorizontal: '7%',
+  },
+  ctaContainer: {
+    marginTop: '5%',
+    alignSelf: 'flex-end',
+    paddingHorizontal: '7%',
   },
 });

@@ -15,6 +15,9 @@ import useBalance from 'src/hooks/useBalance';
 import moment from 'moment';
 import { Transaction } from 'src/services/wallets/interfaces';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
+import { useAppSelector } from 'src/store/hooks';
+import BTC from 'src/assets/images/btc.svg';
 
 function TabBar({ tabs, activeTab, setActiveTab }) {
   const { colorMode } = useColorMode();
@@ -56,6 +59,9 @@ function TabBar({ tabs, activeTab, setActiveTab }) {
 }
 
 function Address({ address, activeTab, colorMode }) {
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const isCurrentCurrencyFiat = currentCurrency === CurrencyKind.FIAT;
   return (
     <Box style={styles.addressContainer}>
       {activeTab === 0 ? (
@@ -69,15 +75,38 @@ function Address({ address, activeTab, colorMode }) {
       ) : (
         <IconRecieve width={wp(18)} height={hp(18)} />
       )}
-      <Box width={'90%'}>
-        <Text
-          ellipsizeMode="middle"
-          numberOfLines={1}
-          color={`${colorMode}.transactionDeatilAddress`}
-        >
-          {address}
-        </Text>
-      </Box>
+      {typeof address === 'string' ? (
+        <Box width={'90%'}>
+          <Text
+            ellipsizeMode="middle"
+            numberOfLines={1}
+            color={`${colorMode}.transactionDeatilAddress`}
+          >
+            {address}
+          </Text>
+        </Box>
+      ) : (
+        <Box width={'90%'} flexDirection={'row'} justifyContent={'space-between'}>
+          <Text
+            ellipsizeMode="middle"
+            numberOfLines={1}
+            maxWidth={'50%'}
+            color={`${colorMode}.transactionDeatilAddress`}
+          >
+            {address.address}
+          </Text>
+          <Text
+            ellipsizeMode="middle"
+            numberOfLines={1}
+            color={`${colorMode}.transactionDeatilAddress`}
+          >
+            {!isCurrentCurrencyFiat &&
+              getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
+            {` ${getBalance(address.amount)} `}
+            {getSatUnit()}
+          </Text>
+        </Box>
+      )}
     </Box>
   );
 }
@@ -85,9 +114,11 @@ function Address({ address, activeTab, colorMode }) {
 function TransactionAdvancedDetails({ route }) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance } = useBalance();
+
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
-  const { transaction }: { transaction: Transaction } = route.params;
+  const { transaction, showTnxId = true }: { transaction: Transaction; showTnxId: boolean } =
+    route.params;
   const [activeTab, setActiveTab] = useState(0);
   const [addresses, setAdresses] = useState([]);
 
@@ -111,43 +142,45 @@ function TransactionAdvancedDetails({ route }) {
         barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'}
         backgroundColor="transparent"
       />
-      <Box style={styles.topSection}>
+      <Box style={[styles.topSection, !showTnxId && { height: '17%' }]}>
         <KeeperHeader title={transactions.advancedDetails} />
-        <Box style={styles.transViewWrapper}>
-          <Box style={styles.transViewIcon}>
-            {transaction.transactionType === 'Received' ? (
-              colorMode === 'dark' ? (
-                <IconRecieveDark />
+        {showTnxId && (
+          <Box style={styles.transViewWrapper}>
+            <Box style={styles.transViewIcon}>
+              {transaction.transactionType === 'Received' ? (
+                colorMode === 'dark' ? (
+                  <IconRecieveDark />
+                ) : (
+                  <IconRecieve />
+                )
+              ) : colorMode === 'dark' ? (
+                <IconSendDark />
               ) : (
-                <IconRecieve />
-              )
-            ) : colorMode === 'dark' ? (
-              <IconSendDark />
-            ) : (
-              <IconSend />
-            )}
-            <Box style={styles.transView}>
-              <Text
-                color={`${colorMode}.transactionDeatilAddress`}
-                numberOfLines={1}
-                style={styles.transIDText}
-              >
-                {transaction.txid}
-              </Text>
-              <Text style={styles.transDateText} color={`${colorMode}.transactionDeatilAddress`}>
-                {moment(transaction?.date).format('DD MMM YY  •  HH:mm A')}
+                <IconSend />
+              )}
+              <Box style={styles.transView}>
+                <Text
+                  color={`${colorMode}.transactionDeatilAddress`}
+                  numberOfLines={1}
+                  style={styles.transIDText}
+                >
+                  {transaction.txid}
+                </Text>
+                <Text style={styles.transDateText} color={`${colorMode}.transactionDeatilAddress`}>
+                  {moment(transaction?.date).format('DD MMM YY  •  HH:mm A')}
+                </Text>
+              </Box>
+            </Box>
+            <Box>
+              <Text style={styles.amountText}>
+                {`${getBalance(transaction.amount)} `}
+                <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+                  {getSatUnit()}
+                </Text>
               </Text>
             </Box>
           </Box>
-          <Box>
-            <Text style={styles.amountText}>
-              {`${getBalance(transaction.amount)} `}
-              <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                {getSatUnit()}
-              </Text>
-            </Text>
-          </Box>
-        </Box>
+        )}
       </Box>
       <Box style={styles.bottomSection} backgroundColor={`${colorMode}.secondaryBackground`}>
         <Box style={styles.tabBarWrapper}>

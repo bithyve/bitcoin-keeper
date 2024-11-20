@@ -25,7 +25,7 @@ import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import RegisterWithQR from 'src/screens/QRScreens/RegisterWithQR';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import ScanQR from 'src/screens/QRScreens/ScanQR';
-import ShowQR from 'src/screens/QRScreens/ShowQR';
+import ShowPSBT from 'src/screens/QRScreens/ShowPSBT';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/SigningDevices/SetupColdCard';
@@ -132,6 +132,7 @@ import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
+import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -220,6 +221,7 @@ function AppStack() {
         <Stack.Screen name="AddDetailsFinal" component={AddDetailsFinalScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
+        <Stack.Screen name="PSBTSendConfirmation" component={PSBTSendConfirmation} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="UTXOManagement" component={UTXOManagement} />
@@ -264,7 +266,7 @@ function AppStack() {
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
         <Stack.Screen name="ScanQR" component={ScanQR} />
-        <Stack.Screen name="ShowQR" component={ShowQR} />
+        <Stack.Screen name="ShowPSBT" component={ShowPSBT} />
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
         <Stack.Screen name="NodeSettings" component={NodeSettings} />

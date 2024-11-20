@@ -41,6 +41,7 @@ export type AppStackParams = {
   AddDetailsFinal: undefined;
   AddSendAmount: undefined;
   SendConfirmation: undefined;
+  PSBTSendConfirmation: undefined;
   WalletDetails: { autoRefresh?: boolean; walletId: string; transactionToast?: boolean };
   VaultDetails: {
     vaultId: string;
@@ -83,7 +84,7 @@ export type AppStackParams = {
   TimelockScreen: undefined;
   SignerAdvanceSettings: undefined;
   ScanQR: undefined;
-  ShowQR: undefined;
+  ShowPSBT: undefined;
   RegisterWithQR: undefined;
   SignWithQR: undefined;
   NodeSettings: undefined;
