@@ -33,7 +33,7 @@ function CustomPriorityModal(props) {
   } = props;
   const { bottom } = useSafeAreaInsets();
   const [customPriorityFee, setCustomPriorityFee] = useState(
-    existingCustomPriorityFee.toString() || ''
+    existingCustomPriorityFee ? existingCustomPriorityFee.toString() : ''
   );
   const [customEstBlocks, setCustomEstBlock] = useState();
   const [estimationSign, setEstimationSign] = useState('≈');
