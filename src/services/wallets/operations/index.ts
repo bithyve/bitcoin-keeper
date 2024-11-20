@@ -107,6 +107,24 @@ const updateInputsForFeeCalculation = (wallet: Wallet | Vault, inputUTXOs) => {
   });
 };
 
+const updateOutputsForFeeCalculation = (outputs, network) => {
+  for (const o of outputs) {
+    if (o.address && (o.address.startsWith('bc1') || o.address.startsWith('tb1'))) {
+      // in case address is non-typical and takes more bytes than coinselect library anticipates by default
+      o.script = {
+        length:
+          bitcoinJS.address.toOutputScript(
+            o.address,
+            network === NetworkType.MAINNET
+              ? bitcoinJS.networks.bitcoin
+              : bitcoinJS.networks.testnet
+          ).length + 3,
+      };
+    }
+  }
+  return outputs;
+};
+
 export default class WalletOperations {
   public static getExternalAddressAtIdx = (wallet: Wallet | Vault, index: number): string => {
     let receivingAddress;
@@ -693,14 +711,40 @@ export default class WalletOperations {
       availableBalance += utxo.value;
     });
 
-    const outputUTXOs = [];
+    let outputUTXOs = [];
     for (const recipient of recipients) {
       outputUTXOs.push({
         address: recipient.address,
         value: availableBalance,
       });
     }
-    const { fee } = coinselect(inputUTXOs, outputUTXOs, feePerByte + testnetFeeSurcharge(wallet));
+    outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
+
+    let { inputs, outputs, fee } = coinselect(
+      inputUTXOs,
+      outputUTXOs,
+      feePerByte + testnetFeeSurcharge(wallet)
+    );
+
+    let i = 0;
+    const MAX_RETRIES = 10000; // Could raise to allow more retries in case of many uneconomic UTXOs in a wallet
+    while ((!inputs || !outputs) && i < MAX_RETRIES) {
+      let netAmount = 0;
+      recipients.forEach((recipient) => {
+        netAmount += recipient.amount;
+      });
+      if (outputUTXOs && outputUTXOs.length) {
+        outputUTXOs[0].value = availableBalance - fee - i;
+      }
+
+      ({ inputs, outputs, fee } = coinselect(
+        deepClone(inputUTXOs),
+        deepClone(outputUTXOs),
+        feePerByte + testnetFeeSurcharge(wallet)
+      ));
+      i++;
+    }
+    fee = availableBalance - outputUTXOs[0].value;
 
     return {
       fee,
@@ -745,13 +789,15 @@ export default class WalletOperations {
       availableBalance += utxo.value;
     });
 
-    const outputUTXOs = [];
+    let outputUTXOs = [];
     for (const recipient of recipients) {
       outputUTXOs.push({
         address: recipient.address,
         value: recipient.amount,
       });
     }
+
+    outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
 
     const defaultTxPriority = TxPriority.LOW; // doing base calculation with low fee (helps in sending the tx even if higher priority fee isn't possible)
     const defaultFeePerByte = averageTxFees[defaultTxPriority].feePerByte;
@@ -769,7 +815,7 @@ export default class WalletOperations {
       netAmount += recipient.amount;
     });
 
-    if (!defaultPriorityOutputs) {
+    if (!defaultPriorityInputs || !defaultPriorityOutputs) {
       const defaultDebitedAmount = netAmount + defaultPriorityFee;
       if (outputUTXOs && outputUTXOs.length && defaultDebitedAmount > availableBalance) {
         outputUTXOs[0].value = availableBalance - defaultPriorityFee;
@@ -781,7 +827,7 @@ export default class WalletOperations {
         defaultFeePerByte + testnetFeeSurcharge(wallet)
       );
 
-      if (!assets.outputs) {
+      if (!assets.inputs || !assets.outputs) {
         return {
           fee: defaultPriorityFee,
           balance: availableBalance,
@@ -810,7 +856,7 @@ export default class WalletOperations {
           averageTxFees[priority].feePerByte + testnetFeeSurcharge(wallet)
         );
 
-        if (!outputs) {
+        if (!inputs || !outputs) {
           let netAmount = 0;
           recipients.forEach((recipient) => {
             netAmount += recipient.amount;
@@ -827,7 +873,7 @@ export default class WalletOperations {
           ));
         }
 
-        if (!outputs) {
+        if (!inputs || !outputs) {
           // to previous priority assets
           if (priority === TxPriority.MEDIUM) {
             txPrerequisites[priority] = txPrerequisites[TxPriority.LOW];
@@ -897,6 +943,7 @@ export default class WalletOperations {
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
+    outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
 
     let { inputs, outputs, fee } = coinselect(
       deepClone(inputUTXOs),
@@ -1442,7 +1489,8 @@ export default class WalletOperations {
       );
 
     if (balance < outgoingAmount + fee) throw new Error('Insufficient balance');
-    if (Object.keys(txPrerequisites).length) return { txRecipients, txPrerequisites };
+    if (txPrerequisites && Object.keys(txPrerequisites).length)
+      return { txRecipients, txPrerequisites };
 
     throw new Error('Unable to create transaction: inputs failed at coinselect');
   };

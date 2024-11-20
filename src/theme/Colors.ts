@@ -159,5 +159,7 @@ const Colors = {
   NewBadgeGreenDark: 'rgba(65, 89, 76, 1)',
   ErrorToast: 'rgba(249, 219, 219, 1)',
   ErrorToastDark: 'rgba(58, 41, 41, 1)',
+  DashedButtonBackground: 'rgba(45, 103, 89, 0.04)',
+  DashedButtonBackgroundDark: 'rgba(65, 89, 76, 0.05)',
 };
 export default Colors;

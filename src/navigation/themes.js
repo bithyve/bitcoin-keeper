@@ -54,6 +54,7 @@ export const customTheme = extendTheme({
       navButtonText: Colors.DeepSpaceSparkle,
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
+      modalBackground: Colors.Warmbeige,
       primaryGreenBackground: Colors.pantoneGreen,
       pillText: Colors.MidNightBlack,
       pantoneGreenLight: Colors.pantoneGreenLight,
@@ -232,6 +233,8 @@ export const customTheme = extendTheme({
       menuCardTitleColor: Colors.Graphite,
       secondarySubtitle: Colors.GraniteGray,
       dullCreamBackground: Colors.Warmbeige,
+      dashedButtonBorder: Colors.SeaweedGreen,
+      newDashedButtonBackground: Colors.DashedButtonBackground,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -239,6 +242,7 @@ export const customTheme = extendTheme({
       primaryGreen: Colors.GenericViridian,
       darkGrey: Colors.DarkGrey,
       primaryBackground: Colors.PrimaryBlack,
+      modalBackground: Colors.ModalBlack,
       pillText: Colors.MidNightBlack,
       primaryGreenBackground: Colors.SecondaryBlack,
       pantoneGreenLight: Colors.pantoneGreenLight,
@@ -421,6 +425,8 @@ export const customTheme = extendTheme({
       menuCardTitleColor: Colors.GraphiteLight,
       secondarySubtitle: Colors.GraphiteLight,
       dullCreamBackground: Colors.SoftGray,
+      dashedButtonBorder: Colors.separator,
+      newDashedButtonBackground: Colors.DashedButtonBackgroundDark,
     },
   },
   config: {
