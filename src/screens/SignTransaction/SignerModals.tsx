@@ -818,6 +818,7 @@ function SignerModals({
                 signer,
                 isMultisig,
                 signTransaction,
+                isRemoteKey,
               })
             );
           };

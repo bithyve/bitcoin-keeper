@@ -83,11 +83,15 @@ import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import { getPersistedDocument } from 'src/services/documents';
-import { TransferType } from 'src/models/enums/TransferType';
 
 const { width } = Dimensions.get('screen');
 
-const SignersWithRKSupport = [SignerType.MY_KEEPER, SignerType.JADE, SignerType.SEED_WORDS];
+const SignersWithRKSupport = [
+  SignerType.MY_KEEPER,
+  SignerType.JADE,
+  SignerType.SEED_WORDS,
+  SignerType.TAPSIGNER,
+];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (

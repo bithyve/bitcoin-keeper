@@ -3,7 +3,10 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from '../screens/SignTransaction/SignerModals';
 import { ScriptTypes, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { signTransactionWithSeedWords } from '../screens/SignTransaction/signWithSD';
+import {
+  signTransactionWithSeedWords,
+  signTransactionWithTapsigner,
+} from '../screens/SignTransaction/signWithSD';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -19,6 +22,8 @@ import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import config from 'src/utils/service-utilities/config';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
+import { getInputsFromPSBT, getInputsToSignFromPSBT } from 'src/utils/utilities';
+import * as bitcoin from 'bitcoinjs-lib';
 
 const RKSignersModal = ({ signer, psbt }, ref) => {
   const serializedPSBTEnvelop = {
@@ -37,7 +42,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
   const [keystoneModal, setKeystoneModal] = useState(false);
   const [jadeModal, setJadeModal] = useState(false);
   const [specterModal, setSpecterModal] = useState(false);
-  const [tapSignerModal, setTapSignerModal] = useState(false);
+  const [tapsignerModal, setTapsignerModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const card = useRef(new CKTapCard()).current;
@@ -89,7 +94,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
         setSpecterModal(true);
         break;
       case SignerType.TAPSIGNER:
-        setTapSignerModal(true);
+        setTapsignerModal(true);
         break;
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
@@ -110,7 +115,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
     }
   };
 
-  const navigateToShowPSBT = (signedSerializedPSBT) => {
+  const navigateToShowPSBT = (signedSerializedPSBT: string) => {
     navigation.dispatch(
       CommonActions.navigate({
         name: 'ShowPSBT',
@@ -125,7 +130,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
     );
   };
 
-  const signTransaction = async ({ seedBasedSingerMnemonic }) => {
+  const signTransaction = async ({ seedBasedSingerMnemonic, tapsignerCVC }) => {
     try {
       if (SignerType.SEED_WORDS === signerType) {
         const { signedSerializedPSBT } = await signTransactionWithSeedWords({
@@ -155,6 +160,52 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
         if (signedSerializedPSBT) {
           navigateToShowPSBT(signedSerializedPSBT);
         }
+      } else if (SignerType.TAPSIGNER === signerType) {
+        const currentKey = {
+          derivationPath: signer.signerXpubs[XpubTypes.P2WSH][0].derivationPath,
+        };
+        const inputs = getInputsFromPSBT(serializedPSBTEnvelop.serializedPSBT);
+        const inputsToSign = getInputsToSignFromPSBT(serializedPSBTEnvelop.serializedPSBT, signer);
+        const signingPayload = [
+          {
+            payloadTarget: signer.type,
+            inputsToSign,
+            inputs,
+          },
+        ];
+
+        const { signingPayload: signedPayload } = await signTransactionWithTapsigner({
+          setTapsignerModal,
+          signingPayload,
+          currentKey,
+          withModal,
+          defaultVault: {},
+          serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
+          card,
+          cvc: tapsignerCVC,
+          signer,
+        });
+        const psbt = bitcoin.Psbt.fromBase64(serializedPSBTEnvelop.serializedPSBT);
+        signedPayload[0].inputsToSign.forEach(
+          ({ inputIndex, signature, publicKey, sighashType }) => {
+            psbt.addSignedDigest(
+              inputIndex,
+              Buffer.from(publicKey, 'hex'),
+              Buffer.from(signature, 'hex'),
+              sighashType
+            );
+          }
+        );
+        const signedPSBT = psbt.toBase64();
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SIGNING,
+            },
+          ])
+        );
+        return signedPSBT;
       }
     } catch (error) {
       console.log('🚀 ~ signTransaction ~ error:', error);
@@ -215,7 +266,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
         vaultKeys={[vaultKeys]}
         activeXfp={vaultKeys.masterFingerprint}
         coldCardModal={coldCardModal}
-        tapsignerModal={tapSignerModal}
+        tapsignerModal={tapsignerModal}
         ledgerModal={ledgerModal}
         otpModal={false}
         passwordModal={false}
@@ -240,7 +291,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
         setColdCardModal={setColdCardModal}
         setLedgerModal={setLedgerModal}
         setPasswordModal={() => {}}
-        setTapsignerModal={setTapSignerModal}
+        setTapsignerModal={setTapsignerModal}
         showOTPModal={() => {}}
         signTransaction={signTransaction}
         textRef={textRef}
