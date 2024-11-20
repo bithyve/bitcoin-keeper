@@ -397,7 +397,6 @@ function Signers({
           icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}
-          isFullText
           colorVarient="green"
           colorMode={colorMode}
         />
@@ -1084,7 +1083,7 @@ const styles = StyleSheet.create({
   topSection: {
     height: '17%',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: hp(15),
   },
   addedSigners: {
     flexDirection: 'row',

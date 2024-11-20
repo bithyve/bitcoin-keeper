@@ -44,7 +44,6 @@ import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
@@ -495,7 +494,7 @@ function SigningDeviceDetails({ route }) {
         </Box>
       )}
       <KeeperFooter
-        marginX={!vaultKey ? 30 : 5}
+        marginX={!vaultKey && 30}
         wrappedScreen={Platform.OS === 'ios' ? true : false}
         items={footerItems}
       />
