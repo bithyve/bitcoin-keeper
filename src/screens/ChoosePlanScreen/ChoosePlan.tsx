@@ -537,14 +537,6 @@ function ChoosePlan() {
         !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) && (
           <>
             <Box style={styles.ctaWrapper}>
-              <TextActionBtn
-                value="Subscribe with Promo Code"
-                onPress={() => setShowPromocodeModal(true)}
-                visible={
-                  currentPosition != 0 &&
-                  !items[currentPosition].productIds.includes(subscription.productId.toLowerCase())
-                }
-              />
               <Buttons
                 primaryCallback={() => processSubscription(items[currentPosition], currentPosition)}
                 primaryText={getActionBtnTitle()}
