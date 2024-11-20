@@ -18,7 +18,7 @@ import TransferCard from './TransferCard';
 import AmountDetails from './AmountDetails';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
-export interface SendConfirmationRouteParams {
+export interface PSBTSendConfirmationParams {
   sender: { address: string; amount: number }[];
   recipient: { address: string; amount: number }[];
   amount: number;
@@ -29,7 +29,7 @@ export interface SendConfirmationRouteParams {
   feeRate: string;
 }
 
-function SendConfirmation({ route }) {
+function PSBTSendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const {
     sender,
@@ -39,7 +39,7 @@ function SendConfirmation({ route }) {
     signer,
     psbt,
     feeRate,
-  }: SendConfirmationRouteParams = route.params;
+  }: PSBTSendConfirmationParams = route.params;
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslations, common } = translations;
@@ -161,7 +161,7 @@ function SendConfirmation({ route }) {
     </ScreenWrapper>
   );
 }
-export default Sentry.withErrorBoundary(SendConfirmation, errorBourndaryOptions);
+export default Sentry.withErrorBoundary(PSBTSendConfirmation, errorBourndaryOptions);
 
 const styles = StyleSheet.create({
   horizontalLineStyle: {
