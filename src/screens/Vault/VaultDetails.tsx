@@ -250,7 +250,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [cachedTransactions, setCachedTransactions] = useState([]);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
 
-  const disableBuy = Platform.OS === 'ios' ? true : false;
+  const disableBuy = false;
   const cardProps = {
     circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
     pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,

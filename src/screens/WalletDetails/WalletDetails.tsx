@@ -108,7 +108,7 @@ function WalletDetails({ route }: ScreenProps) {
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
 
-  const disableBuy = Platform.OS === 'ios' ? true : false;
+  const disableBuy = false;
   const cardProps = {
     circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
     pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
