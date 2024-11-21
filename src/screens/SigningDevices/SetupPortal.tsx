@@ -479,7 +479,9 @@ function SetupPortal({ route }) {
 export const checkAndUnlock = async (cvc: string, setPortalStatus) => {
   let status: CardStatus = await PORTAL.getStatus();
   if (!status.initialized) {
-    setPortalStatus(status);
+    if (Platform.OS === 'android')
+      // disabling initialization flow for ios, until issues is resolved
+      setPortalStatus(status);
     await PORTAL.stopReading();
     throw { message: PORTAL_ERRORS.PORTAL_NOT_INITIALIZED };
   }
