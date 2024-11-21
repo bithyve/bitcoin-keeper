@@ -365,6 +365,19 @@ function SetupPortal({ route }) {
     }
   }, [cvc, confirmCVC, mode]);
 
+  const wipePortal = async () => {
+    try {
+      const portalDetails = await withNfcModal(async () => {
+        await PORTAL.startReading();
+        await PORTAL.wipePortal();
+        return true;
+      });
+      console.log('🚀 ~ portalDetails ~ portalDetails:', portalDetails);
+    } catch (error) {
+      console.log('🚀 ~ wipePortal ~ error:', error);
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -419,6 +432,8 @@ function SetupPortal({ route }) {
                     }
                   })()}
                   primaryCallback={continueWithPortal}
+                  secondaryText={isTestNet ? ' Wipe' : null}
+                  secondaryCallback={wipePortal}
                 />
               </Box>
             </Box>
