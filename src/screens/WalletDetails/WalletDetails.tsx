@@ -1,4 +1,4 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -31,9 +31,6 @@ import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { formatNumber } from 'src/utils/utilities';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Colors from 'src/theme/Colors';
@@ -45,6 +42,7 @@ import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import BTCAmountPill from 'src/components/BTCAmountPill';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -104,19 +102,12 @@ function WalletDetails({ route }: ScreenProps) {
     isTaprootWallet = true;
   }
 
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currencyCodeExchangeRate = exchangeRates[currencyCode];
-
   const disableBuy = false;
   const cardProps = {
     circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
     pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
-    cardPillText: disableBuy
-      ? common.comingSoon
-      : `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-          currencyCodeExchangeRate.buy.toFixed(0)
-        )}`,
+    cardPillText: disableBuy ? common.comingSoon : '',
+    customCardPill: !disableBuy && <BTCAmountPill />,
     cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
   };
 
@@ -235,6 +226,8 @@ function WalletDetails({ route }: ScreenProps) {
           pillTextColor={cardProps.pillTextColor}
           circleColor={cardProps.circleColor}
           cardPillColor={cardProps.cardPillColor}
+          customCardPill={cardProps.customCardPill}
+          customStyle={{ justifyContent: 'flex-end' }}
         />
         <ActionCard
           cardName={common.viewAllCoins}
@@ -247,6 +240,7 @@ function WalletDetails({ route }: ScreenProps) {
             })
           }
           icon={<CoinsIcon />}
+          customStyle={{ justifyContent: 'flex-end' }}
         />
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
