@@ -92,6 +92,7 @@ const SignersWithRKSupport = [
   SignerType.SEED_WORDS,
   SignerType.TAPSIGNER,
   SignerType.SEEDSIGNER,
+  SignerType.SPECTER,
 ];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
