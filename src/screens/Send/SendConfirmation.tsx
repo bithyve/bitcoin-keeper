@@ -52,6 +52,7 @@ import SendSuccessfulContent from './SendSuccessfulContent';
 import config from 'src/utils/service-utilities/config';
 import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
 import PriorityModal from './PriorityModal';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -805,7 +806,8 @@ function SendConfirmation({ route }) {
               setCustomFeePerByte(customFeePerByte);
             } else {
               if (customFeePerByte === '0') {
-                setTransactionPriority(TxPriority.LOW);
+                setTransPriorityModalVisible(false);
+                showToast('Fee rate cannot be less than 1 sat/vbyte', <ToastErrorIcon />);
               }
             }
           }}
