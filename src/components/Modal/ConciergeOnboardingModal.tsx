@@ -77,7 +77,7 @@ function ConciergeOnboardingModal({ visible }) {
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, concierge } = translations;
   const [pageNo, setPageNo] = useState(1);
   const [agree, setAgree] = useState(false);
   const [dontShow, setDontShow] = useState(false);
@@ -86,37 +86,34 @@ function ConciergeOnboardingModal({ visible }) {
 
   const pageData = [
     {
-      title: 'Welcome to Keeper Concierge \n(Beta)',
-      subTitle: 'Get all your questions answered with Keeper Concierge.',
-      contentText:
-        'Upgrade to Hodler to chat with a support executive and Diamond Hands to schedule.',
+      title: concierge.welcomeToConcierge,
+      subTitle: concierge.getAnsweredWithConcierge,
+      contentText: concierge.upgradeForMoreFeatures,
       illustrationLight: <QueryIllustrationLight />,
       illustrationDark: <QueryIllustrationDark />,
       buttonText: common.next,
       nextPage: 2,
     },
     {
-      title: 'Cautions and Encouragements',
-      subTitle:
-        'Test your multi-key setups and backups once every few months. Regularly update your signing devices’ firmware/softwares.',
-      contentText:
-        'Please ensure that your backups are updated if you change one or more of the signers.',
+      title: concierge.cautionsAndEncouragements,
+      subTitle: concierge.backupRegularly,
+      contentText: concierge.ensureBackupsAreUpdated,
       illustrationLight: <BackupIllustrationLight />,
       illustrationDark: <BackupIllustrationDark />,
       buttonText: common.next,
       nextPage: 3,
     },
     {
-      title: 'Share data for analytics:',
-      subTitle: `To help you troubleshoot better and faster, \nKeeper would like to collect the following data:`,
-      contentText: `You can choose to decline now but maybe asked for the data again if one or more parameters seem to be the bottleneck in troubleshooting.`,
+      title: concierge.shareAnalytics,
+      subTitle: concierge.ensureBackupsAreUpdated,
+      contentText: concierge.analyticsNote,
       additionalContent: [
-        'Tier Info',
-        'Phone and OS',
-        'App version history',
-        'Screen context (where the user is coming from)',
-        'Tor and network (WiFi/ Mobile) status',
-        'Sentry items - error codes',
+        concierge.tierInfo,
+        concierge.phoneAndOS,
+        concierge.appVersionHistory,
+        concierge.screenContext,
+        concierge.torAndNetworkStatus,
+        concierge.sentryItems,
       ],
       illustrationLight: <AnalyticsIllustrationLight />,
       illustrationDark: <AnalyticsIllustrationDark />,
@@ -160,11 +157,15 @@ function ConciergeOnboardingModal({ visible }) {
           />
           {pageNo === 3 && (
             <Box style={styles.checkContainerWrapper}>
-              <Check checked={dontShow} onPress={handleDontShowChange} label="Don’t show again" />
+              <Check
+                checked={dontShow}
+                onPress={handleDontShowChange}
+                label={concierge.dontShowAgain}
+              />
               <Check
                 checked={agree}
                 onPress={handleAgreeChange}
-                label="I agree for these to be shared"
+                label={concierge.iAgreeForTheseToBeShared}
               />
             </Box>
           )}
