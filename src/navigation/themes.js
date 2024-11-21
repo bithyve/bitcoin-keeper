@@ -235,6 +235,7 @@ export const customTheme = extendTheme({
       dullCreamBackground: Colors.Warmbeige,
       dashedButtonBorder: Colors.SeaweedGreen,
       newDashedButtonBackground: Colors.DashedButtonBackground,
+      btcPillText: Colors.MidNightBlack,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -275,7 +276,7 @@ export const customTheme = extendTheme({
       coffeeBackground: Colors.CoffeeDark,
       yellowButtonBackground: Colors.PrimaryBlack,
       yellowButtonTextColor: Colors.White,
-      btcLabelBack: Colors.Periwinkle,
+      btcLabelBack: Colors.PeriwinkleDark,
       white: Colors.SecondaryBlack,
       primaryText: Colors.SecondaryWhite,
       secondaryText: Colors.SecondaryWhite,
@@ -427,6 +428,7 @@ export const customTheme = extendTheme({
       dullCreamBackground: Colors.SoftGray,
       dashedButtonBorder: Colors.separator,
       newDashedButtonBackground: Colors.DashedButtonBackgroundDark,
+      btcPillText: Colors.White,
     },
   },
   config: {
