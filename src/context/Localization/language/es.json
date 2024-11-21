@@ -1320,7 +1320,7 @@
     "vaultTransferBody": "You can always change the transfer threshold from Wallet Settings.\n"
   },
   "concierge": {
-    "welcomeToConcierge": "Welcome to Keeper Concierge \n(Beta)",
+    "welcomeToConcierge": "Welcome to Keeper Concierge (Beta)",
     "getAnsweredWithConcierge": "Get all your questions answered with Keeper Concierge.",
     "upgradeForMoreFeatures": "Upgrade to Hodler to chat with a support executive and Diamond Hands to schedule.",
     "cautionsAndEncouragements": "Cautions and Encouragements",
