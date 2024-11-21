@@ -406,7 +406,7 @@ export const getInputsToSignFromPSBT = (base64Str: string, signer: Signer) => {
       const masterFingerprint = derivation.masterFingerprint.toString('hex');
       if (masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
         const publicKey = derivation.pubkey;
-        const subPath = derivation.path.replace("m/48'/1'/0'/2'", '');
+        const subPath = derivation.path.split('/').slice(-2).join('/');
         const { hash, sighashType } = psbtObject.getDigestToSign(inputIndex, publicKey);
         inputsToSign.push({
           digest: hash.toString('hex'),
