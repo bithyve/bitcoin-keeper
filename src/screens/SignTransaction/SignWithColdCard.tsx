@@ -19,7 +19,7 @@ import useVault from 'src/hooks/useVault';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { RKInteractionMode } from 'src/services/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 
 function Card({ title, message, buttonText, buttonCallBack }) {
   const { colorMode } = useColorMode();
@@ -89,41 +89,32 @@ function SignWithColdCard({ route }: { route }) {
 
   const receiveFromColdCard = async () =>
     withNfcModal(async () => {
-      dispatch(
-        healthCheckStatusUpdate([
-          {
-            signerId: signer.masterFingerprint,
-            status: hcStatusType.HEALTH_CHECK_SIGNING,
-          },
-        ])
-      );
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
-        if (isRemoteKey) {
-          navigation.replace('RemoteSharing', {
-            isPSBTSharing: true,
-            signer: signer,
-            psbt: txn,
-            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-            vaultKey: vaultKey,
-            vaultId: vaultId,
-            isMultisig: isMultisig,
-          });
-          return;
-        }
         dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
       } else {
         const { psbt } = await receivePSBTFromColdCard();
         if (isRemoteKey) {
-          navigation.replace('RemoteSharing', {
-            isPSBTSharing: true,
-            signer: signer,
-            psbt,
-            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-            vaultKey: vaultKey,
-            vaultId: vaultId,
-            isMultisig: isMultisig,
-          });
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'ShowPSBT',
+              params: {
+                data: psbt,
+                encodeToBytes: false,
+                title: 'Signed PSBT',
+                subtitle: 'Please scan until all the QR data has been retrieved',
+                type: SignerType.KEEPER,
+              },
+            })
+          );
           return;
         }
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, xfp: vaultKey.xfp }));
