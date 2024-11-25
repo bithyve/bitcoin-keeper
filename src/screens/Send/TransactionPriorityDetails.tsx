@@ -14,9 +14,8 @@ const TransactionPriorityDetails = ({
   getBalance,
   getCurrencyIcon,
   getSatUnit,
-  isAutoTransfer,
-  sendMaxFee,
-  sendMaxFeeEstimatedBlocks,
+  estimationSign,
+  disabled = false,
 }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -34,7 +33,9 @@ const TransactionPriorityDetails = ({
         <Text style={styles.transTitleText} medium color={`${colorMode}.primaryText`}>
           {walletTransactions.transactionPriority}
         </Text>
-        <Box style={styles.dots}>{isDarkMode ? <ThreeDotsWhite /> : <ThreeDotsGrey />}</Box>
+        {!disabled && (
+          <Box style={styles.dots}>{isDarkMode ? <ThreeDotsWhite /> : <ThreeDotsGrey />}</Box>
+        )}
       </Box>
 
       <Box style={styles.priorityWrapper}>
@@ -46,13 +47,11 @@ const TransactionPriorityDetails = ({
           </Box>
           <Box style={styles.rightContainer}>
             <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
-              ≈
+              {estimationSign}
             </Text>
             <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
-              {(isAutoTransfer
-                ? sendMaxFeeEstimatedBlocks
-                : txFeeInfo[transactionPriority?.toLowerCase()]
-                    ?.estimatedBlocksBeforeConfirmation) * 10}
+              {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation *
+                10}
               min
             </Text>
           </Box>
@@ -65,18 +64,16 @@ const TransactionPriorityDetails = ({
           </Box>
           <Box style={styles.rightContainer}>
             <Box style={styles.transSatsFeeWrapper}>
-              {getCurrencyIcon(BTC, 'dark')}
+              {getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
               &nbsp;
               <Text color={`${colorMode}.textGreenGrey`} style={styles.transSatsFeeText}>
-                {isAutoTransfer
-                  ? sendMaxFee
-                  : `${getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)} `}
+                {`${getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)} `}
               </Text>
-              {!isAutoTransfer && (
+              {
                 <Text color={`${colorMode}.textGreenGrey`} style={styles.satsText}>
                   {getSatUnit()}
                 </Text>
-              )}
+              }
             </Box>
           </Box>
         </Box>

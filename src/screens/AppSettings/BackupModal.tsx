@@ -35,12 +35,11 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   modalHeading: {
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 20,
     letterSpacing: 0.14,
   },
   modalMessageText: {
-    fontSize: 13,
-    letterSpacing: 0.13,
+    fontSize: 14,
   },
 });

@@ -681,7 +681,7 @@ function SignerContent({
           <Instruction text={instruction} key={instruction} />
         ))}
         {sepInstruction && (
-          <Text fontSize={13} color={`${colorMode}.secondaryText`}>
+          <Text fontSize={14} color={`${colorMode}.secondaryText`}>
             {sepInstruction}
           </Text>
         )}
@@ -2241,21 +2241,18 @@ const styles = StyleSheet.create({
     marginLeft: wp(5),
   },
   cvvInputInfoText: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     width: '100%',
     marginTop: 2,
   },
   infoText: {
-    letterSpacing: 0.65,
     padding: 3,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '400',
     width: wp(285),
   },
   learnHow: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     fontWeight: '500',
     textDecorationLine: 'underline',
   },

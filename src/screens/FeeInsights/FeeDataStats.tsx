@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   titleLabel: {
     fontSize: 18,
     letterSpacing: 1,
-    fontFamily: Fonts.FiraSansRegular,
+    fontFamily: Fonts.InterRegular,
   },
   cardWrapper: {
     flexDirection: 'row',

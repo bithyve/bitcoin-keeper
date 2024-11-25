@@ -1,11 +1,10 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Image, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import AddCard from 'src/components/AddCard';
 import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -25,7 +24,6 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
@@ -140,10 +138,8 @@ function ManageSigners({ route }: ScreenProps) {
   };
 
   const handleAddSigner = () => {
-    navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addSignerFlow: true }));
+    navigation.dispatch(CommonActions.navigate('SignerCategoryList', { addSignerFlow: true }));
   };
-
-  const { top } = useSafeAreaInsets();
 
   const navigateToSettings = () => {
     navigation.dispatch(CommonActions.navigate('SignerSettings'));
@@ -191,10 +187,7 @@ function ManageSigners({ route }: ScreenProps) {
   };
 
   return (
-    <Box
-      backgroundColor={`${colorMode}.BrownNeedHelp`}
-      style={[styles.wrapper, { paddingTop: top }]}
-    >
+    <Box safeAreaTop backgroundColor={`${colorMode}.BrownNeedHelp`} style={[styles.wrapper]}>
       <Box style={styles.topSection}>
         <KeeperHeader
           title={signerTranslation.ManageKeys}
@@ -206,7 +199,11 @@ function ManageSigners({ route }: ScreenProps) {
           titleColor={`${colorMode}.seashellWhiteText`}
           subTitleColor={`${colorMode}.seashellWhiteText`}
           rightComponent={
-            <TouchableOpacity onPress={navigateToSettings} testID="btn_manage_singner_setting">
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={navigateToSettings}
+              testID="btn_manage_singner_setting"
+            >
               <SettingIcon />
             </TouchableOpacity>
           }
@@ -481,7 +478,7 @@ const styles = StyleSheet.create({
   topSection: {
     height: '25%',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: hp(15),
   },
   signersContainer: {
     paddingHorizontal: '5%',
@@ -525,6 +522,10 @@ const styles = StyleSheet.create({
   },
   modalDesc: {
     width: '95%',
+  },
+  settingsButton: {
+    paddingHorizontal: 22,
+    paddingVertical: 22,
   },
 });
 

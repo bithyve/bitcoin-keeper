@@ -4,8 +4,8 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import SignerIcon from 'src/assets/images/signer_white.svg';
-import { Signer } from 'src/core/wallets/interfaces/vault';
 import { getSignerDescription } from 'src/hardware';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 
 type Props = {
   signer: Signer;
@@ -15,7 +15,11 @@ function UnknownSignerInfo({ signer }: Props) {
   const { colorMode } = useColorMode();
 
   return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
+    <Box
+      backgroundColor={`${colorMode}.secondaryBackground`}
+      borderColor={`${colorMode}.dullGreyBorder`}
+      style={styles.container}
+    >
       <Box style={styles.topSection}>
         <Box style={styles.gap10}>
           <CircleIconWrapper
@@ -51,6 +55,7 @@ export default UnknownSignerInfo;
 
 const styles = StyleSheet.create({
   container: {
+    borderWidth: 1,
     borderRadius: 10,
     marginTop: 20,
     padding: 20,

@@ -7,7 +7,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  Pressable,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
@@ -42,23 +41,17 @@ import { useQuery } from '@realm/react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import Colors from 'src/theme/Colors';
 import TierUpgradeModal from './TierUpgradeModal';
-import PlanCheckMark from 'src/assets/images/planCheckMark.svg';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Buttons from 'src/components/Buttons';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import PlanDetailsCards from './components/PlanDetailsCards';
 const { width } = Dimensions.get('window');
 
 function ChoosePlan() {
-  const inset = useSafeAreaInsets();
   const route = useRoute();
   const navigation = useNavigation();
-  const isSmallDevices = useIsSmallDevices();
   const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
-  const { translations, formatString } = useContext(LocalizationContext);
+  const { translations } = useContext(LocalizationContext);
   const { choosePlan, common } = translations;
   const [currentPosition, setCurrentPosition] = useState(initialPosition);
   const [loading, setLoading] = useState(true);
@@ -72,7 +65,7 @@ function ChoosePlan() {
   const [items, setItems] = useState<SubScriptionPlan[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isUpgrade, setIsUpgrade] = useState(false);
-  const [isMonthly, setIsMonthly] = useState(true);
+  const [isMonthly, setIsMonthly] = useState(false);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
@@ -456,23 +449,19 @@ function ChoosePlan() {
       subscription.productId.toLowerCase()
     );
     if (isSubscribed) return 'Subscribed';
-    return (
-      'Continue - ' +
-      (isMonthly
-        ? items[currentPosition]?.monthlyPlanDetails.price ?? 'Free'
-        : items[currentPosition]?.yearlyPlanDetails.price ?? 'Free')
-    );
+    return 'Continue - ' + (items[currentPosition]?.monthlyPlanDetails.price ?? 'Free');
   };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={choosePlan.choosePlantitle}
-        mediumTitle
         subtitle={choosePlan.choosePlanSubtitle}
-        rightComponent={
+        topRightComponent={
           <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
         }
+        rightComponentPadding={wp(0)}
+        rightComponentBottomPadding={hp(5)}
         // To-Do-Learn-More
       />
       <KeeperModal
@@ -513,69 +502,32 @@ function ChoosePlan() {
       {loading ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: isSmallDevices ? hp(220) : 0 }}
-          style={{ flex: 1 }}
-        >
-          <ChoosePlanCarousel
-            data={items}
-            onPress={(item, level) => processSubscription(item, level)}
-            onChange={(item) => setCurrentPosition(item)}
-            isMonthly={isMonthly}
-            requesting={requesting}
-            currentPosition={currentPosition}
-          />
+        <Box flex={1}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+            style={{ flex: 1 }}
+          >
+            <ChoosePlanCarousel
+              data={items}
+              onPress={(item, level) => processSubscription(item, level)}
+              onChange={(item) => setCurrentPosition(item)}
+              isMonthly={isMonthly}
+              requesting={requesting}
+              currentPosition={currentPosition}
+            />
 
-          <Box mt={10}>
-            <Box ml={5}>
-              <Box>
-                <Text
-                  fontSize={15}
-                  medium={true}
-                  color={`${colorMode}.headerText`}
-                  letterSpacing={0.16}
-                >
-                  {`Included in ${items[currentPosition].name}`}
-                </Text>
-              </Box>
-
-              <Pressable
-                onPress={restorePurchases}
-                testID="btn_restorePurchases"
-                style={styles.restorePurchaseWrapper}
-              >
-                <Text style={styles.restorePurchase} medium color={`${colorMode}.brownColor`}>
-                  {choosePlan.restorePurchases}
-                </Text>
-              </Pressable>
-
-              <Box mt={1}>
-                {items?.[currentPosition]?.benifits.map(
-                  (i) =>
-                    i !== '*Coming soon' && (
-                      <Box style={styles.benefitContainer} key={i}>
-                        <PlanCheckMark />
-                        <Text
-                          fontSize={12}
-                          color={`${colorMode}.GreyText`}
-                          ml={2}
-                          letterSpacing={0.65}
-                        >
-                          {` ${i}`}
-                        </Text>
-                      </Box>
-                    )
-                )}
+            <Box mt={10}>
+              <Box ml={0}>
+                <PlanDetailsCards
+                  plansData={items}
+                  currentPosition={currentPosition}
+                  restorePurchases={restorePurchases}
+                />
               </Box>
             </Box>
-            {items?.[currentPosition]?.comingSoon && (
-              <Text style={styles.comingSoonText} color={`${colorMode}.secondaryText`}>
-                * {common.comingSoon}
-              </Text>
-            )}
-          </Box>
-        </ScrollView>
+          </ScrollView>
+        </Box>
       )}
 
       {/* BTM CTR */}
@@ -584,35 +536,12 @@ function ChoosePlan() {
         items &&
         !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) && (
           <>
-            <Box
-              backgroundColor={`${colorMode}.primaryBackground`}
-              style={[styles.noteWrapper, { paddingBottom: inset.bottom }]}
-            >
-              <Text style={{ fontSize: 11, marginLeft: 20 }} color={`${colorMode}.GreyText`}>
-                {formatString(choosePlan.noteSubTitle)}
-              </Text>
-
-              <Box style={styles.divider} />
-              <Box
-                backgroundColor={`${colorMode}.ChampagneBliss`}
-                style={{ paddingBottom: 30, paddingTop: 26, paddingHorizontal: 32 }}
-              >
-                <CustomGreenButton
-                  onPress={() => processSubscription(items[currentPosition], currentPosition)}
-                  value={getActionBtnTitle()}
-                  fullWidth
-                />
-                <TextActionBtn
-                  value="Subscribe with Promo Code"
-                  onPress={() => setShowPromocodeModal(true)}
-                  visible={
-                    currentPosition != 0 &&
-                    !items[currentPosition].productIds.includes(
-                      subscription.productId.toLowerCase()
-                    )
-                  }
-                />
-              </Box>
+            <Box style={styles.ctaWrapper}>
+              <Buttons
+                primaryCallback={() => processSubscription(items[currentPosition], currentPosition)}
+                primaryText={getActionBtnTitle()}
+                fullWidth
+              />
             </Box>
           </>
         )}
@@ -621,13 +550,14 @@ function ChoosePlan() {
 }
 
 const TextActionBtn = ({ value, onPress, visible }) => {
+  const { colorMode } = useColorMode();
   return (
     <TouchableOpacity
       onPress={() => visible && onPress()}
       style={{ alignSelf: 'center', opacity: visible ? 1 : 0, marginTop: 20 }}
     >
       <Box>
-        <Text style={styles.ctaText} color="light.headerText" medium>
+        <Text style={styles.ctaText} color={`${colorMode}.greenText`} medium>
           {value}
         </Text>
       </Box>
@@ -672,16 +602,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 1,
   },
-  divider: {
-    height: 1,
-    width,
-    backgroundColor: Colors.GrayX11,
-    alignSelf: 'center',
-    marginTop: 20,
-  },
   infoText: {
     fontSize: 13,
     marginTop: hp(20),
+  },
+  ctaWrapper: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: hp(20),
+    width: '100%',
+    paddingHorizontal: wp(15),
   },
 });
 export default ChoosePlan;

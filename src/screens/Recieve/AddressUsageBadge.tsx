@@ -4,6 +4,9 @@ import { StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
+import DotGreen from 'src/assets/images/dot-green.svg';
+import DotWhite from 'src/assets/images/dot-white.svg';
+import DotCream from 'src/assets/images/dot-cream.svg';
 
 type Props = {
   used: boolean;
@@ -11,6 +14,7 @@ type Props = {
 
 function AddressUsageBadge({ used }: Props) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
@@ -22,13 +26,9 @@ function AddressUsageBadge({ used }: Props) {
       rounded="full"
       style={styles.addressTypeBadge}
     >
-      <Box flexDirection="row">
-        <Text
-          color={used ? `${colorMode}.textWhite` : `${colorMode}.textGreen`}
-          style={styles.addressTypePoint}
-        >
-          .
-        </Text>
+      <Box style={styles.container}>
+        {isDarkMode ? <DotWhite /> : used ? <DotCream /> : <DotGreen />}
+
         <Text
           color={used ? `${colorMode}.textWhite` : `${colorMode}.textGreen`}
           style={styles.addressTypeText}
@@ -47,19 +47,18 @@ const styles = StyleSheet.create({
     marginLeft: wp(14),
     marginBottom: hp(5),
   },
-  addressTypePoint: {
-    fontSize: 50,
-    height: '100%',
-    textAlign: 'center',
-    marginTop: hp(11),
-    marginRight: wp(1),
-  },
   addressTypeText: {
     fontSize: 11,
     height: '100%',
     textAlign: 'center',
     marginTop: hp(5.5),
     minWidth: wp(75),
+  },
+  container: {
+    width: '100%',
+    gap: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

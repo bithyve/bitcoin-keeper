@@ -16,7 +16,7 @@ function TorConnectionContent() {
         <LoadingAnimation />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={14} padding={1} letterSpacing={0.65}>
           Connecting via Tor improves your online privacy
         </Text>
       </Box>
@@ -32,7 +32,7 @@ function TorConnectionFailed() {
         <AlertIllustration />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={14} padding={1} letterSpacing={0.65}>
           This can be due to network or other conditions.
         </Text>
       </Box>

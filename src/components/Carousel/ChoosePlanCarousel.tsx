@@ -1,14 +1,14 @@
 import { Box } from 'native-base';
 import { FlatList } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { useQuery } from '@realm/react';
 import ChoosePlanCarouselItem from './ChoosePlanCarouselItem';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
-const itemWidth = 210 ;
 interface Props {
   data: SubScriptionPlan[];
   onPress?: any;
@@ -21,6 +21,9 @@ interface Props {
 function ChoosePlanCarousel(props: Props) {
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const listRef = useRef<FlatList>();
+
+  const isSmallDevice = useIsSmallDevices();
+  const itemWidth = isSmallDevice ? wp(233) : wp(210);
 
   const [currentPosition, setCurrentPosition] = useState(
     props.currentPosition !== 0 ? props.currentPosition : subscription.level - 1

@@ -68,11 +68,14 @@ function SendScreen({ route }) {
   const { allVaults: vaults } = useVault({});
   const allWallets = useMemo(() => [...wallets, ...vaults], [wallets, vaults]);
   const [isSendToWalletDisabled, setIsSendToWalletDisabled] = useState(false);
-  const { sender, selectedUTXOs, parentScreen } = route.params as {
-    sender: Wallet | Vault;
-    selectedUTXOs?: UTXO[];
-    parentScreen?: string;
-  };
+  const { sender, selectedUTXOs, parentScreen, isSendMax, internalRecipientWallet } =
+    route.params as {
+      sender: Wallet | Vault;
+      selectedUTXOs?: UTXO[];
+      parentScreen?: string;
+      isSendMax?: boolean;
+      internalRecipientWallet?: Wallet | Vault;
+    };
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -142,6 +145,10 @@ function SendScreen({ route }) {
     setIsSendToWalletDisabled(visibleWallets.length <= 0);
   }, [visibleWallets]);
 
+  useEffect(() => {
+    handleSelectWallet(internalRecipientWallet);
+  }, [internalRecipientWallet]);
+
   const handleSelectWallet = (wallet) => {
     setSelectedWallet(wallet);
   };
@@ -167,6 +174,7 @@ function SendScreen({ route }) {
         transferType,
         selectedUTXOs,
         parentScreen,
+        isSendMax,
       })
     );
   };

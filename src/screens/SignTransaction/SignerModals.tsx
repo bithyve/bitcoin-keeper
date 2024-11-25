@@ -72,8 +72,8 @@ function ColdCardContent({
     <Box alignItems="center">
       <ColdCardSVG />
       <Box marginTop={2}>
-        <Text style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>{message}</Text>
-        <Text semiBold style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>
+        <Text style={{ fontSize: 14, letterSpacing: 0.65, margin: 7 }}>{message}</Text>
+        <Text semiBold style={{ fontSize: 14, letterSpacing: 0.65, margin: 7 }}>
           {'Sign transaction via:'}
         </Text>
       </Box>
@@ -293,7 +293,7 @@ function JadeContent({
             ? '\u2022 For signing via USB, connect the Jade to your computer and follow the instructions on the Keeper desktop app'
             : "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."}
         </Text>
-        <Text semiBold style={{ fontSize: 13, letterSpacing: 0.65, margin: 7 }}>
+        <Text semiBold style={{ fontSize: 14, letterSpacing: 0.65, margin: 7 }}>
           {'Sign transaction via:'}
         </Text>
       </Box>
@@ -887,7 +887,9 @@ function SignerModals({
               )}
               buttonText={'Start Signing'}
               buttonCallback={navigateToSignWithColdCard}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setColdCardModal(false);
                 navigation.dispatch(
@@ -971,7 +973,9 @@ function SignerModals({
                 />
               )}
               buttonText={'Start Signing'}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setPassportModal(false);
                 navigation.dispatch(
@@ -1033,7 +1037,9 @@ function SignerModals({
               textColor={`${colorMode}.primaryText`}
               Content={() => <SpecterContent isMultisig={isMultisig} />}
               buttonText={'Start Signing'}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setKeeperModal(false);
                 navigation.dispatch(
@@ -1066,7 +1072,9 @@ function SignerModals({
                 />
               )}
               buttonText={'Start Signing'}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setKeystoneModal(false);
                 navigation.dispatch(
@@ -1120,7 +1128,9 @@ function SignerModals({
                 />
               )}
               buttonText={'Start Signing'}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setJadeModal(false);
                 navigation.dispatch(
@@ -1229,7 +1239,9 @@ function SignerModals({
               subTitle="Keep your Portal ready before proceeding"
               buttonText="Proceed"
               buttonCallback={navigateToSignWithPortal}
-              secondaryButtonText={isMultisig && !info?.registered ? 'Register multisig' : null}
+              secondaryButtonText={
+                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+              }
               secondaryCallback={() => {
                 setPortalModal(false);
                 navigation.dispatch(
@@ -1254,8 +1266,7 @@ export default SignerModals;
 
 const styles = StyleSheet.create({
   instructionsText: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     marginHorizontal: wp(5),
     marginTop: wp(3),
     marginBottom: wp(10),

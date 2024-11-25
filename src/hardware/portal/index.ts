@@ -9,6 +9,7 @@ import {
 import { XpubTypes } from 'src/services/wallets/enums';
 import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { Platform } from 'react-native';
+import { isTestnet } from 'src/constants/Bitcoin';
 
 let sdk = new PortalSdk(true);
 let keepReading = false;
@@ -194,7 +195,13 @@ export const signPSBT = (psbt: string) => {
 };
 
 export const getXpub = ({ isMultisig = true }) => {
-  const derivationPath = isMultisig ? 'm/48h/1h/0h/2h' : 'm/84h/1h/0h';
+  const derivationPath = isMultisig
+    ? isTestnet()
+      ? 'm/48h/1h/0h/2h'
+      : 'm/48h/0h/0h/2h'
+    : isTestnet()
+    ? 'm/84h/1h/0h'
+    : 'm/84h/0h/0h';
   return sdk.getXpub(derivationPath);
 };
 

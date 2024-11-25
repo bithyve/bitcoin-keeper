@@ -8,7 +8,7 @@ import { StyleSheet } from 'react-native';
 type OptionProps = {
   title: string;
   preTitle?: string;
-  description: string;
+  description?: string;
   callback?: () => void;
   titleColor?: string;
   descriptionColor?: string;
@@ -24,7 +24,7 @@ export function OptionCard({
   preTitle,
   description,
   Icon,
-  callback = null,
+  callback,
   titleColor,
   descriptionColor,
   LeftIcon,
@@ -33,52 +33,69 @@ export function OptionCard({
   visible = true,
 }: OptionProps) {
   const { colorMode } = useColorMode();
+
+  if (!visible) return null;
+
   const containerOpacity = disabled ? 0.8 : 1;
   const preTitleOpacity = colorMode === 'light' ? 1 : 0.7;
   const descriptionOpacity = colorMode === 'light' ? 1 : 0.8;
-  if (!visible) return null;
+
+  const getTextColor = (type: 'title' | 'description' | 'preTitle') => {
+    if (disabled) {
+      return colorMode === 'light' ? `${colorMode}.LightGreenish` : `${colorMode}.primaryText`;
+    }
+
+    switch (type) {
+      case 'title':
+        return titleColor || `${colorMode}.primaryText`;
+      case 'description':
+        return descriptionColor || `${colorMode}.GreyText`;
+      case 'preTitle':
+        return colorMode === 'light' ? `${colorMode}.LightGreenish` : `${colorMode}.primaryText`;
+    }
+  };
+
   return (
-    <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
+    <Pressable
+      testID={`btn_${title}`}
+      onPress={callback}
+      disabled={disabled}
+      opacity={disabled ? 0.8 : 1}
+    >
       <HStack
         py={3}
-        px={0.5}
         width={windowWidth * 0.85}
         justifyContent="space-between"
         alignItems="center"
         borderRadius={10}
         testID={`view_${title.replace(/ /g, '_')}`}
       >
-        <HStack style={[styles.iconContainer, { opacity: containerOpacity }]}>
+        <HStack space={3} style={[styles.iconContainer, { opacity: containerOpacity }]}>
           {LeftIcon && <Box style={styles.iconWrapper}>{LeftIcon}</Box>}
-          <VStack>
+
+          <VStack flex={1} space={1}>
             {preTitle && (
               <Text
                 italic
-                color={
-                  colorMode === 'light' ? `${colorMode}.LightGreenish` : `${colorMode}.primaryText`
-                }
-                testID={`text_${title.replace(/ /g, '_')}`}
+                color={getTextColor('preTitle')}
+                testID={`text_preTitle_${title.replace(/ /g, '_')}`}
                 style={[styles.preTitle, { opacity: preTitleOpacity }]}
               >
                 {preTitle}
               </Text>
             )}
+
             <Text
-              color={
-                disabled
-                  ? colorMode === 'light'
-                    ? `${colorMode}.LightGreenish`
-                    : titleColor || `${colorMode}.primaryText`
-                  : titleColor || `${colorMode}.primaryText`
-              }
+              color={getTextColor('title')}
               testID={`text_${title.replace(/ /g, '_')}`}
-              style={[styles.title, { opacity: 1 }]}
+              style={styles.title}
             >
               {title}
             </Text>
+
             {description && (
               <Text
-                color={descriptionColor || `${colorMode}.GreyText`}
+                color={getTextColor('description')}
                 style={[styles.description, { opacity: descriptionOpacity }]}
               >
                 {description}
@@ -86,38 +103,45 @@ export function OptionCard({
             )}
           </VStack>
         </HStack>
-        {CardPill || <Box style={styles.arrowWrapper}>{Icon || <RightArrowIcon />}</Box>}
+
+        <Box style={styles.arrowWrapper}>
+          {CardPill || Icon || <RightArrowIcon style={styles.arrowMargin} />}
+        </Box>
       </HStack>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  iconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    paddingRight: wp(10),
-  },
   preTitle: {
     fontSize: 13,
-    letterSpacing: 0.13,
+    lineHeight: 18,
   },
   title: {
-    fontSize: 13,
-    letterSpacing: 0.13,
+    fontSize: 14,
+    lineHeight: 20,
   },
   description: {
     fontSize: 12,
-    letterSpacing: 0.12,
+    lineHeight: 16,
+    width: windowWidth * 0.7,
+  },
+  iconContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
   iconWrapper: {
     width: wp(25),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   arrowWrapper: {
-    paddingRight: 14,
+    minWidth: wp(25),
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  arrowMargin: {
+    marginRight: wp(20),
   },
 });
 

@@ -148,7 +148,12 @@ function VaultSetup({ route }: ScreenProps) {
             maxLength={20}
           />
           <Box style={styles.thresholdContainer}>
-            <Text style={styles.title} color={`${colorMode}.primaryText`} testID="text_totalKeys">
+            <Text
+              style={styles.title}
+              medium
+              color={`${colorMode}.primaryText`}
+              testID="text_totalKeys"
+            >
               {vaultTranslations.totalKeysForVaultConfiguration}
             </Text>
             <Text
@@ -159,7 +164,12 @@ function VaultSetup({ route }: ScreenProps) {
               {vaultTranslations.selectTheTotalNumberOfKeys}
             </Text>
             <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-            <Text style={styles.title} color={`${colorMode}.primaryText`} testID="text_requireKeys">
+            <Text
+              style={styles.title}
+              medium
+              color={`${colorMode}.primaryText`}
+              testID="text_requireKeys"
+            >
               {vaultTranslations.requiredKeys}
             </Text>
             <Text

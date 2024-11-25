@@ -2,7 +2,7 @@ import Scale from 'src/components/Scale';
 import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import BTC from 'src/assets/images/btc_white.svg';
-import { HStack, useColorMode } from 'native-base';
+import { Box, HStack, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
 import Colors from 'src/theme/Colors';
@@ -100,8 +100,8 @@ export const getCustomConvertedAmt = (
       return amount;
     } else if (toKind === CurrencyKind.FIAT) {
       const convertedAmount = satsEnabled
-        ? ((amount / SATOSHIS_IN_BTC) * rate).toFixed(0)
-        : (amount * rate).toFixed(0);
+        ? parseFloat(((amount / SATOSHIS_IN_BTC) * rate).toFixed(2)).toString()
+        : parseFloat((amount * rate).toFixed(2)).toString();
       return convertedAmount;
     }
   } else if (fromKind === CurrencyKind.FIAT) {
@@ -109,10 +109,10 @@ export const getCustomConvertedAmt = (
       const bitcoinAmount = amount / rate;
       const convertedAmount = satsEnabled
         ? (bitcoinAmount * SATOSHIS_IN_BTC).toFixed(0)
-        : bitcoinAmount.toFixed(8);
+        : parseFloat(bitcoinAmount.toFixed(8)).toString();
       return convertedAmount;
     } else if (toKind === CurrencyKind.FIAT) {
-      return amount.toFixed(0);
+      return parseFloat(amount.toFixed(2)).toString();
     }
   }
   return null;
@@ -166,18 +166,19 @@ export const isTestnet = () => {
 };
 export function CurrencyIcon({ symbol, styles = {} }) {
   return (
-    <Text
-      style={{
-        ...styles,
-        fontSize: 14,
-        letterSpacing: 0.5,
-        fontWeight: '900',
-        lineHeight: 18,
-      }}
-      bold
-    >
-      {symbol}
-    </Text>
+    <Box style={{ alignItems: 'center' }}>
+      <Text
+        style={{
+          ...styles,
+          fontSize: 14,
+          fontWeight: 500,
+          lineHeight: 20,
+        }}
+        bold
+      >
+        {symbol}
+      </Text>
+    </Box>
   );
 }
 

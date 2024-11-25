@@ -11,7 +11,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
@@ -43,6 +42,7 @@ import ResetPassSuccess from './components/ResetPassSuccess';
 import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
 import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
+import PinDotView from 'src/components/AppPinInput/PinDotView';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -55,7 +55,6 @@ function LoginScreen({ navigation, route }) {
   const [loginError, setLoginError] = useState(false);
   const [loginModal, setLoginModal] = useState(false);
   const [errMessage, setErrMessage] = useState('');
-  const [passcodeFlag] = useState(true);
   const [forgotVisible, setForgotVisible] = useState(false);
   const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
@@ -64,7 +63,7 @@ function LoginScreen({ navigation, route }) {
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [incorrectPassword, setIncorrectPassword] = useState(false);
-  const [loginData, setLoginData] = useState(getSecurityTip());
+  const [loginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
 
@@ -387,48 +386,23 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.content} backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box style={styles.content} safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
           <Box>
-            <Box
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                marginTop: hp(44),
-              }}
-            >
-              {isTestnet() && <TestnetIndicator />}
-            </Box>
-            <Text
-              ml={5}
-              color={`${colorMode}.choosePlanHome`}
-              fontSize={22}
-              style={{
-                marginTop: hp(65),
-              }}
-            >
+            <Box style={styles.testnetIndicatorWrapper}>{isTestnet() && <TestnetIndicator />}</Box>
+            <Text color={`${colorMode}.choosePlanHome`} fontSize={25} style={styles.welcomeText}>
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
-              <Text fontSize={13} ml={5} letterSpacing={0.65} color={`${colorMode}.choosePlanHome`}>
-                {login.enter_your}
-                {login.passcode}
-              </Text>
-              {/* pin input view */}
-              <Box
-                style={{
-                  marginTop: hp(50),
-                }}
-              >
-                <PinInputsView
-                  passCode={passcode}
-                  passcodeFlag={passcodeFlag}
-                  textColor={`${colorMode}.buttonText`}
-                />
+              <Box style={styles.passcodeWrapper}>
+                <Text fontSize={14} color={`${colorMode}.choosePlanHome`}>
+                  {login.enter_your}
+                  {login.passcode}
+                </Text>
+                <PinDotView passCode={passcode} />
               </Box>
-              {/*  */}
             </Box>
             <Box>
               {loginError && (
@@ -438,41 +412,12 @@ function LoginScreen({ navigation, route }) {
               )}
             </Box>
           </Box>
-
-          {/* <HStack justifyContent="space-between" mr={10} paddingTop="1">
-            <Text color={`${colorMode}.white`} px="5" fontSize={13} letterSpacing={1}>
-              Use tor
-            </Text>
-            <Switch
-              value={torEnbled}
-              trackColor={{ true: '#FFFA' }}
-              thumbColor={torEnbled ? `${colorMode}.dullGreen` : `${colorMode}.darkGrey`}
-              onChange={toggleTor}
-              defaultIsChecked={torEnbled}
-            />
-          </HStack> */}
-          {/* {attempts >= 1 ? (
-              <TouchableOpacity
-                style={[styles.forgotPassWrapper, { elevation: loggingIn ? 0 : 10 }]}
-                onPress={() => {
-                  setForgotVisible(true);
-                }}
-              >
-                <Text color={`${colorMode}.primaryBackground`} bold fontSize={14}>
-                  {login.ForgotPasscode}
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <Box />
-            )} */}
-          {/* </Box> */}
-
-          {/* keyboardview start */}
           <KeyPadView
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
             ClearIcon={<DeleteIcon />}
+            bubbleEffect
           />
           <Box style={styles.btnWrapper}>
             <Buttons
@@ -535,7 +480,6 @@ function LoginScreen({ navigation, route }) {
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
-        // buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
         buttonTextColor={`${colorMode}.buttonText`}
         Content={LoginModalContent}
         subTitleWidth={wp(280)}
@@ -630,7 +574,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     fontSize: 12,
     textAlign: 'center',
-    letterSpacing: 0.65,
+    marginTop: 18,
   },
   forgotPassWrapper: {
     flex: 0.8,
@@ -663,7 +607,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(20),
   },
   modalMessageText: {
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.13,
   },
   modalMessageWrapper: {
@@ -676,6 +620,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: hp(20),
     marginBottom: hp(60),
+  },
+  testnetIndicatorWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  welcomeText: {
+    marginTop: hp(47),
+    textAlign: 'center',
+  },
+  passcodeWrapper: {
+    alignItems: 'center',
+    marginTop: hp(45),
+    gap: hp(15),
   },
 });
 

@@ -36,7 +36,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>415</string>
+	<string>421</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
@@ -74,16 +74,16 @@
 	</dict>
 	<key>UIAppFonts</key>
 	<array>
-		<string>FiraSans-Bold.ttf</string>
-		<string>FiraSans-BoldItalic.ttf</string>
-		<string>FiraSans-Italic.ttf</string>
-		<string>FiraSans-Light.ttf</string>
-		<string>FiraSans-LightItalic.ttf</string>
-		<string>FiraSans-Medium.ttf</string>
-		<string>FiraSans-MediumItalic.ttf</string>
-		<string>FiraSans-Regular.ttf</string>
-		<string>FiraSans-SemiBold.ttf</string>
-		<string>FiraSans-SemiBoldItalic.ttf</string>
+		<string>Inter-Bold.ttf</string>
+		<string>Inter-BoldItalic.ttf</string>
+		<string>Inter-Italic.ttf</string>
+		<string>Inter-Light.ttf</string>
+		<string>Inter-LightItalic.ttf</string>
+		<string>Inter-Medium.ttf</string>
+		<string>Inter-MediumItalic.ttf</string>
+		<string>Inter-Regular.ttf</string>
+		<string>Inter-SemiBold.ttf</string>
+		<string>Inter-SemiBoldItalic.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

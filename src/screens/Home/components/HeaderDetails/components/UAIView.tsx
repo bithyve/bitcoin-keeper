@@ -12,89 +12,118 @@ function UAIView({
   secondaryCallback,
 }) {
   const { colorMode } = useColorMode();
+
   return (
-    <Box style={styles.wrapper}>
-      <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiMessageText} color={`${colorMode}.BrownNeedHelp`} bold>
-          {title}
-        </Text>
-        <Text
-          style={styles.uaiSubtitle}
-          color={`${colorMode}.primaryText`}
-          numberOfLines={2}
-          medium
-        >
-          {subTitle}
-        </Text>
+    <Box style={styles.container}>
+      <Box style={styles.contentContainer}>
+        <Box style={styles.messageContainer} testID="btn_uaiTitleText">
+          <Text
+            style={styles.titleText}
+            color={`${colorMode}.BrownNeedHelp`}
+            bold
+            numberOfLines={1}
+          >
+            {title}
+          </Text>
+          <Text
+            style={styles.subtitleText}
+            color={`${colorMode}.primaryText`}
+            numberOfLines={2}
+            medium
+          >
+            {subTitle}
+          </Text>
+        </Box>
+
+        <Box style={styles.actionsContainer}>
+          {secondaryCallbackText && (
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={secondaryCallback}
+              testID="btn_uaiSkip"
+            >
+              <Text style={styles.secondaryButtonText} bold color={`${colorMode}.learnMoreBorder`}>
+                {secondaryCallbackText.toUpperCase()}
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {primaryCallbackText && primaryCallback && (
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={primaryCallback}
+              testID="btn_uaiPrimary"
+            >
+              <Box
+                style={styles.primaryButtonInner}
+                backgroundColor={`${colorMode}.modalGreenButton`}
+              >
+                <Text style={styles.primaryButtonText} bold color={`${colorMode}.buttonText`}>
+                  {primaryCallbackText.toUpperCase()}
+                </Text>
+              </Box>
+            </TouchableOpacity>
+          )}
+        </Box>
       </Box>
-      <TouchableOpacity
-        style={styles.skipWrapper}
-        onPress={secondaryCallback}
-        testID="btn_uaiSkip"
-        disabled={!secondaryCallbackText}
-      >
-        <Text style={styles.skipText} bold color={`${colorMode}.learnMoreBorder`}>
-          {secondaryCallbackText.toUpperCase()}
-        </Text>
-      </TouchableOpacity>
-      {primaryCallbackText && primaryCallback && (
-        <TouchableOpacity
-          style={styles.addNowWrapper}
-          onPress={primaryCallback}
-          testID="btn_uaiPrimary"
-        >
-          <Box style={styles.addNowCTAWrapper} backgroundColor={`${colorMode}.modalGreenButton`}>
-            <Text style={styles.addNowCTAText} bold color={`${colorMode}.buttonText`}>
-              {primaryCallbackText.toUpperCase()}
-            </Text>
-          </Box>
-        </TouchableOpacity>
-      )}
     </Box>
   );
 }
+
 const styles = StyleSheet.create({
-  wrapper: {
+  container: {
+    width: '100%',
+    minHeight: 60,
+    backgroundColor: 'transparent',
+  },
+  contentContainer: {
     flexDirection: 'row',
-    width: '100%',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: 15,
+    paddingVertical: 10,
+    width: '100%',
   },
-  uaiMessageWrapper: {
-    width: '60%',
+  messageContainer: {
+    flex: 1,
+    marginRight: 15,
+    justifyContent: 'center',
   },
-  uaiMessageText: {
+  titleText: {
     fontSize: 12,
-    width: '100%',
-    letterSpacing: 0.12,
+    marginBottom: 4,
   },
-  uaiSubtitle: {
+  subtitleText: {
     fontSize: 14,
-    letterSpacing: 0.14,
-    width: '100%',
   },
-  skipWrapper: {
-    width: '16%',
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: 25,
+    gap: 18,
+    flexShrink: 0,
+  },
+  secondaryButton: {
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  skipText: {
+  secondaryButtonText: {
     fontSize: 10,
-    letterSpacing: 0.4,
   },
-  addNowWrapper: {
-    width: '26%',
+  primaryButton: {
+    flexShrink: 0,
   },
-  addNowCTAWrapper: {
+  primaryButtonInner: {
     paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-    paddingHorizontal: 3,
   },
-  addNowCTAText: {
+  primaryButtonText: {
     fontSize: 10,
-    letterSpacing: 0.3,
   },
 });
+
 export default UAIView;

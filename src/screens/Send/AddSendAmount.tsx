@@ -1,8 +1,12 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import {
+  calculateCustomFee,
+  calculateSendMaxFee,
+  sendPhaseOne,
+} from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/constants/responsive';
 
 import Buttons from 'src/components/Buttons';
@@ -10,7 +14,10 @@ import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
+import {
+  customPrioritySendPhaseOneStatusReset,
+  sendPhaseOneReset,
+} from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -32,7 +39,6 @@ import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import AddressIcon from 'src/components/AddressIcon';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
 import { EntityKind, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
@@ -44,6 +50,18 @@ import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import AmountDetailsInput from './AmountDetailsInput';
+import KeeperModal from 'src/components/KeeperModal';
+import ArrowIcon from 'src/assets/images/icon_arrow.svg';
+import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
+import ReceiptIcon from 'src/assets/images/receipt.svg';
+import ReceiptIconDark from 'src/assets/images/receipt-white.svg';
+import CustomPriorityModal from './CustomPriorityModal';
+import PriorityModal from './PriorityModal';
+
+const capitalizeFirstLetter = (string) => {
+  if (!string) return '';
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+};
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -51,7 +69,7 @@ function AddSendAmount({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation, common } = translations;
+  const { wallet: walletTranslations, common, vault } = translations;
   const {
     sender,
     recipient,
@@ -81,7 +99,6 @@ function AddSendAmount({ route }) {
   const [lastToastTime, setLastToastTime] = useState(0);
   const [labelsToAdd, setLabelsToAdd] = useState([]);
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
-  const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const { averageTxFees } = useAppSelector((state) => state.network);
@@ -89,7 +106,6 @@ function AddSendAmount({ route }) {
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
-  const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
   const { getConvertedBalance } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
   const isAddress =
@@ -106,6 +122,22 @@ function AddSendAmount({ route }) {
 
   const isDarkMode = colorMode === 'dark';
   const [localCurrencyKind, setLocalCurrencyKind] = useState(currentCurrency);
+  const [maxAmountToSend, setMaxAmountToSend] = useState(null);
+  const [isSendingMax, setIsSendingMax] = useState(isSendMax);
+  const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
+  const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
+  const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
+  const [customFeePerByte, setCustomFeePerByte] = useState(0);
+  const [customEstBlocks, setCustomEstBlocks] = useState(0);
+  const [estimationSign, setEstimationSign] = useState('≈');
+  const balance = idx(sender, (_) => _.specs.balances);
+  let availableToSpend =
+    sender.networkType === NetworkType.MAINNET
+      ? balance.confirmed
+      : balance.confirmed + balance.unconfirmed;
+
+  const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
+  if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -141,15 +173,20 @@ function AddSendAmount({ route }) {
     }
 
     try {
-      if (currentCurrency === CurrencyKind.BITCOIN) {
+      if (localCurrencyKind === CurrencyKind.BITCOIN) {
         if (satsEnabled) {
           setAmountToSend(amount);
         } else {
-          const btcAmount = parseFloat(amount).toFixed(8);
+          const btcAmount = (parseFloat(amount) * SATOSHIS_IN_BTC).toFixed(0);
           setAmountToSend(btcAmount);
         }
       } else {
-        const satsAmount = convertFiatToSats(parseFloat(amount)).toFixed(0)?.toString();
+        const satsAmount = isSendingMax
+          ? satsEnabled
+            ? maxAmountToSend
+            : maxAmountToSend / SATOSHIS_IN_BTC
+          : convertFiatToSats(parseFloat(amount)).toFixed(0)?.toString();
+
         setAmountToSend(satsAmount);
       }
     } catch (error) {
@@ -172,23 +209,10 @@ function AddSendAmount({ route }) {
   }, [currentCurrency, route.params?.amount]);
 
   useEffect(() => {
-    // error handler
-    const balance = idx(sender, (_) => _.specs.balances);
-    let availableToSpend =
-      sender.networkType === NetworkType.MAINNET
-        ? balance.confirmed
-        : balance.confirmed + balance.unconfirmed;
-
-    const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
-    if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
-
     if (haveSelectedUTXOs) {
       if (availableToSpend < Number(amountToSend)) {
         setErrorMessage('Please select enough UTXOs to send');
-      } else if (
-        availableToSpend <
-        Number(amountToSend) + Number(SatsToBtc(minimumAvgFeeRequired))
-      ) {
+      } else if (availableToSpend < Number(amountToSend)) {
         setErrorMessage('Please select enough UTXOs to accommodate fee');
       } else setErrorMessage('');
     } else if (availableToSpend < Number(amountToSend)) {
@@ -197,29 +221,55 @@ function AddSendAmount({ route }) {
   }, [amountToSend, selectedUTXOs.length]);
 
   useEffect(() => {
-    onSendMax(sendMaxFee, selectedUTXOs.length);
+    if (sendMaxFee && isSendingMax) {
+      onSendMax();
+    }
   }, [sendMaxFee, selectedUTXOs.length]);
 
   useEffect(() => {
-    console.log(isSendMax);
-    if (isSendMax) handleSendMax();
-  }, []);
+    const recipients = [];
+    recipients.push({
+      address,
+      amount: 0,
+    });
+    dispatch(
+      calculateSendMaxFee({
+        recipients,
+        wallet: sender,
+        selectedUTXOs,
+        feePerByte:
+          transactionPriority === TxPriority.CUSTOM
+            ? customFeePerByte
+            : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+      })
+    );
+  }, [transactionPriority, customFeePerByte]);
+
+  useEffect(() => {
+    if (isSendingMax) handleSendMax();
+  }, [isSendingMax]);
 
   useEffect(() => {
     if (isMoveAllFunds) {
-      if (sendMaxFee) {
-        onSendMax(sendMaxFee, selectedUTXOs);
-      } else {
-        dispatch(
-          calculateSendMaxFee({
-            numberOfRecipients: recipientCount,
-            wallet: sender,
-            selectedUTXOs,
-          })
-        );
-      }
+      // TODO: Should just remove amount from calculateSendMaxFee
+      const recipients = [];
+      recipients.push({
+        address,
+        amount: 0,
+      });
+      dispatch(
+        calculateSendMaxFee({
+          recipients,
+          wallet: sender,
+          selectedUTXOs,
+          feePerByte:
+            transactionPriority === TxPriority.CUSTOM
+              ? customFeePerByte
+              : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+        })
+      );
     }
-  }, [isMoveAllFunds, sendMaxFee, selectedUTXOs]);
+  }, [isMoveAllFunds, sendMaxFee, selectedUTXOs, transactionPriority, customFeePerByte]);
 
   useEffect(() => {
     if (!currentAmount) {
@@ -227,24 +277,22 @@ function AddSendAmount({ route }) {
       return;
     }
 
-    const satsAmount = convertToSats(currentAmount, localCurrencyKind);
+    const satsAmount = isSendingMax
+      ? satsEnabled
+        ? maxAmountToSend
+        : maxAmountToSend * SATOSHIS_IN_BTC
+      : convertToSats(currentAmount, localCurrencyKind);
     setAmountToSend(satsAmount);
   }, [currentAmount, localCurrencyKind]);
 
-  const onSendMax = (sendMaxFee, selectedUTXOs) => {
+  const onSendMax = () => {
     if (!sendMaxFee) return;
-
-    const balance = idx(sender, (_) => _.specs.balances);
-    let availableToSpend =
-      sender.networkType === NetworkType.MAINNET
-        ? balance.confirmed
-        : balance.confirmed + balance.unconfirmed;
-
-    const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
-    if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
 
     if (availableToSpend) {
       const sendMaxBalance = Math.max(availableToSpend - sendMaxFee, 0);
+      setMaxAmountToSend(
+        satsEnabled ? Number(sendMaxBalance) : Number(sendMaxBalance) / SATOSHIS_IN_BTC
+      );
 
       if (localCurrencyKind === CurrencyKind.BITCOIN) {
         const amountToSet = sendMaxBalance;
@@ -261,6 +309,22 @@ function AddSendAmount({ route }) {
   };
 
   const navigateToNext = () => {
+    if (transactionPriority === TxPriority.CUSTOM) {
+      const recipients = [];
+      recipients.push({
+        address,
+        amount: parseInt(amountToSend, 10),
+      });
+      dispatch(
+        calculateCustomFee({
+          wallet: sender,
+          recipients,
+          feePerByte: customFeePerByte.toString(),
+          customEstimatedBlocks: customEstBlocks.toString(),
+          selectedUTXOs,
+        })
+      );
+    }
     navigation.dispatch(
       CommonActions.navigate('SendConfirmation', {
         sender,
@@ -275,33 +339,46 @@ function AddSendAmount({ route }) {
           (item) => !(item.name === idx(recipient, (_) => _.presentationData.name) && item.isSystem) // remove wallet labels are they are internal refrerences
         ),
         date: new Date(),
+        transactionPriority,
+        customFeePerByte,
       })
     );
   };
 
   const handleSendMax = () => {
     if (availableBalance) {
-      if (sendMaxFee) {
-        onSendMax(sendMaxFee, selectedUTXOs);
-        return;
-      }
+      const recipients = [];
+      recipients.push({
+        address,
+        amount: 0,
+      });
       dispatch(
         calculateSendMaxFee({
-          numberOfRecipients: recipientCount,
+          recipients,
           wallet: sender,
           selectedUTXOs,
+          feePerByte:
+            transactionPriority === TxPriority.CUSTOM
+              ? customFeePerByte
+              : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
         })
       );
+      onSendMax();
     }
   };
 
   const executeSendPhaseOne = () => {
+    dispatch(sendPhaseOneReset());
     const recipients = [];
     if (!amountToSend) {
       showToast('Please enter a valid amount');
       return;
     }
-    const amountInSats = convertToSats(currentAmount, localCurrencyKind);
+    const amountInSats = isSendingMax
+      ? satsEnabled
+        ? maxAmountToSend
+        : maxAmountToSend * SATOSHIS_IN_BTC
+      : convertToSats(currentAmount, localCurrencyKind);
     recipients.push({
       address,
       amount: amountInSats,
@@ -359,6 +436,10 @@ function AddSendAmount({ route }) {
       showDebouncedToast(errorMessage);
       return;
     }
+
+    setMaxAmountToSend(null);
+    setIsSendingMax(false);
+
     if (text === 'x') {
       onDeletePressed();
       return;
@@ -391,6 +472,9 @@ function AddSendAmount({ route }) {
   };
 
   const onDeletePressed = () => {
+    setMaxAmountToSend(null);
+    setIsSendingMax(false);
+
     if (currentAmount.length <= 1) {
       setAmount('0');
       return;
@@ -448,12 +532,13 @@ function AddSendAmount({ route }) {
         equivalentAmount={equivalentAmount}
         setEquivalentAmount={setEquivalentAmount}
         satsEnabled={satsEnabled}
-        handleSendMax={handleSendMax}
+        handleSendMax={() => setIsSendingMax(true)}
         localCurrencyKind={localCurrencyKind}
         setLocalCurrencyKind={setLocalCurrencyKind}
         currencyCode={currencyCode}
+        specificBitcoinAmount={maxAmountToSend}
       />
-      <Box style={styles.RecipientInfo}>
+      {/* <Box style={styles.RecipientInfo}>
         <HexagonIcon
           width={34}
           height={30}
@@ -472,11 +557,45 @@ function AddSendAmount({ route }) {
         >
           {isAddress ? address : recipient?.presentationData?.name}
         </Text>
-      </Box>
+      </Box> */}
+      <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
+        <Box
+          style={[styles.dashedButton]}
+          backgroundColor={`${colorMode}.newDashedButtonBackground`}
+          borderColor={`${colorMode}.dashedButtonBorder`}
+          borderWidth={1}
+          borderStyle="dashed"
+        >
+          <Box style={styles.priorityItemLeft}>
+            <Box flexDirection="row">
+              {colorMode === 'light' ? <ReceiptIcon /> : <ReceiptIconDark />}
+              <Text medium fontSize={13} style={{ marginLeft: wp(10) }}>
+                Fee Priority: {capitalizeFirstLetter(transactionPriority)}
+              </Text>
+            </Box>
+            <Box flexDirection="row">
+              <Text fontSize={15}>{estimationSign}</Text>
+              <Text fontSize={12} style={{ marginLeft: wp(2), marginTop: wp(3.5) }}>{` ${
+                (transactionPriority === TxPriority.CUSTOM
+                  ? customEstBlocks
+                  : averageTxFees[config.NETWORK_TYPE][transactionPriority].estimatedBlocks ?? 0) *
+                10
+              } mins`}</Text>
+              <Text fontSize={12} style={{ marginLeft: wp(20), marginTop: wp(3.5) }}>
+                {transactionPriority === TxPriority.CUSTOM
+                  ? customFeePerByte
+                  : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte ?? 0}{' '}
+                sats/vbyte
+              </Text>
+            </Box>
+          </Box>
+          {colorMode === 'light' ? <ArrowIcon height="100%" /> : <ArrowIconWhite height="100%" />}
+        </Box>
+      </TouchableOpacity>
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        disabled={prefillAmount || isSendMax || isMoveAllFunds}
+        disabled={prefillAmount || isMoveAllFunds}
         enableDecimal
         keyColor={`${colorMode}.keyPadText`}
         ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
@@ -489,6 +608,61 @@ function AddSendAmount({ route }) {
           fullWidth
         />
       </Box>
+      <KeeperModal
+        visible={transPriorityModalVisible}
+        close={() => setTransPriorityModalVisible(false)}
+        title={walletTranslations.transactionPriority}
+        subTitle={walletTranslations.transactionPrioritySubTitle}
+        buttonText={common.confirm}
+        buttonCallback={() => {
+          setTransPriorityModalVisible(false), setTransactionPriority;
+        }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setTransPriorityModalVisible(false)}
+        Content={() => (
+          <PriorityModal
+            selectedPriority={transactionPriority}
+            setSelectedPriority={setTransactionPriority}
+            averageTxFees={averageTxFees[config.NETWORK_TYPE]}
+            customFeePerByte={customFeePerByte}
+            onOpenCustomPriorityModal={() => {
+              dispatch(customPrioritySendPhaseOneStatusReset());
+              setVisibleCustomPriorityModal(true);
+            }}
+            customEstBlocks={customEstBlocks}
+            setCustomEstBlocks={setCustomEstBlocks}
+            estimationSign={estimationSign}
+            setEstimationSign={setEstimationSign}
+          />
+        )}
+      />
+      {visibleCustomPriorityModal && (
+        <CustomPriorityModal
+          visible={visibleCustomPriorityModal}
+          close={() => setVisibleCustomPriorityModal(false)}
+          title={vault.CustomPriority}
+          secondaryButtonText={common.Goback}
+          secondaryCallback={() => setVisibleCustomPriorityModal(false)}
+          subTitle="Enter amount in sats/vbyte"
+          network={sender?.networkType}
+          recipients={[{ address, amount: 0 }]}
+          sender={sender}
+          selectedUTXOs={selectedUTXOs}
+          buttonCallback={(setCustomTxPriority, customFeePerByte) => {
+            setVisibleCustomPriorityModal(false);
+            if (setCustomTxPriority) {
+              setTransactionPriority(TxPriority.CUSTOM);
+              setCustomFeePerByte(Number(customFeePerByte));
+            } else {
+              if (customFeePerByte === '0') {
+                setTransPriorityModalVisible(false);
+                showToast('Fee rate cannot be less than 1 sat/vbyte', <ToastErrorIcon />);
+              }
+            }
+          }}
+          existingCustomPriorityFee={customFeePerByte}
+        />
+      )}
     </ScreenWrapper>
   );
 }
@@ -510,5 +684,21 @@ const styles = StyleSheet.create({
   receipientText: {
     width: '45%',
   },
+  dashedButton: {
+    height: hp(61),
+    width: '95%',
+    alignSelf: 'center',
+    borderRadius: 10,
+    paddingHorizontal: wp(18),
+    marginBottom: hp(10),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  priorityItemLeft: {
+    gap: 3,
+    flex: 1,
+  },
 });
+
 export default AddSendAmount;

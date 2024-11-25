@@ -1,15 +1,14 @@
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
-import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
-import AdvancedGreenIcon from 'src/assets/images/advanced_green.svg';
-import AdvancedIcon from 'src/assets/images/advanced.svg';
-import ImportGreenIcon from 'src/assets/images/import_green.svg';
-import ImportIcon from 'src/assets/images/import.svg';
-import WalletCard from 'src/components/WalletCard';
+import WalletActiveIcon from 'src/assets/images/wallet-white-small.svg';
+import WalletGreenIcon from 'src/assets/images/wallet-green-small.svg';
+import AdvancedGreenIcon from 'src/assets/images/advanced-green-small.svg';
+import AdvancedIcon from 'src/assets/images/advanced-white-small.svg';
+import ImportGreenIcon from 'src/assets/images/import-green-small.svg';
+import ImportIcon from 'src/assets/images/import-white-small.svg';
 import { StyleSheet } from 'react-native';
 import Wallets from './Wallets';
 import AdvancedWallets from './AdvancedWallets';
@@ -19,11 +18,11 @@ import KeeperModal from 'src/components/KeeperModal';
 import KeyIcon from 'src/assets/images/multi-or-single-key.svg';
 import ImportWalletIcon from 'src/assets/images/importing-wallet.svg';
 import AdvanceCustomizationIcon from 'src/assets/images/advanced-customization.svg';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import { hp } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import MenuCardWrapper from 'src/components/MenuCardWrapper';
 
 function AddWalletContent() {
   const { colorMode } = useColorMode();
@@ -56,7 +55,11 @@ function AddWalletContent() {
             <option.icon />
           </Box>
           <Box style={styles.addWalletContentWrapper}>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletTitleText}>
+            <Text
+              color={`${colorMode}.modalGreenContent`}
+              semiBold
+              style={styles.addWalletTitleText}
+            >
               {option.title}
             </Text>
             <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletDescText}>
@@ -81,6 +84,30 @@ function AddWallet({ navigation }) {
     selectCard(id);
   };
 
+  const menuData = [
+    {
+      title: wallet.CreateNew,
+      description: wallet.singleMultiKey,
+      icon: <WalletActiveIcon />,
+      selectedIcon: <WalletGreenIcon />,
+      selectCard: selectedCard,
+    },
+    {
+      title: wallet.import,
+      description: wallet.recoverRecreate,
+      icon: <ImportIcon />,
+      selectedIcon: <ImportGreenIcon />,
+      selectCard: selectedCard,
+    },
+    {
+      title: wallet.advanced,
+      description: wallet.forProfessionals,
+      icon: <AdvancedIcon />,
+      selectCard: selectedCard,
+      selectedIcon: <AdvancedGreenIcon />,
+    },
+  ];
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -92,41 +119,17 @@ function AddWallet({ navigation }) {
         }}
         learnTextColor={`${colorMode}.buttonText`}
       />
-      <HStack style={[styles.container]}>
-        <WalletCard
-          id={1}
-          walletName={wallet.CreateNew}
-          walletDescription={wallet.singleMultiKey}
-          icon={<WalletActiveIcon />}
-          selectedIcon={<WalletGreenIcon />}
-          selectedCard={selectedCard}
-          onCardSelect={onCardSelect}
-          arrowStyles={{ alignSelf: 'flex-end', marginRight: 10 }}
-        />
-        <WalletCard
-          id={2}
-          walletName={wallet.import}
-          walletDescription={wallet.recoverRecreate}
-          icon={<ImportIcon />}
-          selectedIcon={<ImportGreenIcon />}
-          selectedCard={selectedCard}
-          onCardSelect={onCardSelect}
-          arrowStyles={{ alignSelf: 'center' }}
-        />
-        <WalletCard
-          id={3}
-          walletName={wallet.advanced}
-          walletDescription={wallet.CustomMultiKey}
-          icon={<AdvancedIcon />}
-          selectedIcon={<AdvancedGreenIcon />}
-          selectedCard={selectedCard}
-          onCardSelect={onCardSelect}
-          arrowStyles={{ marginLeft: 10 }}
-        />
-      </HStack>
-      {selectedCard === 1 && <Wallets navigation={navigation} />}
-      {selectedCard === 2 && <ImportWallets navigation={navigation} />}
-      {selectedCard === 3 && <AdvancedWallets navigation={navigation} />}
+      <MenuCardWrapper
+        menuData={menuData}
+        selectedCard={selectedCard}
+        onCardSelect={onCardSelect}
+        numberOfLines={1}
+      />
+      <Box style={styles.optionsContainer}>
+        {selectedCard === 1 && <Wallets navigation={navigation} />}
+        {selectedCard === 2 && <ImportWallets navigation={navigation} />}
+        {selectedCard === 3 && <AdvancedWallets navigation={navigation} />}
+      </Box>
       <KeeperModal
         visible={visibleModal}
         close={() => {
@@ -155,14 +158,6 @@ function AddWallet({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    gap: 4,
-    marginTop: hp(10),
-  },
-  walletType: {
-    justifyContent: 'space-between',
-    gap: 10,
-  },
   note: {
     position: 'absolute',
     bottom: 40,
@@ -185,10 +180,11 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   addWalletTitleText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
+    fontSize: 15,
     padding: 1,
+  },
+  optionsContainer: {
+    paddingHorizontal: 5,
   },
 });
 

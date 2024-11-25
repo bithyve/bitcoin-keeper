@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 
-const ReceiptWrapper = ({ children }) => {
+const ReceiptWrapper = ({ children, itemContainerStyle = {} }) => {
   const { colorMode } = useColorMode();
   const itemCount = React.Children.count(children);
 
@@ -15,7 +15,7 @@ const ReceiptWrapper = ({ children }) => {
     >
       {React.Children.map(children, (child, index) => (
         <Box
-          style={[styles.item, index === 0 && styles.firstItem]}
+          style={[styles.item, index === 0 && styles.firstItem, itemContainerStyle]}
           borderColor={`${colorMode}.receiptBorder`}
           borderBottomWidth={index !== itemCount - 1 ? 1 : 0}
           key={index}
