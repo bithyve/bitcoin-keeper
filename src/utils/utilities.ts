@@ -397,6 +397,30 @@ export const getInputsFromPSBT = (base64Str: string) => {
   }
 };
 
+export const getInputsToSignFromPSBT = (base64Str: string, signer: Signer) => {
+  const psbtObject = bitcoin.Psbt.fromBase64(base64Str);
+  const ips = psbtObject.data.inputs;
+  const inputsToSign = [];
+  ips.forEach((input, inputIndex) => {
+    input.bip32Derivation.forEach((derivation) => {
+      const masterFingerprint = derivation.masterFingerprint.toString('hex');
+      if (masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
+        const publicKey = derivation.pubkey;
+        const subPath = derivation.path.split('/').slice(-2).join('/');
+        const { hash, sighashType } = psbtObject.getDigestToSign(inputIndex, publicKey);
+        inputsToSign.push({
+          digest: hash.toString('hex'),
+          subPath,
+          inputIndex,
+          sighashType,
+          publicKey: publicKey.toString('hex'),
+        });
+      }
+    });
+  });
+  return inputsToSign;
+};
+
 
 export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
   let estimatedBlocksBeforeConfirmation = 0;
