@@ -48,6 +48,7 @@ import SuccessIllustration from 'src/assets/images/Success.svg';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import SignerEmptyStateIcon from 'src/assets/images/signer-empty.svg';
 import CardPill from 'src/components/CardPill';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -320,6 +321,23 @@ function Footer({
   );
 }
 
+function SignerEmptyState() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { signer: SignerTranlations } = translations;
+  return (
+    <Box style={styles.emptyWrapper}>
+      <Text color={`${colorMode}.primaryText`} style={styles.emptyText} medium>
+        {SignerTranlations.noKeyAvailable}
+      </Text>
+      <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
+        {SignerTranlations.pleaseAddKey}
+      </Text>
+      <SignerEmptyStateIcon />
+    </Box>
+  );
+}
+
 function Signers({
   signers,
   selectedSigners,
@@ -555,6 +573,10 @@ function Signers({
             />
           );
         });
+
+      if (signerCards.length === 0) {
+        return <SignerEmptyState />;
+      }
 
       return signerCards;
     },
@@ -1210,6 +1232,7 @@ function AddSigningDevice() {
                 primaryText={walletTranslation.Createwallet}
                 primaryCallback={() => {
                   setCreating(true);
+                  setSelectDurationModal(false);
                 }}
                 secondaryText={common.cancel}
                 secondaryCallback={() => setSelectDurationModal(false)}
@@ -1371,6 +1394,25 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: hp(30),
+  },
+  emptyWrapper: {
+    alignSelf: 'center',
+    width: '90%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: hp(35),
+  },
+  emptyText: {
+    fontSize: 15,
+    lineHeight: 20,
+    marginBottom: hp(3),
+  },
+  emptySubText: {
+    fontSize: 14,
+    lineHeight: 20,
+    width: wp(206),
+    textAlign: 'center',
+    marginBottom: hp(30),
   },
 });
 

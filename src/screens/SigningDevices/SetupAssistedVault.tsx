@@ -101,12 +101,12 @@ function SignerItem({
       <Box>
         {index === 0 && (
           <Text color={`${colorMode}.primaryText`} medium style={styles.title}>
-            Who will manage the funds?
+            {wallet.addUserKeyTitle}
           </Text>
         )}
         {index === 1 && (
           <Text color={`${colorMode}.primaryText`} medium style={styles.title}>
-            Add two advisor keys to your wallet
+            {wallet.addAdvisorKeyTitle}
           </Text>
         )}
 
@@ -125,7 +125,7 @@ function SignerItem({
     <Box>
       {index === 0 && (
         <Text color={`${colorMode}.primaryText`} medium style={styles.title}>
-          Who will manage the funds?
+          Add your key to the wallet
         </Text>
       )}
       {index === 1 && (
@@ -274,6 +274,7 @@ function SetupAssistedVault() {
       setWalletName(collabWallet && collabWallet.presentationData.name);
       setWalletDescription(collabWallet && collabWallet.presentationData.description);
       setWalletCreatedModal(true);
+      setIsCreating(false);
     }
   }, [
     hasNewVaultGenerationSucceeded,
@@ -369,7 +370,7 @@ function SetupAssistedVault() {
       <WalletVaultCreationModal
         visible={walletCreatedModal}
         title={wallet.WalletCreated}
-        subTitle={wallet.CollaborativeWalletSubtitle}
+        subTitle={wallet.AssistedVaultSubtitle}
         buttonText={wallet.ViewWallet}
         descriptionMessage={wallet.CollaborativeWalletDesc}
         buttonCallback={navigateToNextScreen}

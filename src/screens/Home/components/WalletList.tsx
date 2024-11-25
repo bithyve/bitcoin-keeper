@@ -86,6 +86,8 @@ const getWalletTags = (wallet) => {
       return ['COLLABORATIVE', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
     } else if (wallet.type === VaultType.ASSISTED) {
       return ['ASSISTED', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+    } else if (wallet.type === VaultType.TIMELOCKED) {
+      return ['TIMELOCKED', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
     } else {
       return ['VAULT', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
     }

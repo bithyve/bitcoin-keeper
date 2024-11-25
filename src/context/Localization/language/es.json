@@ -127,7 +127,9 @@
     "for": "For",
     "goToBackup": "Go to Backup",
     "Advisor": "Advisor",
-    "AssistedWallet": "Assisted Wallet"
+    "AssistedWallet": "Assisted Wallet",
+    "ASSISTED": "ASSISTED",
+    "TIMELOCKED": "TIMELOCKED"
   },
   "noInternet": {
     "no": "No Internet",
@@ -539,11 +541,12 @@
     "lowFee": "Network fee is less than 10% of the amount being sent.",
     "toAssistedWallet": "To Assisted Wallet",
     "assistedVaultHeaderSubtitle": "Creating a time-locked Assisted Wallet",
-    "addUserKeyTitle": "Who will manage the funds?",
+    "addUserKeyTitle": "Add your key to the wallet",
     "addAdvisorKeyTitle": "Add two advisor keys to your wallet",
     "discardTnxTitle": "Invalid UTXO set",
     "discardTnxSubTitle": "This transaction's UTXO has already been used.",
-    "discardTnxDesc": "Please discard this transaction and initiate a new one"
+    "discardTnxDesc": "Please discard this transaction and initiate a new one",
+    "AssistedVaultSubtitle": "An assisted vault with three App Keys on three separate devices."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -641,12 +644,12 @@
     "archivedVaultEmptyTitle": "View Archived Vaults",
     "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here.",
     "timeLockSetupTitle": "Setup a Time-Lock Wallet",
-    "timeLockSetupNote": "Once the Wallet is created, it cannot be reversed back",
+    "timeLockSetupNote": "Be mindful of the timelock duration. Setting an excessively long lockout period could lead to unforeseen difficulties in accessing funds.",
     "timeLockCreatedTitle": "Time-lock Wallet Created Successfully!",
     "timeLockCreatedSubtitle": "Degrading multi-key wallet for long term stacking",
     "timeLockCautionTitle": "Caution: Time-Lock Wallet",
-    "timeLockCautionSubtitle": "Wallet will automatically lowers the amount of signatures required if you don’t spend from your wallet",
-    "timeLockDurationTitle": "Select Recovery Path",
+    "timeLockCautionSubtitle": "Once the timelock is set, funds cannot be accessed until the specified time period has elapsed. In case of an urgent need for funds, there is no way to bypass the timelock.",
+    "timeLockDurationTitle": "Choose Unlock Time",
     "timeLockDurationSubtitle": "A recovery path provides even more protection against losing coins. It automatically lowers the amount of signatures required if you don’t spend from your wallet for a long time.",
     "verifyAddDesc": "Please download the Bitcoin Keeper desktop app from our website to connect"
   },
@@ -1033,7 +1036,9 @@
     "confirmPasscodeToDeleteKey": "Confirm passcode to delete key",
     "thisStepTakesTime": "This step will take a few seconds.",
     "forgot2FA": "Forgot 2FA",
-    "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again"
+    "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again",
+    "noKeyAvailable": "No key available",
+    "pleaseAddKey": "Please add an external key to proceed forward"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",
