@@ -36,7 +36,6 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { useDispatch } from 'react-redux';
 import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import { getLabelChanges } from '../UTXOManagement/components/LabelsEditor';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 
 export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
@@ -58,7 +57,6 @@ export function EditNoteContent({ existingNote, noteRef }: { existingNote: strin
 
 function TransactionDetails({ route }) {
   const { colorMode } = useColorMode();
-  const { top } = useSafeAreaInsets();
   const { getSatUnit, getBalance } = useBalance();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -157,10 +155,7 @@ function TransactionDetails({ route }) {
     [transaction, labels]
   );
   return (
-    <Box
-      backgroundColor={`${colorMode}.primaryBackground`}
-      style={[styles.wrapper, { paddingTop: top }]}
-    >
+    <Box safeAreaTop backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper}>
       <StatusBar
         barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'}
         backgroundColor="transparent"
@@ -302,6 +297,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topSection: {
+    paddingTop: hp(17),
     paddingHorizontal: 20,
   },
   bottomSection: {

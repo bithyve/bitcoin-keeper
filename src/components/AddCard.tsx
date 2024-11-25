@@ -1,12 +1,6 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  TextStyle,
-  TouchableOpacity,
-  ViewStyle,
-} from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
 import Colors from 'src/theme/Colors';
 import Text from './KeeperText';
@@ -22,7 +16,7 @@ type AddSignerCardProps = {
   borderColor?: string;
   nameColor?: string;
   icon?: any;
-  isAddWallet?:boolean;
+  isAddWallet?: boolean;
 };
 
 function AddCard({
@@ -39,7 +33,11 @@ function AddCard({
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity testID={isAddWallet?'btn_add_wallet':`btn_${name}`} activeOpacity={0.95} onPress={() => callback(name)}>
+    <TouchableOpacity
+      testID={isAddWallet ? 'btn_add_wallet' : `btn_${name}`}
+      activeOpacity={0.95}
+      onPress={() => callback(name)}
+    >
       <Box
         backgroundColor={`${colorMode}.pantoneGreenLight`}
         borderColor={borderColor ? borderColor : `${colorMode}.pantoneGreen`}
@@ -74,7 +72,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   nameStyle: {
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 20,
     textAlign: 'center',
   },

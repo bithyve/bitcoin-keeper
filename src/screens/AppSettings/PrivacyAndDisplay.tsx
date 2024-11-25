@@ -40,6 +40,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import Text from 'src/components/KeeperText';
 import { resetCredsChanged } from 'src/store/reducers/login';
+import Buttons from 'src/components/Buttons';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -143,7 +144,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
               passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
               borderColor="transparent"
             />
-            <Box mb={5}>
+            <Box>
               {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
                 <Text style={[styles.errorText, { color: 'light.CongoPink' }]}>
                   {login.MismatchPasscode}
@@ -152,19 +153,15 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
             </Box>
           </Box>
 
-          <Box alignItems="flex-end">
+          <Box mb={hp(5)}>
             {passcode.length === 4 && passcode === confirmPasscode && (
-              <TouchableOpacity
-                onPress={() => {
+              <Buttons
+                primaryText={common.confirm}
+                primaryCallback={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
                 }}
-              >
-                <Box style={styles.cta} backgroundColor={`${colorMode}.primaryGreenBackground`}>
-                  <Text style={styles.ctaText} bold>
-                    {common.confirm}
-                  </Text>
-                </Box>
-              </TouchableOpacity>
+                fullWidth
+              />
             )}
           </Box>
         </>

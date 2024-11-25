@@ -44,12 +44,10 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   title: {
-    fontSize: 14,
-    letterSpacing: 0.14,
+    fontSize: 15,
   },
   subTitle: {
     fontSize: 12,
-    letterSpacing: 0.12,
   },
 });
 

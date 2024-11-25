@@ -99,33 +99,9 @@ function SignWithColdCard({ route }: { route }) {
       );
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
-        if (isRemoteKey) {
-          navigation.replace('RemoteSharing', {
-            isPSBTSharing: true,
-            signer: signer,
-            psbt: txn,
-            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-            vaultKey: vaultKey,
-            vaultId: vaultId,
-            isMultisig: isMultisig,
-          });
-          return;
-        }
         dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
       } else {
         const { psbt } = await receivePSBTFromColdCard();
-        if (isRemoteKey) {
-          navigation.replace('RemoteSharing', {
-            isPSBTSharing: true,
-            signer: signer,
-            psbt,
-            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-            vaultKey: vaultKey,
-            vaultId: vaultId,
-            isMultisig: isMultisig,
-          });
-          return;
-        }
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, xfp: vaultKey.xfp }));
         dispatch(
           updateKeyDetails(vaultKey, 'registered', {

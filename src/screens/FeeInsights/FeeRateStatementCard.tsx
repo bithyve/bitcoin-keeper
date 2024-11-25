@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   highAlertSatsFee: {
     fontSize: 14,
-    fontFamily: Fonts.FiraSansCondensedRegular,
+    fontFamily: Fonts.InterRegular,
   },
   percentageStatement: {
     fontSize: 16,

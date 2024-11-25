@@ -1,4 +1,4 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -31,9 +31,6 @@ import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { formatNumber } from 'src/utils/utilities';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Colors from 'src/theme/Colors';
@@ -45,6 +42,7 @@ import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import BTCAmountPill from 'src/components/BTCAmountPill';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -104,19 +102,12 @@ function WalletDetails({ route }: ScreenProps) {
     isTaprootWallet = true;
   }
 
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currencyCodeExchangeRate = exchangeRates[currencyCode];
-
-  const disableBuy = Platform.OS === 'ios' ? true : false;
+  const disableBuy = false;
   const cardProps = {
     circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
     pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
-    cardPillText: disableBuy
-      ? common.comingSoon
-      : `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-          currencyCodeExchangeRate.buy.toFixed(0)
-        )}`,
+    cardPillText: disableBuy ? common.comingSoon : '',
+    customCardPill: !disableBuy && <BTCAmountPill />,
     cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
   };
 
@@ -177,7 +168,7 @@ function WalletDetails({ route }: ScreenProps) {
   };
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`} style={styles.wrapper}>
       <StatusBar barStyle="light-content" />
       <Box style={styles.topContainer}>
         <KeeperHeader
@@ -235,6 +226,8 @@ function WalletDetails({ route }: ScreenProps) {
           pillTextColor={cardProps.pillTextColor}
           circleColor={cardProps.circleColor}
           cardPillColor={cardProps.cardPillColor}
+          customCardPill={cardProps.customCardPill}
+          customStyle={{ justifyContent: 'flex-end' }}
         />
         <ActionCard
           cardName={common.viewAllCoins}
@@ -247,6 +240,7 @@ function WalletDetails({ route }: ScreenProps) {
             })
           }
           icon={<CoinsIcon />}
+          customStyle={{ justifyContent: 'flex-end' }}
         />
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
@@ -286,14 +280,12 @@ function WalletDetails({ route }: ScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: '10%',
-    justifyContent: 'space-between',
+  wrapper: {
     flex: 1,
   },
   topContainer: {
     paddingHorizontal: 20,
-    paddingTop: 15,
+    paddingTop: hp(15),
   },
   walletContainer: {
     paddingHorizontal: wp(20),
@@ -342,9 +334,9 @@ const styles = StyleSheet.create({
   },
   balanceWrapper: {
     flexDirection: 'row',
-    width: '90%',
-    marginVertical: wp(30),
-    marginHorizontal: wp(20),
+    paddingLeft: '3%',
+    marginVertical: 20,
+    justifyContent: 'space-between',
   },
   unconfirmBalanceView: {
     width: '50%',
@@ -377,9 +369,8 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   settingBtn: {
-    width: wp(24),
-    height: hp(24),
-    marginRight: wp(7),
+    paddingHorizontal: 22,
+    paddingVertical: 22,
   },
 });
 export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);

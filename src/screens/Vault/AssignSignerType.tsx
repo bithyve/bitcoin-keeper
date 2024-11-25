@@ -1,25 +1,23 @@
-import { Box, ScrollView, useColorMode, VStack } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/services/wallets/enums';
-import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
-import Text from 'src/components/KeeperText';
 import useSigners from 'src/hooks/useSigners';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import UnknownSignerInfo from './components/UnknownSignerInfo';
 import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import AssignSignerTypeCard from './components/AssignSignerTypeCard';
 
 type IProps = {
   navigation: any;
@@ -34,32 +32,26 @@ function AssignSignerType({ route }: IProps) {
   const { colorMode } = useColorMode();
   const { vault, signer } = route.params;
   const { signers: appSigners } = useSigners();
-  const [visible, setVisible] = useState(false);
-  const [signerType, setSignerType] = useState<SignerType>();
   const { translations } = useContext(LocalizationContext);
   const { signer: signerText } = translations;
-  const assignSignerType = (type: SignerType) => {
-    setSignerType(type);
-    setVisible(true);
-  };
-  const { plan, isOnL1, isOnL2 } = usePlan();
+  const { isOnL1, isOnL2 } = usePlan();
 
   const availableSigners = [
-    SignerType.TAPSIGNER,
+    SignerType.BITBOX02,
     SignerType.COLDCARD,
-    SignerType.SEEDSIGNER,
-    SignerType.SPECTER,
-    SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
     SignerType.LEDGER,
+    SignerType.PASSPORT,
+    SignerType.SEEDSIGNER,
+    SignerType.SPECTER,
+    SignerType.TAPSIGNER,
     SignerType.TREZOR,
-    SignerType.BITBOX02,
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
-    // SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
   ];
+
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
@@ -99,41 +91,22 @@ function AssignSignerType({ route }: IProps) {
                   { m: 2, n: 3 },
                   appSigners
                 );
+
                 let message = connectivityStatus;
                 if (!connectivityStatus) {
                   message = getSDMessage({ type });
                 }
-                const first = index === 0;
-                const last = index === availableSigners.length - 1;
+
                 return (
-                  <TouchableOpacity
-                    disabled={disabled}
-                    activeOpacity={0.7}
-                    onPress={() => {
-                      assignSignerType(type);
-                    }}
+                  <AssignSignerTypeCard
                     key={type}
-                    testID={`btn_identify_${type}`}
-                  >
-                    <Box
-                      backgroundColor={`${colorMode}.seashellWhite`}
-                      borderTopRadius={first ? 15 : 0}
-                      borderBottomRadius={last ? 15 : 0}
-                      opacity={disabled ? 0.5 : 1}
-                    >
-                      <Box style={styles.walletMapContainer}>
-                        <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
-                        <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
-                        <VStack style={styles.content}>
-                          <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
-                          <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
-                            {message}
-                          </Text>
-                        </VStack>
-                      </Box>
-                      <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
-                    </Box>
-                  </TouchableOpacity>
+                    type={type}
+                    disabled={disabled}
+                    first={index === 0}
+                    last={index === availableSigners.length - 1}
+                    vault={vault}
+                    primaryMnemonic={primaryMnemonic}
+                  />
                 );
               })}
             </Box>
@@ -142,21 +115,6 @@ function AssignSignerType({ route }: IProps) {
             </Box>
           </Box>
         )}
-        <HardwareModalMap
-          type={signerType}
-          visible={visible}
-          close={() => setVisible(false)}
-          vaultSigners={vault?.signers}
-          skipHealthCheckCallBack={() => {
-            setVisible(false);
-          }}
-          mode={InteracationMode.IDENTIFICATION}
-          vaultShellId={vault?.shellId}
-          isMultisig={vault?.isMultiSig}
-          primaryMnemonic={primaryMnemonic}
-          addSignerFlow={false}
-          vaultId={vault?.id}
-        />
       </ScrollView>
     </ScreenWrapper>
   );

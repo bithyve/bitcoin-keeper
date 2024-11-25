@@ -43,7 +43,7 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import { emailCheck } from 'src/utils/utilities';
+import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -83,15 +83,11 @@ import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import { getPersistedDocument } from 'src/services/documents';
+import { TransferType } from 'src/models/enums/TransferType';
 
 const { width } = Dimensions.get('screen');
 
-const SignersWithoutRKSigningSupport = [
-  SignerType.POLICY_SERVER,
-  SignerType.OTHER_SD,
-  SignerType.UNKOWN_SIGNER,
-  SignerType.INHERITANCEKEY,
-];
+const SignersWithRKSupport = [SignerType.MY_KEEPER, SignerType.JADE, SignerType.SEED_WORDS];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -163,7 +159,9 @@ function SignerAdvanceSettings({ route }: any) {
   const [actionAfterPasscode, setActionAfterPasscode] = useState<
     null | 'hideKey' | 'mobileKeySeed'
   >(null);
-  const supportsRKSigning = !SignersWithoutRKSigningSupport.includes(signer.type);
+  const supportsRKSigning =
+    SignersWithRKSupport.includes(signer.type) && !!signer.signerXpubs[XpubTypes.P2WSH]?.[0];
+  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
@@ -466,7 +464,7 @@ function SignerAdvanceSettings({ route }: any) {
           <Box style={styles.warningIconWrapper}>
             <WarningIllustration />
           </Box>
-          <Text style={styles.noteText} color={`${colorMode}.primaryGreenBackground`}>
+          <Text style={styles.noteText} medium color={`${colorMode}.primaryGreenBackground`}>
             Note:
           </Text>
           <Text color={`${colorMode}.greenText`} style={styles.noteDescription}>
@@ -537,30 +535,37 @@ function SignerAdvanceSettings({ route }: any) {
 
   const signPSBT = async (serializedPSBT) => {
     try {
-      let signedSerialisedPSBT;
-      try {
-        const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
-      } catch (e) {
-        showToast(e.message);
-        captureError(e);
+      const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount, feeRate } =
+        generateDataFromPSBT(serializedPSBT, signer);
+      const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
+
+      if (!signerMatched) {
+        showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
+        navigation.goBack();
+        return;
       }
-      if (signedSerialisedPSBT) {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'ShowQR',
-            params: {
-              data: signedSerialisedPSBT,
-              encodeToBytes: false,
-              title: 'Signed PSBT',
-              subtitle: 'Please scan until all the QR data has been retrieved',
-              type: SignerType.KEEPER,
-            },
-          })
-        );
-      }
-    } catch (e) {
-      showToast('Please scan a valid PSBT');
+
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'PSBTSendConfirmation',
+          params: {
+            sender: senderAddresses,
+            recipient: receiverAddresses,
+            amount: sendAmount,
+            data: serializedPSBT,
+            fees: fees,
+            estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
+            tnxPriority: tnxDetails.tnxPriority,
+            signer,
+            psbt: serializedPSBT,
+            feeRate,
+          },
+        })
+      );
+    } catch (error) {
+      console.log('🚀 ~ signPSBT ~ error:', error);
+      showToast(error.message);
+      captureError(error);
     }
   };
 
@@ -928,9 +933,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={openTapsignerSettings}
           />
         )}
-        {/* // ! Hide Remote Key */}
-        {/* {!isAssistedKey && ( */}
-        {(isAssistedKey || isMyAppKey) && (
+        {supportsRKSigning && (
           <OptionCard
             title={signerTranslation.keyDetails}
             description={signerTranslation.keyDetailsSubtitle}
@@ -952,9 +955,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
-        {/* // ! Hide Remote Key */}
-        {/* {supportsRKSigning && ( */}
-        {isMyAppKey && (
+        {supportsRKSigning && (
           <OptionCard
             title="Sign a transaction"
             description="Using a PSBT file"
@@ -995,7 +996,9 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
         <Box style={styles.signerText}>
-          {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
+          <Text color={`${colorMode}.secondaryText`} medium>
+            {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
+          </Text>
         </Box>
         <ScrollView
           horizontal
@@ -1268,13 +1271,11 @@ const styles = StyleSheet.create({
     marginVertical: hp(20),
   },
   noteText: {
-    fontWeight: '900',
-    fontSize: 14,
+    fontSize: 15,
   },
   noteDescription: {
-    fontSize: 13,
+    fontSize: 12,
     padding: 1,
-    letterSpacing: 0.65,
   },
   editModalContainer: {},
   fw800: {
@@ -1288,7 +1289,7 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   warningText: {
-    fontSize: 13,
+    fontSize: 14,
     padding: 1,
     letterSpacing: 0.65,
   },
@@ -1319,7 +1320,6 @@ const styles = StyleSheet.create({
   },
   signerText: {
     marginVertical: hp(15),
-    marginHorizontal: 10,
   },
   signerCard: {
     borderWidth: 1,
@@ -1335,7 +1335,7 @@ const styles = StyleSheet.create({
   },
   deleteRegisteredEmailNote: {
     width: wp(200),
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.13,
   },
   emailContainer: {
@@ -1389,8 +1389,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   cvvInputInfoText: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     width: '100%',
     marginTop: 2,
   },

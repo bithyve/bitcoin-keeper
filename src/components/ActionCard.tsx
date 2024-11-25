@@ -20,6 +20,7 @@ type ActionCardProps = {
   cardPillColor?: string;
   circleColor?: string;
   pillTextColor?: string;
+  customCardPill?: Element;
 };
 
 function ActionCard({
@@ -37,6 +38,7 @@ function ActionCard({
   cardPillColor,
   circleColor,
   pillTextColor,
+  customCardPill,
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
@@ -57,14 +59,18 @@ function ActionCard({
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
-        {cardPillText && (
-          <Box style={styles.cardPillContainer}>
-            <CardPill
-              heading={cardPillText}
-              backgroundColor={cardPillColor || `${colorMode}.btcLabelBack`}
-              headingColor={pillTextColor}
-            />
-          </Box>
+        {customCardPill ? (
+          <Box style={styles.cardPillContainer}>{customCardPill}</Box>
+        ) : (
+          cardPillText && (
+            <Box style={styles.cardPillContainer}>
+              <CardPill
+                heading={cardPillText}
+                backgroundColor={cardPillColor || `${colorMode}.btcLabelBack`}
+                headingColor={pillTextColor}
+              />
+            </Box>
+          )
         )}
         <Box backgroundColor={circleColor || `${colorMode}.BrownNeedHelp`} style={styles.circle}>
           {dottedBorder && (
@@ -119,9 +125,8 @@ const styles = StyleSheet.create({
     borderStyle: 'dotted',
   },
   cardName: {
-    fontSize: 12,
+    fontSize: 13,
     lineHeight: 16,
-    letterSpacing: 0.12,
   },
   cardPillContainer: {
     maxWidth: wp(100),

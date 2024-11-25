@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import OptionCard from 'src/components/OptionCard';
 import RecreateWalletIcon from 'src/assets/images/recreate_wallet.svg';
@@ -39,6 +39,7 @@ function ImportWallets({ navigation }) {
   ];
 
   const RecreateModalContent = () => {
+    const { colorMode } = useColorMode();
     return (
       <Box
         style={{
@@ -59,7 +60,7 @@ function ImportWallets({ navigation }) {
               onCardSelect={() => {
                 setSelectedRecreateOption(option.name);
               }}
-              colorMode="light"
+              colorMode={colorMode}
             />
           ))}
       </Box>

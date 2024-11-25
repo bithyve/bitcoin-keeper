@@ -157,7 +157,7 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
             )
 
             val assetManager = reactApplicationContext.assets
-            val fontStream = assetManager.open("fonts/FiraSans-Regular.ttf")
+            val fontStream = assetManager.open("fonts/Inter-Regular.ttf")
 
             val byteArrayOutputStream = ByteArrayOutputStream()
             fontStream.use { input ->
@@ -166,9 +166,9 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
                 }
             }
             val fontBytes = byteArrayOutputStream.toByteArray()
-            val firaSansRegular =  BaseFont.createFont("FiraSans-Regular.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, fontBytes, null)
+            val interRegular = BaseFont.createFont("Inter-Regular.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, fontBytes, null)
 
-            val defaultFont = Font(firaSansRegular, 13f, Font.NORMAL)
+           val defaultFont = Font(interRegular, 13f, Font.NORMAL)
             val document = Document(PageSize.A4)
             val pdfWriter = PdfWriter.getInstance(document, FileOutputStream(File(file.path)))
             pdfWriter.setEncryption(
@@ -190,7 +190,7 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
             // Align image to center
             image.alignment = Element.ALIGN_CENTER
             document.add(image)
-            val header = Paragraph("Your Wallet Configurations",  Font(firaSansRegular, 24f, Font.NORMAL))
+            val header = Paragraph("Your Wallet Configurations", Font(interRegular, 24f, Font.BOLD))
             header.alignment = Element.ALIGN_CENTER
             header.spacingBefore = padding
             header.spacingAfter = padding
@@ -227,7 +227,7 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
                 preface.add(Paragraph("----------------------------------------------------------------------------------------------------------------------"));
                 preface.add(Paragraph(content, defaultFont))
                 preface.add(Paragraph("----------------------------------------------------------------------------------------------------------------------"));
-                preface.add(Paragraph("File Details: File created on: $formattedDateTime",  Font(firaSansRegular, 13f, Font.NORMAL)));
+                preface.add(Paragraph("File Details: File created on: $formattedDateTime", Font(interRegular, 13f, Font.NORMAL)))
                 preface.add(Paragraph(" "));
                 preface.add(Paragraph("Wallet Configuration QR: ",  defaultFont));
                 preface.add(Paragraph(" "));

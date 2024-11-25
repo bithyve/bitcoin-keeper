@@ -25,21 +25,21 @@ const FeeIndicator = (props: Props) => {
 
   return (
     <View style={styles.container}>
-    <SegmentedArc
-      segments={segments}
-      fillValue={calculateIndicatorScale(percentageDifference)}
-      isAnimated={true}
-      animationDelay={1000}
-      showArcRanges={false}
-      ranges={range}
-      radius={40}
-      filledArcWidth={6}
-      emptyArcWidth={6}
-      spaceBetweenSegments={0}
-      rangesTextStyle={styles.rangeTextStyle}
-      capInnerColor={customTheme.colors[colorMode].GreyText}
-      capOuterColor={customTheme.colors[colorMode].seashellWhite}
-    />
+      <SegmentedArc
+        segments={segments}
+        fillValue={calculateIndicatorScale(percentageDifference)}
+        isAnimated={true}
+        animationDelay={1000}
+        showArcRanges={false}
+        ranges={range}
+        radius={40}
+        filledArcWidth={6}
+        emptyArcWidth={6}
+        spaceBetweenSegments={0}
+        rangesTextStyle={styles.rangeTextStyle}
+        capInnerColor={customTheme.colors[colorMode].GreyText}
+        capOuterColor={customTheme.colors[colorMode].seashellWhite}
+      />
     </View>
   );
 };
@@ -47,10 +47,9 @@ const FeeIndicator = (props: Props) => {
 export default FeeIndicator;
 
 const styles = StyleSheet.create({
-  container: {
-  },
+  container: {},
   rangeTextStyle: {
     fontSize: 12,
-    fontFamily: Fonts.FiraSansCondensedBold,
+    fontFamily: Fonts.InterBold,
   },
 });

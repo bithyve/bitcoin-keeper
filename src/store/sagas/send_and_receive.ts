@@ -23,7 +23,6 @@ import {
   sendPhaseThreeExecuted,
   sendPhaseTwoExecuted,
   setSendMaxFee,
-  setSendMaxFeeEstimatedBlocks,
   crossTransferExecuted,
   crossTransferFailed,
   sendPhaseTwoStarted,
@@ -108,7 +107,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
   const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
 
   try {
-    const { txPrerequisites } = yield call(
+    const { txRecipients, txPrerequisites } = yield call(
       WalletOperations.transferST1,
       wallet,
       recipients,
@@ -122,7 +121,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
         successful: true,
         outputs: {
           txPrerequisites,
-          recipients,
+          txRecipients,
         },
       })
     );
@@ -157,7 +156,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
   );
 
-  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
+  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.txRecipients[txnPriority]);
   const signerMap = {};
   if (wallet.entityKind === EntityKind.VAULT) {
     dbManager
@@ -263,8 +262,8 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
   );
 
-  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const { wallet, txnPriority, note, label } = payload;
+  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.txRecipients[txnPriority]);
   try {
     const threshold = (wallet as Vault).scheme.m;
     let availableSignatures = 0;
@@ -358,14 +357,13 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
 
   const averageTxFeeByNetwork = averageTxFees[sender.networkType];
   try {
-    // const recipients = yield call(processRecipients);
     const recipients = [
       {
         address: yield call(WalletOperations.getNextFreeAddress, recipient),
         amount,
       },
     ];
-    const { txPrerequisites } = yield call(
+    const { txRecipients, txPrerequisites } = yield call(
       WalletOperations.transferST1,
       sender,
       recipients,
@@ -378,7 +376,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
         sender,
         txPrerequisites,
         TxPriority.LOW,
-        recipients
+        txRecipients
       );
 
       if (txid) {
@@ -400,24 +398,23 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
 export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRANSFER);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
-  const { numberOfRecipients, wallet, selectedUTXOs } = payload;
+  const { recipients, wallet, selectedUTXOs } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
   const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
-  const { feePerByte, estimatedBlocks } = averageTxFeeByNetwork[TxPriority.LOW];
-  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  const feePerByte = Number(
+    payload.feePerByte ? payload.feePerByte : averageTxFeeByNetwork[TxPriority.LOW].feePerByte
+  );
 
   const { fee } = WalletOperations.calculateSendMaxFee(
     wallet,
-    numberOfRecipients,
+    recipients,
     feePerByte,
-    network,
     selectedUTXOs
   );
 
   yield put(setSendMaxFee(fee));
-  yield put(setSendMaxFeeEstimatedBlocks(estimatedBlocks));
 }
 
 export const calculateSendMaxFeeWatcher = createWatcher(
@@ -426,70 +423,89 @@ export const calculateSendMaxFeeWatcher = createWatcher(
 );
 
 function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
-  if (parseInt(payload.feePerByte, 10) < 1) {
-    yield put(
-      customFeeCalculated({
-        successful: false,
-        outputs: {
-          customTxPrerequisites: null,
-        },
-        err: 'Custom fee minimum: 1 sat/byte',
-      })
-    );
-    return;
-  }
-
-  const { wallet, recipients, feePerByte, customEstimatedBlocks, selectedUTXOs } = payload;
-  const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
-    (state) => state.sendAndReceive.sendPhaseOne
-  );
-  const txPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites);
-
-  let outputs;
-  if (!txPrerequisites) {
-    // process recipients & generate outputs(normally handled by transfer ST1 saga)
-    const outputsArray = [];
-    for (const recipient of recipients) {
-      outputsArray.push({
-        address: recipient.address,
-        value: Math.round(recipient.amount),
-      });
+  try {
+    if (parseInt(payload.feePerByte, 10) < 1) {
+      yield put(
+        customFeeCalculated({
+          successful: false,
+          err: 'Custom fee minimum: 1 sat/byte',
+        })
+      );
+      return;
     }
-    outputs = outputsArray;
-  } else outputs = txPrerequisites[TxPriority.LOW].outputs.filter((output) => output.address);
 
-  const customTxPrerequisites = WalletOperations.prepareCustomTransactionPrerequisites(
-    wallet,
-    outputs,
-    parseInt(feePerByte, 10),
-    selectedUTXOs
-  );
-
-  if (customTxPrerequisites[TxPriority.CUSTOM]?.inputs) {
-    customTxPrerequisites[TxPriority.CUSTOM].estimatedBlocks = parseInt(customEstimatedBlocks, 10);
-
-    yield put(
-      customFeeCalculated({
-        successful: true,
-        outputs: {
-          customTxPrerequisites,
-          recipients,
-        },
-        err: null,
-      })
+    const { wallet, recipients, feePerByte, customEstimatedBlocks, selectedUTXOs } = payload;
+    const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
+      (state) => state.sendAndReceive.sendPhaseOne
     );
-  } else {
-    let totalAmount = 0;
-    outputs.forEach((output) => {
-      totalAmount += output.value;
-    });
+    const txPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites);
+
+    let outputs;
+    if (recipients && recipients.length) {
+      // process recipients & generate outputs(normally handled by transfer ST1 saga)
+      const outputsArray = [];
+      for (const recipient of recipients) {
+        outputsArray.push({
+          address: recipient.address,
+          value: Math.round(recipient.amount),
+        });
+      }
+      outputs = outputsArray;
+    } else {
+      if (txPrerequisites)
+        outputs = txPrerequisites[TxPriority.LOW].outputs.filter((output) => output.address);
+    }
+
+    if (!outputs) {
+      yield put(
+        customFeeCalculated({
+          successful: false,
+          err: `Transaction recipients not provided`,
+        })
+      );
+    }
+
+    const { txPrerequisites: customTxPrerequisites, txRecipients: customTxRecipients } =
+      WalletOperations.prepareCustomTransactionPrerequisites(
+        wallet,
+        outputs,
+        parseInt(feePerByte, 10),
+        selectedUTXOs
+      );
+
+    if (customTxPrerequisites[TxPriority.CUSTOM]?.inputs) {
+      customTxPrerequisites[TxPriority.CUSTOM].estimatedBlocks = parseInt(
+        customEstimatedBlocks,
+        10
+      );
+
+      yield put(
+        customFeeCalculated({
+          successful: true,
+          outputs: {
+            customTxPrerequisites,
+            customTxRecipients,
+          },
+          err: null,
+        })
+      );
+    } else {
+      let totalAmount = 0;
+      outputs.forEach((output) => {
+        totalAmount += output.value;
+      });
+      yield put(
+        customFeeCalculated({
+          successful: false,
+          err: `Fee is too high for your balance, please select another option`,
+        })
+      );
+    }
+  } catch (err) {
     yield put(
       customFeeCalculated({
         successful: false,
-        outputs: {
-          customTxPrerequisites: null,
-        },
-        err: `Insufficient balance to pay: amount ${totalAmount} + fee(${customTxPrerequisites.fee}) at ${feePerByte} sats/byte`,
+        err: err,
       })
     );
   }

@@ -1,13 +1,9 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from '../screens/SignTransaction/SignerModals';
-import { RKInteractionMode, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { ScriptTypes, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import {
-  signTransactionWithColdCard,
-  signTransactionWithSeedWords,
-  signTransactionWithTapsigner,
-} from '../screens/SignTransaction/signWithSD';
+import { signTransactionWithSeedWords } from '../screens/SignTransaction/signWithSD';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -15,15 +11,21 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import KeeperModal from 'src/components/KeeperModal';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { useColorMode } from 'native-base';
-import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { useDispatch } from 'react-redux';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
+import config from 'src/utils/service-utilities/config';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 
-const RKSignersModal = ({ data }, ref) => {
-  const { serializedPSBTEnvelop, signer, vault, vaultId, vaultKey, isMultisig } = data;
+const RKSignersModal = ({ signer, psbt }, ref) => {
+  const serializedPSBTEnvelop = {
+    serializedPSBT: psbt,
+  };
+  const isMultisig = true;
+
   const { colorMode } = useColorMode();
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -42,6 +44,7 @@ const RKSignersModal = ({ data }, ref) => {
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const textRef = useRef(null);
   const { signerMap } = useSignerMap();
@@ -97,7 +100,7 @@ const RKSignersModal = ({ data }, ref) => {
             name: 'EnterSeedScreen',
             params: {
               parentScreen: SIGNTRANSACTION,
-              xfp: vaultKey.xfp,
+              xfp: vaultKeys.xfp,
               onSuccess: signTransaction,
             },
           })
@@ -107,78 +110,31 @@ const RKSignersModal = ({ data }, ref) => {
     }
   };
 
+  const navigateToShowPSBT = (signedSerializedPSBT) => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ShowPSBT',
+        params: {
+          data: signedSerializedPSBT,
+          encodeToBytes: false,
+          title: 'Signed PSBT',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          type: SignerType.KEEPER,
+        },
+      })
+    );
+  };
+
   const signTransaction = async ({ seedBasedSingerMnemonic }) => {
     try {
-      if (SignerType.TAPSIGNER === signerType) {
-        const { signingPayload: signedPayload, signedSerializedPSBT } =
-          await signTransactionWithTapsigner({
-            setTapsignerModal: setTapSignerModal,
-            signingPayload: serializedPSBTEnvelop.signingPayload,
-            currentKey: vaultKey,
-            withModal,
-            defaultVault: vault,
-            serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
-            card,
-            cvc: textRef.current,
-            signer,
-          });
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_SIGNING,
-            },
-          ])
-        );
-        navigation.replace('RemoteSharing', {
-          isPSBTSharing: true,
-          signer: signer,
-          psbt: signedSerializedPSBT || signedPayload,
-          mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-          vaultKey: vaultKey,
-          vaultId: vaultId,
-          isMultisig: isMultisig,
-        });
-      } else if (SignerType.COLDCARD === signerType) {
-        console.log('signTransaction CC modal');
-        await signTransactionWithColdCard({
-          setColdCardModal,
-          withNfcModal,
-          serializedPSBTEnvelop,
-          closeNfc,
-        });
-      } else if (SignerType.MY_KEEPER === signerType) {
-        const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        const signedSerializedPSBT = signCosignerPSBT(
-          key.xpriv,
-          serializedPSBTEnvelop.serializedPSBT
-        );
-        if (signedSerializedPSBT) {
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SIGNING,
-              },
-            ])
-          );
-          navigation.replace('RemoteSharing', {
-            isPSBTSharing: true,
-            signer: signer,
-            psbt: signedSerializedPSBT,
-            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-            vaultKey: vaultKey,
-            vaultId: vaultId,
-            isMultisig: isMultisig,
-          });
-        }
-      } else if (SignerType.SEED_WORDS === signerType) {
+      if (SignerType.SEED_WORDS === signerType) {
         const { signedSerializedPSBT } = await signTransactionWithSeedWords({
-          signingPayload: serializedPSBTEnvelop.signingPayload,
-          defaultVault: vault,
+          isRemoteKey: true,
+          signingPayload: {},
+          defaultVault: { signers: [signer], networkType: config.NETWORK_TYPE }, // replicating vault details in case of RK
           seedBasedSingerMnemonic,
           serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
-          xfp: vaultKey.xfp,
+          xfp: {},
           isMultisig: isMultisig,
         });
         if (signedSerializedPSBT) {
@@ -190,19 +146,19 @@ const RKSignersModal = ({ data }, ref) => {
               },
             ])
           );
-          navigation.replace('RemoteSharing', {
-            isPSBTSharing: true,
-            signer: signer,
-            psbt: signedSerializedPSBT,
-            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-            vaultKey: vaultKey,
-            vaultId: vaultId,
-            isMultisig: isMultisig,
-          });
+          navigateToShowPSBT(signedSerializedPSBT);
+        }
+      } else if (SignerType.MY_KEEPER === signerType) {
+        let signedSerializedPSBT: string;
+        const key = signer.signerXpubs[XpubTypes.P2WSH][0];
+        signedSerializedPSBT = signCosignerPSBT(key.xpriv, serializedPSBTEnvelop.serializedPSBT);
+        if (signedSerializedPSBT) {
+          navigateToShowPSBT(signedSerializedPSBT);
         }
       }
     } catch (error) {
       console.log('🚀 ~ signTransaction ~ error:', error);
+      showToast(`${error}`);
     }
   };
 
@@ -222,17 +178,15 @@ const RKSignersModal = ({ data }, ref) => {
         },
       ])
     );
-    navigation.replace('RemoteSharing', {
-      isPSBTSharing: true,
-      signer: signer,
-      psbt: signedSerializedPSBT,
-      mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-      vaultKey: vaultKey,
-      vaultId: vaultId,
-      isMultisig: isMultisig,
-    });
   };
 
+  const vaultKeys = {
+    masterFingerprint: signer.masterFingerprint,
+    xpub: signer.signerXpubs[ScriptTypes.P2WSH][0].xpub,
+    xfp: signer.masterFingerprint,
+    derivationPath: signer.signerXpubs[ScriptTypes.P2WSH][0].derivationPath,
+    registeredVaults: [],
+  };
   return (
     <>
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
@@ -257,9 +211,9 @@ const RKSignersModal = ({ data }, ref) => {
         )}
       />
       <SignerModals
-        vaultId={vaultId}
-        vaultKeys={[vaultKey]}
-        activeXfp={vaultKey.xfp}
+        vaultId={''}
+        vaultKeys={[vaultKeys]}
+        activeXfp={vaultKeys.masterFingerprint}
         coldCardModal={coldCardModal}
         tapsignerModal={tapSignerModal}
         ledgerModal={ledgerModal}
@@ -294,7 +248,12 @@ const RKSignersModal = ({ data }, ref) => {
         signerMap={signerMap}
         onFileSign={onFileSign}
         isRemoteKey={true}
-        serializedPSBTEnvelopFromProps={serializedPSBTEnvelop}
+        serializedPSBTEnvelopFromProps={{
+          serializedPSBT: psbt,
+          isSigned: false,
+          signerType,
+          xfp: vaultKeys.xfp,
+        }}
       />
     </>
   );

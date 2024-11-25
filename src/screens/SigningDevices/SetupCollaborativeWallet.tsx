@@ -402,8 +402,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   addCoSigner: {
-    letterSpacing: 0.13,
-    lineHeight: 18,
     width: wp(295),
   },
 });

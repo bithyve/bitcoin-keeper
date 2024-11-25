@@ -20,11 +20,12 @@ RCT_EXPORT_METHOD(backupBsms:(NSString *)data
     }];
 }
 
-RCT_EXPORT_METHOD(bsmsHealthCheck:(NSString *)data
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject){
-  CloudBackupHelper *helper = [[CloudBackupHelper alloc]init];
-
+RCT_EXPORT_METHOD(bsmsHealthCheck:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    CloudBackupHelper *helper = [[CloudBackupHelper alloc]init];
+    [helper bsmsHealthCheckWithCallback:^(NSString * _Nonnull response) {
+        resolve(response);
+    }];
 }
 
 

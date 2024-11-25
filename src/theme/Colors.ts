@@ -110,8 +110,10 @@ const Colors = {
   CastelGreenDark: 'rgba(0, 67, 58, 1)',
   CoffeeDark: 'rgba(150,130,111, 1)',
   Periwinkle: 'rgba(184, 182, 208, 1)',
+  PeriwinkleDark: 'rgba(132, 131, 153, 1)',
   Purple: 'rgba(204, 184, 214, 1)',
   ChampagneBliss: 'rgba(253, 247, 240, 1)',
+  SilverMistSolid: 'rgba(212, 212, 212, 1)',
   SilverMist: 'rgba(212, 212, 212, 0.6)',
   SilverMistTransparent: 'rgba(212, 212, 212, 0.1)',
   SilverMistTranslucent: 'rgba(212, 212, 212, 0.6)',
@@ -158,5 +160,7 @@ const Colors = {
   NewBadgeGreenDark: 'rgba(65, 89, 76, 1)',
   ErrorToast: 'rgba(249, 219, 219, 1)',
   ErrorToastDark: 'rgba(58, 41, 41, 1)',
+  DashedButtonBackground: 'rgba(45, 103, 89, 0.04)',
+  DashedButtonBackgroundDark: 'rgba(65, 89, 76, 0.05)',
 };
 export default Colors;

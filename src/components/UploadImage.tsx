@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    letterSpacing: 0.6,
     fontSize: 12,
     marginLeft: 5,
   },

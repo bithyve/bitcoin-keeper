@@ -824,53 +824,58 @@ function* backupBsmsOnCloudWorker({
 }
 
 function* bsmsCloudHealthCheckWorker() {
-  if (Platform.OS === 'android') {
-    yield put(setBackupLoading(true));
-    const setup = yield call(CloudBackupModule.setup);
-    if (setup) {
+  yield put(setBackupLoading(true));
+  try {
+    if (Platform.OS === 'android') {
+      const setup = yield call(CloudBackupModule.setup);
+      if (!setup) {
+        yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+          title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
+          confirmed: false,
+          subtitle: 'Unable to initialize Google Drive',
+          date: Date.now(),
+        });
+        return;
+      }
+
       const login = yield call(CloudBackupModule.login);
-      if (login.status) {
-        const response = yield call(CloudBackupModule.bsmsHealthCheck);
-        if (response.status) {
-          yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
-            title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
-            confirmed: true,
-            subtitle: response.data,
-            date: Date.now(),
-          });
-          yield put(setIsCloudBsmsBackupRequired(false));
-        } else {
-          yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
-            title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
-            confirmed: false,
-            subtitle: response.error,
-            date: Date.now(),
-          });
-        }
-      } else {
+      if (!login.status) {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
           title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
           confirmed: false,
           subtitle: login.error,
           date: Date.now(),
         });
+        return;
       }
+    }
+
+    const response = yield call(CloudBackupModule.bsmsHealthCheck);
+    const parsedResponse = typeof response === 'string' ? JSON.parse(response) : response;
+
+    if (parsedResponse.status) {
+      yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+        title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
+        confirmed: true,
+        subtitle: parsedResponse.data || '',
+        date: Date.now(),
+      });
+      yield put(setIsCloudBsmsBackupRequired(false));
     } else {
       yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
         title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
         confirmed: false,
-        subtitle: 'Unable to initialize Google Drive',
+        subtitle: parsedResponse.error || 'Health check failed',
         date: Date.now(),
       });
     }
-  } else {
+  } catch (error) {
     yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
-      title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
-      confirmed: true,
-      subtitle: '',
+      title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
+      confirmed: false,
+      subtitle: error.message || 'Unknown error occurred',
       date: Date.now(),
     });
-    yield put(setIsCloudBsmsBackupRequired(false));
   }
 }
 

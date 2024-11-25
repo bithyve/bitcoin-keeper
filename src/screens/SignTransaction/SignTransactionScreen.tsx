@@ -630,7 +630,7 @@ function SignTransactionScreen() {
         <Box alignSelf="center">
           {isDarkMode ? <SuccessDarkIllustration /> : <SuccessLightIllustration />}
         </Box>
-        <Text color={`${colorMode}.primaryText`} fontSize={13} padding={2}>
+        <Text color={`${colorMode}.primaryText`} fontSize={14} padding={2}>
           {walletTransactions.sendTransSuccessMsg}
         </Text>
         <Box paddingTop={6}>

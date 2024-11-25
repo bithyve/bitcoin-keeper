@@ -1,10 +1,10 @@
 import Text from 'src/components/KeeperText';
 import { Box, Modal, useColorMode } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BtcInput from 'src/assets/images/btc_black.svg';
@@ -22,20 +22,21 @@ function CustomPriorityModal(props) {
     title = 'Title',
     subTitle = null,
     buttonText = 'Confirm',
-    buttonTextColor = 'white',
     buttonCallback,
     secondaryButtonText,
     secondaryCallback,
-    textColor,
     network,
     recipients,
     sender,
     selectedUTXOs,
+    existingCustomPriorityFee,
   } = props;
   const { bottom } = useSafeAreaInsets();
-  const [customPriorityFee, setCustomPriorityFee] = useState('');
+  const [customPriorityFee, setCustomPriorityFee] = useState(
+    existingCustomPriorityFee ? existingCustomPriorityFee.toString() : ''
+  );
   const [customEstBlocks, setCustomEstBlock] = useState();
-  const [estimationSign, setEstimationSign] = useState('~');
+  const [estimationSign, setEstimationSign] = useState('≈');
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
@@ -53,14 +54,13 @@ function CustomPriorityModal(props) {
   };
 
   const updateFeeAndBlock = (value) => {
-    setEstimationSign('~');
+    setEstimationSign('≈');
     if (averageTxFees && averageTxFees[network]) {
       const { high, medium, low } = averageTxFees[network];
       const customFeeRatePerByte = parseInt(value);
       let customEstimatedBlock = 0;
       if (customFeeRatePerByte >= high.feePerByte) {
         customEstimatedBlock = high.estimatedBlocks;
-        if (customFeeRatePerByte > high.feePerByte) setEstimationSign('<');
       } else if (customFeeRatePerByte <= low.feePerByte) {
         customEstimatedBlock = low.estimatedBlocks;
         if (customFeeRatePerByte < low.feePerByte) setEstimationSign('>');
@@ -101,7 +101,7 @@ function CustomPriorityModal(props) {
   useEffect(() => {
     if (customSendPhaseOneResults.failedErrorMessage) {
       showToast(customSendPhaseOneResults.failedErrorMessage);
-      buttonCallback(false, '');
+      buttonCallback(false, customPriorityFee);
     } else if (customSendPhaseOneResults.isSuccessful) {
       buttonCallback(true, customPriorityFee);
     }
@@ -134,14 +134,16 @@ function CustomPriorityModal(props) {
               </Box>
             </Modal.Header>
             <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.priorityContainer}>
-              <Box
-                borderRightWidth={0.5}
-                borderRightColor={`${colorMode}.Border`}
-                paddingLeft={wp(10)}
-                paddingRight={wp(8)}
-              >
-                <Box>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</Box>
+              <Box paddingLeft={wp(15)}>
+                <Box>
+                  {colorMode === 'light' ? (
+                    <BtcInput width={13} height={13} />
+                  ) : (
+                    <BtcWhiteInput width={13} height={13} />
+                  )}
+                </Box>
               </Box>
+              <Box style={styles.separator} backgroundColor={`${colorMode}.dullGreyBorder`} />
               <Text
                 color={
                   customPriorityFee ? `${colorMode}.greenText` : `${colorMode}.placeHolderTextColor`
@@ -152,26 +154,24 @@ function CustomPriorityModal(props) {
                 {customPriorityFee || 'Enter amount'}
               </Text>
             </Box>
-            <Box my={windowHeight * 0.03} flexDirection="row" justifyContent="space-between" mx={1}>
-              <Text medium color={`${colorMode}.greenText`}>
-                {walletTranslation.estimateArrvlTime}:
-              </Text>
-              <Text fontSize={15}>
+            <Box my={3} flexDirection="row" justifyContent="space-between" mx={1}>
+              <Text fontSize={12} color={`${colorMode}.SlateGrey`}>
                 {customEstBlocks ? `${estimationSign} ${customEstBlocks * 10} mins` : ''}
               </Text>
             </Box>
-
-            <Buttons
-              primaryText={buttonText}
-              primaryCallback={handleCustomFee}
-              secondaryText={secondaryButtonText}
-              secondaryCallback={secondaryCallback}
-            />
             <KeyPadView
               onPressNumber={onPressNumber}
               onDeletePressed={onDeletePressed}
               keyColor={`${colorMode}.primaryText`}
             />
+            <Box marginTop={hp(15)}>
+              <Buttons
+                primaryText={buttonText}
+                primaryCallback={handleCustomFee}
+                secondaryText={secondaryButtonText}
+                secondaryCallback={secondaryCallback}
+              />
+            </Box>
           </Box>
         </Modal.Content>
       </Modal>
@@ -197,10 +197,15 @@ const styles = StyleSheet.create({
   },
   priorityContainer: {
     flexDirection: 'row',
-    gap: 20,
     alignItems: 'center',
     height: hp(50),
     width: '100%',
     borderRadius: 10,
+  },
+  separator: {
+    width: 2,
+    height: 20,
+    marginRight: wp(12),
+    marginLeft: wp(10),
   },
 });

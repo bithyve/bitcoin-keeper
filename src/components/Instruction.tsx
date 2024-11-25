@@ -60,9 +60,8 @@ const getStyles = (textWidth: DimensionValue) =>
       marginTop: 11,
     },
     infoText: {
-      letterSpacing: 0.65,
       padding: 3,
-      fontSize: 13,
+      fontSize: 14,
       width: textWidth,
     },
     linkText: {

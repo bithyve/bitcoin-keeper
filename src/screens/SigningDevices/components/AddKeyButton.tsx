@@ -3,17 +3,18 @@ import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import AddGreen from 'src/assets/images/add-plus-green.svg';
+import AddWhite from 'src/assets/images/add-plus-white.svg';
 
 export function AddKeyButton({ short = false, onPress }: { short?: boolean; onPress: () => void }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   return (
     <TouchableOpacity onPress={onPress} style={styles.addNewBtn}>
-      <Text color={`${colorMode}.textGreen`} semiBold style={styles.addNew}>
+      <Text color={`${colorMode}.textGreen`} bold style={styles.addNew}>
         {short ? 'Add a key' : 'Add a new key'}
       </Text>
-      <Text style={styles.addNewPlus} color={`${colorMode}.textGreen`} medium>
-        +
-      </Text>
+      {isDarkMode ? <AddWhite /> : <AddGreen />}
     </TouchableOpacity>
   );
 }
@@ -21,12 +22,13 @@ export function AddKeyButton({ short = false, onPress }: { short?: boolean; onPr
 const styles = StyleSheet.create({
   addNewBtn: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(5),
   },
   addNew: {
     fontSize: 14,
     textAlign: 'right',
     flex: 1,
-    marginRight: wp(5),
   },
   addNewPlus: {
     fontSize: 26,

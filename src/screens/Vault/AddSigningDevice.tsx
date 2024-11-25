@@ -397,7 +397,6 @@ function Signers({
           icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}
-          isFullText
           colorVarient="green"
           colorMode={colorMode}
         />
@@ -582,7 +581,7 @@ function Signers({
                   !isCollaborativeFlow
                     ? () =>
                         navigation.dispatch(
-                          CommonActions.navigate('SigningDeviceList', {
+                          CommonActions.navigate('SignerCategoryList', {
                             scheme,
                             vaultId,
                             vaultSigners: vaultKeys,
@@ -1084,7 +1083,7 @@ const styles = StyleSheet.create({
   topSection: {
     height: '17%',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: hp(15),
   },
   addedSigners: {
     flexDirection: 'row',
@@ -1146,7 +1145,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   descText: {
-    fontSize: 13,
+    fontSize: 14,
     width: wp(300),
     marginBottom: hp(18),
   },

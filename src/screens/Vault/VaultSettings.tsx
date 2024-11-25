@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { StyleSheet } from 'react-native';
+import { ScrollView, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, wp } from 'src/constants/responsive';
@@ -18,11 +18,8 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { VaultType, VisibilityType } from 'src/services/wallets/enums';
-import useToastMessage from 'src/hooks/useToastMessage';
-import Text from 'src/components/KeeperText';
-import { Shadow } from 'react-native-shadow-2';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { VAULTSETTINGS } from 'src/navigation/contants';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { trimCWDefaultName } from 'src/utils/utilities';
 
@@ -34,7 +31,6 @@ function VaultSettings({ route }) {
   const descriptorString = generateOutputDescriptors(vault);
   const TestSatsComponent = useTestSats({ wallet: vault });
   const [vaultDetailVisible, setVaultDetailVisible] = useState(false);
-  const [showWalletBalanceAlert, setShowWalletBalanceAlert] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
   const isCanaryWalletType = vault.type === VaultType.CANARY;
@@ -43,11 +39,7 @@ function VaultSettings({ route }) {
 
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
 
-  const updateWalletVisibility = (checkBalance = true) => {
-    if (checkBalance && vault.specs.balances.confirmed + vault.specs.balances.unconfirmed > 0) {
-      setShowWalletBalanceAlert(true);
-      return;
-    }
+  const updateWalletVisibility = () => {
     try {
       dbManager.updateObjectById(RealmSchema.Vault, vault.id, {
         presentationData: {
@@ -57,61 +49,12 @@ function VaultSettings({ route }) {
           shell: vault.presentationData.shell,
         },
       });
-      showToast(vaultText.vaultHiddenSuccessMessage, <TickIcon />);
+      showToast(vaultText.vaultHiddenSuccessMessage, <TickIcon />, IToastCategory.DEFAULT, 5000);
       navigation.navigate('Home');
     } catch (error) {
       console.log(error);
     }
   };
-
-  function WalletBalanceAlertModalContent() {
-    return (
-      <Box style={styles.modalContainer}>
-        <Text color={`${colorMode}.secondaryText`} style={styles.unhideText}>
-          {vaultText.hideVaultModalDesc}
-        </Text>
-        <Box style={styles.BalanceModalContainer}>
-          <TouchableOpacity
-            style={styles.cancelBtn}
-            onPress={() => {
-              updateWalletVisibility(false);
-              setShowWalletBalanceAlert(false);
-            }}
-            activeOpacity={0.5}
-          >
-            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-              {common.continueToHide}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              setShowWalletBalanceAlert(false);
-              navigation.dispatch(
-                CommonActions.navigate('Send', {
-                  sender: vault,
-                  parentScreen: VAULTSETTINGS,
-                })
-              );
-            }}
-          >
-            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-              <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                <Text
-                  numberOfLines={1}
-                  style={styles.btnText}
-                  color={`${colorMode}.buttonText`}
-                  bold
-                >
-                  {common.MoveFunds}
-                </Text>
-              </Box>
-            </Shadow>
-          </TouchableOpacity>
-        </Box>
-      </Box>
-    );
-  }
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -187,20 +130,6 @@ function VaultSettings({ route }) {
           />
         )}
       />
-      <KeeperModal
-        dismissible
-        close={() => {
-          setShowWalletBalanceAlert(false);
-        }}
-        visible={showWalletBalanceAlert}
-        title={vaultText.vaultFundsTitle}
-        subTitle={vaultText.vaultFundsSubtitle}
-        Content={WalletBalanceAlertModalContent}
-        subTitleColor={`${colorMode}.secondaryText`}
-        subTitleWidth={wp(240)}
-        closeOnOverlayClick={true}
-        showCloseIcon={false}
-      />
     </ScreenWrapper>
   );
 }
@@ -208,7 +137,7 @@ function VaultSettings({ route }) {
 const styles = StyleSheet.create({
   optionViewWrapper: {
     marginTop: hp(30),
-    alignItems: 'center',
+    paddingHorizontal: wp(10),
   },
   cancelBtn: {
     marginRight: wp(20),
@@ -233,7 +162,7 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   unhideText: {
-    fontSize: 13,
+    fontSize: 14,
     width: wp(200),
   },
 });

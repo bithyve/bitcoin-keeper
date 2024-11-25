@@ -4,49 +4,49 @@ import Fonts from 'src/constants/Fonts';
 
 export const customTheme = extendTheme({
   fontConfig: {
-    FiraSans: {
+    Inter: {
       100: {
-        normal: Fonts.FiraSansLight,
-        italic: Fonts.FiraSansLightItalic,
+        normal: Fonts.InterLight,
+        italic: Fonts.InterLightItalic,
       },
       200: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
       300: {
-        normal: Fonts.FiraSansMedium,
-        italic: Fonts.FiraSansMediumItalic,
+        normal: Fonts.InterMedium,
+        italic: Fonts.InterMediumItalic,
       },
       400: {
-        normal: Fonts.FiraSansSemiBold,
-        italic: Fonts.FiraSansSemiBoldItalic,
+        normal: Fonts.InterSemiBold,
+        italic: Fonts.InterSemiBoldItalic,
       },
       500: {
-        normal: Fonts.FiraSansBold,
-        italic: Fonts.FiraSansBoldItalic,
+        normal: Fonts.InterBold,
+        italic: Fonts.InterBoldItalic,
       },
       600: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
       700: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
       800: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
       900: {
-        normal: Fonts.FiraSansRegular,
-        italic: Fonts.FiraSansItalic,
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
       },
     },
   },
   fonts: {
-    heading: 'FiraSans',
-    body: 'FiraSans',
-    mono: 'FiraSans',
+    heading: 'Inter',
+    body: 'Inter',
+    mono: 'Inter',
   },
   colors: {
     light: {
@@ -54,6 +54,7 @@ export const customTheme = extendTheme({
       navButtonText: Colors.DeepSpaceSparkle,
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
+      modalBackground: Colors.Warmbeige,
       primaryGreenBackground: Colors.pantoneGreen,
       pillText: Colors.MidNightBlack,
       pantoneGreenLight: Colors.pantoneGreenLight,
@@ -227,6 +228,14 @@ export const customTheme = extendTheme({
       receiptModalUnitColor: Colors.MediumJungleGreen,
       brownBackground: Colors.brownColor,
       keyPadText: Colors.GreenishGrey,
+      noteText: Colors.Graphite,
+      solidGreyBorder: Colors.SilverMistSolid,
+      menuCardTitleColor: Colors.Graphite,
+      secondarySubtitle: Colors.GraniteGray,
+      dullCreamBackground: Colors.Warmbeige,
+      dashedButtonBorder: Colors.SeaweedGreen,
+      newDashedButtonBackground: Colors.DashedButtonBackground,
+      btcPillText: Colors.MidNightBlack,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -234,6 +243,7 @@ export const customTheme = extendTheme({
       primaryGreen: Colors.GenericViridian,
       darkGrey: Colors.DarkGrey,
       primaryBackground: Colors.PrimaryBlack,
+      modalBackground: Colors.ModalBlack,
       pillText: Colors.MidNightBlack,
       primaryGreenBackground: Colors.SecondaryBlack,
       pantoneGreenLight: Colors.pantoneGreenLight,
@@ -266,7 +276,7 @@ export const customTheme = extendTheme({
       coffeeBackground: Colors.CoffeeDark,
       yellowButtonBackground: Colors.PrimaryBlack,
       yellowButtonTextColor: Colors.White,
-      btcLabelBack: Colors.Periwinkle,
+      btcLabelBack: Colors.PeriwinkleDark,
       white: Colors.SecondaryBlack,
       primaryText: Colors.SecondaryWhite,
       secondaryText: Colors.SecondaryWhite,
@@ -411,6 +421,14 @@ export const customTheme = extendTheme({
       modalUnitColor: Colors.SoftGray,
       brownBackground: Colors.DullBrown,
       keyPadText: Colors.SoftGray,
+      noteText: Colors.GraphiteLight,
+      solidGreyBorder: Colors.separator,
+      menuCardTitleColor: Colors.GraphiteLight,
+      secondarySubtitle: Colors.GraphiteLight,
+      dullCreamBackground: Colors.SoftGray,
+      dashedButtonBorder: Colors.separator,
+      newDashedButtonBackground: Colors.DashedButtonBackgroundDark,
+      btcPillText: Colors.White,
     },
   },
   config: {

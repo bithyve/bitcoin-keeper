@@ -228,14 +228,14 @@ const styles = StyleSheet.create({
   },
   desc: {
     color: 'white',
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.65,
     padding: 5,
     marginBottom: hp(5),
   },
   descLast: {
     color: 'white',
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.65,
     padding: 5,
     marginTop: hp(60),

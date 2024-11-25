@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
   },
   btnText: {
     fontSize: 14,
-    letterSpacing: 0.84,
   },
 });
 

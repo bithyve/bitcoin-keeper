@@ -53,7 +53,7 @@ const FeeGraph = (props: Props) => {
           yAxisTextStyle={{
             color: customTheme.colors[colorMode].DarkSage,
             fontSize: 12,
-            fontFamily: Fonts.FiraSansSemiBold,
+            fontFamily: Fonts.InterSemiBold,
           }}
           areaGradientId="ag"
           areaGradientComponent={() => {

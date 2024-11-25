@@ -2,7 +2,6 @@ import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/services/sentry';
-import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
@@ -26,7 +25,7 @@ import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import RegisterWithQR from 'src/screens/QRScreens/RegisterWithQR';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import ScanQR from 'src/screens/QRScreens/ScanQR';
-import ShowQR from 'src/screens/QRScreens/ShowQR';
+import ShowPSBT from 'src/screens/QRScreens/ShowPSBT';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/SigningDevices/SetupColdCard';
@@ -41,6 +40,7 @@ import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
 import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
+import SignerCategoryList from 'src/screens/Vault/SignerCategoryList';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import TimelockScreen from 'src/screens/Vault/TimelockScreen';
@@ -132,6 +132,7 @@ import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
+import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -186,6 +187,7 @@ function AppStack() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="SignerCategoryList" component={SignerCategoryList} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="TapsignerAction" component={SetupTapsigner} />
         <Stack.Screen name="SetupPortal" component={SetupPortal} />
@@ -212,7 +214,6 @@ function AppStack() {
         <Stack.Screen name="EnterWalletPath" component={WalletPathScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
-        <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="SeedDetails" component={SeedDetailsScreen} />
         <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
@@ -220,6 +221,7 @@ function AppStack() {
         <Stack.Screen name="AddDetailsFinal" component={AddDetailsFinalScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
+        <Stack.Screen name="PSBTSendConfirmation" component={PSBTSendConfirmation} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="UTXOManagement" component={UTXOManagement} />
@@ -264,7 +266,7 @@ function AppStack() {
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
         <Stack.Screen name="ScanQR" component={ScanQR} />
-        <Stack.Screen name="ShowQR" component={ShowQR} />
+        <Stack.Screen name="ShowPSBT" component={ShowPSBT} />
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
         <Stack.Screen name="NodeSettings" component={NodeSettings} />

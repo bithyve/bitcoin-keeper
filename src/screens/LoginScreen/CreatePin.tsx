@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { Box, StatusBar, useColorMode } from 'native-base';
-import { Dimensions, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   heightPercentageToDP as hp,
@@ -11,7 +11,6 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import Passwordlock from 'src/assets/images/passwordlock.svg';
@@ -23,8 +22,7 @@ import { setEnableAnalyticsLogin } from 'src/store/reducers/settings';
 import { setIsInitialLogin } from 'src/store/reducers/login';
 import { throttle } from 'src/utils/utilities';
 import Buttons from 'src/components/Buttons';
-
-const windowHeight = Dimensions.get('window').height;
+import PinDotView from 'src/components/AppPinInput/PinDotView';
 
 export default function CreatePin(props) {
   const { colorMode } = useColorMode();
@@ -171,65 +169,50 @@ export default function CreatePin(props) {
   };
 
   return (
-    <Box testID="main" style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box
+      safeAreaTop
+      testID="main"
+      style={styles.container}
+      backgroundColor={`${colorMode}.pantoneGreen`}
+    >
       <Box style={styles.wrapper}>
-        <Box pt={50}>
-          <StatusBar barStyle="light-content" />
-        </Box>
+        <StatusBar barStyle="light-content" />
         <Box style={styles.wrapper}>
           <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} color={`${colorMode}.choosePlanHome`}>
+              <Text style={styles.welcomeText} medium color={`${colorMode}.choosePlanHome`}>
                 {login.welcome}
               </Text>
-              <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
-                {login.Createpasscode}
-              </Text>
-
-              {/* pin input view */}
-              <PinInputsView
-                passCode={passcode}
-                passcodeFlag={passcodeFlag}
-                borderColor={
-                  passcode !== confirmPasscode && confirmPasscode.length === 4
-                    ? `${colorMode}.error`
-                    : 'transparent'
-                }
-                textColor={`${colorMode}.buttonText`}
-              />
-              {/*  */}
             </Box>
-            {passcode.length === 4 ? (
-              <Box>
+            <Box style={styles.passCodeWrapper}>
+              <Box style={styles.createPasscodeWrapper}>
                 <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
-                  {login.Confirmyourpasscode}
+                  {login.Createpasscode}
                 </Text>
-                <Box>
-                  {/* pin input view */}
-                  <PinInputsView
-                    passCode={confirmPasscode}
-                    passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
-                    borderColor={
-                      passcode != confirmPasscode && confirmPasscode.length === 4
-                        ? `${colorMode}.error`
-                        : 'transparent'
-                    }
-                    textColor={`${colorMode}.buttonText`}
-                  />
-                  {/*  */}
-                  {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                    <Text color={`${colorMode}.error`} italic style={styles.errorText}>
-                      {login.MismatchPasscode}
-                    </Text>
-                  )}
-                </Box>
+                <PinDotView passCode={passcode} />
               </Box>
-            ) : null}
+              {passcode.length === 4 ? (
+                <Box style={styles.confirmPasscodeWrapper}>
+                  <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
+                    {login.Confirmyourpasscode}
+                  </Text>
+                  <Box>
+                    <PinDotView passCode={confirmPasscode} />
+                    {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
+                      <Text color={`${colorMode}.error`} italic style={styles.errorText}>
+                        {login.MismatchPasscode}
+                      </Text>
+                    )}
+                  </Box>
+                </Box>
+              ) : null}
+            </Box>
           </Box>
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
             ClearIcon={<DeleteIcon />}
+            bubbleEffect
           />
           <Box style={styles.btnWrapper}>
             <Buttons
@@ -300,25 +283,35 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   titleWrapper: {
-    marginTop: windowHeight > 670 ? hp('5%') : 0,
-    flex: 0.9,
+    paddingTop: hp(6.7),
+    alignItems: 'center',
+    flex: 1,
+    gap: hp(6),
   },
   welcomeText: {
-    marginLeft: 18,
-    fontSize: 22,
-    letterSpacing: 0.22,
+    fontSize: 25,
     lineHeight: 27,
   },
   labelText: {
     fontSize: 14,
-    letterSpacing: 0.14,
-    marginLeft: 18,
+  },
+  passCodeWrapper: {
+    gap: hp(4.7),
+  },
+  createPasscodeWrapper: {
+    gap: hp(1.8),
+    alignItems: 'center',
+  },
+  confirmPasscodeWrapper: {
+    alignItems: 'center',
+    gap: hp(1.8),
   },
   errorText: {
     fontSize: 11,
     letterSpacing: 0.22,
     width: wp('68%'),
-    textAlign: 'right',
+    textAlign: 'center',
+    marginTop: 18,
   },
   bitcoinTestnetText: {
     fontWeight: '400',
