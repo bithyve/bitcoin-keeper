@@ -94,6 +94,7 @@ const SignersWithRKSupport = [
   SignerType.SEEDSIGNER,
   SignerType.SPECTER,
   SignerType.COLDCARD,
+  SignerType.LEDGER,
 ];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
