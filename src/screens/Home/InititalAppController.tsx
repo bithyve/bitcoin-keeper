@@ -117,13 +117,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     case SignerType.TAPSIGNER:
                     case SignerType.JADE:
                     case SignerType.MY_KEEPER:
-                      navigation.navigate('SendConfirmation', {
-                        ...sendConfirmationRouteParams,
-                        tnxDetails,
-                        signingDetails: { ...signingDetails, signer },
-                        timeLeft: calculateTimeLeft(createdAt),
-                        isRemoteFlow: true,
-                      });
+                      // TODO: Navigate to PSBTSendConfirmation with psbt details
                       break;
                     default:
                       console.log('Signer Type Unknown', signer.type); // TODO: remove this

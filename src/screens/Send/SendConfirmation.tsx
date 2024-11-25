@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Share from 'react-native-share';
 import { sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/constants/responsive';
@@ -42,8 +42,6 @@ import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/con
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
-import CountdownTimer from 'src/components/Timer/CountDownTimer';
-import RKSignersModal from '../../components/RKSignersModal';
 import ReceiptWrapper from './ReceiptWrapper';
 import TransferCard from './TransferCard';
 import TransactionPriorityDetails from './TransactionPriorityDetails';
@@ -54,6 +52,7 @@ import SendSuccessfulContent from './SendSuccessfulContent';
 import config from 'src/utils/service-utilities/config';
 import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
 import PriorityModal from './PriorityModal';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -76,16 +75,6 @@ export interface SendConfirmationRouteParams {
   selectedUTXOs: UTXO[];
   date: Date;
   parentScreen: string;
-  isRemoteFlow?: boolean;
-  timeLeft?: number;
-  // For remote key signing
-  remoteKeyProps?: {
-    fees: string;
-    signer: Signer;
-    psbt: string;
-    estimatedBlocksBeforeConfirmation: number;
-    tnxPriority: TxPriority;
-  };
   transactionPriority: TxPriority;
   customFeePerByte: number;
 }
@@ -111,20 +100,10 @@ function SendConfirmation({ route }) {
     label,
     selectedUTXOs,
     parentScreen,
-    isRemoteFlow = false,
-    remoteKeyProps,
-    timeLeft,
     transactionPriority: initialTransactionPriority,
     customFeePerByte: initialCustomFeePerByte,
   }: SendConfirmationRouteParams = route.params;
-  const txFeeInfo = isRemoteFlow
-    ? {
-        [remoteKeyProps.tnxPriority]: {
-          amount: remoteKeyProps.fees,
-          estimatedBlocksBeforeConfirmation: remoteKeyProps.estimatedBlocksBeforeConfirmation,
-        },
-      }
-    : useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
+  const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const txRecipientsOptions = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseOne.outputs.txRecipients
   );
@@ -160,7 +139,6 @@ function SendConfirmation({ route }) {
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
-  const [isTimerActive, setIsTimerActive] = useState(true);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
   const isMoveAllFunds =
@@ -183,9 +161,7 @@ function SendConfirmation({ route }) {
   const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
   const [transactionPriority, setTransactionPriority] = useState(
-    isRemoteFlow
-      ? remoteKeyProps.tnxPriority
-      : isCachedTransaction
+    isCachedTransaction
       ? cachedTxPriority || TxPriority.LOW
       : initialTransactionPriority || TxPriority.LOW
   );
@@ -213,13 +189,7 @@ function SendConfirmation({ route }) {
     }
   }, [txRecipientsOptions, customTxRecipientsOptions, transactionPriority]);
 
-  const signerModalRef = useRef(null);
-
   const navigation = useNavigation();
-
-  const handleTimerEnd = useCallback(() => {
-    setIsTimerActive(false);
-  }, []);
 
   function checkUsualFee(data: any[]) {
     if (data.length === 0) {
@@ -542,58 +512,26 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      {!isRemoteFlow && (
-        <KeeperHeader
-          title="Send Confirmation"
-          subtitle={subTitle}
-          rightComponent={<CurrencyTypeSwitch />}
-          rightComponentPadding={wp(10)}
-          rightComponentBottomPadding={hp(5)}
-        />
-      )}
+      <KeeperHeader
+        title="Send Confirmation"
+        subtitle={subTitle}
+        rightComponent={<CurrencyTypeSwitch />}
+        rightComponentPadding={wp(10)}
+        rightComponentBottomPadding={hp(5)}
+      />
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {false && ( // ! Disabled timer for now
-          <Box style={styles.timerContainer}>
-            <Box style={styles.timerTextContainer}>
-              <Text fontSize={20} color={`${colorMode}.greenText`}>
-                {walletTranslations.transactionDetailsTitle}
-              </Text>
-              <Text fontSize={14} color={`${colorMode}.primaryText`}>
-                {walletTranslations.remoteSigningMessage}
-              </Text>
-            </Box>
-            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <CountdownTimer initialTime={timeLeft} onTimerEnd={handleTimerEnd} />
-            </Box>
-          </Box>
-        )}
-        {isRemoteFlow && (
-          <Box style={styles.remoteFlowHeading}>
-            <Box style={styles.remoteTextContainer}>
-              <Text fontSize={20} color={`${colorMode}.greenText`}>
-                {common.Receipt}
-              </Text>
-              <Text fontSize={14} color={`${colorMode}.primaryText`}>
-                {walletTranslations.ReviewTransaction}
-              </Text>
-            </Box>
-            <Box style={styles.switchContainer}>
-              <CurrencyTypeSwitch />
-            </Box>
-          </Box>
-        )}
-
         <Box style={styles.receiptContainer}>
           <ReceiptWrapper>
             <TransferCard
               title="Amount Transferred from"
               titleFontSize={16}
               titleFontWeight={300}
-              subTitle={isRemoteFlow ? 'Collaborative Vault' : sender?.presentationData?.name}
+              subTitle={sender?.presentationData?.name}
               subTitleFontSize={15}
               subTitleFontWeight={200}
               amount={amount}
@@ -613,10 +551,10 @@ function SendConfirmation({ route }) {
             <TouchableOpacity
               testID="btn_transactionPriority"
               onPress={() => setTransPriorityModalVisible(true)}
-              disabled={isRemoteFlow || isCachedTransaction} // disable change priority for AutoTransfers
+              disabled={isCachedTransaction} // disable change priority for AutoTransfers
             >
               <TransactionPriorityDetails
-                disabled={isRemoteFlow || isCachedTransaction}
+                disabled={isCachedTransaction}
                 transactionPriority={transactionPriority}
                 txFeeInfo={txFeeInfo}
                 getBalance={getBalance}
@@ -667,27 +605,16 @@ function SendConfirmation({ route }) {
           />
         </Box>
       </ScrollView>
-      {!isRemoteFlow && (
-        <Buttons
-          primaryText={common.confirmProceed}
-          secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
-          secondaryCallback={() => {
-            if (isCachedTransaction) discardCachedTransaction();
-            else navigation.goBack();
-          }}
-          primaryCallback={() => setConfirmPassVisible(true)}
-          primaryLoading={inProgress}
-        />
-      )}
-      {isRemoteFlow && (
-        <Buttons
-          primaryText={walletTranslations.SignTransaction}
-          secondaryText={walletTranslations.DenyTransaction}
-          secondaryCallback={() => navigation.goBack()}
-          primaryCallback={() => signerModalRef.current.openModal()}
-          primaryLoading={inProgress}
-        />
-      )}
+      <Buttons
+        primaryText={common.confirmProceed}
+        secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
+        secondaryCallback={() => {
+          if (isCachedTransaction) discardCachedTransaction();
+          else navigation.goBack();
+        }}
+        primaryCallback={() => setConfirmPassVisible(true)}
+        primaryLoading={inProgress}
+      />
       <KeeperModal
         visible={visibleModal}
         close={!isMoveAllFunds ? viewDetails : viewManageWallets}
@@ -879,18 +806,12 @@ function SendConfirmation({ route }) {
               setCustomFeePerByte(customFeePerByte);
             } else {
               if (customFeePerByte === '0') {
-                setTransactionPriority(TxPriority.LOW);
+                setTransPriorityModalVisible(false);
+                showToast('Fee rate cannot be less than 1 sat/vbyte', <ToastErrorIcon />);
               }
             }
           }}
           existingCustomPriorityFee={customFeePerByte}
-        />
-      )}
-      {isRemoteFlow && (
-        <RKSignersModal
-          signer={remoteKeyProps.signer}
-          psbt={remoteKeyProps.psbt}
-          ref={signerModalRef}
         />
       )}
     </ScreenWrapper>
@@ -919,38 +840,6 @@ const styles = StyleSheet.create({
   imgCtr: {
     alignItems: 'center',
     paddingVertical: 20,
-  },
-  timerWrapper: {
-    width: '100%',
-    borderRadius: 10,
-    marginTop: hp(20),
-    marginBottom: hp(10),
-  },
-  timerContainer: {
-    width: '100%',
-  },
-  timerTextContainer: {
-    marginTop: hp(20),
-    gap: 5,
-  },
-  remoteFlowHeading: {
-    display: 'flex',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: hp(20),
-    marginTop: hp(20),
-  },
-  remoteTextContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  switchContainer: {
-    marginBottom: hp(10),
-  },
-  buttonsContainer: {
-    width: '100%',
-    alignItems: 'center',
-    gap: 20,
   },
   receiptContainer: {
     paddingTop: hp(30),

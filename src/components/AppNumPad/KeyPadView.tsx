@@ -14,7 +14,9 @@ export interface Props {
   enableDecimal?: boolean;
   keyColor?: string;
   ClearIcon?: JSX.Element;
+  bubbleEffect?: boolean;
 }
+
 const KeyPadView: React.FC<Props> = ({
   onPressNumber,
   onDeletePressed,
@@ -22,25 +24,71 @@ const KeyPadView: React.FC<Props> = ({
   enableDecimal = false,
   keyColor = '#CDD8D6',
   ClearIcon = null,
+  bubbleEffect = false,
 }: Props) => {
   const { colorMode } = useColorMode();
 
   return (
     <Box pointerEvents={disabled ? 'none' : 'auto'} mt="auto">
       <Box style={styles.keyWrapperView}>
-        <KeyPadButton title="1" onPressNumber={() => onPressNumber('1')} keyColor={keyColor} />
-        <KeyPadButton title="2" onPressNumber={() => onPressNumber('2')} keyColor={keyColor} />
-        <KeyPadButton title="3" onPressNumber={() => onPressNumber('3')} keyColor={keyColor} />
+        <KeyPadButton
+          title="1"
+          onPressNumber={() => onPressNumber('1')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
+        <KeyPadButton
+          title="2"
+          onPressNumber={() => onPressNumber('2')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
+        <KeyPadButton
+          title="3"
+          onPressNumber={() => onPressNumber('3')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
       </Box>
       <Box style={styles.keyWrapperView}>
-        <KeyPadButton title="4" onPressNumber={() => onPressNumber('4')} keyColor={keyColor} />
-        <KeyPadButton title="5" onPressNumber={() => onPressNumber('5')} keyColor={keyColor} />
-        <KeyPadButton title="6" onPressNumber={() => onPressNumber('6')} keyColor={keyColor} />
+        <KeyPadButton
+          title="4"
+          onPressNumber={() => onPressNumber('4')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
+        <KeyPadButton
+          title="5"
+          onPressNumber={() => onPressNumber('5')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
+        <KeyPadButton
+          title="6"
+          onPressNumber={() => onPressNumber('6')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
       </Box>
       <Box style={styles.keyWrapperView}>
-        <KeyPadButton title="7" onPressNumber={() => onPressNumber('7')} keyColor={keyColor} />
-        <KeyPadButton title="8" onPressNumber={() => onPressNumber('8')} keyColor={keyColor} />
-        <KeyPadButton title="9" onPressNumber={() => onPressNumber('9')} keyColor={keyColor} />
+        <KeyPadButton
+          title="7"
+          onPressNumber={() => onPressNumber('7')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
+        <KeyPadButton
+          title="8"
+          onPressNumber={() => onPressNumber('8')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
+        <KeyPadButton
+          title="9"
+          onPressNumber={() => onPressNumber('9')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
       </Box>
       <Box style={styles.keyWrapperView}>
         <Box style={styles.emptyBtnView}>
@@ -61,7 +109,12 @@ const KeyPadView: React.FC<Props> = ({
             </Box>
           )}
         </Box>
-        <KeyPadButton title="0" onPressNumber={() => onPressNumber('0')} keyColor={keyColor} />
+        <KeyPadButton
+          title="0"
+          onPressNumber={() => onPressNumber('0')}
+          keyColor={keyColor}
+          bubbleEffect={bubbleEffect}
+        />
         <TouchableOpacity
           onPress={() => onDeletePressed()}
           activeOpacity={0.5}
@@ -74,6 +127,7 @@ const KeyPadView: React.FC<Props> = ({
     </Box>
   );
 };
+
 const styles = StyleSheet.create({
   keyPadElementTouchable: {
     flex: 1,
@@ -100,4 +154,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
 export default KeyPadView;

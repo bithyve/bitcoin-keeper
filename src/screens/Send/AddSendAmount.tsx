@@ -655,7 +655,8 @@ function AddSendAmount({ route }) {
               setCustomFeePerByte(Number(customFeePerByte));
             } else {
               if (customFeePerByte === '0') {
-                setTransactionPriority(TxPriority.LOW);
+                setTransPriorityModalVisible(false);
+                showToast('Fee rate cannot be less than 1 sat/vbyte', <ToastErrorIcon />);
               }
             }
           }}

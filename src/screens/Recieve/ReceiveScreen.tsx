@@ -417,7 +417,7 @@ function ReceiveScreen({ route }: { route }) {
                 setCurrentAddressIdxTempText(currentAddressIdx.toString());
               }
             }}
-            width={currentAddressIdx < 100 ? wp(40) : wp(45)}
+            width={wp(Math.min(120, 40 + 5 * String(currentAddressIdx).length))}
             height={hp(35)}
             keyboardType="numeric"
             style={styles.addressPageInput}
