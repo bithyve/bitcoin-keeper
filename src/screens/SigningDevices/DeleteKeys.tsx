@@ -86,6 +86,7 @@ function DeleteKeys({ route }) {
         vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
     );
     if (vaultsInvolved.length > 0) {
+      setHideWarning(true);
       setVaultUsed(vaultsInvolved[0]);
       setConfirmPassVisible(false);
       return;
@@ -223,7 +224,7 @@ function DeleteKeys({ route }) {
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           setHideWarning(false);
-          navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
+          navigation.dispatch(CommonActions.navigate('ManageWallets', { vaultId: vaultUsed.id }));
         }}
         textColor={`${colorMode}.primaryText`}
         Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}

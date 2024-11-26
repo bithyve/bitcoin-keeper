@@ -1103,7 +1103,7 @@
     "keyDeletedSuccessMessage": "Your Key has been deleted successfully. You will have to add the Key again",
     "manageKeys": "Manage Keys",
     "deleteVaultWarning": "Key is being used for Vault",
-    "vaultWarningSubtitle": "The Key you are trying to hide is used in one of the visible vaults.",
+    "vaultWarningSubtitle": "The Key you are trying to delete is used in one of the visible vaults.",
     "deleteVaultInstruction": "Please delete the vault to perform this operation.",
     "viewVault": "View Vault",
     "back": "Back",
