@@ -252,10 +252,9 @@ function DeleteKeys({ route }) {
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonText={signerText.manageKeys}
+        buttonText={signerText.continue}
         buttonCallback={() => {
           dispatch(hideKeyDeletedSuccessModal());
-          navigation.dispatch(CommonActions.navigate('ManageSigners'));
         }}
         Content={DeletedSuccessContent}
       />

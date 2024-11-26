@@ -1107,6 +1107,7 @@
     "deleteVaultInstruction": "Please delete the vault to perform this operation.",
     "viewVault": "View Vault",
     "back": "Back",
+    "continue": "Continue",
     "enterPasscode": "Enter Passcode",
     "confirmPasscodeToDeleteKey": "Confirm passcode to delete key",
     "thisStepTakesTime": "This step will take a few seconds.",
