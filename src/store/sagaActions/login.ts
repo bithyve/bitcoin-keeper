@@ -15,6 +15,7 @@ export const GENERATE_SEED_HASH = 'GENERATE_SEED_HASH';
 export const CHANGE_LOGIN_METHOD = 'CHANGE_LOGIN_METHOD';
 export const UPDATE_WALLET_NAME = 'UPDATE_WALLET_NAME';
 export const SWITCH_CREDS_CHANGED = 'SWITCH_CREDS_CHANGED';
+export const SWITCH_APP_STATUS = 'SWITCH_APP_STATUS';
 export const INIT_RECOVERY_COMPLETED = 'INIT_RECOVERY_COMPLETED';
 
 export const storeCreds = (passcode) => ({
@@ -148,6 +149,10 @@ export const credsAuthenticated = (isAuthenticated) => ({
   payload: {
     isAuthenticated,
   },
+});
+
+export const switchAppStatus = () => ({
+  type: SWITCH_APP_STATUS,
 });
 
 export const completedWalletSetup = () => ({

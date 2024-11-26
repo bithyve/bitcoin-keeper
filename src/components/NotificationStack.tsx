@@ -49,12 +49,17 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
 import { EntityKind } from 'src/services/wallets/enums';
 import SelectWalletModal from './SelectWalletModal';
+import Instruction from './Instruction';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 
 const { width } = Dimensions.get('window');
 
 const _size = width * 0.95;
 const layout = {
-  borderRadius: 16,
+  borderRadius: 10,
   width: _size,
   height: 90,
   spacing: 12,
@@ -68,6 +73,7 @@ type CardProps = {
   uai: any;
   activeIndex: SharedValue<number>;
   skipUaiHandler: (uai: any, action?: boolean) => void;
+  wallet: Wallet | Vault | null;
 };
 interface uaiDefinationInterface {
   heading: string;
@@ -133,7 +139,7 @@ function ModalCard({ preTitle = '', title, subTitle = '', isVault = false, icon 
   );
 }
 
-const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: CardProps) => {
+const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler, wallet }: CardProps) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
@@ -144,7 +150,6 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
   const { translations } = useContext(LocalizationContext);
   const { notification } = translations;
   const { activeVault } = useVault({ getFirst: true });
-  const { wallets: allWallets } = useWallets({ getAll: true });
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { vaultSigners: keys } = useSigners(
@@ -168,8 +173,6 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     const { activeVault } = useVault({ getFirst: true });
-    const { wallets } = useWallets({ walletIds: [uai.entityId] });
-    const wallet = wallets[0];
 
     switch (uai.uaiType) {
       case uaiType.SECURE_VAULT:
@@ -222,7 +225,10 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
           },
           modalDetails: {
             heading: notification.vaultTransferHeading,
-            subTitle: notification.vaultTransferSubTitle,
+            subTitle: notification.vaultTransferSubTitle.replace(
+              '$wallet',
+              wallet.presentationData.name
+            ),
             body: notification.vaultTransferBody,
             sender: wallet,
             recipient: activeVault,
@@ -449,8 +455,6 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
     dispatch(uaiActioned({ uaiId: uai.id, action: true }));
   };
 
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
-
   const entryAnimation = useSharedValue(0);
 
   useEffect(() => {
@@ -508,18 +512,14 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
           setShowModal(false);
           skipUaiHandler(uai);
         }}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalWhiteContent`}
         title={uaiConfig?.modalDetails?.heading}
         subTitle={uaiConfig?.modalDetails?.subTitle}
         buttonText={uaiConfig?.modalDetails?.btnConfig.primary.text}
         buttonCallback={uaiConfig?.modalDetails?.btnConfig.primary.cta}
         secondaryButtonText={uaiConfig?.modalDetails?.btnConfig.secondary.text}
         secondaryCallback={uaiConfig?.modalDetails?.btnConfig.secondary.cta}
-        buttonTextColor={`${colorMode}.white`}
-        buttonBackground={`${colorMode}.pantoneGreen`}
         showCloseIcon={false}
-        Content={() => <Text style={styles.transferText}>{uaiConfig?.modalDetails?.body}</Text>}
+        Content={() => <Instruction text={uaiConfig?.modalDetails?.body} />}
       />
       <PendingHealthCheckModal
         selectedItem={activeVault}
@@ -533,10 +533,11 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         primaryButtonCallback={() => {
           setShowHealthCheckModal(false);
           if (activeVault) {
-            navigtaion.navigate('SendConfirmation', {
-              walletId: uai.entityId,
-              transferType: TransferType.WALLET_TO_VAULT,
-              isAutoTransfer: true,
+            navigtaion.navigate('Send', {
+              sender: wallet,
+              selectedUTXOs: [],
+              isSendMax: true,
+              internalRecipientWallet: activeVault,
             });
           } else {
             showToast('No vaults found', <ToastErrorIcon />);
@@ -553,7 +554,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={'Done'}
         buttonCallback={() => {
           setInsightModal(false);
@@ -568,9 +569,8 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         onlyWallets={false}
         hideHiddenVaults={uaiConfig?.modalDetails?.hideHiddenVaults}
         buttonCallback={(vault) => {
-          const entityWallet = allWallets.find((wallet) => wallet.id === uai.entityId);
           navigtaion.navigate('AddSendAmount', {
-            sender: entityWallet,
+            sender: wallet,
             recipient: vault,
             transferType: TransferType.WALLET_TO_VAULT,
             isSendMax: true,
@@ -588,9 +588,10 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
 
 export default function NotificationStack() {
   const { colorMode } = useColorMode();
-  const { uaiStack } = useUaiStack();
+  const { uaiStack, isLoading } = useUaiStack();
   const activeIndex = useSharedValue(0);
   const dispatch = useDispatch();
+  const { wallets: allWallets } = useWallets({ getAll: true });
 
   const dispatchActionWithDelay = useCallback(
     (uaiId, action) => {
@@ -630,10 +631,10 @@ export default function NotificationStack() {
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
         <View style={styles.viewWrapper}>
-          {uaiStack.length < 1 ? (
+          {isLoading ? null : uaiStack.length === 0 ? (
             <UAIEmptyState />
           ) : (
-            uaiStack.map((uai, index) => {
+            uaiStack.slice(0, 4).map((uai, index) => {
               return (
                 <Card
                   uai={uai}
@@ -642,6 +643,7 @@ export default function NotificationStack() {
                   totalLength={uaiStack.length - 1}
                   activeIndex={activeIndex}
                   skipUaiHandler={skipUaiHandler}
+                  wallet={allWallets.find((wallet) => wallet.id === uai.entityId)}
                 />
               );
             })
@@ -717,7 +719,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   transferText: {
-    fontWeight: 500,
+    // fontWeight: 500,
     fontSize: 12,
     marginBottom: 5,
     marginLeft: 3,

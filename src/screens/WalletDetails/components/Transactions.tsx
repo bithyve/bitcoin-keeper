@@ -1,5 +1,5 @@
 import { FlatList, RefreshControl } from 'react-native';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
@@ -14,6 +14,7 @@ function TransactionItem({ item, wallet, navigation, index }) {
   return (
     <TransactionElement
       transaction={item}
+      wallet={wallet}
       index={index}
       isCached={item?.isCached}
       onPress={
@@ -45,6 +46,16 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const sortedTransactions = useMemo(
+    () =>
+      [...transactions].sort((a, b) => {
+        if (!a.blockTime && !b.blockTime) return 0;
+        if (!a.blockTime) return -1;
+        if (!b.blockTime) return 1;
+        return b.blockTime - a.blockTime;
+      }) || [],
+    [transactions]
+  );
 
   const pullDownRefresh = () => {
     setPullRefresh(true);
@@ -58,7 +69,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
     <FlatList
       testID="list_transactions"
       refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
-      data={transactions}
+      data={sortedTransactions}
       renderItem={({ item, index }) => {
         return (
           <TransactionItem

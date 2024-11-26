@@ -10,7 +10,7 @@ import messaging from '@react-native-firebase/messaging';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
 import { LabelRefType, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import {
   HealthCheckDetails,
@@ -148,7 +148,7 @@ function* migrateLablesWorker() {
     UTXOLabels.forEach((utxo) => {
       if (utxo.labels.length) {
         const wallet = wallets.find((w) => w.id === utxo.walletId);
-        const origin = genrateOutputDescriptors(wallet, false);
+        const origin = generateAbbreviatedOutputDescriptors(wallet);
         utxo.labels.forEach((label) => {
           const ref = `${utxo.txId}:${utxo.vout}`;
           const labelName = label.name;
@@ -389,19 +389,21 @@ function updateSignerDetails(signers: Signer[], extendedKeyMap) {
         signerXpubs: updateSignerXpubs(signer, extendedKeyMap[signer.masterFingerprint].xpriv),
       }
     );
-    try {
-      // Update the signer instance number for MY_KEEPER
-      dbManager.updateObjectByPrimaryId(
-        RealmSchema.Signer,
-        'masterFingerprint',
-        signer.masterFingerprint,
-        {
-          extraData: { instanceNumber: i + 1 },
-        }
-      );
-    } catch (err) {
-      captureError(err);
-      // ignore since instance number is not mandatory
+    if (!signer.extraData?.instanceNumber) {
+      try {
+        // Update the signer instance number for MY_KEEPER
+        dbManager.updateObjectByPrimaryId(
+          RealmSchema.Signer,
+          'masterFingerprint',
+          signer.masterFingerprint,
+          {
+            extraData: { instanceNumber: i + 1 },
+          }
+        );
+      } catch (err) {
+        captureError(err);
+        // ignore since instance number is not mandatory
+      }
     }
   }
 }

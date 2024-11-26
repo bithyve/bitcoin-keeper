@@ -9,22 +9,19 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import {
-  receivePSBTFromColdCard,
-  receiveTxHexFromColdCard,
-  registerToColcard,
-} from 'src/hardware/coldcard';
+import { receivePSBTFromColdCard, receiveTxHexFromColdCard } from 'src/hardware/coldcard';
 import { useDispatch } from 'react-redux';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import useNfcModal from 'src/hooks/useNfcModal';
-import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { RKInteractionMode } from 'src/services/wallets/enums';
 
-function Card({ message, buttonText, buttonCallBack }) {
+function Card({ title, message, buttonText, buttonCallBack }) {
   const { colorMode } = useColorMode();
   return (
     <Box
@@ -32,29 +29,37 @@ function Card({ message, buttonText, buttonCallBack }) {
       width="100%"
       borderRadius={10}
       justifyContent="center"
-      marginY={6}
-      py="5"
+      marginTop={hp(20)}
     >
       <Box
         style={{
           paddingHorizontal: wp(20),
           flexDirection: 'row',
           justifyContent: 'space-between',
+          alignItems: 'center',
+          borderRadius: 10,
+          height: hp(80),
         }}
+        backgroundColor={`${colorMode}.secondaryBackground`}
       >
-        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65} width="70%">
-          {message}
-        </Text>
+        <Box>
+          <Text color={`${colorMode}.black`} fontSize={14} style={{ marginBottom: hp(5) }}>
+            {title}
+          </Text>
+          <Text color={`${colorMode}.placeHolderTextColor`} fontSize={12}>
+            {message}
+          </Text>
+        </Box>
         <Pressable
-          backgroundColor={`${colorMode}.accent`}
+          backgroundColor={`${colorMode}.pantoneGreen`}
           justifyContent="center"
           borderRadius={5}
-          width={wp(60)}
-          height={hp(25)}
+          width={wp(69)}
+          height={hp(26)}
           alignItems="center"
           onPress={buttonCallBack}
         >
-          <Text fontSize={12} letterSpacing={0.65}>
+          <Text fontSize={11} color={`${colorMode}.buttonText`}>
             {buttonText}
           </Text>
         </Pressable>
@@ -67,12 +72,14 @@ function SignWithColdCard({ route }: { route }) {
   const navigation = useNavigation();
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
-  const { vaultKey, signTransaction, isMultisig, vaultId } = route.params as {
+  const { vaultKey, signTransaction, isMultisig, vaultId, isRemoteKey } = route.params as {
     vaultKey: VaultSigner;
     signTransaction;
     isMultisig: boolean;
     vaultId: string;
+    isRemoteKey: boolean;
   };
+
   const { activeVault } = useVault({ vaultId });
   const { signer } = useSignerFromKey(vaultKey);
 
@@ -82,17 +89,17 @@ function SignWithColdCard({ route }: { route }) {
 
   const receiveFromColdCard = async () =>
     withNfcModal(async () => {
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SIGNING,
+          },
+        ])
+      );
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
         dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_SIGNING,
-            },
-          ])
-        );
       } else {
         const { psbt } = await receivePSBTFromColdCard();
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, xfp: vaultKey.xfp }));
@@ -102,60 +109,45 @@ function SignWithColdCard({ route }: { route }) {
             vaultId: activeVault.id,
           })
         );
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
-            },
-          ])
-        );
-        navigation.goBack();
       }
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+          },
+        ])
+      );
+      navigation.goBack();
     });
 
-  const registerCC = async () =>
-    withNfcModal(async () => {
-      await registerToColcard({ vault: activeVault });
-      dispatch(
-        updateKeyDetails(vaultKey, 'registered', {
-          registered: true,
-          vaultId: activeVault.id,
-        })
-      );
-    });
+  const registerCC = async () => {
+    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+  };
   const { colorMode } = useColorMode();
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <VStack justifyContent="space-between" flex={1}>
-        <VStack>
-          {!registered && isMultisig ? (
-            <>
-              <KeeperHeader
-                title="Register Device"
-                subtitle="The vault needs to be registered only once"
-              />
-              <Card
-                message="You will register the new vault with Coldcard so that it allows you to sign every time"
-                buttonText="Scan"
-                buttonCallBack={registerCC}
-              />
-            </>
-          ) : null}
-          <KeeperHeader title="Sign Transaction" subtitle="Two step process" enableBack={false} />
+        <KeeperHeader
+          title="Sign Transaction via NFC"
+          subtitle="First send the transaction to the Coldcard, sign it on Coldcard, then click receive to pass it back into Keeper"
+        />
+        <VStack flex={1} marginTop={hp(25)}>
           <Card
-            message="Send PSBT from the app to Coldcard"
+            title="Send transaction"
+            message="from the app to the Coldcard"
             buttonText="Send"
             buttonCallBack={signTransaction}
           />
           <Card
-            message="Receive signed PSBT from Coldcard"
+            title="Receive signed transaction"
+            message="from the Coldcard to the app"
             buttonText="Receive"
             buttonCallBack={receiveFromColdCard}
           />
         </VStack>
         <VStack>
-          <Box backgroundColor={`${colorMode}.whiteText`} padding={2}>
+          <Box padding={2}>
             <Box opacity={1}>
               <Text fontSize={14} color={`${colorMode}.primaryText`}>
                 Note
@@ -208,7 +200,7 @@ function SignWithColdCard({ route }: { route }) {
               <VStack width="97%">
                 <Text fontSize={14}>Learn more about Coldcard</Text>
                 <Text fontSize={12}>
-                  Here you will find all of our User Documentation for the COLDCARD.
+                  Here you will find all of our User Documentation for the Coldcard.
                 </Text>
               </VStack>
               <Arrow />

@@ -192,4 +192,41 @@ import QRCoder
       }
       return ""
   }
+  
+  @objc func bsmsHealthCheck(callback: @escaping ((String)-> Void)) {
+    // First check cloud storage
+    guard let iCloudFolderURL = getICloudFolder(named: "BitcoinKeeper") else {
+        let response = getJsonResponse(
+            status: false,
+            data: "",
+            error: "iCloud is currently inaccessible. Please check authentication with your iCloud and try again."
+        )
+        callback(response)
+        return
+    }
+    
+    // Check files in iCloud
+    do {
+        let fileManager = FileManager.default
+        let files = try fileManager.contentsOfDirectory(
+            at: iCloudFolderURL, 
+            includingPropertiesForKeys: nil
+        )
+        
+        let response = getJsonResponse(
+            status: true,
+            data: "Found \(files.count) files",
+            error: ""
+        )
+        callback(response)
+        
+    } catch {
+        let response = getJsonResponse(
+            status: false,
+            data: "",
+            error: error.localizedDescription
+        )
+        callback(response)
+    }
+  }
 }

@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import CheckIcon from 'src/assets/images/checked.svg';
 import TimeIcon from 'src/assets/images/time.svg';
 import Next from 'src/assets/images/icon_arrow.svg';
@@ -13,6 +13,8 @@ import { NetworkType, SignerType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { getPersistedDocument } from 'src/services/documents';
+import Colors from 'src/theme/Colors';
 
 const { width } = Dimensions.get('screen');
 
@@ -24,6 +26,8 @@ function SignerList({
   isIKSClicked,
   isIKSDeclined,
   IKSSignTime,
+  isFirst,
+  isLast,
 }: {
   vaultKey: VaultSigner;
   callback: any;
@@ -32,6 +36,8 @@ function SignerList({
   isIKSClicked?: boolean;
   isIKSDeclined?: boolean;
   IKSSignTime?: number;
+  isFirst: boolean;
+  isLast: boolean;
 }) {
   const { colorMode } = useColorMode();
   const hasSignerSigned = !!envelops.filter(
@@ -39,10 +45,6 @@ function SignerList({
   ).length;
   const signer = signerMap[vaultKey.masterFingerprint];
   const isIKS = signer.type === SignerType.INHERITANCEKEY;
-  const isAMF =
-    signer.type === SignerType.TAPSIGNER &&
-    config.NETWORK_TYPE === NetworkType.TESTNET &&
-    !signer.isMock;
   const [showIcon, setShowIcon] = useState(null);
 
   const formatDuration = (durationInMilliseconds) => {
@@ -87,7 +89,18 @@ function SignerList({
   }, [hasSignerSigned, isIKS, isIKSClicked, isIKSDeclined]);
 
   return (
-    <TouchableOpacity testID={`btn_transactionSigner`} onPress={callback}>
+    <TouchableOpacity
+      testID={`btn_transactionSigner`}
+      onPress={callback}
+      style={[
+        isFirst && { borderTopLeftRadius: 10, borderTopRightRadius: 10 },
+        isLast && { borderBottomLeftRadius: 10, borderBottomRightRadius: 10 },
+        {
+          paddingVertical: 10,
+          backgroundColor: colorMode === 'light' ? Colors.White : Colors.SecondaryBlack,
+        },
+      ]}
+    >
       <Box margin={5}>
         <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
           <Box flexDirection="row">
@@ -101,7 +114,14 @@ function SignerList({
                 alignItems="center"
                 marginX={1}
               >
-                {SDIcons(signer.type).Icon}
+                {signer?.extraData?.thumbnailPath ? (
+                  <Image
+                    src={getPersistedDocument(signer.extraData.thumbnailPath)}
+                    style={styles.associatedContactImage}
+                  />
+                ) : (
+                  SDIcons(signer.type).Icon
+                )}
               </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>
@@ -111,28 +131,29 @@ function SignerList({
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
               >
-                {`${getSignerNameFromType(signer.type, signer.isMock, isAMF)} (${
+                {`${getSignerNameFromType(signer.type, signer.isMock, false)} (${
                   signer.masterFingerprint
                 })`}
               </Text>
-              <Text
-                color={`${colorMode}.GreyText`}
-                fontSize={12}
-                marginRight={10}
-                letterSpacing={0.6}
-              >
-                {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
-              </Text>
-              {!!signer.signerDescription && (
+              {signer.signerDescription ? (
                 <Text
                   numberOfLines={1}
-                  color="#6A7772"
+                  color={`${colorMode}.greenText`}
                   fontSize={12}
                   letterSpacing={0.6}
                   fontStyle={null}
                   maxWidth={width * 0.6}
                 >
                   {signer.signerDescription}
+                </Text>
+              ) : (
+                <Text
+                  color={`${colorMode}.GreyText`}
+                  fontSize={12}
+                  marginRight={10}
+                  letterSpacing={0.6}
+                >
+                  {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
                 </Text>
               )}
             </View>
@@ -166,5 +187,12 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginRight: 20,
     alignSelf: 'center',
+  },
+  associatedContactImage: {
+    width: '60%',
+    height: '60%',
+    borderRadius: 100,
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
 });

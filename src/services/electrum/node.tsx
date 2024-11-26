@@ -20,8 +20,8 @@ export default class Node {
 
     const node = { ...nodeDetail };
     if (node.id === null) {
-      // case: save new node
-      node.id = nodeList.length + 1;
+      // case: save new node (first 1000 IDs reserved to predefined nodes)
+      node.id = nodeList.length + 1001;
       dbManager.createObject(RealmSchema.NodeConnect, node);
     } else {
       // case: update existing node
@@ -39,8 +39,7 @@ export default class Node {
   public static update(nodeDetail: NodeDetail, propsToUpdate: any) {
     if (!nodeDetail) return null;
 
-    const schema = nodeDetail.isDefault ? RealmSchema.DefaultNodeConnect : RealmSchema.NodeConnect;
-    dbManager.updateObjectById(schema, nodeDetail.id.toString(), {
+    dbManager.updateObjectById(RealmSchema.NodeConnect, nodeDetail.id.toString(), {
       ...propsToUpdate,
     });
   }
@@ -48,25 +47,25 @@ export default class Node {
   public static delete(nodeDetail: NodeDetail) {
     if (!nodeDetail) return null;
 
-    const schema = nodeDetail.isDefault ? RealmSchema.DefaultNodeConnect : RealmSchema.NodeConnect;
-    const status: boolean = dbManager.deleteObjectById(schema, nodeDetail.id.toString());
+    const status: boolean = dbManager.deleteObjectById(
+      RealmSchema.NodeConnect,
+      nodeDetail.id.toString()
+    );
     return status;
   }
 
   public static getAllNodes(): NodeDetail[] {
-    const defaultNodes: NodeDetail[] = dbManager.getCollection(RealmSchema.DefaultNodeConnect);
-    const personalNodes: NodeDetail[] = dbManager.getCollection(RealmSchema.NodeConnect);
-    return [...defaultNodes, ...personalNodes];
+    return dbManager.getCollection(RealmSchema.NodeConnect) as unknown as NodeDetail[];
   }
 
   public static async connectToSelectedNode(selectedNode: NodeDetail) {
-    // connects to the selected node(in case of failure, won't have default/private nodes as fallback)
-    ElectrumClient.setActivePeer([], [], selectedNode);
+    // connects to the selected node
+    ElectrumClient.setActivePeer([], selectedNode);
     const { connected, connectedTo, error } = await ElectrumClient.connect();
     return { connected, connectedTo, error };
   }
 
-  public static async disconnect(selectedNode: NodeDetail) {
+  public static disconnect(selectedNode: NodeDetail) {
     const activePeer = ElectrumClient.getActivePeer();
     if (selectedNode.host === activePeer?.host && selectedNode.port === activePeer?.port) {
       ElectrumClient.forceDisconnect();

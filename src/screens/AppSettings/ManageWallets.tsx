@@ -24,7 +24,6 @@ import useWallets from 'src/hooks/useWallets';
 import { useDispatch } from 'react-redux';
 import { setNetBalance } from 'src/store/reducers/wallets';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -46,7 +45,17 @@ enum PasswordMode {
   DEFAULT = 'DEFAULT',
   SHOWALL = 'SHOWALL',
 }
-function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDelete, icon, type }) {
+function ListItem({
+  title,
+  subtitle,
+  balance,
+  visibilityToggle,
+  isHidden,
+  onDelete,
+  icon,
+  type,
+  isWatchOnly,
+}) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
@@ -76,9 +85,10 @@ function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDele
           </Text>
         </Box>
         <HStack>
-          {isHidden && (type == 'VAULT' || (type == 'WALLET' && balance === 0)) && (
-            <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />
-          )}
+          {isHidden &&
+            (type == 'VAULT' || (type == 'WALLET' && (balance === 0 || isWatchOnly))) && (
+              <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />
+            )}
           <ActionChip
             text={isHidden ? 'Unhide' : 'Hide'}
             onPress={visibilityToggle}
@@ -111,7 +121,7 @@ function ManageWallets() {
   const hiddenWallets = allWallets.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
   );
-  const [showWalletBalanceAlert, setShowWalletBalanceAlert] = useState(false);
+
   const [showDeleteVaultBalanceAlert, setShowDeleteVaultBalanceAlert] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [confirmPasscodeVisible, setConfirmPasscodeVisible] = useState(false);
@@ -168,16 +178,11 @@ function ManageWallets() {
     }
   };
 
-  const updateWalletVisibility = (wallet: Wallet | Vault, hide: boolean, checkBalance = true) => {
-    const { id, entityKind, specs } = wallet;
+  const updateWalletVisibility = (wallet: Wallet | Vault, hide: boolean) => {
+    const { id, entityKind } = wallet;
     const isWallet = entityKind === EntityKind.WALLET;
 
-    if (hide && checkBalance && specs.balances.confirmed + specs.balances.unconfirmed > 0) {
-      setShowWalletBalanceAlert(true);
-      setSelectedWallet(wallet);
-
-      return;
-    }
+    setSelectedWallet(wallet);
 
     try {
       const visibilityType = hide ? VisibilityType.HIDDEN : VisibilityType.DEFAULT;
@@ -197,57 +202,16 @@ function ManageWallets() {
     }
   };
 
-  function WalletBalanceAlertModalContent() {
-    return (
-      <Box style={styles.modalContainer}>
-        <Text
-          color={`${colorMode}.secondaryText`}
-          style={styles.unhideText}
-        >{`You can unhide this wallet anytime from App Settings >Manage Wallets > Unhide`}</Text>
-        <Box style={styles.BalanceModalContainer}>
-          <TouchableOpacity
-            style={styles.cancelBtn}
-            onPress={() => {
-              updateWalletVisibility(selectedWallet, true, false);
-              setShowWalletBalanceAlert(false);
-            }}
-            activeOpacity={0.5}
-          >
-            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-              Continue to Hide
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              setShowWalletBalanceAlert(false);
-              navigation.dispatch(
-                CommonActions.navigate('Send', {
-                  sender: selectedWallet,
-                  parentScreen: MANAGEWALLETS,
-                })
-              );
-            }}
-          >
-            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-              <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
-                  Move Funds
-                </Text>
-              </Box>
-            </Shadow>
-          </TouchableOpacity>
-        </Box>
-      </Box>
-    );
-  }
-
   const getWalletIcon = (wallet) => {
     if (wallet.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
     } else {
       return <WalletIcon />;
     }
+  };
+
+  const isWatchOnly = (wallet: Wallet | Vault): boolean => {
+    return wallet.entityKind === 'WALLET' && (wallet as Wallet).specs.xpriv === null;
   };
 
   function DeleteVaultBalanceAlertModalContent() {
@@ -263,7 +227,7 @@ function ManageWallets() {
             onPress={() => {
               if (isWallet) {
                 // Cancel action
-                updateWalletVisibility(selectedWallet, true, false);
+                updateWalletVisibility(selectedWallet, true);
                 setShowDeleteVaultBalanceAlert(false);
               } else {
                 // Delete Vault action
@@ -291,7 +255,12 @@ function ManageWallets() {
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
+                <Text
+                  numberOfLines={1}
+                  style={styles.btnText}
+                  color={`${colorMode}.buttonText`}
+                  bold
+                >
                   Move Funds
                 </Text>
               </Box>
@@ -304,11 +273,7 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title={settings.ManageWalletsTitle}
-        subtitle={settings.ManageWalletsSub}
-        rightComponent={<CurrencyTypeSwitch />}
-      />
+      <KeeperHeader title={settings.ManageWalletsTitle} subtitle={settings.ManageWalletsSub} />
       {!showAll && visibleWallets.length === 0 ? (
         <Box style={styles.emptyWrapper}>
           <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
@@ -332,6 +297,7 @@ function ManageWallets() {
               subtitle={item.presentationData.description}
               balance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
               isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
+              isWatchOnly={isWatchOnly(item)}
               visibilityToggle={() => {
                 setSelectedWallet(item);
                 if (item.presentationData.visibility === VisibilityType.HIDDEN) {
@@ -342,7 +308,10 @@ function ManageWallets() {
                 }
               }}
               onDelete={() => {
-                if (item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0) {
+                if (
+                  item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0 &&
+                  !isWatchOnly(item)
+                ) {
                   setSelectedWallet(item);
                   setShowDeleteVaultBalanceAlert(true);
                 } else {
@@ -382,28 +351,8 @@ function ManageWallets() {
       <KeeperModal
         dismissible
         close={() => {
-          setShowWalletBalanceAlert(false);
-        }}
-        visible={showWalletBalanceAlert}
-        title={`You have funds in your ${isWallet ? 'wallet' : 'vault'}`}
-        subTitle={`You have sats in your ${
-          isWallet ? 'wallet' : 'vault'
-        }. Are you sure you want to hide it?`}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
-        Content={WalletBalanceAlertModalContent}
-        buttonTextColor={`${colorMode}.white`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        subTitleWidth={wp(240)}
-        closeOnOverlayClick={false}
-        showButtons
-        showCloseIcon={false}
-      />
-      <KeeperModal
-        dismissible
-        close={() => {
           setShowDeleteVaultBalanceAlert(false);
-          !isWallet && updateWalletVisibility(selectedWallet, true, false);
+          !isWallet && updateWalletVisibility(selectedWallet, true);
         }}
         visible={showDeleteVaultBalanceAlert}
         title={isWallet ? settings.DeleteWalletModalTitle : settings.DeleteVaultModalTitle}
@@ -412,15 +361,14 @@ function ManageWallets() {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={DeleteVaultBalanceAlertModalContent}
         subTitleColor={`${colorMode}.secondaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={isWallet ? false : true}
-        showButtons
         showCloseIcon={false}
       />
       <KeeperModal
         visible={confirmPassVisible}
-        closeOnOverlayClick={false}
+        closeOnOverlayClick={true}
         close={() => setConfirmPassVisible(false)}
         showCloseIcon={false}
         title="Enter Passcode"
@@ -443,7 +391,7 @@ function ManageWallets() {
       />
       <KeeperModal
         visible={confirmPasscodeVisible}
-        closeOnOverlayClick={false}
+        closeOnOverlayClick={true}
         close={() => setConfirmPasscodeVisible(false)}
         title="Enter Passcode"
         subTitleWidth={wp(240)}
@@ -534,15 +482,16 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   walletsContainer: {
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     marginTop: '5%',
+    paddingVertical: hp(20),
   },
   modalContainer: {
     gap: 40,
   },
   unhideText: {
-    fontSize: 13,
-    width: wp(200),
+    fontSize: 14,
+    width: wp(280),
   },
   emptyWrapper: {
     alignItems: 'center',

@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { wp, hp } from 'src/constants/responsive';
-import QRCode from 'react-native-qrcode-svg';
 import Note from '../Note/Note';
-import WalletFingerprint from '../WalletFingerPrint';
+import WalletCopiableData from '../WalletCopiableData';
+import KeeperQRCode from '../KeeperQRCode';
 
 function ShowXPub({
   data,
-  copy = () => { },
+  copy = () => {},
   subText,
   noteSubText,
   copyable = true,
@@ -35,7 +35,7 @@ function ShowXPub({
       <Box testID="view_xPub" justifyContent="center" alignItems="center">
         <Box>
           {details ? (
-            <QRCode value={details} logoBackgroundColor="transparent" size={hp(200)} />
+            <KeeperQRCode qrData={details} logoBackgroundColor="transparent" size={hp(200)} />
           ) : (
             <ActivityIndicator />
           )}
@@ -44,14 +44,17 @@ function ShowXPub({
             alignItems="center"
             justifyContent="center"
             padding={1}
-            width={hp(200)}
           >
             <Text fontSize={12} bold color={`${colorMode}.BrownNeedHelp`}>
               {subText}
             </Text>
           </Box>
         </Box>
-        <Box padding={2}>{copyable && <WalletFingerprint fingerprint={details} copy={copy} />}</Box>
+        {copyable && (
+          <Box style={styles.center}>
+            <WalletCopiableData data={details} copy={copy} dataType="xpub" />
+          </Box>
+        )}
       </Box>
       {noteSubText ? (
         <Box width={wp(280)}>
@@ -62,3 +65,12 @@ function ShowXPub({
   );
 }
 export default ShowXPub;
+
+const styles = StyleSheet.create({
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 2,
+    width: '100%',
+  },
+});

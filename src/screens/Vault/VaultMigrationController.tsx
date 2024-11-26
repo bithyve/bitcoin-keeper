@@ -103,17 +103,16 @@ function VaultMigrationController({
     if (!unconfirmed) {
       const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
       const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
-      const network = WalletUtilities.getNetworkByType(activeVault.networkType);
+      const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+
       const { fee: sendMaxFee } = WalletOperations.calculateSendMaxFee(
         activeVault,
-        1,
-        feePerByte,
-        network
+        [{ address: receivingAddress, amount: 0 }],
+        feePerByte
       );
       if (sendMaxFee && temporaryVault) {
         const maxBalance = confirmed - sendMaxFee;
 
-        const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
         setRecepients([{ address: receivingAddress, amount: maxBalance }]);
         dispatch(
           sendPhaseOne({
@@ -193,7 +192,7 @@ function VaultMigrationController({
         const generatedVaultId = generateVaultId(signers, scheme);
         const deletedVaultIds = archivedVaults.map((vault) => vault.id);
         if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
-          Alert.alert('Vault with this configuration already exists');
+          Alert.alert('Vault with this configuration already exists.');
           navigation.goBack();
         } else {
           setGeneratedVaultId(generatedVaultId);

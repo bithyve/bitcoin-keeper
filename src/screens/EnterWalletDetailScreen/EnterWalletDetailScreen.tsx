@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, Input, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
@@ -13,14 +13,11 @@ import {
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import BitcoinInput from 'src/assets/images/btc_black.svg';
-import BitcoinWhite from 'src/assets/images/btc_white.svg';
 import PrivacyIcon from 'src/assets/images/privacy.svg';
 import EfficiencyIcon from 'src/assets/images/efficiency.svg';
 import SaclingIcon from 'src/assets/images/scaling.svg';
 import SecurityIcon from 'src/assets/images/security.svg';
 
-import KeeperText from 'src/components/KeeperText';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
@@ -35,13 +32,9 @@ import config from 'src/utils/service-utilities/config';
 import { Linking, StyleSheet } from 'react-native';
 import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 import Text from 'src/components/KeeperText';
-import { getCurrencyImageByRegion } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import Breadcrumbs from 'src/components/Breadcrumbs';
-import { formatNumber } from 'src/utils/utilities';
-import CurrencyKind from 'src/models/enums/CurrencyKind';
 import SettingsIcon from 'src/assets/images/settings_brown.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useWallets from 'src/hooks/useWallets';
@@ -61,6 +54,8 @@ function EnterWalletDetailScreen({ route }) {
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
   const [walletName, setWalletName] = useState(route.params?.name);
+
+  const [isHotWallet, setIsHotWallet] = useState(route.params?.isHotWallet || false);
   const [walletCreatedModal, setWalletCreatedModal] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
@@ -112,6 +107,20 @@ function EnterWalletDetailScreen({ route }) {
     }
     dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, path, purpose, transferPolicy]);
+
+  const continueSelectSigner = useCallback(() => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AddSigningDevice',
+        params: {
+          name: walletName,
+          description: walletDescription,
+          scheme: { m: 1, n: 1 },
+          isSSAddition: true,
+        },
+      })
+    );
+  }, [walletName, walletDescription]);
 
   useEffect(() => {
     if (relayWalletUpdate) {
@@ -221,15 +230,17 @@ function EnterWalletDetailScreen({ route }) {
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
         rightComponent={
-          <Pressable
-            style={styles.advancedContainer}
-            onPress={() => setAdvancedSettingsVisible(true)}
-          >
-            <SettingsIcon />
-            <Text color={`${colorMode}.BrownNeedHelp`} bold fontSize={13}>
-              Advanced
-            </Text>
-          </Pressable>
+          isHotWallet && (
+            <Pressable
+              style={styles.advancedContainer}
+              onPress={() => setAdvancedSettingsVisible(true)}
+            >
+              <SettingsIcon />
+              <Text color={`${colorMode}.BrownNeedHelp`} bold fontSize={13}>
+                Advanced
+              </Text>
+            </Pressable>
+          )
         }
         // To-Do-Learn-More
       />
@@ -240,10 +251,6 @@ function EnterWalletDetailScreen({ route }) {
               placeholder={wallet.WalletNamePlaceHolder}
               value={walletName}
               onChangeText={(value) => {
-                if (route.params?.name === walletName) {
-                  setWalletName('');
-                  return;
-                }
                 setWalletName(value);
               }}
               maxLength={18}
@@ -255,13 +262,6 @@ function EnterWalletDetailScreen({ route }) {
               placeholder={wallet.WalletDescriptionPlaceholder}
               value={walletDescription}
               onChangeText={(value) => {
-                if (
-                  route.params?.description === walletDescription &&
-                  walletDescription.length > 0
-                ) {
-                  setWalletDescription('');
-                  return;
-                }
                 setWalletDescription(value);
               }}
               maxLength={20}
@@ -270,12 +270,12 @@ function EnterWalletDetailScreen({ route }) {
           </Box>
         </Box>
         <Box style={styles.footer}>
-          <Breadcrumbs totalScreens={walletType === WalletType.DEFAULT ? 3 : 4} currentScreen={2} />
           <Buttons
             primaryText={common.proceed}
-            primaryCallback={createNewWallet}
+            primaryCallback={isHotWallet ? createNewWallet : continueSelectSigner}
             primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}
+            fullWidth
           />
         </Box>
       </Box>
@@ -290,7 +290,7 @@ function EnterWalletDetailScreen({ route }) {
         textColor={`${colorMode}.primaryText`}
         showCloseIcon={false}
         learnMoreButton={true}
-        learnButtonTextColor={`${colorMode}.white`}
+        learnbuttonTextColor={`${colorMode}.buttonText`}
         learnMoreButtonPressed={() => {
           setVisibleModal(true);
         }}
@@ -315,7 +315,6 @@ function EnterWalletDetailScreen({ route }) {
         buttonCallback={() => {
           // setInitiating(true)
         }}
-        showButtons
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
@@ -354,21 +353,20 @@ function EnterWalletDetailScreen({ route }) {
         subTitle={''}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        learnButtonTextColor={`${colorMode}.white`}
         Content={TapRootContent}
         showCloseIcon={true}
         DarkCloseIcon
-        buttonText={common.ok}
-        buttonCallback={() => setVisibleModal(false)}
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        learnMore
-        learnMoreCallback={() => {
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryCallback={() => {
           setAdvancedSettingsVisible(false);
           setVisibleModal(false);
           dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet-advanced-settings'));
         }}
-        learnMoreTitle={common.needHelp}
+        buttonCallback={() => setVisibleModal(false)}
       />
     </ScreenWrapper>
   );
@@ -411,6 +409,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     alignItems: 'center',
+    paddingHorizontal: 22,
+    paddingVertical: 22,
   },
   tapRootContainer: {
     flexDirection: 'row',

@@ -23,33 +23,48 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
+import { Signer } from 'src/services/wallets/interfaces/vault';
+import { useDispatch } from 'react-redux';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { persistDocument } from 'src/services/documents';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { captureError } from 'src/services/sentry';
 
-const AssociateContact = () => {
+function AssociateContact({ route }) {
+  const { signer }: { signer: Signer } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
-        title: 'Contacts',
-        message: 'Keeper would like to access your contacts.',
-        buttonPositive: 'Accept',
-      }).then((value) => {
-        if (value === 'granted') {
-          Contacts.getAll().then(setContacts);
-        }
-      });
-    } else {
-      Contacts.getAll().then(setContacts);
+    try {
+      if (Platform.OS === 'android') {
+        PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS).then((value) => {
+          if (value === 'granted') {
+            Contacts.getAll().then(setContacts);
+          }
+        });
+      } else {
+        Contacts.getAll().then(setContacts);
+      }
+    } catch (err) {
+      console.log('Error loading contacts: ', err);
+      captureError(err);
+      showToast(
+        'Failed to load contacts, please check app permissions and try again',
+        <ToastErrorIcon />
+      );
     }
   }, []);
 
   const filteredContacts = contacts.filter((contact) =>
-    contact.givenName.toLowerCase().includes(search.toLowerCase())
+    contact?.givenName?.toLowerCase()?.includes(search?.toLowerCase())
   );
 
   const handleContactPress = (contact) => {
@@ -58,7 +73,7 @@ const AssociateContact = () => {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('ContactProfile', { contact: item })}>
+    <TouchableOpacity onPress={() => handleContactPress(item)}>
       <Box style={styles.contactItem}>
         {item.thumbnailPath !== '' ? (
           <Image source={{ uri: item.thumbnailPath || '' }} style={styles.avatar} />
@@ -85,6 +100,24 @@ const AssociateContact = () => {
     />
   );
 
+  const onAddAssociateContact = async () => {
+    try {
+      const persistedImage = await persistDocument(selectedContact.thumbnailPath);
+      const extraData = {
+        ...signer.extraData,
+        givenName: selectedContact.givenName,
+        familyName: selectedContact.familyName,
+        recordID: selectedContact.recordID,
+        thumbnailPath: persistedImage,
+      };
+      dispatch(updateSignerDetails(signer, 'extraData', extraData));
+      setShowModal(false);
+      navigation.goBack();
+    } catch (error) {
+      console.log('🚀 ~ onAddAssociateContact ~ error:', error);
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader simple title="Associate Contact" />
@@ -107,8 +140,12 @@ const AssociateContact = () => {
             underlineColorAndroid="transparent"
           />
         </Box>
-        <Pressable onPress={() => navigation.navigate('AddContact')}>
-          <Box style={styles.addContactButton}>
+        <Pressable onPress={() => navigation.navigate('AddContact', { signer })}>
+          <Box
+            style={styles.addContactButton}
+            backgroundColor={`${colorMode}.seashellWhite`}
+            borderColor={`${colorMode}.greyBorder`}
+          >
             <Box style={styles.iconContainer}>
               <AddContactIcon width={wp(44)} height={hp(44)} />
             </Box>
@@ -134,37 +171,42 @@ const AssociateContact = () => {
           visible={showModal}
           close={() => setShowModal(false)}
           showCloseIcon={false}
+          title="Associated Contact"
+          subTitle="The contact you associated with the Key will be displayed here"
+          secondaryButtonText="Cancel"
+          secondaryCallback={() => setShowModal(false)}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.modalWhiteContent`}
+          buttonTextColor={`${colorMode}.buttonText`}
+          buttonBackground={`${colorMode}.greenButtonBackground`}
           buttonText="Continue"
+          buttonCallback={onAddAssociateContact}
           Content={() => (
-            <Box style={styles.modalContainer}>
-              <Text style={styles.modalTitle} medium>
-                Associate Contact
-              </Text>
-              <Text style={styles.modalText}>
-                Are you sure you want to associate this contact to your wallet?
-              </Text>
-              <Box style={styles.contactInfoCard}>
-                <Box style={styles.iconContainer}>
-                  {selectedContact.thumbnailPath !== '' ? (
-                    <Image
-                      source={{ uri: selectedContact.thumbnailPath || 'default-avatar-url' }}
-                      style={styles.modalAvatar}
-                    />
-                  ) : (
-                    <ImagePlaceHolder style={styles.modalAvatar} />
-                  )}
-                </Box>
-                <Text medium style={styles.buttonText}>
-                  {selectedContact.givenName} {selectedContact.familyName}
-                </Text>
+            <Box
+              style={styles.contactInfoCard}
+              backgroundColor={`${colorMode}.seashellWhite`}
+              borderColor={`${colorMode}.greyBorder`}
+            >
+              <Box style={styles.iconContainer}>
+                {selectedContact.thumbnailPath !== '' ? (
+                  <Image
+                    source={{ uri: selectedContact.thumbnailPath || 'default-avatar-url' }}
+                    style={styles.modalAvatar}
+                  />
+                ) : (
+                  <ImagePlaceHolder style={styles.modalAvatar} />
+                )}
               </Box>
+              <Text medium style={styles.buttonText}>
+                {selectedContact.givenName} {selectedContact.familyName}
+              </Text>
             </Box>
           )}
         />
       )}
     </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -213,8 +255,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: hp(75),
     borderWidth: 1,
-    borderColor: Colors.SilverMist,
-    backgroundColor: Colors.Seashell,
     borderRadius: 10,
     paddingTop: hp(16),
     paddingBottom: hp(15),
@@ -254,13 +294,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: hp(85),
     borderWidth: 1,
-    borderColor: Colors.SilverMist,
-    backgroundColor: Colors.Seashell,
     borderRadius: 10,
     paddingTop: hp(23),
     paddingBottom: hp(22),
     paddingHorizontal: wp(18),
-    marginTop: hp(26),
     marginBottom: hp(10),
   },
   modalContainer: {

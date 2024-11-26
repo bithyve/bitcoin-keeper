@@ -36,10 +36,10 @@ function UpdateWalletDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { wallet, isFromSeed, words } = route.params;
+  const { wallet, isFromSeed, seed } = route.params;
 
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation, seed, importWallet, common } = translations;
+  const { wallet: walletTranslation, seed: seedTranslation, importWallet, common } = translations;
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const purposeList = [
@@ -84,6 +84,7 @@ function UpdateWalletDetails({ route }) {
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
+  // TODO: Need to check this function
   const updateWallet = () => {
     try {
       const derivationDetails: WalletDerivationDetails = {
@@ -158,13 +159,13 @@ function UpdateWalletDetails({ route }) {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title={isFromSeed ? seed.walletSeedWords : walletTranslation.WalletDetails}
+          title={isFromSeed ? seedTranslation.walletSeedWords : walletTranslation.WalletDetails}
           subtitle={
             isFromSeed ? walletTranslation.qrofRecoveryPhrase : walletTranslation.viewWalletPath
           }
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-          <Box>
+          <Box style={styles.container}>
             {showPurpose && (
               <ScrollView style={styles.langScrollViewWrapper}>
                 {purposeList.map((item) => (
@@ -206,9 +207,9 @@ function UpdateWalletDetails({ route }) {
             {isFromSeed ? (
               <Box style={{ marginTop: wp(20) }}>
                 <ShowXPub
-                  data={words.toString().replace(/,/g, ' ')}
-                  subText={seed.walletSeedWords}
-                  noteSubText={seed.showXPubNoteSubText}
+                  data={seed.toString().replace(/,/g, ' ')}
+                  subText={seedTranslation.walletSeedWords}
+                  noteSubText={seedTranslation.showXPubNoteSubText}
                   copyable={false}
                 />
               </Box>
@@ -223,7 +224,6 @@ function UpdateWalletDetails({ route }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           Content={WaringsContent}
         />
       </KeyboardAvoidingView>
@@ -232,6 +232,10 @@ function UpdateWalletDetails({ route }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    width: '95%',
+    alignSelf: 'center',
+  },
   autoTransferText: {
     fontSize: 12,
     paddingHorizontal: wp(5),
@@ -298,7 +302,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   contentText: {
-    fontSize: 13,
+    fontSize: 14,
     paddingHorizontal: 1,
     paddingVertical: 5,
     letterSpacing: 0.65,

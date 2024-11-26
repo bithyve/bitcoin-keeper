@@ -11,25 +11,43 @@ import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import Share from 'react-native-share';
-import RNFS from 'react-native-fs';
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-import { Signer } from 'bitcoinjs-lib';
+import { RKInteractionMode } from 'src/services/wallets/enums';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { exportFile } from 'src/services/fs';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 function ShareWithNfc({
   data,
   remoteShare = true,
   signer,
   isPSBTSharing = false,
+  psbt,
+  vaultKey,
+  vaultId,
+  serializedPSBTEnvelop,
+  sendConfirmationRouteParams,
+  tnxDetails,
+  fileName,
+  useNdef = false,
 }: {
   data: string;
   signer?: Signer;
   remoteShare?: boolean;
   isPSBTSharing?: boolean;
+  psbt?: string;
+  vaultKey?: VaultSigner;
+  vaultId?: string;
+  serializedPSBTEnvelop?: any;
+  sendConfirmationRouteParams?: SendConfirmationRouteParams;
+  tnxDetails?: tnxDetailsProps;
+  fileName?: string;
+  useNdef?: boolean; // For hardware wallets interactions
 }) {
   const { session } = useContext(HCESessionContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const [visible, setVisible] = React.useState(false);
 
   const { showToast } = useToastMessage();
@@ -37,7 +55,7 @@ function ShareWithNfc({
   const cleanUp = () => {
     setVisible(false);
     Vibration.cancel();
-    if (isAndroid) {
+    if (isAndroid && !useNdef) {
       NFC.stopTagSession(session);
     }
   };
@@ -45,9 +63,7 @@ function ShareWithNfc({
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });
-    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {
-      showToast('Cosigner details shared successfully', <TickIcon />);
-    });
+    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {});
     return () => {
       cleanUp();
       unsubRead();
@@ -60,7 +76,10 @@ function ShareWithNfc({
 
   const shareWithNFC = async () => {
     try {
-      if (isIos) {
+      if (isIos || useNdef) {
+        if (!isIos) {
+          setVisible(true);
+        }
         Vibration.vibrate([700, 50, 100, 50], true);
         const enc = NFC.encodeTextRecord(data);
         await NFC.send([NfcTech.Ndef], enc);
@@ -81,31 +100,19 @@ function ShareWithNfc({
   };
 
   const shareWithAirdrop = async () => {
+    const shareFileName =
+      fileName ||
+      (isPSBTSharing
+        ? `${vaultId}-${vaultKey?.xfp}-${Date.now()}.psbt`
+        : `cosigner-${signer?.masterFingerprint}.txt`);
     try {
-      const path = `${RNFS.CachesDirectoryPath}/cosigner.txt`;
-      RNFS.writeFile(path, data, 'utf8')
-        .then(() => {
-          Share.open({
-            message: '',
-            title: '',
-            url: path,
-            excludedActivityTypes: [
-              'copyToPasteBoard',
-              'markupAsPDF',
-              'addToReadingList',
-              'assignToContact',
-              'mail',
-              'default',
-              'message',
-              'postToFacebook',
-              'print',
-              'saveToCameraRoll',
-            ],
-          });
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
+      await exportFile(
+        data,
+        shareFileName,
+        (error) => showToast(error.message, <ToastErrorIcon />),
+        'utf8',
+        false
+      );
     } catch (err) {
       console.log(err);
       captureError(err);
@@ -114,18 +121,32 @@ function ShareWithNfc({
   return (
     <Box style={styles.container}>
       <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={shareWithNFC} />
-      {isIos && (
-        <OptionCTA
-          icon={<AirDropIcon />}
-          title="Airdrop/ file export"
-          callback={shareWithAirdrop}
-        />
-      )}
-      {remoteShare && (
+      <OptionCTA
+        icon={<AirDropIcon />}
+        title={`${isIos ? 'Airdrop / ' : ''}File Export`}
+        callback={shareWithAirdrop}
+      />
+      {/* // ! Hide Remote Key */}
+      {/* {remoteShare && ( */}
+      {false && (
         <OptionCTA
           icon={<RemoteShareIcon />}
           title={!isPSBTSharing ? 'Remote share' : 'Share PSBT Link'}
-          callback={() => navigation.navigate('RemoteSharing', { isPSBTSharing, data })}
+          callback={() =>
+            navigation.navigate('RemoteSharing', {
+              isPSBTSharing,
+              signer,
+              psbt,
+              mode: isPSBTSharing
+                ? RKInteractionMode.SHARE_PSBT
+                : RKInteractionMode.SHARE_REMOTE_KEY,
+              vaultKey,
+              vaultId,
+              serializedPSBTEnvelop,
+              sendConfirmationRouteParams,
+              tnxDetails,
+            })
+          }
         />
       )}
       <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />
@@ -136,6 +157,7 @@ function ShareWithNfc({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
+    justifyContent: 'center',
     flex: 1,
     margin: 20,
     gap: 20,

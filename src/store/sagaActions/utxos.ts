@@ -25,6 +25,7 @@ export const bulkUpdateLabels = (payload: {
   };
   UTXO?: UTXO;
   txId?: string;
+  address?: string;
   wallet: Wallet;
 }) => ({
   type: BULK_UPDATE_LABELS,

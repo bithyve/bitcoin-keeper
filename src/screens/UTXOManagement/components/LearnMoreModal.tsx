@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   paraText: {
     color: 'white',
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.65,
     padding: 1,
   },

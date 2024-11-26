@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { Box, StatusBar, useColorMode } from 'native-base';
-import { Dimensions, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   heightPercentageToDP as hp,
@@ -9,10 +9,8 @@ import {
 import Text from 'src/components/KeeperText';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import Passwordlock from 'src/assets/images/passwordlock.svg';
@@ -22,8 +20,9 @@ import { storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
 import KeeperModal from 'src/components/KeeperModal';
 import { setEnableAnalyticsLogin } from 'src/store/reducers/settings';
 import { setIsInitialLogin } from 'src/store/reducers/login';
-
-const windowHeight = Dimensions.get('window').height;
+import { throttle } from 'src/utils/utilities';
+import Buttons from 'src/components/Buttons';
+import PinDotView from 'src/components/AppPinInput/PinDotView';
 
 export default function CreatePin(props) {
   const { colorMode } = useColorMode();
@@ -48,43 +47,26 @@ export default function CreatePin(props) {
     }
   }, [hasCreds]);
 
-  function onPressNumber(text) {
+  const onPressNumber = throttle((text) => {
     let tmpPasscode = passcode;
     let tmpConfirmPasscode = confirmPasscode;
+
     if (passcodeFlag) {
-      if (passcode.length < 4) {
-        if (text !== 'x') {
-          tmpPasscode += text;
-          setPasscode(tmpPasscode);
-        }
-      } else if (passcode.length === 4 && passcodeFlag) {
-        setPasscodeFlag(false);
-        setConfirmPasscodeFlag(1);
-        setPasscode(passcode);
-      }
-      if (passcode && text === 'x') {
-        const passcodeTemp = passcode.slice(0, -1);
-        setPasscode(passcodeTemp);
-        if (passcodeTemp.length === 0) {
-          setConfirmPasscodeFlag(0);
-        }
+      if (passcode.length < 4 && text !== 'x') {
+        tmpPasscode += text;
+        setPasscode(tmpPasscode);
+      } else if (text === 'x') {
+        setPasscode(passcode.slice(0, -1));
       }
     } else if (confirmPasscodeFlag) {
-      if (confirmPasscode.length < 4) {
-        if (text !== 'x') {
-          tmpConfirmPasscode += text;
-          setConfirmPasscode(tmpConfirmPasscode);
-        }
-      }
-      if (confirmPasscode && text === 'x') {
+      if (confirmPasscode.length < 4 && text !== 'x') {
+        tmpConfirmPasscode += text;
+        setConfirmPasscode(tmpConfirmPasscode);
+      } else if (text === 'x') {
         setConfirmPasscode(confirmPasscode.slice(0, -1));
-      } else if (!confirmPasscode && text === 'x') {
-        setPasscodeFlag(true);
-        setConfirmPasscodeFlag(0);
-        setConfirmPasscode(confirmPasscode);
       }
     }
-  }
+  }, 300);
 
   const onDeletePressed = (text) => {
     if (passcodeFlag) {
@@ -188,77 +170,62 @@ export default function CreatePin(props) {
 
   return (
     <Box
+      safeAreaTop
       testID="main"
       style={styles.container}
-      backgroundColor={`${colorMode}.primaryGreenBackground`}
+      backgroundColor={`${colorMode}.pantoneGreen`}
     >
       <Box style={styles.wrapper}>
-        <Box pt={50}>
-          <StatusBar barStyle="light-content" />
-        </Box>
+        <StatusBar barStyle="light-content" />
         <Box style={styles.wrapper}>
           <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} color={`${colorMode}.choosePlanHome`}>
+              <Text style={styles.welcomeText} medium color={`${colorMode}.choosePlanHome`}>
                 {login.welcome}
               </Text>
-              <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
-                {login.Createpasscode}
-              </Text>
-
-              {/* pin input view */}
-              <PinInputsView
-                passCode={passcode}
-                passcodeFlag={passcodeFlag}
-                borderColor={
-                  passcode !== confirmPasscode && confirmPasscode.length === 4
-                    ? `${colorMode}.error`
-                    : 'transparent'
-                }
-              />
-              {/*  */}
             </Box>
-            {passcode.length === 4 ? (
-              <Box>
+            <Box style={styles.passCodeWrapper}>
+              <Box style={styles.createPasscodeWrapper}>
                 <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
-                  {login.Confirmyourpasscode}
+                  {login.Createpasscode}
                 </Text>
-                <Box>
-                  {/* pin input view */}
-                  <PinInputsView
-                    passCode={confirmPasscode}
-                    passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
-                    borderColor={
-                      passcode != confirmPasscode && confirmPasscode.length === 4
-                        ? `${colorMode}.error`
-                        : 'transparent'
-                    }
-                  />
-                  {/*  */}
-                  {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                    <Text color={`${colorMode}.error`} italic style={styles.errorText}>
-                      {login.MismatchPasscode}
-                    </Text>
-                  )}
-                </Box>
+                <PinDotView passCode={passcode} />
               </Box>
-            ) : null}
-          </Box>
-          <Box alignSelf="flex-end" mr={5} mt={5}>
-            <CustomButton
-              disabled={isDisabled}
-              testID="button"
-              onPress={() => {
-                setCreatePassword(true);
-              }}
-              value={common.create}
-            />
+              {passcode.length === 4 ? (
+                <Box style={styles.confirmPasscodeWrapper}>
+                  <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
+                    {login.Confirmyourpasscode}
+                  </Text>
+                  <Box>
+                    <PinDotView passCode={confirmPasscode} />
+                    {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
+                      <Text color={`${colorMode}.error`} italic style={styles.errorText}>
+                        {login.MismatchPasscode}
+                      </Text>
+                    )}
+                  </Box>
+                </Box>
+              ) : null}
+            </Box>
           </Box>
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
             ClearIcon={<DeleteIcon />}
+            bubbleEffect
           />
+          <Box style={styles.btnWrapper}>
+            <Buttons
+              primaryCallback={() => {
+                setCreatePassword(true);
+              }}
+              primaryText={common.create}
+              primaryDisable={isDisabled}
+              primaryBackgroundColor={`${colorMode}.buttonText`}
+              primaryTextColor={`${colorMode}.pantoneGreen`}
+              fullWidth
+            />
+          </Box>
         </Box>
       </Box>
       <KeeperModal
@@ -281,7 +248,6 @@ export default function CreatePin(props) {
           setCreatePassword(false);
         }}
         Content={CreatePassModalContent}
-        showButtons
         subTitleWidth={wp(80)}
       />
       <KeeperModal
@@ -302,7 +268,6 @@ export default function CreatePin(props) {
           handleShareAnalytics(false);
         }}
         Content={ShareAnalyticsModalContent}
-        showButtons
         subTitleWidth={wp(80)}
       />
     </Box>
@@ -318,25 +283,35 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   titleWrapper: {
-    marginTop: windowHeight > 670 ? hp('5%') : 0,
-    flex: 0.9,
+    paddingTop: hp(6.7),
+    alignItems: 'center',
+    flex: 1,
+    gap: hp(6),
   },
   welcomeText: {
-    marginLeft: 18,
-    fontSize: 22,
-    letterSpacing: 0.22,
+    fontSize: 25,
     lineHeight: 27,
   },
   labelText: {
     fontSize: 14,
-    letterSpacing: 0.14,
-    marginLeft: 18,
+  },
+  passCodeWrapper: {
+    gap: hp(4.7),
+  },
+  createPasscodeWrapper: {
+    gap: hp(1.8),
+    alignItems: 'center',
+  },
+  confirmPasscodeWrapper: {
+    alignItems: 'center',
+    gap: hp(1.8),
   },
   errorText: {
     fontSize: 11,
     letterSpacing: 0.22,
     width: wp('68%'),
-    textAlign: 'right',
+    textAlign: 'center',
+    marginTop: 18,
   },
   bitcoinTestnetText: {
     fontWeight: '400',
@@ -351,5 +326,11 @@ const styles = StyleSheet.create({
   passImg: {
     alignItems: 'center',
     paddingVertical: 20,
+  },
+  btnWrapper: {
+    marginTop: 25,
+    marginBottom: 30,
+    alignSelf: 'center',
+    width: '90%',
   },
 });

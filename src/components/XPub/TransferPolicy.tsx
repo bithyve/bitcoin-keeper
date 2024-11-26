@@ -140,24 +140,37 @@ function TransferPolicy({
           backgroundColor={`${colorMode}.seashellWhite`}
           onTouchStart={() => setIsInputFocused(true)}
           style={[inputContainerStyles, styles.inputContainer]}
+          borderColor={`${colorMode}.dullGreyBorder`}
         >
           <Box ml={25}>{getCurrencyIcon(BTC, 'slateGreen')}</Box>
-          <Box ml={3} style={styles.separator} />
+          <Box ml={3} style={styles.separator} backgroundColor={`${colorMode}.dullGreyBorder`} />
           <Box width={getSatUnit() ? '90%' : '105%'}>
             <TouchableOpacity>
               <Input
-                style={styles.inputField}
+                style={[
+                  styles.inputField,
+                  {
+                    letterSpacing: policyText ? 3 : 0,
+                    fontWeight: policyText ? '500' : '400',
+                    fontSize: policyText ? 15 : 12,
+                  },
+                ]}
                 numberOfLines={null}
                 editable={false}
                 variant="unstyled"
-                color={policyText ? `${colorMode}.greenText` : `${colorMode}.SlateGreen`}
+                color={policyText ? `${colorMode}.greenText` : `${colorMode}.placeHolderTextColor`}
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.SecondaryWhite,
+                    cursorColor: Colors.SecondaryWhite,
+                  }
+                }
               >
                 {policyText ? `${numberWithCommas(policyText)}` : 'Enter Amount'}
               </Input>
             </TouchableOpacity>
           </Box>
-          {getSatUnit() && <Box style={styles.separator} />}
-          <Text semiBold color={`${colorMode}.SlateGreen`}>
+          <Text medium fontSize={12} color={`${colorMode}.SlateGreen`}>
             {getSatUnit() && ` ${getSatUnit()}`}
           </Text>
         </Box>
@@ -175,7 +188,6 @@ function TransferPolicy({
         paddingHorizontal={wp(15)}
         primaryDisable={relayWalletUpdateLoading || relayWalletUpdate}
       />
-      {/* keyboardview start */}
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
@@ -200,9 +212,8 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
     padding: 3,
-    fontSize: 15,
-    letterSpacing: 3,
     height: hp(50),
     borderRadius: 10,
     marginHorizontal: '5%',
@@ -211,9 +222,7 @@ const styles = StyleSheet.create({
   },
   inputField: {
     fontSize: 15,
-    letterSpacing: 3,
-    marginLeft: 0,
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
   limitText: {
     marginRight: 10,
@@ -224,13 +233,10 @@ const styles = StyleSheet.create({
     paddingVertical: 25,
   },
   desc: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
   },
   separator: {
     width: 2,
-    backgroundColor: '#BDB7B1',
-    opacity: 0.3,
     height: 20,
     marginRight: 2,
   },

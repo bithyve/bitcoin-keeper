@@ -1,12 +1,6 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  TextStyle,
-  TouchableOpacity,
-  ViewStyle,
-} from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
 import Colors from 'src/theme/Colors';
 import Text from './KeeperText';
@@ -78,7 +72,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   nameStyle: {
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 20,
     textAlign: 'center',
   },

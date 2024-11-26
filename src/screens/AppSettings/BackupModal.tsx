@@ -13,7 +13,7 @@ function BackupModalContent() {
         <SeedwordsIllustration />
       </Box>
       <Text color={`${colorMode}.headerText`} medium style={styles.modalHeading}>
-        Be aware
+        Beware
       </Text>
       <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
         Anyone with access to the Recovery Key can access and withdraw your funds. Losing them means
@@ -35,12 +35,11 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   modalHeading: {
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 20,
     letterSpacing: 0.14,
   },
   modalMessageText: {
-    fontSize: 13,
-    letterSpacing: 0.13,
+    fontSize: 14,
   },
 });

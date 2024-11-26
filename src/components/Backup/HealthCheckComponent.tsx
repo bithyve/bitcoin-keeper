@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import { Box, Input, useColorMode } from 'native-base';
-
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { BackupType } from 'src/models/enums/BHR';
@@ -8,6 +7,7 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
 import { cryptoRandom } from 'src/utils/service-utilities/encryption';
+import KeeperTextInput from '../KeeperTextInput';
 
 function HealthCheckComponent(props) {
   const navigation = useNavigation();
@@ -78,9 +78,10 @@ function HealthCheckComponent(props) {
         return 'twelfth';
     }
   };
+
   const onPressConfirm = () => {
     if (type === BackupType.SEED) {
-      if (seedWord.toLocaleLowerCase() === words[index]) {
+      if (seedWord.toLocaleLowerCase() === words[index].toLocaleLowerCase()) {
         props.onConfirmed('');
       } else {
         setInvalid(true);
@@ -91,6 +92,7 @@ function HealthCheckComponent(props) {
       setInvalid(true);
     }
   };
+
   const { colorMode } = useColorMode();
 
   return (
@@ -109,21 +111,12 @@ function HealthCheckComponent(props) {
             ? `Enter the ${getSeedNumber(index)} word`
             : `Hint: ${props.hint}`}
         </Text>
-        <Input
+        <KeeperTextInput
           placeholder={type === BackupType.SEED ? `Enter ${getHint(index)} word` : 'Enter Password'}
-          placeholderTextColor={`${colorMode}.secondaryText`}
-          backgroundColor={`${colorMode}.seashellWhite`}
           value={type === BackupType.SEED ? seedWord : strongPassword}
           onChangeText={(value) =>
-            type === BackupType.SEED
-              ? setSeedWord(value?.toLocaleLowerCase())
-              : setStrongPassword(value)
+            type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)
           }
-          style={styles.inputContainer}
-          borderRadius={10}
-          autoCapitalize="none"
-          marginY={2}
-          borderWidth="0"
         />
       </Box>
       {invalid && (
@@ -145,6 +138,7 @@ function HealthCheckComponent(props) {
     </Box>
   );
 }
+
 const styles = StyleSheet.create({
   wrapper: {
     padding: 25,
@@ -156,4 +150,5 @@ const styles = StyleSheet.create({
     height: 50,
   },
 });
+
 export default HealthCheckComponent;

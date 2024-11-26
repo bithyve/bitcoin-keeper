@@ -1,17 +1,23 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Input, KeyboardAvoidingView, Pressable, useColorMode } from 'native-base';
-import { Platform, ScrollView, StyleSheet } from 'react-native';
+import { Box, useColorMode } from 'native-base';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import {
+  calculateCustomFee,
+  calculateSendMaxFee,
+  sendPhaseOne,
+} from 'src/store/sagaActions/send_and_receive';
+import { hp, wp } from 'src/constants/responsive';
 
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
-import BitcoinInput from 'src/assets/images/btc_input.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
+import {
+  customPrioritySendPhaseOneStatusReset,
+  sendPhaseOneReset,
+} from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -24,12 +30,16 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { Satoshis } from 'src/models/types/UnitAliases';
-import BTCIcon from 'src/assets/images/btc_black.svg';
+import WalletSmallIcon from 'src/assets/images/daily-wallet-small.svg';
+import VaultSmallIcon from 'src/assets/images/vault-icon-small.svg';
+import CollaborativeSmallIcon from 'src/assets/images/collaborative-icon-small.svg';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-import AddressIcon from 'src/components/AddressIcon';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
 import {
@@ -41,49 +51,61 @@ import {
 } from 'src/services/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-// import LabelItem from '../UTXOManagement/components/LabelItem';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
 import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
-import WalletUtilities from 'src/services/wallets/operations/utils';
-import WalletSendInfo from './WalletSendInfo';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import KeeperModal from 'src/components/KeeperModal';
+import ArrowIcon from 'src/assets/images/icon_arrow.svg';
+import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
+import ReceiptIcon from 'src/assets/images/receipt.svg';
+import ReceiptIconDark from 'src/assets/images/receipt-white.svg';
+import AmountDetailsInput from './AmountDetailsInput';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import CustomPriorityModal from './CustomPriorityModal';
+import PriorityModal from './PriorityModal';
+
+const capitalizeFirstLetter = (string) => {
+  if (!string) return '';
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+};
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
+  const { showToast } = useToastMessage();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation } = translations;
+  const { wallet: walletTranslations, common, vault } = translations;
   const {
     sender,
     recipient,
     address,
     amount: prefillAmount,
+    note,
     transferType,
     selectedUTXOs = [],
     parentScreen,
-    isSendMax = true,
+    isSendMax = false,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
     address: string;
     amount: string;
+    note?: string;
     transferType: TransferType;
     selectedUTXOs: UTXO[];
     parentScreen?: string;
     isSendMax?: boolean;
   } = route.params;
 
-  const [amount, setAmount] = useState(prefillAmount || '');
-  const [amountToSend, setAmountToSend] = useState('');
-  const [note, setNote] = useState('');
-  // const [label, setLabel] = useState('');
+  const [amount, setAmount] = useState(prefillAmount || '0');
+  const [amountToSend, setAmountToSend] = useState('0');
+  const [currentAmount, setCurrentAmount] = useState(amount);
+  const [equivalentAmount, setEquivalentAmount] = useState<string | number>('0');
+  const [lastToastTime, setLastToastTime] = useState(0);
   const [labelsToAdd, setLabelsToAdd] = useState([]);
-
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
-  const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const { averageTxFees } = useAppSelector((state) => state.network);
@@ -93,8 +115,7 @@ function AddSendAmount({ route }) {
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
-  const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const { getCurrencyIcon, getSatUnit, getConvertedBalance } = useBalance();
+  const { getConvertedBalance } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
@@ -103,6 +124,29 @@ function AddSendAmount({ route }) {
     parentScreen === MANAGEWALLETS ||
     parentScreen === VAULTSETTINGS ||
     parentScreen === WALLETSETTINGS;
+  const availableBalance =
+    sender.networkType === NetworkType.MAINNET
+      ? sender.specs.balances.confirmed
+      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+
+  const isDarkMode = colorMode === 'dark';
+  const [localCurrencyKind, setLocalCurrencyKind] = useState(currentCurrency);
+  const [maxAmountToSend, setMaxAmountToSend] = useState(null);
+  const [isSendingMax, setIsSendingMax] = useState(isSendMax);
+  const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
+  const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
+  const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
+  const [customFeePerByte, setCustomFeePerByte] = useState(0);
+  const [customEstBlocks, setCustomEstBlocks] = useState(0);
+  const [estimationSign, setEstimationSign] = useState('≈');
+  const balance = idx(sender, (_) => _.specs.balances);
+  let availableToSpend =
+    sender.networkType === NetworkType.MAINNET
+      ? balance.confirmed
+      : balance.confirmed + balance.unconfirmed;
+
+  const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
+  if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -116,39 +160,68 @@ function AddSendAmount({ route }) {
       : 0;
   }
 
+  const convertToSats = (value, fromKind) => {
+    if (!value) return '0';
+
+    try {
+      if (fromKind === CurrencyKind.BITCOIN) {
+        return satsEnabled ? value.toString() : BtcToSats(parseFloat(value)).toString(); // convert BTC to sats
+      } else {
+        return convertFiatToSats(parseFloat(value)).toFixed(0);
+      }
+    } catch (error) {
+      console.log('Error converting to sats:', error);
+      return '0';
+    }
+  };
+
   useEffect(() => {
-    // sets amount to send(based on currency selection)
-    if (currentCurrency === CurrencyKind.BITCOIN) {
-      if (satsEnabled) setAmountToSend(amount);
-      else setAmountToSend(BtcToSats(parseFloat(amount)).toString());
-    } else setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
+    if (!amount) {
+      setAmountToSend('');
+      return;
+    }
+
+    try {
+      if (localCurrencyKind === CurrencyKind.BITCOIN) {
+        if (satsEnabled) {
+          setAmountToSend(amount);
+        } else {
+          const btcAmount = (parseFloat(amount) * SATOSHIS_IN_BTC).toFixed(0);
+          setAmountToSend(btcAmount);
+        }
+      } else {
+        const satsAmount = isSendingMax
+          ? satsEnabled
+            ? maxAmountToSend
+            : maxAmountToSend / SATOSHIS_IN_BTC
+          : convertFiatToSats(parseFloat(amount)).toFixed(0)?.toString();
+
+        setAmountToSend(satsAmount);
+      }
+    } catch (error) {
+      console.log('Error converting amount:', error);
+      setAmountToSend('');
+    }
   }, [currentCurrency, satsEnabled, amount]);
 
   useEffect(() => {
-    if (!isNaN(parseFloat(amount))) {
-      const amountToSend = getConvertedBalance(parseFloat(amount));
-      setAmount(amountToSend.toString());
+    if (!route.params?.amount) return;
+    if (currentCurrency === CurrencyKind.BITCOIN) {
+      setAmount(route.params.amount);
+    } else {
+      const numAmount = parseFloat(route.params.amount);
+      if (!isNaN(numAmount)) {
+        const fiatAmount = getConvertedBalance(numAmount);
+        setAmount(fiatAmount?.toString() || '');
+      }
     }
-  }, [currentCurrency]);
+  }, [currentCurrency, route.params?.amount]);
 
   useEffect(() => {
-    // error handler
-    const balance = idx(sender, (_) => _.specs.balances);
-    let availableToSpend =
-      sender.networkType === NetworkType.MAINNET
-        ? balance.confirmed
-        : balance.confirmed + balance.unconfirmed;
-
-    const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
-    if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
-
     if (haveSelectedUTXOs) {
       if (availableToSpend < Number(amountToSend)) {
         setErrorMessage('Please select enough UTXOs to send');
-      } else if (
-        availableToSpend <
-        Number(amountToSend) + Number(SatsToBtc(minimumAvgFeeRequired))
-      ) {
+      } else if (availableToSpend < Number(amountToSend)) {
         setErrorMessage('Please select enough UTXOs to accommodate fee');
       } else setErrorMessage('');
     } else if (availableToSpend < Number(amountToSend)) {
@@ -156,51 +229,93 @@ function AddSendAmount({ route }) {
     } else setErrorMessage('');
   }, [amountToSend, selectedUTXOs.length]);
 
-  const onSendMax = (sendMaxFee, selectedUTXOs) => {
-    // send max handler
-    if (!sendMaxFee) return;
-
-    const balance = idx(sender, (_) => _.specs.balances);
-    let availableToSpend =
-      sender.networkType === NetworkType.MAINNET
-        ? balance.confirmed
-        : balance.confirmed + balance.unconfirmed;
-
-    const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
-    if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
-
-    if (availableToSpend) {
-      const sendMaxBalance = Math.max(availableToSpend - sendMaxFee, 0);
-      if (currentCurrency === CurrencyKind.BITCOIN) {
-        if (satsEnabled) setAmount(sendMaxBalance.toString());
-        else setAmount(`${SatsToBtc(sendMaxBalance)}`);
-      } else setAmount(convertSatsToFiat(sendMaxBalance).toString());
-    }
-  };
-
   useEffect(() => {
-    onSendMax(sendMaxFee, selectedUTXOs.length);
+    if (sendMaxFee && isSendingMax) {
+      onSendMax();
+    }
   }, [sendMaxFee, selectedUTXOs.length]);
 
   useEffect(() => {
-    if (isSendMax) handleSendMax();
-  }, []);
+    const recipients = [];
+    recipients.push({
+      address,
+      amount: 0,
+    });
+    dispatch(
+      calculateSendMaxFee({
+        recipients,
+        wallet: sender,
+        selectedUTXOs,
+        feePerByte:
+          transactionPriority === TxPriority.CUSTOM
+            ? customFeePerByte
+            : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+      })
+    );
+  }, [transactionPriority, customFeePerByte]);
+
+  useEffect(() => {
+    if (isSendingMax) handleSendMax();
+  }, [isSendingMax]);
 
   useEffect(() => {
     if (isMoveAllFunds) {
-      if (sendMaxFee) {
-        onSendMax(sendMaxFee, selectedUTXOs);
+      // TODO: Should just remove amount from calculateSendMaxFee
+      const recipients = [];
+      recipients.push({
+        address,
+        amount: 0,
+      });
+      dispatch(
+        calculateSendMaxFee({
+          recipients,
+          wallet: sender,
+          selectedUTXOs,
+          feePerByte:
+            transactionPriority === TxPriority.CUSTOM
+              ? customFeePerByte
+              : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+        })
+      );
+    }
+  }, [isMoveAllFunds, sendMaxFee, selectedUTXOs, transactionPriority, customFeePerByte]);
+
+  useEffect(() => {
+    if (!currentAmount) {
+      setAmountToSend('');
+      return;
+    }
+
+    const satsAmount = isSendingMax
+      ? satsEnabled
+        ? maxAmountToSend
+        : maxAmountToSend * SATOSHIS_IN_BTC
+      : convertToSats(currentAmount, localCurrencyKind);
+    setAmountToSend(satsAmount);
+  }, [currentAmount, localCurrencyKind]);
+
+  const onSendMax = () => {
+    if (!sendMaxFee) return;
+
+    if (availableToSpend) {
+      const sendMaxBalance = Math.max(availableToSpend - sendMaxFee, 0);
+      setMaxAmountToSend(
+        satsEnabled ? Number(sendMaxBalance) : Number(sendMaxBalance) / SATOSHIS_IN_BTC
+      );
+
+      if (localCurrencyKind === CurrencyKind.BITCOIN) {
+        const amountToSet = sendMaxBalance;
+        if (satsEnabled) {
+          setAmount(amountToSet.toFixed(0));
+        } else {
+          setAmount(Number(SatsToBtc(amountToSet)).toFixed(8));
+        }
       } else {
-        dispatch(
-          calculateSendMaxFee({
-            numberOfRecipients: recipientCount,
-            wallet: sender,
-            selectedUTXOs,
-          })
-        );
+        const amountToSet = Number(sendMaxBalance);
+        setAmount(convertSatsToFiat(amountToSet).toFixed(2));
       }
     }
-  }, [isMoveAllFunds, sendMaxFee, selectedUTXOs]);
+  };
 
   useEffect(() => {
     // should bind with a refresher in case the auto fetch for block-height fails
@@ -225,6 +340,22 @@ function AddSendAmount({ route }) {
       }
     }
 
+    if (transactionPriority === TxPriority.CUSTOM) {
+      const recipients = [];
+      recipients.push({
+        address,
+        amount: parseInt(amountToSend, 10),
+      });
+      dispatch(
+        calculateCustomFee({
+          wallet: sender,
+          recipients,
+          feePerByte: customFeePerByte.toString(),
+          customEstimatedBlocks: customEstBlocks.toString(),
+          selectedUTXOs,
+        })
+      );
+    }
     navigation.dispatch(
       CommonActions.navigate('SendConfirmation', {
         sender,
@@ -240,41 +371,49 @@ function AddSendAmount({ route }) {
           (item) => !(item.name === idx(recipient, (_) => _.presentationData.name) && item.isSystem) // remove wallet labels are they are internal refrerences
         ),
         date: new Date(),
+        transactionPriority,
+        customFeePerByte,
       })
     );
   };
-  const { showToast } = useToastMessage();
 
   const handleSendMax = () => {
-    const availableBalance =
-      sender.networkType === NetworkType.MAINNET
-        ? sender.specs.balances.confirmed
-        : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
-
     if (availableBalance) {
-      if (sendMaxFee) {
-        onSendMax(sendMaxFee, selectedUTXOs);
-        return;
-      }
+      const recipients = [];
+      recipients.push({
+        address,
+        amount: 0,
+      });
       dispatch(
         calculateSendMaxFee({
-          numberOfRecipients: recipientCount,
+          recipients,
           wallet: sender,
           selectedUTXOs,
+          feePerByte:
+            transactionPriority === TxPriority.CUSTOM
+              ? customFeePerByte
+              : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
         })
       );
+      onSendMax();
     }
   };
 
   const executeSendPhaseOne = () => {
+    dispatch(sendPhaseOneReset());
     const recipients = [];
     if (!amountToSend) {
       showToast('Please enter a valid amount');
       return;
     }
+    const amountInSats = isSendingMax
+      ? satsEnabled
+        ? maxAmountToSend
+        : maxAmountToSend * SATOSHIS_IN_BTC
+      : convertToSats(currentAmount, localCurrencyKind);
     recipients.push({
       address,
-      amount: amountToSend, // should be denominated in sats
+      amount: amountInSats,
       name: recipient ? recipient.presentationData.name : '',
     });
     dispatch(
@@ -303,14 +442,6 @@ function AddSendAmount({ route }) {
   );
   useEffect(() => {
     const initialLabels = [];
-    if (recipient && recipient.presentationData) {
-      const name =
-        recipient?.entityKind === EntityKind.VAULT
-          ? sender.presentationData.name
-          : recipient.presentationData.name;
-      const isSystem = true;
-      initialLabels.push({ name, isSystem });
-    }
     selectedUTXOs.forEach((utxo) => {
       if (labels[`${utxo.txId}:${utxo.vout}`]) {
         const useLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((item) => !item.isSystem);
@@ -320,17 +451,69 @@ function AddSendAmount({ route }) {
     setLabelsToAdd(initialLabels);
   }, []);
 
-  // const onAdd = () => {
-  //   if (label) {
-  //     labelsToAdd.push({ name: label, isSystem: false });
-  //     setLabelsToAdd(labelsToAdd);
-  //     setLabel('');
-  //   }
-  // };
-  // const onCloseClick = (index) => {
-  //   labelsToAdd.splice(index, 1);
-  //   setLabelsToAdd([...labelsToAdd]);
-  // };
+  const getSmallWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      return wallet.type === VaultType.COLLABORATIVE ? (
+        <CollaborativeSmallIcon />
+      ) : (
+        <VaultSmallIcon />
+      );
+    } else {
+      return <WalletSmallIcon />;
+    }
+  };
+
+  const onPressNumber = (text) => {
+    if (errorMessage) {
+      showDebouncedToast(errorMessage);
+      return;
+    }
+
+    setMaxAmountToSend(null);
+    setIsSendingMax(false);
+
+    if (text === 'x') {
+      onDeletePressed();
+      return;
+    }
+    if (text === '.') {
+      if (
+        (localCurrencyKind === CurrencyKind.BITCOIN && satsEnabled) ||
+        currentAmount.includes('.')
+      ) {
+        return;
+      }
+      if (!currentAmount || currentAmount === '0') {
+        setAmount('0.');
+        return;
+      }
+      setAmount(`${currentAmount}.`);
+      return;
+    }
+    const maxDecimalPlaces = localCurrencyKind === CurrencyKind.BITCOIN && !satsEnabled ? 8 : 2;
+    if (currentAmount === '0' && text !== '.') {
+      setAmount(text);
+      return;
+    }
+    const newAmount = currentAmount + text;
+    const parts = newAmount.split('.');
+    if (parts[1] && parts[1].length > maxDecimalPlaces) {
+      return;
+    }
+    setAmount(newAmount);
+  };
+
+  const onDeletePressed = () => {
+    setMaxAmountToSend(null);
+    setIsSendingMax(false);
+
+    if (currentAmount.length <= 1) {
+      setAmount('0');
+      return;
+    }
+    setAmount(currentAmount.slice(0, currentAmount.length - 1));
+  };
+
   const getWalletIcon = (wallet) => {
     if (wallet?.entityKind === EntityKind.VAULT) {
       if (wallet.type === VaultType.COLLABORATIVE) {
@@ -345,333 +528,215 @@ function AddSendAmount({ route }) {
     }
   };
 
-  const availableBalance =
-    sender.networkType === NetworkType.MAINNET
-      ? sender.specs.balances.confirmed
-      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const showDebouncedToast = (message) => {
+    const currentTime = Date.now();
+    const debounceTime = 3000;
+
+    if (currentTime - lastToastTime > debounceTime) {
+      showToast(message, <ToastErrorIcon />);
+      setLastToastTime(currentTime);
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        enabled
-        keyboardVerticalOffset={Platform.select({ ios: 0, android: 500 })}
-        style={styles.Container}
-      >
-        <KeeperHeader
-          title="Sending from"
-          subtitle={sender.presentationData.name}
-          marginLeft={false}
-          rightComponent={<CurrencyTypeSwitch />}
-          icon={
-            <HexagonIcon
-              width={44}
-              height={38}
-              backgroundColor={Colors.pantoneGreen}
-              icon={getWalletIcon(sender)}
-            />
-          }
-          availableBalance={
-            <CurrencyInfo
-              hideAmounts={false}
-              amount={availableBalance}
-              fontSize={14}
-              color={`${colorMode}.primaryText`}
-              variation={colorMode === 'light' ? 'dark' : 'light'}
-            />
-          }
-        />
-        <Box>
-          <WalletSendInfo
-            selectedUTXOs={selectedUTXOs}
-            icon={isAddress ? <AddressIcon /> : getWalletIcon(recipient)}
-            availableAmt={sender?.specs.balances.confirmed}
-            walletName={isAddress ? address : recipient?.presentationData.name}
-            currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
-            isSats={satsEnabled}
-            isAddress={isAddress}
-            recipient={recipient}
+      <KeeperHeader
+        title="Sending from"
+        subtitle={sender.presentationData.name}
+        subTitleSize={16}
+        icon={
+          <HexagonIcon
+            width={44}
+            height={38}
+            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
+            icon={getWalletIcon(sender)}
           />
-        </Box>
-
-        <ScrollView
-          style={styles.Container}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+        }
+        availableBalance={
+          <CurrencyInfo
+            hideAmounts={false}
+            amount={availableBalance}
+            fontSize={16}
+            satsFontSize={12}
+            color={`${colorMode}.primaryText`}
+            variation={!isDarkMode ? 'dark' : 'light'}
+          />
+        }
+      />
+      <AmountDetailsInput
+        amount={amount}
+        currentAmount={currentAmount}
+        setCurrentAmount={setCurrentAmount}
+        equivalentAmount={equivalentAmount}
+        setEquivalentAmount={setEquivalentAmount}
+        satsEnabled={satsEnabled}
+        handleSendMax={() => setIsSendingMax(true)}
+        localCurrencyKind={localCurrencyKind}
+        setLocalCurrencyKind={setLocalCurrencyKind}
+        currencyCode={currencyCode}
+        specificBitcoinAmount={maxAmountToSend}
+      />
+      {/* <Box style={styles.RecipientInfo}>
+        <HexagonIcon
+          width={34}
+          height={30}
+          icon={isAddress ? <AddressIcon /> : getSmallWalletIcon(recipient)}
+          backgroundColor={isDarkMode ? Colors.DullBrown : Colors.brownColor}
+        />
+        <Text color={`${colorMode}.primaryText`}>
+          {isAddress ? 'Sending to address' : `Sending to ${recipient?.entityKind.toLowerCase()}`}
+        </Text>
+        <Text
+          color={`${colorMode}.primaryText`}
+          medium
+          numberOfLines={isAddress ? 1 : undefined}
+          ellipsizeMode="middle"
+          style={styles.receipientText}
         >
-          <Box
-            style={{
-              paddingHorizontal: 5,
-            }}
-          >
-            {errorMessage && (
-              <Text
-                color={`${colorMode}.indicator`}
-                style={{
-                  fontSize: 10,
-                  letterSpacing: 0.1,
-                  fontStyle: 'italic',
-                  textAlign: 'right',
-                  paddingRight: wp(10),
-                  width: '100%',
-                }}
-              >
-                {errorMessage}
+          {isAddress ? address : recipient?.presentationData?.name}
+        </Text>
+      </Box> */}
+      <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
+        <Box
+          style={[styles.dashedButton]}
+          backgroundColor={`${colorMode}.newDashedButtonBackground`}
+          borderColor={`${colorMode}.dashedButtonBorder`}
+          borderWidth={1}
+          borderStyle="dashed"
+        >
+          <Box style={styles.priorityItemLeft}>
+            <Box flexDirection="row">
+              {colorMode === 'light' ? <ReceiptIcon /> : <ReceiptIconDark />}
+              <Text medium fontSize={13} style={{ marginLeft: wp(10) }}>
+                Fee Priority: {capitalizeFirstLetter(transactionPriority)}
               </Text>
-            )}
-            <Box
-              backgroundColor={`${colorMode}.seashellWhite`}
-              borderColor={errorMessage ? 'light.indicator' : 'transparent'}
-              style={styles.inputWrapper}
-            >
-              <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
-                <Box marginRight={2}>
-                  {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
-                </Box>
-                <Box
-                  marginLeft={2}
-                  width={0.5}
-                  backgroundColor={`${colorMode}.divider`}
-                  opacity={0.3}
-                  height={7}
-                />
-                <Input
-                  testID="input_amount"
-                  backgroundColor={`${colorMode}.seashellWhite`}
-                  placeholder="Enter Amount"
-                  placeholderTextColor={`${colorMode}.greenText`}
-                  width="80%"
-                  fontSize={14}
-                  fontWeight={300}
-                  opacity={amount ? 1 : 0.5}
-                  color={`${colorMode}.greenText`}
-                  letterSpacing={1.04}
-                  borderWidth="0"
-                  value={amount}
-                  isDisabled={isMoveAllFunds}
-                  onChangeText={(value) => {
-                    if (!isNaN(Number(value))) {
-                      setAmount(
-                        value
-                          .split('.')
-                          .map((el, i) => (i ? el.split('').join('') : el))
-                          .join('.')
-                      );
-                    }
-                  }}
-                  keyboardType="decimal-pad"
-                />
-              </Box>
-              <HStack style={styles.inputInnerStyle}>
-                <Text semiBold color={`${colorMode}.divider`}>
-                  {getSatUnit() && `| ${getSatUnit()}`}
-                </Text>
-
-                <Pressable
-                  onPress={handleSendMax}
-                  borderColor={`${colorMode}.BrownNeedHelp`}
-                  backgroundColor={`${colorMode}.BrownNeedHelp`}
-                  style={styles.sendMaxWrapper}
-                  testID="btn_sendMax"
-                >
-                  <Text
-                    testID="text_sendmax"
-                    color={`${colorMode}.seashellWhite`}
-                    style={styles.sendMaxText}
-                    medium
-                  >
-                    Send Max
-                  </Text>
-                </Pressable>
-              </HStack>
             </Box>
-            <Box
-              backgroundColor={`${colorMode}.seashellWhite`}
-              borderColor={errorMessage ? 'light.indicator' : 'transparent'}
-              style={styles.inputWrapper}
-            >
-              <Input
-                testID="input_note"
-                backgroundColor={`${colorMode}.seashellWhite`}
-                placeholder="Add a note (optional)"
-                autoCapitalize="sentences"
-                placeholderTextColor={`${colorMode}.greenText`}
-                color={`${colorMode}.greenText`}
-                opacity={note ? 1 : 0.5}
-                width="90%"
-                fontSize={14}
-                fontWeight={300}
-                letterSpacing={1.04}
-                borderWidth="0"
-                value={note}
-                onChangeText={(value) => {
-                  setNote(value);
-                }}
-              />
-            </Box>
-            {/* <VStack
-              backgroundColor={`${colorMode}.seashellWhite`}
-              borderColor={errorMessage ? 'light.indicator' : 'transparent'}
-              style={[
-                styles.inputWrapper,
-                { flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start' },
-              ]}
-            >
-              <HStack style={styles.tagsWrapper}>
-                {labelsToAdd.map((item, index) => (
-                  <LabelItem
-                    item={item}
-                    index={index}
-                    key={`${item.name}:${item.isSystem}`}
-                    editingIndex={null}
-                    onCloseClick={onCloseClick}
-                    onEditClick={null}
-                  />
-                ))}
-              </HStack>
-              <Input
-                testID="input_label"
-                backgroundColor={`${colorMode}.seashellWhite`}
-                autoCapitalize="sentences"
-                placeholder="Add a label"
-                placeholderTextColor={`${colorMode}.greenText`}
-                opacity={label ? 1 : 0.5}
-                width="90%"
-                fontSize={14}
-                fontWeight={300}
-                letterSpacing={1.04}
-                borderWidth="0"
-                value={label}
-                onChangeText={(value) => {
-                  setLabel(value);
-                }}
-                onSubmitEditing={onAdd}
-              />
-            </VStack> */}
-            <Box style={styles.ctaBtnWrapper}>
-              <Box ml={windowWidth * -0.09}>
-                <Buttons
-                  // secondaryText="Select UTXOs"
-                  // secondaryCallback={() => {
-                  //   navigation.dispatch(
-                  //     CommonActions.navigate('UTXOSelection', { sender, amount, address })
-                  //   );
-                  // }}
-                  // secondaryDisable={Boolean(!amount || errorMessage)}
-                  primaryText="Send"
-                  primaryDisable={Boolean(!amount || errorMessage)}
-                  primaryCallback={executeSendPhaseOne}
-                />
-              </Box>
+            <Box flexDirection="row">
+              <Text fontSize={15}>{estimationSign}</Text>
+              <Text fontSize={12} style={{ marginLeft: wp(2), marginTop: wp(3.5) }}>{` ${
+                (transactionPriority === TxPriority.CUSTOM
+                  ? customEstBlocks
+                  : averageTxFees[config.NETWORK_TYPE][transactionPriority].estimatedBlocks ?? 0) *
+                10
+              } mins`}</Text>
+              <Text fontSize={12} style={{ marginLeft: wp(20), marginTop: wp(3.5) }}>
+                {transactionPriority === TxPriority.CUSTOM
+                  ? customFeePerByte
+                  : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte ?? 0}{' '}
+                sats/vbyte
+              </Text>
             </Box>
           </Box>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          {colorMode === 'light' ? <ArrowIcon height="100%" /> : <ArrowIconWhite height="100%" />}
+        </Box>
+      </TouchableOpacity>
+      <KeyPadView
+        onPressNumber={onPressNumber}
+        onDeletePressed={onDeletePressed}
+        disabled={prefillAmount || isMoveAllFunds}
+        enableDecimal
+        keyColor={`${colorMode}.keyPadText`}
+        ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
+      />
+      <Box style={styles.ctaBtnWrapper}>
+        <Buttons
+          primaryText={common.send}
+          primaryDisable={Boolean(Number(amount) <= 0 || errorMessage)}
+          primaryCallback={executeSendPhaseOne}
+          fullWidth
+        />
+      </Box>
+      <KeeperModal
+        visible={transPriorityModalVisible}
+        close={() => setTransPriorityModalVisible(false)}
+        title={walletTranslations.transactionPriority}
+        subTitle={walletTranslations.transactionPrioritySubTitle}
+        buttonText={common.confirm}
+        buttonCallback={() => {
+          setTransPriorityModalVisible(false), setTransactionPriority;
+        }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setTransPriorityModalVisible(false)}
+        Content={() => (
+          <PriorityModal
+            selectedPriority={transactionPriority}
+            setSelectedPriority={setTransactionPriority}
+            averageTxFees={averageTxFees[config.NETWORK_TYPE]}
+            customFeePerByte={customFeePerByte}
+            onOpenCustomPriorityModal={() => {
+              dispatch(customPrioritySendPhaseOneStatusReset());
+              setVisibleCustomPriorityModal(true);
+            }}
+            customEstBlocks={customEstBlocks}
+            setCustomEstBlocks={setCustomEstBlocks}
+            estimationSign={estimationSign}
+            setEstimationSign={setEstimationSign}
+          />
+        )}
+      />
+      {visibleCustomPriorityModal && (
+        <CustomPriorityModal
+          visible={visibleCustomPriorityModal}
+          close={() => setVisibleCustomPriorityModal(false)}
+          title={vault.CustomPriority}
+          secondaryButtonText={common.Goback}
+          secondaryCallback={() => setVisibleCustomPriorityModal(false)}
+          subTitle="Enter amount in sats/vbyte"
+          network={sender?.networkType}
+          recipients={[{ address, amount: 0 }]}
+          sender={sender}
+          selectedUTXOs={selectedUTXOs}
+          buttonCallback={(setCustomTxPriority, customFeePerByte) => {
+            setVisibleCustomPriorityModal(false);
+            if (setCustomTxPriority) {
+              setTransactionPriority(TxPriority.CUSTOM);
+              setCustomFeePerByte(Number(customFeePerByte));
+            } else {
+              if (customFeePerByte === '0') {
+                setTransPriorityModalVisible(false);
+                showToast('Fee rate cannot be less than 1 sat/vbyte', <ToastErrorIcon />);
+              }
+            }
+          }}
+          existingCustomPriorityFee={customFeePerByte}
+        />
+      )}
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  Container: {
+  container: {
     flex: 1,
   },
-  textInput: {
-    width: '100%',
-    backgroundColor: Colors.Isabelline,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-    padding: 20,
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginVertical: 5,
+  ctaBtnWrapper: {
+    marginTop: hp(30),
   },
-  transWrapper: {
-    marginVertical: hp(5),
-  },
-  transBorderWrapper: {
-    alignItems: 'center',
-    marginVertical: hp(20),
-  },
-  transborderView: {
-    borderBottomWidth: 1,
-    width: wp(280),
-    opacity: 0.1,
-  },
-  inputWrapper: {
-    marginVertical: hp(5),
+  RecipientInfo: {
     flexDirection: 'row',
-    width: '100%',
+    gap: 10,
+    paddingVertical: hp(15),
+    paddingHorizontal: wp(15),
+    alignItems: 'center',
+  },
+  receipientText: {
+    width: '45%',
+  },
+  dashedButton: {
+    height: hp(61),
+    width: '95%',
+    alignSelf: 'center',
+    borderRadius: 10,
+    paddingHorizontal: wp(18),
+    marginBottom: hp(10),
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderWidth: 1,
   },
-  sendMaxWrapper: {
-    paddingHorizontal: hp(10),
-    paddingVertical: hp(3),
-    borderRadius: 5,
-    borderWidth: 1,
-  },
-  inputInnerStyle: {
-    gap: 2,
-    alignItems: 'center',
-    marginLeft: -20,
-  },
-  sendMaxText: {
-    fontSize: 12,
-    letterSpacing: 0.6,
-  },
-  addNoteWrapper: {
-    flexDirection: 'row',
-    marginVertical: hp(2),
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ctaBtnWrapper: {
-    marginTop: hp(10),
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  appNumPadWrapper: {
-    width: '110%',
-    marginLeft: '-5%',
-  },
-  infoNoteWrapper: {
-    position: 'absolute',
-    bottom: hp(20),
-    alignSelf: 'center',
-    backgroundColor: Colors.Bisque,
-    opacity: 0.8,
-    paddingHorizontal: 10,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
-  },
-  infoNoteText: {
-    fontSize: 12,
-    opacity: 1,
-  },
-  infoText: {
-    color: Colors.Black,
-    fontWeight: 'bold',
-    opacity: 1,
-  },
-  tagsWrapper: {
-    marginLeft: 5,
-    flexWrap: 'wrap',
-  },
-
-  currentTypeSwitchWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '25%',
-  },
-  sendingFromWrapper: {
-    marginLeft: wp(20),
+  priorityItemLeft: {
+    gap: 3,
+    flex: 1,
   },
 });
+
 export default AddSendAmount;

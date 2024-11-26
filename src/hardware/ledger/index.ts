@@ -1,30 +1,8 @@
-import { XpubTypes } from 'src/services/wallets/enums';
-import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/services/wallets/interfaces';
-import { captureError } from 'src/services/sentry';
 import config from 'src/utils/service-utilities/config';
 
 const bscript = require('bitcoinjs-lib/src/script');
-
-export const getLedgerDetailsFromChannel = (data, isMultisig) => {
-  try {
-    const { multiSigPath, multiSigXpub, singleSigPath, singleSigXpub, mfp } = data;
-    const xpubDetails: XpubDetailsType = {};
-    xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
-    xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
-    const xpub = isMultisig ? multiSigXpub : singleSigXpub;
-    const derivationPath = isMultisig ? multiSigPath : singleSigPath;
-    return {
-      xpub,
-      derivationPath,
-      masterFingerprint: mfp,
-      xpubDetails,
-    };
-  } catch (error) {
-    captureError(error);
-  }
-};
 
 export const signWithLedgerChannel = (serializedPSBT, signingPayload: SigningPayload[], result) => {
   const psbtv0 = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });

@@ -25,7 +25,7 @@ function SignerSettings({ navigation, route }) {
         mediumTitle
         subtitle={settings.SingerSettingsSubtitle}
       />
-      <Box style={{ paddingVertical: '10%', paddingLeft: 20 }}>
+      <Box style={{ paddingVertical: '10%', paddingHorizontal: wp(10) }}>
         <OptionCard
           title={settings.deleteKeys}
           description={settings.deleteKeysSubtitle}
@@ -35,7 +35,6 @@ function SignerSettings({ navigation, route }) {
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
-        DarkCloseIcon={colorMode === 'dark'}
         close={() => setConfirmPassVisible(false)}
         title={settings.EnterPasscodeTitle}
         subTitleWidth={wp(240)}

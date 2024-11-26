@@ -100,7 +100,7 @@ function SetupOtherSDScreen({ route }) {
     }
   };
 
-  const onQrScan = async (qrData, resetQR) => {
+  const onQrScan = async (qrData) => {
     try {
       let hw: any;
       try {
@@ -142,17 +142,14 @@ function SetupOtherSDScreen({ route }) {
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
             showToast('signer added successfully', <TickIcon />, IToastCategory.SIGNING_DEVICE);
-            resetQR();
           }
         } else {
           throw new HWError(HWErrorType.INVALID_SIG);
         }
       } else {
-        resetQR();
         showToast('Please scan a valid QR', <ToastErrorIcon />);
       }
     } catch (e) {
-      resetQR();
       if (e instanceof HWError) {
         showToast(e.message, <ToastErrorIcon />);
         return;
@@ -320,7 +317,7 @@ export default SetupOtherSDScreen;
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
-    marginHorizontal: '5%',
+    marginHorizontal: '2.5%',
   },
   input: {
     margin: '5%',

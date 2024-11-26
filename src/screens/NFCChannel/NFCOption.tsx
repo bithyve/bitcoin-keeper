@@ -120,15 +120,14 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
     <>
       <Box style={styles.container}>
         <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={readFromNFC} />
-        {isIos && (
-          <OptionCTA icon={<AirDropIcon />} title="Airdrop/ file import" callback={selectFile} />
-        )}
+        <OptionCTA icon={<AirDropIcon />} title="Upload File" callback={selectFile} />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
-        <OptionCTA
+        {/* // ! Hide Remote Key */}
+        {/* <OptionCTA
           icon={<RemoteShareIcon />}
           title={isPSBT ? 'Share PSBT Link' : 'Remote Share'}
           callback={() => setRemoteShareModal(true)}
-        />
+        /> */}
       </Box>
       <KeeperModal
         close={() => setRemoteShareModal(false)}
@@ -144,7 +143,6 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonCallback={() => setRemoteShareModal(false)}
         subTitleWidth={wp(280)}

@@ -50,7 +50,6 @@ function EnterPasswordModal({
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.primaryText`}
       subTitleColor={`${colorMode}.secondaryText`}
-      DarkCloseIcon={colorMode === 'dark'}
       close={close}
       title="Enter PDF File Password"
       subTitle="Secure your BSMS PDF files by protecting them with a password of your choice."
@@ -73,7 +72,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: windowWidth * 0.7,
     fontSize: 13,
-    fontFamily: Fonts.FiraSansBold,
+    fontFamily: Fonts.InterBold,
     letterSpacing: 1,
     opacity: 0.5,
   },

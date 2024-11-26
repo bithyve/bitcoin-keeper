@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   highlightFee: {
-    fontFamily: Fonts.FiraSansCondensedBold,
+    fontFamily: Fonts.InterBold,
   },
   cardWrapper: {
     flexDirection: 'row',

@@ -14,7 +14,6 @@ import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
 import { hp, wp } from 'src/constants/responsive';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import DotView from 'src/components/DotView';
 import { useQuery } from '@realm/react';
 import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
@@ -24,6 +23,7 @@ import AdvnaceOptions from 'src/assets/images/settings.svg';
 import KeeperFooter from '../KeeperFooter';
 import HealthCheckComponent from './HealthCheckComponent';
 import KeeperModal from '../KeeperModal';
+import { Platform } from 'react-native';
 
 function Content() {
   const { colorMode } = useColorMode();
@@ -103,7 +103,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
 
   return (
     <Box>
-      <Box height={hp(520)}>
+      <Box height={'77%'}>
         <FlatList
           data={history}
           contentContainerStyle={{ flexGrow: 1 }}
@@ -138,7 +138,11 @@ function BackupHealthCheckList({ isUaiFlow }) {
         />
       </Box>
 
-      <KeeperFooter marginX={0} items={footerItems} />
+      <KeeperFooter
+        wrappedScreen={Platform.OS === 'ios' ? true : false}
+        marginX={35}
+        items={footerItems}
+      />
 
       <ModalWrapper
         visible={showConfirmSeedModal}
@@ -167,18 +171,17 @@ function BackupHealthCheckList({ isUaiFlow }) {
       <KeeperModal
         close={() => setHealthCheckModal(false)}
         visible={healthCheckModal}
-        title={BackupWallet.backupSuccessTitle}
-        subTitle={BackupWallet.backupSuccessSubTitle}
+        title={BackupWallet.healthCheckSuccessTitle}
+        subTitle={BackupWallet.healthCheckSuccessSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonText={BackupWallet.home}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonCallback={() => {
           navigtaion.navigate('Home');
         }}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => <Content />}
         closeOnOverlayClick={true}
       />

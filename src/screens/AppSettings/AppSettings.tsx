@@ -7,7 +7,7 @@ import { CommonActions } from '@react-navigation/native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import AppBackupIcon from 'src/assets/images/app_backup.svg';
-import SettingsIcon from 'src/assets/images/settings_white.svg';
+import SettingsIcon from 'src/assets/images/settings.svg';
 import WalletIcon from 'src/assets/images/manage-wallet-icon.svg';
 import CloudIcon from 'src/assets/images/cloud-white.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
@@ -113,10 +113,12 @@ function AppSettings({ navigation, route }) {
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={<SettingsIcon />}
+            icon={<SettingsIcon width={23} height={23} />}
           />
         }
         rightComponent={<CurrencyTypeSwitch />}
+        rightComponentPadding={wp(10)}
+        rightComponentBottomPadding={hp(5)}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -149,6 +151,11 @@ function AppSettings({ navigation, route }) {
           }
         />
         <OptionCard
+          title={settings.GeneralPreferences}
+          description={settings.CurrencyDefaultsSubtitle}
+          callback={() => navigation.navigate('ChangeLanguage')}
+        />
+        <OptionCard
           title={settings.SecurityAndLogin}
           description={settings.SecurityAndLoginSubtitle}
           callback={() => navigation.navigate('PrivacyAndDisplay')}
@@ -168,11 +175,6 @@ function AppSettings({ navigation, route }) {
           description={settings.VersionHistorySubTitle}
           callback={() => navigation.navigate('AppVersionHistory')}
         />
-        <OptionCard
-          title={settings.CurrencyDefaults}
-          description={settings.CurrencyDefaultsSubtitle}
-          callback={() => navigation.navigate('ChangeLanguage')}
-        />
       </ScrollView>
       <Box backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.bottomNav}>
@@ -189,7 +191,7 @@ function AppSettings({ navigation, route }) {
         </Box>
         <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Pressable
-            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
+            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/terms-of-service/`)}
             testID="btn_termsCondition"
           >
             <Text
@@ -202,7 +204,7 @@ function AppSettings({ navigation, route }) {
           </Pressable>
           <Text color={`${colorMode}.textColor2`}>|</Text>
           <Pressable
-            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
+            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/privacy-policy/`)}
             testID="btn_privacyPolicy"
           >
             <Text
@@ -232,6 +234,7 @@ function AppSettings({ navigation, route }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
+              setConfirmPassVisible(false);
               setBackupModalVisible(true);
             }}
           />
@@ -240,14 +243,19 @@ function AppSettings({ navigation, route }) {
       <KeeperModal
         visible={backupModalVisible}
         close={() => setBackupModalVisible(false)}
-        title="Backup Recovery Key"
-        subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
+        title={settings.RKBackupTitle}
+        subTitle={settings.RKBackupSubTitle}
         subTitleWidth={wp(300)}
+        showCloseIcon={false}
+        dismissible
+        closeOnOverlayClick
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
-        showCloseIcon={false}
-        buttonText="Backup Now"
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setBackupModalVisible(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
+        buttonText={common.backupNow}
         buttonCallback={() => {
           setBackupModalVisible(false);
           navigation.dispatch(

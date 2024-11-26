@@ -6,6 +6,7 @@ import Buttons from 'src/components/Buttons';
 import { cryptoRandom } from 'src/utils/service-utilities/encryption';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
+import KeeperTextInput from '../KeeperTextInput';
 
 function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);
@@ -101,10 +102,8 @@ function ConfirmSeedWord(props) {
         <Text style={styles.noOfWord}>{`${BackupWallet.enterThe} ${getSeedNumber(index)} ${
           BackupWallet.seedWord
         }`}</Text>
-        <Input
+        <KeeperTextInput
           placeholder={BackupWallet.enterSeedWordPlaceholder}
-          placeholderTextColor={`${colorMode}.secondaryText`}
-          backgroundColor={`${colorMode}.seashellWhite`}
           value={seedWord}
           autoCorrect={false}
           autoComplete="off"
@@ -115,11 +114,7 @@ function ConfirmSeedWord(props) {
             setInvalid(false);
           }}
           fontWeight={seedWord ? 500 : 200}
-          style={styles.inputField}
           borderRadius={10}
-          marginY={2}
-          height={10}
-          borderWidth="0"
         />
       </Box>
       {invalid && (
@@ -159,10 +154,6 @@ const styles = StyleSheet.create({
   noOfWord: {
     fontSize: 13,
     marginLeft: 5,
-  },
-  inputField: {
-    fontSize: 13,
-    letterSpacing: 0.96,
   },
   seedWordNote: {
     marginVertical: 30,

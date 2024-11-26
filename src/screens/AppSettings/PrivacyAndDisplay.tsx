@@ -14,7 +14,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
-import { InteractionManager, StyleSheet, TouchableOpacity } from 'react-native';
+import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import { sentryConfig } from 'src/services/sentry';
@@ -32,15 +32,19 @@ import { BackupType } from 'src/models/enums/BHR';
 import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import PasscodeLockIllustration from 'src/assets/images/passwordlock.svg';
 import BackupModalContent from './BackupModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import Text from 'src/components/KeeperText';
+import { resetCredsChanged } from 'src/store/reducers/login';
+import Buttons from 'src/components/Buttons';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
+function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
 
@@ -51,12 +55,11 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
   const [passcodeFlag, setPasscodeFlag] = useState(true);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
   const { credsChanged } = useAppSelector((state) => state.login);
-  const { showToast } = useToastMessage();
 
   useEffect(() => {
     if (credsChanged === 'changed') {
+      onCredsChange();
       setConfirmPasscodeModal(false);
-      showToast('Passcode updated successfully');
     }
   }, [credsChanged]);
 
@@ -130,26 +133,18 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
     <Box>
       <Box>
         {login.newPasscode}
-        <PinInputsView
-          backgroundColor={true}
-          passCode={passcode}
-          passcodeFlag={passcodeFlag}
-          borderColor="transparent"
-          textColor={true}
-        />
+        <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} borderColor="transparent" />
       </Box>
       {passcode.length === 4 && (
         <>
           <Box>
             {login.confirmNewPasscode}
             <PinInputsView
-              backgroundColor={true}
               passCode={confirmPasscode}
               passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
               borderColor="transparent"
-              textColor={true}
             />
-            <Box mb={5}>
+            <Box>
               {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
                 <Text style={[styles.errorText, { color: 'light.CongoPink' }]}>
                   {login.MismatchPasscode}
@@ -158,19 +153,15 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
             </Box>
           </Box>
 
-          <Box alignItems="flex-end">
+          <Box mb={hp(5)}>
             {passcode.length === 4 && passcode === confirmPasscode && (
-              <TouchableOpacity
-                onPress={() => {
+              <Buttons
+                primaryText={common.confirm}
+                primaryCallback={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
                 }}
-              >
-                <Box style={styles.cta} backgroundColor={`${colorMode}.primaryGreenBackground`}>
-                  <Text style={styles.ctaText} bold>
-                    {common.confirm}
-                  </Text>
-                </Box>
-              </TouchableOpacity>
+                fullWidth
+              />
             )}
           </Box>
         </>
@@ -179,7 +170,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
         disabled={false}
         onDeletePressed={onDeletePressed}
         onPressNumber={onPressNumber}
-        ClearIcon={<DeleteIcon />}
+        ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         keyColor={`${colorMode}.primaryText`}
       />
     </Box>
@@ -200,13 +191,15 @@ function PrivacyAndDisplay({ route }) {
     oldPasscode?: string;
   } = route?.params || {};
 
-  const [sensorType, setSensorType] = useState('Biometrics');
+  const [sensorType, setSensorType] = useState(null);
+  const [sensorAvailable, setSensorAvailable] = useState(false);
   const [visiblePasscode, setVisiblePassCode] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
   const [confirmPasscode, setConfirmPasscode] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [RKHealthCheckModal, setRKHealthCheckModal] = useState(false);
+  const [passcodeHCModal, setPasscodeHCModal] = useState(false);
 
   const { translations, formatString } = useContext(LocalizationContext);
   const { settings, common } = translations;
@@ -220,26 +213,48 @@ function PrivacyAndDisplay({ route }) {
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [isToggling, setIsToggling] = useState(false);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(app.enableAnalytics);
+  const [credsChanged, setCredsChanged] = useState('');
 
-  const toggleSentryReports = async () => {
-    if (inProgress || isToggling) return;
+  useEffect(() => {
+    if (credsChanged === 'changed') {
+      showToast('Passcode updated successfully');
+      dispatch(resetCredsChanged());
+      setCredsChanged('');
+    }
+  }, [credsChanged]);
+
+  const toggleSentryReports = (newValue) => {
+    setAnalyticsEnabled(newValue);
+    runAsyncAnalyticsToggle(newValue);
+  };
+
+  const runAsyncAnalyticsToggle = async (newValue) => {
+    const lastAction = newValue;
+
+    if (isToggling) return;
     setIsToggling(true);
 
-    dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-      enableAnalytics: !analyticsEnabled,
-    });
-
     try {
-      InteractionManager.runAfterInteractions(async () => {
-        if (!analyticsEnabled) {
-          await start(() => Sentry.init(sentryConfig));
-        } else {
-          await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
-        }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      if (lastAction !== newValue) {
+        setIsToggling(false);
+        return;
+      }
+
+      await dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+        enableAnalytics: newValue,
       });
+
+      if (newValue) {
+        await start(() => Sentry.init(sentryConfig));
+      } else {
+        await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
+      }
     } catch (error) {
+      setAnalyticsEnabled(!newValue);
       dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-        enableAnalytics: analyticsEnabled,
+        enableAnalytics: !newValue,
       });
       console.error('Failed to toggle Sentry analytics:', error);
     } finally {
@@ -270,6 +285,7 @@ function PrivacyAndDisplay({ route }) {
     try {
       const { available, biometryType } = await RNBiometrics.isSensorAvailable();
       if (available) {
+        setSensorAvailable(available);
         const type =
           biometryType === 'TouchID'
             ? 'Touch ID'
@@ -283,6 +299,10 @@ function PrivacyAndDisplay({ route }) {
     }
   };
 
+  const requestPermission = () => {
+    Linking.openSettings();
+  };
+
   const onChangeLoginMethod = async () => {
     try {
       const { available } = await RNBiometrics.isSensorAvailable();
@@ -290,19 +310,20 @@ function PrivacyAndDisplay({ route }) {
         if (loginMethod === LoginMethod.PIN) {
           const { keysExist } = await RNBiometrics.biometricKeysExist();
           if (keysExist) {
-            await RNBiometrics.createKeys();
+            await RNBiometrics.deleteKeys();
           }
-          const { publicKey } = await RNBiometrics.createKeys();
           const { success } = await RNBiometrics.simplePrompt({
             promptMessage: 'Confirm your identity',
           });
           if (success) {
+            const { publicKey } = await RNBiometrics.createKeys();
             dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
           }
         } else {
           dispatch(changeLoginMethod(LoginMethod.PIN));
         }
       } else {
+        setSensorAvailable(false);
         showToast(
           'Biometrics not enabled.\nPlease go to setting and enable it',
           <ToastErrorIcon />
@@ -310,6 +331,7 @@ function PrivacyAndDisplay({ route }) {
       }
     } catch (error) {
       console.log(error);
+      setSensorAvailable(false);
     }
   };
 
@@ -320,15 +342,34 @@ function PrivacyAndDisplay({ route }) {
         <Box style={styles.wrapper}>
           <Box>
             <OptionCard
-              title={sensorType}
-              description={formatString(settings.UseBiometricSubTitle, sensorType)}
+              title={sensorType || 'Biometrics'}
+              description={
+                sensorType
+                  ? formatString(settings.UseBiometricSubTitle, sensorType)
+                  : settings.NoBiometricSubTitle
+              }
               callback={() => onChangeLoginMethod()}
+              disabled={!sensorType}
               Icon={
-                <Switch
-                  onValueChange={(value) => onChangeLoginMethod()}
-                  value={loginMethod === LoginMethod.BIOMETRIC}
-                  testID="switch_biometrics"
-                />
+                sensorAvailable || !sensorType ? (
+                  <Switch
+                    onValueChange={onChangeLoginMethod}
+                    value={loginMethod === LoginMethod.BIOMETRIC}
+                    testID="switch_biometrics"
+                    loading={!sensorType}
+                  />
+                ) : (
+                  <TouchableOpacity onPress={requestPermission}>
+                    <Box
+                      style={styles.settingsCTA}
+                      backgroundColor={`${colorMode}.coffeeBackground`}
+                    >
+                      <Text style={styles.settingsCTAText} bold color={`${colorMode}.whiteText`}>
+                        Enable {sensorType}
+                      </Text>
+                    </Box>
+                  </TouchableOpacity>
+                )
               }
             />
             <OptionCard
@@ -336,8 +377,8 @@ function PrivacyAndDisplay({ route }) {
               description={settings.shareAnalyticsDesc}
               Icon={
                 <Switch
-                  onValueChange={async () => await toggleSentryReports()}
-                  value={app.enableAnalytics}
+                  onValueChange={(value) => toggleSentryReports(value)}
+                  value={analyticsEnabled}
                   testID="switch_darkmode"
                 />
               }
@@ -370,7 +411,6 @@ function PrivacyAndDisplay({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             primaryText="Confirm"
@@ -383,10 +423,32 @@ function PrivacyAndDisplay({ route }) {
                 setOldPassword(password);
               } else {
                 setOldPassword(password);
-                setShowConfirmSeedModal(true);
+                setPasscodeHCModal(true);
               }
             }}
           />
+        )}
+      />
+      <KeeperModal
+        visible={passcodeHCModal}
+        close={() => setPasscodeHCModal(false)}
+        title={settings.passcodeHCModalTitle}
+        subTitle={settings.passcodeHCModalSubTitle}
+        buttonText={common.continue}
+        buttonCallback={() => {
+          setPasscodeHCModal(false);
+          setShowConfirmSeedModal(true);
+        }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setPasscodeHCModal(false)}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <Box style={styles.PasscodeHCModal}>
+            <PasscodeLockIllustration width={wp(160)} height={hp(125)} />
+            <Text color={`${colorMode}.secondaryText`}>{settings.passcodeHCModalDesc}</Text>
+          </Box>
         )}
       />
       <ModalWrapper
@@ -420,13 +482,16 @@ function PrivacyAndDisplay({ route }) {
         close={() => {
           setConfirmPasscode(false);
         }}
-        title="Change passcode"
+        title={settings.changePasscode}
         subTitleWidth={wp(240)}
-        modalBackground={`${colorMode}.learMoreTextcolor`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => (
-          <ConfirmPasscode setConfirmPasscodeModal={setConfirmPasscode} oldPassword={oldPassword} />
+          <ConfirmPasscode
+            setConfirmPasscodeModal={setConfirmPasscode}
+            oldPassword={oldPassword}
+            onCredsChange={() => setCredsChanged('changed')}
+          />
         )}
       />
       <KeeperModal
@@ -462,6 +527,9 @@ function PrivacyAndDisplay({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setBackupModalVisible(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
         buttonText={common.backupNow}
         buttonCallback={() => {
           setBackupModalVisible(false);
@@ -483,6 +551,8 @@ const styles = StyleSheet.create({
   wrapper: {
     marginTop: hp(35),
     gap: 50,
+    width: '95%',
+    alignSelf: 'center',
   },
   note: {
     position: 'absolute',
@@ -510,6 +580,23 @@ const styles = StyleSheet.create({
   },
   RKContentCotainer: {
     marginBottom: hp(10),
+  },
+  PasscodeHCModal: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 30,
+  },
+  settingsCTA: {
+    borderRadius: 10,
+    width: 'auto',
+    marginLeft: wp(15),
+    paddingHorizontal: wp(10),
+    height: hp(20),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  settingsCTAText: {
+    fontSize: 10,
   },
 });
 export default PrivacyAndDisplay;

@@ -111,6 +111,13 @@ export enum SignerType {
   UNKOWN_SIGNER = 'UNKNOWN_SIGNER',
   SPECTER = 'SPECTER',
   ADVISOR_KEY = 'ADVISOR_KEY',
+  PORTAL = 'PORTAL',
+}
+
+export enum SignerCategory {
+  HARDWARE = 'HARDWARE',
+  SOFTWARE = 'SOFTWARE',
+  ASSISTED = 'ASSISTED',
 }
 
 export enum PaymentInfoKind {
@@ -189,12 +196,20 @@ export enum KeyGenerationMode {
   NFC = 'NFC',
   FILE = 'FILE',
   QR = 'QR',
+  USB = 'USB',
 }
 
 export enum SigningMode {
   NFC = 'NFC',
   FILE = 'FILE',
   QR = 'QR',
+  USB = 'USB',
+}
+
+export enum RKInteractionMode {
+  SHARE_REMOTE_KEY = 'SHARE_REMOTE_KEY',
+  SHARE_PSBT = 'SHARE_PSBT',
+  SHARE_SIGNED_PSBT = 'SHARE_SIGNED_PSBT',
 }
 
 export enum MultisigScriptType {

@@ -207,15 +207,6 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
     }
   }, [selectedAccount]);
 
-  const updateSelectedWallet = (selectedAccount) => {
-    const walletAccount: Wallet = getWalletBasedOnAccount(
-      wallet,
-      whirlpoolWalletAccountMap,
-      selectedAccount
-    );
-    setSelectedWallet(walletAccount);
-  };
-
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs
         ?.map((utxo) => {
@@ -254,16 +245,18 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
   );
 
   return (
-    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+    <ScreenWrapper paddingHorizontal={0} backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <KeeperHeader
-        // learnMore
-        learnMorePressed={() => setLearnModalVisible(true)}
-        learnTextColor={`${colorMode}.white`}
-        title={wallet?.presentationData?.name}
-        subtitle={wallet?.presentationData?.description}
-        icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
-      />
+      <Box marginLeft={5}>
+        <KeeperHeader
+          // learnMore
+          learnMorePressed={() => setLearnModalVisible(true)}
+          learnTextColor={`${colorMode}.buttonText`}
+          title={wallet?.presentationData?.name}
+          subtitle={wallet?.presentationData?.description}
+          icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
+        />
+      </Box>
       <Box style={styles.contentContainer}>
         {/* {isWhirlpoolWallet && (
           <AccountSelectionTab
@@ -287,28 +280,30 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
           selectedAccount={selectedAccount}
           initateWhirlpoolMix={initateWhirlpoolMix}
         />
-        {utxos?.length ? (
-          <Footer
-            utxos={utxos}
-            setInitiateWhirlpool={setInitiateWhirlpool}
-            setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-            depositWallet={depositWallet}
-            wallet={selectedWallet}
-            setEnableSelection={setEnableSelection}
-            initiateWhirlpool={initiateWhirlpool}
-            initateWhirlpoolMix={initateWhirlpoolMix}
-            setIsRemix={setIsRemix}
-            isRemix={isRemix}
-            enableSelection={enableSelection}
-            selectedUTXOs={selectedUTXOs}
-            setShowBatteryWarningModal={setShowBatteryWarningModal}
-            setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
-            selectedAccount={selectedAccount}
-            setRemixingToVault={setRemixingToVault}
-            remixingToVault={remixingToVault}
-            vaultId={vaultId}
-          />
-        ) : null}
+        <Box marginTop={hp(15)}>
+          {utxos?.length ? (
+            <Footer
+              utxos={utxos}
+              setInitiateWhirlpool={setInitiateWhirlpool}
+              setInitateWhirlpoolMix={setInitateWhirlpoolMix}
+              depositWallet={depositWallet}
+              wallet={selectedWallet}
+              setEnableSelection={setEnableSelection}
+              initiateWhirlpool={initiateWhirlpool}
+              initateWhirlpoolMix={initateWhirlpoolMix}
+              setIsRemix={setIsRemix}
+              isRemix={isRemix}
+              enableSelection={enableSelection}
+              selectedUTXOs={selectedUTXOs}
+              setShowBatteryWarningModal={setShowBatteryWarningModal}
+              setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
+              selectedAccount={selectedAccount}
+              setRemixingToVault={setRemixingToVault}
+              remixingToVault={remixingToVault}
+              vaultId={vaultId}
+            />
+          ) : null}
+        </Box>
       </Box>
       <KeeperModal
         justifyContent="flex-end"
@@ -418,6 +413,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     marginTop: hp(30),
+    marginBottom: hp(15),
   },
 });
 

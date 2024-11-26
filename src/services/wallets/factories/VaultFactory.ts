@@ -114,13 +114,14 @@ export const generateVault = async ({
     shell: defaultShell,
   };
 
-  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
+  const isMultiSig = scheme.n !== 1; // single key Vault is BIP-84 P2WPKH single-sig and not 1-of-1 BIP-48 P2WSH multi-sig
   const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
 
   const specs: VaultSpecs = {
     xpubs,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
+    totalExternalAddresses: 1,
     confirmedUTXOs: [],
     unconfirmedUTXOs: [],
     balances: {
@@ -363,6 +364,7 @@ export const MOCK_SD_MNEMONIC_MAP = {
     'journey gospel position invite winter pattern inquiry scrub sorry early enable badge',
   [SignerType.SPECTER]:
     'journey invite inquiry day among poverty inquiry affair keen pave nasty position',
+  [SignerType.PORTAL]: 'spring input elevator wire people floor scan weird weekend belt hip lava',
 };
 
 export const generateMockExtendedKeyForSigner = (
