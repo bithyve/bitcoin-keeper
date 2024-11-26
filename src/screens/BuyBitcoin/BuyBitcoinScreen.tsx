@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Linking, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -14,7 +14,6 @@ import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import Breadcrumbs from 'src/components/Breadcrumbs';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { EntityKind, VaultType } from 'src/services/wallets/enums';
 
@@ -22,7 +21,7 @@ function BuyBitcoinScreen({ route }) {
   const { colorMode } = useColorMode();
   const { currencyCode } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, ramp: rampTranslations } = translations;
 
   const { wallet } = route.params;
   const receivingAddress = wallet.specs.receivingAddress;
@@ -87,7 +86,7 @@ function BuyBitcoinScreen({ route }) {
 
         <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
-            Address for ramp transactions
+            {rampTranslations.addressForRamp}
           </Text>
           <Box style={styles.iconContainer}>
             <HexagonIcon
@@ -111,6 +110,7 @@ function BuyBitcoinScreen({ route }) {
           </Box>
         </Box>
       </Box>
+      <Box style={styles.flexSpacer} />
 
       <Text color={`${colorMode}.black`} style={styles.buyBtcContent}>
         By proceeding, you understand that Ramp will process the payment and transfer for the
@@ -118,10 +118,10 @@ function BuyBitcoinScreen({ route }) {
       </Text>
 
       <Box style={styles.footer}>
-        <Breadcrumbs totalScreens={3} currentScreen={2} />
         <Buttons
           primaryText={common.proceed}
           primaryCallback={() => buyWithRamp(receivingAddress)}
+          fullWidth
         />
       </Box>
     </ScreenWrapper>
@@ -132,8 +132,8 @@ export default BuyBitcoinScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginHorizontal: 10,
+    marginTop: hp(50),
+    marginHorizontal: wp(10),
     justifyContent: 'center',
   },
   iconContainer: {
@@ -142,8 +142,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     flexDirection: 'row',
-    marginHorizontal: 20,
-    marginVertical: 10,
+    marginHorizontal: '3%',
+    marginVertical: hp(10),
     alignItems: 'center',
     justifyContent: 'space-between',
   },
@@ -151,14 +151,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 0.13,
     lineHeight: 20,
-    width: wp(220),
-    marginHorizontal: 20,
-    marginVertical: 20,
+    width: wp(290),
+    marginHorizontal: wp(10),
+    marginVertical: hp(20),
   },
   toWalletWrapper: {
     height: hp(110),
-    marginTop: 20,
-    paddingHorizontal: 20,
+    marginTop: hp(20),
+    paddingHorizontal: wp(20),
     borderRadius: 10,
     justifyContent: 'center',
     gap: 12,
@@ -172,5 +172,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.14,
     lineHeight: 20,
+  },
+  flexSpacer: {
+    flex: 1,
   },
 });

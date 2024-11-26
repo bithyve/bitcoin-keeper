@@ -1,4 +1,4 @@
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import React, { useState } from 'react';
 import OptionCard from 'src/components/OptionCard';
 import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
@@ -8,8 +8,6 @@ import useWallets from 'src/hooks/useWallets';
 import { WalletType } from 'src/services/wallets/enums';
 import { CommonActions } from '@react-navigation/native';
 import { VaultScheme } from 'src/services/wallets/interfaces/vault';
-import usePlan from 'src/hooks/usePlan';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import KeeperModal from 'src/components/KeeperModal';
 import SignerCard from '../AddSigner/SignerCard';
 import AirGappedIcon from 'src/assets/images/airgapped.svg';
@@ -21,8 +19,7 @@ enum SingleKeyOptions {
 }
 function Wallets({ navigation }) {
   const { wallets } = useWallets({ getAll: true });
-  const { plan } = usePlan();
-  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
+  const { colorMode } = useColorMode();
 
   const [singleKeyOptions, setSingleKeyOptions] = useState(false);
   const [selectedSingleKeyOption, setselectedSingleKeyOption] = useState(
@@ -31,11 +28,7 @@ function Wallets({ navigation }) {
 
   const handleSingleKey = () => {
     setSingleKeyOptions(false);
-    if (selectedSingleKeyOption === SingleKeyOptions.HOT_WALLET) {
-      navigateToWalletCreation();
-    } else {
-      navigation.navigate('AddSigningDevice', { scheme: { m: 1, n: 1 }, isSSAddition: true });
-    }
+    navigateToWalletCreation();
   };
 
   const navigateToVaultSetup = (scheme: VaultScheme) => {
@@ -43,14 +36,16 @@ function Wallets({ navigation }) {
   };
 
   const navigateToWalletCreation = () => {
+    const isHotWallet = selectedSingleKeyOption === SingleKeyOptions.HOT_WALLET;
     navigation.navigate('EnterWalletDetail', {
-      name: `Wallet ${wallets.length + 1}`,
+      name: isHotWallet ? `Wallet ${wallets.length + 1}` : '',
       description: '',
       type: WalletType.DEFAULT,
+      isHotWallet: isHotWallet,
     });
   };
 
-  const handleCollaaborativeWalletCreation = () => {
+  const handleCollaborativeWalletCreation = () => {
     navigation.navigate('SetupCollaborativeWallet');
   };
 
@@ -63,7 +58,7 @@ function Wallets({ navigation }) {
     },
     {
       name: SingleKeyOptions.AIR_GAPPED,
-      title: 'Air Gapped',
+      title: 'Cold wallet',
       icon: <AirGappedIcon />,
       subTitle: 'Choose a key',
     },
@@ -90,7 +85,7 @@ function Wallets({ navigation }) {
               onCardSelect={() => {
                 setselectedSingleKeyOption(option.name);
               }}
-              colorMode="light"
+              colorMode={colorMode}
             />
           ))}
       </View>
@@ -101,7 +96,7 @@ function Wallets({ navigation }) {
     <Box>
       <OptionCard
         title="Single-key wallet"
-        description="Create a Hot Wallet or an Air-gapped Wallet"
+        description="Create a wallet using a single key"
         LeftIcon={<WalletGreenIcon />}
         callback={() => setSingleKeyOptions(true)}
       />
@@ -122,13 +117,13 @@ function Wallets({ navigation }) {
         title="Collaborative"
         description="With contacts/devices"
         LeftIcon={<CollaborativeIcon />}
-        callback={handleCollaaborativeWalletCreation}
+        callback={handleCollaborativeWalletCreation}
       />
       <KeeperModal
         visible={singleKeyOptions}
         close={() => setSingleKeyOptions(false)}
         title={'Single-key wallet'}
-        subTitle={'Create a Hot Wallet or an Air-gapped Wallet'}
+        subTitle={'Create a wallet using a single key'}
         buttonText={'Proceed'}
         buttonCallback={handleSingleKey}
         Content={Content}

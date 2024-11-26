@@ -84,22 +84,22 @@ function CloudBackupScreen() {
           dispatch(backupBsmsOnCloud(value || ''));
         }}
       />
-
-      <KeeperHeader
-        title={strings.cloudBackup}
-        subtitle={`On your ${cloudName}`}
-        learnMore={true}
-        learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-        learnTextColor={`${colorMode}.white`}
-        learnMorePressed={() => setShowModal(true)}
-        icon={
-          <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={<CloudIcon />}
-          />
-        }
-      />
-
+      <Box width={'100%'}>
+        <KeeperHeader
+          title={strings.cloudBackup}
+          subtitle={`On your ${cloudName}`}
+          learnMore={true}
+          learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
+          learnTextColor={`${colorMode}.buttonText`}
+          learnMorePressed={() => setShowModal(true)}
+          icon={
+            <CircleIconWrapper
+              backgroundColor={`${colorMode}.primaryGreenBackground`}
+              icon={<CloudIcon />}
+            />
+          }
+        />
+      </Box>
       <Text style={styles.textTitle}>{strings.recentHistory}</Text>
 
       <FlatList
@@ -138,19 +138,25 @@ function CloudBackupScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-      <Buttons
-        primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
-        primaryCallback={() => {
-          if (allVaults.length === 0) {
-            showToast('No vaults found.', <ToastErrorIcon />);
-          } else {
-            setShowPasswordModal(true);
-          }
-        }}
-        primaryLoading={loading}
-        secondaryText={isBackupAllowed ? strings.healthCheck : ''}
-        secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
-      />
+      <Box
+        alignSelf={!isBackupAllowed ? 'center' : 'flex-end'}
+        width={!isBackupAllowed ? '93%' : '100%'}
+      >
+        <Buttons
+          primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
+          primaryCallback={() => {
+            if (allVaults.length === 0) {
+              showToast('No vaults found.', <ToastErrorIcon />);
+            } else {
+              setShowPasswordModal(true);
+            }
+          }}
+          primaryLoading={loading}
+          secondaryText={isBackupAllowed ? strings.healthCheck : ''}
+          secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
+          fullWidth
+        />
+      </Box>
       <KeeperModal
         visible={showModal}
         close={() => {
@@ -162,27 +168,25 @@ function CloudBackupScreen() {
         title={strings.cloudBackupModalTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        DarkCloseIcon={colorMode === 'dark'}
-        learnMore
-        learnMoreTitle={common.needHelp}
-        showCloseIcon={true}
-        learnMoreCallback={() => {
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryCallback={() => {
           setShowModal(false);
           if (setBackupModal) {
             dispatch(setBackupModal(false));
           }
           dispatch(goToConcierge([ConciergeTag.SETTINGS], 'cloud-backup'));
         }}
-        buttonText={common.ok}
-        Content={() => modalContent()}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => {
           setShowModal(false);
           if (setBackupModal) {
             dispatch(setBackupModal(false));
           }
         }}
+        Content={() => modalContent()}
       />
     </ScreenWrapper>
   );
@@ -201,14 +205,11 @@ const styles = StyleSheet.create({
   },
   textTitle: {
     fontSize: 16,
-    marginTop: 25,
-    letterSpacing: 0.16,
-    marginHorizontal: 20,
+    padding: '7%',
   },
   backupModalDesc: {
     fontWeight: 400,
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     padding: 1,
     marginBottom: 15,
     width: wp(295),

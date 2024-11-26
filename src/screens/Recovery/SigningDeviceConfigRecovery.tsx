@@ -144,10 +144,10 @@ function SigningDeviceConfigRecovery({ navigation }) {
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
-              <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
+              <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
               <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
-                {SDIcons(type).Logo}
+                {SDIcons(type, colorMode === 'dark').Logo}
                 <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
                   {message}
                 </Text>
@@ -161,12 +161,11 @@ function SigningDeviceConfigRecovery({ navigation }) {
           visible={visible && type === SignerType.COLDCARD}
           close={close}
           title="Recover using Coldcard"
-          subTitle="Keep your Coldcard ready"
+          subTitle="Get your Coldcard ready"
           buttonText="Proceed"
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
           buttonCallback={() => {
             navigation.dispatch(
               CommonActions.navigate({
@@ -182,11 +181,11 @@ function SigningDeviceConfigRecovery({ navigation }) {
         <KeeperModal
           visible={visible && type === SignerType.PASSPORT}
           close={close}
-          title="Recover using Passport (Batch 2)"
-          subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
+          title="Recover using Passport"
+          subTitle="Get your Foundation Passport ready before proceeding"
           subTitleColor={`${colorMode}.secondaryText`}
           buttonText="Continue"
-          buttonTextColor={`${colorMode}.white`}
+          buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={() => {
             navigation.dispatch(
               CommonActions.navigate({

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, Platform, StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -18,7 +18,7 @@ import AdvnaceOptions from 'src/assets/images/settings.svg';
 import Change from 'src/assets/images/change.svg';
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import SkipHealthCheck from 'src/assets/images/skipHealthCheck.svg';
-import MobileKeyModalIllustration from 'src/assets/images/passwordlock.svg';
+import MobileKeyModalIllustration from 'src/assets/images/mobile-key-illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
@@ -29,7 +29,7 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import InhertanceKeyIcon from 'src/assets/images/illustration-inheritance-key.svg';
+import InhertanceKeyIcon from 'src/assets/images/inheritance-key-illustration.svg';
 import EmptyState from 'src/assets/images/key-empty-state-illustration.svg';
 import { SignerType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
@@ -44,7 +44,6 @@ import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
@@ -65,6 +64,7 @@ import BackupModalContent from 'src/screens/AppSettings/BackupModal';
 import DotView from 'src/components/DotView';
 import Note from 'src/components/Note/Note';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { getPersistedDocument } from 'src/services/documents';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -104,7 +104,7 @@ const getSignerContent = (type: SignerType) => {
           'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signer using inexpensive, publicly available hardware components (usually < $50).',
         assert: <SeedSigner />,
         description:
-          '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022  It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
+          '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022 It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
         FAQ: 'https://seedsigner.com/faqs/',
       };
     case SignerType.KEYSTONE:
@@ -242,11 +242,14 @@ function SigningDeviceDetails({ route }) {
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const { showToast } = useToastMessage();
   const { activeVault } = useVault({ vaultId });
-  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+  const { primaryMnemonic, id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
   const { keyHeathCheckSuccess, keyHeathCheckError } = useAppSelector((state) => state.vault);
   const { entityBasedIndicator } = useIndicatorHook({ entityId: signerId });
+  const { typeBasedIndicator } = useIndicatorHook({
+    types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
+  });
   const [healthCheckArray, setHealthCheckArray] = useState([]);
   const [showMobileKeyModal, setShowMobileKeyModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -344,7 +347,12 @@ function SigningDeviceDetails({ route }) {
       Icon: () => (
         <FooterIcon
           Icon={HealthCheck}
-          showDot={entityBasedIndicator?.[signerId]?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]}
+          showDot={
+            (signer.type !== SignerType.MY_KEEPER &&
+              entityBasedIndicator?.[signerId]?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]) ||
+            (signer.type === SignerType.MY_KEEPER &&
+              typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId])
+          }
         />
       ),
       onPress: () => {
@@ -394,29 +402,32 @@ function SigningDeviceDetails({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
-        learnMorePressed={() => setDetailModal(true)}
-        learnTextColor={`${colorMode}.white`}
-        title={signerTranslations.keyDetails}
-        subtitle={
-          !signer.isBIP85
-            ? `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
-              `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
-            : `For ${getSignerNameFromType(signer.type, signer.isMock, false) + ' +'}` ||
-              `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
-        }
-        icon={
-          <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={SDIcons(signer.type, true).Icon}
-          />
-        }
-        rightComponent={<CurrencyTypeSwitch />}
-      />
-      <Box>
-        <Text style={styles.recentHistoryText}>Recent History</Text>
+      <Box width={'100%'}>
+        <KeeperHeader
+          learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
+          learnMorePressed={() => setDetailModal(true)}
+          learnTextColor={`${colorMode}.buttonText`}
+          mediumTitle
+          title={signerTranslations.keyDetails}
+          subtitle={
+            !signer.isBIP85
+              ? `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
+                `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+              : `For ${getSignerNameFromType(signer.type, signer.isMock, false) + ' +'}` ||
+                `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+          }
+          icon={
+            <CircleIconWrapper
+              backgroundColor={`${colorMode}.primaryGreenBackground`}
+              icon={SDIcons(signer.type, true, 26, 26).Icon}
+              image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
+            />
+          }
+        />
       </Box>
+      <Text style={styles.recentHistoryText} medium>
+        Recent History
+      </Text>
       <ScrollView contentContainerStyle={styles.flex1}>
         <Box style={styles.healthCheckContainer}>
           {showLoader ? (
@@ -482,7 +493,11 @@ function SigningDeviceDetails({ route }) {
           />
         </Box>
       )}
-      <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
+      <KeeperFooter
+        marginX={!vaultKey && 30}
+        wrappedScreen={Platform.OS === 'ios' ? true : false}
+        items={footerItems}
+      />
       <HardwareModalMap
         type={signer?.type}
         visible={visible}
@@ -506,7 +521,7 @@ function SigningDeviceDetails({ route }) {
         subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
         buttonText="Confirm Access"
         secondaryButtonText="Confirm Later"
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           dispatch(
             healthCheckStatusUpdate([
@@ -542,19 +557,19 @@ function SigningDeviceDetails({ route }) {
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        learnMoreCallback={() => {
+        Content={SignerContent}
+        subTitleWidth={wp(280)}
+        DarkCloseIcon
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryCallback={() => {
           setDetailModal(false);
           dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'));
         }}
-        Content={SignerContent}
-        subTitleWidth={wp(280)}
-        buttonText={common.ok}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => setDetailModal(false)}
-        DarkCloseIcon
-        learnMore
-        learnMoreTitle={common.needHelp}
       />
       <KeeperModal
         visible={showMobileKeyModal}
@@ -575,7 +590,7 @@ function SigningDeviceDetails({ route }) {
         }}
         secondaryButtonText={common.back}
         secondaryCallback={() => setShowMobileKeyModal(false)}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={MobileKeyModalContent}
       />
@@ -682,8 +697,7 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   contentDescription: {
-    fontSize: 13,
-    letterSpacing: 0.65,
+    fontSize: 14,
     marginTop: hp(25),
   },
   circleIcon: {

@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from 'src/components/KeeperText';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import Colors from 'src/theme/Colors';
 
@@ -15,7 +15,9 @@ function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
         <Text style={styles.noOfWallet} bold>
           {count}
         </Text>
-        <Text style={styles.noOfWallet}>Wallet{count > 1 && 's'}</Text>
+        <Text style={styles.noOfWallet} bold>
+          Wallet{count > 1 && 's'}
+        </Text>
       </HStack>
       <TouchableOpacity
         testID="btn_hideUnhideAmount"
@@ -26,7 +28,7 @@ function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
           amount={balance}
           hideAmounts={!isShowAmount}
           fontSize={26}
-          color={colorMode === 'light' ? Colors.RichBlack : Colors.RichBlackDark}
+          color={colorMode === 'light' ? Colors.RichBlack : Colors.SecondaryWhite}
           variation={colorMode === 'light' ? 'dark' : 'light'}
         />
       </TouchableOpacity>
@@ -43,7 +45,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   noOfWallet: {
-    fontSize: 22,
+    fontSize: wp(20),
     lineHeight: 27,
     marginBottom: hp(3),
   },

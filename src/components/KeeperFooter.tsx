@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 type FooterItem = {
   Icon: any;
@@ -22,33 +22,37 @@ export function KeeperFooter({
 }) {
   const { colorMode } = useColorMode();
   const footerItemsToRender = items.filter((item) => !item.hideItem);
+  const itemWidth = (windowWidth * 0.9) / footerItemsToRender.length - marginX * 2; // Ensure each item fits within the screen width
+
   return (
-    <Box bottom={wrappedScreen ? -10 : undefined}>
-      <Box style={styles.border} borderColor={`${colorMode}.GreyText`} />
+    <Box bottom={wrappedScreen ? -10 : undefined} style={styles.container}>
+      <Box style={styles.border} borderColor={`${colorMode}.separator`} />
       <Box
         flexDirection="row"
-        justifyContent={footerItemsToRender.length > 2 ? 'space-between' : 'space-around'}
+        justifyContent="center"
+        alignItems="center"
         marginX={marginX}
         marginTop={3}
-        alignItems="flex-start"
+        flexWrap="nowrap"
       >
         {footerItemsToRender.map((item) => {
           return (
             <TouchableOpacity
               testID={`btn_${item.text}`}
               key={item.text}
-              style={styles.IconWrapper}
+              style={[styles.IconWrapper, { width: itemWidth }]}
               onPress={item.onPress}
               disabled={item.disabled}
             >
-              <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
-                <item.Icon />
-              </Box>
+              <item.Icon size={24} />
               <Text
                 color={`${colorMode}.primaryText`}
-                style={[styles.footerText, { maxWidth: windowWidth / footerItemsToRender.length }]}
+                style={[
+                  styles.footerText,
+                  { maxWidth: (windowWidth * 0.9) / footerItemsToRender.length },
+                ]}
                 numberOfLines={2}
-                medium
+                semiBold
               >
                 {item.text}
               </Text>
@@ -63,27 +67,22 @@ export function KeeperFooter({
 export default KeeperFooter;
 
 const styles = StyleSheet.create({
+  container: {
+    marginBottom: hp(10),
+  },
   footerText: {
-    fontSize: 12,
+    fontSize: 14,
     letterSpacing: 0.36,
     textAlign: 'center',
     paddingHorizontal: 5,
   },
   IconWrapper: {
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
   },
   border: {
-    borderWidth: 0.5,
-    opacity: 0.2,
-    marginBottom: 10,
-  },
-  circle: {
-    width: 38,
-    height: 38,
-    borderRadius: 38 / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderTopWidth: 1,
+    paddingTop: hp(15),
   },
 });

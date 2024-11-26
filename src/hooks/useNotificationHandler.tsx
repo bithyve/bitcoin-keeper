@@ -6,17 +6,24 @@ import { Text, useColorMode } from 'native-base';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import useToastMessage from './useToastMessage';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { notificationType } from 'src/models/enums/Notifications';
 
 const NotificationHandler = () => {
   const [showNotifcationModal, setShowNotifcationModal] = useState(false);
+  const [showRemoteNotificationModel, setShowRemoteNotificationModel] = useState(false);
   const [foregroundNotifcation, setForegroundNotifcation] = useState<any>({});
   const [showLoader, setShowLoader] = useState(false);
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      setForegroundNotifcation(remoteMessage);
-      setShowNotifcationModal(true);
+      if (remoteMessage.data?.notificationType === notificationType.REMOTE_KEY_SHARE) {
+        setForegroundNotifcation(remoteMessage);
+        setShowRemoteNotificationModel(true);
+      } else {
+        setForegroundNotifcation(remoteMessage);
+        setShowNotifcationModal(true);
+      }
     });
 
     return unsubscribe;
@@ -59,12 +66,27 @@ const NotificationHandler = () => {
         subTitle={foregroundNotifcation?.notification?.title}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={'Decline'}
         buttonCallback={() => declineRequest()}
         Content={() => (
           <Text style={styles.contentText}>{foregroundNotifcation?.notification?.body}</Text>
         )}
+      />
+      <KeeperModal
+        visible={showRemoteNotificationModel}
+        close={() => {
+          setShowRemoteNotificationModel(false);
+        }}
+        showCloseIcon={true}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        title={foregroundNotifcation?.notification?.title}
+        subTitle={foregroundNotifcation?.notification?.body}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.buttonText`}
+        buttonText={'Ok'}
+        buttonCallback={() => setShowRemoteNotificationModel(false)}
       />
       <ActivityIndicatorView visible={showLoader} showLoader />
     </>

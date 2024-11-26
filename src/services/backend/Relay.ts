@@ -259,13 +259,15 @@ export default class Relay {
 
   public static getSubscriptionDetails = async (
     id: string,
-    appID: string
+    appID: string,
+    discounted?: boolean // get discounted plans from the realy
   ): Promise<{ plans: SubScriptionPlan[] }> => {
     let res;
     try {
       res = await RestClient.post(`${RELAY}getSubscriptionDetails`, {
         appID,
         id,
+        discounted,
       });
     } catch (err) {
       console.log('err', err);
@@ -339,7 +341,7 @@ export default class Relay {
       return data;
     } catch (err) {
       captureError(err);
-      throw new Error('Failed to update App Image');
+      throw new Error('Failed to update app backup. Check your internet connection and try again.');
     }
   };
 
@@ -412,7 +414,7 @@ export default class Relay {
       return data;
     } catch (err) {
       captureError(err);
-      throw new Error('Failed to update App Image');
+      throw new Error('Failed to update app backup. Check your internet connection and try again.');
     }
   };
 
@@ -655,6 +657,48 @@ export default class Relay {
       }
     } catch (error) {
       return null;
+    }
+  };
+
+  public static createRemoteKey = async (data: string) => {
+    try {
+      const response = await RestClient.post(`${RELAY}createRemoteKey`, { data });
+      const res = (response as AxiosResponse).data || (response as any).json;
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ createRemoteKey= ~ error:', error);
+    }
+  };
+
+  public static getRemoteKey = async (id: string) => {
+    try {
+      const response = await RestClient.get(`${RELAY}getRemoteKey?id=${id}`);
+      const res = (response as AxiosResponse).data || (response as any).json;
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ getRemoteKey= ~ error:', error);
+    }
+  };
+
+  public static sendSingleNotification = async (data) => {
+    try {
+      const response = await RestClient.post(`${RELAY}sendSingleNotification`, data);
+      const res = (response as AxiosResponse).data || (response as any).json;
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ sendSingleNotification= ~ error:', { error });
     }
   };
 }

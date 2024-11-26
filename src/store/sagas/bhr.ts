@@ -33,7 +33,7 @@ import { NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
@@ -149,6 +149,7 @@ export function* updateAppImageWorker({
   } catch (err) {
     console.log({ err });
     console.error('App image update failed', err);
+    return { updated: false, error: err };
   }
 }
 
@@ -183,9 +184,7 @@ export function* updateVaultImageWorker({
     signerId: string;
     xfpHash: string;
   }> = [];
-  const signerIdXpubMap = {};
   for (const signer of vault.signers) {
-    signerIdXpubMap[signer.xfp] = signer.xpub;
     signersData.push({
       signerId: signer.xfp,
       xfpHash: hash256(signer.masterFingerprint),
@@ -448,89 +447,100 @@ function* recoverApp(
   // Wallet recreation
   if (appImage.wallets) {
     for (const [key, value] of Object.entries(appImage.wallets)) {
-      const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
-      yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-      if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
-        yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+      try {
+        const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
+        yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+        if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
+          yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+        }
+        yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
+      } catch (err) {
+        console.log('Error recovering a wallet: ', err);
+        continue;
       }
-      yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
     }
   }
 
   // Signers recreatin
   if (appImage.signers) {
     for (const [key, value] of Object.entries(appImage.signers)) {
-      const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
-      yield call(dbManager.createObject, RealmSchema.Signer, decrytpedSigner);
+      try {
+        const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
+        yield call(dbManager.createObject, RealmSchema.Signer, decrytpedSigner);
+      } catch (err) {
+        console.log('Error recovering a signer: ', err);
+        continue;
+      }
     }
   }
 
   // Vault recreation
   if (allVaultImages.length > 0) {
     for (const vaultImage of allVaultImages) {
-      const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
+      try {
+        const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
 
-      if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
-        if (vault?.signers?.length) {
-          vault.signers.forEach((signer, index) => {
-            signer.xfp = signer.signerId;
-            signer.registeredVaults = [
-              {
-                vaultId: vault.id,
-                registered: signer.registered,
-                registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
-              },
-            ];
-          });
-        }
+        if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
+          if (vault?.signers?.length) {
+            vault.signers.forEach((signer, index) => {
+              signer.xfp = signer.signerId;
+              signer.registeredVaults = [
+                {
+                  vaultId: vault.id,
+                  registered: signer.registered,
+                  registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
+                },
+              ];
+            });
+          }
 
-        if (vault.signers.length) {
-          for (const signer of vault.signers) {
-            const signerXpubs = {};
-            Object.keys(signer.xpubDetails).forEach((type) => {
-              if (signer.xpubDetails[type].xpub) {
-                if (signerXpubs[type]) {
-                  signerXpubs[type].push({
-                    xpub: signer.xpubDetails[type].xpub,
-                    xpriv: signer.xpubDetails[type].xpriv,
-                    derivationPath: signer.xpubDetails[type].derivationPath,
-                  });
-                } else {
-                  signerXpubs[type] = [
-                    {
+          if (vault.signers.length) {
+            for (const signer of vault.signers) {
+              const signerXpubs = {};
+              Object.keys(signer.xpubDetails).forEach((type) => {
+                if (signer.xpubDetails[type].xpub) {
+                  if (signerXpubs[type]) {
+                    signerXpubs[type].push({
                       xpub: signer.xpubDetails[type].xpub,
                       xpriv: signer.xpubDetails[type].xpriv,
                       derivationPath: signer.xpubDetails[type].derivationPath,
-                    },
-                  ];
+                    });
+                  } else {
+                    signerXpubs[type] = [
+                      {
+                        xpub: signer.xpubDetails[type].xpub,
+                        xpriv: signer.xpubDetails[type].xpriv,
+                        derivationPath: signer.xpubDetails[type].derivationPath,
+                      },
+                    ];
+                  }
                 }
-              }
-            });
-            const isAMF =
-              signer.type === SignerType.TAPSIGNER &&
-              config.NETWORK_TYPE === NetworkType.TESTNET &&
-              !signer.isMock;
-            const signerObject = {
-              masterFingerprint: signer.masterFingerprint,
-              type: signer.type,
-              signerName: getSignerNameFromType(signer.type, signer.isMock, isAMF),
-              signerDescription: signer.signerDescription,
-              lastHealthCheck: signer.lastHealthCheck,
-              addedOn: signer.addedOn,
-              isMock: signer.isMock,
-              storageType: signer.storageType,
-              signerPolicy: signer.signerPolicy,
-              inheritanceKeyInfo: signer.inheritanceKeyInfo,
-              hidden: false,
-              signerXpubs,
-            };
-            yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
+              });
+              const signerObject = {
+                masterFingerprint: signer.masterFingerprint,
+                type: signer.type,
+                signerName: getSignerNameFromType(signer.type, signer.isMock, false),
+                signerDescription: signer.signerDescription,
+                lastHealthCheck: signer.lastHealthCheck,
+                addedOn: signer.addedOn,
+                isMock: signer.isMock,
+                storageType: signer.storageType,
+                signerPolicy: signer.signerPolicy,
+                inheritanceKeyInfo: signer.inheritanceKeyInfo,
+                hidden: false,
+                signerXpubs,
+              };
+              yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
+            }
           }
-        }
 
+          yield call(dbManager.createObject, RealmSchema.Vault, vault);
+        }
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
+      } catch (err) {
+        console.log('Error recovering a vault: ', err);
+        continue;
       }
-      yield call(dbManager.createObject, RealmSchema.Vault, vault);
     }
   }
 
@@ -564,8 +574,13 @@ function* recoverApp(
 
   if (appImage.nodes) {
     for (const node of appImage.nodes) {
-      const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
-      yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+      try {
+        const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
+        yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+      } catch (err) {
+        console.log('Error recovering a node: ', err);
+        continue;
+      }
     }
   }
 }
@@ -719,7 +734,7 @@ function* backupBsmsOnCloudWorker({
     }
     vaults.forEach((vault) => {
       if (!excludeVaultTypesForBackup.includes(vault.type)) {
-        const bsms = genrateOutputDescriptors(vault);
+        const bsms = 'BSMS 1.0\n' + generateOutputDescriptors(vault, true);
         bsmsToBackup.push({
           bsms,
           name: vault.presentationData.name,
@@ -809,53 +824,58 @@ function* backupBsmsOnCloudWorker({
 }
 
 function* bsmsCloudHealthCheckWorker() {
-  if (Platform.OS === 'android') {
-    yield put(setBackupLoading(true));
-    const setup = yield call(CloudBackupModule.setup);
-    if (setup) {
+  yield put(setBackupLoading(true));
+  try {
+    if (Platform.OS === 'android') {
+      const setup = yield call(CloudBackupModule.setup);
+      if (!setup) {
+        yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+          title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
+          confirmed: false,
+          subtitle: 'Unable to initialize Google Drive',
+          date: Date.now(),
+        });
+        return;
+      }
+
       const login = yield call(CloudBackupModule.login);
-      if (login.status) {
-        const response = yield call(CloudBackupModule.bsmsHealthCheck);
-        if (response.status) {
-          yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
-            title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
-            confirmed: true,
-            subtitle: response.data,
-            date: Date.now(),
-          });
-          yield put(setIsCloudBsmsBackupRequired(false));
-        } else {
-          yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
-            title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
-            confirmed: false,
-            subtitle: response.error,
-            date: Date.now(),
-          });
-        }
-      } else {
+      if (!login.status) {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
           title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
           confirmed: false,
           subtitle: login.error,
           date: Date.now(),
         });
+        return;
       }
+    }
+
+    const response = yield call(CloudBackupModule.bsmsHealthCheck);
+    const parsedResponse = typeof response === 'string' ? JSON.parse(response) : response;
+
+    if (parsedResponse.status) {
+      yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+        title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
+        confirmed: true,
+        subtitle: parsedResponse.data || '',
+        date: Date.now(),
+      });
+      yield put(setIsCloudBsmsBackupRequired(false));
     } else {
       yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
         title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
         confirmed: false,
-        subtitle: 'Unable to initialize Google Drive',
+        subtitle: parsedResponse.error || 'Health check failed',
         date: Date.now(),
       });
     }
-  } else {
+  } catch (error) {
     yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
-      title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
-      confirmed: true,
-      subtitle: '',
+      title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
+      confirmed: false,
+      subtitle: error.message || 'Unknown error occurred',
       date: Date.now(),
     });
-    yield put(setIsCloudBsmsBackupRequired(false));
   }
 }
 

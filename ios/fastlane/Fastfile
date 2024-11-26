@@ -106,7 +106,8 @@ platform :ios do
 end
 
 after_all do |lane|
-  slack(message: "Build success :rocket:")
+  buildNumber = get_build_number() 
+  slack(message: "Build success :rocket: \nBuild Number: " + buildNumber.to_s)
   end
 
   error do |lane, exception|

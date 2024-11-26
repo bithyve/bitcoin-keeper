@@ -33,7 +33,7 @@ function KeyCard({
               backgroundColor={Colors.pantoneGreen}
               icon={icon.element}
             />
-            <Text medium style={[styles.nameText, { color: `${colorMode}.primaryText` }]}>
+            <Text medium style={styles.nameText} color={`${colorMode}.primaryText`}>
               {name}
             </Text>
           </VStack>
@@ -42,29 +42,30 @@ function KeyCard({
           </Text>
         </HStack>
 
-        <VStack px={1} space={1}>
+        <VStack space={1}>
           {descriptionTitle && (
-            <Text
-              medium
-              style={[styles.descriptionTitleText, { color: `${colorMode}.secondaryText` }]}
-            >
+            <Text medium style={styles.descriptionTitleText} color={`${colorMode}.secondaryText`}>
               {descriptionTitle}
             </Text>
           )}
           {description && (
-            <Text style={[styles.descriptionText, { color: `${colorMode}.secondaryText` }]}>
+            <Text style={styles.descriptionText} color={`${colorMode}.secondaryText`}>
               {description}
             </Text>
           )}
         </VStack>
 
         <HStack space={0.5} justifyContent="flex-end">
-          <ActionChip text={primaryText} onPress={primaryAction} Icon={primaryIcon} />
-          <ActionChip
-            text={secondaryText}
-            onPress={secondaryAction}
-            Icon={isLoading ? <ActivityIndicator color={'white'} /> : secondaryIcon}
-          />
+          {primaryText && (
+            <ActionChip text={primaryText} onPress={primaryAction} Icon={primaryIcon} />
+          )}
+          {secondaryText && (
+            <ActionChip
+              text={secondaryText}
+              onPress={secondaryAction}
+              Icon={isLoading ? <ActivityIndicator color={'white'} /> : secondaryIcon}
+            />
+          )}
         </HStack>
       </VStack>
     </Box>
@@ -73,7 +74,7 @@ function KeyCard({
 
 const styles = StyleSheet.create({
   signerContainer: {
-    width: '90%',
+    width: '95%',
     borderRadius: 10,
     padding: 15,
     marginBottom: hp(15),
@@ -95,9 +96,10 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 14,
     fontWeight: '500',
+    marginTop: hp(5),
   },
   iconContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
 });
 

@@ -40,7 +40,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
 import { useQuery } from '@realm/react';
 import { CommonActions } from '@react-navigation/native';
@@ -251,7 +251,11 @@ function MixProgress({
             {title}
           </Text>
           {inProgress ? (
-            <Text color={`${colorMode}.secondaryText`} numberOfLines={3} style={styles.timeLineTitle}>
+            <Text
+              color={`${colorMode}.secondaryText`}
+              numberOfLines={3}
+              style={styles.timeLineTitle}
+            >
               {subTitle}
             </Text>
           ) : null}
@@ -341,7 +345,7 @@ function MixProgress({
           const tags = labels[key].filter((t) => !t.isSystem);
           userLabels.push(...tags);
         });
-        const origin = genrateOutputDescriptors(depositWallet, false);
+        const origin = generateAbbreviatedOutputDescriptors(depositWallet);
         const transaction = await ElectrumClient.getTransactionsById([txid]);
         const vout = transaction[txid].vout.findIndex(
           (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress

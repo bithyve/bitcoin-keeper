@@ -1,9 +1,11 @@
 import React from 'react';
 import { Box, Pressable } from 'native-base';
-import { StyleSheet, ViewStyle } from 'react-native';
-import { windowWidth } from 'src/constants/responsive';
+import { Image, StyleSheet, ViewStyle } from 'react-native';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
+import { getPersistedDocument } from 'src/services/documents';
+import Colors from 'src/theme/Colors';
 
 type SignerCardProps = {
   name: string;
@@ -24,6 +26,7 @@ type SignerCardProps = {
   colorMode: string;
   isFeePriority?: boolean;
   boldDesc?: boolean;
+  image?: string;
 };
 
 function SignerCard({
@@ -45,6 +48,7 @@ function SignerCard({
   colorMode,
   isFeePriority = false,
   boldDesc = false,
+  image = null,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -57,6 +61,7 @@ function SignerCard({
     <Pressable
       disabled={disabled}
       backgroundColor={`${colorMode}.seashellWhite`}
+      borderColor={colorMode === 'light' ? Colors.SilverMist : Colors.separator}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
@@ -71,7 +76,11 @@ function SignerCard({
       <Box style={styles.detailContainer}>
         {!isFeePriority ? (
           <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
-            {icon}
+            {image ? (
+              <Image src={getPersistedDocument(image)} style={styles.associatedContactImage} />
+            ) : (
+              icon
+            )}
             {showDot ? <Box style={styles.redDot} /> : null}
           </Box>
         ) : (
@@ -79,7 +88,7 @@ function SignerCard({
         )}
         {titleComp}
         <Text
-          color={`${colorMode}.primaryText`}
+          color={`${colorMode}.modalWhiteContent`}
           style={styles.walletName}
           numberOfLines={isFullText ? 0 : 1}
           medium
@@ -116,19 +125,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 3,
     position: 'relative',
+    borderWidth: 1,
   },
   walletName: {
-    fontSize: 12,
-    letterSpacing: 0.12,
-    opacity: 0.8,
+    fontSize: 14,
+    marginTop: hp(6),
   },
   walletSubtTitle: {
     fontSize: 11,
-    letterSpacing: 0.11,
   },
   walletDescription: {
     fontSize: 11,
-    letterSpacing: 0.11,
   },
   feeText: {
     fontSize: 16,
@@ -141,6 +148,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   detailContainer: {
+    width: '100%',
     gap: 2,
     marginTop: 15,
   },
@@ -174,6 +182,13 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
     alignSelf: 'flex-end',
+  },
+  associatedContactImage: {
+    width: '60%',
+    height: '60%',
+    borderRadius: 100,
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
 });
 

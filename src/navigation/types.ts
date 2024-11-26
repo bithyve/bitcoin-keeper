@@ -1,3 +1,5 @@
+import { SendConfirmationRouteParams, tnxDetailsProps } from 'src/screens/Send/SendConfirmation';
+import { RKInteractionMode } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
@@ -5,7 +7,8 @@ export type AppStackParams = {
   Home: undefined;
   Login: undefined;
   SigningDeviceList: undefined;
-  AddTapsigner: undefined;
+  SignerCategoryList: undefined;
+  TapsignerAction: undefined;
   SignWithTapsigner: undefined;
   AddColdCard: undefined;
   PassportConfigRecovery: undefined;
@@ -20,9 +23,10 @@ export type AppStackParams = {
   IKSAddEmailPhone: undefined;
   EnterOTPEmailConfirmation: undefined;
   Send: undefined;
+  SelectWallet: undefined;
   UTXOLabeling: undefined;
   Receive: undefined;
-  VerifyAddressSelectionScreen: undefined;
+  SignerSelectionListScreen: undefined;
   ChangeLanguage: undefined;
   ChoosePlan: undefined;
   EnterWalletDetail: undefined;
@@ -31,16 +35,19 @@ export type AppStackParams = {
   CollaborativeWalletSettings: undefined;
   AddAmount: undefined;
   ExportSeed: undefined;
+  SeedDetails: undefined;
   ImportWallet: undefined;
   ImportWalletDetails: undefined;
   AddDetailsFinal: undefined;
   AddSendAmount: undefined;
   SendConfirmation: undefined;
-  WalletDetails: { autoRefresh?: boolean; walletId: string };
+  PSBTSendConfirmation: undefined;
+  WalletDetails: { autoRefresh?: boolean; walletId: string; transactionToast?: boolean };
   VaultDetails: {
     vaultId: string;
     vaultTransferSuccessful: boolean;
     autoRefresh: boolean;
+    transactionToast?: boolean;
   };
   UTXOManagement:
     | {
@@ -69,15 +76,15 @@ export type AppStackParams = {
   VaultSettings: undefined;
   SignWithColdCard: undefined;
   ChoosePolicyNew: undefined;
-  SigningServerSettings: undefined;
   SigningServer: undefined;
   AddDescription: undefined;
   AllTransactions: undefined;
   TransactionDetails: undefined;
+  TransactionAdvancedDetails: undefined;
   TimelockScreen: undefined;
   SignerAdvanceSettings: undefined;
   ScanQR: undefined;
-  ShowQR: undefined;
+  ShowPSBT: undefined;
   RegisterWithQR: undefined;
   SignWithQR: undefined;
   NodeSettings: undefined;
@@ -92,11 +99,23 @@ export type AppStackParams = {
   WhirlpoolConfiguration: undefined;
   CosignerDetails: { signer: Signer };
   AdditionalDetails: { signer: Signer };
-  RemoteSharing: { signer: Signer; signerData: string; isPSBTSharing?: boolean };
+  RemoteSharing: {
+    signer: Signer;
+    isPSBTSharing?: boolean;
+    psbt?: string;
+    mode: RKInteractionMode;
+    vaultKey?: VaultSigner;
+    vaultId?: string;
+    serializedPSBTEnvelop: any;
+    isMultisig?: boolean;
+    sendConfirmationRouteParams?: SendConfirmationRouteParams;
+    tnxDetails?: tnxDetailsProps;
+  };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
   EnterSeedScreen: undefined;
   UnlockTapsigner: undefined;
+  ChangeTapsignerPin: undefined;
   UTXOSelection: { sender: Wallet | Vault; amount: string; address: string };
   VaultCreationOptions: undefined;
   VaultConfigurationCreation: undefined;
@@ -110,7 +129,6 @@ export type AppStackParams = {
   SigningDeviceConfigRecovery: undefined;
   MixProgress: undefined;
   AssignSignerType: undefined;
-  NFCScanner: undefined;
   AddWallet: undefined;
   CanaryWallets: undefined;
   AssistedKeys: undefined;
@@ -133,6 +151,13 @@ export type AppStackParams = {
     addedSigner: Signer;
     addSignerFlow: boolean;
     showModal?: boolean;
+    receivedExternalSigner?: {
+      timeLeft: string;
+      data: {
+        fcmToken: string;
+        signer: Signer;
+      };
+    };
   };
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;
@@ -147,6 +172,8 @@ export type AppStackParams = {
   AddContact: undefined;
   ContactProfile: undefined;
   EditContact: undefined;
+  ManageTapsignerSettings: undefined;
+  SetupPortal: undefined;
 };
 
 // Usage:

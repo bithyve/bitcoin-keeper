@@ -1,45 +1,54 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Input, useColorMode, Box } from 'native-base';
-import KeeperText from './KeeperText';
 import Colors from 'src/theme/Colors';
+import KeeperText from './KeeperText';
 
 function KeeperTextInput({
   placeholder,
   placeholderTextColor = null,
   onChangeText,
-  testID,
+  testID = null,
   value = null,
   defaultValue = null,
   maxLength = null,
   inputRef = null,
-  height = 10,
+  height = 55,
   isError = false,
-  onBlur = () => {},
-  onFocus = () => {},
+  onBlur = (_) => {},
+  onFocus = (_) => {},
+  InputRightComponent = null,
+  inpuBackgroundColor = null,
+  inpuBorderColor = null,
+  ...props
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
+    <Box
+      backgroundColor={inpuBackgroundColor || `${colorMode}.seashellWhite`}
+      style={styles.container}
+      borderColor={inpuBorderColor || `${colorMode}.greyBorder`}
+    >
       <Input
-        variant={'unstyled'}
-        onBlur={onBlur}
-        onFocus={onFocus}
+        variant="unstyled"
         defaultValue={defaultValue}
         ref={inputRef}
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor || `${colorMode}.placeHolderTextColor`}
+        borderColor={isError ? Colors.CarmineRed : 'transparent'}
+        color={isError ? Colors.CarmineRed : `${colorMode}.primaryText`}
         value={value}
         onChangeText={onChangeText}
         style={styles.inputField}
+        borderWidth={1}
         borderRadius={10}
-        borderWidth={isError ? 1 : 0}
-        borderColor={isError ? Colors.CarmineRed : 'transparent'}
-        color={isError ? Colors.CarmineRed : `${colorMode}.primaryText`}
         h={height}
         maxLength={maxLength}
+        {...props}
         testID={`input_${testID}`}
         _focus={{ borderColor: `${colorMode}.greenText` }}
+        onBlur={onBlur}
+        onFocus={onFocus}
         InputRightElement={
           maxLength ? (
             <Box>
@@ -47,9 +56,18 @@ function KeeperTextInput({
                 {value ? value.length : '0'}/{maxLength}
               </KeeperText>
             </Box>
-          ) : null
+          ) : (
+            InputRightComponent
+          )
         }
-        backgroundColor={`${colorMode}.seashellWhite`}
+        backgroundColor={`${colorMode}.textInputBackground`}
+        _input={
+          colorMode === 'dark' && {
+            selectionColor: Colors.SecondaryWhite,
+            cursorColor: Colors.SecondaryWhite,
+          }
+        }
+        {...props}
       />
     </Box>
   );
@@ -61,10 +79,10 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 10,
     marginVertical: 10,
+    borderWidth: 1,
   },
   inputField: {
     fontSize: 12,
-    letterSpacing: 0.96,
   },
   limitText: {
     marginRight: 10,

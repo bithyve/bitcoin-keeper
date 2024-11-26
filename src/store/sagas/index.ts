@@ -27,6 +27,7 @@ import {
   refreshCanaryWalletsWatcher,
   mergeSimilarKeysWatcher,
   archiveSigningDeviceWatcher,
+  generateNewExternalAddressWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
@@ -36,6 +37,7 @@ import {
   credentialsAuthWatcher,
   resetPinCredWatcher,
   generateSeedHashWatcher,
+  switchAppStatusWatcher,
 } from './login';
 import {
   backupWarningWatcher,
@@ -78,6 +80,7 @@ const rootSaga = function* () {
     generateSeedHashWatcher,
     changeLoginMethodWatcher,
     credentialStorageWatcher,
+    switchAppStatusWatcher,
     resetPinCredWatcher,
     setupKeeperAppWatcher,
 
@@ -102,6 +105,7 @@ const rootSaga = function* () {
     testcoinsWatcher,
     updateWalletDetailWatcher,
     updateWalletsPropertyWatcher,
+    generateNewExternalAddressWatcher,
 
     // vaults
     addNewVaultWatcher,

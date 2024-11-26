@@ -6,6 +6,8 @@ import {
   TransactionType,
   TxPriorityDefault,
 } from '../enums';
+import { Vault } from './vault';
+import { Wallet } from './wallet';
 
 export interface InputUTXOs {
   txId: string;
@@ -99,6 +101,13 @@ export interface TransactionPrerequisite {
   [txnPriority: string]: TransactionPrerequisiteElements;
 }
 
+export interface TransactionRecipients {
+  [txnPriority: string]: {
+    address: string;
+    amount: number;
+  }[];
+}
+
 export interface TransactionToAddressMapping {
   txid: string;
   addresses: string[];
@@ -186,6 +195,7 @@ export interface SerializedPSBTEnvelop {
   signingPayload?: SigningPayload[];
   isSigned: boolean;
   txHex?: string;
+  isMockSigner?: boolean;
 }
 
 export interface NodeDetail {
@@ -195,5 +205,9 @@ export interface NodeDetail {
   isConnected: boolean;
   useKeeperNode: boolean;
   useSSL: boolean;
-  isDefault?: boolean;
+}
+
+export interface SyncedWallet {
+  synchedWallet: Wallet | Vault;
+  newUTXOs: UTXO[];
 }

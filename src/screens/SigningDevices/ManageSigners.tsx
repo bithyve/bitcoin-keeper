@@ -1,30 +1,33 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
-import { windowWidth } from 'src/constants/responsive';
-import AddCard from 'src/components/AddCard';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
-import SignerIcon from 'src/assets/images/signer_brown.svg';
+import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
+import HardwareIllustration from 'src/assets/images/diversify-hardware.svg';
+import {
+  UNVERIFYING_SIGNERS,
+  getSignerDescription,
+  getSignerFromRemoteData,
+  getSignerNameFromType,
+} from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { NetworkType, SignerStorage, SignerType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-import SettingIcon from 'src/assets/images/settings.svg';
+import SettingIcon from 'src/assets/images/settings-gear.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -32,44 +35,96 @@ import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import SignerCard from '../AddSigner/SignerCard';
 import KeyAddedModal from 'src/components/KeyAddedModal';
+import KeeperModal from 'src/components/KeeperModal';
+import Note from 'src/components/Note/Note';
+import CountdownTimer from 'src/components/Timer/CountDownTimer';
+import Buttons from 'src/components/Buttons';
+import Text from 'src/components/KeeperText';
+import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import Relay from 'src/services/backend/Relay';
+import { notificationType } from 'src/models/enums/Notifications';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import AddKeyButton from './components/AddKeyButton';
+import EmptyListIllustration from '../../components/EmptyListIllustration';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { useQuery } from '@realm/react';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
 function ManageSigners({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { vaultId = '', addedSigner, addSignerFlow, showModal } = route.params || {};
+  const { vaultId = '', addedSigner, receivedExternalSigner } = route.params || {};
   const { activeVault } = useVault({ vaultId });
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
-  const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
+  const {
+    realySignersUpdateErrorMessage,
+    relaySignersUpdate,
+    relaySignersUpdateLoading,
+    realySignersAdded,
+  } = useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
+  const [timerModal, setTimerModal] = useState(
+    receivedExternalSigner && receivedExternalSigner.timeLeft != '0' ? true : false
+  );
+  const [timerExpiredModal, setTimerExpiredModal] = useState(
+    receivedExternalSigner && receivedExternalSigner.timeLeft == '0' ? true : false
+  );
+  const [isTimerActive, setIsTimerActive] = useState(true);
+  const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslation } = translations;
+  const { signer: signerTranslation, common } = translations;
 
   const { typeBasedIndicator } = useIndicatorHook({
-    types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
+    types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
 
+  const [inProgress, setInProgress] = useState(false);
+
   useEffect(() => {
-    if (showModal) {
-      setKeyAddedModalVisible(true);
-    }
-  }, [showModal]);
+    setInProgress(relaySignersUpdateLoading);
+  }, [relaySignersUpdateLoading]);
 
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
-      showToast(realySignersUpdateErrorMessage, null, IToastCategory.SIGNING_DEVICE);
+      setInProgress(false);
+      showToast(
+        realySignersUpdateErrorMessage,
+        <ToastErrorIcon />,
+        IToastCategory.SIGNING_DEVICE,
+        5000
+      );
       dispatch(resetSignersUpdateState());
     }
     return () => {
       dispatch(resetSignersUpdateState());
     };
   }, [realySignersUpdateErrorMessage]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (relaySignersUpdate) {
+        setInProgress(false);
+        if (realySignersAdded && navigation.isFocused()) {
+          setKeyAddedModalVisible(true);
+        }
+        dispatch(resetSignersUpdateState());
+      }
+    }, [relaySignersUpdate])
+  );
+
+  const handleTimerEnd = () => {
+    setIsTimerActive(false);
+  };
 
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(
@@ -83,10 +138,8 @@ function ManageSigners({ route }: ScreenProps) {
   };
 
   const handleAddSigner = () => {
-    navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addSignerFlow: true }));
+    navigation.dispatch(CommonActions.navigate('SignerCategoryList', { addSignerFlow: true }));
   };
-
-  const { top } = useSafeAreaInsets();
 
   const navigateToSettings = () => {
     navigation.dispatch(CommonActions.navigate('SignerSettings'));
@@ -94,29 +147,69 @@ function ManageSigners({ route }: ScreenProps) {
 
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
-    navigation.dispatch(CommonActions.setParams({ showModal: false }));
+  };
+
+  const acceptRemoteKey = async () => {
+    try {
+      const remoteSigner = getSignerFromRemoteData(receivedExternalSigner?.data?.signer);
+      dispatch(addSigningDevice([remoteSigner]));
+      // * Send Notification on success
+      setTimerModal(false);
+      showToast('External Key added Successfully');
+      await Relay.sendSingleNotification({
+        fcm: receivedExternalSigner.data.fcmToken,
+        notification: {
+          title: 'Remote key accepted',
+          body: 'The remote key that you shared has been accepted by the user',
+        },
+        data: {
+          notificationType: notificationType.REMOTE_KEY_SHARE,
+        },
+      });
+    } catch (error) {
+      console.log('🚀 ~ ManageSigners ~ error:', { error });
+      showToast('Error while adding External Key');
+    }
+  };
+
+  const rejectRemoteKey = async () => {
+    setTimerModal(false);
+    await Relay.sendSingleNotification({
+      fcm: receivedExternalSigner.data.fcmToken,
+      notification: {
+        title: 'Remote key rejected',
+        body: 'The remote key that you shared has been rejected by the user',
+      },
+      data: {
+        notificationType: notificationType.REMOTE_KEY_SHARE,
+      },
+    });
   };
 
   return (
-    <Box
-      backgroundColor={`${colorMode}.BrownNeedHelp`}
-      style={[styles.wrapper, { paddingTop: top }]}
-    >
+    <Box safeAreaTop backgroundColor={`${colorMode}.BrownNeedHelp`} style={[styles.wrapper]}>
       <Box style={styles.topSection}>
         <KeeperHeader
           title={signerTranslation.ManageKeys}
           subtitle={signerTranslation.ViewAndChangeKeyDetails}
           mediumTitle
-          titleColor={`${colorMode}.seashellWhite`}
-          subTitleColor={`${colorMode}.seashellWhite`}
+          learnMore
+          learnMorePressed={() => setShowLearnMoreModal(true)}
+          learnTextColor={`${colorMode}.buttonText`}
+          titleColor={`${colorMode}.seashellWhiteText`}
+          subTitleColor={`${colorMode}.seashellWhiteText`}
           rightComponent={
-            <TouchableOpacity onPress={navigateToSettings} testID="btn_manage_singner_setting">
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={navigateToSettings}
+              testID="btn_manage_singner_setting"
+            >
               <SettingIcon />
             </TouchableOpacity>
           }
           icon={
             <CircleIconWrapper
-              backgroundColor={`${colorMode}.seashellWhite`}
+              backgroundColor={`${colorMode}.seashellWhiteText`}
               icon={<SignerIcon />}
             />
           }
@@ -135,7 +228,83 @@ function ManageSigners({ route }: ScreenProps) {
           typeBasedIndicator={typeBasedIndicator}
         />
       </Box>
+      <KeeperModal
+        title={signerTranslation.keyReceived}
+        subTitle={signerTranslation.keyReceiveMessage}
+        close={() => setTimerModal(false)}
+        visible={timerModal}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonTextColor={`${colorMode}.buttonText`}
+        buttonBackground={`${colorMode}.modalGreenButton`}
+        secButtonTextColor={`${colorMode}.modalGreenButton`}
+        buttonText={signerTranslation.addKey}
+        secondaryButtonText={signerTranslation.reject}
+        buttonCallback={acceptRemoteKey}
+        secondaryCallback={rejectRemoteKey}
+        Content={() => (
+          <Box style={styles.modalContent}>
+            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <CountdownTimer
+                initialTime={receivedExternalSigner.timeLeft}
+                onTimerEnd={handleTimerEnd}
+              />
+            </Box>
+            <Note subtitle={signerTranslation.remoteKeyReceiveNote} />
+          </Box>
+        )}
+      />
+      <KeeperModal
+        title={signerTranslation.keyExpired}
+        subTitle={signerTranslation.keyExpireMessage}
+        close={() => setTimerExpiredModal(false)}
+        visible={timerExpiredModal}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonTextColor={`${colorMode}.buttonText`}
+        Content={() => (
+          <Box>
+            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <CountdownTimer initialTime={0} />
+            </Box>
+            <Buttons primaryText={signerTranslation.acceptKey} primaryDisable />
+          </Box>
+        )}
+      />
       <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
+      <KeeperModal
+        close={() => {
+          setShowLearnMoreModal(false);
+        }}
+        visible={showLearnMoreModal}
+        title={signerTranslation.ManageKeys}
+        subTitle={signerTranslation.manageKeysModalSubtitle}
+        subTitleColor={`${colorMode}.modalGreenContent`}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        DarkCloseIcon={colorMode === 'dark' ? true : false}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenContent`}
+        secondaryButtonText={common.needHelp}
+        secondaryCallback={() => {
+          setShowLearnMoreModal(false);
+          dispatch(goToConcierge([ConciergeTag.KEYS], 'manage-keys'));
+        }}
+        buttonText={common.Okay}
+        buttonCallback={() => setShowLearnMoreModal(false)}
+        Content={() => (
+          <Box style={styles.modalContent}>
+            <HardwareIllustration />
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+              {signerTranslation.manageKeysModalDesc}
+            </Text>
+          </Box>
+        )}
+      />
+      {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </Box>
   );
 }
@@ -166,6 +335,9 @@ function SignersList({
   const { showToast } = useToastMessage();
   const isNonVaultManageSignerFlow = !vault; // Manage Signers flow accessible via home screen
   const shellKeys = [];
+  const { id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
 
   const shellAssistedKeys = useMemo(() => {
     const generateShellAssistedKey = (signerType: SignerType) => ({
@@ -208,19 +380,17 @@ function SignersList({
 
   const renderAssistedKeysShell = () => {
     return shellAssistedKeys.map((shellSigner) => {
-      const isAMF = false;
       return (
         <SignerCard
           key={shellSigner.masterFingerprint}
           onCardSelect={() => {
             showToast('Please add the key to a Vault in order to use it');
           }}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, false)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
+          icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}
-          isFullText
           colorVarient="green"
           colorMode={colorMode}
         />
@@ -233,12 +403,16 @@ function SignersList({
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        style={styles.scrollMargin}
       >
+        {!vaultKeys.length && (
+          <Box style={{ marginBottom: hp(25), marginRight: wp(15) }}>
+            <AddKeyButton onPress={handleAddSigner} />
+          </Box>
+        )}
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
             const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
-            if (signer.archived) {
+            if (!signer || signer.archived) {
               return null;
             }
             const isRegistered = vaultKeys.length
@@ -251,12 +425,12 @@ function SignersList({
                 !isRegistered &&
                 !signer.isMock &&
                 vault.isMultiSig) ||
-              typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
-
-            const isAMF =
-              signer.type === SignerType.TAPSIGNER &&
-              config.NETWORK_TYPE === NetworkType.TESTNET &&
-              !signer.isMock;
+              (signer.type !== SignerType.MY_KEEPER &&
+                typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[
+                  item.masterFingerprint
+                ]) ||
+              (signer.type === SignerType.MY_KEEPER &&
+                typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId]);
 
             return (
               <SignerCard
@@ -266,31 +440,23 @@ function SignersList({
                 }}
                 name={
                   !signer.isBIP85
-                    ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
-                    : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
+                    ? getSignerNameFromType(signer.type, signer.isMock, false)
+                    : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
-                description={getSignerDescription(
-                  signer.type,
-                  signer.extraData?.instanceNumber,
-                  signer
-                )}
-                icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+                description={getSignerDescription(signer)}
+                icon={SDIcons(signer.type, true).Icon}
+                image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}
-                isFullText
                 colorVarient="green"
                 colorMode={colorMode}
               />
             );
           })}
           {isNonVaultManageSignerFlow && renderAssistedKeysShell()}
-          {!vaultKeys.length ? (
-            <AddCard
-              name={signerTranslation.addKey}
-              cardStyles={styles.addCard}
-              callback={handleAddSigner}
-            />
-          ) : null}
+          {isNonVaultManageSignerFlow && list.length == 0 && shellAssistedKeys.length == 0 && (
+            <EmptyListIllustration listType="keys" />
+          )}
         </Box>
       </ScrollView>
     </SafeAreaView>
@@ -310,22 +476,20 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   topSection: {
-    height: '35%',
-    paddingLeft: 10,
-    paddingTop: 20,
+    height: '25%',
+    paddingHorizontal: 20,
+    paddingTop: hp(15),
   },
   signersContainer: {
     paddingHorizontal: '5%',
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
     flex: 1,
   },
   scrollContainer: {
     zIndex: 2,
-    gap: 40,
-    marginVertical: 30,
-    paddingBottom: 30,
-  },
-  scrollMargin: {
-    marginTop: '-30%',
+    marginVertical: wp(30),
+    paddingBottom: hp(30),
   },
   addedSignersContainer: {
     flexDirection: 'row',
@@ -340,6 +504,28 @@ const styles = StyleSheet.create({
     fontSize: 13,
     padding: 1,
     letterSpacing: 0.65,
+  },
+  modalContent: {
+    marginBottom: hp(40),
+  },
+  timerWrapper: {
+    width: '100%',
+    borderRadius: 10,
+    marginBottom: hp(30),
+    marginTop: hp(5),
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'white',
+    fontSize: 13,
+    letterSpacing: 0.65,
+    gap: 30,
+  },
+  modalDesc: {
+    width: '95%',
+  },
+  settingsButton: {
+    paddingHorizontal: 22,
+    paddingVertical: 22,
   },
 });
 

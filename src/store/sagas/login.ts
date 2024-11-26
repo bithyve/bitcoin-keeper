@@ -14,7 +14,7 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import Relay from 'src/services/backend/Relay';
 import semver from 'semver';
-import { UAI, uaiType } from 'src/models/interfaces/Uai';
+import { uaiType } from 'src/models/interfaces/Uai';
 import * as SecureStore from 'src/storage/secure-store';
 
 import dbManager from 'src/storage/realm/dbManager';
@@ -25,6 +25,7 @@ import {
   GENERATE_SEED_HASH,
   RESET_PIN,
   STORE_CREDS,
+  SWITCH_APP_STATUS,
 } from '../sagaActions/login';
 import {
   credsAuthenticated,
@@ -35,6 +36,9 @@ import {
   setupLoading,
   setRecepitVerificationError,
   setRecepitVerificationFailed,
+  setOfflineStatus,
+  setStatusLoading,
+  setStatusMessage,
 } from '../reducers/login';
 import {
   resetPinFailAttempts,
@@ -45,7 +49,7 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import { fetchExchangeRates, fetchOneDayInsight } from '../sagaActions/send_and_receive';
+import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
@@ -53,7 +57,6 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
-import { createUaiMap } from '../reducers/uai';
 import SubScription from 'src/models/interfaces/Subscription';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
@@ -235,6 +238,51 @@ async function downgradeToPleb() {
   });
 }
 
+async function updateSubscription(level: AppSubscriptionLevel) {
+  const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+
+  const subscriptionDetails = {
+    [AppSubscriptionLevel.L1]: {
+      productId: SubscriptionTier.L1,
+      name: SubscriptionTier.L1,
+      icon: 'assets/ic_pleb.svg',
+    },
+    [AppSubscriptionLevel.L2]: {
+      productId: SubscriptionTier.L2,
+      name: SubscriptionTier.L2,
+      icon: 'assets/ic_hodler.svg',
+    },
+    [AppSubscriptionLevel.L3]: {
+      productId: SubscriptionTier.L3,
+      name: SubscriptionTier.L3,
+      icon: 'assets/ic_diamond.svg',
+    },
+  };
+
+  const selectedSubscription = subscriptionDetails[level];
+
+  if (!selectedSubscription) {
+    console.error('Invalid subscription level:', level);
+    return;
+  }
+
+  const updatedSubscription: SubScription = {
+    receipt: '',
+    productId: selectedSubscription.productId,
+    name: selectedSubscription.name,
+    level: level,
+    icon: selectedSubscription.icon,
+  };
+
+  await dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+    subscription: updatedSubscription,
+  });
+
+  await Relay.updateSubscription(app.id, app.publicId, {
+    productId: selectedSubscription.productId.toLowerCase(),
+  });
+}
+
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
 
 function* changeAuthCredWorker({ payload }) {
@@ -330,3 +378,64 @@ function* changeLoginMethodWorker({
 }
 
 export const changeLoginMethodWatcher = createWatcher(changeLoginMethodWorker, CHANGE_LOGIN_METHOD);
+
+export function* switchAppStatusWorker() {
+  yield put(setStatusLoading(true));
+  const appId = yield select((state: RootState) => state.storage.appId);
+
+  if (appId) {
+    try {
+      const { id, publicId }: KeeperApp = yield call(
+        dbManager.getObjectByIndex,
+        RealmSchema.KeeperApp
+      );
+
+      const response = yield call(Relay.verifyReceipt, id, publicId);
+
+      if (response.isValid) {
+        yield call(updateSubscription, response.level);
+        yield put(setOfflineStatus(false));
+        yield put(
+          setStatusMessage({
+            message: 'Connection successful! Keeper is online now.',
+            status: true,
+          })
+        );
+      } else {
+        yield put(setOfflineStatus(true));
+        yield put(
+          setStatusMessage({
+            message: 'App status update failed: Invalid receipt',
+            status: false,
+          })
+        );
+      }
+
+      yield put(setRecepitVerificationFailed(!response.isValid));
+      yield put(connectToNode());
+    } catch (error) {
+      yield put(
+        setStatusMessage({
+          message: 'It seems there’s a network issue. Please check your connection and try again.',
+          status: false,
+        })
+      );
+      yield put(setRecepitVerificationError(true));
+      yield put(setOfflineStatus(true));
+      yield put(setStatusLoading(false));
+      console.error('App status update error:', error);
+    }
+  } else {
+    yield put(setRecepitVerificationFailed(true));
+    yield put(setRecepitVerificationError(true));
+    yield put(
+      setStatusMessage({
+        message: 'App ID not found. Verification failed.',
+        status: false,
+      })
+    );
+  }
+  yield put(setStatusLoading(false));
+}
+
+export const switchAppStatusWatcher = createWatcher(switchAppStatusWorker, SWITCH_APP_STATUS);

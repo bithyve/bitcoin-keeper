@@ -14,11 +14,12 @@ import { getKeystoneDetails } from './keystone';
 import { getJadeDetails } from './jade';
 import { getPassportDetails } from './passport';
 import config from 'src/utils/service-utilities/config';
-import { extractColdCardExport } from './coldcard';
+import { extractColdCardExport, getColdcardDetailsFromChannel } from './coldcard';
 import { getLedgerDetailsFromChannel } from './ledger';
 import { getTrezorDetails } from './trezor';
 import { getBitbox02Details } from './bitbox';
 import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
+import { getUSBSignerDetails } from './usbSigner';
 
 const setupPassport = (qrData, isMultisig) => {
   const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
@@ -251,8 +252,8 @@ const setupColdcard = (data, isMultisig) => {
   return { signer, key };
 };
 
-const setupLedger = (data, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, xpubDetails } = getLedgerDetailsFromChannel(
+const setupUSBSigner = (signerType, data, isMultisig) => {
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = getUSBSignerDetails(
     data,
     isMultisig
   );
@@ -261,41 +262,7 @@ const setupLedger = (data, isMultisig) => {
     derivationPath,
     masterFingerprint,
     isMultisig,
-    signerType: SignerType.LEDGER,
-    storageType: SignerStorage.COLD,
-    xpubDetails,
-  });
-  return { signer, key };
-};
-
-const setupTrezor = (data, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, xpubDetails } = getTrezorDetails(
-    data,
-    isMultisig
-  );
-  const { signer, key } = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    masterFingerprint,
-    isMultisig,
-    signerType: SignerType.TREZOR,
-    storageType: SignerStorage.COLD,
-    xpubDetails,
-  });
-  return { signer, key };
-};
-
-const setupBitbox = (data, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, xpubDetails } = getBitbox02Details(
-    data,
-    isMultisig
-  );
-  const { signer, key } = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    masterFingerprint,
-    isMultisig,
-    signerType: SignerType.BITBOX02,
+    signerType,
     storageType: SignerStorage.COLD,
     xpubDetails,
   });
@@ -312,8 +279,6 @@ export {
   setupColdcard,
   setupMobileKey,
   setupSeedWordsBasedKey,
-  setupLedger,
-  setupTrezor,
-  setupBitbox,
+  setupUSBSigner,
   setupRecoveryKeySigningKey,
 };

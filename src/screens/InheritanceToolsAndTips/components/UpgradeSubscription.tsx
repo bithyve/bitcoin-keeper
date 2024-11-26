@@ -3,8 +3,7 @@ import { Box, HStack, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from 'src/constants/responsive';
-import Colors from 'src/theme/Colors';
+import { hp } from 'src/constants/responsive';
 
 function UpgradeSubscription({ type, customStyles }) {
   const navigation = useNavigation();
@@ -16,7 +15,7 @@ function UpgradeSubscription({ type, customStyles }) {
       borderTopColor={`${colorMode}.lightSkin`}
       justifyContent={'space-around'}
     >
-      <Text>Available to {type} users</Text>
+      <Text>Unlock at {type} Tier</Text>
       <TouchableOpacity
         activeOpacity={0.6}
         onPress={() => {
@@ -25,12 +24,12 @@ function UpgradeSubscription({ type, customStyles }) {
         testID="choosePlan"
       >
         <Box
-          borderColor={`${colorMode}.BrownNeedHelp`}
-          backgroundColor={`${colorMode}.BrownNeedHelp`}
+          borderColor={`${colorMode}.brownBackground`}
+          backgroundColor={`${colorMode}.brownBackground`}
           style={StyleSheet.flatten([styles.learnMoreContainer, customStyles?.learnMoreContainer])}
         >
           <Text
-            color={`${colorMode}.white`}
+            color={`${colorMode}.buttonText`}
             medium
             style={StyleSheet.flatten([styles.learnMoreText, customStyles?.learnMoreText])}
           >
@@ -60,7 +59,6 @@ const styles = StyleSheet.create({
   container: {
     borderTopWidth: 2,
     paddingTop: hp(10),
-    height: hp(40),
   },
 });
 

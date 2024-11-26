@@ -265,16 +265,24 @@ export const sendingCompleted = (): SendingCompletionAction => ({
 export interface CalculateSendMaxFeeAction extends Action {
   type: typeof CALCULATE_SEND_MAX_FEE;
   payload: {
-    numberOfRecipients: number;
+    recipients: {
+      address: string;
+      amount: number;
+    }[];
     wallet: Wallet | Vault;
     selectedUTXOs?: UTXO[];
+    feePerByte?: number;
   };
 }
 
 export const calculateSendMaxFee = (payload: {
-  numberOfRecipients: number;
+  recipients: {
+    address: string;
+    amount: number;
+  }[];
   wallet: Wallet | Vault;
   selectedUTXOs?: UTXO[];
+  feePerByte?: number;
 }): CalculateSendMaxFeeAction => ({
   type: CALCULATE_SEND_MAX_FEE,
   payload,

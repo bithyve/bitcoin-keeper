@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
-import { TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { TextInput, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
 
@@ -12,14 +12,20 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import ContactImagePlaceholder from 'src/assets/images/contact-image-placeholder.svg';
 import PlusIcon from 'src/assets/images/add-icon-brown.svg';
 import Buttons from 'src/components/Buttons';
+import { useDispatch } from 'react-redux';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { getPersistedDocument, persistDocument } from 'src/services/documents';
 
-const EditContact = ({ route }) => {
+function EditContact({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { contact } = route.params;
-  const [defaultName] = useState(contact.givenName + ' ' + contact.familyName);
-  const [userImage] = useState(contact.thumbnailPath);
+  const { signer } = route.params;
+  const fullName = generateFullName(signer);
+  const [defaultName, setDefaultName] = useState(fullName);
+  const [userImage] = useState(getPersistedDocument(signer.extraData.thumbnailPath));
   const [selectedImage, setSelectedImage] = useState(null);
+  const [disableSave, setDisableSave] = useState(true);
+  const dispatch = useDispatch();
 
   const openImagePicker = () => {
     const options = {
@@ -27,17 +33,44 @@ const EditContact = ({ route }) => {
       quality: 1,
     };
 
-    launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
         console.log('ImagePicker Error: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
-        const source = { uri: response.assets[0].uri };
-        setSelectedImage(source);
+        setSelectedImage(await persistDocument(response.assets[0].uri));
       }
     });
   };
+
+  const saveContactDetails = () => {
+    if (validateData()) {
+      const fullNameSplit = defaultName.split(' ');
+      const extraData = {
+        ...signer.extraData,
+        givenName: fullNameSplit[0],
+        familyName: fullNameSplit.slice(1).join(' '),
+        thumbnailPath: selectedImage ?? userImage,
+      };
+      dispatch(updateSignerDetails(signer, 'extraData', extraData));
+      navigation.goBack();
+    }
+  };
+
+  const validateData = () => {
+    if (
+      (userImage !== selectedImage && selectedImage) ||
+      (defaultName.trim() !== fullName && defaultName.trim())
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    setDisableSave(!validateData());
+  }, [defaultName, selectedImage]);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -47,7 +80,7 @@ const EditContact = ({ route }) => {
         <Box style={styles.contentContainer}>
           <Box style={styles.iconContainer}>
             {selectedImage ? (
-              <Image source={selectedImage} style={styles.selectedImage} />
+              <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
             ) : userImage ? (
               <Image source={{ uri: userImage }} style={styles.selectedImage} />
             ) : (
@@ -59,16 +92,26 @@ const EditContact = ({ route }) => {
           </Box>
 
           <Text style={styles.label}>Name</Text>
-          <TextInput style={styles.input} value={defaultName} editable={false} />
+          <TextInput
+            style={styles.input}
+            value={defaultName}
+            onChangeText={setDefaultName}
+            editable={true}
+          />
         </Box>
 
         <Box style={styles.saveButtonContainer}>
-          <Buttons primaryText="Save Contact" paddingHorizontal={wp(105)} />
+          <Buttons
+            primaryDisable={disableSave}
+            primaryText="Save Contact"
+            paddingHorizontal={wp(105)}
+            primaryCallback={saveContactDetails}
+          />
         </Box>
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -111,11 +154,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: Colors.Seashell,
     marginBottom: hp(30),
-    color: Colors.DarkText, // Optional: to set text color
+    color: Colors.Graphite,
   },
   saveButtonContainer: {
     width: '100%',
   },
 });
 
+const generateFullName = (signer) => {
+  let fullName = '';
+  if (signer.extraData.givenName) fullName += signer.extraData.givenName;
+  if (signer.extraData.familyName) fullName += ` ${signer.extraData.familyName}`;
+  return fullName;
+};
 export default EditContact;

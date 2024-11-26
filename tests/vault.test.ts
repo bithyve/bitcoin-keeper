@@ -49,7 +49,7 @@ jest.setTimeout(20000);
 
 const connectToElectrumClient = async () => {
   try {
-    ElectrumClient.setActivePeer(predefinedTestnetNodes, []);
+    ElectrumClient.setActivePeer(predefinedTestnetNodes);
     await ElectrumClient.connect();
     console.log('Electrum connected');
   } catch (err) {
@@ -126,7 +126,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
     );
     [vault] = synchedWallets;
 
-    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.specs;
+    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.synchedWallet.specs;
 
     let netBalance = 0;
     confirmedUTXOs.forEach((utxo) => {
@@ -329,7 +329,7 @@ describe('Vault: Multi-sig(2-of-3)', () => {
     );
     [vault] = synchedWallets;
 
-    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.specs;
+    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.synchedWallet.specs;
 
     let netBalance = 0;
     confirmedUTXOs.forEach((utxo) => {

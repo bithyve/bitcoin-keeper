@@ -15,21 +15,13 @@ import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import Text from 'src/components/KeeperText';
+import { getArchivedVaults } from 'src/utils/service-utilities/utils';
 
 function ArchivedVault({ navigation, route }) {
   const { colorMode } = useColorMode();
   const { vaultId } = route.params;
   const { allVaults, activeVault: currentVault } = useVault({ includeArchived: true, vaultId });
-  const vaults =
-    currentVault.archived || !currentVault.archivedId
-      ? []
-      : allVaults.filter(
-          (v) =>
-            v.archived &&
-            // include vaults that have the same parent archived id or the parent vault itself which is archived but does not have an archived id
-            (v.archivedId === currentVault.archivedId || v.id === currentVault.archivedId)
-        );
-
+  const vaults = getArchivedVaults(allVaults, currentVault);
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
   const isSmallDevice = useIsSmallDevices();

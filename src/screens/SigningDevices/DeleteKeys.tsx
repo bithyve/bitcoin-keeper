@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import SettingsIcon from 'src/assets/images/SignerShow.svg';
+import HiddenKeyIcon from 'src/assets/images/hidden-key.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSigners from 'src/hooks/useSigners';
 import { StyleSheet, ScrollView } from 'react-native';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -130,11 +129,7 @@ function DeleteKeys({ route }) {
               {getSignerNameFromType(deletedSigner?.type)}
             </Text>
             <Text numberOfLines={1} fontSize={12} color={`${colorMode}.secondaryText`}>
-              {getSignerDescription(
-                deletedSigner?.type,
-                deletedSigner?.extraData?.instanceNumber,
-                deletedSigner
-              )}
+              {getSignerDescription(deletedSigner)}
             </Text>
           </Box>
         </Box>
@@ -167,13 +162,18 @@ function DeleteKeys({ route }) {
         mediumTitle
         subtitle={signerText.showingHiddenKeys}
         icon={
-          <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={<SettingsIcon />}
+          <HexagonIcon
+            width={49}
+            height={44}
+            backgroundColor={colorMode === 'dark' ? Colors.pantoneGreenDark : Colors.pantoneGreen}
+            icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
           />
         }
       />
-      <ScrollView contentContainerStyle={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {hiddenSigners.length === 0 ? (
           <Box style={styles.emptyWrapper}>
             <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
@@ -201,11 +201,7 @@ function DeleteKeys({ route }) {
                 secondaryIcon={<ShowIcon />}
                 icon={{ element: SDIcons(signer.type, true).Icon, backgroundColor: 'pantoneGreen' }}
                 name={getSignerNameFromType(signer.type)}
-                description={getSignerDescription(
-                  signer.type,
-                  signer.extraData?.instanceNumber,
-                  signer
-                )}
+                description={getSignerDescription(signer)}
                 descriptionTitle={'Description'}
                 dateAdded={`Added ${moment(signer?.addedOn).calendar()}`}
               />
@@ -224,8 +220,7 @@ function DeleteKeys({ route }) {
         secButtonTextColor={`${colorMode}.greenText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonTextColor={`${colorMode}.white`}
-        DarkCloseIcon={colorMode === 'dark'}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
@@ -255,7 +250,7 @@ function DeleteKeys({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonText={signerText.manageKeys}
         buttonCallback={() => {
           dispatch(hideKeyDeletedSuccessModal());
@@ -289,11 +284,7 @@ function DeleteKeys({ route }) {
                     {getSignerNameFromType(signerToDelete.type)}
                   </Text>
                   <Text numberOfLines={1} fontSize={12} color={`${colorMode}.secondaryText`}>
-                    {getSignerDescription(
-                      signerToDelete?.type,
-                      signerToDelete?.extraData?.instanceNumber,
-                      signerToDelete
-                    )}
+                    {getSignerDescription(signerToDelete)}
                   </Text>
                 </Box>
               </Box>
@@ -368,6 +359,9 @@ const styles = StyleSheet.create({
     height: hp(108),
     marginBottom: hp(20),
     borderRadius: 10,
+  },
+  scrollContainer: {
+    paddingVertical: 30,
   },
 });
 

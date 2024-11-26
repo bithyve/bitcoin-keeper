@@ -16,7 +16,7 @@ function TorConnectionContent() {
         <LoadingAnimation />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={14} padding={1} letterSpacing={0.65}>
           Connecting via Tor improves your online privacy
         </Text>
       </Box>
@@ -32,7 +32,7 @@ function TorConnectionFailed() {
         <AlertIllustration />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={14} padding={1} letterSpacing={0.65}>
           This can be due to network or other conditions.
         </Text>
       </Box>
@@ -62,7 +62,7 @@ function TorModalMap({ visible, close }) {
         subTitle="There was an error when connecting via Tor. You could continue without connecting to Tor or try after sometime."
         subTitleColor={`${colorMode}.secondaryText`}
         buttonText="Close"
-        buttonTextColor={`${colorMode}.white`}
+        buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           close();
         }}

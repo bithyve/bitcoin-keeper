@@ -6,10 +6,9 @@ import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interface
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/utils/utilities';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -115,8 +114,9 @@ function SignerItem({
     <SignerCard
       key={signer.masterFingerprint}
       name={getSignerNameFromType(signer.type, signer.isMock, false)}
-      description={`${common.added} ${moment(signer.addedOn).calendar()}`}
-      icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+      description={getSignerDescription(signer)}
+      icon={SDIcons(signer.type).Icon}
+      image={signer?.extraData?.thumbnailPath}
       isSelected={false}
       showSelection={false}
       colorVarient="green"
@@ -164,7 +164,9 @@ function SetupCollaborativeWallet() {
   };
 
   const { signers } = useSigners();
-  const myAppKeys = signers.filter((signer) => signer.type === SignerType.MY_KEEPER);
+  const myAppKeys = signers.filter(
+    (signer) => !signer.hidden && signer.type === SignerType.MY_KEEPER
+  );
   const myAppKeyCount = myAppKeys.length;
 
   useEffect(() => {
@@ -278,7 +280,7 @@ function SetupCollaborativeWallet() {
         subtitle={wallet.CollaborativeWalletCreated}
         learnMore
         learnMorePressed={() => dispatch(setCosginerModal(true))}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
       />
       <FlatList
         horizontal
@@ -322,18 +324,18 @@ function SetupCollaborativeWallet() {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={AddCoSignerContent}
-        learnMore
-        learnMoreCallback={() => {
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryCallback={() => {
           dispatch(setCosginerModal(false));
           dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'));
         }}
-        learnMoreTitle={common.needHelp}
         buttonCallback={() => {
           dispatch(setCosginerModal(false));
         }}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText={common.ok}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       />
     </ScreenWrapper>
   );
@@ -390,8 +392,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   addCoSigner: {
-    letterSpacing: 0.13,
-    lineHeight: 18,
     width: wp(295),
   },
 });

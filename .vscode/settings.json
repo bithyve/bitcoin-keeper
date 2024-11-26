@@ -9,5 +9,6 @@
   "prettier.bracketSameLine": true,
   "prettier.arrowParens": "avoid",
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "java.configuration.updateBuildConfiguration": "disabled"
 }

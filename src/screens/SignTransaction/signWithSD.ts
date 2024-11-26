@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import WalletOperations from 'src/services/wallets/operations';
 import { captureError } from 'src/services/sentry';
 import config from 'src/utils/service-utilities/config';
@@ -6,10 +6,14 @@ import { generateSeedWordsKey } from 'src/services/wallets/factories/VaultFactor
 import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
-import { isSignerAMF } from 'src/hardware';
-import { EntityKind } from 'src/services/wallets/enums';
+import { isSignerAMF, getPsbtForHwi } from 'src/hardware';
+import { EntityKind, XpubTypes } from 'src/services/wallets/enums';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import SigningServer from 'src/services/backend/SigningServer';
+import { isTestnet } from 'src/constants/Bitcoin';
+import * as PORTAL from 'src/hardware/portal';
+import { getInputsFromPSBT } from 'src/utils/utilities';
+import { checkAndUnlock } from '../SigningDevices/SetupPortal';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -38,7 +42,14 @@ export const signTransactionWithTapsigner = async ({
     return { signedSerializedPSBT, signingPayload: null };
   }
   return withModal(async () => {
-    const signedInput = await signWithTapsigner(card, inputsToSign, cvc, currentKey);
+    const signedInput = await signWithTapsigner(
+      card,
+      signer.masterFingerprint,
+      inputsToSign,
+      cvc,
+      currentKey,
+      isTestnet()
+    );
     signingPayload.forEach((payload) => {
       payload.inputsToSign = signedInput;
     });
@@ -146,11 +157,17 @@ export const signTransactionWithSeedWords = async ({
   serializedPSBT,
   xfp,
   isMultisig,
+  isRemoteKey = false,
 }) => {
   try {
-    const inputs = idx(signingPayload, (_) => _[0].inputs);
+    const inputs = isRemoteKey
+      ? getInputsFromPSBT(serializedPSBT)
+      : idx(signingPayload, (_) => _[0].inputs);
+
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-    const [signer] = defaultVault.signers.filter((signer) => signer.xfp === xfp);
+    const [signer] = isRemoteKey
+      ? [defaultVault.signers[0]]
+      : defaultVault.signers.filter((signer) => signer.xfp === xfp);
     const networkType = config.NETWORK_TYPE;
     // we need this to generate xpriv that's not stored
     const { xpub, xpriv } = generateSeedWordsKey(
@@ -158,7 +175,10 @@ export const signTransactionWithSeedWords = async ({
       networkType,
       isMultisig ? EntityKind.VAULT : EntityKind.WALLET
     );
-    if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
+
+    const signerXpub = isRemoteKey ? signer.signerXpubs[XpubTypes.P2WSH][0].xpub : signer.xpub;
+
+    if (signerXpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,
       serializedPSBT,
@@ -166,6 +186,41 @@ export const signTransactionWithSeedWords = async ({
     );
     return { signedSerializedPSBT };
   } catch (err) {
-    Alert.alert(err?.message);
+    throw err.message;
+  }
+};
+
+export const signTransactionWithPortal = async ({
+  setPortalModal,
+  withNfcModal,
+  serializedPSBTEnvelop,
+  closeNfc,
+  vault,
+  portalCVC,
+}) => {
+  const signPsbtPortal = async (psbt) => {
+    await PORTAL.startReading();
+    await checkAndUnlock(portalCVC, () => {});
+    const signedRes = await PORTAL.signPSBT(psbt);
+    // Check if psbt and signed psbt are same, if yes then vault registration is required.
+    if (psbt == signedRes) {
+      throw { message: 'Please register the vault before signing.' };
+    }
+    await PORTAL.stopReading();
+    return { signedSerializedPSBT: signedRes };
+  };
+
+  try {
+    const psbtForPortal = await getPsbtForHwi(serializedPSBTEnvelop.serializedPSBT, vault); // portal requires non-witness utxo also.
+    setPortalModal(false);
+    if (Platform.OS === 'android') {
+      return await withNfcModal(async () => await signPsbtPortal(psbtForPortal.serializedPSBT));
+    } else {
+      // modal not required for ios// created by portal utility
+      return signPsbtPortal(psbtForPortal.serializedPSBT);
+    }
+  } catch (error) {
+    closeNfc();
+    throw error;
   }
 };

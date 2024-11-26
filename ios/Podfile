@@ -5,7 +5,7 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+platform :ios, 13.0
 prepare_react_native_project!
 # If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
 # because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
@@ -25,6 +25,7 @@ def common_pods
     use_frameworks! :linkage => linkage.to_sym
   end
   config = use_native_modules!
+  pod 'libportal-ios', :git => 'https://github.com/bithyve/libportal-ios.git'
   pod 'PDFGenerator'
   pod 'QRCoder'
   # Flags change depending on the env values.
@@ -54,6 +55,14 @@ target 'hexa_keeper_dev' do
 end
 
 post_install do |installer|
+
+  # Set deployment target to 13.0 for all targets
+  installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      end  
+  end
+
   # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
   config = use_native_modules!
   react_native_post_install(
@@ -62,4 +71,29 @@ post_install do |installer|
     :mac_catalyst_enabled => false
   )
   __apply_Xcode_12_5_M1_post_install_workaround(installer)
+
+  # fixes release issue with xCode 16, bitcode is stripped by default.
+   bitcode_strip_path = `xcrun --find bitcode_strip`.chop!
+   def strip_bitcode_from_framework(bitcode_strip_path, framework_relative_path)
+     framework_path = File.join(Dir.pwd, framework_relative_path)
+     command = "#{bitcode_strip_path} #{framework_path} -r -o #{framework_path}"
+     puts "Stripping bitcode: #{command}"
+     system(command)
+   end
+
+   framework_paths = [
+     "Pods/LogRocket/LogRocket.xcframework/ios-arm64/LogRocket.framework/LogRocket",
+     "Pods/hermes-engine/destroot/Library/Frameworks/macosx/hermes.framework/hermes",
+     "Pods/hermes-engine/destroot/Library/Frameworks/macosx/hermes.framework/Versions/Current/hermes",
+     "Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64/hermes.framework/hermes",
+     "Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64_x86_64-maccatalyst/hermes.framework/hermes",
+     "Pods/ZendeskSDKLogger/ZendeskSDKLogger.xcframework/ios-arm64/ZendeskSDKLogger.framework/ZendeskSDKLogger"  # => removes bitcode from zendesk logger sdk
+   ]
+
+   framework_paths.each do |framework_relative_path|
+     strip_bitcode_from_framework(bitcode_strip_path, framework_relative_path)
+   end
+
+
+
 end

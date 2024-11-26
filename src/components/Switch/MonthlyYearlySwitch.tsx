@@ -3,6 +3,7 @@ import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import Text from '../KeeperText';
 import KeeperGradient from '../KeeperGradient';
+import Colors from 'src/theme/Colors';
 
 const getStyles = (btnActiveBack) =>
   StyleSheet.create({
@@ -11,20 +12,20 @@ const getStyles = (btnActiveBack) =>
       flexDirection: 'row',
     },
     textActive: {
-      fontSize: 11,
-      padding: 4,
+      fontSize: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
     },
     text: {
-      paddingVertical: 8,
-      paddingHorizontal: 2,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
     },
     containerBtn: {
-      margin: 3,
       justifyContent: 'center',
       alignItems: 'center',
     },
     containerBtnActive: {
-      margin: 3,
+      margin: 2,
       borderRadius: 15,
       justifyContent: 'center',
       alignItems: 'center',
@@ -38,21 +39,21 @@ type Props = {
 };
 
 const containerBackgroundColorLight = ['#2D6759', '#073E39'];
-const containerBackgroundColorDark = ['#89AEA7', '#89AEA7'];
+const containerBackgroundColorDark = [Colors.DullGreenDark, Colors.DullGreenDark];
 
 function Element(props) {
   const { colorMode } = useColorMode();
-  const btnActiveBack = colorMode === 'dark' ? '#212726' : '#FAFCFC';
-  const textColor = colorMode === 'dark' ? '#24312E' : '#FAFCFC';
-  const textActiveColor = colorMode === 'light' ? '#2A6255' : '#E3BE96';
+  const btnActiveBack = colorMode === 'dark' ? '#F1F1F1' : '#FAFCFC';
+  const textColor = colorMode === 'dark' ? '#F1F1F1' : '#FAFCFC';
+  const textActiveColor = colorMode === 'light' ? '#2A6255' : Colors.DullGreenDark;
   const styles = getStyles(btnActiveBack);
   return (
     <Box style={props.isActive ? styles.containerBtnActive : styles.containerBtn}>
       <Text
         style={props.isActive ? styles.textActive : styles.text}
         color={props.isActive ? textActiveColor : textColor}
-        bold={props.isActive}
-        fontSize={props.isActive ? 10 : 9}
+        semiBold={props.isActive}
+        fontSize={10}
       >
         {props.title}
       </Text>
@@ -71,8 +72,8 @@ function MonthlyYearlySwitch({ value, onValueChange }: Props) {
         style={styles.gradient}
         colors={colorMode === 'dark' ? containerBackgroundColorDark : containerBackgroundColorLight}
       >
-        <Element isActive={value} title="MONTHLY" />
-        <Element isActive={!value} title="YEARLY" />
+        <Element isActive={value} title="Monthly" />
+        <Element isActive={!value} title="Yearly" />
       </KeeperGradient>
     </TouchableOpacity>
   );

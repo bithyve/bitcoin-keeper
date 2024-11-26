@@ -64,10 +64,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   appStoreBtn: {
-    width: wp(60),
+    position: 'absolute',
+    right: 0,
+    bottom: -20,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 7,
     borderRadius: 8,
   },
 });

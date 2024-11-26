@@ -54,10 +54,15 @@ function WalletInfoCard({
           showDot={showDot}
         />
         <Box>
-          <Text fontSize={12} color={`${colorMode}.white`} numberOfLines={1}>
+          <Text fontSize={12} color={`${colorMode}.buttonText`} numberOfLines={1}>
             {walletDescription}
           </Text>
-          <Text color={`${colorMode}.white`} medium style={{ fontSize: 14 }} numberOfLines={1}>
+          <Text
+            color={`${colorMode}.buttonText`}
+            semiBold
+            style={{ fontSize: 14 }}
+            numberOfLines={1}
+          >
             {walletName}
           </Text>
         </Box>
@@ -70,8 +75,8 @@ function WalletInfoCard({
             amount={amount}
             hideAmounts={!isShowAmount}
             fontSize={24}
-            color={colorMode === 'light' ? Colors.White : Colors.RichBlack}
-            variation={colorMode === 'light' ? 'light' : 'dark'}
+            color={colorMode === 'light' ? Colors.White : Colors.SecondaryWhite}
+            variation="light"
           />
         </TouchableOpacity>
       </Box>

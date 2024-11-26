@@ -16,7 +16,7 @@ function IdentifySignerModal({ visible, close, signer, secondaryCallback, vaultI
       <Box alignItems="center">
         <WarningIllustration />
         <Box>
-          <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color={`${colorMode}.greenText`} fontSize={14} padding={1} letterSpacing={0.65}>
             {
               'The signing process will be smoother if you identify your signer type correctly.\n\nYou can always chang it from the device settings > advance options > assign signer type.'
             }
@@ -47,7 +47,6 @@ function IdentifySignerModal({ visible, close, signer, secondaryCallback, vaultI
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.primaryText`}
       subTitleColor={`${colorMode}.secondaryText`}
-      DarkCloseIcon={colorMode === 'dark'}
       close={close}
       title="Assign signer type"
       subTitle="Identify your signer type for enhanced connectivity and communication"

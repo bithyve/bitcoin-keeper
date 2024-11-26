@@ -5,24 +5,21 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Buttons from 'src/components/Buttons';
-import { useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import { XpubTypes } from 'src/services/wallets/enums';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import idx from 'idx';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { captureError } from 'src/services/sentry';
+import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'CosignerDetails'>;
 function CosignerDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const [details, setDetails] = React.useState('');
-  const navgation = useNavigation();
   const { signer } = route.params;
 
   const fetchKeyExpression = (type: XpubTypes) => {
@@ -56,7 +53,7 @@ function CosignerDetails({ route }: ScreenProps) {
             setDetails(keyDescriptor);
           } catch (error) {
             showToast(
-              `We're sorry, but we have trouble retrieving the key information`,
+              "We're sorry, but we have trouble retrieving the key information",
               <ToastErrorIcon />
             );
           }
@@ -84,10 +81,11 @@ function CosignerDetails({ route }: ScreenProps) {
               copyable
             />
           </Box>
-          {details ? <ShareWithNfc data={details} signer={signer} /> : null}
-          <Box style={styles.bottom}>
-            <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
-          </Box>
+          {details ? (
+            <Box style={styles.centerBottom}>
+              <ShareWithNfc data={details} signer={signer} />
+            </Box>
+          ) : null}
         </Box>
       </ScrollView>
     </ScreenWrapper>
@@ -103,13 +101,17 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    marginHorizontal: '5%',
+    marginHorizontal: '10%',
   },
   center: {
     marginHorizontal: '5%',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: '10%',
+  },
+  centerBottom: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bottom: {
     marginHorizontal: '5%',

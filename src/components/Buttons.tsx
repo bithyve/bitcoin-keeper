@@ -15,32 +15,62 @@ function Buttons({
   primaryLoading = false,
   paddingHorizontal = wp(40),
   activeOpacity = 0.5,
+  width = null,
+  fullWidth = false,
+  primaryBackgroundColor = null,
+  primaryTextColor = null,
+  secondaryTextColor = null,
+  SecondaryIcon = null,
 }) {
   const { colorMode } = useColorMode();
+
   const onPrimaryInteraction = () => {
     primaryCallback();
+  };
+
+  const onSecondaryInteraction = () => {
+    secondaryCallback();
   };
 
   if (primaryLoading) {
     return <ActivityIndicatorView visible={primaryLoading} />;
   }
+
   const getPrimaryButton = () => (
     <TouchableOpacity
       onPress={onPrimaryInteraction}
       disabled={primaryDisable}
       activeOpacity={activeOpacity}
       testID="btn_primaryText"
+      style={{
+        width: secondaryText ? width : fullWidth ? '100%' : width,
+      }}
     >
       <Box
-        style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
-        backgroundColor={`${colorMode}.greenButtonBackground`}
+        style={[
+          styles.createBtn,
+          {
+            opacity: primaryDisable ? 0.5 : 1,
+            paddingHorizontal: width ? 0 : paddingHorizontal,
+            width,
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+        ]}
+        backgroundColor={primaryBackgroundColor || `${colorMode}.greenButtonBackground`}
       >
-        <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.buttonText`} bold>
+        <Text
+          numberOfLines={1}
+          style={styles.btnText}
+          color={primaryTextColor || `${colorMode}.buttonText`}
+          bold
+        >
           {primaryText}
         </Text>
       </Box>
     </TouchableOpacity>
   );
+
   return (
     <View style={styles.container}>
       {secondaryText !== '' && (
@@ -52,12 +82,18 @@ function Buttons({
               marginRight: primaryText ? wp(20) : 0,
             },
           ]}
-          onPress={secondaryCallback}
+          onPress={onSecondaryInteraction}
           disabled={secondaryDisable}
           activeOpacity={0.5}
           testID="btn_secondaryText"
         >
-          <Text numberOfLines={1} medium style={styles.btnText} color={`${colorMode}.greenText`}>
+          <Box>{SecondaryIcon && <SecondaryIcon />}</Box>
+          <Text
+            numberOfLines={1}
+            medium
+            style={styles.btnText}
+            color={secondaryTextColor || `${colorMode}.greenText`}
+          >
             {secondaryText}
           </Text>
         </TouchableOpacity>
@@ -78,12 +114,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   cancelBtn: {
-    // marginRight: wp(20),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
     borderRadius: 10,
   },
   btnText: {
     fontSize: 14,
-    letterSpacing: 0.84,
   },
 });
+
 export default Buttons;

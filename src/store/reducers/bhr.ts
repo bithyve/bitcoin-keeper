@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { seedWordItem } from 'src/screens/Recovery/constants';
 
 const initialState: {
   backupMethod: BackupType | null;
@@ -31,6 +32,7 @@ const initialState: {
   relaySignersUpdate: boolean;
   relaySignerUpdateError: boolean;
   realySignersUpdateErrorMessage: string;
+  realySignersAdded: boolean;
 
   relayVaultUpdateLoading: boolean;
   relayVaultUpdate: boolean;
@@ -44,6 +46,8 @@ const initialState: {
 
   deletingKeyModalVisible: boolean;
   keyDeletedSuccessModalVisible: boolean;
+
+  seedWords: Array<seedWordItem>;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -81,6 +85,7 @@ const initialState: {
   encPassword: '',
   deletingKeyModalVisible: false,
   keyDeletedSuccessModalVisible: false,
+  seedWords: [],
 };
 
 const bhrSlice = createSlice({
@@ -165,22 +170,27 @@ const bhrSlice = createSlice({
     setRelaySignersUpdateLoading: (state, action: PayloadAction<boolean>) => {
       state.relaySignersUpdateLoading = action.payload;
     },
-    relaySignersUpdateSuccess: (state) => {
+
+    // Action payload is whether a new signer has been added
+    relaySignersUpdateSuccess: (state, action: PayloadAction<boolean>) => {
       state.relaySignersUpdate = true;
       state.relaySignerUpdateError = false;
       state.relaySignersUpdateLoading = false;
       state.realySignersUpdateErrorMessage = null;
+      state.realySignersAdded = action.payload;
     },
     relaySignersUpdateFail: (state, action: PayloadAction<string>) => {
       state.relaySignerUpdateError = true;
       state.relaySignersUpdateLoading = false;
       state.realySignersUpdateErrorMessage = action.payload;
+      state.realySignersAdded = false;
     },
     resetSignersUpdateState: (state) => {
       state.relaySignersUpdate = false;
       state.relaySignerUpdateError = false;
       state.relaySignersUpdateLoading = false;
       state.realySignersUpdateErrorMessage = null;
+      state.realySignersAdded = false;
     },
 
     setRelayVaultUpdateLoading: (state, action: PayloadAction<boolean>) => {
@@ -224,6 +234,22 @@ const bhrSlice = createSlice({
     },
     hideKeyDeletedSuccessModal: (state) => {
       state.keyDeletedSuccessModalVisible = false;
+    },
+    setSeedWord: (state, action: PayloadAction<{ index: number; wordItem: seedWordItem }>) => {
+      const { index, wordItem } = action.payload;
+      if (state.seedWords[index]) {
+        state.seedWords[index] = wordItem;
+      } else {
+        state.seedWords.push(wordItem);
+      }
+    },
+
+    setSeedWords: (state, action: PayloadAction<seedWordItem[]>) => {
+      state.seedWords = action.payload;
+    },
+
+    resetSeedWords: (state) => {
+      state.seedWords = [];
     },
   },
 });
@@ -271,6 +297,9 @@ export const {
   hideDeletingKeyModal,
   showKeyDeletedSuccessModal,
   hideKeyDeletedSuccessModal,
+
+  setSeedWord,
+  resetSeedWords,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -304,6 +333,8 @@ const bhrPersistConfig = {
     'relaySignerUpdateError',
     'realySignersUpdateErrorMessage',
     'cloudBsmsBackupError',
+
+    'seedWords',
   ],
 };
 
