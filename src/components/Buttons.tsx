@@ -14,6 +14,7 @@ function Buttons({
   secondaryDisable = false,
   primaryLoading = false,
   paddingHorizontal = wp(40),
+  paddingVertical = hp(15),
   activeOpacity = 0.5,
   width = null,
   fullWidth = false,
@@ -21,15 +22,24 @@ function Buttons({
   primaryTextColor = null,
   secondaryTextColor = null,
   SecondaryIcon = null,
+  LeftIcon = null,
+  RightIcon = null,
+  borderRadius = 10,
+  primaryFontWeight = 'bold',
+  disableNoOverlay = false,
 }) {
   const { colorMode } = useColorMode();
 
   const onPrimaryInteraction = () => {
-    primaryCallback();
+    if (!primaryDisable && !disableNoOverlay) {
+      primaryCallback();
+    }
   };
 
   const onSecondaryInteraction = () => {
-    secondaryCallback();
+    if (!secondaryDisable && !disableNoOverlay) {
+      secondaryCallback();
+    }
   };
 
   if (primaryLoading) {
@@ -39,7 +49,7 @@ function Buttons({
   const getPrimaryButton = () => (
     <TouchableOpacity
       onPress={onPrimaryInteraction}
-      disabled={primaryDisable}
+      disabled={primaryDisable || disableNoOverlay}
       activeOpacity={activeOpacity}
       testID="btn_primaryText"
       style={{
@@ -52,21 +62,27 @@ function Buttons({
           {
             opacity: primaryDisable ? 0.5 : 1,
             paddingHorizontal: width ? 0 : paddingHorizontal,
+            paddingVertical,
             width,
             justifyContent: 'center',
             alignItems: 'center',
+            flexDirection: 'row',
+            gap: 8,
+            borderRadius: borderRadius,
           },
         ]}
         backgroundColor={primaryBackgroundColor || `${colorMode}.greenButtonBackground`}
       >
+        {LeftIcon && <LeftIcon />}
         <Text
           numberOfLines={1}
           style={styles.btnText}
           color={primaryTextColor || `${colorMode}.buttonText`}
-          bold
+          fontWeight={primaryFontWeight}
         >
           {primaryText}
         </Text>
+        {RightIcon && <RightIcon />}
       </Box>
     </TouchableOpacity>
   );
@@ -80,10 +96,11 @@ function Buttons({
             {
               opacity: secondaryDisable ? 0.5 : 1,
               marginRight: primaryText ? wp(20) : 0,
+              borderRadius: borderRadius,
             },
           ]}
           onPress={onSecondaryInteraction}
-          disabled={secondaryDisable}
+          disabled={secondaryDisable || disableNoOverlay}
           activeOpacity={0.5}
           testID="btn_secondaryText"
         >
@@ -111,14 +128,12 @@ const styles = StyleSheet.create({
   },
   createBtn: {
     paddingVertical: hp(15),
-    borderRadius: 10,
   },
   cancelBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 5,
-    borderRadius: 10,
   },
   btnText: {
     fontSize: 14,

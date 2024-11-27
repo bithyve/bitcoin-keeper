@@ -236,6 +236,7 @@ export const customTheme = extendTheme({
       dashedButtonBorder: Colors.SeaweedGreen,
       newDashedButtonBackground: Colors.DashedButtonBackground,
       btcPillText: Colors.MidNightBlack,
+      greyBackground: Colors.lightGrey,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -381,7 +382,7 @@ export const customTheme = extendTheme({
       overlayGreen: Colors.SeashellDark,
       alertRedLight: Colors.LightCrimson,
       coralRed: Colors.CoralRed,
-      secondaryGrey: Colors.MediumGrey,
+      secondaryGrey: Colors.separator,
       greenPillBackground: Colors.SmokeGreen,
       appStatusButtonBackground: Colors.WarmBeigeTranslucent,
       appStatusTextColor: Colors.ChampagneBliss,
@@ -429,6 +430,7 @@ export const customTheme = extendTheme({
       dashedButtonBorder: Colors.separator,
       newDashedButtonBackground: Colors.DashedButtonBackgroundDark,
       btcPillText: Colors.White,
+      greyBackground: Colors.darkGrey,
     },
   },
   config: {
