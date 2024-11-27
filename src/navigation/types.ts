@@ -166,6 +166,7 @@ export type AppStackParams = {
   EditContact: undefined;
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
+  KeeperConcierge: undefined;
 };
 
 // Usage:
