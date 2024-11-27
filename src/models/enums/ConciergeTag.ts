@@ -11,4 +11,5 @@ export enum ConciergeTag {
   RECOVERY = 'recovery',
   KEYS = 'keys',
   SETTINGS = 'settings',
+  KEEPER_CONCIERGE = 'keeper-concierge',
 }
