@@ -79,7 +79,7 @@ function LearnMoreButton({
           </Text>
         </Box>
       </TouchableOpacity>
-    </Box>;
+    </Box>
   );
 }
 

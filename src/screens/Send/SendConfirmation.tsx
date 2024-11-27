@@ -178,6 +178,8 @@ function SendConfirmation({ route }) {
     selectedUTXOs,
     parentScreen,
     currentBlockHeight,
+    transactionPriority: initialTransactionPriority,
+    customFeePerByte: initialCustomFeePerByte,
   }: SendConfirmationRouteParams = route.params;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const txRecipientsOptions = useAppSelector(
