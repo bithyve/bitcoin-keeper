@@ -3,6 +3,7 @@ import { TextProps } from 'react-native';
 import { Text as NativeBaseText } from 'native-base';
 
 interface KeeperTextProps extends TextProps {
+  // eslint-disable-next-line react/require-default-props
   color?: string;
   fontSize?: number;
   bold?: boolean;
