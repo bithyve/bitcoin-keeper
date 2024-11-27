@@ -43,11 +43,17 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
+import {
+  emailCheck,
+  generateDataFromPSBT,
+  getPubKeyFromXpub,
+  getTnxDetailsPSBT,
+  matchVaultSchema,
+} from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getSignerNameFromType } from 'src/hardware';
+import { getPsbtForHwi, getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
@@ -93,7 +99,12 @@ const SignersWithRKSupport = [
   SignerType.TAPSIGNER,
   SignerType.SEEDSIGNER,
   SignerType.SPECTER,
+  SignerType.LEDGER,
+  SignerType.TREZOR,
+  SignerType.BITBOX02,
 ];
+
+const SignersReqVault = [SignerType.LEDGER, SignerType.TREZOR, SignerType.BITBOX02];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -541,14 +552,43 @@ function SignerAdvanceSettings({ route }: any) {
 
   const signPSBT = async (serializedPSBT) => {
     try {
-      const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount, feeRate } =
-        generateDataFromPSBT(serializedPSBT, signer);
+      const {
+        senderAddresses,
+        receiverAddresses,
+        fees,
+        signerMatched,
+        sendAmount,
+        feeRate,
+        scheme,
+        signersList,
+      } = generateDataFromPSBT(serializedPSBT, signer);
       const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
       if (!signerMatched) {
         showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
         navigation.goBack();
         return;
+      }
+
+      if (SignersReqVault.includes(signer.type)) {
+        let activeVault = null;
+        allVaults.forEach(async (vault) => {
+          // Match vault scheme
+          if (matchVaultSchema(vault.scheme, scheme)) {
+            // match vault mfp and pubKey
+            // Create pubKey using xpub and derivation path from psbt
+            if (matchSigners(signersList, vault.signers)) {
+              activeVault = vault;
+              return;
+            }
+          }
+        });
+        if (!activeVault) {
+          navigation.goBack();
+          throw new Error('Please import the vault before signing');
+        }
+        const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
+        serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
       }
 
       navigation.dispatch(
@@ -1409,3 +1449,23 @@ const styles = StyleSheet.create({
     marginBottom: hp(15),
   },
 });
+
+function matchSigners(signersList, signers) {
+  // signersList-psbt | signers-vault
+  const isMatchingObject = (psbtSigner, vaultSigner) => {
+    const generatePub = getPubKeyFromXpub(vaultSigner.xpub, psbtSigner.derivationPath);
+    return psbtSigner.pubKey === generatePub;
+  };
+
+  for (const psbtSigner of signersList) {
+    const match = signers.find(
+      (vaultSigner) =>
+        vaultSigner.masterFingerprint.toLowerCase() === psbtSigner.masterFingerprint.toLowerCase()
+    );
+    if (!match || !isMatchingObject(psbtSigner, match)) {
+      return false;
+    }
+  }
+
+  return true;
+}
