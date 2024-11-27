@@ -6,7 +6,7 @@ import idx from 'idx';
 import { TxPriority, VaultType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
-import { Signer } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultScheme } from 'src/services/wallets/interfaces/vault';
 import * as bitcoin from 'bitcoinjs-lib';
 import { isTestnet } from 'src/constants/Bitcoin';
 
@@ -259,7 +259,8 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
     const vBytes = estimateVByteFromPSBT(base64Str);
-
+    const signersList = [];
+    let scheme = { m: null, n: null };
     let signerMatched = false;
 
     psbt.data.inputs.forEach((input) => {
@@ -271,19 +272,22 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
             masterFingerprint: derivation.masterFingerprint.toString('hex'),
             pubKey: derivation.pubkey.toString('hex'),
           };
+          signersList.push(data);
           if (data.masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
             // validating further by matching public key
             const xPub = signer.signerXpubs[XpubTypes.P2WSH][0].xpub; // to enable for taproot in future
-            const node = bip32.fromBase58(
-              xPub,
-              isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
-            );
-            const receiveAddPath = data.derivationPath.split('/').slice(-2).join('/');
-            const childNode = node.derivePath(receiveAddPath);
-            const pubkey = childNode.publicKey.toString('hex');
+            const pubkey = getPubKeyFromXpub(xPub, data.derivationPath);
             if (data.pubKey == pubkey) signerMatched = true;
           }
         });
+      }
+      const script = input.redeemScript || input.witnessScript;
+      if (script) {
+        const decodedScript: any[] = bitcoin.script.decompile(script);
+        if (decodedScript && decodedScript.includes(bitcoin.opcodes.OP_CHECKMULTISIG)) {
+          scheme.m = decodedScript[0] - bitcoin.opcodes.OP_RESERVED;
+          scheme.n = decodedScript[decodedScript.length - 2] - bitcoin.opcodes.OP_RESERVED;
+        }
       }
     });
     const inputs = psbt.data.inputs.map((input) => {
@@ -337,11 +341,24 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       signerMatched,
       feeRate,
       vBytes,
+      signersList,
+      scheme,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
     throw 'Something went wrong';
   }
+};
+
+export const getPubKeyFromXpub = (xPub: string, derivationPath: string) => {
+  const node = bip32.fromBase58(
+    xPub,
+    isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+  );
+  const receiveAddPath = derivationPath.split('/').slice(-2).join('/');
+  const childNode = node.derivePath(receiveAddPath);
+  const pubkey = childNode.publicKey.toString('hex');
+  return pubkey;
 };
 
 export const estimateVByteFromPSBT = (base64Str: string) => {
@@ -421,7 +438,6 @@ export const getInputsToSignFromPSBT = (base64Str: string, signer: Signer) => {
   return inputsToSign;
 };
 
-
 export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
   let estimatedBlocksBeforeConfirmation = 0;
   let tnxPriority = TxPriority.LOW;
@@ -439,4 +455,8 @@ export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
     }
   }
   return { estimatedBlocksBeforeConfirmation, tnxPriority };
+};
+
+export const matchVaultSchema = (scheme1: VaultScheme, scheme2: VaultScheme) => {
+  return scheme1.m === scheme2.m && scheme1.n === scheme2.n;
 };
