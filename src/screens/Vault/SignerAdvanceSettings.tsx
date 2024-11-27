@@ -103,6 +103,7 @@ const SignersWithRKSupport = [
   SignerType.TREZOR,
   SignerType.BITBOX02,
   SignerType.COLDCARD,
+  SignerType.PASSPORT,
 ];
 
 const SignersReqVault = [SignerType.LEDGER, SignerType.TREZOR, SignerType.BITBOX02];
