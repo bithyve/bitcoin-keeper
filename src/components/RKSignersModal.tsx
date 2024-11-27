@@ -4,6 +4,7 @@ import SignerModals from '../screens/SignTransaction/SignerModals';
 import { ScriptTypes, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
+  signTransactionWithPortal,
   signTransactionWithSeedWords,
   signTransactionWithTapsigner,
 } from '../screens/SignTransaction/signWithSD';
@@ -44,6 +45,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
   const [specterModal, setSpecterModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [portalModal, setPortalModal] = useState(false);
 
   const card = useRef(new CKTapCard()).current;
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
@@ -99,6 +101,9 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
         break;
+      case SignerType.PORTAL:
+        setPortalModal(true);
+        break;
       case SignerType.SEED_WORDS:
         navigation.dispatch(
           CommonActions.navigate({
@@ -130,7 +135,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
     );
   };
 
-  const signTransaction = async ({ seedBasedSingerMnemonic, tapsignerCVC }) => {
+  const signTransaction = async ({ seedBasedSingerMnemonic, tapsignerCVC, portalCVC }) => {
     try {
       if (SignerType.SEED_WORDS === signerType) {
         const { signedSerializedPSBT } = await signTransactionWithSeedWords({
@@ -206,6 +211,24 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
           ])
         );
         return signedPSBT;
+      } else if (SignerType.PORTAL === signerType) {
+        const { signedSerializedPSBT } = await signTransactionWithPortal({
+          setPortalModal,
+          withNfcModal,
+          serializedPSBTEnvelop,
+          closeNfc,
+          vault: {},
+          portalCVC,
+        });
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SIGNING,
+            },
+          ])
+        );
+        return signedSerializedPSBT;
       }
     } catch (error) {
       console.log('🚀 ~ signTransaction ~ error:', error);
@@ -280,6 +303,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
         bitbox02Modal={bitbox02modal}
         otherSDModal={false}
         specterModal={specterModal}
+        portalModal={portalModal}
         setSpecterModal={setSpecterModal}
         setOtherSDModal={() => {}}
         setTrezorModal={setTrezorModal}
@@ -294,6 +318,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
         setPasswordModal={() => {}}
         setTapsignerModal={setTapsignerModal}
         showOTPModal={() => {}}
+        setPortalModal={setPortalModal}
         signTransaction={signTransaction}
         textRef={textRef}
         isMultisig={isMultisig}
