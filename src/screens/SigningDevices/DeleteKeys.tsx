@@ -48,10 +48,11 @@ function DeleteKeys({ route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [unhidingMfp, setUnhidingMfp] = useState('');
+  const [multipleHidden, setMultipleHidden] = useState(false);
   const { allVaults } = useVault({ includeArchived: true });
   const { archivedVaults } = useArchivedVault();
   const [warningEnabled, setHideWarning] = useState(false);
-  const [vaultUsed, setVaultUsed] = useState<Vault>();
+  const [vaultsUsed, setVaultsUsed] = useState<Vault[]>();
   const [signerToDelete, setSignerToDelete] = useState<Signer>();
   const [deletedSigner, setDeletedSigner] = useState<Signer>();
   const deletingKeyModalVisible = useAppSelector((state) => state.bhr.deletingKeyModalVisible);
@@ -80,14 +81,16 @@ function DeleteKeys({ route }) {
   };
 
   const handleDelete = (signer: Signer) => {
+    setMultipleHidden(false);
     const vaultsInvolved = allVaults.filter(
       (vault) =>
         !vault.archived &&
         vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
     );
     if (vaultsInvolved.length > 0) {
+      if (vaultsInvolved.length > 1) setMultipleHidden(true);
       setHideWarning(true);
-      setVaultUsed(vaultsInvolved[0]);
+      setVaultsUsed(vaultsInvolved);
       setConfirmPassVisible(false);
       return;
     }
@@ -138,18 +141,31 @@ function DeleteKeys({ route }) {
     );
   }
 
-  function Content({ colorMode, vaultUsed }) {
+  function Content({ colorMode, vaultsUsed }) {
     return (
       <Box>
-        <ActionCard
-          description={vaultUsed.presentationData?.description}
-          cardName={vaultUsed.presentationData.name}
-          icon={<WalletVault />}
-          callback={() => {}}
-        />
+        <ScrollView
+          contentContainerStyle={{ gap: 10 }}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {vaultsUsed.map((vault) => (
+            <Box>
+              <ActionCard
+                description={vault.presentationData?.description}
+                cardName={vault.presentationData.name}
+                icon={<WalletVault />}
+                callback={() => {}}
+              />
+            </Box>
+          ))}
+        </ScrollView>
+
         <Box style={{ paddingVertical: 20 }}>
           <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
-            {signerText.deleteVaultInstruction}
+            {multipleHidden
+              ? signerText.deleteMultipleVaultInstruction
+              : signerText.deleteVaultInstruction}
           </Text>
         </Box>
       </Box>
@@ -211,10 +227,14 @@ function DeleteKeys({ route }) {
         )}
       </ScrollView>
       <KeeperModal
-        visible={warningEnabled && !!vaultUsed}
+        visible={warningEnabled && !!vaultsUsed}
         close={() => setHideWarning(false)}
-        title={signerText.deleteVaultWarning}
-        subTitle={signerText.vaultWarningSubtitle}
+        title={
+          multipleHidden ? signerText.deleteMultipleVaultWarning : signerText.deleteVaultWarning
+        }
+        subTitle={
+          multipleHidden ? signerText.multipleVaultWarningSubtitle : signerText.vaultWarningSubtitle
+        }
         buttonText={signerText.viewVault}
         secondaryButtonText={signerText.back}
         secondaryCallback={() => setHideWarning(false)}
@@ -224,10 +244,10 @@ function DeleteKeys({ route }) {
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           setHideWarning(false);
-          navigation.dispatch(CommonActions.navigate('ManageWallets', { vaultId: vaultUsed.id }));
+          navigation.dispatch(CommonActions.navigate('ManageWallets'));
         }}
         textColor={`${colorMode}.primaryText`}
-        Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
+        Content={() => <Content vaultsUsed={vaultsUsed} colorMode={colorMode} />}
       />
       <KeeperModal
         visible={deletingKeyModalVisible}
