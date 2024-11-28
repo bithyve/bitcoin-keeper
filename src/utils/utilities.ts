@@ -298,6 +298,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       return {
         address: p2wsh.address,
         amount: input.witnessUtxo.value,
+        path: input.bip32Derivation[0].path,
       };
     });
 
@@ -455,8 +456,4 @@ export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
     }
   }
   return { estimatedBlocksBeforeConfirmation, tnxPriority };
-};
-
-export const matchVaultSchema = (scheme1: VaultScheme, scheme2: VaultScheme) => {
-  return scheme1.m === scheme2.m && scheme1.n === scheme2.n;
 };
