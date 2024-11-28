@@ -135,8 +135,9 @@ export const HealthCheckDetails: ObjectSchema = {
 
 export const SignerSchema: ObjectSchema = {
   name: RealmSchema.Signer,
-  primaryKey: 'masterFingerprint',
+  primaryKey: 'id',
   properties: {
+    id: 'string',
     masterFingerprint: 'string',
     type: 'string',
     signerXpubs: `${RealmSchema.SignerXpubs}`,

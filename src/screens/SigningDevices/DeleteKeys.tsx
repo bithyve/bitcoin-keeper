@@ -34,6 +34,7 @@ import { hideDeletingKeyModal, hideKeyDeletedSuccessModal } from 'src/store/redu
 import BounceLoader from 'src/components/BounceLoader';
 import TorAsset from 'src/components/Loader';
 import moment from 'moment';
+import { getKeyUID } from 'src/utils/utilities';
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
@@ -47,7 +48,7 @@ function DeleteKeys({ route }) {
   );
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [unhidingMfp, setUnhidingMfp] = useState('');
+  const [unhidingKeyUID, setUnhidingKeyUID] = useState('');
   const [multipleHidden, setMultipleHidden] = useState(false);
   const { allVaults } = useVault({ includeArchived: true });
   const { archivedVaults } = useArchivedVault();
@@ -63,7 +64,7 @@ function DeleteKeys({ route }) {
   const onSuccess = () => {
     if (signerToDelete) {
       const involvedArchivedVaults = archivedVaults.filter((vault) =>
-        vault.signers.find((s) => s.masterFingerprint === signerToDelete.masterFingerprint)
+        vault.signers.find((s) => getKeyUID(s) === getKeyUID(signerToDelete))
       );
       if (involvedArchivedVaults.length) {
         dispatch(archiveSigningDevice([signerToDelete]));
@@ -76,16 +77,14 @@ function DeleteKeys({ route }) {
   };
 
   const unhide = (signer: Signer) => {
-    setUnhidingMfp(signer.masterFingerprint);
+    setUnhidingKeyUID(getKeyUID(signer));
     dispatch(updateSignerDetails(signer, 'hidden', false));
   };
 
   const handleDelete = (signer: Signer) => {
     setMultipleHidden(false);
     const vaultsInvolved = allVaults.filter(
-      (vault) =>
-        !vault.archived &&
-        vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
+      (vault) => !vault.archived && vault.signers.find((s) => getKeyUID(s) === getKeyUID(signer))
     );
     if (vaultsInvolved.length > 0) {
       if (vaultsInvolved.length > 1) setMultipleHidden(true);
@@ -99,8 +98,11 @@ function DeleteKeys({ route }) {
   };
 
   useEffect(() => {
-    if (unhidingMfp && !hiddenSigners.find((signer) => signer.masterFingerprint === unhidingMfp)) {
-      setUnhidingMfp('');
+    if (
+      unhidingKeyUID &&
+      !hiddenSigners.find((signer) => getKeyUID(signer) === getKeyUID(unhidingKeyUID))
+    ) {
+      setUnhidingKeyUID('');
     }
   }, [hiddenSigners]);
 
@@ -208,8 +210,8 @@ function DeleteKeys({ route }) {
 
             return (
               <KeyCard
-                key={signer.masterFingerprint}
-                isLoading={signer.masterFingerprint === unhidingMfp}
+                key={getKeyUID(signer)}
+                isLoading={getKeyUID(signer) === unhidingKeyUID}
                 primaryAction={showDelete ? () => handleDelete(signer) : null}
                 secondaryAction={() => unhide(signer)}
                 primaryText={showDelete ? signerText.delete : null}

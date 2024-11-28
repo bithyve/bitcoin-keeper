@@ -42,6 +42,7 @@ import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
 import { generateMiniscript } from '../operations/miniscript/miniscript';
 import { generateMiniscriptPolicy } from '../operations/miniscript/policy-generator';
+import { getKeyUID } from 'src/utils/utilities';
 
 const crypto = require('crypto');
 
@@ -265,7 +266,7 @@ export const generateCosignerMapIds = (
   // generates cosigners map ids using sorted and hashed cosigner ids
   const cosignerIds = [];
   keys.forEach((signer) => {
-    if (signerMap[signer.masterFingerprint].type !== except) cosignerIds.push(signer.xfp);
+    if (signerMap[getKeyUID(signer)].type !== except) cosignerIds.push(signer.xfp);
   });
 
   cosignerIds.sort();
@@ -287,7 +288,7 @@ export const generateCosignerMapUpdates = (
   keys: VaultSigner[],
   assistedKey: VaultSigner
 ): IKSCosignersMapUpdate[] | CosignersMapUpdate[] => {
-  const assistedKeyType = signerMap[assistedKey.masterFingerprint].type;
+  const assistedKeyType = signerMap[getKeyUID(assistedKey)].type;
   const cosignersMapIds = generateCosignerMapIds(signerMap, keys, assistedKeyType);
 
   if (assistedKeyType === SignerType.POLICY_SERVER) {
@@ -317,7 +318,7 @@ export const generateCosignerMapUpdates = (
 
 const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap) => {
   for (const key of keys) {
-    const assistedKeyType = signerMap[key.masterFingerprint]?.type;
+    const assistedKeyType = signerMap[getKeyUID(key)]?.type;
     if (
       assistedKeyType === SignerType.POLICY_SERVER ||
       assistedKeyType === SignerType.INHERITANCEKEY

@@ -66,6 +66,7 @@ function SetupTapsigner({ route }) {
     mode,
     signer,
     isMultisig,
+    accountNumber,
     signTransaction,
     addSignerFlow = false,
     isRemoteKey = false,
@@ -73,6 +74,7 @@ function SetupTapsigner({ route }) {
     mode: InteracationMode;
     signer: Signer;
     isMultisig: boolean;
+    accountNumber: number;
     signTransaction?: (options: { tapsignerCVC?: string }) => {};
     addSignerFlow?: boolean;
     isRemoteKey?: boolean;
@@ -115,7 +117,7 @@ function SetupTapsigner({ route }) {
   const addTapsigner = useCallback(async () => {
     try {
       const { xpub, derivationPath, masterFingerprint, xpubDetails } = await withModal(async () =>
-        getTapsignerDetails(card, cvc, isTestnet(), isMultisig)
+        getTapsignerDetails(card, cvc, isTestnet(), isMultisig, accountNumber)
       )();
       let tapsigner: Signer;
       let vaultKey: VaultSigner;
@@ -219,12 +221,12 @@ function SetupTapsigner({ route }) {
       closeNfc();
       card.endNfcSession();
     }
-  }, [cvc]);
+  }, [cvc, accountNumber]);
 
   const verifyTapsginer = useCallback(async () => {
     try {
       const { masterFingerprint } = await withModal(async () =>
-        getTapsignerDetails(card, cvc, isTestnet(), isMultisig)
+        getTapsignerDetails(card, cvc, isTestnet(), isMultisig, accountNumber)
       )();
       const handleSuccess = () => {
         dispatch(
@@ -269,7 +271,7 @@ function SetupTapsigner({ route }) {
       closeNfc();
       card.endNfcSession();
     }
-  }, [cvc]);
+  }, [cvc, accountNumber]);
 
   const signWithTapsigner = useCallback(async () => {
     try {

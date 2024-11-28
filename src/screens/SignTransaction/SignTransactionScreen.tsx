@@ -78,6 +78,7 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
+import { getKeyUID } from 'src/utils/utilities';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -191,13 +192,13 @@ function SignTransactionScreen() {
               let iksKey;
               for (let i = 0; i < vaultKeys.length; i++) {
                 const key = vaultKeys[i];
-                if (signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY) {
+                if (signerMap[getKeyUID(key)].type === SignerType.INHERITANCEKEY) {
                   iksKey = key;
                   break;
                 }
               }
               if (iksKey && approveOnce) {
-                callbackForSigners(iksKey, signerMap[iksKey.masterFingerprint]);
+                callbackForSigners(iksKey, signerMap[getKeyUID(iksKey)]);
                 setApproveOnce(false);
               }
               clearInterval(interval);
@@ -299,7 +300,7 @@ function SignTransactionScreen() {
 
   useEffect(() => {
     vaultKeys.forEach((vaultKey) => {
-      const signer = signerMap[vaultKey.masterFingerprint];
+      const signer = signerMap[getKeyUID(vaultKey)];
       if (signer.type === SignerType.MY_KEEPER && !vaultKey.xpriv) {
         dispatch(refillMobileKey(vaultKey));
       }
@@ -335,7 +336,7 @@ function SignTransactionScreen() {
     } = {}) => {
       const activeId = xfp || activeXfp;
       const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
-      const signer = signerMap[currentKey.masterFingerprint];
+      const signer = signerMap[getKeyUID(currentKey)];
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
           (envelop) => envelop.xfp === activeId
@@ -507,7 +508,7 @@ function SignTransactionScreen() {
 
   const onFileSign = (signedSerializedPSBT: string) => {
     const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeXfp)[0];
-    const signer = signerMap[currentKey.masterFingerprint];
+    const signer = signerMap[getKeyUID(currentKey)];
     if (signer.type === SignerType.KEYSTONE) {
       const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
         (envelop) => envelop.xfp === activeXfp
@@ -758,7 +759,7 @@ function SignTransactionScreen() {
                 isIKSDeclined={isIKSDeclined}
                 IKSSignTime={IKSSignTime}
                 vaultKey={item}
-                callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
+                callback={() => callbackForSigners(item, signerMap[getKeyUID(item)])}
                 envelops={serializedPSBTEnvelops}
                 signerMap={signerMap}
                 isFirst={index === 0}
