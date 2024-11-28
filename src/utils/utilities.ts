@@ -260,7 +260,6 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
     const vBytes = estimateVByteFromPSBT(base64Str);
     const signersList = [];
-    let scheme = { m: null, n: null };
     let signerMatched = false;
 
     psbt.data.inputs.forEach((input) => {
@@ -280,14 +279,6 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
             if (data.pubKey == pubkey) signerMatched = true;
           }
         });
-      }
-      const script = input.redeemScript || input.witnessScript;
-      if (script) {
-        const decodedScript: any[] = bitcoin.script.decompile(script);
-        if (decodedScript && decodedScript.includes(bitcoin.opcodes.OP_CHECKMULTISIG)) {
-          scheme.m = decodedScript[0] - bitcoin.opcodes.OP_RESERVED;
-          scheme.n = decodedScript[decodedScript.length - 2] - bitcoin.opcodes.OP_RESERVED;
-        }
       }
     });
     const inputs = psbt.data.inputs.map((input) => {
@@ -343,7 +334,6 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       feeRate,
       vBytes,
       signersList,
-      scheme,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
