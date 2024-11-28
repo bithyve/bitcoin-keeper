@@ -70,7 +70,7 @@ export const getTapsignerDetails = async (
       newCard,
       cvc,
       isTestnet,
-      isMultisig
+      isMultisig,
       account
     );
     await card.set_derivation(newCard.path, cvc);
