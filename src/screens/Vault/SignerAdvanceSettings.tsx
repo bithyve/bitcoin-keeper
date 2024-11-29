@@ -565,21 +565,17 @@ function SignerAdvanceSettings({ route }: any) {
           let addressMatched = true;
           for (let i = 0; i < senderAddresses.length; i++) {
             const _ = senderAddresses[i].path.split('/');
-            const [chain, index] = _.splice(_.length - 2);
+            const [isChange, index] = _.splice(_.length - 2);
             // 0 - Receive(External) | 1 - change(internal)
-            let generatedAddress;
-            if (chain == '0') {
-              generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
-                vault,
-                parseInt(index)
-              );
-            } else {
-              generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
-                vault,
-                parseInt(index),
-                true
-              );
+            let generatedAddress: string;
+            if (isChange != '0' && isChange != '1') {
+              throw new Error('Derivation uses an invalid path');
             }
+            generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
+              vault,
+              parseInt(index),
+              isChange == '1'
+            );
             if (senderAddresses[i].address != generatedAddress) {
               addressMatched = false;
               break;
