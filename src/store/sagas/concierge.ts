@@ -2,7 +2,7 @@ import { call, put, select } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
 import { GO_TO_CONCEIERGE, OPEN_CONCEIERGE } from '../sagaActions/concierge';
 import * as Zendesk from 'react-native-zendesk-messaging';
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -40,10 +40,12 @@ function* openConceirge({
 }) {
   const { dontShow } = payload;
   if (dontShow) yield put(setDontShowConceirgeOnboarding());
-  const { publicId, subscription }: KeeperApp = yield call(
-    dbManager.getObjectByIndex,
-    RealmSchema.KeeperApp
-  );
+  const res = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  if (!res?.publicId || !res?.subscription) {
+    Linking.openURL('https://help.bitcoinkeeper.app/hc/en-us');
+    return;
+  }
+  const { publicId, subscription }: KeeperApp = res;
   const { tags } = yield select((state: RootState) => state.concierge);
   const versionHistory = yield call(dbManager.getObjectByIndex, RealmSchema.VersionHistory);
   yield call(Zendesk.clearConversationFields);
