@@ -566,7 +566,7 @@ function SignerAdvanceSettings({ route }: any) {
           for (let i = 0; i < senderAddresses.length; i++) {
             const _ = senderAddresses[i].path.split('/');
             const [chain, index] = _.splice(_.length - 2);
-            // 0 - Receive(External) | 1 - change(external)
+            // 0 - Receive(External) | 1 - change(internal)
             let generatedAddress;
             if (chain == '0') {
               generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
