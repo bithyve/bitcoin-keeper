@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   Signer,
@@ -903,23 +903,25 @@ function AddSigningDevice() {
     };
   }, [relaySignersUpdate]);
 
-  useEffect(() => {
-    if (relayVaultUpdate && newVault) {
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-      setVaultCreatedModalVisible(true);
-    } else if (relayVaultUpdate) {
-      navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
+  useFocusEffect(
+    useCallback(() => {
+      if (relayVaultUpdate && newVault) {
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+        setVaultCreatedModalVisible(true);
+      } else if (relayVaultUpdate) {
+        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+      }
 
-    if (relayVaultError) {
-      showToast(realyVaultErrorMessage, <ToastErrorIcon />);
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
-  }, [relayVaultUpdate, relayVaultError]);
+      if (relayVaultError) {
+        showToast(realyVaultErrorMessage, <ToastErrorIcon />);
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+      }
+    }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
+  );
 
   useEffect(() => {
     setInitialKeys(

@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { CommonActions } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultType } from 'src/services/wallets/enums';
@@ -48,23 +48,25 @@ const CreateReserveKeyVault = ({
   const { allVaults } = useVault({ vaultId });
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
 
-  useEffect(() => {
-    if (relayVaultUpdate && newVault) {
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-      setVaultCreatedModalVisible(true);
-    } else if (relayVaultUpdate) {
-      navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
+  useFocusEffect(
+    useCallback(() => {
+      if (relayVaultUpdate && newVault) {
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+        setVaultCreatedModalVisible(true);
+      } else if (relayVaultUpdate) {
+        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+      }
 
-    if (relayVaultError) {
-      showToast(realyVaultErrorMessage, <ToastErrorIcon />);
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
-  }, [relayVaultUpdate, relayVaultError]);
+      if (relayVaultError) {
+        showToast(realyVaultErrorMessage, <ToastErrorIcon />);
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+      }
+    }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
+  );
 
   const viewVault = () => {
     setVaultCreatedModalVisible(false);
@@ -151,8 +153,6 @@ const CreateReserveKeyVault = ({
         Content={() => VaultCreatedModalContent(newVault)}
         buttonText={vaultTranslation.ViewVault}
         buttonCallback={viewVault}
-        secondaryButtonText={common.cancel}
-        secondaryCallback={viewVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.buttonText`}
