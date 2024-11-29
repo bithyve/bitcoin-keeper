@@ -122,6 +122,7 @@ const Colors = {
   SeaShellBeige: 'rgba(242, 237, 230, 1)',
   LimeYellow: 'rgba(248, 241, 178, 1)',
   SeaweedGreen: 'rgba(45, 103, 89, 1)',
+  pastelGreen: 'rgba(229, 234, 226, 1)',
   LightCrimson: 'rgba(229, 69, 69, 1)',
   CoralRed: 'rgba(248, 107, 80, 1)',
   MediumGrey: 'rgba(142, 142, 142, 1)',
