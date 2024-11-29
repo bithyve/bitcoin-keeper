@@ -453,7 +453,7 @@ function ChoosePlan() {
       (isMonthly
         ? items[currentPosition]?.monthlyPlanDetails
         : items[currentPosition]?.yearlyPlanDetails
-      )?.price
+      )?.price || 'Free'
     }`;
   };
 
