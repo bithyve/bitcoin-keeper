@@ -2,6 +2,20 @@ import { getDerivationPath } from 'src/utils/service-utilities/utils';
 import { MiniscriptElements, VaultScheme, VaultSigner } from '../../../interfaces/vault';
 import { KeyInfo, Phase } from '../policy-generator';
 
+export const INHERITANCE_VAULT_TIMELOCKS_TESTNET = {
+  MONTHS_3: 3,
+  MONTHS_6: 6,
+  MONTHS_12: 12,
+  MONTHS_24: 24,
+};
+
+export const INHERITANCE_VAULT_TIMELOCKS_MAINNET = {
+  MONTHS_3: 13140,
+  MONTHS_6: 26280,
+  MONTHS_12: 52560,
+  MONTHS_24: 105120,
+};
+
 // contains the defaults for the Inheritance Vault
 export function generateInheritanceVaultElements(
   signers: VaultSigner[],
@@ -31,7 +45,10 @@ export function generateInheritanceVaultElements(
   if (keysInfo.length !== scheme.n) throw new Error('Invalid inputs; scheme mismatch');
 
   const signerFingerprints = Object.fromEntries(
-    signers.map((signer, index) => [`K${index + 1}`, signer.masterFingerprint])
+    [...signers, inheritanceSigner].map((signer, index) => [
+      index < signers.length ? `K${index + 1}` : 'IK1',
+      signer.masterFingerprint,
+    ])
   );
 
   const [timelock] = timelocks;
@@ -46,9 +63,7 @@ export function generateInheritanceVaultElements(
     {
       id: 2,
       timelock,
-      // paths: [{ id: 1, threshold: scheme.m, keys: [...keysInfo, inheritanceKeyInfo] }],
-      paths: [{ id: 1, threshold: scheme.m, keys: [...keysInfo] }],
-
+      paths: [{ id: 1, threshold: scheme.m, keys: [...keysInfo, inheritanceKeyInfo] }],
       requiredPaths: 1,
     },
   ];
