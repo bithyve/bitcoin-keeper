@@ -117,6 +117,21 @@ const onSignerSelect = (
   }
 };
 
+const getVaultType = ({
+  isCollaborativeWallet,
+  isSSAddition,
+  isAssistedWallet,
+  isTimeLock,
+  isInheritance,
+}) => {
+  if (isCollaborativeWallet) return VaultType.COLLABORATIVE;
+  if (isSSAddition) return VaultType.SINGE_SIG;
+  if (isAssistedWallet) return VaultType.ASSISTED;
+  if (isTimeLock) return VaultType.TIMELOCKED;
+  if (isInheritance) return VaultType.INHERITANCE;
+  return VaultType.DEFAULT;
+};
+
 const isAssistedKeyValidForScheme = (
   signer: Signer,
   scheme,
@@ -248,6 +263,7 @@ function Footer({
   setTimelockCautionModal,
   isReserveKeyFlow,
   isAddInheritanceKey,
+  currentBlockHeight,
   vaultKeys,
   onGoBack,
   selectedSigners,
@@ -321,6 +337,8 @@ function Footer({
                       scheme,
                       name,
                       description,
+                      isAddInheritanceKey,
+                      currentBlockHeight,
                     })
                   )
           }
@@ -852,7 +870,9 @@ function AddSigningDevice() {
     isSSAddition = false,
     addedSigner,
     selectedSignersFromParams,
+    isTimeLock = false,
     isAddInheritanceKey = false,
+    currentBlockHeight,
     signerFilters = [],
   } = route.params;
   const { showToast } = useToastMessage();
@@ -1199,15 +1219,16 @@ function AddSigningDevice() {
           description={description}
           vaultId={vaultId}
           setGeneratedVaultId={setGeneratedVaultId}
-          vaultType={
-            isCollaborativeWallet
-              ? VaultType.COLLABORATIVE
-              : isSSAddition
-              ? VaultType.SINGE_SIG
-              : VaultType.DEFAULT
-          }
+          vaultType={getVaultType({
+            isCollaborativeWallet,
+            isSSAddition,
+            isAssistedWallet,
+            isTimeLock,
+            isInheritance: isAddInheritanceKey,
+          })}
           isTimeLock={route.params.isTimeLock}
-          currentBlockHeight={route.params.currentBlockHeight}
+          isAddInheritanceKey={isAddInheritanceKey}
+          currentBlockHeight={currentBlockHeight}
         />
         <Box flex={1}>
           <Signers
@@ -1246,6 +1267,7 @@ function AddSigningDevice() {
           isCollaborativeFlow={isCollaborativeFlow}
           isReserveKeyFlow={isReserveKeyFlow}
           isAddInheritanceKey={isAddInheritanceKey}
+          currentBlockHeight={currentBlockHeight}
           onGoBack={onGoBack}
           vaultKeys={vaultKeys}
           selectedSigners={selectedSigners}
