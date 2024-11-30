@@ -92,6 +92,17 @@ function VaultSetup({ route }: ScreenProps) {
         .catch((err) => showToast(err));
     }
   }, [isTimeLock]);
+
+  useEffect(() => {
+    if (isAddInheritanceKey && !currentBlockHeight) {
+      WalletUtilities.fetchCurrentBlockHeight()
+        .then(({ currentBlockHeight }) => {
+          setCurrentBlockHeight(currentBlockHeight);
+        })
+        .catch((err) => showToast(err));
+    }
+  }, [isAddInheritanceKey]);
+
   const { vault: vaultTranslations, common } = translations;
   const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
 
