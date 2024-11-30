@@ -1072,6 +1072,8 @@ function AddSigningDevice() {
               ? VaultType.SINGE_SIG
               : VaultType.DEFAULT
           }
+          isTimeLock={route.params.isTimeLock}
+          currentBlockHeight={route.params.currentBlockHeight}
         />
         <Box flex={1}>
           <Signers
