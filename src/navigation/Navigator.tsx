@@ -133,6 +133,7 @@ import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
 import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
+import { useColorMode } from 'native-base';
 import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
 
@@ -323,6 +324,14 @@ function Navigator() {
   const Stack = createNativeStackNavigator();
   const navigation = useRef();
   const { appLoading, loadingContent } = useContext(AppContext);
+  const { colorMode } = useColorMode();
+  const defaultTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: colorMode === 'light' ? Colors.LightYellow : Colors.PrimaryBlack,
+    },
+  };
 
   // Register the navigation container with the instrumentation
   const onReady = () => {

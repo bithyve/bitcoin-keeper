@@ -87,7 +87,15 @@ import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
-const SignersWithRKSupport = [SignerType.MY_KEEPER, SignerType.JADE, SignerType.SEED_WORDS];
+const SignersWithRKSupport = [
+  SignerType.MY_KEEPER,
+  SignerType.JADE,
+  SignerType.SEED_WORDS,
+  SignerType.TAPSIGNER,
+  SignerType.SEEDSIGNER,
+  SignerType.SPECTER,
+  SignerType.COLDCARD,
+];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
