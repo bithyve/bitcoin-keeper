@@ -1,18 +1,15 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { CommonActions } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, CommonActions } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultType } from 'src/services/wallets/enums';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
-import VaultMigrationController from './VaultMigrationController';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { useColorMode } from 'native-base';
 import { wp, hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import CardPill from 'src/components/CardPill';
@@ -21,17 +18,23 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { StyleSheet } from 'react-native';
 import useVault from 'src/hooks/useVault';
 import Colors from 'src/theme/Colors';
+import VaultMigrationController from './VaultMigrationController';
 
-const CreateReserveKeyVault = ({
+function CreateReserveKeyVault({
   vaultCreating,
   setCreating,
   vaultKeys,
+  reservedKey,
   scheme,
   name,
   description,
   vaultId,
-}) => {
+  isAddInheritanceKey,
+  currentBlockHeight,
+  selectedDuration,
+}) {
   const { showToast } = useToastMessage();
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -142,7 +145,11 @@ const CreateReserveKeyVault = ({
         description={description}
         vaultId={vaultId}
         setGeneratedVaultId={setGeneratedVaultId}
-        vaultType={VaultType.DEFAULT}
+        vaultType={VaultType.INHERITANCE}
+        inheritanceKey={reservedKey}
+        isAddInheritanceKey={isAddInheritanceKey}
+        currentBlockHeight={currentBlockHeight}
+        selectedDuration={selectedDuration}
       />
       <KeeperModal
         dismissible
@@ -163,7 +170,7 @@ const CreateReserveKeyVault = ({
       />
     </>
   );
-};
+}
 
 export default CreateReserveKeyVault;
 const styles = StyleSheet.create({

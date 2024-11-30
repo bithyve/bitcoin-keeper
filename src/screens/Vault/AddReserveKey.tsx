@@ -10,32 +10,35 @@ import OptionPicker from 'src/components/OptionPicker';
 import { useNavigation } from '@react-navigation/native';
 import { ADDRESERVEKEY } from 'src/navigation/contants';
 import useSignerMap from 'src/hooks/useSignerMap';
-import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
 import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
-import { SDIcons } from './SigningDeviceIcons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KEEPERAPP from 'src/assets/images/KeeperIcon.svg';
 import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
 import Note from 'src/components/Note/Note';
 import Buttons from 'src/components/Buttons';
+import { SDIcons } from './SigningDeviceIcons';
+import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
 import CreateReserveKeyVault from './CreateReserveKeyVault';
+import { MONTHS_12, MONTHS_24, MONTHS_3, MONTHS_6 } from './constants';
 
-const TIMELOCK_DURATIONS = [
-  { label: '3 months', value: 3 * 30 * 24 * 60 * 60 * 1000 },
-  { label: '6 months', value: 6 * 30 * 24 * 60 * 60 * 1000 },
-  { label: '1 year', value: 12 * 30 * 24 * 60 * 60 * 1000 },
-  { label: '2 years', value: 24 * 30 * 24 * 60 * 60 * 1000 },
+const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_3, value: 3 * 30 * 24 * 60 * 60 * 1000 };
+const INHERITANCE_TIMELOCK_DURATIONS = [
+  DEFAULT_INHERITANCE_TIMELOCK,
+  { label: MONTHS_6, value: 6 * 30 * 24 * 60 * 60 * 1000 },
+  { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
+  { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
 ];
 
-const AddReserveKey = ({ route }) => {
-  const { vaultKeys, name, scheme, description, vaultId } = route.params;
+function AddReserveKey({ route }) {
+  const { vaultKeys, name, scheme, description, vaultId, isAddInheritanceKey, currentBlockHeight } =
+    route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultTranslations } = translations;
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_TIMELOCK);
   const [selectedSigner, setSelectedSigner] = useState(null);
   const [vaultCreating, setCreating] = useState(false);
 
@@ -47,7 +50,9 @@ const AddReserveKey = ({ route }) => {
       parentScreen: ADDRESERVEKEY,
       selectedSignersFromParams: vaultKeys,
       selectedReserveKey: selectedSigner,
-      scheme: scheme,
+      scheme,
+      isAddInheritanceKey,
+      currentBlockHeight,
       onGoBack: (signer) => setSelectedSigner(signer),
     });
   };
@@ -102,7 +107,7 @@ const AddReserveKey = ({ route }) => {
             <Box style={styles.cardContainer}>
               <OptionPicker
                 label={vaultTranslations.setTimeLock}
-                options={TIMELOCK_DURATIONS}
+                options={INHERITANCE_TIMELOCK_DURATIONS}
                 selectedOption={selectedOption}
                 onOptionSelect={(option) => setSelectedOption(option)}
               />
@@ -123,14 +128,18 @@ const AddReserveKey = ({ route }) => {
         vaultCreating={vaultCreating}
         setCreating={setCreating}
         vaultKeys={vaultKeys}
+        reservedKey={selectedSigner ? selectedSigner[0] : null}
         scheme={scheme}
         name={name}
         description={description}
         vaultId={vaultId}
+        isAddInheritanceKey={isAddInheritanceKey}
+        currentBlockHeight={currentBlockHeight}
+        selectedDuration={selectedOption.label}
       />
     </ScreenWrapper>
   );
-};
+}
 
 export default AddReserveKey;
 
