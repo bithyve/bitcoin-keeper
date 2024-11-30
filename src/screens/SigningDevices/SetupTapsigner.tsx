@@ -68,12 +68,14 @@ function SetupTapsigner({ route }) {
     isMultisig,
     signTransaction,
     addSignerFlow = false,
+    isRemoteKey = false,
   }: {
     mode: InteracationMode;
     signer: Signer;
     isMultisig: boolean;
     signTransaction?: (options: { tapsignerCVC?: string }) => {};
     addSignerFlow?: boolean;
+    isRemoteKey?: boolean;
   } = route.params;
   const { mapUnknownSigner } = useUnkownSigners();
   const [statusModalVisible, setStatusModalVisible] = useState(false);
@@ -271,9 +273,24 @@ function SetupTapsigner({ route }) {
 
   const signWithTapsigner = useCallback(async () => {
     try {
-      await signTransaction({ tapsignerCVC: cvc });
+      const signedSerializedPSBT = await signTransaction({ tapsignerCVC: cvc });
       if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER signed successfully!`);
-      navigation.goBack();
+      if (isRemoteKey && signedSerializedPSBT) {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ShowPSBT',
+            params: {
+              data: signedSerializedPSBT,
+              encodeToBytes: false,
+              title: 'Signed PSBT',
+              subtitle: 'Please scan until all the QR data has been retrieved',
+              type: SignerType.KEEPER,
+            },
+          })
+        );
+      } else {
+        navigation.goBack();
+      }
     } catch (error) {
       const errorMessage = handleTapsignerError(error, navigation);
       if (errorMessage) {

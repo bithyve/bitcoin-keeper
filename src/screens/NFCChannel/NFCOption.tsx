@@ -113,9 +113,6 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
     };
   }, [session]);
 
-  if (signerType !== SignerType.KEEPER) {
-    return null;
-  }
   return (
     <>
       <Box style={styles.container}>
