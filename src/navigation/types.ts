@@ -174,6 +174,7 @@ export type AppStackParams = {
   EditContact: undefined;
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
+  AddReserveKey: undefined;
 };
 
 // Usage:

@@ -3,9 +3,9 @@ import { Box, useColorMode } from 'native-base';
 import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
 import Colors from 'src/theme/Colors';
+import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
 import HexagonIcon from './HexagonIcon';
-import { hp, wp } from 'src/constants/responsive';
 
 type AddSignerCardProps = {
   name: string;
@@ -17,6 +17,7 @@ type AddSignerCardProps = {
   borderColor?: string;
   nameColor?: string;
   icon?: any;
+  KeyIcon?: any;
   isAddWallet?: boolean;
 };
 
@@ -30,6 +31,7 @@ function HorizontalAddCard({
   borderColor,
   nameColor,
   isAddWallet,
+  KeyIcon,
   icon = <AddCardIcon width={wp(11)} height={hp(11)} />,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
@@ -41,20 +43,22 @@ function HorizontalAddCard({
     >
       <Box
         backgroundColor={`${colorMode}.overlayGreen`}
-        borderColor={borderColor ? borderColor : `${colorMode}.pantoneGreen`}
+        borderColor={borderColor || `${colorMode}.pantoneGreen`}
         style={[styles.AddCardContainer, cardStyles && cardStyles]}
       >
         <Box style={styles.detailContainer}>
-          <Text semiBold color={nameColor || `${colorMode}.black`} style={styles.nameStyle}>
-            {name}
-          </Text>
+          <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {KeyIcon ? <KeyIcon /> : null}
+            <Text medium color={nameColor || `${colorMode}.secondaryText`} style={styles.nameStyle}>
+              {name}
+            </Text>
+          </Box>
           {loading ? <ActivityIndicator /> : null}
           <HexagonIcon
             width={iconWidth}
             height={iconHeight}
             backgroundColor={Colors.pantoneGreen}
             icon={icon}
-            style={styles.iconStyle}
           />
         </Box>
       </Box>
@@ -65,8 +69,7 @@ function HorizontalAddCard({
 const styles = StyleSheet.create({
   AddCardContainer: {
     width: '100%',
-    padding: 20,
-    paddingHorizontal: wp(30),
+    padding: wp(20),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   nameStyle: {
-    fontSize: 16,
+    fontSize: 14,
     lineHeight: 20,
     textAlign: 'left',
   },
@@ -84,9 +87,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-  },
-  iconStyle: {
-    marginLeft: 'auto',
   },
 });
 

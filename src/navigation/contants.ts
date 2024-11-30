@@ -6,3 +6,4 @@ export const SETUPASSISTEDVAULT = 'SetupAssistedVault';
 export const SIGNTRANSACTION = 'SignTransactionScreen';
 export const PRIVACYANDDISPLAY = 'PrivacyAndDisplay';
 export const VAULTDETAILS = 'VaultDetails';
+export const ADDRESERVEKEY = 'AddReserveKey';

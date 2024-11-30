@@ -1,7 +1,7 @@
-import { StyleSheet, TouchableOpacity, Vibration } from 'react-native';
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import { Pressable, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, HStack, ScrollView, VStack, useColorMode } from 'native-base';
+import { Box, Checkbox, HStack, ScrollView, VStack, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -17,7 +17,14 @@ import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
+import KeeperModal from 'src/components/KeeperModal';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import AddCircleLight from 'src/assets/images/add-circle-light.svg';
+import ReserveKeyIllustrationLight from 'src/assets/images/reserve-key-illustration-light.svg';
+import usePlan from 'src/hooks/usePlan';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { SignerType } from 'src/services/wallets/enums';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -49,6 +56,7 @@ function NumberInput({ value, onDecrease, onIncrease }) {
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'VaultSetup'>;
 function VaultSetup({ route }: ScreenProps) {
+  const { plan } = usePlan();
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -65,9 +73,11 @@ function VaultSetup({ route }: ScreenProps) {
       ? 'Vault'
       : ''
   );
-  const [vaultDescription, setVaultDescription] = useState(
-    activeVault?.presentationData?.description || ''
-  );
+  const descriptionInputRef = useRef(activeVault?.presentationData?.description || '');
+  const initialDescription = useRef(descriptionInputRef.current);
+  const [isAddInheritanceKey, setIsAddInheritanceKey] = useState(false);
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
   const { translations } = useContext(LocalizationContext);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
@@ -82,7 +92,8 @@ function VaultSetup({ route }: ScreenProps) {
         .catch((err) => showToast(err));
     }
   }, [isTimeLock]);
-  const { vault: vaultTranslations } = translations;
+  const { vault: vaultTranslations, common } = translations;
+  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
 
   const onDecreaseM = () => {
     if (scheme.m > 1) {
@@ -108,7 +119,12 @@ function VaultSetup({ route }: ScreenProps) {
       setScheme({ ...scheme, n: scheme.n + 1 });
     }
   };
+
+  const onDescriptionChange = (value) => {
+    descriptionInputRef.current = value;
+  };
   const OnProceed = () => {
+    const vaultDescription = descriptionInputRef.current;
     if (vaultName !== '') {
       if (isRecreation) {
         dispatch(
@@ -135,6 +151,10 @@ function VaultSetup({ route }: ScreenProps) {
               vaultId,
               isTimeLock,
               currentBlockHeight,
+              isAddInheritanceKey,
+              ...(isAddInheritanceKey && {
+                signerFilters: [SignerType.MY_KEEPER, SignerType.TAPSIGNER, SignerType.SEED_WORDS],
+              }),
             },
           })
         );
@@ -143,6 +163,27 @@ function VaultSetup({ route }: ScreenProps) {
       showToast(vaultTranslations.pleaseEnterVaultName, <ToastErrorIcon />);
     }
   };
+
+  function ModalContent() {
+    return (
+      <Box style={styles.modalContainer}>
+        <Box style={styles.reserveKeyIllustration}>
+          <ReserveKeyIllustrationLight />
+        </Box>
+        <Text color={`${colorMode}.secondaryText`}>{vaultTranslations.reserveKeyUpgradeDesc}</Text>
+        <Box style={styles.modalButtonContainer}>
+          <Buttons
+            primaryText={common.upgradeNow}
+            primaryCallback={() => {
+              setShowModal(false);
+              navigation.dispatch(CommonActions.navigate('ChoosePlan'));
+            }}
+            fullWidth
+          />
+        </Box>
+      </Box>
+    );
+  }
 
   // TODO: add learn more modal
   return (
@@ -156,6 +197,10 @@ function VaultSetup({ route }: ScreenProps) {
             : vaultTranslations.AddCustomMultiSig
         }
         subtitle={vaultTranslations.configureScheme}
+        learnMore={!isDiamondHand}
+        learnMorePressed={() => {
+          setShowModal(true);
+        }}
         // To-Do-Learn-More
       />
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -169,13 +214,17 @@ function VaultSetup({ route }: ScreenProps) {
             testID="vault_name"
             maxLength={18}
           />
-          <KeeperTextInput
-            placeholder="Add a description (Optional)"
-            value={vaultDescription}
-            onChangeText={setVaultDescription}
-            testID="vault_description"
-            maxLength={20}
-          />
+          <Pressable
+            onPress={() => {
+              setShowDescriptionModal(true);
+              initialDescription.current = descriptionInputRef.current;
+            }}
+          >
+            <Box style={styles.descriptionContainer}>
+              <Text color={`${colorMode}.greenText`}>Add Description</Text>
+              <AddCircleLight />
+            </Box>
+          </Pressable>
           <Box style={styles.thresholdContainer}>
             <Text
               style={styles.title}
@@ -210,9 +259,78 @@ function VaultSetup({ route }: ScreenProps) {
             </Text>
             <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
           </Box>
+          <Box
+            style={{
+              opacity: !isDiamondHand ? 0.5 : 1,
+            }}
+          >
+            <Checkbox
+              value="Add Inheritance Key"
+              _checked={{
+                bgColor: `${colorMode}.pantoneGreen`,
+                borderColor: `${colorMode}.dullGreyBorder`,
+              }}
+              _unchecked={{
+                bgColor: `${colorMode}.primaryBackground`,
+              }}
+              borderWidth={1}
+              onChange={() => setIsAddInheritanceKey(!isAddInheritanceKey)}
+              isDisabled={!isDiamondHand}
+            >
+              <Text color={`${colorMode}.primaryText`} fontSize={12}>
+                {vaultTranslations.addInheritanceKey}
+              </Text>
+            </Checkbox>
+          </Box>
         </VStack>
       </ScrollView>
       <Buttons primaryText="Proceed" primaryCallback={OnProceed} fullWidth />
+      <KeeperModal
+        visible={showDescriptionModal}
+        close={() => setShowDescriptionModal(false)}
+        title="Add Description"
+        subTitle="This will reflect on the home screen"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        showCloseIcon={false}
+        Content={() => (
+          <Box style={styles.descriptionInput}>
+            <KeeperTextInput
+              ref={(input) => {
+                descriptionInputRef.current = input ? input.value : '';
+              }}
+              placeholder="Add a description (Optional)"
+              defaultValue={descriptionInputRef.current}
+              onChangeText={onDescriptionChange}
+              testID="vault_description"
+              maxLength={20}
+            />
+          </Box>
+        )}
+        buttonText="Save Changes"
+        buttonCallback={() => {
+          setShowDescriptionModal(false);
+          showToast('Description added successfully!', <TickIcon />);
+        }}
+        secondaryButtonText="Cancel"
+        secondaryCallback={() => {
+          descriptionInputRef.current = initialDescription.current;
+          setShowDescriptionModal(false);
+        }}
+      />
+      <KeeperModal
+        visible={showModal}
+        close={() => setShowModal(false)}
+        title={vaultTranslations.addInheritanceKey}
+        subTitle={vaultTranslations.inheritanceKeyDesc}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        subTitleWidth={wp(300)}
+        Content={ModalContent}
+        showCloseIcon={false}
+      />
     </ScreenWrapper>
   );
 }
@@ -251,10 +369,31 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   thresholdContainer: {
-    marginTop: hp(35),
+    marginTop: hp(20),
   },
   title: {
     fontSize: 14,
     marginBottom: hp(5),
+  },
+  descriptionContainer: {
+    width: '100%',
+    height: hp(30),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(5),
+  },
+  descriptionInput: {
+    marginBottom: hp(10),
+  },
+  modalContainer: {
+    flex: 1,
+    gap: hp(30),
+  },
+  reserveKeyIllustration: {
+    alignSelf: 'center',
+    paddingRight: wp(20),
+  },
+  modalButtonContainer: {
+    marginTop: hp(10),
   },
 });
