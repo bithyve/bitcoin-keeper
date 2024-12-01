@@ -1,7 +1,11 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { MultisigScriptType, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
-import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import {
+  MiniscriptElements,
+  VaultScheme,
+  VaultSigner,
+} from 'src/services/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { TransferType } from 'src/models/enums/TransferType';
@@ -25,20 +29,27 @@ import {
   generateTimelockedVaultElements,
 } from 'src/services/wallets/operations/miniscript/default/TimelockedVault';
 import config from 'src/utils/service-utilities/config';
+import {
+  generateInheritanceVaultElements,
+  INHERITANCE_VAULT_TIMELOCKS_MAINNET,
+  INHERITANCE_VAULT_TIMELOCKS_TESTNET,
+} from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import { MONTHS_12, MONTHS_3, MONTHS_6 } from './constants';
 
 function VaultMigrationController({
   vaultCreating,
   vaultKeys,
   scheme,
-  isTimeLock,
-  currentBlockHeight,
-  selectedDuration,
   name,
   description,
   vaultId,
   setGeneratedVaultId,
   vaultType = VaultType.DEFAULT,
+  isTimeLock = false,
+  inheritanceKey = null,
+  isAddInheritanceKey = false,
+  currentBlockHeight = null,
+  selectedDuration = null,
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -157,8 +168,9 @@ function VaultMigrationController({
       throw new Error('Invalid vault type');
     }
   };
+
   const createVault = useCallback(
-    (signers: VaultSigner[], scheme: VaultScheme, vaultType) => {
+    (signers: VaultSigner[], scheme: VaultScheme, vaultType, inheritanceSigner?: VaultSigner) => {
       try {
         const vaultInfo: NewVaultInfo = {
           vaultType,
@@ -170,9 +182,10 @@ function VaultMigrationController({
           },
         };
 
-        if (isTimeLock) {
-          if (vaultInfo.vaultType !== VaultType.TIMELOCKED) {
-            throw new Error('Invalid vault type');
+        const isTimelockedInheritanceKey = isAddInheritanceKey;
+        if (isTimeLock || isTimelockedInheritanceKey) {
+          if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultType)) {
+            throw new Error('Invalid vault type - supported only for timelocked and inheritance');
           }
 
           const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
@@ -194,13 +207,31 @@ function VaultMigrationController({
 
           const timelocks = [currentBlockHeight + timelockDuration];
 
-          const miniscriptElements = generateTimelockedVaultElements(signers, scheme, timelocks);
+          let miniscriptElements: MiniscriptElements;
+          if (vaultType === VaultType.TIMELOCKED) {
+            miniscriptElements = generateTimelockedVaultElements(signers, scheme, timelocks);
+          } else if (vaultType === VaultType.INHERITANCE) {
+            miniscriptElements = generateInheritanceVaultElements(
+              signers,
+              inheritanceSigner,
+              scheme,
+              timelocks
+            );
+          }
+          if (!miniscriptElements) {
+            showToast('Failed to generate miniscript elements');
+            return;
+          }
+
           const vaultScheme: VaultScheme = {
             ...scheme,
             multisigScriptType,
           };
 
           vaultInfo.vaultScheme = vaultScheme;
+          if (vaultType == VaultType.INHERITANCE) {
+            vaultInfo.vaultSigners = [...signers, inheritanceSigner];
+          }
           vaultInfo.miniscriptElements = miniscriptElements;
         }
 
@@ -220,7 +251,7 @@ function VaultMigrationController({
         return false;
       }
     },
-    [isTimeLock, selectedDuration, currentBlockHeight]
+    [isTimeLock, isAddInheritanceKey, selectedDuration, currentBlockHeight]
   );
 
   const initiateNewVault = () => {
@@ -256,7 +287,7 @@ function VaultMigrationController({
       };
       dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
-      createVault(vaultKeys, scheme, vaultType);
+      createVault(vaultKeys, scheme, vaultType, inheritanceKey);
     }
   };
 
