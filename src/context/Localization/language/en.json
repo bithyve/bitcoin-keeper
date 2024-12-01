@@ -695,7 +695,17 @@
     "selectTheTotalNumberOfKeys": "Select the total number of keys",
     "requiredKeys": "Required Keys",
     "minimumNumberOfKeysToSignATransaction": "Minimum number of keys to sign a transaction",
-    "pleaseEnterVaultName": "Please enter a name for your vault"
+    "pleaseEnterVaultName": "Please enter a name for your vault",
+    "resetIKTitle": "Resetting Inheritance Key",
+    "resetIKDesc": "Re-vault to start the timer again on the Inheritance Key",
+    "revaultNow": "Revault Now",
+    "yourCurrentTimeline": "Your Current Timeline",
+    "changeTimeline": "Change Timeline",
+    "changeTimelineDesc": "You can re-vault it anytime for x months starting now or choose to change the timeline before proceeding",
+    "setTimelock": "Set time-lock",
+    "revaultTimelineChanged": "Revault Timeline Changed",
+    "revaultTimelineChangedDesc": "The activation timeline of Inheritance key has been reset to initial",
+    "timelockInfo": "This ensures your funds remain protected under the vault settings"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
