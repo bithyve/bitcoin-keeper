@@ -83,6 +83,7 @@ import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
 import _ from 'lodash';
 import { getSignerDescription } from 'src/hardware';
+import { SyncedWallet } from 'src/services/wallets/interfaces';
 import { RootState } from '../store';
 import {
   initiateVaultMigration,
@@ -153,7 +154,6 @@ import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
-import { SyncedWallet } from 'src/services/wallets/interfaces';
 
 export interface NewVaultDetails {
   name?: string;
@@ -550,9 +550,8 @@ export function* addNewVaultWorker({
           miniscriptElements
         );
         vaultScheme.miniscriptScheme = miniscriptScheme;
-      }
-
-      if (vaultScheme.n !== vaultSigners.length) {
+      } else if (vaultScheme.n !== vaultSigners.length) {
+        // vaultScheme check for MINISCRIPT_MULTISIG is irrelevant
         throw new Error('Vault schema(n) and signers mismatch');
       }
 
@@ -837,8 +836,10 @@ function* migrateVaultWorker({
     } = payload.newVaultData;
     const { vaultShellId } = payload;
 
-    if (vaultScheme.n !== vaultSigners.length) {
-      throw new Error('Vault schema(n) and signers mismatch');
+    if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
+      if (vaultScheme.n !== vaultSigners.length) {
+        throw new Error('Vault schema(n) and signers mismatch');
+      }
     }
 
     const networkType = config.NETWORK_TYPE;
@@ -1087,7 +1088,7 @@ function* refreshWalletsWorker({
       labels = yield call(dbManager.getCollection, RealmSchema.Tags);
     }
     for (const synchedWalletWithUTXOs of synchedWallets) {
-      const synchedWallet = synchedWalletWithUTXOs.synchedWallet;
+      const { synchedWallet } = synchedWalletWithUTXOs;
       // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
       for (const utxo of synchedWalletWithUTXOs.newUTXOs) {

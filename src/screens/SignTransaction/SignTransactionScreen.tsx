@@ -291,7 +291,8 @@ function SignTransactionScreen() {
 
     const hasThresholdSignatures = signedTxCount >= defaultVault.scheme.m;
     if (defaultVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-      if (defaultVault.type === VaultType.TIMELOCKED) return hasThresholdSignatures;
+      const vaultsWithTimelock = [VaultType.TIMELOCKED, VaultType.INHERITANCE]; // m-of-n style miniscript vaults w/ timelock
+      if (vaultsWithTimelock.includes(defaultVault.type)) return hasThresholdSignatures;
       else if (signedTxCount === serializedPSBTEnvelops.length) return true;
     } else return hasThresholdSignatures;
   };

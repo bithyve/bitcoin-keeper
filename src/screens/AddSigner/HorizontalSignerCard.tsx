@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, Pressable } from 'native-base';
 import { StyleSheet, ViewStyle } from 'react-native';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import ArrowRightIcon from 'src/assets/images/icon_arrow_grey.svg';
 import { hp, wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type HorizontalSignerCardProps = {
   name: string;
@@ -34,6 +35,8 @@ function HorizontalSignerCard({
   colorMode,
   changeKey,
 }: HorizontalSignerCardProps) {
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslations } = translations;
   const backgroundColor =
     colorVarient === 'brown'
       ? `${colorMode}.BrownNeedHelp`
@@ -41,7 +44,6 @@ function HorizontalSignerCard({
       ? 'transparent'
       : `${colorMode}.pantoneGreen`;
 
-  console.log('backgroundColor', backgroundColor);
   return (
     <Pressable
       backgroundColor={`${colorMode}.seashellWhite`}
@@ -81,7 +83,7 @@ function HorizontalSignerCard({
         </Box>
         <Box style={styles.changeKeyContainer}>
           <Text underline style={styles.changeKeyText} medium color={`${colorMode}.BrownNeedHelp`}>
-            Change Key
+            {vaultTranslations.changeKey}
           </Text>
           <ArrowRightIcon fill={`${colorMode}.BrownNeedHelp`} height={hp(20)} width={wp(5)} />
         </Box>

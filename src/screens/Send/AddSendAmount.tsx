@@ -60,6 +60,7 @@ import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
 import ReceiptIcon from 'src/assets/images/receipt.svg';
 import ReceiptIconDark from 'src/assets/images/receipt-white.svg';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import AmountDetailsInput from './AmountDetailsInput';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
