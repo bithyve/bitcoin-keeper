@@ -740,7 +740,17 @@
     "setupVaultOption2Title": "Personalize the vault",
     "setupVaultOption2Description": "Name your vault and optionally add a description to make it easier to manage and identify.",
     "setupVaultOption3Title": "Add Optional Inheritance Key",
-    "setupVaultOption3Description": "Setup a time-locked Inheritance Key as an additional key to help you give away your bitcoin to heirs."
+    "setupVaultOption3Description": "Setup a time-locked Inheritance Key as an additional key to help you give away your bitcoin to heirs.",
+    "resetIKTitle": "Resetting Inheritance Key",
+    "resetIKDesc": "Re-vault to start the timer again on the Inheritance Key",
+    "revaultNow": "Revault Now",
+    "yourCurrentTimeline": "Your Current Timeline",
+    "changeTimeline": "Change Timeline",
+    "changeTimelineDesc": "You can re-vault it anytime for x months starting now or choose to change the timeline before proceeding",
+    "setTimelock": "Set time-lock",
+    "revaultTimelineChanged": "Revault Timeline Changed",
+    "revaultTimelineChangedDesc": "The activation timeline of Inheritance key has been reset to initial",
+    "timelockInfo": "This ensures your funds remain protected under the vault settings"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
