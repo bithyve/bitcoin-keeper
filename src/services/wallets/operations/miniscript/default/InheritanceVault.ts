@@ -16,7 +16,24 @@ export const INHERITANCE_VAULT_TIMELOCKS_MAINNET = {
   MONTHS_24: 105120,
 };
 
-// contains the defaults for the Inheritance Vault
+/**
+ * Generates the miniscript elements for the Inheritance Vault
+ *
+ * Miniscript Analysis(produced by the policy-lang generator based on the miniscript elements from the function below)
+ *
+ * or_d
+ * * multi(m of n)
+ * and_v
+ * * v: multi(m of n+1)
+ * * after(3493966)
+ *
+ * Resulting script structure(sample: 2 of 3 multisig w/ Inheritance)
+ *
+ * 2 <K1<0;1>> <K2<0;1>> <K3<0;1>> 3 OP_CHECKMULTISIG OP_IFDUP OP_NOTIF
+ *   2 <K1<2;3>> <K2<2;3>> <K3<2;3>> <IK1<0;1>> 4 OP_CHECKMULTISIGVERIFY <4e5035>
+ *   OP_CHECKLOCKTIMEVERIFY
+ * OP_ENDIF
+ */
 export function generateInheritanceVaultElements(
   signers: VaultSigner[],
   inheritanceSigner: VaultSigner,

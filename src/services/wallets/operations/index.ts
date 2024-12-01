@@ -1867,8 +1867,10 @@ export default class WalletOperations {
             nLockTime?: number;
             nSequence?: number;
           };
-          if (wallet.type !== VaultType.TIMELOCKED) {
-            // scriptwitness selection for TIMELOCKED vault is done using the available partial signatures(simplifies UX)
+
+          const vaultsWithTimelock = [VaultType.TIMELOCKED, VaultType.INHERITANCE]; // m-of-n style miniscript vaults w/ timelock
+          if (!vaultsWithTimelock.includes((wallet as Vault).type)) {
+            // scriptwitness selection for TIMELOCKED/INHERITANCE vault is done using the available partial signatures(simplifies UX)
             const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
               miniscriptScheme,
               miniscriptTxElements
