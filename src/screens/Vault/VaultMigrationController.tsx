@@ -135,6 +135,28 @@ function VaultMigrationController({
     }
   };
 
+  const getTimelockDuration = (vaultType, selectedDuration, networkType) => {
+    const durationIdentifier =
+      selectedDuration === MONTHS_3
+        ? 'MONTHS_3'
+        : selectedDuration === MONTHS_6
+        ? 'MONTHS_6'
+        : selectedDuration === MONTHS_12
+        ? 'MONTHS_12'
+        : 'MONTHS_24';
+
+    if (vaultType === VaultType.INHERITANCE) {
+      return networkType === NetworkType.MAINNET
+        ? INHERITANCE_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
+        : INHERITANCE_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
+    } else if (vaultType === VaultType.TIMELOCKED) {
+      return networkType === NetworkType.MAINNET
+        ? TIMELOCKED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
+        : TIMELOCKED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
+    } else {
+      throw new Error('Invalid vault type');
+    }
+  };
   const createVault = useCallback(
     (signers: VaultSigner[], scheme: VaultScheme, vaultType) => {
       try {
@@ -164,17 +186,11 @@ function VaultMigrationController({
             return;
           }
 
-          const durationIdentifier =
-            selectedDuration === MONTHS_3
-              ? 'MONTHS_3'
-              : selectedDuration === MONTHS_6
-              ? 'MONTHS_6'
-              : 'MONTHS_12';
-
-          const timelockDuration =
-            config.NETWORK_TYPE === NetworkType.MAINNET
-              ? TIMELOCKED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
-              : TIMELOCKED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
+          const timelockDuration = getTimelockDuration(
+            vaultType,
+            selectedDuration,
+            config.NETWORK_TYPE
+          );
 
           const timelocks = [currentBlockHeight + timelockDuration];
 
