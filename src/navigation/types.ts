@@ -166,6 +166,8 @@ export type AppStackParams = {
   EditContact: undefined;
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
+  ResetInheritanceKey: undefined;
+  ChangeIKSTimeline: undefined;
 };
 
 // Usage:

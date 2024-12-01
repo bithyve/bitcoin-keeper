@@ -133,6 +133,8 @@ import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
+import ResetInheritanceKey from 'src/screens/Vault/ResetInheritanceKey';
+import ChangeIKSTimeline from 'src/screens/Vault/ChangeIKSTimeline';
 import { useColorMode } from 'native-base';
 
 function LoginStack() {
@@ -304,6 +306,8 @@ function AppStack() {
         <Stack.Screen name="ContactProfile" component={ContactProfile} />
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
+        <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
+        <Stack.Screen name="ChangeIKSTimeline" component={ChangeIKSTimeline} />
       </Stack.Navigator>
     </RealmProvider>
   );
