@@ -7,10 +7,25 @@ import IKSInfocard from './IKSInfoCard';
 import { useContext } from 'react';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-const TimeLockModalContent = ({ name, description, duration, Icon, callback }) => {
+interface TimeLockModalContentProps {
+  name?: string;
+  description?: string;
+  duration?: string;
+  Icon: Element;
+  callback: () => void;
+}
+
+const TimeLockModalContent: React.FC<TimeLockModalContentProps> = ({
+  name,
+  description,
+  duration,
+  Icon,
+  callback,
+}) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText, common } = translations;
+
   return (
     <Box style={styles.infoContainer}>
       <IKSInfocard name={name} description={description} duration={duration} Icon={Icon} />
