@@ -214,7 +214,7 @@ function SignWithQR() {
         <Buttons
           primaryText="Scan PSBT"
           primaryCallback={navigateToQrScan}
-          secondaryText="Vault Details"
+          secondaryText={isRemoteKey ? null : 'Vault Details'}
           secondaryCallback={navigateToVaultRegistration}
         />
       </Box>
