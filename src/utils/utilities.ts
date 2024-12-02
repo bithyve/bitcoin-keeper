@@ -180,6 +180,20 @@ export function numberToOrdinal(cardinal) {
   return ordinals[cardinal];
 }
 
+export function calculateMonthlyCost(yearlyPrice) {
+  const numericValue = parseFloat(yearlyPrice.replace(/[^0-9.]/g, ''));
+  if (isNaN(numericValue)) {
+    throw new Error('Invalid yearly price format');
+  }
+  const monthlyCost = numericValue / 12;
+  const currencySymbol = yearlyPrice.match(/^\D+/)?.[0]?.trim() || '';
+  const formattedMonthlyCost = `${currencySymbol} ${monthlyCost.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+  return formattedMonthlyCost;
+}
+
 // Format number with comma
 // Example: 1000000 => 1,000,000
 export const formatNumber = (value: string) =>
