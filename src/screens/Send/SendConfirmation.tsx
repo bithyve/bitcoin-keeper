@@ -67,6 +67,7 @@ import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/ca
 import config from 'src/utils/service-utilities/config';
 import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Colors from 'src/theme/Colors';
 import ReceiptWrapper from './ReceiptWrapper';
 import TransferCard from './TransferCard';
 import TransactionPriorityDetails from './TransactionPriorityDetails';
@@ -508,7 +509,7 @@ function SendConfirmation({ route }) {
           (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
         ) {
           if (!selectedPhase || !selectedPaths) {
-            showToast('Invalid phase/path selection');
+            showToast('Invalid phase/path selection', <ToastErrorIcon />);
             return;
           }
         }
