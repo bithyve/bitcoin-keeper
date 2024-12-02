@@ -45,8 +45,6 @@ function SignWithQR() {
     isRemoteKey,
     serializedPSBTEnvelopFromProps,
     isMultisig,
-    sendConfirmationRouteParams,
-    tnxDetails,
   }: {
     vaultKey: VaultSigner;
     vaultId: string;
@@ -205,13 +203,9 @@ function SignWithQR() {
             <ShareWithNfc
               data={serializedPSBT}
               isPSBTSharing
-              psbt={serializedPSBT}
-              serializedPSBTEnvelop={serializedPSBTEnvelop}
               signer={signer}
-              vaultKey={vaultKey} // required for signing
-              vaultId={vaultId} // required for signing
-              sendConfirmationRouteParams={sendConfirmationRouteParams}
-              tnxDetails={tnxDetails}
+              remoteShare
+              xfp={vaultKey.xfp}
             />
           ) : null}
         </Box>

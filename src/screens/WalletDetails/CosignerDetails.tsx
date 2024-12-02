@@ -83,7 +83,7 @@ function CosignerDetails({ route }: ScreenProps) {
           </Box>
           {details ? (
             <Box style={styles.centerBottom}>
-              <ShareWithNfc data={details} signer={signer} />
+              <ShareWithNfc data={details} signer={signer} remoteShare />
             </Box>
           ) : null}
         </Box>
