@@ -20,13 +20,12 @@ import Buttons from 'src/components/Buttons';
 import { SDIcons } from './SigningDeviceIcons';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
 import CreateReserveKeyVault from './CreateReserveKeyVault';
-import { MONTHS_12, MONTHS_24, MONTHS_3, MONTHS_6 } from './constants';
+import { MONTHS_12, MONTHS_24, MONTHS_18 } from './constants';
 
-const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_3, value: 3 * 30 * 24 * 60 * 60 * 1000 };
+const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
 const INHERITANCE_TIMELOCK_DURATIONS = [
   DEFAULT_INHERITANCE_TIMELOCK,
-  { label: MONTHS_6, value: 6 * 30 * 24 * 60 * 60 * 1000 },
-  { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
+  { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
   { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
 ];
 

@@ -34,7 +34,7 @@ import {
   INHERITANCE_VAULT_TIMELOCKS_MAINNET,
   INHERITANCE_VAULT_TIMELOCKS_TESTNET,
 } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
-import { MONTHS_12, MONTHS_3, MONTHS_6 } from './constants';
+import { MONTHS_12, MONTHS_3, MONTHS_6, MONTHS_18, MONTHS_24 } from './constants';
 
 function VaultMigrationController({
   vaultCreating,
@@ -154,7 +154,16 @@ function VaultMigrationController({
         ? 'MONTHS_6'
         : selectedDuration === MONTHS_12
         ? 'MONTHS_12'
-        : 'MONTHS_24';
+        : selectedDuration === MONTHS_18
+        ? 'MONTHS_18'
+        : selectedDuration === MONTHS_24
+        ? 'MONTHS_24'
+        : null;
+
+    if (!durationIdentifier) {
+      showToast('Invalid duration selected', <ToastErrorIcon />);
+      return;
+    }
 
     if (vaultType === VaultType.INHERITANCE) {
       return networkType === NetworkType.MAINNET
@@ -164,8 +173,6 @@ function VaultMigrationController({
       return networkType === NetworkType.MAINNET
         ? TIMELOCKED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
         : TIMELOCKED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
-    } else {
-      throw new Error('Invalid vault type');
     }
   };
 
@@ -204,6 +211,10 @@ function VaultMigrationController({
             selectedDuration,
             config.NETWORK_TYPE
           );
+          if (!timelockDuration) {
+            showToast('Failed to determine timelock duration', <ToastErrorIcon />);
+            return;
+          }
 
           const timelocks = [currentBlockHeight + timelockDuration];
 
