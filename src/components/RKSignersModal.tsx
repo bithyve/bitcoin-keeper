@@ -229,6 +229,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
         },
       ])
     );
+    navigateToShowPSBT(signedSerializedPSBT);
   };
 
   const vaultKeys = {

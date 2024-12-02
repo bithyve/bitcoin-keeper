@@ -6,7 +6,7 @@ import idx from 'idx';
 import { TxPriority, VaultType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
-import { Signer } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultScheme } from 'src/services/wallets/interfaces/vault';
 import * as bitcoin from 'bitcoinjs-lib';
 import { isTestnet } from 'src/constants/Bitcoin';
 
@@ -180,6 +180,20 @@ export function numberToOrdinal(cardinal) {
   return ordinals[cardinal];
 }
 
+export function calculateMonthlyCost(yearlyPrice) {
+  const numericValue = parseFloat(yearlyPrice.replace(/[^0-9.]/g, ''));
+  if (isNaN(numericValue)) {
+    throw new Error('Invalid yearly price format');
+  }
+  const monthlyCost = numericValue / 12;
+  const currencySymbol = yearlyPrice.match(/^\D+/)?.[0]?.trim() || '';
+  const formattedMonthlyCost = `${currencySymbol} ${monthlyCost.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+  return formattedMonthlyCost;
+}
+
 // Format number with comma
 // Example: 1000000 => 1,000,000
 export const formatNumber = (value: string) =>
@@ -259,7 +273,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
     const vBytes = estimateVByteFromPSBT(base64Str);
-
+    const signersList = [];
     let signerMatched = false;
 
     psbt.data.inputs.forEach((input) => {
@@ -271,16 +285,11 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
             masterFingerprint: derivation.masterFingerprint.toString('hex'),
             pubKey: derivation.pubkey.toString('hex'),
           };
+          signersList.push(data);
           if (data.masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
             // validating further by matching public key
             const xPub = signer.signerXpubs[XpubTypes.P2WSH][0].xpub; // to enable for taproot in future
-            const node = bip32.fromBase58(
-              xPub,
-              isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
-            );
-            const receiveAddPath = data.derivationPath.split('/').slice(-2).join('/');
-            const childNode = node.derivePath(receiveAddPath);
-            const pubkey = childNode.publicKey.toString('hex');
+            const pubkey = getPubKeyFromXpub(xPub, data.derivationPath);
             if (data.pubKey == pubkey) signerMatched = true;
           }
         });
@@ -294,6 +303,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       return {
         address: p2wsh.address,
         amount: input.witnessUtxo.value,
+        path: input.bip32Derivation[0].path,
       };
     });
 
@@ -337,11 +347,23 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       signerMatched,
       feeRate,
       vBytes,
+      signersList,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
     throw 'Something went wrong';
   }
+};
+
+export const getPubKeyFromXpub = (xPub: string, derivationPath: string) => {
+  const node = bip32.fromBase58(
+    xPub,
+    isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+  );
+  const receiveAddPath = derivationPath.split('/').slice(-2).join('/');
+  const childNode = node.derivePath(receiveAddPath);
+  const pubkey = childNode.publicKey.toString('hex');
+  return pubkey;
 };
 
 export const estimateVByteFromPSBT = (base64Str: string) => {
@@ -420,7 +442,6 @@ export const getInputsToSignFromPSBT = (base64Str: string, signer: Signer) => {
   });
   return inputsToSign;
 };
-
 
 export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
   let estimatedBlocksBeforeConfirmation = 0;

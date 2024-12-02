@@ -9,6 +9,7 @@ import PlebIcon from 'src/assets/images/pleb_white.svg';
 import HodlerIcon from 'src/assets/images/hodler.svg';
 import DiamondIcon from 'src/assets/images/diamond_hands.svg';
 import PlanCheckMarkSelected from 'src/assets/images/planCheckMarkSelected.svg';
+import { calculateMonthlyCost } from 'src/utils/utilities';
 
 const styles = StyleSheet.create({
   wrapperView: {
@@ -67,7 +68,8 @@ function ChoosePlanCarouselItem({
   const getAmt = useMemo(() => {
     try {
       if (item.productType === 'free') return 'Free';
-      return item.monthlyPlanDetails.price;
+      if (isMonthly) return item.monthlyPlanDetails.price;
+      else return calculateMonthlyCost(item.yearlyPlanDetails.price);
     } catch (error) {
       return '';
     }
