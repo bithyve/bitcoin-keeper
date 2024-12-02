@@ -94,7 +94,7 @@ export const generateOutputDescriptors = (
   wallet: Vault | Wallet,
   includePatchRestrictions: boolean = false
 ) => {
-  const receivingAddress = WalletOperations.getExternalAddressAtIdx(wallet, 0);
+  const receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(wallet, 0);
   if (wallet.entityKind === EntityKind.WALLET) {
     const {
       derivationDetails: { xDerivationPath },
