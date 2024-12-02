@@ -43,13 +43,7 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import {
-  emailCheck,
-  generateDataFromPSBT,
-  getPubKeyFromXpub,
-  getTnxDetailsPSBT,
-  matchVaultSchema,
-} from 'src/utils/utilities';
+import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -89,6 +83,7 @@ import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import { getPersistedDocument } from 'src/services/documents';
+import WalletOperations from 'src/services/wallets/operations';
 
 const { width } = Dimensions.get('screen');
 
@@ -560,16 +555,8 @@ function SignerAdvanceSettings({ route }: any) {
 
   const signPSBT = async (serializedPSBT) => {
     try {
-      const {
-        senderAddresses,
-        receiverAddresses,
-        fees,
-        signerMatched,
-        sendAmount,
-        feeRate,
-        scheme,
-        signersList,
-      } = generateDataFromPSBT(serializedPSBT, signer);
+      const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount, feeRate } =
+        generateDataFromPSBT(serializedPSBT, signer);
       const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
       if (!signerMatched) {
@@ -581,16 +568,31 @@ function SignerAdvanceSettings({ route }: any) {
       if (SignersReqVault.includes(signer.type)) {
         let activeVault = null;
         allVaults.forEach(async (vault) => {
-          // Match vault scheme
-          if (matchVaultSchema(vault.scheme, scheme)) {
-            // match vault mfp and pubKey
-            // Create pubKey using xpub and derivation path from psbt
-            if (matchSigners(signersList, vault.signers)) {
-              activeVault = vault;
-              return;
+          let addressMatched = true;
+          for (let i = 0; i < senderAddresses.length; i++) {
+            const _ = senderAddresses[i].path.split('/');
+            const [isChange, index] = _.splice(_.length - 2);
+            // 0 - Receive(External) | 1 - change(internal)
+            let generatedAddress: string;
+            if (isChange != '0' && isChange != '1') {
+              throw new Error('Derivation uses an invalid path');
+            }
+            generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
+              vault,
+              parseInt(index),
+              isChange == '1'
+            );
+            if (senderAddresses[i].address != generatedAddress) {
+              addressMatched = false;
+              break;
             }
           }
+          if (addressMatched) {
+            activeVault = vault;
+            return;
+          }
         });
+
         if (!activeVault) {
           navigation.goBack();
           throw new Error('Please import the vault before signing');
@@ -1457,23 +1459,3 @@ const styles = StyleSheet.create({
     marginBottom: hp(15),
   },
 });
-
-function matchSigners(signersList, signers) {
-  // signersList-psbt | signers-vault
-  const isMatchingObject = (psbtSigner, vaultSigner) => {
-    const generatePub = getPubKeyFromXpub(vaultSigner.xpub, psbtSigner.derivationPath);
-    return psbtSigner.pubKey === generatePub;
-  };
-
-  for (const psbtSigner of signersList) {
-    const match = signers.find(
-      (vaultSigner) =>
-        vaultSigner.masterFingerprint.toLowerCase() === psbtSigner.masterFingerprint.toLowerCase()
-    );
-    if (!match || !isMatchingObject(psbtSigner, match)) {
-      return false;
-    }
-  }
-
-  return true;
-}

@@ -180,6 +180,20 @@ export function numberToOrdinal(cardinal) {
   return ordinals[cardinal];
 }
 
+export function calculateMonthlyCost(yearlyPrice) {
+  const numericValue = parseFloat(yearlyPrice.replace(/[^0-9.]/g, ''));
+  if (isNaN(numericValue)) {
+    throw new Error('Invalid yearly price format');
+  }
+  const monthlyCost = numericValue / 12;
+  const currencySymbol = yearlyPrice.match(/^\D+/)?.[0]?.trim() || '';
+  const formattedMonthlyCost = `${currencySymbol} ${monthlyCost.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+  return formattedMonthlyCost;
+}
+
 // Format number with comma
 // Example: 1000000 => 1,000,000
 export const formatNumber = (value: string) =>
@@ -260,7 +274,6 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
     const vBytes = estimateVByteFromPSBT(base64Str);
     const signersList = [];
-    let scheme = { m: null, n: null };
     let signerMatched = false;
 
     psbt.data.inputs.forEach((input) => {
@@ -281,14 +294,6 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
           }
         });
       }
-      const script = input.redeemScript || input.witnessScript;
-      if (script) {
-        const decodedScript: any[] = bitcoin.script.decompile(script);
-        if (decodedScript && decodedScript.includes(bitcoin.opcodes.OP_CHECKMULTISIG)) {
-          scheme.m = decodedScript[0] - bitcoin.opcodes.OP_RESERVED;
-          scheme.n = decodedScript[decodedScript.length - 2] - bitcoin.opcodes.OP_RESERVED;
-        }
-      }
     });
     const inputs = psbt.data.inputs.map((input) => {
       const p2wsh = bitcoin.payments.p2wsh({
@@ -298,6 +303,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       return {
         address: p2wsh.address,
         amount: input.witnessUtxo.value,
+        path: input.bip32Derivation[0].path,
       };
     });
 
@@ -342,7 +348,6 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       feeRate,
       vBytes,
       signersList,
-      scheme,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
@@ -455,8 +460,4 @@ export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
     }
   }
   return { estimatedBlocksBeforeConfirmation, tnxPriority };
-};
-
-export const matchVaultSchema = (scheme1: VaultScheme, scheme2: VaultScheme) => {
-  return scheme1.m === scheme2.m && scheme1.n === scheme2.n;
 };

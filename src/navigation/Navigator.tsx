@@ -133,14 +133,7 @@ import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
-
-const defaultTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: Colors.Isabelline,
-  },
-};
+import { useColorMode } from 'native-base';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -319,6 +312,14 @@ function Navigator() {
   const Stack = createNativeStackNavigator();
   const navigation = useRef();
   const { appLoading, loadingContent } = useContext(AppContext);
+  const { colorMode } = useColorMode();
+  const defaultTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: colorMode === 'light' ? Colors.LightYellow : Colors.PrimaryBlack,
+    },
+  };
 
   // Register the navigation container with the instrumentation
   const onReady = () => {

@@ -126,17 +126,23 @@ const updateOutputsForFeeCalculation = (outputs, network) => {
 };
 
 export default class WalletOperations {
-  public static getExternalAddressAtIdx = (wallet: Wallet | Vault, index: number): string => {
+  public static getExternalInternalAddressAtIdx = (
+    wallet: Wallet | Vault,
+    index: number,
+    isInternal: boolean = false
+  ): string => {
     let receivingAddress;
     const { entityKind, specs, networkType } = wallet;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const cached = idx(specs, (_) => _.addresses.external[index]); // address cache hit
+    const cached = isInternal
+      ? idx(specs, (_) => _.addresses.internal[index])
+      : idx(specs, (_) => _.addresses.external[index]); // address cache hit
     if (cached) return cached;
 
     if ((wallet as Vault).isMultiSig) {
       // case: multi-sig vault
-      receivingAddress = WalletUtilities.createMultiSig(wallet as Vault, index, false).address;
+      receivingAddress = WalletUtilities.createMultiSig(wallet as Vault, index, isInternal).address;
     } else {
       // case: single-sig vault/wallet
       const xpub =
@@ -152,7 +158,13 @@ export default class WalletOperations {
         else if (wallet.scriptType === ScriptTypes.P2WSH) purpose = DerivationPurpose.BIP48;
       }
 
-      receivingAddress = WalletUtilities.getAddressByIndex(xpub, false, index, network, purpose);
+      receivingAddress = WalletUtilities.getAddressByIndex(
+        xpub,
+        isInternal,
+        index,
+        network,
+        purpose
+      );
     }
 
     return receivingAddress;
@@ -162,7 +174,7 @@ export default class WalletOperations {
     wallet: Wallet | Vault
   ): { receivingAddress: string } => {
     return {
-      receivingAddress: WalletOperations.getExternalAddressAtIdx(
+      receivingAddress: WalletOperations.getExternalInternalAddressAtIdx(
         wallet,
         wallet.specs.nextFreeAddressIndex
       ),

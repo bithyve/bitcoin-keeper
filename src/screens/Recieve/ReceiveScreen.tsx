@@ -124,7 +124,7 @@ function ReceiveScreen({ route }: { route }) {
       setTotalAddressesCount(wallet.specs.totalExternalAddresses);
       setCurrentAddressIdx(wallet.specs.nextFreeAddressIndex + 1);
     } else {
-      const receivingAddress = WalletOperations.getExternalAddressAtIdx(
+      const receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(
         wallet,
         currentAddressIdx - 1
       );
