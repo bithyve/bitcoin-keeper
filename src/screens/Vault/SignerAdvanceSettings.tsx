@@ -99,9 +99,15 @@ const SignersWithRKSupport = [
   SignerType.BITBOX02,
   SignerType.COLDCARD,
   SignerType.PASSPORT,
+  SignerType.PORTAL,
 ];
 
-const SignersReqVault = [SignerType.LEDGER, SignerType.TREZOR, SignerType.BITBOX02];
+const SignersReqVault = [
+  SignerType.LEDGER,
+  SignerType.TREZOR,
+  SignerType.BITBOX02,
+  SignerType.PORTAL,
+];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
