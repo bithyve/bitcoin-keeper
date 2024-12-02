@@ -55,7 +55,6 @@ function ManageSigners({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { vaultId = '', addedSigner, remoteData } = route.params || {};
-  console.log('🚀 ~ ManageSigners ~ remoteData:', remoteData);
   const { activeVault } = useVault({ vaultId });
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();

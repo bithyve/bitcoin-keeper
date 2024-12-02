@@ -34,6 +34,7 @@ import { decrypt } from 'src/utils/service-utilities/encryption';
 import { CommonActions, useNavigationState } from '@react-navigation/native';
 import { updateCachedPsbtEnvelope } from 'src/store/reducers/cachedTxn';
 import { store } from 'src/store/store';
+import usePlan from 'src/hooks/usePlan';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -45,6 +46,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { enableAnalyticsLogin } = useAppSelector((state) => state.settings);
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
+  const { isOnL2Above } = usePlan();
   function handleDeepLinkEvent(event) {
     const { url } = event;
     if (url) {
@@ -83,6 +85,11 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
+    if (!isOnL2Above) {
+      showToast('Upgrade to Hodler to use Remote Key Sharing');
+      return false;
+    }
+
     const [externalKeyId, encryptionKey] = initialUrl.split('shareKey/')[1].split('/');
     if (externalKeyId) {
       try {

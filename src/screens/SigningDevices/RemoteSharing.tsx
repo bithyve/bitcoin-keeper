@@ -16,6 +16,7 @@ import { RKInteractionMode } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { encrypt, getRandomBytes } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
+import usePlan from 'src/hooks/usePlan';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -67,6 +68,7 @@ function RemoteSharing({ route }: ScreenProps) {
   const { remoteLinkDetails } = useAppSelector((state) => state.vault);
   const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
   const [primaryLoading, setPrimaryLoading] = useState(false);
+  const { isOnL2Above } = usePlan();
 
   const handleShare = async () => {
     setPrimaryLoading(true);
@@ -145,6 +147,7 @@ function RemoteSharing({ route }: ScreenProps) {
             primaryCallback={handleShare}
             width={windowWidth * 0.82}
             primaryLoading={primaryLoading}
+            primaryDisable={!isOnL2Above}
           />
           <Buttons
             secondaryText="Cancel"
