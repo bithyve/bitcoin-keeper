@@ -1869,7 +1869,7 @@ export default class WalletOperations {
       if (wallet.entityKind === EntityKind.VAULT) {
         const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
         if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-          if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
+          if (!miniscriptScheme) throw new Error('miniscriptScheme missing for vault');
 
           const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
           let selectedScriptWitness: {
