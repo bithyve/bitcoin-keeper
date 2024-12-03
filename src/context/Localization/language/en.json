@@ -1206,7 +1206,7 @@
     "safeKeepingTips": "Key Safekeeping Tips",
     "safeKeepingTipsDesp": "Key storage best practices",
     "thoroughVeirifcationTitle": "Thorough Verification of Transaction Details",
-    "thoroughParagraph1": "Carefully review all transaction details, particularly the recipient’s address, within your multi-key setup. This careful attention is essential to avoid errors and secure your transactions, ensuring the safety of your bitcoin.",
+    "thoroughParagraph1": "Carefully review all transaction details, particularly the recipient's address while sending sats. When receiving, your own address can be checked on multiple sources like the app itself and another hardware wallet.",
     "thoroughParagraph2": "It is recommended to use atleast one hardware device with a screen. This allows to register your multi-key quorum on the device and thoroughly check transactions.",
     "preliminaryTitle": "Preliminary Test Transactions",
     "preliminaryParagraph1": "Before making significant transfers, conduct a small test transaction. This step verifies the transaction’s accuracy and confirms the smooth functioning of your multi-key setup, adding a protective layer to your bitcoin transactions.",
