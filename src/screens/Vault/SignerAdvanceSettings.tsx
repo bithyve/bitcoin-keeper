@@ -71,19 +71,20 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
-import { SDIcons } from './SigningDeviceIcons';
 import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
-import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import Note from 'src/components/Note/Note';
 import useSigners from 'src/hooks/useSigners';
-import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import { getPersistedDocument } from 'src/services/documents';
+import { TransferType } from 'src/models/enums/TransferType';
 import WalletOperations from 'src/services/wallets/operations';
+import SignerCard from '../AddSigner/SignerCard';
+import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -547,11 +548,27 @@ function SignerAdvanceSettings({ route }: any) {
       CommonActions.navigate({
         name: 'ManageTapsignerSettings',
         params: {
-          signer: signer,
+          signer,
         },
       })
     );
   };
+
+  // const signPSBTForExternalKeeperKey = async (serializedPSBT, resetQR) => {
+  //   try {
+  //     let signedSerialisedPSBT;
+  //     try {
+  //       const key = signer.signerXpubs[XpubTypes.P2WSH][0];
+  //       signedSerialisedPSBT = signCosignerPSBT(
+  //         signer.masterFingerprint,
+  //         key.xpriv,
+  //         serializedPSBT
+  //       );
+  //     } catch (e) {
+  //       showToast(e.message);
+  //       captureError(e);
+  //     }
+  //   }}};
 
   const signPSBT = async (serializedPSBT) => {
     try {
@@ -560,7 +577,7 @@ function SignerAdvanceSettings({ route }: any) {
       const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
       if (!signerMatched) {
-        showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
+        showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
         navigation.goBack();
         return;
       }
@@ -589,7 +606,6 @@ function SignerAdvanceSettings({ route }: any) {
           }
           if (addressMatched) {
             activeVault = vault;
-            return;
           }
         });
 
@@ -609,7 +625,7 @@ function SignerAdvanceSettings({ route }: any) {
             recipient: receiverAddresses,
             amount: sendAmount,
             data: serializedPSBT,
-            fees: fees,
+            fees,
             estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
             tnxPriority: tnxDetails.tnxPriority,
             signer,

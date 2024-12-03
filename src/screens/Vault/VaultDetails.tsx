@@ -14,6 +14,7 @@ import RecieveIconWhite from 'src/assets/images/receive-white.svg';
 import SettingIcon from 'src/assets/images/settings.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
+import AssitedWalletIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { VaultType } from 'src/services/wallets/enums';
@@ -35,7 +36,6 @@ import ActionCard from 'src/components/ActionCard';
 import HexagonIcon from 'src/components/HexagonIcon';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
@@ -50,6 +50,7 @@ import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 function Footer({
   vault,
@@ -126,12 +127,16 @@ function VaultInfo({ vault }: { vault: Vault }) {
           heading={`${
             vault.type === VaultType.COLLABORATIVE
               ? common.COLLABORATIVE
+              : vault.type === VaultType.ASSISTED
+              ? common.ASSISTED
+              : vault.type === VaultType.TIMELOCKED
+              ? common.TIMELOCKED
               : vault.type === VaultType.SINGE_SIG
               ? 'SINGLE-KEY'
               : common.VAULT
           }`}
         />
-        {vault.type === VaultType.SINGE_SIG && <CardPill heading={'COLD'} />}
+        {vault.type === VaultType.SINGE_SIG && <CardPill heading="COLD" />}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
         {vault.archived ? <CardPill heading={common.ARCHIVED} backgroundColor="grey" /> : null}
       </HStack>
@@ -238,6 +243,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       return b.blockTime - a.blockTime;
     }) || [];
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
+  const isAssistedWallet = vault.type === VaultType.ASSISTED;
   const isCanaryWallet = vault.type === VaultType.CANARY;
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = vault || { signers: [] };
@@ -358,7 +364,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             <HexagonIcon
               width={58}
               height={50}
-              backgroundColor={'rgba(9, 44, 39, 0.6)'}
+              backgroundColor="rgba(9, 44, 39, 0.6)"
               icon={
                 isCollaborativeWallet ? (
                   <CollaborativeIcon />

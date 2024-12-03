@@ -109,14 +109,14 @@ import {
 import { extractColdCardExport } from 'src/hardware/coldcard';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
-import SignerCard from '../AddSigner/SignerCard';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import NFC from 'src/services/nfc';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import BackupModalContent from '../AppSettings/BackupModal';
 import idx from 'idx';
 import { setLastUsedOption } from 'src/store/reducers/signer';
+import BackupModalContent from '../AppSettings/BackupModal';
+import SignerCard from '../AddSigner/SignerCard';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -201,9 +201,9 @@ const getSignerContent = (
         isMultisig ? 'MultiSig' : 'SingleSig'
       }.`;
 
-      let usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop and connect your Jade to the computer.`;
+      const usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop and connect your Jade to the computer.`;
 
-      let instructions =
+      const instructions =
         keyGenerationMode === KeyGenerationMode.USB
           ? [usbInstructions]
           : [jadeUnlockInstructions, jadeInstructions];
@@ -420,7 +420,7 @@ const getSignerContent = (
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = (
         <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
-          {`Make sure the seed is loaded (`}
+          Make sure the seed is loaded (
           <Text
             medium
             style={styles.learnHow}
@@ -1033,7 +1033,7 @@ function HardwareModalMap({
               : isCanaryAddition
               ? 'Setting up for Canary '
               : isExternalKey
-              ? `Add`
+              ? 'Add'
               : 'Setting up'
           } ${getSignerNameFromType(type)}`,
           subtitle: isExternalKey
@@ -1664,7 +1664,7 @@ function HardwareModalMap({
     };
 
     return (
-      <Box width={'100%'}>
+      <Box width="100%">
         <Box>
           <TouchableOpacity
             onPress={async () => {

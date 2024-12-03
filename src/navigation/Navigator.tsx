@@ -120,11 +120,10 @@ import HandleFileScreen from 'src/screens/SigningDevices/HandleFileScreen';
 import ZendeskOnboardingModal from 'src/components/Modal/ConciergeOnboardingModal';
 import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRecovery';
 import { useAppSelector } from 'src/store/hooks';
-import { AppStackParams } from './types';
-import Login from '../screens/LoginScreen/Login';
-import SignerSelectionListScreen from 'src/screens/Recieve/SignerSelectionListScreen';
-import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
+import AssistedWalletTimeline from 'src/screens/AssistedVault/AssistedWalletTimeline';
+import SetupAssistedVault from 'src/screens/SigningDevices/SetupAssistedVault';
+import SignerSelectionListScreen from 'src/screens/Recieve/SignerSelectionListScreen';
 import AssociateContact from 'src/screens/Contact/AssociateContact';
 import AddContact from 'src/screens/Contact/AddContact';
 import ContactProfile from 'src/screens/Contact/ContactProfile';
@@ -133,7 +132,19 @@ import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
+import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
+import AddReserveKey from 'src/screens/Vault/AddReserveKey';
 import { useColorMode } from 'native-base';
+import Login from '../screens/LoginScreen/Login';
+import { AppStackParams } from './types';
+
+const defaultTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: Colors.Isabelline,
+  },
+};
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -299,11 +310,14 @@ function AppStack() {
         <Stack.Screen name="SignerSettings" component={SignerSettings} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
+        <Stack.Screen name="AssistedWalletTimeline" component={AssistedWalletTimeline} />
+        <Stack.Screen name="SetupAssistedVault" component={SetupAssistedVault} />
         <Stack.Screen name="AssociateContact" component={AssociateContact} />
         <Stack.Screen name="AddContact" component={AddContact} />
         <Stack.Screen name="ContactProfile" component={ContactProfile} />
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
+        <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
       </Stack.Navigator>
     </RealmProvider>
   );
