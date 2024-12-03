@@ -1230,6 +1230,7 @@
     "signingServerCtaDescp": "Added on Hodler Tier",
     "signingServerNotes": "Signing Server is a hot key. Please decide the amount you’d like to use Signing Server for, carefully.",
     "inheritanceKey": "Inheritance Key",
+    "inheritanceKeyOptionDesc": "Create a vault with Inheritance Key",
     "inheritanceKeyDescp": "Add to any vault",
     "inheritanceKeyParagraph2": "When the Inheritance Key is added to the vault a period to activate it is chosen. Until such a time it remains inactive. You can restart the timer anytime by performing re-vaulting.",
     "inheritanceKeyParagraph1": "While creating a vault, you can assign any applicable key as Inheritance Key. This key can then be kept with the heir or a trusted party. It will become active only after a given period.",
