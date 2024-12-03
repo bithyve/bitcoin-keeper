@@ -730,7 +730,14 @@
     "reserveKeyNote": "A transaction will have to be made to reset the time-lock once key becomes available.",
     "inheritanceKeyActivation": "Inheritance Key Activation",
     "changeKey": "Change Key",
-    "reserveKeyUpgradeDesc": "Please upgrade to Diamond Hands to add an Inheritance Key to your vault."
+    "reserveKeyUpgradeDesc": "Please upgrade to Diamond Hands to add an Inheritance Key to your vault.",
+    "setupNewVault": "Setup a new vault",
+    "setupVaultOption1Title": "Configure the vault",
+    "setupVaultOption1Description": "Define the total number of keys (n) and the minimum required to authorize transactions (m).",
+    "setupVaultOption2Title": "Personalize the vault",
+    "setupVaultOption2Description": "Name your vault and optionally add a description to make it easier to manage and identify.",
+    "setupVaultOption3Title": "Add Optional Inheritance Key",
+    "setupVaultOption3Description": "Setup a time-locked Inheritance Key as an additional key to help you giveaway your bitcoin to heirs."
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

@@ -15,7 +15,6 @@ import moment from 'moment';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KEEPERAPP from 'src/assets/images/KeeperIcon.svg';
 import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
-import Note from 'src/components/Note/Note';
 import Buttons from 'src/components/Buttons';
 import { SDIcons } from './SigningDeviceIcons';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
@@ -64,16 +63,11 @@ function AddReserveKey({ route }) {
       />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
-          <Box style={styles.optionContainer}>
-            <Box style={styles.textContainer}>
-              <Text color={`${colorMode}.greenishGreyText`} fontSize={12}>
-                {vaultTranslations.IKSModalDesc}
-              </Text>
-            </Box>
+          <Box>
             <Box style={styles.cardContainer}>
               {!reservedKey ? (
                 <HorizontalAddCard
-                  name={vaultTranslations.addReserveKey}
+                  name={vaultTranslations.addInheritanceKey}
                   cardStyles={{ minHeight: hp(92) }}
                   iconWidth={25}
                   iconHeight={22}
@@ -94,7 +88,7 @@ function AddReserveKey({ route }) {
               )}
             </Box>
           </Box>
-          <Box style={styles.optionContainer}>
+          <Box>
             <Box style={styles.textContainer}>
               <Text color={`${colorMode}.primaryText`}>
                 {vaultTranslations.inheritanceKeyActivation}
@@ -103,7 +97,7 @@ function AddReserveKey({ route }) {
                 {vaultTranslations.availableAfterDelay}
               </Text>
             </Box>
-            <Box style={styles.cardContainer}>
+            <Box style={styles.dropDownContainer}>
               <OptionPicker
                 label={vaultTranslations.setTimeLock}
                 options={INHERITANCE_TIMELOCK_DURATIONS}
@@ -114,7 +108,6 @@ function AddReserveKey({ route }) {
           </Box>
         </Box>
         <Box style={styles.bottomContainer}>
-          <Note title={common.note} subtitle={vaultTranslations.reserveKeyNote} />
           <Buttons
             primaryText={common.confirm}
             fullWidth
@@ -152,18 +145,16 @@ const styles = StyleSheet.create({
   textContainer: {
     gap: hp(5),
   },
-  optionContainer: {},
   cardContainer: {
-    marginTop: hp(22),
+    marginTop: hp(5),
   },
   contentContainer: {
     gap: hp(25),
   },
+  dropDownContainer: {
+    marginTop: hp(20),
+  },
   bottomContainer: {
     gap: hp(20),
-  },
-  noteContainer: {
-    justifyContent: 'flex-end',
-    width: wp(330),
   },
 });

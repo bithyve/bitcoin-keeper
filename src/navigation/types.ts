@@ -125,6 +125,7 @@ export type AppStackParams = {
     scheme: VaultScheme;
     vaultId?: string;
     isTimeLock?: boolean;
+    isAddInheritanceKeyFromParams?: boolean;
   };
   SigningDeviceConfigRecovery: undefined;
   MixProgress: undefined;
