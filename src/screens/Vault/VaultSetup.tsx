@@ -25,6 +25,7 @@ import ReserveKeyIllustrationLight from 'src/assets/images/reserve-key-illustrat
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { SignerType } from 'src/services/wallets/enums';
+import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -67,6 +68,7 @@ function VaultSetup({ route }: ScreenProps) {
     isTimeLock = false,
     isAddInheritanceKeyFromParams = false,
   } = route.params || {};
+  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
   const dispatch = useDispatch();
   const { activeVault } = useVault({ vaultId });
   const [vaultName, setVaultName] = useState(
@@ -76,7 +78,9 @@ function VaultSetup({ route }: ScreenProps) {
   );
   const descriptionInputRef = useRef(activeVault?.presentationData?.description || '');
   const initialDescription = useRef(descriptionInputRef.current);
-  const [isAddInheritanceKey, setIsAddInheritanceKey] = useState(isAddInheritanceKeyFromParams);
+  const [isAddInheritanceKey, setIsAddInheritanceKey] = useState(
+    isAddInheritanceKeyFromParams && isDiamondHand
+  );
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
@@ -105,7 +109,6 @@ function VaultSetup({ route }: ScreenProps) {
   }, [isAddInheritanceKey]);
 
   const { vault: vaultTranslations, common } = translations;
-  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
 
   const onDecreaseM = () => {
     if (scheme.m > 1) {
@@ -210,6 +213,9 @@ function VaultSetup({ route }: ScreenProps) {
         }
         subtitle={vaultTranslations.configureScheme}
         learnMore={!isDiamondHand}
+        learnBackgroundColor={`${colorMode}.brownBackground`}
+        learnMoreBorderColor={`${colorMode}.brownBackground`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           setShowModal(true);
         }}
@@ -271,29 +277,42 @@ function VaultSetup({ route }: ScreenProps) {
             </Text>
             <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
           </Box>
-          <Box
-            style={{
-              opacity: !isDiamondHand ? 0.5 : 1,
-            }}
-          >
-            <Checkbox
-              value="Add Inheritance Key"
-              isChecked={isAddInheritanceKey}
-              _checked={{
-                bgColor: `${colorMode}.pantoneGreen`,
-                borderColor: `${colorMode}.dullGreyBorder`,
+          <Box style={styles.addInheritanceContainer}>
+            {!isDiamondHand && (
+              <Box>
+                <Box style={styles.separator} borderColor={`${colorMode}.dullGreyBorder`} />
+                <UpgradeSubscription
+                  type={SubscriptionTier.L3}
+                  customStyles={styles.upgradeButtonCustomStyles}
+                />
+              </Box>
+            )}
+            <Box
+              style={{
+                opacity: !isDiamondHand ? 0.5 : 1,
+                marginTop: hp(2.5),
+                marginLeft: wp(2.5),
               }}
-              _unchecked={{
-                bgColor: `${colorMode}.primaryBackground`,
-              }}
-              borderWidth={1}
-              onChange={() => setIsAddInheritanceKey(!isAddInheritanceKey)}
-              isDisabled={!isDiamondHand}
             >
-              <Text color={`${colorMode}.primaryText`} fontSize={12}>
-                {vaultTranslations.addInheritanceKey}
-              </Text>
-            </Checkbox>
+              <Checkbox
+                value="Add Inheritance Key"
+                isChecked={isAddInheritanceKey}
+                _checked={{
+                  bgColor: `${colorMode}.pantoneGreen`,
+                  borderColor: `${colorMode}.dullGreyBorder`,
+                }}
+                _unchecked={{
+                  bgColor: `${colorMode}.primaryBackground`,
+                }}
+                borderWidth={1}
+                onChange={() => setIsAddInheritanceKey(!isAddInheritanceKey)}
+                isDisabled={!isDiamondHand}
+              >
+                <Text color={`${colorMode}.primaryText`} fontSize={12}>
+                  {vaultTranslations.addInheritanceKeyAfterKeys}
+                </Text>
+              </Checkbox>
+            </Box>
           </Box>
         </VStack>
       </ScrollView>
@@ -408,5 +427,18 @@ const styles = StyleSheet.create({
   },
   modalButtonContainer: {
     marginTop: hp(10),
+  },
+  addInheritanceContainer: {
+    gap: hp(20),
+  },
+  separator: {
+    borderTopWidth: 1,
+    marginVertical: hp(10),
+  },
+  upgradeButtonCustomStyles: {
+    container: {
+      borderTopWidth: 0,
+      justifyContent: 'space-between',
+    },
   },
 });

@@ -719,6 +719,7 @@
     "eligibleForRevault": "Your vault is eligible for revaulting, allowing you to secure your funds back into the vault and reset the timeline",
     "unlockIKS": "Please upgrade to Diamond Hands to add an Inheritance Key to your vault.",
     "addInheritanceKey": "Add Inheritance Key",
+    "addInheritanceKeyAfterKeys": "Add Inheritance Key after adding the usual keys",
     "inheritanceKeyDesc": "Set an Inheritance key for your vault. This will act as a reserve key and will be activated if one of your key gets misplaced",
     "setIKSForVault": "Set an Inheritance key for your vault",
     "chooseAKey": "Choose a Key",
