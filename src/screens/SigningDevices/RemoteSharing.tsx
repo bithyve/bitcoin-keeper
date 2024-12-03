@@ -148,7 +148,7 @@ function RemoteSharing({ route }: ScreenProps) {
             primaryCallback={handleShare}
             width={windowWidth * 0.82}
             primaryLoading={primaryLoading}
-            primaryDisable={isOnL2Above}
+            primaryDisable={!isOnL2Above}
           />
           <Buttons
             secondaryText="Cancel"
