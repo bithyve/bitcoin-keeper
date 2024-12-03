@@ -2,10 +2,8 @@ import React, { useContext } from 'react';
 import { useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import InheritanceHeader from '../InheritanceHeader';
-import SigningServer from 'src/assets/images/ss-green.svg';
 import InheritanceKey from 'src/assets/images/iks-green.svg';
 
-import AssistedKeysIcon from 'src/assets/images/assisted-key.svg';
 import InheritanceKeyIcon from 'src/assets/images/inheritance-key.svg';
 import AssistedKeysSlider from '../AssistedKeysSlider';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -18,18 +16,6 @@ function InheritanceTips({}) {
   const { inheritancePlanning } = translations;
   const tips = [
     {
-      title: inheritancePlanning.signingServerHeading,
-      description: inheritancePlanning.signingServerDescp,
-      icon: <AssistedKeysIcon />,
-      paragraph2: inheritancePlanning.signingServerParagraph2,
-      paragraph: inheritancePlanning.signingServerParagraph1,
-      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
-      buttonIcon: <SigningServer />,
-      buttonTitle: inheritancePlanning.signingServerCtaTitle,
-      buttonDescription: inheritancePlanning.signingServerCtaDescp,
-      note: inheritancePlanning.signingServerNotes,
-    },
-    {
       title: inheritancePlanning.inheritanceKey,
       description: inheritancePlanning.inheritanceKeyDescp,
       icon: <InheritanceKeyIcon />,
@@ -39,7 +25,6 @@ function InheritanceTips({}) {
 
       buttonIcon: <InheritanceKey />,
       buttonTitle: inheritancePlanning.inheritanceKeyCtaTitle,
-      buttonDescription: inheritancePlanning.inheritanceKeyCtaDescp,
       note: inheritancePlanning.inheritanceKeyCtaNotes,
     },
   ];
