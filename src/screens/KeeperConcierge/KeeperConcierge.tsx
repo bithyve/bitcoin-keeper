@@ -23,9 +23,11 @@ import StackedCirclesList from '../Vault/components/StackedCircleList';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import { useDispatch } from 'react-redux';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 const KeeperConcierge = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { concierge } = translations;
   const { colorMode } = useColorMode();
@@ -84,7 +86,9 @@ const KeeperConcierge = () => {
       buttonIcon: isDarkMode ? SendDark : SendLight,
       titleComponent: <TicketCount count={1} />,
       titleComonentStyle: { justifyContent: 'space-between' },
-      buttonCallback: () => {},
+      buttonCallback: () => {
+        navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
+      },
     },
     {
       title: concierge.expertGuidanceTitle,
