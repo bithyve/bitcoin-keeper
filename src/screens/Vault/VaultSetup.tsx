@@ -65,6 +65,7 @@ function VaultSetup({ route }: ScreenProps) {
     scheme: preDefinedScheme,
     vaultId,
     isTimeLock = false,
+    isAddInheritanceKeyFromParams = false,
   } = route.params || {};
   const dispatch = useDispatch();
   const { activeVault } = useVault({ vaultId });
@@ -75,7 +76,7 @@ function VaultSetup({ route }: ScreenProps) {
   );
   const descriptionInputRef = useRef(activeVault?.presentationData?.description || '');
   const initialDescription = useRef(descriptionInputRef.current);
-  const [isAddInheritanceKey, setIsAddInheritanceKey] = useState(false);
+  const [isAddInheritanceKey, setIsAddInheritanceKey] = useState(isAddInheritanceKeyFromParams);
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
@@ -277,6 +278,7 @@ function VaultSetup({ route }: ScreenProps) {
           >
             <Checkbox
               value="Add Inheritance Key"
+              isChecked={isAddInheritanceKey}
               _checked={{
                 bgColor: `${colorMode}.pantoneGreen`,
                 borderColor: `${colorMode}.dullGreyBorder`,
