@@ -48,8 +48,8 @@ const RemoteShareText = {
 };
 
 const DeepLinkIdentifier = {
-  [APP_STAGE.DEVELOPMENT]: 'dev',
-  [APP_STAGE.PRODUCTION]: 'prod',
+  [APP_STAGE.DEVELOPMENT]: 'app/dev',
+  [APP_STAGE.PRODUCTION]: 'app/prod',
 };
 
 type dataProps = {
