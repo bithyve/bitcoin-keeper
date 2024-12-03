@@ -237,6 +237,7 @@ export const customTheme = extendTheme({
       newDashedButtonBackground: Colors.DashedButtonBackground,
       btcPillText: Colors.MidNightBlack,
       greyBackground: Colors.lightGrey,
+      ctaFooterBackground: Colors.GreenishGrey,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -431,6 +432,7 @@ export const customTheme = extendTheme({
       newDashedButtonBackground: Colors.DashedButtonBackgroundDark,
       btcPillText: Colors.White,
       greyBackground: Colors.darkGrey,
+      ctaFooterBackground: Colors.SecondaryBlack,
     },
   },
   config: {
