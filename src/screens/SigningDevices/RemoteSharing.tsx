@@ -26,7 +26,8 @@ const RemoteShareText = {
     desc: 'Please share the key using this link with your contact using a secure and private communication medium.',
     cta: 'Share Key',
     msgTitle: 'Remote Key Sharing',
-    msgDesc: 'Hey, I’m sharing a bitcoin key with you. Please click the link to accept it.',
+    msgDesc:
+      "Hey, I'm sharing a bitcoin key with you. Please click the link to accept it on the Bitcoin Keeper app and keep it safe.",
   },
   [RKInteractionMode.SHARE_PSBT]: {
     title: 'Sign Transaction Remotely',
@@ -34,14 +35,15 @@ const RemoteShareText = {
     cta: 'Share Link',
     msgTitle: 'Transaction Signing Request Received',
     msgDesc:
-      'Hey, your friend is requesting for your Key to make a transaction. Please click the link to view details',
+      'Hey, I need you to sign a transaction with the key shared with you previously. Please click the link to view details and sign the transaction in the Bitcoin Keeper app',
   },
   [RKInteractionMode.SHARE_SIGNED_PSBT]: {
     title: 'Sign Transaction Remotely',
     desc: 'Please share back this signed transaction (PSBT) using the link with the transaction creator. Use a secure and private communication medium.',
     cta: 'Share Link',
     msgTitle: 'Signed Transaction Received',
-    msgDesc: 'Hey, your friend has signed your transaction. Please click the link to accept it.',
+    msgDesc:
+      'Hey, I have signed the transaction you had requested. Please click the link to accept it.',
   },
 };
 
