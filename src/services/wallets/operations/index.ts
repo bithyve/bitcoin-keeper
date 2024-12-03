@@ -1580,20 +1580,18 @@ export default class WalletOperations {
           const { miniscriptScheme } = (wallet as Vault).scheme;
           if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
 
-          const multisigAddress = WalletUtilities.addressToMultiSig(
-            inputs[inputIndex].address,
-            wallet
-          );
-
-          const { keyInfoMap } = miniscriptScheme;
-          const uniqueKeyForTheDevice = 'AK1'; // TODO: implement the mapping once miniscript hardware integration begins
-          for (let keyIdentifier in keyInfoMap) {
-            if (keyIdentifier === uniqueKeyForTheDevice) {
-              const fragments = keyInfoMap[keyIdentifier].split('/');
-              const multipathIndex = fragments[5];
-              publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub + multipathIndex);
-              subPath = multisigAddress.subPaths[vaultKey.xpub + multipathIndex];
+          for (const { bip32Derivation } of PSBT.data.inputs) {
+            for (let { masterFingerprint, path, pubkey } of bip32Derivation) {
+              if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
+                const pathFragments = path.split('/');
+                const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
+                const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
+                subPath = [chainIndex, childIndex];
+                publicKey = pubkey;
+                break;
+              }
             }
+            if (publicKey) break;
           }
         }
 
