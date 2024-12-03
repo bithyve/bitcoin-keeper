@@ -135,6 +135,9 @@ import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
 import { useColorMode } from 'native-base';
 import KeeperConcierge from 'src/screens/KeeperConcierge/KeeperConcierge';
+import TechnicalSupport from 'src/screens/KeeperConcierge/TechnicalSupport';
+import TicketDetails from 'src/screens/KeeperConcierge/TicketDetails';
+import CreateTicket from 'src/screens/KeeperConcierge/CreateTicket';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -306,6 +309,9 @@ function AppStack() {
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
         <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
+        <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
+        <Stack.Screen name="TicketDetails" component={TicketDetails} />
+        <Stack.Screen name="CreateTicket" component={CreateTicket} />
       </Stack.Navigator>
     </RealmProvider>
   );

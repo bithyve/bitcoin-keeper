@@ -167,6 +167,9 @@ export type AppStackParams = {
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
   KeeperConcierge: undefined;
+  TechnicalSupport: undefined;
+  TicketDetails: undefined;
+  CreateTicket: undefined;
 };
 
 // Usage:
