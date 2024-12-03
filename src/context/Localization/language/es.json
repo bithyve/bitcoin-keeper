@@ -147,7 +147,8 @@
     "time": "time",
     "times": "times",
     "shareDetails": "Share Details",
-    "upgrade": "Upgrade"
+    "upgrade": "Upgrade",
+    "Inheritancekey": "Inheritance Key"
   },
   "noInternet": {
     "no": "No Internet",
