@@ -98,10 +98,7 @@ function DeleteKeys({ route }) {
   };
 
   useEffect(() => {
-    if (
-      unhidingKeyUID &&
-      !hiddenSigners.find((signer) => getKeyUID(signer) === getKeyUID(unhidingKeyUID))
-    ) {
+    if (unhidingKeyUID && !hiddenSigners.find((signer) => getKeyUID(signer) === unhidingKeyUID)) {
       setUnhidingKeyUID('');
     }
   }, [hiddenSigners]);
