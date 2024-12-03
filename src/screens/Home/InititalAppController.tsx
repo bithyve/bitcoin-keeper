@@ -30,7 +30,7 @@ import { sentryConfig } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
 import { generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
-import { decrypt } from 'src/utils/service-utilities/encryption';
+import { decrypt, getHashFromKey } from 'src/utils/service-utilities/encryption';
 import { CommonActions, useNavigationState } from '@react-navigation/native';
 import { updateCachedPsbtEnvelope } from 'src/store/reducers/cachedTxn';
 import { store } from 'src/store/store';
@@ -71,7 +71,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           showToast('Invalid deeplink');
         }
       }
-      if (url.includes('shareKey/')) {
+      if (url.includes('remote/')) {
         handleRemoteKeyDeepLink(url);
       }
     }
@@ -90,10 +90,11 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       return false;
     }
 
-    const [externalKeyId, encryptionKey] = initialUrl.split('shareKey/')[1].split('/');
-    if (externalKeyId) {
+    const encryptionKey = initialUrl.split('remote/')[1];
+    const hash = getHashFromKey(encryptionKey);
+    if (encryptionKey && hash) {
       try {
-        const res = await Relay.getRemoteKey(externalKeyId);
+        const res = await Relay.getRemoteKey(hash);
         if (!res) {
           showToast('Remote Key link expired');
           return;

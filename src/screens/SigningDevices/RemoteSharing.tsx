@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
 import { RKInteractionMode } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
-import { encrypt, getRandomBytes } from 'src/utils/service-utilities/encryption';
+import { encrypt, getKeyAndHash } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import usePlan from 'src/hooks/usePlan';
 
@@ -96,16 +96,15 @@ function RemoteSharing({ route }: ScreenProps) {
         data.xfp = remoteLinkDetails.xfp;
         data.cachedTxid = remoteLinkDetails.cachedTxid;
       }
-      console.log('🚀 ~ handleShare ~ data:', data);
-      const encryptionKey = getRandomBytes(12);
+      const { encryptionKey, hash } = getKeyAndHash(12);
       const encryptedData = encrypt(encryptionKey, JSON.stringify(data));
-      const res = await Relay.createRemoteKey(encryptedData);
+      const res = await Relay.createRemoteKey(encryptedData, hash);
       if (res?.id) {
         const result = await Share.share({
           title: RemoteShareText[mode].msgTitle,
           message: `${RemoteShareText[mode].msgDesc}\nhttps://bitcoinkeeper.app/${
             DeepLinkIdentifier[config.ENVIRONMENT]
-          }/shareKey/${res.id}/${encryptionKey}`,
+          }/remote/${encryptionKey}`,
         });
         if (result.action === Share.sharedAction) {
           if (result.activityType) navigation.goBack();
@@ -149,7 +148,7 @@ function RemoteSharing({ route }: ScreenProps) {
             primaryCallback={handleShare}
             width={windowWidth * 0.82}
             primaryLoading={primaryLoading}
-            primaryDisable={!isOnL2Above}
+            primaryDisable={isOnL2Above}
           />
           <Buttons
             secondaryText="Cancel"
