@@ -154,7 +154,6 @@ import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
-import { SyncedWallet } from 'src/services/wallets/interfaces';
 import { checkSignerAccountsMatch, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 
 export interface NewVaultDetails {
