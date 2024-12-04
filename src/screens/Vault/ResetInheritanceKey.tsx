@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Pressable, StyleSheet } from 'react-native';
@@ -42,8 +42,20 @@ function ResetInheritanceKey({ route }) {
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
+  const [selectedOption, setSelectedOption] = useState(null);
   const signer: Signer = signerMap[signerId];
   const { vault: vaultText, common } = translations;
+
+  const handleOptionChange = (option) => {
+    setSelectedOption(option);
+  };
+
+  useEffect(() => {
+    if (route.params?.selectedOption) {
+      setSelectedOption(route.params.selectedOption);
+    }
+  }, [route.params]);
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={vaultText.resetIKTitle} subtitle={vaultText.resetIKDesc} />
@@ -58,7 +70,10 @@ function ResetInheritanceKey({ route }) {
             duration={MONTHS_12}
             callback={() => {
               navigation.dispatch(
-                CommonActions.navigate({ name: 'ChangeIKSTimeline', params: { signerId } })
+                CommonActions.navigate({
+                  name: 'ChangeIKSTimeline',
+                  params: { signerId, onSelect: handleOptionChange },
+                })
               );
             }}
           />
