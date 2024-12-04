@@ -13,7 +13,6 @@ import { hp, windowWidth } from 'src/constants/responsive';
 
 import useNfcModal from 'src/hooks/useNfcModal';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
-import NFCOption from '../NFCChannel/NFCOption';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
@@ -21,8 +20,9 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRScanner from 'src/components/QRScanner';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import NFCOption from '../NFCChannel/NFCOption';
 
-let decoder = new URRegistryDecoder();
+const decoder = new URRegistryDecoder();
 
 function ScanQR() {
   const { colorMode } = useColorMode();
@@ -150,8 +150,8 @@ function ScanQR() {
             close={() => {
               setVisibleModal(false);
             }}
-            title={'Add a co-signer'}
-            subTitle={''}
+            title="Add a co-signer"
+            subTitle=""
             modalBackground={`${colorMode}.modalGreenBackground`}
             textColor={`${colorMode}.modalGreenContent`}
             Content={learnMoreContent}

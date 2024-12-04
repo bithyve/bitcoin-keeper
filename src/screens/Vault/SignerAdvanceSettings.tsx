@@ -47,7 +47,7 @@ import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/u
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getSignerNameFromType } from 'src/hardware';
+import { getPsbtForHwi, getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
@@ -71,18 +71,20 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
-import { SDIcons } from './SigningDeviceIcons';
 import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
-import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import Note from 'src/components/Note/Note';
 import useSigners from 'src/hooks/useSigners';
-import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import { getPersistedDocument } from 'src/services/documents';
+import { TransferType } from 'src/models/enums/TransferType';
+import WalletOperations from 'src/services/wallets/operations';
+import SignerCard from '../AddSigner/SignerCard';
+import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -93,7 +95,19 @@ const SignersWithRKSupport = [
   SignerType.TAPSIGNER,
   SignerType.SEEDSIGNER,
   SignerType.SPECTER,
+  SignerType.LEDGER,
+  SignerType.TREZOR,
+  SignerType.BITBOX02,
   SignerType.COLDCARD,
+  SignerType.PASSPORT,
+  SignerType.PORTAL,
+];
+
+const SignersReqVault = [
+  SignerType.LEDGER,
+  SignerType.TREZOR,
+  SignerType.BITBOX02,
+  SignerType.PORTAL,
 ];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
@@ -534,11 +548,27 @@ function SignerAdvanceSettings({ route }: any) {
       CommonActions.navigate({
         name: 'ManageTapsignerSettings',
         params: {
-          signer: signer,
+          signer,
         },
       })
     );
   };
+
+  // const signPSBTForExternalKeeperKey = async (serializedPSBT, resetQR) => {
+  //   try {
+  //     let signedSerialisedPSBT;
+  //     try {
+  //       const key = signer.signerXpubs[XpubTypes.P2WSH][0];
+  //       signedSerialisedPSBT = signCosignerPSBT(
+  //         signer.masterFingerprint,
+  //         key.xpriv,
+  //         serializedPSBT
+  //       );
+  //     } catch (e) {
+  //       showToast(e.message);
+  //       captureError(e);
+  //     }
+  //   }}};
 
   const signPSBT = async (serializedPSBT) => {
     try {
@@ -547,9 +577,44 @@ function SignerAdvanceSettings({ route }: any) {
       const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
       if (!signerMatched) {
-        showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
+        showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
         navigation.goBack();
         return;
+      }
+
+      if (SignersReqVault.includes(signer.type)) {
+        let activeVault = null;
+        allVaults.forEach(async (vault) => {
+          let addressMatched = true;
+          for (let i = 0; i < senderAddresses.length; i++) {
+            const _ = senderAddresses[i].path.split('/');
+            const [isChange, index] = _.splice(_.length - 2);
+            // 0 - Receive(External) | 1 - change(internal)
+            let generatedAddress: string;
+            if (isChange != '0' && isChange != '1') {
+              throw new Error('Derivation uses an invalid path');
+            }
+            generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
+              vault,
+              parseInt(index),
+              isChange == '1'
+            );
+            if (senderAddresses[i].address != generatedAddress) {
+              addressMatched = false;
+              break;
+            }
+          }
+          if (addressMatched) {
+            activeVault = vault;
+          }
+        });
+
+        if (!activeVault) {
+          navigation.goBack();
+          throw new Error('Please import the vault before signing');
+        }
+        const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
+        serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
       }
 
       navigation.dispatch(
@@ -560,7 +625,7 @@ function SignerAdvanceSettings({ route }: any) {
             recipient: receiverAddresses,
             amount: sendAmount,
             data: serializedPSBT,
-            fees: fees,
+            fees,
             estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
             tnxPriority: tnxDetails.tnxPriority,
             signer,

@@ -17,8 +17,8 @@ import { RKInteractionMode } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import useVault from 'src/hooks/useVault';
 import { encrypt, getRandomBytes } from 'src/utils/service-utilities/encryption';
-import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -111,9 +111,9 @@ function RemoteSharing({ route }: ScreenProps) {
         data.signingDetails = {
           signer: signer.masterFingerprint,
           isMultisig: findIsMultisig(activeVault),
-          serializedPSBTEnvelop: serializedPSBTEnvelop,
-          vaultKey: vaultKey,
-          vaultId: vaultId,
+          serializedPSBTEnvelop,
+          vaultKey,
+          vaultId,
           vault: activeVault
             ? {
                 networkType: activeVault.networkType,
@@ -240,4 +240,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const findIsMultisig = (vault) => (vault.signers.length > 1 ? true : false);
+const findIsMultisig = (vault) => vault.signers.length > 1;

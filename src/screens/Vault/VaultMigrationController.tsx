@@ -1,7 +1,11 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { TxPriority, VaultType } from 'src/services/wallets/enums';
-import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { MultisigScriptType, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
+import {
+  MiniscriptElements,
+  VaultScheme,
+  VaultSigner,
+} from 'src/services/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { TransferType } from 'src/models/enums/TransferType';
@@ -19,6 +23,18 @@ import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import { Alert } from 'react-native';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
+import {
+  TIMELOCKED_VAULT_TIMELOCKS_MAINNET,
+  TIMELOCKED_VAULT_TIMELOCKS_TESTNET,
+  generateTimelockedVaultElements,
+} from 'src/services/wallets/operations/miniscript/default/TimelockedVault';
+import config from 'src/utils/service-utilities/config';
+import {
+  generateInheritanceVaultElements,
+  INHERITANCE_VAULT_TIMELOCKS_MAINNET,
+  INHERITANCE_VAULT_TIMELOCKS_TESTNET,
+} from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import { MONTHS_12, MONTHS_3, MONTHS_6, MONTHS_18, MONTHS_24 } from './constants';
 
 function VaultMigrationController({
   vaultCreating,
@@ -29,6 +45,11 @@ function VaultMigrationController({
   vaultId,
   setGeneratedVaultId,
   vaultType = VaultType.DEFAULT,
+  isTimeLock = false,
+  inheritanceKey = null,
+  isAddInheritanceKey = false,
+  currentBlockHeight = null,
+  selectedDuration = null,
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -125,32 +146,124 @@ function VaultMigrationController({
     }
   };
 
-  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme, vaultType) => {
-    try {
-      const vaultInfo: NewVaultInfo = {
-        vaultType,
-        vaultScheme: scheme,
-        vaultSigners: signers,
-        vaultDetails: {
-          name,
-          description,
-        },
-      };
-      const allVaultIds = allVaults.map((vault) => vault.id);
-      const generatedVaultId = generateVaultId(signers, scheme);
-      const deletedVaultIds = archivedVaults.map((vault) => vault.id);
-      if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
-        Alert.alert('Vault with this configuration already exists.');
-      } else {
-        setGeneratedVaultId(generatedVaultId);
-        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-        return vaultInfo;
-      }
-    } catch (err) {
-      captureError(err);
-      return false;
+  const getTimelockDuration = (vaultType, selectedDuration, networkType) => {
+    const durationIdentifier =
+      selectedDuration === MONTHS_3
+        ? 'MONTHS_3'
+        : selectedDuration === MONTHS_6
+        ? 'MONTHS_6'
+        : selectedDuration === MONTHS_12
+        ? 'MONTHS_12'
+        : selectedDuration === MONTHS_18
+        ? 'MONTHS_18'
+        : selectedDuration === MONTHS_24
+        ? 'MONTHS_24'
+        : null;
+
+    if (!durationIdentifier) {
+      showToast('Invalid duration selected', <ToastErrorIcon />);
+      return;
     }
-  }, []);
+
+    if (vaultType === VaultType.INHERITANCE) {
+      return networkType === NetworkType.MAINNET
+        ? INHERITANCE_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
+        : INHERITANCE_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
+    } else if (vaultType === VaultType.TIMELOCKED) {
+      return networkType === NetworkType.MAINNET
+        ? TIMELOCKED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
+        : TIMELOCKED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
+    }
+  };
+
+  const createVault = useCallback(
+    (signers: VaultSigner[], scheme: VaultScheme, vaultType, inheritanceSigner?: VaultSigner) => {
+      try {
+        const vaultInfo: NewVaultInfo = {
+          vaultType,
+          vaultScheme: scheme,
+          vaultSigners: signers,
+          vaultDetails: {
+            name,
+            description,
+          },
+        };
+
+        const isTimelockedInheritanceKey = isAddInheritanceKey;
+        if (isTimeLock || isTimelockedInheritanceKey) {
+          if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultType)) {
+            throw new Error('Invalid vault type - supported only for timelocked and inheritance');
+          }
+
+          const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
+          if (!currentBlockHeight) {
+            showToast('Failed to sync current block height');
+            return;
+          }
+
+          if (!selectedDuration) {
+            showToast('Please select the duration for timelock');
+            return;
+          }
+
+          const timelockDuration = getTimelockDuration(
+            vaultType,
+            selectedDuration,
+            config.NETWORK_TYPE
+          );
+          if (!timelockDuration) {
+            showToast('Failed to determine timelock duration', <ToastErrorIcon />);
+            return;
+          }
+
+          const timelocks = [currentBlockHeight + timelockDuration];
+
+          let miniscriptElements: MiniscriptElements;
+          if (vaultType === VaultType.TIMELOCKED) {
+            miniscriptElements = generateTimelockedVaultElements(signers, scheme, timelocks);
+          } else if (vaultType === VaultType.INHERITANCE) {
+            miniscriptElements = generateInheritanceVaultElements(
+              signers,
+              inheritanceSigner,
+              scheme,
+              timelocks
+            );
+          }
+          if (!miniscriptElements) {
+            showToast('Failed to generate miniscript elements');
+            return;
+          }
+
+          const vaultScheme: VaultScheme = {
+            ...scheme,
+            multisigScriptType,
+          };
+
+          vaultInfo.vaultScheme = vaultScheme;
+          if (vaultType == VaultType.INHERITANCE) {
+            vaultInfo.vaultSigners = [...signers, inheritanceSigner];
+          }
+          vaultInfo.miniscriptElements = miniscriptElements;
+        }
+
+        const allVaultIds = allVaults.map((vault) => vault.id);
+        const generatedVaultId = generateVaultId(signers, scheme);
+        const deletedVaultIds = archivedVaults.map((vault) => vault.id);
+        if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
+          Alert.alert('Vault with this configuration already exists.');
+          navigation.goBack();
+        } else {
+          setGeneratedVaultId(generatedVaultId);
+          dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+          return vaultInfo;
+        }
+      } catch (err) {
+        captureError(err);
+        return false;
+      }
+    },
+    [isTimeLock, isAddInheritanceKey, selectedDuration, currentBlockHeight]
+  );
 
   const initiateNewVault = () => {
     if (activeVault) {
@@ -175,7 +288,7 @@ function VaultMigrationController({
       }
 
       const vaultInfo: NewVaultInfo = {
-        vaultType: vaultType,
+        vaultType,
         vaultScheme: scheme,
         vaultSigners: vaultKeys,
         vaultDetails: {
@@ -185,7 +298,7 @@ function VaultMigrationController({
       };
       dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
-      createVault(vaultKeys, scheme, vaultType);
+      createVault(vaultKeys, scheme, vaultType, inheritanceKey);
     }
   };
 

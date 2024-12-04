@@ -13,15 +13,17 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import useTestSats from 'src/hooks/useTestSats';
 import KeeperModal from 'src/components/KeeperModal';
-import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { VaultType, VisibilityType } from 'src/services/wallets/enums';
+import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { trimCWDefaultName } from 'src/utils/utilities';
+import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -56,6 +58,20 @@ function VaultSettings({ route }) {
     }
   };
 
+  const getWalletIcon = (wallet) => {
+    if (wallet?.entityKind === EntityKind.VAULT) {
+      if (wallet.type === VaultType.COLLABORATIVE) {
+        return <CollaborativeIcon />;
+      } else if (wallet.type === VaultType.ASSISTED) {
+        return <AssistedIcon />;
+      } else {
+        return <VaultIcon />;
+      }
+    } else {
+      return <WalletIcon />;
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -66,7 +82,7 @@ function VaultSettings({ route }) {
             width={44}
             height={38}
             backgroundColor={Colors.pantoneGreen}
-            icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
+            icon={getWalletIcon(vault)}
           />
         }
       />

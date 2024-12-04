@@ -117,7 +117,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
     <>
       <Box style={styles.container}>
         <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={readFromNFC} />
-        <OptionCTA icon={<AirDropIcon />} title={`Upload File`} callback={selectFile} />
+        <OptionCTA icon={<AirDropIcon />} title="Upload File" callback={selectFile} />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
         {/* // ! Hide Remote Key */}
         {/* <OptionCTA

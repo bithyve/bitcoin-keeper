@@ -16,7 +16,7 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { persistDocument } from 'src/services/documents';
 
-const AddContact = ({ route }) => {
+function AddContact({ route }) {
   const { signer } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -104,7 +104,7 @@ const AddContact = ({ route }) => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

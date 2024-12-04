@@ -1,3 +1,5 @@
+import idx from 'idx';
+import { DescriptorChecksum } from 'src/services/wallets/operations/descriptors/checksum';
 import { EntityKind } from '../../services/wallets/enums';
 import { Vault, VaultScheme, VaultSigner } from '../../services/wallets/interfaces/vault';
 import { Wallet } from '../../services/wallets/interfaces/wallet';
@@ -38,15 +40,16 @@ export const getKeyExpression = (
   forDescriptor: boolean = false,
   abbreviated: boolean = false
 ) => {
-  if (nextFreeAddressIndex != undefined)
+  if (nextFreeAddressIndex != undefined) {
     return `[${masterFingerprint}/${getDerivationPath(
       derivationPath
     )}]${xpub}/0/${nextFreeAddressIndex}`;
-  else if (abbreviated) return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]`;
-  else
+  } else if (abbreviated) return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]`;
+  else {
     return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
       withPathRestrictions ? '/**' : forDescriptor ? '/<0;1>/*' : ''
     }`;
+  }
 };
 
 export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => {
@@ -65,36 +68,49 @@ export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => 
       true
     )})`;
     return des;
-  }
-  const { signers, scheme, isMultiSig } = wallet as Vault;
-  if (!isMultiSig) {
-    const signer: VaultSigner = signers[0];
+  } else if (wallet.entityKind === EntityKind.VAULT) {
+    const miniscriptScheme = idx(wallet as Vault, (_) => _.scheme.miniscriptScheme);
+    if (miniscriptScheme) {
+      const { miniscript, keyInfoMap } = miniscriptScheme;
+      let walletPolicyDescriptor = miniscript;
+      for (const keyId in keyInfoMap) {
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(keyId, keyInfoMap[keyId]);
+      }
+      const desc = `wsh(${walletPolicyDescriptor})`;
+      return `${desc}#${DescriptorChecksum(desc)}`;
+    }
 
-    const des = `wpkh(${getKeyExpression(
-      signer.masterFingerprint,
-      signer.derivationPath,
-      signer.xpub,
-      false,
-      undefined,
-      false,
-      true
-    )})`;
-    return des;
+    const { signers, scheme, isMultiSig } = wallet as Vault;
+    if (isMultiSig) {
+      return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
+        signers,
+        false,
+        undefined,
+        false,
+        true
+      )}))`;
+    } else {
+      const signer: VaultSigner = signers[0];
+
+      const des = `wpkh(${getKeyExpression(
+        signer.masterFingerprint,
+        signer.derivationPath,
+        signer.xpub,
+        false,
+        undefined,
+        false,
+        true
+      )})`;
+      return des;
+    }
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
-    signers,
-    false,
-    undefined,
-    false,
-    true
-  )}))`;
 };
 
 export const generateOutputDescriptors = (
   wallet: Vault | Wallet,
   includePatchRestrictions: boolean = false
 ) => {
-  const receivingAddress = WalletOperations.getExternalAddressAtIdx(wallet, 0);
+  const receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(wallet, 0);
   if (wallet.entityKind === EntityKind.WALLET) {
     const {
       derivationDetails: { xDerivationPath },
@@ -109,27 +125,40 @@ export const generateOutputDescriptors = (
       true
     )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
     return des;
-  }
-  const { signers, scheme, isMultiSig } = wallet as Vault;
-  if (!isMultiSig) {
-    const signer: VaultSigner = signers[0];
+  } else if (wallet.entityKind === EntityKind.VAULT) {
+    const miniscriptScheme = idx(wallet as Vault, (_) => _.scheme.miniscriptScheme);
+    if (miniscriptScheme) {
+      const { miniscript, keyInfoMap } = miniscriptScheme;
+      let walletPolicyDescriptor = miniscript;
+      for (const keyId in keyInfoMap) {
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(keyId, keyInfoMap[keyId]);
+      }
+      const desc = `wsh(${walletPolicyDescriptor})`;
+      return `${desc}#${DescriptorChecksum(desc)}`;
+    }
 
-    const des = `wpkh(${getKeyExpression(
-      signer.masterFingerprint,
-      signer.derivationPath,
-      signer.xpub,
-      includePatchRestrictions,
-      undefined,
-      true
-    )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
-    return des;
+    const { signers, scheme, isMultiSig } = wallet as Vault;
+    if (isMultiSig) {
+      return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
+        signers,
+        includePatchRestrictions,
+        undefined,
+        true
+      )}))${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
+    } else {
+      const signer: VaultSigner = signers[0];
+
+      const des = `wpkh(${getKeyExpression(
+        signer.masterFingerprint,
+        signer.derivationPath,
+        signer.xpub,
+        includePatchRestrictions,
+        undefined,
+        true
+      )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
+      return des;
+    }
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
-    signers,
-    includePatchRestrictions,
-    undefined,
-    true
-  )}))${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
 };
 
 export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
@@ -225,18 +254,16 @@ const parseKeyExpression = (keyExpression) => {
   if (bracketMatch) {
     const insideBracket = bracketMatch[1];
     masterFingerprint = insideBracket.substring(0, 8).toUpperCase();
-    path =
-      'm' +
-      insideBracket
-        .substring(8)
-        .replace(/(\d+)h/g, "$1'")
-        .replace(/'/g, "'");
+    path = `m${insideBracket
+      .substring(8)
+      .replace(/(\d+)h/g, "$1'")
+      .replace(/'/g, "'")}`;
     xpub = bracketMatch[2].replace(/[^\w\s]+$/, '').split(/[^\w]+/)[0];
   } else {
     // Case 2: If the keyExpression is not enclosed in square brackets
     const parts = keyExpression.split("'");
     masterFingerprint = parts[0].substring(0, 8).toUpperCase();
-    path = 'm' + keyExpression.substring(8, keyExpression.lastIndexOf("'") + 1).replace(/'/g, "'");
+    path = `m${keyExpression.substring(8, keyExpression.lastIndexOf("'") + 1).replace(/'/g, "'")}`;
     xpub = keyExpression
       .substring(keyExpression.lastIndexOf("'") + 1)
       .replace(/[^\w\s]+$/, '')
@@ -420,7 +447,7 @@ export const createDecipherGcm = (data: DecryptData, password: string) => {
   try {
     decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
   } catch (err) {
-    throw new Error('Failed to decrypt data: ' + err.message);
+    throw new Error(`Failed to decrypt data: ${err.message}`);
   }
   return JSON.parse(decrypted.toString('utf-8'));
 };
