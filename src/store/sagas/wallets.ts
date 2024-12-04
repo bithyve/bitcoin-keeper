@@ -540,20 +540,13 @@ export function* addNewVaultWorker({
         vaultType = VaultType.DEFAULT,
         vaultScheme,
         vaultSigners,
-        miniscriptElements,
         vaultDetails,
       } = newVaultInfo;
 
-      if (vaultScheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-        if (!miniscriptElements) throw new Error('Miniscript elements missing');
-        const miniscriptScheme: MiniscriptScheme = yield call(
-          generateMiniscriptScheme,
-          miniscriptElements
-        );
-        vaultScheme.miniscriptScheme = miniscriptScheme;
-      } else if (vaultScheme.n !== vaultSigners.length) {
-        // vaultScheme check for MINISCRIPT_MULTISIG is irrelevant
-        throw new Error('Vault schema(n) and signers mismatch');
+      if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
+        if (vaultScheme.n !== vaultSigners.length) {
+          throw new Error('Vault schema(n) and signers mismatch');
+        }
       }
 
       const tempShellId = yield select((state: RootState) => state.vault.tempShellId);

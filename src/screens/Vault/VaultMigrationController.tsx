@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { MultisigScriptType, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
 import {
   MiniscriptElements,
+  MiniscriptScheme,
   VaultScheme,
   VaultSigner,
 } from 'src/services/wallets/interfaces/vault';
@@ -175,7 +176,7 @@ function VaultMigrationController({
     }
   };
 
-  const attachMiniscriptElements = (vaultInfo: NewVaultInfo, inheritanceSigner?: VaultSigner) => {
+  const prepareMiniscriptScheme = (vaultInfo: NewVaultInfo, inheritanceSigner?: VaultSigner) => {
     if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultInfo.vaultType)) {
       throw new Error('Invalid vault type - supported only for timelocked and inheritance');
     }
@@ -225,9 +226,11 @@ function VaultMigrationController({
     }
     vaultInfo.miniscriptElements = miniscriptElements;
 
+    const miniscriptScheme: MiniscriptScheme = generateMiniscriptScheme(miniscriptElements);
     const vaultScheme: VaultScheme = {
       ...vaultInfo.vaultScheme,
       multisigScriptType,
+      miniscriptScheme,
     };
     vaultInfo.vaultScheme = vaultScheme;
 
@@ -256,7 +259,7 @@ function VaultMigrationController({
 
         const isTimelockedInheritanceKey = isAddInheritanceKey;
         if (isTimeLock || isTimelockedInheritanceKey) {
-          vaultInfo = attachMiniscriptElements(vaultInfo, inheritanceSigner);
+          vaultInfo = prepareMiniscriptScheme(vaultInfo, inheritanceSigner);
         }
 
         const allVaultIds = allVaults.map((vault) => vault.id);
@@ -291,7 +294,7 @@ function VaultMigrationController({
       };
       const isTimelockedInheritanceKey = isAddInheritanceKey;
       if (isTimeLock || isTimelockedInheritanceKey) {
-        vaultInfo = attachMiniscriptElements(vaultInfo, inheritanceKey);
+        vaultInfo = prepareMiniscriptScheme(vaultInfo, inheritanceKey);
       }
       dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
