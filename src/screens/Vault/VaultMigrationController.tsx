@@ -175,10 +175,76 @@ function VaultMigrationController({
     }
   };
 
+  const attachMiniscriptElements = (vaultInfo: NewVaultInfo, inheritanceSigner?: VaultSigner) => {
+    if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultInfo.vaultType)) {
+      throw new Error('Invalid vault type - supported only for timelocked and inheritance');
+    }
+
+    const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
+    if (!currentBlockHeight) {
+      showToast('Failed to sync current block height');
+      return;
+    }
+
+    if (!selectedDuration) {
+      showToast('Please select the duration for timelock');
+      return;
+    }
+
+    const timelockDuration = getTimelockDuration(
+      vaultInfo.vaultType,
+      selectedDuration,
+      config.NETWORK_TYPE
+    );
+    if (!timelockDuration) {
+      showToast('Failed to determine timelock duration', <ToastErrorIcon />);
+      return;
+    }
+
+    const timelocks = [currentBlockHeight + timelockDuration];
+
+    let miniscriptElements: MiniscriptElements;
+    if (vaultInfo.vaultType === VaultType.TIMELOCKED) {
+      miniscriptElements = generateTimelockedVaultElements(
+        vaultInfo.vaultSigners,
+        vaultInfo.vaultScheme,
+        timelocks
+      );
+    } else if (vaultType === VaultType.INHERITANCE) {
+      miniscriptElements = generateInheritanceVaultElements(
+        vaultInfo.vaultSigners,
+        inheritanceSigner,
+        vaultInfo.vaultScheme,
+        timelocks
+      );
+    }
+
+    if (!miniscriptElements) {
+      showToast('Failed to generate miniscript elements');
+      return;
+    }
+    vaultInfo.miniscriptElements = miniscriptElements;
+
+    const vaultScheme: VaultScheme = {
+      ...vaultInfo.vaultScheme,
+      multisigScriptType,
+    };
+    vaultInfo.vaultScheme = vaultScheme;
+
+    if (vaultType == VaultType.INHERITANCE) {
+      vaultInfo.vaultSigners = [...vaultInfo.vaultSigners, inheritanceSigner];
+    }
+
+    const miniscriptScheme = generateMiniscriptScheme(vaultInfo.miniscriptElements);
+    vaultInfo.vaultScheme.miniscriptScheme = miniscriptScheme;
+
+    return vaultInfo;
+  };
+
   const createVault = useCallback(
     (signers: VaultSigner[], scheme: VaultScheme, vaultType, inheritanceSigner?: VaultSigner) => {
       try {
-        const vaultInfo: NewVaultInfo = {
+        let vaultInfo: NewVaultInfo = {
           vaultType,
           vaultScheme: scheme,
           vaultSigners: signers,
@@ -189,63 +255,8 @@ function VaultMigrationController({
         };
 
         const isTimelockedInheritanceKey = isAddInheritanceKey;
-        let vaultScheme: VaultScheme = scheme;
         if (isTimeLock || isTimelockedInheritanceKey) {
-          if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultType)) {
-            throw new Error('Invalid vault type - supported only for timelocked and inheritance');
-          }
-
-          const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
-          if (!currentBlockHeight) {
-            showToast('Failed to sync current block height');
-            return;
-          }
-
-          if (!selectedDuration) {
-            showToast('Please select the duration for timelock');
-            return;
-          }
-
-          const timelockDuration = getTimelockDuration(
-            vaultType,
-            selectedDuration,
-            config.NETWORK_TYPE
-          );
-          if (!timelockDuration) {
-            showToast('Failed to determine timelock duration', <ToastErrorIcon />);
-            return;
-          }
-
-          const timelocks = [currentBlockHeight + timelockDuration];
-
-          let miniscriptElements: MiniscriptElements;
-          if (vaultType === VaultType.TIMELOCKED) {
-            miniscriptElements = generateTimelockedVaultElements(signers, scheme, timelocks);
-          } else if (vaultType === VaultType.INHERITANCE) {
-            miniscriptElements = generateInheritanceVaultElements(
-              signers,
-              inheritanceSigner,
-              scheme,
-              timelocks
-            );
-          }
-          if (!miniscriptElements) {
-            showToast('Failed to generate miniscript elements');
-            return;
-          }
-
-          vaultScheme = {
-            ...scheme,
-            multisigScriptType,
-          };
-
-          vaultInfo.vaultScheme = vaultScheme;
-          if (vaultType == VaultType.INHERITANCE) {
-            vaultInfo.vaultSigners = [...signers, inheritanceSigner];
-          }
-          vaultInfo.miniscriptElements = miniscriptElements;
-          const miniscriptScheme = generateMiniscriptScheme(vaultInfo.miniscriptElements);
-          vaultInfo.vaultScheme.miniscriptScheme = miniscriptScheme;
+          vaultInfo = attachMiniscriptElements(vaultInfo, inheritanceSigner);
         }
 
         const allVaultIds = allVaults.map((vault) => vault.id);
@@ -269,7 +280,7 @@ function VaultMigrationController({
 
   const initiateNewVault = () => {
     if (activeVault) {
-      const vaultInfo: NewVaultInfo = {
+      let vaultInfo: NewVaultInfo = {
         vaultType,
         vaultScheme: scheme,
         vaultSigners: vaultKeys,
@@ -278,6 +289,10 @@ function VaultMigrationController({
           description,
         },
       };
+      const isTimelockedInheritanceKey = isAddInheritanceKey;
+      if (isTimeLock || isTimelockedInheritanceKey) {
+        vaultInfo = attachMiniscriptElements(vaultInfo, inheritanceKey);
+      }
       dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
       createVault(vaultKeys, scheme, vaultType, inheritanceKey);
