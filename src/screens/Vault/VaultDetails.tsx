@@ -117,12 +117,6 @@ function VaultInfo({ vault }: { vault: Vault }) {
   return (
     <HStack style={styles.vaultInfoContainer}>
       <HStack style={styles.pillsContainer}>
-        {vault.scheme.n > 1 && (
-          <CardPill
-            heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
-            backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
-          />
-        )}
         <CardPill
           heading={`${
             vault.type === VaultType.COLLABORATIVE
@@ -131,11 +125,19 @@ function VaultInfo({ vault }: { vault: Vault }) {
               ? common.ASSISTED
               : vault.type === VaultType.TIMELOCKED
               ? common.TIMELOCKED
+              : vault.type === VaultType.INHERITANCE
+              ? common.Inheritancekey
               : vault.type === VaultType.SINGE_SIG
               ? 'SINGLE-KEY'
               : common.VAULT
           }`}
         />
+        {vault.scheme.n > 1 && (
+          <CardPill
+            heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
+            backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
+          />
+        )}
         {vault.type === VaultType.SINGE_SIG && <CardPill heading="COLD" />}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
         {vault.archived ? <CardPill heading={common.ARCHIVED} backgroundColor="grey" /> : null}

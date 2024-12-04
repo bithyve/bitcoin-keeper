@@ -22,9 +22,62 @@ import KeeperModal from 'src/components/KeeperModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import AddCircleLight from 'src/assets/images/add-circle-light.svg';
 import ReserveKeyIllustrationLight from 'src/assets/images/reserve-key-illustration-light.svg';
+import ConfigureIcon from 'src/assets/images/configure-circle.svg';
+import PersonalizeIcon from 'src/assets/images/personalize-circle.svg';
+import InheritanceKeyIcon from 'src/assets/images/inheritance-key-circle.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { SignerType } from 'src/services/wallets/enums';
+import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
+import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+
+function SetupVaultContent() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslations } = translations;
+
+  const walletOptions = [
+    {
+      icon: ConfigureIcon,
+      title: vaultTranslations.setupVaultOption1Title,
+      desc: vaultTranslations.setupVaultOption1Description,
+    },
+    {
+      icon: PersonalizeIcon,
+      title: vaultTranslations.setupVaultOption2Title,
+      desc: vaultTranslations.setupVaultOption2Description,
+    },
+    {
+      icon: InheritanceKeyIcon,
+      title: vaultTranslations.setupVaultOption3Title,
+      desc: vaultTranslations.setupVaultOption3Description,
+    },
+  ];
+
+  return (
+    <Box>
+      {walletOptions.map((option, index) => (
+        <Box key={index} style={styles.setupVaultContainer}>
+          <Box style={styles.setupVaultIconWrapper}>
+            <option.icon />
+          </Box>
+          <Box style={styles.setupVaultContentWrapper}>
+            <Text
+              color={`${colorMode}.modalGreenContent`}
+              semiBold
+              style={styles.setupVaultTitleText}
+            >
+              {option.title}
+            </Text>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.setupVaultDescText}>
+              {option.desc}
+            </Text>
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  );
+}
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -65,7 +118,9 @@ function VaultSetup({ route }: ScreenProps) {
     scheme: preDefinedScheme,
     vaultId,
     isTimeLock = false,
+    isAddInheritanceKeyFromParams = false,
   } = route.params || {};
+  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
   const dispatch = useDispatch();
   const { activeVault } = useVault({ vaultId });
   const [vaultName, setVaultName] = useState(
@@ -75,7 +130,9 @@ function VaultSetup({ route }: ScreenProps) {
   );
   const descriptionInputRef = useRef(activeVault?.presentationData?.description || '');
   const initialDescription = useRef(descriptionInputRef.current);
-  const [isAddInheritanceKey, setIsAddInheritanceKey] = useState(false);
+  const [isAddInheritanceKey, setIsAddInheritanceKey] = useState(
+    isAddInheritanceKeyFromParams && isDiamondHand
+  );
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
@@ -104,7 +161,6 @@ function VaultSetup({ route }: ScreenProps) {
   }, [isAddInheritanceKey]);
 
   const { vault: vaultTranslations, common } = translations;
-  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
 
   const onDecreaseM = () => {
     if (scheme.m > 1) {
@@ -208,7 +264,10 @@ function VaultSetup({ route }: ScreenProps) {
             : vaultTranslations.AddCustomMultiSig
         }
         subtitle={vaultTranslations.configureScheme}
-        learnMore={!isDiamondHand}
+        learnMore
+        learnBackgroundColor={`${colorMode}.brownBackground`}
+        learnMoreBorderColor={`${colorMode}.brownBackground`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           setShowModal(true);
         }}
@@ -270,28 +329,42 @@ function VaultSetup({ route }: ScreenProps) {
             </Text>
             <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
           </Box>
-          <Box
-            style={{
-              opacity: !isDiamondHand ? 0.5 : 1,
-            }}
-          >
-            <Checkbox
-              value="Add Inheritance Key"
-              _checked={{
-                bgColor: `${colorMode}.pantoneGreen`,
-                borderColor: `${colorMode}.dullGreyBorder`,
+          <Box style={styles.addInheritanceContainer}>
+            {!isDiamondHand && (
+              <Box>
+                <Box style={styles.separator} borderColor={`${colorMode}.dullGreyBorder`} />
+                <UpgradeSubscription
+                  type={SubscriptionTier.L3}
+                  customStyles={styles.upgradeButtonCustomStyles}
+                />
+              </Box>
+            )}
+            <Box
+              style={{
+                opacity: !isDiamondHand ? 0.5 : 1,
+                marginTop: hp(2.5),
+                marginLeft: wp(2.5),
               }}
-              _unchecked={{
-                bgColor: `${colorMode}.primaryBackground`,
-              }}
-              borderWidth={1}
-              onChange={() => setIsAddInheritanceKey(!isAddInheritanceKey)}
-              isDisabled={!isDiamondHand}
             >
-              <Text color={`${colorMode}.primaryText`} fontSize={12}>
-                {vaultTranslations.addInheritanceKey}
-              </Text>
-            </Checkbox>
+              <Checkbox
+                value="Add Inheritance Key"
+                isChecked={isAddInheritanceKey}
+                _checked={{
+                  bgColor: `${colorMode}.pantoneGreen`,
+                  borderColor: `${colorMode}.dullGreyBorder`,
+                }}
+                _unchecked={{
+                  bgColor: `${colorMode}.primaryBackground`,
+                }}
+                borderWidth={1}
+                onChange={() => setIsAddInheritanceKey(!isAddInheritanceKey)}
+                isDisabled={!isDiamondHand}
+              >
+                <Text color={`${colorMode}.primaryText`} fontSize={12}>
+                  {vaultTranslations.addInheritanceKeyAfterKeys}
+                </Text>
+              </Checkbox>
+            </Box>
           </Box>
         </VStack>
       </ScrollView>
@@ -332,15 +405,26 @@ function VaultSetup({ route }: ScreenProps) {
       />
       <KeeperModal
         visible={showModal}
-        close={() => setShowModal(false)}
-        title={vaultTranslations.addInheritanceKey}
-        subTitle={vaultTranslations.inheritanceKeyDesc}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        subTitleWidth={wp(300)}
-        Content={ModalContent}
-        showCloseIcon={false}
+        close={() => {
+          setShowModal(false);
+        }}
+        title={vaultTranslations.setupNewVault}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={SetupVaultContent}
+        showCloseIcon={true}
+        DarkCloseIcon
+        secondaryButtonText={common.needHelp}
+        secondaryCallback={() => {
+          setShowModal(false);
+          dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-setup'));
+        }}
+        buttonText={common.Okay}
+        buttonCallback={() => setShowModal(false)}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
       />
     </ScreenWrapper>
   );
@@ -406,5 +490,37 @@ const styles = StyleSheet.create({
   },
   modalButtonContainer: {
     marginTop: hp(10),
+  },
+  addInheritanceContainer: {
+    gap: hp(20),
+  },
+  separator: {
+    borderTopWidth: 1,
+    marginVertical: hp(10),
+  },
+  upgradeButtonCustomStyles: {
+    container: {
+      borderTopWidth: 0,
+      justifyContent: 'space-between',
+    },
+  },
+  setupVaultContainer: {
+    width: '100%',
+    gap: 10,
+  },
+  setupVaultIconWrapper: {
+    width: '15%',
+  },
+  setupVaultContentWrapper: {
+    width: '97%',
+  },
+  setupVaultDescText: {
+    fontSize: 13,
+    padding: 1,
+    marginBottom: 25,
+  },
+  setupVaultTitleText: {
+    fontSize: 15,
+    padding: 1,
   },
 });
