@@ -26,16 +26,16 @@ export const identifyUser = (id: string) => {
 
 export const captureError = (error: Error, context?: CaptureContext) => {
   try {
-    if (__DEV__) {
-      console.log('@captureError: ', error);
-    }
+    if (!config.isDevMode()) return null;
+    console.log('@captureError: ', error);
     return Sentry.captureException(error, context);
   } catch (err) {
     console.log(err);
   }
 };
 
-export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) =>
-  Sentry.captureMessage(message, captureContext);
+export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) => {
+  config.isDevMode() && Sentry.captureMessage(message, captureContext);
+};
 
 export { routingInstrumentation };

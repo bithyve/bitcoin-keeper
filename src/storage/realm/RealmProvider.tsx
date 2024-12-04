@@ -19,18 +19,12 @@ export const realmConfig = (key) => ({
 });
 
 const AppWithNetwork = ({ children }) => {
-  const { networkType, id, enableAnalytics }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
-    getJSONFromRealmObject
-  )[0];
+  const { networkType }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   config.setNetwork(networkType);
 
   useEffect(() => {
-    if (enableAnalytics) {
-      Sentry.init(sentryConfig);
-    } else {
-      Sentry.init({ ...sentryConfig, enabled: false });
-    }
-  }, [enableAnalytics]);
+    config.isDevMode() && Sentry.init({ ...sentryConfig, enabled: true });
+  }, []);
 
   return children;
 };

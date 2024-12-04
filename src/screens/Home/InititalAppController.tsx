@@ -34,6 +34,7 @@ import { Psbt } from 'bitcoinjs-lib';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { decrypt } from 'src/utils/service-utilities/encryption';
+import config from 'src/utils/service-utilities/config';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -190,10 +191,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     if (inProgress) {
       return;
     }
-    if (enableAnalyticsLogin) {
+    if (enableAnalyticsLogin && config.isDevMode()) {
       await start(() => Sentry.init(sentryConfig));
-    } else {
-      await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
     }
     dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
       enableAnalytics: enableAnalyticsLogin,
