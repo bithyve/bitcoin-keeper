@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, RefreshControl, StyleSheet } from 'react-native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
@@ -237,13 +237,21 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const { vaultSigners: keys } = useSigners(vault.id);
-  const transactions =
-    vault?.specs?.transactions.sort((a, b) => {
-      if (!a.blockTime && !b.blockTime) return 0;
-      if (!a.blockTime) return -1;
-      if (!b.blockTime) return 1;
-      return b.blockTime - a.blockTime;
-    }) || [];
+  const transactions = useMemo(
+    () =>
+      [...(vault?.specs?.transactions || [])].sort((a, b) => {
+        // Sort unconfirmed transactions first
+        if (a.confirmations === 0 && b.confirmations !== 0) return -1;
+        if (a.confirmations !== 0 && b.confirmations === 0) return 1;
+
+        // Then sort by date
+        if (!a.date && !b.date) return 0;
+        if (!a.date) return -1;
+        if (!b.date) return 1;
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }),
+    [vault?.specs?.transactions]
+  );
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const isAssistedWallet = vault.type === VaultType.ASSISTED;
   const isCanaryWallet = vault.type === VaultType.CANARY;
