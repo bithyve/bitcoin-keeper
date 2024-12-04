@@ -67,7 +67,7 @@ function ResetInheritanceKey({ route }) {
             Icon={SDIcons(signer.type).Icon}
           />
           <TimelineInfo
-            duration={MONTHS_12}
+            duration={selectedOption?.label}
             callback={() => {
               navigation.dispatch(
                 CommonActions.navigate({
