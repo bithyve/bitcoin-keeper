@@ -161,7 +161,11 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
       } else if (SignerType.MY_KEEPER === signerType) {
         let signedSerializedPSBT: string;
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        signedSerializedPSBT = signCosignerPSBT(key.xpriv, serializedPSBTEnvelop.serializedPSBT);
+        signedSerializedPSBT = signCosignerPSBT(
+          signer.masterFingerprint,
+          key.xpriv,
+          serializedPSBTEnvelop.serializedPSBT
+        );
         if (signedSerializedPSBT) {
           navigateToShowPSBT(signedSerializedPSBT);
         }
