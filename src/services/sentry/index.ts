@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/react-native';
 
 import { CaptureContext, SeverityLevel, User } from '@sentry/types';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 import config from 'src/utils/service-utilities/config';
 
@@ -36,6 +37,18 @@ export const captureError = (error: Error, context?: CaptureContext) => {
 
 export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) => {
   config.isDevMode() && Sentry.captureMessage(message, captureContext);
+};
+
+export const SentryWrapper = (App) => {
+  return Sentry.wrap(App);
+};
+
+export const SentryErrorBoundary = (component) => {
+  return Sentry.withErrorBoundary(component, errorBourndaryOptions);
+};
+
+export const initializeSentry = () => {
+  config.isDevMode() && Sentry.init({ ...sentryConfig, enabled: true });
 };
 
 export { routingInstrumentation };
