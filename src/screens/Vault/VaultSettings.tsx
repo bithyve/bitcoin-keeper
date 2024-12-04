@@ -38,7 +38,10 @@ function VaultSettings({ route }) {
   const isCanaryWalletType = vault.type === VaultType.CANARY;
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
-
+  const isInheritanceVault =
+    vault?.type === VaultType.INHERITANCE && vault?.scheme?.miniscriptScheme;
+  const inheritanceKey =
+    vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints['IK1'];
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
 
   const updateWalletVisibility = () => {
@@ -127,6 +130,20 @@ function VaultSettings({ route }) {
             );
           }}
         />
+        {isInheritanceVault && (
+          <OptionCard
+            title={vaultText.resetIKTitle}
+            description={vaultText.resetIKDesc}
+            callback={() => {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'ResetInheritanceKey',
+                  params: { signerId: inheritanceKey },
+                })
+              );
+            }}
+          />
+        )}
         {TestSatsComponent}
       </ScrollView>
       <KeeperModal

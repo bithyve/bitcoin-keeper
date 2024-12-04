@@ -1033,17 +1033,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToScanPSBT}
           />
         )}
-        {vaultId && (
-          <OptionCard
-            title={vaultTranslation.resetIKTitle}
-            description={vaultTranslation.resetIKDesc}
-            callback={() => {
-              navigation.dispatch(
-                CommonActions.navigate({ name: 'ResetInheritanceKey', params: { signerId } })
-              );
-            }}
-          />
-        )}
         {isAssistedKey || signersWithoutRegistration ? null : (
           <OptionCard
             title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
