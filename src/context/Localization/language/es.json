@@ -82,7 +82,7 @@
     "unconfirmed": "Unconfirmed",
     "availableBalance": "Available Balance",
     "transferPolicySet": "Transfer Policy is set at",
-    "transactions": "Transactions",
+    "recentTransactions": "Recent Transactions",
     "viewAll": "View All",
     "addNewWalletOrImport": "Add a new wallet or import one",
     "noTransYet": "You have no transactions yet",
@@ -335,7 +335,9 @@
     "inputs": "Inputs",
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions",
-    "advancedDetails": "Advanced Details"
+    "advancedDetails": "Advanced Details",
+    "transactionHistory": "Transaction History",
+    "viewAllRecords": "View all your records"
   },
   "DiscountCodes": {
     "DiscountCodesTitle": "Buy new Hardware Signers",
