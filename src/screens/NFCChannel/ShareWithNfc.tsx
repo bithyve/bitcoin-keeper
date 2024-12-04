@@ -14,9 +14,9 @@ import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RKInteractionMode } from 'src/services/wallets/enums';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { exportFile } from 'src/services/fs';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 function ShareWithNfc({
   data,
@@ -99,11 +99,11 @@ function ShareWithNfc({
   };
 
   const shareWithAirdrop = async () => {
-    const shareFileName = fileName
-      ? fileName
-      : isPSBTSharing
-      ? `${vaultId}-${vaultKey?.xfp}-${Date.now()}.psbt`
-      : `cosigner-${signer?.masterFingerprint}.txt`;
+    const shareFileName =
+      fileName ||
+      (isPSBTSharing
+        ? `${vaultId}-${vaultKey?.xfp}-${Date.now()}.psbt`
+        : `cosigner-${signer?.masterFingerprint}.txt`);
     try {
       await exportFile(
         data,

@@ -65,8 +65,8 @@ function KeySecurity({ navigation }) {
       />
       <OptionCard
         disabled={!isHodlerAndDiamondHand}
-        title={inheritancePlanning.assistedKeys}
-        description={inheritancePlanning.assistedKeysDesp}
+        title={inheritancePlanning.inheritanceKey}
+        description={inheritancePlanning.inheritanceKeyOptionDesc}
         LeftIcon={!isHodlerAndDiamondHand ? <ServerGreyIcon /> : <ServerIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />

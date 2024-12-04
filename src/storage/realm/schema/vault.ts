@@ -3,14 +3,6 @@ import { XpubTypes } from 'src/services/wallets/enums';
 import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 
-const Scheme = {
-  type: '{}',
-  properties: {
-    m: 'int',
-    n: 'int',
-  },
-};
-
 export const SignerPolicy: ObjectSchema = {
   name: RealmSchema.SignerPolicy,
   embedded: true,
@@ -175,6 +167,70 @@ export const VaultPresentationDataSchema: ObjectSchema = {
   },
 };
 
+export const MiniscriptKeyInfoSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptKeyInfo,
+  embedded: true,
+  properties: {
+    identifier: 'string',
+    descriptor: 'string',
+    uniqueKeyIdentifier: 'string?',
+  },
+};
+
+export const MiniscriptPathSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptPath,
+  embedded: true,
+  properties: {
+    id: 'int',
+    keys: `${RealmSchema.MiniscriptKeyInfo}[]`,
+    threshold: 'int',
+  },
+};
+
+export const MiniscriptPhaseSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptPhase,
+  embedded: true,
+  properties: {
+    id: 'int',
+    timelock: 'int',
+    paths: `${RealmSchema.MiniscriptPath}[]`,
+    requiredPaths: 'int',
+  },
+};
+
+export const MiniscriptElementsSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptElements,
+  embedded: true,
+  properties: {
+    keysInfo: `${RealmSchema.MiniscriptKeyInfo}[]`,
+    timelocks: 'int[]',
+    phases: `${RealmSchema.MiniscriptPhase}[]`,
+    signerFingerprints: '{}',
+  },
+};
+
+export const MiniscriptSchemeSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptScheme,
+  embedded: true,
+  properties: {
+    miniscriptElements: RealmSchema.MiniscriptElements,
+    keyInfoMap: '{}',
+    miniscriptPolicy: 'string',
+    miniscript: 'string',
+  },
+};
+
+export const VaultSchemeSchema: ObjectSchema = {
+  name: RealmSchema.VaultScheme,
+  embedded: true,
+  properties: {
+    m: 'int',
+    n: 'int',
+    multisigScriptType: 'string?',
+    miniscriptScheme: `${RealmSchema.MiniscriptScheme}?`,
+  },
+};
+
 export const VaultSpecsSchema: ObjectSchema = {
   name: RealmSchema.VaultSpecs,
   embedded: true,
@@ -206,7 +262,7 @@ export const VaultSchema: ObjectSchema = {
     networkType: 'string',
     isUsable: 'bool',
     isMultiSig: 'bool',
-    scheme: Scheme,
+    scheme: `${RealmSchema.VaultScheme}`,
     signers: `${RealmSchema.VaultSigner}[]`,
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,

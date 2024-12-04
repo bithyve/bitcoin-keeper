@@ -115,7 +115,13 @@ export type AppStackParams = {
   VaultCreationOptions: undefined;
   VaultConfigurationCreation: undefined;
   ScanQRFileRecovery: undefined;
-  VaultSetup: { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string };
+  VaultSetup: {
+    isRecreation: Boolean;
+    scheme: VaultScheme;
+    vaultId?: string;
+    isTimeLock?: boolean;
+    isAddInheritanceKeyFromParams?: boolean;
+  };
   SigningDeviceConfigRecovery: undefined;
   MixProgress: undefined;
   AssignSignerType: undefined;
@@ -152,12 +158,16 @@ export type AppStackParams = {
   EnterWalletPath: undefined;
   DeleteKeys: undefined;
   HandleFile: undefined;
+  AssistedWalletTimeline: {
+    parentScreen: string;
+  };
   AssociateContact: undefined;
   AddContact: undefined;
   ContactProfile: undefined;
   EditContact: undefined;
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
+  AddReserveKey: undefined;
 };
 
 // Usage:

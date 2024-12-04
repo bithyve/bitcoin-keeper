@@ -101,6 +101,7 @@ export const customTheme = extendTheme({
       textInputBackground: Colors.ChampagneBliss,
       thirdBackground: Colors.Warmbeige,
       GreyText: Colors.Feldgrau,
+      DarkGreyText: Colors.FeldgrauDark,
       dateText: Colors.HookerGreen,
       Border: Colors.CastletonGreen,
       textColor: Colors.LightGray,
@@ -236,6 +237,7 @@ export const customTheme = extendTheme({
       dashedButtonBorder: Colors.SeaweedGreen,
       newDashedButtonBackground: Colors.DashedButtonBackground,
       btcPillText: Colors.MidNightBlack,
+      DarkGreyText: Colors.Feldgrau,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -408,7 +410,6 @@ export const customTheme = extendTheme({
       textWhite: Colors.SecondaryWhite,
       textGreenGrey: Colors.SecondaryWhite,
       seedCard: Colors.SeashellDark,
-      secondaryBackground: Colors.SecondaryBlack,
       thirdBackground: Colors.SecondaryBlack,
       errorToastBackground: Colors.ErrorToastDark,
       transactionDeatilInfo: Colors.GraphiteLight,
@@ -428,6 +429,7 @@ export const customTheme = extendTheme({
       dashedButtonBorder: Colors.separator,
       newDashedButtonBackground: Colors.DashedButtonBackgroundDark,
       btcPillText: Colors.White,
+      DarkGreyText: Colors.RichBlackDark,
     },
   },
   config: {

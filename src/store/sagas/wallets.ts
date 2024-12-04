@@ -4,6 +4,7 @@
 import {
   DerivationPurpose,
   EntityKind,
+  MultisigScriptType,
   SignerType,
   VaultType,
   VisibilityType,
@@ -18,6 +19,8 @@ import {
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
 import {
+  MiniscriptElements,
+  MiniscriptScheme,
   Signer,
   Vault,
   VaultPresentationData,
@@ -53,7 +56,10 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
-import { generateVault } from 'src/services/wallets/factories/VaultFactory';
+import {
+  generateMiniscriptScheme,
+  generateVault,
+} from 'src/services/wallets/factories/VaultFactory';
 import {
   generateWallet,
   generateWalletSpecsFromMnemonic,
@@ -76,6 +82,8 @@ import ElectrumClient, {
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
 import _ from 'lodash';
+import { getSignerDescription } from 'src/hardware';
+import { SyncedWallet } from 'src/services/wallets/interfaces';
 import { RootState } from '../store';
 import {
   initiateVaultMigration,
@@ -146,7 +154,6 @@ import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
-import { SyncedWallet } from 'src/services/wallets/interfaces';
 
 export interface NewVaultDetails {
   name?: string;
@@ -332,12 +339,12 @@ export function* addWhirlpoolWalletsWorker({
       ],
     };
 
-    //update whirlpool config in parent walletId
+    // update whirlpool config in parent walletId
     yield call(updateWalletsPropertyWorker, {
       payload: { walletId: depositWallet.id, key: 'whirlpoolConfig', value: whirlpoolConfig },
     });
 
-    //create premix,postmix,badbank wallets
+    // create premix,postmix,badbank wallets
     const newWalletsInfo: NewWalletInfo[] = [
       preMixWalletInfo,
       postMixWalletInfo,
@@ -504,6 +511,7 @@ export interface NewVaultInfo {
   vaultType: VaultType;
   vaultScheme: VaultScheme;
   vaultSigners: VaultSigner[];
+  miniscriptElements?: MiniscriptElements;
   vaultDetails?: NewVaultDetails;
 }
 
@@ -525,17 +533,25 @@ export function* addNewVaultWorker({
     const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
-    let isNewVault = false;
-    // When the vault is passed directly during upgrade/downgrade process
+    let isNewVault = false; // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
       const {
         vaultType = VaultType.DEFAULT,
         vaultScheme,
         vaultSigners,
+        miniscriptElements,
         vaultDetails,
       } = newVaultInfo;
 
-      if (vaultScheme.n !== vaultSigners.length) {
+      if (vaultScheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+        if (!miniscriptElements) throw new Error('Miniscript elements missing');
+        const miniscriptScheme: MiniscriptScheme = yield call(
+          generateMiniscriptScheme,
+          miniscriptElements
+        );
+        vaultScheme.miniscriptScheme = miniscriptScheme;
+      } else if (vaultScheme.n !== vaultSigners.length) {
+        // vaultScheme check for MINISCRIPT_MULTISIG is irrelevant
         throw new Error('Vault schema(n) and signers mismatch');
       }
 
@@ -566,16 +582,14 @@ export function* addNewVaultWorker({
         yield call(finaliseIKSetupWorker, { payload: { ikSigner, ikVaultKey, vault } });
       }
     }
-
     yield put(setRelayVaultUpdateLoading(true));
     const newVaultResponse = yield call(updateVaultImageWorker, { payload: { vault } });
-
     if (newVaultResponse.updated) {
       yield call(dbManager.createObject, RealmSchema.Vault, vault);
       yield put(uaiChecks([uaiType.SECURE_VAULT]));
 
       if (isMigrated) {
-        let oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
+        const oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
         const updatedParams = {
           archived: true,
           archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
@@ -752,7 +766,7 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
   try {
     if (signers.length) {
       yield put(showDeletingKeyModal());
-      let signersToDeleteIds = [];
+      const signersToDeleteIds = [];
       for (const signer of signers) {
         signersToDeleteIds.push(signer.masterFingerprint);
       }
@@ -781,7 +795,7 @@ export const deleteSigningDeviceWatcher = createWatcher(
 
 function* archiveSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   try {
-    let signersToArchiveIds = [];
+    const signersToArchiveIds = [];
     for (const signer of signers) {
       signersToArchiveIds.push(signer.masterFingerprint);
     }
@@ -822,8 +836,10 @@ function* migrateVaultWorker({
     } = payload.newVaultData;
     const { vaultShellId } = payload;
 
-    if (vaultScheme.n !== vaultSigners.length) {
-      throw new Error('Vault schema(n) and signers mismatch');
+    if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
+      if (vaultScheme.n !== vaultSigners.length) {
+        throw new Error('Vault schema(n) and signers mismatch');
+      }
     }
 
     const networkType = config.NETWORK_TYPE;
@@ -1072,7 +1088,7 @@ function* refreshWalletsWorker({
       labels = yield call(dbManager.getCollection, RealmSchema.Tags);
     }
     for (const synchedWalletWithUTXOs of synchedWallets) {
-      const synchedWallet = synchedWalletWithUTXOs.synchedWallet;
+      const { synchedWallet } = synchedWalletWithUTXOs;
       // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
       for (const utxo of synchedWalletWithUTXOs.newUTXOs) {

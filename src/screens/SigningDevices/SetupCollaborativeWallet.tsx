@@ -87,8 +87,9 @@ function SignerItem({
         params: {
           parentScreen: SETUPCOLLABORATIVEWALLET,
           scheme: COLLABORATIVE_SCHEME,
+          signerFilters: [SignerType.KEEPER],
           coSigners,
-          onGoBack: (vaultKeys) => setSelectedSigner(vaultKeys),
+          onGoBack: (vaultKeys) => setSelectedSigner(vaultKeys, index),
         },
       })
     );
@@ -151,24 +152,13 @@ function SetupCollaborativeWallet() {
   const { common, wallet, signer } = translations;
   const [selectedSigner, setSelectedSigner] = useState(null);
 
-  const handleSelectedSigners = (vaultKeys) => {
+  const handleSelectedSigners = (vaultKeys, index) => {
     setCoSigners((prevCoSigners) => {
       let newSigners = [...prevCoSigners];
       const newKey = vaultKeys[0];
-      const existingIndex = newSigners.findIndex(
-        (signer) => signer && signer.masterFingerprint === newKey.masterFingerprint
-      );
-      if (existingIndex !== -1) {
-        showToast(signer.coSignerAlreadyAdded, <ToastErrorIcon />);
-        return prevCoSigners;
-      } else {
-        const nullIndex = newSigners.indexOf(null || undefined);
-        if (nullIndex !== -1) {
-          newSigners[nullIndex] = newKey;
-        } else {
-          newSigners.push(newKey);
-        }
-      }
+
+      newSigners[index] = newKey;
+
       return newSigners;
     });
   };
