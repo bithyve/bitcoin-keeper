@@ -75,9 +75,11 @@ function ResetInheritanceKey({ route }) {
   const handleResetInheritanceKey = () => {
     if (!selectedOption) {
       showToast('Please select a timeline', <ToastErrorIcon />);
+      return;
     }
     if (!currentBlockHeight) {
       showToast('Failed to sync current block height', <ToastErrorIcon />);
+      return;
     }
     setCreating(true);
   };
