@@ -20,6 +20,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
 import CreateReserveKeyVault from './CreateReserveKeyVault';
 import { MONTHS_12, MONTHS_24, MONTHS_18 } from './constants';
+import { getKeyUID } from 'src/utils/utilities';
 
 const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
 const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -40,7 +41,7 @@ function AddReserveKey({ route }) {
   const [selectedSigner, setSelectedSigner] = useState(null);
   const [vaultCreating, setCreating] = useState(false);
 
-  const reservedKey = selectedSigner ? signerMap[selectedSigner[0]?.masterFingerprint] : null;
+  const reservedKey = selectedSigner ? signerMap[getKeyUID(selectedSigner[0])] : null;
   const isDarkMode = colorMode === 'dark';
 
   const userKeyCallback = () => {
@@ -76,7 +77,7 @@ function AddReserveKey({ route }) {
                 />
               ) : (
                 <HorizontalSignerCard
-                  key={reservedKey.masterFingerprint}
+                  key={getKeyUID(reservedKey)}
                   name={getSignerNameFromType(reservedKey.type, reservedKey.isMock, false)}
                   description={`${common.added} ${moment(reservedKey.addedOn).calendar()}`}
                   icon={SDIcons(reservedKey.type).Icon}
