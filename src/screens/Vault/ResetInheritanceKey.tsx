@@ -2,7 +2,6 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import IKSInfocard from './components/IKSInfoCard';
 import { Pressable, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -12,9 +11,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import moment from 'moment';
+import IKSInfocard from './components/IKSInfoCard';
 import { SDIcons } from './SigningDeviceIcons';
+import { MONTHS_12 } from './constants';
 
-const TimelineInfo = ({ duration, callback }) => {
+function TimelineInfo({ duration, callback }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
@@ -33,9 +34,9 @@ const TimelineInfo = ({ duration, callback }) => {
       </Box>
     </Box>
   );
-};
+}
 
-const ResetInheritanceKey = ({ route }) => {
+function ResetInheritanceKey({ route }) {
   const { signerId }: { signerId: string } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -54,7 +55,7 @@ const ResetInheritanceKey = ({ route }) => {
             Icon={SDIcons(signer.type).Icon}
           />
           <TimelineInfo
-            duration="3 months"
+            duration={MONTHS_12}
             callback={() => {
               navigation.dispatch(
                 CommonActions.navigate({ name: 'ChangeIKSTimeline', params: { signerId } })
@@ -68,7 +69,7 @@ const ResetInheritanceKey = ({ route }) => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 export default ResetInheritanceKey;
 

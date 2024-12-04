@@ -7,22 +7,22 @@ import { hp, wp } from 'src/constants/responsive';
 import OptionDropdown from 'src/components/OptionDropdown';
 import Buttons from 'src/components/Buttons';
 import KeeperModal from 'src/components/KeeperModal';
-import TimeLockModalContent from './components/TimeLockModalContent';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import moment from 'moment';
-import { SDIcons } from './SigningDeviceIcons';
 import { useNavigation } from '@react-navigation/native';
+import { SDIcons } from './SigningDeviceIcons';
+import TimeLockModalContent from './components/TimeLockModalContent';
+import { MONTHS_12, MONTHS_18, MONTHS_24 } from './constants';
 
-const TIMELOCK_DURATIONS = [
-  { label: '3 months', value: 3 * 30 * 24 * 60 * 60 * 1000 },
-  { label: '6 months', value: 6 * 30 * 24 * 60 * 60 * 1000 },
-  { label: '1 year', value: 12 * 30 * 24 * 60 * 60 * 1000 },
-  { label: '2 years', value: 24 * 30 * 24 * 60 * 60 * 1000 },
+const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
+const INHERITANCE_TIMELOCK_DURATIONS = [
+  DEFAULT_INHERITANCE_TIMELOCK,
+  { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
+  { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
 ];
-
-const ChangeIKSTimeline = ({ route }) => {
+function ChangeIKSTimeline({ route }) {
   const { signerId }: { signerId: string } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -38,7 +38,7 @@ const ChangeIKSTimeline = ({ route }) => {
       <Box style={styles.container}>
         <OptionDropdown
           label={vaultText.setTimelock}
-          options={TIMELOCK_DURATIONS}
+          options={INHERITANCE_TIMELOCK_DURATIONS}
           selectedOption={selectedOption}
           onOptionSelect={(option) => setSelectedOption(option)}
         />
@@ -73,7 +73,7 @@ const ChangeIKSTimeline = ({ route }) => {
       />
     </ScreenWrapper>
   );
-};
+}
 
 export default ChangeIKSTimeline;
 
