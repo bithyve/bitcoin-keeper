@@ -184,7 +184,7 @@ export function CurrencyIcon({ symbol, styles = {} }) {
 
 export const getCurrencyImageByRegion = (
   currencyCode: string,
-  type: 'light' | 'green' | 'dark' | 'grey' | 'slateGreen',
+  type: 'light' | 'green' | 'dark' | 'grey' | 'slateGreen' | 'richBlack',
   currentCurrency: CurrencyKind,
   BTCIcon: any
 ) => {
@@ -205,6 +205,9 @@ export const getCurrencyImageByRegion = (
       break;
     case 'slateGreen':
       styles.color = Colors.SlateGreen;
+      break;
+    case 'richBlack':
+      styles.color = Colors.RichBlack;
       break;
     default:
       styles.color = Colors.White;
