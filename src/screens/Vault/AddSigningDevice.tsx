@@ -658,7 +658,7 @@ function Signers({
           (signer.type === SignerType.MY_KEEPER &&
             myAppKeys.length >= 1 &&
             myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
-          (anySignerSelected && !selectedSigners.get(signer.masterFingerprint));
+          (anySignerSelected && !selectedSigners.get(getKeyUID(signer)));
 
         const handleCardSelect = (selected) => {
           if (disabled) return;
