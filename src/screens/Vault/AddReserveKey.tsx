@@ -10,7 +10,7 @@ import OptionPicker from 'src/components/OptionPicker';
 import { useNavigation } from '@react-navigation/native';
 import { ADDRESERVEKEY } from 'src/navigation/contants';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KEEPERAPP from 'src/assets/images/KeeperIcon.svg';
@@ -79,7 +79,7 @@ function AddReserveKey({ route }) {
                 <HorizontalSignerCard
                   key={getKeyUID(reservedKey)}
                   name={getSignerNameFromType(reservedKey.type, reservedKey.isMock, false)}
-                  description={`${common.added} ${moment(reservedKey.addedOn).calendar()}`}
+                  description={getSignerDescription(reservedKey)}
                   icon={SDIcons(reservedKey.type).Icon}
                   isSelected={false}
                   showSelection={false}

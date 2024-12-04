@@ -8,7 +8,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { MultisigScriptType, NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -139,7 +139,7 @@ function SignerItem({
         <HorizontalSignerCard
           key={getKeyUID(signer)}
           name={getSignerNameFromType(signer.type, signer.isMock, false)}
-          description={`${common.added} ${moment(signer.addedOn).calendar()}`}
+          description={getSignerDescription(signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={false}
           showSelection={false}
