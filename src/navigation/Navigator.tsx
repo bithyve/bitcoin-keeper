@@ -1,7 +1,7 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { routingInstrumentation } from 'src/services/sentry';
+import { getRoutingInstrumentation } from 'src/services/sentry';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
@@ -339,7 +339,7 @@ function Navigator() {
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
-    routingInstrumentation.registerNavigationContainer(navigation);
+    getRoutingInstrumentation().registerNavigationContainer(navigation);
   };
 
   const { onboardingModal } = useAppSelector((state) => state.concierge);
