@@ -87,9 +87,9 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
     if (!isOnL2Above) {
-      showToast('Upgrade to Hodler to use Remote Key Sharing');
-      return false;
-    }
+        showToast('Upgrade to Hodler to use Remote Key Sharing');
+        return false;
+      }
 
     const encryptionKey = initialUrl.split('remote/')[1];
     const hash = getHashFromKey(encryptionKey);
@@ -241,7 +241,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
             showToast('Invalid deeplink');
           }
         } else if (initialUrl.includes('create/')) {
-        } else if (initialUrl.includes('shareKey/')) {
+        } else if (initialUrl.includes('remote/')) {
           handleRemoteKeyDeepLink(initialUrl);
         }
       }
