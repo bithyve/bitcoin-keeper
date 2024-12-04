@@ -35,15 +35,17 @@ type Props = {
   topRightComponent?: Element;
 };
 
-const BackButton = ({ onPress, colorMode, contrastScreen, styles }: any) => (
-  <Box style={styles.backButtonWrapper}>
-    <TouchableOpacity testID="btn_back" onPress={onPress} style={styles.backButton}>
-      {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
-    </TouchableOpacity>
-  </Box>
-);
+function BackButton({ onPress, colorMode, contrastScreen, styles }: any) {
+  return (
+    <Box style={styles.backButtonWrapper}>
+      <TouchableOpacity testID="btn_back" onPress={onPress} style={styles.backButton}>
+        {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
+      </TouchableOpacity>
+    </Box>
+  );
+}
 
-const LearnMoreButton = ({
+function LearnMoreButton({
   onPress,
   learnBackgroundColor,
   learnTextColor,
@@ -51,32 +53,37 @@ const LearnMoreButton = ({
   colorMode,
   common,
   styles,
-}: any) => (
-  <Box style={styles.learnMoreButtonWrapper}>
-    <TouchableOpacity onPress={onPress} testID="btn_learnMore" style={styles.learnMoreButton}>
-      <Box
-        borderColor={
-          learnMoreBorderColor ||
-          (learnTextColor === 'light.white' || learnTextColor === 'light.buttonText'
-            ? 'light.white'
-            : `${colorMode}.learnMoreBorder`)
-        }
-        backgroundColor={
-          learnBackgroundColor === 'BrownNeedHelp'
-            ? `${colorMode}.BrownNeedHelp`
-            : learnBackgroundColor
-        }
-        style={styles.learnMoreContainer}
-      >
-        <Text color={learnTextColor || `${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
-          {common.learnMore}
-        </Text>
-      </Box>
-    </TouchableOpacity>
-  </Box>
-);
+}: any) {
+  return (
+    <Box style={styles.learnMoreButtonWrapper}>
+      <TouchableOpacity onPress={onPress} testID="btn_learnMore" style={styles.learnMoreButton}>
+        <Box
+          borderColor={
+            learnMoreBorderColor ||
+            (learnTextColor === 'light.white' || learnTextColor === 'light.buttonText'
+              ? 'light.white'
+              : `${colorMode}.learnMoreBorder`)
+          }
+          backgroundColor={
+            learnBackgroundColor === 'BrownNeedHelp'
+              ? `${colorMode}.BrownNeedHelp`
+              : learnBackgroundColor
+          }
+          style={styles.learnMoreContainer}
+        >
+          <Text
+            color={learnTextColor || `${colorMode}.learnMoreBorder`}
+            style={styles.learnMoreText}
+          >
+            {common.learnMore}
+          </Text>
+        </Box>
+      </TouchableOpacity>
+    </Box>
+  );
+}
 
-const HeaderInfo = ({
+function HeaderInfo({
   title,
   subtitle,
   titleColor,
@@ -86,36 +93,38 @@ const HeaderInfo = ({
   icon,
   colorMode,
   styles,
-}: any) => (
-  <Box style={styles.headerInfo}>
-    {icon && icon}
-    <Box style={styles.headerInfoText}>
-      {title && (
-        <Text
-          style={styles.addWalletText}
-          color={titleColor || `${colorMode}.headerText`}
-          testID="text_header_title"
-          medium={mediumTitle}
-        >
-          {title}
-        </Text>
-      )}
-      {subtitle ? (
-        <Text
-          style={[styles.addWalletDescription, rightComponent && styles.smallWidth]}
-          color={subTitleColor || `${colorMode}.black`}
-          testID="text_header_subtitle"
-        >
-          {subtitle}
-        </Text>
-      ) : (
-        <Box style={{ marginBottom: hp(8) }} />
-      )}
+}: any) {
+  return (
+    <Box style={styles.headerInfo}>
+      {icon && icon}
+      <Box style={styles.headerInfoText}>
+        {title && (
+          <Text
+            style={styles.addWalletText}
+            color={titleColor || `${colorMode}.headerText`}
+            testID="text_header_title"
+            medium={mediumTitle}
+          >
+            {title}
+          </Text>
+        )}
+        {subtitle ? (
+          <Text
+            style={[styles.addWalletDescription, rightComponent && styles.smallWidth]}
+            color={subTitleColor || `${colorMode}.black`}
+            testID="text_header_subtitle"
+          >
+            {subtitle}
+          </Text>
+        ) : (
+          <Box style={{ marginBottom: hp(8) }} />
+        )}
+      </Box>
     </Box>
-  </Box>
-);
+  );
+}
 
-const KeeperHeader = ({
+function KeeperHeader({
   title = '',
   subtitle = '',
   titleColor,
@@ -139,7 +148,7 @@ const KeeperHeader = ({
   headerInfoPadding = 8,
   simple = false,
   topRightComponent = null,
-}: Props) => {
+}: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -182,7 +191,7 @@ const KeeperHeader = ({
         {rightComponent ? (
           <Box style={styles.rightComponentContainer}>{rightComponent}</Box>
         ) : (
-          <Box style={styles.placeholder}></Box>
+          <Box style={styles.placeholder} />
         )}
       </Box>
     );
@@ -229,7 +238,7 @@ const KeeperHeader = ({
       {availableBalance && <Box style={styles.availableBalance}>{availableBalance}</Box>}
     </Box>
   );
-};
+}
 
 const getStyles = (
   rightComponentPadding: number | `${number}%`,

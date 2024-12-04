@@ -6,7 +6,7 @@ import { hp, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 
-const KeyAddedModal = ({ visible, close, signer }) => {
+function KeyAddedModal({ visible, close, signer }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
 
@@ -50,7 +50,7 @@ const KeyAddedModal = ({ visible, close, signer }) => {
       )}
     />
   );
-};
+}
 
 const styles = StyleSheet.create({
   externalKeyModal: {

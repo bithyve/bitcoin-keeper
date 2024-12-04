@@ -211,6 +211,8 @@ export const getTimeDifferenceInWords = (pastTime) => {
 export const getWalletTags = (walletType) => {
   if (walletType === VaultType.COLLABORATIVE) {
     return [`${walletType === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`, `2 of 3`];
+  } else if (walletType === VaultType.ASSISTED) {
+    return [`${walletType === VaultType.ASSISTED ? 'ASSISTED' : 'VAULT'}`, `2 of 3`];
   } else {
     let walletKind;
     if (walletType === WalletType.DEFAULT) walletKind = 'HOT WALLET';

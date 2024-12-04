@@ -11,7 +11,7 @@ import Buttons from 'src/components/Buttons';
 import { hp, wp } from 'src/constants/responsive';
 import { getPersistedDocument } from 'src/services/documents';
 
-const ContactProfile = ({ route }) => {
+function ContactProfile({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { contact } = route.params;
@@ -47,7 +47,7 @@ const ContactProfile = ({ route }) => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

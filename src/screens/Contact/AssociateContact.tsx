@@ -31,7 +31,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
 
-const AssociateContact = ({ route }) => {
+function AssociateContact({ route }) {
   const { signer }: { signer: Signer } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -206,7 +206,7 @@ const AssociateContact = ({ route }) => {
       )}
     </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
