@@ -13,15 +13,15 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Passwordlock from 'src/assets/images/passwordlock.svg';
-import AnalyticsIllustration from 'src/assets/images/analytics-illustration.svg';
 
 import { storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
 import KeeperModal from 'src/components/KeeperModal';
-import { setEnableAnalyticsLogin } from 'src/store/reducers/settings';
 import { setIsInitialLogin } from 'src/store/reducers/login';
 import { throttle } from 'src/utils/utilities';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
+import { setEnableAnalyticsLogin } from 'src/store/reducers/settings';
+import config from 'src/utils/service-utilities/config';
 
 enum PasscodeStages {
   CREATE = 'CREATE',
@@ -35,7 +35,6 @@ export default function CreatePin(props) {
     stage: PasscodeStages.CREATE,
   });
   const [createPassword, setCreatePassword] = useState(false);
-  const [shareAnalyticsModal, setShareAnalyticsModal] = useState(false);
   const { oldPasscode } = props.route.params || {};
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
@@ -110,11 +109,11 @@ export default function CreatePin(props) {
     });
   }, 300);
 
-  const handleShareAnalytics = (enable) => {
+  const handleNext = () => {
     dispatch(setIsInitialLogin(true));
-    dispatch(setEnableAnalyticsLogin(enable));
+    dispatch(setEnableAnalyticsLogin(config.isDevMode()));
     dispatch(storeCreds(createPin));
-    setShareAnalyticsModal(false);
+    setCreatePassword(false);
   };
 
   function CreatePassModalContent() {
@@ -125,19 +124,6 @@ export default function CreatePin(props) {
         </Box>
         <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
           You would be locked out of the app if you forget your passcode and will have to recover it
-        </Text>
-      </Box>
-    );
-  }
-
-  function ShareAnalyticsModalContent() {
-    return (
-      <Box>
-        <Box style={styles.passImg}>
-          <AnalyticsIllustration />
-        </Box>
-        <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
-          {login.shareAnalyticsDesc}
         </Text>
       </Box>
     );
@@ -213,30 +199,11 @@ export default function CreatePin(props) {
         showCloseIcon={false}
         buttonText="Continue"
         secondaryButtonText="Back"
-        buttonCallback={() => {
-          setCreatePassword(false);
-          setShareAnalyticsModal(true);
-        }}
+        buttonCallback={handleNext}
         secondaryCallback={() => {
           setCreatePassword(false);
         }}
         Content={CreatePassModalContent}
-        subTitleWidth={wp(80)}
-      />
-      <KeeperModal
-        visible={shareAnalyticsModal}
-        close={() => {}}
-        title={login.shareAnalyticsTitle}
-        subTitle={login.shareAnalyticsSubTitle}
-        modalBackground={`${colorMode}.primaryBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.modalGreenTitle`}
-        showCloseIcon={false}
-        buttonText={common.share}
-        secondaryButtonText={common.dontShare}
-        buttonCallback={() => handleShareAnalytics(true)}
-        secondaryCallback={() => handleShareAnalytics(false)}
-        Content={ShareAnalyticsModalContent}
         subTitleWidth={wp(80)}
       />
     </Box>

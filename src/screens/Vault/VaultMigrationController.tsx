@@ -190,6 +190,7 @@ function VaultMigrationController({
         };
 
         const isTimelockedInheritanceKey = isAddInheritanceKey;
+        let vaultScheme: VaultScheme = scheme;
         if (isTimeLock || isTimelockedInheritanceKey) {
           if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultType)) {
             throw new Error('Invalid vault type - supported only for timelocked and inheritance');
@@ -234,7 +235,7 @@ function VaultMigrationController({
             return;
           }
 
-          const vaultScheme: VaultScheme = {
+          vaultScheme = {
             ...scheme,
             multisigScriptType,
           };
@@ -247,7 +248,7 @@ function VaultMigrationController({
         }
 
         const allVaultIds = allVaults.map((vault) => vault.id);
-        const generatedVaultId = generateVaultId(signers, scheme);
+        const generatedVaultId = generateVaultId(signers, vaultScheme);
         const deletedVaultIds = archivedVaults.map((vault) => vault.id);
         if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
           Alert.alert('Vault with this configuration already exists.');

@@ -35,6 +35,7 @@ import { CommonActions, useNavigationState } from '@react-navigation/native';
 import { updateCachedPsbtEnvelope } from 'src/store/reducers/cachedTxn';
 import { store } from 'src/store/store';
 import usePlan from 'src/hooks/usePlan';
+import config from 'src/utils/service-utilities/config';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -199,10 +200,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     if (inProgress) {
       return;
     }
-    if (enableAnalyticsLogin) {
+    if (enableAnalyticsLogin && config.isDevMode()) {
       await start(() => Sentry.init(sentryConfig));
-    } else {
-      await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
     }
     dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
       enableAnalytics: enableAnalyticsLogin,
