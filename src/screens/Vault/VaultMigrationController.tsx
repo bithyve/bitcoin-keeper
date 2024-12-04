@@ -98,15 +98,38 @@ function VaultMigrationController({
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful && temporaryVault) {
-      navigation.dispatch(
-        CommonActions.navigate('SendConfirmation', {
-          sender: activeVault,
-          recipient: temporaryVault,
-          address: recipients[0].address,
-          amount: parseInt(recipients[0].amount, 10),
-          transferType: TransferType.VAULT_TO_VAULT,
-        })
-      );
+      if (
+        activeVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG &&
+        activeVault.type === VaultType.INHERITANCE
+      ) {
+        WalletUtilities.fetchCurrentBlockHeight()
+          .then(({ currentBlockHeight }) => {
+            navigation.dispatch(
+              CommonActions.navigate('SendConfirmation', {
+                sender: activeVault,
+                recipient: temporaryVault,
+                address: recipients[0].address,
+                amount: parseInt(recipients[0].amount, 10),
+                transferType: TransferType.VAULT_TO_VAULT,
+                currentBlockHeight,
+              })
+            );
+          })
+          .catch((err) => {
+            captureError(err);
+            showToast('Failed to fetch current block height', <ToastErrorIcon />);
+          });
+      } else {
+        navigation.dispatch(
+          CommonActions.navigate('SendConfirmation', {
+            sender: activeVault,
+            recipient: temporaryVault,
+            address: recipients[0].address,
+            amount: parseInt(recipients[0].amount, 10),
+            transferType: TransferType.VAULT_TO_VAULT,
+          })
+        );
+      }
     } else if (sendPhaseOneState.hasFailed) {
       if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
         showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
