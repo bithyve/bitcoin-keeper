@@ -22,6 +22,7 @@ const INHERITANCE_TIMELOCK_DURATIONS = [
   { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
   { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
 ];
+
 function ChangeIKSTimeline({ route }) {
   const { signerId }: { signerId: string } = route.params;
   const { colorMode } = useColorMode();
@@ -32,6 +33,15 @@ function ChangeIKSTimeline({ route }) {
   const { vault: vaultText, common } = translations;
   const [selectedOption, setSelectedOption] = useState(null);
   const [timeLockModal, setTimeLockModal] = useState(false);
+
+  const handleConfirm = () => {
+    if (route.params?.onSelect) {
+      route.params.onSelect(selectedOption);
+    }
+
+    setTimeLockModal(true);
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={vaultText.changeTimeline} subtitle={vaultText.changeTimelineDesc} />
@@ -44,11 +54,12 @@ function ChangeIKSTimeline({ route }) {
         />
         <Buttons
           primaryText={common.confirm}
-          primaryCallback={() => setTimeLockModal(true)}
+          primaryCallback={handleConfirm}
           primaryDisable={!selectedOption}
           fullWidth
         />
       </Box>
+
       <KeeperModal
         visible={timeLockModal}
         close={() => setTimeLockModal(false)}
