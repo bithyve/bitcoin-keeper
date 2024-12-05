@@ -30,7 +30,6 @@ import {
   sendPhaseThreeReset,
   updatePSBTEnvelops,
   setInheritanceSigningRequestId,
-  sendPhaseTwoReset,
 } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -46,8 +45,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
@@ -79,6 +76,7 @@ import {
   signTransactionWithTapsigner,
 } from './signWithSD';
 import { getKeyUID } from 'src/utils/utilities';
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -888,4 +886,4 @@ function SignTransactionScreen() {
   );
 }
 
-export default Sentry.withErrorBoundary(SignTransactionScreen, errorBourndaryOptions);
+export default SentryErrorBoundary(SignTransactionScreen);

@@ -48,8 +48,7 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import idx from 'idx';
 import Buttons from 'src/components/Buttons';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
@@ -59,7 +58,7 @@ import ScannerIcon from 'src/assets/images/scanner-icon.svg';
 import ScannerIconDark from 'src/assets/images/scanner-icon-white.svg';
 import useWallets from 'src/hooks/useWallets';
 import useVault from 'src/hooks/useVault';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -97,10 +96,7 @@ function SendScreen({ route }) {
   );
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const isDarkMode = colorMode === 'dark';
-  const availableBalance =
-    sender.networkType === NetworkType.MAINNET
-      ? sender.specs.balances.confirmed
-      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const availableBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
   const visibleWallets = useMemo(
@@ -550,4 +546,4 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 });
-export default Sentry.withErrorBoundary(SendScreen, errorBourndaryOptions);
+export default SentryErrorBoundary(SendScreen);

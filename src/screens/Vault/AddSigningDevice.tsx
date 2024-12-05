@@ -30,8 +30,6 @@ import { useDispatch } from 'react-redux';
 import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import Text from 'src/components/KeeperText';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-import * as Sentry from '@sentry/react-native';
 import idx from 'idx';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
@@ -53,7 +51,7 @@ import {
 } from 'src/navigation/contants';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { captureError } from 'src/services/sentry';
+import { captureError, SentryErrorBoundary } from 'src/services/sentry';
 import HWError from 'src/hardware/HWErrorState';
 import KeyAddedModal from 'src/components/KeyAddedModal';
 import CautionIllustration from 'src/assets/images/downgradetopleb.svg';
@@ -1543,4 +1541,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Sentry.withErrorBoundary(AddSigningDevice, errorBourndaryOptions);
+export default SentryErrorBoundary(AddSigningDevice);

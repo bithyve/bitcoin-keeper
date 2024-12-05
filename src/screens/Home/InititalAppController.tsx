@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/react-native';
 import { InteractionManager, Linking } from 'react-native';
 import React, { useEffect } from 'react';
 import {
@@ -26,7 +25,7 @@ import { resetVaultMigration, setRemoteLinkDetails } from 'src/store/reducers/va
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import dbManager from 'src/storage/realm/dbManager';
 import useAsync from 'src/hooks/useAsync';
-import { sentryConfig } from 'src/services/sentry';
+import { initializeSentry } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
 import { generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
 import { getKeyUID } from 'src/utils/utilities';
@@ -211,7 +210,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       return;
     }
     if (enableAnalyticsLogin && config.isDevMode()) {
-      await start(() => Sentry.init(sentryConfig));
+      await start(() => initializeSentry());
     }
     dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
       enableAnalytics: enableAnalyticsLogin,

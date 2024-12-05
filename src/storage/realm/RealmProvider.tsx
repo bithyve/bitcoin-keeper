@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
-import * as Sentry from '@sentry/react-native';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import config from 'src/utils/service-utilities/config';
 import { RealmProvider as Provider, useQuery } from '@realm/react';
 import { stringToArrayBuffer } from 'src/store/sagas/login';
 import { useAppSelector } from 'src/store/hooks';
-import { sentryConfig } from 'src/services/sentry';
+import { initializeSentry } from 'src/services/sentry';
 import { RealmDatabase } from './realm';
 import { RealmSchema } from './enum';
 import { getJSONFromRealmObject } from './utils';
@@ -23,7 +22,7 @@ const AppWithNetwork = ({ children }) => {
   config.setNetwork(networkType);
 
   useEffect(() => {
-    config.isDevMode() && Sentry.init({ ...sentryConfig, enabled: true });
+    initializeSentry();
   }, []);
 
   return children;

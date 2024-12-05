@@ -1,7 +1,7 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { routingInstrumentation } from 'src/services/sentry';
+import { getRoutingInstrumentation } from 'src/services/sentry';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
@@ -136,17 +136,12 @@ import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
 import ResetInheritanceKey from 'src/screens/Vault/ResetInheritanceKey';
 import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import AddReserveKey from 'src/screens/Vault/AddReserveKey';
+import ResetInheritanceKey from 'src/screens/Vault/ResetInheritanceKey';
+import ChangeIKSTimeline from 'src/screens/Vault/ChangeIKSTimeline';
 import { useColorMode } from 'native-base';
 import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
-
-const defaultTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: Colors.Isabelline,
-  },
-};
+import config from 'src/utils/service-utilities/config';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -322,6 +317,8 @@ function AppStack() {
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
         <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
         <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
+        <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
+        <Stack.Screen name="ChangeIKSTimeline" component={ChangeIKSTimeline} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -341,7 +338,9 @@ function Navigator() {
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
-    routingInstrumentation.registerNavigationContainer(navigation);
+    if (config.isDevMode()) {
+      getRoutingInstrumentation().registerNavigationContainer(navigation);
+    }
   };
 
   const { onboardingModal } = useAppSelector((state) => state.concierge);

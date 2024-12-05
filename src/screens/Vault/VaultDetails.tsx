@@ -3,7 +3,7 @@ import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base'
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -14,7 +14,6 @@ import RecieveIconWhite from 'src/assets/images/receive-white.svg';
 import SettingIcon from 'src/assets/images/settings.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import AssitedWalletIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { VaultType } from 'src/services/wallets/enums';
@@ -37,8 +36,6 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import ImportIcon from 'src/assets/images/import.svg';
 import { reinstateVault } from 'src/store/sagaActions/vaults';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
@@ -51,6 +48,7 @@ import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { SentryErrorBoundary } from 'src/services/sentry';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
@@ -788,4 +786,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Sentry.withErrorBoundary(VaultDetails, errorBourndaryOptions);
+export default SentryErrorBoundary(VaultDetails);

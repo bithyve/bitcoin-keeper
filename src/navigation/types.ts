@@ -170,6 +170,8 @@ export type AppStackParams = {
   SetupPortal: undefined;
   ResetInheritanceKey: undefined;
   AddReserveKey: undefined;
+  ResetInheritanceKey: undefined;
+  ChangeIKSTimeline: undefined;
 };
 
 // Usage:
