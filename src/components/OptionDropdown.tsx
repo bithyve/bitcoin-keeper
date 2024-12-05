@@ -45,7 +45,7 @@ function OptionDropdown({ label, options, selectedOption, onOptionSelect }: Prop
     <Box>
       <Pressable onPress={handlePress}>
         <Box
-          backgroundColor={`${colorMode}.secondaryBackground`}
+          backgroundColor={`${colorMode}.boxSecondaryBackground`}
           borderColor={`${colorMode}.dullGreyBorder`}
           style={styles.dropdownContainer}
         >
@@ -77,7 +77,10 @@ function OptionDropdown({ label, options, selectedOption, onOptionSelect }: Prop
         </Box>
       </Pressable>
       {isOpen && (
-        <Box backgroundColor={`${colorMode}.secondaryBackground`} style={styles.optionsContainer}>
+        <Box
+          backgroundColor={`${colorMode}.boxSecondaryBackground`}
+          style={styles.optionsContainer}
+        >
           {options.map((option, index) => (
             <TouchableOpacity
               key={option.value.toString()}
