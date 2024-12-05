@@ -317,21 +317,25 @@ export default class WalletUtilities {
       // }
 
       // Step 2: Map signatures and generate the witness stack for the given satisfier
-      const signatureInfo = {};
+      const keyInfo = {};
       for (const partialSig of input.partialSig) {
         const partialSigPubkey = partialSig.pubkey.toString('hex');
         for (const bip32Derivation of input.bip32Derivation) {
-          if (partialSigPubkey === bip32Derivation.pubkey.toString('hex')) {
-            signatureInfo[partialSigPubkey] = {
-              ...bip32Derivation,
+          const pubkeyHex = bip32Derivation.pubkey.toString('hex');
+          if (!keyInfo[pubkeyHex]) keyInfo[pubkeyHex] = bip32Derivation;
+
+          if (partialSigPubkey === pubkeyHex) {
+            keyInfo[pubkeyHex] = {
+              ...keyInfo[pubkeyHex],
               ...partialSig,
+              hasPartialSig: true,
             };
-            break;
           }
         }
       }
 
       const signatureIdentifier = {};
+      const pubKeyIdentifier = {};
       for (const keyIdentifier in keysInfoMap) {
         const fragments = keysInfoMap[keyIdentifier].split('/');
         const masterFingerprint = fragments[0].slice(1);
@@ -343,14 +347,15 @@ export default class WalletUtilities {
          const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
          */
 
-        for (const key in signatureInfo) {
-          const info = signatureInfo[key];
+        for (const key in keyInfo) {
+          const info = keyInfo[key];
           if (info.masterFingerprint.toString('hex').toUpperCase() === masterFingerprint) {
             // signer identified (note: a signer can have multiple keys(multipath))
             const inputPath = info.path.split('/'); // external/internal chain index
             const chainIndex = inputPath[inputPath.length - 2];
             if (chainIndex === externalChainIndex || chainIndex === internalChainIndex) {
-              signatureIdentifier[`<sig(${keyIdentifier})>`] = info;
+              if (info.hasPartialSig) signatureIdentifier[`<sig(${keyIdentifier})>`] = info;
+              else pubKeyIdentifier[`<${keyIdentifier}>`] = info;
               break;
             }
           }
@@ -383,7 +388,10 @@ export default class WalletUtilities {
             }
 
             if (fragment === `<${identifier}>`) {
-              witnessScriptStack.push(signatureIdentifier[`<sig(${identifier})>`].pubkey);
+              witnessScriptStack.push(
+                (signatureIdentifier[`<sig(${identifier})>`] || pubKeyIdentifier[`<${identifier}>`])
+                  .pubkey
+              );
               found = true;
               break;
             }
