@@ -32,7 +32,7 @@ function ArchivedVault({ navigation, route }) {
         description={item.presentationData.description}
         icon={<VaultIcon />}
         customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
-        callback={() => navigation.replace('VaultDetails', { vaultId: item?.id })}
+        callback={() => navigation.push('VaultDetails', { vaultId: item?.id })}
       />
     </Box>
   );
