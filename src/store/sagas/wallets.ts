@@ -154,6 +154,7 @@ import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
+import { checkSignerAccountsMatch, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 
 export interface NewVaultDetails {
   name?: string;
@@ -531,7 +532,7 @@ export function* addNewVaultWorker({
     let { vault } = payload;
     const signerMap = {};
     const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+    signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
 
     let isNewVault = false; // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
@@ -568,10 +569,10 @@ export function* addNewVaultWorker({
     if (isNewVault || isMigrated) {
       // update IKS, if inheritance key has been added(new Vault) or needs an update(vault migration)
       const [ikVaultKey] = vault.signers.filter(
-        (vaultKey) => signerMap[vaultKey.masterFingerprint]?.type === SignerType.INHERITANCEKEY
+        (vaultKey) => signerMap[getKeyUID(vaultKey)]?.type === SignerType.INHERITANCEKEY
       );
       if (ikVaultKey) {
-        const ikSigner: Signer = signerMap[ikVaultKey.masterFingerprint];
+        const ikSigner: Signer = signerMap[getKeyUID(ikVaultKey)];
         yield call(finaliseIKSetupWorker, { payload: { ikSigner, ikVaultKey, vault } });
       }
     }
@@ -641,7 +642,7 @@ export function* addSigningDeviceWorker({
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     const filteredSigners = existingSigners.filter((s) => !s.archived);
     const signerMap = Object.fromEntries(
-      filteredSigners.map((signer) => [signer.masterFingerprint, signer])
+      filteredSigners.map((signer) => [getKeyUID(signer), signer])
     );
     let signersToUpdate = [];
 
@@ -673,8 +674,20 @@ export function* addSigningDeviceWorker({
       newSigner.signerXpubs[type][0].xpub !== existingSigner.signerXpubs[type][0].xpub;
 
     for (const newSigner of signers) {
-      const existingSigner = signerMap[newSigner.masterFingerprint];
+      if (!checkSignerAccountsMatch(newSigner)) {
+        yield put(
+          relaySignersUpdateFail(
+            `Cannot add multiple accounts in the same signer, please import each account separately`
+          )
+        );
+        continue;
+      }
+      const existingSigner = signerMap[getKeyUID(newSigner)];
       if (!existingSigner) {
+        const signerAccount = getAccountFromSigner(newSigner);
+        if (signerAccount !== 0 && !newSigner.signerDescription) {
+          newSigner.signerDescription = 'Account #' + signerAccount;
+        }
         signersToUpdate.push(newSigner);
         continue;
       }
@@ -682,13 +695,22 @@ export function* addSigningDeviceWorker({
       const existingSsKey = idx(existingSigner, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
       const newMsKey = idx(newSigner, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
       const existingMsKey = idx(existingSigner, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
-      const missingMsKey = existingSsKey && !existingMsKey;
-      const missingSsKey = !existingSsKey && existingMsKey;
+      const newTrKey = idx(newSigner, (_) => _.signerXpubs[XpubTypes.P2TR][0].xpub);
+      const existingTrKey = idx(existingSigner, (_) => _.signerXpubs[XpubTypes.P2TR][0].xpub);
+      const missingMsKey = (existingSsKey || existingTrKey) && !existingMsKey;
+      const missingSsKey = (existingMsKey || existingTrKey) && !existingSsKey;
+      const missingTrKey = (existingSsKey || existingMsKey) && !existingTrKey;
 
       const singleSigMatch = keysMatch(XpubTypes.P2WPKH, newSigner, existingSigner);
       const multiSigMatch = keysMatch(XpubTypes.P2WSH, newSigner, existingSigner);
+      const taprootMatch = keysMatch(XpubTypes.P2TR, newSigner, existingSigner);
       const signerMergeCondition = // if the new signer has one of the keys missing or has the same xpubs as the existing signer, then update the type and xpubs
-        (missingMsKey && newMsKey) || (missingSsKey && newSsKey) || singleSigMatch || multiSigMatch;
+        (missingMsKey && newMsKey) ||
+        (missingSsKey && newSsKey) ||
+        (missingTrKey && newTrKey) ||
+        singleSigMatch ||
+        multiSigMatch ||
+        taprootMatch;
 
       if (signerMergeCondition) {
         signersToUpdate.push({
@@ -703,12 +725,13 @@ export function* addSigningDeviceWorker({
 
       const singleSigDifferent = keysDifferent(XpubTypes.P2WPKH, newSigner, existingSigner);
       const multiSigDifferent = keysDifferent(XpubTypes.P2WSH, newSigner, existingSigner);
+      const taprootDifferent = keysDifferent(XpubTypes.P2TR, newSigner, existingSigner);
 
       // if the new signer has multiple accounts of the same type, then let the user know and skip the update
-      if (singleSigDifferent || multiSigDifferent) {
+      if (singleSigDifferent || multiSigDifferent || taprootDifferent) {
         yield put(
           relaySignersUpdateFail(
-            `A different account has already been added. Please use the existing key for the signer ${newSigner.masterFingerprint}`
+            `Signer with the same account and fingerprint (${newSigner.masterFingerprint}) already exists with different xpubs. Please check your device and verify the keys are correct.`
           )
         );
         continue;
@@ -716,12 +739,16 @@ export function* addSigningDeviceWorker({
     }
     if (signersToUpdate.length) {
       const signerMap = Object.fromEntries(
-        existingSigners.map((signer) => [signer.masterFingerprint, signer])
+        existingSigners.map((signer) => [getKeyUID(signer), signer])
       );
       signersToUpdate = signersToUpdate.map((s) => {
-        const isSignerArchived = signerMap[s.masterFingerprint]?.archived || false;
+        const isSignerArchived = signerMap[getKeyUID(s)]?.archived || false;
         return isSignerArchived ? { ...s, archived: false, hidden: false } : s;
       });
+      signersToUpdate = signersToUpdate.map((signer) => ({
+        ...signer,
+        id: getKeyUID(signer),
+      }));
       yield put(setRelaySignersUpdateLoading(true));
       const response = yield call(updateAppImageWorker, { payload: { signers: signersToUpdate } });
       if (response.updated) {
@@ -761,7 +788,7 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
       yield put(showDeletingKeyModal());
       const signersToDeleteIds = [];
       for (const signer of signers) {
-        signersToDeleteIds.push(signer.masterFingerprint);
+        signersToDeleteIds.push(getKeyUID(signer));
       }
       for (let i = 0; i < signers.length; i++) {
         yield call(deleteAppImageEntityWorker, {
@@ -790,7 +817,7 @@ function* archiveSigningDeviceWorker({ payload: { signers } }: { payload: { sign
   try {
     const signersToArchiveIds = [];
     for (const signer of signers) {
-      signersToArchiveIds.push(signer.masterFingerprint);
+      signersToArchiveIds.push(getKeyUID(signer));
     }
     if (signers.length) {
       for (let i = 0; i < signers.length; i++) {
@@ -839,7 +866,7 @@ function* migrateVaultWorker({
 
     const signerMap = {};
     const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+    signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
 
     const vault: Vault = yield call(generateVault, {
       type: vaultType,
@@ -1014,11 +1041,11 @@ function* finaliseIKSetupWorker({
 
   if (updatedInheritanceKeyInfo) {
     // send updates to realm
+    const signerKeyUID = getKeyUID(ikSigner);
     yield call(
-      dbManager.updateObjectByPrimaryId,
+      dbManager.updateObjectByQuery,
       RealmSchema.Signer,
-      'masterFingerprint',
-      ikSigner.masterFingerprint,
+      (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
       {
         inheritanceKeyInfo: updatedInheritanceKeyInfo,
       }
@@ -1310,11 +1337,11 @@ export function* updateSignerPolicyWorker({
         };
         yield put(setSignerPolicyError('success'));
 
+        const signerKeyUID = getKeyUID(signer);
         yield call(
-          dbManager.updateObjectByPrimaryId,
+          dbManager.updateObjectByQuery,
           RealmSchema.Signer,
-          'masterFingerprint',
-          signer.masterFingerprint,
+          (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
           {
             signerPolicy: updatedSignerPolicy,
           }
@@ -1500,11 +1527,11 @@ export function* updateSignerDetailsWorker({ payload }) {
   try {
     const response = yield call(updateAppImageWorker, { payload: { signers: [signer] } });
     if (response.updated) {
+      const signerKeyUID = getKeyUID(signer);
       yield call(
-        dbManager.updateObjectByPrimaryId,
+        dbManager.updateObjectByQuery,
         RealmSchema.Signer,
-        'masterFingerprint',
-        signer.masterFingerprint,
+        (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
         {
           [key]: value,
         }
@@ -1651,14 +1678,14 @@ function* reinstateVaultWorker({ payload }) {
     });
     const signerMap = {};
     const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+    signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
 
     if (response.updated) {
       yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, updatedParams);
       for (let i = 0; i < vault.signers.length; i++) {
         yield call(updateSignerDetailsWorker, {
           payload: {
-            signer: signerMap[vault.signers[i].masterFingerprint],
+            signer: signerMap[getKeyUID(vault.signers[i])],
             key: 'archived',
             value: false,
           },
@@ -1682,14 +1709,14 @@ function* refillMobileKeyWorker({ payload }) {
   const { vaultKey } = payload;
   try {
     yield put(setKeyHealthCheckLoading(true));
-    const { masterFingerprint, xpriv } = vaultKey;
+    const { xpriv } = vaultKey;
     if (!xpriv) {
       const signerMap = {};
       const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-      signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+      signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
       const keeper: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
       const { primaryMnemonic } = keeper;
-      const signer = signerMap[masterFingerprint];
+      const signer = signerMap[getKeyUID(vaultKey)];
       const details = yield call(
         getCosignerDetails,
         primaryMnemonic,
@@ -1759,21 +1786,21 @@ function* mergeSimilarKeysWorker({ payload }: { payload: { signer: Signer } }) {
         p2wsh === signerp2wsh &&
         s.masterFingerprint !== signer.masterFingerprint
       ) {
+        const signerKeyUID = getKeyUID(s);
         yield call(
-          dbManager.updateObjectByPrimaryId,
+          dbManager.updateObjectByQuery,
           RealmSchema.Signer,
-          'masterFingerprint',
-          s.masterFingerprint,
+          (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
           {
             masterFingerprint: signer.masterFingerprint,
           }
         );
         // get all keys that have the same masterFingerprint
         const keys = yield call(
-          dbManager.getObjectByField,
+          dbManager.getObjectByQuery,
           RealmSchema.VaultSigner,
-          s.masterFingerprint,
-          'masterFingerprint'
+          (obj) => getKeyUID(obj) === getKeyUID(s),
+          true // get all matching objects
         );
         for (let i = 0; i < keys.length; i++) {
           yield call(

@@ -1,8 +1,8 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { FlatList, RefreshControl, StyleSheet } from 'react-native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
@@ -206,17 +206,25 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={styles.transTitleWrapper}>
-        {transactions?.length ? (
-          <Text
-            color={`${colorMode}.black`}
-            style={styles.transactionHeading}
-            testID="text_Transaction"
-          >
-            {common.transactions}
+      {transactions?.length ? (
+        <HStack style={styles.transTitleWrapper}>
+          <Text color={`${colorMode}.black`} medium fontSize={wp(14)}>
+            {common.recentTransactions}
           </Text>
-        ) : null}
-      </VStack>
+          <Pressable
+            style={styles.viewAllBtn}
+            onPress={() =>
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'TransactionHistory', params: { wallet: vault } })
+              )
+            }
+          >
+            <Text color={`${colorMode}.greenText`} medium fontSize={wp(14)}>
+              {common.viewAll}
+            </Text>
+          </Pressable>
+        </HStack>
+      ) : null}
       <FlatList
         testID="view_TransactionList"
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
@@ -251,13 +259,23 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const { vaultSigners: keys } = useSigners(vault.id);
-  const transactions =
-    vault?.specs?.transactions.sort((a, b) => {
-      if (!a.blockTime && !b.blockTime) return 0;
-      if (!a.blockTime) return -1;
-      if (!b.blockTime) return 1;
-      return b.blockTime - a.blockTime;
-    }) || [];
+  const transactions = useMemo(
+    () =>
+      [...(vault?.specs?.transactions || [])]
+        .sort((a, b) => {
+          // Sort unconfirmed transactions first
+          if (a.confirmations === 0 && b.confirmations !== 0) return -1;
+          if (a.confirmations !== 0 && b.confirmations === 0) return 1;
+
+          // Then sort by date
+          if (!a.date && !b.date) return 0;
+          if (!a.date) return -1;
+          if (!b.date) return 1;
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        })
+        .slice(0, 5),
+    [vault?.specs?.transactions]
+  );
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const isAssistedWallet = vault.type === VaultType.ASSISTED;
   const isCanaryWallet = vault.type === VaultType.CANARY;
@@ -407,7 +425,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           subtitle={vault.presentationData?.description}
           learnMore
           learnTextColor={`${colorMode}.buttonText`}
-          learnBackgroundColor="rgba(0,0,0,.2)"
+          learnBackgroundColor={`${colorMode}.pantoneGreen`}
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}
           rightComponent={
@@ -566,8 +584,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   vaultInfoContainer: {
+    flexDirection: 'row',
     paddingLeft: '3%',
-    marginVertical: 20,
+    marginTop: 20,
+    marginBottom: 10,
     justifyContent: 'space-between',
   },
   pillsContainer: {
@@ -586,9 +606,10 @@ const styles = StyleSheet.create({
     paddingTop: hp(15),
   },
   bottomSection: {
+    paddingTop: wp(65),
+    paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
-    paddingBottom: 20,
   },
   transactionsContainer: {
     paddingHorizontal: wp(22),
@@ -597,13 +618,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(28),
   },
   transTitleWrapper: {
-    paddingTop: windowHeight * 0.1,
-    marginLeft: wp(15),
+    marginLeft: wp(2),
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 10,
+    paddingLeft: 10,
   },
-  transactionHeading: {
-    fontSize: 16,
-    letterSpacing: 0.16,
-    paddingBottom: 16,
+  viewAllBtn: {
+    width: wp(80),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   IconText: {
     justifyContent: 'center',

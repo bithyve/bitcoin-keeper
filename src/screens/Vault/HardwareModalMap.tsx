@@ -70,7 +70,7 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import { crossInteractionHandler } from 'src/utils/utilities';
+import { crossInteractionHandler, getAccountFromSigner } from 'src/utils/utilities';
 import { isTestnet } from 'src/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -924,6 +924,7 @@ function HardwareModalMap({
   addSignerFlow = false,
   vaultSigners,
   vaultId,
+  accountNumber,
 }: {
   type: SignerType;
   visible: boolean;
@@ -937,6 +938,7 @@ function HardwareModalMap({
   addSignerFlow: boolean;
   vaultSigners?: VaultSigner[];
   vaultId?: string;
+  accountNumber?: number;
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -984,14 +986,14 @@ function HardwareModalMap({
       navigation.dispatch(
         CommonActions.navigate({
           name: 'AddTapsignerRecovery',
-          params: { mode, signer, isMultisig },
+          params: { mode, signer, isMultisig, accountNumber: getAccountFromSigner(signer) },
         })
       );
     }
     navigation.dispatch(
       CommonActions.navigate({
         name: 'TapsignerAction',
-        params: { mode, signer, isMultisig, addSignerFlow },
+        params: { mode, signer, isMultisig, accountNumber, addSignerFlow },
       })
     );
   };
@@ -1000,7 +1002,7 @@ function HardwareModalMap({
     navigation.dispatch(
       CommonActions.navigate({
         name: 'SetupPortal',
-        params: { mode, signer, isMultisig, addSignerFlow },
+        params: { mode, signer, isMultisig, accountNumber, addSignerFlow },
       })
     );
   };
@@ -1164,6 +1166,7 @@ function HardwareModalMap({
           mode,
           isMultisig,
           addSignerFlow,
+          accountNumber,
         },
       })
     );

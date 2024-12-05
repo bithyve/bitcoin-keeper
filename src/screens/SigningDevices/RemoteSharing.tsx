@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Share } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -6,7 +6,6 @@ import { Box, ScrollView, useColorMode, VStack } from 'native-base';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import Text from 'src/components/KeeperText';
-import useSignerMap from 'src/hooks/useSignerMap';
 import RemoteShareIllustration from 'src/assets/images/remote-share-illustration.svg';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -15,144 +14,107 @@ import { useNavigation } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
 import { RKInteractionMode } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
-import useVault from 'src/hooks/useVault';
-import { encrypt, getRandomBytes } from 'src/utils/service-utilities/encryption';
+import { encrypt, getKeyAndHash } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
-import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
+import usePlan from 'src/hooks/usePlan';
+import { getKeyUID } from 'src/utils/utilities';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
 const RemoteShareText = {
   [RKInteractionMode.SHARE_REMOTE_KEY]: {
     title: 'Remote Key Sharing',
-    desc: 'Please share this Key-Link with your contact using a secure and private communication medium. The link will be valid for 5 minutes.',
+    desc: 'Please share the key using this link with your contact using a secure and private communication medium.',
     cta: 'Share Key',
     msgTitle: 'Remote Key Sharing',
-    msgDesc: 'Hey, I’m sharing a bitcoin key with you. Please click the link to accept it.',
+    msgDesc:
+      "Hey, I'm sharing a bitcoin key with you. Please click the link to accept it on the Bitcoin Keeper app and keep it safe.",
   },
   [RKInteractionMode.SHARE_PSBT]: {
     title: 'Sign Transaction Remotely',
-    desc: 'Please share the PSBT Link with the key holder for transaction signing. Once generated, the link will be valid for 5 minutes.',
+    desc: 'Please share this unsigned transaction (PSBT) using the link with the key holder for transaction signing. Use a secure and private communication medium.',
     cta: 'Share Link',
     msgTitle: 'Transaction Signing Request Received',
     msgDesc:
-      'Hey, your friend is requesting for your Key to make a transaction. Please click the link to view details',
+      'Hey, I need you to sign a transaction with the key you have shared previously. Please click the link to view details and sign the transaction in the Bitcoin Keeper app',
   },
   [RKInteractionMode.SHARE_SIGNED_PSBT]: {
     title: 'Sign Transaction Remotely',
-    desc: 'Please share back the PSBT link with the transaction creator to complete the signing. Once generated, the link will be valid for 5 minutes.',
+    desc: 'Please share back this signed transaction (PSBT) using the link with the transaction creator. Use a secure and private communication medium.',
     cta: 'Share Link',
     msgTitle: 'Signed Transaction Received',
-    msgDesc: 'Hey, your friend has signed your transaction. Please click the link to accept it.',
+    msgDesc:
+      'Hey, I have signed the transaction you had requested. Please click the link to accept it.',
   },
 };
 
 const DeepLinkIdentifier = {
-  [APP_STAGE.DEVELOPMENT]: 'dev',
-  [APP_STAGE.PRODUCTION]: 'prod',
+  [APP_STAGE.DEVELOPMENT]: 'app/dev',
+  [APP_STAGE.PRODUCTION]: 'app/prod',
 };
 
 type dataProps = {
   type: RKInteractionMode;
   fcm?: string;
-  signer?: any;
-  isMultisig?: boolean;
   psbt?: string;
-  vaultKey?: any;
-  vaultId?: string;
-  serializedPSBTEnvelop?: any;
-  vault: any;
-  sendConfirmationRouteParams?: SendConfirmationRouteParams;
-  tnxDetails: tnxDetailsProps;
-  signingDetails?: any;
+  key?: string;
+  keyUID?: string;
+  xfp?: string;
+  cachedTxid?: string; // for recovering the cached tnx from store on receiving the signed psbt
 };
 
 function RemoteSharing({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const fcmToken = useAppSelector((state) => state.notifications.fcmToken);
-  const {
-    signer: signerFromParam,
-    isPSBTSharing = false,
-    psbt,
-    mode,
-    vaultKey,
-    vaultId,
-    serializedPSBTEnvelop,
-    isMultisig,
-    sendConfirmationRouteParams,
-    tnxDetails,
-  } = route.params;
-  const { signerMap } = useSignerMap();
-  const signer = signerMap[signerFromParam?.masterFingerprint];
-  const { activeVault } = useVault({ vaultId });
+  const { isPSBTSharing = false, psbt, mode, signer = null, xfp = '' } = route.params;
+  const { remoteLinkDetails } = useAppSelector((state) => state.vault);
+  const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
+  const [primaryLoading, setPrimaryLoading] = useState(false);
+  const { isOnL2Above } = usePlan();
 
   const handleShare = async () => {
+    setPrimaryLoading(true);
     try {
       const data: dataProps = {
         type: mode,
       };
 
       if (mode === RKInteractionMode.SHARE_REMOTE_KEY) {
+        data.key = psbt;
         data.fcm = fcmToken;
-        data.signer = {
-          extraData: { originalType: signer.type },
-          inheritanceKeyInfo: signer.inheritanceKeyInfo,
-          isBIP85: signer.isBIP85,
-          masterFingerprint: signer.masterFingerprint,
-          signerPolicy: signer.signerPolicy,
-          signerXpubs: signer.signerXpubs,
-        };
       }
 
       if (mode === RKInteractionMode.SHARE_PSBT) {
-        data.sendConfirmationRouteParams = sendConfirmationRouteParams;
-        data.tnxDetails = tnxDetails;
-        data.signingDetails = {
-          signer: signer.masterFingerprint,
-          isMultisig: findIsMultisig(activeVault),
-          serializedPSBTEnvelop,
-          vaultKey,
-          vaultId,
-          vault: activeVault
-            ? {
-                networkType: activeVault.networkType,
-                specs: activeVault.specs,
-                signers: activeVault.signers,
-              }
-            : null,
-        };
+        data.psbt = psbt;
+        data.keyUID = getKeyUID(signer);
+        data.xfp = xfp;
+        data.cachedTxid = cachedTxid;
       }
 
       if (mode === RKInteractionMode.SHARE_SIGNED_PSBT) {
-        data.isMultisig = isMultisig;
-        data.vaultKey = vaultKey;
-        data.vaultId = vaultId;
         data.psbt = psbt;
+        data.xfp = remoteLinkDetails.xfp;
+        data.cachedTxid = remoteLinkDetails.cachedTxid;
       }
-      console.log('🚀 ~ handleShare ~ data:', data);
-      const encryptionKey = getRandomBytes(12);
+      const { encryptionKey, hash } = getKeyAndHash(12);
       const encryptedData = encrypt(encryptionKey, JSON.stringify(data));
-      const res = await Relay.createRemoteKey(encryptedData);
+      const res = await Relay.createRemoteKey(encryptedData, hash);
       if (res?.id) {
         const result = await Share.share({
           title: RemoteShareText[mode].msgTitle,
           message: `${RemoteShareText[mode].msgDesc}\nhttps://bitcoinkeeper.app/${
             DeepLinkIdentifier[config.ENVIRONMENT]
-          }/shareKey/${res.id}/${encryptionKey}`,
+          }/remote/${encryptionKey}`,
         });
         if (result.action === Share.sharedAction) {
-          if (result.activityType) {
-            // Add any specific logic if needed for the activity type
-          } else {
-            // Shared successfully
-          }
-        } else if (result.action === Share.dismissedAction) {
-          // Dismissed by user
+          if (result.activityType) navigation.goBack();
         }
       }
     } catch (error) {
       console.log('🚀 ~ handleShare ~ error:', error);
+    } finally {
+      setPrimaryLoading(false);
     }
   };
 
@@ -186,6 +148,8 @@ function RemoteSharing({ route }: ScreenProps) {
             primaryText={RemoteShareText[mode].cta}
             primaryCallback={handleShare}
             width={windowWidth * 0.82}
+            primaryLoading={primaryLoading}
+            primaryDisable={!isOnL2Above}
           />
           <Buttons
             secondaryText="Cancel"
@@ -239,5 +203,3 @@ const styles = StyleSheet.create({
     marginBottom: hp(34),
   },
 });
-
-const findIsMultisig = (vault) => vault.signers.length > 1;

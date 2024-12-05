@@ -80,6 +80,7 @@ import KeyDropdown from './KeyDropdown';
 import SignerCard from '../AddSigner/SignerCard';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
+import { getKeyUID } from 'src/utils/utilities';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -294,7 +295,7 @@ function SendConfirmation({ route }) {
       const latestExtSigners = [];
       for (const key in latestSigners) {
         if (key === ASSISTED_VAULT_ENTITIES.AK1 || key === ASSISTED_VAULT_ENTITIES.AK2) {
-          latestExtSigners.push(signerMap[availableSigners[key].masterFingerprint]);
+          latestExtSigners.push(signerMap[getKeyUID(availableSigners[key])]);
         }
       }
       if (latestExtSigners.length === 2) {
@@ -334,10 +335,7 @@ function SendConfirmation({ route }) {
       const pathSelected = [];
       availablePaths.forEach((path) => {
         path.keys.forEach((key) => {
-          if (
-            availableSigners[key.identifier].masterFingerprint ===
-            selectedExternalSigner.masterFingerprint
-          ) {
+          if (getKeyUID(availableSigners[key.identifier]) === getKeyUID(selectedExternalSigner)) {
             pathSelected.push(path.id);
           }
         });
@@ -477,10 +475,7 @@ function SendConfirmation({ route }) {
 
   const handleOptionSelect = useCallback(
     (option: VaultSigner) => {
-      if (
-        selectedExternalSigner &&
-        selectedExternalSigner.masterFingerprint !== option.masterFingerprint
-      ) {
+      if (selectedExternalSigner && getKeyUID(selectedExternalSigner) !== getKeyUID(option)) {
         if (serializedPSBTEnvelops) dispatch(sendPhaseTwoReset()); // reset, existing send phase two vars, upon change of signer
       }
       setSelectedExternalSigner(option);

@@ -10,7 +10,7 @@ import OptionPicker from 'src/components/OptionPicker';
 import { useNavigation } from '@react-navigation/native';
 import { ADDRESERVEKEY } from 'src/navigation/contants';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KEEPERAPP from 'src/assets/images/KeeperIcon.svg';
@@ -20,6 +20,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
 import CreateReserveKeyVault from './CreateReserveKeyVault';
 import { MONTHS_12, MONTHS_24, MONTHS_18 } from './constants';
+import { getKeyUID } from 'src/utils/utilities';
 
 const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
 const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -40,7 +41,7 @@ function AddReserveKey({ route }) {
   const [selectedSigner, setSelectedSigner] = useState(null);
   const [vaultCreating, setCreating] = useState(false);
 
-  const reservedKey = selectedSigner ? signerMap[selectedSigner[0]?.masterFingerprint] : null;
+  const reservedKey = selectedSigner ? signerMap[getKeyUID(selectedSigner[0])] : null;
   const isDarkMode = colorMode === 'dark';
 
   const userKeyCallback = () => {
@@ -76,9 +77,9 @@ function AddReserveKey({ route }) {
                 />
               ) : (
                 <HorizontalSignerCard
-                  key={reservedKey.masterFingerprint}
+                  key={getKeyUID(reservedKey)}
                   name={getSignerNameFromType(reservedKey.type, reservedKey.isMock, false)}
-                  description={`${common.added} ${moment(reservedKey.addedOn).calendar()}`}
+                  description={getSignerDescription(reservedKey)}
                   icon={SDIcons(reservedKey.type).Icon}
                   isSelected={false}
                   showSelection={false}

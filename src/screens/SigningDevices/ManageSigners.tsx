@@ -11,12 +11,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
 import HardwareIllustration from 'src/assets/images/diversify-hardware.svg';
-import {
-  UNVERIFYING_SIGNERS,
-  getSignerDescription,
-  getSignerFromRemoteData,
-  getSignerNameFromType,
-} from 'src/hardware';
+import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
@@ -37,8 +32,6 @@ import SignerCard from '../AddSigner/SignerCard';
 import KeyAddedModal from 'src/components/KeyAddedModal';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
-import CountdownTimer from 'src/components/Timer/CountDownTimer';
-import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import Relay from 'src/services/backend/Relay';
@@ -52,13 +45,15 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { setupKeeperSigner } from 'src/hardware/signerSetup';
+import { getKeyUID } from 'src/utils/utilities';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
 function ManageSigners({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { vaultId = '', addedSigner, receivedExternalSigner } = route.params || {};
+  const { vaultId = '', addedSigner, remoteData } = route.params || {};
   const { activeVault } = useVault({ vaultId });
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
@@ -72,14 +67,9 @@ function ManageSigners({ route }: ScreenProps) {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
-  const [timerModal, setTimerModal] = useState(
-    receivedExternalSigner && receivedExternalSigner.timeLeft != '0' ? true : false
-  );
-  const [timerExpiredModal, setTimerExpiredModal] = useState(
-    receivedExternalSigner && receivedExternalSigner.timeLeft == '0' ? true : false
-  );
-  const [isTimerActive, setIsTimerActive] = useState(true);
+  const [timerModal, setTimerModal] = useState(false);
   const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
+  const [newSigner, setNewSigner] = useState(null);
 
   const { translations } = useContext(LocalizationContext);
   const { signer: signerTranslation, common } = translations;
@@ -89,6 +79,10 @@ function ManageSigners({ route }: ScreenProps) {
   });
 
   const [inProgress, setInProgress] = useState(false);
+
+  useEffect(() => {
+    if (remoteData?.key && !timerModal) setTimerModal(true);
+  }, [remoteData]);
 
   useEffect(() => {
     setInProgress(relaySignersUpdateLoading);
@@ -122,14 +116,10 @@ function ManageSigners({ route }: ScreenProps) {
     }, [relaySignersUpdate])
   );
 
-  const handleTimerEnd = () => {
-    setIsTimerActive(false);
-  };
-
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(
       CommonActions.navigate('SigningDeviceDetails', {
-        signerId: signer.masterFingerprint,
+        signerId: getKeyUID(signer),
         vaultId,
         vaultKey: vaultKeys.length ? item : undefined,
         vaultSigners: vaultKeys,
@@ -151,13 +141,12 @@ function ManageSigners({ route }: ScreenProps) {
 
   const acceptRemoteKey = async () => {
     try {
-      const remoteSigner = getSignerFromRemoteData(receivedExternalSigner?.data?.signer);
-      dispatch(addSigningDevice([remoteSigner]));
-      // * Send Notification on success
       setTimerModal(false);
-      showToast('External Key added Successfully');
+      const hw = setupKeeperSigner(remoteData.key);
+      dispatch(addSigningDevice([hw.signer]));
+      setNewSigner(hw.signer);
       await Relay.sendSingleNotification({
-        fcm: receivedExternalSigner.data.fcmToken,
+        fcm: remoteData.fcm,
         notification: {
           title: 'Remote key accepted',
           body: 'The remote key that you shared has been accepted by the user',
@@ -175,7 +164,7 @@ function ManageSigners({ route }: ScreenProps) {
   const rejectRemoteKey = async () => {
     setTimerModal(false);
     await Relay.sendSingleNotification({
-      fcm: receivedExternalSigner.data.fcmToken,
+      fcm: remoteData.fcm,
       notification: {
         title: 'Remote key rejected',
         body: 'The remote key that you shared has been rejected by the user',
@@ -245,35 +234,15 @@ function ManageSigners({ route }: ScreenProps) {
         secondaryCallback={rejectRemoteKey}
         Content={() => (
           <Box style={styles.modalContent}>
-            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <CountdownTimer
-                initialTime={receivedExternalSigner.timeLeft}
-                onTimerEnd={handleTimerEnd}
-              />
-            </Box>
             <Note subtitle={signerTranslation.remoteKeyReceiveNote} />
           </Box>
         )}
       />
-      <KeeperModal
-        title={signerTranslation.keyExpired}
-        subTitle={signerTranslation.keyExpireMessage}
-        close={() => setTimerExpiredModal(false)}
-        visible={timerExpiredModal}
-        textColor={`${colorMode}.primaryText`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonTextColor={`${colorMode}.buttonText`}
-        Content={() => (
-          <Box>
-            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <CountdownTimer initialTime={0} />
-            </Box>
-            <Buttons primaryText={signerTranslation.acceptKey} primaryDisable />
-          </Box>
-        )}
+      <KeyAddedModal
+        visible={keyAddedModalVisible}
+        close={handleModalClose}
+        signer={addedSigner ?? newSigner}
       />
-      <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
       <KeeperModal
         close={() => {
           setShowLearnMoreModal(false);
@@ -374,7 +343,7 @@ function SignersList({
     return shellAssistedKeys.map((shellSigner) => {
       return (
         <SignerCard
-          key={shellSigner.masterFingerprint}
+          key={getKeyUID(shellSigner)}
           onCardSelect={() => {
             showToast('Please add the key to a Vault in order to use it');
           }}
@@ -403,7 +372,7 @@ function SignersList({
         )}
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
-            const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+            const signer = vaultKeys.length ? signerMap[getKeyUID(item)] : item;
             if (!signer || signer.archived) {
               return null;
             }
@@ -426,7 +395,7 @@ function SignersList({
 
             return (
               <SignerCard
-                key={signer.masterFingerprint}
+                key={getKeyUID(signer)}
                 onCardSelect={() => {
                   handleCardSelect(signer, item);
                 }}

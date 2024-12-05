@@ -58,6 +58,7 @@ import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wa
 import WalletUtilities from './utils';
 import { generateScriptWitnesses } from './miniscript/miniscript';
 import { Phase } from './miniscript/policy-generator';
+import { getKeyUID } from 'src/utils/utilities';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -1532,7 +1533,7 @@ export default class WalletOperations {
         serializedPSBTEnvelop: SerializedPSBTEnvelop;
       } => {
     const signingPayload: SigningPayload[] = [];
-    const signer = signerMap[vaultKey.masterFingerprint];
+    const signer = signerMap[getKeyUID(vaultKey)];
     const payloadTarget = signer.type;
     let isSigned = false;
     if (signer.isMock && vaultKey.xpriv) {

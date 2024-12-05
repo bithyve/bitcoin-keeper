@@ -29,6 +29,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
+import { getKeyUID } from 'src/utils/utilities';
 
 function SignWithQR() {
   const { colorMode } = useColorMode();
@@ -45,8 +46,6 @@ function SignWithQR() {
     isRemoteKey,
     serializedPSBTEnvelopFromProps,
     isMultisig,
-    sendConfirmationRouteParams,
-    tnxDetails,
   }: {
     vaultKey: VaultSigner;
     vaultId: string;
@@ -64,7 +63,7 @@ function SignWithQR() {
   const { activeVault } = useVault({ vaultId });
   const isSingleSig = isRemoteKey ? !isMultisig : activeVault.scheme.n === 1;
   const { signer } = isRemoteKey
-    ? { signer: signerMap[vaultKey.masterFingerprint] }
+    ? { signer: signerMap[getKeyUID(vaultKey)] }
     : useSignerFromKey(vaultKey);
   const [details, setDetails] = React.useState('');
   const { showToast } = useToastMessage();
@@ -199,13 +198,9 @@ function SignWithQR() {
             <ShareWithNfc
               data={serializedPSBT}
               isPSBTSharing
-              psbt={serializedPSBT}
-              serializedPSBTEnvelop={serializedPSBTEnvelop}
               signer={signer}
-              vaultKey={vaultKey} // required for signing
-              vaultId={vaultId} // required for signing
-              sendConfirmationRouteParams={sendConfirmationRouteParams}
-              tnxDetails={tnxDetails}
+              remoteShare
+              xfp={vaultKey.xfp}
             />
           ) : null}
         </Box>

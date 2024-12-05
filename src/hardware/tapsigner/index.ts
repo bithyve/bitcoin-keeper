@@ -9,10 +9,10 @@ import NFC from 'src/services/nfc';
 import { CommonActions } from '@react-navigation/native';
 import { xpubToTpub } from 'src/hardware';
 
-const getScriptSpecificDetails = async (card, cvc, isTestnet, isMultisig) => {
+const getScriptSpecificDetails = async (card, cvc, isTestnet, isMultisig, account) => {
   const xpubDetails: XpubDetailsType = {};
   // fetch P2WPKH details
-  const singleSigPath = WalletUtilities.getDerivationForScriptType(ScriptTypes.P2WPKH);
+  const singleSigPath = WalletUtilities.getDerivationForScriptType(ScriptTypes.P2WPKH, account);
   await card.set_derivation(singleSigPath.split("'").join('h'), cvc);
   let singleSigXpub = await card.get_xpub(cvc);
   if (isTestnet) {
@@ -20,7 +20,7 @@ const getScriptSpecificDetails = async (card, cvc, isTestnet, isMultisig) => {
   }
   xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
   // fetch P2WSH details
-  const multiSigPath = WalletUtilities.getDerivationForScriptType(ScriptTypes.P2WSH);
+  const multiSigPath = WalletUtilities.getDerivationForScriptType(ScriptTypes.P2WSH, account);
   await card.set_derivation(multiSigPath.split("'").join('h'), cvc);
   let multiSigXpub = await card.get_xpub(cvc);
   if (isTestnet) {
@@ -43,7 +43,8 @@ export const getTapsignerDetails = async (
   card: CKTapCard,
   cvc: string,
   isTestnet: boolean,
-  isMultisig: boolean
+  isMultisig: boolean,
+  account: number
 ) => {
   const status = await card.first_look();
   const isLegit = await card.certificate_check();
@@ -53,7 +54,7 @@ export const getTapsignerDetails = async (
     }
     if (status.path) {
       const { xpub, masterFingerprint, derivationPath, xpubDetails } =
-        await getScriptSpecificDetails(card, cvc, isTestnet, isMultisig);
+        await getScriptSpecificDetails(card, cvc, isTestnet, isMultisig, account);
       // reset to original path
       await card.set_derivation(status.path, cvc);
       return { xpub, masterFingerprint, derivationPath, xpubDetails };
@@ -69,7 +70,8 @@ export const getTapsignerDetails = async (
       newCard,
       cvc,
       isTestnet,
-      isMultisig
+      isMultisig,
+      account
     );
     await card.set_derivation(newCard.path, cvc);
     return { xpub, masterFingerprint, derivationPath, xpubDetails };

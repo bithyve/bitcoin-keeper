@@ -194,14 +194,14 @@ export const signPSBT = (psbt: string) => {
   return sdk.signPsbt(psbt);
 };
 
-export const getXpub = ({ isMultisig = true }) => {
+export const getXpub = ({ accountNumber, isMultisig = true }) => {
   const derivationPath = isMultisig
     ? isTestnet()
-      ? 'm/48h/1h/0h/2h'
-      : 'm/48h/0h/0h/2h'
+      ? `m/48h/1h/${accountNumber}h/2h`
+      : `m/48h/0h/${accountNumber}h/2h`
     : isTestnet()
-    ? 'm/84h/1h/0h'
-    : 'm/84h/0h/0h';
+    ? `m/84h/1h/${accountNumber}h`
+    : `m/84h/0h/${accountNumber}h`;
   return sdk.getXpub(derivationPath);
 };
 

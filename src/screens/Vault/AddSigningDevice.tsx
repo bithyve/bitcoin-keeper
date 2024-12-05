@@ -67,6 +67,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import { TIMELOCK_DURATIONS } from './constants';
 import AddKeyButton from '../SigningDevices/components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
+import { getKeyUID } from 'src/utils/utilities';
 
 const onSignerSelect = (
   selected,
@@ -87,7 +88,7 @@ const onSignerSelect = (
   const isMultisig = msXpub && scheme.n > 1;
 
   if (selected) {
-    const updated = selectedSigners.delete(signer.masterFingerprint);
+    const updated = selectedSigners.delete(getKeyUID(signer));
     if (updated) {
       if (isMock) {
         const updatedKeys = vaultKeys.filter((key) => msXpub && key.xpub !== msXpub.xpub);
@@ -112,7 +113,7 @@ const onSignerSelect = (
     const scriptKey = WalletUtilities.getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
-    const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
+    const updatedSignerMap = selectedSigners.set(getKeyUID(signer), true);
     setSelectedSigners(new Map(updatedSignerMap));
   }
 };
@@ -146,10 +147,10 @@ const isAssistedKeyValidForScheme = (
   // case 2: count based restrictions for assisted keys
   const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
   let existingAssistedKeys = 0;
-  for (const mfp of selectedSigners.keys()) {
+  for (const keyUID of selectedSigners.keys()) {
     if (
-      signerMap[mfp].type === SignerType.POLICY_SERVER ||
-      signerMap[mfp].type === SignerType.INHERITANCEKEY
+      signerMap[keyUID].type === SignerType.POLICY_SERVER ||
+      signerMap[keyUID].type === SignerType.INHERITANCEKEY
     ) {
       existingAssistedKeys++;
     }
@@ -213,16 +214,16 @@ const setInitialKeys = (
   if (activeVault) {
     // setting initital keys (update if scheme has changed)
     const vaultKeys = activeVault.signers.filter(
-      (key) => keyToRotate && key.masterFingerprint !== keyToRotate?.masterFingerprint
+      (key) => keyToRotate && getKeyUID(key) !== getKeyUID(keyToRotate)
     );
     const isMultisig = scheme.n > 1;
     const modifiedVaultKeysForScriptType = [];
     const updatedSignerMap = new Map();
     vaultKeys.forEach((key) => {
-      const signer = signerMap[key.masterFingerprint];
+      const signer = signerMap[getKeyUID(key)];
       if (isSignerValidForScheme(signer, scheme, signerMap, selectedSigners).isValid) {
         if (modifiedVaultKeysForScriptType.length < scheme.n) {
-          updatedSignerMap.set(key.masterFingerprint, true);
+          updatedSignerMap.set(getKeyUID(key), true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
           const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
           const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
@@ -245,7 +246,7 @@ const setInitialKeys = (
 };
 
 const getSelectedKeysByType = (vaultKeys, signerMap, type) => {
-  return vaultKeys.filter((key) => signerMap[key.masterFingerprint].type === type);
+  return vaultKeys.filter((key) => signerMap[getKeyUID(key)].type === type);
 };
 
 function Footer({
@@ -463,7 +464,7 @@ function Signers({
       const isAMF = false;
       return (
         <SignerCard
-          key={shellSigner.masterFingerprint}
+          key={getKeyUID(shellSigner)}
           onCardSelect={() => {
             if (shellSigner.type === SignerType.POLICY_SERVER) setupSignigngServer();
           }}
@@ -495,17 +496,22 @@ function Signers({
           !isValid ||
           (signer.type === SignerType.MY_KEEPER &&
             myAppKeys.length >= 1 &&
-            myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
+            getKeyUID(myAppKeys[0]) !== getKeyUID(signer)) ||
+          vaultKeys.some(
+            (key) =>
+              key.masterFingerprint === signer.masterFingerprint &&
+              getKeyUID(key) !== getKeyUID(signer)
+          ) ||
           // disabled selection during change key flow
           (keyToRotate &&
-            (keyToRotate.masterFingerprint === signer.masterFingerprint ||
-              selectedSigners.get(signer.masterFingerprint)));
+            (getKeyUID(keyToRotate) === getKeyUID(signer) ||
+              selectedSigners.get(getKeyUID(signer))));
 
         return (
           <SignerCard
             showSelection={showSelection}
             disabled={disabled}
-            key={signer.masterFingerprint}
+            key={getKeyUID(signer)}
             name={
               !signer.isBIP85
                 ? getSignerNameFromType(signer.type, signer.isMock, false)
@@ -514,7 +520,7 @@ function Signers({
             description={getSignerDescription(signer)}
             icon={SDIcons(signer.type).Icon}
             image={signer?.extraData?.thumbnailPath}
-            isSelected={!!selectedSigners.get(signer.masterFingerprint)}
+            isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={(selected) => {
               onSignerSelect(
                 selected,
@@ -545,19 +551,24 @@ function Signers({
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     const anySignerSelected = [...selectedSigners.values()].some((selected) => selected);
     const validCoSigners = coSigners.filter((signer) => signer);
-    const coSignersMap = new Map(validCoSigners.map((signer) => [signer.masterFingerprint, true]));
+    const coSignersMap = new Map(validCoSigners.map((signer) => [getKeyUID(signer), true]));
 
     const signerCards = signers
       .filter((signer) => signer.type === SignerType.KEEPER && !signer.archived)
       .map((signer) => {
         const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
-        const isCoSigner = coSignersMap.has(signer.masterFingerprint);
+        const isCoSigner = coSignersMap.has(getKeyUID(signer));
         const disabled =
           !isValid ||
           (signer.type === SignerType.MY_KEEPER &&
             myAppKeys.length >= 1 &&
-            myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
-          (anySignerSelected && !selectedSigners.get(signer.masterFingerprint)) ||
+            getKeyUID(myAppKeys[0]) !== getKeyUID(signer)) ||
+          vaultKeys.some(
+            (key) =>
+              key.masterFingerprint === signer.masterFingerprint &&
+              getKeyUID(key) !== getKeyUID(signer)
+          ) ||
+          (anySignerSelected && !selectedSigners.get(getKeyUID(signer))) ||
           isCoSigner;
 
         const handleCardSelect = (selected) => {
@@ -580,7 +591,7 @@ function Signers({
             showSelection={showSelection}
             disabled={disabled}
             isFromSiginingList={true}
-            key={signer.masterFingerprint}
+            key={getKeyUID(signer)}
             name={
               !signer.isBIP85
                 ? getSignerNameFromType(signer.type, signer.isMock)
@@ -589,7 +600,7 @@ function Signers({
             description={getSignerDescription(signer)}
             icon={SDIcons(signer.type).Icon}
             image={signer?.extraData?.thumbnailPath}
-            isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
+            isSelected={!!selectedSigners.get(getKeyUID(signer)) || isCoSigner}
             onCardSelect={handleCardSelect}
             colorMode={colorMode}
           />
@@ -635,7 +646,7 @@ function Signers({
           (signer.type === SignerType.MY_KEEPER &&
             myAppKeys.length >= 1 &&
             myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
-          (anySignerSelected && !selectedSigners.get(signer.masterFingerprint));
+          (anySignerSelected && !selectedSigners.get(getKeyUID(signer)));
 
         const handleCardSelect = (selected) => {
           if (disabled) return;
@@ -657,7 +668,7 @@ function Signers({
             showSelection={showSelection}
             disabled={disabled}
             isFromSiginingList={true}
-            key={signer.masterFingerprint}
+            key={getKeyUID(signer)}
             name={
               !signer.isBIP85
                 ? getSignerNameFromType(signer.type, signer.isMock)
@@ -666,7 +677,7 @@ function Signers({
             description={getSignerDescription(signer)}
             icon={SDIcons(signer.type).Icon}
             image={signer?.extraData?.thumbnailPath}
-            isSelected={!!selectedSigners.get(signer.masterFingerprint)}
+            isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={handleCardSelect}
             colorMode={colorMode}
           />
@@ -690,7 +701,7 @@ function Signers({
     setCreating,
   ]);
 
-  const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
+  const signer: Signer = keyToRotate ? signerMap[getKeyUID(keyToRotate)] : null;
 
   const onQrScan = async (qrData) => {
     try {

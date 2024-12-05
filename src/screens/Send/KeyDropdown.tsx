@@ -7,6 +7,7 @@ import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 import TickIcon from 'src/assets/images/icon_check.svg';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { getKeyUID } from 'src/utils/utilities';
 
 type Props = {
   label: string;
@@ -70,27 +71,22 @@ function KeyDropdown({ label, options, selectedOption, onOptionSelect }: Props) 
       {isOpen && (
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.optionsContainer}>
           {options.map((option, index) => (
-            <TouchableOpacity
-              key={option?.masterFingerprint}
-              onPress={() => handleOptionSelect(option)}
-            >
+            <TouchableOpacity key={getKeyUID(option)} onPress={() => handleOptionSelect(option)}>
               <Box
                 style={styles.optionContainer}
                 borderBottomWidth={index === options.length - 1 ? 0 : 1}
               >
                 <Text
                   color={
-                    internalSelectedOption?.masterFingerprint === option?.masterFingerprint
+                    getKeyUID(internalSelectedOption) === getKeyUID(option)
                       ? `${colorMode}.greenText`
                       : `${colorMode}.DarkGreyText`
                   }
                   style={styles.optionText}
                 >
-                  {`${`${option.signerName} - ${option.masterFingerprint}`}`}
+                  {`${`${option?.signerName} - ${option.masterFingerprint}`}`}
                 </Text>
-                {internalSelectedOption?.masterFingerprint === option?.masterFingerprint && (
-                  <TickIcon />
-                )}
+                {getKeyUID(internalSelectedOption) === getKeyUID(option) && <TickIcon />}
               </Box>
             </TouchableOpacity>
           ))}

@@ -24,6 +24,7 @@ import NFC from 'src/services/nfc';
 import { getCardInfo, handleTapsignerError } from 'src/hardware/tapsigner';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { getAccountFromSigner } from 'src/utils/utilities';
 
 function ManageTapsignerSettings({ route }: any) {
   const { colorMode } = useColorMode();
@@ -72,6 +73,7 @@ function ManageTapsignerSettings({ route }: any) {
         params: {
           mode: InteracationMode.BACKUP_SIGNER,
           signer: signer,
+          accountNumber: getAccountFromSigner(signer),
         },
       })
     );

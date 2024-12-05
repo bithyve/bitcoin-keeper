@@ -5,6 +5,7 @@ import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { seedWordItem } from 'src/screens/Recovery/constants';
+import { getKeyUID } from 'src/utils/utilities';
 
 const initialState: {
   backupMethod: BackupType | null;
@@ -139,7 +140,7 @@ const bhrSlice = createSlice({
       const signerToRemove = action.payload;
       if (signerToRemove) {
         state.signingDevices = state.signingDevices.filter(
-          (signer) => signer.masterFingerprint !== signerToRemove.masterFingerprint
+          (signer) => getKeyUID(signer) !== getKeyUID(signerToRemove)
         );
       }
     },

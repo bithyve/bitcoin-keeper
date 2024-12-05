@@ -6,6 +6,7 @@ import { getSignerNameFromType } from 'src/hardware';
 import _ from 'lodash';
 import { getJSONFromRealmObject } from './utils';
 import { RealmSchema } from './enum';
+import { getKeyUID } from 'src/utils/utilities';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -231,6 +232,16 @@ export const runRealmMigrations = ({
         multisigScriptType: null,
         miniscriptScheme: null,
       };
+    }
+  }
+
+  // Add migration for Signer primary key change
+  if (oldRealm.schemaVersion < 81) {
+    const oldSigners = oldRealm.objects(RealmSchema.Signer) as any;
+    const newSigners = newRealm.objects(RealmSchema.Signer) as Signer[];
+
+    for (const objectIndex in newSigners) {
+      newSigners[objectIndex].id = getKeyUID(oldSigners[objectIndex]);
     }
   }
 };
