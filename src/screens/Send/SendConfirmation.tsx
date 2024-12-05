@@ -1,14 +1,10 @@
 import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode, HStack, Pressable } from 'native-base';
-import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
+import { Box, useColorMode, Pressable } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import {
-  calculateSendMaxFee,
-  crossTransfer,
-  sendPhaseTwo,
-} from 'src/store/sagaActions/send_and_receive';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
+import { hp, wp } from 'src/constants/responsive';
 import Share from 'react-native-share';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -21,10 +17,9 @@ import {
   TxPriority,
   VaultType,
 } from 'src/services/wallets/enums';
-import { Vault, VaultSigner, Signer } from 'src/services/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import {
-  customPrioritySendPhaseOneReset,
   customPrioritySendPhaseOneStatusReset,
   sendPhaseTwoReset,
 } from 'src/store/reducers/send_and_receive';
@@ -39,19 +34,11 @@ import useVault from 'src/hooks/useVault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import AddCard from 'src/components/AddCard';
 import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-import Fonts from 'src/constants/Fonts';
-import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import InfoIcon from 'src/assets/images/info-icon.svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { RealmSchema } from 'src/storage/realm/enum';
 import HexagonIcon from 'src/components/HexagonIcon';
-import WalletsIcon from 'src/assets/images/daily_wallet.svg';
-import KeeperFooter from 'src/components/KeeperFooter';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getAvailableMiniscriptPhase } from 'src/services/wallets/factories/VaultFactory';
 
@@ -77,17 +64,9 @@ import AmountDetails from './AmountDetails';
 import SendSuccessfulContent from './SendSuccessfulContent';
 import PriorityModal from './PriorityModal';
 import KeyDropdown from './KeyDropdown';
-import SignerCard from '../AddSigner/SignerCard';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
 import { getKeyUID } from 'src/utils/utilities';
-
-const customFeeOptionTransfers = [
-  TransferType.VAULT_TO_ADDRESS,
-  TransferType.VAULT_TO_WALLET,
-  TransferType.WALLET_TO_WALLET,
-  TransferType.WALLET_TO_ADDRESS,
-];
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -1070,7 +1049,7 @@ function SendConfirmation({ route }) {
     </ScreenWrapper>
   );
 }
-export default Sentry.withErrorBoundary(SendConfirmation, errorBourndaryOptions);
+export default SentryErrorBoundary(SendConfirmation);
 
 const styles = StyleSheet.create({
   horizontalLineStyle: {

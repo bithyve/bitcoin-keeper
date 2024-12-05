@@ -31,8 +31,6 @@ import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -43,6 +41,7 @@ import Transactions from './components/Transactions';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -387,4 +386,4 @@ const styles = StyleSheet.create({
     paddingVertical: 22,
   },
 });
-export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);
+export default SentryErrorBoundary(WalletDetails);

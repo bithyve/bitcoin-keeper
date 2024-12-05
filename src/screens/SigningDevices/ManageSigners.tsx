@@ -20,8 +20,6 @@ import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import SettingIcon from 'src/assets/images/settings-gear.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -47,6 +45,7 @@ import { useQuery } from '@realm/react';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { getKeyUID } from 'src/utils/utilities';
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -498,4 +497,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Sentry.withErrorBoundary(ManageSigners, errorBourndaryOptions);
+export default SentryErrorBoundary(ManageSigners);
