@@ -138,14 +138,7 @@ import AddReserveKey from 'src/screens/Vault/AddReserveKey';
 import { useColorMode } from 'native-base';
 import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
-
-const defaultTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: Colors.Isabelline,
-  },
-};
+import config from 'src/utils/service-utilities/config';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -339,7 +332,9 @@ function Navigator() {
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
-    getRoutingInstrumentation().registerNavigationContainer(navigation);
+    if (config.isDevMode()) {
+      getRoutingInstrumentation().registerNavigationContainer(navigation);
+    }
   };
 
   const { onboardingModal } = useAppSelector((state) => state.concierge);

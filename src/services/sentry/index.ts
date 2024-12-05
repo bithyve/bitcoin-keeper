@@ -1,27 +1,43 @@
-import * as Sentry from '@sentry/react-native';
-
-import { CaptureContext, SeverityLevel } from '@sentry/types';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
-import config, { APP_STAGE } from 'src/utils/service-utilities/config';
+import config from 'src/utils/service-utilities/config';
 
-// Construct a new instrumentation instance. This is needed to communicate between the integration and React
-const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
+let Sentry: any = null;
+let routingInstrumentation: any = null;
+let sentryConfig: any = null;
 
-const sentryConfig: Sentry.ReactNativeOptions = {
-  maxBreadcrumbs: 50,
-  tracesSampleRate: 1.0,
-  dsn: config.SENTRY_DNS,
-  environment: APP_STAGE.DEVELOPMENT,
-  integrations: [
-    new Sentry.ReactNativeTracing({
-      routingInstrumentation,
-    }),
-  ],
+export const initSentrySDK = () => {
+  if (!__DEV__) return;
+
+  if (!Sentry) {
+    import('@sentry/react-native')
+      .then((module) => {
+        Sentry = module;
+      })
+      .catch((error) => {
+        console.error('Failed to load Sentry:', error);
+      });
+  }
 };
 
+// Construct a new instrumentation instance. This is needed to communicate between the integration and React
+// const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
 
-export const captureError = (error: Error, context?: CaptureContext) => {
+const getSentryConfig = () => {
+  sentryConfig = {
+    maxBreadcrumbs: 50,
+    tracesSampleRate: 1.0,
+    dsn: config.SENTRY_DNS,
+    environment: 'LOCAL',
+    integrations: [
+      new Sentry.ReactNativeTracing({
+        routingInstrumentation,
+      }),
+    ],
+  };
+};
+
+export const captureError = (error: Error, context?: any) => {
   try {
     if (!config.isDevMode()) return null;
     console.log('@captureError: ', error);
@@ -31,22 +47,30 @@ export const captureError = (error: Error, context?: CaptureContext) => {
   }
 };
 
-export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) => {
+export const logMessage = (message: string, captureContext?: any) => {
   config.isDevMode() && Sentry.captureMessage(message, captureContext);
 };
 
 export const SentryWrapper = (App) => {
-  return Sentry.wrap(App);
+  if (Sentry) return Sentry.wrap(App);
+  else return App;
 };
 
 export const SentryErrorBoundary = (component) => {
-  return Sentry.withErrorBoundary(component, errorBourndaryOptions);
+  if (Sentry) {
+    return Sentry.withErrorBoundary(component, errorBourndaryOptions);
+  } else {
+    return component;
+  }
 };
 
 export const initializeSentry = () => {
-  config.isDevMode() && Sentry.init({ ...sentryConfig, enabled: true });
+  if (config.isDevMode()) {
+    if (!sentryConfig) getSentryConfig();
+    return Sentry.init({ ...sentryConfig, enabled: true });
+  }
+  return null;
 };
 
-export const getRoutingInstrumentation = () => new Sentry.ReactNavigationInstrumentation();
-
-export { routingInstrumentation };
+export const getRoutingInstrumentation = () =>
+  Sentry ? new Sentry.ReactNavigationInstrumentation() : null;
