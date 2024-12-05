@@ -305,8 +305,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   useEffect(() => {
     if (!syncing && syncingCompleted && transactionToast) {
-      console;
-      console.log('Transaction Toast');
       showToast(
         vaultTranslation.transactionToastMessage,
         <TickIcon />,
