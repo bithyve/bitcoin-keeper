@@ -62,7 +62,6 @@ function ResetInheritanceKey({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreating, setCreating] = useState(false);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
-  console.log('vault', vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0]);
 
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr

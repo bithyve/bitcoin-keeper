@@ -51,6 +51,7 @@ import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function Footer({
   vault,
@@ -252,6 +253,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const [cachedTransactions, setCachedTransactions] = useState([]);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const [syncingCompleted, setSyncingCompleted] = useState(false);
+  const syncing = walletSyncing && vault ? !!walletSyncing[vault.id] : false;
 
   const disableBuy = false;
   const cardProps = {
@@ -300,7 +304,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   }, [autoRefresh]);
 
   useEffect(() => {
-    if (transactionToast) {
+    if (!syncing && syncingCompleted && transactionToast) {
+      console;
+      console.log('Transaction Toast');
       showToast(
         vaultTranslation.transactionToastMessage,
         <TickIcon />,
@@ -309,7 +315,15 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       );
       navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
     }
-  }, [transactionToast]);
+  }, [syncingCompleted, transactionToast]);
+
+  useEffect(() => {
+    if (!syncing) {
+      setSyncingCompleted(true);
+    } else {
+      setSyncingCompleted(false);
+    }
+  }, [syncing]);
 
   const syncVault = () => {
     setPullRefresh(true);
@@ -354,6 +368,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         isCollaborativeWallet ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
       }
     >
+      <ActivityIndicatorView visible={syncing} showLoader />
       <StatusBar barStyle="light-content" />
       <VStack style={styles.topSection}>
         <KeeperHeader
