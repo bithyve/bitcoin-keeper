@@ -320,31 +320,23 @@ function SignersList({
     });
 
     let hasSigningServer = false; // actual signing server present?
-    let hasInheritanceKey = false; // actual inheritance key present?
     let isSigningServerShellCreated = false;
-    let isInheritanceKeyShellCreated = false;
 
-    if (shellKeys.filter((signer) => signer.type === SignerType.POLICY_SERVER).length > 0)
+    if (shellKeys.filter((signer) => signer.type === SignerType.POLICY_SERVER).length > 0) {
       isSigningServerShellCreated = true;
-
-    if (shellKeys.filter((signer) => signer.type === SignerType.INHERITANCEKEY).length > 0)
-      isInheritanceKeyShellCreated = true;
+    }
 
     for (const signer of signers) {
       if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
-      else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
     }
 
     if (!isSigningServerShellCreated && !hasSigningServer && level >= AppSubscriptionLevel.L2) {
       shellKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
     }
 
-    if (!isInheritanceKeyShellCreated && !hasInheritanceKey && level >= AppSubscriptionLevel.L3) {
-      shellKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
-    }
-
-    return shellKeys;
-  }, []);
+    const addedSignersTypes = signers.map((signer) => signer.type);
+    return shellKeys.filter((shellSigner) => !addedSignersTypes.includes(shellSigner.type));
+  }, [signers]);
 
   const renderAssistedKeysShell = () => {
     return shellAssistedKeys.map((shellSigner) => {
