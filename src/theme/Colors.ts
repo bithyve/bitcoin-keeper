@@ -168,5 +168,7 @@ const Colors = {
   ErrorToastDark: 'rgba(58, 41, 41, 1)',
   DashedButtonBackground: 'rgba(45, 103, 89, 0.04)',
   DashedButtonBackgroundDark: 'rgba(65, 89, 76, 0.05)',
+  lightGrey: 'rgba(228, 226, 223, 1)',
+  darkGrey: 'rgba(165, 165, 165, 1)',
 };
 export default Colors;
