@@ -21,6 +21,8 @@ export interface Phase {
   timelock: number;
   paths: Path[];
   requiredPaths: number; // Number of paths required to satisfy the phase's threshold
+  probability?: number; // relative probability of the phase being executed
+  // Note: probability difference between phases needs to be of a certain threshold for script optimization by the compiler. For ex(MS-IK): or(4@POL1, 1@POL2) -> optimization while or(3@POL1, 1@POL2) -> no optimization
 }
 
 function combinations<T>(array: T[], r: number): T[][] {
@@ -80,7 +82,21 @@ const isGeneratedPolicyValid = (policy: string, miniscriptPhases: Phase[]): bool
   return true;
 };
 
-// a thresh fragment based, flexible but not optimal, miniscript policy generator
+function nestOrFragments(policies: string[], probabilities: number[]): string {
+  if (policies.length === 1) return policies[0];
+  if (policies.length === 2) {
+    return `or(${probabilities[0]}@${policies[0]}, ${probabilities[1]}@${policies[1]})`;
+  }
+
+  const [firstPolicy, ...restPolicies] = policies;
+  const [firstProbability, ...restProbabilities] = probabilities;
+
+  return `or(${firstProbability}@${firstPolicy}, ${nestOrFragments(
+    restPolicies,
+    restProbabilities
+  )})`;
+}
+
 export const generateMiniscriptPolicy = (
   miniscriptPhases: Phase[]
 ): { miniscriptPhases: Phase[]; policy: string; keyInfoMap: KeyInfoMap } => {
@@ -118,7 +134,15 @@ export const generateMiniscriptPolicy = (
   });
 
   // combine all phases, starting with the first one
-  const policy = policyParts.length > 1 ? `thresh(1, ${policyParts.join(', ')})` : policyParts[0];
+  let policy;
+  const hasProbability = miniscriptPhases.some((phase) => phase.probability !== undefined);
+  if (hasProbability) {
+    const probabilities = miniscriptPhases.map((phase) => phase.probability || 1);
+    policy = nestOrFragments(policyParts, probabilities);
+  } else {
+    policy = policyParts.length > 1 ? `thresh(1, ${policyParts.join(', ')})` : policyParts[0];
+  }
+
   if (!isGeneratedPolicyValid(policy, miniscriptPhases)) {
     throw new Error('All paths of the generated policy are not valid');
   }
