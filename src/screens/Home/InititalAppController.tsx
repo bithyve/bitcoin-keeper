@@ -86,7 +86,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
-    if (!isOnL2Above) {
+      if (!isOnL2Above) {
         showToast('Upgrade to Hodler to use Remote Key Sharing');
         return false;
       }
@@ -175,6 +175,14 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                 activeRoute != 'Home'
               ) {
                 dispatch(updatePSBTEnvelops({ xfp, signedSerializedPSBT: psbt }));
+                const navState = navigation.getState();
+                const routeIndex = navState.routes.findIndex(
+                  (route) => route.name === 'SignTransactionScreen'
+                );
+                if (routeIndex !== -1) {
+                  navigation.pop(navState.index - routeIndex);
+                  showToast('Remote Transaction signed successfully', <TickIcon />);
+                }
               } else {
                 dispatch(updateCachedPsbtEnvelope({ xfp, signedSerializedPSBT: psbt, cachedTxid }));
                 showToast('Remote Transaction signed successfully', <TickIcon />);
