@@ -80,6 +80,7 @@ export type AppStackParams = {
   AddDescription: undefined;
   AllTransactions: undefined;
   TransactionDetails: undefined;
+  TransactionHistory: undefined;
   TransactionAdvancedDetails: undefined;
   TimelockScreen: undefined;
   SignerAdvanceSettings: undefined;

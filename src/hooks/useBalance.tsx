@@ -33,7 +33,7 @@ const useBalance = () => {
 
   const getCurrencyIcon = (
     Icon: any,
-    variation: 'light' | 'green' | 'dark' | 'grey' | 'slateGreen'
+    variation: 'light' | 'green' | 'dark' | 'grey' | 'slateGreen' | 'richBlack'
   ) => getCurrencyImageByRegion(currencyCode, variation, currentCurrency, Icon);
 
   const getFiatCurrencyIcon = (variation: 'light' | 'green' | 'dark' | 'grey') =>

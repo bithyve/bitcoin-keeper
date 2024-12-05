@@ -46,20 +46,21 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-
   const sortedTransactions = useMemo(
     () =>
-      [...transactions].sort((a, b) => {
-        // Sort unconfirmed transactions first
-        if (a.confirmations === 0 && b.confirmations !== 0) return -1;
-        if (a.confirmations !== 0 && b.confirmations === 0) return 1;
+      [...transactions]
+        .sort((a, b) => {
+          // Sort unconfirmed transactions first
+          if (a.confirmations === 0 && b.confirmations !== 0) return -1;
+          if (a.confirmations !== 0 && b.confirmations === 0) return 1;
 
-        // Then sort by date
-        if (!a.date && !b.date) return 0;
-        if (!a.date) return -1;
-        if (!b.date) return 1;
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      }) || [],
+          // Then sort by date
+          if (!a.date && !b.date) return 0;
+          if (!a.date) return -1;
+          if (!b.date) return 1;
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        })
+        .slice(0, 5) || [],
     [transactions]
   );
 
