@@ -722,10 +722,7 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs =
-        wallet.networkType === NetworkType.MAINNET
-          ? wallet.specs.confirmedUTXOs
-          : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
@@ -800,10 +797,7 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs =
-        wallet.networkType === NetworkType.MAINNET
-          ? wallet.specs.confirmedUTXOs
-          : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
@@ -960,10 +954,7 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs =
-        wallet.networkType === NetworkType.MAINNET
-          ? wallet.specs.confirmedUTXOs
-          : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
