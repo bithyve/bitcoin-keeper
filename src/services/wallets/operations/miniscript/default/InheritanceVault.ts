@@ -78,12 +78,14 @@ export function generateInheritanceVaultElements(
       timelock: 0,
       paths: [{ id: 1, threshold: scheme.m, keys: keysInfo }],
       requiredPaths: 1,
+      probability: 9,
     },
     {
       id: 2,
       timelock,
       paths: [{ id: 1, threshold: scheme.m, keys: [...keysInfo, inheritanceKeyInfo] }],
       requiredPaths: 1,
+      probability: 1,
     },
   ];
 
