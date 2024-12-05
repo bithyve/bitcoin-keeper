@@ -35,7 +35,7 @@ const RemoteShareText = {
     cta: 'Share Link',
     msgTitle: 'Transaction Signing Request Received',
     msgDesc:
-      'Hey, I need you to sign a transaction with the key shared with you previously. Please click the link to view details and sign the transaction in the Bitcoin Keeper app',
+      'Hey, I need you to sign a transaction with the key you have shared previously. Please click the link to view details and sign the transaction in the Bitcoin Keeper app',
   },
   [RKInteractionMode.SHARE_SIGNED_PSBT]: {
     title: 'Sign Transaction Remotely',
