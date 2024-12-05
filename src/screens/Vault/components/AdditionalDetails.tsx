@@ -15,6 +15,7 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import useSignerMap from 'src/hooks/useSignerMap';
 import TickIcon from 'src/assets/images/tick_icon.svg';
+import { getKeyUID } from 'src/utils/utilities';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -24,7 +25,7 @@ function AdditionalDetails({ route }: ScreenProps) {
   const dispatch = useDispatch();
   const { signer: signerFromParam } = route.params;
   const { signerMap } = useSignerMap();
-  const signer = signerMap[signerFromParam?.masterFingerprint];
+  const signer = signerMap[getKeyUID(signerFromParam)];
   const [description, setDescription] = useState(signer?.signerDescription || '');
 
   return (

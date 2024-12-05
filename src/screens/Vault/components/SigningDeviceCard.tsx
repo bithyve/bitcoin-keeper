@@ -26,6 +26,7 @@ type SigningDeviceCardProps = {
   vaultSigners?: VaultSigner[];
   isMultisig: boolean;
   primaryMnemonic: string;
+  accountNumber: number;
 };
 
 const SigningDeviceCard = ({
@@ -41,6 +42,7 @@ const SigningDeviceCard = ({
   vaultSigners,
   isMultisig,
   primaryMnemonic,
+  accountNumber,
 }: SigningDeviceCardProps) => {
   const [visible, setVisible] = useState(false);
   const navigation = useNavigation();
@@ -126,6 +128,7 @@ const SigningDeviceCard = ({
         addSignerFlow={addSignerFlow}
         vaultId={vaultId}
         vaultSigners={vaultSigners}
+        accountNumber={accountNumber}
       />
     </>
   );

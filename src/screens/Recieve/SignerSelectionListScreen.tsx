@@ -12,6 +12,7 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
 import useSigners from 'src/hooks/useSigners';
+import { getKeyUID } from 'src/utils/utilities';
 
 const { width } = Dimensions.get('screen');
 
@@ -38,7 +39,7 @@ function SignerSelectionListScreen() {
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
         data={availableSigners}
-        keyExtractor={(item) => item.masterFingerprint}
+        keyExtractor={(item) => getKeyUID(item)}
         renderItem={({ item }) => (
           <SignerCard
             onPress={(signer, signerName) => {

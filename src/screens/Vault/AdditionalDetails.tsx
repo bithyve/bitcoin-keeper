@@ -23,6 +23,7 @@ import Text from 'src/components/KeeperText';
 import { getPersistedDocument } from 'src/services/documents';
 import { useAppSelector } from 'src/store/hooks';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
+import { getKeyUID } from 'src/utils/utilities';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -33,7 +34,7 @@ function AdditionalDetails({ route }: ScreenProps) {
   const dispatch = useDispatch();
   const { signer: signerFromParam } = route.params;
   const { signerMap } = useSignerMap();
-  const signer = signerMap[signerFromParam?.masterFingerprint];
+  const signer = signerMap[getKeyUID(signerFromParam)];
   const [description, setDescription] = useState(signer?.signerDescription || '');
   const [editContactModal, setEditContactModal] = useState(false);
   const { thumbnailPath, givenName, familyName } = signer.extraData;

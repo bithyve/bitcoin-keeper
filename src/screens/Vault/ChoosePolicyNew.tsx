@@ -32,7 +32,6 @@ import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useAppSelector } from 'src/store/hooks';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { setSignerPolicyError } from 'src/store/reducers/wallets';
-import useSigners from 'src/hooks/useSigners';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -44,9 +43,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
 
-  const { isUpdate, addSignerFlow, vaultId, signerId } = route.params;
-  const { signers } = useSigners();
-  const currentSigner = signers.find((signer) => signer.masterFingerprint === signerId);
+  const { isUpdate, addSignerFlow, vaultId, signer: currentSigner } = route.params;
 
   const existingRestrictions = idx(currentSigner, (_) => _.signerPolicy.restrictions);
   const existingExceptions = idx(currentSigner, (_) => _.signerPolicy.exceptions);

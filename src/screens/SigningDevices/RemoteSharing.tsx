@@ -17,6 +17,7 @@ import Relay from 'src/services/backend/Relay';
 import { encrypt, getKeyAndHash } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import usePlan from 'src/hooks/usePlan';
+import { getKeyUID } from 'src/utils/utilities';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -57,7 +58,7 @@ type dataProps = {
   fcm?: string;
   psbt?: string;
   key?: string;
-  masterFingerprint?: string;
+  keyUID?: string;
   xfp?: string;
   cachedTxid?: string; // for recovering the cached tnx from store on receiving the signed psbt
 };
@@ -86,7 +87,7 @@ function RemoteSharing({ route }: ScreenProps) {
 
       if (mode === RKInteractionMode.SHARE_PSBT) {
         data.psbt = psbt;
-        data.masterFingerprint = signer.masterFingerprint;
+        data.keyUID = getKeyUID(signer);
         data.xfp = xfp;
         data.cachedTxid = cachedTxid;
       }

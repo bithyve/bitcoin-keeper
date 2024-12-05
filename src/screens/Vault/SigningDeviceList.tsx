@@ -1,4 +1,4 @@
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, Input, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -24,6 +24,12 @@ import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import Text from 'src/components/KeeperText';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
+import IconSettings from 'src/assets/images/settings.svg';
+import IconGreySettings from 'src/assets/images/settings_grey.svg';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { hp, wp } from 'src/constants/responsive';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 
 const SigningDeviceList = () => {
   const route = useRoute();
@@ -57,6 +63,10 @@ const SigningDeviceList = () => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
+  const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false);
+  const [accountNumber, setAccountNumber] = useState(0);
+  const [accountNumberText, setAccountNumberText] = useState('');
+  const { showToast } = useToastMessage();
 
   const sortedSigners = {
     [SignerCategory.HARDWARE]: [
@@ -103,6 +113,47 @@ const SigningDeviceList = () => {
     );
   }
 
+  const onPressNumber = (digit) => {
+    let temp = accountNumberText;
+    if (digit !== 'x') {
+      temp += digit;
+      setAccountNumberText(temp);
+    }
+    if (accountNumberText && digit === 'x') {
+      setAccountNumberText(accountNumberText.slice(0, -1));
+    }
+  };
+  const onDeletePressed = () => {
+    setAccountNumberText(accountNumberText.slice(0, accountNumberText.length - 1));
+  };
+
+  function AdvancedSettingsContent() {
+    return (
+      <Box>
+        <Text>Account Number (Optional):</Text>
+        <Box
+          style={styles.input}
+          backgroundColor={`${colorMode}.seashellWhite`}
+          borderColor={`${colorMode}.greyBorder`}
+        >
+          <Input
+            placeholder="Enter account number (default is 0)"
+            placeholderTextColor={`${colorMode}.placeHolderTextColor`}
+            borderWidth={0}
+            value={accountNumberText}
+            onChangeText={setAccountNumberText}
+            showSoftInputOnFocus={false}
+          />
+        </Box>
+        <KeyPadView
+          onDeletePressed={onDeletePressed}
+          onPressNumber={onPressNumber}
+          keyColor={`${colorMode}.primaryText`}
+        />
+      </Box>
+    );
+  }
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -115,6 +166,15 @@ const SigningDeviceList = () => {
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
+        rightComponent={
+          signerCategory === SignerCategory.HARDWARE && (
+            <TouchableOpacity onPress={() => setShowAdvancedSettingsModal(true)}>
+              {colorMode === 'light' ? <IconGreySettings /> : <IconSettings />}
+            </TouchableOpacity>
+          )
+        }
+        rightComponentPadding={wp(10)}
+        rightComponentBottomPadding={hp(40)}
       />
       <Box style={styles.scrollViewWrapper}>
         <ScrollView
@@ -157,6 +217,7 @@ const SigningDeviceList = () => {
                       primaryMnemonic={primaryMnemonic}
                       disabled={disabled}
                       message={message}
+                      accountNumber={accountNumber}
                     />
                   );
                 })}
@@ -189,6 +250,30 @@ const SigningDeviceList = () => {
           dispatch(setSdIntroModal(false));
         }}
       />
+      <KeeperModal
+        visible={showAdvancedSettingsModal}
+        title="Advanced Options"
+        subTitle="Account numbers are for advanced users. Leave this empty unless you need a specific account."
+        close={() => setShowAdvancedSettingsModal(false)}
+        buttonText={common.save}
+        buttonCallback={() => {
+          if (parseInt(accountNumberText).toString() === accountNumberText) {
+            setAccountNumber(parseInt(accountNumberText));
+            setShowAdvancedSettingsModal(false);
+          } else if (!accountNumberText) {
+            setAccountNumber(0);
+            setShowAdvancedSettingsModal(false);
+          } else {
+            showToast('Account number invalid', null, IToastCategory.DEFAULT, 3000, true);
+          }
+        }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => {
+          setAccountNumberText(accountNumber.toString());
+          setShowAdvancedSettingsModal(false);
+        }}
+        Content={AdvancedSettingsContent}
+      />
     </ScreenWrapper>
   );
 };
@@ -213,6 +298,15 @@ const styles = StyleSheet.create({
   },
   alignCenter: {
     alignSelf: 'center',
+  },
+  input: {
+    marginVertical: hp(15),
+    paddingHorizontal: wp(10),
+    width: '100%',
+    height: hp(50),
+    borderRadius: 10,
+    justifyContent: 'center',
+    borderWidth: 1,
   },
 });
 

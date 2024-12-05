@@ -46,6 +46,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
+import { getKeyUID } from 'src/utils/utilities';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -118,7 +119,7 @@ function ManageSigners({ route }: ScreenProps) {
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(
       CommonActions.navigate('SigningDeviceDetails', {
-        signerId: signer.masterFingerprint,
+        signerId: getKeyUID(signer),
         vaultId,
         vaultKey: vaultKeys.length ? item : undefined,
         vaultSigners: vaultKeys,
@@ -350,7 +351,7 @@ function SignersList({
     return shellAssistedKeys.map((shellSigner) => {
       return (
         <SignerCard
-          key={shellSigner.masterFingerprint}
+          key={getKeyUID(shellSigner)}
           onCardSelect={() => {
             showToast('Please add the key to a Vault in order to use it');
           }}
@@ -379,7 +380,7 @@ function SignersList({
         )}
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
-            const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+            const signer = vaultKeys.length ? signerMap[getKeyUID(item)] : item;
             if (!signer || signer.archived) {
               return null;
             }
@@ -402,7 +403,7 @@ function SignersList({
 
             return (
               <SignerCard
-                key={signer.masterFingerprint}
+                key={getKeyUID(signer)}
                 onCardSelect={() => {
                   handleCardSelect(signer, item);
                 }}

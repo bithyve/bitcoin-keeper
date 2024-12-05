@@ -65,6 +65,7 @@ import DotView from 'src/components/DotView';
 import Note from 'src/components/Note/Note';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getPersistedDocument } from 'src/services/documents';
+import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -233,9 +234,11 @@ function SigningDeviceDetails({ route }) {
   const dispatch = useDispatch();
   const { vaultKey, vaultId, signerId, vaultSigners, isUaiFlow } = route.params;
   const { signers } = useSigners();
-  const currentSigner = signers.find((signer) => signer.masterFingerprint === signerId);
+  const currentSigner =
+    signers.find((signer) => getKeyUID(signer) === signerId) ||
+    signers.find((signer) => signer.masterFingerprint === signerId);
   const { signerMap } = useSignerMap();
-  const signer: Signer = currentSigner || signerMap[vaultKey.masterFingerprint];
+  const signer: Signer = currentSigner || signerMap[getKeyUID(vaultKey)];
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(isUaiFlow);
@@ -246,7 +249,7 @@ function SigningDeviceDetails({ route }) {
     getJSONFromRealmObject
   )[0];
   const { keyHeathCheckSuccess, keyHeathCheckError } = useAppSelector((state) => state.vault);
-  const { entityBasedIndicator } = useIndicatorHook({ entityId: signerId });
+  const { entityBasedIndicator } = useIndicatorHook({ entityId: signer.masterFingerprint });
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
@@ -340,7 +343,6 @@ function SigningDeviceDetails({ route }) {
   }
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
-
   const footerItems = [
     {
       text: 'Health Check',
@@ -349,7 +351,9 @@ function SigningDeviceDetails({ route }) {
           Icon={HealthCheck}
           showDot={
             (signer.type !== SignerType.MY_KEEPER &&
-              entityBasedIndicator?.[signerId]?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]) ||
+              entityBasedIndicator?.[signer.masterFingerprint]?.[
+                uaiType.SIGNING_DEVICES_HEALTH_CHECK
+              ]) ||
             (signer.type === SignerType.MY_KEEPER &&
               typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId])
           }
@@ -379,7 +383,7 @@ function SigningDeviceDetails({ route }) {
       Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
       onPress: () => {
         navigation.dispatch(
-          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId, signerId })
+          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId })
         );
       },
     },
@@ -513,6 +517,7 @@ function SigningDeviceDetails({ route }) {
         vaultId={vaultId}
         addSignerFlow={false}
         vaultSigners={vaultSigners}
+        accountNumber={getAccountFromSigner(signer)}
       />
       <KeeperModal
         visible={skipHealthCheckModalVisible}

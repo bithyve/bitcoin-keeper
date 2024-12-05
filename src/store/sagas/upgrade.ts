@@ -36,6 +36,7 @@ import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { addWhirlpoolWalletsWorker } from './wallets';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { getKeyUID } from 'src/utils/utilities';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -191,10 +192,10 @@ function* migrateAssistedKeys() {
     const signerMap = {};
     dbManager
       .getCollection(RealmSchema.Signer)
-      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+      .forEach((signer) => (signerMap[getKeyUID(signer as Signer)] = signer));
 
     for (const signer of signers) {
-      const signerType = signerMap[signer.masterFingerprint].type;
+      const signerType = signerMap[getKeyUID(signer)].type;
 
       if (signerType === SignerType.POLICY_SERVER) {
         const cosignersMapUpdates: CosignersMapUpdate[] = yield call(
@@ -238,14 +239,14 @@ function* assistedKeysCosignersEnrichment() {
     const signerMap = {};
     dbManager
       .getCollection(RealmSchema.Signer)
-      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+      .forEach((signer) => (signerMap[getKeyUID(signer as Signer)] = signer));
 
     for (const vault of vaults) {
       const { signers: keys } = vault;
 
       // identical logic to VaultFactory's updateCosignersMapForAssistedKeys, different API calls(enrichment) tho
       for (const key of keys) {
-        const assistedKeyType = signerMap[key.masterFingerprint]?.type;
+        const assistedKeyType = signerMap[getKeyUID(key)]?.type;
         if (
           assistedKeyType === SignerType.POLICY_SERVER ||
           assistedKeyType === SignerType.INHERITANCEKEY
@@ -357,10 +358,10 @@ function generateExtendedKeysForSigners(signers, appKeyWalletMap) {
 
 function updateVaultSigners(extendedKeyMap, signers) {
   const signerMap = {};
-  signers.forEach((signer) => (signerMap[signer.masterFingerprint] = signer));
+  signers.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
   const vaultKeys: VaultSigner[] = dbManager.getCollection(RealmSchema.VaultSigner);
   for (const vaultKey of vaultKeys) {
-    const signer = signerMap[vaultKey.masterFingerprint];
+    const signer = signerMap[getKeyUID(vaultKey)];
     if (signer && signer.type === SignerType.KEEPER && extendedKeyMap[vaultKey.masterFingerprint]) {
       dbManager.updateObjectByPrimaryId(RealmSchema.VaultSigner, 'xpub', vaultKey.xpub, {
         xpriv: extendedKeyMap[vaultKey.masterFingerprint].xpriv,
