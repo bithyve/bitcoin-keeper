@@ -169,6 +169,7 @@ export type AppStackParams = {
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
   AddReserveKey: undefined;
+  ResetInheritanceKey: undefined;
 };
 
 // Usage:

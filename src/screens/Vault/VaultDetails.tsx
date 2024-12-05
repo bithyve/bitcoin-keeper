@@ -49,6 +49,8 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 function Footer({
   vault,
@@ -68,10 +70,18 @@ function Footer({
   const { common } = translations;
   const { colorMode } = useColorMode();
 
+  const ReInstateIcon = () => (
+    <CircleIconWrapper
+      icon={<ImportIcon />}
+      backgroundColor={`${colorMode}.brownBackground`}
+      width={wp(38)}
+    />
+  );
+
   const footerItems = vault.archived
     ? [
         {
-          Icon: ImportIcon,
+          Icon: ReInstateIcon,
           text: common.reinstate,
           onPress: () => {
             dispatch(reinstateVault(vault.id));
@@ -113,7 +123,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
   } = vault;
 
   return (
-    <HStack style={styles.vaultInfoContainer}>
+    <Box style={[styles.vaultInfoContainer, { flexDirection: vault.archived ? 'column' : 'row' }]}>
       <HStack style={styles.pillsContainer}>
         <CardPill
           heading={`${
@@ -138,16 +148,20 @@ function VaultInfo({ vault }: { vault: Vault }) {
         )}
         {vault.type === VaultType.SINGE_SIG && <CardPill heading="COLD" />}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
-        {vault.archived ? <CardPill heading={common.ARCHIVED} backgroundColor="grey" /> : null}
+        {vault.archived ? (
+          <CardPill heading={common.ARCHIVED} backgroundColor={`${colorMode}.greyBackground`} />
+        ) : null}
       </HStack>
-      <CurrencyInfo
-        hideAmounts={false}
-        amount={confirmed + unconfirmed}
-        fontSize={24}
-        color={`${colorMode}.buttonText`}
-        variation="light"
-      />
-    </HStack>
+      <Box style={vault.archived && styles.archivedBalance}>
+        <CurrencyInfo
+          hideAmounts={false}
+          amount={confirmed + unconfirmed}
+          fontSize={24}
+          color={`${colorMode}.buttonText`}
+          variation="light"
+        />
+      </Box>
+    </Box>
   );
 }
 
@@ -268,6 +282,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const [cachedTransactions, setCachedTransactions] = useState([]);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const [syncingCompleted, setSyncingCompleted] = useState(false);
+  const syncing = walletSyncing && vault ? !!walletSyncing[vault.id] : false;
 
   const disableBuy = false;
   const cardProps = {
@@ -316,7 +333,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   }, [autoRefresh]);
 
   useEffect(() => {
-    if (transactionToast) {
+    if (!syncing && syncingCompleted && transactionToast) {
       showToast(
         vaultTranslation.transactionToastMessage,
         <TickIcon />,
@@ -325,7 +342,15 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       );
       navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
     }
-  }, [transactionToast]);
+  }, [syncingCompleted, transactionToast]);
+
+  useEffect(() => {
+    if (!syncing) {
+      setSyncingCompleted(true);
+    } else {
+      setSyncingCompleted(false);
+    }
+  }, [syncing]);
 
   const syncVault = () => {
     setPullRefresh(true);
@@ -370,6 +395,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         isCollaborativeWallet ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
       }
     >
+      <ActivityIndicatorView visible={syncing} showLoader />
       <StatusBar barStyle="light-content" />
       <VStack style={styles.topSection}>
         <KeeperHeader
@@ -403,8 +429,15 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           rightComponent={
             <TouchableOpacity
               style={styles.settingBtn}
-              onPress={() =>
-                navigation.dispatch(CommonActions.navigate('VaultSettings', { vaultId: vault.id }))
+              onPress={
+                !vault.archived
+                  ? () =>
+                      navigation.dispatch(
+                        CommonActions.navigate('VaultSettings', { vaultId: vault.id })
+                      )
+                  : () => {
+                      navigation.push('VaultSettings', { vaultId: vault.id });
+                    }
               }
             >
               <SettingIcon width={24} height={24} />
@@ -746,6 +779,10 @@ const styles = StyleSheet.create({
   settingBtn: {
     paddingHorizontal: 22,
     paddingVertical: 22,
+  },
+  archivedBalance: {
+    alignItems: 'flex-end',
+    marginTop: hp(25),
   },
 });
 

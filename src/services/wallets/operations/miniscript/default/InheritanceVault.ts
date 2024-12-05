@@ -18,6 +18,8 @@ export const INHERITANCE_VAULT_TIMELOCKS_MAINNET = {
   MONTHS_24: 105120,
 };
 
+export const INHERITANCE_KEY1_IDENTIFIER = 'IK1';
+
 /**
  * Generates the miniscript elements for the Inheritance Vault
  *
@@ -55,7 +57,7 @@ export function generateInheritanceVaultElements(
   }));
 
   const inheritanceKeyInfo: KeyInfo = {
-    identifier: 'IK1',
+    identifier: INHERITANCE_KEY1_IDENTIFIER,
     descriptor: `[${inheritanceSigner.masterFingerprint}/${getDerivationPath(
       inheritanceSigner.derivationPath
     )}]${inheritanceSigner.xpub}`,
@@ -65,7 +67,7 @@ export function generateInheritanceVaultElements(
 
   const signerFingerprints = Object.fromEntries(
     [...signers, inheritanceSigner].map((signer, index) => [
-      index < signers.length ? `K${index + 1}` : 'IK1',
+      index < signers.length ? `K${index + 1}` : INHERITANCE_KEY1_IDENTIFIER,
       signer.masterFingerprint,
     ])
   );

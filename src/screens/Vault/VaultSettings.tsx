@@ -22,7 +22,8 @@ import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enum
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
-import { trimCWDefaultName } from 'src/utils/utilities';
+import { getKeyUID, trimCWDefaultName } from 'src/utils/utilities';
+import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 
 function VaultSettings({ route }) {
@@ -38,7 +39,15 @@ function VaultSettings({ route }) {
   const isCanaryWalletType = vault.type === VaultType.CANARY;
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
-
+  const isInheritanceVault =
+    vault?.type === VaultType.INHERITANCE && vault?.scheme?.miniscriptScheme;
+  const inheritanceKey = vault?.signers?.find(
+    (signer) =>
+      signer.masterFingerprint ===
+      vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
+        INHERITANCE_KEY1_IDENTIFIER
+      ]
+  );
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
 
   const updateWalletVisibility = () => {
@@ -127,6 +136,20 @@ function VaultSettings({ route }) {
             );
           }}
         />
+        {isInheritanceVault && (
+          <OptionCard
+            title={vaultText.resetIKTitle}
+            description={vaultText.resetIKDesc}
+            callback={() => {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'ResetInheritanceKey',
+                  params: { signerId: getKeyUID(inheritanceKey), vault },
+                })
+              );
+            }}
+          />
+        )}
         {TestSatsComponent}
       </ScrollView>
       <KeeperModal
