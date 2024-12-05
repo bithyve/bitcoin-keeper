@@ -22,6 +22,7 @@ import IKSInfocard from './components/IKSInfoCard';
 import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { getKeyUID } from 'src/utils/utilities';
 
 function TimelineInfo({ duration, callback }) {
   const { colorMode } = useColorMode();
@@ -53,8 +54,8 @@ function ResetInheritanceKey({ route }) {
   const { translations } = useContext(LocalizationContext);
   const [selectedOption, setSelectedOption] = useState(null);
   const signer: Signer = signerMap[signerId];
-  const inheritanceSigner = vault.signers.find((signer) => signer.masterFingerprint === signerId);
-  const otherSigners = vault.signers.filter((signer) => signer.masterFingerprint !== signerId);
+  const inheritanceSigner = vault.signers.find((signer) => getKeyUID(signer) === signerId);
+  const otherSigners = vault.signers.filter((signer) => getKeyUID(signer) !== signerId);
   const { vault: vaultText, common } = translations;
   const { showToast } = useToastMessage();
   const [generatedVaultId, setGeneratedVaultId] = useState('');
