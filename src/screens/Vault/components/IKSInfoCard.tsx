@@ -20,7 +20,7 @@ const IKSInfocard: React.FC<IKSInfocardProps> = ({ name, description, Icon, dura
   return (
     <Box
       style={styles.infoCard}
-      backgroundColor={`${colorMode}.secondaryBackground`}
+      backgroundColor={`${colorMode}.boxSecondaryBackground`}
       borderColor={`${colorMode}.dullGreyBorder`}
     >
       <Box style={styles.iconWrapper}>
