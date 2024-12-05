@@ -7,7 +7,7 @@ let routingInstrumentation: any = null;
 let sentryConfig: any = null;
 
 export const initSentrySDK = () => {
-  if (!__DEV__) return;
+  if (!config.isDevMode()) return;
 
   if (!Sentry) {
     import('@sentry/react-native')
