@@ -97,10 +97,7 @@ function SendScreen({ route }) {
   );
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const isDarkMode = colorMode === 'dark';
-  const availableBalance =
-    sender.networkType === NetworkType.MAINNET
-      ? sender.specs.balances.confirmed
-      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const availableBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
   const visibleWallets = useMemo(

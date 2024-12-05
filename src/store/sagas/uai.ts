@@ -156,7 +156,7 @@ function* uaiChecksWorker({ payload }) {
         if (
           wallet.entityKind === EntityKind.WALLET &&
           wallet?.transferPolicy?.threshold > 0 &&
-          wallet.specs.balances.confirmed + (isTestnet() ? wallet.specs.balances.unconfirmed : 0) >=
+          wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed >=
             Number(wallet?.transferPolicy?.threshold)
         ) {
           if (!uai) {

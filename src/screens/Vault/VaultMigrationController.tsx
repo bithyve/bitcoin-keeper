@@ -111,29 +111,25 @@ function VaultMigrationController({
   }, [sendPhaseOneState]);
 
   const initiateSweep = () => {
-    if (!unconfirmed) {
-      const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
-      const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
-      const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+    const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
+    const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
+    const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
 
-      const { fee: sendMaxFee } = WalletOperations.calculateSendMaxFee(
-        activeVault,
-        [{ address: receivingAddress, amount: 0 }],
-        feePerByte
+    const { fee: sendMaxFee } = WalletOperations.calculateSendMaxFee(
+      activeVault,
+      [{ address: receivingAddress, amount: 0 }],
+      feePerByte
+    );
+    if (sendMaxFee && temporaryVault) {
+      const maxBalance = confirmed + unconfirmed - sendMaxFee;
+
+      setRecepients([{ address: receivingAddress, amount: maxBalance }]);
+      dispatch(
+        sendPhaseOne({
+          wallet: activeVault,
+          recipients: [{ address: receivingAddress, amount: maxBalance }],
+        })
       );
-      if (sendMaxFee && temporaryVault) {
-        const maxBalance = confirmed - sendMaxFee;
-
-        setRecepients([{ address: receivingAddress, amount: maxBalance }]);
-        dispatch(
-          sendPhaseOne({
-            wallet: activeVault,
-            recipients: [{ address: receivingAddress, amount: maxBalance }],
-          })
-        );
-      }
-    } else {
-      showToast('You have unconfirmed balance, please try again in some time', <ToastErrorIcon />);
     }
   };
 
@@ -268,26 +264,6 @@ function VaultMigrationController({
 
   const initiateNewVault = () => {
     if (activeVault) {
-      if (unconfirmed) {
-        showToast(
-          'You have unconfirmed balance, please try again in some time',
-          <ToastErrorIcon />
-        );
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 1,
-            routes: [
-              { name: 'Home' },
-              {
-                name: 'VaultDetails',
-                params: { autoRefresh: true, vaultId: activeVault.id },
-              },
-            ],
-          })
-        );
-        return;
-      }
-
       const vaultInfo: NewVaultInfo = {
         vaultType,
         vaultScheme: scheme,
