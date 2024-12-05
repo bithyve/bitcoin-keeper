@@ -47,6 +47,7 @@ function VaultMigrationController({
   name,
   description,
   vaultId,
+  setCreating,
   setGeneratedVaultId,
   vaultType = VaultType.DEFAULT,
   isTimeLock = false,
@@ -104,6 +105,7 @@ function VaultMigrationController({
       ) {
         WalletUtilities.fetchCurrentBlockHeight()
           .then(({ currentBlockHeight }) => {
+            setCreating(false);
             navigation.dispatch(
               CommonActions.navigate('SendConfirmation', {
                 sender: activeVault,
