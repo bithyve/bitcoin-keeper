@@ -20,7 +20,10 @@ import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
+import {
+  generateMiniscriptScheme,
+  generateVaultId,
+} from 'src/services/wallets/factories/VaultFactory';
 import { Alert } from 'react-native';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
 import {
@@ -241,10 +244,12 @@ function VaultMigrationController({
             vaultInfo.vaultSigners = [...signers, inheritanceSigner];
           }
           vaultInfo.miniscriptElements = miniscriptElements;
+          const miniscriptScheme = generateMiniscriptScheme(vaultInfo.miniscriptElements);
+          vaultInfo.vaultScheme.miniscriptScheme = miniscriptScheme;
         }
 
         const allVaultIds = allVaults.map((vault) => vault.id);
-        const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultScheme);
+        const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
         const deletedVaultIds = archivedVaults.map((vault) => vault.id);
         if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
           Alert.alert('Vault with this configuration already exists.');
