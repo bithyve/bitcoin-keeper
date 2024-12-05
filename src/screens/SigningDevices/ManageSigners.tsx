@@ -32,8 +32,6 @@ import SignerCard from '../AddSigner/SignerCard';
 import KeyAddedModal from 'src/components/KeyAddedModal';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
-import CountdownTimer from 'src/components/Timer/CountDownTimer';
-import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import Relay from 'src/services/backend/Relay';
@@ -69,8 +67,6 @@ function ManageSigners({ route }: ScreenProps) {
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
   const [timerModal, setTimerModal] = useState(false);
-  const [timerExpiredModal, setTimerExpiredModal] = useState(false);
-  const [isTimerActive, setIsTimerActive] = useState(true);
   const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
   const [newSigner, setNewSigner] = useState(null);
 
@@ -118,10 +114,6 @@ function ManageSigners({ route }: ScreenProps) {
       }
     }, [relaySignersUpdate])
   );
-
-  const handleTimerEnd = () => {
-    setIsTimerActive(false);
-  };
 
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(
@@ -242,24 +234,6 @@ function ManageSigners({ route }: ScreenProps) {
         Content={() => (
           <Box style={styles.modalContent}>
             <Note subtitle={signerTranslation.remoteKeyReceiveNote} />
-          </Box>
-        )}
-      />
-      <KeeperModal
-        title={signerTranslation.keyExpired}
-        subTitle={signerTranslation.keyExpireMessage}
-        close={() => setTimerExpiredModal(false)}
-        visible={timerExpiredModal}
-        textColor={`${colorMode}.primaryText`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonTextColor={`${colorMode}.buttonText`}
-        Content={() => (
-          <Box>
-            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <CountdownTimer initialTime={0} />
-            </Box>
-            <Buttons primaryText={signerTranslation.acceptKey} primaryDisable />
           </Box>
         )}
       />

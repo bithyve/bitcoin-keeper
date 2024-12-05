@@ -91,117 +91,118 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         return false;
       }
 
-    const encryptionKey = initialUrl.split('remote/')[1];
-    const hash = getHashFromKey(encryptionKey);
-    if (encryptionKey && hash) {
-      try {
-        const res = await Relay.getRemoteKey(hash);
-        if (!res) {
-          showToast('Remote Key link expired');
-          return;
-        }
-        const { createdAt, data: response } = res;
-        const tempData = JSON.parse(decrypt(encryptionKey, response));
-        console.log('🚀 tempData:', tempData);
-        switch (tempData.type) {
-          case RKInteractionMode.SHARE_REMOTE_KEY:
-            navigation.navigate('ManageSigners', {
-              remoteData: tempData,
-            });
-            break;
+      const encryptionKey = initialUrl.split('remote/')[1];
+      const hash = getHashFromKey(encryptionKey);
+      if (encryptionKey && hash) {
+        try {
+          const res = await Relay.getRemoteKey(hash);
+          if (!res) {
+            showToast('Remote Key link expired');
+            return;
+          }
+          const { data: response } = res;
+          const tempData = JSON.parse(decrypt(encryptionKey, response));
+          switch (tempData.type) {
+            case RKInteractionMode.SHARE_REMOTE_KEY:
+              navigation.navigate('ManageSigners', {
+                remoteData: tempData,
+              });
+              break;
 
-          case RKInteractionMode.SHARE_PSBT:
-            const { psbt, masterFingerprint, xfp, cachedTxid } = tempData;
+            case RKInteractionMode.SHARE_PSBT:
+              const { psbt, masterFingerprint, xfp, cachedTxid } = tempData;
 
-            if (psbt) {
-              try {
+              if (psbt) {
                 try {
-                  const signer = signers.find((s) => masterFingerprint == s.masterFingerprint);
-                  if (!signer) throw { message: 'Signer not found' };
-                  const {
-                    senderAddresses,
-                    receiverAddresses,
-                    fees,
-                    signerMatched,
-                    sendAmount,
-                    feeRate,
-                  } = generateDataFromPSBT(psbt, signer);
-                  const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
+                  try {
+                    const signer = signers.find((s) => masterFingerprint == s.masterFingerprint);
+                    if (!signer) throw { message: 'Signer not found' };
+                    const {
+                      senderAddresses,
+                      receiverAddresses,
+                      fees,
+                      signerMatched,
+                      sendAmount,
+                      feeRate,
+                    } = generateDataFromPSBT(psbt, signer);
+                    const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
-                  if (!signerMatched) {
-                    showToast(`Invalid signer selection. Please try again!`, <ToastErrorIcon />);
-                    navigation.goBack();
-                    return;
+                    if (!signerMatched) {
+                      showToast(`Invalid signer selection. Please try again!`, <ToastErrorIcon />);
+                      navigation.goBack();
+                      return;
+                    }
+                    dispatch(setRemoteLinkDetails({ xfp, cachedTxid }));
+                    navigation.dispatch(
+                      CommonActions.navigate({
+                        name: 'PSBTSendConfirmation',
+                        params: {
+                          sender: senderAddresses,
+                          recipient: receiverAddresses,
+                          amount: sendAmount,
+                          data: psbt,
+                          fees: fees,
+                          estimatedBlocksBeforeConfirmation:
+                            tnxDetails.estimatedBlocksBeforeConfirmation,
+                          tnxPriority: tnxDetails.tnxPriority,
+                          signer,
+                          psbt: psbt,
+                          feeRate,
+                        },
+                      })
+                    );
+                  } catch (e) {
+                    showToast(e.message);
                   }
-                  dispatch(setRemoteLinkDetails({ xfp, cachedTxid }));
-                  navigation.dispatch(
-                    CommonActions.navigate({
-                      name: 'PSBTSendConfirmation',
-                      params: {
-                        sender: senderAddresses,
-                        recipient: receiverAddresses,
-                        amount: sendAmount,
-                        data: psbt,
-                        fees: fees,
-                        estimatedBlocksBeforeConfirmation:
-                          tnxDetails.estimatedBlocksBeforeConfirmation,
-                        tnxPriority: tnxDetails.tnxPriority,
-                        signer,
-                        psbt: psbt,
-                        feeRate,
-                      },
-                    })
-                  );
                 } catch (e) {
-                  showToast(e.message);
-                }
-              } catch (e) {
-                console.log('🚀 ~ handleRemoteKeyDeepLink ~ e:', e);
-                showToast('Something went wrong. Please try again!', <ToastErrorIcon />);
-              }
-            } else {
-              showToast('Invalid link. Please try again!', <ToastErrorIcon />);
-            }
-            break;
-
-          case RKInteractionMode.SHARE_SIGNED_PSBT:
-            try {
-              const { psbt, xfp, cachedTxid } = tempData;
-              var state = store.getState();
-
-              if (
-                state.sendAndReceive.sendPhaseTwo.cachedTxid === cachedTxid &&
-                state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops.length &&
-                activeRoute != 'Home'
-              ) {
-                dispatch(updatePSBTEnvelops({ xfp, signedSerializedPSBT: psbt }));
-                const navState = navigation.getState();
-                const routeIndex = navState.routes.findIndex(
-                  (route) => route.name === 'SignTransactionScreen'
-                );
-                if (routeIndex !== -1) {
-                  navigation.pop(navState.index - routeIndex);
-                  showToast('Remote Transaction signed successfully', <TickIcon />);
+                  console.log('🚀 ~ handleRemoteKeyDeepLink ~ e:', e);
+                  showToast('Something went wrong. Please try again!', <ToastErrorIcon />);
                 }
               } else {
-                dispatch(updateCachedPsbtEnvelope({ xfp, signedSerializedPSBT: psbt, cachedTxid }));
-                showToast('Remote Transaction signed successfully', <TickIcon />);
+                showToast('Invalid link. Please try again!', <ToastErrorIcon />);
               }
-            } catch (err) {
-              if (err.message) showToast(err.message, <ToastErrorIcon />);
-              console.log('🚀 ~ handleRemoteKeyDeepLink ~ err:', err);
-            }
-            break;
-          default:
-            break;
+              break;
+
+            case RKInteractionMode.SHARE_SIGNED_PSBT:
+              try {
+                const { psbt, xfp, cachedTxid } = tempData;
+                var state = store.getState();
+
+                if (
+                  state.sendAndReceive.sendPhaseTwo.cachedTxid === cachedTxid &&
+                  state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops.length &&
+                  activeRoute != 'Home'
+                ) {
+                  dispatch(updatePSBTEnvelops({ xfp, signedSerializedPSBT: psbt }));
+                  const navState = navigation.getState();
+                  const routeIndex = navState.routes.findIndex(
+                    (route) => route.name === 'SignTransactionScreen'
+                  );
+                  if (routeIndex !== -1) {
+                    navigation.pop(navState.index - routeIndex);
+                    showToast('Remote Transaction signed successfully', <TickIcon />);
+                  }
+                } else {
+                  dispatch(
+                    updateCachedPsbtEnvelope({ xfp, signedSerializedPSBT: psbt, cachedTxid })
+                  );
+                  showToast('Remote Transaction signed successfully', <TickIcon />);
+                }
+              } catch (err) {
+                if (err.message) showToast(err.message, <ToastErrorIcon />);
+                console.log('🚀 ~ handleRemoteKeyDeepLink ~ err:', err);
+              }
+              break;
+            default:
+              break;
+          }
+        } catch (error) {
+          console.log('🚀 ~ handleRemoteKeyDeepLink ~ error:', error);
+          showToast('Something went wrong, please try again!');
         }
-      } catch (error) {
-        console.log('🚀 ~ handleRemoteKeyDeepLink ~ error:', error);
-        showToast('Something went wrong, please try again!');
+      } else {
+        showToast('Invalid Remote Key link');
       }
-    } else {
-      showToast('Invalid Remote Key link');
-    }
   };
 
   const toggleSentryReports = async () => {
