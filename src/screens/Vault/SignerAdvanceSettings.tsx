@@ -43,7 +43,7 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
+import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT, isOdd } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -581,7 +581,6 @@ function SignerAdvanceSettings({ route }: any) {
         navigation.goBack();
         return;
       }
-
       if (SignersReqVault.includes(signer.type)) {
         let activeVault = null;
         allVaults.forEach(async (vault) => {
@@ -589,15 +588,12 @@ function SignerAdvanceSettings({ route }: any) {
           for (let i = 0; i < senderAddresses.length; i++) {
             const _ = senderAddresses[i].path.split('/');
             const [isChange, index] = _.splice(_.length - 2);
-            // 0 - Receive(External) | 1 - change(internal)
+            // 0/even - Receive(External) | 1/odd - change(internal)
             let generatedAddress: string;
-            if (isChange != '0' && isChange != '1') {
-              throw new Error('Derivation uses an invalid path');
-            }
             generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
               vault,
               parseInt(index),
-              isChange == '1'
+              isOdd(parseInt(isChange))
             );
             if (senderAddresses[i].address != generatedAddress) {
               addressMatched = false;

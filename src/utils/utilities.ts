@@ -199,6 +199,8 @@ export function calculateMonthlyCost(yearlyPrice) {
 export const formatNumber = (value: string) =>
   value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
+export const isOdd = (num: number) => num % 2 !== 0;
+
 export const getTimeDifferenceInWords = (pastTime) => {
   const timeDifference = moment(pastTime).fromNow();
   if (timeDifference === 'Invalid date' || pastTime === undefined) {
