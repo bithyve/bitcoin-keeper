@@ -134,7 +134,6 @@ import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
 import ResetInheritanceKey from 'src/screens/Vault/ResetInheritanceKey';
-import ChangeIKSTimeline from 'src/screens/Vault/ChangeIKSTimeline';
 import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import AddReserveKey from 'src/screens/Vault/AddReserveKey';
 import { useColorMode } from 'native-base';
@@ -322,7 +321,6 @@ function AppStack() {
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
         <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
-        <Stack.Screen name="ChangeIKSTimeline" component={ChangeIKSTimeline} />
         <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
       </Stack.Navigator>
     </RealmProvider>

@@ -169,7 +169,6 @@ export type AppStackParams = {
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
   ResetInheritanceKey: undefined;
-  ChangeIKSTimeline: undefined;
   AddReserveKey: undefined;
 };
 

@@ -2,7 +2,7 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -23,28 +23,15 @@ import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
+import OptionDropdown from 'src/components/OptionDropdown';
+import { MONTHS_12, MONTHS_18, MONTHS_24 } from './constants';
 
-function TimelineInfo({ duration, callback }) {
-  const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-
-  const { vault: vaultText } = translations;
-  return (
-    <Box style={styles.timelineInfoContainer}>
-      <Text color={`${colorMode}.primaryText`} fontSize={15}>
-        {vaultText.yourCurrentTimeline}
-      </Text>
-      <Box style={styles.timelineInfo}>
-        <Text color={`${colorMode}.greenText`} fontSize={15}>
-          {duration}
-        </Text>
-        <Pressable onPress={callback}>
-          <Text color={`${colorMode}.greenText`}>{vaultText.changeTimeline}</Text>
-        </Pressable>
-      </Box>
-    </Box>
-  );
-}
+const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
+const INHERITANCE_TIMELOCK_DURATIONS = [
+  DEFAULT_INHERITANCE_TIMELOCK,
+  { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
+  { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
+];
 
 function ResetInheritanceKey({ route }) {
   const { signerId, vault }: { signerId: string; vault: Vault } = route.params;
@@ -69,10 +56,6 @@ function ResetInheritanceKey({ route }) {
   );
 
   const dispatch = useDispatch();
-
-  const handleOptionChange = (option) => {
-    setSelectedOption(option);
-  };
 
   const handleResetInheritanceKey = () => {
     if (!selectedOption) {
@@ -138,21 +121,26 @@ function ResetInheritanceKey({ route }) {
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
           <IKSInfocard
-            name={signer.signerName}
-            description={`${common.added} ${moment(signer.addedOn).calendar().toLowerCase()}`}
-            Icon={SDIcons(signer.type).Icon}
+            name={signer?.signerName}
+            description={`${common?.added} ${moment(signer?.addedOn).calendar().toLowerCase()}`}
+            Icon={SDIcons(signer?.type)?.Icon}
           />
-          <TimelineInfo
-            duration={selectedOption?.label}
-            callback={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'ChangeIKSTimeline',
-                  params: { signerId, onSelect: handleOptionChange },
-                })
-              );
-            }}
-          />
+          <Box style={styles.dropdownContainer}>
+            <Box>
+              <Text color={`${colorMode}.primaryText`} fontSize={15}>
+                {vaultText.chooseNewActivationTimeTitle}
+              </Text>
+              <Text color={`${colorMode}.secondaryText`} fontSize={12}>
+                {vaultText.chooseNewActivationTimeDesc}
+              </Text>
+            </Box>
+            <OptionDropdown
+              label={vaultText.selectActivationTime}
+              options={INHERITANCE_TIMELOCK_DURATIONS}
+              selectedOption={selectedOption}
+              onOptionSelect={(option) => setSelectedOption(option)}
+            />
+          </Box>
         </Box>
         <Box>
           <Buttons
@@ -191,15 +179,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    gap: hp(30),
   },
-  timelineInfoContainer: {
-    marginTop: hp(25),
-    gap: hp(5),
-  },
-  timelineInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginRight: wp(7),
+  dropdownContainer: {
+    gap: hp(15),
   },
 });

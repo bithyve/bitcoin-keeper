@@ -750,7 +750,10 @@
     "setupVaultOption2Title": "Personalize the vault",
     "setupVaultOption2Description": "Name your vault and optionally add a description to make it easier to manage and identify.",
     "setupVaultOption3Title": "Add Optional Inheritance Key",
-    "setupVaultOption3Description": "Setup a time-locked Inheritance Key as an additional key to help you give away your bitcoin to heirs."
+    "setupVaultOption3Description": "Setup a time-locked Inheritance Key as an additional key to help you give away your bitcoin to heirs.",
+    "selectActivationTime": "Select activation time",
+    "chooseNewActivationTimeTitle": "Choose New Activation Time",
+    "chooseNewActivationTimeDesc": "Please choose the new time for your Inheritance Key to become active"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
