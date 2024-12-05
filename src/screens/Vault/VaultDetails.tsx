@@ -429,8 +429,15 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           rightComponent={
             <TouchableOpacity
               style={styles.settingBtn}
-              onPress={() =>
-                navigation.dispatch(CommonActions.navigate('VaultSettings', { vaultId: vault.id }))
+              onPress={
+                !vault.archived
+                  ? () =>
+                      navigation.dispatch(
+                        CommonActions.navigate('VaultSettings', { vaultId: vault.id })
+                      )
+                  : () => {
+                      navigation.push('VaultSettings', { vaultId: vault.id });
+                    }
               }
             >
               <SettingIcon width={24} height={24} />
