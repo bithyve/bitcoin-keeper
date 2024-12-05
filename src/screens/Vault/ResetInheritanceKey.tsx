@@ -59,7 +59,7 @@ function ResetInheritanceKey({ route }) {
 
   const handleResetInheritanceKey = () => {
     if (!selectedOption) {
-      showToast('Please select a timeline', <ToastErrorIcon />);
+      showToast('Please select activation time', <ToastErrorIcon />);
       return;
     }
     if (!currentBlockHeight) {
