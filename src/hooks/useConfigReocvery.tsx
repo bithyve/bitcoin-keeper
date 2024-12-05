@@ -7,7 +7,12 @@ import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import { Signer, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import {
+  MiniscriptElements,
+  Signer,
+  VaultScheme,
+  VaultSigner,
+} from 'src/services/wallets/interfaces/vault';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
@@ -22,6 +27,7 @@ const useConfigRecovery = () => {
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [scheme, setScheme] = useState<VaultScheme>();
   const [vaultSignersList, setVaultSignersList] = useState<VaultSigner[]>([]);
+  const [miniscriptElements, setMiniscriptElements] = useState<MiniscriptElements | null>(null);
   const { showToast } = useToastMessage();
   const [signersList, setSignersList] = useState<Signer[]>([]);
   const navigation = useNavigation();
@@ -52,6 +58,7 @@ const useConfigRecovery = () => {
             name: 'Imported Vault',
             description: 'Secure your sats',
           },
+          miniscriptElements,
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
         setTimeout(() => {}, 3000);
@@ -101,6 +108,7 @@ const useConfigRecovery = () => {
         setSignersList(signers);
         setVaultSignersList(vaultSigners);
         setScheme(parsedText.scheme);
+        setMiniscriptElements(parsedText.miniscriptElements);
       }
     } catch (err) {
       setRecoveryLoading(false);
