@@ -22,7 +22,7 @@ import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enum
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
-import { trimCWDefaultName } from 'src/utils/utilities';
+import { getKeyUID, trimCWDefaultName } from 'src/utils/utilities';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 
@@ -41,10 +41,13 @@ function VaultSettings({ route }) {
   const { showToast } = useToastMessage();
   const isInheritanceVault =
     vault?.type === VaultType.INHERITANCE && vault?.scheme?.miniscriptScheme;
-  const inheritanceKey =
-    vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
-      INHERITANCE_KEY1_IDENTIFIER
-    ];
+  const inheritanceKey = vault?.signers?.find(
+    (signer) =>
+      signer.masterFingerprint ===
+      vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
+        INHERITANCE_KEY1_IDENTIFIER
+      ]
+  );
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
 
   const updateWalletVisibility = () => {
@@ -141,7 +144,7 @@ function VaultSettings({ route }) {
               navigation.dispatch(
                 CommonActions.navigate({
                   name: 'ResetInheritanceKey',
-                  params: { signerId: inheritanceKey, vault },
+                  params: { signerId: getKeyUID(inheritanceKey), vault },
                 })
               );
             }}
