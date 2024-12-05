@@ -115,26 +115,6 @@ export const generateSignerFromMetaData = ({
   return { signer, key };
 };
 
-export const getSignerFromRemoteData = (signer) => {
-  return {
-    ...signer,
-    addedOn: new Date(),
-    archived: false,
-    healthCheckDetails: [
-      {
-        type: hcStatusType.HEALTH_CHECK_SD_ADDITION,
-        actionDate: new Date(),
-      },
-    ],
-    hidden: false,
-    isMock: false,
-    lastHealthCheck: new Date(),
-    signerDescription: null,
-    signerName: 'External Key',
-    storageType: SignerStorage.COLD,
-    type: SignerType.KEEPER,
-  };
-};
 
 export const getSignerDescription = (signer?: Signer) => {
   const fullName = `${signer?.extraData?.givenName || ''} ${

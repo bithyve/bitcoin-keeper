@@ -9,7 +9,6 @@ import { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
@@ -21,17 +20,15 @@ import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfir
 
 function ShareWithNfc({
   data,
-  remoteShare = true,
+  remoteShare = false,
   signer,
   isPSBTSharing = false,
-  psbt,
   vaultKey,
   vaultId,
-  serializedPSBTEnvelop,
-  sendConfirmationRouteParams,
-  tnxDetails,
   fileName,
   useNdef = false,
+  xfp = '',
+  isSignedPSBT = false,
 }: {
   data: string;
   signer?: Signer;
@@ -45,6 +42,8 @@ function ShareWithNfc({
   tnxDetails?: tnxDetailsProps;
   fileName?: string;
   useNdef?: boolean; // For hardware wallets interactions
+  xfp?: string;
+  isSignedPSBT?: boolean;
 }) {
   const { session } = useContext(HCESessionContext);
   const navigation = useNavigation<any>();
@@ -126,25 +125,20 @@ function ShareWithNfc({
         title={`${isIos ? 'Airdrop / ' : ''}File Export`}
         callback={shareWithAirdrop}
       />
-      {/* // ! Hide Remote Key */}
-      {/* {remoteShare && ( */}
-      {false && (
+      {remoteShare && (
         <OptionCTA
           icon={<RemoteShareIcon />}
           title={!isPSBTSharing ? 'Remote share' : 'Share PSBT Link'}
           callback={() =>
             navigation.navigate('RemoteSharing', {
-              isPSBTSharing,
-              signer,
-              psbt,
+              psbt: data,
               mode: isPSBTSharing
-                ? RKInteractionMode.SHARE_PSBT
+                ? isSignedPSBT
+                  ? RKInteractionMode.SHARE_SIGNED_PSBT
+                  : RKInteractionMode.SHARE_PSBT
                 : RKInteractionMode.SHARE_REMOTE_KEY,
-              vaultKey,
-              vaultId,
-              serializedPSBTEnvelop,
-              sendConfirmationRouteParams,
-              tnxDetails,
+              signer,
+              xfp,
             })
           }
         />

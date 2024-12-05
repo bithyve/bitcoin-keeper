@@ -34,7 +34,7 @@ function ShowPSBT() {
       </Box>
       {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(type) ? (
         <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-          <ShareWithNfc data={data} isPSBTSharing />
+          <ShareWithNfc data={data} isPSBTSharing remoteShare isSignedPSBT />
         </ScrollView>
       ) : null}
       <Box style={styles.ctaContainer}>
@@ -44,7 +44,7 @@ function ShowPSBT() {
           primaryCallback={() => {
             navigation.dispatch((state) => {
               const index = state.routes.findIndex(
-                (route) => route.name === 'SignerAdvanceSettings'
+                (route) => route.name === 'SignerAdvanceSettings' || route.name === 'Home'
               );
               if (index === -1) {
                 return StackActions.pop(1);

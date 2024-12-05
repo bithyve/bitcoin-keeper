@@ -39,9 +39,38 @@ const cachedTxSlice = createSlice({
     dropTransactionSnapshot: (state, action: PayloadAction<{ cachedTxid: string }>) => {
       delete state.snapshots[action.payload.cachedTxid];
     },
+    updateCachedPsbtEnvelope: (state, action) => {
+      const { xfp, cachedTxid, signedSerializedPSBT } = action.payload;
+      const snapshot = state.snapshots[cachedTxid];
+      if (!snapshot) throw new Error('Invalid Transaction.');
+      const updatedEnvelops = snapshot.state.sendPhaseTwo.serializedPSBTEnvelops.map((envelope) => {
+        if (envelope.xfp == xfp) {
+          return {
+            ...envelope,
+            isSigned: true,
+            serializedPSBT: signedSerializedPSBT,
+          };
+        } else return envelope;
+      });
+      const updatedSnapShot = {
+        ...snapshot,
+        state: {
+          ...snapshot.state,
+          sendPhaseTwo: {
+            ...snapshot.state.sendPhaseTwo,
+            serializedPSBTEnvelops: updatedEnvelops,
+          },
+        },
+      };
+      state.snapshots = {
+        ...state.snapshots,
+        [cachedTxid]: updatedSnapShot,
+      };
+    },
   },
 });
 
-export const { setTransactionSnapshot, dropTransactionSnapshot } = cachedTxSlice.actions;
+export const { setTransactionSnapshot, dropTransactionSnapshot, updateCachedPsbtEnvelope } =
+  cachedTxSlice.actions;
 
 export default cachedTxSlice.reducer;
