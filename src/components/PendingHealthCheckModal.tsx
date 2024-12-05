@@ -13,6 +13,7 @@ import { wp, hp } from 'src/constants/responsive';
 import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { getKeyUID } from 'src/utils/utilities';
 
 const PendingHealthCheckModal = ({
   selectedItem,
@@ -37,7 +38,7 @@ const PendingHealthCheckModal = ({
     const countPendingHealthChecks = () => {
       let count = 0;
       keys.forEach((item) => {
-        const signer = vaultKeys?.length ? signerMap[item.masterFingerprint] : item;
+        const signer = vaultKeys?.length ? signerMap[getKeyUID(item)] : item;
         if (isHealthCheckPending(signer, vaultKeys, selectedItem)) {
           count++;
         }
@@ -76,7 +77,7 @@ const PendingHealthCheckModal = ({
 
     const pendingSigners = keys
       .map((item) => {
-        const signer = vaultKeys?.length ? signerMap[item.masterFingerprint] : item;
+        const signer = vaultKeys?.length ? signerMap[getKeyUID(item)] : item;
         return { item, signer };
       })
       .filter(({ signer }) => isHealthCheckPending(signer, vaultKeys, vault));
@@ -86,7 +87,7 @@ const PendingHealthCheckModal = ({
         {pendingSigners.map(({ item, signer }) => {
           return (
             <SignerCard
-              key={signer.masterFingerprint}
+              key={getKeyUID(signer)}
               name={getSignerNameFromType(signer.type, signer.isMock, signer.isAMF)}
               description={getSignerDescription(signer)}
               customStyle={styles.signerCard}

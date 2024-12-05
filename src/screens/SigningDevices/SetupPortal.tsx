@@ -53,6 +53,7 @@ function SetupPortal({ route }) {
     mode,
     signer,
     isMultisig,
+    accountNumber,
     signTransaction,
     addSignerFlow = false,
     vaultId,
@@ -61,6 +62,7 @@ function SetupPortal({ route }) {
     mode: InteracationMode;
     signer: Signer;
     isMultisig: boolean;
+    accountNumber: number;
     signTransaction?: (options: { portalCVC?: string }) => {};
     addSignerFlow?: boolean;
     vaultId?: string;
@@ -180,7 +182,7 @@ function SetupPortal({ route }) {
         // call register then check the value of it
         await PORTAL.startReading();
         await checkAndUnlock(cvc, setPortalStatus);
-        const res = await PORTAL.getXpub({ isMultisig: true });
+        const res = await PORTAL.getXpub({ accountNumber, isMultisig: true });
         if (res) {
           dispatch(
             healthCheckStatusUpdate([
@@ -235,7 +237,7 @@ function SetupPortal({ route }) {
   const getPortalDetails = async () => {
     await PORTAL.startReading();
     await checkAndUnlock(cvc, setPortalStatus);
-    const descriptor = await PORTAL.getXpub({ isMultisig: true });
+    const descriptor = await PORTAL.getXpub({ accountNumber, isMultisig: true });
     const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub);
     return signer;
   };

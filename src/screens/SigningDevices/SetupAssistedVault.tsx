@@ -8,7 +8,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { MultisigScriptType, NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -40,6 +40,7 @@ import config from 'src/utils/service-utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import { getKeyUID } from 'src/utils/utilities';
 
 function SignerItem({
   vaultKey,
@@ -58,7 +59,7 @@ function SignerItem({
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const signer = vaultKey ? signerMap[vaultKey.masterFingerprint] : null;
+  const signer = vaultKey ? signerMap[getKeyUID(vaultKey)] : null;
 
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
@@ -136,9 +137,9 @@ function SignerItem({
 
       <Box style={styles.signerCard}>
         <HorizontalSignerCard
-          key={signer.masterFingerprint}
+          key={getKeyUID(signer)}
           name={getSignerNameFromType(signer.type, signer.isMock, false)}
-          description={`${common.added} ${moment(signer.addedOn).calendar()}`}
+          description={getSignerDescription(signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={false}
           showSelection={false}
@@ -182,7 +183,7 @@ function SetupAssistedVault() {
   const handleSignerSelected = (vaultKeys, index) => {
     if (index === 0) {
       const newKey = vaultKeys[0];
-      if (userKey && userKey.masterFingerprint === newKey.masterFingerprint) {
+      if (userKey && getKeyUID(userKey) === getKeyUID(newKey)) {
         showToast(signer.coSignerAlreadyAdded, <ToastErrorIcon />);
       } else {
         setUserKey(newKey);
@@ -192,7 +193,7 @@ function SetupAssistedVault() {
         const newSigners = [...prevAdvisorKeys];
         const newKey = vaultKeys[0];
         const existingIndex = newSigners.findIndex(
-          (signer) => signer && signer.masterFingerprint === newKey.masterFingerprint
+          (signer) => signer && getKeyUID(signer) === getKeyUID(newKey)
         );
         if (existingIndex !== -1) {
           showToast(signer.coSignerAlreadyAdded, <ToastErrorIcon />);

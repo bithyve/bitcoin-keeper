@@ -43,13 +43,19 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT, isOdd } from 'src/utils/utilities';
+import {
+  emailCheck,
+  generateDataFromPSBT,
+  getAccountFromSigner,
+  getKeyUID,
+  getTnxDetailsPSBT,
+  isOdd 
+} from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getPsbtForHwi, getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
-import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault, refillMobileKey } from 'src/store/sagaActions/vaults';
@@ -80,7 +86,6 @@ import useSigners from 'src/hooks/useSigners';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import { getPersistedDocument } from 'src/services/documents';
-import { TransferType } from 'src/models/enums/TransferType';
 import WalletOperations from 'src/services/wallets/operations';
 import SignerCard from '../AddSigner/SignerCard';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
@@ -136,19 +141,17 @@ function SignerAdvanceSettings({ route }: any) {
     vaultKey,
     vaultId,
     signer: signerFromParam,
-    signerId,
   }: {
     signer: Signer;
     vaultKey: VaultSigner;
     vaultId: string;
-    signerId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
 
   const signer: Signer = signerFromParam
-    ? signers.find((signer) => signer.masterFingerprint === signerFromParam.masterFingerprint) // to reflect associated contact image in real time
-    : signerMap[vaultKey.masterFingerprint];
+    ? signers.find((signer) => getKeyUID(signer) === getKeyUID(signerFromParam)) // to reflect associated contact image in real time
+    : signerMap[getKeyUID(vaultKey)];
 
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
@@ -229,7 +232,7 @@ function SignerAdvanceSettings({ route }: any) {
   allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
     for (const key of keys) {
-      if (signer.masterFingerprint === key.masterFingerprint) {
+      if (getKeyUID(signer) === getKeyUID(key)) {
         signerVaults.push(vault);
         break;
       }
@@ -396,6 +399,7 @@ function SignerAdvanceSettings({ route }: any) {
             vaultKey,
             vaultId,
             mode: InteracationMode.VAULT_REGISTER,
+            accountNumber: getAccountFromSigner(signer),
           })
         );
         break;
@@ -418,7 +422,6 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           isUpdate: true,
           signer,
-          signerId,
           vaultId,
           vaultKey,
         },
@@ -1043,9 +1046,7 @@ function SignerAdvanceSettings({ route }: any) {
             description="Hide this key from the list"
             callback={() => {
               for (const vaultItem of allUnhiddenVaults) {
-                if (
-                  vaultItem.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
-                ) {
+                if (vaultItem.signers.find((s) => getKeyUID(s) === getKeyUID(signer))) {
                   setVaultUsed(vaultItem);
                   setHideWarning(true);
                   return;

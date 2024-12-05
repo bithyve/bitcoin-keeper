@@ -4,7 +4,7 @@ import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import WalletOperations from 'src/services/wallets/operations';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import _ from 'lodash';
@@ -50,6 +50,7 @@ import {
 import { addLabelsWorker } from './utxos';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
+import { getKeyUID } from 'src/utils/utilities';
 
 export function* fetchFeeRatesWorker() {
   try {
@@ -161,7 +162,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   if (wallet.entityKind === EntityKind.VAULT) {
     dbManager
       .getCollection(RealmSchema.Signer)
-      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+      .forEach((signer) => (signerMap[getKeyUID(signer as Signer)] = signer));
   }
   try {
     const { txid, serializedPSBTEnvelops, cachedTxid, finalOutputs } = yield call(

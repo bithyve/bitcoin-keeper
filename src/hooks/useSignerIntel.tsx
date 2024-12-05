@@ -4,6 +4,7 @@ import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useSignerMap from './useSignerMap';
 import usePlan from './usePlan';
+import { getKeyUID } from 'src/utils/utilities';
 
 const areSignersSame = ({ existingKeys, vaultKeys }) => {
   if (!existingKeys.length || !vaultKeys.length) {
@@ -31,8 +32,8 @@ const useSignerIntel = ({
   const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
 
   const amfSigners = [];
-  for (const mfp of selectedSigners.keys()) {
-    const signer = signerMap[mfp];
+  for (const signerIdentifier of selectedSigners.keys()) {
+    const signer = signerMap[signerIdentifier];
     if (isSignerAMF(signer)) amfSigners.push(signer.type);
   }
 
@@ -42,9 +43,9 @@ const useSignerIntel = ({
 
   vaultKeys.forEach((key) => {
     if (key) {
-      const isIKS = signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY;
-      const isSS = signerMap[key.masterFingerprint].type === SignerType.POLICY_SERVER;
-      const signerName = getSignerNameFromType(signerMap[key.masterFingerprint].type);
+      const isIKS = signerMap[getKeyUID(key)].type === SignerType.INHERITANCEKEY;
+      const isSS = signerMap[getKeyUID(key)].type === SignerType.POLICY_SERVER;
+      const signerName = getSignerNameFromType(signerMap[getKeyUID(key)].type);
       if (isSS) {
         if (isOnL1) {
           invalidSS = true;

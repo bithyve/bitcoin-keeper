@@ -5,6 +5,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
+import { getAccountFromSigner } from 'src/utils/utilities';
 
 function KeyAddedModal({ visible, close, signer }) {
   const navigation = useNavigation();
@@ -30,25 +31,31 @@ function KeyAddedModal({ visible, close, signer }) {
   const { buttonText, buttonCallback, secondaryButtonText, content } = defaultConfig;
 
   return (
-    <KeeperModal
-      visible={visible}
-      title="Key Added Successfully!"
-      subTitle="Access key details from Manage Keys and sign transactions from within wallets."
-      close={close}
-      showCloseIcon
-      modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalWhiteContent`}
-      buttonText={buttonText}
-      buttonCallback={buttonCallback}
-      secondaryButtonText={secondaryButtonText}
-      secondaryCallback={close}
-      Content={() => (
-        <Box style={styles.externalKeyModal}>
-          <SuccessCircleIllustration style={styles.externalKeyIllustration} />
-          {content}
-        </Box>
-      )}
-    />
+    signer && (
+      <KeeperModal
+        visible={visible}
+        title="Key Added Successfully!"
+        subTitle={`${
+          getAccountFromSigner(signer) !== 0
+            ? `Account #${getAccountFromSigner(signer)} of the key was successfully added. `
+            : ''
+        }Access key details from Manage Keys and sign transactions from within wallets.`}
+        close={close}
+        showCloseIcon
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
+        buttonText={buttonText}
+        buttonCallback={buttonCallback}
+        secondaryButtonText={secondaryButtonText}
+        secondaryCallback={close}
+        Content={() => (
+          <Box style={styles.externalKeyModal}>
+            <SuccessCircleIllustration style={styles.externalKeyIllustration} />
+            {content}
+          </Box>
+        )}
+      />
+    )
   );
 }
 
