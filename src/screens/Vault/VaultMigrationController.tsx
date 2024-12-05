@@ -263,9 +263,6 @@ function VaultMigrationController({
       vaultInfo.vaultSigners = [...vaultInfo.vaultSigners, inheritanceSigner];
     }
 
-    const miniscriptScheme = generateMiniscriptScheme(vaultInfo.miniscriptElements);
-    vaultInfo.vaultScheme.miniscriptScheme = miniscriptScheme;
-
     return vaultInfo;
   };
 
