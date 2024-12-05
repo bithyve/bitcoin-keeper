@@ -21,6 +21,7 @@ import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import IKSInfocard from './components/IKSInfoCard';
 import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function TimelineInfo({ duration, callback }) {
   const { colorMode } = useColorMode();
@@ -61,6 +62,7 @@ function ResetInheritanceKey({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreating, setCreating] = useState(false);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+  console.log('vault', vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0]);
 
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
@@ -104,7 +106,6 @@ function ResetInheritanceKey({ route }) {
       if (relayVaultUpdate && newVault) {
         dispatch(resetRealyVaultState());
         setCreating(false);
-        // setVaultCreatedModalVisible(true);
         const navigationState = {
           index: 1,
           routes: [
@@ -132,6 +133,7 @@ function ResetInheritanceKey({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <ActivityIndicatorView visible={vaultCreating} />
       <KeeperHeader title={vaultText.resetIKTitle} subtitle={vaultText.resetIKDesc} />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
@@ -162,6 +164,7 @@ function ResetInheritanceKey({ route }) {
       </Box>
       <VaultMigrationController
         vaultCreating={vaultCreating}
+        setCreating={setCreating}
         vaultKeys={otherSigners}
         scheme={{ m: vault.scheme.m, n: vault.scheme.n }}
         name={vault.presentationData.name}
