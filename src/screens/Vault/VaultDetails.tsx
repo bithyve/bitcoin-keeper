@@ -52,6 +52,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 function Footer({
   vault,
@@ -71,10 +72,18 @@ function Footer({
   const { common } = translations;
   const { colorMode } = useColorMode();
 
+  const ReInstateIcon = () => (
+    <CircleIconWrapper
+      icon={<ImportIcon />}
+      backgroundColor={`${colorMode}.brownBackground`}
+      width={wp(38)}
+    />
+  );
+
   const footerItems = vault.archived
     ? [
         {
-          Icon: ImportIcon,
+          Icon: ReInstateIcon,
           text: common.reinstate,
           onPress: () => {
             dispatch(reinstateVault(vault.id));
@@ -116,7 +125,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
   } = vault;
 
   return (
-    <HStack style={styles.vaultInfoContainer}>
+    <Box style={[styles.vaultInfoContainer, { flexDirection: vault.archived ? 'column' : 'row' }]}>
       <HStack style={styles.pillsContainer}>
         <CardPill
           heading={`${
@@ -141,16 +150,20 @@ function VaultInfo({ vault }: { vault: Vault }) {
         )}
         {vault.type === VaultType.SINGE_SIG && <CardPill heading="COLD" />}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
-        {vault.archived ? <CardPill heading={common.ARCHIVED} backgroundColor="grey" /> : null}
+        {vault.archived ? (
+          <CardPill heading={common.ARCHIVED} backgroundColor={`${colorMode}.greyBackground`} />
+        ) : null}
       </HStack>
-      <CurrencyInfo
-        hideAmounts={false}
-        amount={confirmed + unconfirmed}
-        fontSize={24}
-        color={`${colorMode}.buttonText`}
-        variation="light"
-      />
-    </HStack>
+      <Box style={vault.archived && styles.archivedBalance}>
+        <CurrencyInfo
+          hideAmounts={false}
+          amount={confirmed + unconfirmed}
+          fontSize={24}
+          color={`${colorMode}.buttonText`}
+          variation="light"
+        />
+      </Box>
+    </Box>
   );
 }
 
@@ -737,6 +750,10 @@ const styles = StyleSheet.create({
   settingBtn: {
     paddingHorizontal: 22,
     paddingVertical: 22,
+  },
+  archivedBalance: {
+    alignItems: 'flex-end',
+    marginTop: hp(25),
   },
 });
 
