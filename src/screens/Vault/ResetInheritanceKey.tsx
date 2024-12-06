@@ -90,9 +90,6 @@ function ResetInheritanceKey({ route }) {
     try {
       const blocksUntilActivation =
         vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0] - currentBlockHeight;
-      console.log(currentBlockHeight);
-      console.log(vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0]);
-      console.log(blocksUntilActivation);
       if (blocksUntilActivation > 0) {
         const seconds = blocksUntilActivation * 10 * 60;
         const days = Math.floor(seconds / (24 * 60 * 60));
