@@ -100,7 +100,7 @@ function AddReserveKey({ route }) {
             </Box>
             <Box style={styles.dropDownContainer}>
               <OptionPicker
-                label={vaultTranslations.setTimeLock}
+                label={vaultTranslations.selectActivationTime}
                 options={INHERITANCE_TIMELOCK_DURATIONS}
                 selectedOption={selectedOption}
                 onOptionSelect={(option) => setSelectedOption(option)}

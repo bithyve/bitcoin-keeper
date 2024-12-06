@@ -739,6 +739,7 @@
     "IKSModalDesc": "This will be activated if one of your key gets misplaced",
     "addReserveKey": "Add Reserve Key",
     "availableAfterDelay": "Key will be available after time-delay",
+    "setTimeLock": "Set time-lock",
     "reserveKeyNote": "A transaction will have to be made to reset the time-lock once key becomes available.",
     "inheritanceKeyActivation": "Inheritance Key Activation",
     "changeKey": "Change Key",
