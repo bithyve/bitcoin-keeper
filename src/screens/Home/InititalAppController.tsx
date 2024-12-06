@@ -45,13 +45,14 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const dispatch = useDispatch();
   const { isInitialLogin } = useAppSelector((state) => state.login);
   const { enableAnalyticsLogin } = useAppSelector((state) => state.settings);
-  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const appData = useQuery(RealmSchema.KeeperApp);
 
-  const checkIsPleb = () => {
+  const getAppData = (): { isPleb: boolean; appId: string } => {
     const tempApp = appData.map(getJSONFromRealmObject)[0];
-    return tempApp.subscription.name.toUpperCase() === SubscriptionTier.L1.toUpperCase();
+    const isPleb = tempApp.subscription.name.toUpperCase() === SubscriptionTier.L1.toUpperCase();
+    const appId = tempApp.id.toString();
+    return { isPleb, appId };
   };
 
   function handleDeepLinkEvent(event) {
@@ -92,7 +93,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
-    const isPleb = checkIsPleb();
+    const { isPleb } = getAppData();
     if (isPleb) {
       showToast('Upgrade to Hodler to use Remote Key Sharing');
       return false;
@@ -217,7 +218,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     if (enableAnalyticsLogin && config.isDevMode()) {
       await start(() => initializeSentry());
     }
-    dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+    dbManager.updateObjectById(RealmSchema.KeeperApp, getAppData().appId, {
       enableAnalytics: enableAnalyticsLogin,
     });
   };
