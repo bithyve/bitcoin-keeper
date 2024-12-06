@@ -59,7 +59,7 @@ function AddReserveKey({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={vaultTranslations.addInheritanceKey}
+        title={`${vaultTranslations.addInheritanceKey} (Beta)`}
         subtitle={vaultTranslations.setIKSForVault}
       />
       <Box style={styles.container}>
