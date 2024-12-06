@@ -752,7 +752,8 @@
     "setupVaultOption3Description": "Setup a time-locked Inheritance Key as an additional key to help you give away your bitcoin to heirs.",
     "selectActivationTime": "Select activation time",
     "chooseNewActivationTimeTitle": "Choose New Activation Time",
-    "chooseNewActivationTimeDesc": "Please choose the new time for your Inheritance Key to become active"
+    "chooseNewActivationTimeDesc": "Please choose the new time for your Inheritance Key to become active",
+    "IKAlreadyActive": "Inheritance Key is already active"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

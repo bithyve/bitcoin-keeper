@@ -11,7 +11,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import moment from 'moment';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useDispatch } from 'react-redux';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -25,6 +25,7 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { getKeyUID } from 'src/utils/utilities';
 import OptionDropdown from 'src/components/OptionDropdown';
 import { MONTHS_12, MONTHS_18, MONTHS_24 } from './constants';
+import { getSignerDescription } from 'src/hardware';
 
 const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
 const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -50,6 +51,7 @@ function ResetInheritanceKey({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreating, setCreating] = useState(false);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+  const [currentTimeUntilActivation, setCurrentTimeUntilActivation] = useState('');
 
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
@@ -83,6 +85,46 @@ function ResetInheritanceKey({ route }) {
       setSelectedOption(route.params.selectedOption);
     }
   }, [route.params]);
+
+  useEffect(() => {
+    try {
+      const blocksUntilActivation =
+        vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0] - currentBlockHeight;
+      console.log(currentBlockHeight);
+      console.log(vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0]);
+      console.log(blocksUntilActivation);
+      if (blocksUntilActivation > 0) {
+        const seconds = blocksUntilActivation * 10 * 60;
+        const days = Math.floor(seconds / (24 * 60 * 60));
+        const months = Math.floor(days / 30);
+
+        let timeString = '';
+        if (months > 0) {
+          timeString = `${months} month${months > 1 ? 's' : ''}`;
+        } else if (days > 0) {
+          timeString = `${days} day${days > 1 ? 's' : ''}`;
+        } else {
+          const hours = Math.floor(seconds / 3600);
+          const minutes = Math.floor((seconds % 3600) / 60);
+          timeString = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${
+            minutes > 1 ? 's' : ''
+          }`;
+        }
+
+        setCurrentTimeUntilActivation('Activates in ' + timeString);
+      } else {
+        setCurrentTimeUntilActivation(vaultText.IKAlreadyActive);
+      }
+    } catch {
+      showToast(
+        'Failed to check current activation time for Inheritance Key',
+        null,
+        IToastCategory.DEFAULT,
+        3000,
+        true
+      );
+    }
+  }, [currentBlockHeight, vault]);
 
   useFocusEffect(
     useCallback(() => {
@@ -122,8 +164,9 @@ function ResetInheritanceKey({ route }) {
         <Box style={styles.contentContainer}>
           <IKSInfocard
             name={signer?.signerName}
-            description={`${common?.added} ${moment(signer?.addedOn).calendar().toLowerCase()}`}
+            description={getSignerDescription(signer)}
             Icon={SDIcons(signer?.type)?.Icon}
+            duration={currentTimeUntilActivation}
           />
           <Box style={styles.dropdownContainer}>
             <Box>
