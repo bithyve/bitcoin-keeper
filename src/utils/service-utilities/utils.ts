@@ -83,9 +83,13 @@ export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => 
       const { miniscript, keyInfoMap } = miniscriptScheme;
       let walletPolicyDescriptor = miniscript;
       for (const keyId in keyInfoMap) {
-        walletPolicyDescriptor = walletPolicyDescriptor.replaceAll(
-          `(${keyId})`,
-          `(${keyInfoMap[keyId]})`
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `(${keyId}`,
+          `(${keyInfoMap[keyId]}`
+        );
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `,${keyId}`,
+          `,${keyInfoMap[keyId]}`
         );
       }
       const desc = `wsh(${walletPolicyDescriptor})`;
@@ -143,9 +147,13 @@ export const generateOutputDescriptors = (
       const { miniscript, keyInfoMap } = miniscriptScheme;
       let walletPolicyDescriptor = miniscript;
       for (const keyId in keyInfoMap) {
-        walletPolicyDescriptor = walletPolicyDescriptor.replaceAll(
-          `(${keyId})`,
-          `(${keyInfoMap[keyId]})`
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `(${keyId}`,
+          `(${keyInfoMap[keyId]}`
+        );
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `,${keyId}`,
+          `,${keyInfoMap[keyId]}`
         );
       }
       const desc = `wsh(${walletPolicyDescriptor})`;
@@ -406,10 +414,8 @@ export const parseTextforVaultConfig = (secret: string) => {
     const { miniscript, keyInfoMap } = miniscriptScheme;
     let walletPolicyDescriptor = miniscript;
     for (const keyId in keyInfoMap) {
-      walletPolicyDescriptor = walletPolicyDescriptor.replaceAll(
-        `(${keyId})`,
-        `(${keyInfoMap[keyId]})`
-      );
+      walletPolicyDescriptor = walletPolicyDescriptor.replace(`(${keyId}`, `(${keyInfoMap[keyId]}`);
+      walletPolicyDescriptor = walletPolicyDescriptor.replace(`,${keyId}`, `,${keyInfoMap[keyId]}`);
     }
     const desc = `wsh(${walletPolicyDescriptor})`;
     if (secret.includes('#')) {
