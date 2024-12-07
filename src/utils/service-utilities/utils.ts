@@ -83,7 +83,14 @@ export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => 
       const { miniscript, keyInfoMap } = miniscriptScheme;
       let walletPolicyDescriptor = miniscript;
       for (const keyId in keyInfoMap) {
-        walletPolicyDescriptor = walletPolicyDescriptor.replace(keyId, keyInfoMap[keyId]);
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `(${keyId}`,
+          `(${keyInfoMap[keyId]}`
+        );
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `,${keyId}`,
+          `,${keyInfoMap[keyId]}`
+        );
       }
       const desc = `wsh(${walletPolicyDescriptor})`;
       return `${desc}#${DescriptorChecksum(desc)}`;
@@ -140,7 +147,14 @@ export const generateOutputDescriptors = (
       const { miniscript, keyInfoMap } = miniscriptScheme;
       let walletPolicyDescriptor = miniscript;
       for (const keyId in keyInfoMap) {
-        walletPolicyDescriptor = walletPolicyDescriptor.replace(keyId, keyInfoMap[keyId]);
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `(${keyId}`,
+          `(${keyInfoMap[keyId]}`
+        );
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `,${keyId}`,
+          `,${keyInfoMap[keyId]}`
+        );
       }
       const desc = `wsh(${walletPolicyDescriptor})`;
       return `${desc}#${DescriptorChecksum(desc)}`;
@@ -384,7 +398,7 @@ export const parseTextforVaultConfig = (secret: string) => {
   if (secret.includes('after(')) {
     const { signers, inheritanceKey, timelock } = parseInheritanceKeyMiniscript(secret);
 
-    const multiMatch = secret.match(/multi\((\d+),/);
+    const multiMatch = secret.match(/thresh\((\d+),/);
     const m = multiMatch ? parseInt(multiMatch[1]) : 1;
 
     const miniscriptElements = generateInheritanceVaultElements(
@@ -400,7 +414,8 @@ export const parseTextforVaultConfig = (secret: string) => {
     const { miniscript, keyInfoMap } = miniscriptScheme;
     let walletPolicyDescriptor = miniscript;
     for (const keyId in keyInfoMap) {
-      walletPolicyDescriptor = walletPolicyDescriptor.replace(keyId, keyInfoMap[keyId]);
+      walletPolicyDescriptor = walletPolicyDescriptor.replace(`(${keyId}`, `(${keyInfoMap[keyId]}`);
+      walletPolicyDescriptor = walletPolicyDescriptor.replace(`,${keyId}`, `,${keyInfoMap[keyId]}`);
     }
     const desc = `wsh(${walletPolicyDescriptor})`;
     if (secret.includes('#')) {
