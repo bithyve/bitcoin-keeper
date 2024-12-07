@@ -40,6 +40,9 @@ import HideAllIcon from 'src/assets/images/hide_wallet.svg';
 import usePlan from 'src/hooks/usePlan';
 import { deleteAppImageEntity } from 'src/store/sagaActions/bhr';
 import { MANAGEWALLETS } from 'src/navigation/contants';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import { useAppSelector } from 'src/store/hooks';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -126,6 +129,8 @@ function ManageWallets() {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [confirmPasscodeVisible, setConfirmPasscodeVisible] = useState(false);
 
+  const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
+
   const { isOnL2Above } = usePlan();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -134,6 +139,18 @@ function ManageWallets() {
   useEffect(() => {
     calculateBalanceAfterVisblityChange();
   }, [wallets]);
+
+  useEffect(() => {
+    if (selectedWallet?.id) {
+      if (relayVaultUpdate) {
+        showToast('Vault deleted successfully', <TickIcon />);
+      }
+      if (relayVaultError) {
+        showToast('Failed to delete vault', <ToastErrorIcon />);
+      }
+      dispatch(resetRealyVaultState());
+    }
+  }, [relayVaultUpdate, relayVaultError]);
 
   const isWallet = selectedWallet?.entityKind === EntityKind.WALLET;
 
@@ -170,7 +187,6 @@ function ManageWallets() {
   const deleteSelectedEntity = () => {
     if (selectedWallet && selectedWallet.entityKind === EntityKind.VAULT) {
       dispatch(deleteVault(selectedWallet.id));
-      showToast('Vault deleted successfully', <TickIcon />);
     }
     if (selectedWallet && selectedWallet.entityKind === EntityKind.WALLET) {
       dispatch(deleteAppImageEntity({ walletIds: [selectedWallet.id] }));
