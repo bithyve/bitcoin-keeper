@@ -765,7 +765,6 @@
     "invalidFileError": "Invalid file, please import the file from a",
     "invalidNFCTag": "Please scan a valid co-signer tag",
     "collaborativeVaultTitle": "Collaborative Vault",
-    "collaborativeSubtitle": "Simple 2-of-3 wallet with friends",
     "setupVault": "Setup Vault",
     "addAKey": "Add a Key",
     "selectMedium": "Select a medium to use",
@@ -774,7 +773,9 @@
     "collabModalDescription2": "For a more generic setup, use other options provided.",
     "collaborativeVaultSubtitle": "A simple 2-of-3 wallet with friends",
     "addKeyModalSubtitle": "Select the medium to use",
-    "addKeyNoteSubtitle": "On the other device go to the Settings of the Key to be shared and select Key Details."
+    "addKeyNoteSubtitle": "On the other device go to the Settings of the Key to be shared and select Key Details.",
+    "chooseCoSigner": "Choose Cosigner Key",
+    "forYourCollabVault": "for your collaborative vault"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
