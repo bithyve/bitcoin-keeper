@@ -150,7 +150,8 @@
     "upgrade": "Upgrade",
     "Inheritancekey": "Inheritance Key",
     "key": "Key",
-    "scanQRNote": "Make sure that the QR is well aligned, focused and visible as a whole"
+    "scanQRNote": "Make sure that the QR is well aligned, focused and visible as a whole",
+    "tapToAdd": "Tap to add"
   },
   "noInternet": {
     "no": "No Internet",

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { FlatList, useColorMode } from 'native-base';
+import { Box, FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
@@ -7,7 +7,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
-import { getKeyUID, getPlaceholder } from 'src/utils/utilities';
+import { getKeyUID, numberToOrdinal } from 'src/utils/utilities';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -20,7 +20,6 @@ import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useSignerMap from 'src/hooks/useSignerMap';
-import AddCard from 'src/components/AddCard';
 import useSigners from 'src/hooks/useSigners';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
@@ -34,6 +33,7 @@ import QRCommsLight from 'src/assets/images/qr_comms.svg';
 import NFCLight from 'src/assets/images/nfc-no-bg-light.svg';
 import AirDropLight from 'src/assets/images/airdrop-no-bg-light.svg';
 import SignerLight from 'src/assets/images/signer-icon-light.svg';
+import AddKeyLight from 'src/assets/images/add-key-light.svg';
 import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
 import CollaborativeModals from './components/CollaborativeModals';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
@@ -48,11 +48,13 @@ function SignerItem({
   index,
   signerMap,
   setAddKeyModal,
+  coSigners,
 }: {
   vaultKey: VaultSigner | undefined;
   index: number;
   signerMap: { [key: string]: Signer };
   setAddKeyModal: any;
+  coSigners: VaultSigner[];
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -61,17 +63,38 @@ function SignerItem({
   const signerUID = vaultKey ? getKeyUID(vaultKey) : null;
   const signer = signerUID ? signerMap[signerUID] : null;
 
+  const isPreviousKeyAdded = useCallback(() => {
+    if (index === 2) {
+      return coSigners[1] !== null && coSigners[1] !== undefined;
+    }
+    return true;
+  }, [index, coSigners]);
+
+  const isCardDisabled = index === 2 && !isPreviousKeyAdded();
+  const cardDescription = isCardDisabled ? '' : common.tapToAdd;
+
   if (!signer || !vaultKey) {
     return (
-      <AddCard
-        name={
-          index === 0
-            ? wallet.AddingKey
-            : `${common.add} ${getPlaceholder(index)} ${common.coSigner}`
+      <SignerCard
+        name={index === 0 ? wallet.AddingKey : `${numberToOrdinal(index + 1)} ${common.key}`}
+        description={cardDescription}
+        customStyle={styles.signerCard}
+        showSelection={false}
+        onCardSelect={() => {
+          if (!isCardDisabled) {
+            setAddKeyModal(true);
+          }
+        }}
+        colorVarient="green"
+        colorMode={colorMode}
+        cardBackground={
+          index === 0 ? `${colorMode}.seashellWhite` : `${colorMode}.primaryBackground`
         }
-        cardStyles={styles.addCard}
-        callback={() => setAddKeyModal(true)}
-        loading={index === 0 && !vaultKey}
+        borderColor={index === 0 ? `${colorMode}.dullGreyBorder` : `${colorMode}.pantoneGreen`}
+        nameColor={`${colorMode}.greenWhiteText`}
+        boldDesc
+        icon={<AddKeyLight />}
+        disabled={isCardDisabled}
       />
     );
   }
@@ -376,6 +399,7 @@ function SetupCollaborativeWallet() {
       index={index}
       signerMap={signerMap}
       setAddKeyModal={setAddKeyModal}
+      coSigners={coSigners}
     />
   );
 
@@ -405,6 +429,8 @@ function SetupCollaborativeWallet() {
         title={vaultText.collaborativeVaultTitle}
         subtitle={vaultText.collaborativeVaultSubtitle}
         learnMore
+        learnBackgroundColor={`${colorMode}.brownBackground`}
+        learnMoreBorderColor={`${colorMode}.brownBackground`}
         learnMorePressed={() => {
           setLearnMoreModal(true);
         }}
@@ -421,14 +447,15 @@ function SetupCollaborativeWallet() {
           marginTop: hp(52),
         }}
       />
-
-      <Buttons
-        fullWidth
-        primaryText={vaultText.setupVault}
-        primaryCallback={createVault}
-        primaryLoading={isCreating}
-        primaryDisable={coSigners.filter((item) => item)?.length < 2}
-      />
+      <Box style={styles.buttonContainer}>
+        <Buttons
+          fullWidth
+          primaryText={vaultText.setupVault}
+          primaryCallback={createVault}
+          primaryLoading={isCreating}
+          primaryDisable={coSigners.filter((item) => item)?.length < 2}
+        />
+      </Box>
       <WalletVaultCreationModal
         visible={walletCreatedModal}
         title={wallet.WalletCreated}
@@ -461,15 +488,13 @@ function SetupCollaborativeWallet() {
 }
 
 const styles = StyleSheet.create({
-  addCard: {
-    width: windowWidth / 3 - windowWidth * 0.055,
-    height: hp(157),
-    marginRight: wp(8),
-  },
   signerCard: {
     width: windowWidth / 3 - windowWidth * 0.055,
     height: hp(157),
     marginRight: wp(8),
+  },
+  buttonContainer: {
+    paddingHorizontal: wp(10),
   },
 });
 
