@@ -388,13 +388,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   );
 
   return (
-    <Box
-      style={styles.wrapper}
-      safeAreaTop
-      backgroundColor={
-        isCollaborativeWallet ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
-      }
-    >
+    <Box style={styles.wrapper} safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <StatusBar barStyle="light-content" />
       <VStack style={styles.topSection}>
