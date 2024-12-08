@@ -128,7 +128,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
         <CardPill
           heading={`${
             vault.type === VaultType.COLLABORATIVE
-              ? common.COLLABORATIVE
+              ? common.collaborative
               : vault.type === VaultType.ASSISTED
               ? common.ASSISTED
               : vault.type === VaultType.TIMELOCKED
@@ -388,13 +388,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   );
 
   return (
-    <Box
-      style={styles.wrapper}
-      safeAreaTop
-      backgroundColor={
-        isCollaborativeWallet ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
-      }
-    >
+    <Box style={styles.wrapper} safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <StatusBar barStyle="light-content" />
       <VStack style={styles.topSection}>

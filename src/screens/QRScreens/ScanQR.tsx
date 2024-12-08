@@ -9,7 +9,7 @@ import { decodeURBytes } from 'src/services/qr';
 import { useRoute } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import useNfcModal from 'src/hooks/useNfcModal';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
@@ -21,6 +21,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRScanner from 'src/components/QRScanner';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NFCOption from '../NFCChannel/NFCOption';
+import Note from 'src/components/Note/Note';
 
 const decoder = new URRegistryDecoder();
 
@@ -41,6 +42,8 @@ function ScanQR() {
     learnMore = false,
     learnMoreContent = {},
     isPSBT = false,
+    importOptions = true,
+    showNote = false,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -91,6 +94,7 @@ function ScanQR() {
             contentContainerStyle={{
               flex: 1,
               alignItems: 'center',
+              marginTop: hp(30),
             }}
             showsVerticalScrollIndicator={false}
           >
@@ -134,17 +138,24 @@ function ScanQR() {
                 </Box>
               </Box>
             )}
-            <Box style={styles.importOptions}>
-              <NFCOption
-                signerType={type}
-                nfcVisible={nfcVisible}
-                closeNfc={closeNfc}
-                withNfcModal={withNfcModal}
-                setData={onQrScan}
-                isPSBT={isPSBT}
-              />
-            </Box>
+            {importOptions && (
+              <Box style={styles.importOptions}>
+                <NFCOption
+                  signerType={type}
+                  nfcVisible={nfcVisible}
+                  closeNfc={closeNfc}
+                  withNfcModal={withNfcModal}
+                  setData={onQrScan}
+                  isPSBT={isPSBT}
+                />
+              </Box>
+            )}
           </ScrollView>
+          {showNote && (
+            <Box style={styles.noteWrapper}>
+              <Note title={common.note} subtitle={common.scanQRNote} />
+            </Box>
+          )}
           <KeeperModal
             visible={visibleModal}
             close={() => {
@@ -210,5 +221,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: windowWidth * 0.8,
+  },
+  noteWrapper: {
+    paddingHorizontal: wp(15),
   },
 });

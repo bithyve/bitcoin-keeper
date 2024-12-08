@@ -551,11 +551,15 @@ function Signers({
     const validCoSigners = coSigners.filter((signer) => signer);
     const coSignersMap = new Map(validCoSigners.map((signer) => [getKeyUID(signer), true]));
 
-    const signerCards = signers
-      .filter((signer) => signer.type === SignerType.KEEPER && !signer.archived)
+    const filteredSigners = signers
+      .filter(
+        (signer) =>
+          signer.type === SignerType.KEEPER &&
+          !signer.archived &&
+          !coSignersMap.has(getKeyUID(signer))
+      )
       .map((signer) => {
         const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
-        const isCoSigner = coSignersMap.has(getKeyUID(signer));
         const disabled =
           !isValid ||
           (signer.type === SignerType.MY_KEEPER &&
@@ -566,8 +570,7 @@ function Signers({
               key.masterFingerprint === signer.masterFingerprint &&
               getKeyUID(key) !== getKeyUID(signer)
           ) ||
-          (anySignerSelected && !selectedSigners.get(getKeyUID(signer))) ||
-          isCoSigner;
+          (anySignerSelected && !selectedSigners.get(getKeyUID(signer)));
 
         const handleCardSelect = (selected) => {
           if (disabled) return;
@@ -598,14 +601,14 @@ function Signers({
             description={getSignerDescription(signer)}
             icon={SDIcons(signer.type).Icon}
             image={signer?.extraData?.thumbnailPath}
-            isSelected={!!selectedSigners.get(getKeyUID(signer)) || isCoSigner}
+            isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={handleCardSelect}
             colorMode={colorMode}
           />
         );
       });
 
-    return signerCards;
+    return filteredSigners;
   }, [
     signers,
     selectedSigners,
@@ -744,38 +747,26 @@ function Signers({
                 ? `Choose the key to be rotated with ${getSignerNameFromType(signer.type)} (${
                     keyToRotate.masterFingerprint
                   })`
+                : isCollaborativeFlow
+                ? 'Choose keys'
                 : 'Choose keys or add a new one'}
             </Text>
-            <Box style={styles.addKeyBtnWrapper}>
-              <AddKeyButton
-                short
-                onPress={
-                  !isCollaborativeFlow
-                    ? () =>
-                        navigation.dispatch(
-                          CommonActions.navigate('SignerCategoryList', {
-                            scheme,
-                            vaultId,
-                            vaultSigners: vaultKeys,
-                          })
-                        )
-                    : () => {
-                        navigation.dispatch(
-                          CommonActions.navigate({
-                            name: 'ScanQR',
-                            params: {
-                              title: `Setting up ${getSignerNameFromType(SignerType.KEEPER)}`,
-                              subtitle: 'Please scan until all the QR data has been retrieved',
-                              onQrScan,
-                              setup: true,
-                              type: SignerType.KEEPER,
-                            },
-                          })
-                        );
-                      }
-                }
-              />
-            </Box>
+            {!isCollaborativeFlow && (
+              <Box style={styles.addKeyBtnWrapper}>
+                <AddKeyButton
+                  short
+                  onPress={() =>
+                    navigation.dispatch(
+                      CommonActions.navigate('SignerCategoryList', {
+                        scheme,
+                        vaultId,
+                        vaultSigners: vaultKeys,
+                      })
+                    )
+                  }
+                />
+              </Box>
+            )}
           </Box>
           {signers.length ? (
             <Box>
@@ -1195,15 +1186,29 @@ function AddSigningDevice() {
       <SafeAreaView style={styles.topContainer}>
         <Box style={styles.topSection}>
           <KeeperHeader
-            title={!isReserveKeyFlow ? signer.addKeys : signer.inheritanceKey}
-            subtitle={!isReserveKeyFlow ? subtitle : signer.designateAsInheritanceKey}
+            title={
+              isCollaborativeFlow
+                ? vaultTranslation.chooseCoSigner
+                : !isReserveKeyFlow
+                ? signer.addKeys
+                : signer.inheritanceKey
+            }
+            subtitle={
+              isCollaborativeFlow
+                ? vaultTranslation.forYourCollabVault
+                : !isReserveKeyFlow
+                ? subtitle
+                : signer.designateAsInheritanceKey
+            }
             icon={
-              <HexagonIcon
-                width={44}
-                height={38}
-                backgroundColor={Colors.pantoneGreen}
-                icon={!isReserveKeyFlow ? <VaultIcon /> : <KEEPERAPPLIGHT />}
-              />
+              !isCollaborativeFlow && (
+                <HexagonIcon
+                  width={44}
+                  height={38}
+                  backgroundColor={Colors.pantoneGreen}
+                  icon={!isReserveKeyFlow ? <VaultIcon /> : <KEEPERAPPLIGHT />}
+                />
+              )
             }
             // To-Do-Learn-More
           />

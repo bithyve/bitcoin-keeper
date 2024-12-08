@@ -285,6 +285,7 @@ const getStyles = (subTitleWidth) =>
       position: 'absolute',
       right: 20,
       top: 16,
+      zIndex: 999,
     },
     currencySwitch: {
       position: 'absolute',

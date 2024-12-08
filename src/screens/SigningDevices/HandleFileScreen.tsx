@@ -6,7 +6,7 @@ import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { exportFile, importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
@@ -117,9 +117,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputWrapper: {
-    marginHorizontal: windowWidth * 0.1 - 20,
-    width: windowWidth * 0.8,
+    width: windowWidth * 0.85,
     marginTop: hp(10),
+    marginLeft: wp(7),
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
   },
   tileWrapper: {
     marginBottom: hp(15),
-    marginHorizontal: windowWidth * 0.1 - 20,
-    width: windowWidth * 0.8,
+    marginLeft: wp(7),
+    width: windowWidth * 0.85,
   },
   footerWrapper: {
     position: 'absolute',

@@ -1,11 +1,10 @@
 import React from 'react';
 import { Box, Pressable } from 'native-base';
 import { Image, StyleSheet, ViewStyle } from 'react-native';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
-import Colors from 'src/theme/Colors';
 import IKSTimer from 'src/assets/images/iks-timer.svg';
 
 type SignerCardProps = {
@@ -29,6 +28,9 @@ type SignerCardProps = {
   boldDesc?: boolean;
   image?: string;
   showTimer?: boolean;
+  cardBackground?: string;
+  borderColor?: string;
+  nameColor?: string;
 };
 
 function SignerCard({
@@ -52,6 +54,9 @@ function SignerCard({
   boldDesc = false,
   image = null,
   showTimer,
+  cardBackground,
+  borderColor,
+  nameColor,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -60,11 +65,15 @@ function SignerCard({
       ? 'transparent'
       : `${colorMode}.pantoneGreen`;
 
+  const cardBackgroundColor = cardBackground || `${colorMode}.seashellWhite`;
+  const cardBorderColor = borderColor || `${colorMode}.dullGreyBorder`;
+  const cardNameColor = nameColor || `${colorMode}.modalWhiteContent`;
+
   return (
     <Pressable
       disabled={disabled}
-      backgroundColor={`${colorMode}.seashellWhite`}
-      borderColor={colorMode === 'light' ? Colors.SilverMist : Colors.separator}
+      backgroundColor={cardBackgroundColor}
+      borderColor={cardBorderColor}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
@@ -96,7 +105,7 @@ function SignerCard({
         )}
         {titleComp}
         <Text
-          color={`${colorMode}.modalWhiteContent`}
+          color={cardNameColor}
           style={styles.walletName}
           numberOfLines={isFullText ? 0 : 1}
           medium
