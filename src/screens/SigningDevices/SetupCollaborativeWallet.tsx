@@ -5,7 +5,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
 import { getKeyUID, getPlaceholder } from 'src/utils/utilities';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
@@ -13,13 +13,12 @@ import { SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
-import { addNewVault } from 'src/store/sagaActions/vaults';
+import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { useAppSelector } from 'src/store/hooks';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import FloatingCTA from 'src/components/FloatingCTA';
 import useSignerMap from 'src/hooks/useSignerMap';
 import AddCard from 'src/components/AddCard';
 import useSigners from 'src/hooks/useSigners';
@@ -30,70 +29,37 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useVault from 'src/hooks/useVault';
-import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import BitcoinIllustration from '../../assets/images/btc-illustration.svg';
-import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
-import { setCosginerModal } from 'src/store/reducers/wallets';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
-import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import QRCommsLight from 'src/assets/images/qr_comms.svg';
+import NFCLight from 'src/assets/images/nfc-no-bg-light.svg';
+import AirDropLight from 'src/assets/images/airdrop-no-bg-light.svg';
+import SignerLight from 'src/assets/images/signer-icon-light.svg';
 import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
-
-function AddCoSignerContent() {
-  const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
-  return (
-    <Box style={{ gap: 20 }}>
-      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
-        {wallet.addCoSignerDesc}
-      </Text>
-      <Box style={styles.bitcoinIllustration}>
-        <BitcoinIllustration />
-      </Box>
-      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
-        {wallet.addCoSignerDescTwo}
-      </Text>
-    </Box>
-  );
-}
+import CollaborativeModals from './components/CollaborativeModals';
+import { setupKeeperSigner } from 'src/hardware/signerSetup';
+import HWError from 'src/hardware/HWErrorState';
+import KeyAddedModal from 'src/components/KeyAddedModal';
+import NFC from 'src/services/nfc';
+import { NfcTech } from 'react-native-nfc-manager';
+import Buttons from 'src/components/Buttons';
 
 function SignerItem({
   vaultKey,
   index,
   signerMap,
-  setSelectedSigner,
-  COLLABORATIVE_SCHEME,
-  coSigners,
+  setAddKeyModal,
 }: {
   vaultKey: VaultSigner | undefined;
   index: number;
   signerMap: { [key: string]: Signer };
-  setSelectedSigner: any;
-  COLLABORATIVE_SCHEME: object;
-  coSigners: any;
+  setAddKeyModal: any;
 }) {
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
-  const signer = vaultKey ? signerMap[getKeyUID(vaultKey)] : null;
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
 
-  const callback = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'AddSigningDevice',
-        params: {
-          parentScreen: SETUPCOLLABORATIVEWALLET,
-          scheme: COLLABORATIVE_SCHEME,
-          signerFilters: [SignerType.KEEPER],
-          coSigners,
-          onGoBack: (vaultKeys) => setSelectedSigner(vaultKeys, index),
-        },
-      })
-    );
-  };
+  const signerUID = vaultKey ? getKeyUID(vaultKey) : null;
+  const signer = signerUID ? signerMap[signerUID] : null;
 
   if (!signer || !vaultKey) {
     return (
@@ -104,19 +70,20 @@ function SignerItem({
             : `${common.add} ${getPlaceholder(index)} ${common.coSigner}`
         }
         cardStyles={styles.addCard}
-        callback={callback}
-        loading={index === 0}
+        callback={() => setAddKeyModal(true)}
+        loading={index === 0 && !vaultKey}
       />
     );
   }
 
   return (
     <SignerCard
-      key={getKeyUID(signer)}
+      key={signerUID}
       name={getSignerNameFromType(signer.type, signer.isMock, false)}
       description={getSignerDescription(signer)}
       icon={SDIcons(signer.type).Icon}
       image={signer?.extraData?.thumbnailPath}
+      customStyle={styles.signerCard}
       isSelected={false}
       showSelection={false}
       colorVarient="green"
@@ -148,29 +115,179 @@ function SetupCollaborativeWallet() {
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const cosignerModal = useAppSelector((state) => state.wallet.cosignerModal) || false;
-  const { common, wallet, signer } = translations;
+  const { common, wallet, vault: vaultText } = translations;
+  const [learnMoreModal, setLearnMoreModal] = useState(false);
   const [selectedSigner, setSelectedSigner] = useState(null);
+  const [addKeyModal, setAddKeyModal] = useState(false);
+  const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
+  const [addedKey, setAddedKey] = useState(null);
 
-  const handleSelectedSigners = (vaultKeys, index) => {
+  const addKeyOptions = [
+    {
+      icon: <QRCommsLight />,
+      title: vaultText.scanQR,
+      callback: () => {
+        setAddKeyModal(false);
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ScanQR',
+            params: {
+              title: vaultText.scanQR,
+              subtitle: vaultText.scanOrUpload,
+              setup: true,
+              importOptions: false,
+              type: SignerType.KEEPER,
+              onQrScan,
+            },
+          })
+        );
+      },
+    },
+    {
+      icon: <NFCLight />,
+      title: vaultText.nfcOnTap,
+      callback: () => {
+        setAddKeyModal(false);
+        onNFCTap();
+      },
+    },
+    {
+      icon: <AirDropLight />,
+      title: vaultText.airdropOrFileExport,
+      callback: () => {
+        setAddKeyModal(false),
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'HandleFile',
+              params: {
+                title: vaultText.fileImport,
+                subTitle: vaultText.importFileOrPaste,
+                onFileExtract,
+                ctaText: common.continue,
+              },
+            })
+          );
+      },
+    },
+    {
+      icon: <SignerLight />,
+      title: vaultText.chooseExistingKey,
+      callback: () => {
+        setAddKeyModal(false);
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'AddSigningDevice',
+            params: {
+              parentScreen: SETUPCOLLABORATIVEWALLET,
+              scheme: COLLABORATIVE_SCHEME,
+              signerFilters: [SignerType.KEEPER],
+              coSigners,
+              onGoBack: (vaultKeys) => {
+                if (vaultKeys && vaultKeys.length > 0) {
+                  handleSelectedSigners(vaultKeys[0]);
+                }
+              },
+            },
+          })
+        );
+      },
+    },
+  ];
+
+  const handleHardwareSigner = (hw) => {
+    if (!hw) return;
+
+    dispatch(addSigningDevice([hw.signer]));
+    setSelectedSigner(hw.signer);
+    setAddedKey(hw.signer);
+
+    setCoSigners((prev) => {
+      const updatedSigners = [...prev];
+      const emptyIndex = updatedSigners.findIndex((signer) => !signer);
+      if (emptyIndex !== -1) {
+        updatedSigners[emptyIndex] = hw.key;
+      }
+      return updatedSigners;
+    });
+
+    setExternalKeyAddedModal(true);
+    navigation.dispatch(CommonActions.goBack());
+  };
+
+  const handleError = (error, sourceType) => {
+    if (error instanceof HWError) {
+      showToast(error.message, <ToastErrorIcon />);
+    } else {
+      captureError(error);
+      const errorMessage =
+        sourceType === 'QR'
+          ? `${vaultText.invalidQRError} ${getSignerNameFromType(SignerType.KEEPER)}`
+          : sourceType === 'File'
+          ? `${vaultText.invalidFileError} ${getSignerNameFromType(SignerType.KEEPER)}`
+          : vaultText.invalidNFCTag;
+      showToast(errorMessage, <ToastErrorIcon />);
+      sourceType !== 'NFC' && navigation.goBack();
+    }
+  };
+
+  const onQrScan = async (qrData) => {
+    try {
+      const hw = setupKeeperSigner(qrData);
+      handleHardwareSigner(hw);
+    } catch (error) {
+      handleError(error, 'QR');
+    }
+  };
+
+  const onNFCTap = async () => {
+    try {
+      const records = await NFC.read([NfcTech.Ndef]);
+      const cosigner = records[0]?.data;
+
+      if (!cosigner) {
+        throw new Error('Invalid data');
+      }
+
+      const hw = setupKeeperSigner(cosigner);
+      handleHardwareSigner(hw);
+    } catch (error) {
+      if (error.toString() === 'Error') {
+        console.log('NFC interaction cancelled');
+        return;
+      }
+      handleError(error, 'NFC');
+    }
+  };
+
+  const onFileExtract = async (fileData) => {
+    try {
+      const hw = setupKeeperSigner(fileData);
+      handleHardwareSigner(hw);
+    } catch (error) {
+      handleError(error, 'File');
+    }
+  };
+
+  const handleSelectedSigners = (vaultKey) => {
+    if (!vaultKey) return;
+
+    setSelectedSigner(vaultKey);
     setCoSigners((prevCoSigners) => {
-      let newSigners = [...prevCoSigners];
-      const newKey = vaultKeys[0];
-      const existingIndex = newSigners.findIndex(
-        (signer) => signer && getKeyUID(signer) === getKeyUID(newKey)
+      const updatedSigners = [...prevCoSigners];
+      const keyUID = getKeyUID(vaultKey);
+
+      const existingIndex = updatedSigners.findIndex(
+        (signer) => signer && getKeyUID(signer) === keyUID
       );
-      if (existingIndex !== -1) {
-        showToast(signer.coSignerAlreadyAdded, <ToastErrorIcon />);
-        return prevCoSigners;
-      } else {
-        const nullIndex = newSigners.indexOf(null || undefined);
-        if (nullIndex !== -1) {
-          newSigners[nullIndex] = newKey;
-        } else {
-          newSigners.push(newKey);
+
+      if (existingIndex === -1) {
+        const emptyIndex = updatedSigners.findIndex((signer) => !signer);
+        if (emptyIndex !== -1) {
+          updatedSigners[emptyIndex] = vaultKey;
         }
       }
-      return newSigners;
+
+      return updatedSigners;
     });
   };
 
@@ -257,10 +374,8 @@ function SetupCollaborativeWallet() {
     <SignerItem
       vaultKey={item}
       index={index}
-      COLLABORATIVE_SCHEME={COLLABORATIVE_SCHEME}
       signerMap={signerMap}
-      setSelectedSigner={handleSelectedSigners}
-      coSigners={coSigners}
+      setAddKeyModal={setAddKeyModal}
     />
   );
 
@@ -287,10 +402,12 @@ function SetupCollaborativeWallet() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={signer.addSigners}
-        subtitle={wallet.CollaborativeWalletCreated}
+        title={vaultText.collaborativeVaultTitle}
+        subtitle={vaultText.collaborativeVaultSubtitle}
         learnMore
-        learnMorePressed={() => dispatch(setCosginerModal(true))}
+        learnMorePressed={() => {
+          setLearnMoreModal(true);
+        }}
         learnTextColor={`${colorMode}.buttonText`}
       />
       <FlatList
@@ -304,10 +421,11 @@ function SetupCollaborativeWallet() {
           marginTop: hp(52),
         }}
       />
-      <FloatingCTA
-        primaryText={common.create}
+
+      <Buttons
+        fullWidth
+        primaryText={vaultText.setupVault}
         primaryCallback={createVault}
-        secondaryText={common.cancel}
         primaryLoading={isCreating}
         primaryDisable={coSigners.filter((item) => item)?.length < 2}
       />
@@ -324,86 +442,34 @@ function SetupCollaborativeWallet() {
         walletName={walletName}
         walletDescription={walletDescription}
       />
-      <KeeperModal
-        visible={cosignerModal}
+      <CollaborativeModals
+        addKeyModal={addKeyModal}
+        setAddKeyModal={setAddKeyModal}
+        learnMoreModal={learnMoreModal}
+        setLearnMoreModal={setLearnMoreModal}
+        addKeyOptions={addKeyOptions}
+      />
+      <KeyAddedModal
+        visible={externalKeyAddedModal}
         close={() => {
-          dispatch(setCosginerModal(false));
+          setExternalKeyAddedModal(false);
         }}
-        DarkCloseIcon={colorMode === 'dark' ? true : false}
-        title={wallet.AddCoSigner}
-        subTitle={''}
-        modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
-        Content={AddCoSignerContent}
-        buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
-        secondaryCallback={() => {
-          dispatch(setCosginerModal(false));
-          dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'));
-        }}
-        buttonCallback={() => {
-          dispatch(setCosginerModal(false));
-        }}
+        signer={addedKey}
       />
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 10,
-    marginBottom: hp(windowHeight < 700 ? 5 : 25),
-  },
-  signerItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 10,
-    marginBottom: hp(25),
-  },
-  signerItem: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  remove: {
-    height: 26,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    backgroundColor: '#FAC48B',
-    justifyContent: 'center',
-  },
-  bottomContainer: {
-    bottom: 5,
-    padding: 20,
-  },
-  descriptionBox: {
-    height: 24,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    justifyContent: 'center',
-  },
-  backArrow: {
-    width: '15%',
-    alignItems: 'center',
-  },
-  space: {
-    marginVertical: 10,
-  },
   addCard: {
-    height: 125,
-    width: windowWidth / 3 - windowWidth * 0.05,
-    margin: 3,
+    width: windowWidth / 3 - windowWidth * 0.055,
+    height: hp(157),
+    marginRight: wp(8),
   },
-  bitcoinIllustration: {
-    alignSelf: 'center',
-  },
-  addCoSigner: {
-    width: wp(295),
+  signerCard: {
+    width: windowWidth / 3 - windowWidth * 0.055,
+    height: hp(157),
+    marginRight: wp(8),
   },
 });
 
