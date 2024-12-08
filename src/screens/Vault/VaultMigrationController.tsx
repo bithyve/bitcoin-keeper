@@ -171,6 +171,14 @@ function VaultMigrationController({
     }
   };
 
+  const vaultAlreadyExists = (vaultInfo: NewVaultInfo) => {
+    const allVaultIds = allVaults.map((vault) => vault.id);
+    const deletedVaultIds = archivedVaults.map((vault) => vault.id);
+
+    const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
+    return allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId);
+  };
+
   const getTimelockDuration = (vaultType, selectedDuration, networkType) => {
     const durationIdentifier =
       selectedDuration === MONTHS_3
@@ -284,13 +292,11 @@ function VaultMigrationController({
           vaultInfo = prepareMiniscriptScheme(vaultInfo, inheritanceSigner);
         }
 
-        const allVaultIds = allVaults.map((vault) => vault.id);
-        const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
-        const deletedVaultIds = archivedVaults.map((vault) => vault.id);
-        if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
+        if (vaultAlreadyExists(vaultInfo)) {
           Alert.alert('Vault with this configuration already exists.');
           navigation.goBack();
         } else {
+          const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
           setGeneratedVaultId(generatedVaultId);
           dispatch(addNewVault({ newVaultInfo: vaultInfo }));
           return vaultInfo;
@@ -318,7 +324,13 @@ function VaultMigrationController({
       if (isTimeLock || isTimelockedInheritanceKey) {
         vaultInfo = prepareMiniscriptScheme(vaultInfo, inheritanceKey);
       }
-      dispatch(migrateVault(vaultInfo, activeVault.shellId));
+
+      if (vaultAlreadyExists(vaultInfo)) {
+        Alert.alert('Vault with this configuration already exists.');
+        navigation.goBack();
+      } else {
+        dispatch(migrateVault(vaultInfo, activeVault.shellId));
+      }
     } else {
       createVault(vaultKeys, scheme, vaultType, inheritanceKey);
     }

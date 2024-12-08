@@ -59,7 +59,7 @@ function AddReserveKey({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={vaultTranslations.addInheritanceKey}
+        title={`${vaultTranslations.addInheritanceKey} (Early Access)`}
         subtitle={vaultTranslations.setIKSForVault}
       />
       <Box style={styles.container}>
@@ -100,7 +100,7 @@ function AddReserveKey({ route }) {
             </Box>
             <Box style={styles.dropDownContainer}>
               <OptionPicker
-                label={vaultTranslations.setTimeLock}
+                label={vaultTranslations.selectActivationTime}
                 options={INHERITANCE_TIMELOCK_DURATIONS}
                 selectedOption={selectedOption}
                 onOptionSelect={(option) => setSelectedOption(option)}

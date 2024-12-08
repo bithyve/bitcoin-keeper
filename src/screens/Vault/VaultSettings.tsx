@@ -132,7 +132,13 @@ function VaultSettings({ route }) {
           visible={!isCanaryWalletType}
           callback={() => {
             navigation.dispatch(
-              CommonActions.navigate({ name: 'VaultSetup', params: { vaultId } })
+              CommonActions.navigate({
+                name: 'VaultSetup',
+                params: {
+                  vaultId,
+                  isAddInheritanceKeyFromParams: vault.type === VaultType.INHERITANCE,
+                },
+              })
             );
           }}
         />

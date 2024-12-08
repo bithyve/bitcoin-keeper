@@ -33,6 +33,7 @@ import { OutputUTXOs } from '../interfaces';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 import ecc from './taproot-utils/noble_ecc';
 import { generateBitcoinScript } from './miniscript/miniscript';
+import ElectrumClient from 'src/services/electrum/client';
 
 bitcoinJS.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -189,16 +190,26 @@ export default class WalletUtilities {
 
   static fetchCurrentBlockHeight = async () => {
     try {
-      const endpoint =
-        config.NETWORK_TYPE === NetworkType.MAINNET
-          ? 'https://mempool.space/api/blocks/tip/height'
-          : 'https://mempool.space/testnet/api/blocks/tip/height';
+      let height = (await ElectrumClient.getBlockchainHeaders()).height;
+      if (height) {
+        return { currentBlockHeight: height };
+      } else {
+        throw new Error('Failed to fetch current block height');
+      }
+    } catch {
+      try {
+        const endpoint =
+          config.NETWORK_TYPE === NetworkType.MAINNET
+            ? 'https://mempool.space/api/blocks/tip/height'
+            : 'https://mempool.space/testnet/api/blocks/tip/height';
 
-      const res = await RestClient.get(endpoint);
-      const currentBlockHeight = res.data;
-      return { currentBlockHeight };
-    } catch (error) {
-      throw new Error('Failed to fetch current block height');
+        const res = await RestClient.get(endpoint);
+        const currentBlockHeight = res.data;
+
+        return { currentBlockHeight };
+      } catch (error) {
+        throw new Error('Failed to fetch current block height');
+      }
     }
   };
 

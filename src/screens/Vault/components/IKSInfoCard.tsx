@@ -5,6 +5,8 @@ import { hp, wp } from 'src/constants/responsive';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import TimerOutlineLight from 'src/assets/images/timer-outline.svg';
+import { useContext } from 'react';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 interface IKSInfocardProps {
   name: string;
@@ -16,6 +18,8 @@ interface IKSInfocardProps {
 const IKSInfocard: React.FC<IKSInfocardProps> = ({ name, description, Icon, duration }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultText } = translations;
 
   return (
     <Box
@@ -42,7 +46,7 @@ const IKSInfocard: React.FC<IKSInfocardProps> = ({ name, description, Icon, dura
         ) : null}
         {duration ? (
           <Box style={styles.durationContainer}>
-            <TimerOutlineLight />
+            {duration !== vaultText.IKAlreadyActive && <TimerOutlineLight />}
             <Text fontSize={12} color={`${colorMode}.secondaryText`}>
               {duration}
             </Text>
