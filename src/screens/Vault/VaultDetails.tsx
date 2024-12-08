@@ -128,7 +128,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
         <CardPill
           heading={`${
             vault.type === VaultType.COLLABORATIVE
-              ? common.COLLABORATIVE
+              ? common.collaborative
               : vault.type === VaultType.ASSISTED
               ? common.ASSISTED
               : vault.type === VaultType.TIMELOCKED

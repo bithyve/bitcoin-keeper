@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { Box, FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -132,9 +132,7 @@ function SetupCollaborativeWallet() {
   );
   const [isCreating, setIsCreating] = useState(false);
   const [walletCreatedModal, setWalletCreatedModal] = useState(false);
-  const [walletType, setWalletType] = useState('');
-  const [walletName, setWalletName] = useState('');
-  const [walletDescription, setWalletDescription] = useState('');
+  const [collaborativeVault, setCollaborativeVault] = useState<Vault | null>(null);
   const { showToast } = useToastMessage();
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
@@ -148,8 +146,6 @@ function SetupCollaborativeWallet() {
   const [inProgress, setInProgress] = useState(false);
   const { relaySignersUpdateLoading, realySignersUpdateErrorMessage, realySignersAdded } =
     useAppSelector((state) => state.bhr);
-  // const { showToast } = useToastMessage();
-  // const dispatch = useDispatch();
 
   const addKeyOptions = [
     {
@@ -403,9 +399,7 @@ function SetupCollaborativeWallet() {
     ) {
       const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
       const collabWallet = allVaults.find((vault) => vault.id === generatedVaultId);
-      setWalletType(collabWallet && collabWallet.type);
-      setWalletName(collabWallet && collabWallet.presentationData.name);
-      setWalletDescription(collabWallet && collabWallet.presentationData.description);
+      setCollaborativeVault(collabWallet);
       setIsCreating(false);
       setWalletCreatedModal(true);
     }
@@ -508,16 +502,18 @@ function SetupCollaborativeWallet() {
       </Box>
       <WalletVaultCreationModal
         visible={walletCreatedModal}
-        title={wallet.WalletCreated}
-        subTitle={wallet.CollaborativeWalletSubtitle}
-        buttonText={wallet.ViewWallet}
-        descriptionMessage={wallet.CollaborativeWalletDesc}
+        title={vaultText.vaultCreatedSuccessTitle}
+        subTitle={`Your ${collaborativeVault?.scheme?.m}-of-${collaborativeVault?.scheme?.n} vault has been created successfully. Please test it before putting in significant amounts.`}
+        buttonText={vaultText.ViewVault}
+        descriptionMessage={
+          'Please make sure to back up the vault configuration file from the vault settings.'
+        }
         buttonCallback={() => {
           navigateToNextScreen();
         }}
-        walletType={walletType}
-        walletName={walletName}
-        walletDescription={walletDescription}
+        walletType={collaborativeVault?.type}
+        walletName={collaborativeVault?.presentationData?.name}
+        walletDescription={collaborativeVault?.presentationData?.description}
       />
       <CollaborativeModals
         addKeyModal={addKeyModal}
