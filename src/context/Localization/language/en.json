@@ -149,7 +149,8 @@
     "shareDetails": "Share Details",
     "upgrade": "Upgrade",
     "Inheritancekey": "Inheritance Key",
-    "key": "Key"
+    "key": "Key",
+    "scanQRNote": "Make sure that the QR is well aligned, focused and visible as a whole"
   },
   "noInternet": {
     "no": "No Internet",
