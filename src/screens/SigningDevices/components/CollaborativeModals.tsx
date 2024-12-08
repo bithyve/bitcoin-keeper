@@ -5,12 +5,63 @@ import KeeperModal from 'src/components/KeeperModal';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import BitcoinIllustration from 'src/assets/images/btc-illustration.svg';
+import NFCLight from 'src/assets/images/nfc-fade-lines-light.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/constants/responsive';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { StyleSheet } from 'react-native';
+import StackedCirclesList from 'src/screens/Vault/components/StackedCircleList';
+import { SignerType } from 'src/services/wallets/enums';
+import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
+
+function NFCModalContent({ onTryAnotherMethod }) {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultText } = translations;
+
+  const stackItems = [
+    {
+      Icon: SDIcons(SignerType.KEEPER, true, 20, 20).Icon,
+      backgroundColor: `${colorMode}.brownBackground`,
+    },
+    {
+      Icon: SDIcons(SignerType.MY_KEEPER, true, 11, 16).Icon,
+      backgroundColor: `${colorMode}.pantoneGreen`,
+    },
+  ];
+
+  return (
+    <Box style={styles.modalContainer}>
+      <Box style={styles.modalContentContainer}>
+        <NFCLight />
+        <StackedCirclesList
+          items={stackItems}
+          width={wp(38)}
+          height={wp(38)}
+          itemDistance={wp(-11)}
+          borderColor="transparent"
+        />
+        <Text
+          color={`${colorMode}.greenText`}
+          style={{ textAlign: 'center', width: wp(270) }}
+          fontSize={18}
+          medium
+        >
+          {vaultText.bringCloseToAdd}
+        </Text>
+      </Box>
+      <Pressable onPress={onTryAnotherMethod}>
+        <Box style={styles.ctaContainer}>
+          <Text medium color={`${colorMode}.greenText`}>
+            {vaultText.tryAnotherMethod}
+          </Text>
+        </Box>
+      </Pressable>
+    </Box>
+  );
+}
 
 function AddCoSignerContent() {
   const { colorMode } = useColorMode();
@@ -56,7 +107,7 @@ function AddKeyOptions({
   title,
   callback,
 }: {
-  icon: any;
+  icon: Element;
   title: string;
   callback: () => void;
 }) {
@@ -89,19 +140,24 @@ function CollaborativeModals({
   addKeyOptions,
   learnMoreModal,
   setLearnMoreModal,
+  nfcModal,
+  setNfcModal,
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
 
+  const handleTryAnotherMethod = () => {
+    setNfcModal(false);
+    setAddKeyModal(true);
+  };
+
   return (
     <>
       <KeeperModal
         visible={learnMoreModal}
-        close={() => {
-          setLearnMoreModal(false);
-        }}
+        close={() => setLearnMoreModal(false)}
         DarkCloseIcon
         title={vaultText.collaborativeVaultTitle}
         subTitle={vaultText.collaborativeVaultSubtitle}
@@ -117,16 +173,12 @@ function CollaborativeModals({
           setLearnMoreModal(false);
           dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'setup-collaborative-vault'));
         }}
-        buttonCallback={() => {
-          setLearnMoreModal(false);
-        }}
+        buttonCallback={() => setLearnMoreModal(false)}
       />
 
       <KeeperModal
         visible={addKeyModal}
-        close={() => {
-          setAddKeyModal(false);
-        }}
+        close={() => setAddKeyModal(false)}
         DarkCloseIcon={colorMode === 'dark'}
         title={vaultText.addAKey}
         subTitle={vaultText.selectMedium}
@@ -135,6 +187,17 @@ function CollaborativeModals({
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.buttonText`}
         Content={() => <AddKeyContent addKeyOptions={addKeyOptions} />}
+      />
+
+      <KeeperModal
+        visible={nfcModal}
+        close={() => setNfcModal(false)}
+        DarkCloseIcon={colorMode === 'dark'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.buttonText`}
+        Content={() => <NFCModalContent onTryAnotherMethod={handleTryAnotherMethod} />}
       />
     </>
   );
@@ -169,6 +232,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+  },
+  ctaContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: wp(10),
+    marginTop: hp(20),
+    marginBottom: hp(5),
+  },
+  modalContainer: {
+    gap: hp(20),
+  },
+  modalContentContainer: {
+    alignItems: 'center',
+    gap: hp(15),
   },
 });
 

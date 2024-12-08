@@ -780,7 +780,9 @@
     "addKeyNoteSubtitle": "On the other device go to the Settings of the Key to be shared and select Key Details.",
     "chooseCoSigner": "Choose Cosigner Key",
     "forYourCollabVault": "for your collaborative vault",
-    "keyAlreadyAdded": "This key has already been added"
+    "keyAlreadyAdded": "This key has already been added",
+    "bringCloseToAdd": "Bring the other device closer to add the key",
+    "tryAnotherMethod": "Try another method"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

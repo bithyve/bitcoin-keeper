@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { Box, FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -43,6 +43,7 @@ import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import NFCMOdal from './components/NFCModal';
 
 function SignerItem({
   vaultKey,
@@ -144,6 +145,7 @@ function SetupCollaborativeWallet() {
   const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
   const [addedKey, setAddedKey] = useState(null);
   const [inProgress, setInProgress] = useState(false);
+  const [nfcModal, setNfcModal] = useState(false);
   const { relaySignersUpdateLoading, realySignersUpdateErrorMessage, realySignersAdded } =
     useAppSelector((state) => state.bhr);
 
@@ -331,6 +333,10 @@ function SetupCollaborativeWallet() {
 
   const onNFCTap = async () => {
     try {
+      if (Platform.OS === 'android') {
+        setNfcModal(true);
+      }
+
       const records = await NFC.read([NfcTech.Ndef]);
       const cosigner = records[0]?.data;
 
@@ -521,6 +527,8 @@ function SetupCollaborativeWallet() {
         learnMoreModal={learnMoreModal}
         setLearnMoreModal={setLearnMoreModal}
         addKeyOptions={addKeyOptions}
+        nfcModal={nfcModal}
+        setNfcModal={setNfcModal}
       />
       <KeyAddedModal
         visible={realySignersAdded && externalKeyAddedModal}
