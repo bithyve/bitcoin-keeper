@@ -148,7 +148,8 @@
     "times": "times",
     "shareDetails": "Share Details",
     "upgrade": "Upgrade",
-    "Inheritancekey": "Inheritance Key"
+    "Inheritancekey": "Inheritance Key",
+    "key": "Key"
   },
   "noInternet": {
     "no": "No Internet",
@@ -752,7 +753,28 @@
     "setupVaultOption3Description": "Setup a time-locked Inheritance Key as an additional key to help you give away your bitcoin to heirs.",
     "selectActivationTime": "Select activation time",
     "chooseNewActivationTimeTitle": "Choose New Activation Time",
-    "chooseNewActivationTimeDesc": "Please choose the new time for your Inheritance Key to become active"
+    "chooseNewActivationTimeDesc": "Please choose the new time for your Inheritance Key to become active",
+    "scanQR": "Scan QR",
+    "scanOrUpload": "Please scan the QR or upload an image",
+    "nfcOnTap": "NFC on tap",
+    "airdropOrFileExport": "Airdrop/ File export",
+    "fileImport": "File import",
+    "importFileOrPaste": "Please import the file or paste the key data below",
+    "chooseExistingKey": "Choose an existing key",
+    "invalidQRError": "Invalid QR, please scan the QR from a",
+    "invalidFileError": "Invalid file, please import the file from a",
+    "invalidNFCTag": "Please scan a valid co-signer tag",
+    "collaborativeVaultTitle": "Collaborative Vault",
+    "collaborativeSubtitle": "Simple 2-of-3 wallet with friends",
+    "setupVault": "Setup Vault",
+    "addAKey": "Add a Key",
+    "selectMedium": "Select a medium to use",
+    "addKeyNote": "On the other device go to the Settings of the Key to be shared and select Key Details.",
+    "collabModalDescription1": "A Collaborative Vault is a multisig template that allows you to create a specific vault with other Bitcoin Keeper devices belonging to friends or co-signers.",
+    "collabModalDescription2": "For a more generic setup, use other options provided.",
+    "collaborativeVaultSubtitle": "A simple 2-of-3 wallet with friends",
+    "addKeyModalSubtitle": "Select the medium to use",
+    "addKeyNoteSubtitle": "On the other device go to the Settings of the Key to be shared and select Key Details."
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
