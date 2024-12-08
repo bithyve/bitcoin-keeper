@@ -777,7 +777,8 @@
     "addKeyModalSubtitle": "Select the medium to use",
     "addKeyNoteSubtitle": "On the other device go to the Settings of the Key to be shared and select Key Details.",
     "chooseCoSigner": "Choose Cosigner Key",
-    "forYourCollabVault": "for your collaborative vault"
+    "forYourCollabVault": "for your collaborative vault",
+    "keyAlreadyAdded": "This key has already been added"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
