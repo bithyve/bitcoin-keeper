@@ -32,6 +32,7 @@ import { Signer } from 'src/services/wallets/interfaces/vault';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
+import { getKeyUID } from 'src/utils/utilities';
 
 function InheritanceStatus({ route }) {
   const { vaultId } = route.params;
@@ -55,7 +56,7 @@ function InheritanceStatus({ route }) {
   useEffect(() => {
     if (activeVault && activeVault.signers) {
       const [ikVaultKey] = activeVault.signers.filter(
-        (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
+        (vaultKey) => signerMap[getKeyUID(vaultKey)].type === SignerType.INHERITANCEKEY
       );
       if (ikVaultKey) setIsSetupDone(true);
       else setIsSetupDone(false);

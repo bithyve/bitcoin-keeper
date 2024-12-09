@@ -8,6 +8,16 @@ export const hash512 = (data: string) => cryptoJS.SHA512(data).toString(cryptoJS
 
 export const getRandomBytes = (size: number = 32) => randomBytes(size).toString('hex');
 
+export const getKeyAndHash = (size: number) => {
+  const encryptionKey = getRandomBytes(size);
+  const hash = getHashFromKey(encryptionKey);
+  return { encryptionKey, hash };
+};
+
+export const getHashFromKey = (encryptionKey: string) => {
+  return cryptoJS.SHA256(encryptionKey).toString(cryptoJS.enc.Hex);
+};
+
 export const generateEncryptionKey = (entropy?: string, randomBytesSize?: number): string =>
   entropy ? hash256(entropy) : hash256(getRandomBytes(randomBytesSize));
 

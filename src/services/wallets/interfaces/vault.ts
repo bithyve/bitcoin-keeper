@@ -2,6 +2,7 @@ import { InheritanceKeyInfo, SignerPolicy } from 'src/models/interfaces/Assisted
 import { BIP85Config, Balances, Transaction, UTXO } from '.';
 import {
   EntityKind,
+  MultisigScriptType,
   NetworkType,
   ScriptTypes,
   SignerStorage,
@@ -11,6 +12,7 @@ import {
 } from '../enums';
 
 import { AddressCache, AddressPubs, WalletPresentationData } from './wallet';
+import { KeyInfo, KeyInfoMap, Path, Phase } from '../operations/miniscript/policy-generator';
 
 export interface VaultPresentationData extends WalletPresentationData {}
 
@@ -31,9 +33,35 @@ export interface VaultSpecs {
   lastSynched: number; // vault's last sync timestamp
 }
 
+export interface MiniscriptElements {
+  keysInfo: KeyInfo[]; // identifier and key descriptor
+  timelocks: number[]; // timelocks
+  phases: Phase[]; // structure for generating miniscript policy
+  signerFingerprints: { [identifier: string]: string }; // miniscript signer key_identifier <> MFP
+}
+
+export interface MiniscriptTxSelectedSatisfier {
+  selectedPhase: Phase;
+  selectedPaths: Path[];
+  selectedScriptWitness: {
+    asm: string;
+    nLockTime?: number;
+    nSequence?: number;
+  };
+}
+
+export interface MiniscriptScheme {
+  miniscriptElements: MiniscriptElements;
+  keyInfoMap: KeyInfoMap;
+  miniscriptPolicy: string; // miniscript policy
+  miniscript: string; // miniscript
+}
+
 export interface VaultScheme {
   m: number; // threshold number of signatures required
   n: number; // total number of xpubs
+  multisigScriptType?: MultisigScriptType; // multisig script type(allows for more complex and flexible vaults)
+  miniscriptScheme?: MiniscriptScheme;
 }
 
 export type XpubDetailsType = {
@@ -62,6 +90,7 @@ export interface Signer {
   // Represents a h/w or s/w wallet(Signer)
   // Rel: Signer hosts multiple VaultSigners(key), diff derivation paths
   // Note: Assisted Keys(IKS and SS) can only have one key(VaultSigner) per Signer
+  id: string;
   type: SignerType;
   storageType: SignerStorage;
   isMock?: boolean;
@@ -116,4 +145,12 @@ export interface Vault {
   archivedId?: string;
   scriptType: ScriptTypes;
   receivingAddress?: string;
+}
+
+export interface MultisigConfig {
+  multisigScriptType: MultisigScriptType;
+  childIndex: number;
+  internal: boolean;
+  required?: number;
+  miniscriptScheme?: MiniscriptScheme;
 }

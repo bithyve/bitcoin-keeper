@@ -3,4 +3,5 @@
     <string name="backup_with_keeper_scheme">keeper</string>
     <string name="backup_with_keeper">Backup with Keeper</string>
     <string name="aiddescription">aiddescription</string>
+    <string name="deep_link_prefix">/app/prod</string>
 </resources>

@@ -43,13 +43,19 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
+import {
+  emailCheck,
+  generateDataFromPSBT,
+  getAccountFromSigner,
+  getKeyUID,
+  getTnxDetailsPSBT,
+  isOdd 
+} from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getSignerNameFromType } from 'src/hardware';
+import { getPsbtForHwi, getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
-import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault, refillMobileKey } from 'src/store/sagaActions/vaults';
@@ -71,23 +77,43 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
-import { SDIcons } from './SigningDeviceIcons';
 import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
-import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import Note from 'src/components/Note/Note';
 import useSigners from 'src/hooks/useSigners';
-import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import { getPersistedDocument } from 'src/services/documents';
-import { TransferType } from 'src/models/enums/TransferType';
+import WalletOperations from 'src/services/wallets/operations';
+import SignerCard from '../AddSigner/SignerCard';
+import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
-const SignersWithRKSupport = [SignerType.MY_KEEPER, SignerType.JADE, SignerType.SEED_WORDS];
+const SignersWithRKSupport = [
+  SignerType.MY_KEEPER,
+  SignerType.JADE,
+  SignerType.SEED_WORDS,
+  SignerType.TAPSIGNER,
+  SignerType.SEEDSIGNER,
+  SignerType.SPECTER,
+  SignerType.LEDGER,
+  SignerType.TREZOR,
+  SignerType.BITBOX02,
+  SignerType.COLDCARD,
+  SignerType.PASSPORT,
+  SignerType.PORTAL,
+];
+
+const SignersReqVault = [
+  SignerType.LEDGER,
+  SignerType.TREZOR,
+  SignerType.BITBOX02,
+  SignerType.PORTAL,
+];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -115,19 +141,17 @@ function SignerAdvanceSettings({ route }: any) {
     vaultKey,
     vaultId,
     signer: signerFromParam,
-    signerId,
   }: {
     signer: Signer;
     vaultKey: VaultSigner;
     vaultId: string;
-    signerId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
 
   const signer: Signer = signerFromParam
-    ? signers.find((signer) => signer.masterFingerprint === signerFromParam.masterFingerprint) // to reflect associated contact image in real time
-    : signerMap[vaultKey.masterFingerprint];
+    ? signers.find((signer) => getKeyUID(signer) === getKeyUID(signerFromParam)) // to reflect associated contact image in real time
+    : signerMap[getKeyUID(vaultKey)];
 
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
@@ -208,7 +232,7 @@ function SignerAdvanceSettings({ route }: any) {
   allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
     for (const key of keys) {
-      if (signer.masterFingerprint === key.masterFingerprint) {
+      if (getKeyUID(signer) === getKeyUID(key)) {
         signerVaults.push(vault);
         break;
       }
@@ -375,6 +399,7 @@ function SignerAdvanceSettings({ route }: any) {
             vaultKey,
             vaultId,
             mode: InteracationMode.VAULT_REGISTER,
+            accountNumber: getAccountFromSigner(signer),
           })
         );
         break;
@@ -397,7 +422,6 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           isUpdate: true,
           signer,
-          signerId,
           vaultId,
           vaultKey,
         },
@@ -527,11 +551,27 @@ function SignerAdvanceSettings({ route }: any) {
       CommonActions.navigate({
         name: 'ManageTapsignerSettings',
         params: {
-          signer: signer,
+          signer,
         },
       })
     );
   };
+
+  // const signPSBTForExternalKeeperKey = async (serializedPSBT, resetQR) => {
+  //   try {
+  //     let signedSerialisedPSBT;
+  //     try {
+  //       const key = signer.signerXpubs[XpubTypes.P2WSH][0];
+  //       signedSerialisedPSBT = signCosignerPSBT(
+  //         signer.masterFingerprint,
+  //         key.xpriv,
+  //         serializedPSBT
+  //       );
+  //     } catch (e) {
+  //       showToast(e.message);
+  //       captureError(e);
+  //     }
+  //   }}};
 
   const signPSBT = async (serializedPSBT) => {
     try {
@@ -540,9 +580,40 @@ function SignerAdvanceSettings({ route }: any) {
       const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
       if (!signerMatched) {
-        showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
+        showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
         navigation.goBack();
         return;
+      }
+      if (SignersReqVault.includes(signer.type)) {
+        let activeVault = null;
+        allVaults.forEach(async (vault) => {
+          let addressMatched = true;
+          for (let i = 0; i < senderAddresses.length; i++) {
+            const _ = senderAddresses[i].path.split('/');
+            const [isChange, index] = _.splice(_.length - 2);
+            // 0/even - Receive(External) | 1/odd - change(internal)
+            let generatedAddress: string;
+            generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
+              vault,
+              parseInt(index),
+              isOdd(parseInt(isChange))
+            );
+            if (senderAddresses[i].address != generatedAddress) {
+              addressMatched = false;
+              break;
+            }
+          }
+          if (addressMatched) {
+            activeVault = vault;
+          }
+        });
+
+        if (!activeVault) {
+          navigation.goBack();
+          throw new Error('Please import the vault before signing');
+        }
+        const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
+        serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
       }
 
       navigation.dispatch(
@@ -553,7 +624,7 @@ function SignerAdvanceSettings({ route }: any) {
             recipient: receiverAddresses,
             amount: sendAmount,
             data: serializedPSBT,
-            fees: fees,
+            fees,
             estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
             tnxPriority: tnxDetails.tnxPriority,
             signer,
@@ -975,9 +1046,7 @@ function SignerAdvanceSettings({ route }: any) {
             description="Hide this key from the list"
             callback={() => {
               for (const vaultItem of allUnhiddenVaults) {
-                if (
-                  vaultItem.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
-                ) {
+                if (vaultItem.signers.find((s) => getKeyUID(s) === getKeyUID(signer))) {
                   setVaultUsed(vaultItem);
                   setHideWarning(true);
                   return;

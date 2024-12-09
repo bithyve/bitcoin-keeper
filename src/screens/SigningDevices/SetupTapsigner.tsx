@@ -66,14 +66,18 @@ function SetupTapsigner({ route }) {
     mode,
     signer,
     isMultisig,
+    accountNumber,
     signTransaction,
     addSignerFlow = false,
+    isRemoteKey = false,
   }: {
     mode: InteracationMode;
     signer: Signer;
     isMultisig: boolean;
+    accountNumber: number;
     signTransaction?: (options: { tapsignerCVC?: string }) => {};
     addSignerFlow?: boolean;
+    isRemoteKey?: boolean;
   } = route.params;
   const { mapUnknownSigner } = useUnkownSigners();
   const [statusModalVisible, setStatusModalVisible] = useState(false);
@@ -113,7 +117,7 @@ function SetupTapsigner({ route }) {
   const addTapsigner = useCallback(async () => {
     try {
       const { xpub, derivationPath, masterFingerprint, xpubDetails } = await withModal(async () =>
-        getTapsignerDetails(card, cvc, isTestnet(), isMultisig)
+        getTapsignerDetails(card, cvc, isTestnet(), isMultisig, accountNumber)
       )();
       let tapsigner: Signer;
       let vaultKey: VaultSigner;
@@ -217,12 +221,12 @@ function SetupTapsigner({ route }) {
       closeNfc();
       card.endNfcSession();
     }
-  }, [cvc]);
+  }, [cvc, accountNumber]);
 
   const verifyTapsginer = useCallback(async () => {
     try {
       const { masterFingerprint } = await withModal(async () =>
-        getTapsignerDetails(card, cvc, isTestnet(), isMultisig)
+        getTapsignerDetails(card, cvc, isTestnet(), isMultisig, accountNumber)
       )();
       const handleSuccess = () => {
         dispatch(
@@ -267,13 +271,28 @@ function SetupTapsigner({ route }) {
       closeNfc();
       card.endNfcSession();
     }
-  }, [cvc]);
+  }, [cvc, accountNumber]);
 
   const signWithTapsigner = useCallback(async () => {
     try {
-      await signTransaction({ tapsignerCVC: cvc });
+      const signedSerializedPSBT = await signTransaction({ tapsignerCVC: cvc });
       if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER signed successfully!`);
-      navigation.goBack();
+      if (isRemoteKey && signedSerializedPSBT) {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ShowPSBT',
+            params: {
+              data: signedSerializedPSBT,
+              encodeToBytes: false,
+              title: 'Signed PSBT',
+              subtitle: 'Please scan until all the QR data has been retrieved',
+              type: SignerType.KEEPER,
+            },
+          })
+        );
+      } else {
+        navigation.goBack();
+      }
     } catch (error) {
       const errorMessage = handleTapsignerError(error, navigation);
       if (errorMessage) {

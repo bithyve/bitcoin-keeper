@@ -51,38 +51,44 @@ const GenerateLetterToAtternyPDFInheritanceTool = async (fingerPrints) => {
             is held in bitcoin, it is crucial to ensure that the legal transfer of these assets is
             appropriately addressed.
         </p>
-        <p>Below, I have outlined the specific details regarding my bitcoin holdings:</p>
-        <p>1. Bitcoin Key Information:</p>
+        <p>Below, I have outlined the specific details regarding the keys controlling my bitcoin holdings:</p>
+        <p><b>Bitcoin Key Information:</b></p>
         <p>
         ${fingerPrints.map((keys, index) => `Key ${index + 1} Fingerprint: ${keys}<br>`).join('')}
         </p>
         <p>
-            These master fingerprints act as unique identifiers for the respective keys without revealing
-            any sensitive details. Following the BIP32 (Bitcoin Improvement Proposal 32) standard, each
-            fingerprint helps identify the associated extended public key (xPub). The xPub serves as 
-            a distinct identifier that can be utilized by a digital asset expert or software, adhering to
-            standard BIP32 derivation paths, to locate and validate the keys during the transfer process.
+            These master fingerprints represent the private keys that control the funds, not the funds
+            themselves. Master fingerprints uniquely identify the associated private keys, which can
+            generate derived keys as per the BIP32 (Bitcoin Improvement Proposal 32) standard or other
+            derivation paths.
         </p>
         <p>
-            It is my explicit intention that the legal title to my bitcoin holdings be transferred to the
-            designated heir or intended beneficiary. However, it is important to note that access to the
-            actual keys and, consequently, the bitcoin will be provided separately to the intended
-            beneficiary. This letter solely addresses the transfer of legal title and the inclusion of my 
-            bitcoin assets in my will.
+            The derived or original keys can hold funds directly or be used in combination with other keys
+            to control wallets. In certain cases, the keys may incorporate time-based conditions, meaning
+            they may not be active immediately or may only be used under specific circumstances.
         </p>
         <p>
-            Please ensure that these master fingerprints and the accompanying explanation of their
-            usage are accurately recorded in my will. Further details regarding the designated
-            beneficiary, executor, and any supplementary instructions will be provided separately
-            during the will creation.
+            The private keys represented by these fingerprints control access to the bitcoin wallets and,
+            ultimately, the funds. It is my explicit intention that the legal title to my bitcoin
+            holdings—including all wallets controlled by these keys, derived or otherwise—be transferred
+            to the designated heir or intended beneficiary. Access to the actual keys and, consequently,
+            the bitcoin will be provided separately to the intended beneficiary. This letter solely
+            addresses the transfer of legal title and the inclusion of my bitcoin assets in my will.
+        </p>
+        <p>
+            Please ensure that the above master fingerprints, along with the explanation of their
+            role in controlling the funds, are accurately recorded in my will. Additional details
+            regarding the designated beneficiary, executor, and any supplementary instructions
+            will be provided separately during the will creation.
         </p>
         <p>
             I have confidence in your expertise to handle this confidential information securely. Should
             you require additional documentation or information from me, please do not hesitate to
-            contact me. Your support and meticulous attention to detail in facilitating the transfer of 
+            contact me. Your support and meticulous attention to detail in facilitating the transfer of
             the legal title to my bitcoin holdings are greatly appreciated.
         </p>
-        <p>Thank you for your professional assistance in preparing my will and ensuring the proper
+        <p>
+            Thank you for your professional assistance in preparing my will and ensuring the proper
             transfer of the legal title to my bitcoin assets according to my wishes.
         </p>
         <p>Sincerely,</p>

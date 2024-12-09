@@ -4,6 +4,7 @@ import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import KeeperIcon from 'src/assets/images/keeper-icon.svg';
 import KeeperNameIcon from 'src/assets/images/keeper-name-icon.svg';
+import KeeperNameIconDark from 'src/assets/images/keeper-name-icon-dark.svg';
 import { hp, wp } from 'src/constants/responsive';
 
 type MessagePreviewProps = {
@@ -25,7 +26,7 @@ function MessagePreview({ title, description, link }: MessagePreviewProps) {
             <KeeperIcon />
           </Box>
           <Box>
-            <KeeperNameIcon />
+            {colorMode === 'light' ? <KeeperNameIcon /> : <KeeperNameIconDark />}
             <Text style={styles.link}>{link}</Text>
           </Box>
         </Box>

@@ -44,6 +44,7 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
+import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -801,7 +802,7 @@ function SignerModals({
   return (
     <>
       {vaultKeys.map((vaultKey) => {
-        const signer = signerMap[vaultKey.masterFingerprint];
+        const signer = signerMap[getKeyUID(vaultKey)];
         const currentSigner = vaultKey.xfp === activeXfp;
         const { supportedSigningOptions } = getSupportedSigningOptions(signer.type, colorMode);
         const [signingMode, setSigningMode] = useState<SigningMode>(
@@ -817,7 +818,9 @@ function SignerModals({
                 mode: InteracationMode.SIGN_TRANSACTION,
                 signer,
                 isMultisig,
+                accountNumber: getAccountFromSigner(signer),
                 signTransaction,
+                isRemoteKey,
               })
             );
           };
@@ -1227,6 +1230,8 @@ function SignerModals({
                 signer,
                 isMultisig,
                 signTransaction,
+                isRemoteKey,
+                accountNumber: getAccountFromSigner(signer),
               })
             );
           };
@@ -1249,6 +1254,7 @@ function SignerModals({
                     vaultKey,
                     vaultId,
                     mode: InteracationMode.VAULT_REGISTER,
+                    accountNumber: getAccountFromSigner(vaultKey),
                   })
                 );
               }}

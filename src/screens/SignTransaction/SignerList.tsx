@@ -15,6 +15,7 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getPersistedDocument } from 'src/services/documents';
 import Colors from 'src/theme/Colors';
+import { getKeyUID } from 'src/utils/utilities';
 
 const { width } = Dimensions.get('screen');
 
@@ -43,7 +44,7 @@ function SignerList({
   const hasSignerSigned = !!envelops.filter(
     (envelop) => envelop.xfp === vaultKey.xfp && envelop.isSigned
   ).length;
-  const signer = signerMap[vaultKey.masterFingerprint];
+  const signer = signerMap[getKeyUID(vaultKey)];
   const isIKS = signer.type === SignerType.INHERITANCEKEY;
   const [showIcon, setShowIcon] = useState(null);
 

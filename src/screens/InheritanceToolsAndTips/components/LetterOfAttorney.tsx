@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -15,19 +15,21 @@ import DashedButton from 'src/components/DashedButton';
 import GenerateLetterToAtternyPDFInheritanceTool from 'src/utils/GenerateLetterToAtternyPDFInheritanceTool';
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useSigners from 'src/hooks/useSigners';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import KeeperModal from 'src/components/KeeperModal';
 
 function LetterOfAttorney() {
-  const { allVaults } = useVault({
-    includeArchived: false,
-    getFirst: true,
-    getHiddenWallets: false,
-  });
-  const fingerPrints = allVaults[0]?.signers.map((signer) => signer.masterFingerprint);
+  const { signers } = useSigners();
+  const fingerPrints = signers
+    .filter((signer) => !signer.isBIP85)
+    .map((signer) => signer.masterFingerprint);
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -53,15 +55,7 @@ function LetterOfAttorney() {
             icon={<DownArrow />}
             description={inheritancePlanning.letterOfAttorneyCtaDescp}
             callback={() => {
-              if (fingerPrints) {
-                GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
-                  if (res) {
-                    navigation.navigate('PreviewPDF', { source: res });
-                  }
-                });
-              } else {
-                showToast('No vaults found');
-              }
+              setConfirmPassVisible(true);
             }}
             name={inheritancePlanning.letterOfAttorneyCtaTitle}
           />
@@ -76,6 +70,37 @@ function LetterOfAttorney() {
           </Text>
         </Box>
       </ScrollView>
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Confirm Passcode"
+        subTitleWidth={wp(240)}
+        subTitle="To backup app Recovery Key"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={() => {
+              setConfirmPassVisible(false);
+              if (fingerPrints) {
+                GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
+                  if (res) {
+                    navigation.navigate('PreviewPDF', { source: res });
+                  }
+                });
+              } else {
+                showToast('No vaults found');
+              }
+            }}
+          />
+        )}
+      />
     </ScreenWrapper>
   );
 }

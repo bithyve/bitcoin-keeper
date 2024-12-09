@@ -10,10 +10,10 @@ import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import { XpubTypes } from 'src/services/wallets/enums';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import idx from 'idx';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { captureError } from 'src/services/sentry';
+import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'CosignerDetails'>;
 function CosignerDetails({ route }: ScreenProps) {
@@ -53,7 +53,7 @@ function CosignerDetails({ route }: ScreenProps) {
             setDetails(keyDescriptor);
           } catch (error) {
             showToast(
-              `We're sorry, but we have trouble retrieving the key information`,
+              "We're sorry, but we have trouble retrieving the key information",
               <ToastErrorIcon />
             );
           }
@@ -83,7 +83,7 @@ function CosignerDetails({ route }: ScreenProps) {
           </Box>
           {details ? (
             <Box style={styles.centerBottom}>
-              <ShareWithNfc data={details} signer={signer} />
+              <ShareWithNfc data={details} signer={signer} remoteShare />
             </Box>
           ) : null}
         </Box>

@@ -53,16 +53,20 @@ function SetupPortal({ route }) {
     mode,
     signer,
     isMultisig,
+    accountNumber,
     signTransaction,
     addSignerFlow = false,
     vaultId,
+    isRemoteKey,
   }: {
     mode: InteracationMode;
     signer: Signer;
     isMultisig: boolean;
+    accountNumber: number;
     signTransaction?: (options: { portalCVC?: string }) => {};
     addSignerFlow?: boolean;
     vaultId?: string;
+    isRemoteKey?: boolean;
   } = route.params;
   const { colorMode } = useColorMode();
   const [cvc, setCvc] = React.useState('');
@@ -178,7 +182,7 @@ function SetupPortal({ route }) {
         // call register then check the value of it
         await PORTAL.startReading();
         await checkAndUnlock(cvc, setPortalStatus);
-        const res = await PORTAL.getXpub({ isMultisig: true });
+        const res = await PORTAL.getXpub({ accountNumber, isMultisig: true });
         if (res) {
           dispatch(
             healthCheckStatusUpdate([
@@ -233,7 +237,7 @@ function SetupPortal({ route }) {
   const getPortalDetails = async () => {
     await PORTAL.startReading();
     await checkAndUnlock(cvc, setPortalStatus);
-    const descriptor = await PORTAL.getXpub({ isMultisig: true });
+    const descriptor = await PORTAL.getXpub({ accountNumber, isMultisig: true });
     const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub);
     return signer;
   };
@@ -285,9 +289,24 @@ function SetupPortal({ route }) {
 
   const signWithPortal = React.useCallback(async () => {
     try {
-      await signTransaction({ portalCVC: cvc });
+      const signedSerializedPSBT = await signTransaction({ portalCVC: cvc });
       if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal signed successfully!`);
-      navigation.goBack();
+      if (isRemoteKey && signedSerializedPSBT) {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ShowPSBT',
+            params: {
+              data: signedSerializedPSBT,
+              encodeToBytes: false,
+              title: 'Signed PSBT',
+              subtitle: 'Please scan until all the QR data has been retrieved',
+              type: SignerType.KEEPER,
+            },
+          })
+        );
+      } else {
+        navigation.goBack();
+      }
     } catch (error) {
       PORTAL.stopReading();
       showToast(

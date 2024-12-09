@@ -80,6 +80,7 @@ export type AppStackParams = {
   AddDescription: undefined;
   AllTransactions: undefined;
   TransactionDetails: undefined;
+  TransactionHistory: undefined;
   TransactionAdvancedDetails: undefined;
   TimelockScreen: undefined;
   SignerAdvanceSettings: undefined;
@@ -104,12 +105,7 @@ export type AppStackParams = {
     isPSBTSharing?: boolean;
     psbt?: string;
     mode: RKInteractionMode;
-    vaultKey?: VaultSigner;
-    vaultId?: string;
-    serializedPSBTEnvelop: any;
-    isMultisig?: boolean;
-    sendConfirmationRouteParams?: SendConfirmationRouteParams;
-    tnxDetails?: tnxDetailsProps;
+    xfp?: string;
   };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
@@ -120,7 +116,13 @@ export type AppStackParams = {
   VaultCreationOptions: undefined;
   VaultConfigurationCreation: undefined;
   ScanQRFileRecovery: undefined;
-  VaultSetup: { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string };
+  VaultSetup: {
+    isRecreation: Boolean;
+    scheme: VaultScheme;
+    vaultId?: string;
+    isTimeLock?: boolean;
+    isAddInheritanceKeyFromParams?: boolean;
+  };
   SigningDeviceConfigRecovery: undefined;
   MixProgress: undefined;
   AssignSignerType: undefined;
@@ -146,12 +148,9 @@ export type AppStackParams = {
     addedSigner: Signer;
     addSignerFlow: boolean;
     showModal?: boolean;
-    receivedExternalSigner?: {
-      timeLeft: string;
-      data: {
-        fcmToken: string;
-        signer: Signer;
-      };
+    remoteData?: {
+      key: string;
+      fcm: string;
     };
   };
   AppBackupSettings: undefined;
@@ -160,12 +159,17 @@ export type AppStackParams = {
   EnterWalletPath: undefined;
   DeleteKeys: undefined;
   HandleFile: undefined;
+  AssistedWalletTimeline: {
+    parentScreen: string;
+  };
   AssociateContact: undefined;
   AddContact: undefined;
   ContactProfile: undefined;
   EditContact: undefined;
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
+  AddReserveKey: undefined;
+  ResetInheritanceKey: undefined;
 };
 
 // Usage:
