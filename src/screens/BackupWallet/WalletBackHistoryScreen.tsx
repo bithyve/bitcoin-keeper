@@ -3,35 +3,23 @@ import { Box, useColorMode } from 'native-base';
 
 import BackupHealthCheckList from 'src/components/Backup/BackupHealthCheckList';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperModal from 'src/components/KeeperModal';
+import { StyleSheet } from 'react-native';
+import { hp, wp } from 'src/constants/responsive';
 
 function WalletBackHistoryScreen({ route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const [isLearnMore, setIsLearnMore] = useState(false);
   const { seed } = translations;
   const isUaiFlow = route.params?.isUaiFlow || false;
+  const [isLearnMore, setIsLearnMore] = useState(false);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box mb={4}>
-        <KeeperHeader
-          title={seed.backupPhrase}
-          //-----TODO LEARN MORE------
-          // learnMore
-          // learnTextColor={`${colorMode}.buttonText`}
-          // learnMorePressed={() => {
-          //   setIsLearnMore(true);
-          // }}
-        />
-      </Box>
-      <Box mx={2}>
+      <KeeperHeader title={seed.backupPhrase} />
+      <Box style={styles.healthCheckContainer}>
         <BackupHealthCheckList isUaiFlow={isUaiFlow} />
       </Box>
       <KeeperModal
@@ -43,4 +31,14 @@ function WalletBackHistoryScreen({ route }) {
     </ScreenWrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  healthCheckContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: hp(20),
+    paddingHorizontal: wp(10),
+  },
+});
 export default WalletBackHistoryScreen;
