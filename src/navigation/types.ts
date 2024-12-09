@@ -100,6 +100,7 @@ export type AppStackParams = {
   WhirlpoolConfiguration: undefined;
   CosignerDetails: { signer: Signer };
   AdditionalDetails: { signer: Signer };
+  KeyHistory: undefined;
   RemoteSharing: {
     signer: Signer;
     isPSBTSharing?: boolean;

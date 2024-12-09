@@ -140,6 +140,7 @@ import { useColorMode } from 'native-base';
 import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
 import config from 'src/utils/service-utilities/config';
+import KeyHistory from 'src/screens/Vault/KeyHistory';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -281,6 +282,7 @@ function AppStack() {
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
         <Stack.Screen name="AdditionalDetails" component={AdditionalDetails} />
+        <Stack.Screen name="KeyHistory" component={KeyHistory} />
         <Stack.Screen name="RemoteSharing" component={RemoteSharing} />
         <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
