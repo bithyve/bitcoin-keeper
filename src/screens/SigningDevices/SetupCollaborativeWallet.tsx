@@ -7,7 +7,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
-import { getPlaceholder } from 'src/utils/utilities';
+import { getKeyUID, getPlaceholder } from 'src/utils/utilities';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -76,7 +76,7 @@ function SignerItem({
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const signer = vaultKey ? signerMap[vaultKey.masterFingerprint] : null;
+  const signer = vaultKey ? signerMap[getKeyUID(vaultKey)] : null;
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
 
@@ -87,8 +87,9 @@ function SignerItem({
         params: {
           parentScreen: SETUPCOLLABORATIVEWALLET,
           scheme: COLLABORATIVE_SCHEME,
+          signerFilters: [SignerType.KEEPER],
           coSigners,
-          onGoBack: (vaultKeys) => setSelectedSigner(vaultKeys),
+          onGoBack: (vaultKeys) => setSelectedSigner(vaultKeys, index),
         },
       })
     );
@@ -111,7 +112,7 @@ function SignerItem({
 
   return (
     <SignerCard
-      key={signer.masterFingerprint}
+      key={getKeyUID(signer)}
       name={getSignerNameFromType(signer.type, signer.isMock, false)}
       description={getSignerDescription(signer)}
       icon={SDIcons(signer.type).Icon}
@@ -151,12 +152,12 @@ function SetupCollaborativeWallet() {
   const { common, wallet, signer } = translations;
   const [selectedSigner, setSelectedSigner] = useState(null);
 
-  const handleSelectedSigners = (vaultKeys) => {
+  const handleSelectedSigners = (vaultKeys, index) => {
     setCoSigners((prevCoSigners) => {
       let newSigners = [...prevCoSigners];
       const newKey = vaultKeys[0];
       const existingIndex = newSigners.findIndex(
-        (signer) => signer && signer.masterFingerprint === newKey.masterFingerprint
+        (signer) => signer && getKeyUID(signer) === getKeyUID(newKey)
       );
       if (existingIndex !== -1) {
         showToast(signer.coSignerAlreadyAdded, <ToastErrorIcon />);

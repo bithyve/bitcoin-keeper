@@ -34,6 +34,7 @@ import { hideDeletingKeyModal, hideKeyDeletedSuccessModal } from 'src/store/redu
 import BounceLoader from 'src/components/BounceLoader';
 import TorAsset from 'src/components/Loader';
 import moment from 'moment';
+import { getKeyUID } from 'src/utils/utilities';
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
@@ -47,11 +48,12 @@ function DeleteKeys({ route }) {
   );
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [unhidingMfp, setUnhidingMfp] = useState('');
+  const [unhidingKeyUID, setUnhidingKeyUID] = useState('');
+  const [multipleHidden, setMultipleHidden] = useState(false);
   const { allVaults } = useVault({ includeArchived: true });
   const { archivedVaults } = useArchivedVault();
   const [warningEnabled, setHideWarning] = useState(false);
-  const [vaultUsed, setVaultUsed] = useState<Vault>();
+  const [vaultsUsed, setVaultsUsed] = useState<Vault[]>();
   const [signerToDelete, setSignerToDelete] = useState<Signer>();
   const [deletedSigner, setDeletedSigner] = useState<Signer>();
   const deletingKeyModalVisible = useAppSelector((state) => state.bhr.deletingKeyModalVisible);
@@ -62,7 +64,7 @@ function DeleteKeys({ route }) {
   const onSuccess = () => {
     if (signerToDelete) {
       const involvedArchivedVaults = archivedVaults.filter((vault) =>
-        vault.signers.find((s) => s.masterFingerprint === signerToDelete.masterFingerprint)
+        vault.signers.find((s) => getKeyUID(s) === getKeyUID(signerToDelete))
       );
       if (involvedArchivedVaults.length) {
         dispatch(archiveSigningDevice([signerToDelete]));
@@ -75,18 +77,19 @@ function DeleteKeys({ route }) {
   };
 
   const unhide = (signer: Signer) => {
-    setUnhidingMfp(signer.masterFingerprint);
+    setUnhidingKeyUID(getKeyUID(signer));
     dispatch(updateSignerDetails(signer, 'hidden', false));
   };
 
   const handleDelete = (signer: Signer) => {
+    setMultipleHidden(false);
     const vaultsInvolved = allVaults.filter(
-      (vault) =>
-        !vault.archived &&
-        vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
+      (vault) => !vault.archived && vault.signers.find((s) => getKeyUID(s) === getKeyUID(signer))
     );
     if (vaultsInvolved.length > 0) {
-      setVaultUsed(vaultsInvolved[0]);
+      if (vaultsInvolved.length > 1) setMultipleHidden(true);
+      setHideWarning(true);
+      setVaultsUsed(vaultsInvolved);
       setConfirmPassVisible(false);
       return;
     }
@@ -95,8 +98,8 @@ function DeleteKeys({ route }) {
   };
 
   useEffect(() => {
-    if (unhidingMfp && !hiddenSigners.find((signer) => signer.masterFingerprint === unhidingMfp)) {
-      setUnhidingMfp('');
+    if (unhidingKeyUID && !hiddenSigners.find((signer) => getKeyUID(signer) === unhidingKeyUID)) {
+      setUnhidingKeyUID('');
     }
   }, [hiddenSigners]);
 
@@ -137,18 +140,31 @@ function DeleteKeys({ route }) {
     );
   }
 
-  function Content({ colorMode, vaultUsed }) {
+  function Content({ colorMode, vaultsUsed }) {
     return (
       <Box>
-        <ActionCard
-          description={vaultUsed.presentationData?.description}
-          cardName={vaultUsed.presentationData.name}
-          icon={<WalletVault />}
-          callback={() => {}}
-        />
+        <ScrollView
+          contentContainerStyle={{ gap: 10 }}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {vaultsUsed.map((vault) => (
+            <Box>
+              <ActionCard
+                description={vault.presentationData?.description}
+                cardName={vault.presentationData.name}
+                icon={<WalletVault />}
+                callback={() => {}}
+              />
+            </Box>
+          ))}
+        </ScrollView>
+
         <Box style={{ paddingVertical: 20 }}>
           <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
-            {signerText.deleteVaultInstruction}
+            {multipleHidden
+              ? signerText.deleteMultipleVaultInstruction
+              : signerText.deleteVaultInstruction}
           </Text>
         </Box>
       </Box>
@@ -191,8 +207,8 @@ function DeleteKeys({ route }) {
 
             return (
               <KeyCard
-                key={signer.masterFingerprint}
-                isLoading={signer.masterFingerprint === unhidingMfp}
+                key={getKeyUID(signer)}
+                isLoading={getKeyUID(signer) === unhidingKeyUID}
                 primaryAction={showDelete ? () => handleDelete(signer) : null}
                 secondaryAction={() => unhide(signer)}
                 primaryText={showDelete ? signerText.delete : null}
@@ -210,10 +226,14 @@ function DeleteKeys({ route }) {
         )}
       </ScrollView>
       <KeeperModal
-        visible={warningEnabled && !!vaultUsed}
+        visible={warningEnabled && !!vaultsUsed}
         close={() => setHideWarning(false)}
-        title={signerText.deleteVaultWarning}
-        subTitle={signerText.vaultWarningSubtitle}
+        title={
+          multipleHidden ? signerText.deleteMultipleVaultWarning : signerText.deleteVaultWarning
+        }
+        subTitle={
+          multipleHidden ? signerText.multipleVaultWarningSubtitle : signerText.vaultWarningSubtitle
+        }
         buttonText={signerText.viewVault}
         secondaryButtonText={signerText.back}
         secondaryCallback={() => setHideWarning(false)}
@@ -223,10 +243,10 @@ function DeleteKeys({ route }) {
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           setHideWarning(false);
-          navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
+          navigation.dispatch(CommonActions.navigate('ManageWallets'));
         }}
         textColor={`${colorMode}.primaryText`}
-        Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
+        Content={() => <Content vaultsUsed={vaultsUsed} colorMode={colorMode} />}
       />
       <KeeperModal
         visible={deletingKeyModalVisible}
@@ -251,10 +271,9 @@ function DeleteKeys({ route }) {
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonText={signerText.manageKeys}
+        buttonText={signerText.continue}
         buttonCallback={() => {
           dispatch(hideKeyDeletedSuccessModal());
-          navigation.dispatch(CommonActions.navigate('ManageSigners'));
         }}
         Content={DeletedSuccessContent}
       />

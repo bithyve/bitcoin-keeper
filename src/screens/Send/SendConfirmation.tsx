@@ -1,17 +1,23 @@
 import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
-import Share from 'react-native-share';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/constants/responsive';
+import Share from 'react-native-share';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, TxPriority } from 'src/services/wallets/enums';
-import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import {
+  EntityKind,
+  MultisigScriptType,
+  NetworkType,
+  TxPriority,
+  VaultType,
+} from 'src/services/wallets/enums';
+import { Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import {
   customPrioritySendPhaseOneStatusReset,
@@ -28,11 +34,14 @@ import useVault from 'src/hooks/useVault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import CustomPriorityModal from './CustomPriorityModal';
 import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import InfoIcon from 'src/assets/images/info-icon.svg';
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
+import HexagonIcon from 'src/components/HexagonIcon';
+import useSignerMap from 'src/hooks/useSignerMap';
+import { getAvailableMiniscriptPhase } from 'src/services/wallets/factories/VaultFactory';
+
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ShareGreen from 'src/assets/images/share-arrow-green.svg';
@@ -42,6 +51,10 @@ import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/con
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import config from 'src/utils/service-utilities/config';
+import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Colors from 'src/theme/Colors';
 import ReceiptWrapper from './ReceiptWrapper';
 import TransferCard from './TransferCard';
 import TransactionPriorityDetails from './TransactionPriorityDetails';
@@ -49,10 +62,11 @@ import HighFeeAlert from './HighFeeAlert';
 import FeeRateStatementCard from '../FeeInsights/FeeRateStatementCard';
 import AmountDetails from './AmountDetails';
 import SendSuccessfulContent from './SendSuccessfulContent';
-import config from 'src/utils/service-utilities/config';
-import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
 import PriorityModal from './PriorityModal';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import KeyDropdown from './KeyDropdown';
+import CustomPriorityModal from './CustomPriorityModal';
+import { getKeyUID } from 'src/utils/utilities';
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -77,12 +91,56 @@ export interface SendConfirmationRouteParams {
   parentScreen: string;
   transactionPriority: TxPriority;
   customFeePerByte: number;
+  currentBlockHeight: number;
 }
 
 export interface tnxDetailsProps {
   transactionPriority: string;
   txFeeInfo: any;
 }
+
+export enum ASSISTED_VAULT_ENTITIES {
+  UK = 'UK',
+  AK1 = 'AK1',
+  AK2 = 'AK2',
+}
+
+const enum SigningPath {
+  UK_PLUS_AK1 = 1,
+  UK_PLUS_AK2 = 2,
+  UK_ONLY = 3,
+  AK_ONLY = 4,
+}
+
+const getSigningPathInfoText = (signingPath: SigningPath) => {
+  if (signingPath === SigningPath.UK_PLUS_AK1 || signingPath === SigningPath.UK_PLUS_AK2) {
+    return 'Both Assisted Keys and User Key can sign.';
+  } else if (signingPath === SigningPath.UK_ONLY) return 'User Key can sign.';
+  else if (signingPath === SigningPath.AK_ONLY) return 'Both Assisted Keys can sign.';
+  else return 'Invalid signing path.';
+};
+
+const getSigningPath = (availableSigners) => {
+  let signingPath;
+  if (availableSigners[ASSISTED_VAULT_ENTITIES.UK]) {
+    signingPath = SigningPath.UK_ONLY;
+    if (
+      availableSigners[ASSISTED_VAULT_ENTITIES.AK1] &&
+      availableSigners[ASSISTED_VAULT_ENTITIES.AK2]
+    ) {
+      signingPath = SigningPath.UK_PLUS_AK1; // singing default w/ AK1
+    }
+  } else {
+    if (
+      availableSigners[ASSISTED_VAULT_ENTITIES.AK1] &&
+      availableSigners[ASSISTED_VAULT_ENTITIES.AK2]
+    ) {
+      signingPath = SigningPath.AK_ONLY;
+    }
+  }
+
+  return signingPath;
+};
 
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
@@ -100,6 +158,7 @@ function SendConfirmation({ route }) {
     label,
     selectedUTXOs,
     parentScreen,
+    currentBlockHeight,
     transactionPriority: initialTransactionPriority,
     customFeePerByte: initialCustomFeePerByte,
   }: SendConfirmationRouteParams = route.params;
@@ -130,6 +189,8 @@ function SendConfirmation({ route }) {
 
   const isDarkMode = colorMode === 'dark';
   const [visibleModal, setVisibleModal] = useState(false);
+  const [externalKeySelectionModal, setExternalKeySelectionModal] = useState(false);
+  const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
   const [subTitle, setSubTitle] = useState('Review the transaction setup');
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -141,6 +202,127 @@ function SendConfirmation({ route }) {
   const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
+  const [selectedExternalSigner, setSelectedExternalSigner] = useState<VaultSigner | null>(null);
+  const [availablePaths, setAvailablePaths] = useState(null);
+  const [selectedPhase, setSelectedPhase] = useState(null);
+  const [selectedPaths, setSelectedPaths] = useState(null);
+  const [availableSigners, setAvailableSigners] = useState({});
+  const [externalSigners, setExternalSigners] = useState([]);
+  const { signerMap } = useSignerMap();
+
+  function SigningInfo({ onPress, availableSigners }) {
+    const { colorMode } = useColorMode();
+
+    const signingPath = getSigningPath(availableSigners);
+    const disableSelection =
+      signingPath === SigningPath.UK_ONLY || signingPath === SigningPath.AK_ONLY;
+    return (
+      <Pressable disabled={disableSelection} onPress={onPress} style={styles.signingInfoWrapper}>
+        <Box style={styles.signingInfoContainer} background={`${colorMode}.seashellWhite`}>
+          <HexagonIcon
+            width={37}
+            height={31}
+            icon={<InfoIcon />}
+            backgroundColor={Colors.pantoneGreen}
+          />
+          <Text style={styles.infoText}>{getSigningPathInfoText(signingPath)}</Text>
+          <RightArrowIcon style={styles.arrowIcon} />
+        </Box>
+      </Pressable>
+    );
+  }
+
+  const initialiseMiniscriptMultisigPaths = () => {
+    // specifically initialises phases/paths for miniscript Vaults(to be generalised w/ the UI)
+    if (!currentBlockHeight) {
+      showToast('Failed to sync current block height');
+      navigation.goBack();
+      return;
+    }
+
+    const { phases: availablePhases, signers: availableSigners } = getAvailableMiniscriptPhase(
+      sender as Vault,
+      currentBlockHeight
+    ); // provides available phases/signers(generic)
+
+    // upon generalisation of the UI we should be able to show/set paths
+    // in the available phases as the options which are available for the user to choose from
+
+    // currently for Advisor Vault only the latest phase and path are considered and the signers from
+    // the latest phase are only available for signing
+    if (!availablePhases || availablePhases.length === 0) {
+      showToast('No spending paths available; timelock is active');
+      navigation.goBack();
+    }
+
+    const latestPhase = availablePhases[availablePhases.length - 1];
+    const latestSigners = {};
+
+    const pathsAvailable = [];
+    latestPhase.paths.forEach((path) => {
+      pathsAvailable.push(path);
+      path.keys.forEach((key) => {
+        latestSigners[key.identifier] = availableSigners[key.identifier];
+      });
+    });
+
+    setSelectedPhase(latestPhase.id);
+    setAvailablePaths(pathsAvailable);
+    setAvailableSigners(latestSigners);
+
+    if (sender.type === VaultType.ASSISTED) {
+      const latestExtSigners = [];
+      for (const key in latestSigners) {
+        if (key === ASSISTED_VAULT_ENTITIES.AK1 || key === ASSISTED_VAULT_ENTITIES.AK2) {
+          latestExtSigners.push(signerMap[getKeyUID(availableSigners[key])]);
+        }
+      }
+      if (latestExtSigners.length === 2) {
+        // case: UK + AK1/AK2
+        // set: AK1 as default option
+        if (!selectedExternalSigner) setSelectedExternalSigner(latestExtSigners[0]);
+      }
+      setExternalSigners(latestExtSigners);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      sender.entityKind === EntityKind.VAULT &&
+      (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
+    ) {
+      // to be generalised once the generic UI is available
+      initialiseMiniscriptMultisigPaths();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Assisted Vault: remapping selected path based on selected signer
+    // upon generalising the UI, user should be able to directly select the path from available paths
+    // and the additional steps of mapping the available paths to external signers and
+    // then remapping the selected signer to the available paths in order to get the selected path can be avoided
+
+    if (!availablePaths) return;
+
+    if (!selectedExternalSigner) {
+      if (availablePaths.length === 1) {
+        // case: UK only or AK1 + AK2 only
+        setSelectedPaths([availablePaths[0].id]);
+      } else setSelectedPaths(null); // error case: path is not selected b/w 1.UK + AK1 and 2.UK + AK2
+    } else {
+      // case: UK + AK1/AK2
+      const pathSelected = [];
+      availablePaths.forEach((path) => {
+        path.keys.forEach((key) => {
+          if (getKeyUID(availableSigners[key.identifier]) === getKeyUID(selectedExternalSigner)) {
+            pathSelected.push(path.id);
+          }
+        });
+      });
+      setSelectedPaths(pathSelected);
+    }
+  }, [selectedExternalSigner, availablePaths]);
+
   const isMoveAllFunds =
     parentScreen === MANAGEWALLETS ||
     parentScreen === VAULTSETTINGS ||
@@ -270,6 +452,17 @@ function SendConfirmation({ route }) {
     setProgress(true);
   };
 
+  const handleOptionSelect = useCallback(
+    (option: VaultSigner) => {
+      if (selectedExternalSigner && getKeyUID(selectedExternalSigner) !== getKeyUID(option)) {
+        if (serializedPSBTEnvelops) dispatch(sendPhaseTwoReset()); // reset, existing send phase two vars, upon change of signer
+      }
+      setSelectedExternalSigner(option);
+      setExternalKeySelectionModal(false);
+    },
+    [selectedExternalSigner, serializedPSBTEnvelops]
+  );
+
   // useEffect(
   //   () => () => {
   //     dispatch(sendPhaseTwoReset());
@@ -283,13 +476,28 @@ function SendConfirmation({ route }) {
       // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
     } else {
       // case: new transaction
+
       if (inProgress) {
+        if (
+          sender.entityKind === EntityKind.VAULT &&
+          (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
+        ) {
+          if (!selectedPhase || !selectedPaths) {
+            showToast('Invalid phase/path selection', <ToastErrorIcon />);
+            return;
+          }
+        }
+
         setTimeout(() => {
           dispatch(sendPhaseTwoReset());
           dispatch(
             sendPhaseTwo({
               wallet: sender,
               txnPriority: transactionPriority,
+              miniscriptTxElements: {
+                selectedPhase,
+                selectedPaths,
+              },
               note,
               label,
               transferType,
@@ -298,7 +506,7 @@ function SendConfirmation({ route }) {
         }, 200);
       }
     }
-  }, [inProgress]);
+  }, [inProgress, selectedPhase, selectedPaths]);
 
   const { activeVault: currentSender } = useVault({ vaultId: sender?.id }); // current state of vault
 
@@ -317,10 +525,7 @@ function SendConfirmation({ route }) {
     const unconfirmedUTXOs: InputUTXOs[] =
       idx(currentSender, (_) => _.specs.unconfirmedUTXOs) || [];
 
-    const currentUTXOSet =
-      currentSender.networkType === NetworkType.MAINNET
-        ? confirmedUTXOs
-        : [...confirmedUTXOs, ...unconfirmedUTXOs];
+    const currentUTXOSet = [...confirmedUTXOs, ...unconfirmedUTXOs];
 
     for (const cachedUTXO of cachedInputUTXOs) {
       let found = false;
@@ -365,8 +570,12 @@ function SendConfirmation({ route }) {
           note,
           label,
           vaultId: sender?.id,
-          sender: sender,
+          sender,
           sendConfirmationRouteParams: route.params,
+          miniscriptTxElements: {
+            selectedPhase,
+            selectedPaths,
+          },
           tnxDetails: {
             txFeeInfo,
             transactionPriority,
@@ -375,7 +584,7 @@ function SendConfirmation({ route }) {
       );
       setProgress(false);
     }
-  }, [serializedPSBTEnvelops, inProgress]);
+  }, [serializedPSBTEnvelops, selectedPhase, selectedPaths, inProgress]);
 
   useEffect(
     () => () => {
@@ -453,7 +662,7 @@ function SendConfirmation({ route }) {
     try {
       await Share.open({
         message: 'The transaction has been successfully sent. You can track its status here:',
-        url: url,
+        url,
         title: 'Transaction Details',
       });
     } catch (err) {
@@ -643,6 +852,29 @@ function SendConfirmation({ route }) {
         )}
       />
       <KeeperModal
+        visible={externalKeySelectionModal}
+        close={() => setExternalKeySelectionModal(false)}
+        title="External Key Selection"
+        subTitle="Whose key should be used to sign the transaction along with yours?"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        showCloseIcon={false}
+        buttonText={common.confirm}
+        secondaryButtonText={common.cancel}
+        Content={() => (
+          <Box style={styles.externalKeyModal}>
+            <KeyDropdown
+              label="Choose External key"
+              options={externalSigners}
+              selectedOption={selectedExternalSigner}
+              onOptionSelect={handleOptionSelect}
+            />
+          </Box>
+        )}
+      />
+      <KeeperModal
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
         title={walletTranslations.confirmPassTitle}
@@ -736,10 +968,10 @@ function SendConfirmation({ route }) {
         Content={() => (
           <Box
             marginBottom={hp(15)}
-            alignContent={'center'}
-            justifyContent={'center'}
-            justifyItems={'center'}
-            width={'100%'}
+            alignContent="center"
+            justifyContent="center"
+            justifyItems="center"
+            width="100%"
           >
             <AmountChangedWarningIllustration
               style={{ alignSelf: 'center', marginRight: wp(30), marginTop: hp(5) }}
@@ -750,7 +982,7 @@ function SendConfirmation({ route }) {
           </Box>
         )}
       />
-      {/*Fee insight Modal */}
+      {/* Fee insight Modal */}
       <KeeperModal
         visible={feeInsightVisible}
         close={toogleFeesInsightModal}
@@ -776,10 +1008,10 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonText={'Discard'}
+        buttonText="Discard"
         buttonCallback={discardCachedTransaction}
         buttonTextColor={`${colorMode}.buttonText`}
-        secondaryButtonText={'Cancel'}
+        secondaryButtonText="Cancel"
         secondaryCallback={() => {
           setProgress(false);
           setDiscardUTXOVisible(false);
@@ -817,7 +1049,7 @@ function SendConfirmation({ route }) {
     </ScreenWrapper>
   );
 }
-export default Sentry.withErrorBoundary(SendConfirmation, errorBourndaryOptions);
+export default SentryErrorBoundary(SendConfirmation);
 
 const styles = StyleSheet.create({
   horizontalLineStyle: {
@@ -836,6 +1068,97 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingBottom: hp(30),
+  },
+  sendSuccessfullNote: {
+    marginTop: hp(5),
+  },
+  TransferCardPreTitle: {
+    marginLeft: wp(5),
+    fontSize: 14,
+    letterSpacing: 0.14,
+  },
+  transferCardTitle: {
+    fontSize: 11,
+    letterSpacing: 0.14,
+  },
+  transferCardSubtitle: {
+    fontSize: 14,
+    letterSpacing: 0.72,
+  },
+  transferCardContainer: {
+    alignItems: 'center',
+    borderRadius: 10,
+
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    minHeight: hp(70),
+  },
+  preTitleContainer: {
+    width: '100%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginLeft: 10,
+  },
+  transferText: {
+    fontWeight: 500,
+    fontSize: 12,
+    marginBottom: 5,
+    marginLeft: 3,
+    marginTop: 15,
+  },
+  cardTransferPreTitle: {
+    marginLeft: wp(5),
+    fontSize: 14,
+    letterSpacing: 0.14,
+  },
+  subTitleContainer: {
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: 10,
+    marginLeft: 10,
+  },
+  sendingPriorityText: {
+    fontSize: 15,
+    letterSpacing: 0.15,
+    marginBottom: hp(5),
+  },
+  satsStyle: {
+    height: hp(500),
+  },
+  dollarsStyle: {},
+  marginBottom: {
+    marginBottom: hp(20),
+  },
+  externalKeyModal: {
+    width: '100%',
+  },
+  signingInfoWrapper: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    width: '85%',
+  },
+  signingInfoContainer: {
+    alignSelf: 'center',
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingVertical: hp(20),
+    paddingHorizontal: wp(18),
+    marginTop: hp(5),
+    marginBottom: hp(20),
+  },
+  infoText: {
+    width: '68%',
+    fontSize: 14,
+  },
+  arrowIcon: {
+    marginRight: wp(10),
+  },
+  signingInfoText: {
+    marginTop: hp(5),
+    paddingHorizontal: wp(25),
   },
   imgCtr: {
     alignItems: 'center',

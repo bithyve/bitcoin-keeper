@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/react-native';
 import { LogBox, Platform, UIManager } from 'react-native';
 import React, { ReactElement, useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -16,6 +15,7 @@ import { customTheme } from './src/navigation/themes';
 import Navigator from './src/navigation/Navigator';
 import { persistor, store } from './src/store/store';
 import NotificationHandler from 'src/hooks/useNotificationHandler';
+import { SentryWrapper } from 'src/services/sentry';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -74,6 +74,6 @@ function AppWrapper() {
   );
 }
 
-const SentryApp = Sentry.wrap(AppWrapper);
+const SentryApp = SentryWrapper(AppWrapper);
 
 export default withIAPContext(SentryApp);

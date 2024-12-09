@@ -5,7 +5,7 @@ import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React, { useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { RKInteractionMode, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { SignerType, XpubTypes, RKInteractionMode } from 'src/services/wallets/enums';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
@@ -19,8 +19,6 @@ import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
-import DisplayQR from '../QRScreens/DisplayQR';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import idx from 'idx';
@@ -28,7 +26,10 @@ import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
+import ShareWithNfc from '../NFCChannel/ShareWithNfc';
+import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
+import { getKeyUID } from 'src/utils/utilities';
 
 function SignWithQR() {
   const { colorMode } = useColorMode();
@@ -45,8 +46,6 @@ function SignWithQR() {
     isRemoteKey,
     serializedPSBTEnvelopFromProps,
     isMultisig,
-    sendConfirmationRouteParams,
-    tnxDetails,
   }: {
     vaultKey: VaultSigner;
     vaultId: string;
@@ -64,7 +63,7 @@ function SignWithQR() {
   const { activeVault } = useVault({ vaultId });
   const isSingleSig = isRemoteKey ? !isMultisig : activeVault.scheme.n === 1;
   const { signer } = isRemoteKey
-    ? { signer: signerMap[vaultKey.masterFingerprint] }
+    ? { signer: signerMap[getKeyUID(vaultKey)] }
     : useSignerFromKey(vaultKey);
   const [details, setDetails] = React.useState('');
   const { showToast } = useToastMessage();
@@ -100,7 +99,7 @@ function SignWithQR() {
             setDetails(keyDescriptor);
           } catch (error) {
             showToast(
-              `We're sorry, but we have trouble retrieving the key information`,
+              "We're sorry, but we have trouble retrieving the key information",
               <ToastErrorIcon />
             );
           }
@@ -193,25 +192,15 @@ function SignWithQR() {
         <Box style={styles.center}>
           <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
           <Box style={styles.fingerprint}>
-            {
-              <WalletCopiableData
-                title="Transaction (PSBT):"
-                data={serializedPSBT}
-                dataType="psbt"
-              />
-            }
+            <WalletCopiableData title="Transaction (PSBT):" data={serializedPSBT} dataType="psbt" />
           </Box>
           {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) || true ? (
             <ShareWithNfc
               data={serializedPSBT}
               isPSBTSharing
-              psbt={serializedPSBT}
-              serializedPSBTEnvelop={serializedPSBTEnvelop}
               signer={signer}
-              vaultKey={vaultKey} // required for signing
-              vaultId={vaultId} // required for signing
-              sendConfirmationRouteParams={sendConfirmationRouteParams}
-              tnxDetails={tnxDetails}
+              remoteShare
+              xfp={vaultKey.xfp}
             />
           ) : null}
         </Box>
@@ -220,7 +209,7 @@ function SignWithQR() {
         <Buttons
           primaryText="Scan PSBT"
           primaryCallback={navigateToQrScan}
-          secondaryText="Vault Details"
+          secondaryText={isRemoteKey ? null : 'Vault Details'}
           secondaryCallback={navigateToVaultRegistration}
         />
       </Box>

@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/react-native';
 import { InteractionManager, Linking } from 'react-native';
 import React, { useEffect } from 'react';
 import {
@@ -10,7 +9,7 @@ import {
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
-import { createDecipheriv, urlParamsToObj } from 'src/utils/service-utilities/utils';
+import { urlParamsToObj } from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -22,18 +21,21 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { addSigningDevice, refreshCanaryWallets } from 'src/store/sagaActions/vaults';
-import { resetVaultMigration } from 'src/store/reducers/vaults';
+import { resetVaultMigration, setRemoteLinkDetails } from 'src/store/reducers/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import dbManager from 'src/storage/realm/dbManager';
 import useAsync from 'src/hooks/useAsync';
-import { sentryConfig } from 'src/services/sentry';
+import { initializeSentry } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
-import { calculateTimeLeft } from 'src/utils/utilities';
-
-import { Psbt } from 'bitcoinjs-lib';
+import { generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
+import { getKeyUID } from 'src/utils/utilities';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
-import { updateKeyDetails } from 'src/store/sagaActions/wallets';
-import { decrypt } from 'src/utils/service-utilities/encryption';
+import { decrypt, getHashFromKey } from 'src/utils/service-utilities/encryption';
+import { CommonActions, useNavigationState } from '@react-navigation/native';
+import { updateCachedPsbtEnvelope } from 'src/store/reducers/cachedTxn';
+import { store } from 'src/store/store';
+import config from 'src/utils/service-utilities/config';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -43,10 +45,17 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const dispatch = useDispatch();
   const { isInitialLogin } = useAppSelector((state) => state.login);
   const { enableAnalyticsLogin } = useAppSelector((state) => state.settings);
-  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
+  const appData = useQuery(RealmSchema.KeeperApp);
+
+  const getAppData = (): { isPleb: boolean; appId: string } => {
+    const tempApp = appData.map(getJSONFromRealmObject)[0];
+    const isPleb = tempApp.subscription.name.toUpperCase() === SubscriptionTier.L1.toUpperCase();
+    const appId = tempApp.id.toString();
+    return { isPleb, appId };
+  };
 
   function handleDeepLinkEvent(event) {
-    console.log('🚀 ~ handleDeepLinkEvent ~ event:', event);
     const { url } = event;
     if (url) {
       if (url.includes('backup')) {
@@ -70,109 +79,125 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           showToast('Invalid deeplink');
         }
       }
-      if (url.includes('shareKey/')) {
+      if (url.includes('remote/')) {
         handleRemoteKeyDeepLink(url);
       }
     }
   }
 
+  const activeRoute = useNavigationState((state) => {
+    const route = state.routes[state.index]; // Get the active route
+    return route.name;
+  });
+
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
-    const [externalKeyId, encryptionKey] = initialUrl.split('shareKey/')[1].split('/');
-    if (externalKeyId) {
+    const { isPleb } = getAppData();
+    if (isPleb) {
+      showToast('Upgrade to Hodler to use Remote Key Sharing');
+      return false;
+    }
+
+    const encryptionKey = initialUrl.split('remote/')[1];
+    const hash = getHashFromKey(encryptionKey);
+    if (encryptionKey && hash) {
       try {
-        const res = await Relay.getRemoteKey(externalKeyId);
+        const res = await Relay.getRemoteKey(hash);
         if (!res) {
           showToast('Remote Key link expired');
           return;
         }
-        const { createdAt, data: response } = res;
+        const { data: response } = res;
         const tempData = JSON.parse(decrypt(encryptionKey, response));
         switch (tempData.type) {
           case RKInteractionMode.SHARE_REMOTE_KEY:
             navigation.navigate('ManageSigners', {
-              receivedExternalSigner: {
-                timeLeft: calculateTimeLeft(createdAt),
-                data: tempData,
-              },
+              remoteData: tempData,
             });
             break;
 
           case RKInteractionMode.SHARE_PSBT:
-            const { sendConfirmationRouteParams, signingDetails, tnxDetails, type } = tempData;
-            if (signingDetails?.serializedPSBTEnvelop) {
+            const { psbt, keyUID, xfp, cachedTxid } = tempData;
+
+            if (psbt) {
               try {
                 try {
-                  const signer = signers.find((s) => signingDetails.signer == s.masterFingerprint);
+                  const signer = signers.find((s) => keyUID == getKeyUID(s));
                   if (!signer) throw { message: 'Signer not found' };
-                  switch (signer.type) {
-                    case SignerType.SEED_WORDS:
-                    case SignerType.BITBOX02:
-                    case SignerType.LEDGER:
-                    case SignerType.TREZOR:
-                    case SignerType.COLDCARD:
-                    case SignerType.PASSPORT:
-                    case SignerType.SPECTER:
-                    case SignerType.TAPSIGNER:
-                    case SignerType.JADE:
-                    case SignerType.MY_KEEPER:
-                      // TODO: Navigate to PSBTSendConfirmation with psbt details
-                      break;
-                    default:
-                      console.log('Signer Type Unknown', signer.type); // TODO: remove this
-                      break;
+                  const {
+                    senderAddresses,
+                    receiverAddresses,
+                    fees,
+                    signerMatched,
+                    sendAmount,
+                    feeRate,
+                  } = generateDataFromPSBT(psbt, signer);
+                  const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
+
+                  if (!signerMatched) {
+                    showToast(`Invalid signer selection. Please try again!`, <ToastErrorIcon />);
+                    navigation.goBack();
+                    return;
                   }
+                  dispatch(setRemoteLinkDetails({ xfp, cachedTxid }));
+                  navigation.dispatch(
+                    CommonActions.navigate({
+                      name: 'PSBTSendConfirmation',
+                      params: {
+                        sender: senderAddresses,
+                        recipient: receiverAddresses,
+                        amount: sendAmount,
+                        data: psbt,
+                        fees: fees,
+                        estimatedBlocksBeforeConfirmation:
+                          tnxDetails.estimatedBlocksBeforeConfirmation,
+                        tnxPriority: tnxDetails.tnxPriority,
+                        signer,
+                        psbt: psbt,
+                        feeRate,
+                      },
+                    })
+                  );
                 } catch (e) {
                   showToast(e.message);
                 }
               } catch (e) {
                 console.log('🚀 ~ handleRemoteKeyDeepLink ~ e:', e);
-                showToast('Please scan a valid PSBT');
+                showToast('Something went wrong. Please try again!', <ToastErrorIcon />);
               }
             } else {
-              showToast('Invalid deeplink');
+              showToast('Invalid link. Please try again!', <ToastErrorIcon />);
             }
             break;
 
           case RKInteractionMode.SHARE_SIGNED_PSBT:
             try {
-              Psbt.fromBase64(tempData?.psbt); // will throw if not a psbt
-              if (!tempData.isMultisig) {
-                const signer = signers.find(
-                  (s) => tempData.vaultKey.masterFingerprint == s.masterFingerprint
+              const { psbt, xfp, cachedTxid } = tempData;
+              var state = store.getState();
+
+              if (
+                state.sendAndReceive.sendPhaseTwo.cachedTxid === cachedTxid &&
+                state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops.length &&
+                activeRoute != 'Home'
+              ) {
+                dispatch(updatePSBTEnvelops({ xfp, signedSerializedPSBT: psbt }));
+                const navState = navigation.getState();
+                const routeIndex = navState.routes.findIndex(
+                  (route) => route.name === 'SignTransactionScreen'
                 );
-                if (signer.type === SignerType.KEYSTONE) {
-                  dispatch(
-                    updatePSBTEnvelops({ xfp: tempData.vaultKey.xfp, txHex: tempData.psbt })
-                  );
-                } else {
-                  dispatch(
-                    updatePSBTEnvelops({
-                      xfp: tempData.vaultKey.xfp,
-                      signedSerializedPSBT: tempData.psbt,
-                    })
-                  );
+                if (routeIndex !== -1) {
+                  navigation.pop(navState.index - routeIndex);
+                  showToast('Remote Transaction signed successfully', <TickIcon />);
                 }
               } else {
-                dispatch(
-                  updatePSBTEnvelops({
-                    signedSerializedPSBT: tempData?.psbt,
-                    xfp: tempData.vaultKey.xfp,
-                  })
-                );
-                console.log('Vault ID is :', tempData.vaultId);
-                dispatch(
-                  updateKeyDetails(tempData.vaultKey, 'registered', {
-                    registered: true,
-                    vaultId: tempData.vaultId,
-                  })
-                );
+                dispatch(updateCachedPsbtEnvelope({ xfp, signedSerializedPSBT: psbt, cachedTxid }));
+                showToast('Remote Transaction signed successfully', <TickIcon />);
               }
             } catch (err) {
+              if (err.message) showToast(err.message, <ToastErrorIcon />);
               console.log('🚀 ~ handleRemoteKeyDeepLink ~ err:', err);
             }
-
             break;
           default:
             break;
@@ -190,12 +215,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     if (inProgress) {
       return;
     }
-    if (enableAnalyticsLogin) {
-      await start(() => Sentry.init(sentryConfig));
-    } else {
-      await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
+    if (enableAnalyticsLogin && config.isDevMode()) {
+      await start(() => initializeSentry());
     }
-    dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+    dbManager.updateObjectById(RealmSchema.KeeperApp, getAppData().appId, {
       enableAnalytics: enableAnalyticsLogin,
     });
   };
@@ -233,7 +256,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
             showToast('Invalid deeplink');
           }
         } else if (initialUrl.includes('create/')) {
-        } else if (initialUrl.includes('shareKey/')) {
+        } else if (initialUrl.includes('remote/')) {
           handleRemoteKeyDeepLink(initialUrl);
         }
       }

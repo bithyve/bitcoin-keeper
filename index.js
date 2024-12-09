@@ -10,7 +10,9 @@ import { Text, Input } from 'native-base';
 import App from './App';
 import { name as appName } from './app.json';
 import { enableAndroidFontFix } from './AndroidFontFix';
+import { initSentrySDK } from 'src/services/sentry';
 
+initSentrySDK();
 enableAndroidFontFix();
 
 Text.defaultProps = Text.defaultProps || {};

@@ -17,7 +17,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import { emailCheck } from 'src/utils/utilities';
+import { emailCheck, getKeyUID } from 'src/utils/utilities';
 import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppSelector } from 'src/store/hooks';
@@ -33,7 +33,7 @@ function IKSAddEmailPhone({ route }) {
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
   const dispatch = useDispatch();
   const [ikVaultKey] = vault.signers.filter(
-    (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
+    (vaultKey) => signerMap[getKeyUID(vaultKey)].type === SignerType.INHERITANCEKEY
   );
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -43,7 +43,7 @@ function IKSAddEmailPhone({ route }) {
 
   const updateIKSPolicy = async (email: string) => {
     try {
-      const IKSigner = signerMap[ikVaultKey.masterFingerprint];
+      const IKSigner = signerMap[getKeyUID(ikVaultKey)];
       if (IKSigner.inheritanceKeyInfo === undefined) {
         showToast(vaultTranslation.IKSconfMissToast, <TickIcon />);
       }

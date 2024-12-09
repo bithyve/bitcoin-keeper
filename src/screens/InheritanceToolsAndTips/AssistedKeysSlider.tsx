@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, SafeAreaView, FlatList, Dimensions, BackHandler } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 import AssistedKeysContentSlider from './components/AssistedKeysSliderContent';
 import { wp } from 'src/constants/responsive';
 
@@ -11,6 +10,7 @@ function AssistedKeysSlider({ items }) {
   const onboardingSlideRef = useRef(null);
   const [currentPosition, setCurrentPosition] = useState(0);
   const { colorMode } = useColorMode();
+  const showSliderIndicator = false;
 
   useEffect(() => {
     const backAction = () => true;
@@ -69,14 +69,16 @@ function AssistedKeysSlider({ items }) {
             )}
           />
         </Box>
-        <Box alignItems="center" flexDirection="row" height={5}>
-          {items.map((item, index) => (
-            <Box
-              key={item.id}
-              style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
-            />
-          ))}
-        </Box>
+        {showSliderIndicator && (
+          <Box alignItems="center" flexDirection="row" height={5}>
+            {items.map((item, index) => (
+              <Box
+                key={item.id}
+                style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
+              />
+            ))}
+          </Box>
+        )}
       </SafeAreaView>
     </Box>
   );

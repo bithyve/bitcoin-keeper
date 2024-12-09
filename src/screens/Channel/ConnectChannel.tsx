@@ -81,6 +81,7 @@ function ConnectChannel() {
     isMultisig,
     addSignerFlow = false,
     vaultId,
+    accountNumber = null,
   } = route.params as any;
 
   const [channel] = useState(io(config.CHANNEL_URL));
@@ -108,20 +109,6 @@ function ConnectChannel() {
     receivingAddress = resp.receivingAddress;
   }
 
-  const requestBody: RequestBody = {
-    action:
-      mode === InteracationMode.ADDRESS_VERIFICATION
-        ? EMIT_MODES.VERIFY_ADDRESS
-        : mode == EMIT_MODES.HEALTH_CHECK
-        ? EMIT_MODES.HEALTH_CHECK
-        : EMIT_MODES.ADD_DEVICE,
-    signerType,
-  };
-  if (mode === InteracationMode.ADDRESS_VERIFICATION) {
-    requestBody.descriptorString = descriptorString ?? null;
-    requestBody.receivingAddress = receivingAddress ?? null;
-  }
-
   const onBarCodeRead = (data) => {
     decryptionKey.current = data;
     const sha = crypto.createHash('sha256');
@@ -136,9 +123,11 @@ function ConnectChannel() {
           : EMIT_MODES.ADD_DEVICE,
       signerType,
     };
-    if (InteracationMode.ADDRESS_VERIFICATION) {
+    if (mode === InteracationMode.ADDRESS_VERIFICATION) {
       requestBody.descriptorString = descriptorString;
       requestBody.receivingAddress = receivingAddress;
+    } else {
+      requestBody.accountNumber = accountNumber;
     }
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
@@ -185,6 +174,8 @@ function ConnectChannel() {
           navigation.goBack();
           showToast(`Address verified successfully`, <TickIcon />);
         } else {
+          console.log('responseData');
+          console.log(responseData);
           signerSetup(signerType, responseData);
         }
       } catch (error) {
@@ -321,6 +312,7 @@ type RequestBody = {
   signerType: string;
   descriptorString?: string;
   receivingAddress?: string;
+  accountNumber?: number;
 };
 
 const styles = StyleSheet.create({

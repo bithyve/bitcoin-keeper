@@ -16,7 +16,7 @@ import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { getPersistedDocument, persistDocument } from 'src/services/documents';
 
-const EditContact = ({ route }) => {
+function EditContact({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signer } = route.params;
@@ -111,7 +111,7 @@ const EditContact = ({ route }) => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
 const generateFullName = (signer) => {
   let fullName = '';
   if (signer.extraData.givenName) fullName += signer.extraData.givenName;
-  if (signer.extraData.familyName) fullName += ' ' + signer.extraData.familyName;
+  if (signer.extraData.familyName) fullName += ` ${signer.extraData.familyName}`;
   return fullName;
 };
 export default EditContact;

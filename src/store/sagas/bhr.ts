@@ -79,6 +79,7 @@ import { KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { addSigningDeviceWorker } from './wallets';
+import { getKeyUID } from 'src/utils/utilities';
 
 export function* updateAppImageWorker({
   payload,
@@ -104,7 +105,7 @@ export function* updateAppImageWorker({
   } else if (signers) {
     for (const signer of signers) {
       const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
-      signersObjects[signer.masterFingerprint] = encrytedSigner;
+      signersObjects[getKeyUID(signer)] = encrytedSigner;
     }
   } else {
     // update all wallets and signers
@@ -118,7 +119,7 @@ export function* updateAppImageWorker({
     for (const index in signers) {
       const signer = signers[index];
       const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
-      signersObjects[signer.masterFingerprint] = encrytedSigner;
+      signersObjects[getKeyUID(signer)] = encrytedSigner;
     }
   }
 
@@ -186,7 +187,8 @@ export function* updateVaultImageWorker({
   }> = [];
   for (const signer of vault.signers) {
     signersData.push({
-      signerId: signer.xfp,
+      // TODO: Upate relay to use KeyUID
+      signerId: getKeyUID(signer),
       xfpHash: hash256(signer.masterFingerprint),
     });
   }
@@ -246,12 +248,7 @@ export function* deleteAppImageEntityWorker({
     }
     if (signerIds?.length > 0) {
       for (const signerId of signerIds) {
-        yield call(
-          dbManager.deleteObjectByPrimaryKey,
-          RealmSchema.Signer,
-          'masterFingerprint',
-          signerId
-        );
+        yield call(dbManager.deleteObjectByPrimaryKey, RealmSchema.Signer, 'id', signerId);
       }
     }
     return response;
@@ -466,6 +463,9 @@ function* recoverApp(
     for (const [key, value] of Object.entries(appImage.signers)) {
       try {
         const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
+        if (!decrytpedSigner?.id) {
+          decrytpedSigner.id = getKeyUID(decrytpedSigner);
+        }
         yield call(dbManager.createObject, RealmSchema.Signer, decrytpedSigner);
       } catch (err) {
         console.log('Error recovering a signer: ', err);
@@ -517,6 +517,7 @@ function* recoverApp(
                 }
               });
               const signerObject = {
+                id: getKeyUID(signer),
                 masterFingerprint: signer.masterFingerprint,
                 type: signer.type,
                 signerName: getSignerNameFromType(signer.type, signer.isMock, false),
@@ -626,28 +627,30 @@ function* healthCheckSatutsUpdateWorker({
     ];
     const { signerUpdates } = payload;
     for (const signerUpdate of signerUpdates) {
-      const signerRealm: Signer = dbManager.getObjectByPrimaryId(
+      const signersRealm: Signer[] = dbManager.getObjectByField(
         RealmSchema.Signer,
-        'masterFingerprint',
-        signerUpdate.signerId
+        signerUpdate.signerId,
+        'masterFingerprint'
       );
-      const signer: Signer = getJSONFromRealmObject(signerRealm);
-      if (signer) {
-        const date = new Date();
-        const newHealthCheckDetails: HealthCheckDetails = {
-          type: signerUpdate.status,
-          actionDate: date,
-        };
+      for (const signerRealm of signersRealm) {
+        const signer: Signer = getJSONFromRealmObject(signerRealm);
+        if (signer) {
+          const date = new Date();
+          const newHealthCheckDetails: HealthCheckDetails = {
+            type: signerUpdate.status,
+            actionDate: date,
+          };
 
-        const oldDetialsArray = [...signer.healthCheckDetails];
-        const oldDetails = oldDetialsArray.map((details) => {
-          return { ...details, date: new Date(details.actionDate) };
-        });
+          const oldDetialsArray = [...signer.healthCheckDetails];
+          const oldDetails = oldDetialsArray.map((details) => {
+            return { ...details, date: new Date(details.actionDate) };
+          });
 
-        const updatedDetailsArray: HealthCheckDetails[] = [...oldDetails, newHealthCheckDetails];
+          const updatedDetailsArray: HealthCheckDetails[] = [...oldDetails, newHealthCheckDetails];
 
-        yield put(updateSignerDetails(signer, 'healthCheckDetails', updatedDetailsArray));
-        if (HcSuccessTypes.includes(signerUpdate.status)) yield put(healthCheckSigner([signer]));
+          yield put(updateSignerDetails(signer, 'healthCheckDetails', updatedDetailsArray));
+          if (HcSuccessTypes.includes(signerUpdate.status)) yield put(healthCheckSigner([signer]));
+        }
       }
     }
   } catch (err) {

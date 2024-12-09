@@ -95,17 +95,13 @@ function TransactionElement({
             hideAmounts={false}
             amount={transaction?.amount}
             fontSize={16}
-            color={`${colorMode}.dateText`}
+            color={`${colorMode}.primaryText`}
             balanceMaxWidth={transaction?.amount < 10000000 ? wp(75) : wp(90)}
-            variation={colorMode === 'light' ? 'dark' : 'light'}
+            variation={colorMode === 'light' ? 'richBlack' : 'light'}
           />
           {transaction?.amount < 10000000 && (
             <Box style={[styles.arrowIconWrapper]}>
-              {colorMode === 'dark' ? (
-                <IconArrowWhite width={6.63} height={11.33} />
-              ) : (
-                <IconArrow width={6.63} height={11.33} />
-              )}
+              {colorMode === 'dark' ? <IconArrowWhite /> : <IconArrow />}
             </Box>
           )}
         </Box>
@@ -118,7 +114,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     borderRadius: 10,
-    height: hp(80),
+    height: hp(76),
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,

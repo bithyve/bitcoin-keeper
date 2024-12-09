@@ -15,7 +15,7 @@ interface ICurrencyInfo {
   bold?: boolean;
   color?: string;
   balanceMaxWidth?: number;
-  variation?: 'light' | 'green' | 'dark' | 'grey';
+  variation?: 'light' | 'green' | 'dark' | 'grey' | 'slateGreen' | 'richBlack';
 }
 function CurrencyInfo({
   hideAmounts,

@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Input, useColorMode, Box } from 'native-base';
-import KeeperText from './KeeperText';
 import Colors from 'src/theme/Colors';
+import KeeperText from './KeeperText';
 
 function KeeperTextInput({
   placeholder,
@@ -30,7 +30,7 @@ function KeeperTextInput({
       borderColor={inpuBorderColor || `${colorMode}.greyBorder`}
     >
       <Input
-        variant={'unstyled'}
+        variant="unstyled"
         defaultValue={defaultValue}
         ref={inputRef}
         placeholder={placeholder}

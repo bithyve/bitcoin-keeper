@@ -12,8 +12,8 @@ import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import SigningServer from 'src/services/backend/SigningServer';
 import { isTestnet } from 'src/constants/Bitcoin';
 import * as PORTAL from 'src/hardware/portal';
-import { checkAndUnlock } from '../SigningDevices/SetupPortal';
 import { getInputsFromPSBT } from 'src/utils/utilities';
+import { checkAndUnlock } from '../SigningDevices/SetupPortal';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -36,9 +36,8 @@ export const signTransactionWithTapsigner = async ({
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,
-      inputs,
       serializedPSBT,
-      xpriv
+      { ...signer, xpriv }
     );
     return { signedSerializedPSBT, signingPayload: null };
   }
@@ -90,9 +89,8 @@ export const signTransactionWithMobileKey = async ({
   const [signer] = defaultVault.signers.filter((signer) => signer.xfp === xfp);
   const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
     defaultVault,
-    inputs,
     serializedPSBT,
-    signer.xpriv
+    signer
   );
   return { signedSerializedPSBT };
 };
@@ -183,10 +181,8 @@ export const signTransactionWithSeedWords = async ({
     if (signerXpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,
-      inputs,
       serializedPSBT,
-      xpriv,
-      isRemoteKey
+      { ...signer, xpriv }
     );
     return { signedSerializedPSBT };
   } catch (err) {
