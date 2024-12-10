@@ -539,7 +539,7 @@ function SetupCollaborativeWallet() {
 
 const styles = StyleSheet.create({
   signerCard: {
-    width: windowWidth / 3 - windowWidth * 0.055,
+    width: windowWidth / 3 - windowWidth * 0.062,
     height: hp(157),
     marginRight: wp(8),
   },
