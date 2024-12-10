@@ -96,7 +96,11 @@ function AddKeyContent({ addKeyOptions }) {
         />
       ))}
       <Box style={styles.noteContainer}>
-        <Note title={common.note} subtitleColor="GreyText" subtitle={vaultText.addKeyNote} />
+        <Note
+          title={common.note}
+          subtitleColor="GreyText"
+          subtitle={vaultText.addKeyNoteSubtitle}
+        />
       </Box>
     </Box>
   );
@@ -181,7 +185,7 @@ function CollaborativeModals({
         close={() => setAddKeyModal(false)}
         DarkCloseIcon={colorMode === 'dark'}
         title={vaultText.addAKey}
-        subTitle={vaultText.selectMedium}
+        subTitle={vaultText.addKeyModalSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

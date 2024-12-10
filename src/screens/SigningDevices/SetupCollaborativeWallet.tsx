@@ -43,7 +43,6 @@ import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import NFCMOdal from './components/NFCModal';
 
 function SignerItem({
   vaultKey,
@@ -509,11 +508,8 @@ function SetupCollaborativeWallet() {
       <WalletVaultCreationModal
         visible={walletCreatedModal}
         title={vaultText.vaultCreatedSuccessTitle}
-        subTitle={`Your ${collaborativeVault?.scheme?.m}-of-${collaborativeVault?.scheme?.n} vault has been created successfully. Please test it before putting in significant amounts.`}
+        subTitle={`Your ${collaborativeVault?.scheme?.m}-of-${collaborativeVault?.scheme?.n} vault has been created successfully.`}
         buttonText={vaultText.ViewVault}
-        descriptionMessage={
-          'Please make sure to back up the vault configuration file from the vault settings.'
-        }
         buttonCallback={() => {
           navigateToNextScreen();
         }}
