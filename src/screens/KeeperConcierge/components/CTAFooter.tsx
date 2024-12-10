@@ -11,7 +11,7 @@ import DocumentLight from 'src/assets/images/document-light.svg';
 import DocumentDark from 'src/assets/images/document-dark.svg';
 import { launchImageLibrary } from 'react-native-image-picker';
 
-const CTAFooter = ({ onAttachScreenshot }) => {
+const CTAFooter = ({ onAttachScreenshot, addAttributes, onNext }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
 
@@ -36,7 +36,7 @@ const CTAFooter = ({ onAttachScreenshot }) => {
 
       <Box style={styles.separator} />
       <Box>
-        <Pressable style={[styles.touchable]}>
+        <Pressable style={[styles.touchable]} onPress={addAttributes}>
           {isDarkMode ? <DocumentDark /> : <DocumentLight />}
           <Text color={`${colorMode}.buttonText`} fontSize={12}>
             Share App Attributes
@@ -45,7 +45,7 @@ const CTAFooter = ({ onAttachScreenshot }) => {
       </Box>
 
       <Box>
-        <Pressable style={[styles.touchable]}>
+        <Pressable style={[styles.touchable]} onPress={onNext}>
           {isDarkMode ? <PaperPlaneDark /> : <PaperPlaneLight />}
         </Pressable>
       </Box>

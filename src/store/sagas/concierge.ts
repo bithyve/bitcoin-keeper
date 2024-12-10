@@ -1,6 +1,6 @@
 import { call, put, select } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
-import { GO_TO_CONCEIERGE, OPEN_CONCEIERGE } from '../sagaActions/concierge';
+import { GO_TO_CONCEIERGE, LOAD_CONCIERGE_USER, OPEN_CONCEIERGE } from '../sagaActions/concierge';
 import * as Zendesk from 'react-native-zendesk-messaging';
 import { Linking, Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
@@ -8,8 +8,18 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { RootState } from '../store';
-import { setConciergTags, showOnboarding } from '../reducers/concierge';
+import {
+  setConciergTags,
+  showOnboarding,
+  loadConciergeUser,
+  conciergeUser,
+  setConciergeLoading,
+  setConciergeUserSuccess,
+  setConciergeUserFailed,
+} from '../reducers/concierge';
 import { setDontShowConceirgeOnboarding } from '../reducers/storage';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import ZendeskClass from 'src/services/backend/Zendesk';
 
 function* goToConceirge({
   payload,
@@ -65,4 +75,49 @@ function* openConceirge({
   yield call(Zendesk.openMessagingView);
 }
 
+function* loadConciergeUserWorker() {
+  try {
+    const { primaryMnemonic }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
+    let userExternalId = yield call(hash256, primaryMnemonic);
+    userExternalId = userExternalId.toString().substring(0, 24);
+    yield put(setConciergeLoading(true));
+    const res = yield call(ZendeskClass.fetchZendeskUser, userExternalId);
+    if (res.status === 200 && res.data.users.length > 0) {
+      // User already exists and found
+      const data: conciergeUser = {
+        id: res.data.users[0].id,
+        name: res.data.users[0].name,
+        userExternalId: res.data.users[0].external_id,
+      };
+      yield put(loadConciergeUser(data));
+      yield put(setConciergeLoading(false));
+      yield put(setConciergeUserSuccess(true));
+    } else {
+      // user not exists, create new
+      const userRes = yield call(ZendeskClass.createZendeskUser, userExternalId);
+      if (userRes.status === 201) {
+        const data = {
+          id: userRes.data.user.id,
+          name: userRes.data.user.name,
+          userExternalId: userRes.data.user.external_id,
+        };
+        yield put(loadConciergeUser(data));
+        yield put(setConciergeLoading(false));
+        yield put(setConciergeUserSuccess(true));
+      } else {
+        yield put(setConciergeLoading(false));
+        yield put(setConciergeUserFailed(true));
+      }
+    }
+  } catch (error) {
+    console.log('🚀 ~ function*loadConciergeUserWorker ~ error:', error);
+    yield put(setConciergeUserFailed(true));
+    yield put(setConciergeLoading(false));
+  }
+}
+
 export const openConceirgeWatcher = createWatcher(openConceirge, OPEN_CONCEIERGE);
+export const loadConciergeUserWatcher = createWatcher(loadConciergeUserWorker, LOAD_CONCIERGE_USER);

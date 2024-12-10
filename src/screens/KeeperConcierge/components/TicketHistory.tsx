@@ -6,6 +6,7 @@ import { hp, wp } from 'src/constants/responsive';
 import EmptyIllustrationLight from 'src/assets/images/empty-ticket-illustration-light.svg';
 import EmptyIllustrationDark from 'src/assets/images/empty-ticket-illustration-dark.svg';
 import TicketList from './TicketList';
+import { useSelector } from 'react-redux';
 
 const HistoryTitle = () => {
   const { colorMode } = useColorMode();
@@ -38,11 +39,11 @@ const EmptyState = () => {
 };
 
 const TicketHistory = () => {
-  const isEmpty = false;
+  const { tickets } = useSelector((state) => state.concierge);
   return (
     <Box style={styles.container}>
       <HistoryTitle />
-      {isEmpty ? <EmptyState /> : <TicketList />}
+      {tickets.length ? <TicketList /> : <EmptyState />}
     </Box>
   );
 };

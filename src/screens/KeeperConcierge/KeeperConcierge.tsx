@@ -1,5 +1,5 @@
 import { Image, ScrollView, useColorMode } from 'native-base';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
@@ -21,9 +21,11 @@ import CardPill from 'src/components/CardPill';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import StackedCirclesList from '../Vault/components/StackedCircleList';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
-import { useDispatch } from 'react-redux';
+import { ConciergeTag, goToConcierge, loadConciergeUser } from 'src/store/sagaActions/concierge';
+import { useDispatch, useSelector } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { setConciergeUserFailed, setConciergeUserSuccess } from 'src/store/reducers/concierge';
 
 const KeeperConcierge = () => {
   const dispatch = useDispatch();
@@ -32,6 +34,23 @@ const KeeperConcierge = () => {
   const { concierge } = translations;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const { showToast } = useToastMessage();
+  const { conciergeUser, conciergeLoading, conciergeUserSuccess, conciergeUserFailed } =
+    useSelector((store) => store.concierge);
+
+  React.useEffect(() => {
+    if (conciergeUserSuccess == true) {
+      navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
+      dispatch(setConciergeUserSuccess(false));
+    }
+  }, [conciergeUserSuccess]);
+
+  React.useEffect(() => {
+    if (conciergeUserFailed == true) {
+      dispatch(setConciergeUserFailed(false));
+      showToast('Something went wrong');
+    }
+  }, [conciergeUserFailed]);
 
   const placeHolders = [
     {
@@ -87,7 +106,7 @@ const KeeperConcierge = () => {
       titleComponent: <TicketCount count={1} />,
       titleComonentStyle: { justifyContent: 'space-between' },
       buttonCallback: () => {
-        navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
+        checkConciergeUser();
       },
     },
     {
@@ -120,8 +139,20 @@ const KeeperConcierge = () => {
     },
   ];
 
+  const checkConciergeUser = () => {
+    if (conciergeUser !== null) {
+      navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
+      return;
+    }
+    dispatch(loadConciergeUser());
+  };
+
   return (
-    <ConciergeScreenWrapper backgroundcolor={`${colorMode}.pantoneGreen`} barStyle="light-content">
+    <ConciergeScreenWrapper
+      backgroundcolor={`${colorMode}.pantoneGreen`}
+      barStyle="light-content"
+      loading={conciergeLoading}
+    >
       <ConciergeHeader title={concierge.conciergeTitle} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         <ScrollView contentContainerStyle={styles.scrollContent}>

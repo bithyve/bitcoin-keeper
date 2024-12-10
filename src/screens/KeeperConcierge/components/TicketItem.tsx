@@ -3,10 +3,11 @@ import { Box, HStack, VStack, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import { timeFromTimeStamp } from 'src/utils/utilities';
 
 const TicketItem = ({ ticket, handlePress }) => {
   const { colorMode } = useColorMode();
-  const isReply = ticket.isReply;
+  const isReply = false;
 
   return (
     <TouchableOpacity onPress={handlePress}>
@@ -17,13 +18,13 @@ const TicketItem = ({ ticket, handlePress }) => {
       >
         <HStack style={styles.header}>
           <Text color={`${colorMode}.primaryText`} fontSize={15} semiBold>
-            Support Team{'  '}
+            {'Support Team '}
             <Text color={`${colorMode}.greenText`} fontSize={15}>
-              #{ticket.ticketId}
+              #{ticket.id}
             </Text>
           </Text>
           <Text color={`${colorMode}.primaryText`} fontSize={12}>
-            {ticket.time}
+            {timeFromTimeStamp(ticket.created_at)}
           </Text>
         </HStack>
         <VStack style={{ marginTop: !isReply ? hp(12) : hp(2.5) }}>
@@ -62,7 +63,7 @@ const TicketItem = ({ ticket, handlePress }) => {
               numberOfLines={2}
               style={styles.text}
             >
-              {ticket.content}
+              {ticket.description}
             </Text>
           )}
         </VStack>

@@ -3,20 +3,27 @@ import { ScrollView, VStack } from 'native-base';
 import TicketItem from './TicketItem';
 import { hp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
-import { tickets } from './constants';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 const TicketList = () => {
+  const { tickets } = useSelector((state) => state.concierge);
   const navigation = useNavigation();
-  const handlePress = (ticket) => {
-    navigation.dispatch(CommonActions.navigate({ name: 'TicketDetails', params: { ticket } }));
+  const handlePress = (ticketId, ticketStatus) => {
+    navigation.dispatch(
+      CommonActions.navigate({ name: 'TicketDetails', params: { ticketId, ticketStatus } })
+    );
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <VStack style={styles.ticketContainer}>
         {tickets.map((ticket, index) => (
-          <TicketItem key={index} ticket={ticket} handlePress={() => handlePress(ticket)} />
+          <TicketItem
+            key={index}
+            ticket={ticket}
+            handlePress={() => handlePress(ticket.id, ticket.status)}
+          />
         ))}
       </VStack>
     </ScrollView>
