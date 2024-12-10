@@ -11,6 +11,7 @@ import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { EntityKind, VaultType } from 'src/services/wallets/enums';
+import Colors from 'src/theme/Colors';
 
 const getWalletIcon = (walletType) => {
   if (walletType === EntityKind.VAULT) {
@@ -24,9 +25,15 @@ const getWalletIcon = (walletType) => {
 
 function WalletCreatedModalContent(props) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   return (
     <Box>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
+      <Box
+        backgroundColor={`${colorMode}.seashellWhite`}
+        style={styles.walletVaultInfoContainer}
+        marginY={props.descriptionMessage ? 10 : 0}
+        borderColor={`${colorMode}.dullGreyBorder`}
+      >
         <Box style={styles.pillsContainer}>
           {props.tags?.map((tag, index) => {
             return (
@@ -43,7 +50,7 @@ function WalletCreatedModalContent(props) {
             <HexagonIcon
               width={44}
               height={38}
-              backgroundColor={'rgba(45, 103, 89, 1)'}
+              backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
               icon={getWalletIcon(props.walletType)}
             />
           </Box>
@@ -102,14 +109,14 @@ function WalletVaultCreationModal(props) {
 }
 const styles = StyleSheet.create({
   descText: {
-    fontSize: 13,
+    fontSize: 14,
     width: wp(300),
   },
   walletVaultInfoContainer: {
     paddingHorizontal: 15,
     paddingVertical: 20,
-    marginVertical: 20,
     borderRadius: 10,
+    borderWidth: 1,
   },
   walletVaultInfoWrapper: {
     flexDirection: 'row',

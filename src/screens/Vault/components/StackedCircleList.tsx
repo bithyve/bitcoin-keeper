@@ -1,31 +1,46 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import { hp, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 interface StackedCirclesListProps {
-  items: { Icon: Element; backgroundColor: any }[];
+  items: { Icon: Element; backgroundColor?: any }[];
+  width?: number;
+  height?: number;
+  itemDistance?: number;
+  borderColor?: string;
+  reverse?: boolean;
 }
 
-const StackedCirclesList: React.FC<StackedCirclesListProps> = ({ items }) => {
+const StackedCirclesList: React.FC<StackedCirclesListProps> = ({
+  items,
+  width = wp(20),
+  height = wp(20),
+  itemDistance = wp(-8),
+  borderColor,
+  reverse = false,
+}) => {
   const { colorMode } = useColorMode();
-
   const totalItems = items.length;
   const maxVisible = 4;
+
+  const zIndexModifier = reverse ? (index: number) => index : (index: number) => totalItems - index;
 
   return (
     <Box style={styles.container}>
       {items.slice(0, maxVisible).map((item, index) => (
         <Box
           key={index}
-          left={index * wp(-8)}
+          left={index * itemDistance}
           backgroundColor={item.backgroundColor || `${colorMode}.dullGreyBorder`}
-          borderColor={`${colorMode}.dullGreyBorder`}
+          borderColor={borderColor || `${colorMode}.dullGreyBorder`}
           style={[
             styles.itemContainer,
             {
-              zIndex: totalItems - index,
+              zIndex: zIndexModifier(index),
+              width: width,
+              height: height,
             },
           ]}
         >
@@ -38,7 +53,7 @@ const StackedCirclesList: React.FC<StackedCirclesListProps> = ({ items }) => {
           left={maxVisible * wp(-8)}
           backgroundColor={`${colorMode}.pantoneGreen`}
           borderColor={`${colorMode}.dullGreyBorder`}
-          style={styles.itemContainer}
+          style={[styles.itemContainer, { width: width, height: height }]}
         >
           <Text medium style={styles.countText} color={`${colorMode}.modalGreenContent`}>
             +{totalItems - maxVisible}
@@ -59,8 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center',
-    width: wp(20),
-    height: wp(20),
+    overflow: 'hidden',
   },
   iconContainer: {
     width: wp(30),
