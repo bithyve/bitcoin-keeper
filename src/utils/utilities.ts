@@ -269,6 +269,36 @@ export const capitalizeEachWord = (text: string): string => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
+
+
+
+export const timeFromTimeStamp = (timestamp: string): string => {
+  const date = new Date(timestamp);
+  const today = new Date();
+
+  const inputYear = date.getFullYear();
+  const inputMonth = date.toLocaleString('default', { month: 'long' });
+  const inputDay = date.getDate();
+
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth();
+  const todayDay = today.getDate();
+
+  if (inputYear === todayYear && date.getMonth() === todayMonth && inputDay === todayDay) {
+    const hours = date.getHours() % 12 || 12; // Handle 12-hour format
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+    return `${hours}:${minutes} ${ampm}`;
+  }
+
+  if (inputYear === todayYear) {
+    return `${inputDay} ${inputMonth}`;
+  }
+
+  return `${inputDay} ${inputMonth} ${inputYear}`;
+};
+
+
 export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
