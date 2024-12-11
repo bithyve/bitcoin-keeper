@@ -99,13 +99,13 @@ function VaultMigrationController({
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful && temporaryVault) {
+      setCreating(false);
       if (
         activeVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG &&
         activeVault.type === VaultType.INHERITANCE
       ) {
         WalletUtilities.fetchCurrentBlockHeight()
           .then(({ currentBlockHeight }) => {
-            setCreating(false);
             navigation.dispatch(
               CommonActions.navigate('SendConfirmation', {
                 sender: activeVault,
