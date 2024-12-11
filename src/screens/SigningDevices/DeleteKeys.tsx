@@ -181,18 +181,15 @@ function DeleteKeys({ route }) {
           <HexagonIcon
             width={49}
             height={44}
-            backgroundColor={colorMode === 'dark' ? Colors.pantoneGreenDark : Colors.pantoneGreen}
+            backgroundColor={colorMode === 'dark' ? Colors.DullGreen : Colors.pantoneGreen}
             icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
           />
         }
       />
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
+      <Box style={styles.container}>
         {hiddenSigners.length === 0 ? (
           <Box style={styles.emptyWrapper}>
-            <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
+            <Text color={`${colorMode}.greenishGreyText`} style={styles.emptyText} medium>
               {signerText.hideSignerTitle}
             </Text>
             <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
@@ -201,30 +198,39 @@ function DeleteKeys({ route }) {
             <EmptyState />
           </Box>
         ) : (
-          hiddenSigners.map((signer) => {
-            const showDelete =
-              signer.type !== SignerType.INHERITANCEKEY && signer.type !== SignerType.POLICY_SERVER;
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+          >
+            {hiddenSigners.map((signer) => {
+              const showDelete =
+                signer.type !== SignerType.INHERITANCEKEY &&
+                signer.type !== SignerType.POLICY_SERVER;
 
-            return (
-              <KeyCard
-                key={getKeyUID(signer)}
-                isLoading={getKeyUID(signer) === unhidingKeyUID}
-                primaryAction={showDelete ? () => handleDelete(signer) : null}
-                secondaryAction={() => unhide(signer)}
-                primaryText={showDelete ? signerText.delete : null}
-                secondaryText={signerText.unhide}
-                primaryIcon={showDelete ? <DeleteIcon /> : null}
-                secondaryIcon={<ShowIcon />}
-                icon={{ element: SDIcons(signer.type, true).Icon, backgroundColor: 'pantoneGreen' }}
-                name={getSignerNameFromType(signer.type)}
-                description={getSignerDescription(signer)}
-                descriptionTitle={'Description'}
-                dateAdded={`Added ${moment(signer?.addedOn).calendar()}`}
-              />
-            );
-          })
+              return (
+                <KeyCard
+                  key={getKeyUID(signer)}
+                  isLoading={getKeyUID(signer) === unhidingKeyUID}
+                  primaryAction={showDelete ? () => handleDelete(signer) : null}
+                  secondaryAction={() => unhide(signer)}
+                  primaryText={showDelete ? signerText.delete : null}
+                  secondaryText={signerText.unhide}
+                  primaryIcon={showDelete ? <DeleteIcon /> : null}
+                  secondaryIcon={<ShowIcon />}
+                  icon={{
+                    element: SDIcons(signer.type, true).Icon,
+                    backgroundColor: 'pantoneGreen',
+                  }}
+                  name={getSignerNameFromType(signer.type)}
+                  description={getSignerDescription(signer)}
+                  descriptionTitle={'Description'}
+                  dateAdded={`Added ${moment(signer?.addedOn).calendar()}`}
+                />
+              );
+            })}
+          </ScrollView>
         )}
-      </ScrollView>
+      </Box>
       <KeeperModal
         visible={warningEnabled && !!vaultsUsed}
         close={() => setHideWarning(false)}
@@ -321,6 +327,9 @@ function DeleteKeys({ route }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   signerContainer: {
     width: windowWidth * 0.85,
     borderRadius: 10,
@@ -337,12 +346,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   emptyWrapper: {
-    height: '100%',
+    height: '80%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   emptyText: {
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 20,
     marginBottom: hp(3),
   },
