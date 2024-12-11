@@ -12,7 +12,7 @@ function UpgradeSubscription({ type, customStyles }) {
   return (
     <HStack
       style={StyleSheet.flatten([styles.container, customStyles?.container])}
-      borderTopColor={`${colorMode}.lightSkin`}
+      borderColor={`${colorMode}.lightSkin`}
       justifyContent={'space-around'}
     >
       <Text>Unlock at {type} Tier</Text>
