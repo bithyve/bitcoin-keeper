@@ -93,13 +93,19 @@ function* loadConciergeUserWorker() {
     let userExternalId = yield call(hash256, primaryMnemonic);
     userExternalId = userExternalId.toString().substring(0, 24);
     yield put(setConciergeLoading(true));
-    const res = yield call(ZendeskClass.fetchZendeskUser, userExternalId);
-    if (res.status === 200 && res.data.users.length > 0) {
-      // User already exists and found
+
+    let res = yield call(ZendeskClass.fetchZendeskUser, userExternalId);
+    if (res?.data?.users?.length == 0) {
+      // User not found | create user
+      res = yield call(ZendeskClass.createZendeskUser, userExternalId);
+    }
+    if (res.status === 201 || res.status === 200) {
+      // success
+      const user = res.data?.users ? res.data.users[0] : res.data.user;
       const data: conciergeUser = {
-        id: res.data.users[0].id,
-        name: res.data.users[0].name,
-        userExternalId: res.data.users[0].external_id,
+        id: user.id,
+        name: user.name,
+        userExternalId: user.external_id,
       };
       const relayData = {
         appID: id,
@@ -111,27 +117,9 @@ function* loadConciergeUserWorker() {
       yield put(setConciergeLoading(false));
       yield put(setConciergeUserSuccess(true));
     } else {
-      // user not exists, create new
-      const userRes = yield call(ZendeskClass.createZendeskUser, userExternalId);
-      if (userRes.status === 201) {
-        const data = {
-          id: userRes.data.user.id,
-          name: userRes.data.user.name,
-          userExternalId: userRes.data.user.external_id,
-        };
-        const relayData = {
-          appID: id,
-          FCM: fcmToken,
-          externalId: data.id, // userId to be utilized here
-        };
-        yield put(loadConciergeUser(data));
-        yield call(Relay.updateZendeskExternalId, relayData);
-        yield put(setConciergeLoading(false));
-        yield put(setConciergeUserSuccess(true));
-      } else {
-        yield put(setConciergeLoading(false));
-        yield put(setConciergeUserFailed(true));
-      }
+      // failure
+      yield put(setConciergeLoading(false));
+      yield put(setConciergeUserFailed(true));
     }
   } catch (error) {
     console.log('🚀 ~ function*loadConciergeUserWorker ~ error:', error);
