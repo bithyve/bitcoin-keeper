@@ -1,6 +1,11 @@
 import { call, put, select } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
-import { GO_TO_CONCEIERGE, LOAD_CONCIERGE_USER, OPEN_CONCEIERGE } from '../sagaActions/concierge';
+import {
+  ADD_TICKET_STATUS_UAI,
+  GO_TO_CONCEIERGE,
+  LOAD_CONCIERGE_USER,
+  OPEN_CONCEIERGE,
+} from '../sagaActions/concierge';
 import * as Zendesk from 'react-native-zendesk-messaging';
 import { Linking, Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
@@ -21,6 +26,8 @@ import { setDontShowConceirgeOnboarding } from '../reducers/storage';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import ZendeskClass from 'src/services/backend/Zendesk';
 import Relay from 'src/services/backend/Relay';
+import { addToUaiStack } from '../sagaActions/uai';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 function* goToConceirge({
   payload,
@@ -133,5 +140,28 @@ function* loadConciergeUserWorker() {
   }
 }
 
+function* addTicketStatusUAIWorker({
+  payload,
+}: {
+  payload: { ticketId: string; title: string; body: string };
+}) {
+  const { ticketId, title, body } = payload;
+  try {
+    yield put(
+      addToUaiStack({
+        uaiType: uaiType.ZENDESK_TICKET,
+        entityId: ticketId,
+        uaiDetails: { heading: title, body },
+      })
+    );
+  } catch (error) {
+    console.log('🚀 ~ function*addTicketStatusUAIWorker ~ error:', error);
+  }
+}
+
 export const openConceirgeWatcher = createWatcher(openConceirge, OPEN_CONCEIERGE);
 export const loadConciergeUserWatcher = createWatcher(loadConciergeUserWorker, LOAD_CONCIERGE_USER);
+export const addTicketStatusUAIWatcher = createWatcher(
+  addTicketStatusUAIWorker,
+  ADD_TICKET_STATUS_UAI
+);
