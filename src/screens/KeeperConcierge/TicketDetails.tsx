@@ -141,31 +141,21 @@ const TicketDetails = ({ route }) => {
     }
   };
 
-  const ListFooterComponent = () => {
-    return (
-      <Box>
-        {showNote && (
-          <Box style={styles.note}>
-            <TicketNote
-              note={
-                'Our Tech Team will reach out to you within 48-72 hours when the issue gets fixed'
-              }
-            />
-          </Box>
-        )}
-        {ticketClosed && (
-          <Box style={styles.closed}>
-            <TicketNote
-              closed
-              note={
-                'Issue resolved. Thank you for contacting our tech team. Your feedback is valued.'
-              }
-            />
-          </Box>
-        )}
-      </Box>
-    );
-  };
+  const ListFooterComponent = () => (
+    <Box style={styles.note}>
+      {(showNote && !ticketClosed) || ticketClosed ? (
+        <TicketNote
+          closed={ticketClosed}
+          note={
+            ticketClosed
+              ? 'Issue resolved. Thank you for contacting our tech team. Your feedback is valued.'
+              : 'Our Tech Team will reach out to you within 48-72 hours when the issue gets fixed'
+          }
+        />
+      ) : null}
+    </Box>
+  );
+
   const Separator = () => <Box height={0.5} backgroundColor={`${colorMode}.separator`} />;
 
   return (
