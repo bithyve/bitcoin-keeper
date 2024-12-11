@@ -34,6 +34,8 @@ import { Psbt } from 'bitcoinjs-lib';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { decrypt } from 'src/utils/service-utilities/encryption';
+import messaging from '@react-native-firebase/messaging';
+import { notificationType } from 'src/models/enums/Notifications';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -199,6 +201,33 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       enableAnalytics: enableAnalyticsLogin,
     });
   };
+
+  const handleZendeskNotificationRedirection = (data) => {
+    if (data?.notificationType === notificationType.ZENDESK_TICKET) {
+      const { ticketId = null, ticketStatus = null } = data;
+      if (ticketId && ticketStatus)
+        navigation.navigate({
+          name: 'TicketDetails',
+          params: { ticketId: parseInt(ticketId), ticketStatus },
+        });
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = messaging().onNotificationOpenedApp((remoteMessage) => {
+      handleZendeskNotificationRedirection(remoteMessage.data);
+    });
+
+    // Listener for when the app is opened from a terminated state
+    const getInitialNotification = async () => {
+      const initialNotification = await messaging().getInitialNotification();
+      if (initialNotification) handleZendeskNotificationRedirection(initialNotification.data);
+    };
+
+    getInitialNotification();
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     if (isInitialLogin) {

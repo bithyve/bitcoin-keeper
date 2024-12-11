@@ -18,6 +18,7 @@ export enum notificationType {
   GIFT_ACCEPTED = 'GIFT_ACCEPTED',
   GIFT_REJECTED = 'GIFT_REJECTED',
   REMOTE_KEY_SHARE = 'REMOTE_KEY_SHARE',
+  ZENDESK_TICKET = 'ZENDESK_TICKET',
 }
 
 export enum notificationTag {

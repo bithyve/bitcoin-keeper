@@ -20,6 +20,7 @@ import {
 import { setDontShowConceirgeOnboarding } from '../reducers/storage';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import ZendeskClass from 'src/services/backend/Zendesk';
+import Relay from 'src/services/backend/Relay';
 
 function* goToConceirge({
   payload,
@@ -77,10 +78,11 @@ function* openConceirge({
 
 function* loadConciergeUserWorker() {
   try {
-    const { primaryMnemonic }: KeeperApp = yield call(
+    const { primaryMnemonic, id }: KeeperApp = yield call(
       dbManager.getObjectByIndex,
       RealmSchema.KeeperApp
     );
+    const { fcmToken } = yield select((state: RootState) => state.notifications);
     let userExternalId = yield call(hash256, primaryMnemonic);
     userExternalId = userExternalId.toString().substring(0, 24);
     yield put(setConciergeLoading(true));
@@ -92,7 +94,13 @@ function* loadConciergeUserWorker() {
         name: res.data.users[0].name,
         userExternalId: res.data.users[0].external_id,
       };
+      const relayData = {
+        appID: id,
+        FCM: fcmToken,
+        externalId: data.id, // userId to be utilized here
+      };
       yield put(loadConciergeUser(data));
+      yield call(Relay.updateZendeskExternalId, relayData);
       yield put(setConciergeLoading(false));
       yield put(setConciergeUserSuccess(true));
     } else {
@@ -104,7 +112,13 @@ function* loadConciergeUserWorker() {
           name: userRes.data.user.name,
           userExternalId: userRes.data.user.external_id,
         };
+        const relayData = {
+          appID: id,
+          FCM: fcmToken,
+          externalId: data.id, // userId to be utilized here
+        };
         yield put(loadConciergeUser(data));
+        yield call(Relay.updateZendeskExternalId, relayData);
         yield put(setConciergeLoading(false));
         yield put(setConciergeUserSuccess(true));
       } else {
