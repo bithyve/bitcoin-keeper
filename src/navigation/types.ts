@@ -156,7 +156,6 @@ export type AppStackParams = {
   };
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;
-  SignerSettings: undefined;
   EnterWalletPath: undefined;
   DeleteKeys: undefined;
   HandleFile: undefined;
