@@ -56,10 +56,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
-import {
-  generateMiniscriptScheme,
-  generateVault,
-} from 'src/services/wallets/factories/VaultFactory';
+import { generateVault } from 'src/services/wallets/factories/VaultFactory';
 import {
   generateWallet,
   generateWalletSpecsFromMnemonic,
@@ -84,6 +81,7 @@ import idx from 'idx';
 import _ from 'lodash';
 import { getSignerDescription } from 'src/hardware';
 import { SyncedWallet } from 'src/services/wallets/interfaces';
+import { checkSignerAccountsMatch, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import { RootState } from '../store';
 import {
   initiateVaultMigration,
@@ -154,7 +152,6 @@ import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
-import { checkSignerAccountsMatch, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 
 export interface NewVaultDetails {
   name?: string;
@@ -677,7 +674,7 @@ export function* addSigningDeviceWorker({
       if (!checkSignerAccountsMatch(newSigner)) {
         yield put(
           relaySignersUpdateFail(
-            `Cannot add multiple accounts in the same signer, please import each account separately`
+            'Cannot add multiple accounts in the same signer, please import each account separately'
           )
         );
         continue;
@@ -686,7 +683,7 @@ export function* addSigningDeviceWorker({
       if (!existingSigner) {
         const signerAccount = getAccountFromSigner(newSigner);
         if (signerAccount !== 0 && !newSigner.signerDescription) {
-          newSigner.signerDescription = 'Account #' + signerAccount;
+          newSigner.signerDescription = `Account #${signerAccount}`;
         }
         signersToUpdate.push(newSigner);
         continue;

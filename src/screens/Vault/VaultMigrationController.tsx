@@ -209,7 +209,11 @@ function VaultMigrationController({
     }
   };
 
-  const prepareMiniscriptScheme = (vaultInfo: NewVaultInfo, inheritanceSigner?: VaultSigner) => {
+  const prepareMiniscriptScheme = (
+    vaultInfo: NewVaultInfo,
+    inheritanceSigner?: VaultSigner,
+    existingMiniscriptScheme?: MiniscriptScheme
+  ) => {
     if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultInfo.vaultType)) {
       throw new Error('Invalid vault type - supported only for timelocked and inheritance');
     }
@@ -259,7 +263,10 @@ function VaultMigrationController({
     }
     vaultInfo.miniscriptElements = miniscriptElements;
 
-    const miniscriptScheme: MiniscriptScheme = generateMiniscriptScheme(miniscriptElements);
+    const miniscriptScheme: MiniscriptScheme = generateMiniscriptScheme(
+      miniscriptElements,
+      existingMiniscriptScheme
+    );
     const vaultScheme: VaultScheme = {
       ...vaultInfo.vaultScheme,
       multisigScriptType,
