@@ -58,6 +58,7 @@ import CautionIllustration from 'src/assets/images/downgradetopleb.svg';
 import Dropdown from 'src/components/Dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { getKeyUID } from 'src/utils/utilities';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
@@ -65,7 +66,6 @@ import { SDIcons } from './SigningDeviceIcons';
 import { TIMELOCK_DURATIONS } from './constants';
 import AddKeyButton from '../SigningDevices/components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
-import { getKeyUID } from 'src/utils/utilities';
 
 const onSignerSelect = (
   selected,
@@ -1221,6 +1221,7 @@ function AddSigningDevice() {
           description={description}
           vaultId={vaultId}
           setGeneratedVaultId={setGeneratedVaultId}
+          setCreating={setCreating}
           vaultType={getVaultType({
             isCollaborativeWallet,
             isSSAddition,
