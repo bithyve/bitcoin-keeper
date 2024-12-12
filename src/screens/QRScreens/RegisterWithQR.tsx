@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Dimensions, StyleSheet } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { getWalletConfig } from 'src/hardware';
 import { useDispatch } from 'react-redux';
@@ -65,17 +65,22 @@ function RegisterWithQR({ route, navigation }: any) {
         title="Register signer"
         subtitle="Register the vault with any of the QR based signers"
       />
-      <Box flex={1}>
-        <Box style={styles.center}>
-          {signer.type === SignerType.SPECTER ? (
-            <KeeperQRCode qrData={walletConfig} size={width * 0.85} ecl="L" />
-          ) : (
-            <DisplayQR qrContents={qrContents} toBytes type="hex" />
-          )}
-        </Box>
-        <Box style={styles.centerBottom}>
-          <ShareWithNfc data={walletConfig} signer={signer} useNdef />
-        </Box>
+      <Box style={styles.container}>
+        <ScrollView
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <Box style={styles.center}>
+            {signer.type === SignerType.SPECTER ? (
+              <KeeperQRCode qrData={walletConfig} size={width * 0.85} ecl="L" />
+            ) : (
+              <DisplayQR qrContents={qrContents} toBytes type="hex" />
+            )}
+          </Box>
+          <Box style={styles.centerBottom}>
+            <ShareWithNfc data={walletConfig} signer={signer} useNdef />
+          </Box>
+        </ScrollView>
         <Buttons
           primaryText="Confirm Registration"
           primaryCallback={markAsRegistered}
@@ -90,6 +95,14 @@ function RegisterWithQR({ route, navigation }: any) {
 export default RegisterWithQR;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingTop: '5%',
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   center: {
     alignItems: 'center',
     marginTop: '5%',
