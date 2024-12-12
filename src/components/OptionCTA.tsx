@@ -16,7 +16,7 @@ function OptionCTA({ icon, title, callback }) {
         >
           <Box style={styles.iconContainer}>{icon}</Box>
         </Box>
-        <Text style={styles.title} bold>
+        <Text style={styles.title} medium>
           {title}
         </Text>
       </Box>
@@ -28,10 +28,8 @@ export default OptionCTA;
 
 const styles = StyleSheet.create({
   mainContainer: {
+    flex: 1,
     width: wp(90),
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   container: {
     borderWidth: 0.5,

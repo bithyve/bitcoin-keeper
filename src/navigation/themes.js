@@ -244,6 +244,7 @@ export const customTheme = extendTheme({
       darkBrownCircle: Colors.RussetBrown,
       lightBrownCircle: Colors.RussetBrownLight,
       footerBackground: Colors.SeaShellBeige,
+      sliderUnfilled: Colors.PaleGrey,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -442,6 +443,7 @@ export const customTheme = extendTheme({
       darkBrownCircle: Colors.RussetBrown,
       lightBrownCircle: Colors.RussetBrownLight,
       footerBackground: Colors.PrimaryBlack,
+      sliderUnfilled: Colors.CharcoalGreen,
     },
   },
   config: {
