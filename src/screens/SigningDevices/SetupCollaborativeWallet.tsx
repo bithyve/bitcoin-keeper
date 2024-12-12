@@ -508,7 +508,8 @@ function SetupCollaborativeWallet() {
       <WalletVaultCreationModal
         visible={walletCreatedModal}
         title={vaultText.vaultCreatedSuccessTitle}
-        subTitle={`Your ${collaborativeVault?.scheme?.m}-of-${collaborativeVault?.scheme?.n} vault has been created successfully.`}
+        subTitle={`${common.your} ${collaborativeVault?.scheme?.m}-${common.of}-${collaborativeVault?.scheme?.n} ${vaultText.vaultHasBeenCreated}`}
+        descriptionMessage={vaultText.collabVaultCreatedDesc}
         buttonText={vaultText.ViewVault}
         buttonCallback={() => {
           navigateToNextScreen();
