@@ -157,7 +157,10 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
   );
 
-  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.txRecipients[txnPriority]);
+  const recipients =
+    txnPriority == TxPriority.CUSTOM
+      ? idx(customSendPhaseOneResults, (_) => _.outputs.customTxRecipients[txnPriority])
+      : idx(sendPhaseOneResults, (_) => _.outputs.txRecipients[txnPriority]);
   const signerMap = {};
   if (wallet.entityKind === EntityKind.VAULT) {
     dbManager
