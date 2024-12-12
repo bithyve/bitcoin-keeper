@@ -152,7 +152,8 @@
     "Inheritancekey": "Inheritance Key",
     "key": "Key",
     "scanQRNote": "Make sure that the QR is well aligned, focused and visible as a whole",
-    "tapToAdd": "Tap to add"
+    "tapToAdd": "Tap to add",
+    "your": "Your"
   },
   "noInternet": {
     "no": "No Internet",
@@ -774,13 +775,15 @@
     "collabModalDescription1": "A Collaborative Vault is a multisig template that allows you to create a specific vault with other Bitcoin Keeper devices belonging to friends or co-signers.",
     "collabModalDescription2": "For a more generic setup, use other options provided.",
     "collaborativeVaultSubtitle": "A simple 2-of-3 wallet with friends",
-    "addKeyModalSubtitle": "Select a medium when the cosigner phone is ready to connect",
-    "addKeyNoteSubtitle": "On the other device go to the Settings of the Key to be shared and select Key Details.",
+    "addKeyModalSubtitle": "How do you want to add the key?",
+    "addKeyNoteSubtitle": "On the other device select the key to be shared and choose Share Key",
     "chooseCoSigner": "Choose Cosigner Key",
     "forYourCollabVault": "for your collaborative vault",
     "keyAlreadyAdded": "This key has already been added",
     "bringCloseToAdd": "Bring the other device closer to add the key",
     "tryAnotherMethod": "Try another method",
+    "collabVaultCreatedDesc": "You can share the wallet configuration with the co-signers if you want them to be able to see the wallet transactions.",
+    "vaultHasBeenCreated": "vault has been created successfully.",
     "IKAlreadyActive": "Inheritance Key is already active"
   },
   "seed": {
