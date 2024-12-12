@@ -1,7 +1,7 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { routingInstrumentation } from 'src/services/sentry';
+import { getRoutingInstrumentation } from 'src/services/sentry';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
@@ -48,6 +48,7 @@ import TorSettings from 'src/screens/AppSettings/TorSettings';
 import ManageWallets from 'src/screens/AppSettings/ManageWallets';
 import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
 import TransactionAdvancedDetails from 'src/screens/ViewTransactions/TransactionAdvancedDetails';
+import TransactionHistory from 'src/screens/ViewTransactions/TransactionHistory';
 import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import AllTransactions from 'src/screens/Vault/AllTransactions';
@@ -120,11 +121,10 @@ import HandleFileScreen from 'src/screens/SigningDevices/HandleFileScreen';
 import ZendeskOnboardingModal from 'src/components/Modal/ConciergeOnboardingModal';
 import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRecovery';
 import { useAppSelector } from 'src/store/hooks';
-import { AppStackParams } from './types';
-import Login from '../screens/LoginScreen/Login';
-import SignerSelectionListScreen from 'src/screens/Recieve/SignerSelectionListScreen';
-import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
+import AssistedWalletTimeline from 'src/screens/AssistedVault/AssistedWalletTimeline';
+import SetupAssistedVault from 'src/screens/SigningDevices/SetupAssistedVault';
+import SignerSelectionListScreen from 'src/screens/Recieve/SignerSelectionListScreen';
 import AssociateContact from 'src/screens/Contact/AssociateContact';
 import AddContact from 'src/screens/Contact/AddContact';
 import ContactProfile from 'src/screens/Contact/ContactProfile';
@@ -133,7 +133,14 @@ import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
+import ResetInheritanceKey from 'src/screens/Vault/ResetInheritanceKey';
+import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
+import AddReserveKey from 'src/screens/Vault/AddReserveKey';
 import { useColorMode } from 'native-base';
+import Login from '../screens/LoginScreen/Login';
+import { AppStackParams } from './types';
+import config from 'src/utils/service-utilities/config';
+import KeyHistory from 'src/screens/Vault/KeyHistory';
 import KeeperConcierge from 'src/screens/KeeperConcierge/KeeperConcierge';
 import TechnicalSupport from 'src/screens/KeeperConcierge/TechnicalSupport';
 import TicketDetails from 'src/screens/KeeperConcierge/TicketDetails';
@@ -259,6 +266,7 @@ function AppStack() {
         <Stack.Screen name="AddDescription" component={AddDescription} />
         <Stack.Screen name="AllTransactions" component={AllTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
+        <Stack.Screen name="TransactionHistory" component={TransactionHistory} />
         <Stack.Screen name="TransactionAdvancedDetails" component={TransactionAdvancedDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
@@ -278,6 +286,7 @@ function AppStack() {
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
         <Stack.Screen name="AdditionalDetails" component={AdditionalDetails} />
+        <Stack.Screen name="KeyHistory" component={KeyHistory} />
         <Stack.Screen name="RemoteSharing" component={RemoteSharing} />
         <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
@@ -303,11 +312,15 @@ function AppStack() {
         <Stack.Screen name="SignerSettings" component={SignerSettings} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
+        <Stack.Screen name="AssistedWalletTimeline" component={AssistedWalletTimeline} />
+        <Stack.Screen name="SetupAssistedVault" component={SetupAssistedVault} />
         <Stack.Screen name="AssociateContact" component={AssociateContact} />
         <Stack.Screen name="AddContact" component={AddContact} />
         <Stack.Screen name="ContactProfile" component={ContactProfile} />
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
+        <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
+        <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
         <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
         <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
         <Stack.Screen name="TicketDetails" component={TicketDetails} />
@@ -331,7 +344,9 @@ function Navigator() {
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
-    routingInstrumentation.registerNavigationContainer(navigation);
+    if (config.isDevMode()) {
+      getRoutingInstrumentation().registerNavigationContainer(navigation);
+    }
   };
 
   const { onboardingModal } = useAppSelector((state) => state.concierge);

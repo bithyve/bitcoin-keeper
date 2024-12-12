@@ -201,7 +201,7 @@ function TransactionDetails({ route }) {
           </Box>
         </Box>
       </Box>
-      <Box style={styles.bottomSection} backgroundColor={`${colorMode}.secondaryBackground`}>
+      <Box style={styles.bottomSection} backgroundColor={`${colorMode}.boxSecondaryBackground`}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.infoCardsWrapper}>

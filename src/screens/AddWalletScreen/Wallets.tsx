@@ -114,8 +114,8 @@ function Wallets({ navigation }) {
         callback={() => navigateToVaultSetup({ m: 3, n: 5 })}
       />
       <OptionCard
-        title="Collaborative"
-        description="With contacts/devices"
+        title="Collaborative Vault"
+        description="Simple 2-of-3 wallet with friends"
         LeftIcon={<CollaborativeIcon />}
         callback={handleCollaborativeWalletCreation}
       />

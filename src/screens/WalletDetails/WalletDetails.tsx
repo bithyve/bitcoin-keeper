@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -31,8 +31,6 @@ import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -43,6 +41,7 @@ import Transactions from './components/Transactions';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -248,9 +247,21 @@ function WalletDetails({ route }: ScreenProps) {
           <>
             {wallet?.specs?.transactions?.length ? (
               <HStack style={styles.transTitleWrapper}>
-                <Text color={`${colorMode}.black`} style={styles.transactionHeading}>
-                  {common.transactions}
+                <Text color={`${colorMode}.black`} medium fontSize={wp(14)}>
+                  {common.recentTransactions}
                 </Text>
+                <Pressable
+                  style={styles.viewAllBtn}
+                  onPress={() =>
+                    navigation.dispatch(
+                      CommonActions.navigate({ name: 'TransactionHistory', params: { wallet } })
+                    )
+                  }
+                >
+                  <Text color={`${colorMode}.greenText`} medium fontSize={wp(14)}>
+                    {common.viewAll}
+                  </Text>
+                </Pressable>
               </HStack>
             ) : null}
             <TransactionsAndUTXOs
@@ -335,7 +346,8 @@ const styles = StyleSheet.create({
   balanceWrapper: {
     flexDirection: 'row',
     paddingLeft: '3%',
-    marginVertical: 20,
+    marginTop: 20,
+    marginBottom: 10,
     justifyContent: 'space-between',
   },
   unconfirmBalanceView: {
@@ -348,10 +360,17 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   transTitleWrapper: {
-    paddingTop: 20,
+    paddingTop: 5,
+    marginLeft: wp(2),
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: 5,
+    paddingBottom: 10,
+    paddingLeft: 10,
+  },
+  viewAllBtn: {
+    width: wp(80),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionCard: {
     marginTop: 20,
@@ -362,15 +381,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  transactionHeading: {
-    fontSize: 16,
-    letterSpacing: 0.16,
-    paddingBottom: 16,
-    paddingLeft: 10,
-  },
   settingBtn: {
     paddingHorizontal: 22,
     paddingVertical: 22,
   },
 });
-export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);
+export default SentryErrorBoundary(WalletDetails);

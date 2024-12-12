@@ -6,7 +6,7 @@ import idx from 'idx';
 import { TxPriority, VaultType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
-import { Signer, VaultScheme } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import * as bitcoin from 'bitcoinjs-lib';
 import { isTestnet } from 'src/constants/Bitcoin';
 
@@ -199,6 +199,8 @@ export function calculateMonthlyCost(yearlyPrice) {
 export const formatNumber = (value: string) =>
   value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
+export const isOdd = (num: number) => num % 2 !== 0;
+
 export const getTimeDifferenceInWords = (pastTime) => {
   const timeDifference = moment(pastTime).fromNow();
   if (timeDifference === 'Invalid date' || pastTime === undefined) {
@@ -210,7 +212,9 @@ export const getTimeDifferenceInWords = (pastTime) => {
 
 export const getWalletTags = (walletType) => {
   if (walletType === VaultType.COLLABORATIVE) {
-    return [`${walletType === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`, `2 of 3`];
+    return [`${walletType === VaultType.COLLABORATIVE ? 'Collaborative' : 'VAULT'}`, `2 of 3`];
+  } else if (walletType === VaultType.ASSISTED) {
+    return [`${walletType === VaultType.ASSISTED ? 'ASSISTED' : 'VAULT'}`, `2 of 3`];
   } else {
     let walletKind;
     if (walletType === WalletType.DEFAULT) walletKind = 'HOT WALLET';
@@ -517,4 +521,39 @@ export const calculateTicketsLeft = (tickets, planDetails) => {
     return monthlyTickets.length < HODLER_RESTRICTION;
   }
   if (isOnL3) return true;
-}; 
+};
+
+export const getAccountFromSigner = (signer: Signer | VaultSigner): number | null => {
+  if ('derivationPath' in signer) {
+    // VaultSigner case
+    return parseInt(signer.derivationPath.replace(/[h']/g, '').split('/')[3]) ?? null;
+  }
+
+  // Regular Signer case
+  for (const type of Object.values(XpubTypes)) {
+    const xpubs = signer.signerXpubs[type];
+    if (xpubs?.[0]?.derivationPath) {
+      return parseInt(xpubs[0].derivationPath.replace(/[h']/g, '').split('/')[3]) ?? null;
+    }
+  }
+
+  return null;
+};
+
+export const getKeyUID = (signer: Signer | VaultSigner | null): string => {
+  if (!signer) {
+    return '';
+  }
+  return signer.masterFingerprint + (getAccountFromSigner(signer) ?? '');
+};
+
+export const checkSignerAccountsMatch = (signer: Signer): boolean => {
+  const accountNumbers = Object.values(signer.signerXpubs).flatMap((xpubs) =>
+    xpubs.map((x) => parseInt(x.derivationPath.replace(/[h']/g, '').split('/')[3]))
+  );
+
+  if (!accountNumbers.length) return true;
+
+  const firstAccount = accountNumbers[0];
+  return accountNumbers.every((num) => num === firstAccount);
+};

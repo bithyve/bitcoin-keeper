@@ -30,13 +30,13 @@ function AssistedKeysContentSlider(props) {
         >
           {props.description}
         </Text>
-        <Box width={'80%'}>
+        <Box width={'87%'}>
           <Text fontSize={14} color={`${colorMode}.modalGreenContent`}>
             {props.paragraph}
           </Text>
         </Box>
         <Box style={styles.icon}>{props.icon}</Box>
-        <Box width={'80%'}>
+        <Box width={'87%'}>
           <Text color={`${colorMode}.modalGreenContent`}>{props.paragraph2}</Text>
         </Box>
         <Box width={'90%'} marginTop={hp(30)} marginBottom={hp(5)} mt={hp(15)}>

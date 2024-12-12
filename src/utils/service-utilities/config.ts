@@ -140,6 +140,10 @@ class Configuration {
     this.NETWORK_TYPE = network;
     this.NETWORK = isTestnet ? bitcoinJS.networks.testnet : bitcoinJS.networks.bitcoin;
   };
+
+  public isDevMode = () => {
+    return this.ENVIRONMENT === APP_STAGE.DEVELOPMENT;
+  };
 }
 
 export default new Configuration();

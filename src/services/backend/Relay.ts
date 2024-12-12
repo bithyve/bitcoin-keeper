@@ -660,9 +660,9 @@ export default class Relay {
     }
   };
 
-  public static createRemoteKey = async (data: string) => {
+  public static createRemoteKey = async (data: string, hash: string) => {
     try {
-      const response = await RestClient.post(`${RELAY}createRemoteKey`, { data });
+      const response = await RestClient.post(`${RELAY}createRemoteKey`, { data, hash });
       const res = (response as AxiosResponse).data || (response as any).json;
       if (res) {
         return res;
@@ -674,9 +674,9 @@ export default class Relay {
     }
   };
 
-  public static getRemoteKey = async (id: string) => {
+  public static getRemoteKey = async (hash: string) => {
     try {
-      const response = await RestClient.get(`${RELAY}getRemoteKey?id=${id}`);
+      const response = await RestClient.get(`${RELAY}getRemoteKey?hash=${hash}`);
       const res = (response as AxiosResponse).data || (response as any).json;
       if (res) {
         return res;

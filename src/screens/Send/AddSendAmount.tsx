@@ -36,25 +36,33 @@ import CollaborativeSmallIcon from 'src/assets/images/collaborative-icon-small.s
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
-import { EntityKind, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
+import {
+  EntityKind,
+  MultisigScriptType,
+  NetworkType,
+  TxPriority,
+  VaultType,
+} from 'src/services/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import AmountDetailsInput from './AmountDetailsInput';
 import KeeperModal from 'src/components/KeeperModal';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
 import ReceiptIcon from 'src/assets/images/receipt.svg';
 import ReceiptIconDark from 'src/assets/images/receipt-white.svg';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import AmountDetailsInput from './AmountDetailsInput';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
 import PriorityModal from './PriorityModal';
 
@@ -102,6 +110,8 @@ function AddSendAmount({ route }) {
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const { averageTxFees } = useAppSelector((state) => state.network);
+  const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
@@ -115,10 +125,7 @@ function AddSendAmount({ route }) {
     parentScreen === MANAGEWALLETS ||
     parentScreen === VAULTSETTINGS ||
     parentScreen === WALLETSETTINGS;
-  const availableBalance =
-    sender.networkType === NetworkType.MAINNET
-      ? sender.specs.balances.confirmed
-      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const availableBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
 
   const isDarkMode = colorMode === 'dark';
   const [localCurrencyKind, setLocalCurrencyKind] = useState(currentCurrency);
@@ -131,10 +138,7 @@ function AddSendAmount({ route }) {
   const [customEstBlocks, setCustomEstBlocks] = useState(0);
   const [estimationSign, setEstimationSign] = useState('≈');
   const balance = idx(sender, (_) => _.specs.balances);
-  let availableToSpend =
-    sender.networkType === NetworkType.MAINNET
-      ? balance.confirmed
-      : balance.confirmed + balance.unconfirmed;
+  let availableToSpend = balance.confirmed + balance.unconfirmed;
 
   const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
   if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
@@ -308,7 +312,29 @@ function AddSendAmount({ route }) {
     }
   };
 
+  useEffect(() => {
+    // should bind with a refresher in case the auto fetch for block-height fails
+    if (sender.entityKind === EntityKind.VAULT) {
+      if (sender.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+        WalletUtilities.fetchCurrentBlockHeight()
+          .then(({ currentBlockHeight }) => {
+            setCurrentBlockHeight(currentBlockHeight);
+          })
+          .catch((err) => showToast(err));
+      }
+    }
+  }, []);
+
   const navigateToNext = () => {
+    if (sender.entityKind === EntityKind.VAULT) {
+      if (sender.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+        if (!currentBlockHeight) {
+          showToast('Unable to sync current block height');
+          return;
+        }
+      }
+    }
+
     if (transactionPriority === TxPriority.CUSTOM) {
       const recipients = [];
       recipients.push({
@@ -332,6 +358,7 @@ function AddSendAmount({ route }) {
         address,
         amount: parseInt(amountToSend, 10), // in sats
         transferType,
+        currentBlockHeight,
         note,
         selectedUTXOs,
         parentScreen,
@@ -455,7 +482,7 @@ function AddSendAmount({ route }) {
         setAmount('0.');
         return;
       }
-      setAmount(currentAmount + '.');
+      setAmount(`${currentAmount}.`);
       return;
     }
     const maxDecimalPlaces = localCurrencyKind === CurrencyKind.BITCOIN && !satsEnabled ? 8 : 2;
@@ -463,7 +490,7 @@ function AddSendAmount({ route }) {
       setAmount(text);
       return;
     }
-    let newAmount = currentAmount + text;
+    const newAmount = currentAmount + text;
     const parts = newAmount.split('.');
     if (parts[1] && parts[1].length > maxDecimalPlaces) {
       return;
@@ -484,7 +511,13 @@ function AddSendAmount({ route }) {
 
   const getWalletIcon = (wallet) => {
     if (wallet?.entityKind === EntityKind.VAULT) {
-      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+      if (wallet.type === VaultType.COLLABORATIVE) {
+        return <CollaborativeIcon />;
+      } else if (wallet.type === VaultType.ASSISTED) {
+        return <AssistedIcon />;
+      } else {
+        return <VaultIcon />;
+      }
     } else {
       return <WalletIcon />;
     }

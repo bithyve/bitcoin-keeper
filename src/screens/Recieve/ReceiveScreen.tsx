@@ -49,6 +49,7 @@ import { InteracationMode } from '../Vault/HardwareModalMap';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import AmountDetailsInput from '../Send/AmountDetailsInput';
+import { getAccountFromSigner } from 'src/utils/utilities';
 
 const AddressVerifiableSigners = [
   SignerType.BITBOX02,
@@ -271,6 +272,7 @@ function ReceiveScreen({ route }: { route }) {
               CommonActions.navigate('SetupPortal', {
                 vaultId: wallet.id,
                 mode: InteracationMode.ADDRESS_VERIFICATION,
+                accountNumber: getAccountFromSigner(signer),
               })
             );
           } else {
@@ -310,6 +312,7 @@ function ReceiveScreen({ route }: { route }) {
                 vaultKey,
                 vaultId: wallet.id,
                 mode: InteracationMode.VAULT_REGISTER,
+                accountNumber: getAccountFromSigner(signer),
               })
             );
           } else {

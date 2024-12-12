@@ -70,7 +70,7 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import { crossInteractionHandler } from 'src/utils/utilities';
+import { crossInteractionHandler, getAccountFromSigner } from 'src/utils/utilities';
 import { isTestnet } from 'src/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -109,14 +109,14 @@ import {
 import { extractColdCardExport } from 'src/hardware/coldcard';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
-import SignerCard from '../AddSigner/SignerCard';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import NFC from 'src/services/nfc';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import BackupModalContent from '../AppSettings/BackupModal';
 import idx from 'idx';
 import { setLastUsedOption } from 'src/store/reducers/signer';
+import BackupModalContent from '../AppSettings/BackupModal';
+import SignerCard from '../AddSigner/SignerCard';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -201,9 +201,9 @@ const getSignerContent = (
         isMultisig ? 'MultiSig' : 'SingleSig'
       }.`;
 
-      let usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop and connect your Jade to the computer.`;
+      const usbInstructions = `To use Jade via USB, please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop and connect your Jade to the computer.`;
 
-      let instructions =
+      const instructions =
         keyGenerationMode === KeyGenerationMode.USB
           ? [usbInstructions]
           : [jadeUnlockInstructions, jadeInstructions];
@@ -420,7 +420,7 @@ const getSignerContent = (
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = (
         <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
-          {`Make sure the seed is loaded (`}
+          Make sure the seed is loaded (
           <Text
             medium
             style={styles.learnHow}
@@ -924,6 +924,7 @@ function HardwareModalMap({
   addSignerFlow = false,
   vaultSigners,
   vaultId,
+  accountNumber,
 }: {
   type: SignerType;
   visible: boolean;
@@ -937,6 +938,7 @@ function HardwareModalMap({
   addSignerFlow: boolean;
   vaultSigners?: VaultSigner[];
   vaultId?: string;
+  accountNumber?: number;
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -984,14 +986,14 @@ function HardwareModalMap({
       navigation.dispatch(
         CommonActions.navigate({
           name: 'AddTapsignerRecovery',
-          params: { mode, signer, isMultisig },
+          params: { mode, signer, isMultisig, accountNumber: getAccountFromSigner(signer) },
         })
       );
     }
     navigation.dispatch(
       CommonActions.navigate({
         name: 'TapsignerAction',
-        params: { mode, signer, isMultisig, addSignerFlow },
+        params: { mode, signer, isMultisig, accountNumber, addSignerFlow },
       })
     );
   };
@@ -1000,7 +1002,7 @@ function HardwareModalMap({
     navigation.dispatch(
       CommonActions.navigate({
         name: 'SetupPortal',
-        params: { mode, signer, isMultisig, addSignerFlow },
+        params: { mode, signer, isMultisig, accountNumber, addSignerFlow },
       })
     );
   };
@@ -1033,7 +1035,7 @@ function HardwareModalMap({
               : isCanaryAddition
               ? 'Setting up for Canary '
               : isExternalKey
-              ? `Add`
+              ? 'Add'
               : 'Setting up'
           } ${getSignerNameFromType(type)}`,
           subtitle: isExternalKey
@@ -1164,6 +1166,7 @@ function HardwareModalMap({
           mode,
           isMultisig,
           addSignerFlow,
+          accountNumber,
         },
       })
     );
@@ -1664,7 +1667,7 @@ function HardwareModalMap({
     };
 
     return (
-      <Box width={'100%'}>
+      <Box width="100%">
         <Box>
           <TouchableOpacity
             onPress={async () => {

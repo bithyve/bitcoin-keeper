@@ -7,13 +7,7 @@ import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vaul
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import {
-  EntityKind,
-  SignerType,
-  VaultType,
-  VisibilityType,
-  XpubTypes,
-} from 'src/services/wallets/enums';
+import { SignerType, VaultType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -27,9 +21,6 @@ import WarningIllustration from 'src/assets/images/warning.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
 import WalletVault from 'src/assets/images/vault-hexa-green.svg';
-import WalletIcon from 'src/assets/images/wallet-white.svg';
-import VaultIcon from 'src/assets/images/vault-white.svg';
-import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import DeleteIcon from 'src/assets/images/delete_phone.svg';
 
 import { hp, wp } from 'src/constants/responsive';
@@ -43,13 +34,10 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import { emailCheck, generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import WalletCopiableData from 'src/components/WalletCopiableData';
+import { emailCheck, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getPsbtForHwi, getSignerNameFromType } from 'src/hardware';
+import { getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
-import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault, refillMobileKey } from 'src/store/sagaActions/vaults';
@@ -71,19 +59,15 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
-import { SDIcons } from './SigningDeviceIcons';
 import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
-import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import Note from 'src/components/Note/Note';
 import useSigners from 'src/hooks/useSigners';
-import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
-import { getPersistedDocument } from 'src/services/documents';
-import WalletOperations from 'src/services/wallets/operations';
+import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
@@ -99,9 +83,8 @@ const SignersWithRKSupport = [
   SignerType.BITBOX02,
   SignerType.COLDCARD,
   SignerType.PASSPORT,
+  SignerType.PORTAL,
 ];
-
-const SignersReqVault = [SignerType.LEDGER, SignerType.TREZOR, SignerType.BITBOX02];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -129,19 +112,17 @@ function SignerAdvanceSettings({ route }: any) {
     vaultKey,
     vaultId,
     signer: signerFromParam,
-    signerId,
   }: {
     signer: Signer;
     vaultKey: VaultSigner;
     vaultId: string;
-    signerId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
 
   const signer: Signer = signerFromParam
-    ? signers.find((signer) => signer.masterFingerprint === signerFromParam.masterFingerprint) // to reflect associated contact image in real time
-    : signerMap[vaultKey.masterFingerprint];
+    ? signers.find((signer) => getKeyUID(signer) === getKeyUID(signerFromParam)) // to reflect associated contact image in real time
+    : signerMap[getKeyUID(vaultKey)];
 
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
@@ -222,7 +203,7 @@ function SignerAdvanceSettings({ route }: any) {
   allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
     for (const key of keys) {
-      if (signer.masterFingerprint === key.masterFingerprint) {
+      if (getKeyUID(signer) === getKeyUID(key)) {
         signerVaults.push(vault);
         break;
       }
@@ -389,6 +370,7 @@ function SignerAdvanceSettings({ route }: any) {
             vaultKey,
             vaultId,
             mode: InteracationMode.VAULT_REGISTER,
+            accountNumber: getAccountFromSigner(signer),
           })
         );
         break;
@@ -411,12 +393,15 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           isUpdate: true,
           signer,
-          signerId,
           vaultId,
           vaultKey,
         },
       })
     );
+  };
+
+  const navigateToKeyHistory = () => {
+    navigation.dispatch(CommonActions.navigate('KeyHistory', { signer, vaultKey, vaultId }));
   };
 
   function WarningContent() {
@@ -541,102 +526,27 @@ function SignerAdvanceSettings({ route }: any) {
       CommonActions.navigate({
         name: 'ManageTapsignerSettings',
         params: {
-          signer: signer,
-        },
-      })
-    );
-  };
-
-  const signPSBT = async (serializedPSBT) => {
-    try {
-      const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount, feeRate } =
-        generateDataFromPSBT(serializedPSBT, signer);
-      const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
-
-      if (!signerMatched) {
-        showToast(`Current signer is not available in the PSBT`, <ToastErrorIcon />);
-        navigation.goBack();
-        return;
-      }
-
-      if (SignersReqVault.includes(signer.type)) {
-        let activeVault = null;
-        allVaults.forEach(async (vault) => {
-          let addressMatched = true;
-          for (let i = 0; i < senderAddresses.length; i++) {
-            const _ = senderAddresses[i].path.split('/');
-            const [isChange, index] = _.splice(_.length - 2);
-            // 0 - Receive(External) | 1 - change(internal)
-            let generatedAddress: string;
-            if (isChange != '0' && isChange != '1') {
-              throw new Error('Derivation uses an invalid path');
-            }
-            generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
-              vault,
-              parseInt(index),
-              isChange == '1'
-            );
-            if (senderAddresses[i].address != generatedAddress) {
-              addressMatched = false;
-              break;
-            }
-          }
-          if (addressMatched) {
-            activeVault = vault;
-            return;
-          }
-        });
-
-        if (!activeVault) {
-          navigation.goBack();
-          throw new Error('Please import the vault before signing');
-        }
-        const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
-        serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
-      }
-
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'PSBTSendConfirmation',
-          params: {
-            sender: senderAddresses,
-            recipient: receiverAddresses,
-            amount: sendAmount,
-            data: serializedPSBT,
-            fees: fees,
-            estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
-            tnxPriority: tnxDetails.tnxPriority,
-            signer,
-            psbt: serializedPSBT,
-            feeRate,
-          },
-        })
-      );
-    } catch (error) {
-      console.log('🚀 ~ signPSBT ~ error:', error);
-      showToast(error.message);
-      captureError(error);
-    }
-  };
-
-  const navigateToScanPSBT = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'ScanQR',
-        params: {
-          title: 'Scan a PSBT file',
-          subtitle: 'Please scan until all the QR data has been retrieved',
-          onQrScan: signPSBT,
-          setup: true,
-          type: SignerType.KEEPER,
-          isHealthcheck: true,
           signer,
-          disableMockFlow: true,
-          isPSBT: true,
         },
       })
     );
   };
+
+  // const signPSBTForExternalKeeperKey = async (serializedPSBT, resetQR) => {
+  //   try {
+  //     let signedSerialisedPSBT;
+  //     try {
+  //       const key = signer.signerXpubs[XpubTypes.P2WSH][0];
+  //       signedSerialisedPSBT = signCosignerPSBT(
+  //         signer.masterFingerprint,
+  //         key.xpriv,
+  //         serializedPSBT
+  //       );
+  //     } catch (e) {
+  //       showToast(e.message);
+  //       captureError(e);
+  //     }
+  //   }}};
 
   const [canaryWalletSingleSigModal, setCanaryWalletSingleSigModal] = useState(false);
 
@@ -670,15 +580,6 @@ function SignerAdvanceSettings({ route }: any) {
     } catch (err) {
       console.log('Something Went Wrong', err);
     }
-  };
-
-  const navigateToCosignerDetails = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'CosignerDetails',
-        params: { signer },
-      })
-    );
   };
 
   const navigateToAdditionalDetails = () => {
@@ -912,15 +813,6 @@ function SignerAdvanceSettings({ route }: any) {
     }
   };
 
-  const getWalletIcon = (wallet) => {
-    if (wallet.entityKind === EntityKind.VAULT) {
-      if (wallet.type === VaultType.SINGE_SIG) return <WalletIcon />;
-      else return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
-    } else {
-      return <WalletIcon />;
-    }
-  };
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
@@ -931,15 +823,13 @@ function SignerAdvanceSettings({ route }: any) {
             ? `for ${getSignerNameFromType(signer.type, signer.isMock, false)}`
             : `for ${`${getSignerNameFromType(signer.type, signer.isMock, false)} +`}`
         }
-        icon={
-          <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={SDIcons(signer.type, true).Icon}
-            image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
-          />
-        }
       />
       <ScrollView contentContainerStyle={styles.contentContainerStyle}>
+        <OptionCard
+          title="Key History"
+          description="View the usage timeline"
+          callback={navigateToKeyHistory}
+        />
         {isInheritanceKey && vaultId && (
           <OptionCard
             title="Registered Email"
@@ -983,13 +873,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={openTapsignerSettings}
           />
         )}
-        {supportsRKSigning && (
-          <OptionCard
-            title={signerTranslation.keyDetails}
-            description={signerTranslation.keyDetailsSubtitle}
-            callback={navigateToCosignerDetails}
-          />
-        )}
         <OptionCard
           title="Additional Info"
           description="Associate contact or Edit description"
@@ -1005,13 +888,6 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
-        {supportsRKSigning && (
-          <OptionCard
-            title="Sign a transaction"
-            description="Using a PSBT file"
-            callback={navigateToScanPSBT}
-          />
-        )}
         {isAssistedKey || signersWithoutRegistration ? null : (
           <OptionCard
             title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
@@ -1025,9 +901,7 @@ function SignerAdvanceSettings({ route }: any) {
             description="Hide this key from the list"
             callback={() => {
               for (const vaultItem of allUnhiddenVaults) {
-                if (
-                  vaultItem.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
-                ) {
+                if (vaultItem.signers.find((s) => getKeyUID(s) === getKeyUID(signer))) {
                   setVaultUsed(vaultItem);
                   setHideWarning(true);
                   return;
@@ -1045,46 +919,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={handleCanaryWallet}
           />
         )}
-        <Box style={styles.signerText}>
-          <Text color={`${colorMode}.secondaryText`} medium>
-            {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
-          </Text>
-        </Box>
-        <ScrollView
-          horizontal
-          contentContainerStyle={styles.signerVaults}
-          showsHorizontalScrollIndicator={false}
-        >
-          {signerVaults.map((vault) => (
-            <SignerCard
-              key={vault?.id}
-              name={vault?.presentationData.name}
-              description={vault?.presentationData?.description}
-              icon={
-                <HexagonIcon
-                  width={38}
-                  height={34}
-                  backgroundColor={
-                    colorMode === 'dark' ? Colors.pantoneGreenDark : Colors.pantoneGreen
-                  }
-                  icon={getWalletIcon(vault)}
-                />
-              }
-              showSelection={false}
-              colorVarient="transparent"
-              customStyle={styles.signerCard}
-              colorMode={colorMode}
-            />
-          ))}
-        </ScrollView>
       </ScrollView>
-      <Box style={styles.fingerprint}>
-        <WalletCopiableData
-          title={common.signerFingerPrint}
-          data={signer.masterFingerprint}
-          dataType="fingerprint"
-        />
-      </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <KeeperModal
         visible={waningModal}
@@ -1403,7 +1238,7 @@ const styles = StyleSheet.create({
     marginRight: wp(40),
   },
   contentContainerStyle: {
-    paddingTop: hp(10),
+    paddingTop: hp(30),
     paddingHorizontal: wp(10),
   },
   signerVaults: {

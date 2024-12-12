@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "1.2.20",
+  "version": "1.3.0",
   "private": true,
   "scripts": {
     "ios": "react-native run-ios",
@@ -24,6 +24,7 @@
     "release ios prod": "cd ios && ENVFILE=.env.production bundle exec fastlane live --env production"
   },
   "dependencies": {
+    "@bitcoinerlab/miniscript": "1.4.0",
     "@ngraveio/bc-ur": "1.1.6",
     "@noble/secp256k1": "1.6.3",
     "@react-native-community/clipboard": "1.5.1",

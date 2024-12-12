@@ -16,6 +16,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import WalletSmallIcon from 'src/assets/images/daily-wallet-small.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import CollaborativeSmallIcon from 'src/assets/images/collaborative-icon-small.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import VaultSmallIcon from 'src/assets/images/vault-icon-small.svg';
@@ -47,8 +48,6 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import idx from 'idx';
 import Buttons from 'src/components/Buttons';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -59,6 +58,8 @@ import ScannerIcon from 'src/assets/images/scanner-icon.svg';
 import ScannerIconDark from 'src/assets/images/scanner-icon-white.svg';
 import useWallets from 'src/hooks/useWallets';
 import useVault from 'src/hooks/useVault';
+import { SentryErrorBoundary } from 'src/services/sentry';
+
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -95,10 +96,7 @@ function SendScreen({ route }) {
   );
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const isDarkMode = colorMode === 'dark';
-  const availableBalance =
-    sender.networkType === NetworkType.MAINNET
-      ? sender.specs.balances.confirmed
-      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const availableBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
   const visibleWallets = useMemo(
@@ -224,7 +222,13 @@ function SendScreen({ route }) {
   };
   const getWalletIcon = (wallet) => {
     if (wallet.entityKind === EntityKind.VAULT) {
-      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+      if (wallet.type === VaultType.COLLABORATIVE) {
+        return <CollaborativeIcon />;
+      } else if (wallet.type === VaultType.ASSISTED) {
+        return <AssistedIcon />;
+      } else {
+        return <VaultIcon />;
+      }
     } else {
       return <WalletIcon />;
     }
@@ -407,9 +411,9 @@ function SendScreen({ route }) {
               <Box style={styles.sendToWalletContainer}>
                 <Pressable onPress={handleSelectWalletPress} disabled={isSendToWalletDisabled}>
                   <Box
-                    flexDirection={'row'}
-                    justifyContent={'space-between'}
-                    alignItems={'center'}
+                    flexDirection="row"
+                    justifyContent="space-between"
+                    alignItems="center"
                     style={[
                       styles.sendToWalletWrapper,
                       isSendToWalletDisabled && styles.disabledButton,
@@ -428,9 +432,9 @@ function SendScreen({ route }) {
                 {selectedWallet && (
                   <Pressable onPress={navigateToSelectWallet}>
                     <Box
-                      flexDirection={'row'}
-                      justifyContent={'space-between'}
-                      alignItems={'center'}
+                      flexDirection="row"
+                      justifyContent="space-between"
+                      alignItems="center"
                       style={styles.sendToWalletWrapper}
                     >
                       <Box style={styles.walletDetails}>
@@ -542,4 +546,4 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 });
-export default Sentry.withErrorBoundary(SendScreen, errorBourndaryOptions);
+export default SentryErrorBoundary(SendScreen);

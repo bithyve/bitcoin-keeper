@@ -7,7 +7,7 @@ const GenerateAllVaultsFilePDF = async (fingerPrints) => {
       .map(
         (keys, index) =>
           `
-        <div class="no-break">
+        <div style="page-break-after: always; padding-top: 100px;">
           <p>Vault Name: ${keys.name}</p>
           <p>Wallet Configuration Text</p>
           <p class="dashed-line">${keys.file}</p>

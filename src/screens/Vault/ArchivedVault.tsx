@@ -5,7 +5,6 @@ import { hp, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import { StyleSheet } from 'react-native';
-import { CommonActions } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import ActionCard from 'src/components/ActionCard';
@@ -33,15 +32,7 @@ function ArchivedVault({ navigation, route }) {
         description={item.presentationData.description}
         icon={<VaultIcon />}
         customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
-        callback={() =>
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'VaultDetails',
-              params: { vaultId: item?.id },
-              merge: true,
-            })
-          )
-        }
+        callback={() => navigation.push('VaultDetails', { vaultId: item?.id })}
       />
     </Box>
   );

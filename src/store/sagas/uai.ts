@@ -156,7 +156,7 @@ function* uaiChecksWorker({ payload }) {
         if (
           wallet.entityKind === EntityKind.WALLET &&
           wallet?.transferPolicy?.threshold > 0 &&
-          wallet.specs.balances.confirmed + (isTestnet() ? wallet.specs.balances.unconfirmed : 0) >=
+          wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed >=
             Number(wallet?.transferPolicy?.threshold)
         ) {
           if (!uai) {
@@ -225,26 +225,27 @@ function* uaiChecksWorker({ payload }) {
 
       if (uaiCollectionHC.length > 0) {
         for (const uai of uaiCollectionHC) {
-          const signer: Signer = dbManager.getObjectByPrimaryId(
+          const signers: Signer[] = dbManager.getObjectByField(
             RealmSchema.Signer,
             'masterFingerprint',
             uai.entityId
           );
-
-          if (signer) {
-            const lastHealthCheck = isTestnet()
-              ? healthCheckReminderHours(signer.lastHealthCheck)
-              : healthCheckReminderDays(signer.lastHealthCheck);
-            if (
-              lastHealthCheck < healthCheckReminderThreshold ||
-              signer.hidden ||
-              signer.type === SignerType.MY_KEEPER
-            ) {
+          for (const signer of signers) {
+            if (signer) {
+              const lastHealthCheck = isTestnet()
+                ? healthCheckReminderHours(signer.lastHealthCheck)
+                : healthCheckReminderDays(signer.lastHealthCheck);
+              if (
+                lastHealthCheck < healthCheckReminderThreshold ||
+                signer.hidden ||
+                signer.type === SignerType.MY_KEEPER
+              ) {
+                yield put(uaiActioned({ uaiId: uai.id, action: true }));
+              }
+            } //no signer for the UAI that alreay exisists
+            else {
               yield put(uaiActioned({ uaiId: uai.id, action: true }));
             }
-          } //no signer for the UAI that alreay exisists
-          else {
-            yield put(uaiActioned({ uaiId: uai.id, action: true }));
           }
         }
       }

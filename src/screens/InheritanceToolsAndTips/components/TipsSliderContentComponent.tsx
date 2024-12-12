@@ -2,7 +2,7 @@ import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { Dimensions, StyleSheet } from 'react-native';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('window');
 function OnboardingSlideComponent(props) {
@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginVertical: hp(20),
+    marginRight: wp(30),
     alignItems: 'center',
   },
 });
