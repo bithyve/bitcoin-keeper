@@ -48,7 +48,7 @@ const TicketDetails = ({ route }) => {
   const [showNote, setShowNote] = useState(true);
   const [newDesc, setNewDesc] = useState('');
   const flatListRef = useRef();
-  const ticketClosed = ticketStatus === 'solved';
+  const ticketClosed = ['Solved', 'solved'].includes(ticketStatus);
 
   useEffect(() => {
     loadComments();

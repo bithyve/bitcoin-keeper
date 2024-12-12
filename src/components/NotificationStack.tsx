@@ -424,7 +424,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler, walle
 
       case uaiType.ZENDESK_TICKET: {
         return {
-          heading: uai.uaiDetails.heading,
+          heading: 'Technical Support',
           body: uai.uaiDetails.body,
           btnConfig: {
             primary: {
@@ -433,7 +433,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler, walle
                 skipUaiHandler(uai, true);
                 navigtaion.navigate('TicketDetails', {
                   ticketId: parseInt(uai.entityId),
-                  ticketStatus: 'Solved', // ! make this dynamic
+                  ticketStatus: uai.uaiDetails.heading,
                 });
               },
             },
