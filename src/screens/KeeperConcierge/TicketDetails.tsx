@@ -21,11 +21,12 @@ import Text from 'src/components/KeeperText';
 import { zendeskApi, zendeskEndpoints } from 'src/services/rest/ZendeskClient';
 import KeeperIconRound from 'src/assets/images/keeperIconRound.svg';
 import { timeFromTimeStamp } from 'src/utils/utilities';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PaperPlaneLight from 'src/assets/images/paper-plane-light.svg';
 import PaperPlaneDark from 'src/assets/images/paper-plane-black.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import Zendesk from 'src/services/backend/Zendesk';
+import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
 
 const TicketNote = ({ note, closed = false }) => {
   const { colorMode } = useColorMode();
@@ -49,6 +50,7 @@ const TicketDetails = ({ route }) => {
   const [newDesc, setNewDesc] = useState('');
   const flatListRef = useRef();
   const ticketClosed = ['Solved', 'solved'].includes(ticketStatus);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     loadComments();
@@ -64,6 +66,8 @@ const TicketDetails = ({ route }) => {
       const res = await Zendesk.loadTicketComments(ticketId);
       if (res.status === 200) {
         setComments(res.data.comments);
+        // update comments count in state
+        dispatch(updateTicketCommentsCount({ [ticketId]: res.data.comments.length }));
       }
     } catch (error) {
       console.log('🚀 ~ loadComments ~ error:', error);

@@ -7,6 +7,10 @@ export type conciergeUser = {
   userExternalId: string;
 };
 
+export type commentsCounter = {
+  [tickedId: string]: number;
+};
+
 const initialState: {
   onboardingModal: boolean;
   tags: string[];
@@ -15,6 +19,7 @@ const initialState: {
   conciergeUserFailed: boolean;
   conciergeUserSuccess: boolean;
   conciergeLoading: boolean;
+  commentsCounter: commentsCounter;
 } = {
   onboardingModal: false,
   tags: [],
@@ -23,6 +28,7 @@ const initialState: {
   conciergeLoading: false,
   conciergeUserFailed: false,
   conciergeUserSuccess: false,
+  commentsCounter: {},
 };
 
 const conciergeSlice = createSlice({
@@ -54,6 +60,9 @@ const conciergeSlice = createSlice({
     setConciergeUserSuccess: (state, action: PayloadAction<boolean>) => {
       state.conciergeUserSuccess = action.payload;
     },
+    updateTicketCommentsCount: (state, action: PayloadAction<commentsCounter>) => {
+      state.commentsCounter = { ...state.commentsCounter, ...action.payload };
+    },
   },
 });
 
@@ -66,6 +75,7 @@ export const {
   setConciergeLoading,
   setConciergeUserFailed,
   setConciergeUserSuccess,
+  updateTicketCommentsCount,
 } = conciergeSlice.actions;
 
 export default conciergeSlice.reducer;

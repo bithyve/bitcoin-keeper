@@ -13,3 +13,10 @@ export enum ConciergeTag {
   SETTINGS = 'settings',
   KEEPER_CONCIERGE = 'keeper-concierge',
 }
+
+export enum ConciergeTicketStatus {
+  'SOLVED' = 'solved',
+  'NEW' = 'new',
+  'PENDING' = 'pending',
+  'OPEN' = 'open',
+}

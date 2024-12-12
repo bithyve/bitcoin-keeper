@@ -16,11 +16,12 @@ import ImagePreview from './components/ImagePreview';
 import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { CommonActions } from '@react-navigation/native';
 import Zendesk from 'src/services/backend/Zendesk';
+import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
 
 const CreateTicket = ({ navigation }) => {
   const { colorMode } = useColorMode();
@@ -29,6 +30,7 @@ const CreateTicket = ({ navigation }) => {
   const { wallets } = useWallets();
   const { signerMap } = useSignerMap();
   const { conciergeUser } = useSelector((state) => state?.concierge);
+  const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -89,19 +91,27 @@ const CreateTicket = ({ navigation }) => {
   };
 
   const onNext = async () => {
+    if (!desc.length) {
+      showToast('Provide provide the issue description', <ToastErrorIcon />);
+      return;
+    }
     if (!conciergeUser) {
       showToast('Something went wrong. Please try again', <ToastErrorIcon />);
       return;
     }
-
     try {
       setLoading(true);
       let imageToken = null;
       if (imageUri) {
         imageToken = await uploadFile();
       }
-      const res = await Zendesk.createZendeskTicket({ desc, imageToken, conciergeUser });
+      const res = await Zendesk.createZendeskTicket({
+        desc: desc.trim(),
+        imageToken,
+        conciergeUser,
+      });
       if (res.status === 201) {
+        dispatch(updateTicketCommentsCount({ [res.data.ticket.id.toString()]: 1 }));
         navigation.dispatch(
           CommonActions.navigate({
             name: 'TechnicalSupport',

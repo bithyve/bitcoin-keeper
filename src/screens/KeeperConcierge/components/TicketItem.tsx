@@ -1,13 +1,19 @@
 import React from 'react';
-import { Box, HStack, VStack, useColorMode } from 'native-base';
+import { Box, HStack, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { timeFromTimeStamp } from 'src/utils/utilities';
+import { useSelector } from 'react-redux';
+import Colors from 'src/theme/Colors';
+import CardPill from 'src/components/CardPill';
+import { ConciergeTicketStatus } from 'src/models/enums/ConciergeTag';
 
 const TicketItem = ({ ticket, handlePress }) => {
   const { colorMode } = useColorMode();
-  const isReply = false;
+  const { commentsCounter } = useSelector((store) => store.concierge);
+  const newComment = ticket.comment_count > commentsCounter[ticket.id];
+  const isSolved = ticket.status == ConciergeTicketStatus.SOLVED;
 
   return (
     <TouchableOpacity onPress={handlePress}>
@@ -17,56 +23,36 @@ const TicketItem = ({ ticket, handlePress }) => {
         borderColor={`${colorMode}.dullGreyBorder`}
       >
         <HStack style={styles.header}>
-          <Text color={`${colorMode}.primaryText`} fontSize={15} semiBold>
-            {'Support Team '}
-            <Text color={`${colorMode}.greenText`} fontSize={15}>
-              #{ticket.id}
+          <Box alignItems={'center'} flexDirection={'row'}>
+            <Text color={`${colorMode}.primaryText`} fontSize={15} semiBold>
+              {'Support Team '}
+              <Text color={`${colorMode}.greenText`} fontSize={15}>
+                #{ticket.id}
+              </Text>
             </Text>
-          </Text>
+            {newComment && <Box style={styles.redDot} />}
+          </Box>
           <Text color={`${colorMode}.primaryText`} fontSize={12}>
             {timeFromTimeStamp(ticket.created_at)}
           </Text>
         </HStack>
-        <VStack style={{ marginTop: !isReply ? hp(12) : hp(2.5) }}>
-          {isReply ? (
-            <HStack>
-              <VStack style={styles.lineContainer}>
-                <Box style={styles.circle} backgroundColor={`${colorMode}.secondaryGrey`} />
-                <Box style={styles.dottedLine} borderColor={`${colorMode}.secondaryGrey`} />
-                <Box style={styles.circle} backgroundColor={`${colorMode}.secondaryGrey`} />
-              </VStack>
-
-              <VStack style={{ flex: 1, marginLeft: wp(8) }}>
-                <Text
-                  color={`${colorMode}.primaryText`}
-                  semiBold
-                  fontSize={12}
-                  numberOfLines={1}
-                  style={styles.text}
-                >
-                  {ticket.replyHeader}
-                </Text>
-                <Text
-                  color={`${colorMode}.greenishGreyText`}
-                  fontSize={12}
-                  numberOfLines={1}
-                  style={styles.replyContent}
-                >
-                  {ticket.replyContent}
-                </Text>
-              </VStack>
-            </HStack>
-          ) : (
-            <Text
-              color={`${colorMode}.greenishGreyText`}
-              fontSize={12}
-              numberOfLines={2}
-              style={styles.text}
-            >
-              {ticket.description}
-            </Text>
-          )}
-        </VStack>
+        <HStack style={{ marginTop: hp(2.5), justifyContent: 'space-between' }}>
+          <Text
+            color={`${colorMode}.greenishGreyText`}
+            fontSize={12}
+            numberOfLines={2}
+            style={styles.text}
+          >
+            {ticket.description}
+          </Text>
+          <Box justifyContent={'center'}>
+            <CardPill
+              heading={isSolved ? ConciergeTicketStatus.SOLVED : ConciergeTicketStatus.OPEN}
+              headingColor={Colors.White}
+              backgroundColor={isSolved ? Colors.ForestGreen : Colors.FadeBlue}
+            />
+          </Box>
+        </HStack>
       </Box>
     </TouchableOpacity>
   );
@@ -85,26 +71,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  lineContainer: {
-    alignItems: 'center',
-    marginTop: hp(6),
-  },
-  circle: {
-    width: wp(5),
-    height: wp(5),
-    borderRadius: wp(5),
-  },
-  dottedLine: {
-    borderStyle: 'dotted',
-    borderWidth: 1,
-    height: hp(23),
-  },
-  replyContent: {
-    marginTop: hp(10),
-    width: '95%',
-  },
   text: {
-    width: '95%',
+    width: '80%',
+  },
+  redDot: {
+    height: hp(8),
+    width: wp(8),
+    borderRadius: wp(16),
+    marginLeft: wp(10),
+    alignSelf: 'center',
+    backgroundColor: Colors.AlertRed,
   },
 });
 
