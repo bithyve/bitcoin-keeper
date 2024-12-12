@@ -6,10 +6,7 @@ import ContentWrapper from 'src/components/ContentWrapper';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import TicketHistory from './components/TicketHistory';
-import Buttons from 'src/components/Buttons';
-import PenLight from 'src/assets/images/pen-light.svg';
-import PenDark from 'src/assets/images/pen-dark.svg';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadConciergeTickets } from 'src/store/reducers/concierge';
 import KeeperModal from 'src/components/KeeperModal';
@@ -19,12 +16,12 @@ import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Zendesk from 'src/services/backend/Zendesk';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { CreateTicketCTA } from './components/CreateTicketCTA';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'TechnicalSupport'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const isDarkMode = colorMode === 'dark';
   const { conciergeUser } = useSelector((state) => state?.concierge);
 
   const dispatch = useDispatch();
@@ -76,16 +73,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       <ConciergeHeader title={'Technical Support'} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         <TicketHistory />
-        <Box style={styles.helpButton}>
-          <Buttons
-            primaryText="Ask the team"
-            primaryCallback={() => {
-              navigation.dispatch(CommonActions.navigate({ name: 'CreateTicket' }));
-            }}
-            RightIcon={isDarkMode ? PenLight : PenDark}
-            width={wp(150)}
-          />
-        </Box>
+        <CreateTicketCTA />
       </ContentWrapper>
       <KeeperModal
         visible={showModal}
@@ -112,18 +100,8 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
 };
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingHorizontal: wp(25),
-    paddingVertical: hp(25),
-    gap: hp(20),
-  },
   modal: {
     alignItems: 'center',
-  },
-  helpButton: {
-    position: 'absolute',
-    bottom: '8%',
-    right: wp(29),
   },
   modalDesc: {
     width: '95%',

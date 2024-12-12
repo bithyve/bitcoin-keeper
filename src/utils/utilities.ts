@@ -270,8 +270,6 @@ export const capitalizeEachWord = (text: string): string => {
     .join(' ');
 };
 
-
-
 export const timeFromTimeStamp = (timestamp: string): string => {
   const date = new Date(timestamp);
   const today = new Date();
@@ -297,7 +295,6 @@ export const timeFromTimeStamp = (timestamp: string): string => {
 
   return `${inputDay} ${inputMonth} ${inputYear}`;
 };
-
 
 export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
@@ -491,3 +488,33 @@ export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
   }
   return { estimatedBlocksBeforeConfirmation, tnxPriority };
 };
+
+export const calculateTicketsLeft = (tickets, planDetails) => {
+  const PLEB_RESTRICTION = 1;
+  const HODLER_RESTRICTION = 3;
+
+  const { isOnL1, isOnL2, isOnL3 } = planDetails;
+  if (isOnL1) {
+    // Pleb - once for life time
+    return tickets.length < PLEB_RESTRICTION;
+  }
+  if (isOnL2) {
+    if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+      const oneHourAgo = Date.now() - 60 * 60 * 1000; // 1 hour in milliseconds
+      const ticketsInLastHour = tickets.filter((ticket) => {
+        const ticketTimestamp = new Date(ticket.created_at).getTime();
+        return ticketTimestamp >= oneHourAgo;
+      });
+      return ticketsInLastHour.length < HODLER_RESTRICTION;
+    }
+    // PROD
+    // Hodler 3 per month
+    const currentMonth = new Date().getMonth();
+    const monthlyTickets = tickets.filter((ticket) => {
+      const ticketMonth = new Date(ticket.created_at).getMonth();
+      return ticketMonth === currentMonth;
+    });
+    return monthlyTickets.length < HODLER_RESTRICTION;
+  }
+  if (isOnL3) return true;
+}; 

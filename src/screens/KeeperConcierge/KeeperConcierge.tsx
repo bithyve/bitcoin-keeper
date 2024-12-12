@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setConciergeUserFailed, setConciergeUserSuccess } from 'src/store/reducers/concierge';
+import usePlan from 'src/hooks/usePlan';
 
 const KeeperConcierge = () => {
   const dispatch = useDispatch();
@@ -37,6 +38,7 @@ const KeeperConcierge = () => {
   const { showToast } = useToastMessage();
   const { conciergeUser, conciergeLoading, conciergeUserSuccess, conciergeUserFailed } =
     useSelector((store) => store.concierge);
+  const { isOnL1 } = usePlan();
 
   React.useEffect(() => {
     if (conciergeUserSuccess == true) {
@@ -103,7 +105,7 @@ const KeeperConcierge = () => {
       ),
       buttonText: concierge.technicalSupportButtonText,
       buttonIcon: isDarkMode ? SendDark : SendLight,
-      titleComponent: <TicketCount count={1} />,
+      titleComponent: isOnL1 ? <TicketCount count={1} /> : null,
       titleComonentStyle: { justifyContent: 'space-between' },
       buttonCallback: () => {
         checkConciergeUser();
