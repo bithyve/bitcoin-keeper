@@ -410,7 +410,7 @@ export const generateMiniscriptScheme = (
     miniscriptPhases,
     policy: miniscriptPolicy,
     keyInfoMap,
-  } = generateMiniscriptPolicy(miniscriptElements.phases, existingMiniscriptScheme);
+  } = generateMiniscriptPolicy(miniscriptElements, existingMiniscriptScheme);
   const { miniscript } = generateMiniscript(miniscriptPolicy);
   const miniscriptScheme: MiniscriptScheme = {
     miniscriptElements: {

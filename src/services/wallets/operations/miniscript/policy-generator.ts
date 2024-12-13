@@ -1,4 +1,4 @@
-import { MiniscriptScheme } from '../../interfaces/vault';
+import { MiniscriptElements, MiniscriptScheme } from '../../interfaces/vault';
 import { generateScriptWitnesses } from './miniscript';
 
 export interface KeyInfo {
@@ -37,19 +37,43 @@ function combinations<T>(array: T[], r: number): T[][] {
   }, [] as T[][]);
 }
 
-function deriveKeyUsageCount(keyInfoMap: KeyInfoMap): Record<string, number> {
+function deriveKeyUsageCount(
+  existingMiniscriptScheme: MiniscriptScheme,
+  miniscriptElements: MiniscriptElements
+): Record<string, number> {
+  const {
+    keyInfoMap: existingKeyInfoMap,
+    miniscriptElements: { signerFingerprints: existingSignerFingerprints },
+  } = existingMiniscriptScheme;
+  const { signerFingerprints } = miniscriptElements;
   const keyUsageCounts: Record<string, number> = {};
-  for (const key in keyInfoMap) {
-    if (Object.prototype.hasOwnProperty.call(keyInfoMap, key)) {
-      const [parsedKey, multipath] = key.split('<');
-      // extract externalIndex from <externalIndex;internalIndex>
-      const externalIndex = parseInt(multipath.split(';')[0], 10);
-      // update the keyUsageCounts with the largest externalIndex for each parsedKey
-      if (keyUsageCounts[parsedKey] === undefined || externalIndex > keyUsageCounts[parsedKey]) {
-        keyUsageCounts[parsedKey] = externalIndex / 2 + 1;
+
+  for (const currentIdentifier in signerFingerprints) {
+    for (const identifier in existingSignerFingerprints) {
+      if (existingSignerFingerprints[identifier] === signerFingerprints[currentIdentifier]) {
+        const previousIdentifier = identifier; // how the signer was identified in the previous scheme
+
+        for (const key in existingKeyInfoMap) {
+          const [parsedKey, multipath] = key.split('<');
+
+          if (parsedKey === previousIdentifier) {
+            // extract externalIndex from <externalIndex;internalIndex>
+            const externalIndex = parseInt(multipath.split(';')[0], 10);
+
+            // update the keyUsageCounts with the largest count(derived using externalIndex) for each parsedKey equivalent to the previousIdentifier
+            const usageCount = externalIndex / 2 + 1;
+            if (
+              keyUsageCounts[currentIdentifier] === undefined ||
+              usageCount > keyUsageCounts[currentIdentifier]
+            ) {
+              keyUsageCounts[currentIdentifier] = usageCount;
+            }
+          }
+        }
       }
     }
   }
+
   return keyUsageCounts;
 }
 
@@ -115,12 +139,15 @@ function nestOrFragments(policies: string[], probabilities: number[]): string {
 }
 
 export const generateMiniscriptPolicy = (
-  miniscriptPhases: Phase[],
+  miniscriptElements: MiniscriptElements,
   existingMiniscriptScheme?: MiniscriptScheme
 ): { miniscriptPhases: Phase[]; policy: string; keyInfoMap: KeyInfoMap } => {
+  const { phases: miniscriptPhases } = miniscriptElements;
+
   const keyUsageCounts: Record<string, number> = existingMiniscriptScheme
-    ? deriveKeyUsageCount(existingMiniscriptScheme.keyInfoMap)
+    ? deriveKeyUsageCount(existingMiniscriptScheme, miniscriptElements)
     : {};
+
   const keyInfoMap: KeyInfoMap = {};
 
   const policyParts: string[] = miniscriptPhases.map((phase, phaseIndex) => {
