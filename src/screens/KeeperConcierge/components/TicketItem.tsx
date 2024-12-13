@@ -3,7 +3,7 @@ import { Box, HStack, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import { timeFromTimeStamp } from 'src/utils/utilities';
+import { capitalizeEachWord, timeFromTimeStamp } from 'src/utils/utilities';
 import { useSelector } from 'react-redux';
 import Colors from 'src/theme/Colors';
 import CardPill from 'src/components/CardPill';
@@ -47,9 +47,12 @@ const TicketItem = ({ ticket, handlePress }) => {
           </Text>
           <Box justifyContent={'center'}>
             <CardPill
-              heading={isSolved ? ConciergeTicketStatus.SOLVED : ConciergeTicketStatus.OPEN}
+              heading={capitalizeEachWord(
+                isSolved ? ConciergeTicketStatus.SOLVED : ConciergeTicketStatus.OPEN
+              )}
               headingColor={Colors.White}
-              backgroundColor={isSolved ? Colors.ForestGreen : Colors.FadeBlue}
+              height={20}
+              backgroundColor={isSolved ? Colors.SeaweedGreen : Colors.TagLight7}
             />
           </Box>
         </HStack>
