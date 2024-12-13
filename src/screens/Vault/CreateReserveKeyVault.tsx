@@ -145,6 +145,7 @@ function CreateReserveKeyVault({
         description={description}
         vaultId={vaultId}
         setGeneratedVaultId={setGeneratedVaultId}
+        setCreating={setCreating}
         vaultType={VaultType.INHERITANCE}
         inheritanceKey={reservedKey}
         isAddInheritanceKey={isAddInheritanceKey}

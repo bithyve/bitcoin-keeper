@@ -58,6 +58,7 @@ import CautionIllustration from 'src/assets/images/downgradetopleb.svg';
 import Dropdown from 'src/components/Dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { getKeyUID } from 'src/utils/utilities';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
@@ -65,7 +66,6 @@ import { SDIcons } from './SigningDeviceIcons';
 import { TIMELOCK_DURATIONS } from './constants';
 import AddKeyButton from '../SigningDevices/components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
-import { getKeyUID } from 'src/utils/utilities';
 
 const onSignerSelect = (
   selected,
@@ -273,7 +273,7 @@ function Footer({
 }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, vault: vaultText } = translations;
   const renderNotes = () => {
     const notes = [];
     if (amfSigners.length) {
@@ -291,6 +291,14 @@ function Footer({
       notes.push(
         <Box style={styles.noteContainer} key={message}>
           <Note title="WARNING" subtitle={message} subtitleColor="error" />
+        </Box>
+      );
+    }
+    if (isAddInheritanceKey) {
+      const message = vaultText.addSignerIKNote;
+      notes.push(
+        <Box style={styles.noteContainer} key={message}>
+          <Note title={common.note} subtitle={message} />
         </Box>
       );
     }
@@ -1221,6 +1229,7 @@ function AddSigningDevice() {
           description={description}
           vaultId={vaultId}
           setGeneratedVaultId={setGeneratedVaultId}
+          setCreating={setCreating}
           vaultType={getVaultType({
             isCollaborativeWallet,
             isSSAddition,
@@ -1438,12 +1447,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   bottomContainer: {
-    gap: 20,
-    paddingHorizontal: wp(15),
+    gap: 10,
+    paddingHorizontal: wp(32),
     paddingBottom: hp(15),
   },
   noteContainer: {
-    width: wp(330),
+    width: wp(307),
   },
   signerContainer: {
     width: windowWidth + 2,

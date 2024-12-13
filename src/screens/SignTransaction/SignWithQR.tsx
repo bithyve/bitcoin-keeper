@@ -17,7 +17,7 @@ import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import useVault from 'src/hooks/useVault';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
-import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import WalletCopiableData from 'src/components/WalletCopiableData';
@@ -30,6 +30,7 @@ import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { getKeyUID } from 'src/utils/utilities';
+import { hp, windowWidth } from 'src/constants/responsive';
 
 function SignWithQR() {
   const { colorMode } = useColorMode();
@@ -185,29 +186,31 @@ function SignWithQR() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
-      <ScrollView
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        <Box style={styles.center}>
+      <Box style={styles.container}>
+        <ScrollView
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
           <Box style={styles.fingerprint}>
-            <WalletCopiableData title="Transaction (PSBT):" data={serializedPSBT} dataType="psbt" />
+            <WalletCopiableData data={serializedPSBT} dataType="psbt" />
           </Box>
-          {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) || true ? (
-            <ShareWithNfc
-              data={serializedPSBT}
-              isPSBTSharing
-              signer={signer}
-              remoteShare
-              xfp={vaultKey.xfp}
-            />
-          ) : null}
-        </Box>
-      </ScrollView>
+          <Box style={styles.optionsContainer}>
+            {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) || true ? (
+              <ShareWithNfc
+                data={serializedPSBT}
+                isPSBTSharing
+                signer={signer}
+                remoteShare
+                xfp={vaultKey.xfp}
+              />
+            ) : null}
+          </Box>
+        </ScrollView>
+      </Box>
       <Box style={styles.bottom}>
         <Buttons
-          primaryText="Scan PSBT"
+          primaryText="Receive Transaction"
           primaryCallback={navigateToQrScan}
           secondaryText={isRemoteKey ? null : 'Vault Details'}
           secondaryCallback={navigateToVaultRegistration}
@@ -220,20 +223,26 @@ function SignWithQR() {
 export default SignWithQR;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   contentContainer: {
+    paddingTop: '10%',
     flexGrow: 1,
     justifyContent: 'center',
-  },
-  center: {
-    alignItems: 'center',
-    marginTop: '10%',
-    flex: 1,
   },
   bottom: {
     marginTop: '5%',
   },
   fingerprint: {
     alignItems: 'center',
-    marginHorizontal: '7%',
+  },
+  optionsContainer: {
+    alignSelf: 'center',
+    paddingHorizontal: '5%',
+    marginTop: hp(10),
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: windowWidth * 0.8,
   },
 });

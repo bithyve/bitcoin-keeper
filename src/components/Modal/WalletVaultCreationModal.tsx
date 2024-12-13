@@ -31,7 +31,6 @@ function WalletCreatedModalContent(props) {
       <Box
         backgroundColor={`${colorMode}.seashellWhite`}
         style={styles.walletVaultInfoContainer}
-        marginY={props.descriptionMessage ? 10 : 0}
         borderColor={`${colorMode}.dullGreyBorder`}
       >
         <Box style={styles.pillsContainer}>
@@ -111,10 +110,12 @@ const styles = StyleSheet.create({
   descText: {
     fontSize: 14,
     width: wp(300),
+    marginBottom: 15,
   },
   walletVaultInfoContainer: {
     paddingHorizontal: 15,
     paddingVertical: 20,
+    marginBottom: 20,
     borderRadius: 10,
     borderWidth: 1,
   },

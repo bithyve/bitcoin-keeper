@@ -99,13 +99,13 @@ function VaultMigrationController({
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful && temporaryVault) {
+      setCreating(false);
       if (
         activeVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG &&
         activeVault.type === VaultType.INHERITANCE
       ) {
         WalletUtilities.fetchCurrentBlockHeight()
           .then(({ currentBlockHeight }) => {
-            setCreating(false);
             navigation.dispatch(
               CommonActions.navigate('SendConfirmation', {
                 sender: activeVault,
@@ -209,19 +209,27 @@ function VaultMigrationController({
     }
   };
 
-  const prepareMiniscriptScheme = (vaultInfo: NewVaultInfo, inheritanceSigner?: VaultSigner) => {
+  const prepareMiniscriptScheme = (
+    vaultInfo: NewVaultInfo,
+    inheritanceSigner?: VaultSigner,
+    existingMiniscriptScheme?: MiniscriptScheme
+  ) => {
     if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultInfo.vaultType)) {
-      throw new Error('Invalid vault type - supported only for timelocked and inheritance');
+      showToast(
+        'Invalid vault type - supported only for timelocked and inheritance',
+        <ToastErrorIcon />
+      );
+      return;
     }
 
     const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
     if (!currentBlockHeight) {
-      showToast('Failed to sync current block height');
+      showToast('Failed to sync current block height', <ToastErrorIcon />);
       return;
     }
 
     if (!selectedDuration) {
-      showToast('Please select the duration for timelock');
+      showToast('Please select the duration for timelock', <ToastErrorIcon />);
       return;
     }
 
@@ -254,12 +262,15 @@ function VaultMigrationController({
     }
 
     if (!miniscriptElements) {
-      showToast('Failed to generate miniscript elements');
+      showToast('Failed to generate miniscript elements', <ToastErrorIcon />);
       return;
     }
     vaultInfo.miniscriptElements = miniscriptElements;
 
-    const miniscriptScheme: MiniscriptScheme = generateMiniscriptScheme(miniscriptElements);
+    const miniscriptScheme: MiniscriptScheme = generateMiniscriptScheme(
+      miniscriptElements,
+      existingMiniscriptScheme
+    );
     const vaultScheme: VaultScheme = {
       ...vaultInfo.vaultScheme,
       multisigScriptType,
@@ -274,43 +285,8 @@ function VaultMigrationController({
     return vaultInfo;
   };
 
-  const createVault = useCallback(
-    (signers: VaultSigner[], scheme: VaultScheme, vaultType, inheritanceSigner?: VaultSigner) => {
-      try {
-        let vaultInfo: NewVaultInfo = {
-          vaultType,
-          vaultScheme: scheme,
-          vaultSigners: signers,
-          vaultDetails: {
-            name,
-            description,
-          },
-        };
-
-        const isTimelockedInheritanceKey = isAddInheritanceKey;
-        if (isTimeLock || isTimelockedInheritanceKey) {
-          vaultInfo = prepareMiniscriptScheme(vaultInfo, inheritanceSigner);
-        }
-
-        if (vaultAlreadyExists(vaultInfo)) {
-          Alert.alert('Vault with this configuration already exists.');
-          navigation.goBack();
-        } else {
-          const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
-          setGeneratedVaultId(generatedVaultId);
-          dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-          return vaultInfo;
-        }
-      } catch (err) {
-        captureError(err);
-        return false;
-      }
-    },
-    [isTimeLock, isAddInheritanceKey, selectedDuration, currentBlockHeight]
-  );
-
   const initiateNewVault = () => {
-    if (activeVault) {
+    try {
       let vaultInfo: NewVaultInfo = {
         vaultType,
         vaultScheme: scheme,
@@ -320,19 +296,33 @@ function VaultMigrationController({
           description,
         },
       };
+
       const isTimelockedInheritanceKey = isAddInheritanceKey;
       if (isTimeLock || isTimelockedInheritanceKey) {
-        vaultInfo = prepareMiniscriptScheme(vaultInfo, inheritanceKey);
+        vaultInfo = prepareMiniscriptScheme(
+          vaultInfo,
+          inheritanceKey,
+          activeVault ? activeVault.scheme.miniscriptScheme : null
+        );
       }
 
       if (vaultAlreadyExists(vaultInfo)) {
         Alert.alert('Vault with this configuration already exists.');
         navigation.goBack();
-      } else {
-        dispatch(migrateVault(vaultInfo, activeVault.shellId));
+        return;
       }
-    } else {
-      createVault(vaultKeys, scheme, vaultType, inheritanceKey);
+
+      if (activeVault) {
+        // case: vault migration; old -> new
+        dispatch(migrateVault(vaultInfo, activeVault.shellId));
+      } else {
+        // case: new vault creation
+        const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
+        setGeneratedVaultId(generatedVaultId);
+        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+      }
+    } catch (err) {
+      captureError(err);
     }
   };
 

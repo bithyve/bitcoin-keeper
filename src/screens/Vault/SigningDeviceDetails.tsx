@@ -389,7 +389,7 @@ function SigningDeviceDetails({ route }) {
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: 'Scan a PSBT file',
+          title: 'Scan Transaction',
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: signPSBT,
           setup: true,
