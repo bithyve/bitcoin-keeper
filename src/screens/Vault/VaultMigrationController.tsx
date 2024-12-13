@@ -215,17 +215,21 @@ function VaultMigrationController({
     existingMiniscriptScheme?: MiniscriptScheme
   ) => {
     if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultInfo.vaultType)) {
-      throw new Error('Invalid vault type - supported only for timelocked and inheritance');
+      showToast(
+        'Invalid vault type - supported only for timelocked and inheritance',
+        <ToastErrorIcon />
+      );
+      return;
     }
 
     const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
     if (!currentBlockHeight) {
-      showToast('Failed to sync current block height');
+      showToast('Failed to sync current block height', <ToastErrorIcon />);
       return;
     }
 
     if (!selectedDuration) {
-      showToast('Please select the duration for timelock');
+      showToast('Please select the duration for timelock', <ToastErrorIcon />);
       return;
     }
 
@@ -258,7 +262,7 @@ function VaultMigrationController({
     }
 
     if (!miniscriptElements) {
-      showToast('Failed to generate miniscript elements');
+      showToast('Failed to generate miniscript elements', <ToastErrorIcon />);
       return;
     }
     vaultInfo.miniscriptElements = miniscriptElements;
