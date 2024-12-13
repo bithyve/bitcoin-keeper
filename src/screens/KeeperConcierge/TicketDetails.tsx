@@ -51,6 +51,22 @@ const TicketDetails = ({ route }) => {
   const flatListRef = useRef();
   const ticketClosed = ['Solved', 'solved'].includes(ticketStatus);
   const dispatch = useDispatch();
+  const isiOS = Platform.OS === 'ios';
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height - (isiOS ? hp(32) : 0));
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', (e) => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   useEffect(() => {
     loadComments();
@@ -184,7 +200,14 @@ const TicketDetails = ({ route }) => {
             </Box>
           </Box>
           {!ticketClosed && (
-            <Box style={styles.inputContainer}>
+            <Box
+              style={[
+                styles.inputContainer,
+                isiOS && {
+                  paddingBottom: keyboardHeight,
+                },
+              ]}
+            >
               <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                 <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                   <KeeperTextInput
