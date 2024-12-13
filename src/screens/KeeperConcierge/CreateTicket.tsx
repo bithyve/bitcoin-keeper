@@ -32,18 +32,18 @@ const CreateTicket = ({ navigation }) => {
   const { conciergeUser } = useSelector((state) => state?.concierge);
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [imageUri, setImageUri] = useState(null);
   const [desc, setDesc] = useState('');
   const [loading, setLoading] = useState(false);
+  const isiOS = Platform.OS === 'ios';
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height - (isiOS ? hp(32) : 0));
     });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', (e) => {
+      setKeyboardHeight(0);
     });
 
     return () => {
@@ -148,10 +148,7 @@ const CreateTicket = ({ navigation }) => {
     >
       <ConciergeHeader title={'Technical Support'} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
+        <KeyboardAvoidingView style={styles.container} behavior={isiOS ? 'padding' : undefined}>
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <Box style={styles.inputContainer}>
               <TextArea
@@ -169,13 +166,19 @@ const CreateTicket = ({ navigation }) => {
             </Box>
           </TouchableWithoutFeedback>
 
-          {imageUri && (
-            <Box style={styles.imagePreviewContainer}>
-              <ImagePreview imageUri={imageUri} onRemoveImage={handleRemoveImage} />
-            </Box>
-          )}
-
-          <Box style={keyboardVisible ? styles.footerWithKeyboard : styles.footer}>
+          <Box
+            style={[
+              styles.footerCTR,
+              isiOS && {
+                paddingBottom: keyboardHeight,
+              },
+            ]}
+          >
+            {imageUri && (
+              <Box style={styles.imagePreviewContainer}>
+                <ImagePreview imageUri={imageUri} onRemoveImage={handleRemoveImage} />
+              </Box>
+            )}
             <CTAFooter
               onAttachScreenshot={handleAttachScreenshot}
               addAttributes={addAttributes}
@@ -197,12 +200,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(25),
     paddingVertical: hp(25),
   },
-  footer: {
-    marginBottom: 0,
+  footerCTR: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
-  footerWithKeyboard: {
-    marginBottom: hp(123),
-  },
+
   imagePreviewContainer: {
     paddingHorizontal: wp(25),
     paddingTop: hp(10),
