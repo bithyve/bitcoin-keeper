@@ -2,12 +2,15 @@ import { Platform } from 'react-native';
 import { zendeskApi, zendeskEndpoints } from '../rest/ZendeskClient';
 import RNFS from 'react-native-fs';
 import { conciergeUser } from 'src/store/reducers/concierge';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 
 export type createZendeskTicketProps = {
   desc: string;
   imageToken?: string;
   conciergeUser: conciergeUser;
 };
+
+const isDev = config.ENVIRONMENT === APP_STAGE.DEVELOPMENT;
 
 export default class Zendesk {
   public static fetchZendeskTickets = async (conciergeUserId: string): Promise<any> => {
@@ -102,7 +105,7 @@ export default class Zendesk {
             uploads: [imageToken],
           },
           priority: 'normal',
-          subject: `Conversation with ${conciergeUser.name}`,
+          subject: `${isDev ? 'DEV ' : ''}Conversation with ${conciergeUser.name}`,
           external_id: conciergeUser.id,
           submitter_id: conciergeUser.id,
         },
