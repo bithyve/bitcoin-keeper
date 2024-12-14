@@ -240,6 +240,11 @@ export const customTheme = extendTheme({
       btcPillText: Colors.MidNightBlack,
       DarkGreyText: Colors.Feldgrau,
       greyBackground: Colors.lightGrey,
+      whiteCircle: Colors.Warmbeige,
+      darkBrownCircle: Colors.RussetBrown,
+      lightBrownCircle: Colors.RussetBrownLight,
+      footerBackground: Colors.SeaShellBeige,
+      sliderUnfilled: Colors.PaleGrey,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -434,6 +439,11 @@ export const customTheme = extendTheme({
       btcPillText: Colors.White,
       DarkGreyText: Colors.RichBlackDark,
       greyBackground: Colors.darkGrey,
+      whiteCircle: Colors.SecondaryWhite,
+      darkBrownCircle: Colors.RussetBrown,
+      lightBrownCircle: Colors.RussetBrownLight,
+      footerBackground: Colors.PrimaryBlack,
+      sliderUnfilled: Colors.CharcoalGreen,
     },
   },
   config: {

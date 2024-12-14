@@ -18,6 +18,7 @@ import {
 import SigningServer from 'src/services/backend/SigningServer';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
+import { getKeyUID } from 'src/utils/utilities';
 import {
   EntityKind,
   MultisigScriptType,
@@ -42,7 +43,6 @@ import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
 import { generateMiniscript } from '../operations/miniscript/miniscript';
 import { generateMiniscriptPolicy } from '../operations/miniscript/policy-generator';
-import { getKeyUID } from 'src/utils/utilities';
 
 const crypto = require('crypto');
 
@@ -403,13 +403,14 @@ export const generateKeyFromXpub = (
 };
 
 export const generateMiniscriptScheme = (
-  miniscriptElements: MiniscriptElements
+  miniscriptElements: MiniscriptElements,
+  existingMiniscriptScheme?: MiniscriptScheme
 ): MiniscriptScheme => {
   const {
     miniscriptPhases,
     policy: miniscriptPolicy,
     keyInfoMap,
-  } = generateMiniscriptPolicy(miniscriptElements.phases);
+  } = generateMiniscriptPolicy(miniscriptElements, existingMiniscriptScheme);
   const { miniscript } = generateMiniscript(miniscriptPolicy);
   const miniscriptScheme: MiniscriptScheme = {
     miniscriptElements: {

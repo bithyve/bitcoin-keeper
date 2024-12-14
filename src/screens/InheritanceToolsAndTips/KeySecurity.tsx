@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import OptionCard from 'src/components/OptionCard';
-import ServerIcon from 'src/assets/images/server-network.svg';
-import ServerGreyIcon from 'src/assets/images/server-network-grey.svg';
+import IKGreenIcon from 'src/assets/images/ik-green.svg';
+import IKGreyIcon from 'src/assets/images/ik-grey.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import BirdIcon from 'src/assets/images/bird.svg';
 import BirdDisabledIcon from 'src/assets/images/bird_disabled.svg';
@@ -57,18 +57,18 @@ function KeySecurity({ navigation }) {
       {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
       <OptionCard
         disabled={!isHodlerAndDiamondHand}
+        title={inheritancePlanning.inheritanceKey}
+        description={inheritancePlanning.inheritanceKeyOptionDesc}
+        LeftIcon={!isHodlerAndDiamondHand ? <IKGreyIcon /> : <IKGreenIcon />}
+        callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
+      />
+      <OptionCard
+        disabled={!isHodlerAndDiamondHand}
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
         title="Canary Wallets"
         description="Alert on key compromise"
         LeftIcon={!isHodlerAndDiamondHand ? <BirdDisabledIcon /> : <BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
-      />
-      <OptionCard
-        disabled={!isHodlerAndDiamondHand}
-        title={inheritancePlanning.inheritanceKey}
-        description={inheritancePlanning.inheritanceKeyOptionDesc}
-        LeftIcon={!isHodlerAndDiamondHand ? <ServerGreyIcon /> : <ServerIcon />}
-        callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
       {!isHodlerAndDiamondHand && (
         <Box

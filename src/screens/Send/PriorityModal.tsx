@@ -50,10 +50,7 @@ function PriorityItem({
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
-  const totalFeeBalance =
-    !getSatUnit() && currentCurrency === CurrencyKind.BITCOIN
-      ? getBalance(totalFee).toFixed(8)
-      : getBalance(totalFee);
+  const totalFeeBalance = getBalance(totalFee);
 
   const totalFeeComp = (
     <Box style={styles.totalFeeContainer}>

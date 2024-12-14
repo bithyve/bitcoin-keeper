@@ -50,6 +50,38 @@ import OTHERSDICON from 'src/assets/images/other.svg';
 import OTHERSDICONLIGHT from 'src/assets/images/other_light.svg';
 import INHERITANCEKEYLIGHT from 'src/assets/images/inheritance_key_light.svg';
 import INHERITANCEKEYDARK from 'src/assets/images/inheritance_key_dark.svg';
+import COLDCARDGREENLIGHT from 'src/assets/images/coldcard-green-light.svg';
+import COLDCARDGREENDARK from 'src/assets/images/coldcard-green-dark.svg';
+import JADEGREENLIGHT from 'src/assets/images/jade-green-light.svg';
+import JADEGREENDARK from 'src/assets/images/jade-green-dark.svg';
+import KEYSTONEGREENLIGHT from 'src/assets/images/keystone-green-light.svg';
+import KEYSTONEGREENDARK from 'src/assets/images/keystone-green-dark.svg';
+import LEDGERGREENLIGHT from 'src/assets/images/ledger-green-light.svg';
+import LEDGERGREENDARK from 'src/assets/images/ledger-green-dark.svg';
+import PASSPORTGREENLIGHT from 'src/assets/images/passport-green-light.svg';
+import PASSPORTGREENDARK from 'src/assets/images/passport-green-dark.svg';
+import SEEDSIGNERGREENLIGHT from 'src/assets/images/seedsigner-green-light.svg';
+import SEEDSIGNERGREENDARK from 'src/assets/images/seedsigner-green-dark.svg';
+import SPECTERGREENLIGHT from 'src/assets/images/specter-green-light.svg';
+import SPECTERGREENDARK from 'src/assets/images/specter-green-dark.svg';
+import TAPSIGNERGREENLIGHT from 'src/assets/images/tapsigner-green-light.svg';
+import TAPSIGNERGREENDARK from 'src/assets/images/tapsigner-green-dark.svg';
+import INHERITANCEKEYGREENLIGHT from 'src/assets/images/inheritance-key-green-light.svg';
+import INHERITANCEKEYGREENDARK from 'src/assets/images/inheritance-key-green-dark.svg';
+import SERVERGREENLIGHT from 'src/assets/images/server-green-light.svg';
+import SERVERGREENDARK from 'src/assets/images/server-green-dark.svg';
+import MOBILEKEYGREENLIGHT from 'src/assets/images/mobile-key-green-light.svg';
+import MOBILEKEYGREENDARK from 'src/assets/images/mobile-key-green-dark.svg';
+import KEEPERAPPGREENLIGHT from 'src/assets/images/external-key-green-light.svg';
+import KEEPERAPPGREENDARK from 'src/assets/images/external-key-green-dark.svg';
+import SEEDWORDSGREENLIGHT from 'src/assets/images/seed-words-green-light.svg';
+import SEEDWORDSGREENDARK from 'src/assets/images/seed-words-green-dark.svg';
+import OTHERSDGREENLIGHT from 'src/assets/images/other-sd-green-light.svg';
+import OTHERSDGREENDARK from 'src/assets/images/other-sd-green-dark.svg';
+import BITBOXGREENLIGHT from 'src/assets/images/bitbox-green-light.svg';
+import BITBOXGREENDARK from 'src/assets/images/bitbox-green-dark.svg';
+import TREZORGREENLIGHT from 'src/assets/images/trezor-green-light.svg';
+import TREZORGREENDARK from 'src/assets/images/trezor-green-dark.svg';
 import PortalLogo from 'src/assets/images/portalLogo.svg';
 import PortalLogoLight from 'src/assets/images/PortalLogoLight.svg';
 import PortalIcon from 'src/assets/images/portalIcon.svg';
@@ -222,6 +254,146 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
       return {
         Icon: null,
         Logo: null,
+        type: SignerStorage.COLD,
+      };
+  }
+};
+
+export const SDColoredIcons = (type: SignerType, light = true, width = 20, height = 20) => {
+  switch (type) {
+    case SignerType.COLDCARD:
+      return {
+        Icon: getColouredIcon(<COLDCARDGREENLIGHT />, <COLDCARDGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.JADE:
+      return {
+        Icon: getColouredIcon(<JADEGREENLIGHT />, <JADEGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.MY_KEEPER:
+      return {
+        Icon: getColouredIcon(
+          <MOBILEKEYGREENLIGHT />,
+          <MOBILEKEYGREENDARK />,
+          light,
+          width,
+          height
+        ),
+      };
+    case SignerType.KEEPER:
+      return {
+        Icon: getColouredIcon(
+          <KEEPERAPPGREENLIGHT />,
+          <KEEPERAPPGREENDARK />,
+          light,
+          width,
+          height
+        ),
+      };
+    case SignerType.KEYSTONE:
+      return {
+        Icon: getColouredIcon(<KEYSTONEGREENLIGHT />, <KEYSTONEGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.LEDGER:
+      return {
+        Icon: getColouredIcon(<LEDGERGREENLIGHT />, <LEDGERGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.MOBILE_KEY:
+      return {
+        Icon: getColouredIcon(
+          <MOBILEKEYGREENLIGHT />,
+          <MOBILEKEYGREENDARK />,
+          light,
+          width,
+          height
+        ),
+        type: SignerStorage.HOT,
+      };
+    case SignerType.PASSPORT:
+      return {
+        Icon: getColouredIcon(<PASSPORTGREENLIGHT />, <PASSPORTGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.POLICY_SERVER:
+      return {
+        Icon: getColouredIcon(<SERVERGREENLIGHT />, <SERVERGREENDARK />, light, width, height),
+        type: SignerStorage.HOT,
+      };
+    case SignerType.TAPSIGNER:
+      return {
+        Icon: getColouredIcon(
+          <TAPSIGNERGREENLIGHT />,
+          <TAPSIGNERGREENDARK />,
+          light,
+          width,
+          height
+        ),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.TREZOR:
+      return {
+        Icon: getColouredIcon(<TREZORGREENLIGHT />, <TREZORGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.SEEDSIGNER:
+      return {
+        Icon: getColouredIcon(
+          <SEEDSIGNERGREENLIGHT />,
+          <SEEDSIGNERGREENDARK />,
+          light,
+          width,
+          height
+        ),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.SPECTER:
+      return {
+        Icon: getColouredIcon(<SPECTERGREENLIGHT />, <SPECTERGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.BITBOX02:
+      return {
+        Icon: getColouredIcon(<BITBOXGREENLIGHT />, <BITBOXGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.OTHER_SD:
+      return {
+        Icon: getColouredIcon(<OTHERSDGREENLIGHT />, <OTHERSDGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.UNKOWN_SIGNER:
+      return {
+        Icon: getColouredIcon(<OTHERSDGREENLIGHT />, <OTHERSDGREENDARK />, light, width, height),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.SEED_WORDS:
+      return {
+        Icon: getColouredIcon(
+          <SEEDWORDSGREENLIGHT />,
+          <SEEDWORDSGREENDARK />,
+          light,
+          width,
+          height
+        ),
+        type: SignerStorage.WARM,
+      };
+    case SignerType.INHERITANCEKEY:
+      return {
+        Icon: getColouredIcon(
+          <INHERITANCEKEYGREENLIGHT />,
+          <INHERITANCEKEYGREENDARK />,
+          light,
+          width,
+          height
+        ),
+        type: SignerStorage.WARM,
+      };
+    default:
+      return {
+        Icon: null,
         type: SignerStorage.COLD,
       };
   }

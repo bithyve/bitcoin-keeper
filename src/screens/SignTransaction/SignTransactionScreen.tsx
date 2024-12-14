@@ -1,4 +1,4 @@
-import { FlatList } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -61,7 +61,7 @@ import {
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import config from 'src/utils/service-utilities/config';
 import { isReading, stopReading } from 'src/hardware/portal';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { formatDuration } from '../Vault/HardwareModalMap';
 import SignerModals from './SignerModals';
@@ -738,7 +738,7 @@ function SignTransactionScreen() {
         subtitle={`Choose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
-        contentContainerStyle={{ paddingTop: '5%' }}
+        contentContainerStyle={styles.contentContainerStyle}
         data={vaultKeys}
         extraData={serializedPSBTEnvelops}
         keyExtractor={(item) => item.xfp}
@@ -752,23 +752,31 @@ function SignTransactionScreen() {
           }
           if (isPayloadAvailable) {
             return (
-              <SignerList
-                isIKSClicked={isIKSClicked}
-                isIKSDeclined={isIKSDeclined}
-                IKSSignTime={IKSSignTime}
-                vaultKey={item}
-                callback={() => callbackForSigners(item, signerMap[getKeyUID(item)])}
-                envelops={serializedPSBTEnvelops}
-                signerMap={signerMap}
-                isFirst={index === 0}
-                isLast={index === vaultKeys.length - 1}
-              />
+              <Box style={styles.signerListContainer}>
+                <SignerList
+                  isIKSClicked={isIKSClicked}
+                  isIKSDeclined={isIKSDeclined}
+                  IKSSignTime={IKSSignTime}
+                  vaultKey={item}
+                  callback={() => callbackForSigners(item, signerMap[getKeyUID(item)])}
+                  envelops={serializedPSBTEnvelops}
+                  signerMap={signerMap}
+                />
+              </Box>
             );
           }
         }}
       />
-      <Box alignItems="flex-end" marginY={5}>
+      <Box style={styles.noteWrapper}>
+        <Note
+          title={common.note}
+          subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signers, it can be broadcasted."
+          subtitleColor="GreyText"
+        />
+      </Box>
+      <Box style={styles.buttonContainer}>
         <Buttons
+          fullWidth
           primaryDisable={!areSignaturesSufficient()}
           primaryLoading={broadcasting}
           primaryText="Broadcast"
@@ -790,11 +798,7 @@ function SignTransactionScreen() {
           }}
         />
       </Box>
-      <Note
-        title={common.note}
-        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signers, it can be broadcasted."
-        subtitleColor="GreyText"
-      />
+
       <SignerModals
         vaultId={vaultId}
         vaultKeys={vaultKeys}
@@ -885,5 +889,22 @@ function SignTransactionScreen() {
     </ScreenWrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  signerListContainer: {
+    flex: 1,
+    paddingHorizontal: '2.5%',
+  },
+  contentContainerStyle: {
+    paddingTop: hp(30),
+  },
+  buttonContainer: {
+    paddingVertical: hp(15),
+    paddingHorizontal: '2.5%',
+  },
+  noteWrapper: {
+    paddingHorizontal: '2.5%',
+  },
+});
 
 export default SentryErrorBoundary(SignTransactionScreen);

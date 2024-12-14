@@ -14,9 +14,11 @@ type Props = {
   title?: string;
   copy?: Function;
   dataType?: 'fingerprint' | 'psbt' | 'xpub' | '2fa';
+  width?: number | string;
+  height?: number | string;
 };
 
-function WalletCopiableData({ title, data, dataType, copy }: Props) {
+function WalletCopiableData({ title, data, dataType, copy, width = '90%', height = 55 }: Props) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
 
@@ -28,7 +30,8 @@ function WalletCopiableData({ title, data, dataType, copy }: Props) {
       backgroundColor={`${colorMode}.seashellWhite`}
       borderColor={`${colorMode}.greyBorder`}
       style={styles.container}
-      width="90%"
+      width={width}
+      height={height}
     >
       <Box style={styles.textContainer}>
         {title && (
@@ -76,7 +79,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderRadius: 10,
-    height: 55,
     marginVertical: hp(20),
   },
   heading: {

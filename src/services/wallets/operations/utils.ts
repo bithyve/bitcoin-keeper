@@ -16,6 +16,7 @@ import idx from 'idx';
 import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import RestClient from 'src/services/rest/RestClient';
+import ElectrumClient from 'src/services/electrum/client';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { MiniscriptScheme, MultisigConfig, Signer, Vault } from '../interfaces/vault';
 import {
@@ -33,7 +34,6 @@ import { OutputUTXOs } from '../interfaces';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 import ecc from './taproot-utils/noble_ecc';
 import { generateBitcoinScript } from './miniscript/miniscript';
-import ElectrumClient from 'src/services/electrum/client';
 
 bitcoinJS.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -190,7 +190,7 @@ export default class WalletUtilities {
 
   static fetchCurrentBlockHeight = async () => {
     try {
-      let height = (await ElectrumClient.getBlockchainHeaders()).height;
+      const height = (await ElectrumClient.getBlockchainHeaders()).height;
       if (height) {
         return { currentBlockHeight: height };
       } else {
@@ -350,9 +350,11 @@ export default class WalletUtilities {
       for (const keyIdentifier in keysInfoMap) {
         const fragments = keysInfoMap[keyIdentifier].split('/');
         const masterFingerprint = fragments[0].slice(1);
-        const multipathIndex = fragments[5]; // ex: <2;3>
-        const externalChainIndex = multipathIndex[1];
-        const internalChainIndex = multipathIndex[3];
+        const multipathIndex = fragments[5];
+        const multipathFragments = multipathIndex.split(';');
+        const externalChainIndex = multipathFragments[0].slice(1);
+        const internalChainIndex = multipathFragments[1].slice(0, -1);
+
         /* Note: for a stricter check, we can also derive pubkey from xpub to match w/ partial sig pub
          const [script_type, xpub] = fragments[4].split(']');
          const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
