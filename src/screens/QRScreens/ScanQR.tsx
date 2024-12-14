@@ -9,7 +9,7 @@ import { decodeURBytes } from 'src/services/qr';
 import { useRoute } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import useNfcModal from 'src/hooks/useNfcModal';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
@@ -21,6 +21,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRScanner from 'src/components/QRScanner';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NFCOption from '../NFCChannel/NFCOption';
+import Note from 'src/components/Note/Note';
 
 const decoder = new URRegistryDecoder();
 
@@ -41,6 +42,8 @@ function ScanQR() {
     learnMore = false,
     learnMoreContent = {},
     isPSBT = false,
+    importOptions = true,
+    showNote = false,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -86,65 +89,75 @@ function ScanQR() {
             }}
             learnTextColor={`${colorMode}.buttonText`}
           />
-          <ScrollView
-            automaticallyAdjustKeyboardInsets={true}
-            contentContainerStyle={{
-              flex: 1,
-              alignItems: 'center',
-            }}
-            showsVerticalScrollIndicator={false}
-          >
-            <QRScanner onScanCompleted={onQrScan} hideCamera={nfcVisible} />
-            {isPSBT && (
-              <Box style={styles.inputContainer}>
-                <Box
-                  style={styles.inputWrapper}
-                  backgroundColor={`${colorMode}.seashellWhite`}
-                  borderColor={`${colorMode}.greyBorder`}
-                >
-                  <Input
-                    placeholder="or paste PSBT text"
-                    placeholderTextColor={`${colorMode}.primaryText`}
-                    style={styles.textInput}
-                    variant="unstyled"
-                    value={inputText}
-                    onChangeText={(text) => {
-                      setInputText(text);
-                    }}
-                    onSubmitEditing={() => {
-                      onTextSubmit(inputText);
-                    }}
-                    textAlignVertical="top"
-                    textAlign="left"
-                    multiline
-                    width={windowWidth * 0.8}
-                    blurOnSubmit={false}
-                    onKeyPress={({ nativeEvent }) => {
-                      if (nativeEvent.key === 'Enter') {
+          <Box style={styles.container}>
+            <ScrollView
+              automaticallyAdjustKeyboardInsets={true}
+              contentContainerStyle={{
+                alignItems: 'center',
+                paddingTop: hp(30),
+              }}
+              style={styles.flex1}
+              showsVerticalScrollIndicator={false}
+            >
+              <QRScanner onScanCompleted={onQrScan} hideCamera={nfcVisible} />
+              {isPSBT && (
+                <Box style={styles.inputContainer}>
+                  <Box
+                    style={styles.inputWrapper}
+                    backgroundColor={`${colorMode}.seashellWhite`}
+                    borderColor={`${colorMode}.greyBorder`}
+                  >
+                    <Input
+                      placeholder="or paste PSBT text"
+                      placeholderTextColor={`${colorMode}.primaryText`}
+                      style={styles.textInput}
+                      variant="unstyled"
+                      value={inputText}
+                      onChangeText={(text) => {
+                        setInputText(text);
+                      }}
+                      onSubmitEditing={() => {
                         onTextSubmit(inputText);
+                      }}
+                      textAlignVertical="top"
+                      textAlign="left"
+                      multiline
+                      width={windowWidth * 0.8}
+                      blurOnSubmit={false}
+                      onKeyPress={({ nativeEvent }) => {
+                        if (nativeEvent.key === 'Enter') {
+                          onTextSubmit(inputText);
+                        }
+                      }}
+                      _input={
+                        colorMode === 'dark' && {
+                          selectionColor: Colors.SecondaryWhite,
+                          cursorColor: Colors.SecondaryWhite,
+                        }
                       }
-                    }}
-                    _input={
-                      colorMode === 'dark' && {
-                        selectionColor: Colors.SecondaryWhite,
-                        cursorColor: Colors.SecondaryWhite,
-                      }
-                    }
+                    />
+                  </Box>
+                </Box>
+              )}
+              {importOptions && (
+                <Box style={styles.importOptions}>
+                  <NFCOption
+                    signerType={type}
+                    nfcVisible={nfcVisible}
+                    closeNfc={closeNfc}
+                    withNfcModal={withNfcModal}
+                    setData={onQrScan}
+                    isPSBT={isPSBT}
                   />
                 </Box>
-              </Box>
-            )}
-            <Box style={styles.importOptions}>
-              <NFCOption
-                signerType={type}
-                nfcVisible={nfcVisible}
-                closeNfc={closeNfc}
-                withNfcModal={withNfcModal}
-                setData={onQrScan}
-                isPSBT={isPSBT}
-              />
+              )}
+            </ScrollView>
+          </Box>
+          {showNote && (
+            <Box style={styles.noteWrapper}>
+              <Note title={common.note} subtitle={common.scanQRNote} />
             </Box>
-          </ScrollView>
+          )}
           <KeeperModal
             visible={visibleModal}
             close={() => {
@@ -178,6 +191,12 @@ function ScanQR() {
 export default ScanQR;
 
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+  },
+  flex1: {
+    flex: 1,
+  },
   uploadButton: {
     position: 'absolute',
     zIndex: 999,
@@ -210,5 +229,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: windowWidth * 0.8,
+  },
+  noteWrapper: {
+    paddingHorizontal: wp(15),
   },
 });

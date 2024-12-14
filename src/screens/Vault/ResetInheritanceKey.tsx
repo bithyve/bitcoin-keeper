@@ -18,14 +18,14 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import { useAppSelector } from 'src/store/hooks';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import IKSInfocard from './components/IKSInfoCard';
-import { SDIcons } from './SigningDeviceIcons';
-import VaultMigrationController from './VaultMigrationController';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
 import OptionDropdown from 'src/components/OptionDropdown';
-import { MONTHS_12, MONTHS_18, MONTHS_24 } from './constants';
 import { getSignerDescription } from 'src/hardware';
+import IKSInfocard from './components/IKSInfoCard';
+import { SDIcons } from './SigningDeviceIcons';
+import VaultMigrationController from './VaultMigrationController';
+import { MONTHS_12, MONTHS_18, MONTHS_24 } from './constants';
 
 const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
 const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -108,7 +108,7 @@ function ResetInheritanceKey({ route }) {
           }`;
         }
 
-        setCurrentTimeUntilActivation('Activates in ' + timeString);
+        setCurrentTimeUntilActivation(`Activates in ${timeString}`);
       } else {
         setCurrentTimeUntilActivation(vaultText.IKAlreadyActive);
       }
@@ -192,13 +192,13 @@ function ResetInheritanceKey({ route }) {
       </Box>
       <VaultMigrationController
         vaultCreating={vaultCreating}
-        setCreating={setCreating}
         vaultKeys={otherSigners}
         scheme={{ m: vault.scheme.m, n: vault.scheme.n }}
         name={vault.presentationData.name}
         description={vault.presentationData.description}
         vaultId={vault.id}
         setGeneratedVaultId={setGeneratedVaultId}
+        setCreating={setCreating}
         vaultType={vault.type}
         inheritanceKey={inheritanceSigner}
         isAddInheritanceKey={true}

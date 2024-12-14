@@ -37,6 +37,7 @@ function DisplayQR({
       <KeeperQRCode qrData={qrData} size={windowWidth * 0.7} ecl="L" />
       <Slider
         marginTop={5}
+        marginBottom={2}
         width={windowWidth * 0.5}
         defaultValue={100}
         minValue={10}
@@ -44,10 +45,10 @@ function DisplayQR({
         step={1}
         onChange={setRotation}
       >
-        <Slider.Track bg="gray.300">
-          <Slider.FilledTrack bg={`${colorMode}.primaryGreen`} />
+        <Slider.Track bg={`${colorMode}.sliderUnfilled`}>
+          <Slider.FilledTrack bg={`${colorMode}.pantoneGreen`} />
         </Slider.Track>
-        <Slider.Thumb bg={`${colorMode}.primaryGreen`} />
+        <Slider.Thumb bg={`${colorMode}.pantoneGreen`} />
       </Slider>
       <Text color={`${colorMode}.secondaryText`}>Please rescan if the QR density is changed</Text>
     </VStack>

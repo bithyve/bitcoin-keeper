@@ -1,3 +1,4 @@
+import { MiniscriptElements, MiniscriptScheme } from '../../interfaces/vault';
 import { generateScriptWitnesses } from './miniscript';
 
 export interface KeyInfo {
@@ -34,6 +35,46 @@ function combinations<T>(array: T[], r: number): T[][] {
     const subarrays = combinations(array.slice(i + 1), r - 1);
     return acc.concat(subarrays.map((subarray) => [el, ...subarray]));
   }, [] as T[][]);
+}
+
+function deriveKeyUsageCount(
+  existingMiniscriptScheme: MiniscriptScheme,
+  miniscriptElements: MiniscriptElements
+): Record<string, number> {
+  const {
+    keyInfoMap: existingKeyInfoMap,
+    miniscriptElements: { signerFingerprints: existingSignerFingerprints },
+  } = existingMiniscriptScheme;
+  const { signerFingerprints } = miniscriptElements;
+  const keyUsageCounts: Record<string, number> = {};
+
+  for (const currentIdentifier in signerFingerprints) {
+    for (const identifier in existingSignerFingerprints) {
+      if (existingSignerFingerprints[identifier] === signerFingerprints[currentIdentifier]) {
+        const previousIdentifier = identifier; // how the signer was identified in the previous scheme
+
+        for (const key in existingKeyInfoMap) {
+          const [parsedKey, multipath] = key.split('<');
+
+          if (parsedKey === previousIdentifier) {
+            // extract externalIndex from <externalIndex;internalIndex>
+            const externalIndex = parseInt(multipath.split(';')[0], 10);
+
+            // update the keyUsageCounts with the largest count(derived using externalIndex) for each parsedKey equivalent to the previousIdentifier
+            const usageCount = externalIndex / 2 + 1;
+            if (
+              keyUsageCounts[currentIdentifier] === undefined ||
+              usageCount > keyUsageCounts[currentIdentifier]
+            ) {
+              keyUsageCounts[currentIdentifier] = usageCount;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return keyUsageCounts;
 }
 
 // generates a unique identifier based on frequency of the keys
@@ -98,9 +139,15 @@ function nestOrFragments(policies: string[], probabilities: number[]): string {
 }
 
 export const generateMiniscriptPolicy = (
-  miniscriptPhases: Phase[]
+  miniscriptElements: MiniscriptElements,
+  existingMiniscriptScheme?: MiniscriptScheme
 ): { miniscriptPhases: Phase[]; policy: string; keyInfoMap: KeyInfoMap } => {
-  const keyUsageCounts: Record<string, number> = {};
+  const { phases: miniscriptPhases } = miniscriptElements;
+
+  const keyUsageCounts: Record<string, number> = existingMiniscriptScheme
+    ? deriveKeyUsageCount(existingMiniscriptScheme, miniscriptElements)
+    : {};
+
   const keyInfoMap: KeyInfoMap = {};
 
   const policyParts: string[] = miniscriptPhases.map((phase, phaseIndex) => {

@@ -122,13 +122,13 @@ function ShareWithNfc({
       <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={shareWithNFC} />
       <OptionCTA
         icon={<AirDropIcon />}
-        title={`${isIos ? 'Airdrop / ' : ''}File Export`}
+        title={`${isIos ? 'Airdrop / ' : ''}File \nExport`}
         callback={shareWithAirdrop}
       />
       {remoteShare && (
         <OptionCTA
           icon={<RemoteShareIcon />}
-          title={!isPSBTSharing ? 'Remote share' : 'Share PSBT Link'}
+          title={!isPSBTSharing ? 'Remote share' : 'Remote \ntransaction link'}
           callback={() =>
             navigation.navigate('RemoteSharing', {
               psbt: data,
@@ -151,9 +151,6 @@ function ShareWithNfc({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    flex: 1,
-    margin: 20,
     gap: 20,
   },
 });
