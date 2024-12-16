@@ -20,7 +20,7 @@ import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import HiddenKeysLight from 'src/assets/images/hidden-keys-light.svg';
+import LockShieldLight from 'src/assets/images/lock-shield-light.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -191,7 +191,7 @@ function ManageSigners({ route }: ScreenProps) {
               onPress={() => setConfirmPassVisible(true)}
               testID="btn_manage_singner_setting"
             >
-              <HiddenKeysLight />
+              <LockShieldLight />
             </TouchableOpacity>
           }
           rightComponentBottomPadding={hp(-20)}
