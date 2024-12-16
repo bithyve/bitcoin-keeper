@@ -18,8 +18,8 @@ function LinkedWalletContent() {
       </Box>
       <Text style={styles.contentText}>
         When a transaction (send or receive) is submitted to the bitcoin network from a wallet, it
-        may take a little while before it is propagated and be visible to all nodes and wallets.
-        It’s confirmation status also changes as new blocks are mined.{' '}
+        may take a little while before it is propagated and visible to all nodes and wallets.
+        Its confirmation status also changes as new blocks are mined.{' '}
       </Text>
     </View>
   );
