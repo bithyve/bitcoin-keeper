@@ -785,7 +785,13 @@
     "collabVaultCreatedDesc": "You can share the wallet configuration with the co-signers if you want them to be able to see the wallet transactions.",
     "vaultHasBeenCreated": "vault has been created successfully.",
     "IKAlreadyActive": "Inheritance Key is already active",
-    "addSignerIKNote": "Current technical limitations only allows the use of specific kind of signers as keys in miniscript-based wallets."
+    "addSignerIKNote": "Current technical limitations only allows the use of specific kind of signers as keys in miniscript-based wallets.",
+    "updateScheme": "Update Scheme",
+    "revaultByScheme": "Revault by updating signers and timeline of IK",
+    "revaultByIK": "Revault by updating timeline of Inheritance key",
+    "changeConfigTitle": "Change Configuration",
+    "changeConfigDesc": "Including revaulting of Inheritance Key",
+    "changeConfigSubtitle": "Choose an option of your preference"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
