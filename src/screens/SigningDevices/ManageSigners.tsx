@@ -20,7 +20,7 @@ import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import SettingIcon from 'src/assets/images/settings-gear.svg';
+import LockShieldLight from 'src/assets/images/lock-shield-light.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -46,6 +46,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -69,9 +70,9 @@ function ManageSigners({ route }: ScreenProps) {
   const [timerModal, setTimerModal] = useState(false);
   const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
   const [newSigner, setNewSigner] = useState(null);
-
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslation, common } = translations;
+  const { signer: signerTranslation, common, settings } = translations;
 
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
@@ -130,13 +131,11 @@ function ManageSigners({ route }: ScreenProps) {
     navigation.dispatch(CommonActions.navigate('SignerCategoryList', { addSignerFlow: true }));
   };
 
-  const navigateToSettings = () => {
-    navigation.dispatch(CommonActions.navigate('SignerSettings'));
-  };
-
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
   };
+
+  const onSuccess = () => navigation.dispatch(CommonActions.navigate('DeleteKeys'));
 
   const acceptRemoteKey = async () => {
     try {
@@ -189,12 +188,13 @@ function ManageSigners({ route }: ScreenProps) {
           rightComponent={
             <TouchableOpacity
               style={styles.settingsButton}
-              onPress={navigateToSettings}
+              onPress={() => setConfirmPassVisible(true)}
               testID="btn_manage_singner_setting"
             >
-              <SettingIcon />
+              <LockShieldLight />
             </TouchableOpacity>
           }
+          rightComponentBottomPadding={hp(-20)}
           icon={
             <CircleIconWrapper
               backgroundColor={`${colorMode}.seashellWhiteText`}
@@ -270,6 +270,26 @@ function ManageSigners({ route }: ScreenProps) {
               {signerTranslation.manageKeysModalDesc}
             </Text>
           </Box>
+        )}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title={settings.EnterPasscodeTitle}
+        subTitleWidth={wp(240)}
+        subTitle={settings.EnterPasscodeSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics={false}
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onSuccess}
+          />
         )}
       />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
