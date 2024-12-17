@@ -29,6 +29,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   const [showModal, setShowModal] = useState(false);
   const { newTicketId = '', ticketCreated = false } = route.params || {};
   const { showToast } = useToastMessage();
+  const [modalTicketId, setModalTicketId] = useState('');
 
   useEffect(() => {
     getTickets();
@@ -39,6 +40,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       if (ticketCreated && newTicketId) {
         setShowModal(true);
         getTickets();
+        setModalTicketId(newTicketId);
         // @ts-ignore
         navigation.setParams({ ticketCreated: false, newTicketId: '' });
       }
@@ -62,6 +64,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
 
   const closeModal = () => {
     setShowModal(false);
+    setModalTicketId('');
   };
 
   return (
@@ -78,7 +81,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       <KeeperModal
         visible={showModal}
         title="Support Ticket Raised"
-        subTitle={`Your reference number is #${newTicketId}`}
+        subTitle={`Your reference number is #${modalTicketId}`}
         close={closeModal}
         showCloseIcon
         modalBackground={`${colorMode}.modalWhiteBackground`}
