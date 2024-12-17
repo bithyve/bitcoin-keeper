@@ -40,7 +40,7 @@ function VaultSettings({ route }) {
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
   const isInheritanceVault =
-    vault?.type === VaultType.INHERITANCE && vault?.scheme?.miniscriptScheme;
+    vault?.type === VaultType.INHERITANCE && !!vault?.scheme?.miniscriptScheme;
   const inheritanceKey = vault?.signers?.find(
     (signer) =>
       signer.masterFingerprint ===
@@ -108,7 +108,11 @@ function VaultSettings({ route }) {
           description={vaultText.vaultConfigurationFileDesc}
           callback={() => {
             navigation.dispatch(
-              CommonActions.navigate('GenerateVaultDescriptor', { descriptorString, vaultId })
+              CommonActions.navigate('GenerateVaultDescriptor', {
+                descriptorString,
+                vaultId,
+                isInheritanceVault,
+              })
             );
           }}
         />
