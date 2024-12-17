@@ -138,22 +138,14 @@ const isAssistedKeyValidForScheme = (
   scheme,
   signerMap,
   selectedSigners
-): { isValid: boolean; code?: KeyValidationErrorCode; message?: string } => {
+): { isValid: boolean; code?: KeyValidationErrorCode } => {
   // case 1: scheme-based restrictions for assisted keys
   // both assisted keys can be added starting from Vaults w/ m: 2 and n:3
   if (scheme.n < 3) {
-    return {
-      isValid: false,
-      code: KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS,
-      message: 'Requires a minimum of 3 Total Keys',
-    };
+    return { isValid: false, code: KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS };
   }
   if (scheme.m < 2) {
-    return {
-      isValid: false,
-      code: KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS,
-      message: 'Requires a minimum of 2 Required Keys',
-    };
+    return { isValid: false, code: KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS };
   }
 
   // case 2: count-based restrictions for assisted keys
@@ -174,20 +166,12 @@ const isAssistedKeyValidForScheme = (
   // Assisted Keys restriction I: The number of assisted keys should be less than the threshold (m)
   // for a given Vault, such that they can’t form a signing quorum by themselves.
   if (totalAssistedKeys >= scheme.m) {
-    return {
-      isValid: false,
-      code: KeyValidationErrorCode.ASSISTED_KEYS_QUORUM,
-      message: 'Number of assisted keys should be less than the Required Keys',
-    };
+    return { isValid: false, code: KeyValidationErrorCode.ASSISTED_KEYS_QUORUM };
   }
 
   // Assisted Keys restriction II: The threshold for the multi-sig should be achievable without the assisted keys
   if (totalAssistedKeys > scheme.n - scheme.m) {
-    return {
-      isValid: false,
-      code: KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD,
-      message: 'Required Keys is not achievable without the assisted keys',
-    };
+    return { isValid: false, code: KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD };
   }
 
   return { isValid: true };
@@ -198,19 +182,19 @@ const isSignerValidForScheme = (
   scheme,
   signerMap,
   selectedSigners
-): { isValid: boolean; code?: KeyValidationErrorCode; message?: string } => {
-  if (signer.type === SignerType.MY_KEEPER) {
-    if (scheme.n <= 1) {
-      return {
-        isValid: false,
-        code: KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED,
-        message: 'Mobile keys cannot be used for cold wallets. Please use hot wallet option.',
-      };
-    }
+): { isValid: boolean; code?: KeyValidationErrorCode } => {
+  const keyUID = getKeyUID(signer);
+
+  if (selectedSigners.has(keyUID)) {
+    return { isValid: false, code: KeyValidationErrorCode.ALREADY_SELECTED };
   }
 
   if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
     return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
+  }
+
+  if (signer.type === SignerType.MY_KEEPER && scheme.n <= 1) {
+    return { isValid: false, code: KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED };
   }
 
   const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
@@ -221,11 +205,7 @@ const isSignerValidForScheme = (
     (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
     (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
   ) {
-    return {
-      isValid: false,
-      code: KeyValidationErrorCode.MISSING_XPUB,
-      message: 'The key is missing the required xPub for this vault type.',
-    };
+    return { isValid: false, code: KeyValidationErrorCode.MISSING_XPUB };
   }
 
   return { isValid: true };
@@ -472,11 +452,15 @@ function Signers({
 
     if (!validationResult.isValid) {
       switch (validationResult.code) {
+        case KeyValidationErrorCode.ALREADY_SELECTED:
+          return {
+            title: 'Key Already Selected',
+            message: 'This key is already selected. Please choose a different key.',
+          };
         case KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED:
           return {
             title: 'Mobile Key Not Allowed',
-            message:
-              'Mobile keys cannot be used for cold wallets. Please use them for hot wallets.',
+            message: 'Mobile keys cannot be used for cold wallets. Please use hot wallet option.',
           };
         case KeyValidationErrorCode.MISSING_XPUB:
           return {
