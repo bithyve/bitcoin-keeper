@@ -7,9 +7,9 @@ import { hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/check';
 import { hideOnboarding } from 'src/store/reducers/concierge';
-import { openConcierge } from 'src/store/sagaActions/concierge';
 import Buttons from '../Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { setDontShowConceirgeOnboarding } from 'src/store/reducers/storage';
 
 function ConciergeOnboardingModal({ visible }) {
   const dispatch = useDispatch();
@@ -121,7 +121,7 @@ function ConciergeOnboardingModal({ visible }) {
               primaryCallback={() => {
                 setPageNo(1);
                 dispatch(hideOnboarding());
-                dispatch(openConcierge(dontShow));
+                dontShow && dispatch(setDontShowConceirgeOnboarding());
               }}
               primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
               primaryTextColor={`${colorMode}.modalWhiteButtonText`}

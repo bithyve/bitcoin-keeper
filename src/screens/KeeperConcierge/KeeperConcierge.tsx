@@ -1,5 +1,5 @@
 import { Image, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
@@ -25,7 +25,11 @@ import { ConciergeTag, goToConcierge, loadConciergeUser } from 'src/store/sagaAc
 import { useDispatch, useSelector } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { setConciergeUserFailed, setConciergeUserSuccess } from 'src/store/reducers/concierge';
+import {
+  setConciergeUserFailed,
+  setConciergeUserSuccess,
+  showOnboarding,
+} from 'src/store/reducers/concierge';
 import usePlan from 'src/hooks/usePlan';
 
 const KeeperConcierge = () => {
@@ -38,16 +42,21 @@ const KeeperConcierge = () => {
   const { showToast } = useToastMessage();
   const { conciergeUser, conciergeLoading, conciergeUserSuccess, conciergeUserFailed } =
     useSelector((store) => store.concierge);
+  const { dontShowConceirgeOnboarding } = useSelector((state) => state.storage);
   const { isOnL1 } = usePlan();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (conciergeUserSuccess == true) {
       navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
       dispatch(setConciergeUserSuccess(false));
     }
   }, [conciergeUserSuccess]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!dontShowConceirgeOnboarding) dispatch(showOnboarding());
+  }, []);
+
+  useEffect(() => {
     if (conciergeUserFailed == true) {
       dispatch(setConciergeUserFailed(false));
       showToast('Something went wrong');

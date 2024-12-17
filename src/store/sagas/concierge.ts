@@ -15,14 +15,12 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RootState } from '../store';
 import {
   setConciergTags,
-  showOnboarding,
   loadConciergeUser,
   conciergeUser,
   setConciergeLoading,
   setConciergeUserSuccess,
   setConciergeUserFailed,
 } from '../reducers/concierge';
-import { setDontShowConceirgeOnboarding } from '../reducers/storage';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import ZendeskClass from 'src/services/backend/Zendesk';
 import Relay from 'src/services/backend/Relay';
@@ -38,26 +36,13 @@ function* goToConceirge({
   };
 }) {
   const { tags, screenName } = payload;
-  const { dontShowConceirgeOnboarding } = yield select((state: RootState) => state.storage);
   yield put(setConciergTags([screenName, ...tags].filter((str) => str !== '')));
-  if (dontShowConceirgeOnboarding) {
-    yield call(openConceirge, { payload: { dontShow: dontShowConceirgeOnboarding } });
-  } else {
-    yield put(showOnboarding());
-  }
+  yield call(openConceirge);
 }
 
 export const goToConceirgeWatcher = createWatcher(goToConceirge, GO_TO_CONCEIERGE);
 
-function* openConceirge({
-  payload,
-}: {
-  payload: {
-    dontShow: boolean;
-  };
-}) {
-  const { dontShow } = payload;
-  if (dontShow) yield put(setDontShowConceirgeOnboarding());
+function* openConceirge() {
   const res = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   if (!res?.publicId || !res?.subscription) {
     Linking.openURL('https://help.bitcoinkeeper.app/hc/en-us');
