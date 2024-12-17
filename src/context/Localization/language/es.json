@@ -785,7 +785,9 @@
     "collabVaultCreatedDesc": "You can share the wallet configuration with the co-signers if you want them to be able to see the wallet transactions.",
     "vaultHasBeenCreated": "vault has been created successfully.",
     "IKAlreadyActive": "Inheritance Key is already active",
-    "addSignerIKNote": "Current technical limitations only allows the use of specific kind of signers as keys in miniscript-based wallets."
+    "addSignerIKNote": "Current technical limitations only allows the use of specific kind of signers as keys in miniscript-based wallets.",
+    "staticQR": "Static QR",
+    "animatedQR": "Animated QR"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
