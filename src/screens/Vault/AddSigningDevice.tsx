@@ -427,9 +427,16 @@ function Signers({
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
+  const [visibleImportXpub, setVisibleImportXpub] = useState(false);
   const [showSSModal, setShowSSModal] = useState(false);
   const [showSignerModal, setShowSignerModal] = useState(false);
-  const [modalContent, setModalContent] = useState({ name: '', title: '', message: '' });
+  const [modalContent, setModalContent] = useState({
+    name: '',
+    title: '',
+    message: '',
+    code: '',
+    clickedSigner: null,
+  });
   const isMultisig = scheme.n !== 1;
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -440,6 +447,7 @@ function Signers({
   const setupSignigngServer = async () => {
     setShowSSModal(true);
   };
+
   const getDisabledMessage = (
     signer,
     myAppKeys,
@@ -451,40 +459,39 @@ function Signers({
     const validationResult = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
 
     if (!validationResult.isValid) {
+      let title, message;
+
       switch (validationResult.code) {
         case KeyValidationErrorCode.ALREADY_SELECTED:
-          return {
-            title: 'Key Already Selected',
-            message: 'This key is already selected. Please choose a different key.',
-          };
+          title = 'Key Already Selected';
+          message = 'This key is already selected. Please choose a different key.';
+          break;
         case KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED:
-          return {
-            title: 'Mobile Key Not Allowed',
-            message: 'Mobile keys cannot be used for cold wallets. Please use hot wallet option.',
-          };
+          title = 'Mobile Key Not Allowed';
+          message = 'Mobile keys cannot be used for cold wallets. Please use hot wallet option.';
+          break;
         case KeyValidationErrorCode.MISSING_XPUB:
-          return {
-            title: 'Missing xPub from Key',
-            message:
-              "The key selected is missing the xPub necessary for the selected vault type. Please import the xPub if you'd like to use this device in your new vault.",
-          };
+          title = 'Missing xPub from Key';
+          message =
+            "The key selected is missing the xPub necessary for the selected vault type. Please import the xPub if you'd like to use this device in your new vault.";
+          break;
         case KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS:
         case KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS:
-          return {
-            title: `${getSignerNameFromType(signer.type)} Is Not Allowed For This Configuration`,
-            message: `The ${getSignerNameFromType(
-              signer.type
-            )} can only be used in a multi-signature vault which has at least 2 required keys and 3 total keys.`,
-          };
+          title = `${getSignerNameFromType(signer.type)} Is Not Allowed For This Configuration`;
+          message = `The ${getSignerNameFromType(
+            signer.type
+          )} can only be used in a multi-signature vault which has at least 2 required keys and 3 total keys.`;
+          break;
         case KeyValidationErrorCode.ASSISTED_KEYS_QUORUM:
         case KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD:
-          return {
-            title: 'Assisted Key Limit Exceeded',
-            message: 'The selected configuration exceeds the allowed number of assisted keys.',
-          };
+          title = 'Assisted Key Limit Exceeded';
+          message = 'The selected configuration exceeds the allowed number of assisted keys.';
+          break;
         default:
           return null;
       }
+
+      return { title, message, code: validationResult.code, clickedSigner: signer };
     }
 
     if (
@@ -608,6 +615,8 @@ function Signers({
                   name: getSignerNameFromType(signer.type),
                   title: disabledMessage.title,
                   message: disabledMessage.message,
+                  code: disabledMessage.code,
+                  clickedSigner: disabledMessage.clickedSigner,
                 });
                 setShowSignerModal(true);
                 return;
@@ -880,6 +889,17 @@ function Signers({
             vaultId={vaultId}
             vaultSigners={vaultKeys}
           />
+          <HardwareModalMap
+            visible={visibleImportXpub}
+            close={() => setVisibleImportXpub(false)}
+            type={modalContent?.clickedSigner?.type}
+            mode={InteracationMode.VAULT_ADDITION}
+            isMultisig={isMultisig}
+            primaryMnemonic={primaryMnemonic}
+            addSignerFlow={false}
+            vaultId={vaultId}
+            vaultSigners={vaultKeys}
+          />
           <KeeperModal
             dismissible
             close={() => setShowSignerModal(false)}
@@ -899,11 +919,23 @@ function Signers({
                 </Box>
                 <Text>{modalContent.message}</Text>
                 <Box marginTop={hp(40)}>
-                  <Buttons
-                    fullWidth
-                    primaryText="Okay"
-                    primaryCallback={() => setShowSignerModal(false)}
-                  />
+                  {modalContent.code === KeyValidationErrorCode.MISSING_XPUB ? (
+                    <Buttons
+                      primaryText="Import xPub"
+                      primaryCallback={() => {
+                        setShowSignerModal(false);
+                        setVisibleImportXpub(true);
+                      }}
+                      secondaryText="Cancel"
+                      secondaryCallback={() => setShowSignerModal(false)}
+                    />
+                  ) : (
+                    <Buttons
+                      fullWidth
+                      primaryText="Okay"
+                      primaryCallback={() => setShowSignerModal(false)}
+                    />
+                  )}
                 </Box>
               </Box>
             )}
