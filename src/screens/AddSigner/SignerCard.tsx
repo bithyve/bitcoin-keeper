@@ -31,6 +31,7 @@ type SignerCardProps = {
   cardBackground?: string;
   borderColor?: string;
   nameColor?: string;
+  disabledWithTouch?: boolean;
 };
 
 function SignerCard({
@@ -57,6 +58,7 @@ function SignerCard({
   cardBackground,
   borderColor,
   nameColor,
+  disabledWithTouch = false,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -69,12 +71,21 @@ function SignerCard({
   const cardBorderColor = borderColor || `${colorMode}.dullGreyBorder`;
   const cardNameColor = nameColor || `${colorMode}.modalWhiteContent`;
 
+  const cardStyle = [
+    styles.walletContainer,
+    disabled || disabledWithTouch ? { opacity: 0.5 } : null,
+    disabledWithTouch ? { backgroundColor: `${colorMode}.disabledBackground` } : null,
+    customStyle,
+  ];
+
+  const isPressable = !disabled;
+
   return (
     <Pressable
-      disabled={disabled}
+      disabled={!isPressable}
       backgroundColor={cardBackgroundColor}
       borderColor={cardBorderColor}
-      style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
+      style={cardStyle}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
       }}
