@@ -715,8 +715,8 @@ function SignerContent({
                 }}
                 colorMode={colorMode}
                 customStyle={{
-                  width: wp(95),
-                  height: hp(options.some((opt) => opt.title.length > 10) ? 115 : 100),
+                  width: wp(100),
+                  height: wp(options.some((opt) => opt.title.length > 10) ? 115 : 100),
                 }}
               />
             ))}
@@ -2107,7 +2107,7 @@ function HardwareModalMap({
           isHealthcheck
             ? 'Skip'
             : type === SignerType.INHERITANCEKEY || type === SignerType.POLICY_SERVER
-            ? 'cancel'
+            ? 'Cancel'
             : null
         }
         secondaryCallback={
