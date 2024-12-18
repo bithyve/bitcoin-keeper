@@ -60,7 +60,7 @@ import CautionIllustration from 'src/assets/images/downgradetopleb.svg';
 import Dropdown from 'src/components/Dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { getKeyUID } from 'src/utils/utilities';
+import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
@@ -69,6 +69,8 @@ import { TIMELOCK_DURATIONS } from './constants';
 import AddKeyButton from '../SigningDevices/components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
 import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
+import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-illustration-dark.svg';
+
 const onSignerSelect = (
   selected,
   signer: Signer,
@@ -383,19 +385,36 @@ function Footer({
   );
 }
 
-function SignerEmptyState() {
+function SignerUnavailableContent({ modalContent, setShowSignerModal, setVisibleImportXpub }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { signer: SignerTranlations } = translations;
+  const { vault: vaultText, common } = translations;
+  const isDarkMode = colorMode === 'dark';
   return (
-    <Box style={styles.emptyWrapper}>
-      <Text color={`${colorMode}.primaryText`} style={styles.emptyText} medium>
-        {SignerTranlations.noKeyAvailable}
-      </Text>
-      <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
-        {SignerTranlations.pleaseAddKey}
-      </Text>
-      <SignerEmptyStateIcon />
+    <Box>
+      <Box style={styles.unAvailableIllustration}>
+        {isDarkMode ? <KeyUnAvailableIllustrationDark /> : <KeyUnAvailableIllustrationLight />}
+      </Box>
+      <Text color={`${colorMode}.secondaryText`}>{modalContent.message}</Text>
+      <Box style={styles.modalButtonContainer}>
+        {modalContent.code === KeyValidationErrorCode.MISSING_XPUB ? (
+          <Buttons
+            primaryText={vaultText.importXpub}
+            primaryCallback={() => {
+              setShowSignerModal(false);
+              setVisibleImportXpub(true);
+            }}
+            secondaryText={common.cancel}
+            secondaryCallback={() => setShowSignerModal(false)}
+          />
+        ) : (
+          <Buttons
+            fullWidth
+            primaryText={common.Okay}
+            primaryCallback={() => setShowSignerModal(false)}
+          />
+        )}
+      </Box>
     </Box>
   );
 }
@@ -426,6 +445,8 @@ function Signers({
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultText, common } = translations;
   const [visible, setVisible] = useState(false);
   const [visibleImportXpub, setVisibleImportXpub] = useState(false);
   const [showSSModal, setShowSSModal] = useState(false);
@@ -463,29 +484,28 @@ function Signers({
 
       switch (validationResult.code) {
         case KeyValidationErrorCode.ALREADY_SELECTED:
-          title = 'Key Already Selected';
-          message = 'This key is already selected. Please choose a different key.';
+          title = vaultText.keyAlreadySelectedTitle;
+          message = vaultText.keyAlreadySelectedMessage;
           break;
         case KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED:
-          title = 'Mobile Key Not Allowed';
-          message = 'Mobile keys cannot be used for cold wallets. Please use hot wallet option.';
+          title = vaultText.mobileKeyNotAllowedTitle;
+          message = vaultText.mobileKeyNotAllowedMessage;
           break;
         case KeyValidationErrorCode.MISSING_XPUB:
-          title = 'Missing xPub from Key';
-          message =
-            "The key selected is missing the xPub necessary for the selected vault type. Please import the xPub if you'd like to use this device in your new vault.";
+          title = vaultText.missingXpubTitle;
+          message = vaultText.missingXpubMessage;
           break;
         case KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS:
         case KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS:
-          title = `${getSignerNameFromType(signer.type)} Is Not Allowed For This Configuration`;
-          message = `The ${getSignerNameFromType(
-            signer.type
-          )} can only be used in a multi-signature vault which has at least 2 required keys and 3 total keys.`;
+          title = `${getSignerNameFromType(signer.type)} ${vaultText.insufficientTotalKeysTitle}`;
+          message = `${common.the} ${getSignerNameFromType(signer.type)} ${
+            vaultText.insufficientTotalKeysMessage
+          }`;
           break;
         case KeyValidationErrorCode.ASSISTED_KEYS_QUORUM:
         case KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD:
-          title = 'Assisted Key Limit Exceeded';
-          message = 'The selected configuration exceeds the allowed number of assisted keys.';
+          title = vaultText.assistedKeysQuorumTitle;
+          message = vaultText.assistedKeysQuorumMessage;
           break;
         default:
           return null;
@@ -500,9 +520,8 @@ function Signers({
       getKeyUID(myAppKeys[0]) !== getKeyUID(signer)
     ) {
       return {
-        title: 'Another Mobile Key Already Selected',
-        message:
-          'You have already selected another mobile key for your vault. Since all mobile keys are derived from your Recovery Key and stored on your phone, it is not allowed to use more than one mobile key in each vault.',
+        title: vaultText.anotherMobileKeyAlreadySelectedTitle,
+        message: vaultText.anotherMobileKeyAlreadySelectedMessage,
       };
     }
 
@@ -511,9 +530,8 @@ function Signers({
       (getKeyUID(keyToRotate) === getKeyUID(signer) || selectedSigners.get(getKeyUID(signer)))
     ) {
       return {
-        title: 'Key Already Used In Your Vault',
-        message:
-          'This key is already used in your vault, please choose another key or add a new one.',
+        title: vaultText.keyAlreadyUsedInVaultTitle,
+        message: vaultText.keyAlreadyUsedInVaultMessage,
       };
     }
 
@@ -802,6 +820,7 @@ function Signers({
     setCreating,
   ]);
 
+  const isDarkMode = colorMode === 'dark';
   const signer: Signer = keyToRotate ? signerMap[getKeyUID(keyToRotate)] : null;
 
   return (
@@ -912,32 +931,13 @@ function Signers({
             subTitleColor={`${colorMode}.secondaryText`}
             subTitleWidth={wp(280)}
             showCloseIcon={true}
+            DarkCloseIcon={isDarkMode}
             Content={() => (
-              <Box>
-                <Box alignItems="center" marginBottom={hp(30)}>
-                  <KeyUnAvailableIllustrationLight />
-                </Box>
-                <Text>{modalContent.message}</Text>
-                <Box marginTop={hp(40)}>
-                  {modalContent.code === KeyValidationErrorCode.MISSING_XPUB ? (
-                    <Buttons
-                      primaryText="Import xPub"
-                      primaryCallback={() => {
-                        setShowSignerModal(false);
-                        setVisibleImportXpub(true);
-                      }}
-                      secondaryText="Cancel"
-                      secondaryCallback={() => setShowSignerModal(false)}
-                    />
-                  ) : (
-                    <Buttons
-                      fullWidth
-                      primaryText="Okay"
-                      primaryCallback={() => setShowSignerModal(false)}
-                    />
-                  )}
-                </Box>
-              </Box>
+              <SignerUnavailableContent
+                modalContent={modalContent}
+                setShowSignerModal={setShowSignerModal}
+                setVisibleImportXpub={setVisibleImportXpub}
+              />
             )}
           />
         </Box>
@@ -1668,6 +1668,13 @@ const styles = StyleSheet.create({
     marginLeft: wp(15),
     marginRight: wp(25),
     marginTop: hp(1),
+  },
+  unAvailableIllustration: {
+    alignItems: 'center',
+    marginBottom: hp(30),
+  },
+  modalButtonContainer: {
+    marginTop: hp(40),
   },
 });
 
