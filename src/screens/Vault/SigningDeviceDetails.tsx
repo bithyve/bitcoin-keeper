@@ -92,7 +92,7 @@ import WalletCopiableData from 'src/components/WalletCopiableData';
 import { captureError } from 'src/services/sentry';
 import WalletOperations from 'src/services/wallets/operations';
 
-const SignersReqVault = [
+export const SignersReqVault = [
   SignerType.LEDGER,
   SignerType.TREZOR,
   SignerType.BITBOX02,
