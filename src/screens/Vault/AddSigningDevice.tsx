@@ -185,12 +185,6 @@ const isSignerValidForScheme = (
   signerMap,
   selectedSigners
 ): { isValid: boolean; code?: KeyValidationErrorCode } => {
-  const keyUID = getKeyUID(signer);
-
-  if (selectedSigners.has(keyUID)) {
-    return { isValid: false, code: KeyValidationErrorCode.ALREADY_SELECTED };
-  }
-
   if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
     return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
   }
@@ -483,10 +477,6 @@ function Signers({
       let title, message;
 
       switch (validationResult.code) {
-        case KeyValidationErrorCode.ALREADY_SELECTED:
-          title = vaultText.keyAlreadySelectedTitle;
-          message = vaultText.keyAlreadySelectedMessage;
-          break;
         case KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED:
           title = vaultText.mobileKeyNotAllowedTitle;
           message = vaultText.mobileKeyNotAllowedMessage;
