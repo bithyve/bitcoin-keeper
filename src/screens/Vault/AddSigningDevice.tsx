@@ -516,6 +516,18 @@ function Signers({
     }
 
     if (
+      vaultKeys.some(
+        (key) =>
+          key.masterFingerprint === signer.masterFingerprint && getKeyUID(key) !== getKeyUID(signer)
+      )
+    ) {
+      return {
+        title: vaultText.keyFromSameDeviceAlreadySelectedTitle,
+        message: vaultText.keyFromSameDeviceAlreadySelectedMessage,
+      };
+    }
+
+    if (
       keyToRotate &&
       (getKeyUID(keyToRotate) === getKeyUID(signer) || selectedSigners.get(getKeyUID(signer)))
     ) {

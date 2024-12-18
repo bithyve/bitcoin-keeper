@@ -801,6 +801,8 @@
     "anotherMobileKeyAlreadySelectedMessage": "You have already selected another mobile key for your vault. Since all mobile keys are derived from your Recovery Key and stored on your phone, it is not allowed to use more than one mobile key in each vault.",
     "keyAlreadyUsedInVaultTitle": "Key Already Used In Your Vault",
     "keyAlreadyUsedInVaultMessage": "This key is already used in your vault, please choose another key or add a new one.",
+    "keyFromSameDeviceAlreadySelectedTitle": "Another Key From The Same Device Already Selected",
+    "keyFromSameDeviceAlreadySelectedMessage": "You have already selected another key which belongs to the same device. For security reasons, you cannot use multiple keys which belong to the same signing device in the same multisig vault.",
     "importXpub": "Import xPub",
     "staticQR": "Static QR",
     "animatedQR": "Animated QR"
