@@ -32,31 +32,31 @@ export function WalletsList({
   const getWalletTags = (wallet) => {
     if (wallet.entityKind === EntityKind.VAULT) {
       if (wallet.type === VaultType.SINGE_SIG) {
-        return ['SINGLE-KEY', 'COLD'];
+        return ['Cold', 'Single-key'];
       } else if (wallet.type === VaultType.COLLABORATIVE) {
         return [
           common.collaborative,
           `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
         ];
       } else if (wallet.type === VaultType.ASSISTED) {
-        return ['ASSISTED', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+        return ['Assisted', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
       } else if (wallet.type === VaultType.TIMELOCKED) {
-        return ['TIMELOCKED', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+        return ['Timelocked', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
       } else if (wallet.type === VaultType.INHERITANCE) {
         return [
           'Inheritance Key',
           `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
         ];
       } else {
-        return ['VAULT', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+        return ['Vault', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
       }
     } else {
       let walletKind;
-      if (wallet.type === WalletType.DEFAULT) walletKind = 'HOT WALLET';
+      if (wallet.type === WalletType.DEFAULT) walletKind = 'Hot Wallet';
       else if (wallet.type === WalletType.IMPORTED) {
         const isWatchOnly = !idx(wallet as Wallet, (_) => _.specs.xpriv);
-        if (isWatchOnly) walletKind = 'WATCH ONLY';
-        else walletKind = 'IMPORTED WALLET';
+        if (isWatchOnly) walletKind = 'Watch Only';
+        else walletKind = 'Imported Wallet';
       }
       let isTaprootWallet = false;
       const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
@@ -66,8 +66,8 @@ export function WalletsList({
       ) {
         isTaprootWallet = true;
       }
-      if (isTaprootWallet) return ['TAPROOT', walletKind];
-      else return ['SINGLE-KEY', walletKind];
+      if (isTaprootWallet) return [walletKind, 'Taproot'];
+      else return [walletKind, 'Single-Key'];
     }
   };
 

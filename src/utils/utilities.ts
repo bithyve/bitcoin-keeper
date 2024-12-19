@@ -212,19 +212,19 @@ export const getTimeDifferenceInWords = (pastTime) => {
 
 export const getWalletTags = (walletType) => {
   if (walletType === VaultType.COLLABORATIVE) {
-    return [`${walletType === VaultType.COLLABORATIVE ? 'Collaborative' : 'VAULT'}`, `2 of 3`];
+    return ['Collaborative', '2 of 3'];
   } else if (walletType === VaultType.ASSISTED) {
-    return [`${walletType === VaultType.ASSISTED ? 'ASSISTED' : 'VAULT'}`, `2 of 3`];
+    return ['Assisted', '2 of 3'];
   } else {
     let walletKind;
-    if (walletType === WalletType.DEFAULT) walletKind = 'HOT WALLET';
+    if (walletType === WalletType.DEFAULT) walletKind = 'Hot Wallet';
     else if (walletType === WalletType.IMPORTED) {
-      const isWatchOnly = !idx(walletType as Wallet, (_) => _.specs.xpriv);
-      if (isWatchOnly) walletKind = 'WATCH ONLY';
-      else walletKind = 'IMPORTED WALLET';
+      const isWatchOnly = !idx(walletType, (_) => _.specs.xpriv);
+      if (isWatchOnly) walletKind = 'Watch Only';
+      else walletKind = 'Imported Wallet';
     }
 
-    return ['SINGLE-KEY', walletKind];
+    return [walletKind, 'Single-Key'];
   }
 };
 
