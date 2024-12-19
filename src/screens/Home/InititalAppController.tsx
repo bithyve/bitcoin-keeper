@@ -9,7 +9,7 @@ import {
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
-import { urlParamsToObj } from 'src/utils/service-utilities/utils';
+import { findVaultFromSenderAddress, urlParamsToObj } from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -38,7 +38,6 @@ import config from 'src/utils/service-utilities/config';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
-import WalletOperations from 'src/services/wallets/operations';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -143,33 +142,11 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                   if (!signerMatched) {
                     showToast(`Invalid signer selection. Please try again!`, <ToastErrorIcon />);
                     navigation.goBack();
-                    return;
+                    return false;
                   }
 
                   if (SignersReqVault.includes(signer.type)) {
-                    let activeVault = null;
-                    allVaults.forEach(async (vault) => {
-                      let addressMatched = true;
-                      for (let i = 0; i < senderAddresses.length; i++) {
-                        const _ = senderAddresses[i].path.split('/');
-                        const [isChange, index] = _.splice(_.length - 2);
-                        // 0/even - Receive(External) | 1/odd - change(internal)
-                        let generatedAddress: string;
-                        generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
-                          vault,
-                          parseInt(index),
-                          isOdd(parseInt(isChange))
-                        );
-                        if (senderAddresses[i].address != generatedAddress) {
-                          addressMatched = false;
-                          break;
-                        }
-                      }
-                      if (addressMatched) {
-                        activeVault = vault;
-                      }
-                    });
-
+                    const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
                     if (!activeVault) {
                       navigation.goBack();
                       throw new Error('Please import the vault before signing');
