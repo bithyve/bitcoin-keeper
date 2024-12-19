@@ -202,11 +202,11 @@ function WalletDetails({ route }: ScreenProps) {
         />
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
-            <CardPill heading={walletKind} />
             <CardPill
-              heading={isTaprootWallet ? 'Taproot' : 'Single-Key'}
+              heading={walletKind}
               backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
             />
+            <CardPill heading={isTaprootWallet ? 'Taproot' : 'Single-Key'} />
           </Box>
           <Box style={styles.availableBalanceView}>
             <CurrencyInfo

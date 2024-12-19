@@ -129,6 +129,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
           <CardPill heading="Cold" backgroundColor={`${colorMode}.SignleSigCardPillBackColor`} />
         )}
         <CardPill
+          backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
           heading={`${
             vault.type === VaultType.COLLABORATIVE
               ? common.collaborative
@@ -144,10 +145,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
           }`}
         />
         {vault.scheme.n > 1 && (
-          <CardPill
-            heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
-            backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
-          />
+          <CardPill heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`} />
         )}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
         {vault.archived ? (
