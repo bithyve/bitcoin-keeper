@@ -787,7 +787,9 @@
     "IKAlreadyActive": "Inheritance Key is already active",
     "addSignerIKNote": "Current technical limitations only allows the use of specific kind of signers as keys in miniscript-based wallets.",
     "staticQR": "Static QR",
-    "animatedQR": "Animated QR"
+    "animatedQR": "Animated QR",
+    "IKActivatesIn": "Inheritance Key activates in",
+    "failedToCheckIKActivationTime": "Failed to check current activation time for Inheritance Key"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
