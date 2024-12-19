@@ -125,6 +125,9 @@ function VaultInfo({ vault }: { vault: Vault }) {
   return (
     <Box style={[styles.vaultInfoContainer, { flexDirection: vault.archived ? 'column' : 'row' }]}>
       <HStack style={styles.pillsContainer}>
+        {vault.type === VaultType.SINGE_SIG && (
+          <CardPill heading="Cold" backgroundColor={`${colorMode}.SignleSigCardPillBackColor`} />
+        )}
         <CardPill
           heading={`${
             vault.type === VaultType.COLLABORATIVE
@@ -136,7 +139,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
               : vault.type === VaultType.INHERITANCE
               ? common.Inheritancekey
               : vault.type === VaultType.SINGE_SIG
-              ? 'SINGLE-KEY'
+              ? 'Single-Key'
               : common.VAULT
           }`}
         />
@@ -146,7 +149,6 @@ function VaultInfo({ vault }: { vault: Vault }) {
             backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
           />
         )}
-        {vault.type === VaultType.SINGE_SIG && <CardPill heading="COLD" />}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
         {vault.archived ? (
           <CardPill heading={common.ARCHIVED} backgroundColor={`${colorMode}.greyBackground`} />

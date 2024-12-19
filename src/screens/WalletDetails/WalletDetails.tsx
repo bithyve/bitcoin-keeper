@@ -94,7 +94,14 @@ function WalletDetails({ route }: ScreenProps) {
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
-
+  const walletKind =
+    walletType === WalletType.DEFAULT
+      ? 'Hot Wallet'
+      : walletType === WalletType.IMPORTED && wallet.specs && !wallet.specs.xpriv
+      ? 'Watch Only'
+      : walletType === WalletType.IMPORTED
+      ? 'Imported Wallet'
+      : undefined;
   let isTaprootWallet = false;
   const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
   if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86) {
@@ -195,11 +202,11 @@ function WalletDetails({ route }: ScreenProps) {
         />
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
+            <CardPill heading={walletKind} />
             <CardPill
-              heading={isTaprootWallet ? 'TAPROOT' : 'SINGLE SIG'}
+              heading={isTaprootWallet ? 'Taproot' : 'Single-Key'}
               backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
             />
-            <CardPill heading={wallet.type} />
           </Box>
           <Box style={styles.availableBalanceView}>
             <CurrencyInfo
