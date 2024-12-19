@@ -103,7 +103,8 @@ const Colors = {
   Taupe: 'rgba(189, 183, 177, 1)',
   LightSkin: 'rgba(238, 231, 224, 1)',
   DarkSkin: 'rgba(143, 138, 133, 1)',
-
+  lightGrey: 'rgba(228, 226, 223, 1)',
+  darkGrey: 'rgba(165, 165, 165, 1)',
   // Crayola: 'rgba(227, 190, 150, 1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',

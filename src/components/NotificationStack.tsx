@@ -421,6 +421,27 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler, walle
             secondary: skipBtnConfig(uai, true),
           },
         };
+
+      case uaiType.ZENDESK_TICKET: {
+        return {
+          heading: 'Technical Support',
+          body: uai.uaiDetails.body,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                skipUaiHandler(uai, true);
+                navigtaion.navigate('TicketDetails', {
+                  ticketId: parseInt(uai.entityId),
+                  ticketStatus: uai.uaiDetails.heading,
+                });
+              },
+            },
+            secondary: skipBtnConfig(uai, true),
+          },
+        };
+      }
+
       default:
         return null;
     }

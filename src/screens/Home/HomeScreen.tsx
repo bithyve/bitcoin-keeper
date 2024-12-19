@@ -27,7 +27,6 @@ import InititalAppController from './InititalAppController';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { SentryErrorBoundary } from 'src/services/sentry';
 
 const calculateBalancesForVaults = (vaults) => {
@@ -119,7 +118,7 @@ function NewHomeScreen({ navigation }) {
     {
       name: homeTranslation.KeeperConcierge,
       icon: colorMode === 'dark' ? <FaqDarkIcon /> : <FaqIcon />,
-      callback: () => dispatch(goToConcierge([], 'home-screen')),
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'KeeperConcierge' })),
     },
   ];
 

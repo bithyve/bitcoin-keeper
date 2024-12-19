@@ -701,4 +701,18 @@ export default class Relay {
       console.log('🚀 ~ Relay ~ sendSingleNotification= ~ error:', { error });
     }
   };
+
+  public static updateZendeskExternalId = async (data) => {
+    try {
+      const response = await RestClient.post(`${RELAY}updateZendeskExternalId`, data);
+      const res = (response as AxiosResponse).data || (response as any).json;
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
 }

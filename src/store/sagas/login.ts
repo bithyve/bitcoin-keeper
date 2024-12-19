@@ -101,6 +101,7 @@ function* credentialsStorageWorker({ payload }) {
         uaiType.VAULT_TRANSFER,
         uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
         uaiType.DEFAULT,
+        uaiType.ZENDESK_TICKET,
       ])
     );
 
@@ -189,6 +190,7 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
               uaiType.FEE_INISGHT,
               uaiType.DEFAULT,
+              uaiType.ZENDESK_TICKET,
             ])
           );
 

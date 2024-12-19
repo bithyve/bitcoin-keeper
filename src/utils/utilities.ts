@@ -273,6 +273,33 @@ export const capitalizeEachWord = (text: string): string => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
+
+export const timeFromTimeStamp = (timestamp: string): string => {
+  const date = new Date(timestamp);
+  const today = new Date();
+
+  const inputYear = date.getFullYear();
+  const inputMonth = date.toLocaleString('default', { month: 'long' });
+  const inputDay = date.getDate();
+
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth();
+  const todayDay = today.getDate();
+
+  if (inputYear === todayYear && date.getMonth() === todayMonth && inputDay === todayDay) {
+    const hours = date.getHours() % 12 || 12; // Handle 12-hour format
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+    return `${hours}:${minutes} ${ampm}`;
+  }
+
+  if (inputYear === todayYear) {
+    return `${inputDay} ${inputMonth}`;
+  }
+
+  return `${inputDay} ${inputMonth} ${inputYear}`;
+};
+
 export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
@@ -464,6 +491,36 @@ export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
     }
   }
   return { estimatedBlocksBeforeConfirmation, tnxPriority };
+};
+
+export const calculateTicketsLeft = (tickets, planDetails) => {
+  const PLEB_RESTRICTION = 1;
+  const HODLER_RESTRICTION = 3;
+
+  const { isOnL1, isOnL2, isOnL3 } = planDetails;
+  if (isOnL1) {
+    // Pleb - once for life time
+    return tickets.length < PLEB_RESTRICTION;
+  }
+  if (isOnL2) {
+    if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+      const oneHourAgo = Date.now() - 60 * 60 * 1000; // 1 hour in milliseconds
+      const ticketsInLastHour = tickets.filter((ticket) => {
+        const ticketTimestamp = new Date(ticket.created_at).getTime();
+        return ticketTimestamp >= oneHourAgo;
+      });
+      return ticketsInLastHour.length < HODLER_RESTRICTION;
+    }
+    // PROD
+    // Hodler 3 per month
+    const currentMonth = new Date().getMonth();
+    const monthlyTickets = tickets.filter((ticket) => {
+      const ticketMonth = new Date(ticket.created_at).getMonth();
+      return ticketMonth === currentMonth;
+    });
+    return monthlyTickets.length < HODLER_RESTRICTION;
+  }
+  if (isOnL3) return true;
 };
 
 export const getAccountFromSigner = (signer: Signer | VaultSigner): number | null => {
