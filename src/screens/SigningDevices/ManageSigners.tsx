@@ -47,6 +47,8 @@ import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import InheritanceKeySection from './components/InheritanceKeySection';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -71,14 +73,12 @@ function ManageSigners({ route }: ScreenProps) {
   const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
   const [newSigner, setNewSigner] = useState(null);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [inProgress, setInProgress] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { signer: signerTranslation, common, settings } = translations;
-
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
-
-  const [inProgress, setInProgress] = useState(false);
 
   useEffect(() => {
     if (remoteData?.key && !timerModal) setTimerModal(true);
@@ -317,8 +317,6 @@ function SignersList({
   typeBasedIndicator: Record<string, Record<string, boolean>>;
 }) {
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
-  const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslation } = translations;
   const { level } = useSubscriptionLevel();
   const { showToast } = useToastMessage();
   const isNonVaultManageSignerFlow = !vault; // Manage Signers flow accessible via home screen
@@ -326,6 +324,16 @@ function SignersList({
   const { id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
+
+  const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+  const inheritanceKeyMeta = vault?.signers?.find(
+    (signer) =>
+      signer?.masterFingerprint ===
+      vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
+        INHERITANCE_KEY1_IDENTIFIER
+      ]
+  );
+  const inheritanceKey = inheritanceKeyMeta ? signerMap[getKeyUID(inheritanceKeyMeta)] : null;
 
   const shellAssistedKeys = useMemo(() => {
     const generateShellAssistedKey = (signerType: SignerType) => ({
@@ -392,7 +400,11 @@ function SignersList({
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
             const signer = vaultKeys.length ? signerMap[getKeyUID(item)] : item;
-            if (!signer || signer.archived) {
+            if (
+              !signer ||
+              signer.archived ||
+              signer?.masterFingerprint === inheritanceKeyMeta?.masterFingerprint
+            ) {
               return null;
             }
             const isRegistered = vaultKeys.length
@@ -438,6 +450,16 @@ function SignersList({
             <EmptyListIllustration listType="keys" />
           )}
         </Box>
+
+        {inheritanceKey && (
+          <InheritanceKeySection
+            vault={vault}
+            currentBlockHeight={currentBlockHeight}
+            signerMap={signerMap}
+            handleCardSelect={handleCardSelect}
+            setCurrentBlockHeight={setCurrentBlockHeight}
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
