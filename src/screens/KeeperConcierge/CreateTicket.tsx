@@ -22,6 +22,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { CommonActions } from '@react-navigation/native';
 import Zendesk from 'src/services/backend/Zendesk';
 import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
+import { getKeyUID } from 'src/utils/utilities';
 
 const CreateTicket = ({ navigation }) => {
   const { colorMode } = useColorMode();
@@ -78,7 +79,7 @@ const CreateTicket = ({ navigation }) => {
       details += `Vault Name:\n${vault.presentationData.name}\n`;
       details += `${vault.scheme.m} of ${vault.scheme.n}, Multisig\nKeys:\n`;
       vault.signers.forEach((signer, index) => {
-        details += `${index + 1}.${signerMap[signer.masterFingerprint].signerName}  `;
+        details += `${index + 1}.${signerMap[getKeyUID(signer)].signerName}  `;
       });
       details += '\n\n';
     });
