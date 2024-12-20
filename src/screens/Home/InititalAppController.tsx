@@ -36,6 +36,8 @@ import { updateCachedPsbtEnvelope } from 'src/store/reducers/cachedTxn';
 import { store } from 'src/store/store';
 import config from 'src/utils/service-utilities/config';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import messaging from '@react-native-firebase/messaging';
+import { notificationType } from 'src/models/enums/Notifications';
 import { SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
 
@@ -237,6 +239,33 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       enableAnalytics: enableAnalyticsLogin,
     });
   };
+
+  const handleZendeskNotificationRedirection = (data) => {
+    if (data?.notificationType === notificationType.ZENDESK_TICKET) {
+      const { ticketId = null, ticketStatus = null } = data;
+      if (ticketId && ticketStatus)
+        navigation.navigate({
+          name: 'TicketDetails',
+          params: { ticketId: parseInt(ticketId), ticketStatus },
+        });
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = messaging().onNotificationOpenedApp((remoteMessage) => {
+      handleZendeskNotificationRedirection(remoteMessage.data);
+    });
+
+    // Listener for when the app is opened from a terminated state
+    const getInitialNotification = async () => {
+      const initialNotification = await messaging().getInitialNotification();
+      if (initialNotification) handleZendeskNotificationRedirection(initialNotification.data);
+    };
+
+    getInitialNotification();
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     if (isInitialLogin) {

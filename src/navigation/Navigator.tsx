@@ -140,6 +140,10 @@ import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
 import config from 'src/utils/service-utilities/config';
 import KeyHistory from 'src/screens/Vault/KeyHistory';
+import KeeperConcierge from 'src/screens/KeeperConcierge/KeeperConcierge';
+import TechnicalSupport from 'src/screens/KeeperConcierge/TechnicalSupport';
+import TicketDetails from 'src/screens/KeeperConcierge/TicketDetails';
+import CreateTicket from 'src/screens/KeeperConcierge/CreateTicket';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -315,6 +319,10 @@ function AppStack() {
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
         <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
         <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
+        <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
+        <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
+        <Stack.Screen name="TicketDetails" component={TicketDetails} />
+        <Stack.Screen name="CreateTicket" component={CreateTicket} />
       </Stack.Navigator>
     </RealmProvider>
   );

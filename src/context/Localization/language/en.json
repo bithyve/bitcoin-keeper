@@ -1442,5 +1442,18 @@
     "vaultTransferHeading": "Sats ready to be auto-transferred\n",
     "vaultTransferSubTitle": "Amount of sats in your wallet ($wallet) have crossed the auto-transfer threshold. Ready to transfer sats to vault.",
     "vaultTransferBody": "You can always change the transfer threshold from Wallet Settings.\n"
+  },
+  "concierge": {
+    "smartHelpTitle": "Smart Help",
+    "smartHelpDescription": "Quick answers powered by AI – find what you need instantly",
+    "smartHelpButtonText": "Instant Help",
+    "technicalSupportTitle": "Technical Support",
+    "technicalSupportDescription": "Submit a ticket for prompt troubleshooting by our team",
+    "technicalSupportButtonText": "Request Support",
+    "expertGuidanceTitle": "Expert Guidance",
+    "expertGuidanceDescription": "Talk to an advisor for tailored support – first session free",
+    "expertGuidanceButtonText": "Connect with Advisor",
+    "comingSoonText": "Coming Soon",
+    "conciergeTitle": "Keeper Concierge"
   }
 }
