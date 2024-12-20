@@ -42,13 +42,7 @@ import ChangeKeyDark from 'src/assets/images/change-key-white.svg';
 import EmptyStateLight from 'src/assets/images/empty-activity-illustration-light.svg';
 import EmptyStateDark from 'src/assets/images/empty-activity-illustration-dark.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import {
-  EntityKind,
-  SignerType,
-  VaultType,
-  VisibilityType,
-  XpubTypes,
-} from 'src/services/wallets/enums';
+import { EntityKind, SignerType, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
@@ -82,7 +76,6 @@ import {
   getAccountFromSigner,
   getKeyUID,
   getTnxDetailsPSBT,
-  isOdd,
 } from 'src/utils/utilities';
 import idx from 'idx';
 import Colors from 'src/theme/Colors';
@@ -90,9 +83,9 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import SignerCard from '../AddSigner/SignerCard';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import { captureError } from 'src/services/sentry';
-import WalletOperations from 'src/services/wallets/operations';
+import { findVaultFromSenderAddress } from 'src/utils/service-utilities/utils';
 
-const SignersReqVault = [
+export const SignersReqVault = [
   SignerType.LEDGER,
   SignerType.TREZOR,
   SignerType.BITBOX02,
@@ -414,29 +407,7 @@ function SigningDeviceDetails({ route }) {
         return;
       }
       if (SignersReqVault.includes(signer.type)) {
-        let activeVault = null;
-        allVaults.forEach(async (vault) => {
-          let addressMatched = true;
-          for (let i = 0; i < senderAddresses.length; i++) {
-            const _ = senderAddresses[i].path.split('/');
-            const [isChange, index] = _.splice(_.length - 2);
-            // 0/even - Receive(External) | 1/odd - change(internal)
-            let generatedAddress: string;
-            generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
-              vault,
-              parseInt(index),
-              isOdd(parseInt(isChange))
-            );
-            if (senderAddresses[i].address != generatedAddress) {
-              addressMatched = false;
-              break;
-            }
-          }
-          if (addressMatched) {
-            activeVault = vault;
-          }
-        });
-
+        const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
         if (!activeVault) {
           navigation.goBack();
           throw new Error('Please import the vault before signing');
