@@ -9,7 +9,7 @@ import {
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
-import { urlParamsToObj } from 'src/utils/service-utilities/utils';
+import { findVaultFromSenderAddress, urlParamsToObj } from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -19,7 +19,7 @@ import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { generateSignerFromMetaData } from 'src/hardware';
+import { generateSignerFromMetaData, getPsbtForHwi } from 'src/hardware';
 import { addSigningDevice, refreshCanaryWallets } from 'src/store/sagaActions/vaults';
 import { resetVaultMigration, setRemoteLinkDetails } from 'src/store/reducers/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -27,7 +27,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import useAsync from 'src/hooks/useAsync';
 import { initializeSentry } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
-import { generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
+import { generateDataFromPSBT, getTnxDetailsPSBT, isOdd } from 'src/utils/utilities';
 import { getKeyUID } from 'src/utils/utilities';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { decrypt, getHashFromKey } from 'src/utils/service-utilities/encryption';
@@ -38,6 +38,8 @@ import config from 'src/utils/service-utilities/config';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import messaging from '@react-native-firebase/messaging';
 import { notificationType } from 'src/models/enums/Notifications';
+import { SignersReqVault } from '../Vault/SigningDeviceDetails';
+import useVault from 'src/hooks/useVault';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -49,6 +51,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { enableAnalyticsLogin } = useAppSelector((state) => state.settings);
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const appData = useQuery(RealmSchema.KeeperApp);
+  const { allVaults } = useVault({ includeArchived: false });
 
   const getAppData = (): { isPleb: boolean; appId: string } => {
     const tempApp = appData.map(getJSONFromRealmObject)[0];
@@ -120,9 +123,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
             break;
 
           case RKInteractionMode.SHARE_PSBT:
-            const { psbt, keyUID, xfp, cachedTxid } = tempData;
+            const { keyUID, xfp, cachedTxid } = tempData;
+            let serializedPSBT = tempData.psbt;
 
-            if (psbt) {
+            if (serializedPSBT) {
               try {
                 try {
                   const signer = signers.find((s) => keyUID == getKeyUID(s));
@@ -134,14 +138,25 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     signerMatched,
                     sendAmount,
                     feeRate,
-                  } = generateDataFromPSBT(psbt, signer);
+                  } = generateDataFromPSBT(serializedPSBT, signer);
                   const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
                   if (!signerMatched) {
                     showToast(`Invalid signer selection. Please try again!`, <ToastErrorIcon />);
                     navigation.goBack();
-                    return;
+                    return false;
                   }
+
+                  if (SignersReqVault.includes(signer.type)) {
+                    const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
+                    if (!activeVault) {
+                      navigation.goBack();
+                      throw new Error('Please import the vault before signing');
+                    }
+                    const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
+                    serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
+                  }
+
                   dispatch(setRemoteLinkDetails({ xfp, cachedTxid }));
                   navigation.dispatch(
                     CommonActions.navigate({
@@ -150,13 +165,13 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                         sender: senderAddresses,
                         recipient: receiverAddresses,
                         amount: sendAmount,
-                        data: psbt,
+                        data: serializedPSBT,
                         fees: fees,
                         estimatedBlocksBeforeConfirmation:
                           tnxDetails.estimatedBlocksBeforeConfirmation,
                         tnxPriority: tnxDetails.tnxPriority,
                         signer,
-                        psbt: psbt,
+                        psbt: serializedPSBT,
                         feeRate,
                       },
                     })

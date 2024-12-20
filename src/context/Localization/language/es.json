@@ -106,10 +106,9 @@
     "comingSoon": "Coming Soon",
     "reinstate": "Reinstate",
     "of": "of",
-    "COLLABORATIVE": "COLLABORATIVE",
     "collaborative": "Collaborative",
-    "VAULT": "VAULT",
-    "CANARY": "CANARY",
+    "VAULT": "Vault",
+    "CANARY": "Canary",
     "ARCHIVED": "Archived",
     "buyBitCoin": "Buy Bitcoin",
     "inToThisWallet": "into this wallet",
@@ -129,8 +128,8 @@
     "goToBackup": "Go to Backup",
     "Advisor": "Advisor",
     "AssistedWallet": "Assisted Wallet",
-    "ASSISTED": "ASSISTED",
-    "TIMELOCKED": "TIMELOCKED",
+    "ASSISTED": "Assisted",
+    "TIMELOCKED": "TimeLocked",
     "Receipt": "Receipt",
     "Later": "Later",
     "importing": "Importing",
@@ -153,7 +152,8 @@
     "key": "Key",
     "scanQRNote": "Make sure that the QR is well aligned, focused and visible as a whole",
     "tapToAdd": "Tap to add",
-    "your": "Your"
+    "your": "Your",
+    "the": "The"
   },
   "noInternet": {
     "no": "No Internet",
@@ -785,7 +785,28 @@
     "collabVaultCreatedDesc": "You can share the wallet configuration with the co-signers if you want them to be able to see the wallet transactions.",
     "vaultHasBeenCreated": "vault has been created successfully.",
     "IKAlreadyActive": "Inheritance Key is already active",
-    "addSignerIKNote": "Current technical limitations only allows the use of specific kind of signers as keys in miniscript-based wallets."
+    "addSignerIKNote": "Current technical limitations only allows the use of specific kind of signers as keys in miniscript-based wallets.",
+    "keyAlreadySelectedTitle": "Key Already Selected",
+    "keyAlreadySelectedMessage": "This key is already selected. Please choose a different key.",
+    "mobileKeyNotAllowedTitle": "Mobile Key Not Allowed",
+    "mobileKeyNotAllowedMessage": "Mobile keys cannot be used for cold wallets. Please use hot wallet option.",
+    "missingXpubTitle": "Missing xPub from Key",
+    "missingXpubMessage": "The key selected is missing the xPub necessary for the selected vault type. Please import the xPub if you'd like to use this device in your new vault.",
+    "insufficientTotalKeysTitle": "Is Not Allowed For This Configuration",
+    "insufficientTotalKeysMessage": "can only be used in a multi-signature vault which has at least 2 required keys and 3 total keys.",
+    "assistedKeysQuorumTitle": "Assisted Key Limit Exceeded",
+    "assistedKeysQuorumMessage": "The selected configuration exceeds the allowed number of assisted keys.",
+    "anotherMobileKeyAlreadySelectedTitle": "Another Mobile Key Already Selected",
+    "anotherMobileKeyAlreadySelectedMessage": "You have already selected another mobile key for your vault. Since all mobile keys are derived from your Recovery Key and stored on your phone, it is not allowed to use more than one mobile key in each vault.",
+    "keyAlreadyUsedInVaultTitle": "Key Already Used In Your Vault",
+    "keyAlreadyUsedInVaultMessage": "This key is already used in your vault, please choose another key or add a new one.",
+    "keyFromSameDeviceAlreadySelectedTitle": "Another Key From The Same Device Already Selected",
+    "keyFromSameDeviceAlreadySelectedMessage": "You have already selected another key which belongs to the same device. For security reasons, you cannot use multiple keys which belong to the same signing device in the same multisig vault.",
+    "importXpub": "Import xPub",
+    "staticQR": "Static QR",
+    "animatedQR": "Animated QR",
+    "IKActivatesIn": "Inheritance Key activates in",
+    "failedToCheckIKActivationTime": "Failed to check current activation time for Inheritance Key"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -1054,7 +1075,7 @@
     "whirlpool": "Whirlpool",
     "slide07Paragraph": "You can remix your sats for free for enhanced privacy before storing them in your vault",
     "slide08Title": "Upgrade to Diamond Hands for\n generational hodling",
-    "slide08Paragraph": "Plan your inheritance. Get access to Assisted Keys. Avail priority support."
+    "slide08Paragraph": "Plan your inheritance. Get access to Inheritance Key. Avail priority support."
   },
   "choosePlan": {
     "choosePlantitle": "Manage Subscription",

@@ -79,12 +79,12 @@ function ConciergeOnboardingModal({ visible }) {
           </Text>
           <Text style={styles.contentText}>
             {
-              '1. Tier Info\n2. Phone and OS\n3. App version history\n4. Screen context (where the user is coming from)\n5. Tor and network (WiFi/ Mobile) status\n6.Sentry items - error codes'
+              '1. Tier Info\n2. Phone and OS\n3. App version history\n4. Screen context (where the user is coming from)\n5. Tor and network (WiFi/ Mobile) status\n6. Sentry items - error codes'
             }
           </Text>
           <Text style={styles.contentText}>
-            You can choose to decline now but maybe asked for the data again if one or more
-            parameter seems to be the bottleneck in troubleshooting.
+            You can choose to decline now, but you may be asked for the data again if one or more
+            parameters seem to be the bottleneck in troubleshooting.
           </Text>
           <TouchableOpacity
             onPress={() => setDontShow((prev) => !prev)}
