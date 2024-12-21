@@ -445,9 +445,9 @@ function ChoosePlan() {
   }
 
   const getActionBtnTitle = () => {
-    const isSubscribed = items[currentPosition].productIds.includes(
-      subscription.productId.toLowerCase()
-    );
+    const isSubscribed =
+      items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) &&
+      subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly');
     if (isSubscribed) return 'Subscribed';
     return `Continue - ${
       (isMonthly
@@ -539,7 +539,8 @@ function ChoosePlan() {
 
       {!loading &&
         items &&
-        !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) && (
+        (!items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) ||
+          !subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly')) && (
           <>
             <Box style={styles.ctaWrapper}>
               <Buttons
