@@ -9,7 +9,11 @@ import {
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
-import { findVaultFromSenderAddress, urlParamsToObj } from 'src/utils/service-utilities/utils';
+import {
+  findChangeFromReceiverAddresses,
+  findVaultFromSenderAddress,
+  urlParamsToObj,
+} from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -131,13 +135,14 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                 try {
                   const signer = signers.find((s) => keyUID == getKeyUID(s));
                   if (!signer) throw { message: 'Signer not found' };
-                  const {
+                  let {
                     senderAddresses,
                     receiverAddresses,
                     fees,
                     signerMatched,
                     sendAmount,
                     feeRate,
+                    changeAddressIndex,
                   } = generateDataFromPSBT(serializedPSBT, signer);
                   const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
@@ -155,6 +160,11 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     }
                     const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
                     serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
+                    receiverAddresses = findChangeFromReceiverAddresses(
+                      activeVault,
+                      receiverAddresses,
+                      parseInt(changeAddressIndex)
+                    );
                   }
 
                   dispatch(setRemoteLinkDetails({ xfp, cachedTxid }));

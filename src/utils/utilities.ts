@@ -306,10 +306,11 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     const vBytes = estimateVByteFromPSBT(base64Str);
     const signersList = [];
     let signerMatched = false;
-    const changeAddressIndex = psbt?.data?.outputs?.[0]?.bip32Derivation?.[0]?.path
-      ?.split('/')
+
+    const changeAddressIndex = psbt?.data?.outputs
+      ?.find((output) => output?.bip32Derivation?.[0]?.path)
+      ?.bip32Derivation?.[0]?.path?.split('/')
       ?.pop();
-    
 
     psbt.data.inputs.forEach((input) => {
       if (input.bip32Derivation) {

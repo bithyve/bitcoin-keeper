@@ -427,7 +427,7 @@ function SigningDeviceDetails({ route }) {
         receiverAddresses = findChangeFromReceiverAddresses(
           activeVault,
           receiverAddresses,
-          changeAddressIndex
+          parseInt(changeAddressIndex)
         );
       }
       navigation.dispatch(
