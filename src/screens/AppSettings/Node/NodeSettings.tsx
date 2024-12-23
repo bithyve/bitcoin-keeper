@@ -30,6 +30,7 @@ import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import Buttons from 'src/components/Buttons';
 import EmptyListIllustration from 'src/components/EmptyListIllustration';
 import Colors from 'src/theme/Colors';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -45,6 +46,7 @@ function ElectrumDisconnectWarningContent() {
 
 function NodeSettings() {
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -308,7 +310,12 @@ function NodeSettings() {
         )}
       </Box>
       <Box>
-        <Buttons primaryCallback={onAdd} primaryText={`+ ${settings.addNewNode}`} fullWidth />
+        {/* <Buttons primaryCallback={onAdd} primaryText={`+ ${settings.addNewNode}`} fullWidth /> */}
+        <Buttons
+          primaryCallback={() => navigation.dispatch(CommonActions.navigate('NodeSelection'))}
+          primaryText={`${settings.addNewNode}`}
+          fullWidth
+        />
       </Box>
       <KeeperModal
         justifyContent="center"

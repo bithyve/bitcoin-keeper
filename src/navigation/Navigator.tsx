@@ -140,6 +140,7 @@ import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
 import config from 'src/utils/service-utilities/config';
 import KeyHistory from 'src/screens/Vault/KeyHistory';
+import NodeSelection from 'src/screens/AppSettings/Node/NodeSelection';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -270,6 +271,7 @@ function AppStack() {
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
         <Stack.Screen name="NodeSettings" component={NodeSettings} />
+        <Stack.Screen name="NodeSelection" component={NodeSelection} />
         <Stack.Screen name="PrivacyAndDisplay" component={PrivacyAndDisplay} />
         <Stack.Screen name="NetworkSetting" component={NetworkSetting} />
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />

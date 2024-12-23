@@ -89,6 +89,7 @@ export type AppStackParams = {
   RegisterWithQR: undefined;
   SignWithQR: undefined;
   NodeSettings: undefined;
+  NodeSelection: undefined;
   PrivacyAndDisplay: undefined;
   NetworkSetting: undefined;
   ConnectChannel: undefined;

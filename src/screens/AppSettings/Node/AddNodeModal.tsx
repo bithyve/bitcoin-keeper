@@ -8,16 +8,24 @@ import Buttons from 'src/components/Buttons';
 import Switch from 'src/components/Switch/Switch';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { hp, wp } from 'src/constants/responsive';
+import KeeperTextInput from 'src/components/KeeperTextInput';
 
-function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) => void) {
+const AddNode = ({
+  nodeDetails,
+  onSaveCallback,
+}: {
+  nodeDetails: NodeDetail;
+  onSaveCallback: (nodeDetails: NodeDetail) => void;
+}) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { settings } = translations;
-  const [useKeeperNode, setuseKeeperNode] = useState(params?.useKeeperNode);
-  const [useSSL, setUseSSL] = useState(params?.useSSL);
-  const [host, setHost] = useState(params?.host || '');
-  const [port, setPort] = useState(params?.port || '');
+  const { common, settings } = translations;
+
+  const [useKeeperNode, setUseKeeperNode] = useState(nodeDetails?.useKeeperNode);
+  const [useSSL, setUseSSL] = useState(nodeDetails?.useSSL);
+  const [host, setHost] = useState(nodeDetails?.host || '');
+  const [port, setPort] = useState(nodeDetails?.port || '');
   const [isHostValid, setIsHostValid] = useState(true);
   const [isPortValid, setIsPortValid] = useState(true);
 
@@ -30,15 +38,15 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
       setIsPortValid(false);
     }
     if (host !== null && host.length !== 0 && port !== null && port.length !== 0) {
-      const nodeDetails: NodeDetail = {
-        id: params.id,
+      const updatedNodeDetails: NodeDetail = {
+        id: nodeDetails.id,
         host,
         port,
         useKeeperNode,
-        isConnected: params.isConnected,
+        isConnected: nodeDetails.isConnected,
         useSSL,
       };
-      onSaveCallback(nodeDetails);
+      onSaveCallback(updatedNodeDetails);
     }
   };
 
@@ -46,7 +54,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
     <Box style={[styles.container, { backgroundColor: `${colorMode}.primaryBackground` }]}>
       <Box style={styles.box}>
         <Box style={styles.useSSL}>
-          <Text style={styles.useSSLText}>{settings.useSSL}</Text>
+          <Text color={`${colorMode}.Black`}>{settings.useSSL}</Text>
           <Switch
             value={useSSL}
             onValueChange={(value) => setUseSSL(value)}
@@ -54,20 +62,10 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           />
         </Box>
         <Box style={styles.inputArea}>
-          <Box
-            w="50%"
-            style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}
-            backgroundColor={`${colorMode}.seashellWhite`}
-            borderRadius={10}
-          >
-            <Input
-              backgroundColor={`${colorMode}.seashellWhite`}
-              placeholderTextColor="grey"
+          <Box>
+            <Text color={`${colorMode}.secondaryText`}>URL</Text>
+            <KeeperTextInput
               placeholder={settings.host}
-              borderRadius={10}
-              borderWidth={0}
-              height="12"
-              fontSize={13}
               value={host}
               autoCorrect={false}
               autoComplete="off"
@@ -75,30 +73,13 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
                 setIsHostValid(!(text === null || text.length === 0));
                 setHost(text);
               }}
-              _input={
-                colorMode === 'dark' && {
-                  selectionColor: Colors.SecondaryWhite,
-                  cursorColor: Colors.SecondaryWhite,
-                }
-              }
             />
           </Box>
-          <Box style={styles.spacer} />
-          <Box
-            w="50%"
-            style={[!isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
-            backgroundColor={`${colorMode}.seashellWhite`}
-            borderRadius={10}
-          >
-            <Input
-              backgroundColor={`${colorMode}.seashellWhite`}
-              placeholderTextColor="grey"
+          <Box>
+            <Text color={`${colorMode}.secondaryText`}>Port Number</Text>
+            <KeeperTextInput
               placeholder={settings.portNumberPlaceholder}
               keyboardType="number-pad"
-              borderRadius={10}
-              borderWidth={0}
-              height="12"
-              fontSize={13}
               value={port}
               autoCorrect={false}
               autoComplete="off"
@@ -106,46 +87,29 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
                 setIsPortValid(!(text === null || text.length === 0));
                 setPort(text);
               }}
-              _input={
-                colorMode === 'dark' && {
-                  selectionColor: Colors.SecondaryWhite,
-                  cursorColor: Colors.SecondaryWhite,
-                }
-              }
             />
           </Box>
         </Box>
-        <Box style={styles.saveButton}>
-          <Buttons primaryText={common.save} primaryCallback={() => onValidateAndSave()} />
-        </Box>
+        {/* <Box style={styles.saveButton}>
+          <Buttons primaryText={common.save} primaryCallback={onValidateAndSave} />
+        </Box> */}
       </Box>
     </Box>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    alignSelf: 'center',
+    width: '95%',
     flexDirection: 'row',
   },
   box: {
     width: '100%',
   },
-  spacer: {
-    marginLeft: 2,
-    marginRight: 2,
-  },
-  checkboxArea: {
-    paddingTop: 25,
-    marginBottom: 25,
-    paddingLeft: 10,
-    flexDirection: 'row',
-    width: '100%',
-  },
   inputArea: {
-    paddingVertical: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    paddingTop: hp(20),
+    gap: 10,
   },
   saveButton: {
     alignSelf: 'flex-end',
@@ -156,22 +120,9 @@ const styles = StyleSheet.create({
   },
   useSSL: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingLeft: 10,
-    paddingTop: 5,
-  },
-  useSSLText: {
-    fontSize: 14,
-    letterSpacing: 1.12,
-    paddingTop: 7,
-    paddingRight: 10,
-  },
-  useKeeperNodeText: {
-    fontSize: 14,
-    letterSpacing: 1.12,
-    paddingTop: 7,
-    paddingRight: 10,
-    width: '87%',
+    paddingTop: hp(15),
   },
 });
 

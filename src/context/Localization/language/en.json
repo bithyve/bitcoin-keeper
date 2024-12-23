@@ -991,7 +991,7 @@
     "nodeDetailsTitle": "Enter Node Details",
     "nodeDetailsSubtitle": "Add your own node for enhanced privacy",
     "useKeeperNode": "Use Keeper node as fallback",
-    "portNumberPlaceholder": "Port Number (eg: 8080)",
+    "portNumberPlaceholder": "e.g 8080",
     "host": "Host",
     "useSSL": "Use SSL for this node",
     "nodeConnectionSuccess": "Node connected successfully",
