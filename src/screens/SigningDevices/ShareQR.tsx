@@ -15,7 +15,7 @@ function ShareQR({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={`Share QR`} subtitle={'Please show your QR to contact'} />
+      <KeeperHeader title={vaultText.shareQRTitle} subtitle={vaultText.shareQRSubtitle} />
       <Box style={styles.container}>
         <Box>{details && <KeeperQRCode qrData={details} size={windowWidth * 0.6} showLogo />}</Box>
       </Box>

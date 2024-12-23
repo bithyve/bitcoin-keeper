@@ -813,7 +813,16 @@
     "addContactNoteSubtitle": "Ask your friend to go to collaborative wallet and share his contact",
     "shareQR": "Share QR",
     "shareContactUsingFile": "Share contact using file",
-    "addContactUsingFile": "Add contact using file"
+    "addContactUsingFile": "Add contact using file",
+    "contactDetailsTitle": "Contact Details",
+    "contactDetailsSubtitle": "Quickly exchange contact details with ease",
+    "shareQRTitle": "Share QR",
+    "shareQRSubtitle": "Please show your QR to contact",
+    "associateContact": "Associate Contact",
+    "addContact": "Add Contact",
+    "yourPhoneBook": "Your Phonebook",
+    "associateContactWalletSub": "Are you sure you want to associate this contact to your wallet?",
+    "associateContactKeySub": "The contact you associated with the Key will be displayed here"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

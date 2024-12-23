@@ -1,5 +1,5 @@
 import { Box, Pressable, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -27,15 +27,24 @@ import { persistDocument } from 'src/services/documents';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function AssociateContact({ route }) {
   const {
     signer,
     showAddContact = true,
     popIndex = 1,
-  }: { signer: Signer; showAddContact: boolean; popIndex: number } = route.params;
+    isWalletFlow = false,
+  }: {
+    signer: Signer;
+    showAddContact: boolean;
+    popIndex: number;
+    isWalletFlow: boolean;
+  } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { common, vault: vaultText } = translations;
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -116,9 +125,13 @@ function AssociateContact({ route }) {
     }
   };
 
+  const modalSubtitle = isWalletFlow
+    ? vaultText.associateContactWalletSub
+    : vaultText.associateContactKeySub;
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Associate Contact" titleColor={`${colorMode}.pitchBlackText`} />
+      <KeeperHeader title={vaultText.associateContact} titleColor={`${colorMode}.pitchBlackText`} />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
           <Box
@@ -130,7 +143,7 @@ function AssociateContact({ route }) {
             <TextInput
               style={styles.input}
               placeholderTextColor={`${colorMode}.placeHolderTextColor`}
-              placeholder="Search"
+              placeholder={common.search}
               value={search}
               onChangeText={setSearch}
               underlineColorAndroid="transparent"
@@ -147,14 +160,14 @@ function AssociateContact({ route }) {
                   <AddContactIcon width={wp(44)} height={hp(44)} />
                 </Box>
                 <Text medium style={styles.buttonText}>
-                  Add Contact
+                  {vaultText.addContact}
                 </Text>
                 <RightArrowIcon width={wp(7)} height={hp(12)} style={styles.arrowIcon} />
               </Box>
             </Pressable>
           )}
           <Text medium style={styles.sectionTitle}>
-            Your Phonebook
+            {vaultText.yourPhoneBook}
           </Text>
         </Box>
         <FlatList
@@ -169,16 +182,15 @@ function AssociateContact({ route }) {
         <KeeperModal
           visible={showModal}
           close={() => setShowModal(false)}
-          showCloseIcon={false}
-          title="Associated Contact"
-          subTitle="The contact you associated with the Key will be displayed here"
-          secondaryButtonText="Cancel"
-          secondaryCallback={() => setShowModal(false)}
+          showCloseIcon
+          DarkCloseIcon={colorMode === 'dark'}
+          title={vaultText.associateContact}
+          subTitle={modalSubtitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
           buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
-          buttonText="Continue"
+          buttonText={common.continue}
           buttonCallback={onAddAssociateContact}
           Content={() => (
             <Box

@@ -33,7 +33,7 @@ function ContactDetails({ route }) {
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultText } = translations;
+  const { common, vault: vaultText } = translations;
   const [nfcModal, setNfcModal] = React.useState(false);
   const [details, setDetails] = useState(null);
   const signer = signerMap[getKeyUID(signerData)];
@@ -171,8 +171,8 @@ function ContactDetails({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={`Contact Details`}
-        subtitle={'Quickly exchange contact details with ease'}
+        title={vaultText.contactDetailsTitle}
+        subtitle={vaultText.contactDetailsSubtitle}
       />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
@@ -187,7 +187,7 @@ function ContactDetails({ route }) {
           ))}
         </Box>
         <CollaborativeModals nfcModal={nfcModal} setNfcModal={setNfcModal} />
-        <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />
+        <NfcPrompt visible={visible} close={cleanUp} ctaText={common.done} />
       </Box>
     </ScreenWrapper>
   );

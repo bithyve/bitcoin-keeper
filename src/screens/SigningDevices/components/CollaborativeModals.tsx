@@ -225,7 +225,7 @@ function CollaborativeModals({
             navigation.dispatch(
               CommonActions.navigate({
                 name: 'AddContact',
-                params: { signer, showContactButton: true },
+                params: { signer, showContactButton: true, isWalletFlow: true },
               })
             );
           }}

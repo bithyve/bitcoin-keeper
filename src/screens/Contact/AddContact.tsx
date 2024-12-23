@@ -16,7 +16,7 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { persistDocument } from 'src/services/documents';
 
-const ContactButton = ({ signer }) => {
+const ContactButton = ({ signer, isWalletFlow }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   return (
@@ -25,7 +25,7 @@ const ContactButton = ({ signer }) => {
         navigation.dispatch(
           CommonActions.navigate({
             name: 'AssociateContact',
-            params: { signer, showAddContact: false, popIndex: 2 },
+            params: { signer, showAddContact: false, popIndex: 2, isWalletFlow },
           })
         );
       }}
@@ -39,7 +39,7 @@ const ContactButton = ({ signer }) => {
 };
 
 function AddContact({ route }) {
-  const { signer, showContactButton = false } = route.params;
+  const { signer, showContactButton = false, isWalletFlow = false } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [name, setName] = useState('');
@@ -94,7 +94,9 @@ function AddContact({ route }) {
       <KeeperHeader
         title="Add Contact"
         titleColor={`${colorMode}.pitchBlackText`}
-        rightComponent={showContactButton && <ContactButton signer={signer} />}
+        rightComponent={
+          showContactButton && <ContactButton signer={signer} isWalletFlow={isWalletFlow} />
+        }
         rightComponentPadding={wp(10)}
         rightComponentBottomPadding={hp(8)}
       />
