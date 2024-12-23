@@ -33,7 +33,7 @@ import QRCommsLight from 'src/assets/images/qr_comms.svg';
 import NFCLight from 'src/assets/images/nfc-no-bg-light.svg';
 import AirDropLight from 'src/assets/images/airdrop-no-bg-light.svg';
 import SignerLight from 'src/assets/images/signer-icon-light.svg';
-import AddKeyLight from 'src/assets/images/add-key-light.svg';
+import UserCoSigner from 'src/assets/images/user-cosigner.svg';
 import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
 import CollaborativeModals from './components/CollaborativeModals';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
@@ -77,7 +77,11 @@ function SignerItem({
   if (!signer || !vaultKey) {
     return (
       <SignerCard
-        name={index === 0 ? wallet.AddingKey : `${numberToOrdinal(index + 1)} ${common.key}`}
+        name={
+          index === 0
+            ? wallet.AddingKey
+            : `${common.add} ${numberToOrdinal(index + 1)} ${common.contact}`
+        }
         description={cardDescription}
         customStyle={styles.signerCard}
         showSelection={false}
@@ -94,8 +98,9 @@ function SignerItem({
         borderColor={index === 0 ? `${colorMode}.dullGreyBorder` : `${colorMode}.pantoneGreen`}
         nameColor={`${colorMode}.greenWhiteText`}
         boldDesc
-        icon={<AddKeyLight />}
+        icon={<UserCoSigner />}
         disabled={isCardDisabled}
+        isFullText
       />
     );
   }
@@ -103,9 +108,19 @@ function SignerItem({
   return (
     <SignerCard
       key={signerUID}
-      name={getSignerNameFromType(signer.type, signer.isMock, false)}
-      description={getSignerDescription(signer)}
-      icon={SDIcons(signer.type).Icon}
+      name={
+        index === 0
+          ? 'My Key'
+          : signer?.extraData?.givenName || signer?.extraData?.familyName
+          ? `${signer?.extraData?.givenName ?? ''} ${signer?.extraData?.familyName ?? ''}`.trim()
+          : `${numberToOrdinal(index + 1)} ${common.coSigner}`
+      }
+      description={
+        signer.type === SignerType.MY_KEEPER
+          ? getSignerDescription(signer)
+          : getSignerNameFromType(signer.type, signer.isMock, false)
+      }
+      icon={<UserCoSigner />}
       image={signer?.extraData?.thumbnailPath}
       customStyle={styles.signerCard}
       isSelected={false}
@@ -185,7 +200,7 @@ function SetupCollaborativeWallet() {
         setAddKeyModal(false),
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'HandleFile',
+              name: 'ImportContactFile',
               params: {
                 title: vaultText.fileImport,
                 subTitle: vaultText.importFileOrPaste,
@@ -194,29 +209,6 @@ function SetupCollaborativeWallet() {
               },
             })
           );
-      },
-    },
-    {
-      icon: <SignerLight />,
-      title: vaultText.chooseExistingKey,
-      callback: () => {
-        setAddKeyModal(false);
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'AddSigningDevice',
-            params: {
-              parentScreen: SETUPCOLLABORATIVEWALLET,
-              scheme: COLLABORATIVE_SCHEME,
-              signerFilters: [SignerType.KEEPER],
-              coSigners,
-              onGoBack: (vaultKeys) => {
-                if (vaultKeys && vaultKeys.length > 0) {
-                  handleSelectedSigners(vaultKeys[0]);
-                }
-              },
-            },
-          })
-        );
       },
     },
   ];
@@ -287,24 +279,6 @@ function SetupCollaborativeWallet() {
     }
   };
 
-  const handleSelectedSigners = (vaultKey) => {
-    if (!vaultKey) return;
-
-    if (isSignerDuplicate(vaultKey, coSigners)) {
-      showToast(vaultText.keyAlreadyAdded, <ToastErrorIcon />, IToastCategory.SIGNING_DEVICE);
-      return;
-    }
-
-    setSelectedSigner(vaultKey);
-    setCoSigners((prevCoSigners) => {
-      const updatedSigners = [...prevCoSigners];
-      const emptyIndex = updatedSigners.findIndex((signer) => !signer);
-      if (emptyIndex !== -1) {
-        updatedSigners[emptyIndex] = vaultKey;
-      }
-      return updatedSigners;
-    });
-  };
   const handleError = (error, sourceType) => {
     if (error instanceof HWError) {
       showToast(error.message, <ToastErrorIcon />);
@@ -499,10 +473,10 @@ function SetupCollaborativeWallet() {
       <Box style={styles.buttonContainer}>
         <Buttons
           fullWidth
-          primaryText={vaultText.setupVault}
-          primaryCallback={createVault}
-          primaryLoading={isCreating}
-          primaryDisable={coSigners.filter((item) => item)?.length <= 2}
+          primaryText={vaultText.shareContactDetails}
+          // primaryCallback={createVault}
+          // primaryLoading={isCreating}
+          // primaryDisable={coSigners.filter((item) => item)?.length <= 2}
         />
       </Box>
       <WalletVaultCreationModal

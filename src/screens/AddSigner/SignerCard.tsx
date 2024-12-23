@@ -110,7 +110,7 @@ function SignerCard({
         <Text
           color={cardNameColor}
           style={styles.walletName}
-          numberOfLines={isFullText ? 0 : 1}
+          numberOfLines={isFullText ? 2 : 1}
           medium
         >
           {name}

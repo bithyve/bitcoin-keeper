@@ -99,7 +99,7 @@ function AddKeyContent({ addKeyOptions }) {
         <Note
           title={common.note}
           subtitleColor="GreyText"
-          subtitle={vaultText.addKeyNoteSubtitle}
+          subtitle={vaultText.addContactNoteSubtitle}
         />
       </Box>
     </Box>
@@ -184,8 +184,8 @@ function CollaborativeModals({
         visible={addKeyModal}
         close={() => setAddKeyModal(false)}
         DarkCloseIcon={colorMode === 'dark'}
-        title={vaultText.addAKey}
-        subTitle={vaultText.addKeyModalSubtitle}
+        title={vaultText.addContactModalTitle}
+        subTitle={vaultText.addContactModalSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
