@@ -9,7 +9,7 @@ import { getPersistedDocument } from 'src/services/documents';
 type SignerCardProps = {
   name: string;
   subtitle?: string;
-  description?: string;
+  description?: string | Element;
   icon: Element;
   isSelected?: boolean;
   onCardSelect?: (selected: any) => void;
@@ -124,13 +124,17 @@ function SignerCard({
             {subtitle}
           </Text>
         ) : null}
-        <Text
-          style={[styles.walletDescription, { fontWeight: boldDesc ? '500' : 'normal' }]}
-          color={`${colorMode}.secondaryText`}
-          numberOfLines={numberOfLines}
-        >
-          {description}
-        </Text>
+        {typeof description === 'string' ? (
+          <Text
+            style={[styles.walletDescription, { fontWeight: boldDesc ? '500' : 'normal' }]}
+            color={`${colorMode}.secondaryText`}
+            numberOfLines={numberOfLines}
+          >
+            {description}
+          </Text>
+        ) : (
+          description
+        )}
       </Box>
     </Pressable>
   );

@@ -47,7 +47,7 @@ const ImportContactFile = ({ route, navigation }) => {
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <Input
                 testID="input_container"
-                placeholder="Manually enter the contents of the file to import"
+                placeholder="Enter contents of the file"
                 placeholderTextColor={`${colorMode}.placeHolderTextColor`}
                 style={styles.textInput}
                 variant="unstyled"

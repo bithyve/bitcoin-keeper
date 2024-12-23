@@ -5,6 +5,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import BitcoinIllustration from 'src/assets/images/btc-illustration.svg';
+import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import NFCLight from 'src/assets/images/nfc-fade-lines-light.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Text from 'src/components/KeeperText';
@@ -146,6 +147,8 @@ function CollaborativeModals({
   setLearnMoreModal,
   nfcModal,
   setNfcModal,
+  keyAddedModal,
+  setKeyAddedModal,
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -203,6 +206,32 @@ function CollaborativeModals({
         buttonTextColor={`${colorMode}.buttonText`}
         Content={() => <NFCModalContent onTryAnotherMethod={handleTryAnotherMethod} />}
       />
+
+      <KeeperModal
+        visible={keyAddedModal}
+        title="Contact Added Successfully!"
+        subTitle={'The new contact has been added to your collaborative wallet.'}
+        close={() => {
+          setKeyAddedModal(false);
+        }}
+        showCloseIcon
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
+        buttonText={'Add Details'}
+        // buttonCallback={buttonCallback}
+        secondaryButtonText={'Skip'}
+        secondaryCallback={() => {
+          setKeyAddedModal(false);
+        }}
+        Content={() => (
+          <Box style={styles.externalKeyModal}>
+            <SuccessCircleIllustration style={styles.externalKeyIllustration} />
+            <Text color={`${colorMode}.secondaryText`}>
+              You can also edit contact details from add details section
+            </Text>
+          </Box>
+        )}
+      />
     </>
   );
 }
@@ -250,6 +279,16 @@ const styles = StyleSheet.create({
   modalContentContainer: {
     alignItems: 'center',
     gap: hp(15),
+  },
+  externalKeyModal: {
+    alignItems: 'center',
+  },
+  externalKeyIllustration: {
+    marginBottom: hp(35),
+    marginRight: wp(15),
+  },
+  externalKeyText: {
+    marginBottom: hp(30),
   },
 });
 

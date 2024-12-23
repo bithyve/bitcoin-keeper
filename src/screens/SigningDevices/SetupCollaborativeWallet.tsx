@@ -25,24 +25,23 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import SignerCard from '../AddSigner/SignerCard';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useVault from 'src/hooks/useVault';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import QRCommsLight from 'src/assets/images/qr_comms.svg';
 import NFCLight from 'src/assets/images/nfc-no-bg-light.svg';
 import AirDropLight from 'src/assets/images/airdrop-no-bg-light.svg';
-import SignerLight from 'src/assets/images/signer-icon-light.svg';
+import AddIcon from 'src/assets/images/add-plain-green.svg';
 import UserCoSigner from 'src/assets/images/user-cosigner.svg';
 import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
 import CollaborativeModals from './components/CollaborativeModals';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import HWError from 'src/hardware/HWErrorState';
-import KeyAddedModal from 'src/components/KeyAddedModal';
 import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import Text from 'src/components/KeeperText';
 
 function SignerItem({
   vaultKey,
@@ -72,7 +71,16 @@ function SignerItem({
   }, [index, coSigners]);
 
   const isCardDisabled = index === 2 && !isPreviousKeyAdded();
-  const cardDescription = isCardDisabled ? '' : common.tapToAdd;
+  const cardDescription = isCardDisabled ? (
+    ''
+  ) : (
+    <Box style={styles.cardDescription}>
+      <Text medium fontSize={12} color={`${colorMode}.greenishGreyText`}>
+        {common.tapToAdd}{' '}
+      </Text>
+      <AddIcon />
+    </Box>
+  );
 
   if (!signer || !vaultKey) {
     return (
@@ -205,7 +213,7 @@ function SetupCollaborativeWallet() {
                 title: vaultText.fileImport,
                 subTitle: vaultText.importFileOrPaste,
                 onFileExtract,
-                ctaText: common.continue,
+                ctaText: common.proceed,
               },
             })
           );
@@ -500,13 +508,8 @@ function SetupCollaborativeWallet() {
         addKeyOptions={addKeyOptions}
         nfcModal={nfcModal}
         setNfcModal={setNfcModal}
-      />
-      <KeyAddedModal
-        visible={realySignersAdded && externalKeyAddedModal}
-        close={() => {
-          setExternalKeyAddedModal(false);
-        }}
-        signer={addedKey}
+        keyAddedModal={realySignersAdded && externalKeyAddedModal}
+        setKeyAddedModal={setExternalKeyAddedModal}
       />
     </ScreenWrapper>
   );
@@ -520,6 +523,11 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingHorizontal: wp(10),
+  },
+  cardDescription: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: hp(10),
   },
 });
 
