@@ -175,6 +175,8 @@ export type AppStackParams = {
   TicketDetails: undefined;
   CreateTicket: undefined;
   ImportContactFile: undefined;
+  ContactDetails: undefined;
+  ShareQR: undefined;
 };
 
 // Usage:
