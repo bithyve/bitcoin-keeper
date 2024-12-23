@@ -16,6 +16,8 @@ import StackedCirclesList from 'src/screens/Vault/components/StackedCircleList';
 import { SignerType } from 'src/services/wallets/enums';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import MenuOption from 'src/components/MenuOption';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 
 interface AddKeyOption {
   icon: JSX.Element;
@@ -33,6 +35,7 @@ interface CollaborativeModalsProps {
   setNfcModal?: (value: boolean) => void;
   keyAddedModal?: boolean;
   setKeyAddedModal?: (value: boolean) => void;
+  signer?: Signer;
 }
 
 function NFCModalContent({ onTryAnotherMethod }: { onTryAnotherMethod: () => void }) {
@@ -136,9 +139,11 @@ function CollaborativeModals({
   setNfcModal,
   keyAddedModal,
   setKeyAddedModal,
+  signer,
 }: CollaborativeModalsProps) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
   const isDarkMode = colorMode === 'dark';
@@ -215,6 +220,15 @@ function CollaborativeModals({
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
           buttonText={'Add Details'}
+          buttonCallback={() => {
+            setKeyAddedModal?.(false);
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'AddContact',
+                params: { signer, showContactButton: true },
+              })
+            );
+          }}
           DarkCloseIcon={isDarkMode}
           secondaryButtonText={'Skip'}
           secondaryCallback={() => {

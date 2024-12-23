@@ -514,6 +514,7 @@ function SetupCollaborativeWallet() {
         setNfcModal={setNfcModal}
         keyAddedModal={realySignersAdded && externalKeyAddedModal}
         setKeyAddedModal={setExternalKeyAddedModal}
+        signer={addedKey}
       />
     </ScreenWrapper>
   );
