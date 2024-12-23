@@ -31,7 +31,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import useAsync from 'src/hooks/useAsync';
 import { initializeSentry } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
-import { generateDataFromPSBT, getTnxDetailsPSBT, isOdd } from 'src/utils/utilities';
+import { generateDataFromPSBT } from 'src/utils/utilities';
 import { getKeyUID } from 'src/utils/utilities';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { decrypt, getHashFromKey } from 'src/utils/service-utilities/encryption';
@@ -140,11 +140,9 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     receiverAddresses,
                     fees,
                     signerMatched,
-                    sendAmount,
                     feeRate,
                     changeAddressIndex,
                   } = generateDataFromPSBT(serializedPSBT, signer);
-                  const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
                   if (!signerMatched) {
                     showToast(`Invalid signer selection. Please try again!`, <ToastErrorIcon />);
@@ -174,12 +172,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                       params: {
                         sender: senderAddresses,
                         recipient: receiverAddresses,
-                        amount: sendAmount,
-                        data: serializedPSBT,
                         fees: fees,
-                        estimatedBlocksBeforeConfirmation:
-                          tnxDetails.estimatedBlocksBeforeConfirmation,
-                        tnxPriority: tnxDetails.tnxPriority,
                         signer,
                         psbt: serializedPSBT,
                         feeRate,

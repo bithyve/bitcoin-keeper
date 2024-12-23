@@ -71,12 +71,7 @@ import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import BackupModalContent from 'src/screens/AppSettings/BackupModal';
 import { getPersistedDocument } from 'src/services/documents';
-import {
-  generateDataFromPSBT,
-  getAccountFromSigner,
-  getKeyUID,
-  getTnxDetailsPSBT,
-} from 'src/utils/utilities';
+import { generateDataFromPSBT, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import idx from 'idx';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -400,16 +395,8 @@ function SigningDeviceDetails({ route }) {
   };
   const signPSBT = async (serializedPSBT) => {
     try {
-      let {
-        senderAddresses,
-        receiverAddresses,
-        fees,
-        signerMatched,
-        sendAmount,
-        feeRate,
-        changeAddressIndex,
-      } = generateDataFromPSBT(serializedPSBT, signer);
-      const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
+      let { senderAddresses, receiverAddresses, fees, signerMatched, feeRate, changeAddressIndex } =
+        generateDataFromPSBT(serializedPSBT, signer);
 
       if (!signerMatched) {
         showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
@@ -436,11 +423,7 @@ function SigningDeviceDetails({ route }) {
           params: {
             sender: senderAddresses,
             recipient: receiverAddresses,
-            amount: sendAmount,
-            data: serializedPSBT,
             fees,
-            estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
-            tnxPriority: tnxDetails.tnxPriority,
             signer,
             psbt: serializedPSBT,
             feeRate,

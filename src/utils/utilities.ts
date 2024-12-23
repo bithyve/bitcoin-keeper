@@ -481,24 +481,6 @@ export const getInputsToSignFromPSBT = (base64Str: string, signer: Signer) => {
   return inputsToSign;
 };
 
-export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
-  let estimatedBlocksBeforeConfirmation = 0;
-  let tnxPriority = TxPriority.LOW;
-  if (averageTxFees && averageTxFees[config.NETWORK_TYPE]) {
-    const { high, medium, low } = averageTxFees[config.NETWORK_TYPE];
-    const customFeeRatePerByte = parseInt(feeRate);
-    if (customFeeRatePerByte >= high.feePerByte) {
-      estimatedBlocksBeforeConfirmation = high.estimatedBlocks;
-      tnxPriority = TxPriority.HIGH;
-    } else if (customFeeRatePerByte <= low.feePerByte) {
-      estimatedBlocksBeforeConfirmation = low.estimatedBlocks;
-    } else {
-      estimatedBlocksBeforeConfirmation = medium.estimatedBlocks;
-      tnxPriority = TxPriority.MEDIUM;
-    }
-  }
-  return { estimatedBlocksBeforeConfirmation, tnxPriority };
-};
 
 export const calculateTicketsLeft = (tickets, planDetails) => {
   const PLEB_RESTRICTION = 1;

@@ -629,7 +629,7 @@ export function findChangeFromReceiverAddresses(
   receiverAddresses,
   changeAddressIndex: number
 ) {
-  if (!changeAddressIndex) return receiverAddresses;
+  if (changeAddressIndex == undefined) return receiverAddresses;
   const changeAddress = WalletOperations.getExternalInternalAddressAtIdx(
     activeVault,
     changeAddressIndex,
