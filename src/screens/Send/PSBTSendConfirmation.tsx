@@ -50,7 +50,7 @@ function PSBTSendConfirmation({ route }) {
       fees,
       txid: '',
       address: '',
-      recipientAddresses: recipient,
+      recipientAddresses: recipient.filter((address) => !address.isChange),
       senderAddresses: sender,
     };
     return data;
