@@ -166,6 +166,7 @@ function SetupCollaborativeWallet() {
   const [addKeyModal, setAddKeyModal] = useState(false);
   const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
   const [addedKey, setAddedKey] = useState(null);
+  const [myKey, setMyKey] = useState(null);
   const [inProgress, setInProgress] = useState(false);
   const [nfcModal, setNfcModal] = useState(false);
   const { relaySignersUpdateLoading, realySignersUpdateErrorMessage, realySignersAdded } =
@@ -366,6 +367,7 @@ function SetupCollaborativeWallet() {
                 WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
               ),
             };
+            setMyKey(appKey);
             return appKey;
           }
         });
@@ -482,9 +484,11 @@ function SetupCollaborativeWallet() {
         <Buttons
           fullWidth
           primaryText={vaultText.shareContactDetails}
-          // primaryCallback={createVault}
-          // primaryLoading={isCreating}
-          // primaryDisable={coSigners.filter((item) => item)?.length <= 2}
+          primaryCallback={() => {
+            navigation.dispatch(
+              CommonActions.navigate({ name: 'ContactDetails', params: { signerData: myKey } })
+            );
+          }}
         />
       </Box>
       <WalletVaultCreationModal

@@ -11,11 +11,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/constants/responsive';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { StyleSheet } from 'react-native';
 import StackedCirclesList from 'src/screens/Vault/components/StackedCircleList';
 import { SignerType } from 'src/services/wallets/enums';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
+import MenuOption from 'src/components/MenuOption';
 
 function NFCModalContent({ onTryAnotherMethod }) {
   const { colorMode } = useColorMode();
@@ -89,11 +89,12 @@ function AddKeyContent({ addKeyOptions }) {
   return (
     <Box style={styles.addKeyContent}>
       {addKeyOptions.map((option, index) => (
-        <AddKeyOptions
+        <MenuOption
           key={index}
-          icon={option.icon}
+          Icon={option.icon}
           title={option.title}
           callback={option.callback}
+          showArrow={false}
         />
       ))}
       <Box style={styles.noteContainer}>
@@ -104,38 +105,6 @@ function AddKeyContent({ addKeyOptions }) {
         />
       </Box>
     </Box>
-  );
-}
-
-function AddKeyOptions({
-  icon,
-  title,
-  callback,
-}: {
-  icon: Element;
-  title: string;
-  callback: () => void;
-}) {
-  const { colorMode } = useColorMode();
-  return (
-    <Pressable onPress={callback}>
-      <Box
-        style={styles.keyOptionContainer}
-        backgroundColor={`${colorMode}.boxSecondaryBackground`}
-        borderColor={`${colorMode}.dullGreyBorder`}
-      >
-        <Box style={styles.keyOptionContent}>
-          <CircleIconWrapper
-            icon={icon}
-            backgroundColor={`${colorMode}.pantoneGreen`}
-            width={wp(39)}
-          />
-          <Text medium numberOfLines={1} color={`${colorMode}.primaryText`}>
-            {title}
-          </Text>
-        </Box>
-      </Box>
-    </Pressable>
   );
 }
 
@@ -154,6 +123,7 @@ function CollaborativeModals({
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
+  const isDarkMode = colorMode === 'dark';
 
   const handleTryAnotherMethod = () => {
     setNfcModal(false);
@@ -218,7 +188,7 @@ function CollaborativeModals({
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalWhiteContent`}
         buttonText={'Add Details'}
-        // buttonCallback={buttonCallback}
+        DarkCloseIcon={isDarkMode}
         secondaryButtonText={'Skip'}
         secondaryCallback={() => {
           setKeyAddedModal(false);
@@ -253,18 +223,6 @@ const styles = StyleSheet.create({
   },
   noteContainer: {
     marginTop: hp(10),
-  },
-  keyOptionContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: wp(20),
-    paddingVertical: hp(16),
-    borderWidth: 1,
-    borderRadius: 10,
-  },
-  keyOptionContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
   },
   ctaContainer: {
     alignItems: 'center',
