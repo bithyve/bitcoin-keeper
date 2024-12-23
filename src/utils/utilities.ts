@@ -306,6 +306,10 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     const vBytes = estimateVByteFromPSBT(base64Str);
     const signersList = [];
     let signerMatched = false;
+    const changeAddressIndex = psbt?.data?.outputs?.[0]?.bip32Derivation?.[0]?.path
+      ?.split('/')
+      ?.pop();
+    
 
     psbt.data.inputs.forEach((input) => {
       if (input.bip32Derivation) {
@@ -346,6 +350,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
           isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
         ), // Receiver address
         amount: output.value, // Amount in satoshis
+        isChange: false,
       };
     });
 
@@ -379,10 +384,11 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       feeRate,
       vBytes,
       signersList,
+      changeAddressIndex,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
-    throw 'Something went wrong';
+    throw new Error('Something went wrong');
   }
 };
 

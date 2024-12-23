@@ -623,3 +623,22 @@ export function findVaultFromSenderAddress(allVaults, senderAddresses) {
   }
   return activeVault;
 }
+
+export function findChangeFromReceiverAddresses(
+  activeVault,
+  receiverAddresses,
+  changeAddressIndex
+) {
+  if (!changeAddressIndex) return receiverAddresses;
+  const changeAddress = WalletOperations.getExternalInternalAddressAtIdx(
+    activeVault,
+    changeAddressIndex,
+    true
+  );
+  const found = receiverAddresses.findIndex((address) => address.address === changeAddress);
+  if (found !== -1) {
+    receiverAddresses[found].isChange = true;
+  }
+
+  return receiverAddresses;
+}

@@ -83,7 +83,10 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import SignerCard from '../AddSigner/SignerCard';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import { captureError } from 'src/services/sentry';
-import { findVaultFromSenderAddress } from 'src/utils/service-utilities/utils';
+import {
+  findChangeFromReceiverAddresses,
+  findVaultFromSenderAddress,
+} from 'src/utils/service-utilities/utils';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -332,7 +335,7 @@ function SigningDeviceDetails({ route }) {
     return null;
   }
 
-  const { title, subTitle, assert, description, FAQ } = getSignerContent(signer?.type);
+  const { title, subTitle, assert, description } = getSignerContent(signer?.type);
   function SignerContent() {
     return (
       <Box>
@@ -397,8 +400,15 @@ function SigningDeviceDetails({ route }) {
   };
   const signPSBT = async (serializedPSBT) => {
     try {
-      const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount, feeRate } =
-        generateDataFromPSBT(serializedPSBT, signer);
+      let {
+        senderAddresses,
+        receiverAddresses,
+        fees,
+        signerMatched,
+        sendAmount,
+        feeRate,
+        changeAddressIndex,
+      } = generateDataFromPSBT(serializedPSBT, signer);
       const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
       if (!signerMatched) {
@@ -414,8 +424,12 @@ function SigningDeviceDetails({ route }) {
         }
         const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
         serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
+        receiverAddresses = findChangeFromReceiverAddresses(
+          activeVault,
+          receiverAddresses,
+          changeAddressIndex
+        );
       }
-
       navigation.dispatch(
         CommonActions.navigate({
           name: 'PSBTSendConfirmation',
@@ -986,3 +1000,4 @@ const styles = StyleSheet.create({
 });
 
 export default SigningDeviceDetails;
+
