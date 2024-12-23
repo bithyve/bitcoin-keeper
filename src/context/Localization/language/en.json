@@ -809,7 +809,10 @@
     "shareContactDetails": "Share my Contact Details",
     "addContactModalTitle": "Add a Contact",
     "addContactModalSubtitle": "How do you want to add?",
-    "addContactNoteSubtitle": "Ask your friend to go to collaborative wallet and share his contact"
+    "addContactNoteSubtitle": "Ask your friend to go to collaborative wallet and share his contact",
+    "shareQR": "Share QR",
+    "shareContactUsingFile": "Share contact using file",
+    "addContactUsingFile": "Add contact using file"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
