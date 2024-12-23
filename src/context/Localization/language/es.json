@@ -682,6 +682,7 @@
     "Vault3_5CreatedModalDesc1": "For sending bitcoin out of the vault you will need the signers",
     "Vault3_5CreatedModalDesc2": "This means no one can steal your sats from the vault unless they also have access to your signers",
     "Vault3_5CreatedModalDesc3": "Additionally, Get notified of Key activation and have option to decline use",
+    "collabVaultCreateSuccessTitle": "Collaborative Wallet Created Successfully!",
     "vaultLearnMoreSubtitle": "Create multi-key vaults of various configurations. Subscribe to unlock advanced features.",
     "canaryLearnMoreSubtitle": "Each key used in a multi-key wallet can also be used as a single-key wallet itself. Keeping funds in these wallets act as Canary.",
     "canaryLearnMoreDesc": "If someone gets access to one of the keys and finds funds in the single-key wallet they may try to withdraw those funds. This will be detected by the app and the user will be advised to change that key from any multi-key setup.",

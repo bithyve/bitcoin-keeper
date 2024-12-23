@@ -33,7 +33,6 @@ import NFCLight from 'src/assets/images/nfc-no-bg-light.svg';
 import AirDropLight from 'src/assets/images/airdrop-no-bg-light.svg';
 import AddIcon from 'src/assets/images/add-plain-green.svg';
 import UserCoSigner from 'src/assets/images/user-cosigner.svg';
-import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
 import CollaborativeModals from './components/CollaborativeModals';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import HWError from 'src/hardware/HWErrorState';
@@ -381,6 +380,14 @@ function SetupCollaborativeWallet() {
   }, [selectedSigner]);
 
   useEffect(() => {
+    const signersCount = coSigners.filter((signer) => !!signer).length;
+    if (signersCount === COLLABORATIVE_SCHEME.n && !externalKeyAddedModal && addedKey) {
+      setAddedKey(null);
+      createVault();
+    }
+  }, [externalKeyAddedModal, coSigners, addedKey]);
+
+  useEffect(() => {
     if (
       hasNewVaultGenerationSucceeded &&
       coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n &&
@@ -457,7 +464,7 @@ function SetupCollaborativeWallet() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      {inProgress && <ActivityIndicatorView visible={inProgress} />}
+      {inProgress || (isCreating && <ActivityIndicatorView visible={inProgress || isCreating} />)}
       <KeeperHeader
         title={vaultText.collaborativeVaultTitle}
         subtitle={vaultText.collaborativeVaultSubtitle}
@@ -493,9 +500,8 @@ function SetupCollaborativeWallet() {
       </Box>
       <WalletVaultCreationModal
         visible={walletCreatedModal}
-        title={vaultText.vaultCreatedSuccessTitle}
+        title={vaultText.collabVaultCreateSuccessTitle}
         subTitle={`${common.your} ${collaborativeVault?.scheme?.m}-${common.of}-${collaborativeVault?.scheme?.n} ${vaultText.vaultHasBeenCreated}`}
-        descriptionMessage={vaultText.collabVaultCreatedDesc}
         buttonText={vaultText.ViewVault}
         buttonCallback={() => {
           navigateToNextScreen();
