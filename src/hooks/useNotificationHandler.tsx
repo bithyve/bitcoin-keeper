@@ -29,13 +29,7 @@ const NotificationHandler = () => {
       if (remoteMessage.data?.notificationType === notificationType.ZENDESK_TICKET) {
         const { ticketId = null, ticketStatus = null } = remoteMessage.data;
         if (ticketId && ticketStatus) {
-          dispatch(
-            addTicketStatusUAI(
-              ticketId,
-              remoteMessage.notification.title,
-              remoteMessage.notification.body
-            )
-          );
+          dispatch(addTicketStatusUAI(ticketId, ticketStatus, remoteMessage.notification.body));
           dispatch(uaiChecks([uaiType.ZENDESK_TICKET]));
         }
       } else {
