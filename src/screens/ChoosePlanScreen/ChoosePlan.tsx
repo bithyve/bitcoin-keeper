@@ -5,7 +5,6 @@ import {
   Alert,
   Linking,
   StyleSheet,
-  TouchableOpacity,
   Dimensions,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -124,16 +123,21 @@ function ChoosePlan() {
               if (monthly.length) monthlyPlans.push(offer);
               if (yearly.length) yearlyPlans.push(offer);
             });
-            data[index].monthlyPlanDetails = {
-              ...getPlanData(monthlyPlans),
-              productId: subscription.productId,
-              offers: monthlyPlans,
-            };
-            data[index].yearlyPlanDetails = {
-              ...getPlanData(yearlyPlans),
-              productId: subscription.productId,
-              offers: yearlyPlans,
-            };
+
+            if (monthlyPlans.length > 0) {
+              data[index].monthlyPlanDetails = {
+                ...getPlanData(monthlyPlans),
+                productId: subscription.productId,
+                offers: monthlyPlans,
+              };
+            }
+            if (yearlyPlans.length > 0) {
+              data[index].yearlyPlanDetails = {
+                ...getPlanData(yearlyPlans),
+                productId: subscription.productId,
+                offers: yearlyPlans,
+              };
+            }
           } else if (Platform.OS === 'ios') {
             const planDetails = {
               price: subscription.localizedPrice,
@@ -540,7 +544,8 @@ function ChoosePlan() {
       {!loading &&
         items &&
         (!items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) ||
-          !subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly')) && (
+          (subscription.productId !== 'pleb' &&
+            !subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly'))) && (
           <>
             <Box style={styles.ctaWrapper}>
               <Buttons
@@ -555,21 +560,6 @@ function ChoosePlan() {
   );
 }
 
-const TextActionBtn = ({ value, onPress, visible }) => {
-  const { colorMode } = useColorMode();
-  return (
-    <TouchableOpacity
-      onPress={() => visible && onPress()}
-      style={{ alignSelf: 'center', opacity: visible ? 1 : 0, marginTop: 20 }}
-    >
-      <Box>
-        <Text style={styles.ctaText} color={`${colorMode}.greenText`} medium>
-          {value}
-        </Text>
-      </Box>
-    </TouchableOpacity>
-  );
-};
 
 const styles = StyleSheet.create({
   noteWrapper: {
