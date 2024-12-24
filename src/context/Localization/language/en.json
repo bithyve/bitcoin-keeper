@@ -1460,8 +1460,9 @@
     "vaultTransferBody": "You can always change the transfer threshold from Wallet Settings.\n"
   },
   "concierge": {
-    "welcomeToConcierge": "Welcome to Keeper Concierge (Beta)",
+    "welcomeToConcierge": "Welcome to Keeper Concierge",
     "getAnsweredWithConcierge": "Get all your questions answered with Keeper Concierge.",
+    "conciergeModalDesc": "Please avoid sharing your Seed Words or Private Keys",
     "upgradeForMoreFeatures": "Upgrade to Hodler to chat with a support executive and Diamond Hands to schedule.",
     "cautionsAndEncouragements": "Cautions and Encouragements",
     "backupRegularly": "Test your multi-key setups and backups once every few months. Regularly update your signing devices’ firmware/softwares.",
