@@ -93,7 +93,7 @@ const CreateTicket = ({ navigation }) => {
 
   const onNext = async () => {
     if (!desc.length) {
-      showToast('Provide provide the issue description', <ToastErrorIcon />);
+      showToast('Please provide the issue description', <ToastErrorIcon />);
       return;
     }
     if (!conciergeUser) {
