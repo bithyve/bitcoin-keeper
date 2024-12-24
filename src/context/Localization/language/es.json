@@ -153,7 +153,8 @@
     "scanQRNote": "Make sure that the QR is well aligned, focused and visible as a whole",
     "tapToAdd": "Tap to add",
     "your": "Your",
-    "the": "The"
+    "the": "The",
+    "contact": "Contact"
   },
   "noInternet": {
     "no": "No Internet",
@@ -681,6 +682,7 @@
     "Vault3_5CreatedModalDesc1": "For sending bitcoin out of the vault you will need the signers",
     "Vault3_5CreatedModalDesc2": "This means no one can steal your sats from the vault unless they also have access to your signers",
     "Vault3_5CreatedModalDesc3": "Additionally, Get notified of Key activation and have option to decline use",
+    "collabVaultCreateSuccessTitle": "Collaborative Wallet Created Successfully!",
     "vaultLearnMoreSubtitle": "Create multi-key vaults of various configurations. Subscribe to unlock advanced features.",
     "canaryLearnMoreSubtitle": "Each key used in a multi-key wallet can also be used as a single-key wallet itself. Keeping funds in these wallets act as Canary.",
     "canaryLearnMoreDesc": "If someone gets access to one of the keys and finds funds in the single-key wallet they may try to withdraw those funds. This will be detected by the app and the user will be advised to change that key from any multi-key setup.",
@@ -775,8 +777,6 @@
     "collabModalDescription1": "A Collaborative Vault is a multisig template that allows you to create a specific vault with other Bitcoin Keeper devices belonging to friends or co-signers.",
     "collabModalDescription2": "For a more generic setup, use other options provided.",
     "collaborativeVaultSubtitle": "A simple 2-of-3 wallet with friends",
-    "addKeyModalSubtitle": "How do you want to add the key?",
-    "addKeyNoteSubtitle": "On the other device select the key to be shared and choose Share Key",
     "chooseCoSigner": "Choose Cosigner Key",
     "forYourCollabVault": "for your collaborative vault",
     "keyAlreadyAdded": "This key has already been added",
@@ -806,7 +806,23 @@
     "staticQR": "Static QR",
     "animatedQR": "Animated QR",
     "IKActivatesIn": "Inheritance Key activates in",
-    "failedToCheckIKActivationTime": "Failed to check current activation time for Inheritance Key"
+    "failedToCheckIKActivationTime": "Failed to check current activation time for Inheritance Key",
+    "shareContactDetails": "Share my Contact Details",
+    "addContactModalTitle": "Add a Contact",
+    "addContactModalSubtitle": "How do you want to add?",
+    "addContactNoteSubtitle": "Ask your friend to go to collaborative wallet and share his contact",
+    "shareQR": "Share QR",
+    "shareContactUsingFile": "Share contact using file",
+    "addContactUsingFile": "Add contact using file",
+    "contactDetailsTitle": "Contact Details",
+    "contactDetailsSubtitle": "Quickly exchange contact details with ease",
+    "shareQRTitle": "Share QR",
+    "shareQRSubtitle": "Please show your QR to contact",
+    "associateContact": "Associate Contact",
+    "addContact": "Add Contact",
+    "yourPhoneBook": "Your Phonebook",
+    "associateContactWalletSub": "Are you sure you want to associate this contact to your wallet?",
+    "associateContactKeySub": "The contact you associated with the Key will be displayed here"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

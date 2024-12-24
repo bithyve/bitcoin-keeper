@@ -5,18 +5,40 @@ import KeeperModal from 'src/components/KeeperModal';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import BitcoinIllustration from 'src/assets/images/btc-illustration.svg';
+import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import NFCLight from 'src/assets/images/nfc-fade-lines-light.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/constants/responsive';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { StyleSheet } from 'react-native';
 import StackedCirclesList from 'src/screens/Vault/components/StackedCircleList';
 import { SignerType } from 'src/services/wallets/enums';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
+import MenuOption from 'src/components/MenuOption';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 
-function NFCModalContent({ onTryAnotherMethod }) {
+interface AddKeyOption {
+  icon: JSX.Element;
+  title: string;
+  callback: () => void;
+}
+
+interface CollaborativeModalsProps {
+  addKeyModal?: boolean;
+  setAddKeyModal?: (value: boolean) => void;
+  addKeyOptions?: AddKeyOption[];
+  learnMoreModal?: boolean;
+  setLearnMoreModal?: (value: boolean) => void;
+  nfcModal?: boolean;
+  setNfcModal?: (value: boolean) => void;
+  keyAddedModal?: boolean;
+  setKeyAddedModal?: (value: boolean) => void;
+  signer?: Signer;
+}
+
+function NFCModalContent({ onTryAnotherMethod }: { onTryAnotherMethod: () => void }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
@@ -82,127 +104,146 @@ function AddCoSignerContent() {
   );
 }
 
-function AddKeyContent({ addKeyOptions }) {
+function AddKeyContent({ addKeyOptions }: { addKeyOptions: AddKeyOption[] }) {
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
   return (
     <Box style={styles.addKeyContent}>
       {addKeyOptions.map((option, index) => (
-        <AddKeyOptions
+        <MenuOption
           key={index}
-          icon={option.icon}
+          Icon={option.icon}
           title={option.title}
           callback={option.callback}
+          showArrow={false}
         />
       ))}
       <Box style={styles.noteContainer}>
         <Note
           title={common.note}
           subtitleColor="GreyText"
-          subtitle={vaultText.addKeyNoteSubtitle}
+          subtitle={vaultText.addContactNoteSubtitle}
         />
       </Box>
     </Box>
   );
 }
 
-function AddKeyOptions({
-  icon,
-  title,
-  callback,
-}: {
-  icon: Element;
-  title: string;
-  callback: () => void;
-}) {
-  const { colorMode } = useColorMode();
-  return (
-    <Pressable onPress={callback}>
-      <Box
-        style={styles.keyOptionContainer}
-        backgroundColor={`${colorMode}.boxSecondaryBackground`}
-        borderColor={`${colorMode}.dullGreyBorder`}
-      >
-        <Box style={styles.keyOptionContent}>
-          <CircleIconWrapper
-            icon={icon}
-            backgroundColor={`${colorMode}.pantoneGreen`}
-            width={wp(39)}
-          />
-          <Text medium numberOfLines={1} color={`${colorMode}.primaryText`}>
-            {title}
-          </Text>
-        </Box>
-      </Box>
-    </Pressable>
-  );
-}
-
 function CollaborativeModals({
   addKeyModal,
   setAddKeyModal,
-  addKeyOptions,
+  addKeyOptions = [],
   learnMoreModal,
   setLearnMoreModal,
   nfcModal,
   setNfcModal,
-}) {
+  keyAddedModal,
+  setKeyAddedModal,
+  signer,
+}: CollaborativeModalsProps) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
+  const isDarkMode = colorMode === 'dark';
 
   const handleTryAnotherMethod = () => {
-    setNfcModal(false);
-    setAddKeyModal(true);
+    setNfcModal?.(false);
+    setAddKeyModal?.(true);
   };
 
   return (
     <>
-      <KeeperModal
-        visible={learnMoreModal}
-        close={() => setLearnMoreModal(false)}
-        DarkCloseIcon
-        title={vaultText.collaborativeVaultTitle}
-        subTitle={vaultText.collaborativeVaultSubtitle}
-        modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
-        Content={AddCoSignerContent}
-        buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
-        secondaryCallback={() => {
-          setLearnMoreModal(false);
-          dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'setup-collaborative-vault'));
-        }}
-        buttonCallback={() => setLearnMoreModal(false)}
-      />
+      {learnMoreModal && (
+        <KeeperModal
+          visible={learnMoreModal}
+          close={() => setLearnMoreModal?.(false)}
+          DarkCloseIcon
+          title={vaultText.collaborativeVaultTitle}
+          subTitle={vaultText.collaborativeVaultSubtitle}
+          modalBackground={`${colorMode}.modalGreenBackground`}
+          textColor={`${colorMode}.modalGreenContent`}
+          Content={AddCoSignerContent}
+          buttonText={common.Okay}
+          secondaryButtonText={common.needHelp}
+          buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+          buttonBackground={`${colorMode}.modalWhiteButton`}
+          secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+          secondaryCallback={() => {
+            setLearnMoreModal?.(false);
+            dispatch(
+              goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'setup-collaborative-vault')
+            );
+          }}
+          buttonCallback={() => setLearnMoreModal?.(false)}
+        />
+      )}
 
-      <KeeperModal
-        visible={addKeyModal}
-        close={() => setAddKeyModal(false)}
-        DarkCloseIcon={colorMode === 'dark'}
-        title={vaultText.addAKey}
-        subTitle={vaultText.addKeyModalSubtitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.buttonText`}
-        Content={() => <AddKeyContent addKeyOptions={addKeyOptions} />}
-      />
+      {addKeyModal && (
+        <KeeperModal
+          visible={addKeyModal}
+          close={() => setAddKeyModal?.(false)}
+          DarkCloseIcon={colorMode === 'dark'}
+          title={vaultText.addContactModalTitle}
+          subTitle={vaultText.addContactModalSubtitle}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          buttonTextColor={`${colorMode}.buttonText`}
+          Content={() => <AddKeyContent addKeyOptions={addKeyOptions} />}
+        />
+      )}
 
-      <KeeperModal
-        visible={nfcModal}
-        close={() => setNfcModal(false)}
-        DarkCloseIcon={colorMode === 'dark'}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.buttonText`}
-        Content={() => <NFCModalContent onTryAnotherMethod={handleTryAnotherMethod} />}
-      />
+      {nfcModal && (
+        <KeeperModal
+          visible={nfcModal}
+          close={() => setNfcModal?.(false)}
+          DarkCloseIcon={colorMode === 'dark'}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          buttonTextColor={`${colorMode}.buttonText`}
+          Content={() => <NFCModalContent onTryAnotherMethod={handleTryAnotherMethod} />}
+        />
+      )}
+
+      {keyAddedModal && (
+        <KeeperModal
+          visible={keyAddedModal}
+          title="Contact Added Successfully!"
+          subTitle={'The new contact has been added to your collaborative wallet.'}
+          close={() => {
+            setKeyAddedModal?.(false);
+          }}
+          showCloseIcon
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.modalWhiteContent`}
+          buttonText={'Add Details'}
+          buttonCallback={() => {
+            setKeyAddedModal?.(false);
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'AddContact',
+                params: { signer, showContactButton: true, isWalletFlow: true },
+              })
+            );
+          }}
+          DarkCloseIcon={isDarkMode}
+          secondaryButtonText={'Skip'}
+          secondaryCallback={() => {
+            setKeyAddedModal?.(false);
+          }}
+          Content={() => (
+            <Box style={styles.externalKeyModal}>
+              <SuccessCircleIllustration style={styles.externalKeyIllustration} />
+              <Text color={`${colorMode}.secondaryText`}>
+                You can also edit contact details from add details section
+              </Text>
+            </Box>
+          )}
+        />
+      )}
     </>
   );
 }
@@ -225,18 +266,6 @@ const styles = StyleSheet.create({
   noteContainer: {
     marginTop: hp(10),
   },
-  keyOptionContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: wp(20),
-    paddingVertical: hp(16),
-    borderWidth: 1,
-    borderRadius: 10,
-  },
-  keyOptionContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
   ctaContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -250,6 +279,16 @@ const styles = StyleSheet.create({
   modalContentContainer: {
     alignItems: 'center',
     gap: hp(15),
+  },
+  externalKeyModal: {
+    alignItems: 'center',
+  },
+  externalKeyIllustration: {
+    marginBottom: hp(35),
+    marginRight: wp(15),
+  },
+  externalKeyText: {
+    marginBottom: hp(30),
   },
 });
 

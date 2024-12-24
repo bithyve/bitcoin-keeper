@@ -144,6 +144,9 @@ import KeeperConcierge from 'src/screens/KeeperConcierge/KeeperConcierge';
 import TechnicalSupport from 'src/screens/KeeperConcierge/TechnicalSupport';
 import TicketDetails from 'src/screens/KeeperConcierge/TicketDetails';
 import CreateTicket from 'src/screens/KeeperConcierge/CreateTicket';
+import ImportContactFile from 'src/screens/SigningDevices/ImportContactFile';
+import ContactDetails from 'src/screens/SigningDevices/ContactDetails';
+import ShareQR from 'src/screens/SigningDevices/ShareQR';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -323,6 +326,9 @@ function AppStack() {
         <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
         <Stack.Screen name="TicketDetails" component={TicketDetails} />
         <Stack.Screen name="CreateTicket" component={CreateTicket} />
+        <Stack.Screen name="ImportContactFile" component={ImportContactFile} />
+        <Stack.Screen name="ContactDetails" component={ContactDetails} />
+        <Stack.Screen name="ShareQR" component={ShareQR} />
       </Stack.Navigator>
     </RealmProvider>
   );

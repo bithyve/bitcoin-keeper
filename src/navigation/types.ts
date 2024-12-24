@@ -174,6 +174,9 @@ export type AppStackParams = {
   TechnicalSupport: { newTicketId: string; ticketCreated: boolean };
   TicketDetails: undefined;
   CreateTicket: undefined;
+  ImportContactFile: undefined;
+  ContactDetails: undefined;
+  ShareQR: undefined;
 };
 
 // Usage:
