@@ -3,9 +3,10 @@ import { SignerType } from 'src/services/wallets/enums';
 import { InheritanceKeyInfo } from 'src/models/interfaces/AssistedKeys';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';
+import _ from 'lodash';
 import { getJSONFromRealmObject } from './utils';
 import { RealmSchema } from './enum';
-import _ from 'lodash';
+import { getKeyUID } from 'src/utils/utilities';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -212,5 +213,35 @@ export const runRealmMigrations = ({
         wallet.specs.totalExternalAddresses = wallet.specs.nextFreeAddressIndex + 1;
       }
     });
+  }
+
+  if (oldRealm.schemaVersion < 80) {
+    const oldVaults = oldRealm.objects(RealmSchema.Vault) as any;
+    const newVaults = newRealm.objects(RealmSchema.Vault) as any;
+
+    for (let i = 0; i < oldVaults.length; i++) {
+      const oldVault = oldVaults[i];
+      const newVault = newVaults[i];
+
+      newVault.scheme = {
+        // Preserve existing m and n values
+        m: oldVault.scheme.m,
+        n: oldVault.scheme.n,
+
+        // Add new fields with default or null values
+        multisigScriptType: null,
+        miniscriptScheme: null,
+      };
+    }
+  }
+
+  // Add migration for Signer primary key change
+  if (oldRealm.schemaVersion < 81) {
+    const oldSigners = oldRealm.objects(RealmSchema.Signer) as any;
+    const newSigners = newRealm.objects(RealmSchema.Signer) as Signer[];
+
+    for (const objectIndex in newSigners) {
+      newSigners[objectIndex].id = getKeyUID(oldSigners[objectIndex]);
+    }
   }
 };

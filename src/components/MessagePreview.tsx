@@ -4,7 +4,11 @@ import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import KeeperIcon from 'src/assets/images/keeper-icon.svg';
 import KeeperNameIcon from 'src/assets/images/keeper-name-icon.svg';
+import KeeperNameIconDark from 'src/assets/images/keeper-name-icon-dark.svg';
 import { hp, wp } from 'src/constants/responsive';
+import UpgradeSubscription from 'src/screens/InheritanceToolsAndTips/components/UpgradeSubscription';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import usePlan from 'src/hooks/usePlan';
 
 type MessagePreviewProps = {
   title: string;
@@ -14,8 +18,18 @@ type MessagePreviewProps = {
 
 function MessagePreview({ title, description, link }: MessagePreviewProps) {
   const { colorMode } = useColorMode();
+  const { isOnL2Above } = usePlan();
   return (
     <Box style={styles.messagePreviewContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+      {!isOnL2Above && (
+        <UpgradeSubscription
+          type={SubscriptionTier.L2}
+          customStyles={{
+            container: styles.tierContainer,
+          }}
+        />
+      )}
+
       <Text style={styles.previewLabel}>Message Preview</Text>
       <Box style={styles.previewBox} borderColor={`${colorMode}.greyBorder`}>
         <Text style={styles.messagePreviewTitle}>{title}</Text>
@@ -25,7 +39,7 @@ function MessagePreview({ title, description, link }: MessagePreviewProps) {
             <KeeperIcon />
           </Box>
           <Box>
-            <KeeperNameIcon />
+            {colorMode === 'light' ? <KeeperNameIcon /> : <KeeperNameIconDark />}
             <Text style={styles.link}>{link}</Text>
           </Box>
         </Box>
@@ -88,5 +102,11 @@ const styles = StyleSheet.create({
   link: {
     fontSize: 10,
     textDecorationLine: 'underline',
+  },
+
+  tierContainer: {
+    borderTopWidth: 0,
+    borderBottomWidth: 2,
+    paddingBottom: hp(10),
   },
 });

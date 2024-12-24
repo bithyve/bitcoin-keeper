@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ReactNativeBiometrics from 'react-native-biometrics';
@@ -17,12 +16,9 @@ import ThemeMode from 'src/models/enums/ThemeMode';
 import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
-import { sentryConfig } from 'src/services/sentry';
-import useAsync from 'src/hooks/useAsync';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
@@ -40,6 +36,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import Text from 'src/components/KeeperText';
 import { resetCredsChanged } from 'src/store/reducers/login';
+import Buttons from 'src/components/Buttons';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -143,7 +140,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
               passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
               borderColor="transparent"
             />
-            <Box mb={5}>
+            <Box>
               {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
                 <Text style={[styles.errorText, { color: 'light.CongoPink' }]}>
                   {login.MismatchPasscode}
@@ -152,19 +149,15 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
             </Box>
           </Box>
 
-          <Box alignItems="flex-end">
+          <Box mb={hp(5)}>
             {passcode.length === 4 && passcode === confirmPasscode && (
-              <TouchableOpacity
-                onPress={() => {
+              <Buttons
+                primaryText={common.confirm}
+                primaryCallback={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
                 }}
-              >
-                <Box style={styles.cta} backgroundColor={`${colorMode}.primaryGreenBackground`}>
-                  <Text style={styles.ctaText} bold>
-                    {common.confirm}
-                  </Text>
-                </Box>
-              </TouchableOpacity>
+                fullWidth
+              />
             )}
           </Box>
         </>
@@ -211,11 +204,8 @@ function PrivacyAndDisplay({ route }) {
     getJSONFromRealmObject
   )[0];
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
-  const { inProgress, start } = useAsync();
   const data = useQuery(RealmSchema.BackupHistory);
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const [isToggling, setIsToggling] = useState(false);
-  const [analyticsEnabled, setAnalyticsEnabled] = useState(app.enableAnalytics);
   const [credsChanged, setCredsChanged] = useState('');
 
   useEffect(() => {
@@ -225,45 +215,6 @@ function PrivacyAndDisplay({ route }) {
       setCredsChanged('');
     }
   }, [credsChanged]);
-
-  const toggleSentryReports = (newValue) => {
-    setAnalyticsEnabled(newValue);
-    runAsyncAnalyticsToggle(newValue);
-  };
-
-  const runAsyncAnalyticsToggle = async (newValue) => {
-    const lastAction = newValue;
-
-    if (isToggling) return;
-    setIsToggling(true);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      if (lastAction !== newValue) {
-        setIsToggling(false);
-        return;
-      }
-
-      await dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-        enableAnalytics: newValue,
-      });
-
-      if (newValue) {
-        await start(() => Sentry.init(sentryConfig));
-      } else {
-        await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
-      }
-    } catch (error) {
-      setAnalyticsEnabled(!newValue);
-      dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-        enableAnalytics: !newValue,
-      });
-      console.error('Failed to toggle Sentry analytics:', error);
-    } finally {
-      setIsToggling(false);
-    }
-  };
 
   useEffect(() => {
     init();
@@ -373,17 +324,6 @@ function PrivacyAndDisplay({ route }) {
                     </Box>
                   </TouchableOpacity>
                 )
-              }
-            />
-            <OptionCard
-              title={settings.shareAnalytics}
-              description={settings.shareAnalyticsDesc}
-              Icon={
-                <Switch
-                  onValueChange={(value) => toggleSentryReports(value)}
-                  value={analyticsEnabled}
-                  testID="switch_darkmode"
-                />
               }
             />
           </Box>

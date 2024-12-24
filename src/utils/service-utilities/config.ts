@@ -112,6 +112,12 @@ class Configuration {
     ? config.CHANNEL_URL.trim()
     : DEFAULT_CONFIG.CHANNEL_URL.trim();
 
+  public ZENDESK_USERNAME: string = config.ZENDESK_USERNAME?.trim();
+
+  public ZENDESK_PASSWORD: string = config.ZENDESK_PASSWORD?.trim();
+
+  public ZENDESK_BASE_URL: string = config.ZENDESK_BASE_URL?.trim();
+
   public ZENDESK_CHANNEL_ID = Platform.select({
     ios: config.ZENDESK_IOS_CHANNEL_ID?.trim(),
     android: config.ZENDESK_ANDROID_CHANNEL_ID?.trim(),
@@ -133,6 +139,10 @@ class Configuration {
     const isTestnet = network === NetworkType.TESTNET;
     this.NETWORK_TYPE = network;
     this.NETWORK = isTestnet ? bitcoinJS.networks.testnet : bitcoinJS.networks.bitcoin;
+  };
+
+  public isDevMode = () => {
+    return this.ENVIRONMENT === APP_STAGE.DEVELOPMENT;
   };
 }
 

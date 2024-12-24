@@ -207,7 +207,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topSection: {
-    height: '27%',
+    height: '30%',
+    paddingTop: hp(17),
     paddingHorizontal: 20,
   },
   bottomSection: {

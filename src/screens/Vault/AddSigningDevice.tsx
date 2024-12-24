@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   Signer,
@@ -9,7 +9,13 @@ import {
   VaultSigner,
   signerXpubs,
 } from 'src/services/wallets/interfaces/vault';
-import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
+import {
+  SignerStorage,
+  SignerType,
+  KeyValidationErrorCode,
+  VaultType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -29,8 +35,6 @@ import { useDispatch } from 'react-redux';
 import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import Text from 'src/components/KeeperText';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-import * as Sentry from '@sentry/react-native';
 import idx from 'idx';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
@@ -38,25 +42,34 @@ import SuccessIllustration from 'src/assets/images/Success.svg';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import SignerEmptyStateIcon from 'src/assets/images/signer-empty.svg';
+import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
 import CardPill from 'src/components/CardPill';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { SDIcons } from './SigningDeviceIcons';
-import VaultMigrationController from './VaultMigrationController';
-import SignerCard from '../AddSigner/SignerCard';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
-import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
-import { setupKeeperSigner } from 'src/hardware/signerSetup';
-import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { captureError } from 'src/services/sentry';
-import HWError from 'src/hardware/HWErrorState';
+import {
+  SETUPASSISTEDVAULT,
+  SETUPCOLLABORATIVEWALLET,
+  ADDRESERVEKEY,
+} from 'src/navigation/contants';
+import { SentryErrorBoundary } from 'src/services/sentry';
 import KeyAddedModal from 'src/components/KeyAddedModal';
-import AddKeyButton from '../SigningDevices/components/AddKeyButton';
+import CautionIllustration from 'src/assets/images/downgradetopleb.svg';
+import Dropdown from 'src/components/Dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import EmptyListIllustration from '../../components/EmptyListIllustration';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { getKeyUID } from 'src/utils/utilities';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import SignerCard from '../AddSigner/SignerCard';
+import VaultMigrationController from './VaultMigrationController';
+import { SDIcons } from './SigningDeviceIcons';
+import { TIMELOCK_DURATIONS } from './constants';
+import AddKeyButton from '../SigningDevices/components/AddKeyButton';
+import EmptyListIllustration from '../../components/EmptyListIllustration';
+import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
+import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-illustration-dark.svg';
 
 const onSignerSelect = (
   selected,
@@ -77,7 +90,7 @@ const onSignerSelect = (
   const isMultisig = msXpub && scheme.n > 1;
 
   if (selected) {
-    const updated = selectedSigners.delete(signer.masterFingerprint);
+    const updated = selectedSigners.delete(getKeyUID(signer));
     if (updated) {
       if (isMock) {
         const updatedKeys = vaultKeys.filter((key) => msXpub && key.xpub !== msXpub.xpub);
@@ -102,9 +115,24 @@ const onSignerSelect = (
     const scriptKey = WalletUtilities.getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
-    const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
+    const updatedSignerMap = selectedSigners.set(getKeyUID(signer), true);
     setSelectedSigners(new Map(updatedSignerMap));
   }
+};
+
+const getVaultType = ({
+  isCollaborativeWallet,
+  isSSAddition,
+  isAssistedWallet,
+  isTimeLock,
+  isInheritance,
+}) => {
+  if (isCollaborativeWallet) return VaultType.COLLABORATIVE;
+  if (isSSAddition) return VaultType.SINGE_SIG;
+  if (isAssistedWallet) return VaultType.ASSISTED;
+  if (isTimeLock) return VaultType.TIMELOCKED;
+  if (isInheritance) return VaultType.INHERITANCE;
+  return VaultType.DEFAULT;
 };
 
 const isAssistedKeyValidForScheme = (
@@ -112,41 +140,40 @@ const isAssistedKeyValidForScheme = (
   scheme,
   signerMap,
   selectedSigners
-): { isValid: boolean; err?: string } => {
-  // case 1: scheme based restrictions for assisted keys
+): { isValid: boolean; code?: KeyValidationErrorCode } => {
+  // case 1: scheme-based restrictions for assisted keys
   // both assisted keys can be added starting from Vaults w/ m: 2 and n:3
-  if (scheme.n < 3) return { isValid: false, err: 'Requires a minimum of 3 Total Keys' };
-  else if (scheme.m < 2) return { isValid: false, err: 'Requires a minimum of 2 Required Keys' };
+  if (scheme.n < 3) {
+    return { isValid: false, code: KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS };
+  }
+  if (scheme.m < 2) {
+    return { isValid: false, code: KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS };
+  }
 
-  // case 2: count based restrictions for assisted keys
+  // case 2: count-based restrictions for assisted keys
   const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
   let existingAssistedKeys = 0;
-  for (const mfp of selectedSigners.keys()) {
+
+  for (const keyUID of selectedSigners.keys()) {
     if (
-      signerMap[mfp].type === SignerType.POLICY_SERVER ||
-      signerMap[mfp].type === SignerType.INHERITANCEKEY
+      signerMap[keyUID].type === SignerType.POLICY_SERVER ||
+      signerMap[keyUID].type === SignerType.INHERITANCEKEY
     ) {
       existingAssistedKeys++;
     }
   }
-  const assistedKeys = existingAssistedKeys + currentAssistedKey;
 
-  // Assisted Keys restriction I:  The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
-  const cannotFormQuorum = assistedKeys < scheme.m;
-  if (!cannotFormQuorum) {
-    return {
-      isValid: false,
-      err: 'Number of assisted keys should be less than the Required Keys',
-    };
+  const totalAssistedKeys = existingAssistedKeys + currentAssistedKey;
+
+  // Assisted Keys restriction I: The number of assisted keys should be less than the threshold (m)
+  // for a given Vault, such that they can’t form a signing quorum by themselves.
+  if (totalAssistedKeys >= scheme.m) {
+    return { isValid: false, code: KeyValidationErrorCode.ASSISTED_KEYS_QUORUM };
   }
 
-  // Assisted Keys restriction II: The threshold for the multi-sig should be achievable w/o the assisted keys
-  const notRequiredForQuorum = assistedKeys <= scheme.n - scheme.m;
-  if (!notRequiredForQuorum) {
-    return {
-      isValid: false,
-      err: 'Required Keys is not achievable without the assisted keys',
-    };
+  // Assisted Keys restriction II: The threshold for the multi-sig should be achievable without the assisted keys
+  if (totalAssistedKeys > scheme.n - scheme.m) {
+    return { isValid: false, code: KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD };
   }
 
   return { isValid: true };
@@ -157,7 +184,15 @@ const isSignerValidForScheme = (
   scheme,
   signerMap,
   selectedSigners
-): { isValid: boolean; err?: string } => {
+): { isValid: boolean; code?: KeyValidationErrorCode } => {
+  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+    return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
+  }
+
+  if (signer.type === SignerType.MY_KEEPER && scheme.n <= 1) {
+    return { isValid: false, code: KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED };
+  }
+
   const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
   const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
   const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
@@ -166,11 +201,7 @@ const isSignerValidForScheme = (
     (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
     (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
   ) {
-    return { isValid: false };
-  }
-
-  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
-    return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
+    return { isValid: false, code: KeyValidationErrorCode.MISSING_XPUB };
   }
 
   return { isValid: true };
@@ -188,16 +219,16 @@ const setInitialKeys = (
   if (activeVault) {
     // setting initital keys (update if scheme has changed)
     const vaultKeys = activeVault.signers.filter(
-      (key) => keyToRotate && key.masterFingerprint !== keyToRotate?.masterFingerprint
+      (key) => keyToRotate && getKeyUID(key) !== getKeyUID(keyToRotate)
     );
     const isMultisig = scheme.n > 1;
     const modifiedVaultKeysForScriptType = [];
     const updatedSignerMap = new Map();
     vaultKeys.forEach((key) => {
-      const signer = signerMap[key.masterFingerprint];
+      const signer = signerMap[getKeyUID(key)];
       if (isSignerValidForScheme(signer, scheme, signerMap, selectedSigners).isValid) {
         if (modifiedVaultKeysForScriptType.length < scheme.n) {
-          updatedSignerMap.set(key.masterFingerprint, true);
+          updatedSignerMap.set(getKeyUID(key), true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
           const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
           const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
@@ -220,7 +251,7 @@ const setInitialKeys = (
 };
 
 const getSelectedKeysByType = (vaultKeys, signerMap, type) => {
-  return vaultKeys.filter((key) => signerMap[key.masterFingerprint].type === type);
+  return vaultKeys.filter((key) => signerMap[getKeyUID(key)].type === type);
 };
 
 function Footer({
@@ -230,15 +261,26 @@ function Footer({
   invalidMessage,
   areSignersValid,
   relayVaultUpdateLoading,
-  common,
   colorMode,
   setCreating,
   isCollaborativeFlow,
+  isAssistedWalletFlow,
+  isTimeLock,
+  setTimelockCautionModal,
+  isReserveKeyFlow,
+  isAddInheritanceKey,
+  currentBlockHeight,
   vaultKeys,
   onGoBack,
   selectedSigners,
+  name,
+  description,
+  vaultId,
+  scheme,
 }) {
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { common, vault: vaultText } = translations;
   const renderNotes = () => {
     const notes = [];
     if (amfSigners.length) {
@@ -256,6 +298,14 @@ function Footer({
       notes.push(
         <Box style={styles.noteContainer} key={message}>
           <Note title="WARNING" subtitle={message} subtitleColor="error" />
+        </Box>
+      );
+    }
+    if (isAddInheritanceKey) {
+      const message = vaultText.addSignerIKNote;
+      notes.push(
+        <Box style={styles.noteContainer} key={message}>
+          <Note title={common.note} subtitle={message} />
         </Box>
       );
     }
@@ -278,27 +328,87 @@ function Footer({
     navigation.goBack();
   };
 
-  const isProceedDisabled = isCollaborativeFlow && selectedSigners.size === 0;
+  const isProceedDisabled =
+    (isCollaborativeFlow || isAssistedWalletFlow) && selectedSigners.size === 0;
+  const isConfirmDisabled = isReserveKeyFlow && selectedSigners.size === 0;
+
   return (
     <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.thirdBackground`}>
-      {!isCollaborativeFlow && renderNotes()}
-      {!isCollaborativeFlow ? (
+      {!(isCollaborativeFlow || isAssistedWalletFlow) && renderNotes()}
+      {!(isCollaborativeFlow || isAssistedWalletFlow) && !isReserveKeyFlow ? (
         <Buttons
           primaryDisable={!!areSignersValid}
           primaryLoading={relayVaultUpdateLoading}
-          primaryText="Proceed"
-          primaryCallback={() => setCreating(true)}
+          primaryText={common.proceed}
+          primaryCallback={
+            !isAddInheritanceKey
+              ? () => setCreating(true)
+              : () =>
+                  navigation.dispatch(
+                    CommonActions.navigate('AddReserveKey', {
+                      vaultKeys,
+                      vaultId,
+                      scheme,
+                      name,
+                      description,
+                      isAddInheritanceKey,
+                      currentBlockHeight,
+                    })
+                  )
+          }
+          fullWidth
+        />
+      ) : isReserveKeyFlow ? (
+        <Buttons
+          primaryDisable={isConfirmDisabled}
+          primaryLoading={relayVaultUpdateLoading}
+          primaryText={common.confirm}
+          primaryCallback={handleProceedButtonClick}
           fullWidth
         />
       ) : (
         <Buttons
           primaryDisable={isProceedDisabled}
           primaryLoading={relayVaultUpdateLoading}
-          primaryText="Proceed"
+          primaryText={common.proceed}
           primaryCallback={() => handleProceedButtonClick()}
           fullWidth
         />
       )}
+    </Box>
+  );
+}
+
+function SignerUnavailableContent({ modalContent, setShowSignerModal, setVisibleImportXpub }) {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultText, common } = translations;
+  const isDarkMode = colorMode === 'dark';
+  return (
+    <Box>
+      <Box style={styles.unAvailableIllustration}>
+        {isDarkMode ? <KeyUnAvailableIllustrationDark /> : <KeyUnAvailableIllustrationLight />}
+      </Box>
+      <Text color={`${colorMode}.secondaryText`}>{modalContent.message}</Text>
+      <Box style={styles.modalButtonContainer}>
+        {modalContent.code === KeyValidationErrorCode.MISSING_XPUB ? (
+          <Buttons
+            primaryText={vaultText.importXpub}
+            primaryCallback={() => {
+              setShowSignerModal(false);
+              setVisibleImportXpub(true);
+            }}
+            secondaryText={common.cancel}
+            secondaryCallback={() => setShowSignerModal(false)}
+          />
+        ) : (
+          <Buttons
+            fullWidth
+            primaryText={common.Okay}
+            primaryCallback={() => setShowSignerModal(false)}
+          />
+        )}
+      </Box>
     </Box>
   );
 }
@@ -319,14 +429,29 @@ function Signers({
   keyToRotate,
   setCreating,
   isCollaborativeFlow,
+  isAssistedWalletFlow,
+  isReserveKeyFlow,
+  signerFilters,
   coSigners,
   setExternalKeyAddedModal,
   setAddedKey,
+  selectedSignersFromParams,
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultText, common } = translations;
   const [visible, setVisible] = useState(false);
+  const [visibleImportXpub, setVisibleImportXpub] = useState(false);
   const [showSSModal, setShowSSModal] = useState(false);
+  const [showSignerModal, setShowSignerModal] = useState(false);
+  const [modalContent, setModalContent] = useState({
+    name: '',
+    title: '',
+    message: '',
+    code: '',
+    clickedSigner: null,
+  });
   const isMultisig = scheme.n !== 1;
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -338,8 +463,81 @@ function Signers({
     setShowSSModal(true);
   };
 
-  const setupInheritanceKey = async () => {
-    setVisible(true);
+  const getDisabledMessage = (
+    signer,
+    myAppKeys,
+    selectedSigners,
+    scheme,
+    signerMap,
+    keyToRotate
+  ) => {
+    const validationResult = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+
+    if (!validationResult.isValid) {
+      let title, message;
+
+      switch (validationResult.code) {
+        case KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED:
+          title = vaultText.mobileKeyNotAllowedTitle;
+          message = vaultText.mobileKeyNotAllowedMessage;
+          break;
+        case KeyValidationErrorCode.MISSING_XPUB:
+          title = vaultText.missingXpubTitle;
+          message = vaultText.missingXpubMessage;
+          break;
+        case KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS:
+        case KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS:
+          title = `${getSignerNameFromType(signer.type)} ${vaultText.insufficientTotalKeysTitle}`;
+          message = `${common.the} ${getSignerNameFromType(signer.type)} ${
+            vaultText.insufficientTotalKeysMessage
+          }`;
+          break;
+        case KeyValidationErrorCode.ASSISTED_KEYS_QUORUM:
+        case KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD:
+          title = vaultText.assistedKeysQuorumTitle;
+          message = vaultText.assistedKeysQuorumMessage;
+          break;
+        default:
+          return null;
+      }
+
+      return { title, message, code: validationResult.code, clickedSigner: signer };
+    }
+
+    if (
+      signer.type === SignerType.MY_KEEPER &&
+      myAppKeys.length >= 1 &&
+      getKeyUID(myAppKeys[0]) !== getKeyUID(signer)
+    ) {
+      return {
+        title: vaultText.anotherMobileKeyAlreadySelectedTitle,
+        message: vaultText.anotherMobileKeyAlreadySelectedMessage,
+      };
+    }
+
+    if (
+      vaultKeys.some(
+        (key) =>
+          key.masterFingerprint === signer.masterFingerprint && getKeyUID(key) !== getKeyUID(signer)
+      )
+    ) {
+      return {
+        title: vaultText.keyFromSameDeviceAlreadySelectedTitle,
+        message: vaultText.keyFromSameDeviceAlreadySelectedMessage,
+      };
+    }
+
+    if (
+      keyToRotate &&
+      (getKeyUID(keyToRotate) === getKeyUID(signer) || selectedSigners.get(getKeyUID(signer)))
+    ) {
+      return {
+        title: vaultText.keyAlreadyUsedInVaultTitle,
+        message: vaultText.keyAlreadyUsedInVaultMessage,
+      };
+    }
+
+    return null;
   };
 
   const shellKeys = [];
@@ -357,26 +555,19 @@ function Signers({
     });
 
     let hasSigningServer = false; // actual signing server present?
-    let hasInheritanceKey = false; // actual inheritance key present?
     let isSigningServerShellCreated = false;
-    let isInheritanceKeyShellCreated = false;
 
-    if (shellKeys.filter((signer) => signer.type === SignerType.POLICY_SERVER).length > 0)
+    if (shellKeys.filter((signer) => signer.type === SignerType.POLICY_SERVER).length > 0) {
       isSigningServerShellCreated = true;
-
-    if (shellKeys.filter((signer) => signer.type === SignerType.INHERITANCEKEY).length > 0)
-      isInheritanceKeyShellCreated = true;
+    }
 
     for (const signer of signers) {
       if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
-      else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
     }
 
-    if (!isSigningServerShellCreated && !hasSigningServer && level >= AppSubscriptionLevel.L2)
+    if (!isSigningServerShellCreated && !hasSigningServer && level >= AppSubscriptionLevel.L2) {
       shellKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
-
-    if (!isInheritanceKeyShellCreated && !hasInheritanceKey && level >= AppSubscriptionLevel.L3)
-      shellKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
+    }
 
     const addedSignersTypes = signers.map((signer) => signer.type);
     return shellKeys.filter((shellSigner) => !addedSignersTypes.includes(shellSigner.type));
@@ -387,10 +578,9 @@ function Signers({
       const isAMF = false;
       return (
         <SignerCard
-          key={shellSigner.masterFingerprint}
+          key={getKeyUID(shellSigner)}
           onCardSelect={() => {
             if (shellSigner.type === SignerType.POLICY_SERVER) setupSignigngServer();
-            else if (shellSigner.type === SignerType.INHERITANCEKEY) setupInheritanceKey();
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description="Setup required"
@@ -404,75 +594,105 @@ function Signers({
     });
   };
 
-  const renderSigners = useCallback(() => {
-    const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
-    const signerCards = signers.map((signer) => {
-      if (signer.archived) return null;
-      const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
-      const disabled =
-        !isValid ||
-        (signer.type === SignerType.MY_KEEPER &&
-          myAppKeys.length >= 1 &&
-          myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
-        // disabled selection during change key flow
-        (keyToRotate &&
-          (keyToRotate.masterFingerprint === signer.masterFingerprint ||
-            selectedSigners.get(signer.masterFingerprint)));
-      return (
-        <SignerCard
-          showSelection={showSelection}
-          disabled={disabled}
-          key={signer.masterFingerprint}
-          name={
-            !signer.isBIP85
-              ? getSignerNameFromType(signer.type, signer.isMock, false)
-              : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
-          }
-          description={getSignerDescription(signer)}
-          icon={SDIcons(signer.type).Icon}
-          image={signer?.extraData?.thumbnailPath}
-          isSelected={!!selectedSigners.get(signer.masterFingerprint)}
-          onCardSelect={(selected) => {
-            onSignerSelect(
-              selected,
-              signer,
-              scheme,
-              vaultKeys,
-              setVaultKeys,
-              selectedSigners,
-              setSelectedSigners,
-              showToast
-            );
-            if (keyToRotate && vaultKeys.length === scheme.n) {
-              showToast('Updating vault keys and archiving the old vault', <TickIcon />);
-              setCreating(true);
+  const renderSigners = useCallback(
+    (signerFilters = []) => {
+      const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
+      const filteredSigners =
+        signerFilters.length > 0
+          ? signers.filter((signer) => signerFilters.includes(signer.type))
+          : signers;
+
+      const signerCards = filteredSigners.map((signer) => {
+        if (signer.archived) return null;
+
+        const disabledMessage = getDisabledMessage(
+          signer,
+          myAppKeys,
+          selectedSigners,
+          scheme,
+          signerMap,
+          keyToRotate
+        );
+        const disabled = disabledMessage !== null;
+
+        return (
+          <SignerCard
+            showSelection={showSelection}
+            disabledWithTouch={disabled}
+            key={getKeyUID(signer)}
+            name={
+              !signer.isBIP85
+                ? getSignerNameFromType(signer.type, signer.isMock, false)
+                : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
             }
-          }}
-          colorMode={colorMode}
-        />
-      );
-    });
-    return signerCards;
-  }, [signers]);
+            description={getSignerDescription(signer)}
+            icon={SDIcons(signer.type).Icon}
+            image={signer?.extraData?.thumbnailPath}
+            isSelected={!!selectedSigners.get(getKeyUID(signer))}
+            onCardSelect={(selected) => {
+              if (disabledMessage) {
+                setModalContent({
+                  name: getSignerNameFromType(signer.type),
+                  title: disabledMessage.title,
+                  message: disabledMessage.message,
+                  code: disabledMessage.code,
+                  clickedSigner: disabledMessage.clickedSigner,
+                });
+                setShowSignerModal(true);
+                return;
+              }
+
+              onSignerSelect(
+                selected,
+                signer,
+                scheme,
+                vaultKeys,
+                setVaultKeys,
+                selectedSigners,
+                setSelectedSigners,
+                showToast
+              );
+              if (keyToRotate && vaultKeys.length === scheme.n) {
+                showToast('Updating vault keys and archiving the old vault', <TickIcon />);
+                setCreating(true);
+              }
+            }}
+            colorMode={colorMode}
+          />
+        );
+      });
+
+      return signerCards;
+    },
+    [signers, signerFilters]
+  );
 
   const renderCollaborativeSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     const anySignerSelected = [...selectedSigners.values()].some((selected) => selected);
     const validCoSigners = coSigners.filter((signer) => signer);
-    const coSignersMap = new Map(validCoSigners.map((signer) => [signer.masterFingerprint, true]));
+    const coSignersMap = new Map(validCoSigners.map((signer) => [getKeyUID(signer), true]));
 
-    const signerCards = signers
-      .filter((signer) => signer.type === SignerType.KEEPER && !signer.archived)
+    const filteredSigners = signers
+      .filter(
+        (signer) =>
+          signer.type === SignerType.KEEPER &&
+          !signer.archived &&
+          !coSignersMap.has(getKeyUID(signer))
+      )
       .map((signer) => {
-        const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
-        const isCoSigner = coSignersMap.has(signer.masterFingerprint);
+        const { isValid } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
         const disabled =
           !isValid ||
           (signer.type === SignerType.MY_KEEPER &&
             myAppKeys.length >= 1 &&
-            myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
-          (anySignerSelected && !selectedSigners.get(signer.masterFingerprint)) ||
-          isCoSigner;
+            getKeyUID(myAppKeys[0]) !== getKeyUID(signer)) ||
+          vaultKeys.some(
+            (key) =>
+              key.masterFingerprint === signer.masterFingerprint &&
+              getKeyUID(key) !== getKeyUID(signer)
+          ) ||
+          (anySignerSelected && !selectedSigners.get(getKeyUID(signer)));
 
         const handleCardSelect = (selected) => {
           if (disabled) return;
@@ -493,8 +713,7 @@ function Signers({
           <SignerCard
             showSelection={showSelection}
             disabled={disabled}
-            isFromSiginingList={true}
-            key={signer.masterFingerprint}
+            key={getKeyUID(signer)}
             name={
               !signer.isBIP85
                 ? getSignerNameFromType(signer.type, signer.isMock)
@@ -503,14 +722,14 @@ function Signers({
             description={getSignerDescription(signer)}
             icon={SDIcons(signer.type).Icon}
             image={signer?.extraData?.thumbnailPath}
-            isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
+            isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={handleCardSelect}
             colorMode={colorMode}
           />
         );
       });
 
-    return signerCards;
+    return filteredSigners;
   }, [
     signers,
     selectedSigners,
@@ -527,31 +746,84 @@ function Signers({
     coSigners,
   ]);
 
-  const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
+  const renderReservedKeys = useCallback(() => {
+    const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
+    const anySignerSelected = [...selectedSigners.values()].some((selected) => selected);
 
-  const onQrScan = async (qrData) => {
-    try {
-      let hw: { signer: Signer; key: VaultSigner };
-      hw = setupKeeperSigner(qrData);
-      if (hw) {
-        dispatch(addSigningDevice([hw.signer]));
-        setAddedKey(hw.signer);
-        setExternalKeyAddedModal(true);
-        navigation.dispatch(CommonActions.goBack());
-      }
-    } catch (error) {
-      if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />);
-      } else {
-        captureError(error);
-        showToast(
-          `Invalid QR, please scan the QR from a ${getSignerNameFromType(SignerType.KEEPER)}`,
-          <ToastErrorIcon />
+    const selectedFingerprintsSet = new Set(
+      selectedSignersFromParams.map((signer) => signer.masterFingerprint)
+    );
+
+    const signerCards = signers
+      .filter((signer) => !signer.archived)
+      .filter(
+        (signer) =>
+          [SignerType.MY_KEEPER, SignerType.TAPSIGNER, SignerType.SEED_WORDS].includes(signer.type) // Filter by desired signer types
+      )
+      .filter((signer) => !selectedFingerprintsSet.has(signer.masterFingerprint)) // Avoid selected signers from params
+      .map((signer) => {
+        const { isValid } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+        const disabled =
+          !isValid ||
+          (signer.type === SignerType.MY_KEEPER &&
+            myAppKeys.length >= 1 &&
+            myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
+          (anySignerSelected && !selectedSigners.get(getKeyUID(signer)));
+
+        const handleCardSelect = (selected) => {
+          if (disabled) return;
+
+          onSignerSelect(
+            selected,
+            signer,
+            scheme,
+            vaultKeys,
+            setVaultKeys,
+            selectedSigners,
+            setSelectedSigners,
+            showToast
+          );
+        };
+
+        return (
+          <SignerCard
+            showSelection={showSelection}
+            disabled={disabled}
+            key={getKeyUID(signer)}
+            name={
+              !signer.isBIP85
+                ? getSignerNameFromType(signer.type, signer.isMock)
+                : `${getSignerNameFromType(signer.type, signer.isMock)} +`
+            }
+            description={getSignerDescription(signer)}
+            icon={SDIcons(signer.type).Icon}
+            image={signer?.extraData?.thumbnailPath}
+            isSelected={!!selectedSigners.get(getKeyUID(signer))}
+            onCardSelect={handleCardSelect}
+            colorMode={colorMode}
+          />
         );
-        navigation.goBack();
-      }
-    }
-  };
+      });
+
+    return signerCards;
+  }, [
+    signers,
+    selectedSigners,
+    selectedSignersFromParams,
+    scheme,
+    signerMap,
+    vaultKeys,
+    keyToRotate,
+    showSelection,
+    colorMode,
+    setSelectedSigners,
+    setVaultKeys,
+    showToast,
+    setCreating,
+  ]);
+
+  const isDarkMode = colorMode === 'dark';
+  const signer: Signer = keyToRotate ? signerMap[getKeyUID(keyToRotate)] : null;
 
   return (
     <Box
@@ -572,47 +844,37 @@ function Signers({
                 ? `Choose the key to be rotated with ${getSignerNameFromType(signer.type)} (${
                     keyToRotate.masterFingerprint
                   })`
+                : isCollaborativeFlow
+                ? 'Choose keys'
                 : 'Choose keys or add a new one'}
             </Text>
-            <Box style={styles.addKeyBtnWrapper}>
-              <AddKeyButton
-                short
-                onPress={
-                  !isCollaborativeFlow
-                    ? () =>
-                        navigation.dispatch(
-                          CommonActions.navigate('SignerCategoryList', {
-                            scheme,
-                            vaultId,
-                            vaultSigners: vaultKeys,
-                          })
-                        )
-                    : () => {
-                        navigation.dispatch(
-                          CommonActions.navigate({
-                            name: 'ScanQR',
-                            params: {
-                              title: `Setting up ${getSignerNameFromType(SignerType.KEEPER)}`,
-                              subtitle: 'Please scan until all the QR data has been retrieved',
-                              onQrScan,
-                              setup: true,
-                              type: SignerType.KEEPER,
-                            },
-                          })
-                        );
-                      }
-                }
-              />
-            </Box>
+            {!isCollaborativeFlow && (
+              <Box style={styles.addKeyBtnWrapper}>
+                <AddKeyButton
+                  short
+                  onPress={() =>
+                    navigation.dispatch(
+                      CommonActions.navigate('SignerCategoryList', {
+                        scheme,
+                        vaultId,
+                        vaultSigners: vaultKeys,
+                      })
+                    )
+                  }
+                />
+              </Box>
+            )}
           </Box>
           {signers.length ? (
             <Box>
               <Box style={styles.addedSigners}>
-                {!isCollaborativeFlow ? (
+                {!isCollaborativeFlow && !isReserveKeyFlow ? (
                   <>
-                    {renderSigners()}
-                    {renderAssistedKeysShell()}
+                    {renderSigners(signerFilters)}
+                    {signerFilters.length <= 0 && renderAssistedKeysShell()}
                   </>
+                ) : isReserveKeyFlow ? (
+                  <>{renderReservedKeys()}</>
                 ) : signers.filter(
                     (signer) => signer.type === SignerType.KEEPER && !signer.archived
                   ).length ? (
@@ -625,6 +887,7 @@ function Signers({
           ) : (
             <EmptyListIllustration listType="keys" />
           )}
+
           <HardwareModalMap
             visible={visible}
             close={close}
@@ -646,6 +909,38 @@ function Signers({
             addSignerFlow={false}
             vaultId={vaultId}
             vaultSigners={vaultKeys}
+          />
+          <HardwareModalMap
+            visible={visibleImportXpub}
+            close={() => setVisibleImportXpub(false)}
+            type={modalContent?.clickedSigner?.type}
+            mode={InteracationMode.VAULT_ADDITION}
+            isMultisig={isMultisig}
+            primaryMnemonic={primaryMnemonic}
+            addSignerFlow={false}
+            vaultId={vaultId}
+            vaultSigners={vaultKeys}
+          />
+          <KeeperModal
+            dismissible
+            close={() => setShowSignerModal(false)}
+            visible={showSignerModal}
+            title={modalContent.title}
+            modalBackground={`${colorMode}.modalWhiteBackground`}
+            textColor={`${colorMode}.primaryText`}
+            buttonTextColor={`${colorMode}.buttonText`}
+            buttonBackground={`${colorMode}.greenButtonBackground`}
+            subTitleColor={`${colorMode}.secondaryText`}
+            subTitleWidth={wp(280)}
+            showCloseIcon={true}
+            DarkCloseIcon={isDarkMode}
+            Content={() => (
+              <SignerUnavailableContent
+                modalContent={modalContent}
+                setShowSignerModal={setShowSignerModal}
+                setVisibleImportXpub={setVisibleImportXpub}
+              />
+            )}
           />
         </Box>
       </ScrollView>
@@ -672,6 +967,11 @@ function AddSigningDevice() {
       addedSigner?: Signer;
       addSignerFlow?: boolean;
       showModal?: boolean;
+      isTimeLock?: boolean;
+      currentBlockHeight?: number;
+      selectedSignersFromParams?: Signer[];
+      isAddInheritanceKey?: boolean;
+      signerFilters?: SignerType | Array<SignerType>;
     };
   };
   const {
@@ -686,12 +986,18 @@ function AddSigningDevice() {
     coSigners,
     isSSAddition = false,
     addedSigner,
+    selectedSignersFromParams,
+    isTimeLock = false,
+    isAddInheritanceKey = false,
+    currentBlockHeight,
+    signerFilters = [],
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation, common, signer } = translations;
+  const { vault: vaultTranslation, common, signer, wallet: walletTranslation } = translations;
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState('');
 
   const { signers } = useSigners();
   // filter out archived & hidden signers
@@ -702,6 +1008,13 @@ function AddSigningDevice() {
   const { activeVault, allVaults } = useVault({ vaultId });
   const isCollaborativeWallet = activeVault?.type == VaultType.COLLABORATIVE;
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
+  const isAssistedWallet = activeVault?.type == VaultType.ASSISTED;
+  const isAssistedWalletFlow = parentScreen === SETUPASSISTEDVAULT;
+  const [timeLockCautionModal, setTimelockCautionModal] = useState(false);
+  const [selectDurationModal, setSelectDurationModal] = useState(false);
+  const [timeLockWalletCreatedModal, setTimeLockWalletCreatedModal] = useState(false);
+
+  const isReserveKeyFlow = parentScreen === ADDRESERVEKEY;
   const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
   const [addedKey, setAddedKey] = useState(null);
 
@@ -731,6 +1044,9 @@ function AddSigningDevice() {
   const { vaultSigners: keys } = useSigners(newVault?.id);
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
 
+  const handleOptionSelect = useCallback((option) => {
+    setSelectedDuration(option);
+  }, []);
   const [inProgress, setInProgress] = useState(false);
 
   const handleModalClose = () => {
@@ -772,23 +1088,25 @@ function AddSigningDevice() {
     };
   }, [relaySignersUpdate]);
 
-  useEffect(() => {
-    if (relayVaultUpdate && newVault) {
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-      setVaultCreatedModalVisible(true);
-    } else if (relayVaultUpdate) {
-      navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
+  useFocusEffect(
+    useCallback(() => {
+      if (relayVaultUpdate && newVault) {
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+        setVaultCreatedModalVisible(true);
+      } else if (relayVaultUpdate) {
+        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+      }
 
-    if (relayVaultError) {
-      showToast(realyVaultErrorMessage, <ToastErrorIcon />);
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
-  }, [relayVaultUpdate, relayVaultError]);
+      if (relayVaultError) {
+        showToast(realyVaultErrorMessage, <ToastErrorIcon />);
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+      }
+    }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
+  );
 
   useEffect(() => {
     setInitialKeys(
@@ -882,6 +1200,48 @@ function AddSigningDevice() {
     );
   }
 
+  function TimeLockWalletCreatedContent(vault: Vault) {
+    return (
+      <Box>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
+          <Box style={styles.walletVaultInfoWrapper}>
+            <Box style={styles.iconWrapper}>
+              <HexagonIcon
+                width={44}
+                height={38}
+                backgroundColor="rgba(45, 103, 89, 1)"
+                icon={<VaultIcon />}
+              />
+            </Box>
+            <Box>
+              {vault.presentationData.description ? (
+                <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+                  {vault.presentationData.description}
+                </Text>
+              ) : null}
+              <Text color={`${colorMode}.greenText`} medium style={styles.titleText}>
+                {vault.presentationData.name}
+              </Text>
+            </Box>
+          </Box>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
+            {vaultTranslation.VaultCreatedModalDesc}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+  function TimeLockInfoModalContent() {
+    return (
+      <Box style={styles.timelockContent}>
+        <CautionIllustration style={styles.cautionIllustration} />
+        <Note title={common.note} subtitle={vaultTranslation.timeLockSetupNote} />
+      </Box>
+    );
+  }
+
   function SingleSigWallet(vault: Vault) {
     const tags = ['SINGLE-KEY', 'COLD'];
     return (
@@ -955,15 +1315,29 @@ function AddSigningDevice() {
       <SafeAreaView style={styles.topContainer}>
         <Box style={styles.topSection}>
           <KeeperHeader
-            title={signer.addKeys}
-            subtitle={subtitle}
+            title={
+              isCollaborativeFlow
+                ? vaultTranslation.chooseCoSigner
+                : !isReserveKeyFlow
+                ? signer.addKeys
+                : signer.inheritanceKey
+            }
+            subtitle={
+              isCollaborativeFlow
+                ? vaultTranslation.forYourCollabVault
+                : !isReserveKeyFlow
+                ? subtitle
+                : signer.designateAsInheritanceKey
+            }
             icon={
-              <HexagonIcon
-                width={44}
-                height={38}
-                backgroundColor={Colors.pantoneGreen}
-                icon={<VaultIcon />}
-              />
+              !isCollaborativeFlow && (
+                <HexagonIcon
+                  width={44}
+                  height={38}
+                  backgroundColor={Colors.pantoneGreen}
+                  icon={!isReserveKeyFlow ? <VaultIcon /> : <KEEPERAPPLIGHT />}
+                />
+              )
             }
             // To-Do-Learn-More
           />
@@ -976,13 +1350,17 @@ function AddSigningDevice() {
           description={description}
           vaultId={vaultId}
           setGeneratedVaultId={setGeneratedVaultId}
-          vaultType={
-            isCollaborativeWallet
-              ? VaultType.COLLABORATIVE
-              : isSSAddition
-              ? VaultType.SINGE_SIG
-              : VaultType.DEFAULT
-          }
+          setCreating={setCreating}
+          vaultType={getVaultType({
+            isCollaborativeWallet,
+            isSSAddition,
+            isAssistedWallet,
+            isTimeLock,
+            isInheritance: isAddInheritanceKey,
+          })}
+          isTimeLock={route.params.isTimeLock}
+          isAddInheritanceKey={isAddInheritanceKey}
+          currentBlockHeight={currentBlockHeight}
         />
         <Box flex={1}>
           <Signers
@@ -1001,9 +1379,12 @@ function AddSigningDevice() {
             signerMap={signerMap}
             setCreating={setCreating}
             isCollaborativeFlow={isCollaborativeFlow}
+            isReserveKeyFlow={isReserveKeyFlow}
+            signerFilters={signerFilters}
             coSigners={coSigners}
             setExternalKeyAddedModal={setExternalKeyAddedModal}
             setAddedKey={setAddedKey}
+            selectedSignersFromParams={selectedSignersFromParams}
           />
         </Box>
         <Footer
@@ -1013,13 +1394,19 @@ function AddSigningDevice() {
           invalidMessage={invalidMessage}
           areSignersValid={areSignersValid}
           relayVaultUpdateLoading={relayVaultUpdateLoading}
-          common={common}
           colorMode={colorMode}
           setCreating={setCreating}
           isCollaborativeFlow={isCollaborativeFlow}
+          isReserveKeyFlow={isReserveKeyFlow}
+          isAddInheritanceKey={isAddInheritanceKey}
+          currentBlockHeight={currentBlockHeight}
           onGoBack={onGoBack}
           vaultKeys={vaultKeys}
           selectedSigners={selectedSigners}
+          name={name}
+          description={description}
+          scheme={scheme}
+          vaultId={vaultId}
         />
         <KeeperModal
           dismissible
@@ -1057,6 +1444,88 @@ function AddSigningDevice() {
           subTitleColor={`${colorMode}.secondaryText`}
           subTitleWidth={wp(280)}
           showCloseIcon={false}
+        />
+        <KeeperModal
+          closeOnOverlayClick
+          close={() => {
+            setTimeLockWalletCreatedModal(false);
+          }}
+          visible={timeLockWalletCreatedModal}
+          title={vaultTranslation.timeLockCreatedTitle}
+          subTitle={vaultTranslation.timeLockCreatedSubtitle}
+          buttonText={walletTranslation.ViewWallet}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.primaryText`}
+          buttonTextColor={`${colorMode}.buttonText`}
+          buttonBackground={`${colorMode}.greenButtonBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          subTitleWidth={wp(280)}
+          showCloseIcon={false}
+          Content={() => TimeLockWalletCreatedContent(newVault)}
+        />
+        <KeeperModal
+          closeOnOverlayClick
+          close={() => {
+            setTimelockCautionModal(false);
+          }}
+          visible={timeLockCautionModal}
+          title={vaultTranslation.timeLockCautionTitle}
+          subTitle={vaultTranslation.timeLockCautionSubtitle}
+          buttonText={common.continue}
+          secondaryButtonText={common.cancel}
+          buttonCallback={() => {
+            setTimelockCautionModal(false);
+            setSelectDurationModal(true);
+          }}
+          secondaryCallback={() => setTimelockCautionModal(false)}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.primaryText`}
+          buttonTextColor={`${colorMode}.buttonText`}
+          buttonBackground={`${colorMode}.greenButtonBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          subTitleWidth={wp(280)}
+          showCloseIcon={false}
+          Content={TimeLockInfoModalContent}
+        />
+        <KeeperModal
+          closeOnOverlayClick
+          close={() => {
+            setSelectDurationModal(false);
+          }}
+          visible={selectDurationModal}
+          title={vaultTranslation.timeLockDurationTitle}
+          subTitle={vaultTranslation.timeLockDurationSubtitle}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.primaryText`}
+          buttonTextColor={`${colorMode}.buttonText`}
+          buttonBackground={`${colorMode}.greenButtonBackground`}
+          secondaryCallback={() => setSelectDurationModal(false)}
+          subTitleColor={`${colorMode}.secondaryText`}
+          subTitleWidth={wp(280)}
+          showCloseIcon={false}
+          Content={() => (
+            <Box>
+              <Dropdown
+                options={TIMELOCK_DURATIONS}
+                label="Choose unlock-time"
+                onOptionSelect={handleOptionSelect}
+                selectedOption={selectedDuration}
+              />
+              <Box style={styles.buttonContainer}>
+                <Buttons
+                  paddingHorizontal={wp(20)}
+                  primaryText={walletTranslation.Createwallet}
+                  primaryCallback={() => {
+                    setCreating(true);
+                    setSelectDurationModal(false);
+                  }}
+                  secondaryText={common.cancel}
+                  secondaryCallback={() => setSelectDurationModal(false)}
+                  primaryDisable={!selectedDuration}
+                />
+              </Box>
+            </Box>
+          )}
         />
         <KeyAddedModal
           visible={externalKeyAddedModal}
@@ -1096,12 +1565,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   bottomContainer: {
-    gap: 20,
-    paddingHorizontal: wp(15),
+    gap: 10,
+    paddingHorizontal: wp(32),
     paddingBottom: hp(15),
   },
   noteContainer: {
-    width: wp(330),
+    width: wp(307),
   },
   signerContainer: {
     width: windowWidth + 2,
@@ -1157,6 +1626,44 @@ const styles = StyleSheet.create({
   desc: {
     marginBottom: hp(18),
   },
+  externalKeyModal: {
+    alignItems: 'center',
+  },
+  externalKeyIllustration: {
+    marginBottom: hp(20),
+  },
+  externalKeyText: {
+    marginBottom: hp(20),
+  },
+  cautionIllustration: {
+    alignSelf: 'center',
+    marginBottom: hp(30),
+  },
+  timelockContent: {
+    marginBottom: hp(10),
+  },
+  buttonContainer: {
+    marginTop: hp(30),
+  },
+  emptyWrapper: {
+    alignSelf: 'center',
+    width: '90%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: hp(35),
+  },
+  emptyText: {
+    fontSize: 15,
+    lineHeight: 20,
+    marginBottom: hp(3),
+  },
+  emptySubText: {
+    fontSize: 14,
+    lineHeight: 20,
+    width: wp(206),
+    textAlign: 'center',
+    marginBottom: hp(30),
+  },
   addKeyBtnWrapper: {
     flex: 1,
     minWidth: wp(110),
@@ -1164,6 +1671,13 @@ const styles = StyleSheet.create({
     marginRight: wp(25),
     marginTop: hp(1),
   },
+  unAvailableIllustration: {
+    alignItems: 'center',
+    marginBottom: hp(30),
+  },
+  modalButtonContainer: {
+    marginTop: hp(40),
+  },
 });
 
-export default Sentry.withErrorBoundary(AddSigningDevice, errorBourndaryOptions);
+export default SentryErrorBoundary(AddSigningDevice);

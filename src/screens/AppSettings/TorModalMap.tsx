@@ -50,7 +50,7 @@ function TorModalMap({ visible, close }) {
         visible={visible && torStatus === TorStatus.CONNECTING}
         close={close}
         title="Connecting to Tor"
-        subTitle="Network calls and some function may work slower when enabled"
+        subTitle="Network calls and some functions may work slower when enabled"
         textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
         Content={TorConnectionContent}

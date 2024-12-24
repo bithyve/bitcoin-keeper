@@ -3,6 +3,8 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import bitcoinMessage from 'bitcoinjs-message';
+import varuint from 'varuint-bitcoin';
+import { PsbtInput } from 'bip174/src/lib/interfaces';
 
 import { CryptoAccount, CryptoHDKey } from 'src/services/qr/bc-ur-registry';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
@@ -13,10 +15,13 @@ import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
 import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
+import RestClient from 'src/services/rest/RestClient';
+import ElectrumClient from 'src/services/electrum/client';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
-import { Signer, Vault } from '../interfaces/vault';
+import { MiniscriptScheme, MultisigConfig, Signer, Vault } from '../interfaces/vault';
 import {
   BIP48ScriptTypes,
+  MultisigScriptType,
   DerivationPurpose,
   EntityKind,
   ImportedKeyType,
@@ -28,6 +33,7 @@ import {
 import { OutputUTXOs } from '../interfaces';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 import ecc from './taproot-utils/noble_ecc';
+import { generateBitcoinScript } from './miniscript/miniscript';
 
 bitcoinJS.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -182,36 +188,409 @@ export default class WalletUtilities {
     throw new Error("Unsupported derivation purpose, can't derive address");
   };
 
+  static fetchCurrentBlockHeight = async () => {
+    try {
+      const height = (await ElectrumClient.getBlockchainHeaders()).height;
+      if (height) {
+        return { currentBlockHeight: height };
+      } else {
+        throw new Error('Failed to fetch current block height');
+      }
+    } catch {
+      try {
+        const endpoint =
+          config.NETWORK_TYPE === NetworkType.MAINNET
+            ? 'https://mempool.space/api/blocks/tip/height'
+            : 'https://mempool.space/testnet/api/blocks/tip/height';
+
+        const res = await RestClient.get(endpoint);
+        const currentBlockHeight = res.data;
+
+        return { currentBlockHeight };
+      } catch (error) {
+        throw new Error('Failed to fetch current block height');
+      }
+    }
+  };
+
+  static generateCustomScript = (
+    miniscriptScheme: MiniscriptScheme,
+    isInternal: boolean,
+    childIndex: number,
+    network: bitcoinJS.networks.Network
+  ): {
+    script: Buffer;
+    subPaths: {
+      [xpub: string]: number[];
+    };
+    signerPubkeyMap: Map<string, Buffer>;
+  } => {
+    const subPaths = {};
+    const signerPubkeyMap = new Map<string, Buffer>();
+
+    const { miniscript, miniscriptElements, keyInfoMap } = miniscriptScheme;
+    const { timelocks } = miniscriptElements;
+
+    // generate asm from miniscript
+    // eslint-disable-next-line prefer-const
+    let { asm, issane } = generateBitcoinScript(miniscript);
+    if (!issane) throw new Error('ASM is not sane - incorrect miniscript');
+
+    // generate public keys to replace the key identifiers
+    const identifiersToPublicKey = {};
+    for (const keyIdentifier in keyInfoMap) {
+      const fragments = keyInfoMap[keyIdentifier].split('/');
+      const multipathIndex = fragments[5];
+      const [_, xpub] = fragments[4].split(']');
+      const multipathFragments = multipathIndex.split(';');
+      const externalChainIndex = multipathFragments[0].slice(1);
+      const internalChainIndex = multipathFragments[1].slice(0, -1);
+      const subPath = [
+        parseInt(isInternal ? internalChainIndex : externalChainIndex, 10),
+        childIndex,
+      ];
+      const xKey = bip32.fromBase58(xpub, network);
+      const childXKey = xKey.derive(subPath[0]).derive(subPath[1]);
+      identifiersToPublicKey[keyIdentifier] = childXKey.publicKey;
+      subPaths[xpub + multipathIndex] = subPath;
+      signerPubkeyMap.set(xpub + multipathIndex, childXKey.publicKey);
+    }
+
+    // replace identifiers in the asm with actual public keys
+    for (const keyIdentifier in identifiersToPublicKey) {
+      const publicKey = identifiersToPublicKey[keyIdentifier];
+      asm = asm.replace(`<${keyIdentifier}>`, publicKey.toString('hex'));
+      asm = asm.replace(
+        `<HASH160(${keyIdentifier})>`,
+        bitcoinJS.crypto.hash160(publicKey).toString('hex')
+      );
+    }
+
+    // prepare and enrich the time locks
+    for (const tl of timelocks) {
+      const encodedTL = bitcoinJS.script.number.encode(tl).toString('hex');
+      asm = asm.replace(`<${encodedTL}>`, encodedTL);
+    }
+
+    // Convert small integers to OP codes
+    asm = asm
+      .split(' ')
+      .map((token) => {
+        if (token.length <= 2) {
+          // prevents the code from attempting to parse longer strings(like public keys) as integers
+          const num = parseInt(token);
+          if (!isNaN(num) && num >= 0 && num <= 16) {
+            return `OP_${num}`;
+          }
+        }
+        return token;
+      })
+      .join(' ');
+
+    const script = bitcoinJS.script.fromASM(asm);
+    return { script, subPaths, signerPubkeyMap };
+  };
+
+  static getFinalScriptsForMyCustomScript(
+    scriptWitnesses: {
+      asm: string;
+      nLockTime?: number;
+      nSequence?: number;
+    }[],
+    selectedWitness?: {
+      asm: string;
+      nLockTime?: number;
+      nSequence?: number;
+    },
+    keysInfoMap: { [uniqueIdentifier: string]: string }
+  ): any {
+    const finalScriptsFunc = (
+      inputIndex: number,
+      input: PsbtInput,
+      script: Buffer,
+      isSegwit: boolean,
+      isP2SH: boolean,
+      isP2WSH: boolean
+    ): {
+      finalScriptSig: Buffer | undefined;
+      finalScriptWitness: Buffer | undefined;
+    } => {
+      // Step 1: Check to make sure the meaningful script matches what you expect.
+      const decompiled = bitcoinJS.script.decompile(script);
+      if (!decompiled) throw new Error(`Can not finalize input #${inputIndex}`);
+
+      // const isMiniscriptBasedScript =
+      //   decompiled[1] === bitcoinJS.opcodes.OP_CHECKSIG &&
+      //   decompiled[2] === bitcoinJS.opcodes.OP_NOTIF &&
+      //   decompiled[decompiled.length - 1] === bitcoinJS.opcodes.OP_ENDIF;
+      // if (!isMiniscriptBasedScript) {
+      //   throw new Error(`Can not finalize input #${inputIndex}, invalid script`);
+      // }
+
+      // Step 2: Map signatures and generate the witness stack for the given satisfier
+      const keyInfo = {};
+      for (const partialSig of input.partialSig) {
+        const partialSigPubkey = partialSig.pubkey.toString('hex');
+        for (const bip32Derivation of input.bip32Derivation) {
+          const pubkeyHex = bip32Derivation.pubkey.toString('hex');
+          if (!keyInfo[pubkeyHex]) keyInfo[pubkeyHex] = bip32Derivation;
+
+          if (partialSigPubkey === pubkeyHex) {
+            keyInfo[pubkeyHex] = {
+              ...keyInfo[pubkeyHex],
+              ...partialSig,
+              hasPartialSig: true,
+            };
+          }
+        }
+      }
+
+      const signatureIdentifier = {};
+      const pubKeyIdentifier = {};
+      for (const keyIdentifier in keysInfoMap) {
+        const fragments = keysInfoMap[keyIdentifier].split('/');
+        const masterFingerprint = fragments[0].slice(1);
+        const multipathIndex = fragments[5];
+        const multipathFragments = multipathIndex.split(';');
+        const externalChainIndex = multipathFragments[0].slice(1);
+        const internalChainIndex = multipathFragments[1].slice(0, -1);
+
+        /* Note: for a stricter check, we can also derive pubkey from xpub to match w/ partial sig pub
+         const [script_type, xpub] = fragments[4].split(']');
+         const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+         */
+
+        for (const key in keyInfo) {
+          const info = keyInfo[key];
+          if (info.masterFingerprint.toString('hex').toUpperCase() === masterFingerprint) {
+            // signer identified (note: a signer can have multiple keys(multipath))
+            const inputPath = info.path.split('/'); // external/internal chain index
+            const chainIndex = inputPath[inputPath.length - 2];
+            if (chainIndex === externalChainIndex || chainIndex === internalChainIndex) {
+              if (info.hasPartialSig) signatureIdentifier[`<sig(${keyIdentifier})>`] = info;
+              else pubKeyIdentifier[`<${keyIdentifier}>`] = info;
+              break;
+            }
+          }
+        }
+      }
+
+      // if selectedWitness is empty, find the appropriate witness(case: Timelock vault)
+      if (!selectedWitness) {
+        selectedWitness = scriptWitnesses.find((witness) => {
+          const requiredSignatures = witness.asm.match(/<sig\([^)]+\)>/g) || [];
+          return requiredSignatures.every((sig) => signatureIdentifier[sig]);
+        });
+
+        if (!selectedWitness) {
+          throw new Error('No suitable witness found for the available signatures');
+        }
+      }
+
+      const witnessScriptStack = [];
+      for (const fragment of selectedWitness.asm.split(' ')) {
+        if (fragment === '0') witnessScriptStack.push(bitcoinJS.opcodes.OP_0);
+        else if (fragment === '1') witnessScriptStack.push(bitcoinJS.opcodes.OP_1);
+        else {
+          let found = false;
+          for (const identifier in keysInfoMap) {
+            if (fragment === `<sig(${identifier})>`) {
+              witnessScriptStack.push(signatureIdentifier[`<sig(${identifier})>`].signature);
+              found = true;
+              break;
+            }
+
+            if (fragment === `<${identifier}>`) {
+              witnessScriptStack.push(
+                (signatureIdentifier[`<sig(${identifier})>`] || pubKeyIdentifier[`<${identifier}>`])
+                  .pubkey
+              );
+              found = true;
+              break;
+            }
+          }
+
+          if (!found) throw new Error(`Invalid asm fragment ${fragment}`);
+        }
+      }
+
+      // Step 3: Create final scripts
+      const network = config.NETWORK;
+      let payment: bitcoinJS.Payment = {
+        network,
+        output: script,
+        // This logic should be more strict and make sure the pubkeys in the
+        // meaningful script are the ones signing in the PSBT etc.
+        input: bitcoinJS.script.compile(witnessScriptStack),
+      };
+      if (isP2WSH && isSegwit) {
+        payment = bitcoinJS.payments.p2wsh({
+          network,
+          redeem: payment,
+        });
+      }
+      if (isP2SH) {
+        payment = bitcoinJS.payments.p2sh({
+          network,
+          redeem: payment,
+        });
+      }
+
+      function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
+        let buffer = Buffer.allocUnsafe(0);
+
+        function writeSlice(slice: Buffer): void {
+          buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+        }
+
+        function writeVarInt(i: number): void {
+          const currentLen = buffer.length;
+          const varintLen = varuint.encodingLength(i);
+
+          buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+          varuint.encode(i, buffer, currentLen);
+        }
+
+        function writeVarSlice(slice: Buffer): void {
+          writeVarInt(slice.length);
+          writeSlice(slice);
+        }
+
+        function writeVector(vector: Buffer[]): void {
+          writeVarInt(vector.length);
+          vector.forEach(writeVarSlice);
+        }
+
+        writeVector(witness);
+
+        return buffer;
+      }
+
+      return {
+        finalScriptSig: payment.input,
+        finalScriptWitness:
+          payment.witness && payment.witness.length > 0
+            ? witnessStackToScriptWitness(payment.witness)
+            : undefined,
+      };
+    };
+
+    return finalScriptsFunc;
+  }
+
   static deriveMultiSig = (
-    required: number,
-    pubkeys: Buffer[],
+    wallet: Vault,
+    multisigConfig: MultisigConfig,
     network: bitcoinJS.Network,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): {
-    p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment | undefined;
+    subPaths: { [xpub: string]: number[] };
+    signerPubkeyMap: Map<string, Buffer>;
+    orderPreservedPubkeys?: string[];
   } => {
-    const p2ms = bitcoinJS.payments.p2ms({
-      m: required,
-      pubkeys,
-      network,
-    });
-    const p2wsh = bitcoinJS.payments.p2wsh({
-      redeem: p2ms,
-      network,
-    });
+    if (multisigConfig.multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+      if (!multisigConfig.required) {
+        throw new Error('Invalid multisig config');
+      }
 
-    let p2sh;
-    if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
-      // wrap native segwit
-      p2sh = bitcoinJS.payments.p2sh({
-        redeem: p2wsh,
+      const subPaths = {};
+      const signerPubkeyMap = new Map<string, Buffer>();
+      const { internal, childIndex } = multisigConfig;
+
+      let orderPreservedPubkeys: string[] = []; // non-bip-67(original order)
+      let pubkeys: Buffer[] = []; // bip-67 ordered
+
+      const { xpubs } = wallet.specs;
+      xpubs.forEach(
+        (xpub) => (subPaths[xpub] = [internal ? 1 : 0, childIndex]) // same for all xpubs in default multisig
+      );
+
+      const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+      const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
+
+      const correspondingAddress = internal
+        ? addressCache.internal[childIndex]
+        : addressCache.external[childIndex];
+
+      if (addressPubs[correspondingAddress]) {
+        // using cached pubkeys to prepare multisig assets
+        const cachedPubs = addressPubs[correspondingAddress].split('/'); // non bip-67 compatible(maintains xpub/signer order)
+        orderPreservedPubkeys = cachedPubs;
+        xpubs.forEach((xpub, i) => {
+          signerPubkeyMap.set(xpub, Buffer.from(cachedPubs[i], 'hex'));
+        });
+        pubkeys = cachedPubs.sort((a, b) => (a > b ? 1 : -1)).map((pub) => Buffer.from(pub, 'hex')); // bip-67 compatible(cached ones are in hex)
+      } else {
+        // generating pubkeys to prepare multisig assets
+        for (let i = 0; i < xpubs.length; i++) {
+          const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
+            xpubs[i],
+            network,
+            childIndex,
+            internal
+          );
+          const xKey = bip32.fromBase58(childExtendedKey, network);
+          orderPreservedPubkeys[i] = xKey.publicKey.toString('hex');
+          pubkeys[i] = xKey.publicKey;
+          signerPubkeyMap.set(xpubs[i], pubkeys[i]); // the order is currently preserved for pubkeys array(non bip-67)
+        }
+        pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
+      }
+
+      const p2ms = bitcoinJS.payments.p2ms({
+        m: multisigConfig.required,
+        pubkeys,
         network,
       });
-    }
 
-    return { p2ms, p2wsh, p2sh };
+      const p2wsh = bitcoinJS.payments.p2wsh({
+        redeem: p2ms,
+        network,
+      });
+
+      let p2sh;
+      if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
+        // wrap native segwit
+        p2sh = bitcoinJS.payments.p2sh({
+          redeem: p2wsh,
+          network,
+        });
+      }
+
+      return { p2wsh, p2sh, subPaths, signerPubkeyMap, orderPreservedPubkeys };
+    } else if (multisigConfig.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+      if (!multisigConfig.miniscriptScheme) {
+        throw new Error('Invalid multisig config - miniscript scheme missing');
+      }
+
+      const { internal, childIndex } = multisigConfig;
+      const { script, subPaths, signerPubkeyMap } = this.generateCustomScript(
+        multisigConfig.miniscriptScheme,
+        internal,
+        childIndex,
+        network
+      );
+
+      const p2wsh = bitcoinJS.payments.p2wsh({
+        redeem: {
+          output: script,
+          network,
+        },
+      });
+
+      let p2sh;
+      if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
+        // wrap native segwit
+        p2sh = bitcoinJS.payments.p2sh({
+          redeem: p2wsh,
+          network,
+        });
+      }
+
+      return { p2wsh, p2sh, subPaths, signerPubkeyMap };
+    } else throw new Error('Invalid multisig type');
   };
 
   static isValidAddress = (address: string, network: bitcoinJS.Network): boolean => {
@@ -225,27 +604,25 @@ export default class WalletUtilities {
 
   static getKeyPairByIndex = (
     xpriv: string,
-    internal: boolean,
-    index: number,
+    chainIndex: number,
+    childIndex: number,
     network: bitcoinJS.networks.Network
   ): BIP32Interface => {
     const node = bip32.fromBase58(xpriv, network);
-    const chain = internal ? 1 : 0;
-    const keyPair: BIP32Interface = node.derive(chain).derive(index);
+    const keyPair: BIP32Interface = node.derive(chainIndex).derive(childIndex);
     return keyPair;
   };
 
   static getPublicKeyByIndex = (
     xpub: string,
-    internal: boolean,
-    index: number,
+    chainIndex: number,
+    childIndex: number,
     network: bitcoinJS.networks.Network
   ): { publicKey: Buffer; subPath: number[] } => {
     const node = bip32.fromBase58(xpub, network);
-    const chain = internal ? 1 : 0;
-    const keyPair = node.derive(chain).derive(index);
+    const keyPair: BIP32Interface = node.derive(chainIndex).derive(childIndex);
     const { publicKey } = keyPair;
-    return { publicKey, subPath: [chain, index] };
+    return { publicKey, subPath: [chainIndex, childIndex] };
   };
 
   static getAddressByIndex = (
@@ -391,7 +768,9 @@ export default class WalletUtilities {
 
   static addressToPublicKey = (
     address: string,
-    wallet: Wallet | Vault
+    wallet: Wallet | Vault,
+    externalChainIndex: number = 0,
+    internalChainIndex: number = 1
   ): {
     publicKey: Buffer;
     subPath: number[];
@@ -419,7 +798,7 @@ export default class WalletUtilities {
             publicKey: Buffer.from(addressPubs[address], 'hex'),
             subPath: [0, itr],
           };
-        } else return WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network);
+        } else return WalletUtilities.getPublicKeyByIndex(xpub, externalChainIndex, itr, network);
       }
     }
 
@@ -431,7 +810,7 @@ export default class WalletUtilities {
             publicKey: Buffer.from(addressPubs[address], 'hex'),
             subPath: [1, itr],
           };
-        } else return WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network);
+        } else return WalletUtilities.getPublicKeyByIndex(xpub, internalChainIndex, itr, network);
       }
     }
 
@@ -440,7 +819,9 @@ export default class WalletUtilities {
 
   static addressToKeyPair = (
     address: string,
-    wallet: Wallet | Vault
+    wallet: Wallet | Vault,
+    externalChainIndex: number = 0,
+    internalChainIndex: number = 1
   ): {
     keyPair: BIP32Interface;
   } => {
@@ -454,14 +835,18 @@ export default class WalletUtilities {
     const closingExtIndex = totalExternalAddresses - 1 + config.GAP_LIMIT;
     for (let itr = 0; itr <= totalExternalAddresses - 1 + closingExtIndex; itr++) {
       if (addressCache.external[itr] === address) {
-        return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, false, itr, network) };
+        return {
+          keyPair: WalletUtilities.getKeyPairByIndex(xpriv, externalChainIndex, itr, network),
+        };
       }
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       if (addressCache.internal[itr] === address) {
-        return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, true, itr, network) };
+        return {
+          keyPair: WalletUtilities.getKeyPairByIndex(xpriv, internalChainIndex, itr, network),
+        };
       }
     }
 
@@ -474,88 +859,51 @@ export default class WalletUtilities {
     internal: boolean,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): {
-    p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment;
-    pubkeys: Buffer[];
-    orderPreservedPubkeys: string[];
     address: string;
-    subPath: number[];
+    subPaths: { [xpub: string]: number[] };
     signerPubkeyMap: Map<string, Buffer>;
+    orderPreservedPubkeys?: string[];
   } => {
-    const subPath = [internal ? 1 : 0, childIndex];
-    const signerPubkeyMap = new Map<string, Buffer>();
-
-    let orderPreservedPubkeys: string[] = []; // non-bip-67(original order)
-    let pubkeys: Buffer[] = []; // bip-67 ordered
-
+    let config: MultisigConfig;
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    const { xpubs } = wallet.specs;
+    const multisigScriptType =
+      wallet.scheme.multisigScriptType || MultisigScriptType.DEFAULT_MULTISIG;
 
-    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
-    const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
+    if (multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+      config = {
+        multisigScriptType,
+        required: wallet.scheme.m,
+        childIndex,
+        internal,
+      };
+    } else if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+      const { miniscriptScheme } = wallet.scheme;
+      if (!miniscriptScheme) throw new Error('Miniscript scheme missing');
+      config = {
+        multisigScriptType,
+        miniscriptScheme,
+        childIndex,
+        internal,
+      };
+    } else throw new Error('Unsupported multisig script type');
 
-    const correspondingAddress = internal
-      ? addressCache.internal[childIndex]
-      : addressCache.external[childIndex];
-
-    if (addressPubs[correspondingAddress]) {
-      // using cached pubkeys to prepare multisig assets
-      const cachedPubs = addressPubs[correspondingAddress].split('/'); // non bip-67 compatible(maintains xpub/signer order)
-      orderPreservedPubkeys = cachedPubs;
-      xpubs.forEach((xpub, i) => {
-        signerPubkeyMap.set(xpub, Buffer.from(cachedPubs[i], 'hex'));
-      });
-      pubkeys = cachedPubs.sort((a, b) => (a > b ? 1 : -1)).map((pub) => Buffer.from(pub, 'hex')); // bip-67 compatible(cached ones are in hex)
-    } else {
-      // generating pubkeys to prepare multisig assets
-      for (let i = 0; i < xpubs.length; i++) {
-        const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
-          xpubs[i],
-          network,
-          childIndex,
-          internal
-        );
-        const xKey = bip32.fromBase58(childExtendedKey, network);
-        orderPreservedPubkeys[i] = xKey.publicKey.toString('hex');
-        pubkeys[i] = xKey.publicKey;
-        signerPubkeyMap.set(xpubs[i], pubkeys[i]);
-      }
-      pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
-    }
-
-    const { p2ms, p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
-      wallet.scheme.m,
-      pubkeys,
-      network,
-      scriptType
-    );
+    const { p2wsh, p2sh, subPaths, signerPubkeyMap, orderPreservedPubkeys } =
+      WalletUtilities.deriveMultiSig(wallet, config, network, scriptType);
     const address = p2sh ? p2sh.address : p2wsh.address;
 
     return {
-      p2ms,
       p2wsh,
       p2sh,
-      pubkeys,
-      orderPreservedPubkeys,
       address,
-      subPath,
+      subPaths,
       signerPubkeyMap,
+      orderPreservedPubkeys,
     };
   };
 
-  static addressToMultiSig = (
-    address: string,
-    wallet: Vault
-  ): {
-    p2ms: bitcoinJS.payments.Payment;
-    p2wsh: bitcoinJS.payments.Payment;
-    p2sh: bitcoinJS.payments.Payment;
-    pubkeys: Buffer[];
-    address: string;
-    subPath: number[];
-    signerPubkeyMap: Map<string, Buffer>;
-  } => {
+  static addressToMultiSig = (address: string, wallet: Vault) => {
     const { totalExternalAddresses, nextFreeChangeAddressIndex } = wallet.specs;
     const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
 
@@ -664,12 +1012,12 @@ export default class WalletUtilities {
     | {
         outputs: OutputUTXOs[];
         changeMultisig: {
-          p2ms: bitcoinJS.payments.Payment;
           p2wsh: bitcoinJS.payments.Payment;
           p2sh: bitcoinJS.payments.Payment;
-          pubkeys: Buffer[];
           address: string;
-          subPath: number[];
+          subPaths: {
+            [xpub: string]: number[];
+          };
           signerPubkeyMap: Map<string, Buffer>;
         };
         changeAddress?: string;
@@ -681,12 +1029,10 @@ export default class WalletUtilities {
       } => {
     const changeAddress: string = '';
     let changeMultisig: {
-      p2ms: bitcoinJS.payments.Payment;
       p2wsh: bitcoinJS.payments.Payment;
       p2sh: bitcoinJS.payments.Payment;
-      pubkeys: Buffer[];
       address: string;
-      subPath: number[];
+      subPaths: { [xpub: string]: number[] };
       signerPubkeyMap: Map<string, Buffer>;
     };
     if ((wallet as Vault).isMultiSig) {

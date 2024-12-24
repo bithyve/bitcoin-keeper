@@ -1,7 +1,13 @@
-import { FlatList } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { NetworkType, SignerType, TxPriority } from 'src/services/wallets/enums';
+import {
+  MultisigScriptType,
+  SignerType,
+  TxPriority,
+  VaultType,
+  NetworkType,
+} from 'src/services/wallets/enums';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
@@ -20,7 +26,11 @@ import SuccessDarkIllustration from 'src/assets/images/upgrade-dark-illustration
 import ShareGreen from 'src/assets/images/share-arrow-green.svg';
 import ShareWhite from 'src/assets/images/share-arrow-white.svg';
 import idx from 'idx';
-import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
+import {
+  sendPhaseThreeReset,
+  updatePSBTEnvelops,
+  setInheritanceSigningRequestId,
+} from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -35,6 +45,27 @@ import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { resetKeyHealthState } from 'src/store/reducers/vaults';
+import { InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
+import { generateKey } from 'src/utils/service-utilities/encryption';
+import TickIcon from 'src/assets/images/tick_icon.svg';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import {
+  cachedTxSnapshot,
+  dropTransactionSnapshot,
+  setTransactionSnapshot,
+} from 'src/store/reducers/cachedTxn';
+import { SIGNTRANSACTION } from 'src/navigation/contants';
+import config from 'src/utils/service-utilities/config';
+import { isReading, stopReading } from 'src/hardware/portal';
+import { hp, wp } from 'src/constants/responsive';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
+import { formatDuration } from '../Vault/HardwareModalMap';
+import SignerModals from './SignerModals';
+import SignerList from './SignerList';
 import {
   signTransactionWithColdCard,
   signTransactionWithInheritanceKey,
@@ -44,53 +75,43 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import SignerList from './SignerList';
-import SignerModals from './SignerModals';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { resetKeyHealthState } from 'src/store/reducers/vaults';
-import { InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
-import { generateKey } from 'src/utils/service-utilities/encryption';
-import { formatDuration } from '../Vault/HardwareModalMap';
-import { setInheritanceSigningRequestId } from 'src/store/reducers/send_and_receive';
-import TickIcon from 'src/assets/images/tick_icon.svg';
-import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
-import {
-  cachedTxSnapshot,
-  dropTransactionSnapshot,
-  setTransactionSnapshot,
-} from 'src/store/reducers/cachedTxn';
-import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
-import { SIGNTRANSACTION } from 'src/navigation/contants';
-import config from 'src/utils/service-utilities/config';
-import { isReading, stopReading } from 'src/hardware/portal';
-import { wp } from 'src/constants/responsive';
+import { getKeyUID } from 'src/utils/utilities';
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
 
-  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds, tnxDetails } =
-    (route.params || {
-      note: '',
-      label: [],
-      vaultId: '',
-      sendConfirmationRouteParams: null,
-      isMoveAllFunds: false,
-      sender: {},
-    }) as {
-      note: string;
-      label: { name: string; isSystem: boolean }[];
-      vaultId: string;
-      isMoveAllFunds: boolean;
-      sender: Vault;
-      sendConfirmationRouteParams: SendConfirmationRouteParams;
-      tnxDetails: tnxDetailsProps;
+  const {
+    note,
+    label,
+    vaultId,
+    sendConfirmationRouteParams,
+    isMoveAllFunds,
+    tnxDetails,
+    miniscriptTxElements,
+  } = (route.params || {
+    note: '',
+    label: [],
+    vaultId: '',
+    sendConfirmationRouteParams: null,
+    isMoveAllFunds: false,
+    sender: {},
+    miniscriptTxElements: null,
+  }) as {
+    note: string;
+    label: { name: string; isSystem: boolean }[];
+    vaultId: string;
+    isMoveAllFunds: boolean;
+    sender: Vault;
+    sendConfirmationRouteParams: SendConfirmationRouteParams;
+    tnxDetails: tnxDetailsProps;
+    miniscriptTxElements: {
+      selectedPhase: number;
+      selectedPaths: number[];
     };
+  };
 
   const { activeVault: defaultVault } = useVault({
     vaultId,
@@ -169,13 +190,13 @@ function SignTransactionScreen() {
               let iksKey;
               for (let i = 0; i < vaultKeys.length; i++) {
                 const key = vaultKeys[i];
-                if (signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY) {
+                if (signerMap[getKeyUID(key)].type === SignerType.INHERITANCEKEY) {
                   iksKey = key;
                   break;
                 }
               }
               if (iksKey && approveOnce) {
-                callbackForSigners(iksKey, signerMap[iksKey.masterFingerprint]);
+                callbackForSigners(iksKey, signerMap[getKeyUID(iksKey)]);
                 setApproveOnce(false);
               }
               clearInterval(interval);
@@ -264,20 +285,20 @@ function SignTransactionScreen() {
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
     serializedPSBTEnvelops.forEach((envelop) => {
-      if (envelop.isSigned) {
-        signedTxCount += 1;
-      }
+      if (envelop.isSigned) signedTxCount += 1;
     });
-    // modify this in dev builds for mock signers
-    if (signedTxCount >= defaultVault.scheme.m) {
-      return true;
-    }
-    return false;
+
+    const hasThresholdSignatures = signedTxCount >= defaultVault.scheme.m;
+    if (defaultVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+      const vaultsWithTimelock = [VaultType.TIMELOCKED, VaultType.INHERITANCE]; // m-of-n style miniscript vaults w/ timelock
+      if (vaultsWithTimelock.includes(defaultVault.type)) return hasThresholdSignatures;
+      else if (signedTxCount === serializedPSBTEnvelops.length) return true;
+    } else return hasThresholdSignatures;
   };
 
   useEffect(() => {
     vaultKeys.forEach((vaultKey) => {
-      const signer = signerMap[vaultKey.masterFingerprint];
+      const signer = signerMap[getKeyUID(vaultKey)];
       if (signer.type === SignerType.MY_KEEPER && !vaultKey.xpriv) {
         dispatch(refillMobileKey(vaultKey));
       }
@@ -313,7 +334,7 @@ function SignTransactionScreen() {
     } = {}) => {
       const activeId = xfp || activeXfp;
       const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
-      const signer = signerMap[currentKey.masterFingerprint];
+      const signer = signerMap[getKeyUID(currentKey)];
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
           (envelop) => envelop.xfp === activeId
@@ -444,7 +465,11 @@ function SignTransactionScreen() {
             ])
           );
         } else if (SignerType.MY_KEEPER === signerType) {
-          const signedSerializedPSBT = signCosignerPSBT(currentKey.xpriv, serializedPSBT);
+          const signedSerializedPSBT = signCosignerPSBT(
+            currentKey.masterFingerprint,
+            currentKey.xpriv,
+            serializedPSBT
+          );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(
             healthCheckStatusUpdate([
@@ -481,7 +506,7 @@ function SignTransactionScreen() {
 
   const onFileSign = (signedSerializedPSBT: string) => {
     const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeXfp)[0];
-    const signer = signerMap[currentKey.masterFingerprint];
+    const signer = signerMap[getKeyUID(currentKey)];
     if (signer.type === SignerType.KEYSTONE) {
       const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
         (envelop) => envelop.xfp === activeXfp
@@ -697,7 +722,7 @@ function SignTransactionScreen() {
     try {
       await Share.open({
         message: 'The transaction has been successfully sent. You can track its status here:',
-        url: url,
+        url,
         title: 'Transaction Details',
       });
     } catch (err) {
@@ -713,25 +738,45 @@ function SignTransactionScreen() {
         subtitle={`Choose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
-        contentContainerStyle={{ paddingTop: '5%' }}
+        contentContainerStyle={styles.contentContainerStyle}
         data={vaultKeys}
+        extraData={serializedPSBTEnvelops}
         keyExtractor={(item) => item.xfp}
-        renderItem={({ item, index }) => (
-          <SignerList
-            isIKSClicked={isIKSClicked}
-            isIKSDeclined={isIKSDeclined}
-            IKSSignTime={IKSSignTime}
-            vaultKey={item}
-            callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
-            envelops={serializedPSBTEnvelops}
-            signerMap={signerMap}
-            isFirst={index === 0}
-            isLast={index === vaultKeys.length - 1}
-          />
-        )}
+        renderItem={({ item, index }) => {
+          let isPayloadAvailable = false; // case: payloads are only available for signers on the redeem path of a given miniscript vault
+          for (const psbtEnvelop of serializedPSBTEnvelops) {
+            if (item.masterFingerprint === psbtEnvelop.mfp) {
+              isPayloadAvailable = true;
+              break;
+            }
+          }
+          if (isPayloadAvailable) {
+            return (
+              <Box style={styles.signerListContainer}>
+                <SignerList
+                  isIKSClicked={isIKSClicked}
+                  isIKSDeclined={isIKSDeclined}
+                  IKSSignTime={IKSSignTime}
+                  vaultKey={item}
+                  callback={() => callbackForSigners(item, signerMap[getKeyUID(item)])}
+                  envelops={serializedPSBTEnvelops}
+                  signerMap={signerMap}
+                />
+              </Box>
+            );
+          }
+        }}
       />
-      <Box alignItems="flex-end" marginY={5}>
+      <Box style={styles.noteWrapper}>
+        <Note
+          title={common.note}
+          subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signers, it can be broadcasted."
+          subtitleColor="GreyText"
+        />
+      </Box>
+      <Box style={styles.buttonContainer}>
         <Buttons
+          fullWidth
           primaryDisable={!areSignaturesSufficient()}
           primaryLoading={broadcasting}
           primaryText="Broadcast"
@@ -742,6 +787,7 @@ function SignTransactionScreen() {
                 sendPhaseThree({
                   wallet: defaultVault,
                   txnPriority: TxPriority.LOW,
+                  miniscriptTxElements,
                   note,
                   label,
                 })
@@ -752,11 +798,7 @@ function SignTransactionScreen() {
           }}
         />
       </Box>
-      <Note
-        title={common.note}
-        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signers, it can be broadcasted."
-        subtitleColor="GreyText"
-      />
+
       <SignerModals
         vaultId={vaultId}
         vaultKeys={vaultKeys}
@@ -830,7 +872,7 @@ function SignTransactionScreen() {
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
         title="Enter Passcode"
-        subTitle={'Confirm passcode to sign with mobile key'}
+        subTitle="Confirm passcode to sign with mobile key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -848,4 +890,21 @@ function SignTransactionScreen() {
   );
 }
 
-export default Sentry.withErrorBoundary(SignTransactionScreen, errorBourndaryOptions);
+const styles = StyleSheet.create({
+  signerListContainer: {
+    flex: 1,
+    paddingHorizontal: '2.5%',
+  },
+  contentContainerStyle: {
+    paddingTop: hp(30),
+  },
+  buttonContainer: {
+    paddingVertical: hp(15),
+    paddingHorizontal: '2.5%',
+  },
+  noteWrapper: {
+    paddingHorizontal: '2.5%',
+  },
+});
+
+export default SentryErrorBoundary(SignTransactionScreen);

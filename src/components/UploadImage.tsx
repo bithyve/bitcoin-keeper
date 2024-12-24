@@ -4,7 +4,7 @@ import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
-import ImageIcon from 'src/assets/images/image.svg';
+import UploadIcon from 'src/assets/images/upload-icon.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Props = {
@@ -29,7 +29,7 @@ function UploadImage({ onPress = () => {}, backgroundColor }: Props) {
       }}
     >
       <Box backgroundColor={bgColor} style={styles.container}>
-        <ImageIcon />
+        <UploadIcon />
         <Text style={styles.text} color="white">
           {importWallet.uploadFromGallery}
         </Text>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box } from 'native-base';
 import AddCard from 'src/components/AddCard';
@@ -7,6 +7,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import idx from 'idx';
 import { hp, wp } from 'src/constants/responsive';
@@ -15,6 +16,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import WalletInfoCard from './WalletInfoCard';
 import BalanceComponent from './BalanceComponent';
 import WalletInfoEmptyState from './WalletInfoEmptyState';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 export function WalletsList({
   allWallets,
@@ -24,6 +26,80 @@ export function WalletsList({
   setIsShowAmount,
   typeBasedIndicator,
 }) {
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
+
+  const getWalletTags = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      if (wallet.type === VaultType.SINGE_SIG) {
+        return ['Cold', 'Single-key'];
+      } else if (wallet.type === VaultType.COLLABORATIVE) {
+        return [
+          common.collaborative,
+          `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
+        ];
+      } else if (wallet.type === VaultType.ASSISTED) {
+        return ['Assisted', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+      } else if (wallet.type === VaultType.TIMELOCKED) {
+        return ['Timelocked', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+      } else if (wallet.type === VaultType.INHERITANCE) {
+        return [
+          'Inheritance Key',
+          `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
+        ];
+      } else {
+        return ['Vault', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+      }
+    } else {
+      let walletKind;
+      if (wallet.type === WalletType.DEFAULT) walletKind = 'Hot Wallet';
+      else if (wallet.type === WalletType.IMPORTED) {
+        const isWatchOnly = !idx(wallet as Wallet, (_) => _.specs.xpriv);
+        if (isWatchOnly) walletKind = 'Watch Only';
+        else walletKind = 'Imported Wallet';
+      }
+      let isTaprootWallet = false;
+      const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
+      if (
+        derivationPath &&
+        WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86
+      ) {
+        isTaprootWallet = true;
+      }
+      if (isTaprootWallet) return [walletKind, 'Taproot'];
+      else return [walletKind, 'Single-Key'];
+    }
+  };
+
+  const getWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      if (wallet.type === VaultType.SINGE_SIG) {
+        return <WalletIcon />;
+      } else if (wallet.type === VaultType.COLLABORATIVE) {
+        return <CollaborativeIcon />;
+      } else if (wallet.type === VaultType.ASSISTED) {
+        return <AssistedIcon />;
+      } else {
+        return <VaultIcon />;
+      }
+    } else {
+      return <WalletIcon />;
+    }
+  };
+
+  const handleWalletPress = (wallet, navigation) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      navigation.navigate('VaultDetails', { vaultId: wallet.id, autoRefresh: true });
+    } else {
+      navigation.navigate('WalletDetails', { walletId: wallet.id, autoRefresh: true });
+    }
+  };
+
+  const calculateWalletBalance = (wallet) => {
+    const { confirmed, unconfirmed } = wallet.specs.balances;
+    return confirmed + unconfirmed;
+  };
+
   return (
     <Box style={styles.valueWrapper} testID="wallet_list">
       <BalanceComponent
@@ -68,55 +144,6 @@ export function WalletsList({
     </Box>
   );
 }
-
-const handleWalletPress = (wallet, navigation) => {
-  if (wallet.entityKind === EntityKind.VAULT) {
-    navigation.navigate('VaultDetails', { vaultId: wallet.id, autoRefresh: true });
-  } else {
-    navigation.navigate('WalletDetails', { walletId: wallet.id, autoRefresh: true });
-  }
-};
-
-const getWalletTags = (wallet) => {
-  if (wallet.entityKind === EntityKind.VAULT) {
-    if (wallet.type === VaultType.SINGE_SIG) {
-      return ['SINGLE-KEY', 'COLD'];
-    } else
-      return [
-        `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
-        `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
-      ];
-  } else {
-    let walletKind;
-    if (wallet.type === WalletType.DEFAULT) walletKind = 'HOT WALLET';
-    else if (wallet.type === WalletType.IMPORTED) {
-      const isWatchOnly = !idx(wallet as Wallet, (_) => _.specs.xpriv);
-      if (isWatchOnly) walletKind = 'WATCH ONLY';
-      else walletKind = 'IMPORTED WALLET';
-    }
-    let isTaprootWallet = false;
-    const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
-    if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86) {
-      isTaprootWallet = true;
-    }
-    if (isTaprootWallet) return ['TAPROOT', walletKind];
-    else return ['SINGLE-KEY', walletKind];
-  }
-};
-
-const getWalletIcon = (wallet) => {
-  if (wallet.entityKind === EntityKind.VAULT) {
-    if (wallet.type === VaultType.SINGE_SIG) return <WalletIcon />;
-    else return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
-  } else {
-    return <WalletIcon />;
-  }
-};
-
-const calculateWalletBalance = (wallet) => {
-  const { confirmed, unconfirmed } = wallet.specs.balances;
-  return confirmed + unconfirmed;
-};
 
 const styles = StyleSheet.create({
   valueWrapper: {

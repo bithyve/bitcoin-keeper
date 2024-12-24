@@ -1,16 +1,15 @@
 import React from 'react';
 import { Box, Pressable } from 'native-base';
 import { Image, StyleSheet, ViewStyle } from 'react-native';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
-import Colors from 'src/theme/Colors';
 
 type SignerCardProps = {
   name: string;
   subtitle?: string;
-  description?: string;
+  description?: string | Element;
   icon: Element;
   isSelected?: boolean;
   onCardSelect?: (selected: any) => void;
@@ -27,6 +26,10 @@ type SignerCardProps = {
   isFeePriority?: boolean;
   boldDesc?: boolean;
   image?: string;
+  cardBackground?: string;
+  borderColor?: string;
+  nameColor?: string;
+  disabledWithTouch?: boolean;
 };
 
 function SignerCard({
@@ -49,6 +52,10 @@ function SignerCard({
   isFeePriority = false,
   boldDesc = false,
   image = null,
+  cardBackground,
+  borderColor,
+  nameColor,
+  disabledWithTouch = false,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -57,12 +64,25 @@ function SignerCard({
       ? 'transparent'
       : `${colorMode}.pantoneGreen`;
 
+  const cardBackgroundColor = cardBackground || `${colorMode}.seashellWhite`;
+  const cardBorderColor = borderColor || `${colorMode}.dullGreyBorder`;
+  const cardNameColor = nameColor || `${colorMode}.modalWhiteContent`;
+
+  const cardStyle = [
+    styles.walletContainer,
+    disabled || disabledWithTouch ? { opacity: 0.5 } : null,
+    disabledWithTouch ? { backgroundColor: `${colorMode}.disabledBackground` } : null,
+    customStyle,
+  ];
+
+  const isPressable = !disabled;
+
   return (
     <Pressable
-      disabled={disabled}
-      backgroundColor={`${colorMode}.seashellWhite`}
-      borderColor={colorMode === 'light' ? Colors.SilverMist : Colors.separator}
-      style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
+      disabled={!isPressable}
+      backgroundColor={cardBackgroundColor}
+      borderColor={cardBorderColor}
+      style={cardStyle}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
       }}
@@ -88,9 +108,9 @@ function SignerCard({
         )}
         {titleComp}
         <Text
-          color={`${colorMode}.modalWhiteContent`}
+          color={cardNameColor}
           style={styles.walletName}
-          numberOfLines={isFullText ? 0 : 1}
+          numberOfLines={isFullText ? 2 : 1}
           medium
         >
           {name}
@@ -104,13 +124,17 @@ function SignerCard({
             {subtitle}
           </Text>
         ) : null}
-        <Text
-          style={[styles.walletDescription, { fontWeight: boldDesc ? '500' : 'normal' }]}
-          color={`${colorMode}.secondaryText`}
-          numberOfLines={numberOfLines}
-        >
-          {description}
-        </Text>
+        {typeof description === 'string' ? (
+          <Text
+            style={[styles.walletDescription, { fontWeight: boldDesc ? '500' : 'normal' }]}
+            color={`${colorMode}.secondaryText`}
+            numberOfLines={numberOfLines}
+          >
+            {description}
+          </Text>
+        ) : (
+          description
+        )}
       </Box>
     </Pressable>
   );

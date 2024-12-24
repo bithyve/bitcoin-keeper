@@ -11,4 +11,12 @@ export enum ConciergeTag {
   RECOVERY = 'recovery',
   KEYS = 'keys',
   SETTINGS = 'settings',
+  KEEPER_CONCIERGE = 'keeper-concierge',
+}
+
+export enum ConciergeTicketStatus {
+  'SOLVED' = 'solved',
+  'NEW' = 'new',
+  'PENDING' = 'pending',
+  'OPEN' = 'open',
 }

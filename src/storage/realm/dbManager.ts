@@ -199,6 +199,58 @@ const deleteObjectByPrimaryKey = (schema: RealmSchema, key: string, value: any) 
   }
 };
 
+/**
+ * generic :: updates the object corresponding to provided schema and query function
+ * @param  {RealmSchema} schema
+ * @param  {Function} queryFn
+ * @param  {any} updateProps
+ */
+const updateObjectByQuery = (
+  schema: RealmSchema,
+  queryFn: (obj: any) => boolean,
+  updateProps: any
+) => {
+  try {
+    const objects = realm.get(schema);
+    const object = objects.find(queryFn);
+    if (object) {
+      for (const [key, value] of Object.entries(updateProps)) {
+        realm.write(() => {
+          object[key] = value;
+        });
+      }
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.error({ err });
+    return false;
+  }
+};
+
+/**
+ * generic :: fetches an object corresponding to provided schema and query function
+ * @param  {RealmSchema} schema
+ * @param  {Function} queryFn
+ * @param  {boolean} all whether to return all matching objects or just the first one
+ */
+const getObjectByQuery = (
+  schema: RealmSchema,
+  queryFn: (obj: any) => boolean,
+  all: boolean = false
+) => {
+  try {
+    const objects = realm.get(schema);
+    if (all) {
+      return objects.filter(queryFn);
+    }
+    return objects.find(queryFn);
+  } catch (err) {
+    console.error({ err });
+    return null;
+  }
+};
+
 export default {
   initializeRealm,
   deleteRealm,
@@ -213,4 +265,6 @@ export default {
   updateObjectByPrimaryId,
   getCollection,
   getObjectByField,
+  updateObjectByQuery,
+  getObjectByQuery,
 };

@@ -7,7 +7,6 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/check';
 import { hideOnboarding } from 'src/store/reducers/concierge';
-import { openConcierge } from 'src/store/sagaActions/concierge';
 import Buttons from '../Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import QueryIllustrationLight from 'src/assets/images/concierge-query-illustration-light.svg';
@@ -16,6 +15,7 @@ import BackupIllustrationLight from 'src/assets/images/concierge-backup-illustra
 import BackupIllustrationDark from 'src/assets/images/concierge-backup-illustration-dark.svg';
 import AnalyticsIllustrationLight from 'src/assets/images/concierge-analytics-illustration-light.svg';
 import AnalyticsIllustrationDark from 'src/assets/images/concierge-analytics-illustration-dark.svg';
+import { setDontShowConceirgeOnboarding } from 'src/store/reducers/storage';
 
 const Check = ({ checked, onPress, label }) => {
   const { colorMode } = useColorMode();
@@ -133,7 +133,7 @@ function ConciergeOnboardingModal({ visible }) {
   const handleContinue = () => {
     setPageNo(1);
     dispatch(hideOnboarding());
-    dispatch(openConcierge(dontShow));
+    dontShow && dispatch(setDontShowConceirgeOnboarding());
   };
 
   return (

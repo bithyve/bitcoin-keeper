@@ -113,19 +113,16 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
     };
   }, [session]);
 
-  if (signerType !== SignerType.KEEPER) {
-    return null;
-  }
   return (
     <>
       <Box style={styles.container}>
         <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={readFromNFC} />
-        <OptionCTA icon={<AirDropIcon />} title={`Upload File`} callback={selectFile} />
+        <OptionCTA icon={<AirDropIcon />} title={`Airdrop/ \nFile export`} callback={selectFile} />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
         {/* // ! Hide Remote Key */}
         {/* <OptionCTA
           icon={<RemoteShareIcon />}
-          title={isPSBT ? 'Share PSBT Link' : 'Remote Share'}
+          title={isPSBT ? 'Share\ntransaction link' : 'Remote Share'}
           callback={() => setRemoteShareModal(true)}
         /> */}
       </Box>
@@ -133,10 +130,10 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
         close={() => setRemoteShareModal(false)}
         showCloseIcon={false}
         visible={remoteShareModal}
-        title={isPSBT ? 'Remote PSBT Sharing' : 'Remote Key Sharing'}
+        title={isPSBT ? 'Share Transaction Link' : 'Remote Key Sharing'}
         subTitle={
           isPSBT
-            ? 'Please ask the sender to send you PSBT signing link so you can sign the transaction using it'
+            ? 'Please ask the sender to send you transaction signing link so you can sign the transaction using it'
             : 'Ask the key holder to send a link from the Key Details sections of the settings of the key to be shared. Clicking on the link will allow you to add the key on this app.'
         }
         buttonText="Close"

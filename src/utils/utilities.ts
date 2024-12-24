@@ -6,7 +6,7 @@ import idx from 'idx';
 import { TxPriority, VaultType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
-import { Signer } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import * as bitcoin from 'bitcoinjs-lib';
 import { isTestnet } from 'src/constants/Bitcoin';
 
@@ -180,10 +180,26 @@ export function numberToOrdinal(cardinal) {
   return ordinals[cardinal];
 }
 
+export function calculateMonthlyCost(yearlyPrice) {
+  const numericValue = parseFloat(yearlyPrice.replace(/[^0-9.]/g, ''));
+  if (isNaN(numericValue)) {
+    throw new Error('Invalid yearly price format');
+  }
+  const monthlyCost = numericValue / 12;
+  const currencySymbol = yearlyPrice.match(/^\D+/)?.[0]?.trim() || '';
+  const formattedMonthlyCost = `${currencySymbol} ${monthlyCost.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+  return formattedMonthlyCost;
+}
+
 // Format number with comma
 // Example: 1000000 => 1,000,000
 export const formatNumber = (value: string) =>
   value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+export const isOdd = (num: number) => num % 2 !== 0;
 
 export const getTimeDifferenceInWords = (pastTime) => {
   const timeDifference = moment(pastTime).fromNow();
@@ -196,17 +212,19 @@ export const getTimeDifferenceInWords = (pastTime) => {
 
 export const getWalletTags = (walletType) => {
   if (walletType === VaultType.COLLABORATIVE) {
-    return [`${walletType === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`, `2 of 3`];
+    return ['Collaborative', '2 of 3'];
+  } else if (walletType === VaultType.ASSISTED) {
+    return ['Assisted', '2 of 3'];
   } else {
     let walletKind;
-    if (walletType === WalletType.DEFAULT) walletKind = 'HOT WALLET';
+    if (walletType === WalletType.DEFAULT) walletKind = 'Hot Wallet';
     else if (walletType === WalletType.IMPORTED) {
-      const isWatchOnly = !idx(walletType as Wallet, (_) => _.specs.xpriv);
-      if (isWatchOnly) walletKind = 'WATCH ONLY';
-      else walletKind = 'IMPORTED WALLET';
+      const isWatchOnly = !idx(walletType, (_) => _.specs.xpriv);
+      if (isWatchOnly) walletKind = 'Watch Only';
+      else walletKind = 'Imported Wallet';
     }
 
-    return ['SINGLE-KEY', walletKind];
+    return [walletKind, 'Single-Key'];
   }
 };
 
@@ -255,11 +273,38 @@ export const capitalizeEachWord = (text: string): string => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
+
+export const timeFromTimeStamp = (timestamp: string): string => {
+  const date = new Date(timestamp);
+  const today = new Date();
+
+  const inputYear = date.getFullYear();
+  const inputMonth = date.toLocaleString('default', { month: 'long' });
+  const inputDay = date.getDate();
+
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth();
+  const todayDay = today.getDate();
+
+  if (inputYear === todayYear && date.getMonth() === todayMonth && inputDay === todayDay) {
+    const hours = date.getHours() % 12 || 12; // Handle 12-hour format
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+    return `${hours}:${minutes} ${ampm}`;
+  }
+
+  if (inputYear === todayYear) {
+    return `${inputDay} ${inputMonth}`;
+  }
+
+  return `${inputDay} ${inputMonth} ${inputYear}`;
+};
+
 export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
     const vBytes = estimateVByteFromPSBT(base64Str);
-
+    const signersList = [];
     let signerMatched = false;
 
     psbt.data.inputs.forEach((input) => {
@@ -271,16 +316,11 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
             masterFingerprint: derivation.masterFingerprint.toString('hex'),
             pubKey: derivation.pubkey.toString('hex'),
           };
+          signersList.push(data);
           if (data.masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
             // validating further by matching public key
             const xPub = signer.signerXpubs[XpubTypes.P2WSH][0].xpub; // to enable for taproot in future
-            const node = bip32.fromBase58(
-              xPub,
-              isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
-            );
-            const receiveAddPath = data.derivationPath.split('/').slice(-2).join('/');
-            const childNode = node.derivePath(receiveAddPath);
-            const pubkey = childNode.publicKey.toString('hex');
+            const pubkey = getPubKeyFromXpub(xPub, data.derivationPath);
             if (data.pubKey == pubkey) signerMatched = true;
           }
         });
@@ -294,6 +334,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       return {
         address: p2wsh.address,
         amount: input.witnessUtxo.value,
+        path: input.bip32Derivation[0].path,
       };
     });
 
@@ -337,11 +378,23 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       signerMatched,
       feeRate,
       vBytes,
+      signersList,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
     throw 'Something went wrong';
   }
+};
+
+export const getPubKeyFromXpub = (xPub: string, derivationPath: string) => {
+  const node = bip32.fromBase58(
+    xPub,
+    isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+  );
+  const receiveAddPath = derivationPath.split('/').slice(-2).join('/');
+  const childNode = node.derivePath(receiveAddPath);
+  const pubkey = childNode.publicKey.toString('hex');
+  return pubkey;
 };
 
 export const estimateVByteFromPSBT = (base64Str: string) => {
@@ -397,6 +450,29 @@ export const getInputsFromPSBT = (base64Str: string) => {
   }
 };
 
+export const getInputsToSignFromPSBT = (base64Str: string, signer: Signer) => {
+  const psbtObject = bitcoin.Psbt.fromBase64(base64Str);
+  const ips = psbtObject.data.inputs;
+  const inputsToSign = [];
+  ips.forEach((input, inputIndex) => {
+    input.bip32Derivation.forEach((derivation) => {
+      const masterFingerprint = derivation.masterFingerprint.toString('hex');
+      if (masterFingerprint.toLowerCase() === signer.masterFingerprint.toLowerCase()) {
+        const publicKey = derivation.pubkey;
+        const subPath = derivation.path.split('/').slice(-2).join('/');
+        const { hash, sighashType } = psbtObject.getDigestToSign(inputIndex, publicKey);
+        inputsToSign.push({
+          digest: hash.toString('hex'),
+          subPath,
+          inputIndex,
+          sighashType,
+          publicKey: publicKey.toString('hex'),
+        });
+      }
+    });
+  });
+  return inputsToSign;
+};
 
 export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
   let estimatedBlocksBeforeConfirmation = 0;
@@ -415,4 +491,69 @@ export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
     }
   }
   return { estimatedBlocksBeforeConfirmation, tnxPriority };
+};
+
+export const calculateTicketsLeft = (tickets, planDetails) => {
+  const PLEB_RESTRICTION = 1;
+  const HODLER_RESTRICTION = 3;
+
+  const { isOnL1, isOnL2, isOnL3 } = planDetails;
+  if (isOnL1) {
+    // Pleb - once for life time
+    return tickets.length < PLEB_RESTRICTION;
+  }
+  if (isOnL2) {
+    if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+      const oneHourAgo = Date.now() - 60 * 60 * 1000; // 1 hour in milliseconds
+      const ticketsInLastHour = tickets.filter((ticket) => {
+        const ticketTimestamp = new Date(ticket.created_at).getTime();
+        return ticketTimestamp >= oneHourAgo;
+      });
+      return ticketsInLastHour.length < HODLER_RESTRICTION;
+    }
+    // PROD
+    // Hodler 3 per month
+    const currentMonth = new Date().getMonth();
+    const monthlyTickets = tickets.filter((ticket) => {
+      const ticketMonth = new Date(ticket.created_at).getMonth();
+      return ticketMonth === currentMonth;
+    });
+    return monthlyTickets.length < HODLER_RESTRICTION;
+  }
+  if (isOnL3) return true;
+};
+
+export const getAccountFromSigner = (signer: Signer | VaultSigner): number | null => {
+  if ('derivationPath' in signer) {
+    // VaultSigner case
+    return parseInt(signer.derivationPath.replace(/[h']/g, '').split('/')[3]) ?? null;
+  }
+
+  // Regular Signer case
+  for (const type of Object.values(XpubTypes)) {
+    const xpubs = signer.signerXpubs[type];
+    if (xpubs?.[0]?.derivationPath) {
+      return parseInt(xpubs[0].derivationPath.replace(/[h']/g, '').split('/')[3]) ?? null;
+    }
+  }
+
+  return null;
+};
+
+export const getKeyUID = (signer: Signer | VaultSigner | null): string => {
+  if (!signer) {
+    return '';
+  }
+  return signer.masterFingerprint + (getAccountFromSigner(signer) ?? '');
+};
+
+export const checkSignerAccountsMatch = (signer: Signer): boolean => {
+  const accountNumbers = Object.values(signer.signerXpubs).flatMap((xpubs) =>
+    xpubs.map((x) => parseInt(x.derivationPath.replace(/[h']/g, '').split('/')[3]))
+  );
+
+  if (!accountNumbers.length) return true;
+
+  const firstAccount = accountNumbers[0];
+  return accountNumbers.every((num) => num === firstAccount);
 };

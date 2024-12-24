@@ -2,21 +2,22 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from './KeeperText';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 
 type CardPillProps = {
   heading: string;
   backgroundColor?: string;
   headingColor?: string;
   cardStyle?: any;
+  height?: number;
 };
 
-function CardPill({ heading, backgroundColor, headingColor, cardStyle }: CardPillProps) {
+function CardPill({ heading, backgroundColor, headingColor, cardStyle, height }: CardPillProps) {
   const { colorMode } = useColorMode();
   return (
     <Box
       backgroundColor={backgroundColor || `${colorMode}.walletTypePillBack`}
-      style={[styles.pillContainer, cardStyle && cardStyle]}
+      style={[styles.pillContainer, cardStyle && cardStyle, { height: height || 17 }]}
     >
       <Text
         bold
@@ -32,9 +33,9 @@ function CardPill({ heading, backgroundColor, headingColor, cardStyle }: CardPil
 
 const styles = StyleSheet.create({
   pillContainer: {
-    paddingHorizontal: wp(7),
-    height: 17,
-    borderRadius: 15,
+    paddingHorizontal: wp(10),
+    height: hp(21),
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },

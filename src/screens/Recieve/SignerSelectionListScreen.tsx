@@ -6,12 +6,12 @@ import Next from 'src/assets/images/icon_arrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
 import useSigners from 'src/hooks/useSigners';
+import { getKeyUID } from 'src/utils/utilities';
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 const { width } = Dimensions.get('screen');
 
@@ -38,7 +38,7 @@ function SignerSelectionListScreen() {
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
         data={availableSigners}
-        keyExtractor={(item) => item.masterFingerprint}
+        keyExtractor={(item) => getKeyUID(item)}
         renderItem={({ item }) => (
           <SignerCard
             onPress={(signer, signerName) => {
@@ -52,7 +52,7 @@ function SignerSelectionListScreen() {
   );
 }
 
-export default Sentry.withErrorBoundary(SignerSelectionListScreen, errorBourndaryOptions);
+export default SentryErrorBoundary(SignerSelectionListScreen);
 
 const styles = StyleSheet.create({
   inheritenceView: {

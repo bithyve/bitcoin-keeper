@@ -23,6 +23,11 @@ export interface VaultMigrationCompletionPayload {
   error?: string;
 }
 
+export interface RemoteLinkDetails {
+  xfp: string;
+  cachedTxid: string;
+}
+
 export type VaultState = {
   isGeneratingNewVault: boolean;
   hasNewVaultGenerationSucceeded: boolean;
@@ -40,6 +45,7 @@ export type VaultState = {
   keyHeathCheckSuccess: boolean;
   keyHeathCheckError: string;
   keyHeathCheckLoading: boolean;
+  remoteLinkDetails: RemoteLinkDetails;
 };
 
 export type SignerUpdatePayload = {
@@ -64,6 +70,7 @@ const initialState: VaultState = {
   keyHeathCheckSuccess: false,
   keyHeathCheckError: null,
   keyHeathCheckLoading: false,
+  remoteLinkDetails: null,
 };
 
 const vaultSlice = createSlice({
@@ -138,6 +145,9 @@ const vaultSlice = createSlice({
       state.keyHeathCheckSuccess = false;
       state.keyHeathCheckError = null;
     },
+    setRemoteLinkDetails: (state, action: PayloadAction<RemoteLinkDetails>) => {
+      state.remoteLinkDetails = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_VAULT, (state) => {
@@ -161,6 +171,7 @@ export const {
   setKeyHealthCheckError,
   setKeyHealthCheckLoading,
   resetKeyHealthState,
+  setRemoteLinkDetails,
 } = vaultSlice.actions;
 
 const vaultPersistConfig = {
@@ -177,6 +188,7 @@ const vaultPersistConfig = {
     'keyHeathCheckSuccess',
     'keyHeathCheckError',
     'keyHeathCheckLoading',
+    'setRemoteLinkDetails',
   ],
 };
 

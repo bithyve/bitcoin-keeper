@@ -1,7 +1,19 @@
-import { EntityKind } from '../../services/wallets/enums';
-import { Vault, VaultScheme, VaultSigner } from '../../services/wallets/interfaces/vault';
+import idx from 'idx';
+import { DescriptorChecksum } from 'src/services/wallets/operations/descriptors/checksum';
+import { EntityKind, MultisigScriptType } from '../../services/wallets/enums';
+import {
+  MiniscriptElements,
+  Vault,
+  VaultScheme,
+  VaultSigner,
+} from '../../services/wallets/interfaces/vault';
 import { Wallet } from '../../services/wallets/interfaces/wallet';
 import WalletOperations from '../../services/wallets/operations';
+import { generateInheritanceVaultElements } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config from './config';
+import { generateMiniscriptScheme } from 'src/services/wallets/factories/VaultFactory';
+import { isOdd } from '../utilities';
 
 const crypto = require('crypto');
 
@@ -38,15 +50,16 @@ export const getKeyExpression = (
   forDescriptor: boolean = false,
   abbreviated: boolean = false
 ) => {
-  if (nextFreeAddressIndex != undefined)
+  if (nextFreeAddressIndex != undefined) {
     return `[${masterFingerprint}/${getDerivationPath(
       derivationPath
     )}]${xpub}/0/${nextFreeAddressIndex}`;
-  else if (abbreviated) return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]`;
-  else
+  } else if (abbreviated) return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]`;
+  else {
     return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
       withPathRestrictions ? '/**' : forDescriptor ? '/<0;1>/*' : ''
     }`;
+  }
 };
 
 export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => {
@@ -65,36 +78,56 @@ export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => 
       true
     )})`;
     return des;
-  }
-  const { signers, scheme, isMultiSig } = wallet as Vault;
-  if (!isMultiSig) {
-    const signer: VaultSigner = signers[0];
+  } else if (wallet.entityKind === EntityKind.VAULT) {
+    const miniscriptScheme = idx(wallet as Vault, (_) => _.scheme.miniscriptScheme);
+    if (miniscriptScheme) {
+      const { miniscript, keyInfoMap } = miniscriptScheme;
+      let walletPolicyDescriptor = miniscript;
+      for (const keyId in keyInfoMap) {
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `(${keyId}`,
+          `(${keyInfoMap[keyId]}`
+        );
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `,${keyId}`,
+          `,${keyInfoMap[keyId]}`
+        );
+      }
+      const desc = `wsh(${walletPolicyDescriptor})`;
+      return `${desc}#${DescriptorChecksum(desc)}`;
+    }
 
-    const des = `wpkh(${getKeyExpression(
-      signer.masterFingerprint,
-      signer.derivationPath,
-      signer.xpub,
-      false,
-      undefined,
-      false,
-      true
-    )})`;
-    return des;
+    const { signers, scheme, isMultiSig } = wallet as Vault;
+    if (isMultiSig) {
+      return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
+        signers,
+        false,
+        undefined,
+        false,
+        true
+      )}))`;
+    } else {
+      const signer: VaultSigner = signers[0];
+
+      const des = `wpkh(${getKeyExpression(
+        signer.masterFingerprint,
+        signer.derivationPath,
+        signer.xpub,
+        false,
+        undefined,
+        false,
+        true
+      )})`;
+      return des;
+    }
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
-    signers,
-    false,
-    undefined,
-    false,
-    true
-  )}))`;
 };
 
 export const generateOutputDescriptors = (
   wallet: Vault | Wallet,
   includePatchRestrictions: boolean = false
 ) => {
-  const receivingAddress = WalletOperations.getExternalAddressAtIdx(wallet, 0);
+  const receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(wallet, 0);
   if (wallet.entityKind === EntityKind.WALLET) {
     const {
       derivationDetails: { xDerivationPath },
@@ -109,27 +142,47 @@ export const generateOutputDescriptors = (
       true
     )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
     return des;
-  }
-  const { signers, scheme, isMultiSig } = wallet as Vault;
-  if (!isMultiSig) {
-    const signer: VaultSigner = signers[0];
+  } else if (wallet.entityKind === EntityKind.VAULT) {
+    const miniscriptScheme = idx(wallet as Vault, (_) => _.scheme.miniscriptScheme);
+    if (miniscriptScheme) {
+      const { miniscript, keyInfoMap } = miniscriptScheme;
+      let walletPolicyDescriptor = miniscript;
+      for (const keyId in keyInfoMap) {
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `(${keyId}`,
+          `(${keyInfoMap[keyId]}`
+        );
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(
+          `,${keyId}`,
+          `,${keyInfoMap[keyId]}`
+        );
+      }
+      const desc = `wsh(${walletPolicyDescriptor})`;
+      return `${desc}#${DescriptorChecksum(desc)}`;
+    }
 
-    const des = `wpkh(${getKeyExpression(
-      signer.masterFingerprint,
-      signer.derivationPath,
-      signer.xpub,
-      includePatchRestrictions,
-      undefined,
-      true
-    )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
-    return des;
+    const { signers, scheme, isMultiSig } = wallet as Vault;
+    if (isMultiSig) {
+      return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
+        signers,
+        includePatchRestrictions,
+        undefined,
+        true
+      )}))${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
+    } else {
+      const signer: VaultSigner = signers[0];
+
+      const des = `wpkh(${getKeyExpression(
+        signer.masterFingerprint,
+        signer.derivationPath,
+        signer.xpub,
+        includePatchRestrictions,
+        undefined,
+        true
+      )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
+      return des;
+    }
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
-    signers,
-    includePatchRestrictions,
-    undefined,
-    true
-  )}))${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
 };
 
 export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
@@ -190,6 +243,7 @@ export interface ParsedVauleText {
   signersDetails: ParsedSignersDetails[] | null;
   isMultisig: Boolean | null;
   scheme: VaultScheme;
+  miniscriptElements?: MiniscriptElements;
 }
 
 const isAllowedScheme = (m, n) => {
@@ -225,18 +279,16 @@ const parseKeyExpression = (keyExpression) => {
   if (bracketMatch) {
     const insideBracket = bracketMatch[1];
     masterFingerprint = insideBracket.substring(0, 8).toUpperCase();
-    path =
-      'm' +
-      insideBracket
-        .substring(8)
-        .replace(/(\d+)h/g, "$1'")
-        .replace(/'/g, "'");
+    path = `m${insideBracket
+      .substring(8)
+      .replace(/(\d+)h/g, "$1'")
+      .replace(/'/g, "'")}`;
     xpub = bracketMatch[2].replace(/[^\w\s]+$/, '').split(/[^\w]+/)[0];
   } else {
     // Case 2: If the keyExpression is not enclosed in square brackets
     const parts = keyExpression.split("'");
     masterFingerprint = parts[0].substring(0, 8).toUpperCase();
-    path = 'm' + keyExpression.substring(8, keyExpression.lastIndexOf("'") + 1).replace(/'/g, "'");
+    path = `m${keyExpression.substring(8, keyExpression.lastIndexOf("'") + 1).replace(/'/g, "'")}`;
     xpub = keyExpression
       .substring(keyExpression.lastIndexOf("'") + 1)
       .replace(/[^\w\s]+$/, '')
@@ -344,8 +396,109 @@ export const parseTextforVaultConfig = (secret: string) => {
     };
     return parsedResponse;
   }
+  if (secret.includes('after(')) {
+    const { signers, inheritanceKey, timelock } = parseInheritanceKeyMiniscript(secret);
+
+    const multiMatch = secret.match(/thresh\((\d+),/);
+    const m = multiMatch ? parseInt(multiMatch[1]) : 1;
+
+    const miniscriptElements = generateInheritanceVaultElements(
+      signers,
+      inheritanceKey,
+      { m, n: signers.length },
+      [timelock]
+    );
+
+    const miniscriptScheme = generateMiniscriptScheme(miniscriptElements);
+
+    // Verify the miniscript generated matches the input
+    const { miniscript, keyInfoMap } = miniscriptScheme;
+    let walletPolicyDescriptor = miniscript;
+    for (const keyId in keyInfoMap) {
+      walletPolicyDescriptor = walletPolicyDescriptor.replace(`(${keyId}`, `(${keyInfoMap[keyId]}`);
+      walletPolicyDescriptor = walletPolicyDescriptor.replace(`,${keyId}`, `,${keyInfoMap[keyId]}`);
+    }
+    const desc = `wsh(${walletPolicyDescriptor})`;
+    if (secret.includes('#')) {
+      secret = secret.replace(/#.*$/, '');
+    }
+    if (desc !== secret) {
+      throw Error('Unsupported Miniscript configuration detected!');
+    }
+
+    const parsedResponse: ParsedVauleText = {
+      signersDetails: [...signers, inheritanceKey].filter(Boolean).map((key) => ({
+        xpub: key.xpub,
+        masterFingerprint: key.masterFingerprint,
+        path: key.derivationPath,
+        isMultisig: true,
+      })),
+      isMultisig: true,
+      scheme: {
+        m,
+        n: signers.length,
+        multisigScriptType: MultisigScriptType.MINISCRIPT_MULTISIG,
+        miniscriptScheme,
+      },
+      miniscriptElements,
+    };
+    return parsedResponse;
+  }
   throw Error('Unsupported format!');
 };
+
+function parseInheritanceKeyMiniscript(miniscript: string): {
+  signers: VaultSigner[];
+  inheritanceKey: VaultSigner | null;
+  timelock: number | null;
+} {
+  // Remove wsh() wrapper and checksum
+  const innerScript = miniscript.replace('wsh(', '').replace(/\)#.*$/, '');
+
+  // Extract all key expressions with derivation path
+  const keyRegex = /\[([A-F0-9]{8})(\/[0-9h'/]+)\]([a-zA-Z0-9]+)/g;
+  const matches = [...innerScript.matchAll(keyRegex)];
+
+  const fingerprintCounts = new Map<string, number>();
+  const keys = matches.map((match) => {
+    const fingerprint = match[1];
+    fingerprintCounts.set(fingerprint, (fingerprintCounts.get(fingerprint) || 0) + 1);
+    return {
+      masterFingerprint: fingerprint,
+      derivationPath: 'm' + match[2],
+      xpub: match[3],
+      xfp: WalletUtilities.getFingerprintFromExtendedKey(
+        match[3],
+        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+      ),
+    } as VaultSigner;
+  });
+
+  // Find fingerprint that appears only once and remove it from keys array
+  const inheritanceKeyFingerprint = Array.from(fingerprintCounts.entries()).find(
+    ([_, count]) => count === 1
+  )?.[0];
+  const inheritanceKey = keys.find((key) => key.masterFingerprint === inheritanceKeyFingerprint);
+
+  // Filter out duplicate keys by xpub and the IK
+  const signers = keys.filter(
+    (key, index, self) =>
+      index ===
+      self.findIndex(
+        (k) => k.xpub === key.xpub && key.masterFingerprint !== inheritanceKeyFingerprint
+      )
+  );
+
+  // Extract timelock value
+  const afterMatch = innerScript.match(/after\((\d+)\)/);
+  const timelock = afterMatch ? parseInt(afterMatch[1]) : null;
+
+  return {
+    signers,
+    inheritanceKey,
+    timelock,
+  };
+}
 
 export const urlParamsToObj = (url: string): any => {
   try {
@@ -420,7 +573,7 @@ export const createDecipherGcm = (data: DecryptData, password: string) => {
   try {
     decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
   } catch (err) {
-    throw new Error('Failed to decrypt data: ' + err.message);
+    throw new Error(`Failed to decrypt data: ${err.message}`);
   }
   return JSON.parse(decrypted.toString('utf-8'));
 };
@@ -438,4 +591,35 @@ export const getArchivedVaults = (allVaults: Vault[], vault: Vault) => {
 export function generateKeyFromPassword(password, salt = 'ARzDkUmENwt1', iterations = 100) {
   // Derive a 16-byte key from the 12-character password
   return crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256'); // 16 bytes = 128 bits
+}
+
+
+export function findVaultFromSenderAddress(allVaults, senderAddresses) {
+  let activeVault = null;
+  allVaults.forEach(async (vault) => {
+    let addressMatched = true;
+    for (let i = 0; i < senderAddresses.length; i++) {
+      const _ = senderAddresses[i].path.split('/');
+      const [isChange, index] = _.splice(_.length - 2);
+      // 0/even - Receive(External) | 1/odd - change(internal)
+      let generatedAddress: string;
+      generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
+        vault,
+        parseInt(index),
+        isOdd(parseInt(isChange))
+      );
+      if (senderAddresses[i].address != generatedAddress) {
+        addressMatched = false;
+        break;
+      }
+    }
+    if (addressMatched) {
+      activeVault = vault;
+    }
+  });
+
+  if (!activeVault) {
+    return null;
+  }
+  return activeVault;
 }

@@ -98,7 +98,6 @@ function MockWrapper({
         }
       } else {
         if (signerXfp === data.signer.masterFingerprint) {
-          console.log('here');
           handleSuccess();
         } else {
           handleFailure();

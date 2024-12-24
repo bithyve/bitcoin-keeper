@@ -1,5 +1,5 @@
 import { Box, Pressable, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -7,18 +7,15 @@ import {
   Platform,
   PermissionsAndroid,
   TouchableOpacity,
-  View,
   StyleSheet,
 } from 'react-native';
 import Contacts from 'react-native-contacts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SelectContactIcon from 'src/assets/images/select-contact-icon.svg';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
 import SearchIcon from 'src/assets/images/search-icon.svg';
 import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
-import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
@@ -30,11 +27,24 @@ import { persistDocument } from 'src/services/documents';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-const AssociateContact = ({ route }) => {
-  const { signer }: { signer: Signer } = route.params;
+function AssociateContact({ route }) {
+  const {
+    signer,
+    showAddContact = true,
+    popIndex = 1,
+    isWalletFlow = false,
+  }: {
+    signer: Signer;
+    showAddContact: boolean;
+    popIndex: number;
+    isWalletFlow: boolean;
+  } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { common, vault: vaultText } = translations;
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -83,18 +93,15 @@ const AssociateContact = ({ route }) => {
         <Text medium style={styles.contactName}>
           {item.givenName} {item.familyName}
         </Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => handleContactPress(item)}>
-          <SelectContactIcon />
-        </TouchableOpacity>
       </Box>
     </TouchableOpacity>
   );
 
   const renderSeparator = () => (
-    <View
+    <Box
+      backgroundColor={`${colorMode}.dullGreyBorder`}
       style={{
         height: 1,
-        backgroundColor: Colors.SilverMist,
         marginLeft: 55,
       }}
     />
@@ -112,52 +119,57 @@ const AssociateContact = ({ route }) => {
       };
       dispatch(updateSignerDetails(signer, 'extraData', extraData));
       setShowModal(false);
-      navigation.goBack();
+      navigation.pop(popIndex);
     } catch (error) {
       console.log('🚀 ~ onAddAssociateContact ~ error:', error);
     }
   };
 
+  const modalSubtitle = isWalletFlow
+    ? vaultText.associateContactWalletSub
+    : vaultText.associateContactKeySub;
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader simple title="Associate Contact" />
+      <KeeperHeader title={vaultText.associateContact} titleColor={`${colorMode}.pitchBlackText`} />
       <Box style={styles.container}>
-        <Box
-          style={[
-            styles.searchSection,
-            {
-              borderColor: Colors.SilverMist,
-              backgroundColor: colorMode === 'dark' ? Colors.SeashellDark : Colors.Seashell,
-            },
-          ]}
-        >
-          <SearchIcon />
-          <TextInput
-            style={styles.input}
-            placeholder="Search"
-            value={search}
-            onChangeText={setSearch}
-            underlineColorAndroid="transparent"
-          />
-        </Box>
-        <Pressable onPress={() => navigation.navigate('AddContact', { signer })}>
+        <Box style={styles.contentContainer}>
           <Box
-            style={styles.addContactButton}
-            backgroundColor={`${colorMode}.seashellWhite`}
-            borderColor={`${colorMode}.greyBorder`}
+            style={styles.searchSection}
+            backgroundColor={`${colorMode}.boxSecondaryBackground`}
+            borderColor={`${colorMode}.dullGreyBorder`}
           >
-            <Box style={styles.iconContainer}>
-              <AddContactIcon width={wp(44)} height={hp(44)} />
-            </Box>
-            <Text medium style={styles.buttonText}>
-              Add Contact
-            </Text>
-            <RightArrowIcon width={wp(7)} height={hp(12)} style={styles.arrowIcon} />
+            <SearchIcon />
+            <TextInput
+              style={styles.input}
+              placeholderTextColor={`${colorMode}.placeHolderTextColor`}
+              placeholder={common.search}
+              value={search}
+              onChangeText={setSearch}
+              underlineColorAndroid="transparent"
+            />
           </Box>
-        </Pressable>
-        <Text medium style={styles.sectionTitle}>
-          Your Phonebook
-        </Text>
+          {showAddContact && (
+            <Pressable onPress={() => navigation.navigate('AddContact', { signer })}>
+              <Box
+                style={styles.addContactButton}
+                backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                borderColor={`${colorMode}.dullGreyBorder`}
+              >
+                <Box style={styles.iconContainer}>
+                  <AddContactIcon width={wp(44)} height={hp(44)} />
+                </Box>
+                <Text medium style={styles.buttonText}>
+                  {vaultText.addContact}
+                </Text>
+                <RightArrowIcon width={wp(7)} height={hp(12)} style={styles.arrowIcon} />
+              </Box>
+            </Pressable>
+          )}
+          <Text medium style={styles.sectionTitle}>
+            {vaultText.yourPhoneBook}
+          </Text>
+        </Box>
         <FlatList
           data={filteredContacts}
           renderItem={renderItem}
@@ -170,16 +182,15 @@ const AssociateContact = ({ route }) => {
         <KeeperModal
           visible={showModal}
           close={() => setShowModal(false)}
-          showCloseIcon={false}
-          title="Associated Contact"
-          subTitle="The contact you associated with the Key will be displayed here"
-          secondaryButtonText="Cancel"
-          secondaryCallback={() => setShowModal(false)}
+          showCloseIcon
+          DarkCloseIcon={colorMode === 'dark'}
+          title={vaultText.associateContact}
+          subTitle={modalSubtitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
           buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
-          buttonText="Continue"
+          buttonText={common.continue}
           buttonCallback={onAddAssociateContact}
           Content={() => (
             <Box
@@ -206,16 +217,19 @@ const AssociateContact = ({ route }) => {
       )}
     </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  contentContainer: {
+    paddingHorizontal: wp(5),
+  },
   sectionTitle: {
     fontSize: 16,
-    paddingTop: hp(10),
-    marginBottom: hp(15),
+    marginTop: hp(30),
+    marginBottom: hp(24),
   },
   contactItem: {
     flexDirection: 'row',
@@ -242,12 +256,12 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     paddingHorizontal: 10,
+    marginTop: hp(20),
   },
   input: {
     flex: 1,
     paddingLeft: 10,
     fontSize: 16,
-    color: '#333',
   },
   addContactButton: {
     flexDirection: 'row',
@@ -259,8 +273,7 @@ const styles = StyleSheet.create({
     paddingTop: hp(16),
     paddingBottom: hp(15),
     paddingHorizontal: wp(17),
-    marginTop: hp(10),
-    marginBottom: hp(10),
+    marginTop: hp(15),
   },
   iconContainer: {
     marginRight: 10,

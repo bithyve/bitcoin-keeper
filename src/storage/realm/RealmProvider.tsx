@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
-import * as Sentry from '@sentry/react-native';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import config from 'src/utils/service-utilities/config';
 import { RealmProvider as Provider, useQuery } from '@realm/react';
 import { stringToArrayBuffer } from 'src/store/sagas/login';
 import { useAppSelector } from 'src/store/hooks';
-import { sentryConfig } from 'src/services/sentry';
+import { initializeSentry } from 'src/services/sentry';
 import { RealmDatabase } from './realm';
 import { RealmSchema } from './enum';
 import { getJSONFromRealmObject } from './utils';
@@ -19,18 +18,12 @@ export const realmConfig = (key) => ({
 });
 
 const AppWithNetwork = ({ children }) => {
-  const { networkType, id, enableAnalytics }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
-    getJSONFromRealmObject
-  )[0];
+  const { networkType }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   config.setNetwork(networkType);
 
   useEffect(() => {
-    if (enableAnalytics) {
-      Sentry.init(sentryConfig);
-    } else {
-      Sentry.init({ ...sentryConfig, enabled: false });
-    }
-  }, [enableAnalytics]);
+    initializeSentry();
+  }, []);
 
   return children;
 };

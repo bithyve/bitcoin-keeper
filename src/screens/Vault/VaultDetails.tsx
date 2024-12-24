@@ -1,9 +1,9 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { FlatList, Platform, RefreshControl, StyleSheet } from 'react-native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -35,13 +35,7 @@ import ActionCard from 'src/components/ActionCard';
 import HexagonIcon from 'src/components/HexagonIcon';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { formatNumber } from 'src/utils/utilities';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import ImportIcon from 'src/assets/images/import.svg';
 import { reinstateVault } from 'src/store/sagaActions/vaults';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
@@ -52,6 +46,11 @@ import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import BTCAmountPill from 'src/components/BTCAmountPill';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { SentryErrorBoundary } from 'src/services/sentry';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 function Footer({
   vault,
@@ -71,10 +70,18 @@ function Footer({
   const { common } = translations;
   const { colorMode } = useColorMode();
 
+  const ReInstateIcon = () => (
+    <CircleIconWrapper
+      icon={<ImportIcon />}
+      backgroundColor={`${colorMode}.brownBackground`}
+      width={wp(38)}
+    />
+  );
+
   const footerItems = vault.archived
     ? [
         {
-          Icon: ImportIcon,
+          Icon: ReInstateIcon,
           text: common.reinstate,
           onPress: () => {
             dispatch(reinstateVault(vault.id));
@@ -116,35 +123,45 @@ function VaultInfo({ vault }: { vault: Vault }) {
   } = vault;
 
   return (
-    <HStack style={styles.vaultInfoContainer}>
+    <Box style={[styles.vaultInfoContainer, { flexDirection: vault.archived ? 'column' : 'row' }]}>
       <HStack style={styles.pillsContainer}>
-        {vault.scheme.n > 1 && (
-          <CardPill
-            heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
-            backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
-          />
+        {vault.type === VaultType.SINGE_SIG && (
+          <CardPill heading="Cold" backgroundColor={`${colorMode}.SignleSigCardPillBackColor`} />
         )}
         <CardPill
+          backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
           heading={`${
             vault.type === VaultType.COLLABORATIVE
-              ? common.COLLABORATIVE
+              ? common.collaborative
+              : vault.type === VaultType.ASSISTED
+              ? common.ASSISTED
+              : vault.type === VaultType.TIMELOCKED
+              ? common.TIMELOCKED
+              : vault.type === VaultType.INHERITANCE
+              ? common.Inheritancekey
               : vault.type === VaultType.SINGE_SIG
-              ? 'SINGLE-KEY'
+              ? 'Single-Key'
               : common.VAULT
           }`}
         />
-        {vault.type === VaultType.SINGE_SIG && <CardPill heading={'COLD'} />}
+        {vault.scheme.n > 1 && (
+          <CardPill heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`} />
+        )}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
-        {vault.archived ? <CardPill heading={common.ARCHIVED} backgroundColor="grey" /> : null}
+        {vault.archived ? (
+          <CardPill heading={common.ARCHIVED} backgroundColor={`${colorMode}.greyBackground`} />
+        ) : null}
       </HStack>
-      <CurrencyInfo
-        hideAmounts={false}
-        amount={confirmed + unconfirmed}
-        fontSize={24}
-        color={`${colorMode}.buttonText`}
-        variation="light"
-      />
-    </HStack>
+      <Box style={vault.archived && styles.archivedBalance}>
+        <CurrencyInfo
+          hideAmounts={false}
+          amount={confirmed + unconfirmed}
+          fontSize={24}
+          color={`${colorMode}.buttonText`}
+          variation="light"
+        />
+      </Box>
+    </Box>
   );
 }
 
@@ -187,17 +204,25 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={styles.transTitleWrapper}>
-        {transactions?.length ? (
-          <Text
-            color={`${colorMode}.black`}
-            style={styles.transactionHeading}
-            testID="text_Transaction"
-          >
-            {common.transactions}
+      {transactions?.length ? (
+        <HStack style={styles.transTitleWrapper}>
+          <Text color={`${colorMode}.black`} medium fontSize={wp(14)}>
+            {common.recentTransactions}
           </Text>
-        ) : null}
-      </VStack>
+          <Pressable
+            style={styles.viewAllBtn}
+            onPress={() =>
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'TransactionHistory', params: { wallet: vault } })
+              )
+            }
+          >
+            <Text color={`${colorMode}.greenText`} medium fontSize={wp(14)}>
+              {common.viewAll}
+            </Text>
+          </Pressable>
+        </HStack>
+      ) : null}
       <FlatList
         testID="view_TransactionList"
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
@@ -232,33 +257,41 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const { vaultSigners: keys } = useSigners(vault.id);
-  const transactions =
-    vault?.specs?.transactions.sort((a, b) => {
-      if (!a.blockTime && !b.blockTime) return 0;
-      if (!a.blockTime) return -1;
-      if (!b.blockTime) return 1;
-      return b.blockTime - a.blockTime;
-    }) || [];
+  const transactions = useMemo(
+    () =>
+      [...(vault?.specs?.transactions || [])]
+        .sort((a, b) => {
+          // Sort unconfirmed transactions first
+          if (a.confirmations === 0 && b.confirmations !== 0) return -1;
+          if (a.confirmations !== 0 && b.confirmations === 0) return 1;
+
+          // Then sort by date
+          if (!a.date && !b.date) return 0;
+          if (!a.date) return -1;
+          if (!b.date) return 1;
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        })
+        .slice(0, 5),
+    [vault?.specs?.transactions]
+  );
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
+  const isAssistedWallet = vault.type === VaultType.ASSISTED;
   const isCanaryWallet = vault.type === VaultType.CANARY;
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currencyCodeExchangeRate = exchangeRates[currencyCode];
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = vault || { signers: [] };
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const [cachedTransactions, setCachedTransactions] = useState([]);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const [syncingCompleted, setSyncingCompleted] = useState(false);
+  const syncing = walletSyncing && vault ? !!walletSyncing[vault.id] : false;
 
   const disableBuy = false;
   const cardProps = {
     circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
     pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
-    cardPillText: disableBuy
-      ? common.comingSoon
-      : `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-          currencyCodeExchangeRate.buy.toFixed(0)
-        )}`,
+    cardPillText: disableBuy ? common.comingSoon : '',
+    customCardPill: !disableBuy && <BTCAmountPill />,
     cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
   };
 
@@ -300,7 +333,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   }, [autoRefresh]);
 
   useEffect(() => {
-    if (transactionToast) {
+    if (!syncing && syncingCompleted && transactionToast) {
       showToast(
         vaultTranslation.transactionToastMessage,
         <TickIcon />,
@@ -309,7 +342,15 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       );
       navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
     }
-  }, [transactionToast]);
+  }, [syncingCompleted, transactionToast]);
+
+  useEffect(() => {
+    if (!syncing) {
+      setSyncingCompleted(true);
+    } else {
+      setSyncingCompleted(false);
+    }
+  }, [syncing]);
 
   const syncVault = () => {
     setPullRefresh(true);
@@ -347,13 +388,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   );
 
   return (
-    <Box
-      style={styles.wrapper}
-      safeAreaTop
-      backgroundColor={
-        isCollaborativeWallet ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
-      }
-    >
+    <Box style={styles.wrapper} safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`}>
+      <ActivityIndicatorView visible={syncing} showLoader />
       <StatusBar barStyle="light-content" />
       <VStack style={styles.topSection}>
         <KeeperHeader
@@ -366,7 +402,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             <HexagonIcon
               width={58}
               height={50}
-              backgroundColor={'rgba(9, 44, 39, 0.6)'}
+              backgroundColor="rgba(9, 44, 39, 0.6)"
               icon={
                 isCollaborativeWallet ? (
                   <CollaborativeIcon />
@@ -381,14 +417,21 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           subtitle={vault.presentationData?.description}
           learnMore
           learnTextColor={`${colorMode}.buttonText`}
-          learnBackgroundColor="rgba(0,0,0,.2)"
+          learnBackgroundColor={`${colorMode}.pantoneGreen`}
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}
           rightComponent={
             <TouchableOpacity
               style={styles.settingBtn}
-              onPress={() =>
-                navigation.dispatch(CommonActions.navigate('VaultSettings', { vaultId: vault.id }))
+              onPress={
+                !vault.archived
+                  ? () =>
+                      navigation.dispatch(
+                        CommonActions.navigate('VaultSettings', { vaultId: vault.id })
+                      )
+                  : () => {
+                      navigation.push('VaultSettings', { vaultId: vault.id });
+                    }
               }
             >
               <SettingIcon width={24} height={24} />
@@ -414,6 +457,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               pillTextColor={cardProps.pillTextColor}
               circleColor={cardProps.circleColor}
               cardPillColor={cardProps.cardPillColor}
+              customCardPill={cardProps.customCardPill}
+              customStyle={{ justifyContent: 'flex-end' }}
             />
           )}
           <ActionCard
@@ -427,6 +472,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               })
             }
             icon={<CoinIcon />}
+            customStyle={{ justifyContent: 'flex-end' }}
           />
           {!isCanaryWallet && (
             <ActionCard
@@ -441,6 +487,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                 )
               }
               icon={<SignerIcon />}
+              customStyle={{ justifyContent: 'flex-end' }}
             />
           )}
         </HStack>
@@ -529,8 +576,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   vaultInfoContainer: {
+    flexDirection: 'row',
     paddingLeft: '3%',
-    marginVertical: 20,
+    marginTop: 20,
+    marginBottom: 10,
     justifyContent: 'space-between',
   },
   pillsContainer: {
@@ -549,9 +598,10 @@ const styles = StyleSheet.create({
     paddingTop: hp(15),
   },
   bottomSection: {
+    paddingTop: wp(65),
+    paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
-    paddingBottom: 20,
   },
   transactionsContainer: {
     paddingHorizontal: wp(22),
@@ -560,13 +610,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(28),
   },
   transTitleWrapper: {
-    paddingTop: windowHeight * 0.1,
-    marginLeft: wp(15),
+    marginLeft: wp(2),
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 10,
+    paddingLeft: 10,
   },
-  transactionHeading: {
-    fontSize: 16,
-    letterSpacing: 0.16,
-    paddingBottom: 16,
+  viewAllBtn: {
+    width: wp(80),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   IconText: {
     justifyContent: 'center',
@@ -721,6 +774,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingVertical: 22,
   },
+  archivedBalance: {
+    alignItems: 'flex-end',
+    marginTop: hp(25),
+  },
 });
 
-export default Sentry.withErrorBoundary(VaultDetails, errorBourndaryOptions);
+export default SentryErrorBoundary(VaultDetails);

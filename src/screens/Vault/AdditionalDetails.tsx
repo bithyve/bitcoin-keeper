@@ -1,5 +1,5 @@
 import { Image, StyleSheet } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, useColorMode, VStack } from 'native-base';
@@ -17,12 +17,13 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import OptionTile from 'src/components/OptionTile';
 import PhoneBookIcon from 'src/assets/images/phone-book-circle.svg';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { getPersistedDocument } from 'src/services/documents';
 import { useAppSelector } from 'src/store/hooks';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
+import { getKeyUID } from 'src/utils/utilities';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -33,20 +34,29 @@ function AdditionalDetails({ route }: ScreenProps) {
   const dispatch = useDispatch();
   const { signer: signerFromParam } = route.params;
   const { signerMap } = useSignerMap();
-  const signer = signerMap[signerFromParam?.masterFingerprint];
+  const signer = signerMap[getKeyUID(signerFromParam)];
   const [description, setDescription] = useState(signer?.signerDescription || '');
   const [editContactModal, setEditContactModal] = useState(false);
+  const [hasUpdatedDescription, setHasUpdatedDescription] = useState(false);
   const { thumbnailPath, givenName, familyName } = signer.extraData;
   const { relaySignersUpdate } = useAppSelector((state) => state.bhr);
 
   useEffect(() => {
-    if (relaySignersUpdate) {
+    if (relaySignersUpdate && hasUpdatedDescription) {
       showToast('Details updated successfully', <TickIcon />);
+      setHasUpdatedDescription(false);
     }
     return () => {
       dispatch(resetSignersUpdateState());
     };
-  }, [relaySignersUpdate]);
+  }, [relaySignersUpdate, hasUpdatedDescription]);
+
+  const handleDescriptionUpdate = () => {
+    if (description !== signer?.signerDescription) {
+      setHasUpdatedDescription(true);
+      dispatch(updateSignerDetails(signer, 'signerDescription', description));
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -64,9 +74,7 @@ function AdditionalDetails({ route }: ScreenProps) {
             placeholderTextColor={Colors.Graphite}
             value={description}
             maxLength={20}
-            onSubmitEditing={() => {
-              dispatch(updateSignerDetails(signer, 'signerDescription', description));
-            }}
+            onSubmitEditing={handleDescriptionUpdate}
           />
         </Box>
         <OptionTile

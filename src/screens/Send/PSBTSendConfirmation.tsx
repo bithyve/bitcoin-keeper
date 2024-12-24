@@ -9,14 +9,12 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { TransactionType, TxPriority } from 'src/services/wallets/enums';
 import { Signer } from 'src/services/wallets/interfaces/vault';
-import * as Sentry from '@sentry/react-native';
-import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-
 import RKSignersModal from '../../components/RKSignersModal';
 import ReceiptWrapper from './ReceiptWrapper';
 import TransferCard from './TransferCard';
 import AmountDetails from './AmountDetails';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import { SentryErrorBoundary } from 'src/services/sentry';
 
 export interface PSBTSendConfirmationParams {
   sender: { address: string; amount: number }[];
@@ -161,7 +159,7 @@ function PSBTSendConfirmation({ route }) {
     </ScreenWrapper>
   );
 }
-export default Sentry.withErrorBoundary(PSBTSendConfirmation, errorBourndaryOptions);
+export default SentryErrorBoundary(PSBTSendConfirmation);
 
 const styles = StyleSheet.create({
   horizontalLineStyle: {

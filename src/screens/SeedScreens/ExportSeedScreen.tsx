@@ -30,6 +30,7 @@ import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
+import { getKeyUID } from 'src/utils/utilities';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -283,7 +284,7 @@ function ExportSeedScreen({ route, navigation }) {
                   showToast(BackupWallet.OTBSuccessMessage, <TickIcon />);
                   navigation.dispatch(
                     CommonActions.navigate('SigningDeviceDetails', {
-                      signerId: signer.masterFingerprint,
+                      signerId: getKeyUID(signer),
                       vaultId,
                       vaultKey,
                     })

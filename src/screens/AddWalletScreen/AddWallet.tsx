@@ -113,6 +113,8 @@ function AddWallet({ navigation }) {
         title={wallet.AddWallet}
         subtitle={wallet.addWalletHeaderSubtitle}
         learnMore
+        learnBackgroundColor={`${colorMode}.brownBackground`}
+        learnMoreBorderColor={`${colorMode}.brownBackground`}
         learnMorePressed={() => {
           setVisibleModal(true);
         }}
