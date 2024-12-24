@@ -90,6 +90,8 @@ export const SignersReqVault = [
   SignerType.PORTAL,
 ];
 
+export const CHANGE_INDEX_THRESHOLD = 100;
+
 const EmptyActivityView = ({ colorMode, isDarkMode }) => (
   <Box style={styles.emptyWrapper}>
     <Text color={`${colorMode}.secondaryText`} style={styles.emptyText} medium>
@@ -409,6 +411,13 @@ function SigningDeviceDetails({ route }) {
           navigation.goBack();
           throw new Error('Please import the vault before signing');
         }
+
+        if (
+          parseInt(changeAddressIndex) >
+          activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
+        )
+          throw new Error('Change index is too high.');
+
         const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
         serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
         receiverAddresses = findChangeFromReceiverAddresses(

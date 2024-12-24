@@ -42,7 +42,7 @@ import config from 'src/utils/service-utilities/config';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import messaging from '@react-native-firebase/messaging';
 import { notificationType } from 'src/models/enums/Notifications';
-import { SignersReqVault } from '../Vault/SigningDeviceDetails';
+import { CHANGE_INDEX_THRESHOLD, SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
@@ -156,6 +156,13 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                       navigation.goBack();
                       throw new Error('Please import the vault before signing');
                     }
+
+                    if (
+                      parseInt(changeAddressIndex) >
+                      activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
+                    )
+                      throw new Error('Change index is too high.');
+
                     const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
                     serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
                     receiverAddresses = findChangeFromReceiverAddresses(
