@@ -27,7 +27,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import useAsync from 'src/hooks/useAsync';
 import { initializeSentry } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
-import { generateDataFromPSBT, getTnxDetailsPSBT, isOdd } from 'src/utils/utilities';
+import { generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
 import { getKeyUID } from 'src/utils/utilities';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { decrypt, getHashFromKey } from 'src/utils/service-utilities/encryption';
@@ -98,12 +98,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
-    const { isPleb } = getAppData();
-    if (isPleb) {
-      showToast('Upgrade to Hodler to use Remote Key Sharing');
-      return false;
-    }
-
     const encryptionKey = initialUrl.split('remote/')[1];
     const hash = getHashFromKey(encryptionKey);
     if (encryptionKey && hash) {
