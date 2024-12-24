@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
     marginBottom: hp(43),
   },
   modalText: {
-    width: '90%',
     marginBottom: hp(10),
   },
 });
