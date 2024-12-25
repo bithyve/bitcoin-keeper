@@ -253,9 +253,9 @@ function ManageSigners({ route }: ScreenProps) {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenContent`}
+        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
         secondaryCallback={() => {
           setShowLearnMoreModal(false);
@@ -265,7 +265,9 @@ function ManageSigners({ route }: ScreenProps) {
         buttonCallback={() => setShowLearnMoreModal(false)}
         Content={() => (
           <Box style={styles.modalContent}>
-            <HardwareIllustration />
+            <Box style={styles.illustrationContainer}>
+              <HardwareIllustration />
+            </Box>
             <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
               {signerTranslation.manageKeysModalDesc}
             </Text>
@@ -508,7 +510,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   modalContent: {
-    marginBottom: hp(40),
+    alignItems: 'center',
+    marginBottom: hp(10),
+  },
+  illustrationContainer: {
+    marginBottom: hp(30),
   },
   timerWrapper: {
     width: '100%',
