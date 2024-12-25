@@ -102,12 +102,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
-    const { isPleb } = getAppData();
-    if (isPleb) {
-      showToast('Upgrade to Hodler to use Remote Key Sharing');
-      return false;
-    }
-
     const encryptionKey = initialUrl.split('remote/')[1];
     const hash = getHashFromKey(encryptionKey);
     if (encryptionKey && hash) {

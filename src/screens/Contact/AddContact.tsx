@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
-import { TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { TextInput, StyleSheet, TouchableOpacity, Image, Pressable } from 'react-native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
-
+import ContactBookLight from 'src/assets/images/contact-book-light.svg';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -16,8 +16,30 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { persistDocument } from 'src/services/documents';
 
+const ContactButton = ({ signer, isWalletFlow }) => {
+  const { colorMode } = useColorMode();
+  const navigation = useNavigation();
+  return (
+    <Pressable
+      onPress={() => {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'AssociateContact',
+            params: { signer, showAddContact: false, popIndex: 2, isWalletFlow },
+          })
+        );
+      }}
+    >
+      <Box style={styles.contactButton}>
+        <ContactBookLight />
+        <Text color={`${colorMode}.greenText`}>Contacts</Text>
+      </Box>
+    </Pressable>
+  );
+};
+
 function AddContact({ route }) {
-  const { signer } = route.params;
+  const { signer, showContactButton = false, isWalletFlow = false } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [name, setName] = useState('');
@@ -69,7 +91,15 @@ function AddContact({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader simple title="Add Contact" titleColor={`${colorMode}.primaryText`} />
+      <KeeperHeader
+        title="Add Contact"
+        titleColor={`${colorMode}.pitchBlackText`}
+        rightComponent={
+          showContactButton && <ContactButton signer={signer} isWalletFlow={isWalletFlow} />
+        }
+        rightComponentPadding={wp(10)}
+        rightComponentBottomPadding={hp(8)}
+      />
 
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
@@ -119,7 +149,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     position: 'relative',
-    marginTop: hp(10),
+    marginTop: hp(30),
     marginBottom: hp(30),
   },
   plusIconContainer: {
@@ -150,6 +180,11 @@ const styles = StyleSheet.create({
   },
   saveButtonContainer: {
     width: '100%',
+  },
+  contactButton: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: wp(5),
   },
 });
 
