@@ -35,9 +35,10 @@ function* goToConceirge({
     screenName: string;
   };
 }) {
-  const { tags, screenName } = payload;
-  yield put(setConciergTags([screenName, ...tags].filter((str) => str !== '')));
-  yield call(openConceirge);
+  // const { tags, screenName } = payload;
+  // yield put(setConciergTags([screenName, ...tags].filter((str) => str !== '')));
+  // yield call(openConceirge);
+  Linking.openURL('https://help.bitcoinkeeper.app/hc/en-us');
 }
 
 export const goToConceirgeWatcher = createWatcher(goToConceirge, GO_TO_CONCEIERGE);

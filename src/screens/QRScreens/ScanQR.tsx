@@ -6,7 +6,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/services/qr';
-import { useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -15,7 +15,6 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRScanner from 'src/components/QRScanner';
@@ -26,6 +25,7 @@ import Note from 'src/components/Note/Note';
 const decoder = new URRegistryDecoder();
 
 function ScanQR() {
+  const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const [visibleModal, setVisibleModal] = useState(false);
   const route = useRoute();
@@ -178,7 +178,15 @@ function ScanQR() {
             }}
             secondaryCallback={() => {
               setVisibleModal(false);
-              dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'));
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'KeeperConcierge',
+                  params: {
+                    tags: [ConciergeTag.COLLABORATIVE_Wallet],
+                    screenName: 'add-co-signer',
+                  },
+                })
+              );
             }}
             learnMoreButtonText={common.needMoreHelp}
           />

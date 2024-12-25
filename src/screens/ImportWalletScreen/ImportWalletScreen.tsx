@@ -3,7 +3,7 @@ import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { useQuery } from '@realm/react';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -20,7 +20,6 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import QRScanner from 'src/components/QRScanner';
 
@@ -125,7 +124,15 @@ function ImportWalletScreen() {
             secButtonTextColor={`${colorMode}.whiteSecButtonText`}
             secondaryCallback={() => {
               setIntroModal(false);
-              dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet'));
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'KeeperConcierge',
+                  params: {
+                    tags: [ConciergeTag.WALLET],
+                    screenName: 'import-wallet',
+                  },
+                })
+              );
             }}
             buttonCallback={() => setIntroModal(false)}
           />

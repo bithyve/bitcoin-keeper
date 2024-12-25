@@ -15,9 +15,9 @@ import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import QRScanner from 'src/components/QRScanner';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 function WrappedImportIcon() {
   return (
@@ -29,6 +29,7 @@ function WrappedImportIcon() {
 
 function VaultConfigurationCreation() {
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
   const [inputText, setInputText] = useState('');
   const { recoveryLoading, initateRecovery } = useConfigRecovery();
 
@@ -153,7 +154,15 @@ function VaultConfigurationCreation() {
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryCallback={() => {
           setShowModal(false);
-          dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet-config-file'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.WALLET],
+                screenName: 'import-wallet-config-file',
+              },
+            })
+          );
         }}
         buttonCallback={() => setShowModal(false)}
       />
