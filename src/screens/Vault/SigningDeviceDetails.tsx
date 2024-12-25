@@ -399,27 +399,26 @@ function SigningDeviceDetails({ route }) {
     try {
       let { senderAddresses, receiverAddresses, fees, signerMatched, feeRate, changeAddressIndex } =
         generateDataFromPSBT(serializedPSBT, signer);
-
       if (!signerMatched) {
         showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
         navigation.goBack();
         return;
       }
+      const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
       if (SignersReqVault.includes(signer.type)) {
-        const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
         if (!activeVault) {
           navigation.goBack();
           throw new Error('Please import the vault before signing');
         }
-
+        const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
+        serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
+      }
+      if (activeVault) {
         if (
           parseInt(changeAddressIndex) >
           activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
         )
           throw new Error('Change index is too high.');
-
-        const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
-        serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
         receiverAddresses = findChangeFromReceiverAddresses(
           activeVault,
           receiverAddresses,

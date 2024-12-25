@@ -150,27 +150,27 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     return false;
                   }
 
-                  if (SignersReqVault.includes(signer.type)) {
-                    const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
-                    if (!activeVault) {
-                      navigation.goBack();
-                      throw new Error('Please import the vault before signing');
-                    }
-
-                    if (
-                      parseInt(changeAddressIndex) >
-                      activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
-                    )
-                      throw new Error('Change index is too high.');
-
-                    const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
-                    serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
-                    receiverAddresses = findChangeFromReceiverAddresses(
-                      activeVault,
-                      receiverAddresses,
-                      parseInt(changeAddressIndex)
-                    );
+                const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
+                if (SignersReqVault.includes(signer.type)) {
+                  if (!activeVault) {
+                    navigation.goBack();
+                    throw new Error('Please import the vault before signing');
                   }
+                  const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
+                  serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
+                }
+                if (activeVault) {
+                  if (
+                    parseInt(changeAddressIndex) >
+                    activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
+                  )
+                    throw new Error('Change index is too high.');
+                  receiverAddresses = findChangeFromReceiverAddresses(
+                    activeVault,
+                    receiverAddresses,
+                    parseInt(changeAddressIndex)
+                  );
+                }
 
                   dispatch(setRemoteLinkDetails({ xfp, cachedTxid }));
                   navigation.dispatch(
