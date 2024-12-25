@@ -61,7 +61,6 @@ import { getPsbtForHwi, getSignerDescription, getSignerNameFromType } from 'src/
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { useAppSelector } from 'src/store/hooks';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
@@ -718,7 +717,15 @@ function SigningDeviceDetails({ route }) {
               secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
               secondaryCallback={() => {
                 setDetailModal(false);
-                dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'));
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'KeeperConcierge',
+                    params: {
+                      tags: [ConciergeTag.KEYS],
+                      screenName: 'signing-device-details',
+                    },
+                  })
+                );
               }}
               buttonCallback={() => setDetailModal(false)}
             />

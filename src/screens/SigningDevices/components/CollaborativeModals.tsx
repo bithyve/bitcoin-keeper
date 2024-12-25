@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import BitcoinIllustration from 'src/assets/images/btc-illustration.svg';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
@@ -172,8 +171,14 @@ function CollaborativeModals({
           secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
           secondaryCallback={() => {
             setLearnMoreModal?.(false);
-            dispatch(
-              goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'setup-collaborative-vault')
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'KeeperConcierge',
+                params: {
+                  tags: [ConciergeTag.COLLABORATIVE_Wallet],
+                  screenName: 'setup-collaborative-vault',
+                },
+              })
             );
           }}
           buttonCallback={() => setLearnMoreModal?.(false)}

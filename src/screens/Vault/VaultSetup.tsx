@@ -29,7 +29,7 @@ import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { SignerType } from 'src/services/wallets/enums';
 import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
-import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/store/sagaActions/concierge';
 
 function SetupVaultContent() {
   const { colorMode } = useColorMode();
@@ -418,7 +418,15 @@ function VaultSetup({ route }: ScreenProps) {
         secondaryButtonText={common.needHelp}
         secondaryCallback={() => {
           setShowModal(false);
-          dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-setup'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.VAULT],
+                screenName: 'vault-setup',
+              },
+            })
+          );
         }}
         buttonText={common.Okay}
         buttonCallback={() => setShowModal(false)}

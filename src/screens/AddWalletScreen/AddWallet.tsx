@@ -20,9 +20,9 @@ import ImportWalletIcon from 'src/assets/images/importing-wallet.svg';
 import AdvanceCustomizationIcon from 'src/assets/images/advanced-customization.svg';
 import { hp } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import MenuCardWrapper from 'src/components/MenuCardWrapper';
+import { CommonActions } from '@react-navigation/native';
 
 function AddWalletContent() {
   const { colorMode } = useColorMode();
@@ -147,7 +147,15 @@ function AddWallet({ navigation }) {
         secondaryButtonText={common.needHelp}
         secondaryCallback={() => {
           setVisibleModal(false);
-          dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.WALLET],
+                screenName: 'add-wallet',
+              },
+            })
+          );
         }}
         buttonText={common.Okay}
         buttonCallback={() => setVisibleModal(false)}

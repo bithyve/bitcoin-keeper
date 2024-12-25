@@ -7,7 +7,7 @@ import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
 import SigningDeviceCard from './components/SigningDeviceCard';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { SignerCategory, SignerType } from 'src/services/wallets/enums';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import useSigners from 'src/hooks/useSigners';
@@ -20,7 +20,7 @@ import { setSdIntroModal } from 'src/store/reducers/vaults';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import Text from 'src/components/KeeperText';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
@@ -32,6 +32,7 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 
 const SigningDeviceList = () => {
+  const navigation = useNavigation();
   const route = useRoute();
   const {
     scheme,
@@ -244,7 +245,15 @@ const SigningDeviceList = () => {
         secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
         secondaryCallback={() => {
           dispatch(setSdIntroModal(false));
-          dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-list'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.KEYS],
+                screenName: 'signing-device-list',
+              },
+            })
+          );
         }}
         buttonCallback={() => {
           dispatch(setSdIntroModal(false));

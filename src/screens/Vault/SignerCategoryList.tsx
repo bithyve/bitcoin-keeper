@@ -21,7 +21,6 @@ import { setSdIntroModal } from 'src/store/reducers/vaults';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useDispatch } from 'react-redux';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import SDCategoryCard from './components/SDCategoryCard';
 import { SignerCategory, SignerType } from 'src/services/wallets/enums';
@@ -184,7 +183,15 @@ function SignerCategoryList() {
         secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
         secondaryCallback={() => {
           dispatch(setSdIntroModal(false));
-          reduxDispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-list'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.KEYS],
+                screenName: 'signing-device-list',
+              },
+            })
+          );
         }}
         buttonCallback={() => {
           dispatch(setSdIntroModal(false));
