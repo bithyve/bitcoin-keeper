@@ -25,7 +25,7 @@ import StackedCirclesList from '../Vault/components/StackedCircleList';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ConciergeTag, goToConcierge, loadConciergeUser } from 'src/store/sagaActions/concierge';
 import { useDispatch, useSelector } from 'react-redux';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import {
   setConciergeUserFailed,
@@ -37,6 +37,7 @@ import usePlan from 'src/hooks/usePlan';
 const KeeperConcierge = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const { params } = useRoute();
   const { translations } = useContext(LocalizationContext);
   const { concierge } = translations;
   const { colorMode } = useColorMode();
@@ -154,7 +155,7 @@ const KeeperConcierge = () => {
 
   const checkConciergeUser = () => {
     if (conciergeUser !== null) {
-      navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
+      navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport', params }));
       return;
     }
     dispatch(loadConciergeUser());

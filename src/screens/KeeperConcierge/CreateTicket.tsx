@@ -24,7 +24,8 @@ import Zendesk from 'src/services/backend/Zendesk';
 import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
 import { getKeyUID } from 'src/utils/utilities';
 
-const CreateTicket = ({ navigation }) => {
+const CreateTicket = ({ navigation, route }) => {
+  const { screenName, tags } = route.params;
   const { colorMode } = useColorMode();
   const textAreaRef = useRef(null);
   const { allVaults } = useVault({});
@@ -87,7 +88,9 @@ const CreateTicket = ({ navigation }) => {
     wallets.forEach((wallet) => {
       details += `Wallet Name:\n${wallet.presentationData.name}\n1 of 1, SingleSig`;
     });
-
+    details += '\n';
+    if (screenName) details += `\nScreen Name: ${screenName}`;
+    if (tags.length) details += `\nTags: ${tags.join(', ')}`;
     setDesc(details + '\n');
   };
 

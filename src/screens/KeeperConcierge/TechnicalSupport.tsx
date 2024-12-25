@@ -6,7 +6,7 @@ import ContentWrapper from 'src/components/ContentWrapper';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import TicketHistory from './components/TicketHistory';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadConciergeTickets } from 'src/store/reducers/concierge';
 import KeeperModal from 'src/components/KeeperModal';
@@ -27,7 +27,12 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const { newTicketId = '', ticketCreated = false } = route.params || {};
+  const {
+    newTicketId = '',
+    ticketCreated = false,
+    screenName = '',
+    tags = [],
+  } = route.params || {};
   const { showToast } = useToastMessage();
   const [modalTicketId, setModalTicketId] = useState('');
 
@@ -76,7 +81,19 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       <ConciergeHeader title={'Technical Support'} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         <TicketHistory />
-        <CreateTicketCTA />
+        <CreateTicketCTA
+          onPress={() =>
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'CreateTicket',
+                params: {
+                  screenName,
+                  tags,
+                },
+              })
+            )
+          }
+        />
       </ContentWrapper>
       <KeeperModal
         visible={showModal}
