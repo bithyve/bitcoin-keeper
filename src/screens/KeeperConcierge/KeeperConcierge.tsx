@@ -11,6 +11,8 @@ import SendLight from 'src/assets/images/send-light.svg';
 import SendDark from 'src/assets/images/send-dark.svg';
 import AIOutlineLight from 'src/assets/images/ai-outline-light.svg';
 import AIOutlineDark from 'src/assets/images/ai-outline-dark.svg';
+import KBOutlineLight from 'src/assets/images/kb-outline-light.svg';
+import KBOutlineDark from 'src/assets/images/kb-outline-dark.svg';
 import TechnicalSupportLight from 'src/assets/images/technical-support-light.svg';
 import TechnicalSupportDark from 'src/assets/images/technical-support-dark.svg';
 import AdvisorDisabledLight from 'src/assets/images/calendar-disabled-light.svg';
@@ -90,7 +92,7 @@ const KeeperConcierge = () => {
       description: concierge.smartHelpDescription,
       LeftComponent: (
         <CircleIconWrapper
-          icon={isDarkMode ? <AIOutlineDark /> : <AIOutlineLight />}
+          icon={isDarkMode ? <KBOutlineDark /> : <KBOutlineLight />}
           width={wp(35)}
           backgroundColor={`${colorMode}.greyBackground`}
         />
