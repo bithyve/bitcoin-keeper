@@ -9,7 +9,11 @@ import {
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
-import { findVaultFromSenderAddress, urlParamsToObj } from 'src/utils/service-utilities/utils';
+import {
+  findChangeFromReceiverAddresses,
+  findVaultFromSenderAddress,
+  urlParamsToObj,
+} from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -27,7 +31,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import useAsync from 'src/hooks/useAsync';
 import { initializeSentry } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
-import { generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
+import { generateDataFromPSBT } from 'src/utils/utilities';
 import { getKeyUID } from 'src/utils/utilities';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { decrypt, getHashFromKey } from 'src/utils/service-utilities/encryption';
@@ -38,7 +42,7 @@ import config from 'src/utils/service-utilities/config';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import messaging from '@react-native-firebase/messaging';
 import { notificationType } from 'src/models/enums/Notifications';
-import { SignersReqVault } from '../Vault/SigningDeviceDetails';
+import { CHANGE_INDEX_THRESHOLD, SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
@@ -125,15 +129,14 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                 try {
                   const signer = signers.find((s) => keyUID == getKeyUID(s));
                   if (!signer) throw { message: 'Signer not found' };
-                  const {
+                  let {
                     senderAddresses,
                     receiverAddresses,
                     fees,
                     signerMatched,
-                    sendAmount,
                     feeRate,
+                    changeAddressIndex,
                   } = generateDataFromPSBT(serializedPSBT, signer);
-                  const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
 
                   if (!signerMatched) {
                     showToast(`Invalid signer selection. Please try again!`, <ToastErrorIcon />);
@@ -141,15 +144,27 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     return false;
                   }
 
-                  if (SignersReqVault.includes(signer.type)) {
-                    const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
-                    if (!activeVault) {
-                      navigation.goBack();
-                      throw new Error('Please import the vault before signing');
-                    }
-                    const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
-                    serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
+                const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
+                if (SignersReqVault.includes(signer.type)) {
+                  if (!activeVault) {
+                    navigation.goBack();
+                    throw new Error('Please import the vault before signing');
                   }
+                  const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
+                  serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
+                }
+                if (activeVault) {
+                  if (
+                    parseInt(changeAddressIndex) >
+                    activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
+                  )
+                    throw new Error('Change index is too high.');
+                  receiverAddresses = findChangeFromReceiverAddresses(
+                    activeVault,
+                    receiverAddresses,
+                    parseInt(changeAddressIndex)
+                  );
+                }
 
                   dispatch(setRemoteLinkDetails({ xfp, cachedTxid }));
                   navigation.dispatch(
@@ -158,12 +173,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                       params: {
                         sender: senderAddresses,
                         recipient: receiverAddresses,
-                        amount: sendAmount,
-                        data: serializedPSBT,
                         fees: fees,
-                        estimatedBlocksBeforeConfirmation:
-                          tnxDetails.estimatedBlocksBeforeConfirmation,
-                        tnxPriority: tnxDetails.tnxPriority,
                         signer,
                         psbt: serializedPSBT,
                         feeRate,
