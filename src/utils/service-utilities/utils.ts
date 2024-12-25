@@ -594,7 +594,7 @@ export function generateKeyFromPassword(password, salt = 'ARzDkUmENwt1', iterati
 }
 
 
-export function findVaultFromSenderAddress(allVaults, senderAddresses) {
+export function findVaultFromSenderAddress(allVaults: Vault[], senderAddresses) {
   let activeVault = null;
   allVaults.forEach(async (vault) => {
     let addressMatched = true;
@@ -622,4 +622,23 @@ export function findVaultFromSenderAddress(allVaults, senderAddresses) {
     return null;
   }
   return activeVault;
+}
+
+export function findChangeFromReceiverAddresses(
+  activeVault: Vault,
+  receiverAddresses,
+  changeAddressIndex: number
+) {
+  if (changeAddressIndex == undefined) return receiverAddresses;
+  const changeAddress = WalletOperations.getExternalInternalAddressAtIdx(
+    activeVault,
+    changeAddressIndex,
+    true
+  );
+  const found = receiverAddresses.findIndex((address) => address.address === changeAddress);
+  if (found !== -1) {
+    receiverAddresses[found].isChange = true;
+  }
+
+  return receiverAddresses;
 }

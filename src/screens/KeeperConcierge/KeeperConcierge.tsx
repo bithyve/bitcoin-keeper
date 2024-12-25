@@ -24,15 +24,12 @@ import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import StackedCirclesList from '../Vault/components/StackedCircleList';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ConciergeTag, goToConcierge, loadConciergeUser } from 'src/store/sagaActions/concierge';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import {
-  setConciergeUserFailed,
-  setConciergeUserSuccess,
-  showOnboarding,
-} from 'src/store/reducers/concierge';
+import { setConciergeUserFailed, setConciergeUserSuccess } from 'src/store/reducers/concierge';
 import usePlan from 'src/hooks/usePlan';
+import { useAppSelector } from 'src/store/hooks';
 
 const KeeperConcierge = () => {
   const dispatch = useDispatch();
@@ -44,8 +41,7 @@ const KeeperConcierge = () => {
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
   const { conciergeUser, conciergeLoading, conciergeUserSuccess, conciergeUserFailed } =
-    useSelector((store) => store.concierge);
-  const { dontShowConceirgeOnboarding } = useSelector((state) => state.storage);
+    useAppSelector((store) => store.concierge);
   const { isOnL1 } = usePlan();
 
   useEffect(() => {
@@ -54,10 +50,6 @@ const KeeperConcierge = () => {
       dispatch(setConciergeUserSuccess(false));
     }
   }, [conciergeUserSuccess]);
-
-  useEffect(() => {
-    if (!dontShowConceirgeOnboarding) dispatch(showOnboarding());
-  }, []);
 
   useEffect(() => {
     if (conciergeUserFailed == true) {

@@ -18,7 +18,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import KeyIcon from 'src/assets/images/multi-or-single-key.svg';
 import ImportWalletIcon from 'src/assets/images/importing-wallet.svg';
 import AdvanceCustomizationIcon from 'src/assets/images/advanced-customization.svg';
-import { hp } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import MenuCardWrapper from 'src/components/MenuCardWrapper';
@@ -159,9 +158,9 @@ function AddWallet({ navigation }) {
         }}
         buttonText={common.Okay}
         buttonCallback={() => setVisibleModal(false)}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
       />
     </ScreenWrapper>
   );

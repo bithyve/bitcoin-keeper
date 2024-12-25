@@ -28,6 +28,7 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import { showOnboarding } from 'src/store/reducers/concierge';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -63,6 +64,7 @@ function NewHomeScreen({ navigation }) {
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
+  const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);
   const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
   const netBalanceAllVaults = calculateBalancesForVaults(allVaults);
   const { showToast } = useToastMessage();
@@ -118,7 +120,13 @@ function NewHomeScreen({ navigation }) {
     {
       name: homeTranslation.KeeperConcierge,
       icon: colorMode === 'dark' ? <FaqDarkIcon /> : <FaqIcon />,
-      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'KeeperConcierge' })),
+      callback: () => {
+        if (dontShowConceirgeOnboarding) {
+          navigation.dispatch(CommonActions.navigate({ name: 'KeeperConcierge' }));
+        } else {
+          dispatch(showOnboarding());
+        }
+      },
     },
   ];
 
