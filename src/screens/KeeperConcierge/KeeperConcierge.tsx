@@ -30,8 +30,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { setConciergeUserFailed, setConciergeUserSuccess } from 'src/store/reducers/concierge';
 import usePlan from 'src/hooks/usePlan';
 import { useAppSelector } from 'src/store/hooks';
+import { showOnboarding } from 'src/store/reducers/concierge';
 
 const KeeperConcierge = () => {
+  const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { params } = useRoute();
@@ -43,6 +45,10 @@ const KeeperConcierge = () => {
   const { conciergeUser, conciergeLoading, conciergeUserSuccess, conciergeUserFailed } =
     useAppSelector((store) => store.concierge);
   const { isOnL1 } = usePlan();
+
+  useEffect(() => {
+    if (!dontShowConceirgeOnboarding) dispatch(showOnboarding());
+  }, []);
 
   useEffect(() => {
     if (conciergeUserSuccess == true) {
@@ -91,7 +97,7 @@ const KeeperConcierge = () => {
         />
       ),
       buttonText: concierge.smartHelpButtonText,
-      buttonIcon: isDarkMode ? AIDark : AILight,
+      buttonIcon: isDarkMode ? SendDark : SendLight,
       titleComponent: null,
       buttonCallback: () => {
         dispatch(goToConcierge([], ConciergeTag.KEEPER_CONCIERGE));
