@@ -388,7 +388,7 @@ export function KeeperContent(props) {
       <KeeperSetup />
       <Box marginTop={2}>
         <Text style={styles.instructionsText}>
-          {`Open the other Keeper app > Go to Manage Keys > Access the key with the fingerprint ${props.masterFingerPrint} > Go to Settings > Sign a transaction`}
+          {`Open the other Keeper app > Go to Manage Keys > Access the key with the fingerprint ${props.masterFingerPrint} > Sign Transaction`}
         </Text>
       </Box>
     </Box>
@@ -1202,7 +1202,7 @@ function SignerModals({
             />
           );
         }
-        if (signer.type === SignerType.KEEPER) {
+        if (signer.type === SignerType.KEEPER || signer.type === SignerType.UNKOWN_SIGNER) {
           return (
             <KeeperModal
               key={vaultKey.xfp}
