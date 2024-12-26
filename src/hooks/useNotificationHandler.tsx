@@ -25,8 +25,7 @@ const NotificationHandler = () => {
       if (remoteMessage.data?.notificationType === notificationType.REMOTE_KEY_SHARE) {
         setForegroundNotifcation(remoteMessage);
         setShowRemoteNotificationModel(true);
-      }
-      if (remoteMessage.data?.notificationType === notificationType.ZENDESK_TICKET) {
+      } else if (remoteMessage.data?.notificationType === notificationType.ZENDESK_TICKET) {
         const { ticketId = null, ticketStatus = null } = remoteMessage.data;
         if (ticketId && ticketStatus) {
           dispatch(addTicketStatusUAI(ticketId, ticketStatus, remoteMessage.notification.body));
