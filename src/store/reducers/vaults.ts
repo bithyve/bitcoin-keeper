@@ -46,6 +46,10 @@ export type VaultState = {
   keyHeathCheckError: string;
   keyHeathCheckLoading: boolean;
   remoteLinkDetails: RemoteLinkDetails;
+  collaborativeSession: {
+    signers: { [fingerprint: string]: { keyDescriptor: string; pubRSA: string } };
+    lastSynced: number;
+  };
 };
 
 export type SignerUpdatePayload = {
@@ -71,6 +75,10 @@ const initialState: VaultState = {
   keyHeathCheckError: null,
   keyHeathCheckLoading: false,
   remoteLinkDetails: null,
+  collaborativeSession: {
+    signers: {},
+    lastSynced: null,
+  },
 };
 
 const vaultSlice = createSlice({
@@ -148,6 +156,23 @@ const vaultSlice = createSlice({
     setRemoteLinkDetails: (state, action: PayloadAction<RemoteLinkDetails>) => {
       state.remoteLinkDetails = action.payload;
     },
+    setCollaborativeSessionSigners: (
+      state,
+      action: PayloadAction<{
+        [fingerprint: string]: { keyDescriptor: string; pubRSA: string };
+      }>
+    ) => {
+      state.collaborativeSession.signers = {
+        ...state.collaborativeSession.signers,
+        ...action.payload,
+      };
+    },
+    updateCollaborativeSessionLastSynched: (state) => {
+      state.collaborativeSession.lastSynced = Date.now();
+    },
+    resetCollaborativeSession: (state) => {
+      state.collaborativeSession = initialState.collaborativeSession;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_VAULT, (state) => {
@@ -172,6 +197,9 @@ export const {
   setKeyHealthCheckLoading,
   resetKeyHealthState,
   setRemoteLinkDetails,
+  setCollaborativeSessionSigners,
+  updateCollaborativeSessionLastSynched,
+  resetCollaborativeSession,
 } = vaultSlice.actions;
 
 const vaultPersistConfig = {

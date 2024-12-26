@@ -64,10 +64,13 @@ import {
 } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
+  asymmetricDecrypt,
+  asymmetricEncrypt,
   encrypt,
   generateEncryptionKey,
   generateKey,
   hash256,
+  hash512,
 } from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { captureError } from 'src/services/sentry';
@@ -79,15 +82,17 @@ import ElectrumClient, {
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
 import _ from 'lodash';
-import { getSignerDescription } from 'src/hardware';
 import { SyncedWallet } from 'src/services/wallets/interfaces';
 import { checkSignerAccountsMatch, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import { RootState } from '../store';
+
 import {
   initiateVaultMigration,
+  setCollaborativeSessionSigners,
   setKeyHealthCheckError,
   setKeyHealthCheckLoading,
   setKeyHealthCheckSuccess,
+  updateCollaborativeSessionLastSynched,
   vaultCreated,
   vaultMigrationCompleted,
 } from '../reducers/vaults';
@@ -125,6 +130,8 @@ import {
   REFILL_MOBILEKEY,
   REFRESH_CANARY_VAULT,
   REINSTATE_VAULT,
+  UPDATE_COLLABORATIVE_CHANNEL,
+  FETCH_COLLABORATIVE_CHANNEL,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
 import {
@@ -1860,4 +1867,68 @@ function* generateNewExternalAddressWorker({
 export const generateNewExternalAddressWatcher = createWatcher(
   generateNewExternalAddressWorker,
   GENERATE_NEW_ADDRESS
+);
+
+function* updateCollaborativeChannelWorker({ payload }: { payload: { self: Signer } }) {
+  try {
+    const collaborativeSession = yield select(
+      (state: RootState) => state.vault.collaborativeSession
+    );
+
+    for (const fingerprint in collaborativeSession.signers) {
+      const { pubRSA } = collaborativeSession.signers[fingerprint];
+
+      if (payload.self.masterFingerprint === fingerprint) continue;
+
+      const channelId = hash512(pubRSA);
+      const encryptedCollaborativeSession = asymmetricEncrypt(
+        JSON.stringify(collaborativeSession),
+        pubRSA
+      );
+      const res = yield call(
+        Relay.updateCollaborativeChannel,
+        channelId,
+        encryptedCollaborativeSession
+      );
+      if (!(res && res.updated)) throw new Error('Failed to update collaborative channel');
+    }
+  } catch (err) {
+    console.log({ err });
+  }
+}
+
+export const updateCollaborativeChannelWatcher = createWatcher(
+  updateCollaborativeChannelWorker,
+  UPDATE_COLLABORATIVE_CHANNEL
+);
+
+function* fetchCollaborativeChannelWorker({ payload }: { payload: { self: Signer } }) {
+  try {
+    const collaborativeSession = yield select(
+      (state: RootState) => state.vault.collaborativeSession
+    );
+
+    const { pubRSA } = collaborativeSession.signers[payload.self.masterFingerprint];
+    const channelId = hash512(pubRSA);
+    const res = yield call(Relay.fetchCollaborativeChannel, channelId);
+    yield put(updateCollaborativeSessionLastSynched());
+
+    if (res && res.encryptedData) {
+      const { collabKeys } = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      const privRSA = collabKeys ? collabKeys[hash256(pubRSA)] : null;
+
+      if (!privRSA) {
+        throw new Error('Unable to find the corresponding private key in secure storage');
+      }
+      const synchedCollaborativeSession = JSON.parse(asymmetricDecrypt(res.encryptedData, privRSA));
+      yield put(setCollaborativeSessionSigners(synchedCollaborativeSession.signers));
+    }
+  } catch (err) {
+    console.log({ err });
+  }
+}
+
+export const fetchCollaborativeChannelWatcher = createWatcher(
+  fetchCollaborativeChannelWorker,
+  FETCH_COLLABORATIVE_CHANNEL
 );
