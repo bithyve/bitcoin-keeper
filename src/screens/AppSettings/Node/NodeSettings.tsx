@@ -23,6 +23,7 @@ import Buttons from 'src/components/Buttons';
 import EmptyListIllustration from 'src/components/EmptyListIllustration';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ServerItem from './components/ServerItem';
+import WarningNote from 'src/components/WarningNote';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -218,7 +219,12 @@ function NodeSettings() {
           </Box>
         )}
       </Box>
-      <Box>
+      <Box style={styles.footerContainer}>
+        <WarningNote
+          noteText={
+            "You're not connected to any Electrum server. Some functionalities may not work."
+          }
+        />
         {/* <Buttons primaryCallback={onAdd} primaryText={`+ ${settings.addNewNode}`} fullWidth /> */}
         <Buttons
           primaryCallback={() => navigation.dispatch(CommonActions.navigate('NodeSelection'))}
@@ -318,6 +324,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  footerContainer: {
+    gap: hp(30),
   },
 });
 export default NodeSettings;

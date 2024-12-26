@@ -2,7 +2,6 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
-import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TabBar from 'src/components/TabBar';
 import { hp, wp } from 'src/constants/responsive';
@@ -222,6 +221,7 @@ const styles = StyleSheet.create({
     gap: hp(20),
   },
   nodeListContainer: {
+    marginVertical: hp(15),
     marginHorizontal: wp(5),
   },
 });
