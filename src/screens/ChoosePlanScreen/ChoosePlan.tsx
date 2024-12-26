@@ -45,6 +45,8 @@ import Buttons from 'src/components/Buttons';
 import PlanDetailsCards from './components/PlanDetailsCards';
 const { width } = Dimensions.get('window');
 
+const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
+
 function ChoosePlan() {
   const route = useRoute();
   const navigation = useNavigation();
@@ -69,6 +71,7 @@ function ChoosePlan() {
   const disptach = useDispatch();
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
   const [showPromocodeModal, setShowPromocodeModal] = useState(false);
+  const isOldSub = OLD_SUBS_PRODUCT_ID.includes(subscription.productId);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -178,13 +181,26 @@ function ChoosePlan() {
   async function processPurchase(purchase: SubscriptionPurchase) {
     setRequesting(true);
     try {
+      let response;
       const receipt = purchase.transactionReceipt;
-      const plan = items.filter((item) => item.productIds.includes(purchase.productId));
-      const response = await Relay.updateSubscription(id, publicId, purchase);
+      let plan = items.filter((item) => item.productIds.includes(purchase.productId));
+      if (!plan.length && OLD_SUBS_PRODUCT_ID.includes(purchase.productId)) {
+        // For old subs restore, updating relay with new subs monthly plan of same tier.
+        const newProductId = purchase.productId.split('.')[0] + '.monthly';
+        plan = items.filter((item) => item.productIds.includes(newProductId));
+        const updatedPurchase = {
+          ...purchase,
+          productId: newProductId,
+          productIds: [newProductId],
+        };
+        response = await Relay.updateSubscription(id, publicId, updatedPurchase);
+      } else {
+        response = await Relay.updateSubscription(id, publicId, purchase);
+      }
       setRequesting(false);
       if (response.updated) {
         const subscription: SubScription = {
-          productId: purchase.productId.replace('.30', ''), // To save discounted plan as normal plan in db
+          productId: purchase.productId,
           receipt,
           name: plan[0].name,
           level: response.level,
@@ -329,8 +345,10 @@ function ChoosePlan() {
           if (purchase.productId === subscription.productId) {
             showToast(`${choosePlan.currentSubscriptionMessage} ${subscription.name}`);
           } else {
-            const validPurchase = items.find((item) =>
-              item.productIds.includes(purchase.productId)
+            const validPurchase = items.find(
+              (item) =>
+                item.productIds.includes(purchase.productId) ||
+                OLD_SUBS_PRODUCT_ID.includes(purchase.productId)
             );
             if (validPurchase) {
               processPurchase(purchase);
@@ -461,6 +479,21 @@ function ChoosePlan() {
     }`;
   };
 
+  const showBtmCTR = () => {
+    if (loading) return false;
+    if (!items) return false;
+    if (isOldSub) {
+      const newProdID = subscription.productId.split('.')[0].toLowerCase();
+      return !items[currentPosition].productIds.some((productId) => productId.includes(newProdID));
+    }
+
+    return (
+      !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) ||
+      (subscription.productId.toLowerCase() !== 'pleb' &&
+        !subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly'))
+    );
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -541,21 +574,17 @@ function ChoosePlan() {
 
       {/* BTM CTR */}
 
-      {!loading &&
-        items &&
-        (!items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) ||
-          (subscription.productId !== 'pleb' &&
-            !subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly'))) && (
-          <>
-            <Box style={styles.ctaWrapper}>
-              <Buttons
-                primaryCallback={() => processSubscription(items[currentPosition], currentPosition)}
-                primaryText={getActionBtnTitle()}
-                fullWidth
-              />
-            </Box>
-          </>
-        )}
+      {showBtmCTR() && (
+        <>
+          <Box style={styles.ctaWrapper}>
+            <Buttons
+              primaryCallback={() => processSubscription(items[currentPosition], currentPosition)}
+              primaryText={getActionBtnTitle()}
+              fullWidth
+            />
+          </Box>
+        </>
+      )}
     </ScreenWrapper>
   );
 }
