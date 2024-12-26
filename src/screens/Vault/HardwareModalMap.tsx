@@ -715,7 +715,7 @@ function SignerContent({
                 }}
                 colorMode={colorMode}
                 customStyle={{
-                  width: wp(100),
+                  width: wp(options.some((opt) => opt.title.length > 10) ? 115 : 100),
                   height: wp(options.some((opt) => opt.title.length > 10) ? 115 : 100),
                 }}
               />
