@@ -257,7 +257,15 @@ function SetupCollaborativeWallet() {
     });
   };
 
-  const handleCoSignerAddition = (hw, goBack = false) => {
+  const handleCoSignerAddition = (
+    hw: {
+      signer: Signer;
+      key: VaultSigner;
+    },
+    keyDescriptor: string,
+    pubRSA: string,
+    goBack = false
+  ) => {
     if (!hw) return;
 
     if (isSignerDuplicate(hw.key, coSigners)) {
@@ -280,6 +288,16 @@ function SetupCollaborativeWallet() {
       }
       return updatedSigners;
     });
+
+    // update the collaborative state - locally and remotely
+    dispatch(
+      setCollaborativeSessionSigners({
+        [hw.signer.masterFingerprint]: { keyDescriptor, pubRSA },
+      })
+    );
+    dispatch(updateCollaborativeChannel(mySigner));
+    setActivateFetcher(true);
+    // activates the collaborative channel fetcher, case: fetching state updates from the other collaborators
 
     setExternalKeyAddedModal(true);
     {
@@ -305,8 +323,10 @@ function SetupCollaborativeWallet() {
 
   const onQrScan = async (qrData) => {
     try {
-      const hw = setupKeeperSigner(qrData);
-      handleCoSignerAddition(hw, true);
+      const { pubRSA, keyDescriptor } = JSON.parse(qrData);
+      const hw = setupKeeperSigner(keyDescriptor);
+
+      handleCoSignerAddition(hw, keyDescriptor, pubRSA, true);
     } catch (error) {
       handleError(error, 'QR');
     }
@@ -319,14 +339,14 @@ function SetupCollaborativeWallet() {
       }
 
       const records = await NFC.read([NfcTech.Ndef]);
-      const cosigner = records[0]?.data;
-
-      if (!cosigner) {
+      const cosignerData = records[0]?.data;
+      if (!cosignerData) {
         throw new Error('Invalid data');
       }
 
-      const hw = setupKeeperSigner(cosigner);
-      handleCoSignerAddition(hw);
+      const { pubRSA, keyDescriptor } = JSON.parse(cosignerData);
+      const hw = setupKeeperSigner(keyDescriptor);
+      handleCoSignerAddition(hw, keyDescriptor, pubRSA);
     } catch (error) {
       if (error.toString() === 'Error') {
         console.log('NFC interaction cancelled');
@@ -338,8 +358,9 @@ function SetupCollaborativeWallet() {
 
   const onFileExtract = async (fileData) => {
     try {
-      const hw = setupKeeperSigner(fileData);
-      handleCoSignerAddition(hw);
+      const { pubRSA, keyDescriptor } = JSON.parse(fileData);
+      const hw = setupKeeperSigner(keyDescriptor);
+      handleCoSignerAddition(hw, keyDescriptor, pubRSA);
     } catch (error) {
       handleError(error, 'File');
     }
@@ -518,17 +539,22 @@ function SetupCollaborativeWallet() {
           marginTop: hp(52),
         }}
       />
-      <Box style={styles.buttonContainer}>
-        <Buttons
-          fullWidth
-          primaryText={vaultText.shareContactDetails}
-          primaryCallback={() => {
-            navigation.dispatch(
-              CommonActions.navigate({ name: 'ContactDetails', params: { signerData: myKey } })
-            );
-          }}
-        />
-      </Box>
+      {Object.keys(collaborativeSession.signers).length > 1 ? null : (
+        <Box style={styles.buttonContainer}>
+          <Buttons
+            fullWidth
+            primaryText={vaultText.shareContactDetails}
+            primaryCallback={() => {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'ContactDetails',
+                  params: { signerData: myKey, setActivateFetcher },
+                })
+              );
+            }}
+          />
+        </Box>
+      )}
       <WalletVaultCreationModal
         visible={walletCreatedModal}
         title={vaultText.collabVaultCreateSuccessTitle}
@@ -536,6 +562,11 @@ function SetupCollaborativeWallet() {
         buttonText={vaultText.ViewVault}
         buttonCallback={() => {
           navigateToNextScreen();
+
+          // clear the collaborative session states(redux)
+          // can also clean the collab keys from realm here if required
+          setActivateFetcher(false);
+          dispatch(resetCollaborativeSession());
         }}
         walletType={collaborativeVault?.type}
         walletName={collaborativeVault?.presentationData?.name}
