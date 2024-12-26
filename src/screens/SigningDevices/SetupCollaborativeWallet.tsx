@@ -209,12 +209,11 @@ function SetupCollaborativeWallet() {
     // case: initialize the fetch for collaborative session signers from the remote state
     if (collaborativeSession && mySigner) {
       const signersCount = Object.keys(collaborativeSession.signers).length;
-
       // cases: collaborative session is in progress but not yet completed
       if (signersCount > 1) {
         refreshCollaborativeChannel(mySigner);
         setActivateFetcher(true);
-      } else if (collaborativeSession.lastSynched) {
+      } else if (collaborativeSession.lastSynced) {
         refreshCollaborativeChannel(mySigner);
         setActivateFetcher(true);
       }
