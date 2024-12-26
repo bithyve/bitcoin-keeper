@@ -31,6 +31,8 @@ import { setConciergeUserFailed, setConciergeUserSuccess } from 'src/store/reduc
 import usePlan from 'src/hooks/usePlan';
 import { useAppSelector } from 'src/store/hooks';
 import { showOnboarding } from 'src/store/reducers/concierge';
+import KbCtaLight from 'src/assets/images/kb-cta-light.svg';
+import KbCtaDark from 'src/assets/images/kb-cta-dark.svg';
 
 const KeeperConcierge = () => {
   const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);
@@ -97,7 +99,7 @@ const KeeperConcierge = () => {
         />
       ),
       buttonText: concierge.smartHelpButtonText,
-      buttonIcon: isDarkMode ? SendDark : SendLight,
+      buttonIcon: isDarkMode ? KbCtaDark : KbCtaLight,
       titleComponent: null,
       buttonCallback: () => {
         dispatch(goToConcierge([], ConciergeTag.KEEPER_CONCIERGE));
