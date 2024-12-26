@@ -214,7 +214,7 @@ function SetupCollaborativeWallet() {
       if (signersCount > 1) {
         refreshCollaborativeChannel(mySigner);
         setActivateFetcher(true);
-      } else if (collaborativeSession.lastSynched !== null) {
+      } else if (collaborativeSession.lastSynched) {
         refreshCollaborativeChannel(mySigner);
         setActivateFetcher(true);
       }
