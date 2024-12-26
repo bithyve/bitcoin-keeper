@@ -17,9 +17,9 @@ import { hp, wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import BTCModalIcon from 'src/assets/images/btc-illustration.svg';
 import { useDispatch } from 'react-redux';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import MenuCardWrapper from 'src/components/MenuCardWrapper';
+import { CommonActions } from '@react-navigation/native';
 
 function InheritanceToolsAndTips({ navigation }) {
   const { colorMode } = useColorMode();
@@ -101,12 +101,20 @@ function InheritanceToolsAndTips({ navigation }) {
         Content={InheritanceModalContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryCallback={() => {
           setInheritanceModal(false);
-          dispatch(goToConcierge([ConciergeTag.INHERITANCE], 'inheritance-tools-and-tips'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.INHERITANCE],
+                screenName: 'inheritance-tools-and-tips',
+              },
+            })
+          );
         }}
         buttonCallback={() => setInheritanceModal(false)}
         DarkCloseIcon

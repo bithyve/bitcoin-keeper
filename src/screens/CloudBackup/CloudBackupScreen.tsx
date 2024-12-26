@@ -22,12 +22,14 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import BTCIllustration from 'src/assets/images/btc-illustration.svg';
 import useVault from 'src/hooks/useVault';
 import KeeperModal from 'src/components/KeeperModal';
-import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import { wp } from 'src/constants/responsive';
 import { setBackupModal } from 'src/store/reducers/settings';
 import EnterPasswordModal from './EnterPasswordModal';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 function CloudBackupScreen() {
+  const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const dispatch = useAppDispatch();
@@ -170,15 +172,23 @@ function CloudBackupScreen() {
         textColor={`${colorMode}.modalGreenContent`}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryCallback={() => {
           setShowModal(false);
           if (setBackupModal) {
             dispatch(setBackupModal(false));
           }
-          dispatch(goToConcierge([ConciergeTag.SETTINGS], 'cloud-backup'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.SETTINGS],
+                screenName: 'cloud-backup',
+              },
+            })
+          );
         }}
         buttonCallback={() => {
           setShowModal(false);

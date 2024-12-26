@@ -29,6 +29,7 @@ import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { SentryErrorBoundary } from 'src/services/sentry';
 
+
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
   let totalConfirmedBalance = 0;
@@ -118,7 +119,9 @@ function NewHomeScreen({ navigation }) {
     {
       name: homeTranslation.KeeperConcierge,
       icon: colorMode === 'dark' ? <FaqDarkIcon /> : <FaqIcon />,
-      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'KeeperConcierge' })),
+      callback: () => {
+        navigation.dispatch(CommonActions.navigate({ name: 'KeeperConcierge' }));
+      },
     },
   ];
 

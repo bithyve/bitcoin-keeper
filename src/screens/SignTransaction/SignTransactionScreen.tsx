@@ -617,6 +617,7 @@ function SignTransactionScreen() {
       case SignerType.JADE:
         setJadeModal(true);
         break;
+      case SignerType.UNKOWN_SIGNER:
       case SignerType.KEEPER:
         setKeeperModal(true);
         break;

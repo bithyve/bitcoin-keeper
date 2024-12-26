@@ -307,6 +307,11 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     const signersList = [];
     let signerMatched = false;
 
+    const changeAddressIndex = psbt?.data?.outputs
+      ?.find((output) => output?.bip32Derivation?.[0]?.path)
+      ?.bip32Derivation?.[0]?.path?.split('/')
+      ?.pop();
+
     psbt.data.inputs.forEach((input) => {
       if (input.bip32Derivation) {
         // Loop through all derivations (in case there are multiple keys)
@@ -346,6 +351,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
           isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
         ), // Receiver address
         amount: output.value, // Amount in satoshis
+        isChange: false,
       };
     });
 
@@ -379,10 +385,11 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
       feeRate,
       vBytes,
       signersList,
+      changeAddressIndex,
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
-    throw 'Something went wrong';
+    throw new Error('Something went wrong');
   }
 };
 
@@ -474,24 +481,6 @@ export const getInputsToSignFromPSBT = (base64Str: string, signer: Signer) => {
   return inputsToSign;
 };
 
-export const getTnxDetailsPSBT = (averageTxFees, feeRate: string) => {
-  let estimatedBlocksBeforeConfirmation = 0;
-  let tnxPriority = TxPriority.LOW;
-  if (averageTxFees && averageTxFees[config.NETWORK_TYPE]) {
-    const { high, medium, low } = averageTxFees[config.NETWORK_TYPE];
-    const customFeeRatePerByte = parseInt(feeRate);
-    if (customFeeRatePerByte >= high.feePerByte) {
-      estimatedBlocksBeforeConfirmation = high.estimatedBlocks;
-      tnxPriority = TxPriority.HIGH;
-    } else if (customFeeRatePerByte <= low.feePerByte) {
-      estimatedBlocksBeforeConfirmation = low.estimatedBlocks;
-    } else {
-      estimatedBlocksBeforeConfirmation = medium.estimatedBlocks;
-      tnxPriority = TxPriority.MEDIUM;
-    }
-  }
-  return { estimatedBlocksBeforeConfirmation, tnxPriority };
-};
 
 export const calculateTicketsLeft = (tickets, planDetails) => {
   const PLEB_RESTRICTION = 1;

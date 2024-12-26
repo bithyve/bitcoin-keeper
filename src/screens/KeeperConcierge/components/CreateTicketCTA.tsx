@@ -10,9 +10,12 @@ import { useSelector } from 'react-redux';
 import { calculateTicketsLeft } from 'src/utils/utilities';
 import usePlan from 'src/hooks/usePlan';
 
-export const CreateTicketCTA = () => {
+type CreateTicketCTAProps = {
+  onPress: () => void;
+};
+
+export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
   const isDarkMode = colorMode === 'dark';
   const [display, setDisplay] = useState(false);
   const { tickets, conciergeLoading, conciergeUserFailed, conciergeUserSuccess } = useSelector(
@@ -31,9 +34,7 @@ export const CreateTicketCTA = () => {
         <Box style={styles.helpButton}>
           <Buttons
             primaryText="Ask the team"
-            primaryCallback={() => {
-              navigation.dispatch(CommonActions.navigate({ name: 'CreateTicket' }));
-            }}
+            primaryCallback={onPress}
             RightIcon={isDarkMode ? PenLight : PenDark}
             width={wp(150)}
           />

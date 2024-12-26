@@ -227,8 +227,8 @@ function* uaiChecksWorker({ payload }) {
         for (const uai of uaiCollectionHC) {
           const signers: Signer[] = dbManager.getObjectByField(
             RealmSchema.Signer,
-            'masterFingerprint',
-            uai.entityId
+            uai.entityId,
+            'masterFingerprint'
           );
           for (const signer of signers) {
             if (signer) {

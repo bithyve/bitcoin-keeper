@@ -11,6 +11,8 @@ import SendLight from 'src/assets/images/send-light.svg';
 import SendDark from 'src/assets/images/send-dark.svg';
 import AIOutlineLight from 'src/assets/images/ai-outline-light.svg';
 import AIOutlineDark from 'src/assets/images/ai-outline-dark.svg';
+import KBOutlineLight from 'src/assets/images/kb-outline-light.svg';
+import KBOutlineDark from 'src/assets/images/kb-outline-dark.svg';
 import TechnicalSupportLight from 'src/assets/images/technical-support-light.svg';
 import TechnicalSupportDark from 'src/assets/images/technical-support-dark.svg';
 import AdvisorDisabledLight from 'src/assets/images/calendar-disabled-light.svg';
@@ -22,28 +24,31 @@ import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import StackedCirclesList from '../Vault/components/StackedCircleList';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ConciergeTag, goToConcierge, loadConciergeUser } from 'src/store/sagaActions/concierge';
-import { useDispatch, useSelector } from 'react-redux';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import {
-  setConciergeUserFailed,
-  setConciergeUserSuccess,
-  showOnboarding,
-} from 'src/store/reducers/concierge';
+import { setConciergeUserFailed, setConciergeUserSuccess } from 'src/store/reducers/concierge';
 import usePlan from 'src/hooks/usePlan';
+import { useAppSelector } from 'src/store/hooks';
+import { showOnboarding } from 'src/store/reducers/concierge';
 
 const KeeperConcierge = () => {
+  const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const { params } = useRoute();
   const { translations } = useContext(LocalizationContext);
   const { concierge } = translations;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
   const { conciergeUser, conciergeLoading, conciergeUserSuccess, conciergeUserFailed } =
-    useSelector((store) => store.concierge);
-  const { dontShowConceirgeOnboarding } = useSelector((state) => state.storage);
+    useAppSelector((store) => store.concierge);
   const { isOnL1 } = usePlan();
+
+  useEffect(() => {
+    if (!dontShowConceirgeOnboarding) dispatch(showOnboarding());
+  }, []);
 
   useEffect(() => {
     if (conciergeUserSuccess == true) {
@@ -51,10 +56,6 @@ const KeeperConcierge = () => {
       dispatch(setConciergeUserSuccess(false));
     }
   }, [conciergeUserSuccess]);
-
-  useEffect(() => {
-    if (!dontShowConceirgeOnboarding) dispatch(showOnboarding());
-  }, []);
 
   useEffect(() => {
     if (conciergeUserFailed == true) {
@@ -90,13 +91,13 @@ const KeeperConcierge = () => {
       description: concierge.smartHelpDescription,
       LeftComponent: (
         <CircleIconWrapper
-          icon={isDarkMode ? <AIOutlineDark /> : <AIOutlineLight />}
+          icon={isDarkMode ? <KBOutlineDark /> : <KBOutlineLight />}
           width={wp(35)}
           backgroundColor={`${colorMode}.greyBackground`}
         />
       ),
       buttonText: concierge.smartHelpButtonText,
-      buttonIcon: isDarkMode ? AIDark : AILight,
+      buttonIcon: isDarkMode ? SendDark : SendLight,
       titleComponent: null,
       buttonCallback: () => {
         dispatch(goToConcierge([], ConciergeTag.KEEPER_CONCIERGE));
@@ -152,7 +153,7 @@ const KeeperConcierge = () => {
 
   const checkConciergeUser = () => {
     if (conciergeUser !== null) {
-      navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
+      navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport', params }));
       return;
     }
     dispatch(loadConciergeUser());
