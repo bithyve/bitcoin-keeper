@@ -232,7 +232,7 @@ function ManageSigners({ route }: ScreenProps) {
         buttonCallback={acceptRemoteKey}
         secondaryCallback={rejectRemoteKey}
         Content={() => (
-          <Box style={styles.modalContent}>
+          <Box style={{ marginBottom: hp(10) }}>
             <Note subtitle={signerTranslation.remoteKeyReceiveNote} />
           </Box>
         )}
