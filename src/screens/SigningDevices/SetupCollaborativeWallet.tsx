@@ -351,14 +351,43 @@ function SetupCollaborativeWallet() {
   );
   const myAppKeyCount = myAppKeys.length;
 
+  const initializeCollabSession = async (signer: Signer) => {
+    let pubRSA = idx(collaborativeSession, (_) => _.signers[signer.masterFingerprint].pubRSA);
+
+    if (!pubRSA) {
+      const { privateKey, publicKey } = await generateRSAKeypair();
+      pubRSA = publicKey;
+
+      const existingCollabKeys = app.collabKeys || {};
+      const updatedCollabKeys = {
+        ...existingCollabKeys,
+        [hash256(pubRSA)]: privateKey,
+      };
+      dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+        collabKeys: updatedCollabKeys,
+      });
+    }
+
+    if (!pubRSA) {
+      showToast('Failed to generate collab session key', <ToastErrorIcon />);
+      return;
+    }
+
+    dispatch(
+      setCollaborativeSessionSigners({
+        [signer.masterFingerprint]: { keyDescriptor: fetchKeyExpression(signer), pubRSA },
+      })
+    );
+  };
+
   useEffect(() => {
     if (!coSigners[0]) {
       setTimeout(() => {
-        let updatedSigners = coSigners.map((item, index) => {
+        const updatedSigners = coSigners.map((item, index) => {
           if (index === 0 && myAppKeyCount > 0) {
-            const signer = myAppKeys[myAppKeyCount - 1];
+            const signer: Signer = myAppKeys[myAppKeyCount - 1];
             const msXpub: signerXpubs[XpubTypes.P2WSH][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
-            const appKey = {
+            const appKey: VaultSigner = {
               ...msXpub,
               masterFingerprint: signer.masterFingerprint,
               xfp: WalletUtilities.getFingerprintFromExtendedKey(
@@ -367,6 +396,8 @@ function SetupCollaborativeWallet() {
               ),
             };
             setMyKey(appKey);
+            setMySigner(signer);
+            initializeCollabSession(signer);
             return appKey;
           }
         });

@@ -19,5 +19,6 @@ export interface KeeperApp {
   networkType: NetworkType;
   backup: AppBackup;
   subscription: SubScription;
+  collabKeys?: { [key: string]: string }; // stores RSA-key for collab-sessions(currently persisted, can be cleaned up after every session if required)
   enableAnalytics: boolean;
 }
