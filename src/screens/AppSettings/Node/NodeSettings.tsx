@@ -1,23 +1,15 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import ConnectIcon from 'src/assets/images/connectNode.svg';
-import ConnectIconWhite from 'src/assets/images/connectNodeWhite.svg';
-import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
-import DisconnectIconWhite from 'src/assets/images/disconnectNodeWhite.svg';
-import DeleteIcon from 'src/assets/images/deleteNode.svg';
-import DeleteIconWhite from 'src/assets/images/deleteNodeWhite.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import Text from 'src/components/KeeperText';
 import {
   electrumClientConnectionExecuted,
   electrumClientConnectionInitiated,
@@ -29,8 +21,8 @@ import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import Buttons from 'src/components/Buttons';
 import EmptyListIllustration from 'src/components/EmptyListIllustration';
-import Colors from 'src/theme/Colors';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import ServerItem from './components/ServerItem';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -62,7 +54,9 @@ function NodeSettings() {
   const [nodeToDelete, setNodeToDelete] = useState(null);
 
   useEffect(() => {
+    console.log('nodeList', nodeList);
     const nodes: NodeDetail[] = Node.getAllNodes();
+    console.log('nodes', nodes);
     const current = nodes.filter((node) => Node.nodeConnectionStatus(node))[0];
     setCurrentlySelectedNodeItem(current);
     setNodeList(nodes);
@@ -205,103 +199,18 @@ function NodeSettings() {
           <FlatList
             data={nodeList}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => {
-              const isConnected = Node.nodeConnectionStatus(item);
-              return (
-                <TouchableOpacity
-                  onPress={() => onSelectedNodeitem(item)}
-                  style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
-                >
-                  <Box
-                    backgroundColor={`${colorMode}.seashellWhite`}
-                    style={[styles.nodeList]}
-                    borderColor={colorMode === 'light' ? 'transparent' : Colors.separator}
-                  >
-                    <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
-                      <Box flex={1}>
-                        <Text
-                          color={`${colorMode}.secondaryText`}
-                          style={[styles.nodeTextHeader]}
-                          medium
-                        >
-                          {settings.host}
-                        </Text>
-                        <Text numberOfLines={1} style={styles.nodeTextValue}>
-                          {item.host}
-                        </Text>
-                      </Box>
-                      <Box flex={-1}>
-                        <Text
-                          color={`${colorMode}.secondaryText`}
-                          style={[styles.nodeTextHeader]}
-                          medium
-                        >
-                          {settings.portNumber}
-                        </Text>
-                        <Text style={styles.nodeTextValue}>{item.port}</Text>
-                      </Box>
-                    </Box>
-                    <Box
-                      style={styles.nodeButtons}
-                      borderColor={`${colorMode}.greyBorder`}
-                      backgroundColor={`${colorMode}.seashellWhite`}
-                    >
-                      <TouchableOpacity
-                        testID="btn_deleteNode"
-                        onPress={() => {
-                          if (!isConnected) onDelete(item);
-                          else {
-                            setNodeToDelete(item);
-                            setElectrumDisconnectWarningVisible(true);
-                          }
-                        }}
-                      >
-                        <Box style={[styles.actionArea, { width: wp(70), marginRight: wp(20) }]}>
-                          {colorMode === 'light' ? <DeleteIcon /> : <DeleteIconWhite />}
-                          <Text style={[styles.actionText, { paddingTop: 1 }]}>
-                            {common.delete}
-                          </Text>
-                        </Box>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        testID="btn_disconnetNode"
-                        onPress={async () => {
-                          if (!isConnected) await onConnectToNode(item);
-                          else {
-                            setNodeToDisconnect(item);
-                            setElectrumDisconnectWarningVisible(true);
-                          }
-                        }}
-                      >
-                        <Box
-                          style={[
-                            styles.actionArea,
-                            {
-                              paddingTop: isConnected ? hp(6) : hp(6),
-                            },
-                          ]}
-                        >
-                          {isConnected ? (
-                            colorMode === 'light' ? (
-                              <DisconnectIcon />
-                            ) : (
-                              <DisconnectIconWhite />
-                            )
-                          ) : colorMode === 'light' ? (
-                            <ConnectIcon />
-                          ) : (
-                            <ConnectIconWhite />
-                          )}
-                          <Text style={[styles.actionText, { paddingTop: isConnected ? 0 : 1 }]}>
-                            {isConnected ? common.disconnect : common.connect}
-                          </Text>
-                        </Box>
-                      </TouchableOpacity>
-                    </Box>
-                  </Box>
-                </TouchableOpacity>
-              );
-            }}
+            renderItem={({ item }) => (
+              <ServerItem
+                item={item}
+                currentlySelectedNode={currentlySelectedNode}
+                onSelectedNodeitem={onSelectedNodeitem}
+                onDelete={onDelete}
+                onConnectToNode={onConnectToNode}
+                setNodeToDelete={setNodeToDelete}
+                setNodeToDisconnect={setNodeToDisconnect}
+                setElectrumDisconnectWarningVisible={setElectrumDisconnectWarningVisible}
+              />
+            )}
           />
         ) : (
           <Box flex={1}>
@@ -405,56 +314,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 1.12,
   },
-  nodeDetail: {
-    overflow: 'hidden',
-    width: '95%',
-    flexDirection: 'row',
-  },
-  nodeList: {
-    width: '100%',
-    borderRadius: 7,
-    paddingHorizontal: wp(14),
-    paddingTop: hp(20),
-    paddingBottom: hp(18),
-    marginBottom: hp(10),
-    borderWidth: 1,
-  },
-  nodeButtons: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    paddingTop: hp(10),
-    marginTop: hp(15),
-  },
-  selectedItem: {
-    borderRadius: 5,
-  },
-  actionText: {
-    fontSize: 12,
-    paddingTop: hp(4),
-    marginLeft: wp(8),
-  },
-  actionArea: {
-    paddingTop: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  nodeTextHeader: {
-    marginHorizontal: 10,
-    fontSize: 12,
-    letterSpacing: 0.6,
-  },
-  nodeTextValue: {
-    fontSize: 12,
-    letterSpacing: 1.56,
-    marginLeft: 10,
-    paddingBottom: 2,
-  },
   activityIndicator: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
 });
-
 export default NodeSettings;

@@ -17,8 +17,13 @@ import {
 } from 'src/store/reducers/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ScannerLight from 'src/assets/images/scanner-icon.svg';
+import ScannerDark from 'src/assets/images/scanner-icon-white.svg';
+
 import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
+import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
+import SelectableServerItem from './components/SelectableServerItem';
 
 const PrivateElectrum = ({ currentlySelectedNode, onSaveCallback }) => {
   return (
@@ -31,10 +36,17 @@ const PrivateElectrum = ({ currentlySelectedNode, onSaveCallback }) => {
   );
 };
 
-const PublicServer = () => {
+const PublicServer = ({ currentlySelectedNode, handleSelectNode }) => {
   return (
-    <Box>
-      <Text>Public Server</Text>
+    <Box style={styles.nodeListContainer}>
+      {predefinedTestnetNodes.map((node) => (
+        <SelectableServerItem
+          key={node.id}
+          item={node}
+          onSelect={handleSelectNode}
+          currentlySelectedNode={currentlySelectedNode}
+        />
+      ))}
     </Box>
   );
 };
@@ -47,6 +59,8 @@ const NodeSelection = () => {
   const [loading, setLoading] = useState(false);
   const [nodeList, setNodeList] = useState([]);
   const [currentlySelectedNode, setCurrentlySelectedNodeItem] = useState(null);
+  const isDarkMode = colorMode === 'dark';
+
   useEffect(() => {
     const nodes: NodeDetail[] = Node.getAllNodes();
     const current = nodes.filter((node) => Node.nodeConnectionStatus(node))[0];
@@ -133,6 +147,9 @@ const NodeSelection = () => {
     setNodeList(nodes);
     setLoading(false);
   };
+  const handleSelectNode = (node) => {
+    setCurrentlySelectedNodeItem(node);
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -153,7 +170,10 @@ const NodeSelection = () => {
       <Box style={styles.tabContentContainer}>
         <ScrollView>
           {activeTab === 0 ? (
-            <PublicServer />
+            <PublicServer
+              currentlySelectedNode={currentlySelectedNode}
+              handleSelectNode={handleSelectNode}
+            />
           ) : (
             <PrivateElectrum
               currentlySelectedNode={currentlySelectedNode}
@@ -163,9 +183,22 @@ const NodeSelection = () => {
         </ScrollView>
         <Box style={[styles.footerContainer, { alignItems: activeTab === 0 ? null : 'center' }]}>
           {activeTab === 0 ? (
-            <Note title={'Note'} subtitle="Add your own node for enhanced privacy" />
+            <Note
+              title={'Note'}
+              subtitle="It’s recommended to use your own Electrum server to protect your privacy"
+            />
           ) : (
-            <Buttons secondaryText="Scan QR" fullWidth SecondaryIcon={TickIcon} />
+            <Buttons
+              secondaryText="Scan QR"
+              fullWidth
+              SecondaryIcon={
+                isDarkMode ? (
+                  <ScannerDark width={wp(14)} height={wp(14)} />
+                ) : (
+                  <ScannerLight width={wp(14)} height={wp(14)} />
+                )
+              }
+            />
           )}
 
           <Buttons primaryText="Connect to Server" fullWidth />
@@ -187,6 +220,9 @@ const styles = StyleSheet.create({
   footerContainer: {
     paddingTop: hp(20),
     gap: hp(20),
+  },
+  nodeListContainer: {
+    marginHorizontal: wp(5),
   },
 });
 
