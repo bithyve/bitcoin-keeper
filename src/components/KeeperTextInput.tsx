@@ -1,8 +1,10 @@
-import { StyleSheet } from 'react-native';
-import React from 'react';
+import { Pressable, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
 import { Input, useColorMode, Box } from 'native-base';
 import Colors from 'src/theme/Colors';
 import KeeperText from './KeeperText';
+import EyeOpen from 'src/assets/images/eye_open.svg';
+import EyeClose from 'src/assets/images/eye_close.svg';
 
 function KeeperTextInput({
   placeholder,
@@ -20,9 +22,11 @@ function KeeperTextInput({
   InputRightComponent = null,
   inpuBackgroundColor = null,
   inpuBorderColor = null,
+  isPassword = false,
   ...props
 }) {
   const { colorMode } = useColorMode();
+  const [passwordVisible, setPasswordVisible] = useState(false);
   return (
     <Box
       backgroundColor={inpuBackgroundColor || `${colorMode}.seashellWhite`}
@@ -30,6 +34,7 @@ function KeeperTextInput({
       borderColor={inpuBorderColor || `${colorMode}.greyBorder`}
     >
       <Input
+        secureTextEntry={isPassword && !passwordVisible}
         variant="unstyled"
         defaultValue={defaultValue}
         ref={inputRef}
@@ -50,7 +55,11 @@ function KeeperTextInput({
         onBlur={onBlur}
         onFocus={onFocus}
         InputRightElement={
-          maxLength ? (
+          isPassword ? (
+            <Pressable style={styles.eyeCtr} onPress={() => setPasswordVisible(!passwordVisible)}>
+              {passwordVisible ? <EyeOpen /> : <EyeClose />}
+            </Pressable>
+          ) : maxLength ? (
             <Box>
               <KeeperText color={`${colorMode}.GreyText`} bold style={styles.limitText}>
                 {value ? value.length : '0'}/{maxLength}
@@ -88,5 +97,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
     fontSize: 12,
     alignSelf: 'flex-end',
+  },
+  eyeCtr: {
+    justifyContent: 'center',
+    paddingRight: 10,
   },
 });

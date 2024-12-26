@@ -86,6 +86,8 @@ import PortalLogo from 'src/assets/images/portalLogo.svg';
 import PortalLogoLight from 'src/assets/images/PortalLogoLight.svg';
 import PortalIcon from 'src/assets/images/portalIcon.svg';
 import PortalIconLight from 'src/assets/images/portalIconLight.svg';
+import PortalGreenIconLight from 'src/assets/images/portal-green-light.svg';
+import PortalGreenIconDark from 'src/assets/images/portal-green-dark.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -390,6 +392,17 @@ export const SDColoredIcons = (type: SignerType, light = true, width = 20, heigh
           height
         ),
         type: SignerStorage.WARM,
+      };
+    case SignerType.PORTAL:
+      return {
+        Icon: getColouredIcon(
+          <PortalGreenIconLight />,
+          <PortalGreenIconDark />,
+          light,
+          width,
+          height
+        ),
+        type: SignerStorage.COLD,
       };
     default:
       return {

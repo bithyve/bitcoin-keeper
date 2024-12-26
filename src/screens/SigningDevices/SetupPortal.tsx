@@ -6,13 +6,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NetworkType, SignerStorage, SignerType } from 'src/services/wallets/enums';
-import DeleteDarkIcon from 'src/assets/images/delete.svg';
-import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
 import KeeperHeader from 'src/components/KeeperHeader';
-import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useEffect, useState } from 'react';
@@ -38,15 +35,11 @@ import {
   generateOutputDescriptors,
   generateVaultAddressDescriptors,
 } from 'src/utils/service-utilities/utils';
-import { KeeperPasswordInput } from 'src/components/KeeperPasswordInput';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import KeeperTextInput from 'src/components/KeeperTextInput';
 
 const isTestNet = config.NETWORK_TYPE === NetworkType.TESTNET;
-const INPUTS = {
-  CVC: 'CVC',
-  CONFIRM_CVC: 'CONFIRM_CVC',
-};
 
 function SetupPortal({ route }) {
   const {
@@ -72,7 +65,6 @@ function SetupPortal({ route }) {
   const [cvc, setCvc] = React.useState('');
   const [confirmCVC, setConfirmCVC] = React.useState('');
   const [portalStatus, setPortalStatus] = useState(null);
-  const [activeInput, setActiveInput] = useState(INPUTS.CVC);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -94,37 +86,8 @@ function SetupPortal({ route }) {
   }, []);
 
   useEffect(() => {
-    setActiveInput(INPUTS.CVC);
-  }, [portalStatus]);
-
-  useEffect(() => {
     nfcVisible === false && PORTAL.stopReading();
   }, [nfcVisible]);
-
-  const onPressHandler = (digit) => {
-    const temp = (activeInput === INPUTS.CVC ? cvc : confirmCVC) || '';
-    const newTemp = digit === 'x' ? temp.slice(0, -1) : temp + digit;
-    switch (activeInput) {
-      case INPUTS.CVC:
-        setCvc(newTemp);
-        break;
-      case INPUTS.CONFIRM_CVC:
-        setConfirmCVC(newTemp);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const onDeletePressed = () => {
-    const currentInput = activeInput;
-    if (currentInput) {
-      const inputVal = currentInput === INPUTS.CVC ? cvc : confirmCVC;
-      const newInputVal = inputVal.slice(0, inputVal.length - 1);
-      if (currentInput === INPUTS.CVC) setCvc(newInputVal);
-      else setConfirmCVC(newInputVal);
-    }
-  };
 
   const continueWithPortal = async () => {
     NfcManager.isSupported().then(async (supported) => {
@@ -433,8 +396,7 @@ function SetupPortal({ route }) {
                 label={'Password'}
                 placeholder="********"
                 value={cvc}
-                onPress={() => setActiveInput(INPUTS.CVC)}
-                isActive={activeInput === INPUTS.CVC}
+                onChangeText={setCvc}
               />
               <Box marginTop={5} marginBottom={9}>
                 <Buttons
@@ -464,15 +426,13 @@ function SetupPortal({ route }) {
                 label={'New password(optional)'}
                 placeholder="********"
                 value={cvc}
-                onPress={() => setActiveInput(INPUTS.CVC)}
-                isActive={activeInput === INPUTS.CVC}
+                onChangeText={setCvc}
               />
               <PasswordField
                 label={'Confirm password'}
                 placeholder="********"
                 value={confirmCVC}
-                onPress={() => setActiveInput(INPUTS.CONFIRM_CVC)}
-                isActive={activeInput === INPUTS.CONFIRM_CVC}
+                onChangeText={setConfirmCVC}
               />
               <Box marginTop={5} marginBottom={9}>
                 <Buttons
@@ -484,12 +444,6 @@ function SetupPortal({ route }) {
           )}
         </ScrollView>
       </MockWrapper>
-      <KeyPadView
-        onPressNumber={onPressHandler}
-        onDeletePressed={onDeletePressed}
-        keyColor={colorMode === 'light' ? '#041513' : '#FFF'}
-        ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
-      />
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>
   );
@@ -516,15 +470,15 @@ export const checkAndUnlock = async (cvc: string, setPortalStatus) => {
   return status;
 };
 
-const PasswordField = ({ label, value, onPress, isActive, placeholder }) => {
+const PasswordField = ({ label, value, onChangeText, placeholder }) => {
   return (
     <Box marginTop={4}>
       <Text>{label}</Text>
-      <KeeperPasswordInput
+      <KeeperTextInput
         value={value}
-        onPress={onPress}
-        isActive={isActive}
         placeholder={placeholder}
+        onChangeText={onChangeText}
+        isPassword
       />
     </Box>
   );
