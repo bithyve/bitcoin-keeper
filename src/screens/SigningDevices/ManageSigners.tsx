@@ -518,7 +518,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   modalContent: {
-    alignItems: 'center',
     marginBottom: hp(10),
   },
   illustrationContainer: {
