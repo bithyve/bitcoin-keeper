@@ -600,22 +600,20 @@ function SetupCollaborativeWallet() {
           marginTop: hp(52),
         }}
       />
-      {Object.keys(collaborativeSession.signers).length > 1 ? null : (
-        <Box style={styles.buttonContainer}>
-          <Buttons
-            fullWidth
-            primaryText={vaultText.shareContactDetails}
-            primaryCallback={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'ContactDetails',
-                  params: { signerData: myKey, setActivateFetcher },
-                })
-              );
-            }}
-          />
-        </Box>
-      )}
+      <Box style={styles.buttonContainer}>
+        <Buttons
+          fullWidth
+          primaryText={vaultText.shareContactDetails}
+          primaryCallback={() => {
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'ContactDetails',
+                params: { signerData: myKey, setActivateFetcher },
+              })
+            );
+          }}
+        />
+      </Box>
       <WalletVaultCreationModal
         visible={walletCreatedModal}
         title={vaultText.collabVaultCreateSuccessTitle}
