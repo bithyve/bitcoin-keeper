@@ -28,6 +28,8 @@ import {
   mergeSimilarKeysWatcher,
   archiveSigningDeviceWatcher,
   generateNewExternalAddressWatcher,
+  updateCollaborativeChannelWatcher,
+  fetchCollaborativeChannelWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
@@ -127,6 +129,8 @@ const rootSaga = function* () {
     refreshCanaryWalletsWatcher,
     mergeSimilarKeysWatcher,
     archiveSigningDeviceWatcher,
+    updateCollaborativeChannelWatcher,
+    fetchCollaborativeChannelWatcher,
 
     // send and receive
     fetchExchangeRatesWatcher,

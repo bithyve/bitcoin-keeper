@@ -28,6 +28,17 @@ const migrations = {
       },
     },
   }),
+  3: (state) => ({
+    ...state,
+    vault: {
+      ...state.vault,
+      collaborativeSession: {
+        signers: {},
+        isComplete: false,
+        lastSynced: null,
+      },
+    },
+  }),
 };
 
 export default migrations;

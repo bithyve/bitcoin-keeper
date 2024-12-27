@@ -9,9 +9,11 @@ import { WalletType } from 'src/services/wallets/enums';
 import { CommonActions } from '@react-navigation/native';
 import { VaultScheme } from 'src/services/wallets/interfaces/vault';
 import KeeperModal from 'src/components/KeeperModal';
-import SignerCard from '../AddSigner/SignerCard';
 import AirGappedIcon from 'src/assets/images/airgapped.svg';
 import HotWalletIcon from 'src/assets/images/hotWallet.svg';
+import { useDispatch } from 'react-redux';
+import { resetCollaborativeSession } from 'src/store/reducers/vaults';
+import SignerCard from '../AddSigner/SignerCard';
 
 enum SingleKeyOptions {
   HOT_WALLET = 'HOT_WALLET',
@@ -20,6 +22,7 @@ enum SingleKeyOptions {
 function Wallets({ navigation }) {
   const { wallets } = useWallets({ getAll: true });
   const { colorMode } = useColorMode();
+  const dispatch = useDispatch();
 
   const [singleKeyOptions, setSingleKeyOptions] = useState(false);
   const [selectedSingleKeyOption, setselectedSingleKeyOption] = useState(
@@ -41,12 +44,15 @@ function Wallets({ navigation }) {
       name: isHotWallet ? `Wallet ${wallets.length + 1}` : '',
       description: '',
       type: WalletType.DEFAULT,
-      isHotWallet: isHotWallet,
+      isHotWallet,
     });
   };
 
   const handleCollaborativeWalletCreation = () => {
-    navigation.navigate('SetupCollaborativeWallet');
+    dispatch(resetCollaborativeSession());
+    setTimeout(() => {
+      navigation.navigate('SetupCollaborativeWallet');
+    }, 500); // delaying navigation by 0.5 second to ensure collaborative session reset
   };
 
   const options = [
@@ -64,7 +70,7 @@ function Wallets({ navigation }) {
     },
   ];
 
-  const Content = () => {
+  function Content() {
     return (
       <View
         style={{
@@ -90,7 +96,7 @@ function Wallets({ navigation }) {
           ))}
       </View>
     );
-  };
+  }
 
   return (
     <Box>
@@ -122,9 +128,9 @@ function Wallets({ navigation }) {
       <KeeperModal
         visible={singleKeyOptions}
         close={() => setSingleKeyOptions(false)}
-        title={'Single-key wallet'}
-        subTitle={'Create a wallet using a single key'}
-        buttonText={'Proceed'}
+        title="Single-key wallet"
+        subTitle="Create a wallet using a single key"
+        buttonText="Proceed"
         buttonCallback={handleSingleKey}
         Content={Content}
       />

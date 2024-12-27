@@ -14,20 +14,20 @@ import MenuOption from 'src/components/MenuOption';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
-import CollaborativeModals from './components/CollaborativeModals';
 import { getKeyUID } from 'src/utils/utilities';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { XpubTypes } from 'src/services/wallets/enums';
-import idx from 'idx';
-import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { exportFile } from 'src/services/fs';
+import { useAppSelector } from 'src/store/hooks';
+import CollaborativeModals from './components/CollaborativeModals';
+import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
 
 function ContactDetails({ route }) {
-  const { signerData }: { signerData: Signer } = route.params;
+  const { signerData, setActivateFetcher }: { signerData: Signer; setActivateFetcher: Function } =
+    route.params;
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
@@ -42,6 +42,7 @@ function ContactDetails({ route }) {
   const useNdef = isAndroid && !isIos;
   const [visible, setVisible] = useState(false);
   const { session } = useContext(HCESessionContext);
+  const { collaborativeSession } = useAppSelector((state) => state.vault);
 
   const shareWithFile = async () => {
     const shareFileName = `cosigner-${signer?.masterFingerprint}.txt`;
@@ -84,41 +85,26 @@ function ContactDetails({ route }) {
     }
   };
 
-  const fetchKeyExpression = (type: XpubTypes) => {
-    try {
-      if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
-        const keyDescriptor = getKeyExpression(
-          signer.masterFingerprint,
-          idx(signer, (_) => _.signerXpubs[type][0].derivationPath.replaceAll('h', "'")),
-          idx(signer, (_) => _.signerXpubs[type][0].xpub),
-          false
-        );
-        return keyDescriptor;
-      } else {
-        throw new Error(`Missing key details for ${type} type.`);
-      }
-    } catch (error) {
-      throw new Error(`Missing key details for ${type} type.`);
-    }
-  };
-
   useEffect(() => {
     if (!details) {
       setTimeout(() => {
+        const { keyDescriptor, keyAES } = collaborativeSession.signers[signer.masterFingerprint];
+        if (!keyAES) {
+          showToast(
+            "We're sorry, but we have trouble retrieving the key information",
+            <ToastErrorIcon />
+          );
+          return;
+        }
+
         try {
-          const keyDescriptor = fetchKeyExpression(XpubTypes.P2WSH);
-          setDetails(keyDescriptor);
+          setDetails(JSON.stringify({ keyDescriptor, keyAES }));
+          setActivateFetcher(true); // activates the collaborative channel fetcher, case: fetching state updates from the first collaborator
         } catch (error) {
-          captureError(error);
-          try {
-            const keyDescriptor = fetchKeyExpression(XpubTypes.P2WPKH);
-            setDetails(keyDescriptor);
-          } catch (error) {
-            showToast(
-              "We're sorry, but we have trouble retrieving the key information",
-              <ToastErrorIcon />
-            );
-          }
+          showToast(
+            "We're sorry, but we have trouble retrieving the key information",
+            <ToastErrorIcon />
+          );
         }
       }, 200);
     }
