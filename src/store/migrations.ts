@@ -34,6 +34,7 @@ const migrations = {
       ...state.vault,
       collaborativeSession: {
         signers: {},
+        isComplete: false,
         lastSynced: null,
       },
     },

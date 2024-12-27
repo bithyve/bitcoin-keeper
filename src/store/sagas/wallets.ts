@@ -64,8 +64,7 @@ import {
 } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
-  asymmetricDecrypt,
-  asymmetricEncrypt,
+  decrypt,
   encrypt,
   generateEncryptionKey,
   generateKey,
@@ -132,6 +131,7 @@ import {
   REINSTATE_VAULT,
   UPDATE_COLLABORATIVE_CHANNEL,
   FETCH_COLLABORATIVE_CHANNEL,
+  updateCollaborativeChannel,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
 import {
@@ -1876,21 +1876,19 @@ function* updateCollaborativeChannelWorker({ payload }: { payload: { self: Signe
     );
 
     for (const fingerprint in collaborativeSession.signers) {
-      const { pubRSA } = collaborativeSession.signers[fingerprint];
-
+      const { keyAES } = collaborativeSession.signers[fingerprint];
       if (payload.self.masterFingerprint === fingerprint) continue;
 
-      const channelId = hash512(pubRSA);
-      const encryptedCollaborativeSession = asymmetricEncrypt(
-        JSON.stringify(collaborativeSession),
-        pubRSA
-      );
+      const channelId = hash512(keyAES);
+      const encryptedCollaborativeSession = encrypt(keyAES, JSON.stringify(collaborativeSession));
       const res = yield call(
         Relay.updateCollaborativeChannel,
         channelId,
         encryptedCollaborativeSession
       );
-      if (!(res && res.updated)) throw new Error('Failed to update collaborative channel');
+      if (!(res && res.updated)) {
+        Alert.alert(`Failed to update collaborative channel for ${fingerprint}`);
+      }
     }
   } catch (err) {
     console.log({ err });
@@ -1908,23 +1906,18 @@ function* fetchCollaborativeChannelWorker({ payload }: { payload: { self: Signer
       (state: RootState) => state.vault.collaborativeSession
     );
 
-    const { pubRSA } = collaborativeSession.signers[payload.self.masterFingerprint];
-    const channelId = hash512(pubRSA);
+    const { keyAES } = collaborativeSession.signers[payload.self.masterFingerprint];
+    const channelId = hash512(keyAES);
     const res = yield call(Relay.fetchCollaborativeChannel, channelId);
     yield put(updateCollaborativeSessionLastSynched());
 
     if (res && res.encryptedData) {
-      const { collabKeys } = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-      const privRSA = collabKeys ? collabKeys[hash256(pubRSA)] : null;
-
-      if (!privRSA) {
-        throw new Error('Unable to find the corresponding private key in secure storage');
-      }
-      const synchedCollaborativeSession = JSON.parse(asymmetricDecrypt(res.encryptedData, privRSA));
+      const synchedCollaborativeSession = JSON.parse(decrypt(keyAES, res.encryptedData));
       yield put(setCollaborativeSessionSigners(synchedCollaborativeSession.signers));
+
     }
   } catch (err) {
-    console.log({ err });
+    Alert.alert('Failed to fetch collaborative channel');
   }
 }
 

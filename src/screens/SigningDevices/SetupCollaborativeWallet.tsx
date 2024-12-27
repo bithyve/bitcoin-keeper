@@ -48,10 +48,8 @@ import { NfcTech } from 'react-native-nfc-manager';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Text from 'src/components/KeeperText';
-import { generateRSAKeypair, hash256 } from 'src/utils/service-utilities/encryption';
-import idx from 'idx';
+import { generateAESKey } from 'src/utils/service-utilities/encryption';
 import { RealmSchema } from 'src/storage/realm/enum';
-import dbManager from 'src/storage/realm/dbManager';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
@@ -156,6 +154,8 @@ function SignerItem({
   );
 }
 
+export const COLLABORATIVE_SCHEME = { m: 2, n: 3 };
+
 function SetupCollaborativeWallet() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -165,7 +165,7 @@ function SetupCollaborativeWallet() {
     (state) => state.vault
   );
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const COLLABORATIVE_SCHEME = { m: 2, n: 3 };
+
   const [coSigners, setCoSigners] = useState<VaultSigner[]>(
     new Array(COLLABORATIVE_SCHEME.n).fill(null)
   );
@@ -196,14 +196,15 @@ function SetupCollaborativeWallet() {
   };
 
   useEffect(() => {
-    if (activateFetcher && mySigner) {
+    if (activateFetcher && mySigner && !collaborativeSession.isComplete) {
+      // disables once collaborative session is complete
       const interval = setInterval(() => {
         refreshCollaborativeChannel(mySigner);
-      }, 15000); // syncs every 15 seconds
+      }, 5000); // syncs every 5 seconds
 
       return () => clearInterval(interval);
     }
-  }, [dispatch, activateFetcher, mySigner]);
+  }, [dispatch, activateFetcher, mySigner, collaborativeSession.isComplete]);
 
   useEffect(() => {
     // case: initialize the fetch for collaborative session signers from the remote state
@@ -211,10 +212,8 @@ function SetupCollaborativeWallet() {
       const signersCount = Object.keys(collaborativeSession.signers).length;
       // cases: collaborative session is in progress but not yet completed
       if (signersCount > 1) {
-        refreshCollaborativeChannel(mySigner);
         setActivateFetcher(true);
       } else if (collaborativeSession.lastSynced) {
-        refreshCollaborativeChannel(mySigner);
         setActivateFetcher(true);
       }
     }
@@ -339,7 +338,7 @@ function SetupCollaborativeWallet() {
       key: VaultSigner;
     },
     keyDescriptor: string,
-    pubRSA: string,
+    keyAES: string,
     goBack = false
   ) => {
     if (!hw) return;
@@ -368,7 +367,7 @@ function SetupCollaborativeWallet() {
     // update the collaborative state - locally and remotely
     dispatch(
       setCollaborativeSessionSigners({
-        [hw.signer.masterFingerprint]: { keyDescriptor, pubRSA },
+        [hw.signer.masterFingerprint]: { keyDescriptor, keyAES },
       })
     );
     dispatch(updateCollaborativeChannel(mySigner));
@@ -399,10 +398,10 @@ function SetupCollaborativeWallet() {
 
   const onQrScan = async (qrData) => {
     try {
-      const { pubRSA, keyDescriptor } = JSON.parse(qrData);
+      const { keyDescriptor, keyAES } = JSON.parse(qrData);
       const hw = setupKeeperSigner(keyDescriptor);
 
-      handleCoSignerAddition(hw, keyDescriptor, pubRSA, true);
+      handleCoSignerAddition(hw, keyDescriptor, keyAES, true);
     } catch (error) {
       handleError(error, 'QR');
     }
@@ -420,9 +419,9 @@ function SetupCollaborativeWallet() {
         throw new Error('Invalid data');
       }
 
-      const { pubRSA, keyDescriptor } = JSON.parse(cosignerData);
+      const { keyDescriptor, keyAES } = JSON.parse(cosignerData);
       const hw = setupKeeperSigner(keyDescriptor);
-      handleCoSignerAddition(hw, keyDescriptor, pubRSA);
+      handleCoSignerAddition(hw, keyDescriptor, keyAES);
     } catch (error) {
       if (error.toString() === 'Error') {
         console.log('NFC interaction cancelled');
@@ -434,9 +433,9 @@ function SetupCollaborativeWallet() {
 
   const onFileExtract = async (fileData) => {
     try {
-      const { pubRSA, keyDescriptor } = JSON.parse(fileData);
+      const { keyDescriptor, keyAES } = JSON.parse(fileData);
       const hw = setupKeeperSigner(keyDescriptor);
-      handleCoSignerAddition(hw, keyDescriptor, pubRSA);
+      handleCoSignerAddition(hw, keyDescriptor, keyAES);
     } catch (error) {
       handleError(error, 'File');
     }
@@ -448,33 +447,19 @@ function SetupCollaborativeWallet() {
   );
   const myAppKeyCount = myAppKeys.length;
 
-  const initializeCollabSession = async (signer: Signer) => {
-    let pubRSA = idx(collaborativeSession, (_) => _.signers[signer.masterFingerprint].pubRSA);
+  const initializeCollabSession = (signer: Signer) => {
+    const existingSigner = collaborativeSession.signers[signer.masterFingerprint];
 
-    if (!pubRSA) {
-      const { privateKey, publicKey } = await generateRSAKeypair();
-      pubRSA = publicKey;
-
-      const existingCollabKeys = app.collabKeys || {};
-      const updatedCollabKeys = {
-        ...existingCollabKeys,
-        [hash256(pubRSA)]: privateKey,
-      };
-      dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-        collabKeys: updatedCollabKeys,
-      });
+    if (!existingSigner) {
+      dispatch(
+        setCollaborativeSessionSigners({
+          [signer.masterFingerprint]: {
+            keyDescriptor: fetchKeyExpression(signer),
+            keyAES: generateAESKey(32),
+          },
+        })
+      );
     }
-
-    if (!pubRSA) {
-      showToast('Failed to generate collab session key', <ToastErrorIcon />);
-      return;
-    }
-
-    dispatch(
-      setCollaborativeSessionSigners({
-        [signer.masterFingerprint]: { keyDescriptor: fetchKeyExpression(signer), pubRSA },
-      })
-    );
   };
 
   useEffect(() => {

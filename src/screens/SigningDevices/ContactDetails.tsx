@@ -88,8 +88,8 @@ function ContactDetails({ route }) {
   useEffect(() => {
     if (!details) {
       setTimeout(() => {
-        const { pubRSA } = collaborativeSession.signers[signer.masterFingerprint];
-        if (!pubRSA) {
+        const { keyDescriptor, keyAES } = collaborativeSession.signers[signer.masterFingerprint];
+        if (!keyAES) {
           showToast(
             "We're sorry, but we have trouble retrieving the key information",
             <ToastErrorIcon />
@@ -98,8 +98,7 @@ function ContactDetails({ route }) {
         }
 
         try {
-          const keyDescriptor = fetchKeyExpression(signer);
-          setDetails(JSON.stringify({ pubRSA, keyDescriptor }));
+          setDetails(JSON.stringify({ keyDescriptor, keyAES }));
           setActivateFetcher(true); // activates the collaborative channel fetcher, case: fetching state updates from the first collaborator
         } catch (error) {
           showToast(

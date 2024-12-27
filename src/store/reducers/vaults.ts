@@ -4,6 +4,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import persistReducer from 'redux-persist/es/persistReducer';
+import { COLLABORATIVE_SCHEME } from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import { ADD_NEW_VAULT } from '../sagaActions/vaults';
 
 export interface VaultCreationPayload {
@@ -47,7 +48,8 @@ export type VaultState = {
   keyHeathCheckLoading: boolean;
   remoteLinkDetails: RemoteLinkDetails;
   collaborativeSession: {
-    signers: { [fingerprint: string]: { keyDescriptor: string; pubRSA: string } };
+    signers: { [fingerprint: string]: { keyDescriptor: string; keyAES: string } };
+    isComplete: boolean;
     lastSynced: number;
   };
 };
@@ -77,6 +79,7 @@ const initialState: VaultState = {
   remoteLinkDetails: null,
   collaborativeSession: {
     signers: {},
+    isComplete: false,
     lastSynced: null,
   },
 };
@@ -159,13 +162,17 @@ const vaultSlice = createSlice({
     setCollaborativeSessionSigners: (
       state,
       action: PayloadAction<{
-        [fingerprint: string]: { keyDescriptor: string; pubRSA: string };
+        [fingerprint: string]: { keyDescriptor: string; keyAES: string };
       }>
     ) => {
       state.collaborativeSession.signers = {
         ...state.collaborativeSession.signers,
         ...action.payload,
       };
+
+      if (Object.keys(state.collaborativeSession.signers).length === COLLABORATIVE_SCHEME.n) {
+        state.collaborativeSession.isComplete = true;
+      }
     },
     updateCollaborativeSessionLastSynched: (state) => {
       state.collaborativeSession.lastSynced = Date.now();
