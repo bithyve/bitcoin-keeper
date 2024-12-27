@@ -1,17 +1,35 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperQRCode from 'src/components/KeeperQRCode';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 
 function ShareQR({ route }) {
-  const { details }: { details } = route.params;
+  const { details, onShared } = route.params;
+  const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        navigation.dispatch((state) => {
+          const routes = state.routes.slice(0, -1);
+          return CommonActions.reset({
+            ...state,
+            routes,
+            index: routes.length - 1,
+          });
+        });
+        onShared?.();
+      };
+    }, [onShared, navigation])
+  );
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>

@@ -23,11 +23,17 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { exportFile } from 'src/services/fs';
 import { useAppSelector } from 'src/store/hooks';
 import CollaborativeModals from './components/CollaborativeModals';
-import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
 
 function ContactDetails({ route }) {
-  const { signerData, setActivateFetcher }: { signerData: Signer; setActivateFetcher: Function } =
-    route.params;
+  const {
+    signerData,
+    setActivateFetcher,
+    onKeyShared,
+  }: {
+    signerData: Signer;
+    setActivateFetcher: Function;
+    onKeyShared: Function;
+  } = route.params;
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
@@ -44,6 +50,11 @@ function ContactDetails({ route }) {
   const { session } = useContext(HCESessionContext);
   const { collaborativeSession } = useAppSelector((state) => state.vault);
 
+  const handleSuccessfulShare = () => {
+    setActivateFetcher(true);
+    onKeyShared?.();
+  };
+
   const shareWithFile = async () => {
     const shareFileName = `cosigner-${signer?.masterFingerprint}.txt`;
     try {
@@ -54,6 +65,7 @@ function ContactDetails({ route }) {
         'utf8',
         false
       );
+      handleSuccessfulShare();
     } catch (err) {
       console.log(err);
       captureError(err);
@@ -70,10 +82,12 @@ function ContactDetails({ route }) {
         const enc = NFC.encodeTextRecord(details);
         await NFC.send([NfcTech.Ndef], enc);
         Vibration.cancel();
+        handleSuccessfulShare();
       } else {
         setVisible(true);
         await NFC.startTagSession({ session, content: details });
         Vibration.vibrate([700, 50, 100, 50], true);
+        handleSuccessfulShare();
       }
     } catch (err) {
       Vibration.cancel();
@@ -137,7 +151,7 @@ function ContactDetails({ route }) {
         navigation.dispatch(
           CommonActions.navigate({
             name: 'ShareQR',
-            params: { details },
+            params: { details, onShared: handleSuccessfulShare },
           })
         );
       },
