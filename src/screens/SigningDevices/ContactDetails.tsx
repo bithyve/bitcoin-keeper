@@ -28,7 +28,6 @@ function ContactDetails({ route }) {
   const {
     signerData,
     setActivateFetcher,
-    onKeyShared,
   }: {
     signerData: Signer;
     setActivateFetcher: Function;
