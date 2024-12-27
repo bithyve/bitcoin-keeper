@@ -195,6 +195,10 @@ function SetupCollaborativeWallet() {
   const isAndroid = Platform.OS === 'android';
   const { session } = useContext(HCESessionContext);
 
+  const handleKeyShared = useCallback(() => {
+    navigation.dispatch(CommonActions.goBack());
+  }, [navigation]);
+
   const refreshCollaborativeChannel = (self: Signer) => {
     dispatch(fetchCollaborativeChannel(self));
   };
@@ -243,12 +247,13 @@ function SetupCollaborativeWallet() {
             if (emptyIndex !== -1) {
               updatedSigners[emptyIndex] = hw.key;
             }
+            handleKeyShared();
             return updatedSigners;
           });
         }
       }
     }
-  }, [coSigners, collaborativeSession]);
+  }, [coSigners, collaborativeSession, handleKeyShared, navigation]);
 
   const addKeyOptions = [
     {
@@ -686,8 +691,6 @@ function SetupCollaborativeWallet() {
         addKeyOptions={addKeyOptions}
         nfcModal={nfcModal}
         setNfcModal={setNfcModal}
-        keyAddedModal={realySignersAdded && externalKeyAddedModal}
-        setKeyAddedModal={setExternalKeyAddedModal}
         signer={addedKey}
       />
     </ScreenWrapper>
