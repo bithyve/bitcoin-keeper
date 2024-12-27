@@ -28,7 +28,6 @@ function ContactDetails({ route }) {
   const {
     signerData,
     setActivateFetcher,
-    onKeyShared,
   }: {
     signerData: Signer;
     setActivateFetcher: Function;
@@ -50,11 +49,6 @@ function ContactDetails({ route }) {
   const { session } = useContext(HCESessionContext);
   const { collaborativeSession } = useAppSelector((state) => state.vault);
 
-  const handleSuccessfulShare = () => {
-    setActivateFetcher(true);
-    onKeyShared?.();
-  };
-
   const shareWithFile = async () => {
     const shareFileName = `cosigner-${signer?.masterFingerprint}.txt`;
     try {
@@ -65,7 +59,6 @@ function ContactDetails({ route }) {
         'utf8',
         false
       );
-      handleSuccessfulShare();
     } catch (err) {
       console.log(err);
       captureError(err);
@@ -82,12 +75,10 @@ function ContactDetails({ route }) {
         const enc = NFC.encodeTextRecord(details);
         await NFC.send([NfcTech.Ndef], enc);
         Vibration.cancel();
-        handleSuccessfulShare();
       } else {
         setVisible(true);
         await NFC.startTagSession({ session, content: details });
         Vibration.vibrate([700, 50, 100, 50], true);
-        handleSuccessfulShare();
       }
     } catch (err) {
       Vibration.cancel();
@@ -151,7 +142,7 @@ function ContactDetails({ route }) {
         navigation.dispatch(
           CommonActions.navigate({
             name: 'ShareQR',
-            params: { details, onShared: handleSuccessfulShare },
+            params: { details },
           })
         );
       },
