@@ -35,7 +35,7 @@ import {
   WhirlpoolConfig,
   WalletDerivationDetails,
 } from 'src/services/wallets/interfaces/wallet';
-import { call, put, select } from 'redux-saga/effects';
+import { call, delay, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
   setSyncing,
@@ -83,6 +83,7 @@ import idx from 'idx';
 import _ from 'lodash';
 import { SyncedWallet } from 'src/services/wallets/interfaces';
 import { checkSignerAccountsMatch, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
+import { COLLABORATIVE_SCHEME } from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import { RootState } from '../store';
 
 import {
@@ -1915,6 +1916,21 @@ function* fetchCollaborativeChannelWorker({ payload }: { payload: { self: Signer
       const synchedCollaborativeSession = JSON.parse(decrypt(keyAES, res.encryptedData));
       yield put(setCollaborativeSessionSigners(synchedCollaborativeSession.signers));
 
+      // check if this fetch completes the quorum(by combining incomplete remote and local state) and upload the complete collaborative state
+      if (!synchedCollaborativeSession.isComplete && !collaborativeSession.isComplete) {
+        const uniqueSigners = {};
+        for (const fingerprint in synchedCollaborativeSession.signers) {
+          uniqueSigners[fingerprint] = true;
+        }
+        for (const fingerprint in collaborativeSession.signers) {
+          uniqueSigners[fingerprint] = true;
+        }
+
+        if (Object.keys(uniqueSigners).length === COLLABORATIVE_SCHEME.n) {
+          yield delay(1000); // ensures that the reducer state is updated via setCollaborativeSessionSigners before we upload the final state
+          yield put(updateCollaborativeChannel(payload.self));
+        }
+      }
     }
   } catch (err) {
     Alert.alert('Failed to fetch collaborative channel');
