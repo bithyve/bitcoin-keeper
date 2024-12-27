@@ -44,7 +44,7 @@ import UserCoSigner from 'src/assets/images/user-cosigner.svg';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import HWError from 'src/hardware/HWErrorState';
 import NFC from 'src/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
+import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Text from 'src/components/KeeperText';
@@ -56,6 +56,8 @@ import { useQuery } from '@realm/react';
 import CollaborativeModals from './components/CollaborativeModals';
 import SignerCard from '../AddSigner/SignerCard';
 import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import idx from 'idx';
 
 function SignerItem({
   vaultKey,
@@ -190,6 +192,8 @@ function SetupCollaborativeWallet() {
   const { relaySignersUpdateLoading, realySignersUpdateErrorMessage, realySignersAdded } =
     useAppSelector((state) => state.bhr);
   const { collaborativeSession } = useAppSelector((state) => state.vault);
+  const isAndroid = Platform.OS === 'android';
+  const { session } = useContext(HCESessionContext);
 
   const refreshCollaborativeChannel = (self: Signer) => {
     dispatch(fetchCollaborativeChannel(self));
@@ -407,21 +411,24 @@ function SetupCollaborativeWallet() {
     }
   };
 
+  const createCosignerFromNFC = (cosignerData) => {
+    if (!cosignerData) {
+      throw new Error('Invalid data');
+    }
+    const { keyDescriptor, keyAES } = JSON.parse(cosignerData);
+    const hw = setupKeeperSigner(keyDescriptor);
+    handleCoSignerAddition(hw, keyDescriptor, keyAES);
+    return true;
+  };
+
   const onNFCTap = async () => {
     try {
       if (Platform.OS === 'android') {
         setNfcModal(true);
       }
-
       const records = await NFC.read([NfcTech.Ndef]);
       const cosignerData = records[0]?.data;
-      if (!cosignerData) {
-        throw new Error('Invalid data');
-      }
-
-      const { keyDescriptor, keyAES } = JSON.parse(cosignerData);
-      const hw = setupKeeperSigner(keyDescriptor);
-      handleCoSignerAddition(hw, keyDescriptor, keyAES);
+      createCosignerFromNFC(cosignerData);
     } catch (error) {
       if (error.toString() === 'Error') {
         console.log('NFC interaction cancelled');
@@ -430,6 +437,46 @@ function SetupCollaborativeWallet() {
       handleError(error, 'NFC');
     }
   };
+
+  useEffect(() => {
+    if (isAndroid) {
+      if (nfcModal) {
+        NFC.startTagSession({ session, content: '', writable: true });
+      } else {
+        NFC.stopTagSession(session);
+      }
+    }
+    return () => {
+      nfcManager.cancelTechnologyRequest();
+    };
+  }, [nfcModal]);
+
+  useEffect(() => {
+    const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
+      try {
+        // content written from iOS to android
+        const data = idx(session, (_) => _.application.content.content);
+        if (!data) {
+          showToast('Please scan a valid co-signer', <ToastErrorIcon />);
+          return;
+        }
+        createCosignerFromNFC(data);
+      } catch (err) {
+        captureError(err);
+        showToast('Something went wrong.', <ToastErrorIcon />);
+      } finally {
+        setNfcModal(false);
+      }
+    });
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      setNfcModal(false);
+    });
+    return () => {
+      unsubConnect();
+      unsubDisconnect();
+      NFC.stopTagSession(session);
+    };
+  }, [session]);
 
   const onFileExtract = async (fileData) => {
     try {

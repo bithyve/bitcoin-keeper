@@ -62,7 +62,7 @@ function ContactDetails({ route }) {
 
   const onNFCTap = async () => {
     try {
-      if (isIos || useNdef) {
+      if (isIos) {
         if (!isIos) {
           setVisible(true);
         }
