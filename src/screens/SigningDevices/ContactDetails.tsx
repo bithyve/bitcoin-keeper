@@ -23,6 +23,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { exportFile } from 'src/services/fs';
 import { useAppSelector } from 'src/store/hooks';
 import CollaborativeModals from './components/CollaborativeModals';
+import Note from 'src/components/Note/Note';
 
 function ContactDetails({ route }) {
   const {
@@ -179,6 +180,13 @@ function ContactDetails({ route }) {
         </Box>
         <CollaborativeModals nfcModal={nfcModal} setNfcModal={setNfcModal} />
         <NfcPrompt visible={visible} close={cleanUp} ctaText={common.done} />
+        <Note
+          title={common.note}
+          subtitle={
+            'After sharing your details, do not close the app. You can go back and add another contact or wait for your wallet to be created automatically once the other participant joins.'
+          }
+          subtitleColor="GreyText"
+        />
       </Box>
     </ScreenWrapper>
   );
