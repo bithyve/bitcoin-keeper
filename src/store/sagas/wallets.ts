@@ -1933,7 +1933,7 @@ function* fetchCollaborativeChannelWorker({ payload }: { payload: { self: Signer
       }
     }
   } catch (err) {
-    Alert.alert('Failed to fetch collaborative channel');
+    console.log('Failed to fetch collaborative channel: ', err);
   }
 }
 
