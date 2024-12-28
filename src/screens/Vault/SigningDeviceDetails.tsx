@@ -475,7 +475,7 @@ function SigningDeviceDetails({ route }) {
       Icon: () => <FooterIcon Icon={isDarkMode ? KeyDetailsDark : KeyDetailsLight} />,
       onPress: navigateToCosignerDetails,
     },
-    {
+    signer.type !== SignerType.KEEPER && {
       text: 'Sign Transaction',
       Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
       onPress: navigateToScanPSBT,
@@ -998,4 +998,3 @@ const styles = StyleSheet.create({
 });
 
 export default SigningDeviceDetails;
-
