@@ -58,6 +58,7 @@ import SignerCard from '../AddSigner/SignerCard';
 import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
+let previousContent = null;
 
 function SignerItem({
   vaultKey,
@@ -198,6 +199,12 @@ function SetupCollaborativeWallet() {
   const refreshCollaborativeChannel = (self: Signer) => {
     dispatch(fetchCollaborativeChannel(self));
   };
+
+  useEffect(() => {
+    return () => {
+      previousContent = null;
+    };
+  }, []);
 
   useEffect(() => {
     if (activateFetcher && mySigner && !collaborativeSession.isComplete) {
@@ -454,12 +461,13 @@ function SetupCollaborativeWallet() {
   useEffect(() => {
     const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
       try {
-        // content written from iOS to android
         const data = idx(session, (_) => _.application.content.content);
+        if (data == previousContent) return; // To discard multiple responses from handler due of failure in listener cleanup on android.
         if (!data) {
           showToast('Please scan a valid co-signer', <ToastErrorIcon />);
           return;
         }
+        previousContent = data;
         createCosignerFromNFC(data);
       } catch (err) {
         captureError(err);
