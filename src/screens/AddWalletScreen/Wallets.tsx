@@ -146,7 +146,7 @@ function Wallets({ navigation }) {
         close={() => setCollabSessionExistsModalVisible(false)}
         title="Collaborative wallet setup session already exists"
         subTitle="You already have a collaborative wallet setup session in progress, would you like to continue the session or start a new one?"
-        buttonText="Continue Session"
+        buttonText="Continue session"
         secondaryButtonText="Start new"
         secondaryCallback={() => {
           setCollabSessionExistsModalVisible(false);
