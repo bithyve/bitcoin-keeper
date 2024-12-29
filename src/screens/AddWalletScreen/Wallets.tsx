@@ -14,6 +14,7 @@ import HotWalletIcon from 'src/assets/images/hotWallet.svg';
 import { useDispatch } from 'react-redux';
 import { resetCollaborativeSession } from 'src/store/reducers/vaults';
 import SignerCard from '../AddSigner/SignerCard';
+import { useAppSelector } from 'src/store/hooks';
 
 enum SingleKeyOptions {
   HOT_WALLET = 'HOT_WALLET',
@@ -21,10 +22,12 @@ enum SingleKeyOptions {
 }
 function Wallets({ navigation }) {
   const { wallets } = useWallets({ getAll: true });
+  const { collaborativeSession } = useAppSelector((state) => state.vault);
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
 
   const [singleKeyOptions, setSingleKeyOptions] = useState(false);
+  const [collabSessionExistsModalVisible, setCollabSessionExistsModalVisible] = useState(false);
   const [selectedSingleKeyOption, setselectedSingleKeyOption] = useState(
     SingleKeyOptions.HOT_WALLET
   );
@@ -49,10 +52,14 @@ function Wallets({ navigation }) {
   };
 
   const handleCollaborativeWalletCreation = () => {
-    dispatch(resetCollaborativeSession());
-    setTimeout(() => {
-      navigation.navigate('SetupCollaborativeWallet');
-    }, 500); // delaying navigation by 0.5 second to ensure collaborative session reset
+    if (Object.keys(collaborativeSession.signers).length > 0) {
+      setCollabSessionExistsModalVisible(true);
+    } else {
+      dispatch(resetCollaborativeSession());
+      setTimeout(() => {
+        navigation.navigate('SetupCollaborativeWallet');
+      }, 500); // delaying navigation by 0.5 second to ensure collaborative session reset
+    }
   };
 
   const options = [
@@ -133,6 +140,25 @@ function Wallets({ navigation }) {
         buttonText="Proceed"
         buttonCallback={handleSingleKey}
         Content={Content}
+      />
+      <KeeperModal
+        visible={collabSessionExistsModalVisible}
+        close={() => setCollabSessionExistsModalVisible(false)}
+        title="Collaborative wallet setup session already exists"
+        subTitle="You already have a collaborative wallet setup session in progress, would you like to continue the session or start a new one?"
+        buttonText="Continue Session"
+        secondaryButtonText="Start new"
+        secondaryCallback={() => {
+          setCollabSessionExistsModalVisible(false);
+          dispatch(resetCollaborativeSession());
+          setTimeout(() => {
+            navigation.navigate('SetupCollaborativeWallet');
+          }, 500);
+        }}
+        buttonCallback={() => {
+          setCollabSessionExistsModalVisible(false);
+          navigation.navigate('SetupCollaborativeWallet');
+        }}
       />
     </Box>
   );
