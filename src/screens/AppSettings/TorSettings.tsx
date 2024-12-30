@@ -37,6 +37,8 @@ function TorSettings() {
     if (inAppTor === TorStatus.CONNECTED || inAppTor === TorStatus.ERROR) {
       setShowTorModal(false);
     }
+    if (inAppTor === TorStatus.ERROR)
+      showToast('Failed to start in app Tor, please try later or use Orbot');
   }, [inAppTor]);
 
   const getTorStatusText = useMemo(() => {
