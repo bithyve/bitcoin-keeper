@@ -15,8 +15,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const ServerItem = ({
   item,
-  currentlySelectedNode,
-  onSelectedNodeitem,
   onDelete,
   onConnectToNode,
   setNodeToDelete,
@@ -29,95 +27,87 @@ const ServerItem = ({
   const isConnected = Node.nodeConnectionStatus(item);
 
   return (
-    <TouchableOpacity
-      onPress={() => onSelectedNodeitem(item)}
-      style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
+    <Box
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={[styles.nodeList]}
+      borderColor={colorMode === 'light' ? 'transparent' : Colors.separator}
     >
-      <Box
-        backgroundColor={`${colorMode}.seashellWhite`}
-        style={[styles.nodeList]}
-        borderColor={colorMode === 'light' ? 'transparent' : Colors.separator}
-      >
-        <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Box flex={1}>
-            <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]} medium>
-              {settings.host}
-            </Text>
-            <Text numberOfLines={1} style={styles.nodeTextValue}>
-              {item.host}
-            </Text>
-          </Box>
-          <Box flex={-1}>
-            <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]} medium>
-              {settings.portNumber}
-            </Text>
-            <Text style={styles.nodeTextValue}>{item.port}</Text>
-          </Box>
+      <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
+        <Box flex={1}>
+          <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]} medium>
+            {settings.host}
+          </Text>
+          <Text numberOfLines={1} style={styles.nodeTextValue}>
+            {item.host}
+          </Text>
         </Box>
-        <Box
-          style={styles.nodeButtons}
-          borderColor={`${colorMode}.greyBorder`}
-          backgroundColor={`${colorMode}.seashellWhite`}
-        >
-          <TouchableOpacity
-            testID="btn_deleteNode"
-            onPress={() => {
-              if (!isConnected) onDelete(item);
-              else {
-                setNodeToDelete(item);
-                setElectrumDisconnectWarningVisible(true);
-              }
-            }}
-          >
-            <Box style={[styles.actionArea, { width: wp(70), marginRight: wp(20) }]}>
-              {colorMode === 'light' ? <DeleteIcon /> : <DeleteIconWhite />}
-              <Text style={[styles.actionText, { paddingTop: 1 }]}>{common.delete}</Text>
-            </Box>
-          </TouchableOpacity>
-          <TouchableOpacity
-            testID="btn_disconnetNode"
-            onPress={async () => {
-              if (!isConnected) await onConnectToNode(item);
-              else {
-                setNodeToDisconnect(item);
-                setElectrumDisconnectWarningVisible(true);
-              }
-            }}
-          >
-            <Box
-              style={[
-                styles.actionArea,
-                {
-                  paddingTop: isConnected ? hp(6) : hp(6),
-                },
-              ]}
-            >
-              {isConnected ? (
-                colorMode === 'light' ? (
-                  <DisconnectIcon />
-                ) : (
-                  <DisconnectIconWhite />
-                )
-              ) : colorMode === 'light' ? (
-                <ConnectIcon />
-              ) : (
-                <ConnectIconWhite />
-              )}
-              <Text style={[styles.actionText, { paddingTop: isConnected ? 0 : 1 }]}>
-                {isConnected ? common.disconnect : common.connect}
-              </Text>
-            </Box>
-          </TouchableOpacity>
+        <Box flex={-1}>
+          <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]} medium>
+            {settings.portNumber}
+          </Text>
+          <Text style={styles.nodeTextValue}>{item.port}</Text>
         </Box>
       </Box>
-    </TouchableOpacity>
+      <Box
+        style={styles.nodeButtons}
+        borderColor={`${colorMode}.greyBorder`}
+        backgroundColor={`${colorMode}.seashellWhite`}
+      >
+        <TouchableOpacity
+          testID="btn_deleteNode"
+          onPress={() => {
+            if (!isConnected) onDelete(item);
+            else {
+              setNodeToDelete(item);
+              setElectrumDisconnectWarningVisible(true);
+            }
+          }}
+        >
+          <Box style={[styles.actionArea, { width: wp(70), marginRight: wp(20) }]}>
+            {colorMode === 'light' ? <DeleteIcon /> : <DeleteIconWhite />}
+            <Text style={[styles.actionText, { paddingTop: 1 }]}>{common.delete}</Text>
+          </Box>
+        </TouchableOpacity>
+        <TouchableOpacity
+          testID="btn_disconnetNode"
+          onPress={async () => {
+            if (!isConnected) await onConnectToNode(item);
+            else {
+              setNodeToDisconnect(item);
+              setElectrumDisconnectWarningVisible(true);
+            }
+          }}
+        >
+          <Box
+            style={[
+              styles.actionArea,
+              {
+                paddingTop: isConnected ? hp(6) : hp(6),
+              },
+            ]}
+          >
+            {isConnected ? (
+              colorMode === 'light' ? (
+                <DisconnectIcon />
+              ) : (
+                <DisconnectIconWhite />
+              )
+            ) : colorMode === 'light' ? (
+              <ConnectIcon />
+            ) : (
+              <ConnectIconWhite />
+            )}
+            <Text style={[styles.actionText, { paddingTop: isConnected ? 0 : 1 }]}>
+              {isConnected ? common.disconnect : common.connect}
+            </Text>
+          </Box>
+        </TouchableOpacity>
+      </Box>
+    </Box>
   );
 };
 
 const styles = StyleSheet.create({
-  selectedItem: {
-    borderRadius: 5,
-  },
   nodeList: {
     width: '100%',
     borderRadius: 7,

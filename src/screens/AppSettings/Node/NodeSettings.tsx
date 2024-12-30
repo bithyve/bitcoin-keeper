@@ -42,111 +42,89 @@ function NodeSettings() {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { settings } = translations;
+  const { common, settings } = translations;
   const { showToast } = useToastMessage();
 
   const [nodeList, setNodeList] = useState([]);
-  const [currentlySelectedNode, setCurrentlySelectedNodeItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [electrumDisconnectWarningVisible, setElectrumDisconnectWarningVisible] = useState(false);
   const [nodeToDisconnect, setNodeToDisconnect] = useState(null);
   const [nodeToDelete, setNodeToDelete] = useState(null);
 
   const isNodeListEmpty = nodeList.length === 0;
-  const isNoNodeConnected = !currentlySelectedNode || !currentlySelectedNode.isConnected;
+  const isNoNodeConnected = nodeList.every((node) => !node.isConnected);
 
   const nodes: NodeDetail[] = Node.getAllNodes();
-  const nodesLength = nodes.length;
 
   useEffect(() => {
-    const current = nodes.filter((node) => Node.nodeConnectionStatus(node))[0];
-    setCurrentlySelectedNodeItem(current);
     setNodeList(nodes);
-  }, [nodesLength]);
+  }, [nodes.length]);
 
   const onDelete = async (selectedItem: NodeDetail) => {
     const isConnected = Node.nodeConnectionStatus(selectedItem);
     if (isConnected) await Node.disconnect(selectedItem);
 
     const status = Node.delete(selectedItem);
-    // dispatch(updateAppImage(null));
-    let nodes = [];
     if (status) {
-      nodes = Node.getAllNodes();
-      setNodeList(nodes);
+      const updatedNodes = Node.getAllNodes();
+      setNodeList(updatedNodes);
     }
-
-    setCurrentlySelectedNodeItem(null);
   };
 
   const onConnectToNode = async (selectedNode: NodeDetail) => {
-    let nodes = Node.getAllNodes();
-    if (
-      currentlySelectedNode &&
-      selectedNode.id !== currentlySelectedNode.id &&
-      currentlySelectedNode.isConnected
-    ) {
-      // disconnect currently selected node(if connected)
+    let updatedNodes = Node.getAllNodes();
+
+    // Disconnect the currently connected node if it's not the selected one
+    const currentlySelectedNode = updatedNodes.find((node) => node.isConnected);
+    if (currentlySelectedNode && currentlySelectedNode.id !== selectedNode.id) {
       await Node.disconnect(currentlySelectedNode);
       currentlySelectedNode.isConnected = false;
       Node.update(currentlySelectedNode, { isConnected: currentlySelectedNode.isConnected });
-
-      nodes = nodes.map((item) => {
-        if (item.id === currentlySelectedNode.id) return { ...currentlySelectedNode };
-        return item;
-      });
-
-      setCurrentlySelectedNodeItem(null);
+      updatedNodes = updatedNodes.map((node) =>
+        node.id === currentlySelectedNode.id ? { ...currentlySelectedNode } : node
+      );
     }
 
     dispatch(electrumClientConnectionInitiated());
     setLoading(true);
 
-    const node = { ...selectedNode };
-    const { connected, connectedTo, error } = await Node.connectToSelectedNode(node);
+    const { connected, connectedTo, error } = await Node.connectToSelectedNode(selectedNode);
 
     if (connected) {
-      node.isConnected = connected;
-      Node.update(node, { isConnected: connected });
-      dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, connectedTo }));
+      selectedNode.isConnected = connected;
+      Node.update(selectedNode, { isConnected: connected });
+      dispatch(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
       showToast(`Connected to: ${connectedTo}`, <TickIcon />);
-      nodes = nodes.map((item) => {
-        if (item.id === node.id) return { ...node };
-        return item;
-      });
-    } else dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
+    } else {
+      dispatch(electrumClientConnectionExecuted({ successful: connected, error }));
+    }
 
-    setCurrentlySelectedNodeItem(node);
-    setNodeList(nodes);
+    updatedNodes = updatedNodes.map((node) =>
+      node.id === selectedNode.id ? { ...selectedNode } : node
+    );
+    setNodeList(updatedNodes);
     setLoading(false);
   };
 
   const onDisconnectToNode = async (selectedNode: NodeDetail) => {
     try {
-      let nodes = [...nodeList];
       setLoading(true);
-      const node = { ...selectedNode };
-      Node.disconnect(node);
-      node.isConnected = false;
-      Node.update(node, { isConnected: node.isConnected });
-      showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
-      nodes = nodes.map((item) => {
-        if (item.id === node.id) return { ...node };
-        return item;
-      });
-      setNodeList(nodes);
-      setCurrentlySelectedNodeItem(null);
+      Node.disconnect(selectedNode);
+      selectedNode.isConnected = false;
+      Node.update(selectedNode, { isConnected: selectedNode.isConnected });
+      showToast(`Disconnected from ${selectedNode.host}`, <ToastErrorIcon />);
+
+      const updatedNodes = nodeList.map((node) =>
+        node.id === selectedNode.id ? { ...selectedNode } : node
+      );
+      setNodeList(updatedNodes);
       setLoading(false);
     } catch (error) {
-      console.log('Error disconnecting electrum client', error);
+      console.error('Error disconnecting electrum client', error);
       showToast(`Failed to disconnect from Electrum server`, <ToastErrorIcon />);
     }
   };
 
-  const onSelectedNodeitem = (selectedItem: NodeDetail) => {
-    setCurrentlySelectedNodeItem(selectedItem);
-  };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <ActivityIndicatorView visible={loading} />
@@ -162,8 +140,6 @@ function NodeSettings() {
             renderItem={({ item }) => (
               <ServerItem
                 item={item}
-                currentlySelectedNode={currentlySelectedNode}
-                onSelectedNodeitem={onSelectedNodeitem}
                 onDelete={onDelete}
                 onConnectToNode={onConnectToNode}
                 setNodeToDelete={setNodeToDelete}
@@ -219,6 +195,7 @@ function NodeSettings() {
     </ScreenWrapper>
   );
 }
+
 const styles = StyleSheet.create({
   appSettingTitle: {
     fontSize: 18,
