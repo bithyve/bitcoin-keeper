@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -23,13 +23,19 @@ import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
 import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
 import SelectableServerItem from './components/SelectableServerItem';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { useNavigation } from '@react-navigation/native';
 
-const PrivateElectrum = ({ currentlySelectedNode, onSaveCallback }) => {
+const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL }) => {
   return (
     <Box>
       <AddNode
-        nodeDetails={Node.getModalParams(currentlySelectedNode)}
-        onSaveCallback={onSaveCallback}
+        port={port}
+        host={host}
+        useSSL={useSSL}
+        setHost={setHost}
+        setPort={setPort}
+        setUseSSL={setUseSSL}
       />
     </Box>
   );
@@ -52,28 +58,20 @@ const PublicServer = ({ currentlySelectedNode, handleSelectNode }) => {
 
 const NodeSelection = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [nodeList, setNodeList] = useState([]);
   const [currentlySelectedNode, setCurrentlySelectedNodeItem] = useState(null);
+
+  const [host, setHost] = useState('');
+  const [port, setPort] = useState('');
+  const [useSSL, setUseSSL] = useState(true);
   const isDarkMode = colorMode === 'dark';
 
-  useEffect(() => {
-    const nodes: NodeDetail[] = Node.getAllNodes();
-    const current = nodes.filter((node) => Node.nodeConnectionStatus(node))[0];
-    setCurrentlySelectedNodeItem(current);
-    setNodeList(nodes);
-  }, []);
-  const tabsData = [
-    {
-      label: 'Public Server',
-    },
-    {
-      label: 'Private Electrum',
-    },
-  ];
+  const tabsData = [{ label: 'Public Server' }, { label: 'Private Electrum' }];
 
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
     setLoading(true);
@@ -89,23 +87,25 @@ const NodeSelection = () => {
       nodeDetail.host = nodeDetail.host.replace('https://', '');
     }
 
-    const { saved } = await Node.save(nodeDetail, nodeList);
+    const nodeToSave = { ...nodeDetail, id: null };
+    const { saved } = await Node.save(nodeToSave, nodeList);
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
       const newNode = updatedNodeList.find(
-        (node) => node.host === nodeDetail.host && node.port === nodeDetail.port
+        (node) => node.host === nodeToSave.host && node.port === nodeToSave.port
       );
       if (newNode) {
         onConnectToNode(newNode);
       }
     } else {
-      showToast(`Failed to save, unable to connect to: ${nodeDetail.host} `, <ToastErrorIcon />);
+      showToast(`Failed to save, unable to connect to: ${nodeToSave.host} `, <ToastErrorIcon />);
     }
     setLoading(false);
   };
 
   const onConnectToNode = async (selectedNode: NodeDetail) => {
+    setLoading(true);
     let nodes = Node.getAllNodes();
     if (
       currentlySelectedNode &&
@@ -133,28 +133,48 @@ const NodeSelection = () => {
 
     if (connected) {
       node.isConnected = connected;
-      Node.update(node, { isConnected: connected });
+      await Node.update(node, { isConnected: connected });
       dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, connectedTo }));
       showToast(`Connected to: ${connectedTo}`, <TickIcon />);
       nodes = nodes.map((item) => {
         if (item.id === node.id) return { ...node };
         return item;
       });
+      navigation.goBack();
     } else dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
 
     setCurrentlySelectedNodeItem(node);
     setNodeList(nodes);
     setLoading(false);
   };
+
   const handleSelectNode = (node) => {
     setCurrentlySelectedNodeItem(node);
   };
 
+  const onValidateAndSave = () => {
+    if (!host || !port) {
+      showToast('Host and port are required', <ToastErrorIcon />);
+      return;
+    }
+
+    const nodeDetails: NodeDetail = {
+      id: Node.getModalParams(currentlySelectedNode)?.id,
+      host,
+      port,
+      useKeeperNode: Node.getModalParams(currentlySelectedNode)?.useKeeperNode,
+      isConnected: Node.getModalParams(currentlySelectedNode)?.isConnected,
+      useSSL,
+    };
+    onSaveCallback(nodeDetails);
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <ActivityIndicatorView visible={loading} />
       <KeeperHeader
         title="Server Selection"
-        subtitle={`Select a server you'd like to use. Add your own node for enhanced privacy.`}
+        subtitle="Select a server you'd like to use. Add your own node for enhanced privacy."
       />
       <Box style={styles.tabBarContainer}>
         <TabBar
@@ -175,15 +195,20 @@ const NodeSelection = () => {
             />
           ) : (
             <PrivateElectrum
-              currentlySelectedNode={currentlySelectedNode}
-              onSaveCallback={onSaveCallback}
+              setHost={setHost}
+              setPort={setPort}
+              setUseSSL={setUseSSL}
+              host={host}
+              port={port}
+              useSSL={useSSL}
             />
           )}
         </ScrollView>
+
         <Box style={[styles.footerContainer, { alignItems: activeTab === 0 ? null : 'center' }]}>
           {activeTab === 0 ? (
             <Note
-              title={'Note'}
+              title="Note"
               subtitle="It’s recommended to use your own Electrum server to protect your privacy"
             />
           ) : (
@@ -200,7 +225,13 @@ const NodeSelection = () => {
             />
           )}
 
-          <Buttons primaryText="Connect to Server" fullWidth />
+          <Buttons
+            primaryText="Connect to Server"
+            primaryCallback={
+              activeTab === 0 ? () => onSaveCallback(currentlySelectedNode) : onValidateAndSave
+            }
+            fullWidth
+          />
         </Box>
       </Box>
     </ScreenWrapper>

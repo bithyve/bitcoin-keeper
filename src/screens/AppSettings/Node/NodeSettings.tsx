@@ -1,6 +1,6 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
+import { StyleSheet, FlatList } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
@@ -15,7 +15,6 @@ import {
   electrumClientConnectionInitiated,
 } from 'src/store/reducers/login';
 import Node from 'src/services/electrum/node';
-import AddNode from './AddNodeModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
@@ -24,6 +23,7 @@ import EmptyListIllustration from 'src/components/EmptyListIllustration';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ServerItem from './components/ServerItem';
 import WarningNote from 'src/components/WarningNote';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -47,65 +47,23 @@ function NodeSettings() {
   const { showToast } = useToastMessage();
 
   const [nodeList, setNodeList] = useState([]);
-  const [visible, setVisible] = useState(false);
   const [currentlySelectedNode, setCurrentlySelectedNodeItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [electrumDisconnectWarningVisible, setElectrumDisconnectWarningVisible] = useState(false);
   const [nodeToDisconnect, setNodeToDisconnect] = useState(null);
   const [nodeToDelete, setNodeToDelete] = useState(null);
 
+  const isNodeListEmpty = nodeList.length === 0;
+  const isNoNodeConnected = !currentlySelectedNode || !currentlySelectedNode.isConnected;
+
+  const nodes: NodeDetail[] = Node.getAllNodes();
+  const nodesLength = nodes.length;
+
   useEffect(() => {
-    console.log('nodeList', nodeList);
-    const nodes: NodeDetail[] = Node.getAllNodes();
-    console.log('nodes', nodes);
     const current = nodes.filter((node) => Node.nodeConnectionStatus(node))[0];
     setCurrentlySelectedNodeItem(current);
     setNodeList(nodes);
-  }, []);
-
-  const openAddNodeModal = () => {
-    setVisible(true);
-  };
-
-  const closeAddNodeModal = async () => {
-    setVisible(false);
-  };
-
-  const onSaveCallback = async (nodeDetail: NodeDetail) => {
-    setLoading(true);
-    await closeAddNodeModal();
-
-    // Sanitize host
-    if (nodeDetail.host.endsWith('/')) {
-      nodeDetail.host = nodeDetail.host.slice(0, -1);
-    }
-
-    if (nodeDetail.host.startsWith('http://')) {
-      nodeDetail.host = nodeDetail.host.replace('http://', '');
-    } else if (nodeDetail.host.startsWith('https://')) {
-      nodeDetail.host = nodeDetail.host.replace('https://', '');
-    }
-
-    const { saved } = await Node.save(nodeDetail, nodeList);
-    if (saved) {
-      const updatedNodeList = Node.getAllNodes();
-      setNodeList(updatedNodeList);
-      const newNode = updatedNodeList.find(
-        (node) => node.host === nodeDetail.host && node.port === nodeDetail.port
-      );
-      if (newNode) {
-        onConnectToNode(newNode);
-      }
-    } else {
-      showToast(`Failed to save, unable to connect to: ${nodeDetail.host} `, <ToastErrorIcon />);
-    }
-    setLoading(false);
-  };
-
-  const onAdd = () => {
-    setCurrentlySelectedNodeItem(null);
-    openAddNodeModal();
-  };
+  }, [nodesLength]);
 
   const onDelete = async (selectedItem: NodeDetail) => {
     const isConnected = Node.nodeConnectionStatus(selectedItem);
@@ -191,6 +149,7 @@ function NodeSettings() {
   };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
+      <ActivityIndicatorView visible={loading} />
       <KeeperHeader
         title={settings.nodeSettings}
         subtitle={settings.manageElectrumServersSubtitle}
@@ -220,34 +179,15 @@ function NodeSettings() {
         )}
       </Box>
       <Box style={styles.footerContainer}>
-        <WarningNote
-          noteText={
-            "You're not connected to any Electrum server. Some functionalities may not work."
-          }
-        />
-        {/* <Buttons primaryCallback={onAdd} primaryText={`+ ${settings.addNewNode}`} fullWidth /> */}
+        {isNoNodeConnected && !isNodeListEmpty && (
+          <WarningNote noteText="You're not connected to any Electrum server. Some functionalities may not work." />
+        )}
         <Buttons
           primaryCallback={() => navigation.dispatch(CommonActions.navigate('NodeSelection'))}
           primaryText={`${settings.addNewNode}`}
           fullWidth
         />
       </Box>
-      <KeeperModal
-        justifyContent="center"
-        visible={visible}
-        close={closeAddNodeModal}
-        title={settings.nodeDetailsTitle}
-        subTitle={settings.nodeDetailsSubtitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonBackground={`${colorMode}.gradientStart`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        buttonText=""
-        buttonTextColor={`${colorMode}.buttonText`}
-        buttonCallback={closeAddNodeModal}
-        closeOnOverlayClick={false}
-        Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
-      />
       <KeeperModal
         visible={electrumDisconnectWarningVisible}
         close={() => {
@@ -276,11 +216,6 @@ function NodeSettings() {
         secondaryCallback={() => setElectrumDisconnectWarningVisible(false)}
         Content={ElectrumDisconnectWarningContent}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
-        <View style={styles.activityIndicator}>
-          <ActivityIndicator color="#017963" size="large" />
-        </View>
-      </Modal>
     </ScreenWrapper>
   );
 }
@@ -329,4 +264,5 @@ const styles = StyleSheet.create({
     gap: hp(30),
   },
 });
+
 export default NodeSettings;
