@@ -412,7 +412,7 @@ function SigningDeviceDetails({ route }) {
         const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
         serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
       }
-      if (activeVault) {
+      if (activeVault && changeAddressIndex) {
         if (
           parseInt(changeAddressIndex) >
           activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
