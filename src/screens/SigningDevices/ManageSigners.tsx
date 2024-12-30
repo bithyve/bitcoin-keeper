@@ -31,7 +31,7 @@ import KeyAddedModal from 'src/components/KeyAddedModal';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
 import Text from 'src/components/KeeperText';
-import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import Relay from 'src/services/backend/Relay';
 import { notificationType } from 'src/models/enums/Notifications';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -232,7 +232,7 @@ function ManageSigners({ route }: ScreenProps) {
         buttonCallback={acceptRemoteKey}
         secondaryCallback={rejectRemoteKey}
         Content={() => (
-          <Box style={styles.modalContent}>
+          <Box style={{ marginBottom: hp(10) }}>
             <Note subtitle={signerTranslation.remoteKeyReceiveNote} />
           </Box>
         )}
@@ -253,19 +253,29 @@ function ManageSigners({ route }: ScreenProps) {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenContent`}
+        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
         secondaryCallback={() => {
           setShowLearnMoreModal(false);
-          dispatch(goToConcierge([ConciergeTag.KEYS], 'manage-keys'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.KEYS],
+                screenName: 'manage-keys',
+              },
+            })
+          );
         }}
         buttonText={common.Okay}
         buttonCallback={() => setShowLearnMoreModal(false)}
         Content={() => (
           <Box style={styles.modalContent}>
-            <HardwareIllustration />
+            <Box style={styles.illustrationContainer}>
+              <HardwareIllustration />
+            </Box>
             <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
               {signerTranslation.manageKeysModalDesc}
             </Text>
@@ -508,7 +518,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   modalContent: {
-    marginBottom: hp(40),
+    marginBottom: hp(10),
+  },
+  illustrationContainer: {
+    marginBottom: hp(30),
   },
   timerWrapper: {
     width: '100%',

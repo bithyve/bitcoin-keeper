@@ -9,9 +9,12 @@ import { WalletType } from 'src/services/wallets/enums';
 import { CommonActions } from '@react-navigation/native';
 import { VaultScheme } from 'src/services/wallets/interfaces/vault';
 import KeeperModal from 'src/components/KeeperModal';
-import SignerCard from '../AddSigner/SignerCard';
 import AirGappedIcon from 'src/assets/images/airgapped.svg';
 import HotWalletIcon from 'src/assets/images/hotWallet.svg';
+import { useDispatch } from 'react-redux';
+import { resetCollaborativeSession } from 'src/store/reducers/vaults';
+import SignerCard from '../AddSigner/SignerCard';
+import { useAppSelector } from 'src/store/hooks';
 
 enum SingleKeyOptions {
   HOT_WALLET = 'HOT_WALLET',
@@ -19,9 +22,12 @@ enum SingleKeyOptions {
 }
 function Wallets({ navigation }) {
   const { wallets } = useWallets({ getAll: true });
+  const { collaborativeSession } = useAppSelector((state) => state.vault);
   const { colorMode } = useColorMode();
+  const dispatch = useDispatch();
 
   const [singleKeyOptions, setSingleKeyOptions] = useState(false);
+  const [collabSessionExistsModalVisible, setCollabSessionExistsModalVisible] = useState(false);
   const [selectedSingleKeyOption, setselectedSingleKeyOption] = useState(
     SingleKeyOptions.HOT_WALLET
   );
@@ -41,12 +47,19 @@ function Wallets({ navigation }) {
       name: isHotWallet ? `Wallet ${wallets.length + 1}` : '',
       description: '',
       type: WalletType.DEFAULT,
-      isHotWallet: isHotWallet,
+      isHotWallet,
     });
   };
 
   const handleCollaborativeWalletCreation = () => {
-    navigation.navigate('SetupCollaborativeWallet');
+    if (Object.keys(collaborativeSession.signers).length > 0) {
+      setCollabSessionExistsModalVisible(true);
+    } else {
+      dispatch(resetCollaborativeSession());
+      setTimeout(() => {
+        navigation.navigate('SetupCollaborativeWallet');
+      }, 500); // delaying navigation by 0.5 second to ensure collaborative session reset
+    }
   };
 
   const options = [
@@ -64,7 +77,7 @@ function Wallets({ navigation }) {
     },
   ];
 
-  const Content = () => {
+  function Content() {
     return (
       <View
         style={{
@@ -90,7 +103,7 @@ function Wallets({ navigation }) {
           ))}
       </View>
     );
-  };
+  }
 
   return (
     <Box>
@@ -122,11 +135,30 @@ function Wallets({ navigation }) {
       <KeeperModal
         visible={singleKeyOptions}
         close={() => setSingleKeyOptions(false)}
-        title={'Single-key wallet'}
-        subTitle={'Create a wallet using a single key'}
-        buttonText={'Proceed'}
+        title="Single-key wallet"
+        subTitle="Create a wallet using a single key"
+        buttonText="Proceed"
         buttonCallback={handleSingleKey}
         Content={Content}
+      />
+      <KeeperModal
+        visible={collabSessionExistsModalVisible}
+        close={() => setCollabSessionExistsModalVisible(false)}
+        title="Collaborative wallet setup session already exists"
+        subTitle="You already have a collaborative wallet setup session in progress, would you like to continue the session or start a new one?"
+        buttonText="Continue session"
+        secondaryButtonText="Start new"
+        secondaryCallback={() => {
+          setCollabSessionExistsModalVisible(false);
+          dispatch(resetCollaborativeSession());
+          setTimeout(() => {
+            navigation.navigate('SetupCollaborativeWallet');
+          }, 500);
+        }}
+        buttonCallback={() => {
+          setCollabSessionExistsModalVisible(false);
+          navigation.navigate('SetupCollaborativeWallet');
+        }}
       />
     </Box>
   );

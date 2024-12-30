@@ -7,6 +7,10 @@ import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import useToastMessage from './useToastMessage';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { notificationType } from 'src/models/enums/Notifications';
+import { useDispatch } from 'react-redux';
+import { addTicketStatusUAI } from 'src/store/sagaActions/concierge';
+import { uaiType } from 'src/models/interfaces/Uai';
+import { uaiChecks } from 'src/store/sagaActions/uai';
 
 const NotificationHandler = () => {
   const [showNotifcationModal, setShowNotifcationModal] = useState(false);
@@ -15,11 +19,18 @@ const NotificationHandler = () => {
   const [showLoader, setShowLoader] = useState(false);
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
+  const dispatch = useDispatch();
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       if (remoteMessage.data?.notificationType === notificationType.REMOTE_KEY_SHARE) {
         setForegroundNotifcation(remoteMessage);
         setShowRemoteNotificationModel(true);
+      } else if (remoteMessage.data?.notificationType === notificationType.ZENDESK_TICKET) {
+        const { ticketId = null, ticketStatus = null } = remoteMessage.data;
+        if (ticketId && ticketStatus) {
+          dispatch(addTicketStatusUAI(ticketId, ticketStatus, remoteMessage.notification.body));
+          dispatch(uaiChecks([uaiType.ZENDESK_TICKET]));
+        }
       } else {
         setForegroundNotifcation(remoteMessage);
         setShowNotifcationModal(true);

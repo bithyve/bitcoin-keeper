@@ -13,6 +13,8 @@ export const REINSTATE_VAULT = 'REINSTATE_VAULT';
 export const REFILL_MOBILEKEY = 'REFILL_MOBILEKEY';
 export const REFRESH_CANARY_VAULT = 'REFRESH_CANARY_VAULT';
 export const MERGER_SIMILAR_KEYS = 'MERGER_SIMILAR_KEYS';
+export const UPDATE_COLLABORATIVE_CHANNEL = 'UPDATE_COLLABORATIVE_CHANNEL';
+export const FETCH_COLLABORATIVE_CHANNEL = 'FETCH_COLLABORATIVE_CHANNEL';
 
 export const addNewVault = (payload: {
   newVaultInfo: NewVaultInfo;
@@ -72,4 +74,14 @@ export const refreshCanaryWallets = () => ({
 export const mergeSimilarKeys = (signer: Signer) => ({
   type: MERGER_SIMILAR_KEYS,
   payload: { signer },
+});
+
+export const updateCollaborativeChannel = (self: Signer) => ({
+  type: UPDATE_COLLABORATIVE_CHANNEL,
+  payload: { self },
+});
+
+export const fetchCollaborativeChannel = (self: Signer) => ({
+  type: FETCH_COLLABORATIVE_CHANNEL,
+  payload: { self },
 });

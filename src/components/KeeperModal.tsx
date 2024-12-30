@@ -267,10 +267,12 @@ const getStyles = (subTitleWidth) =>
     },
     title: {
       fontSize: 20,
+      lineHeight: 27.2,
       marginBottom: hp(5),
     },
     subTitle: {
       fontSize: 14,
+      lineHeight: 20,
       width: subTitleWidth,
     },
     secCta: {

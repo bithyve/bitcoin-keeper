@@ -9,14 +9,15 @@ type CardPillProps = {
   backgroundColor?: string;
   headingColor?: string;
   cardStyle?: any;
+  height?: number;
 };
 
-function CardPill({ heading, backgroundColor, headingColor, cardStyle }: CardPillProps) {
+function CardPill({ heading, backgroundColor, headingColor, cardStyle, height }: CardPillProps) {
   const { colorMode } = useColorMode();
   return (
     <Box
       backgroundColor={backgroundColor || `${colorMode}.walletTypePillBack`}
-      style={[styles.pillContainer, cardStyle && cardStyle]}
+      style={[styles.pillContainer, cardStyle && cardStyle, { height: height || 17 }]}
     >
       <Text
         bold

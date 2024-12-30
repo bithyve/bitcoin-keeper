@@ -39,7 +39,6 @@ import SettingsIcon from 'src/assets/images/settings_brown.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useWallets from 'src/hooks/useWallets';
 import DerivationPathModalContent from './DerivationPathModal';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 // eslint-disable-next-line react/prop-types
@@ -358,13 +357,21 @@ function EnterWalletDetailScreen({ route }) {
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryCallback={() => {
           setAdvancedSettingsVisible(false);
           setVisibleModal(false);
-          dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet-advanced-settings'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.WALLET],
+                screenName: 'add-wallet-advanced-settings',
+              },
+            })
+          );
         }}
         buttonCallback={() => setVisibleModal(false)}
       />

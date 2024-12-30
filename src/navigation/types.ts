@@ -171,6 +171,18 @@ export type AppStackParams = {
   SetupPortal: undefined;
   AddReserveKey: undefined;
   ResetInheritanceKey: undefined;
+  KeeperConcierge: undefined;
+  TechnicalSupport: {
+    newTicketId: string;
+    ticketCreated: boolean;
+    screenName?: string;
+    tags?: string[];
+  };
+  TicketDetails: undefined;
+  CreateTicket: undefined;
+  ImportContactFile: undefined;
+  ContactDetails: undefined;
+  ShareQR: undefined;
 };
 
 // Usage:

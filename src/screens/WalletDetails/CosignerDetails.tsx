@@ -13,7 +13,24 @@ import { AppStackParams } from 'src/navigation/types';
 import idx from 'idx';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { captureError } from 'src/services/sentry';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
+
+export const fetchKeyExpression = (signer: Signer) => {
+  for (const type of [XpubTypes.P2WSH, XpubTypes.P2WPKH]) {
+    if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
+      const keyDescriptor = getKeyExpression(
+        signer.masterFingerprint,
+        idx(signer, (_) => _.signerXpubs[type][0].derivationPath.replaceAll('h', "'")),
+        idx(signer, (_) => _.signerXpubs[type][0].xpub),
+        false
+      );
+      return keyDescriptor;
+    }
+  }
+
+  throw new Error('Missing key details.');
+};
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'CosignerDetails'>;
 function CosignerDetails({ route }: ScreenProps) {
@@ -22,41 +39,17 @@ function CosignerDetails({ route }: ScreenProps) {
   const [details, setDetails] = React.useState('');
   const { signer } = route.params;
 
-  const fetchKeyExpression = (type: XpubTypes) => {
-    try {
-      if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
-        const keyDescriptor = getKeyExpression(
-          signer.masterFingerprint,
-          idx(signer, (_) => _.signerXpubs[type][0].derivationPath.replaceAll('h', "'")),
-          idx(signer, (_) => _.signerXpubs[type][0].xpub),
-          false
-        );
-        return keyDescriptor;
-      } else {
-        throw new Error(`Missing key details for ${type} type.`);
-      }
-    } catch (error) {
-      throw new Error(`Missing key details for ${type} type.`);
-    }
-  };
-
   useEffect(() => {
     if (!details) {
       setTimeout(() => {
         try {
-          const keyDescriptor = fetchKeyExpression(XpubTypes.P2WSH);
+          const keyDescriptor = fetchKeyExpression(signer);
           setDetails(keyDescriptor);
         } catch (error) {
-          captureError(error);
-          try {
-            const keyDescriptor = fetchKeyExpression(XpubTypes.P2WPKH);
-            setDetails(keyDescriptor);
-          } catch (error) {
-            showToast(
-              "We're sorry, but we have trouble retrieving the key information",
-              <ToastErrorIcon />
-            );
-          }
+          showToast(
+            "We're sorry, but we have trouble retrieving the key information",
+            <ToastErrorIcon />
+          );
         }
       }, 200);
     }

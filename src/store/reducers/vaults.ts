@@ -4,6 +4,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import persistReducer from 'redux-persist/es/persistReducer';
+import { COLLABORATIVE_SCHEME } from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import { ADD_NEW_VAULT } from '../sagaActions/vaults';
 
 export interface VaultCreationPayload {
@@ -46,6 +47,11 @@ export type VaultState = {
   keyHeathCheckError: string;
   keyHeathCheckLoading: boolean;
   remoteLinkDetails: RemoteLinkDetails;
+  collaborativeSession: {
+    signers: { [fingerprint: string]: { keyDescriptor: string; keyAES: string } };
+    isComplete: boolean;
+    lastSynced: number;
+  };
 };
 
 export type SignerUpdatePayload = {
@@ -71,6 +77,11 @@ const initialState: VaultState = {
   keyHeathCheckError: null,
   keyHeathCheckLoading: false,
   remoteLinkDetails: null,
+  collaborativeSession: {
+    signers: {},
+    isComplete: false,
+    lastSynced: null,
+  },
 };
 
 const vaultSlice = createSlice({
@@ -148,6 +159,27 @@ const vaultSlice = createSlice({
     setRemoteLinkDetails: (state, action: PayloadAction<RemoteLinkDetails>) => {
       state.remoteLinkDetails = action.payload;
     },
+    setCollaborativeSessionSigners: (
+      state,
+      action: PayloadAction<{
+        [fingerprint: string]: { keyDescriptor: string; keyAES: string };
+      }>
+    ) => {
+      state.collaborativeSession.signers = {
+        ...state.collaborativeSession.signers,
+        ...action.payload,
+      };
+
+      if (Object.keys(state.collaborativeSession.signers).length === COLLABORATIVE_SCHEME.n) {
+        state.collaborativeSession.isComplete = true;
+      }
+    },
+    updateCollaborativeSessionLastSynched: (state) => {
+      state.collaborativeSession.lastSynced = Date.now();
+    },
+    resetCollaborativeSession: (state) => {
+      state.collaborativeSession = initialState.collaborativeSession;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_VAULT, (state) => {
@@ -172,6 +204,9 @@ export const {
   setKeyHealthCheckLoading,
   resetKeyHealthState,
   setRemoteLinkDetails,
+  setCollaborativeSessionSigners,
+  updateCollaborativeSessionLastSynched,
+  resetCollaborativeSession,
 } = vaultSlice.actions;
 
 const vaultPersistConfig = {

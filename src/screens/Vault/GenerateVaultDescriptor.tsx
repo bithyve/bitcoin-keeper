@@ -20,7 +20,11 @@ const ConfigQR = ({ isInheritanceVault, descriptorString, activeTab }) => {
       {activeTab === 0 ? (
         <KeeperQRCode size={windowWidth * 0.7} ecl="L" qrData={descriptorString} />
       ) : (
-        <DisplayQR qrContents={descriptorString} type="base64" />
+        <DisplayQR
+          qrContents={Buffer.from(descriptorString, 'ascii').toString('hex')}
+          toBytes
+          type="hex"
+        />
       )}
     </Box>
   ) : (
