@@ -87,6 +87,7 @@ export const SignersReqVault = [
   SignerType.TREZOR,
   SignerType.BITBOX02,
   SignerType.PORTAL,
+  SignerType.KEYSTONE,
 ];
 
 export const CHANGE_INDEX_THRESHOLD = 100;
