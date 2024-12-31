@@ -237,7 +237,6 @@ async function downgradeToPleb() {
   await Relay.updateSubscription(app.id, app.publicId, {
     productId: SubscriptionTier.L1.toLowerCase(),
   });
-  console.log('Downgraded to pleb');
 }
 
 async function updateSubscription(level: AppSubscriptionLevel) {
