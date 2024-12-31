@@ -155,9 +155,14 @@ function NodeSettings() {
         )}
       </Box>
       <Box style={styles.footerContainer}>
-        {isNoNodeConnected && !isNodeListEmpty && (
-          <WarningNote noteText="You're not connected to any Electrum server. Some functionalities may not work." />
-        )}
+        {isNoNodeConnected ? (
+          isNodeListEmpty ? (
+            <WarningNote noteText={settings.noNodeWarning1} />
+          ) : (
+            <WarningNote noteText={settings.noNodeWarning2} />
+          )
+        ) : null}
+
         <Buttons
           primaryCallback={() => navigation.dispatch(CommonActions.navigate('NodeSelection'))}
           primaryText={`${settings.addNewNode}`}

@@ -25,7 +25,7 @@ const AddNode = ({
 }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { settings } = translations;
+  const { common, settings } = translations;
 
   return (
     <Box style={[styles.container, { backgroundColor: `${colorMode}.primaryBackground` }]}>
@@ -36,17 +36,19 @@ const AddNode = ({
         </Box>
         <Box style={styles.inputArea}>
           <Box>
-            <Text color={`${colorMode}.secondaryText`}>URL</Text>
+            <Text color={`${colorMode}.secondaryText`}>{common.URL}</Text>
             <KeeperTextInput
               placeholder={settings.host}
               value={host}
               autoCorrect={false}
               autoComplete="off"
-              onChangeText={(text) => setHost(text)}
+              onChangeText={(text) => setHost(text.toLowerCase())}
+              inpuBorderColor={`${colorMode}.receiptBorder`}
+              inpuBackgroundColor={`${colorMode}.boxSecondaryBackground`}
             />
           </Box>
           <Box>
-            <Text color={`${colorMode}.secondaryText`}>Port Number</Text>
+            <Text color={`${colorMode}.secondaryText`}>{common.portNumber}</Text>
             <KeeperTextInput
               placeholder={settings.portNumberPlaceholder}
               keyboardType="number-pad"
@@ -54,6 +56,8 @@ const AddNode = ({
               autoCorrect={false}
               autoComplete="off"
               onChangeText={(text) => setPort(text)}
+              inpuBorderColor={`${colorMode}.receiptBorder`}
+              inpuBackgroundColor={`${colorMode}.boxSecondaryBackground`}
             />
           </Box>
         </Box>

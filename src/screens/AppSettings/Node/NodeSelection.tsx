@@ -1,11 +1,11 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TabBar from 'src/components/TabBar';
 import { hp, wp } from 'src/constants/responsive';
-import AddNode from './AddNodeModal';
+import AddNode from './AddNode';
 import Node from 'src/services/electrum/node';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -21,10 +21,16 @@ import ScannerDark from 'src/assets/images/scanner-icon-white.svg';
 
 import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
-import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
+import {
+  predefinedMainnetNodes,
+  predefinedTestnetNodes,
+} from 'src/services/electrum/predefinedNodes';
 import SelectableServerItem from './components/SelectableServerItem';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import config from 'src/utils/service-utilities/config';
+import { NetworkType } from 'src/services/wallets/enums';
 
 const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL }) => {
   return (
@@ -42,9 +48,11 @@ const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL }) =>
 };
 
 const PublicServer = ({ currentlySelectedNode, handleSelectNode }) => {
+  const predefinedNodes =
+    config.NETWORK_TYPE === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
   return (
     <Box style={styles.nodeListContainer}>
-      {predefinedTestnetNodes.map((node) => (
+      {predefinedNodes.map((node) => (
         <SelectableServerItem
           key={node.id}
           item={node}
@@ -61,8 +69,11 @@ const NodeSelection = () => {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { common, settings } = translations;
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
   const [nodeList, setNodeList] = useState([]);
   const [currentlySelectedNode, setCurrentlySelectedNodeItem] = useState(null);
 
@@ -71,10 +82,16 @@ const NodeSelection = () => {
   const [useSSL, setUseSSL] = useState(true);
   const isDarkMode = colorMode === 'dark';
 
-  const tabsData = [{ label: 'Public Server' }, { label: 'Private Electrum' }];
+  const tabsData = [{ label: settings.publicServer }, { label: settings.privateElectrum }];
+
+  const nodes: NodeDetail[] = Node.getAllNodes();
+
+  useEffect(() => {
+    setNodeList(nodes);
+  }, [nodes.length]);
 
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
-    setLoading(true);
+    setSaveLoading(true);
 
     // Sanitize host
     if (nodeDetail.host.endsWith('/')) {
@@ -87,7 +104,7 @@ const NodeSelection = () => {
       nodeDetail.host = nodeDetail.host.replace('https://', '');
     }
 
-    const nodeToSave = { ...nodeDetail, id: null };
+    const nodeToSave = { ...nodeDetail };
     const { saved } = await Node.save(nodeToSave, nodeList);
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
@@ -101,11 +118,10 @@ const NodeSelection = () => {
     } else {
       showToast(`Failed to save, unable to connect to: ${nodeToSave.host} `, <ToastErrorIcon />);
     }
-    setLoading(false);
+    setSaveLoading(false);
   };
 
   const onConnectToNode = async (selectedNode: NodeDetail) => {
-    setLoading(true);
     let nodes = Node.getAllNodes();
     if (
       currentlySelectedNode &&
@@ -159,19 +175,33 @@ const NodeSelection = () => {
     }
 
     const nodeDetails: NodeDetail = {
-      id: Node.getModalParams(currentlySelectedNode)?.id,
+      id: null,
       host,
       port,
-      useKeeperNode: Node.getModalParams(currentlySelectedNode)?.useKeeperNode,
-      isConnected: Node.getModalParams(currentlySelectedNode)?.isConnected,
+      useKeeperNode: false,
+      isConnected: false,
       useSSL,
     };
     onSaveCallback(nodeDetails);
   };
 
+  const onQrScan = async (qrData) => {
+    try {
+      const nodeDetails = Node.decodeQR(qrData);
+      if (nodeDetails) {
+        setHost(nodeDetails.host.toLowerCase());
+        setPort(nodeDetails.port);
+        setUseSSL(nodeDetails.useSSL);
+      }
+      navigation.goBack();
+    } catch (error) {
+      showToast('Invalid QR code', <ToastErrorIcon />);
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <ActivityIndicatorView visible={loading} />
+      <ActivityIndicatorView visible={loading || saveLoading} />
       <KeeperHeader
         title="Server Selection"
         subtitle="Select a server you'd like to use. Add your own node for enhanced privacy."
@@ -207,13 +237,21 @@ const NodeSelection = () => {
 
         <Box style={[styles.footerContainer, { alignItems: activeTab === 0 ? null : 'center' }]}>
           {activeTab === 0 ? (
-            <Note
-              title="Note"
-              subtitle="It’s recommended to use your own Electrum server to protect your privacy"
-            />
+            <Note title={common.note} subtitle={settings.publicServerNote} />
           ) : (
             <Buttons
-              secondaryText="Scan QR"
+              secondaryText={settings.scanQRTitle}
+              secondaryTextColor={`${colorMode}.noteTextClosed`}
+              secondaryCallback={() =>
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'ScanNode',
+                    params: {
+                      onQrScan,
+                    },
+                  })
+                )
+              }
               fullWidth
               SecondaryIcon={
                 isDarkMode ? (
@@ -226,7 +264,8 @@ const NodeSelection = () => {
           )}
 
           <Buttons
-            primaryText="Connect to Server"
+            primaryText={settings.connectToServer}
+            primaryDisable={activeTab === 0 ? !currentlySelectedNode : !host || !port}
             primaryCallback={
               activeTab === 0 ? () => onSaveCallback(currentlySelectedNode) : onValidateAndSave
             }
