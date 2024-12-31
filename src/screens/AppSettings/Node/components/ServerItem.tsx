@@ -28,11 +28,11 @@ const ServerItem = ({
 
   return (
     <Box
-      backgroundColor={`${colorMode}.seashellWhite`}
+      backgroundColor={`${colorMode}.boxSecondaryBackground`}
       style={[styles.nodeList]}
       borderColor={colorMode === 'light' ? 'transparent' : Colors.separator}
     >
-      <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
+      <Box style={styles.nodeDetail}>
         <Box flex={1}>
           <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]} medium>
             {settings.host}
@@ -48,11 +48,7 @@ const ServerItem = ({
           <Text style={styles.nodeTextValue}>{item.port}</Text>
         </Box>
       </Box>
-      <Box
-        style={styles.nodeButtons}
-        borderColor={`${colorMode}.greyBorder`}
-        backgroundColor={`${colorMode}.seashellWhite`}
-      >
+      <Box style={styles.nodeButtons} borderColor={`${colorMode}.greyBorder`}>
         <TouchableOpacity
           testID="btn_deleteNode"
           onPress={() => {
@@ -97,7 +93,10 @@ const ServerItem = ({
             ) : (
               <ConnectIconWhite />
             )}
-            <Text style={[styles.actionText, { paddingTop: isConnected ? 0 : 1 }]}>
+            <Text
+              color={`${colorMode}.noteTextClosed`}
+              style={[styles.actionText, { paddingTop: isConnected ? 0 : 1 }]}
+            >
               {isConnected ? common.disconnect : common.connect}
             </Text>
           </Box>

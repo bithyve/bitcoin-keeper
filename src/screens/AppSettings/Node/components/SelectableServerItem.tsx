@@ -3,26 +3,30 @@ import { Pressable, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import Node from 'src/services/electrum/node';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const SelectableServerItem = ({ item, onSelect, currentlySelectedNode }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common, settings } = translations;
-  const isConnected = Node.nodeConnectionStatus(item);
-
+  const { settings } = translations;
+  const isDarkMode = colorMode === 'dark';
   const isSelected = item.id === currentlySelectedNode?.id;
 
   return (
     <Pressable onPress={() => onSelect(item)}>
       <Box
-        backgroundColor={`${colorMode}.seashellWhite`}
+        backgroundColor={`${colorMode}.boxSecondaryBackground`}
         style={[styles.nodeList, isSelected && styles.selectedItem]}
-        borderColor={isSelected ? `${colorMode}.pantoneGreen` : null}
-        borderWidth={isSelected ? 2 : 0}
+        borderColor={
+          isSelected
+            ? `${colorMode}.pantoneGreen`
+            : isDarkMode
+            ? `${colorMode}.receiptBorder`
+            : null
+        }
+        borderWidth={isDarkMode && !isSelected ? 1 : isSelected ? 2 : 0}
       >
-        <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
+        <Box style={styles.nodeDetail}>
           <Box flex={1}>
             <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]} medium>
               {settings.host}
