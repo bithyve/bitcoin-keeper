@@ -148,6 +148,7 @@ import CreateTicket from 'src/screens/KeeperConcierge/CreateTicket';
 import ImportContactFile from 'src/screens/SigningDevices/ImportContactFile';
 import ContactDetails from 'src/screens/SigningDevices/ContactDetails';
 import ShareQR from 'src/screens/SigningDevices/ShareQR';
+import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -159,6 +160,8 @@ function LoginStack() {
       <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
       <Stack.Screen name="NodeSettings" component={NodeSettings} />
+      <Stack.Screen name="NodeSelection" component={NodeSelection} />
+      <Stack.Screen name="ScanNode" component={ScanNode} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="OnBoardingSlides"
@@ -279,6 +282,7 @@ function AppStack() {
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
         <Stack.Screen name="NodeSettings" component={NodeSettings} />
         <Stack.Screen name="NodeSelection" component={NodeSelection} />
+        <Stack.Screen name="ScanNode" component={ScanNode} />
         <Stack.Screen name="PrivacyAndDisplay" component={PrivacyAndDisplay} />
         <Stack.Screen name="NetworkSetting" component={NetworkSetting} />
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
