@@ -197,15 +197,14 @@ function* credentialsAuthWorker({ payload }) {
           yield put(resetSyncing());
           yield call(generateSeedHash);
           yield put(setRecepitVerificationFailed(!response.isValid));
-          if (subscription.level === 1 && subscription.name === 'Hodler') {
-            yield call(downgradeToPleb);
-            yield put(setRecepitVerificationFailed(true));
-          } else if (subscription.level === 2 && subscription.name === 'Diamond Hands') {
-            yield call(downgradeToPleb);
-            yield put(setRecepitVerificationFailed(true));
-          } else if (subscription.level !== response.level) {
-            yield call(downgradeToPleb);
-            yield put(setRecepitVerificationFailed(true));
+          if (!response.isValid) {
+            if (subscription.level > 1 && ['Hodler', 'Diamond Hands'].includes(subscription.name)) {
+              yield call(downgradeToPleb);
+              yield put(setRecepitVerificationFailed(true));
+            } else if (subscription.level !== response.level) {
+              yield call(downgradeToPleb);
+              yield put(setRecepitVerificationFailed(true));
+            }
           }
           yield put(connectToNode());
         } catch (error) {
@@ -238,6 +237,7 @@ async function downgradeToPleb() {
   await Relay.updateSubscription(app.id, app.publicId, {
     productId: SubscriptionTier.L1.toLowerCase(),
   });
+  console.log('Downgraded to pleb');
 }
 
 async function updateSubscription(level: AppSubscriptionLevel) {
