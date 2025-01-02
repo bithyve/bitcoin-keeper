@@ -213,7 +213,7 @@ export const getWalletConfig = ({ vault, signerType }: { vault: Vault; signerTyp
   const isKeystone = signerType === SignerType.KEYSTONE;
   let line = '';
   if (isKeystone) line += 'Y q';
-  line += `# ${isKeystone ? 'Keystone' : ''} Multisig setup file (exported from Keeper)\n`;
+  line += `#${isKeystone ? ' Keystone' : ''} Multisig setup file (exported from Keeper)\n`;
   if (isKeystone) line += '#\n';
   line += `Name: ${vault.presentationData.name}\n`;
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
@@ -227,7 +227,7 @@ export const getWalletConfig = ({ vault, signerType }: { vault: Vault; signerTyp
     } else {
       line += `Derivation:${signer.derivationPath.replaceAll('h', "'")}\n`;
       line += `${signer.masterFingerprint}:`;
-      line += `${signer.xpub}\n\n`;
+      line += `${signer.xpub}\n`;
     }
   });
   return line;
