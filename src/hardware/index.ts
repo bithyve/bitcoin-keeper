@@ -209,16 +209,26 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
   return name;
 };
 
-export const getWalletConfig = ({ vault }: { vault: Vault }) => {
-  let line = '# Multisig setup file (exported from Keeper)\n';
+export const getWalletConfig = ({ vault, signerType }: { vault: Vault; signerType?: string }) => {
+  const isKeystone = signerType === SignerType.KEYSTONE;
+  let line = '';
+  if (isKeystone) line += 'Y q';
+  line += `#${isKeystone ? ' Keystone' : ''} Multisig setup file (exported from Keeper)\n`;
+  if (isKeystone) line += '#\n';
   line += `Name: ${vault.presentationData.name}\n`;
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
+  if (isKeystone) line += `Derivation: ${vault.signers[0].derivationPath.replaceAll('h', "'")}\n`;
   line += 'Format: P2WSH\n';
   line += '\n';
   vault.signers.forEach((signer) => {
-    line += `Derivation:${signer.derivationPath.replaceAll('h', "'")}\n`;
-    line += `${signer.masterFingerprint}:`;
-    line += `${signer.xpub}\n\n`;
+    if (isKeystone) {
+      line += `${signer.masterFingerprint}: `;
+      line += `${signer.xpub}\n`;
+    } else {
+      line += `Derivation:${signer.derivationPath.replaceAll('h', "'")}\n`;
+      line += `${signer.masterFingerprint}:`;
+      line += `${signer.xpub}\n`;
+    }
   });
   return line;
 };
