@@ -10,14 +10,26 @@ type CardPillProps = {
   headingColor?: string;
   cardStyle?: any;
   height?: number;
+  borderRadius?: number;
+  paddingHorizontal?: number;
 };
 
-function CardPill({ heading, backgroundColor, headingColor, cardStyle, height }: CardPillProps) {
+function CardPill({
+  heading,
+  backgroundColor,
+  headingColor,
+  cardStyle,
+  height,
+  borderRadius = 20,
+  paddingHorizontal = wp(10),
+}: CardPillProps) {
   const { colorMode } = useColorMode();
   return (
     <Box
       backgroundColor={backgroundColor || `${colorMode}.walletTypePillBack`}
-      style={[styles.pillContainer, cardStyle && cardStyle, { height: height || 17 }]}
+      style={[styles.pillContainer, cardStyle && cardStyle, { height: height || 21 }]}
+      borderRadius={borderRadius}
+      paddingX={paddingHorizontal}
     >
       <Text
         bold
@@ -33,9 +45,6 @@ function CardPill({ heading, backgroundColor, headingColor, cardStyle, height }:
 
 const styles = StyleSheet.create({
   pillContainer: {
-    paddingHorizontal: wp(10),
-    height: hp(21),
-    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
