@@ -22,11 +22,16 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import config from 'src/utils/service-utilities/config';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
+import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import { getInputsFromPSBT, getInputsToSignFromPSBT } from 'src/utils/utilities';
 import * as bitcoin from 'bitcoinjs-lib';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
 const RKSignersModal = ({ signer, psbt }, ref) => {
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+
   const serializedPSBTEnvelop = {
     serializedPSBT: psbt,
   };
@@ -161,6 +166,16 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
       } else if (SignerType.MY_KEEPER === signerType) {
         let signedSerializedPSBT: string;
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
+        if (!key.xpriv) {
+          let { xpubDetails } = await getCosignerDetails(
+            primaryMnemonic,
+            signer.extraData.instanceNumber - 1
+          );
+          if (key.xpub != xpubDetails[XpubTypes.P2WSH].xpub) {
+            throw new Error('Cannot get private key of signer');
+          }
+          key.xpriv = xpubDetails[XpubTypes.P2WSH].xpriv;
+        }
         signedSerializedPSBT = signCosignerPSBT(
           signer.masterFingerprint,
           key.xpriv,
