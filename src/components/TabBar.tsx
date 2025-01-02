@@ -9,7 +9,7 @@ function TabBar({ tabs, activeTab, setActiveTab, width = '100%', radius = 15 }) 
   return (
     <Box
       style={styles.tabBarContainer}
-      borderColor={`${colorMode}.border`}
+      borderColor={`${colorMode}.receiptBorder`}
       width={width}
       borderRadius={radius}
     >
@@ -27,7 +27,9 @@ function TabBar({ tabs, activeTab, setActiveTab, width = '100%', radius = 15 }) 
               },
             ]}
             backgroundColor={
-              activeTab === index ? `${colorMode}.pantoneGreen` : `${colorMode}.secondaryBackground`
+              activeTab === index
+                ? `${colorMode}.pantoneGreen`
+                : `${colorMode}.boxSecondaryBackground`
             }
           >
             <Text

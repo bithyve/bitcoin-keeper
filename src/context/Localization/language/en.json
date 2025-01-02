@@ -154,7 +154,9 @@
     "tapToAdd": "Tap to add",
     "your": "Your",
     "the": "The",
-    "contact": "Contact"
+    "contact": "Contact",
+    "URL": "URL",
+    "portNumber": "Port Number"
   },
   "noInternet": {
     "no": "No Internet",
@@ -1006,7 +1008,7 @@
     "nodeDetailsTitle": "Enter Node Details",
     "nodeDetailsSubtitle": "Add your own node for enhanced privacy",
     "useKeeperNode": "Use Keeper node as fallback",
-    "portNumberPlaceholder": "Port Number (eg: 8080)",
+    "portNumberPlaceholder": "e.g 8080",
     "host": "Host",
     "useSSL": "Use SSL for this node",
     "nodeConnectionSuccess": "Node connected successfully",
@@ -1073,7 +1075,17 @@
     "passcodeHCModalDesc": "This ensures that even if a passcode is forgotten, access to the wallet remains secure by confirming the Recovery Key, a critical piece of information that only the legitimate wallet owner should have.",
     "torDescription": "This will redirect you to the Orbot app and you can configure the connection from there.",
     "NoServerAdded": "No Servers Added Yet",
-    "NoServerAddedSubtitle": "Looks like you haven't added any servers yet. Add and connect to a server to use the app. Without a server the app works in Offline Mode."
+    "NoServerAddedSubtitle": "Looks like you haven't added any servers yet. Add and connect to a server to use the app. Without a server the app works in Offline Mode.",
+    "scanQRTitle": "Scan QR",
+    "scanQRSubtitle": "Please scan until all the QR data has been retrieved",
+    "noNodeWarning1": "You're not connected to any Electrum server. Some functionalities may not work.",
+    "noNodeWarning2": "Please connect to any server to use the app. Without a server, the app will work in Offline Mode.",
+    "publicServer": "Public Server",
+    "privateElectrum": "Private Electrum",
+    "serverSelectionTitle": "Server Selection",
+    "serverSelectionSubtitle": "Select a server you'd like to use. Add your own node for enhanced privacy.",
+    "publicServerNote": "It’s recommended to use your own Electrum server to protect your privacy",
+    "connectToServer": "Connect to Server"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
