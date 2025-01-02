@@ -5,21 +5,16 @@ import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
 import ContentWrapper from '../../components/ContentWrapper';
 import HelpCard from './components/HelpCard';
-import AILight from 'src/assets/images/ai-light.svg';
-import AIDark from 'src/assets/images/ai-dark.svg';
 import SendLight from 'src/assets/images/send-light.svg';
 import SendDark from 'src/assets/images/send-dark.svg';
-import AIOutlineLight from 'src/assets/images/ai-outline-light.svg';
-import AIOutlineDark from 'src/assets/images/ai-outline-dark.svg';
 import KBOutlineLight from 'src/assets/images/kb-outline-light.svg';
 import KBOutlineDark from 'src/assets/images/kb-outline-dark.svg';
 import TechnicalSupportLight from 'src/assets/images/technical-support-light.svg';
 import TechnicalSupportDark from 'src/assets/images/technical-support-dark.svg';
-import AdvisorDisabledLight from 'src/assets/images/calendar-disabled-light.svg';
-import AdvisorDisabledDark from 'src/assets/images/calendar-disabled-dark.svg';
+import AdvisorLight from 'src/assets/images/calendar-light.svg';
+import AdvisorDark from 'src/assets/images/calendar-dark.svg';
 import { hp, wp } from 'src/constants/responsive';
 import TicketCount from './components/TicketCount';
-import CardPill from 'src/components/CardPill';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import StackedCirclesList from '../Vault/components/StackedCircleList';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -137,19 +132,10 @@ const KeeperConcierge = () => {
         />
       ),
       buttonText: concierge.expertGuidanceButtonText,
-      buttonIcon: isDarkMode ? AdvisorDisabledDark : AdvisorDisabledLight,
-      buttonBackground: `${colorMode}.secondaryGrey`,
-      rightComponentPadding: { top: 0, right: null, bottom: null, left: '60%' },
-      titleComponent: (
-        <CardPill
-          heading={concierge.comingSoonText}
-          height={20}
-          backgroundColor={`${colorMode}.secondaryGrey`}
-          headingColor={`${colorMode}.appStatusTextColor`}
-        />
-      ),
-      disabled: true,
-      buttonCallback: () => {},
+      buttonIcon: isDarkMode ? AdvisorDark : AdvisorLight,
+      buttonCallback: () => {
+        navigation.dispatch(CommonActions.navigate({ name: 'ExpertGuidance' }));
+      },
     },
   ];
 
