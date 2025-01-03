@@ -1,5 +1,5 @@
 import { Box, TextArea, useColorMode } from 'native-base';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   KeyboardAvoidingView,
@@ -17,10 +17,13 @@ import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getKeyUID } from 'src/utils/utilities';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const ScheduleConsultation = ({ route }) => {
   const { screenName, tags } = route.params;
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
   const textAreaRef = useRef(null);
   const { allVaults } = useVault({});
   const { wallets } = useWallets();
@@ -102,7 +105,7 @@ const ScheduleConsultation = ({ route }) => {
                 variant={'unstyled'}
                 autoCompleteType={'off'}
                 placeholderTextColor={`${colorMode}.placeHolderTextColor`}
-                placeholder={' Please explain in what you require consultation in...'}
+                placeholder={` ${concierge.explainReasonForConsultation}`}
                 color={`${colorMode}.primaryText`}
                 fontSize={12}
                 h={hp(281)}

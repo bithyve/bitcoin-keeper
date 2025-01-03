@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
@@ -8,10 +8,19 @@ import { hp, wp } from 'src/constants/responsive';
 import ExpertCard from './components/ExpertCard';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import Text from 'src/components/KeeperText';
+import DisabledOverlay from 'src/components/DisabledOverlay';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import usePlan from 'src/hooks/usePlan';
+import DisabledExpertGuidance from './components/DisabledExpertGuidance';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const ExpertGuidance = () => {
   const { colorMode } = useColorMode();
+  const { plan } = usePlan();
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
   const [search, setSearch] = useState('');
+  const isPleb = plan === SubscriptionTier.L1.toUpperCase();
 
   const advisorsData = [
     {
@@ -81,18 +90,19 @@ const ExpertGuidance = () => {
 
   return (
     <ConciergeScreenWrapper backgroundcolor={`${colorMode}.pantoneGreen`} barStyle="light-content">
-      <ConciergeHeader title={'Expert Guidance'} />
+      <ConciergeHeader title={concierge.expertGuidanceTitle} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
+        <DisabledOverlay visible={isPleb} bottomComponent={<DisabledExpertGuidance />} />
         <Box style={styles.searchBox}>
           <KeeperTextInput
-            placeholder=" Search for an Expert"
+            placeholder={` ${concierge.searchForAnExpert}`}
             value={search}
             onChangeText={setSearch}
             placeholderTextColor={`${colorMode}.placeHolderTextColor`}
           />
           <Box style={styles.titleContainer}>
             <Text color={`${colorMode}.pitchBlackText`} fontSize={16}>
-              Meet Our Experts
+              {concierge.meetOurExperts}
             </Text>
           </Box>
         </Box>
@@ -104,7 +114,7 @@ const ExpertGuidance = () => {
           ) : (
             <Box style={styles.noResults}>
               <Text color={`${colorMode}.pitchBlackText`} fontSize={16}>
-                No experts found matching your search.
+                {concierge.noExpertsMatch}
               </Text>
             </Box>
           )}
@@ -125,7 +135,7 @@ const styles = StyleSheet.create({
     paddingTop: hp(15),
   },
   titleContainer: {
-    paddingTop: hp(10),
+    paddingVertical: hp(10),
   },
   noResults: {
     alignItems: 'center',

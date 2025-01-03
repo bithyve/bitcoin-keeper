@@ -1,6 +1,6 @@
 import { Box, Image, ScrollView, useColorMode } from 'native-base';
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
 import ContentWrapper from '../../components/ContentWrapper';
@@ -13,7 +13,10 @@ import DetailsCard from './components/DetailsCard';
 import Buttons from 'src/components/Buttons';
 import CalendarLight from 'src/assets/images/calendar-light.svg';
 import CalendarDark from 'src/assets/images/calendar-dark.svg';
+import ShareArrowlight from 'src/assets/images/share-arrow-cream.svg';
+import ShareArrowDark from 'src/assets/images/share-arrow-white.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import Share from 'react-native-share';
 
 const ProfileHeader = ({ advisorData }) => {
   const { colorMode } = useColorMode();
@@ -54,9 +57,31 @@ const ExpertProfile = ({ route }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
 
+  const shareAdvisorDetails = () => {
+    const shareOptions = {
+      title: 'Share Advisor Details',
+      message: `Check out this expert advisor: ${advisorData?.name}\n\nLocation: ${
+        advisorData?.location
+      }\nExpertise: ${advisorData?.expertise?.join(', ')}\n\nLearn more and book a consultation.`,
+    };
+
+    Share.open(shareOptions)
+      .then((res) => console.log('Share response:', res))
+      .catch((err) => console.log('Error sharing:', err));
+  };
+
   return (
     <ConciergeScreenWrapper backgroundcolor={`${colorMode}.pantoneGreen`} barStyle="light-content">
-      <ConciergeHeader title={'Expert Profile'} />
+      <ConciergeHeader
+        title={'Expert Profile'}
+        rightComponent={
+          <Pressable onPress={shareAdvisorDetails}>
+            <Box style={styles.shareButton}>
+              {isDarkMode ? <ShareArrowDark /> : <ShareArrowlight />}
+            </Box>
+          </Pressable>
+        }
+      />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.profileHeaderContainer}>
           <ProfileHeader advisorData={advisorData} />
@@ -71,7 +96,7 @@ const ExpertProfile = ({ route }) => {
         </ScrollView>
         <Box style={styles.buttonContainer}>
           <Buttons
-            primaryText="Request Free Consultation"
+            primaryText="Schedule Session"
             primaryCallback={() => {
               navigation.dispatch(
                 CommonActions.navigate({
@@ -94,7 +119,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingLeft: wp(30),
     paddingRight: wp(27),
-    paddingVertical: hp(15),
+    paddingBottom: hp(35),
     gap: hp(20),
   },
   profileHeaderContainer: {
@@ -129,6 +154,13 @@ const styles = StyleSheet.create({
   buttonContainer: {
     alignItems: 'center',
     paddingHorizontal: wp(32),
+  },
+  shareButton: {
+    marginRight: wp(15),
+    height: wp(40),
+    width: wp(40),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
