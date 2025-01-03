@@ -5,12 +5,11 @@ import { hp, windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
-import IKSTimer from 'src/assets/images/iks-timer.svg';
 
 type SignerCardProps = {
   name: string;
   subtitle?: string;
-  description?: string;
+  description?: string | Element;
   icon: Element;
   isSelected?: boolean;
   onCardSelect?: (selected: any) => void;
@@ -27,10 +26,10 @@ type SignerCardProps = {
   isFeePriority?: boolean;
   boldDesc?: boolean;
   image?: string;
-  showTimer?: boolean;
   cardBackground?: string;
   borderColor?: string;
   nameColor?: string;
+  disabledWithTouch?: boolean;
 };
 
 function SignerCard({
@@ -53,10 +52,10 @@ function SignerCard({
   isFeePriority = false,
   boldDesc = false,
   image = null,
-  showTimer,
   cardBackground,
   borderColor,
   nameColor,
+  disabledWithTouch = false,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -69,22 +68,26 @@ function SignerCard({
   const cardBorderColor = borderColor || `${colorMode}.dullGreyBorder`;
   const cardNameColor = nameColor || `${colorMode}.modalWhiteContent`;
 
+  const cardStyle = [
+    styles.walletContainer,
+    disabled || disabledWithTouch ? { opacity: 0.5 } : null,
+    disabledWithTouch ? { backgroundColor: `${colorMode}.disabledBackground` } : null,
+    customStyle,
+  ];
+
+  const isPressable = !disabled;
+
   return (
     <Pressable
-      disabled={disabled}
+      disabled={!isPressable}
       backgroundColor={cardBackgroundColor}
       borderColor={cardBorderColor}
-      style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
+      style={cardStyle}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
       }}
       testID={`btn_${name}`}
     >
-      {showTimer && (
-        <Box style={styles.timer}>
-          <IKSTimer />
-        </Box>
-      )}
       <Box style={styles.selectionIcon}>
         {showSelection &&
           (isSelected ? <Checked /> : StaticIcon ? <StaticIcon /> : <Box style={styles.circle} />)}
@@ -107,7 +110,7 @@ function SignerCard({
         <Text
           color={cardNameColor}
           style={styles.walletName}
-          numberOfLines={isFullText ? 0 : 1}
+          numberOfLines={isFullText ? 2 : 1}
           medium
         >
           {name}
@@ -121,13 +124,17 @@ function SignerCard({
             {subtitle}
           </Text>
         ) : null}
-        <Text
-          style={[styles.walletDescription, { fontWeight: boldDesc ? '500' : 'normal' }]}
-          color={`${colorMode}.secondaryText`}
-          numberOfLines={numberOfLines}
-        >
-          {description}
-        </Text>
+        {typeof description === 'string' ? (
+          <Text
+            style={[styles.walletDescription, { fontWeight: boldDesc ? '500' : 'normal' }]}
+            color={`${colorMode}.secondaryText`}
+            numberOfLines={numberOfLines}
+          >
+            {description}
+          </Text>
+        ) : (
+          description
+        )}
       </Box>
     </Pressable>
   );
@@ -206,12 +213,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     alignSelf: 'center',
     justifyContent: 'center',
-  },
-  timer: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    alignSelf: 'flex-end',
   },
 });
 

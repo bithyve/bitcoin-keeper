@@ -13,6 +13,7 @@ import { generateInheritanceVaultElements } from 'src/services/wallets/operation
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from './config';
 import { generateMiniscriptScheme } from 'src/services/wallets/factories/VaultFactory';
+import { isOdd } from '../utilities';
 
 const crypto = require('crypto');
 
@@ -590,4 +591,54 @@ export const getArchivedVaults = (allVaults: Vault[], vault: Vault) => {
 export function generateKeyFromPassword(password, salt = 'ARzDkUmENwt1', iterations = 100) {
   // Derive a 16-byte key from the 12-character password
   return crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256'); // 16 bytes = 128 bits
+}
+
+
+export function findVaultFromSenderAddress(allVaults: Vault[], senderAddresses) {
+  let activeVault = null;
+  allVaults.forEach(async (vault) => {
+    let addressMatched = true;
+    for (let i = 0; i < senderAddresses.length; i++) {
+      const _ = senderAddresses[i].path.split('/');
+      const [isChange, index] = _.splice(_.length - 2);
+      // 0/even - Receive(External) | 1/odd - change(internal)
+      let generatedAddress: string;
+      generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
+        vault,
+        parseInt(index),
+        isOdd(parseInt(isChange))
+      );
+      if (senderAddresses[i].address != generatedAddress) {
+        addressMatched = false;
+        break;
+      }
+    }
+    if (addressMatched) {
+      activeVault = vault;
+    }
+  });
+
+  if (!activeVault) {
+    return null;
+  }
+  return activeVault;
+}
+
+export function findChangeFromReceiverAddresses(
+  activeVault: Vault,
+  receiverAddresses,
+  changeAddressIndex: number
+) {
+  if (changeAddressIndex == undefined) return receiverAddresses;
+  const changeAddress = WalletOperations.getExternalInternalAddressAtIdx(
+    activeVault,
+    changeAddressIndex,
+    true
+  );
+  const found = receiverAddresses.findIndex((address) => address.address === changeAddress);
+  if (found !== -1) {
+    receiverAddresses[found].isChange = true;
+  }
+
+  return receiverAddresses;
 }

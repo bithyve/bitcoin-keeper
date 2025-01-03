@@ -9,7 +9,13 @@ import {
   VaultSigner,
   signerXpubs,
 } from 'src/services/wallets/interfaces/vault';
-import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
+import {
+  SignerStorage,
+  SignerType,
+  KeyValidationErrorCode,
+  VaultType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -23,7 +29,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-import AssistedVaultIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
@@ -49,10 +54,7 @@ import {
   SETUPCOLLABORATIVEWALLET,
   ADDRESERVEKEY,
 } from 'src/navigation/contants';
-import { setupKeeperSigner } from 'src/hardware/signerSetup';
-import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { captureError, SentryErrorBoundary } from 'src/services/sentry';
-import HWError from 'src/hardware/HWErrorState';
+import { SentryErrorBoundary } from 'src/services/sentry';
 import KeyAddedModal from 'src/components/KeyAddedModal';
 import CautionIllustration from 'src/assets/images/downgradetopleb.svg';
 import Dropdown from 'src/components/Dropdown';
@@ -66,6 +68,8 @@ import { SDIcons } from './SigningDeviceIcons';
 import { TIMELOCK_DURATIONS } from './constants';
 import AddKeyButton from '../SigningDevices/components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
+import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
+import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-illustration-dark.svg';
 
 const onSignerSelect = (
   selected,
@@ -136,15 +140,20 @@ const isAssistedKeyValidForScheme = (
   scheme,
   signerMap,
   selectedSigners
-): { isValid: boolean; err?: string } => {
-  // case 1: scheme based restrictions for assisted keys
+): { isValid: boolean; code?: KeyValidationErrorCode } => {
+  // case 1: scheme-based restrictions for assisted keys
   // both assisted keys can be added starting from Vaults w/ m: 2 and n:3
-  if (scheme.n < 3) return { isValid: false, err: 'Requires a minimum of 3 Total Keys' };
-  else if (scheme.m < 2) return { isValid: false, err: 'Requires a minimum of 2 Required Keys' };
+  if (scheme.n < 3) {
+    return { isValid: false, code: KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS };
+  }
+  if (scheme.m < 2) {
+    return { isValid: false, code: KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS };
+  }
 
-  // case 2: count based restrictions for assisted keys
+  // case 2: count-based restrictions for assisted keys
   const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
   let existingAssistedKeys = 0;
+
   for (const keyUID of selectedSigners.keys()) {
     if (
       signerMap[keyUID].type === SignerType.POLICY_SERVER ||
@@ -153,24 +162,18 @@ const isAssistedKeyValidForScheme = (
       existingAssistedKeys++;
     }
   }
-  const assistedKeys = existingAssistedKeys + currentAssistedKey;
 
-  // Assisted Keys restriction I:  The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
-  const cannotFormQuorum = assistedKeys < scheme.m;
-  if (!cannotFormQuorum) {
-    return {
-      isValid: false,
-      err: 'Number of assisted keys should be less than the Required Keys',
-    };
+  const totalAssistedKeys = existingAssistedKeys + currentAssistedKey;
+
+  // Assisted Keys restriction I: The number of assisted keys should be less than the threshold (m)
+  // for a given Vault, such that they can’t form a signing quorum by themselves.
+  if (totalAssistedKeys >= scheme.m) {
+    return { isValid: false, code: KeyValidationErrorCode.ASSISTED_KEYS_QUORUM };
   }
 
-  // Assisted Keys restriction II: The threshold for the multi-sig should be achievable w/o the assisted keys
-  const notRequiredForQuorum = assistedKeys <= scheme.n - scheme.m;
-  if (!notRequiredForQuorum) {
-    return {
-      isValid: false,
-      err: 'Required Keys is not achievable without the assisted keys',
-    };
+  // Assisted Keys restriction II: The threshold for the multi-sig should be achievable without the assisted keys
+  if (totalAssistedKeys > scheme.n - scheme.m) {
+    return { isValid: false, code: KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD };
   }
 
   return { isValid: true };
@@ -181,7 +184,15 @@ const isSignerValidForScheme = (
   scheme,
   signerMap,
   selectedSigners
-): { isValid: boolean; err?: string } => {
+): { isValid: boolean; code?: KeyValidationErrorCode } => {
+  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+    return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
+  }
+
+  if (signer.type === SignerType.MY_KEEPER && scheme.n <= 1) {
+    return { isValid: false, code: KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED };
+  }
+
   const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
   const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
   const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
@@ -190,11 +201,7 @@ const isSignerValidForScheme = (
     (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
     (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
   ) {
-    return { isValid: false };
-  }
-
-  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
-    return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
+    return { isValid: false, code: KeyValidationErrorCode.MISSING_XPUB };
   }
 
   return { isValid: true };
@@ -372,19 +379,36 @@ function Footer({
   );
 }
 
-function SignerEmptyState() {
+function SignerUnavailableContent({ modalContent, setShowSignerModal, setVisibleImportXpub }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { signer: SignerTranlations } = translations;
+  const { vault: vaultText, common } = translations;
+  const isDarkMode = colorMode === 'dark';
   return (
-    <Box style={styles.emptyWrapper}>
-      <Text color={`${colorMode}.primaryText`} style={styles.emptyText} medium>
-        {SignerTranlations.noKeyAvailable}
-      </Text>
-      <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
-        {SignerTranlations.pleaseAddKey}
-      </Text>
-      <SignerEmptyStateIcon />
+    <Box>
+      <Box style={styles.unAvailableIllustration}>
+        {isDarkMode ? <KeyUnAvailableIllustrationDark /> : <KeyUnAvailableIllustrationLight />}
+      </Box>
+      <Text color={`${colorMode}.secondaryText`}>{modalContent.message}</Text>
+      <Box style={styles.modalButtonContainer}>
+        {modalContent.code === KeyValidationErrorCode.MISSING_XPUB ? (
+          <Buttons
+            primaryText={vaultText.importXpub}
+            primaryCallback={() => {
+              setShowSignerModal(false);
+              setVisibleImportXpub(true);
+            }}
+            secondaryText={common.cancel}
+            secondaryCallback={() => setShowSignerModal(false)}
+          />
+        ) : (
+          <Buttons
+            fullWidth
+            primaryText={common.Okay}
+            primaryCallback={() => setShowSignerModal(false)}
+          />
+        )}
+      </Box>
     </Box>
   );
 }
@@ -415,8 +439,19 @@ function Signers({
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultText, common } = translations;
   const [visible, setVisible] = useState(false);
+  const [visibleImportXpub, setVisibleImportXpub] = useState(false);
   const [showSSModal, setShowSSModal] = useState(false);
+  const [showSignerModal, setShowSignerModal] = useState(false);
+  const [modalContent, setModalContent] = useState({
+    name: '',
+    title: '',
+    message: '',
+    code: '',
+    clickedSigner: null,
+  });
   const isMultisig = scheme.n !== 1;
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -428,8 +463,81 @@ function Signers({
     setShowSSModal(true);
   };
 
-  const setupInheritanceKey = async () => {
-    setVisible(true);
+  const getDisabledMessage = (
+    signer,
+    myAppKeys,
+    selectedSigners,
+    scheme,
+    signerMap,
+    keyToRotate
+  ) => {
+    const validationResult = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+
+    if (!validationResult.isValid) {
+      let title, message;
+
+      switch (validationResult.code) {
+        case KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED:
+          title = vaultText.mobileKeyNotAllowedTitle;
+          message = vaultText.mobileKeyNotAllowedMessage;
+          break;
+        case KeyValidationErrorCode.MISSING_XPUB:
+          title = vaultText.missingXpubTitle;
+          message = vaultText.missingXpubMessage;
+          break;
+        case KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS:
+        case KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS:
+          title = `${getSignerNameFromType(signer.type)} ${vaultText.insufficientTotalKeysTitle}`;
+          message = `${common.the} ${getSignerNameFromType(signer.type)} ${
+            vaultText.insufficientTotalKeysMessage
+          }`;
+          break;
+        case KeyValidationErrorCode.ASSISTED_KEYS_QUORUM:
+        case KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD:
+          title = vaultText.assistedKeysQuorumTitle;
+          message = vaultText.assistedKeysQuorumMessage;
+          break;
+        default:
+          return null;
+      }
+
+      return { title, message, code: validationResult.code, clickedSigner: signer };
+    }
+
+    if (
+      signer.type === SignerType.MY_KEEPER &&
+      myAppKeys.length >= 1 &&
+      getKeyUID(myAppKeys[0]) !== getKeyUID(signer)
+    ) {
+      return {
+        title: vaultText.anotherMobileKeyAlreadySelectedTitle,
+        message: vaultText.anotherMobileKeyAlreadySelectedMessage,
+      };
+    }
+
+    if (
+      vaultKeys.some(
+        (key) =>
+          key.masterFingerprint === signer.masterFingerprint && getKeyUID(key) !== getKeyUID(signer)
+      )
+    ) {
+      return {
+        title: vaultText.keyFromSameDeviceAlreadySelectedTitle,
+        message: vaultText.keyFromSameDeviceAlreadySelectedMessage,
+      };
+    }
+
+    if (
+      keyToRotate &&
+      (getKeyUID(keyToRotate) === getKeyUID(signer) || selectedSigners.get(getKeyUID(signer)))
+    ) {
+      return {
+        title: vaultText.keyAlreadyUsedInVaultTitle,
+        message: vaultText.keyAlreadyUsedInVaultMessage,
+      };
+    }
+
+    return null;
   };
 
   const shellKeys = [];
@@ -489,7 +597,6 @@ function Signers({
   const renderSigners = useCallback(
     (signerFilters = []) => {
       const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
-
       const filteredSigners =
         signerFilters.length > 0
           ? signers.filter((signer) => signerFilters.includes(signer.type))
@@ -497,26 +604,21 @@ function Signers({
 
       const signerCards = filteredSigners.map((signer) => {
         if (signer.archived) return null;
-        const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
-        const disabled =
-          !isValid ||
-          (signer.type === SignerType.MY_KEEPER &&
-            myAppKeys.length >= 1 &&
-            getKeyUID(myAppKeys[0]) !== getKeyUID(signer)) ||
-          vaultKeys.some(
-            (key) =>
-              key.masterFingerprint === signer.masterFingerprint &&
-              getKeyUID(key) !== getKeyUID(signer)
-          ) ||
-          // disabled selection during change key flow
-          (keyToRotate &&
-            (getKeyUID(keyToRotate) === getKeyUID(signer) ||
-              selectedSigners.get(getKeyUID(signer))));
+
+        const disabledMessage = getDisabledMessage(
+          signer,
+          myAppKeys,
+          selectedSigners,
+          scheme,
+          signerMap,
+          keyToRotate
+        );
+        const disabled = disabledMessage !== null;
 
         return (
           <SignerCard
             showSelection={showSelection}
-            disabled={disabled}
+            disabledWithTouch={disabled}
             key={getKeyUID(signer)}
             name={
               !signer.isBIP85
@@ -528,6 +630,18 @@ function Signers({
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={(selected) => {
+              if (disabledMessage) {
+                setModalContent({
+                  name: getSignerNameFromType(signer.type),
+                  title: disabledMessage.title,
+                  message: disabledMessage.message,
+                  code: disabledMessage.code,
+                  clickedSigner: disabledMessage.clickedSigner,
+                });
+                setShowSignerModal(true);
+                return;
+              }
+
               onSignerSelect(
                 selected,
                 signer,
@@ -567,7 +681,7 @@ function Signers({
           !coSignersMap.has(getKeyUID(signer))
       )
       .map((signer) => {
-        const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+        const { isValid } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
         const disabled =
           !isValid ||
           (signer.type === SignerType.MY_KEEPER &&
@@ -599,7 +713,6 @@ function Signers({
           <SignerCard
             showSelection={showSelection}
             disabled={disabled}
-            isFromSiginingList={true}
             key={getKeyUID(signer)}
             name={
               !signer.isBIP85
@@ -649,7 +762,7 @@ function Signers({
       )
       .filter((signer) => !selectedFingerprintsSet.has(signer.masterFingerprint)) // Avoid selected signers from params
       .map((signer) => {
-        const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+        const { isValid } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
         const disabled =
           !isValid ||
           (signer.type === SignerType.MY_KEEPER &&
@@ -676,7 +789,6 @@ function Signers({
           <SignerCard
             showSelection={showSelection}
             disabled={disabled}
-            isFromSiginingList={true}
             key={getKeyUID(signer)}
             name={
               !signer.isBIP85
@@ -710,31 +822,8 @@ function Signers({
     setCreating,
   ]);
 
+  const isDarkMode = colorMode === 'dark';
   const signer: Signer = keyToRotate ? signerMap[getKeyUID(keyToRotate)] : null;
-
-  const onQrScan = async (qrData) => {
-    try {
-      let hw: { signer: Signer; key: VaultSigner };
-      hw = setupKeeperSigner(qrData);
-      if (hw) {
-        dispatch(addSigningDevice([hw.signer]));
-        setAddedKey(hw.signer);
-        setExternalKeyAddedModal(true);
-        navigation.dispatch(CommonActions.goBack());
-      }
-    } catch (error) {
-      if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />);
-      } else {
-        captureError(error);
-        showToast(
-          `Invalid QR, please scan the QR from a ${getSignerNameFromType(SignerType.KEEPER)}`,
-          <ToastErrorIcon />
-        );
-        navigation.goBack();
-      }
-    }
-  };
 
   return (
     <Box
@@ -820,6 +909,38 @@ function Signers({
             addSignerFlow={false}
             vaultId={vaultId}
             vaultSigners={vaultKeys}
+          />
+          <HardwareModalMap
+            visible={visibleImportXpub}
+            close={() => setVisibleImportXpub(false)}
+            type={modalContent?.clickedSigner?.type}
+            mode={InteracationMode.VAULT_ADDITION}
+            isMultisig={isMultisig}
+            primaryMnemonic={primaryMnemonic}
+            addSignerFlow={false}
+            vaultId={vaultId}
+            vaultSigners={vaultKeys}
+          />
+          <KeeperModal
+            dismissible
+            close={() => setShowSignerModal(false)}
+            visible={showSignerModal}
+            title={modalContent.title}
+            modalBackground={`${colorMode}.modalWhiteBackground`}
+            textColor={`${colorMode}.primaryText`}
+            buttonTextColor={`${colorMode}.buttonText`}
+            buttonBackground={`${colorMode}.greenButtonBackground`}
+            subTitleColor={`${colorMode}.secondaryText`}
+            subTitleWidth={wp(280)}
+            showCloseIcon={true}
+            DarkCloseIcon={isDarkMode}
+            Content={() => (
+              <SignerUnavailableContent
+                modalContent={modalContent}
+                setShowSignerModal={setShowSignerModal}
+                setVisibleImportXpub={setVisibleImportXpub}
+              />
+            )}
           />
         </Box>
       </ScrollView>
@@ -1333,7 +1454,6 @@ function AddSigningDevice() {
           title={vaultTranslation.timeLockCreatedTitle}
           subTitle={vaultTranslation.timeLockCreatedSubtitle}
           buttonText={walletTranslation.ViewWallet}
-          showButtons
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
           buttonTextColor={`${colorMode}.buttonText`}
@@ -1358,7 +1478,6 @@ function AddSigningDevice() {
             setSelectDurationModal(true);
           }}
           secondaryCallback={() => setTimelockCautionModal(false)}
-          showButtons
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
           buttonTextColor={`${colorMode}.buttonText`}
@@ -1376,7 +1495,6 @@ function AddSigningDevice() {
           visible={selectDurationModal}
           title={vaultTranslation.timeLockDurationTitle}
           subTitle={vaultTranslation.timeLockDurationSubtitle}
-          showButtons
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
           buttonTextColor={`${colorMode}.buttonText`}
@@ -1552,6 +1670,13 @@ const styles = StyleSheet.create({
     marginLeft: wp(15),
     marginRight: wp(25),
     marginTop: hp(1),
+  },
+  unAvailableIllustration: {
+    alignItems: 'center',
+    marginBottom: hp(30),
+  },
+  modalButtonContainer: {
+    marginTop: hp(40),
   },
 });
 

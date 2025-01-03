@@ -28,6 +28,8 @@ import {
   mergeSimilarKeysWatcher,
   archiveSigningDeviceWatcher,
   generateNewExternalAddressWatcher,
+  updateCollaborativeChannelWatcher,
+  fetchCollaborativeChannelWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
@@ -70,7 +72,12 @@ import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './sto
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
 import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
-import { openConceirgeWatcher, goToConceirgeWatcher } from './concierge';
+import {
+  openConceirgeWatcher,
+  goToConceirgeWatcher,
+  loadConciergeUserWatcher,
+  addTicketStatusUAIWatcher,
+} from './concierge';
 
 const rootSaga = function* () {
   const sagas = [
@@ -122,6 +129,8 @@ const rootSaga = function* () {
     refreshCanaryWalletsWatcher,
     mergeSimilarKeysWatcher,
     archiveSigningDeviceWatcher,
+    updateCollaborativeChannelWatcher,
+    fetchCollaborativeChannelWatcher,
 
     // send and receive
     fetchExchangeRatesWatcher,
@@ -164,6 +173,8 @@ const rootSaga = function* () {
     // concierge
     openConceirgeWatcher,
     goToConceirgeWatcher,
+    loadConciergeUserWatcher,
+    addTicketStatusUAIWatcher,
   ];
 
   yield all(

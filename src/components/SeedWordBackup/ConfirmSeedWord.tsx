@@ -85,7 +85,7 @@ function ConfirmSeedWord(props) {
   const getErrorMsg = () => {
     return /[A-Z]/.test(seedWord)
       ? 'Seedwords are case sensitive.'
-      : 'Please enter valid seed word';
+      : 'Please enter correct seed word.';
   };
 
   return (
