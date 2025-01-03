@@ -35,7 +35,7 @@ import {
   WhirlpoolConfig,
   WalletDerivationDetails,
 } from 'src/services/wallets/interfaces/wallet';
-import { call, put, select } from 'redux-saga/effects';
+import { call, delay, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
   setSyncing,
@@ -64,10 +64,12 @@ import {
 } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
+  decrypt,
   encrypt,
   generateEncryptionKey,
   generateKey,
   hash256,
+  hash512,
 } from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { captureError } from 'src/services/sentry';
@@ -79,15 +81,18 @@ import ElectrumClient, {
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
 import _ from 'lodash';
-import { getSignerDescription } from 'src/hardware';
 import { SyncedWallet } from 'src/services/wallets/interfaces';
 import { checkSignerAccountsMatch, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
+import { COLLABORATIVE_SCHEME } from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import { RootState } from '../store';
+
 import {
   initiateVaultMigration,
+  setCollaborativeSessionSigners,
   setKeyHealthCheckError,
   setKeyHealthCheckLoading,
   setKeyHealthCheckSuccess,
+  updateCollaborativeSessionLastSynched,
   vaultCreated,
   vaultMigrationCompleted,
 } from '../reducers/vaults';
@@ -125,6 +130,9 @@ import {
   REFILL_MOBILEKEY,
   REFRESH_CANARY_VAULT,
   REINSTATE_VAULT,
+  UPDATE_COLLABORATIVE_CHANNEL,
+  FETCH_COLLABORATIVE_CHANNEL,
+  updateCollaborativeChannel,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
 import {
@@ -1860,4 +1868,76 @@ function* generateNewExternalAddressWorker({
 export const generateNewExternalAddressWatcher = createWatcher(
   generateNewExternalAddressWorker,
   GENERATE_NEW_ADDRESS
+);
+
+function* updateCollaborativeChannelWorker({ payload }: { payload: { self: Signer } }) {
+  try {
+    const collaborativeSession = yield select(
+      (state: RootState) => state.vault.collaborativeSession
+    );
+
+    for (const fingerprint in collaborativeSession.signers) {
+      const { keyAES } = collaborativeSession.signers[fingerprint];
+      if (payload.self.masterFingerprint === fingerprint) continue;
+
+      const channelId = hash512(keyAES);
+      const encryptedCollaborativeSession = encrypt(keyAES, JSON.stringify(collaborativeSession));
+      const res = yield call(
+        Relay.updateCollaborativeChannel,
+        channelId,
+        encryptedCollaborativeSession
+      );
+      if (!(res && res.updated)) {
+        Alert.alert(`Failed to update collaborative channel for ${fingerprint}`);
+      }
+    }
+  } catch (err) {
+    console.log({ err });
+  }
+}
+
+export const updateCollaborativeChannelWatcher = createWatcher(
+  updateCollaborativeChannelWorker,
+  UPDATE_COLLABORATIVE_CHANNEL
+);
+
+function* fetchCollaborativeChannelWorker({ payload }: { payload: { self: Signer } }) {
+  try {
+    const collaborativeSession = yield select(
+      (state: RootState) => state.vault.collaborativeSession
+    );
+
+    const { keyAES } = collaborativeSession.signers[payload.self.masterFingerprint];
+    const channelId = hash512(keyAES);
+    const res = yield call(Relay.fetchCollaborativeChannel, channelId);
+    yield put(updateCollaborativeSessionLastSynched());
+
+    if (res && res.encryptedData) {
+      const synchedCollaborativeSession = JSON.parse(decrypt(keyAES, res.encryptedData));
+      yield put(setCollaborativeSessionSigners(synchedCollaborativeSession.signers));
+
+      // check if this fetch completes the quorum(by combining incomplete remote and local state) and upload the complete collaborative state
+      if (!synchedCollaborativeSession.isComplete && !collaborativeSession.isComplete) {
+        const uniqueSigners = {};
+        for (const fingerprint in synchedCollaborativeSession.signers) {
+          uniqueSigners[fingerprint] = true;
+        }
+        for (const fingerprint in collaborativeSession.signers) {
+          uniqueSigners[fingerprint] = true;
+        }
+
+        if (Object.keys(uniqueSigners).length === COLLABORATIVE_SCHEME.n) {
+          yield delay(1000); // ensures that the reducer state is updated via setCollaborativeSessionSigners before we upload the final state
+          yield put(updateCollaborativeChannel(payload.self));
+        }
+      }
+    }
+  } catch (err) {
+    console.log('Failed to fetch collaborative channel: ', err);
+  }
+}
+
+export const fetchCollaborativeChannelWatcher = createWatcher(
+  fetchCollaborativeChannelWorker,
+  FETCH_COLLABORATIVE_CHANNEL
 );

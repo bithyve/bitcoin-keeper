@@ -42,13 +42,7 @@ import ChangeKeyDark from 'src/assets/images/change-key-white.svg';
 import EmptyStateLight from 'src/assets/images/empty-activity-illustration-light.svg';
 import EmptyStateDark from 'src/assets/images/empty-activity-illustration-dark.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import {
-  EntityKind,
-  SignerType,
-  VaultType,
-  VisibilityType,
-  XpubTypes,
-} from 'src/services/wallets/enums';
+import { EntityKind, SignerType, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
@@ -67,7 +61,6 @@ import { getPsbtForHwi, getSignerDescription, getSignerNameFromType } from 'src/
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { useAppSelector } from 'src/store/hooks';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
@@ -77,27 +70,26 @@ import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import BackupModalContent from 'src/screens/AppSettings/BackupModal';
 import { getPersistedDocument } from 'src/services/documents';
-import {
-  generateDataFromPSBT,
-  getAccountFromSigner,
-  getKeyUID,
-  getTnxDetailsPSBT,
-  isOdd,
-} from 'src/utils/utilities';
+import { generateDataFromPSBT, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import idx from 'idx';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
 import SignerCard from '../AddSigner/SignerCard';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import { captureError } from 'src/services/sentry';
-import WalletOperations from 'src/services/wallets/operations';
+import {
+  findChangeFromReceiverAddresses,
+  findVaultFromSenderAddress,
+} from 'src/utils/service-utilities/utils';
 
-const SignersReqVault = [
+export const SignersReqVault = [
   SignerType.LEDGER,
   SignerType.TREZOR,
   SignerType.BITBOX02,
   SignerType.PORTAL,
 ];
+
+export const CHANGE_INDEX_THRESHOLD = 100;
 
 const EmptyActivityView = ({ colorMode, isDarkMode }) => (
   <Box style={styles.emptyWrapper}>
@@ -339,7 +331,7 @@ function SigningDeviceDetails({ route }) {
     return null;
   }
 
-  const { title, subTitle, assert, description, FAQ } = getSignerContent(signer?.type);
+  const { title, subTitle, assert, description } = getSignerContent(signer?.type);
   function SignerContent() {
     return (
       <Box>
@@ -404,39 +396,15 @@ function SigningDeviceDetails({ route }) {
   };
   const signPSBT = async (serializedPSBT) => {
     try {
-      const { senderAddresses, receiverAddresses, fees, signerMatched, sendAmount, feeRate } =
+      let { senderAddresses, receiverAddresses, fees, signerMatched, feeRate, changeAddressIndex } =
         generateDataFromPSBT(serializedPSBT, signer);
-      const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
-
       if (!signerMatched) {
         showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
         navigation.goBack();
         return;
       }
+      const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
       if (SignersReqVault.includes(signer.type)) {
-        let activeVault = null;
-        allVaults.forEach(async (vault) => {
-          let addressMatched = true;
-          for (let i = 0; i < senderAddresses.length; i++) {
-            const _ = senderAddresses[i].path.split('/');
-            const [isChange, index] = _.splice(_.length - 2);
-            // 0/even - Receive(External) | 1/odd - change(internal)
-            let generatedAddress: string;
-            generatedAddress = WalletOperations.getExternalInternalAddressAtIdx(
-              vault,
-              parseInt(index),
-              isOdd(parseInt(isChange))
-            );
-            if (senderAddresses[i].address != generatedAddress) {
-              addressMatched = false;
-              break;
-            }
-          }
-          if (addressMatched) {
-            activeVault = vault;
-          }
-        });
-
         if (!activeVault) {
           navigation.goBack();
           throw new Error('Please import the vault before signing');
@@ -444,18 +412,25 @@ function SigningDeviceDetails({ route }) {
         const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
         serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
       }
-
+      if (activeVault && changeAddressIndex) {
+        if (
+          parseInt(changeAddressIndex) >
+          activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
+        )
+          throw new Error('Change index is too high.');
+        receiverAddresses = findChangeFromReceiverAddresses(
+          activeVault,
+          receiverAddresses,
+          parseInt(changeAddressIndex)
+        );
+      }
       navigation.dispatch(
         CommonActions.navigate({
           name: 'PSBTSendConfirmation',
           params: {
             sender: senderAddresses,
             recipient: receiverAddresses,
-            amount: sendAmount,
-            data: serializedPSBT,
             fees,
-            estimatedBlocksBeforeConfirmation: tnxDetails.estimatedBlocksBeforeConfirmation,
-            tnxPriority: tnxDetails.tnxPriority,
             signer,
             psbt: serializedPSBT,
             feeRate,
@@ -500,7 +475,7 @@ function SigningDeviceDetails({ route }) {
       Icon: () => <FooterIcon Icon={isDarkMode ? KeyDetailsDark : KeyDetailsLight} />,
       onPress: navigateToCosignerDetails,
     },
-    {
+    signer.type !== SignerType.KEEPER && {
       text: 'Sign Transaction',
       Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
       onPress: navigateToScanPSBT,
@@ -747,7 +722,15 @@ function SigningDeviceDetails({ route }) {
               secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
               secondaryCallback={() => {
                 setDetailModal(false);
-                dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'));
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'KeeperConcierge',
+                    params: {
+                      tags: [ConciergeTag.KEYS],
+                      screenName: 'signing-device-details',
+                    },
+                  })
+                );
               }}
               buttonCallback={() => setDetailModal(false)}
             />

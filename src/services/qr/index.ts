@@ -48,6 +48,8 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
       } else if (decodedString.startsWith('psbt') || decodedString.startsWith('PSBT')) {
         const cryptoPsbt = CryptoPSBT.fromCBOR(ur.cbor);
         return { data: cryptoPsbt.getPSBT().toString('base64'), percentage: scanPercentage };
+      } else {
+        return { data: decodedString, percentage: scanPercentage };
       }
     }
 

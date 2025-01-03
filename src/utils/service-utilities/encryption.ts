@@ -45,6 +45,13 @@ export const generateRSAKeypair = async () => {
   };
 };
 
+export const generateAESKey = (length: number): string => {
+  if (![16, 24, 32].includes(length)) {
+    throw new Error('Invalid key length. AES supports 128, 192, or 256-bit keys.');
+  }
+  return randomBytes(length).toString('hex');
+};
+
 export const asymmetricEncrypt = (data: string, publicKey: string): string => {
   const key = new NodeRSA(publicKey);
   const encrypted = key.encrypt(data, 'base64');

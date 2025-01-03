@@ -41,7 +41,7 @@ import { reinstateVault } from 'src/store/sagaActions/vaults';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
@@ -125,7 +125,11 @@ function VaultInfo({ vault }: { vault: Vault }) {
   return (
     <Box style={[styles.vaultInfoContainer, { flexDirection: vault.archived ? 'column' : 'row' }]}>
       <HStack style={styles.pillsContainer}>
+        {vault.type === VaultType.SINGE_SIG && (
+          <CardPill heading="Cold" backgroundColor={`${colorMode}.SignleSigCardPillBackColor`} />
+        )}
         <CardPill
+          backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
           heading={`${
             vault.type === VaultType.COLLABORATIVE
               ? common.collaborative
@@ -136,17 +140,13 @@ function VaultInfo({ vault }: { vault: Vault }) {
               : vault.type === VaultType.INHERITANCE
               ? common.Inheritancekey
               : vault.type === VaultType.SINGE_SIG
-              ? 'SINGLE-KEY'
+              ? 'Single-Key'
               : common.VAULT
           }`}
         />
         {vault.scheme.n > 1 && (
-          <CardPill
-            heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
-            backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
-          />
+          <CardPill heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`} />
         )}
-        {vault.type === VaultType.SINGE_SIG && <CardPill heading="COLD" />}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
         {vault.archived ? (
           <CardPill heading={common.ARCHIVED} backgroundColor={`${colorMode}.greyBackground`} />
@@ -536,20 +536,23 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         Content={VaultContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
-        secondaryCallback={
-          isCollaborativeWallet
-            ? () => {
-                dispatch(setIntroModal(false));
-                dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'vault-details'));
-              }
-            : () => {
-                dispatch(setIntroModal(false));
-                dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-details'));
-              }
-        }
+        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secondaryCallback={() => {
+          dispatch(setIntroModal(false));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: isCollaborativeWallet
+                  ? [ConciergeTag.COLLABORATIVE_Wallet]
+                  : [ConciergeTag.VAULT],
+                screenName: 'vault-details',
+              },
+            })
+          );
+        }}
         buttonCallback={() => dispatch(setIntroModal(false))}
         DarkCloseIcon
       />

@@ -33,6 +33,12 @@ function TorSettings() {
     checkTorConnection();
   }, []);
 
+  useEffect(() => {
+    if (inAppTor === TorStatus.CONNECTED || inAppTor === TorStatus.ERROR) {
+      setShowTorModal(false);
+    }
+  }, [inAppTor]);
+
   const getTorStatusText = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
@@ -53,22 +59,20 @@ function TorSettings() {
   }, [torStatus]);
 
   const handleInAppTor = () => {
-    if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CHECKING) {
-      showToast('Please switch off orbot to connect to in-app tor.');
-      setTimeout(() => {
-        openOrbotApp();
-        setTorStatus(TorStatus.CHECK_STATUS);
-      }, 3000);
-      return;
-    }
     if (inAppTor === TorStatus.OFF || inAppTor === TorStatus.ERROR) {
       setShowTorModal(true);
       RestClient.setUseTor(true);
       dispatch(setTorEnabled(true));
-    } else {
+    } else if (inAppTor === TorStatus.CONNECTED || inAppTor === TorStatus.CONNECTING) {
       RestClient.setUseTor(false);
       dispatch(setTorEnabled(false));
       setShowTorModal(false);
+    } else if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CHECKING) {
+      showToast('Please switch off Orbot to connect to in-app Tor.');
+      setTimeout(() => {
+        openOrbotApp();
+        setTorStatus(TorStatus.CHECK_STATUS);
+      }, 3000);
     }
   };
 
@@ -86,9 +90,6 @@ function TorSettings() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={settings.torSettingTitle} subtitle={settings.torHeaderSubTitle} />
       <ScrollView contentContainerStyle={{ paddingTop: 30, alignItems: 'center' }}>
-        {/* <Box>
-          <TorStatusTag />
-        </Box> */}
         <Box style={styles.torStatusContainer} backgroundColor={`${colorMode}.seashellWhite`}>
           <Box style={styles.torStatusInfo}>
             <Text style={styles.torStatusTitle} semiBold color={`${colorMode}.primaryText`}>
@@ -111,8 +112,16 @@ function TorSettings() {
           callback={() => setShowOrbotTorModal(true)}
         />
         <OptionCard
-          title={settings.inAppTor}
-          description={settings.inAppTorSubTitle}
+          title={
+            inAppTor === TorStatus.CONNECTED
+              ? settings.deactivateInAppTor
+              : settings.activateInAppTor
+          }
+          description={
+            inAppTor === TorStatus.CONNECTED
+              ? settings.inAppTorSubTitle2
+              : settings.inAppTorSubTitle
+          }
           callback={() => handleInAppTor()}
         />
       </ScrollView>

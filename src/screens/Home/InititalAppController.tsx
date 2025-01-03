@@ -9,7 +9,11 @@ import {
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
-import { urlParamsToObj } from 'src/utils/service-utilities/utils';
+import {
+  findChangeFromReceiverAddresses,
+  findVaultFromSenderAddress,
+  urlParamsToObj,
+} from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -19,7 +23,7 @@ import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { generateSignerFromMetaData } from 'src/hardware';
+import { generateSignerFromMetaData, getPsbtForHwi } from 'src/hardware';
 import { addSigningDevice, refreshCanaryWallets } from 'src/store/sagaActions/vaults';
 import { resetVaultMigration, setRemoteLinkDetails } from 'src/store/reducers/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -27,7 +31,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import useAsync from 'src/hooks/useAsync';
 import { initializeSentry } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
-import { generateDataFromPSBT, getTnxDetailsPSBT } from 'src/utils/utilities';
+import { generateDataFromPSBT } from 'src/utils/utilities';
 import { getKeyUID } from 'src/utils/utilities';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { decrypt, getHashFromKey } from 'src/utils/service-utilities/encryption';
@@ -36,6 +40,10 @@ import { updateCachedPsbtEnvelope } from 'src/store/reducers/cachedTxn';
 import { store } from 'src/store/store';
 import config from 'src/utils/service-utilities/config';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import messaging from '@react-native-firebase/messaging';
+import { notificationType } from 'src/models/enums/Notifications';
+import { CHANGE_INDEX_THRESHOLD, SignersReqVault } from '../Vault/SigningDeviceDetails';
+import useVault from 'src/hooks/useVault';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -47,6 +55,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { enableAnalyticsLogin } = useAppSelector((state) => state.settings);
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const appData = useQuery(RealmSchema.KeeperApp);
+  const { allVaults } = useVault({ includeArchived: false });
 
   const getAppData = (): { isPleb: boolean; appId: string } => {
     const tempApp = appData.map(getJSONFromRealmObject)[0];
@@ -93,12 +102,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
-    const { isPleb } = getAppData();
-    if (isPleb) {
-      showToast('Upgrade to Hodler to use Remote Key Sharing');
-      return false;
-    }
-
     const encryptionKey = initialUrl.split('remote/')[1];
     const hash = getHashFromKey(encryptionKey);
     if (encryptionKey && hash) {
@@ -118,28 +121,51 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
             break;
 
           case RKInteractionMode.SHARE_PSBT:
-            const { psbt, keyUID, xfp, cachedTxid } = tempData;
+            const { keyUID, xfp, cachedTxid } = tempData;
+            let serializedPSBT = tempData.psbt;
 
-            if (psbt) {
+            if (serializedPSBT) {
               try {
                 try {
                   const signer = signers.find((s) => keyUID == getKeyUID(s));
                   if (!signer) throw { message: 'Signer not found' };
-                  const {
+                  let {
                     senderAddresses,
                     receiverAddresses,
                     fees,
                     signerMatched,
-                    sendAmount,
                     feeRate,
-                  } = generateDataFromPSBT(psbt, signer);
-                  const tnxDetails = getTnxDetailsPSBT(averageTxFees, feeRate);
+                    changeAddressIndex,
+                  } = generateDataFromPSBT(serializedPSBT, signer);
 
                   if (!signerMatched) {
                     showToast(`Invalid signer selection. Please try again!`, <ToastErrorIcon />);
                     navigation.goBack();
-                    return;
+                    return false;
                   }
+
+                  const activeVault = findVaultFromSenderAddress(allVaults, senderAddresses);
+                  if (SignersReqVault.includes(signer.type)) {
+                    if (!activeVault) {
+                      navigation.goBack();
+                      throw new Error('Please import the vault before signing');
+                    }
+                    const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
+                    serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
+                  }
+                  if (activeVault && changeAddressIndex) {
+                    if (
+                      parseInt(changeAddressIndex) >
+                      activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
+                    )
+                      throw new Error('Change index is too high.');
+                    receiverAddresses = findChangeFromReceiverAddresses(
+                      activeVault,
+                      receiverAddresses,
+                      parseInt(changeAddressIndex)
+                    );
+                  }
+
                   dispatch(setRemoteLinkDetails({ xfp, cachedTxid }));
                   navigation.dispatch(
                     CommonActions.navigate({
@@ -147,14 +173,9 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                       params: {
                         sender: senderAddresses,
                         recipient: receiverAddresses,
-                        amount: sendAmount,
-                        data: psbt,
                         fees: fees,
-                        estimatedBlocksBeforeConfirmation:
-                          tnxDetails.estimatedBlocksBeforeConfirmation,
-                        tnxPriority: tnxDetails.tnxPriority,
                         signer,
-                        psbt: psbt,
+                        psbt: serializedPSBT,
                         feeRate,
                       },
                     })
@@ -222,6 +243,33 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       enableAnalytics: enableAnalyticsLogin,
     });
   };
+
+  const handleZendeskNotificationRedirection = (data) => {
+    if (data?.notificationType === notificationType.ZENDESK_TICKET) {
+      const { ticketId = null, ticketStatus = null } = data;
+      if (ticketId && ticketStatus)
+        navigation.navigate({
+          name: 'TicketDetails',
+          params: { ticketId: parseInt(ticketId), ticketStatus },
+        });
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = messaging().onNotificationOpenedApp((remoteMessage) => {
+      handleZendeskNotificationRedirection(remoteMessage.data);
+    });
+
+    // Listener for when the app is opened from a terminated state
+    const getInitialNotification = async () => {
+      const initialNotification = await messaging().getInitialNotification();
+      if (initialNotification) handleZendeskNotificationRedirection(initialNotification.data);
+    };
+
+    getInitialNotification();
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     if (isInitialLogin) {

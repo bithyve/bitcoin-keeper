@@ -99,7 +99,6 @@ import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/Inherit
 import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
 import BuyBitcoinScreen from 'src/screens/BuyBitcoin/BuyBitcoinScreen';
 import CloudBackupScreen from 'src/screens/CloudBackup/CloudBackupScreen';
-import SignerSettings from 'src/screens/SigningDevices/SignerSettings';
 import DeleteKeys from 'src/screens/SigningDevices/DeleteKeys';
 
 import CanaryWallets from 'src/screens/InheritanceToolsAndTips/components/Canary';
@@ -141,6 +140,13 @@ import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
 import config from 'src/utils/service-utilities/config';
 import KeyHistory from 'src/screens/Vault/KeyHistory';
+import KeeperConcierge from 'src/screens/KeeperConcierge/KeeperConcierge';
+import TechnicalSupport from 'src/screens/KeeperConcierge/TechnicalSupport';
+import TicketDetails from 'src/screens/KeeperConcierge/TicketDetails';
+import CreateTicket from 'src/screens/KeeperConcierge/CreateTicket';
+import ImportContactFile from 'src/screens/SigningDevices/ImportContactFile';
+import ContactDetails from 'src/screens/SigningDevices/ContactDetails';
+import ShareQR from 'src/screens/SigningDevices/ShareQR';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -305,7 +311,6 @@ function AppStack() {
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
         <Stack.Screen name="CloudBackup" component={CloudBackupScreen} />
-        <Stack.Screen name="SignerSettings" component={SignerSettings} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
         <Stack.Screen name="AssistedWalletTimeline" component={AssistedWalletTimeline} />
@@ -317,6 +322,13 @@ function AppStack() {
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
         <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
         <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
+        <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
+        <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
+        <Stack.Screen name="TicketDetails" component={TicketDetails} />
+        <Stack.Screen name="CreateTicket" component={CreateTicket} />
+        <Stack.Screen name="ImportContactFile" component={ImportContactFile} />
+        <Stack.Screen name="ContactDetails" component={ContactDetails} />
+        <Stack.Screen name="ShareQR" component={ShareQR} />
       </Stack.Navigator>
     </RealmProvider>
   );

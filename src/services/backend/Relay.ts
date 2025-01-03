@@ -701,4 +701,43 @@ export default class Relay {
       console.log('🚀 ~ Relay ~ sendSingleNotification= ~ error:', { error });
     }
   };
+
+  public static updateZendeskExternalId = async (data) => {
+    try {
+      const response = await RestClient.post(`${RELAY}updateZendeskExternalId`, data);
+      const res = (response as AxiosResponse).data || (response as any).json;
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public static updateCollaborativeChannel = async (channelId: string, encryptedData: string) => {
+    try {
+      const res = await RestClient.post(`${RELAY}updateCollaborativeChannel`, {
+        channelId,
+        encryptedData,
+      });
+      return res.data;
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+  };
+
+  public static fetchCollaborativeChannel = async (channelId: string) => {
+    try {
+      const res = await RestClient.post(`${RELAY}fetchCollaborativeChannel`, {
+        channelId,
+      });
+      return res.data;
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+  };
 }

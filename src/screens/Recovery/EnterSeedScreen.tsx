@@ -27,7 +27,7 @@ import Breadcrumbs from 'src/components/Breadcrumbs';
 import Dropdown from 'src/components/Dropdown';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import RecoverySuccessModalContent from './RecoverySuccessModalContent';
 import { resetSeedWords, setAppImageError, setSeedWord } from 'src/store/reducers/bhr';
 import Fonts from 'src/constants/Fonts';
@@ -603,7 +603,15 @@ function EnterSeedScreen({ route, navigation }) {
             primaryText={common.next}
             secondaryText={common.needHelp}
             secondaryCallback={() => {
-              dispatch(goToConcierge([ConciergeTag.VAULT], 'sign-transaction-seed-key'));
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'KeeperConcierge',
+                  params: {
+                    tags: [ConciergeTag.VAULT],
+                    screenName: 'sign-transaction-seed-key',
+                  },
+                })
+              );
             }}
             primaryLoading={recoveryLoading}
           />

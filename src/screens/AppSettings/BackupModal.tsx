@@ -17,7 +17,7 @@ function BackupModalContent() {
       </Text>
       <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
         Anyone with access to the Recovery Key can access and withdraw your funds. Losing them means
-        you can’t recover your wallet
+        you can’t recover your wallet.
       </Text>
     </Box>
   );

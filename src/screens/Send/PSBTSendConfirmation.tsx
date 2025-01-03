@@ -7,7 +7,7 @@ import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { TransactionType, TxPriority } from 'src/services/wallets/enums';
+import { TransactionType } from 'src/services/wallets/enums';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import RKSignersModal from '../../components/RKSignersModal';
 import ReceiptWrapper from './ReceiptWrapper';
@@ -18,31 +18,26 @@ import { SentryErrorBoundary } from 'src/services/sentry';
 
 export interface PSBTSendConfirmationParams {
   sender: { address: string; amount: number }[];
-  recipient: { address: string; amount: number }[];
-  amount: number;
+  recipient: { address: string; amount: number; isChange: boolean }[];
   fees: string;
   signer: Signer;
   psbt: string;
-  tnxPriority: TxPriority;
   feeRate: string;
 }
 
 function PSBTSendConfirmation({ route }) {
   const { colorMode } = useColorMode();
-  const {
-    sender,
-    recipient,
-    amount: originalAmount,
-    fees,
-    signer,
-    psbt,
-    feeRate,
-  }: PSBTSendConfirmationParams = route.params;
+  const { sender, recipient, fees, signer, psbt, feeRate }: PSBTSendConfirmationParams =
+    route.params;
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslations, common } = translations;
   const signerModalRef = useRef(null);
   const navigation = useNavigation();
+  const originalAmount = recipient.reduce(
+    (acc, curr) => acc + (curr.isChange ? 0 : curr.amount),
+    0
+  );
 
   const createTnxObject = () => {
     const data = {
@@ -55,7 +50,7 @@ function PSBTSendConfirmation({ route }) {
       fees,
       txid: '',
       address: '',
-      recipientAddresses: recipient,
+      recipientAddresses: recipient.filter((address) => !address.isChange),
       senderAddresses: sender,
     };
     return data;
@@ -84,7 +79,7 @@ function PSBTSendConfirmation({ route }) {
               unitFontSize={13}
               unitFontWeight={200}
               type="list"
-              list={recipient}
+              list={recipient.filter((address) => !address.isChange)}
             />
             <TransferCard
               title={walletTranslations.advancedDetails}

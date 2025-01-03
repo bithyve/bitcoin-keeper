@@ -20,7 +20,7 @@ import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import SettingIcon from 'src/assets/images/settings-gear.svg';
+import LockShieldLight from 'src/assets/images/lock-shield-light.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -31,7 +31,7 @@ import KeyAddedModal from 'src/components/KeyAddedModal';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
 import Text from 'src/components/KeeperText';
-import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import Relay from 'src/services/backend/Relay';
 import { notificationType } from 'src/models/enums/Notifications';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -46,6 +46,9 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import InheritanceKeySection from './components/InheritanceKeySection';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -69,15 +72,13 @@ function ManageSigners({ route }: ScreenProps) {
   const [timerModal, setTimerModal] = useState(false);
   const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
   const [newSigner, setNewSigner] = useState(null);
-
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [inProgress, setInProgress] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslation, common } = translations;
-
+  const { signer: signerTranslation, common, settings } = translations;
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
-
-  const [inProgress, setInProgress] = useState(false);
 
   useEffect(() => {
     if (remoteData?.key && !timerModal) setTimerModal(true);
@@ -130,13 +131,11 @@ function ManageSigners({ route }: ScreenProps) {
     navigation.dispatch(CommonActions.navigate('SignerCategoryList', { addSignerFlow: true }));
   };
 
-  const navigateToSettings = () => {
-    navigation.dispatch(CommonActions.navigate('SignerSettings'));
-  };
-
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
   };
+
+  const onSuccess = () => navigation.dispatch(CommonActions.navigate('DeleteKeys'));
 
   const acceptRemoteKey = async () => {
     try {
@@ -189,12 +188,13 @@ function ManageSigners({ route }: ScreenProps) {
           rightComponent={
             <TouchableOpacity
               style={styles.settingsButton}
-              onPress={navigateToSettings}
+              onPress={() => setConfirmPassVisible(true)}
               testID="btn_manage_singner_setting"
             >
-              <SettingIcon />
+              <LockShieldLight />
             </TouchableOpacity>
           }
+          rightComponentBottomPadding={hp(-20)}
           icon={
             <CircleIconWrapper
               backgroundColor={`${colorMode}.seashellWhiteText`}
@@ -232,7 +232,7 @@ function ManageSigners({ route }: ScreenProps) {
         buttonCallback={acceptRemoteKey}
         secondaryCallback={rejectRemoteKey}
         Content={() => (
-          <Box style={styles.modalContent}>
+          <Box style={{ marginBottom: hp(10) }}>
             <Note subtitle={signerTranslation.remoteKeyReceiveNote} />
           </Box>
         )}
@@ -253,23 +253,53 @@ function ManageSigners({ route }: ScreenProps) {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenContent`}
+        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
         secondaryCallback={() => {
           setShowLearnMoreModal(false);
-          dispatch(goToConcierge([ConciergeTag.KEYS], 'manage-keys'));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'KeeperConcierge',
+              params: {
+                tags: [ConciergeTag.KEYS],
+                screenName: 'manage-keys',
+              },
+            })
+          );
         }}
         buttonText={common.Okay}
         buttonCallback={() => setShowLearnMoreModal(false)}
         Content={() => (
           <Box style={styles.modalContent}>
-            <HardwareIllustration />
+            <Box style={styles.illustrationContainer}>
+              <HardwareIllustration />
+            </Box>
             <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
               {signerTranslation.manageKeysModalDesc}
             </Text>
           </Box>
+        )}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title={settings.EnterPasscodeTitle}
+        subTitleWidth={wp(240)}
+        subTitle={settings.EnterPasscodeSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics={false}
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onSuccess}
+          />
         )}
       />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
@@ -297,8 +327,6 @@ function SignersList({
   typeBasedIndicator: Record<string, Record<string, boolean>>;
 }) {
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
-  const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslation } = translations;
   const { level } = useSubscriptionLevel();
   const { showToast } = useToastMessage();
   const isNonVaultManageSignerFlow = !vault; // Manage Signers flow accessible via home screen
@@ -306,6 +334,16 @@ function SignersList({
   const { id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
+
+  const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+  const inheritanceKeyMeta = vault?.signers?.find(
+    (signer) =>
+      signer?.masterFingerprint ===
+      vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
+        INHERITANCE_KEY1_IDENTIFIER
+      ]
+  );
+  const inheritanceKey = inheritanceKeyMeta ? signerMap[getKeyUID(inheritanceKeyMeta)] : null;
 
   const shellAssistedKeys = useMemo(() => {
     const generateShellAssistedKey = (signerType: SignerType) => ({
@@ -372,7 +410,11 @@ function SignersList({
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
             const signer = vaultKeys.length ? signerMap[getKeyUID(item)] : item;
-            if (!signer || signer.archived) {
+            if (
+              !signer ||
+              signer.archived ||
+              signer?.masterFingerprint === inheritanceKeyMeta?.masterFingerprint
+            ) {
               return null;
             }
             const isRegistered = vaultKeys.length
@@ -418,6 +460,16 @@ function SignersList({
             <EmptyListIllustration listType="keys" />
           )}
         </Box>
+
+        {inheritanceKey && (
+          <InheritanceKeySection
+            vault={vault}
+            currentBlockHeight={currentBlockHeight}
+            signerMap={signerMap}
+            handleCardSelect={handleCardSelect}
+            setCurrentBlockHeight={setCurrentBlockHeight}
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -466,7 +518,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   modalContent: {
-    marginBottom: hp(40),
+    marginBottom: hp(10),
+  },
+  illustrationContainer: {
+    marginBottom: hp(30),
   },
   timerWrapper: {
     width: '100%',
