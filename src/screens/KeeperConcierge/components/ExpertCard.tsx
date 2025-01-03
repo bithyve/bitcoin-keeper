@@ -117,10 +117,9 @@ const ExpertCard: React.FC<ExpertCardProps> = ({ advisorData }) => {
               {expertise.length > 2 && (
                 <CardPill
                   heading={`+${expertise.length - 2}`}
-                  borderRadius={21 / 2}
-                  paddingHorizontal={wp(4)}
                   headingColor={`${colorMode}.seashellWhiteText`}
                   backgroundColor={`${colorMode}.brownBackground`}
+                  cardStyle={styles.extraExpertiseContainer}
                 />
               )}
             </Box>
@@ -195,9 +194,14 @@ const styles = StyleSheet.create({
     marginTop: hp(-3),
   },
   expertiseContainer: {
+    flexWrap: 'wrap',
     flexDirection: 'row',
     gap: wp(5),
     marginTop: hp(10),
+  },
+  extraExpertiseContainer: {
+    borderRadius: 21 / 2,
+    paddingHorizontal: wp(4),
   },
   detailsContainer: {
     marginTop: hp(10),

@@ -168,6 +168,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     alignItems: 'center',
     paddingHorizontal: wp(32),
+    paddingVertical: hp(20),
   },
   shareButton: {
     marginRight: wp(15),
