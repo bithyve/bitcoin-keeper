@@ -149,6 +149,9 @@ import ImportContactFile from 'src/screens/SigningDevices/ImportContactFile';
 import ContactDetails from 'src/screens/SigningDevices/ContactDetails';
 import ShareQR from 'src/screens/SigningDevices/ShareQR';
 import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
+import ExpertGuidance from 'src/screens/KeeperConcierge/ExpertGuidance';
+import ExpertProfile from 'src/screens/KeeperConcierge/ExpertProfile';
+import ScheduleConsultation from 'src/screens/KeeperConcierge/ScheduleConsultation';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -332,6 +335,9 @@ function AppStack() {
         <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
         <Stack.Screen name="TicketDetails" component={TicketDetails} />
         <Stack.Screen name="CreateTicket" component={CreateTicket} />
+        <Stack.Screen name="ExpertGuidance" component={ExpertGuidance} />
+        <Stack.Screen name="ExpertProfile" component={ExpertProfile} />
+        <Stack.Screen name="ScheduleConsultation" component={ScheduleConsultation} />
         <Stack.Screen name="ImportContactFile" component={ImportContactFile} />
         <Stack.Screen name="ContactDetails" component={ContactDetails} />
         <Stack.Screen name="ShareQR" component={ShareQR} />

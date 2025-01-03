@@ -48,7 +48,7 @@ const HelpCard: React.FC<HelpCardProps> = ({
       <Box
         style={[styles.container, disabled && styles.disabledContainer]}
         borderColor={`${colorMode}.dullGreyBorder`}
-        backgroundColor={`${colorMode}.secondaryBackground`}
+        backgroundColor={`${colorMode}.boxSecondaryBackground`}
       >
         <Box style={styles.contentContainer}>
           <Box style={styles.leftContainer}>{LeftComponent && LeftComponent}</Box>

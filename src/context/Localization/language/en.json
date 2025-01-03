@@ -1501,6 +1501,18 @@
     "expertGuidanceDescription": "Talk to an advisor for tailored support – first session free",
     "expertGuidanceButtonText": "Connect with Advisor",
     "comingSoonText": "Coming Soon",
-    "conciergeTitle": "Keeper Concierge"
+    "conciergeTitle": "Keeper Concierge",
+    "searchForAnExpert": "Search for an Expert",
+    "meetOurExperts": "Meet our Experts",
+    "noExpertsMatch": "No experts found matching your search.",
+    "experProfileTitle": "Expert Profile",
+    "expertDetailsTitle": "Expert Details",
+    "userHistoryTitle": "User History",
+    "scheduleSession": "Schedule Session",
+    "scheduleConsultation": "Schedule Consultation",
+    "explainReasonForConsultation": "Please explain in what you require consultation in...",
+    "talkToExperts": "Talk to Experts",
+    "unlockAtDiamondOrHodler": "Unlock at Diamond Hands /Hodler Tier",
+    "upgradeToAccess": "Upgrade to Access"
   }
 }

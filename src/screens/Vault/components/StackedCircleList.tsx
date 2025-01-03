@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   iconContainer: {
-    width: wp(30),
     alignItems: 'center',
     justifyContent: 'center',
   },

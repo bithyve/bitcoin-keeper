@@ -1,4 +1,3 @@
-import { SendConfirmationRouteParams, tnxDetailsProps } from 'src/screens/Send/SendConfirmation';
 import { RKInteractionMode } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -181,6 +180,9 @@ export type AppStackParams = {
   };
   TicketDetails: undefined;
   CreateTicket: undefined;
+  ExpertGuidance: undefined;
+  ExpertProfile: undefined;
+  ScheduleConsultation: undefined;
   ImportContactFile: undefined;
   ContactDetails: undefined;
   ShareQR: undefined;

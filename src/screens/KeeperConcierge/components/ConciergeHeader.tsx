@@ -11,6 +11,7 @@ type ConciergeHeaderProps = {
   title?: string;
   onPressHandler?: () => void;
   enableBack?: boolean;
+  rightComponent?: Element;
 };
 
 const BackButton = ({ onPress }: { onPress: () => void }) => {
@@ -24,7 +25,7 @@ const BackButton = ({ onPress }: { onPress: () => void }) => {
   );
 };
 
-const ConciergeHeader = ({ title, onPressHandler }: ConciergeHeaderProps) => {
+const ConciergeHeader = ({ title, onPressHandler, rightComponent }: ConciergeHeaderProps) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
 
@@ -38,14 +39,17 @@ const ConciergeHeader = ({ title, onPressHandler }: ConciergeHeaderProps) => {
           </Text>
         )}
       </Box>
+      {rightComponent && <Box style={styles.rightComponentContainer}>{rightComponent}</Box>}
     </Box>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: 'transparent',
-    paddingRight: wp(20),
     paddingLeft: wp(12),
     paddingTop: windowHeight > 680 ? hp(15) : hp(7),
     paddingBottom: hp(10),
@@ -64,6 +68,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
   },
+  rightComponentContainer: {},
 });
 
 export default ConciergeHeader;
