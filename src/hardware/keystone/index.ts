@@ -14,7 +14,13 @@ const getKeystoneDetails = (qrData) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, masterFingerprint: mfp, forMultiSig, forSingleSig };
+  return {
+    xpub,
+    derivationPath,
+    masterFingerprint: mfp?.toUpperCase(), // for consistency
+    forMultiSig,
+    forSingleSig,
+  };
 };
 
 const getKeystoneDetailsFromFile = (data) => {
