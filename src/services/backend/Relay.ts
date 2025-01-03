@@ -266,6 +266,7 @@ export default class Relay {
       res = await RestClient.post(`${RELAY}getSubscriptionDetails`, {
         appID,
         id,
+        newPlans: true,
       });
     } catch (err) {
       console.log('err', err);
