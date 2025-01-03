@@ -12,6 +12,7 @@ import PersonLight from 'src/assets/images/person-light.svg';
 import PersonDark from 'src/assets/images/person-dark.svg';
 import CardPill from 'src/components/CardPill';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { sha256 } from 'bitcoinjs-lib/src/crypto';
 
 interface ExpertCardProps {
   advisorData: {
@@ -68,6 +69,14 @@ const ExpertCard: React.FC<ExpertCardProps> = ({ advisorData }) => {
     );
   };
 
+  function getTagColor(tag) {
+    const tagHash = sha256(tag).toString('hex');
+    const num = parseInt(tagHash.slice(0, 8), 16);
+    const labelColorsCount = 10;
+    const colorIndex = (num % labelColorsCount) + 1;
+    return `${colorMode}.tagColor${colorIndex}`;
+  }
+
   return (
     <Shadow {...shadowStyles}>
       <Box
@@ -98,13 +107,20 @@ const ExpertCard: React.FC<ExpertCardProps> = ({ advisorData }) => {
             </Box>
             <Box style={styles.expertiseContainer}>
               {expertise.slice(0, 2).map((item, index) => (
-                <CardPill key={index} heading={item} />
+                <CardPill
+                  key={index}
+                  heading={item}
+                  backgroundColor={getTagColor(item)}
+                  headingColor={`${colorMode}.seashellWhiteText`}
+                />
               ))}
               {expertise.length > 2 && (
                 <CardPill
                   heading={`+${expertise.length - 2}`}
                   borderRadius={21 / 2}
                   paddingHorizontal={wp(4)}
+                  headingColor={`${colorMode}.seashellWhiteText`}
+                  backgroundColor={`${colorMode}.brownBackground`}
                 />
               )}
             </Box>

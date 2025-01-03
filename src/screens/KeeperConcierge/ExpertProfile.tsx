@@ -17,10 +17,19 @@ import ShareArrowlight from 'src/assets/images/share-arrow-cream.svg';
 import ShareArrowDark from 'src/assets/images/share-arrow-white.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import Share from 'react-native-share';
+import { sha256 } from 'bitcoinjs-lib/src/crypto';
 
 const ProfileHeader = ({ advisorData }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+
+  function getTagColor(tag) {
+    const tagHash = sha256(tag).toString('hex');
+    const num = parseInt(tagHash.slice(0, 8), 16);
+    const labelColorsCount = 10;
+    const colorIndex = (num % labelColorsCount) + 1;
+    return `${colorMode}.tagColor${colorIndex}`;
+  }
 
   return (
     <Box>
@@ -43,7 +52,12 @@ const ProfileHeader = ({ advisorData }) => {
         </Box>
         <Box style={styles.expertiseContainer}>
           {advisorData?.expertise?.map((item, index) => (
-            <CardPill key={index} heading={item} />
+            <CardPill
+              key={index}
+              heading={item}
+              backgroundColor={getTagColor(item)}
+              headingColor={`${colorMode}.seashellWhiteText`}
+            />
           ))}
         </Box>
       </Box>

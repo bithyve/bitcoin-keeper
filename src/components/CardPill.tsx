@@ -33,7 +33,7 @@ function CardPill({
     >
       <Text
         bold
-        style={[styles.heading, { opacity: colorMode === 'light' ? 0.75 : 1 }]}
+        style={styles.heading}
         color={headingColor || `${colorMode}.pillText`}
         numberOfLines={1}
       >
