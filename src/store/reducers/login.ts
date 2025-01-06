@@ -20,6 +20,7 @@ export const initialState: {
     authenticating: boolean;
   };
   credsChanged: string;
+  credsAuthenticatedError: string;
   pinChangedFailed: boolean;
   initializeRecoveryCompleted: boolean;
   key: string | null;
@@ -54,6 +55,7 @@ export const initialState: {
     authenticating: false,
   },
   credsChanged: '',
+  credsAuthenticatedError: '',
   pinChangedFailed: false,
   initializeRecoveryCompleted: false,
   key: null,
@@ -96,6 +98,9 @@ const loginSlice = createSlice({
           storingCreds: false,
           authenticating: false,
         });
+    },
+    credsAuthenticatedError: (state, action: PayloadAction<string>) => {
+      state.credsAuthenticatedError = action.payload;
     },
     credsChanged: (state, action: PayloadAction<string>) => {
       state.credsChanged = action.payload;
@@ -170,6 +175,7 @@ const loginSlice = createSlice({
 
 export const {
   credsAuthenticated,
+  credsAuthenticatedError,
   credsChanged,
   resetCredsChanged,
   pinChangedFailed,

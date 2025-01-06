@@ -39,6 +39,7 @@ import {
   setOfflineStatus,
   setStatusLoading,
   setStatusMessage,
+  credsAuthenticatedError,
 } from '../reducers/login';
 import {
   resetPinFailAttempts,
@@ -124,6 +125,7 @@ export const credentialStorageWatcher = createWatcher(credentialsStorageWorker, 
 function* credentialsAuthWorker({ payload }) {
   let key;
   const appId = yield select((state: RootState) => state.storage.appId);
+  yield put(credsAuthenticatedError(''));
   try {
     yield put(setRecepitVerificationError(false));
     yield put(setRecepitVerificationFailed(false));
@@ -148,7 +150,11 @@ function* credentialsAuthWorker({ payload }) {
     // case: login
     if (!payload.reLogin) {
       const uint8array = yield call(stringToArrayBuffer, key);
-      yield call(dbManager.initializeRealm, uint8array);
+      const { success, error } = yield call(dbManager.initializeRealm, uint8array);
+
+      if (!success) {
+        throw Error('Failed to load the database:' + error);
+      }
 
       const previousVersion = yield select((state) => state.storage.appVersion);
       const newVersion = DeviceInfo.getVersion();
@@ -174,6 +180,7 @@ function* credentialsAuthWorker({ payload }) {
           );
           const response = yield call(Relay.verifyReceipt, id, publicId);
           yield put(credsAuthenticated(true));
+          yield put(credsAuthenticatedError(''));
           yield put(setKey(key));
 
           const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
@@ -210,15 +217,14 @@ function* credentialsAuthWorker({ payload }) {
         } catch (error) {
           yield put(setRecepitVerificationError(true));
           // yield put(credsAuthenticated(false));
+          yield put(credsAuthenticatedError(error));
           console.log(error);
         }
       } else yield put(credsAuthenticated(true));
     } else yield put(credsAuthenticated(true));
   } catch (err) {
-    if (payload.reLogin) {
-      yield put(credsAuthenticated(false));
-      // yield put(switchReLogin(false));
-    } else yield put(credsAuthenticated(false));
+    yield put(credsAuthenticatedError(err));
+    yield put(credsAuthenticated(false));
   }
 }
 
