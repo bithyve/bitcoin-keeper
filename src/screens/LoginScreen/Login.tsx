@@ -158,6 +158,7 @@ function LoginScreen({ navigation, route }) {
             if (success) {
               setLoginModal(true);
               setPasscode('xxxx');
+              setLogging(true);
               dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
             }
           }
