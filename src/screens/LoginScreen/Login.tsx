@@ -63,6 +63,7 @@ function LoginScreen({ navigation, route }) {
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [isBiometric, setIsBiometric] = useState(false);
   const [incorrectPassword, setIncorrectPassword] = useState(false);
   const [loginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
@@ -97,13 +98,13 @@ function LoginScreen({ navigation, route }) {
 
   useEffect(() => {
     RestClient.subToTorStatus(onChangeTorStatus);
-    if (loggingIn) {
+    if (loggingIn && !isBiometric) {
       attemptLogin(passcode);
     }
     return () => {
       RestClient.unsubscribe(onChangeTorStatus);
     };
-  }, [loggingIn]);
+  }, [loggingIn, isBiometric]);
 
   useEffect(() => {
     dispatch(fetchOneDayInsight());
@@ -156,9 +157,10 @@ function LoginScreen({ navigation, route }) {
               cancelButtonText: 'Use PIN',
             });
             if (success) {
+              setIsBiometric(true);
               setLoginModal(true);
-              setPasscode('xxxx');
               setLogging(true);
+              setLoginError(false);
               dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
             }
           }
@@ -197,8 +199,9 @@ function LoginScreen({ navigation, route }) {
   }, [attempts, authenticationFailed]);
 
   useEffect(() => {
-    if (loggingIn && authenticationFailed && passcode && passcode.length === 4) {
+    if (loggingIn && authenticationFailed) {
       setLoginModal(false);
+      setIsBiometric(false);
       setPasscode('');
 
       setAttempts(attempts + 1);
@@ -207,7 +210,7 @@ function LoginScreen({ navigation, route }) {
 
       if (credsAuthenticatedError) {
         if (credsAuthenticatedError.toString().includes('Incorrect Passcode')) {
-          setErrMessage('Incorrect passcode');
+          setErrMessage('Incorrect Passcode');
         } else {
           setErrMessage(
             credsAuthenticatedError +
@@ -437,7 +440,6 @@ function LoginScreen({ navigation, route }) {
                 setLoginError(false);
                 setLogging(true);
               }}
-              primaryLoading={loggingIn}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
               primaryBackgroundColor={`${colorMode}.buttonText`}
