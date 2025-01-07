@@ -6,11 +6,11 @@ import DetailsWrapper from './DetailsWrapper';
 import { hp } from 'src/constants/responsive';
 
 const keyToTitleMap = {
-  timeZone: 'Time Zone',
+  timezone: 'Time Zone',
   experience: 'Experience',
   language: 'Language',
   sessionDuration: 'Session Duration',
-  totalSession: 'Total Session',
+  totalSessions: 'Total Sessions',
   lastSessionRequest: 'Last Session Request',
 };
 
@@ -24,7 +24,7 @@ const DetailsItem = ({ title, value }) => {
         </Text>
       </Box>
       <Box style={styles.rightContainer}>
-        <Text color={`${colorMode}.greenishGreyText`} medium fontSize={13} numberOfLines={1}>
+        <Text color={`${colorMode}.greenishGreyText`} medium fontSize={13}>
           {value || '-'}
         </Text>
       </Box>

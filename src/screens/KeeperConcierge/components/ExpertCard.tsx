@@ -14,34 +14,56 @@ import CardPill from 'src/components/CardPill';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { sha256 } from 'bitcoinjs-lib/src/crypto';
 
-interface ExpertCardProps {
+export interface ExpertCardProps {
   advisorData: {
+    _id: string;
     name: string;
     location: string;
-    expertise: string[];
+    expertise: ExpertExpertise[];
     details: {
-      timeZone: string;
+      timezone: string;
       experience: string;
-      language: string;
+      language: string[];
+      profilePicture: string;
+      link: string;
+      sessionDuration: string;
+    };
+    history?: {
+      totalSession?: number;
+      lastSessionRequest?: string;
     };
   };
 }
 
-interface DetailItemProps {
-  label: string;
-  value: string;
+export interface ExpertExpertise {
+  expertise: string;
+  _id: string;
 }
 
-const DetailItem: React.FC<DetailItemProps> = ({ label, value }) => {
+interface DetailItemProps {
+  label: string;
+  value: string | string[];
+  isMultiple?: boolean;
+}
+
+const DetailItem: React.FC<DetailItemProps> = ({ label, value, isMultiple = false }) => {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.detailItemContainer}>
       <Text color={`${colorMode}.pitchBlackText`} fontSize={12} medium>
         {label}:
       </Text>
-      <Text color={`${colorMode}.greenishGreyText`} fontSize={12}>
-        {value || 'Not available'}
-      </Text>
+      {isMultiple ? (
+        value?.map((item: string, index: number) => (
+          <Text key={index} color={`${colorMode}.greenishGreyText`} fontSize={12}>
+            {`${item} `}
+          </Text>
+        ))
+      ) : (
+        <Text color={`${colorMode}.greenishGreyText`} fontSize={12}>
+          {value || 'Not available'}
+        </Text>
+      )}
     </Box>
   );
 };
@@ -87,10 +109,11 @@ const ExpertCard: React.FC<ExpertCardProps> = ({ advisorData }) => {
         <Box style={styles.contentContainer}>
           <Box style={styles.leftContainer}>
             <Image
-              source={require('src/assets/images/person-placeholder-1.jpeg')}
+              source={{ uri: details.profilePicture }}
               style={{ width: wp(34), height: wp(34), borderRadius: wp(34) / 2 }}
               borderWidth={1}
               borderColor={`${colorMode}.pantoneGreen`}
+              alt="Profile Picture"
             />
           </Box>
           <Box style={styles.rightContainer}>
@@ -106,15 +129,15 @@ const ExpertCard: React.FC<ExpertCardProps> = ({ advisorData }) => {
               </Box>
             </Box>
             <Box style={styles.expertiseContainer}>
-              {expertise.slice(0, 2).map((item, index) => (
+              {expertise?.slice(0, 2).map((item, index) => (
                 <CardPill
                   key={index}
-                  heading={item}
+                  heading={item.expertise}
                   backgroundColor={getTagColor(item)}
                   headingColor={`${colorMode}.seashellWhiteText`}
                 />
               ))}
-              {expertise.length > 2 && (
+              {expertise?.length > 2 && (
                 <CardPill
                   heading={`+${expertise.length - 2}`}
                   headingColor={`${colorMode}.seashellWhiteText`}
@@ -124,13 +147,9 @@ const ExpertCard: React.FC<ExpertCardProps> = ({ advisorData }) => {
               )}
             </Box>
             <Box style={styles.detailsContainer}>
-              {details && (
-                <>
-                  <DetailItem label="Time zone" value={details.timeZone} />
-                  <DetailItem label="Experience" value={details.experience} />
-                  <DetailItem label="Language" value={details.language} />
-                </>
-              )}
+              <DetailItem label="Time zone" value={details.timezone} />
+              <DetailItem label="Experience" value={details.experience} />
+              <DetailItem label="Language" value={details.language} isMultiple />
             </Box>
           </Box>
         </Box>

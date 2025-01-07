@@ -1,6 +1,6 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useState, useMemo, useContext } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
 import ContentWrapper from '../../components/ContentWrapper';
@@ -13,6 +13,7 @@ import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
 import DisabledExpertGuidance from './components/DisabledExpertGuidance';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Relay from 'src/services/backend/Relay';
 
 const ExpertGuidance = () => {
   const { colorMode } = useColorMode();
@@ -21,72 +22,20 @@ const ExpertGuidance = () => {
   const { concierge } = translations;
   const [search, setSearch] = useState('');
   const isPleb = plan === SubscriptionTier.L1.toUpperCase();
+  const [advisors, setAdvisors] = useState(null);
 
-  const advisorsData = [
-    {
-      name: 'John Doe',
-      location: 'Lahore',
-      expertise: ['Inheritance Key', 'Cold Storage', 'Inheritance Key', 'Cold Storage'],
-      details: {
-        timeZone: 'European Time',
-        experience: '5 years',
-        language: 'English, Spanish',
-        sessionDuration: '30 mins',
-      },
-      history: {
-        totalSession: 10,
-        lastSessionRequest: '2 days ago',
-      },
-    },
-    {
-      name: 'Jane Smith',
-      location: 'New York',
-      expertise: ['Cold Storage', 'Investment Planning'],
-      details: {
-        timeZone: 'Eastern Time',
-        experience: '3 years',
-        language: 'English, French',
-      },
-    },
-    {
-      name: 'Alice Brown',
-      location: 'London',
-      expertise: ['Inheritance Key', 'Financial Planning'],
-      details: {
-        timeZone: 'GMT',
-        experience: '7 years',
-        language: 'English',
-      },
-      history: {
-        totalSession: 10,
-        lastSessionRequest: '2 days ago',
-      },
-    },
-  ];
+  useEffect(() => {
+    loadAdvisors();
+  }, []);
 
-  const filteredAdvisors = useMemo(() => {
-    return advisorsData.filter((advisor) => {
-      const lowerSearch = search.toLowerCase();
-
-      const matchesName = advisor.name.toLowerCase().includes(lowerSearch);
-      const matchesExpertise = advisor.expertise.some((exp) =>
-        exp.toLowerCase().includes(lowerSearch)
-      );
-      const matchesLanguage = advisor.details.language.toLowerCase().includes(lowerSearch);
-      const matchesTimeZone = advisor.details.timeZone.toLowerCase().includes(lowerSearch);
-      const matchesExperience = advisor.details.experience.toLowerCase().includes(lowerSearch);
-      const matchesLocation = advisor.location.toLowerCase().includes(lowerSearch);
-
-      return (
-        matchesName ||
-        matchesExpertise ||
-        matchesLanguage ||
-        matchesTimeZone ||
-        matchesExperience ||
-        matchesLocation
-      );
-    });
-  }, [search, advisorsData]);
+  const loadAdvisors = async () => {
+    try {
+      const response = await Relay.fetchAdvisorsList();
+      setAdvisors(response);
+    } catch (error) {
+      console.log('Error loading advisors', error);
+    }
+  };
 
   return (
     <ConciergeScreenWrapper backgroundcolor={`${colorMode}.pantoneGreen`} barStyle="light-content">
@@ -107,8 +56,10 @@ const ExpertGuidance = () => {
           </Box>
         </Box>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {filteredAdvisors.length > 0 ? (
-            filteredAdvisors.map((advisorData, index) => (
+          {!advisors ? (
+            <ActivityIndicator size="large" animating color="#00836A" />
+          ) : advisors?.length > 0 ? (
+            advisors.map((advisorData, index: number) => (
               <ExpertCard key={index} advisorData={advisorData} />
             ))
           ) : (

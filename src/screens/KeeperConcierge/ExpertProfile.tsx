@@ -18,8 +18,9 @@ import ShareArrowDark from 'src/assets/images/share-arrow-white.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import Share from 'react-native-share';
 import { sha256 } from 'bitcoinjs-lib/src/crypto';
+import { ExpertCardProps } from './components/ExpertCard';
 
-const ProfileHeader = ({ advisorData }) => {
+const ProfileHeader = ({ advisorData }: ExpertCardProps) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
 
@@ -36,7 +37,7 @@ const ProfileHeader = ({ advisorData }) => {
       <Box style={styles.separator} backgroundColor={`${colorMode}.pantoneGreen`} />
       <Box style={styles.profileImageContainer}>
         <Image
-          source={require('src/assets/images/person-placeholder-1.jpeg')}
+          source={{ uri: advisorData?.details?.profilePicture }}
           style={styles.profileImage}
           borderWidth={1}
           borderColor={`${colorMode}.pantoneGreen`}
@@ -54,7 +55,7 @@ const ProfileHeader = ({ advisorData }) => {
           {advisorData?.expertise?.map((item, index) => (
             <CardPill
               key={index}
-              heading={item}
+              heading={item.expertise}
               backgroundColor={getTagColor(item)}
               headingColor={`${colorMode}.seashellWhiteText`}
             />
@@ -65,11 +66,28 @@ const ProfileHeader = ({ advisorData }) => {
   );
 };
 
+const createExpertDetails = (details) => {
+  const getTimeInHours = (time) => {
+    if (time < 1) return `${60 * time} minutes`;
+    if (time === 1) return `${time} hour`;
+    return `${time} hours`;
+  };
+  return {
+    timezone: details?.timezone,
+    experience: details?.experience + (parseFloat(details?.experience) > 1 ? ' years' : ' year'),
+    language: details?.language
+      .reduce((acc: string, lang: string) => acc + lang + ', ', '')
+      .slice(0, -2),
+    sessionDuration: getTimeInHours(parseFloat(details?.sessionDuration)),
+  };
+};
+
 const ExpertProfile = ({ route }) => {
   const { advisorData } = route.params;
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const expertDetails = createExpertDetails(advisorData.details);
 
   const shareAdvisorDetails = () => {
     const shareOptions = {
@@ -101,9 +119,7 @@ const ExpertProfile = ({ route }) => {
           <ProfileHeader advisorData={advisorData} />
         </Box>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {advisorData?.details && (
-            <DetailsCard title={'Expert Details'} advisorDetails={advisorData?.details} />
-          )}
+          {expertDetails && <DetailsCard title={'Expert Details'} advisorDetails={expertDetails} />}
           {advisorData?.history && (
             <DetailsCard title={'User History'} advisorDetails={advisorData?.history} />
           )}

@@ -740,4 +740,13 @@ export default class Relay {
       if (err.code) throw new Error(err.code);
     }
   };
+
+  public static fetchAdvisorsList = async () => {
+    try {
+      const res = await RestClient.get(`${RELAY}getExpert`);
+      return res.data;
+    } catch (err) {
+      throw new Error(err?.message || 'Something went wrong');
+    }
+  };
 }
