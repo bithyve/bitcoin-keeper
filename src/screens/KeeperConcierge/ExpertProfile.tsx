@@ -1,6 +1,6 @@
 import { Box, Image, ScrollView, useColorMode } from 'native-base';
 import React from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Linking, Pressable, StyleSheet } from 'react-native';
 import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
 import ContentWrapper from '../../components/ContentWrapper';
@@ -126,12 +126,9 @@ const ExpertProfile = ({ route }) => {
           <Buttons
             primaryText="Schedule Session"
             primaryCallback={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'ScheduleConsultation',
-                  params: { screenName: '', tags: [] },
-                })
-              );
+              Linking.openURL(advisorData.details.link)
+                .then((res) => console.log('Linking response:', res))
+                .catch((err) => console.log('Error linking:', err));
             }}
             RightIcon={isDarkMode ? CalendarDark : CalendarLight}
             fullWidth
