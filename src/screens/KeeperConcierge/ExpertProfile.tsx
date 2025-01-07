@@ -75,9 +75,7 @@ const createExpertDetails = (details) => {
   return {
     timezone: details?.timezone,
     experience: details?.experience + (parseFloat(details?.experience) > 1 ? ' years' : ' year'),
-    language: details?.language
-      .reduce((acc: string, lang: string) => acc + lang + ', ', '')
-      .slice(0, -2),
+    language: details?.language.join(', '),
     sessionDuration: getTimeInHours(parseFloat(details?.sessionDuration)),
   };
 };

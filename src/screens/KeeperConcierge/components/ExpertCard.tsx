@@ -46,24 +46,16 @@ interface DetailItemProps {
   isMultiple?: boolean;
 }
 
-const DetailItem: React.FC<DetailItemProps> = ({ label, value, isMultiple = false }) => {
+const DetailItem: React.FC<DetailItemProps> = ({ label, value }) => {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.detailItemContainer}>
       <Text color={`${colorMode}.pitchBlackText`} fontSize={12} medium>
         {label}:
       </Text>
-      {isMultiple ? (
-        value?.map((item: string, index: number) => (
-          <Text key={index} color={`${colorMode}.greenishGreyText`} fontSize={12}>
-            {`${item} `}
-          </Text>
-        ))
-      ) : (
-        <Text color={`${colorMode}.greenishGreyText`} fontSize={12}>
-          {value || 'Not available'}
-        </Text>
-      )}
+      <Text color={`${colorMode}.greenishGreyText`} fontSize={12}>
+        {value || 'Not available'}
+      </Text>
     </Box>
   );
 };
@@ -149,7 +141,7 @@ const ExpertCard: React.FC<ExpertCardProps> = ({ advisorData }) => {
             <Box style={styles.detailsContainer}>
               <DetailItem label="Time zone" value={details.timezone} />
               <DetailItem label="Experience" value={details.experience} />
-              <DetailItem label="Language" value={details.language} isMultiple />
+              <DetailItem label="Language" value={details?.language.join(', ')} />
             </Box>
           </Box>
         </Box>
