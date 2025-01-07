@@ -115,7 +115,6 @@ export const generateSignerFromMetaData = ({
   return { signer, key };
 };
 
-
 export const getSignerDescription = (signer?: Signer) => {
   const fullName = `${signer?.extraData?.givenName || ''} ${
     signer?.extraData?.familyName || ''
@@ -133,7 +132,7 @@ export const getSignerDescription = (signer?: Signer) => {
     return numberToOrdinal(signer.extraData.instanceNumber);
   }
 
-  return signer?.addedOn ? `Added ${moment(signer.addedOn).calendar().toLowerCase()}` : '';
+  return signer?.addedOn ? `Added ${moment(signer.addedOn).format('DD/MM/YYYY')}` : '';
 };
 
 export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = false) => {
