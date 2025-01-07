@@ -15,11 +15,15 @@ import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { captureError } from 'src/services/sentry';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerType, VaultType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
-import { createCipherGcm, createDecipherGcm } from 'src/utils/service-utilities/utils';
+import {
+  createCipherGcm,
+  createDecipherGcm,
+  generateOutputDescriptors,
+} from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { getPsbtForHwi } from 'src/hardware';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
@@ -79,6 +83,12 @@ function SignWithChannel() {
   const dispatch = useDispatch();
   const navgation = useNavigation();
 
+  let miniscriptPolicy = null;
+  if (activeVault.type === VaultType.INHERITANCE) {
+    miniscriptPolicy = generateOutputDescriptors(activeVault);
+  }
+  const walletName = activeVault.presentationData.name;
+
   const onBarCodeRead = async (data) => {
     decryptionKey.current = data;
     const sha = crypto.createHash('sha256');
@@ -89,6 +99,8 @@ function SignWithChannel() {
       action: EMIT_MODES.SIGN_TX,
       signerType,
       psbt,
+      miniscriptPolicy,
+      walletName,
     };
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });

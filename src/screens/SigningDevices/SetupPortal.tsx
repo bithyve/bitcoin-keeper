@@ -115,7 +115,7 @@ function SetupPortal({ route }) {
       return await withNfcModal(async () => {
         await PORTAL.startReading();
         await checkAndUnlock(cvc, setPortalStatus);
-        const { receivingAddress } = generateVaultAddressDescriptors(vault);
+        const { receivingAddress } = generateVaultAddressDescriptors(vault, 0); // TODO: Fix for Portal
         const { nextFreeAddressIndex } = vault.specs;
         const res = await PORTAL.verifyAddress(nextFreeAddressIndex);
         if (res == receivingAddress) {

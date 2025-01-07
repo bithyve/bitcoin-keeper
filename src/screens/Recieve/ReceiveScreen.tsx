@@ -284,6 +284,7 @@ function ReceiveScreen({ route }: { route }) {
                 mode: InteracationMode.ADDRESS_VERIFICATION,
                 title: `Connecting to ${signerName}`,
                 subtitle: vaultTranslations.verifyAddDesc,
+                receiveAddressIndex: currentAddressIdx - 1,
               })
             );
           }

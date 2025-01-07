@@ -24,6 +24,7 @@ import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import QRScanner from 'src/components/QRScanner';
+import { VaultType } from 'src/services/wallets/enums';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -64,7 +65,15 @@ function RegisterWithChannel() {
 
   const { activeVault: vault } = useVault({ vaultId });
   // TODO: Should migrate to regualr descriptor format
-  const descriptorString = generateOutputDescriptors(vault, true).split('\n')[0];
+  let descriptorString = null;
+  let miniscriptPolicy = null;
+  if (vault.type === VaultType.INHERITANCE) {
+    miniscriptPolicy = generateOutputDescriptors(vault);
+  } else {
+    descriptorString = generateOutputDescriptors(vault, true).split('\n')[0];
+  }
+
+  const walletName = vault.presentationData.name;
   const firstExtAdd = vault.specs.addresses.external[0]; // for cross validation from desktop app.
 
   const onBarCodeRead = (data) => {
@@ -76,6 +85,8 @@ function RegisterWithChannel() {
       action: EMIT_MODES.REGISTER_MULTISIG,
       signerType,
       descriptorString,
+      miniscriptPolicy,
+      walletName,
       firstExtAdd,
     };
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);

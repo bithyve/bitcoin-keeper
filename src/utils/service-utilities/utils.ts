@@ -186,22 +186,19 @@ export const generateOutputDescriptors = (
   }
 };
 
-export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
-  const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
-  const { nextFreeAddressIndex } = wallet.specs;
+export const generateVaultAddressDescriptors = (wallet: Vault | Wallet, addressIndex: number) => {
+  const receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(
+    wallet,
+    addressIndex,
+    false
+  );
 
   if (wallet.entityKind === EntityKind.WALLET) {
     const {
       derivationDetails: { xDerivationPath },
       specs: { xpub },
     } = wallet as Wallet;
-    const des = `wpkh(${getKeyExpression(
-      wallet.id,
-      xDerivationPath,
-      xpub,
-      true,
-      nextFreeAddressIndex
-    )})`;
+    const des = `wpkh(${getKeyExpression(wallet.id, xDerivationPath, xpub, true, addressIndex)})`;
     return {
       descriptorString: des,
       receivingAddress,
@@ -215,7 +212,7 @@ export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
       signer.derivationPath,
       signer.xpub,
       true,
-      nextFreeAddressIndex
+      addressIndex
     )})`;
     return {
       descriptorString: des,
@@ -227,7 +224,7 @@ export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
     descriptorString: `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
       signers,
       true,
-      nextFreeAddressIndex
+      addressIndex
     )}))`,
     receivingAddress,
   };

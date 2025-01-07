@@ -24,6 +24,7 @@ import crypto from 'crypto';
 import {
   createCipherGcm,
   createDecipherGcm,
+  generateOutputDescriptors,
   generateVaultAddressDescriptors,
 } from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
@@ -38,6 +39,8 @@ import ReceiveAddress from '../Recieve/ReceiveAddress';
 import ReceiveQR from '../Recieve/ReceiveQR';
 import QRScanner from 'src/components/QRScanner';
 import { getUSBSignerDetails } from 'src/hardware/usbSigner';
+import { VaultType } from 'src/services/wallets/enums';
+import WalletOperations from 'src/services/wallets/operations';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
@@ -82,6 +85,7 @@ function ConnectChannel() {
     addSignerFlow = false,
     vaultId,
     accountNumber = null,
+    receiveAddressIndex = null,
   } = route.params as any;
 
   const [channel] = useState(io(config.CHANNEL_URL));
@@ -99,14 +103,27 @@ function ConnectChannel() {
   const [newSubtitle, setNewSubtitle] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<string | null>(null);
 
-  let descriptorString;
+  let descriptorString = null;
+  let miniscriptPolicy = null;
+  let addressIndex = null;
+  let walletName = null;
   let receivingAddress;
 
   if (mode === InteracationMode.ADDRESS_VERIFICATION) {
     const { activeVault: vault } = useVault({ vaultId });
-    const resp = generateVaultAddressDescriptors(vault);
-    descriptorString = resp.descriptorString;
-    receivingAddress = resp.receivingAddress;
+    if (vault.type === VaultType.INHERITANCE) {
+      miniscriptPolicy = generateOutputDescriptors(vault);
+      addressIndex = receiveAddressIndex;
+      walletName = vault.presentationData.name;
+      receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(
+        vault,
+        receiveAddressIndex
+      );
+    } else {
+      const resp = generateVaultAddressDescriptors(vault, receiveAddressIndex);
+      descriptorString = resp.descriptorString;
+      receivingAddress = resp.receivingAddress;
+    }
   }
 
   const onBarCodeRead = (data) => {
@@ -125,6 +142,9 @@ function ConnectChannel() {
     };
     if (mode === InteracationMode.ADDRESS_VERIFICATION) {
       requestBody.descriptorString = descriptorString;
+      requestBody.miniscriptPolicy = miniscriptPolicy;
+      requestBody.addressIndex = addressIndex;
+      requestBody.walletName = walletName;
       requestBody.receivingAddress = receivingAddress;
     } else {
       requestBody.accountNumber = accountNumber;
@@ -311,6 +331,9 @@ type RequestBody = {
   action: string;
   signerType: string;
   descriptorString?: string;
+  miniscriptPolicy?: string;
+  addressIndex?: number;
+  walletName?: string;
   receivingAddress?: string;
   accountNumber?: number;
 };
