@@ -140,7 +140,12 @@ const ExpertCard: React.FC<ExpertCardProps> = ({ advisorData }) => {
             </Box>
             <Box style={styles.detailsContainer}>
               <DetailItem label="Time zone" value={details.timezone} />
-              <DetailItem label="Experience" value={details.experience} />
+              <DetailItem
+                label="Experience"
+                value={
+                  details?.experience + (parseFloat(details?.experience) > 1 ? ' years' : ' year')
+                }
+              />
               <DetailItem label="Language" value={details?.language.join(', ')} />
             </Box>
           </Box>
