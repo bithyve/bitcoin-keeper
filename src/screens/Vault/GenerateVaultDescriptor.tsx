@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, ScrollView, Text, useColorMode } from 'native-base';
 import { Share, StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -6,13 +6,19 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import IconShare from 'src/assets/images/upload-black.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { captureError } from 'src/services/sentry';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import DisplayQR from '../QRScreens/DisplayQR';
 import TabBar from 'src/components/TabBar';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import OptionCTA from 'src/components/OptionCTA';
+import GenerateSingleVaultFilePDF from 'src/utils/GenerateSingleVaultFilePDF';
+import useVault from 'src/hooks/useVault';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import DownloadPDF from 'src/assets/images/download-pdf-white.svg';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 const ConfigQR = ({ isInheritanceVault, descriptorString, activeTab }) => {
   return isInheritanceVault ? (
@@ -34,15 +40,27 @@ const ConfigQR = ({ isInheritanceVault, descriptorString, activeTab }) => {
 
 function GenerateVaultDescriptor() {
   const route = useRoute();
-  const { descriptorString, vaultId, isInheritanceVault } = route.params as {
+  const { vaultId, isInheritanceVault } = route.params as {
     descriptorString: string;
     vaultId: string;
     isInheritanceVault: boolean;
   };
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
   const [activeTab, setActiveTab] = useState(0);
+  const { activeVault: vault } = useVault({ includeArchived: true, vaultId });
+  const vaultDescriptorString = generateOutputDescriptors(vault);
+  const [fingerPrint, setFingerPrint] = useState(null);
+
+  useEffect(() => {
+    if (vault) {
+      const vaultData = { name: vault.presentationData.name, file: vaultDescriptorString };
+      setFingerPrint(vaultData);
+    }
+  }, []);
+
   const tabsData = [
     {
       label: vaultText.staticQR,
@@ -54,7 +72,7 @@ function GenerateVaultDescriptor() {
 
   const onShare = async () => {
     try {
-      await Share.share({ message: descriptorString });
+      await Share.share({ message: vaultDescriptorString });
     } catch (error) {
       captureError(error);
     }
@@ -84,7 +102,7 @@ function GenerateVaultDescriptor() {
         >
           <ConfigQR
             isInheritanceVault={isInheritanceVault}
-            descriptorString={descriptorString}
+            descriptorString={vaultDescriptorString}
             activeTab={activeTab}
           />
           <TouchableOpacity onPress={onShare}>
@@ -94,15 +112,32 @@ function GenerateVaultDescriptor() {
               borderColor={`${colorMode}.dullGreyBorder`}
             >
               <Box style={styles.textWrapper}>
-                <Text noOfLines={2}>{descriptorString}</Text>
+                <Text noOfLines={2}>{vaultDescriptorString}</Text>
               </Box>
               <Box style={styles.iconShare} backgroundColor={`${colorMode}.accent`}>
                 <IconShare style={styles.iconShare} />
               </Box>
             </Box>
           </TouchableOpacity>
-          <Box style={{ paddingBottom: '10%' }}>
-            <ShareWithNfc data={descriptorString} fileName={`${vaultId}-backup.txt`} />
+          <Box style={styles.optionsContainer}>
+            <ShareWithNfc data={vaultDescriptorString} fileName={`${vaultId}-backup.txt`} />
+            <OptionCTA
+              icon={
+                <CircleIconWrapper
+                  width={wp(33)}
+                  backgroundColor={`${colorMode}.primaryGreenBackground`}
+                  icon={<DownloadPDF />}
+                />
+              }
+              title={vaultText.exportPDF}
+              callback={() => {
+                GenerateSingleVaultFilePDF(fingerPrint).then((res) => {
+                  if (res) {
+                    navigation.navigate('PreviewPDF', { source: res });
+                  }
+                });
+              }}
+            />
           </Box>
         </ScrollView>
       </Box>
@@ -153,5 +188,11 @@ const styles = StyleSheet.create({
   IKConfigContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  optionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: wp(20),
   },
 });
