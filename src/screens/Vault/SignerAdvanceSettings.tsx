@@ -829,6 +829,7 @@ function SignerAdvanceSettings({ route }: any) {
           title="Key History"
           description="View the usage timeline"
           callback={navigateToKeyHistory}
+          visible={!isMobileKey}
         />
         {isInheritanceKey && vaultId && (
           <OptionCard
