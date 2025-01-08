@@ -471,17 +471,17 @@ function SigningDeviceDetails({ route }) {
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
   const signerFooterItems = [
-    signer.type !== SignerType.POLICY_SERVER && {
+    signer?.type !== SignerType.POLICY_SERVER && {
       text: 'Share Key',
       Icon: () => <FooterIcon Icon={isDarkMode ? KeyDetailsDark : KeyDetailsLight} />,
       onPress: navigateToCosignerDetails,
     },
-    signer.type !== SignerType.KEEPER && {
+    signer?.type !== SignerType.KEEPER && {
       text: 'Sign Transaction',
       Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
       onPress: navigateToScanPSBT,
     },
-    {
+    signer?.type !== SignerType.MY_KEEPER && {
       text: 'Health Check',
       Icon: () => (
         <FooterIcon
