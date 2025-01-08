@@ -546,3 +546,21 @@ export const checkSignerAccountsMatch = (signer: Signer): boolean => {
   const firstAccount = accountNumbers[0];
   return accountNumbers.every((num) => num === firstAccount);
 };
+
+export const parseCalendlyUrl = (url) => {
+  try {
+    const queryString = url.split('?')[1]; // Extract the query string
+    const queryParams = {};
+
+    if (!queryString) return queryParams; // Return empty object if no query string
+
+    queryString.split('&').forEach((param) => {
+      const [key, value] = param.split('=');
+      queryParams[decodeURIComponent(key)] = decodeURIComponent(value || ''); // Decode keys and values
+    });
+
+    return queryParams;
+  } catch (error) {
+    console.log('🚀 ~ parseCalendlyUrl ~ error:', error);
+  }
+};

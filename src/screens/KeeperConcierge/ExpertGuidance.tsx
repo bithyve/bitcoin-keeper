@@ -82,7 +82,7 @@ const ExpertGuidance = () => {
     <ConciergeScreenWrapper backgroundcolor={`${colorMode}.pantoneGreen`} barStyle="light-content">
       <ConciergeHeader title={concierge.expertGuidanceTitle} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
-        <DisabledOverlay visible={false} bottomComponent={<DisabledExpertGuidance />} />
+        <DisabledOverlay visible={isPleb} bottomComponent={<DisabledExpertGuidance />} />
         <Box style={styles.searchBox}>
           <KeeperTextInput
             placeholder={` ${concierge.searchForAnExpert}`}

@@ -1,5 +1,5 @@
 import { Box, Image, ScrollView, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet } from 'react-native';
 import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
@@ -15,10 +15,11 @@ import CalendarLight from 'src/assets/images/calendar-light.svg';
 import CalendarDark from 'src/assets/images/calendar-dark.svg';
 import ShareArrowlight from 'src/assets/images/share-arrow-cream.svg';
 import ShareArrowDark from 'src/assets/images/share-arrow-white.svg';
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import Share from 'react-native-share';
 import { sha256 } from 'bitcoinjs-lib/src/crypto';
 import { ExpertCardProps } from './components/ExpertCard';
+import KeeperModal from 'src/components/KeeperModal';
+import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 
 const ProfileHeader = ({ advisorData }: ExpertCardProps) => {
   const { colorMode } = useColorMode();
@@ -81,11 +82,17 @@ const createExpertDetails = (details) => {
 };
 
 const ExpertProfile = ({ route }) => {
-  const { advisorData } = route.params;
-  const navigation = useNavigation();
+  const { advisorData, success } = route.params;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const expertDetails = createExpertDetails(advisorData.details);
+  const [successModal, setSuccessModal] = useState(false);
+
+  useEffect(() => {
+    if (success) {
+      setSuccessModal(true);
+    }
+  }, [success]);
 
   const shareAdvisorDetails = () => {
     const shareOptions = {
@@ -136,6 +143,26 @@ const ExpertProfile = ({ route }) => {
           />
         </Box>
       </ContentWrapper>
+      <KeeperModal
+        visible={successModal}
+        title="Scheduled Successfully!"
+        subTitle={`Thank you for reaching out!`}
+        close={() => setSuccessModal(false)}
+        showCloseIcon
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
+        buttonText={'Proceed'}
+        buttonCallback={() => setSuccessModal(false)}
+        Content={() => (
+          <Box style={styles.externalKeyModal}>
+            <SuccessCircleIllustration style={styles.externalKeyIllustration} />
+            <Text color={`${colorMode}.secondaryText`}>
+              Your request has been successfully processed. Please check your email for more
+              details. Let us know if you need further assistance
+            </Text>
+          </Box>
+        )}
+      />
     </ConciergeScreenWrapper>
   );
 };
@@ -187,6 +214,14 @@ const styles = StyleSheet.create({
     width: wp(40),
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  externalKeyModal: {
+    alignItems: 'center',
+  },
+  externalKeyIllustration: {
+    marginBottom: hp(20),
+    marginRight: wp(15),
   },
 });
 

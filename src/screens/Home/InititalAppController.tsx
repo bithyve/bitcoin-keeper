@@ -31,7 +31,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import useAsync from 'src/hooks/useAsync';
 import { initializeSentry } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
-import { generateDataFromPSBT } from 'src/utils/utilities';
+import { generateDataFromPSBT, parseCalendlyUrl } from 'src/utils/utilities';
 import { getKeyUID } from 'src/utils/utilities';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { decrypt, getHashFromKey } from 'src/utils/service-utilities/encryption';
@@ -91,6 +91,25 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       if (url.includes('remote/')) {
         handleRemoteKeyDeepLink(url);
       }
+      if (url.includes('calendly/')) {
+        handleCalendlyLink(url);
+      }
+    }
+  }
+
+  function handleCalendlyLink(url) {
+    const activeRoutes = navigation.getState().routes;
+    const currentRoute = activeRoutes[activeRoute.length - 1];
+    if (currentRoute.name === 'ExpertProfile') {
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ExpertProfile',
+          params: {
+            ...currentRoute.params,
+            success: parseCalendlyUrl(url),
+          },
+        })
+      );
     }
   }
 
@@ -306,6 +325,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         } else if (initialUrl.includes('create/')) {
         } else if (initialUrl.includes('remote/')) {
           handleRemoteKeyDeepLink(initialUrl);
+        } else if (initialUrl.includes('calendly/')) {
+          handleCalendlyLink(initialUrl);
         }
       }
     } catch (error) {
