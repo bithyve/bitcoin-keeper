@@ -108,7 +108,7 @@ function InheritanceToolsAndTips({ navigation }) {
           setInheritanceModal(false);
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'KeeperConcierge',
+              name: 'TechnicalSupport',
               params: {
                 tags: [ConciergeTag.INHERITANCE],
                 screenName: 'inheritance-tools-and-tips',

@@ -17,9 +17,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Zendesk from 'src/services/backend/Zendesk';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { CreateTicketCTA } from './components/CreateTicketCTA';
+import { showOnboarding } from 'src/store/reducers/concierge';
+import { useAppSelector } from 'src/store/hooks';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'TechnicalSupport'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
+  const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { conciergeUser } = useSelector((state) => state?.concierge);
@@ -35,6 +38,10 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   } = route.params || {};
   const { showToast } = useToastMessage();
   const [modalTicketId, setModalTicketId] = useState('');
+
+  useEffect(() => {
+    if (!dontShowConceirgeOnboarding) dispatch(showOnboarding());
+  }, []);
 
   useEffect(() => {
     getTickets();
