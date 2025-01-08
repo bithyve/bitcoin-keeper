@@ -721,7 +721,14 @@ function Signers({
       .filter((signer) => !signer.archived)
       .filter(
         (signer) =>
-          [SignerType.MY_KEEPER, SignerType.TAPSIGNER, SignerType.SEED_WORDS].includes(signer.type) // Filter by desired signer types
+          [
+            SignerType.MY_KEEPER,
+            SignerType.TAPSIGNER,
+            SignerType.BITBOX02,
+            SignerType.JADE,
+            SignerType.SPECTER,
+            SignerType.SEED_WORDS,
+          ].includes(signer.type) // Filter by desired signer types
       )
       .filter((signer) => !selectedFingerprintsSet.has(signer.masterFingerprint)) // Avoid selected signers from params
       .map((signer) => {

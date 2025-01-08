@@ -96,7 +96,14 @@ function RegisterWithQR({ route, navigation }: any) {
             )}
           </Box>
           <Box style={styles.centerBottom}>
-            <ShareWithNfc data={walletConfig} signer={signer} useNdef />
+            <ShareWithNfc
+              data={walletConfig}
+              signer={signer}
+              vaultKey={vaultKey}
+              vaultId={vaultId}
+              useNdef
+              isUSBAvailable={signer.type == SignerType.COLDCARD || signer.type == SignerType.JADE}
+            />
           </Box>
         </ScrollView>
         <Buttons

@@ -224,6 +224,8 @@ function VaultSetup({ route }: ScreenProps) {
                   SignerType.MY_KEEPER,
                   SignerType.TAPSIGNER,
                   SignerType.BITBOX02,
+                  SignerType.JADE,
+                  SignerType.SPECTER,
                   SignerType.SEED_WORDS,
                 ],
               }),
