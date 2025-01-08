@@ -124,8 +124,8 @@ function GenerateVaultDescriptor() {
             <OptionCTA
               icon={
                 <CircleIconWrapper
-                  width={wp(33)}
-                  backgroundColor={`${colorMode}.primaryGreenBackground`}
+                  width={wp(38)}
+                  backgroundColor={`${colorMode}.pantoneGreen`}
                   icon={<DownloadPDF />}
                 />
               }

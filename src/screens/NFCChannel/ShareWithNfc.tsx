@@ -1,22 +1,24 @@
 import { Platform, StyleSheet, Vibration } from 'react-native';
 import React, { useContext, useEffect } from 'react';
 import OptionCTA from 'src/components/OptionCTA';
-import NFCIcon from 'src/assets/images/nfc-circle-icon.svg';
-import AirDropIcon from 'src/assets/images/airdrop-circle-icon.svg';
-import RemoteShareIcon from 'src/assets/images/remote-share-circle-icon.svg';
+import NFCIcon from 'src/assets/images/nfc-no-bg-light.svg';
+import AirDropIcon from 'src/assets/images/airdrop-no-bg-light.svg';
+import RemoteShareIcon from 'src/assets/images/remote-share-no-bg-light.svg';
 import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RKInteractionMode } from 'src/services/wallets/enums';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { exportFile } from 'src/services/fs';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import { wp } from 'src/constants/responsive';
 
 function ShareWithNfc({
   data,
@@ -47,6 +49,7 @@ function ShareWithNfc({
 }) {
   const { session } = useContext(HCESessionContext);
   const navigation = useNavigation<any>();
+  const { colorMode } = useColorMode();
   const [visible, setVisible] = React.useState(false);
 
   const { showToast } = useToastMessage();
@@ -119,15 +122,37 @@ function ShareWithNfc({
   };
   return (
     <Box style={styles.container}>
-      <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={shareWithNFC} />
       <OptionCTA
-        icon={<AirDropIcon />}
+        icon={
+          <CircleIconWrapper
+            width={wp(38)}
+            backgroundColor={`${colorMode}.pantoneGreen`}
+            icon={<NFCIcon />}
+          />
+        }
+        title="NFC on Tap"
+        callback={shareWithNFC}
+      />
+      <OptionCTA
+        icon={
+          <CircleIconWrapper
+            width={wp(38)}
+            backgroundColor={`${colorMode}.pantoneGreen`}
+            icon={<AirDropIcon />}
+          />
+        }
         title={`${isIos ? 'Airdrop / ' : ''}File \nExport`}
         callback={shareWithAirdrop}
       />
       {remoteShare && (
         <OptionCTA
-          icon={<RemoteShareIcon />}
+          icon={
+            <CircleIconWrapper
+              width={wp(38)}
+              backgroundColor={`${colorMode}.pantoneGreen`}
+              icon={<RemoteShareIcon />}
+            />
+          }
           title={!isPSBTSharing ? 'Remote share' : 'Remote \ntransaction link'}
           callback={() =>
             navigation.navigate('RemoteSharing', {
