@@ -41,52 +41,11 @@ function UTXOFooter({
   }
 
   const footerItems = [
-    // {
-    //   text: walletTranslation.selectForMix,
-    //   Icon: MixIcon,
-    //   onPress: () => {
-    //     setEnableSelection(!enableSelection);
-    //     setInitiateWhirlpool(true);
-    //   },
-    //   disabled: !utxos.length,
-    //   hideItem: !allowedMixTypes.includes(wallet?.type) || isVault || isTaprootWallet,
-    // },
-    // {
-    //   text:
-    //     wallet.type === WalletType.POST_MIX
-    //       ? walletTranslation.selectForRemix
-    //       : walletTranslation.selectForMix,
-    //   Icon: MixIcon,
-    //   onPress: () => {
-    //     setEnableSelection(!enableSelection);
-    //     setIsRemix(wallet?.type === WalletType.POST_MIX);
-    //     setInitateWhirlpoolMix(true);
-    //   },
-    //   disabled: !utxos.length,
-    //   hideItem: ![WalletType.PRE_MIX, WalletType.POST_MIX].includes(wallet?.type),
-    // },
-    // {
-    //   text: walletTranslation.remixVault,
-    //   Icon: MixIcon,
-    //   onPress: () => {
-    //     if (!activeVault) {
-    //       showToast('Please create a vault before remixing!');
-    //       return;
-    //     }
-    //     setEnableSelection(!enableSelection);
-    //     setIsRemix(wallet?.type === WalletType.POST_MIX);
-    //     setInitateWhirlpoolMix(true);
-    //     setRemixingToVault(true);
-    //   },
-    //   disabled: !utxos.length,
-    //   hideItem: WalletType.POST_MIX !== wallet?.type || !activeVault,
-    // },
     {
       text: walletTranslation.selectToSend,
       Icon: colorMode === 'light' ? SendGreen : SendWhite,
       onPress: () => setEnableSelection(!enableSelection),
       disabled: !utxos.length,
-      hideItem: !allowedSendTypes.includes(wallet?.type),
     },
   ];
 
