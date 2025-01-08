@@ -73,7 +73,7 @@ const CreateTicket = ({ navigation, route }) => {
   };
 
   const addAttributes = () => {
-    let details = desc + '\n';
+    let details = desc + `\n*****\n`;
     details += `I have ${allVaults?.length} vault(s) and ${wallets?.length} wallet(s) with following attributes:\n\n`;
 
     allVaults.forEach((vault) => {
@@ -91,7 +91,7 @@ const CreateTicket = ({ navigation, route }) => {
     details += '\n';
     if (screenName) details += `\nScreen Name: ${screenName}`;
     if (tags.length) details += `\nTags: ${tags.join(', ')}`;
-    setDesc(details + '\n');
+    setDesc(details + `\n*****\n`);
   };
 
   const onNext = async () => {
@@ -150,7 +150,7 @@ const CreateTicket = ({ navigation, route }) => {
       barStyle="light-content"
       loading={loading}
     >
-      <ConciergeHeader title={'Technical Support'} />
+      <ConciergeHeader title={'Keeper Concierge'} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         <KeyboardAvoidingView style={styles.container} behavior={isiOS ? 'padding' : undefined}>
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>

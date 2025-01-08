@@ -78,7 +78,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       barStyle="light-content"
       loading={loading}
     >
-      <ConciergeHeader title={'Technical Support'} />
+      <ConciergeHeader title={'Keeper Concierge'} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         <TicketHistory />
         <CreateTicketCTA
