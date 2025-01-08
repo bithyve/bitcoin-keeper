@@ -1,11 +1,7 @@
 import React, { useContext } from 'react';
-import MixIcon from 'src/assets/images/icon_mix.svg';
 import SendGreen from 'src/assets/images/send-green.svg';
 import SendWhite from 'src/assets/images/send-white.svg';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
-import useVault from 'src/hooks/useVault';
-import useToastMessage from 'src/hooks/useToastMessage';
-import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetails/WalletDetails';
+import { DerivationPurpose, EntityKind } from 'src/services/wallets/enums';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -13,19 +9,7 @@ import idx from 'idx';
 import KeeperFooter from '../KeeperFooter';
 import { useColorMode } from 'native-base';
 
-function UTXOFooter({
-  setEnableSelection,
-  enableSelection,
-  setInitiateWhirlpool,
-  setInitateWhirlpoolMix,
-  setIsRemix,
-  wallet,
-  utxos,
-  setRemixingToVault,
-  vaultId,
-}) {
-  const { activeVault } = useVault({ vaultId });
-  const { showToast } = useToastMessage();
+function UTXOFooter({ setEnableSelection, enableSelection, wallet, utxos }) {
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
   const { colorMode } = useColorMode();

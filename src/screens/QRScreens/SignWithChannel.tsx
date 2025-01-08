@@ -28,6 +28,7 @@ import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { getPsbtForHwi } from 'src/hardware';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import QRScanner from 'src/components/QRScanner';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -88,6 +89,11 @@ function SignWithChannel() {
     miniscriptPolicy = generateOutputDescriptors(activeVault);
   }
   const walletName = activeVault.presentationData.name;
+  let hmac = null;
+  const currentHmac = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId)?.hmac;
+  if (currentHmac) {
+    hmac = currentHmac;
+  }
 
   const onBarCodeRead = async (data) => {
     decryptionKey.current = data;
@@ -101,6 +107,7 @@ function SignWithChannel() {
       psbt,
       miniscriptPolicy,
       walletName,
+      hmac,
     };
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
@@ -124,6 +131,14 @@ function SignWithChannel() {
     const onSignedTnx = (data) => {
       try {
         const signedSerializedPSBT = data.data.signedSerializedPSBT;
+        const hmac = data.data.hmac;
+        dispatch(
+          updateKeyDetails(vaultKey, 'registered', {
+            registered: true,
+            hmac,
+            vaultId,
+          })
+        );
         dispatch(
           healthCheckStatusUpdate([
             {

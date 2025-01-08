@@ -41,6 +41,7 @@ import QRScanner from 'src/components/QRScanner';
 import { getUSBSignerDetails } from 'src/hardware/usbSigner';
 import { VaultType } from 'src/services/wallets/enums';
 import WalletOperations from 'src/services/wallets/operations';
+import { getKeyUID } from 'src/utils/utilities';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
@@ -107,6 +108,7 @@ function ConnectChannel() {
   let miniscriptPolicy = null;
   let addressIndex = null;
   let walletName = null;
+  let hmac = null;
   let receivingAddress;
 
   if (mode === InteracationMode.ADDRESS_VERIFICATION) {
@@ -119,6 +121,11 @@ function ConnectChannel() {
         vault,
         receiveAddressIndex
       );
+      const vaultKey = vault.signers.find((s) => getKeyUID(s) === getKeyUID(signer));
+      const currentHmac = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId)?.hmac;
+      if (currentHmac) {
+        hmac = currentHmac;
+      }
     } else {
       const resp = generateVaultAddressDescriptors(vault, receiveAddressIndex);
       descriptorString = resp.descriptorString;
@@ -145,6 +152,7 @@ function ConnectChannel() {
       requestBody.miniscriptPolicy = miniscriptPolicy;
       requestBody.addressIndex = addressIndex;
       requestBody.walletName = walletName;
+      requestBody.hmac = hmac;
       requestBody.receivingAddress = receivingAddress;
     } else {
       requestBody.accountNumber = accountNumber;
@@ -176,10 +184,12 @@ function ConnectChannel() {
           await handleVerification(responseData, signerType);
         } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
           const resAdd = responseData.address;
+          const hmac = responseData.hmac;
           if (resAdd != receivingAddress) return;
           dispatch(
             updateKeyDetails(signer, 'registered', {
               registered: true,
+              hmac,
               vaultId,
             })
           );
@@ -334,6 +344,7 @@ type RequestBody = {
   miniscriptPolicy?: string;
   addressIndex?: number;
   walletName?: string;
+  hmac?: string;
   receivingAddress?: string;
   accountNumber?: number;
 };

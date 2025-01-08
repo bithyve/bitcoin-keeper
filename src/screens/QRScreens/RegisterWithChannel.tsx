@@ -102,11 +102,13 @@ function RegisterWithChannel() {
     channel.on(CHANNEL_MESSAGE, async ({ data }) => {
       try {
         const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
+        const hmac = decrypted.responseData.data.hmac;
         const resAdd = decrypted.responseData.data.address;
         if (resAdd != firstExtAdd) return;
         dispatch(
           updateKeyDetails(vaultKey, 'registered', {
             registered: true,
+            hmac,
             vaultId: vault.id,
           })
         );

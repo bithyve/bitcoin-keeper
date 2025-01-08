@@ -114,6 +114,7 @@ export type RegisteredVaultInfo = {
   vaultId: string;
   registered: boolean;
   registrationInfo?: string;
+  hmac?: string;
 };
 
 export interface VaultSigner {
