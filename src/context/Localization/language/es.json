@@ -824,7 +824,8 @@
     "addContact": "Add Contact",
     "yourPhoneBook": "Your Phonebook",
     "associateContactWalletSub": "Are you sure you want to associate this contact to your wallet?",
-    "associateContactKeySub": "The contact you associated with the Key will be displayed here"
+    "associateContactKeySub": "The contact you associated with the Key will be displayed here",
+    "exportPDF": "Export PDF"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

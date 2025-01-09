@@ -4,7 +4,7 @@ import { ScrollView, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, wp } from 'src/constants/responsive';
-import { generateOutputDescriptors, getArchivedVaults } from 'src/utils/service-utilities/utils';
+import { getArchivedVaults } from 'src/utils/service-utilities/utils';
 import Colors from 'src/theme/Colors';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -31,11 +31,10 @@ function VaultSettings({ route }) {
   const navigation = useNavigation();
   const { vaultId } = route.params;
   const { allVaults, activeVault: vault } = useVault({ includeArchived: true, vaultId });
-  const descriptorString = generateOutputDescriptors(vault);
   const TestSatsComponent = useTestSats({ wallet: vault });
   const [vaultDetailVisible, setVaultDetailVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultText } = translations;
+  const { vault: vaultText } = translations;
   const isCanaryWalletType = vault.type === VaultType.CANARY;
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
@@ -109,7 +108,6 @@ function VaultSettings({ route }) {
           callback={() => {
             navigation.dispatch(
               CommonActions.navigate('GenerateVaultDescriptor', {
-                descriptorString,
                 vaultId,
                 isInheritanceVault,
               })
