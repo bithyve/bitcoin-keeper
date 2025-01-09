@@ -25,28 +25,68 @@ function Content({ isUpgrade }) {
   );
 }
 
+export const UPGRADE_TYPE = {
+  UPGRADE: 'UPGRADE',
+  DOWNGRADE: 'DOWNGRADE',
+  YEARLY_TO_MONTHLY: 'YEARLY_TO_MONTHLY',
+  MONTHLY_TO_YEARLY: 'MONTHLY_TO_YEARLY',
+};
+
+const modalContentGenerator = (type, plan) => {
+  switch (type) {
+    case UPGRADE_TYPE.UPGRADE:
+      return {
+        title: 'Upgrade Successful',
+        subTitle: `You have successfully upgraded to ${plan}`,
+        isUpgrade: true,
+      };
+    case UPGRADE_TYPE.DOWNGRADE:
+      return {
+        title: 'Downgrade Successful',
+        subTitle: `You have successfully downgraded to ${plan}`,
+        isUpgrade: false,
+      };
+    case UPGRADE_TYPE.MONTHLY_TO_YEARLY:
+      return {
+        title: 'Payment Interval Changed Successfully',
+        subTitle: `Payment interval changed from monthly to yearly. Enjoy 2 extra months of Bitcoin Keeper!`,
+        isUpgrade: true,
+      };
+    case UPGRADE_TYPE.YEARLY_TO_MONTHLY:
+      return {
+        title: 'Payment Interval Changed Successfully',
+        subTitle: `Payment interval changed from yearly to monthly. Pause or change subscription intervals with greater flexibility.`,
+        isUpgrade: false,
+      };
+    default:
+      return {
+        title: '',
+        subTitle: '',
+        isUpgrade: false,
+      };
+  }
+};
+
 function TierUpgradeModal({
   visible,
   close,
   onPress,
-  isUpgrade,
+  upgradeType,
   plan,
   closeOnOverlayClick = true,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const content = modalContentGenerator(upgradeType, plan);
+
   return (
     <KeeperModal
       visible={visible}
       close={close}
       showCloseIcon={false}
-      title={isUpgrade ? 'Upgrade Successful' : 'Downgrade Successful'}
-      subTitle={
-        isUpgrade
-          ? `You have successfully upgraded to ${plan}`
-          : `You have successfully downgraded to ${plan}`
-      }
+      title={content?.title}
+      subTitle={content?.subTitle}
       modalBackground={`${colorMode}.modalWhiteBackground`}
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
@@ -54,7 +94,7 @@ function TierUpgradeModal({
       buttonTextColor={`${colorMode}.buttonText`}
       buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonCallback={onPress}
-      Content={() => <Content isUpgrade={isUpgrade} />}
+      Content={() => <Content isUpgrade={content.isUpgrade} />}
       closeOnOverlayClick={closeOnOverlayClick}
     />
   );
