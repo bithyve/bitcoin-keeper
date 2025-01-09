@@ -545,7 +545,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           dispatch(setIntroModal(false));
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'KeeperConcierge',
+              name: 'TechnicalSupport',
               params: {
                 tags: isCollaborativeWallet
                   ? [ConciergeTag.COLLABORATIVE_Wallet]

@@ -180,7 +180,7 @@ function ScanQR() {
               setVisibleModal(false);
               navigation.dispatch(
                 CommonActions.navigate({
-                  name: 'KeeperConcierge',
+                  name: 'TechnicalSupport',
                   params: {
                     tags: [ConciergeTag.COLLABORATIVE_Wallet],
                     screenName: 'add-co-signer',

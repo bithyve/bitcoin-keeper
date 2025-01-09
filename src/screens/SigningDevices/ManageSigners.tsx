@@ -261,7 +261,7 @@ function ManageSigners({ route }: ScreenProps) {
           setShowLearnMoreModal(false);
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'KeeperConcierge',
+              name: 'TechnicalSupport',
               params: {
                 tags: [ConciergeTag.KEYS],
                 screenName: 'manage-keys',

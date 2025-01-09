@@ -25,7 +25,8 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
 
   useEffect(() => {
     if (conciergeLoading || conciergeUserFailed) return;
-    setDisplay(calculateTicketsLeft(tickets, planDetails));
+    setDisplay(true);
+    // setDisplay(calculateTicketsLeft(tickets, planDetails)); // to be used later
   }, [tickets, conciergeUserFailed, conciergeUserSuccess, conciergeLoading]);
 
   return (

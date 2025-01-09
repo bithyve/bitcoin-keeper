@@ -26,11 +26,11 @@ const EmptyState = () => {
     <Box style={styles.emptyStateContainer}>
       <Box style={styles.emptyTextContainer}>
         <Text color={`${colorMode}.primaryText`} medium fontSize={14}>
-          No Issues Encountered
+          No Conversations Opened
         </Text>
         <Text color={`${colorMode}.secondaryText`} fontSize={13} style={styles.centerdText}>
-          If you face have any issue, feel free to reach out to our Tech team to troubleshoot your
-          problem!
+          If you need assistance or face an issue, please feel free to reach out to our Keeper
+          Concierge team to help you with any question!
         </Text>
       </Box>
       {isDarkMode ? <EmptyIllustrationDark /> : <EmptyIllustrationLight />}
