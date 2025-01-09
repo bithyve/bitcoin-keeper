@@ -787,7 +787,7 @@ function SignTransactionScreen() {
               dispatch(
                 sendPhaseThree({
                   wallet: defaultVault,
-                  txnPriority: TxPriority.LOW,
+                  txnPriority: tnxDetails.transactionPriority,
                   miniscriptTxElements,
                   note,
                   label,

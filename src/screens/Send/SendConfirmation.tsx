@@ -95,7 +95,7 @@ export interface SendConfirmationRouteParams {
 }
 
 export interface tnxDetailsProps {
-  transactionPriority: string;
+  transactionPriority: TxPriority;
   txFeeInfo: any;
 }
 
