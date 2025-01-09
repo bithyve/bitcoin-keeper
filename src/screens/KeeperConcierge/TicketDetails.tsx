@@ -169,7 +169,7 @@ const TicketDetails = ({ route }) => {
           note={
             ticketClosed
               ? 'Issue resolved. Thank you for contacting our tech team. Your feedback is valued.'
-              : 'Our Tech Team will reach out to you within 48-72 hours when the issue gets fixed'
+              : 'Hi! Acknowledging your message. Someone from the team will get back to you shortly.'
           }
         />
       ) : null}
