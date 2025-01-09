@@ -101,10 +101,10 @@ function ChoosePlan() {
     setCurrentPosition(initialPosition !== 0 ? initialPosition : subscription.level - 1);
   }, []);
 
-  async function init(discounted = false) {
+  async function init() {
     let data = [];
     try {
-      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId, discounted);
+      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId);
       if (getPlansResponse.plans) {
         data = getPlansResponse.plans;
         const skus = [];
@@ -162,7 +162,6 @@ function ChoosePlan() {
         data[0].yearlyPlanDetails = { productId: data[0].productIds[0] };
         setItems(data);
         setLoading(false);
-        discounted && showToast('Subscriptions Prices Updated');
       }
     } catch (error) {
       console.log('error', error);
@@ -438,7 +437,7 @@ function ChoosePlan() {
         });
       } else {
         setShowPromocodeModal(false);
-        init(true); // load discounted subscriptions
+        init();
       }
     };
 
