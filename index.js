@@ -1,6 +1,9 @@
 /**
  * @format
  */
+
+import { decode } from 'base-64';
+global.atob = decode;
 import 'react-native-reanimated';
 import 'react-native-gesture-handler';
 import './shim';
