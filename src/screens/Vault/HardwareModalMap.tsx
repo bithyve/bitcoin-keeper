@@ -97,6 +97,7 @@ import useSigners from 'src/hooks/useSigners';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import {
+  setupColdcard,
   setupJade,
   setupKeeperSigner,
   setupKeystone,
@@ -191,6 +192,17 @@ const getSignerContent = (
               />
             ),
             name: KeyGenerationMode.USB,
+          },
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.QR,
           },
         ],
       };
@@ -1306,6 +1318,9 @@ function HardwareModalMap({
         case SignerType.JADE:
           hw = setupJade(qrData, isMultisig);
           break;
+        case SignerType.COLDCARD:
+          hw = setupColdcard(qrData, isMultisig);
+          break;
         default:
           break;
       }
@@ -2041,6 +2056,8 @@ function HardwareModalMap({
           return navigateToFileBasedSigner(type);
         } else if (keyGenerationMode === KeyGenerationMode.USB) {
           return navigateToSetupWithChannel();
+        } else if (keyGenerationMode === KeyGenerationMode.QR) {
+          return navigateToAddQrBasedSigner();
         }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
