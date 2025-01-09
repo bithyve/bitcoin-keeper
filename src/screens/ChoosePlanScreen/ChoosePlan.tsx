@@ -40,7 +40,7 @@ import { useQuery } from '@realm/react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import TierUpgradeModal from './TierUpgradeModal';
+import TierUpgradeModal, { UPGRADE_TYPE } from './TierUpgradeModal';
 import Buttons from 'src/components/Buttons';
 import PlanDetailsCards from './components/PlanDetailsCards';
 const { width } = Dimensions.get('window');
@@ -65,7 +65,7 @@ function ChoosePlan() {
   }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const [items, setItems] = useState<SubScriptionPlan[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [isUpgrade, setIsUpgrade] = useState(false);
+  const [upgradeType, setUpgradeType] = useState(null);
   const [isMonthly, setIsMonthly] = useState(false);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
@@ -206,7 +206,7 @@ function ChoosePlan() {
           level: response.level,
           icon: plan[0].icon,
         };
-        setIsUpgrade(response.level > appSubscription.level);
+        calculateModalContent(response, appSubscription);
         dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
           subscription,
         });
@@ -283,7 +283,7 @@ function ChoosePlan() {
             level: response.level,
             icon: subscription.icon,
           };
-          setIsUpgrade(response.level > appSubscription.level);
+          calculateModalContent(response, appSubscription);
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription: updatedSubscription,
           });
@@ -327,6 +327,15 @@ function ChoosePlan() {
       console.log(err);
     }
   }
+
+  const calculateModalContent = (response, appSubscription) => {
+    if (response.level === appSubscription.level) {
+      if (appSubscription.productId.includes('yearly'))
+        setUpgradeType(UPGRADE_TYPE.YEARLY_TO_MONTHLY);
+      else setUpgradeType(UPGRADE_TYPE.MONTHLY_TO_YEARLY);
+    } else if (response.level > appSubscription.level) setUpgradeType(UPGRADE_TYPE.UPGRADE);
+    else setUpgradeType(UPGRADE_TYPE.DOWNGRADE);
+  };
 
   const onPressModalBtn = () => {
     setShowUpgradeModal(false);
@@ -538,7 +547,7 @@ function ChoosePlan() {
         visible={showUpgradeModal}
         close={() => setShowUpgradeModal(false)}
         onPress={onPressModalBtn}
-        isUpgrade={isUpgrade}
+        upgradeType={upgradeType}
         plan={subscription.name}
       />
       {loading ? (
