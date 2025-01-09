@@ -273,6 +273,7 @@ function ReceiveScreen({ route }: { route }) {
                 vaultId: wallet.id,
                 mode: InteracationMode.ADDRESS_VERIFICATION,
                 accountNumber: getAccountFromSigner(signer),
+                receiveAddressIndex: currentAddressIdx - 1,
               })
             );
           } else {
