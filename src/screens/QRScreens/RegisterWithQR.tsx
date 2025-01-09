@@ -38,6 +38,8 @@ function RegisterWithQR({ route, navigation }: any) {
           '/<0;1>/*',
           ''
         )}${activeVault.isMultiSig ? ' )' : ''}`
+      : activeVault.scheme.miniscriptScheme
+      ? generateOutputDescriptors(activeVault)
       : getWalletConfig({ vault: activeVault, signerType: signer.type });
   let qrContents: any = Buffer.from(walletConfig, 'ascii').toString('hex');
   const { showToast } = useToastMessage();
