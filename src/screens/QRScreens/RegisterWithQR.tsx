@@ -38,6 +38,8 @@ function RegisterWithQR({ route, navigation }: any) {
           '/<0;1>/*',
           ''
         )}${activeVault.isMultiSig ? ' )' : ''}`
+      : activeVault.scheme.miniscriptScheme
+      ? generateOutputDescriptors(activeVault)
       : getWalletConfig({ vault: activeVault, signerType: signer.type });
   let qrContents: any = Buffer.from(walletConfig, 'ascii').toString('hex');
   const { showToast } = useToastMessage();
@@ -96,7 +98,14 @@ function RegisterWithQR({ route, navigation }: any) {
             )}
           </Box>
           <Box style={styles.centerBottom}>
-            <ShareWithNfc data={walletConfig} signer={signer} useNdef />
+            <ShareWithNfc
+              data={walletConfig}
+              signer={signer}
+              vaultKey={vaultKey}
+              vaultId={vaultId}
+              useNdef
+              isUSBAvailable={signer.type == SignerType.COLDCARD || signer.type == SignerType.JADE}
+            />
           </Box>
         </ScrollView>
         <Buttons

@@ -273,6 +273,7 @@ function ReceiveScreen({ route }: { route }) {
                 vaultId: wallet.id,
                 mode: InteracationMode.ADDRESS_VERIFICATION,
                 accountNumber: getAccountFromSigner(signer),
+                receiveAddressIndex: currentAddressIdx - 1,
               })
             );
           } else {
@@ -284,6 +285,7 @@ function ReceiveScreen({ route }: { route }) {
                 mode: InteracationMode.ADDRESS_VERIFICATION,
                 title: `Connecting to ${signerName}`,
                 subtitle: vaultTranslations.verifyAddDesc,
+                receiveAddressIndex: currentAddressIdx - 1,
               })
             );
           }

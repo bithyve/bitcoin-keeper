@@ -1188,26 +1188,23 @@ export default class WalletOperations {
         if (!miniscriptSelectedSatisfier) throw new Error('Miniscript satisfier missing');
 
         const { keyInfoMap } = miniscriptScheme;
-        const { selectedPhase, selectedPaths } = miniscriptSelectedSatisfier;
+        const { selectedPhase } = miniscriptSelectedSatisfier;
         hasTimelock = !!selectedPhase;
 
-        for (const path of selectedPaths) {
-          for (const key of path.keys) {
-            const keyDescriptor = keyInfoMap[key.uniqueKeyIdentifier];
+        for (let keyIdentifier in keyInfoMap) {
+          const keyDescriptor = keyInfoMap[keyIdentifier];
+          const fragments = keyDescriptor.split('/');
+          const masterFingerprint = fragments[0].slice(1);
+          const multipathIndex = fragments[5];
+          const [script_type, xpub] = fragments[4].split(']');
 
-            const fragments = keyDescriptor.split('/');
-            const masterFingerprint = fragments[0].slice(1);
-            const multipathIndex = fragments[5];
-            const [script_type, xpub] = fragments[4].split(']');
-
-            const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
-            const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
-            bip32Derivation.push({
-              masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
-              path: path.replaceAll('h', "'"),
-              pubkey: signerPubkeyMap.get(xpub + multipathIndex),
-            });
-          }
+          const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+          const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
+          bip32Derivation.push({
+            masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+            path: path.replaceAll('h', "'"),
+            pubkey: signerPubkeyMap.get(xpub + multipathIndex),
+          });
         }
       }
 

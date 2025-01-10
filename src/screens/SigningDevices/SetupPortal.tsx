@@ -51,6 +51,7 @@ function SetupPortal({ route }) {
     addSignerFlow = false,
     vaultId,
     isRemoteKey,
+    receiveAddressIndex,
   }: {
     mode: InteracationMode;
     signer: Signer;
@@ -60,6 +61,7 @@ function SetupPortal({ route }) {
     addSignerFlow?: boolean;
     vaultId?: string;
     isRemoteKey?: boolean;
+    receiveAddressIndex?: number;
   } = route.params;
   const { colorMode } = useColorMode();
   const [cvc, setCvc] = React.useState('');
@@ -115,9 +117,8 @@ function SetupPortal({ route }) {
       return await withNfcModal(async () => {
         await PORTAL.startReading();
         await checkAndUnlock(cvc, setPortalStatus);
-        const { receivingAddress } = generateVaultAddressDescriptors(vault);
-        const { nextFreeAddressIndex } = vault.specs;
-        const res = await PORTAL.verifyAddress(nextFreeAddressIndex);
+        const { receivingAddress } = generateVaultAddressDescriptors(vault, receiveAddressIndex);
+        const res = await PORTAL.verifyAddress(receiveAddressIndex);
         if (res == receivingAddress) {
           navigation.dispatch(CommonActions.goBack());
           if (Platform.OS === 'ios') NFC.showiOSMessage(`Address verified successfully!`);
