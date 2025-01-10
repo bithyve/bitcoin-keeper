@@ -406,13 +406,25 @@ const getSignerContent = (
           : [
               {
                 title: 'Configure a New Key',
-                icon: <RecoverImage />,
+                icon: (
+                  <CircleIconWrapper
+                    icon={<RecoverImage />}
+                    backgroundColor={`${colorMode}.BrownNeedHelp`}
+                    width={35}
+                  />
+                ),
                 callback: () => {},
                 name: KeyGenerationMode.NEW,
               },
               {
                 title: 'Recover Existing Key',
-                icon: <RecoverImage />,
+                icon: (
+                  <CircleIconWrapper
+                    icon={<RecoverImage />}
+                    backgroundColor={`${colorMode}.BrownNeedHelp`}
+                    width={35}
+                  />
+                ),
                 name: KeyGenerationMode.RECOVER,
               },
             ],

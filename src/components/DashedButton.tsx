@@ -38,13 +38,21 @@ function DashedButton({
           backgroundColor={Colors.White}
           icon={icon}
         />
-        <Box>
+        <Box style={styles.TextContainer}>
           {name && (
             <Text semiBold color={`${colorMode}.dashedButtonContent`}>
               {name}
             </Text>
           )}
-          {description && <Text color={`${colorMode}.dashedButtonContent`}>{description}</Text>}
+          {description && (
+            <Text
+              style={styles.descriptionText}
+              fontSize={12}
+              color={`${colorMode}.dashedButtonContent`}
+            >
+              {description}
+            </Text>
+          )}
         </Box>
       </Box>
     </TouchableOpacity>
@@ -55,7 +63,7 @@ const styles = StyleSheet.create({
   AddCardContainer: {
     width: wp(320),
     padding: 10,
-    height: hp(70),
+    minHeight: hp(70),
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',
@@ -72,6 +80,13 @@ const styles = StyleSheet.create({
   detailContainer: {
     gap: 2,
     marginTop: 15,
+  },
+  TextContainer: {
+    flex: 1,
+  },
+  descriptionText: {
+    flexWrap: 'wrap',
+    width: '100%',
   },
 });
 
