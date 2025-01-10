@@ -230,6 +230,7 @@ export default class Relay {
         appID,
         id,
         data,
+        newPlans: true,
       });
     } catch (err) {
       return err.response.data;
