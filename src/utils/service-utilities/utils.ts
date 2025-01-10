@@ -125,7 +125,8 @@ export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => 
 
 export const generateOutputDescriptors = (
   wallet: Vault | Wallet,
-  includePatchRestrictions: boolean = false
+  includePatchRestrictions: boolean = false,
+  includeChecksum: boolean = true
 ) => {
   const receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(wallet, 0);
   if (wallet.entityKind === EntityKind.WALLET) {
@@ -141,7 +142,7 @@ export const generateOutputDescriptors = (
       undefined,
       true
     )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
-    return `${desc}#${DescriptorChecksum(desc)}`;
+    return includeChecksum ? `${desc}#${DescriptorChecksum(desc)}` : desc;
   } else if (wallet.entityKind === EntityKind.VAULT) {
     const miniscriptScheme = idx(wallet as Vault, (_) => _.scheme.miniscriptScheme);
     if (miniscriptScheme) {
@@ -158,7 +159,7 @@ export const generateOutputDescriptors = (
         );
       }
       const desc = `wsh(${walletPolicyDescriptor})`;
-      return `${desc}#${DescriptorChecksum(desc)}`;
+      return includeChecksum ? `${desc}#${DescriptorChecksum(desc)}` : desc;
     }
 
     const { signers, scheme, isMultiSig } = wallet as Vault;
@@ -169,7 +170,7 @@ export const generateOutputDescriptors = (
         undefined,
         true
       )}))${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
-      return `${desc}#${DescriptorChecksum(desc)}`;
+      return includeChecksum ? `${desc}#${DescriptorChecksum(desc)}` : desc;
     } else {
       const signer: VaultSigner = signers[0];
 
@@ -181,7 +182,7 @@ export const generateOutputDescriptors = (
         undefined,
         true
       )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
-      return `${desc}#${DescriptorChecksum(desc)}`;
+      return includeChecksum ? `${desc}#${DescriptorChecksum(desc)}` : desc;
     }
   }
 };

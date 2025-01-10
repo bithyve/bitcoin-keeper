@@ -79,7 +79,7 @@ function SetupPortal({ route }) {
   if (isManualRegister || isAddressVerification) {
     const { activeVault } = useVault({ includeArchived: true, vaultId });
     vault = activeVault;
-    vaultDescriptor = generateOutputDescriptors(activeVault, false);
+    vaultDescriptor = generateOutputDescriptors(activeVault, false, false);
     vaultDescriptor = vaultDescriptor.replaceAll('/<0;1>', '');
   }
 

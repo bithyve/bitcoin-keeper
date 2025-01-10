@@ -86,7 +86,7 @@ const CreateTicket = ({ navigation, route }) => {
     });
 
     wallets.forEach((wallet) => {
-      details += `Wallet Name:\n${wallet.presentationData.name}\n1 of 1, SingleSig`;
+      details += `Wallet Name:\n${wallet.presentationData.name}\n1 of 1, SingleSig\n\n`;
     });
     details += '\n';
     if (screenName) details += `\nScreen Name: ${screenName}`;
