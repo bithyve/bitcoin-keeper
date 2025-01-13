@@ -149,6 +149,7 @@ import ImportContactFile from 'src/screens/SigningDevices/ImportContactFile';
 import ContactDetails from 'src/screens/SigningDevices/ContactDetails';
 import ShareQR from 'src/screens/SigningDevices/ShareQR';
 import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
+import HardwareShop from 'src/screens/Vault/HardwareShop';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -335,6 +336,7 @@ function AppStack() {
         <Stack.Screen name="ImportContactFile" component={ImportContactFile} />
         <Stack.Screen name="ContactDetails" component={ContactDetails} />
         <Stack.Screen name="ShareQR" component={ShareQR} />
+        <Stack.Screen name="HardwareShop" component={HardwareShop} />
       </Stack.Navigator>
     </RealmProvider>
   );

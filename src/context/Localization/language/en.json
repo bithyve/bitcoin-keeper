@@ -156,7 +156,8 @@
     "the": "The",
     "contact": "Contact",
     "URL": "URL",
-    "portNumber": "Port Number"
+    "portNumber": "Port Number",
+    "Upgrade": "Upgrade"
   },
   "noInternet": {
     "no": "No Internet",
@@ -1318,7 +1319,11 @@
     "subscriptionTierL3": "Tier and Inheritance Key at",
     "notSupportedText": "If a particular signer is not supported, it will be indicated.",
     "inheritanceKey": "Inheritance Key",
-    "designateAsInheritanceKey": "Designate a key as the Inheritance Key"
+    "designateAsInheritanceKey": "Designate a key as the Inheritance Key",
+    "shopHardwareTitle": "Shop Hardware Wallets",
+    "ColdStoreBitcoin": "Cold-store your bitcoin today!",
+    "ShopHardwareWallets": "Shop for Hardware Wallets",
+    "BitcoinSecurityWallets": "Level up your Bitcoin security with hardware wallets!"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",

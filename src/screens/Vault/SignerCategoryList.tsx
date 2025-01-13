@@ -25,6 +25,7 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import SDCategoryCard from './components/SDCategoryCard';
 import { SignerCategory, SignerType } from 'src/services/wallets/enums';
 import { SDIcons } from './SigningDeviceIcons';
+import DashedCta from 'src/components/DashedCta';
 
 function SignerCategoryList() {
   const route = useRoute();
@@ -165,6 +166,21 @@ function SignerCategoryList() {
           </Box>
         </ScrollView>
       </Box>
+      <Box style={styles.CTAContainer}>
+        <DashedCta
+          name={signer.shopHardwareTitle}
+          textColor={`${colorMode}.noteTextClosed`}
+          description={signer.ColdStoreBitcoin}
+          arrowIcon
+          callback={() => {
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'HardwareShop',
+              })
+            );
+          }}
+        />
+      </Box>
       <KeeperModal
         visible={sdModal}
         close={() => {
@@ -224,6 +240,10 @@ const styles = StyleSheet.create({
   },
   alignCenter: {
     alignSelf: 'center',
+  },
+  CTAContainer: {
+    marginBottom: hp(20),
+    alignItems: 'center',
   },
 });
 export default SignerCategoryList;

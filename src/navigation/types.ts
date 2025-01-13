@@ -184,6 +184,7 @@ export type AppStackParams = {
   ImportContactFile: undefined;
   ContactDetails: undefined;
   ShareQR: undefined;
+  HardwareShop: undefined;
 };
 
 // Usage:
