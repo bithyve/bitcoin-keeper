@@ -95,7 +95,7 @@ export interface SendConfirmationRouteParams {
 }
 
 export interface tnxDetailsProps {
-  transactionPriority: string;
+  transactionPriority: TxPriority;
   txFeeInfo: any;
 }
 
@@ -846,7 +846,7 @@ function SendConfirmation({ route }) {
             primaryCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
             secondaryCallback={handleShare}
             secondaryText={common.shareDetails}
-            SecondaryIcon={isDarkMode ? ShareWhite : ShareGreen}
+            SecondaryIcon={isDarkMode ? <ShareWhite /> : <ShareGreen />}
             primaryButtonWidth={wp(142)}
           />
         )}

@@ -51,6 +51,7 @@ import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 
 function Footer({
   vault,
@@ -284,7 +285,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const [syncingCompleted, setSyncingCompleted] = useState(false);
-  const syncing = walletSyncing && vault ? !!walletSyncing[vault.id] : false;
+  const syncing =
+    ELECTRUM_CLIENT.isClientConnected && walletSyncing && vault ? !!walletSyncing[vault.id] : false;
 
   const disableBuy = false;
   const cardProps = {
@@ -345,12 +347,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   }, [syncingCompleted, transactionToast]);
 
   useEffect(() => {
-    if (!syncing) {
+    if (!ELECTRUM_CLIENT.isClientConnected || !syncing) {
       setSyncingCompleted(true);
     } else {
       setSyncingCompleted(false);
     }
-  }, [syncing]);
+  }, [syncing, ELECTRUM_CLIENT]);
 
   const syncVault = () => {
     setPullRefresh(true);
@@ -543,7 +545,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           dispatch(setIntroModal(false));
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'KeeperConcierge',
+              name: 'TechnicalSupport',
               params: {
                 tags: isCollaborativeWallet
                   ? [ConciergeTag.COLLABORATIVE_Wallet]

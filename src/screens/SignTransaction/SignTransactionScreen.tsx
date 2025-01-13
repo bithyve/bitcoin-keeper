@@ -787,7 +787,7 @@ function SignTransactionScreen() {
               dispatch(
                 sendPhaseThree({
                   wallet: defaultVault,
-                  txnPriority: TxPriority.LOW,
+                  txnPriority: tnxDetails.transactionPriority,
                   miniscriptTxElements,
                   note,
                   label,
@@ -862,7 +862,7 @@ function SignTransactionScreen() {
             primaryCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
             secondaryCallback={handleShare}
             secondaryText={common.shareDetails}
-            SecondaryIcon={isDarkMode ? ShareWhite : ShareGreen}
+            SecondaryIcon={isDarkMode ? <ShareWhite /> : <ShareGreen />}
             primaryButtonWidth={wp(142)}
           />
         )}

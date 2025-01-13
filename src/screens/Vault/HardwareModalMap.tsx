@@ -116,7 +116,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import idx from 'idx';
 import { setLastUsedOption } from 'src/store/reducers/signer';
 import BackupModalContent from '../AppSettings/BackupModal';
-import SignerCard from '../AddSigner/SignerCard';
+import SetupSignerOptions from 'src/components/SetupSignerOptions';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -406,13 +406,25 @@ const getSignerContent = (
           : [
               {
                 title: 'Configure a New Key',
-                icon: <RecoverImage />,
+                icon: (
+                  <CircleIconWrapper
+                    icon={<RecoverImage />}
+                    backgroundColor={`${colorMode}.BrownNeedHelp`}
+                    width={35}
+                  />
+                ),
                 callback: () => {},
                 name: KeyGenerationMode.NEW,
               },
               {
                 title: 'Recover Existing Key',
-                icon: <RecoverImage />,
+                icon: (
+                  <CircleIconWrapper
+                    icon={<RecoverImage />}
+                    backgroundColor={`${colorMode}.BrownNeedHelp`}
+                    width={35}
+                  />
+                ),
                 name: KeyGenerationMode.RECOVER,
               },
             ],
@@ -695,32 +707,33 @@ function SignerContent({
       )}
       <View
         style={{
-          marginVertical: 5,
+          marginVertical: hp(14),
           gap: 2,
           flexDirection: 'row',
         }}
       >
-        <ScrollView horizontal>
+        <Box style={styles.setupOptionsContainer}>
           {options &&
             options.map((option) => (
-              <SignerCard
+              <SetupSignerOptions
                 disabled={option.disabled}
                 key={option.name}
                 isSelected={keyGenerationMode === option.name}
-                isFullText={true}
                 name={option.title}
                 icon={option.icon}
                 onCardSelect={() => {
                   onSelect(option);
                 }}
-                colorMode={colorMode}
                 customStyle={{
-                  width: wp(options.some((opt) => opt.title.length > 10) ? 115 : 100),
-                  height: wp(options.some((opt) => opt.title.length > 10) ? 115 : 100),
+                  width: '48%',
+                  paddingTop: hp(14),
+                  paddingBottom: hp(9),
+                  paddingLeft: wp(12),
+                  paddingRight: wp(14),
                 }}
               />
             ))}
-        </ScrollView>
+        </Box>
       </View>
     </View>
   );
@@ -2261,6 +2274,11 @@ const styles = StyleSheet.create({
   },
   signerOptionTitle: {
     marginTop: hp(10),
+  },
+  setupOptionsContainer: {
+    gap: wp(11),
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
 });
 export default HardwareModalMap;

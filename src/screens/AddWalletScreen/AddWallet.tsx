@@ -148,7 +148,7 @@ function AddWallet({ navigation }) {
           setVisibleModal(false);
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'KeeperConcierge',
+              name: 'TechnicalSupport',
               params: {
                 tags: [ConciergeTag.WALLET],
                 screenName: 'add-wallet',

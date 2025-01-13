@@ -26,7 +26,7 @@ function ConciergeOnboardingModal({ visible }) {
   const handleContinue = () => {
     dispatch(hideOnboarding());
     dispatch(setDontShowConceirgeOnboarding());
-    navigation.dispatch(CommonActions.navigate({ name: 'KeeperConcierge' }));
+    // navigation.dispatch(CommonActions.navigate({ name: 'KeeperConcierge' }));
   };
 
   return (

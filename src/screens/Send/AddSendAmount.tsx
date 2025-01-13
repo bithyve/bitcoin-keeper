@@ -86,6 +86,7 @@ function AddSendAmount({ route }) {
     note,
     transferType,
     selectedUTXOs = [],
+    totalUtxosAmount,
     parentScreen,
     isSendMax = false,
   }: {
@@ -96,6 +97,7 @@ function AddSendAmount({ route }) {
     note?: string;
     transferType: TransferType;
     selectedUTXOs: UTXO[];
+    totalUtxosAmount: number;
     parentScreen?: string;
     isSendMax?: boolean;
   } = route.params;
@@ -550,7 +552,7 @@ function AddSendAmount({ route }) {
         availableBalance={
           <CurrencyInfo
             hideAmounts={false}
-            amount={availableBalance}
+            amount={selectedUTXOs?.length ? totalUtxosAmount : availableBalance}
             fontSize={16}
             satsFontSize={12}
             color={`${colorMode}.primaryText`}

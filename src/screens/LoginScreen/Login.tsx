@@ -58,19 +58,24 @@ function LoginScreen({ navigation, route }) {
   const [forgotVisible, setForgotVisible] = useState(false);
   const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
-  const { loginMethod, torEnbled } = useAppSelector((state) => state.settings);
+  const { loginMethod } = useAppSelector((state) => state.settings);
+  const torEnbled = false;
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [isBiometric, setIsBiometric] = useState(false);
   const [incorrectPassword, setIncorrectPassword] = useState(false);
   const [loginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
 
   const [canLogin, setCanLogin] = useState(false);
-  const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector(
-    (state) => state.login
-  );
+  const {
+    isAuthenticated,
+    authenticationFailed,
+    credsAuthenticatedError,
+    recepitVerificationError,
+  } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
@@ -93,13 +98,13 @@ function LoginScreen({ navigation, route }) {
 
   useEffect(() => {
     RestClient.subToTorStatus(onChangeTorStatus);
-    if (loggingIn) {
+    if (loggingIn && !isBiometric) {
       attemptLogin(passcode);
     }
     return () => {
       RestClient.unsubscribe(onChangeTorStatus);
     };
-  }, [loggingIn]);
+  }, [loggingIn, isBiometric]);
 
   useEffect(() => {
     dispatch(fetchOneDayInsight());
@@ -152,7 +157,10 @@ function LoginScreen({ navigation, route }) {
               cancelButtonText: 'Use PIN',
             });
             if (success) {
+              setIsBiometric(true);
               setLoginModal(true);
+              setLogging(true);
+              setLoginError(false);
               dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
             }
           }
@@ -183,31 +191,38 @@ function LoginScreen({ navigation, route }) {
   };
 
   useEffect(() => {
-    if (attempts >= 3) {
+    if (attempts >= 3 && authenticationFailed) {
       setAttempts(1);
       dispatch(increasePinFailAttempts());
       setIncorrectPassword(true);
     }
-  }, [attempts]);
+  }, [attempts, authenticationFailed]);
 
   useEffect(() => {
-    if (authenticationFailed && passcode) {
+    if (loggingIn && authenticationFailed) {
       setLoginModal(false);
+      setIsBiometric(false);
       setPasscode('');
+
       setAttempts(attempts + 1);
 
-      if (attempts + 1 >= 3) {
-        setLoginError(false);
-      } else {
-        setLoginError(true);
-        setErrMessage('Incorrect passcode');
+      setLoginError(true);
+
+      if (credsAuthenticatedError) {
+        if (credsAuthenticatedError.toString().includes('Incorrect Passcode')) {
+          setErrMessage('Incorrect Passcode');
+        } else {
+          setErrMessage(
+            credsAuthenticatedError +
+              '\n\n' +
+              'Please close and reopen the app. If the issue persists please contact support.'
+          );
+        }
       }
 
       setLogging(false);
-    } else {
-      setLoginError(false);
     }
-  }, [authenticationFailed]);
+  }, [authenticationFailed, credsAuthenticatedError, passcode]);
 
   useEffect(() => {
     if (isAuthenticated && internalCheck) {
@@ -218,7 +233,7 @@ function LoginScreen({ navigation, route }) {
       });
       dispatch(credsAuthenticated(false));
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, internalCheck]);
 
   const loginModalAction = async () => {
     if (isAuthenticated) {
@@ -425,7 +440,6 @@ function LoginScreen({ navigation, route }) {
                 setLoginError(false);
                 setLogging(true);
               }}
-              primaryLoading={loggingIn}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
               primaryBackgroundColor={`${colorMode}.buttonText`}

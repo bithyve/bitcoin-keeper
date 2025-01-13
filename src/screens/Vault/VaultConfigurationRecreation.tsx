@@ -156,7 +156,7 @@ function VaultConfigurationCreation() {
           setShowModal(false);
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'KeeperConcierge',
+              name: 'TechnicalSupport',
               params: {
                 tags: [ConciergeTag.WALLET],
                 screenName: 'import-wallet-config-file',

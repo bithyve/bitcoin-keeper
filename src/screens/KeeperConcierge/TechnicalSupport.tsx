@@ -7,8 +7,8 @@ import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import TicketHistory from './components/TicketHistory';
 import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
-import { loadConciergeTickets } from 'src/store/reducers/concierge';
+import { useDispatch } from 'react-redux';
+import { loadConciergeTickets, setConciergeUserFailed } from 'src/store/reducers/concierge';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
@@ -17,12 +17,19 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Zendesk from 'src/services/backend/Zendesk';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { CreateTicketCTA } from './components/CreateTicketCTA';
+import { showOnboarding } from 'src/store/reducers/concierge';
+import { useAppSelector } from 'src/store/hooks';
+import { loadConciergeUser } from 'src/store/sagaActions/concierge';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'TechnicalSupport'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
+  const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { conciergeUser } = useSelector((state) => state?.concierge);
+  const { conciergeUser, conciergeLoading, conciergeUserFailed } = useAppSelector(
+    (state) => state?.concierge
+  );
 
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
@@ -37,8 +44,18 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   const [modalTicketId, setModalTicketId] = useState('');
 
   useEffect(() => {
-    getTickets();
-  }, []);
+    if (!dontShowConceirgeOnboarding) dispatch(showOnboarding());
+    if (conciergeUser !== null) getTickets();
+    else dispatch(loadConciergeUser());
+  }, [conciergeUser]);
+
+  useEffect(() => {
+    if (conciergeUserFailed == true) {
+      dispatch(setConciergeUserFailed(false));
+      showToast('Something went wrong. Please try again!.', <ToastErrorIcon />);
+      navigation.dispatch(CommonActions.goBack());
+    }
+  }, [conciergeUserFailed]);
 
   useFocusEffect(
     useCallback(() => {
@@ -61,7 +78,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       }
     } catch (error) {
       console.log('🚀 ~ getTickets ~ error:', error);
-      showToast('Something went wrong, Please try again!');
+      showToast('Something went wrong, Please try again!', <ToastErrorIcon />);
     } finally {
       setLoading(false);
     }
@@ -76,9 +93,9 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
     <ConciergeScreenWrapper
       backgroundcolor={`${colorMode}.pantoneGreen`}
       barStyle="light-content"
-      loading={loading}
+      loading={loading || conciergeLoading}
     >
-      <ConciergeHeader title={'Technical Support'} />
+      <ConciergeHeader title={'Keeper Concierge'} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         <TicketHistory />
         <CreateTicketCTA
@@ -98,7 +115,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       <KeeperModal
         visible={showModal}
         title="Support Ticket Raised"
-        subTitle={`Your reference number is #${modalTicketId}`}
+        subTitle={`Your ticket reference number is #${modalTicketId}`}
         close={closeModal}
         showCloseIcon
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -109,8 +126,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
           <Box style={styles.modal}>
             <SuccessCircleIllustration style={styles.illustration} />
             <Text color={`${colorMode}.secondaryText`} style={styles.modalDesc}>
-              Our team will get in touch with you within 48 to 72 hours. If you require any quick
-              help, please refer to Keeper AI chatbot
+              Hi! Acknowledging your message. Someone from the team will get back to you shortly.
             </Text>
           </Box>
         )}

@@ -1188,26 +1188,23 @@ export default class WalletOperations {
         if (!miniscriptSelectedSatisfier) throw new Error('Miniscript satisfier missing');
 
         const { keyInfoMap } = miniscriptScheme;
-        const { selectedPhase, selectedPaths } = miniscriptSelectedSatisfier;
+        const { selectedPhase } = miniscriptSelectedSatisfier;
         hasTimelock = !!selectedPhase;
 
-        for (const path of selectedPaths) {
-          for (const key of path.keys) {
-            const keyDescriptor = keyInfoMap[key.uniqueKeyIdentifier];
+        for (let keyIdentifier in keyInfoMap) {
+          const keyDescriptor = keyInfoMap[keyIdentifier];
+          const fragments = keyDescriptor.split('/');
+          const masterFingerprint = fragments[0].slice(1);
+          const multipathIndex = fragments[5];
+          const [script_type, xpub] = fragments[4].split(']');
 
-            const fragments = keyDescriptor.split('/');
-            const masterFingerprint = fragments[0].slice(1);
-            const multipathIndex = fragments[5];
-            const [script_type, xpub] = fragments[4].split(']');
-
-            const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
-            const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
-            bip32Derivation.push({
-              masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
-              path: path.replaceAll('h', "'"),
-              pubkey: signerPubkeyMap.get(xpub + multipathIndex),
-            });
-          }
+          const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+          const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
+          bip32Derivation.push({
+            masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+            path: path.replaceAll('h', "'"),
+            pubkey: signerPubkeyMap.get(xpub + multipathIndex),
+          });
         }
       }
 
@@ -1476,26 +1473,29 @@ export default class WalletOperations {
         if (!bip32Derivation) {
           throw new Error('Failed to sign internally - missing bip32 derivation');
         }
-        let subPath;
+
+        let subPaths = [];
 
         for (let { masterFingerprint, path } of bip32Derivation) {
           if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
             const pathFragments = path.split('/');
             const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
             const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
-            subPath = [chainIndex, childIndex];
+            subPaths.push([chainIndex, childIndex]);
             break;
           }
         }
-        if (!subPath) throw new Error('Failed to sign internally - missing subpath');
+        if (subPaths.length === 0) throw new Error('Failed to sign internally - missing subpath');
 
-        const keyPair = WalletUtilities.getKeyPairByIndex(
-          signer.xpriv,
-          subPath[0],
-          subPath[1],
-          network
-        );
-        PSBT.signInput(vin, keyPair);
+        subPaths.forEach((subPath) => {
+          const keyPair = WalletUtilities.getKeyPairByIndex(
+            signer.xpriv,
+            subPath[0],
+            subPath[1],
+            network
+          );
+          PSBT.signInput(vin, keyPair);
+        });
         vin++;
       }
 

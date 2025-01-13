@@ -24,6 +24,7 @@ import crypto from 'crypto';
 import {
   createCipherGcm,
   createDecipherGcm,
+  generateOutputDescriptors,
   generateVaultAddressDescriptors,
 } from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
@@ -38,6 +39,9 @@ import ReceiveAddress from '../Recieve/ReceiveAddress';
 import ReceiveQR from '../Recieve/ReceiveQR';
 import QRScanner from 'src/components/QRScanner';
 import { getUSBSignerDetails } from 'src/hardware/usbSigner';
+import { VaultType } from 'src/services/wallets/enums';
+import WalletOperations from 'src/services/wallets/operations';
+import { getKeyUID } from 'src/utils/utilities';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
@@ -82,6 +86,7 @@ function ConnectChannel() {
     addSignerFlow = false,
     vaultId,
     accountNumber = null,
+    receiveAddressIndex = null,
   } = route.params as any;
 
   const [channel] = useState(io(config.CHANNEL_URL));
@@ -99,14 +104,33 @@ function ConnectChannel() {
   const [newSubtitle, setNewSubtitle] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<string | null>(null);
 
-  let descriptorString;
+  let descriptorString = null;
+  let miniscriptPolicy = null;
+  let addressIndex = null;
+  let walletName = null;
+  let hmac = null;
   let receivingAddress;
 
   if (mode === InteracationMode.ADDRESS_VERIFICATION) {
     const { activeVault: vault } = useVault({ vaultId });
-    const resp = generateVaultAddressDescriptors(vault);
-    descriptorString = resp.descriptorString;
-    receivingAddress = resp.receivingAddress;
+    if (vault.type === VaultType.INHERITANCE) {
+      miniscriptPolicy = generateOutputDescriptors(vault);
+      addressIndex = receiveAddressIndex;
+      walletName = vault.presentationData.name;
+      receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(
+        vault,
+        receiveAddressIndex
+      );
+      const vaultKey = vault.signers.find((s) => getKeyUID(s) === getKeyUID(signer));
+      const currentHmac = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId)?.hmac;
+      if (currentHmac) {
+        hmac = currentHmac;
+      }
+    } else {
+      const resp = generateVaultAddressDescriptors(vault, receiveAddressIndex);
+      descriptorString = resp.descriptorString;
+      receivingAddress = resp.receivingAddress;
+    }
   }
 
   const onBarCodeRead = (data) => {
@@ -125,6 +149,10 @@ function ConnectChannel() {
     };
     if (mode === InteracationMode.ADDRESS_VERIFICATION) {
       requestBody.descriptorString = descriptorString;
+      requestBody.miniscriptPolicy = miniscriptPolicy;
+      requestBody.addressIndex = addressIndex;
+      requestBody.walletName = walletName;
+      requestBody.hmac = hmac;
       requestBody.receivingAddress = receivingAddress;
     } else {
       requestBody.accountNumber = accountNumber;
@@ -156,10 +184,12 @@ function ConnectChannel() {
           await handleVerification(responseData, signerType);
         } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
           const resAdd = responseData.address;
+          const hmac = responseData.hmac;
           if (resAdd != receivingAddress) return;
           dispatch(
             updateKeyDetails(signer, 'registered', {
               registered: true,
+              hmac,
               vaultId,
             })
           );
@@ -311,6 +341,10 @@ type RequestBody = {
   action: string;
   signerType: string;
   descriptorString?: string;
+  miniscriptPolicy?: string;
+  addressIndex?: number;
+  walletName?: string;
+  hmac?: string;
   receivingAddress?: string;
   accountNumber?: number;
 };

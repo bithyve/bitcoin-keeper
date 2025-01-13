@@ -230,6 +230,7 @@ export default class Relay {
         appID,
         id,
         data,
+        newPlans: true,
       });
     } catch (err) {
       return err.response.data;
@@ -259,15 +260,14 @@ export default class Relay {
 
   public static getSubscriptionDetails = async (
     id: string,
-    appID: string,
-    discounted?: boolean // get discounted plans from the realy
+    appID: string
   ): Promise<{ plans: SubScriptionPlan[] }> => {
     let res;
     try {
       res = await RestClient.post(`${RELAY}getSubscriptionDetails`, {
         appID,
         id,
-        discounted,
+        newPlans: true,
       });
     } catch (err) {
       console.log('err', err);

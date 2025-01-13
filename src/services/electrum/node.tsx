@@ -2,37 +2,64 @@ import ElectrumClient from 'src/services/electrum/client';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import config from 'src/utils/service-utilities/config';
+import { NetworkType } from '../wallets/enums';
+import { predefinedMainnetNodes, predefinedTestnetNodes } from './predefinedNodes';
 
 export default class Node {
   public static async save(nodeDetail: NodeDetail, nodeList: NodeDetail[]) {
-    if (
-      nodeDetail.host === null ||
-      nodeDetail.host.length === 0 ||
-      nodeDetail.port === null ||
-      nodeDetail.port.length === 0
-    ) {
+    if (!nodeDetail.host || !nodeDetail.port) {
       return { saved: false };
     }
 
     // test connection before saving
     const isConnectable = await ElectrumClient.testConnection(nodeDetail);
-    if (!isConnectable) return { saved: false };
+    if (!isConnectable) {
+      return { saved: false };
+    }
 
     const node = { ...nodeDetail };
-    if (node.id === null) {
+
+    const predefinedNodes =
+      config.NETWORK_TYPE === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
+
+    const allNodes = this.getAllNodes();
+
+    const isPredefinedNode = predefinedNodes.some(
+      (predefinedNode) =>
+        predefinedNode.id === node.id ||
+        (predefinedNode.host === node.host && predefinedNode.port === node.port)
+    );
+    const isExistingNode = allNodes.some(
+      (savedNode) => savedNode.host === node.host && savedNode.port === node.port
+    );
+    const isSavedNode = allNodes.some(
+      (savedNode) =>
+        savedNode.id === node.id || (savedNode.host === node.host && savedNode.port === node.port)
+    );
+
+    if (isPredefinedNode && !isSavedNode) {
+      if (!node.id) {
+        node.id = nodeList.length + 1001;
+      }
+      dbManager.createObject(RealmSchema.NodeConnect, node);
+      return { saved: true };
+    }
+
+    if (!node.id) {
+      if (isExistingNode) {
+        return { saved: true };
+      }
       // case: save new node (first 1000 IDs reserved to predefined nodes)
       node.id = nodeList.length + 1001;
       dbManager.createObject(RealmSchema.NodeConnect, node);
     } else {
       // case: update existing node
       dbManager.updateObjectById(RealmSchema.NodeConnect, node.id.toString(), {
-        host: node.host,
-        port: node.port,
-        useSSL: node.useSSL,
-        useKeeperNode: node.useKeeperNode,
-        isConnected: node.isConnected,
+        ...node,
       });
     }
+
     return { saved: true };
   }
 
@@ -86,14 +113,21 @@ export default class Node {
     return false;
   };
 
-  public static getModalParams(selectedNodeItem) {
+  public static decodeQR(qrData: string) {
+    const parts = qrData.split(':');
+
+    if (parts.length !== 3) {
+      throw new Error('Invalid QR data format');
+    }
+
+    const host = parts[0];
+    const port = parts[1];
+    const useSSL = parts[2] === 't';
+
     return {
-      id: selectedNodeItem?.id || null,
-      host: selectedNodeItem?.host || null,
-      port: selectedNodeItem?.port || null,
-      useKeeperNode: selectedNodeItem?.useKeeperNode || false,
-      isConnected: selectedNodeItem?.isConnected || false,
-      useSSL: selectedNodeItem?.useSSL || false,
+      host,
+      port,
+      useSSL,
     };
   }
 }

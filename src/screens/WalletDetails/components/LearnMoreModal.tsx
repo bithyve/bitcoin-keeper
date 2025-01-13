@@ -51,7 +51,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
         dispatch(setIntroModal(false));
         navigation.dispatch(
           CommonActions.navigate({
-            name: 'KeeperConcierge',
+            name: 'TechnicalSupport',
             params: {
               tags: [ConciergeTag.WALLET],
               screenName: 'wallet-details',

@@ -104,10 +104,11 @@ export default class Zendesk {
             body: desc,
             uploads: [imageToken],
           },
-          priority: 'normal',
+          priority: `${isDev ? 'normal' : 'urgent'}`,
           subject: `${isDev ? 'DEV ' : ''}Conversation with ${conciergeUser.name}`,
           external_id: conciergeUser.id,
           submitter_id: conciergeUser.id,
+          assignee_id: `${isDev ? null : 16685599304861}`,
         },
       };
       const res = await zendeskApi.post(zendeskEndpoints.createTicket, body);
