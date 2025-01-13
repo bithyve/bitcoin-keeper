@@ -21,6 +21,7 @@ import QRScanner from 'src/components/QRScanner';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NFCOption from '../NFCChannel/NFCOption';
 import Note from 'src/components/Note/Note';
+import { SignerType } from 'src/services/wallets/enums';
 
 const decoder = new URRegistryDecoder();
 
@@ -139,7 +140,7 @@ function ScanQR() {
                   </Box>
                 </Box>
               )}
-              {importOptions && (
+              {importOptions && type != SignerType.COLDCARD && (
                 <Box style={styles.importOptions}>
                   <NFCOption
                     signerType={type}

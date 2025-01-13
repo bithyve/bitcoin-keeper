@@ -168,7 +168,12 @@ function SignWithQR() {
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
+          <DisplayQR
+            qrContents={serializedPSBT}
+            toBytes={encodeToBytes}
+            type="base64"
+            signerType={signer.type}
+          />
           <Box style={styles.fingerprint}>
             <WalletCopiableData data={serializedPSBT} dataType="psbt" />
           </Box>
