@@ -724,10 +724,10 @@ function Signers({
           [
             SignerType.MY_KEEPER,
             SignerType.TAPSIGNER,
-            // SignerType.BITBOX02,
-            // SignerType.COLDCARD,
-            // SignerType.JADE,
-            // SignerType.LEDGER,
+            SignerType.BITBOX02,
+            SignerType.COLDCARD,
+            SignerType.JADE,
+            SignerType.LEDGER,
             SignerType.SPECTER,
             SignerType.SEED_WORDS,
           ].includes(signer.type) // Filter by desired signer types
