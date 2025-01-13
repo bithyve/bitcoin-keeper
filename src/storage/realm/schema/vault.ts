@@ -107,6 +107,7 @@ export const RegistrationInfoSchema: ObjectSchema = {
     vaultId: 'string',
     registered: 'bool',
     registrationInfo: 'string?',
+    hmac: 'string?',
   },
 };
 

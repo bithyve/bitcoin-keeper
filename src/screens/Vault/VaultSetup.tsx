@@ -220,7 +220,16 @@ function VaultSetup({ route }: ScreenProps) {
               currentBlockHeight,
               isAddInheritanceKey,
               ...(isAddInheritanceKey && {
-                signerFilters: [SignerType.MY_KEEPER, SignerType.TAPSIGNER, SignerType.SEED_WORDS],
+                signerFilters: [
+                  SignerType.MY_KEEPER,
+                  SignerType.TAPSIGNER,
+                  // SignerType.BITBOX02,
+                  // SignerType.COLDCARD,
+                  // SignerType.JADE,
+                  // SignerType.LEDGER,
+                  SignerType.SPECTER,
+                  SignerType.SEED_WORDS,
+                ],
               }),
             },
           })
@@ -420,7 +429,7 @@ function VaultSetup({ route }: ScreenProps) {
           setShowModal(false);
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'KeeperConcierge',
+              name: 'TechnicalSupport',
               params: {
                 tags: [ConciergeTag.VAULT],
                 screenName: 'vault-setup',

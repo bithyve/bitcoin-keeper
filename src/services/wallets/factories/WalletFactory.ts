@@ -291,25 +291,26 @@ export const signCosignerPSBT = (fingerprint: string, xpriv: string, serializedP
   PSBT.data.inputs.forEach((input) => {
     if (!input.bip32Derivation) return 'signing failed: bip32Derivation missing';
 
-    let subPath;
+    let subPaths = [];
     for (const { masterFingerprint, path } of input.bip32Derivation) {
       if (masterFingerprint.toString('hex').toUpperCase() === fingerprint) {
         const pathFragments = path.split('/');
         const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
         const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
-        subPath = [chainIndex, childIndex];
-        break;
+        subPaths.push([chainIndex, childIndex]);
       }
     }
-    if (!subPath) throw new Error('Failed to sign internally - missing subpath');
+    if (subPaths.length == 0) throw new Error('Failed to sign internally - missing subpath');
 
-    const keyPair = WalletUtilities.getKeyPairByIndex(
-      xpriv,
-      subPath[0],
-      subPath[1],
-      config.NETWORK
-    );
-    PSBT.signInput(vin, keyPair);
+    subPaths.forEach((subPath) => {
+      const keyPair = WalletUtilities.getKeyPairByIndex(
+        xpriv,
+        subPath[0],
+        subPath[1],
+        config.NETWORK
+      );
+      PSBT.signInput(vin, keyPair);
+    });
     vin += 1;
   });
 

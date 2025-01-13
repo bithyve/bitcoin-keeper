@@ -69,14 +69,19 @@ function SendScreen({ route }) {
   const { allVaults: vaults } = useVault({});
   const allWallets = useMemo(() => [...wallets, ...vaults], [wallets, vaults]);
   const [isSendToWalletDisabled, setIsSendToWalletDisabled] = useState(false);
-  const { sender, selectedUTXOs, parentScreen, isSendMax, internalRecipientWallet } =
-    route.params as {
-      sender: Wallet | Vault;
-      selectedUTXOs?: UTXO[];
-      parentScreen?: string;
-      isSendMax?: boolean;
-      internalRecipientWallet?: Wallet | Vault;
-    };
+  const {
+    sender,
+    selectedUTXOs = [],
+    parentScreen,
+    isSendMax,
+    internalRecipientWallet,
+  } = route.params as {
+    sender: Wallet | Vault;
+    selectedUTXOs?: UTXO[];
+    parentScreen?: string;
+    isSendMax?: boolean;
+    internalRecipientWallet?: Wallet | Vault;
+  };
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -98,6 +103,7 @@ function SendScreen({ route }) {
   const isDarkMode = colorMode === 'dark';
   const availableBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
+  const totalUtxosAmount = selectedUTXOs?.reduce((sum, utxo) => sum + utxo.value, 0);
 
   const visibleWallets = useMemo(
     () =>
@@ -171,6 +177,7 @@ function SendScreen({ route }) {
         note,
         transferType,
         selectedUTXOs,
+        totalUtxosAmount,
         parentScreen,
         isSendMax,
       })
@@ -360,7 +367,7 @@ function SendScreen({ route }) {
           availableBalance={
             <CurrencyInfo
               hideAmounts={false}
-              amount={availableBalance}
+              amount={selectedUTXOs?.length ? totalUtxosAmount : availableBalance}
               fontSize={16}
               satsFontSize={12}
               color={`${colorMode}.primaryText`}

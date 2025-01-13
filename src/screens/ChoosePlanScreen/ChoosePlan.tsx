@@ -5,7 +5,6 @@ import {
   Alert,
   Linking,
   StyleSheet,
-  TouchableOpacity,
   Dimensions,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -41,10 +40,12 @@ import { useQuery } from '@realm/react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import TierUpgradeModal from './TierUpgradeModal';
+import TierUpgradeModal, { UPGRADE_TYPE } from './TierUpgradeModal';
 import Buttons from 'src/components/Buttons';
 import PlanDetailsCards from './components/PlanDetailsCards';
 const { width } = Dimensions.get('window');
+
+const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
 
 function ChoosePlan() {
   const route = useRoute();
@@ -64,12 +65,13 @@ function ChoosePlan() {
   }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const [items, setItems] = useState<SubScriptionPlan[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [isUpgrade, setIsUpgrade] = useState(false);
+  const [upgradeType, setUpgradeType] = useState(null);
   const [isMonthly, setIsMonthly] = useState(false);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
   const [showPromocodeModal, setShowPromocodeModal] = useState(false);
+  const isOldSub = OLD_SUBS_PRODUCT_ID.includes(subscription.productId);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -99,10 +101,10 @@ function ChoosePlan() {
     setCurrentPosition(initialPosition !== 0 ? initialPosition : subscription.level - 1);
   }, []);
 
-  async function init(discounted = false) {
+  async function init() {
     let data = [];
     try {
-      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId, discounted);
+      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId);
       if (getPlansResponse.plans) {
         data = getPlansResponse.plans;
         const skus = [];
@@ -124,16 +126,21 @@ function ChoosePlan() {
               if (monthly.length) monthlyPlans.push(offer);
               if (yearly.length) yearlyPlans.push(offer);
             });
-            data[index].monthlyPlanDetails = {
-              ...getPlanData(monthlyPlans),
-              productId: subscription.productId,
-              offers: monthlyPlans,
-            };
-            data[index].yearlyPlanDetails = {
-              ...getPlanData(yearlyPlans),
-              productId: subscription.productId,
-              offers: yearlyPlans,
-            };
+
+            if (monthlyPlans.length > 0) {
+              data[index].monthlyPlanDetails = {
+                ...getPlanData(monthlyPlans),
+                productId: subscription.productId,
+                offers: monthlyPlans,
+              };
+            }
+            if (yearlyPlans.length > 0) {
+              data[index].yearlyPlanDetails = {
+                ...getPlanData(yearlyPlans),
+                productId: subscription.productId,
+                offers: yearlyPlans,
+              };
+            }
           } else if (Platform.OS === 'ios') {
             const planDetails = {
               price: subscription.localizedPrice,
@@ -155,7 +162,6 @@ function ChoosePlan() {
         data[0].yearlyPlanDetails = { productId: data[0].productIds[0] };
         setItems(data);
         setLoading(false);
-        discounted && showToast('Subscriptions Prices Updated');
       }
     } catch (error) {
       console.log('error', error);
@@ -174,19 +180,32 @@ function ChoosePlan() {
   async function processPurchase(purchase: SubscriptionPurchase) {
     setRequesting(true);
     try {
+      let response;
       const receipt = purchase.transactionReceipt;
-      const plan = items.filter((item) => item.productIds.includes(purchase.productId));
-      const response = await Relay.updateSubscription(id, publicId, purchase);
+      let plan = items.filter((item) => item.productIds.includes(purchase.productId));
+      if (!plan.length && OLD_SUBS_PRODUCT_ID.includes(purchase.productId)) {
+        // For old subs restore, updating relay with new subs monthly plan of same tier.
+        const newProductId = purchase.productId.split('.')[0] + '.monthly';
+        plan = items.filter((item) => item.productIds.includes(newProductId));
+        const updatedPurchase = {
+          ...purchase,
+          productId: newProductId,
+          productIds: [newProductId],
+        };
+        response = await Relay.updateSubscription(id, publicId, updatedPurchase);
+      } else {
+        response = await Relay.updateSubscription(id, publicId, purchase);
+      }
       setRequesting(false);
       if (response.updated) {
         const subscription: SubScription = {
-          productId: purchase.productId.replace('.30', ''), // To save discounted plan as normal plan in db
+          productId: purchase.productId,
           receipt,
           name: plan[0].name,
           level: response.level,
           icon: plan[0].icon,
         };
-        setIsUpgrade(response.level > appSubscription.level);
+        calculateModalContent(response, appSubscription);
         dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
           subscription,
         });
@@ -263,7 +282,7 @@ function ChoosePlan() {
             level: response.level,
             icon: subscription.icon,
           };
-          setIsUpgrade(response.level > appSubscription.level);
+          calculateModalContent(response, appSubscription);
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription: updatedSubscription,
           });
@@ -308,6 +327,15 @@ function ChoosePlan() {
     }
   }
 
+  const calculateModalContent = (response, appSubscription) => {
+    if (response.level === appSubscription.level) {
+      if (appSubscription.productId.includes('yearly'))
+        setUpgradeType(UPGRADE_TYPE.YEARLY_TO_MONTHLY);
+      else setUpgradeType(UPGRADE_TYPE.MONTHLY_TO_YEARLY);
+    } else if (response.level > appSubscription.level) setUpgradeType(UPGRADE_TYPE.UPGRADE);
+    else setUpgradeType(UPGRADE_TYPE.DOWNGRADE);
+  };
+
   const onPressModalBtn = () => {
     setShowUpgradeModal(false);
   };
@@ -325,8 +353,10 @@ function ChoosePlan() {
           if (purchase.productId === subscription.productId) {
             showToast(`${choosePlan.currentSubscriptionMessage} ${subscription.name}`);
           } else {
-            const validPurchase = items.find((item) =>
-              item.productIds.includes(purchase.productId)
+            const validPurchase = items.find(
+              (item) =>
+                item.productIds.includes(purchase.productId) ||
+                OLD_SUBS_PRODUCT_ID.includes(purchase.productId)
             );
             if (validPurchase) {
               processPurchase(purchase);
@@ -407,7 +437,7 @@ function ChoosePlan() {
         });
       } else {
         setShowPromocodeModal(false);
-        init(true); // load discounted subscriptions
+        init();
       }
     };
 
@@ -445,9 +475,9 @@ function ChoosePlan() {
   }
 
   const getActionBtnTitle = () => {
-    const isSubscribed = items[currentPosition].productIds.includes(
-      subscription.productId.toLowerCase()
-    );
+    const isSubscribed =
+      items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) &&
+      subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly');
     if (isSubscribed) return 'Subscribed';
     return `Continue - ${
       (isMonthly
@@ -455,6 +485,21 @@ function ChoosePlan() {
         : items[currentPosition]?.yearlyPlanDetails
       )?.price || 'Free'
     }`;
+  };
+
+  const showBtmCTR = () => {
+    if (loading) return false;
+    if (!items) return false;
+    if (isOldSub) {
+      const newProdID = subscription.productId.split('.')[0].toLowerCase();
+      return !items[currentPosition].productIds.some((productId) => productId.includes(newProdID));
+    }
+
+    return (
+      !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) ||
+      (subscription.productId.toLowerCase() !== 'pleb' &&
+        !subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly'))
+    );
   };
 
   return (
@@ -501,7 +546,7 @@ function ChoosePlan() {
         visible={showUpgradeModal}
         close={() => setShowUpgradeModal(false)}
         onPress={onPressModalBtn}
-        isUpgrade={isUpgrade}
+        upgradeType={upgradeType}
         plan={subscription.name}
       />
       {loading ? (
@@ -537,38 +582,21 @@ function ChoosePlan() {
 
       {/* BTM CTR */}
 
-      {!loading &&
-        items &&
-        !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) && (
-          <>
-            <Box style={styles.ctaWrapper}>
-              <Buttons
-                primaryCallback={() => processSubscription(items[currentPosition], currentPosition)}
-                primaryText={getActionBtnTitle()}
-                fullWidth
-              />
-            </Box>
-          </>
-        )}
+      {showBtmCTR() && (
+        <>
+          <Box style={styles.ctaWrapper}>
+            <Buttons
+              primaryCallback={() => processSubscription(items[currentPosition], currentPosition)}
+              primaryText={getActionBtnTitle()}
+              fullWidth
+            />
+          </Box>
+        </>
+      )}
     </ScreenWrapper>
   );
 }
 
-const TextActionBtn = ({ value, onPress, visible }) => {
-  const { colorMode } = useColorMode();
-  return (
-    <TouchableOpacity
-      onPress={() => visible && onPress()}
-      style={{ alignSelf: 'center', opacity: visible ? 1 : 0, marginTop: 20 }}
-    >
-      <Box>
-        <Text style={styles.ctaText} color={`${colorMode}.greenText`} medium>
-          {value}
-        </Text>
-      </Box>
-    </TouchableOpacity>
-  );
-};
 
 const styles = StyleSheet.create({
   noteWrapper: {

@@ -104,7 +104,7 @@ function Buttons({
           activeOpacity={0.5}
           testID="btn_secondaryText"
         >
-          <Box>{SecondaryIcon && <SecondaryIcon />}</Box>
+          <Box>{SecondaryIcon && SecondaryIcon}</Box>
           <Text
             numberOfLines={1}
             medium

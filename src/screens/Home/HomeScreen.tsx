@@ -120,7 +120,7 @@ function NewHomeScreen({ navigation }) {
       name: homeTranslation.KeeperConcierge,
       icon: colorMode === 'dark' ? <FaqDarkIcon /> : <FaqIcon />,
       callback: () => {
-        navigation.dispatch(CommonActions.navigate({ name: 'KeeperConcierge' }));
+        navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
       },
     },
   ];

@@ -125,7 +125,8 @@ export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => 
 
 export const generateOutputDescriptors = (
   wallet: Vault | Wallet,
-  includePatchRestrictions: boolean = false
+  includePatchRestrictions: boolean = false,
+  includeChecksum: boolean = true
 ) => {
   const receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(wallet, 0);
   if (wallet.entityKind === EntityKind.WALLET) {
@@ -133,7 +134,7 @@ export const generateOutputDescriptors = (
       derivationDetails: { xDerivationPath },
       specs: { xpub },
     } = wallet as Wallet;
-    const des = `wpkh(${getKeyExpression(
+    const desc = `wpkh(${getKeyExpression(
       wallet.id,
       xDerivationPath,
       xpub,
@@ -141,7 +142,7 @@ export const generateOutputDescriptors = (
       undefined,
       true
     )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
-    return des;
+    return includeChecksum ? `${desc}#${DescriptorChecksum(desc)}` : desc;
   } else if (wallet.entityKind === EntityKind.VAULT) {
     const miniscriptScheme = idx(wallet as Vault, (_) => _.scheme.miniscriptScheme);
     if (miniscriptScheme) {
@@ -158,21 +159,22 @@ export const generateOutputDescriptors = (
         );
       }
       const desc = `wsh(${walletPolicyDescriptor})`;
-      return `${desc}#${DescriptorChecksum(desc)}`;
+      return includeChecksum ? `${desc}#${DescriptorChecksum(desc)}` : desc;
     }
 
     const { signers, scheme, isMultiSig } = wallet as Vault;
     if (isMultiSig) {
-      return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
+      const desc = `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
         signers,
         includePatchRestrictions,
         undefined,
         true
       )}))${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
+      return includeChecksum ? `${desc}#${DescriptorChecksum(desc)}` : desc;
     } else {
       const signer: VaultSigner = signers[0];
 
-      const des = `wpkh(${getKeyExpression(
+      const desc = `wpkh(${getKeyExpression(
         signer.masterFingerprint,
         signer.derivationPath,
         signer.xpub,
@@ -180,27 +182,24 @@ export const generateOutputDescriptors = (
         undefined,
         true
       )})${includePatchRestrictions ? `\n/0/*,/1/*\n${receivingAddress}` : ''}`;
-      return des;
+      return includeChecksum ? `${desc}#${DescriptorChecksum(desc)}` : desc;
     }
   }
 };
 
-export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
-  const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
-  const { nextFreeAddressIndex } = wallet.specs;
+export const generateVaultAddressDescriptors = (wallet: Vault | Wallet, addressIndex: number) => {
+  const receivingAddress = WalletOperations.getExternalInternalAddressAtIdx(
+    wallet,
+    addressIndex,
+    false
+  );
 
   if (wallet.entityKind === EntityKind.WALLET) {
     const {
       derivationDetails: { xDerivationPath },
       specs: { xpub },
     } = wallet as Wallet;
-    const des = `wpkh(${getKeyExpression(
-      wallet.id,
-      xDerivationPath,
-      xpub,
-      true,
-      nextFreeAddressIndex
-    )})`;
+    const des = `wpkh(${getKeyExpression(wallet.id, xDerivationPath, xpub, true, addressIndex)})`;
     return {
       descriptorString: des,
       receivingAddress,
@@ -214,7 +213,7 @@ export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
       signer.derivationPath,
       signer.xpub,
       true,
-      nextFreeAddressIndex
+      addressIndex
     )})`;
     return {
       descriptorString: des,
@@ -226,7 +225,7 @@ export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
     descriptorString: `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
       signers,
       true,
-      nextFreeAddressIndex
+      addressIndex
     )}))`,
     receivingAddress,
   };
@@ -592,7 +591,6 @@ export function generateKeyFromPassword(password, salt = 'ARzDkUmENwt1', iterati
   // Derive a 16-byte key from the 12-character password
   return crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256'); // 16 bytes = 128 bits
 }
-
 
 export function findVaultFromSenderAddress(allVaults: Vault[], senderAddresses) {
   let activeVault = null;

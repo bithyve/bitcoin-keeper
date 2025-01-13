@@ -182,7 +182,7 @@ function CloudBackupScreen() {
           }
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'KeeperConcierge',
+              name: 'TechnicalSupport',
               params: {
                 tags: [ConciergeTag.SETTINGS],
                 screenName: 'cloud-backup',

@@ -1,16 +1,14 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppSelector } from 'src/store/hooks';
 import { setRecepitVerificationFailed } from 'src/store/reducers/login';
-import { Shadow } from 'react-native-shadow-2';
 
 function DowngradeModalContent() {
   const { colorMode } = useColorMode();
@@ -45,7 +43,7 @@ export function DowngradeModal() {
       subTitleWidth={wp(210)}
       showCloseIcon={false}
       buttonText={common.continue}
-      buttonCallback={dispatch(setRecepitVerificationFailed(false))}
+      buttonCallback={() => dispatch(setRecepitVerificationFailed(false))}
     />
   );
 }

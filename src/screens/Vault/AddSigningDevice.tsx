@@ -42,7 +42,6 @@ import SuccessIllustration from 'src/assets/images/Success.svg';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import SignerEmptyStateIcon from 'src/assets/images/signer-empty.svg';
 import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
 import CardPill from 'src/components/CardPill';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -136,10 +135,7 @@ const getVaultType = ({
 };
 
 const isAssistedKeyValidForScheme = (
-  signer: Signer,
-  scheme,
-  signerMap,
-  selectedSigners
+  scheme
 ): { isValid: boolean; code?: KeyValidationErrorCode } => {
   // case 1: scheme-based restrictions for assisted keys
   // both assisted keys can be added starting from Vaults w/ m: 2 and n:3
@@ -150,43 +146,15 @@ const isAssistedKeyValidForScheme = (
     return { isValid: false, code: KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS };
   }
 
-  // case 2: count-based restrictions for assisted keys
-  const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
-  let existingAssistedKeys = 0;
-
-  for (const keyUID of selectedSigners.keys()) {
-    if (
-      signerMap[keyUID].type === SignerType.POLICY_SERVER ||
-      signerMap[keyUID].type === SignerType.INHERITANCEKEY
-    ) {
-      existingAssistedKeys++;
-    }
-  }
-
-  const totalAssistedKeys = existingAssistedKeys + currentAssistedKey;
-
-  // Assisted Keys restriction I: The number of assisted keys should be less than the threshold (m)
-  // for a given Vault, such that they can’t form a signing quorum by themselves.
-  if (totalAssistedKeys >= scheme.m) {
-    return { isValid: false, code: KeyValidationErrorCode.ASSISTED_KEYS_QUORUM };
-  }
-
-  // Assisted Keys restriction II: The threshold for the multi-sig should be achievable without the assisted keys
-  if (totalAssistedKeys > scheme.n - scheme.m) {
-    return { isValid: false, code: KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD };
-  }
-
   return { isValid: true };
 };
 
 const isSignerValidForScheme = (
   signer: Signer,
-  scheme,
-  signerMap,
-  selectedSigners
+  scheme
 ): { isValid: boolean; code?: KeyValidationErrorCode } => {
   if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
-    return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
+    return isAssistedKeyValidForScheme(scheme);
   }
 
   if (signer.type === SignerType.MY_KEEPER && scheme.n <= 1) {
@@ -226,7 +194,7 @@ const setInitialKeys = (
     const updatedSignerMap = new Map();
     vaultKeys.forEach((key) => {
       const signer = signerMap[getKeyUID(key)];
-      if (isSignerValidForScheme(signer, scheme, signerMap, selectedSigners).isValid) {
+      if (isSignerValidForScheme(signer, scheme).isValid) {
         if (modifiedVaultKeysForScriptType.length < scheme.n) {
           updatedSignerMap.set(getKeyUID(key), true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -492,11 +460,6 @@ function Signers({
             vaultText.insufficientTotalKeysMessage
           }`;
           break;
-        case KeyValidationErrorCode.ASSISTED_KEYS_QUORUM:
-        case KeyValidationErrorCode.ASSISTED_KEYS_THRESHOLD:
-          title = vaultText.assistedKeysQuorumTitle;
-          message = vaultText.assistedKeysQuorumMessage;
-          break;
         default:
           return null;
       }
@@ -758,7 +721,16 @@ function Signers({
       .filter((signer) => !signer.archived)
       .filter(
         (signer) =>
-          [SignerType.MY_KEEPER, SignerType.TAPSIGNER, SignerType.SEED_WORDS].includes(signer.type) // Filter by desired signer types
+          [
+            SignerType.MY_KEEPER,
+            SignerType.TAPSIGNER,
+            // SignerType.BITBOX02,
+            // SignerType.COLDCARD,
+            // SignerType.JADE,
+            // SignerType.LEDGER,
+            SignerType.SPECTER,
+            SignerType.SEED_WORDS,
+          ].includes(signer.type) // Filter by desired signer types
       )
       .filter((signer) => !selectedFingerprintsSet.has(signer.masterFingerprint)) // Avoid selected signers from params
       .map((signer) => {

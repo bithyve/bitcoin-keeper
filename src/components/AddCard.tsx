@@ -32,6 +32,7 @@ function AddCard({
   icon = <AddCardIcon />,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   return (
     <TouchableOpacity
       testID={isAddWallet ? 'btn_add_wallet' : `btn_${name}`}
@@ -47,7 +48,7 @@ function AddCard({
           <HexagonIcon
             width={iconWidth}
             height={iconHeight}
-            backgroundColor={Colors.pantoneGreen}
+            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
             icon={icon}
           />
           <Text semiBold color={nameColor} style={styles.nameStyle}>

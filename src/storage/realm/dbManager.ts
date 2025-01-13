@@ -8,7 +8,7 @@ import realm from './realm';
  */
 const initializeRealm = async (
   key: ArrayBuffer | ArrayBufferView | Int8Array
-): Promise<boolean> => {
+): Promise<{ success: boolean; error?: string }> => {
   console.log('[Realm]: Database initialising...');
   return realm.initializeDatabase(key);
 };

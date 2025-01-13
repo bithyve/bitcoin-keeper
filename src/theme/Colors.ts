@@ -110,7 +110,7 @@ const Colors = {
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',
   TropicalRainForestDark: 'rgba(137,174,167,1)',
-  DullGreenDark: 'rgba(65,89,76,1)',
+  DullGreenDark: 'rgba(44, 103, 89, 1)',
   RichBlackDark: 'rgba(208,200,190,1)',
   RichGreenDark: 'rgba(137,174,167,1)',
   DeepSpaceSparkleDark: 'rgba(160,160,160,1)',
@@ -171,7 +171,5 @@ const Colors = {
   ErrorToastDark: 'rgba(58, 41, 41, 1)',
   DashedButtonBackground: 'rgba(45, 103, 89, 0.04)',
   DashedButtonBackgroundDark: 'rgba(65, 89, 76, 0.05)',
-  lightGrey: 'rgba(228, 226, 223, 1)',
-  darkGrey: 'rgba(165, 165, 165, 1)',
 };
 export default Colors;

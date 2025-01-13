@@ -87,6 +87,7 @@ export const SignersReqVault = [
   SignerType.TREZOR,
   SignerType.BITBOX02,
   SignerType.PORTAL,
+  SignerType.KEYSTONE,
 ];
 
 export const CHANGE_INDEX_THRESHOLD = 100;
@@ -470,17 +471,17 @@ function SigningDeviceDetails({ route }) {
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
   const signerFooterItems = [
-    signer.type !== SignerType.POLICY_SERVER && {
+    signer?.type !== SignerType.POLICY_SERVER && {
       text: 'Share Key',
       Icon: () => <FooterIcon Icon={isDarkMode ? KeyDetailsDark : KeyDetailsLight} />,
       onPress: navigateToCosignerDetails,
     },
-    signer.type !== SignerType.KEEPER && {
+    signer?.type !== SignerType.KEEPER && {
       text: 'Sign Transaction',
       Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
       onPress: navigateToScanPSBT,
     },
-    {
+    signer?.type !== SignerType.MY_KEEPER && {
       text: 'Health Check',
       Icon: () => (
         <FooterIcon
@@ -724,7 +725,7 @@ function SigningDeviceDetails({ route }) {
                 setDetailModal(false);
                 navigation.dispatch(
                   CommonActions.navigate({
-                    name: 'KeeperConcierge',
+                    name: 'TechnicalSupport',
                     params: {
                       tags: [ConciergeTag.KEYS],
                       screenName: 'signing-device-details',

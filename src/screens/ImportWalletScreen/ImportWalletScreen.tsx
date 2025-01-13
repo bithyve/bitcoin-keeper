@@ -126,7 +126,7 @@ function ImportWalletScreen() {
               setIntroModal(false);
               navigation.dispatch(
                 CommonActions.navigate({
-                  name: 'KeeperConcierge',
+                  name: 'TechnicalSupport',
                   params: {
                     tags: [ConciergeTag.WALLET],
                     screenName: 'import-wallet',

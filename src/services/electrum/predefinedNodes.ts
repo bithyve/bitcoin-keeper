@@ -9,22 +9,22 @@ export const predefinedTestnetNodes: NodeDetail[] = [
     useKeeperNode: false,
     useSSL: true,
   },
-];
-
-export const predefinedMainnetNodes: NodeDetail[] = [
   {
-    id: 441,
-    host: 'electrum.blockstream.info',
-    port: '50002',
+    id: 334,
+    host: 'testnet.aranguren.org',
+    port: '51002',
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
   },
+];
+
+export const predefinedMainnetNodes: NodeDetail[] = [
   {
     id: 442,
     host: 'electrum.emzy.de',
     port: '50002',
-    isConnected: false,
+    isConnected: true,
     useKeeperNode: false,
     useSSL: true,
   },
@@ -40,7 +40,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     id: 446,
     host: 'ecdsa.net',
     port: '110',
-    isConnected: true,
+    isConnected: false,
     useKeeperNode: false,
     useSSL: true,
   },
@@ -48,6 +48,22 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     id: 447,
     host: 'electrum.jochen-hoenicke.de',
     port: '50006',
+    isConnected: false,
+    useKeeperNode: false,
+    useSSL: true,
+  },
+  {
+    id: 448,
+    host: 'fulcrum.sethforprivacy.com',
+    port: '50002',
+    isConnected: false,
+    useKeeperNode: false,
+    useSSL: true,
+  },
+  {
+    id: 449,
+    host: 'electrum.diynodes.com',
+    port: '50022',
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,

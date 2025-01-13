@@ -82,7 +82,7 @@ export const encodeBytesUR = (data, rotation, type: BufferEncoding = 'hex') => {
   return [data];
 };
 
-const getFragmentedData = (encoder) => {
+export const getFragmentedData = (encoder) => {
   const fragments = [];
   for (let c = 1; c <= encoder.fragmentsLength; c++) {
     const ur = encoder.nextPart();

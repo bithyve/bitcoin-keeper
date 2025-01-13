@@ -19,6 +19,8 @@ import KeeperQRCode from 'src/components/KeeperQRCode';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
+import { UR, UREncoder } from '@ngraveio/bc-ur';
+import { getFragmentedData } from 'src/services/qr';
 
 const { width } = Dimensions.get('window');
 
@@ -36,9 +38,23 @@ function RegisterWithQR({ route, navigation }: any) {
           '/<0;1>/*',
           ''
         )}${activeVault.isMultiSig ? ' )' : ''}`
-      : getWalletConfig({ vault: activeVault });
-  const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
+      : activeVault.scheme.miniscriptScheme
+      ? generateOutputDescriptors(activeVault)
+      : getWalletConfig({ vault: activeVault, signerType: signer.type });
+  let qrContents: any = Buffer.from(walletConfig, 'ascii').toString('hex');
   const { showToast } = useToastMessage();
+
+  try {
+    if (signer.type === SignerType.KEYSTONE) {
+      const messageBuffer = Buffer.from(walletConfig);
+      const ur = UR.fromBuffer(messageBuffer);
+      const maxFragmentLength = 1000;
+      const encoder = new UREncoder(ur, maxFragmentLength);
+      qrContents = getFragmentedData(encoder).toString().toUpperCase();
+    }
+  } catch (error) {
+    console.log('🚀 ~ RegisterWithQR ~ error:', error);
+  }
 
   const markAsRegistered = () => {
     dispatch(
@@ -71,14 +87,25 @@ function RegisterWithQR({ route, navigation }: any) {
           showsVerticalScrollIndicator={false}
         >
           <Box style={styles.center}>
-            {signer.type === SignerType.SPECTER ? (
-              <KeeperQRCode qrData={walletConfig} size={width * 0.85} ecl="L" />
+            {[SignerType.SPECTER, SignerType.KEYSTONE].includes(signer.type) ? (
+              <KeeperQRCode
+                qrData={signer.type == SignerType.KEYSTONE ? qrContents : walletConfig}
+                size={width * 0.85}
+                ecl="L"
+              />
             ) : (
               <DisplayQR qrContents={qrContents} toBytes type="hex" />
             )}
           </Box>
           <Box style={styles.centerBottom}>
-            <ShareWithNfc data={walletConfig} signer={signer} useNdef />
+            <ShareWithNfc
+              data={walletConfig}
+              signer={signer}
+              vaultKey={vaultKey}
+              vaultId={vaultId}
+              useNdef
+              isUSBAvailable={signer.type == SignerType.COLDCARD || signer.type == SignerType.JADE}
+            />
           </Box>
         </ScrollView>
         <Buttons

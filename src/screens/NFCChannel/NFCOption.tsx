@@ -12,13 +12,14 @@ import { Platform, StyleSheet } from 'react-native';
 import idx from 'idx';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
-import NFCIcon from 'src/assets/images/nfc-circle-icon.svg';
-import AirDropIcon from 'src/assets/images/airdrop-circle-icon.svg';
-import RemoteShareIcon from 'src/assets/images/remote-share-circle-icon.svg';
+import NFCIcon from 'src/assets/images/nfc-no-bg-light.svg';
+import AirDropIcon from 'src/assets/images/airdrop-no-bg-light.svg';
+import RemoteShareIcon from 'src/assets/images/remote-share-no-bg-light.svg';
 import RemoteShareIllustraion from 'src/assets/images/remote-share-illustration.svg';
 import { Box, useColorMode } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, isPSBT }) {
   const { showToast } = useToastMessage();
@@ -116,12 +117,38 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
   return (
     <>
       <Box style={styles.container}>
-        <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={readFromNFC} />
-        <OptionCTA icon={<AirDropIcon />} title={`Airdrop/ \nFile export`} callback={selectFile} />
+        <OptionCTA
+          icon={
+            <CircleIconWrapper
+              width={wp(38)}
+              backgroundColor={`${colorMode}.pantoneGreen`}
+              icon={<NFCIcon />}
+            />
+          }
+          title="NFC on Tap"
+          callback={readFromNFC}
+        />
+        <OptionCTA
+          icon={
+            <CircleIconWrapper
+              width={wp(38)}
+              backgroundColor={`${colorMode}.pantoneGreen`}
+              icon={<AirDropIcon />}
+            />
+          }
+          title={`Airdrop/ \nFile export`}
+          callback={selectFile}
+        />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
         {/* // ! Hide Remote Key */}
         {/* <OptionCTA
-          icon={<RemoteShareIcon />}
+          icon={
+          <CircleIconWrapper
+              width={wp(38)}
+              backgroundColor={`${colorMode}.pantoneGreen`}
+              icon={<RemoteShareIcon />}
+            />
+            }
           title={isPSBT ? 'Share\ntransaction link' : 'Remote Share'}
           callback={() => setRemoteShareModal(true)}
         /> */}
