@@ -1503,6 +1503,8 @@
     "expertGuidanceDescription": "Talk to an advisor for tailored support – first session free",
     "expertGuidanceButtonText": "Connect with Advisor",
     "comingSoonText": "Coming Soon",
-    "conciergeTitle": "Keeper Concierge"
+    "conciergeTitle": "Keeper Concierge",
+    "conciergeAdditionDetailTitle": "Additional details",
+    "conciergeAdditionDetailSubTitle": "Easily resolve issues by sharing device details, wallet info, and app logs"
   }
 }
