@@ -87,6 +87,9 @@ const CreateTicket = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
+    if (!desc.length && screenName.length) {
+      setDesc(`Hi, I need some help with ${screenName}(${tags.join(', ')})\n*****\n`);
+    }
     const timer = setTimeout(() => {
       if (textAreaRef.current) {
         textAreaRef.current.focus();
@@ -122,8 +125,6 @@ const CreateTicket = ({ navigation, route }) => {
       details += `Wallet Name:\n${wallet.presentationData.name}\n1 of 1, SingleSig\n\n`;
     });
     details += '\n';
-    if (screenName) details += `\nScreen Name: ${screenName}`;
-    if (tags.length) details += `\nTags: ${tags.join(', ')}`;
     setDesc(details.trim() + `\n*****\n`);
   };
 
