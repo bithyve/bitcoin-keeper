@@ -129,10 +129,13 @@ const CreateTicket = ({ navigation, route }) => {
 
   const addDeviceInfo = async () => {
     setShowDetails(false);
-    const data = DeviceInfo.getDeviceId();
+    let device;
+    if (isiOS) device = DeviceInfo.getDeviceId();
+    else device = await DeviceInfo.getDevice();
     const os = DeviceInfo.getSystemVersion();
-
-    let details = `${desc}\nI have a ${data} running on OS version ${os}\n*****\n`;
+    let details = `${desc}\nI have a ${device} running on ${
+      isiOS ? 'iOS' : 'Android'
+    } version ${os}\n*****\n`;
     setDesc(details);
   };
 
@@ -152,7 +155,7 @@ const CreateTicket = ({ navigation, route }) => {
     const activeNode = nodes.find((node) => node.isConnected);
     let details = `${desc}\nMy app is connected to ${
       activeNode?.host || 'unknown'
-    } node over a ${networkType} network ${torStatus === 'OFF' ? '' : 'over Tor'}\n*****\n`;
+    } node over a ${networkType} network ${torStatus === 'CONNECTED' ? 'over Tor' : ''}\n*****\n`;
     setDesc(details);
   };
 
