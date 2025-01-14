@@ -16,6 +16,7 @@ import Text from './KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { joinQRs } from 'src/services/qr/bbqr/join';
 import { extractBBQRIndex, isHexadecimal } from 'src/utils/utilities';
+import { Psbt } from 'bitcoinjs-lib';
 
 let decoder = new URRegistryDecoder();
 
@@ -113,7 +114,16 @@ function QRScanner({
             if (isHexadecimal(data.data)) {
               // for hex response from coldcardQ
               const binaryData = Buffer.from(data.data, 'hex');
-              setData(binaryData.toString('base64'));
+              try {
+                if (Psbt.fromBase64(binaryData.toString('base64'))) {
+                  setData(binaryData.toString('base64'));
+                } else {
+                  setData(data.data);
+                }
+              } catch {
+                setData(data.data);
+              }
+
               setQrPercent(100);
             } else {
               setData(data.data);
