@@ -47,6 +47,9 @@ import {
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
+  setBackupAllFailure,
+  setBackupAllLoading,
+  setBackupAllSuccess,
   setBackupLoading,
   setBackupType,
   setBackupWarning,
@@ -57,6 +60,7 @@ import {
   setSeedConfirmed,
 } from '../reducers/bhr';
 import {
+  BACKUP_ALL_SIGNERS_AND_VAULTS,
   BACKUP_BSMS_ON_CLOUD,
   BSMS_CLOUD_HEALTH_CHECK,
   DELETE_APP_IMAGE_ENTITY,
@@ -136,6 +140,8 @@ export function* updateAppImageWorker({
 
   // API call to Relay to do modular updates
   try {
+    const { automaticCloudBackup } = yield select((state: RootState) => state.network);
+    if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
     const response = yield call(Relay.updateAppImage, {
       appId: id,
       publicId,
@@ -168,11 +174,13 @@ export function* updateVaultImageWorker({
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
+  const { automaticCloudBackup } = yield select((state: RootState) => state.network);
   const encryptionKey = generateEncryptionKey(primarySeed);
 
   const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
+    if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
     const response = yield call(Relay.updateVaultImage, {
       isUpdate,
       vaultId: vault.id,
@@ -198,6 +206,7 @@ export function* updateVaultImageWorker({
 
   try {
     if (archiveVaultId) {
+      if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
       const response = yield call(Relay.updateVaultImage, {
         appID: id,
         vaultShellId: vault.shellId,
@@ -210,6 +219,7 @@ export function* updateVaultImageWorker({
       });
       return response;
     }
+    if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
     const response = yield call(Relay.updateVaultImage, {
       appID: id,
       vaultShellId: vault.shellId,
@@ -236,11 +246,14 @@ export function* deleteAppImageEntityWorker({
   try {
     const { signerIds, walletIds } = payload;
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const response = yield call(Relay.deleteAppImageEntity, {
-      appId: id,
-      signers: signerIds,
-      walletIds,
-    });
+    const { automaticCloudBackup } = yield select((state: RootState) => state.network);
+    const response = !automaticCloudBackup
+      ? { updated: true, error: 'Cloud backup is disabled' }
+      : yield call(Relay.deleteAppImageEntity, {
+          appId: id,
+          signers: signerIds,
+          walletIds,
+        });
     if (walletIds?.length > 0) {
       for (const walletId of walletIds) {
         yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
@@ -267,10 +280,13 @@ export function* deleteVaultImageWorker({
   try {
     const { vaultIds } = payload;
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const response = yield call(Relay.deleteVaultImage, {
-      appId: id,
-      vaults: vaultIds,
-    });
+    const { automaticCloudBackup } = yield select((state: RootState) => state.network);
+    const response = !automaticCloudBackup
+      ? { updated: true, error: 'Cloud backup is disabled' }
+      : yield call(Relay.deleteVaultImage, {
+          appId: id,
+          vaults: vaultIds,
+        });
     return response;
   } catch (err) {
     captureError(err);
@@ -913,4 +929,91 @@ export const healthCheckSignerWatcher = createWatcher(
 export const deleteAppImageEntityWatcher = createWatcher(
   deleteAppImageEntityWorker,
   DELETE_APP_IMAGE_ENTITY
+);
+
+function* backupAllSignersAndVaultsWorker() {
+  yield put(setBackupAllLoading(true));
+  try {
+    const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
+    const encryptionKey = generateEncryptionKey(primarySeed);
+    const walletObject = {};
+    const signersObject = {};
+    const vaultObject = {};
+
+    // update all wallets and signers
+    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    for (const index in wallets) {
+      const wallet = wallets[index];
+      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
+      walletObject[wallet.id] = encrytedWallet;
+    }
+    const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    for (const index in signers) {
+      const signer = signers[index];
+      const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+      signersObject[getKeyUID(signer)] = encrytedSigner;
+    }
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    for (const index in vaults) {
+      const vault = vaults[index];
+      const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vaults));
+      const signersData: Array<{
+        signerId: string;
+        xfpHash: string;
+      }> = [];
+      for (const signer of vault.signers) {
+        signersData.push({
+          signerId: getKeyUID(signer),
+          xfpHash: hash256(signer.masterFingerprint),
+        });
+      }
+      vaultObject[vault.id] = {
+        vaultShellId: vault.shellId,
+        vaultId: vault.id,
+        scheme: vault.scheme,
+        signersData,
+        vault: vaultEncrypted,
+      };
+    }
+
+    const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    const nodesToUpdate = [];
+    if (nodes && nodes.length > 0) {
+      for (const index in nodes) {
+        const node = nodes[index];
+        node.isConnected = false;
+        const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
+        nodesToUpdate.push(encrytedNode);
+      }
+    }
+
+    const finalData = {
+      appId: id,
+      publicId,
+      walletObject,
+      signersObject,
+      vaultObject,
+      networkType,
+      subscription: JSON.stringify(subscription),
+      version,
+      nodes: nodesToUpdate,
+    };
+    yield call(Relay.backupAllSignersAndVaults, finalData);
+    yield put(setBackupAllSuccess(true));
+    return true;
+  } catch (error) {
+    yield put(setBackupAllFailure(true));
+    console.log('🚀 ~ function*backupAllSignersAndVaultsWorker ~ error:', error);
+    return false;
+  } finally {
+    yield put(setBackupAllLoading(false));
+  }
+}
+
+export const backupAllSignersAndVaultsWatcher = createWatcher(
+  backupAllSignersAndVaultsWorker,
+  BACKUP_ALL_SIGNERS_AND_VAULTS
 );

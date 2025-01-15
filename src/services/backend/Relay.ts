@@ -740,4 +740,24 @@ export default class Relay {
       if (err.code) throw new Error(err.code);
     }
   };
+
+  public static backupAllSignersAndVaults = async (
+    allData
+  ): Promise<{
+    status?: number;
+    data?: {
+      updated: boolean;
+    };
+    err?: string;
+    message?: string;
+  }> => {
+    try {
+      const res = await RestClient.post(`${RELAY}backupAllSignersAndVaults`, allData);
+      const data = res.data || res.json;
+      return data;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed to update app backup. Check your internet connection and try again.');
+    }
+  };
 }
