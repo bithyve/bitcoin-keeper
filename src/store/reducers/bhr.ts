@@ -49,6 +49,10 @@ const initialState: {
   keyDeletedSuccessModalVisible: boolean;
 
   seedWords: Array<seedWordItem>;
+
+  backupAllLoading: boolean;
+  backupAllSuccess: boolean;
+  backupAllFailure: boolean;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -87,6 +91,10 @@ const initialState: {
   deletingKeyModalVisible: false,
   keyDeletedSuccessModalVisible: false,
   seedWords: [],
+
+  backupAllLoading: false,
+  backupAllFailure: false,
+  backupAllSuccess: false,
 };
 
 const bhrSlice = createSlice({
@@ -252,6 +260,17 @@ const bhrSlice = createSlice({
     resetSeedWords: (state) => {
       state.seedWords = [];
     },
+    setBackupAllLoading: (state, action: PayloadAction<boolean>) => {
+      state.backupAllLoading = action.payload;
+    },
+    setBackupAllSuccess: (state, action: PayloadAction<boolean>) => {
+      state.backupAllSuccess = action.payload;
+      state.backupAllLoading = false;
+    },
+    setBackupAllFailure: (state, action: PayloadAction<boolean>) => {
+      state.backupAllFailure = action.payload;
+      state.backupAllLoading = false;
+    },
   },
 });
 
@@ -301,6 +320,10 @@ export const {
 
   setSeedWord,
   resetSeedWords,
+
+  setBackupAllLoading,
+  setBackupAllSuccess,
+  setBackupAllFailure,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -336,6 +359,10 @@ const bhrPersistConfig = {
     'cloudBsmsBackupError',
 
     'seedWords',
+
+    'backupAllLoading',
+    'backupAllFailure',
+    'backupAllSuccess',
   ],
 };
 
