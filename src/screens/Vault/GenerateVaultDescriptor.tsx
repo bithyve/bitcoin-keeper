@@ -120,7 +120,10 @@ function GenerateVaultDescriptor() {
             </Box>
           </TouchableOpacity>
           <Box style={styles.optionsContainer}>
-            <ShareWithNfc data={vaultDescriptorString} fileName={`${vaultId}-backup.txt`} />
+            <ShareWithNfc
+              data={vaultDescriptorString}
+              fileName={`${vault.presentationData.name.replace(/\s+/g, '-')}.txt`}
+            />
             <OptionCTA
               icon={
                 <CircleIconWrapper
