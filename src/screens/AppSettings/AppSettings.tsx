@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useQuery } from '@realm/react';
-import { CommonActions } from '@react-navigation/native';
+import { CommonActions, useIsFocused } from '@react-navigation/native';
 
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -68,6 +68,7 @@ function AppSettings({ navigation, route }) {
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   let { automaticCloudBackup } = useAppSelector((store) => store.network);
   const { showToast } = useToastMessage();
+  const isFocused = useIsFocused(); // Check if the screen is in the foreground
 
   useEffect(() => {
     if (colorMode === 'dark') {
@@ -112,14 +113,14 @@ function AppSettings({ navigation, route }) {
   ];
 
   useEffect(() => {
-    if (backupAllSuccess) {
+    if (backupAllSuccess && isFocused) {
       dispatch(setBackupAllSuccess(false));
       dispatch(setAutomaticCloudBackup(!automaticCloudBackup));
     }
   }, [backupAllSuccess]);
 
   useEffect(() => {
-    if (backupAllFailure) {
+    if (backupAllFailure && isFocused) {
       dispatch(setBackupAllFailure(false));
       showToast('Automatic Cloud Backup failed. Please try again later.', <ToastErrorIcon />);
     }

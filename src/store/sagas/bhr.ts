@@ -57,6 +57,7 @@ import {
   setInvalidPassword,
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
+  setPendingAllBackup,
   setSeedConfirmed,
 } from '../reducers/bhr';
 import {
@@ -84,6 +85,7 @@ import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { addSigningDeviceWorker } from './wallets';
 import { getKeyUID } from 'src/utils/utilities';
+import NetInfo from '@react-native-community/netinfo';
 
 export function* updateAppImageWorker({
   payload,
@@ -141,7 +143,21 @@ export function* updateAppImageWorker({
   // API call to Relay to do modular updates
   try {
     const { automaticCloudBackup } = yield select((state: RootState) => state.network);
+    const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
     if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
+
+    const netInfo = yield call(NetInfo.fetch);
+    if (!netInfo.isConnected) {
+      yield put(setPendingAllBackup(true));
+      return { updated: true, error: 'Network is not connected' };
+    }
+
+    if (pendingAllBackup) {
+      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
+      if (allBackupRes) yield put(setPendingAllBackup(false));
+      return { updated: true, error: '' };
+    }
+
     const response = yield call(Relay.updateAppImage, {
       appId: id,
       publicId,
@@ -175,12 +191,24 @@ export function* updateVaultImageWorker({
     RealmSchema.KeeperApp
   );
   const { automaticCloudBackup } = yield select((state: RootState) => state.network);
+  const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
   const encryptionKey = generateEncryptionKey(primarySeed);
 
   const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
     if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
+    const netInfo = yield call(NetInfo.fetch);
+    if (!netInfo.isConnected) {
+      yield put(setPendingAllBackup(true));
+      return { updated: true, error: 'Network is not connected' };
+    }
+
+    if (pendingAllBackup) {
+      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
+      if (allBackupRes) yield put(setPendingAllBackup(false));
+      return { updated: true, error: '' };
+    }
     const response = yield call(Relay.updateVaultImage, {
       isUpdate,
       vaultId: vault.id,
@@ -205,21 +233,20 @@ export function* updateVaultImageWorker({
   const subscriptionStrings = JSON.stringify(subscription);
 
   try {
-    if (archiveVaultId) {
-      if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
-      const response = yield call(Relay.updateVaultImage, {
-        appID: id,
-        vaultShellId: vault.shellId,
-        vaultId: vault.id,
-        scheme: vault.scheme,
-        signersData,
-        vault: vaultEncrypted,
-        subscription: subscriptionStrings,
-        archiveVaultId,
-      });
-      return response;
-    }
     if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
+
+    const netInfo = yield call(NetInfo.fetch);
+    if (!netInfo.isConnected) {
+      yield put(setPendingAllBackup(true));
+      return { updated: true, error: 'Network is not connected' };
+    }
+
+    if (pendingAllBackup) {
+      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
+      if (allBackupRes) yield put(setPendingAllBackup(false));
+      return { updated: true, error: '' };
+    }
+
     const response = yield call(Relay.updateVaultImage, {
       appID: id,
       vaultShellId: vault.shellId,
@@ -228,6 +255,7 @@ export function* updateVaultImageWorker({
       signersData,
       vault: vaultEncrypted,
       subscription: subscriptionStrings,
+      ...(archiveVaultId && { archiveVaultId }),
     });
     return response;
   } catch (err) {
@@ -247,13 +275,26 @@ export function* deleteAppImageEntityWorker({
     const { signerIds, walletIds } = payload;
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const { automaticCloudBackup } = yield select((state: RootState) => state.network);
-    const response = !automaticCloudBackup
-      ? { updated: true, error: 'Cloud backup is disabled' }
-      : yield call(Relay.deleteAppImageEntity, {
-          appId: id,
-          signers: signerIds,
-          walletIds,
-        });
+    const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
+    const netInfo = yield call(NetInfo.fetch);
+    let response;
+
+    if (!automaticCloudBackup) response = { updated: true, error: 'Cloud backup is disabled' };
+    else if (!netInfo.isConnected) {
+      yield put(setPendingAllBackup(true));
+      response = { updated: true, error: 'Network is not connected' };
+    } else if (pendingAllBackup) {
+      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
+      if (allBackupRes) yield put(setPendingAllBackup(false));
+      response = { updated: true, error: '' };
+    } else {
+      response = yield call(Relay.deleteAppImageEntity, {
+        appId: id,
+        signers: signerIds,
+        walletIds,
+      });
+    }
+
     if (walletIds?.length > 0) {
       for (const walletId of walletIds) {
         yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
@@ -281,12 +322,26 @@ export function* deleteVaultImageWorker({
     const { vaultIds } = payload;
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const { automaticCloudBackup } = yield select((state: RootState) => state.network);
-    const response = !automaticCloudBackup
-      ? { updated: true, error: 'Cloud backup is disabled' }
-      : yield call(Relay.deleteVaultImage, {
-          appId: id,
-          vaults: vaultIds,
-        });
+    const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
+
+    if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
+
+    const netInfo = yield call(NetInfo.fetch);
+    if (!netInfo.isConnected) {
+      yield put(setPendingAllBackup(true));
+      return { updated: true, error: 'Network is not connected' };
+    }
+
+    if (pendingAllBackup) {
+      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
+      if (allBackupRes) yield put(setPendingAllBackup(false));
+      return { updated: true, error: '' };
+    }
+
+    const response = yield call(Relay.deleteVaultImage, {
+      appId: id,
+      vaults: vaultIds,
+    });
     return response;
   } catch (err) {
     captureError(err);
@@ -1003,6 +1058,7 @@ function* backupAllSignersAndVaultsWorker() {
     };
     yield call(Relay.backupAllSignersAndVaults, finalData);
     yield put(setBackupAllSuccess(true));
+    yield put(setPendingAllBackup(false));
     return true;
   } catch (error) {
     yield put(setBackupAllFailure(true));

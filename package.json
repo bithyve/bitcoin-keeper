@@ -28,6 +28,7 @@
     "@ngraveio/bc-ur": "1.1.6",
     "@noble/secp256k1": "1.6.3",
     "@react-native-community/clipboard": "1.5.1",
+    "@react-native-community/netinfo": "11.4.1",
     "@react-native-firebase/app": "14.11.1",
     "@react-native-firebase/messaging": "14.11.1",
     "@react-navigation/native": "6.0.8",
