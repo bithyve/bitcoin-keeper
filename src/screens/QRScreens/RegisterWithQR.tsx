@@ -108,6 +108,7 @@ function RegisterWithQR({ route, navigation }: any) {
               signer={signer}
               vaultKey={vaultKey}
               vaultId={vaultId}
+              fileName={`${activeVault.presentationData.name.replace(/\s+/g, '-')}.txt`}
               useNdef
               isUSBAvailable={signer.type == SignerType.COLDCARD || signer.type == SignerType.JADE}
             />

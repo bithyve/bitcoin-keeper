@@ -35,7 +35,6 @@ function VaultConfigurationCreation() {
 
   const { translations } = useContext(LocalizationContext);
   const { common, importWallet } = translations;
-  const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
 
   const handleDocumentSelection = useCallback(async () => {
