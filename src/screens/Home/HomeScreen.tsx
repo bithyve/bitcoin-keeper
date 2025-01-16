@@ -88,7 +88,7 @@ function NewHomeScreen({ navigation }) {
       <HomeScreenHeader
         colorMode={colorMode}
         top={top}
-        title={wallet.homeWallets}
+        title={selectedOption}
         circleIconWrapper={
           <CircleIconWrapper width={wp(39)} icon={<WalletIcon />} backgroundColor={Colors.White} />
         }

@@ -2,6 +2,10 @@ import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
+import WalletWhite from 'src/assets/images/walletWhiteIcon.svg';
+import KeyWhite from 'src/assets/images/KeyWhiteIcon.svg';
+import ConceirgeWhite from 'src/assets/images/faqWhiteIcon.svg';
+import MoreWhite from 'src/assets/images/moreWhiteIcon.svg';
 import WalletIcon from 'src/assets/images/Wallet-grey.svg';
 import KeyIcon from 'src/assets/images/key-grey.svg';
 import ConciergeIcon from 'src/assets/images/faq-grey.svg';
@@ -28,22 +32,23 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
     {
       name: wallet.homeWallets,
       defaultIcon: <WalletIcon />,
-      selectedIcon: <WalletGreen />,
+      selectedIcon: isDarkMode ? <WalletWhite /> : <WalletGreen />,
     },
     {
       name: wallet.keys,
       defaultIcon: <KeyIcon />,
-      selectedIcon: <KeyGreen />,
+      selectedIcon: isDarkMode ? <KeyWhite /> : <KeyGreen />,
     },
     {
       name: wallet.concierge,
       defaultIcon: <ConciergeIcon />,
-      selectedIcon: <ConciergeGreen />,
+      selectedIcon: isDarkMode ? <ConceirgeWhite /> : <ConciergeGreen />,
     },
     {
       name: wallet.more,
       defaultIcon: <MoreIcon />,
-      selectedIcon: <MoreGreen />,
+      selectedIcon: isDarkMode ? <MoreWhite /> : <MoreGreen />,
+
       callback: () => {
         navigation.navigate('AppSettings');
       },
@@ -71,7 +76,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
                   ? isDarkMode
                     ? Colors.White
                     : `${colorMode}.pantoneGreen`
-                  : `${colorMode}.secondaryGrey`
+                  : `${colorMode}.placeHolderTextColor`
               }
             >
               {option.name}
