@@ -62,6 +62,7 @@ function ResetInheritanceKey({ route }) {
   const handleResetInheritanceKey = async () => {
     if (!selectedOption) {
       showToast('Please select activation time', <ToastErrorIcon />);
+      setCreating(false);
       return;
     }
     let currentSyncedBlockHeight = currentBlockHeight;
@@ -70,17 +71,17 @@ function ResetInheritanceKey({ route }) {
         currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
           .currentBlockHeight;
       } catch (err) {
-        showToast(err);
+        console.log('Failed to re-fetch current block height: ' + err);
       }
       if (!currentSyncedBlockHeight) {
         showToast(
           'Failed to fetch current chain data, please check your connection and try again',
           <ToastErrorIcon />
         );
+        setCreating(false);
         return;
       }
     }
-    setCreating(true);
   };
 
   useEffect(() => {
@@ -100,6 +101,10 @@ function ResetInheritanceKey({ route }) {
 
   useEffect(() => {
     try {
+      if (!currentBlockHeight) {
+        setCurrentTimeUntilActivation('Loading time until activation...');
+        return;
+      }
       const blocksUntilActivation =
         vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0] - currentBlockHeight;
       if (blocksUntilActivation > 0) {
@@ -167,7 +172,6 @@ function ResetInheritanceKey({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <ActivityIndicatorView visible={vaultCreating} />
       <KeeperHeader title={vaultText.resetIKTitle} subtitle={vaultText.resetIKDesc} />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
@@ -196,9 +200,13 @@ function ResetInheritanceKey({ route }) {
         </Box>
         <Box>
           <Buttons
+            primaryLoading={vaultCreating}
             primaryText={vaultText.revaultNow}
             fullWidth
-            primaryCallback={handleResetInheritanceKey}
+            primaryCallback={() => {
+              setCreating(true);
+              handleResetInheritanceKey();
+            }}
           />
         </Box>
       </Box>
