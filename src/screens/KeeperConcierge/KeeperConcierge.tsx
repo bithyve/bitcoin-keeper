@@ -163,11 +163,11 @@ const KeeperConcierge = () => {
 
   return (
     <ConciergeScreenWrapper
-      backgroundcolor={`${colorMode}.pantoneGreen`}
+      // backgroundcolor={`${colorMode}.pantoneGreen`}
       barStyle="light-content"
       loading={conciergeLoading}
     >
-      <ConciergeHeader title={concierge.conciergeTitle} />
+      {/* <ConciergeHeader title={concierge.conciergeTitle} /> */}
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {cardsData.map((card, index) => (

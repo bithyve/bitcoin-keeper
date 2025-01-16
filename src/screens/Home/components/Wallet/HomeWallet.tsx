@@ -13,6 +13,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import { VisibilityType } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
+import { hp } from 'src/constants/responsive';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -77,5 +78,6 @@ export default HomeWallet;
 const styles = StyleSheet.create({
   walletContainer: {
     gap: 20,
+    paddingVertical: hp(25),
   },
 });

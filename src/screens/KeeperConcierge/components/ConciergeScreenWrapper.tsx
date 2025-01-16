@@ -19,7 +19,6 @@ function ConciergeScreenWrapper({
   const computedBarStyle = barStyle ?? (colorMode === 'light' ? 'dark-content' : 'light-content');
   return (
     <Box
-      safeAreaTop
       background={backgroundcolor}
       backgroundColor={backgroundcolor}
       style={[styles.wrapper, { paddingHorizontal: paddingHorizontal }]}

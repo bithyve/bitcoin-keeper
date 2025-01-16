@@ -19,6 +19,7 @@ import MenuFooter from 'src/components/MenuFooter';
 import Text from 'src/components/KeeperText';
 import HomeWallet from './components/Wallet/HomeWallet';
 import Colors from 'src/theme/Colors';
+import KeeperConcierge from '../KeeperConcierge/KeeperConcierge';
 
 function NewHomeScreen({ navigation }) {
   const { colorMode } = useColorMode();
@@ -54,7 +55,7 @@ function NewHomeScreen({ navigation }) {
       case wallet.concierge:
         return (
           <Box>
-            <Text>Concierge Content</Text>
+            <KeeperConcierge />
           </Box>
         );
       case wallet.more:
@@ -109,6 +110,5 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: wp(30),
   },
 });
