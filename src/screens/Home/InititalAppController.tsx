@@ -44,6 +44,7 @@ import messaging from '@react-native-firebase/messaging';
 import { notificationType } from 'src/models/enums/Notifications';
 import { CHANGE_INDEX_THRESHOLD, SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -107,6 +108,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
               try {
                 try {
                   const signer = signers.find((s) => keyUID == getKeyUID(s));
+                  // TODO: Need to find a way to detect Miniscript in PSBT without having to import the vault
+                  let isMiniscript = false;
                   if (!signer) throw { message: 'Signer not found' };
                   let {
                     senderAddresses,
@@ -144,6 +147,9 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                       parseInt(changeAddressIndex)
                     );
                   }
+                  if (activeVault) {
+                    isMiniscript = !!activeVault?.scheme?.miniscriptScheme;
+                  }
 
                   dispatch(setRemoteLinkDetails({ xfp, cachedTxid }));
                   navigation.dispatch(
@@ -156,6 +162,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                         signer,
                         psbt: serializedPSBT,
                         feeRate,
+                        isMiniscript,
                       },
                     })
                   );
