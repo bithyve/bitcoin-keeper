@@ -1014,7 +1014,7 @@ function* backupAllSignersAndVaultsWorker() {
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
     for (const index in vaults) {
       const vault = vaults[index];
-      const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vaults));
+      const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
       const signersData: Array<{
         signerId: string;
         xfpHash: string;
