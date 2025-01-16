@@ -142,22 +142,8 @@ export function* updateAppImageWorker({
 
   // API call to Relay to do modular updates
   try {
-    const { automaticCloudBackup } = yield select((state: RootState) => state.network);
-    const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
-    if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
-
-    const netInfo = yield call(NetInfo.fetch);
-    if (!netInfo.isConnected) {
-      yield put(setPendingAllBackup(true));
-      return { updated: true, error: 'Network is not connected' };
-    }
-
-    if (pendingAllBackup) {
-      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
-      if (allBackupRes) yield put(setPendingAllBackup(false));
-      return { updated: true, error: '' };
-    }
-
+    const backupResponse = yield call(checkBackupCondition);
+    if (backupResponse) return { updated: true, error: '' };
     const response = yield call(Relay.updateAppImage, {
       appId: id,
       publicId,
@@ -190,25 +176,13 @@ export function* updateVaultImageWorker({
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
-  const { automaticCloudBackup } = yield select((state: RootState) => state.network);
-  const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
   const encryptionKey = generateEncryptionKey(primarySeed);
 
   const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
-    if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
-    const netInfo = yield call(NetInfo.fetch);
-    if (!netInfo.isConnected) {
-      yield put(setPendingAllBackup(true));
-      return { updated: true, error: 'Network is not connected' };
-    }
-
-    if (pendingAllBackup) {
-      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
-      if (allBackupRes) yield put(setPendingAllBackup(false));
-      return { updated: true, error: '' };
-    }
+    const backupResponse = yield call(checkBackupCondition);
+    if (backupResponse) return { updated: true, error: '' };
     const response = yield call(Relay.updateVaultImage, {
       isUpdate,
       vaultId: vault.id,
@@ -233,20 +207,8 @@ export function* updateVaultImageWorker({
   const subscriptionStrings = JSON.stringify(subscription);
 
   try {
-    if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
-
-    const netInfo = yield call(NetInfo.fetch);
-    if (!netInfo.isConnected) {
-      yield put(setPendingAllBackup(true));
-      return { updated: true, error: 'Network is not connected' };
-    }
-
-    if (pendingAllBackup) {
-      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
-      if (allBackupRes) yield put(setPendingAllBackup(false));
-      return { updated: true, error: '' };
-    }
-
+    const backupResponse = yield call(checkBackupCondition);
+    if (backupResponse) return { updated: true, error: '' };
     const response = yield call(Relay.updateVaultImage, {
       appID: id,
       vaultShellId: vault.shellId,
@@ -274,20 +236,11 @@ export function* deleteAppImageEntityWorker({
   try {
     const { signerIds, walletIds } = payload;
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const { automaticCloudBackup } = yield select((state: RootState) => state.network);
-    const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
-    const netInfo = yield call(NetInfo.fetch);
     let response;
 
-    if (!automaticCloudBackup) response = { updated: true, error: 'Cloud backup is disabled' };
-    else if (!netInfo.isConnected) {
-      yield put(setPendingAllBackup(true));
-      response = { updated: true, error: 'Network is not connected' };
-    } else if (pendingAllBackup) {
-      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
-      if (allBackupRes) yield put(setPendingAllBackup(false));
-      response = { updated: true, error: '' };
-    } else {
+    const backupResponse = yield call(checkBackupCondition);
+    if (backupResponse) response = { updated: true, error: '' };
+    else {
       response = yield call(Relay.deleteAppImageEntity, {
         appId: id,
         signers: signerIds,
@@ -321,23 +274,8 @@ export function* deleteVaultImageWorker({
   try {
     const { vaultIds } = payload;
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const { automaticCloudBackup } = yield select((state: RootState) => state.network);
-    const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
-
-    if (!automaticCloudBackup) return { updated: true, error: 'Cloud backup is disabled' };
-
-    const netInfo = yield call(NetInfo.fetch);
-    if (!netInfo.isConnected) {
-      yield put(setPendingAllBackup(true));
-      return { updated: true, error: 'Network is not connected' };
-    }
-
-    if (pendingAllBackup) {
-      const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
-      if (allBackupRes) yield put(setPendingAllBackup(false));
-      return { updated: true, error: '' };
-    }
-
+    const backupResponse = yield call(checkBackupCondition);
+    if (backupResponse) return { updated: true, error: '' };
     const response = yield call(Relay.deleteVaultImage, {
       appId: id,
       vaults: vaultIds,
@@ -1073,3 +1011,20 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
   backupAllSignersAndVaultsWorker,
   BACKUP_ALL_SIGNERS_AND_VAULTS
 );
+
+function* checkBackupCondition() {
+  const { automaticCloudBackup } = yield select((state: RootState) => state.network);
+  const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
+  if (!automaticCloudBackup) return true;
+  const netInfo = yield call(NetInfo.fetch);
+  if (!netInfo.isConnected) {
+    yield put(setPendingAllBackup(true));
+    return true;
+  }
+  if (pendingAllBackup) {
+    const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
+    if (allBackupRes) yield put(setPendingAllBackup(false));
+    return true;
+  }
+  return false;
+}
