@@ -32,17 +32,16 @@ function DisplayQR({
   const isColdCard = signerType === SignerType.COLDCARD;
   const { colorMode } = useColorMode();
   const [rotation, setRotation] = useState(100);
-  const [qrData, setQrData] = useState(
-    isColdCard
-      ? null
-      : useDynamicQrContent({
-          data: qrContents,
-          toBytes,
-          type,
-          rotation,
-          shouldRotate,
-        }).qrData
-  );
+  const [coldCardQrData, setColdCardQrData] = useState(null);
+  const { qrData } = isColdCard
+    ? { qrData: null }
+    : useDynamicQrContent({
+        data: qrContents,
+        toBytes,
+        type,
+        rotation,
+        shouldRotate,
+      });
 
   useEffect(() => {
     if (!qrData && isColdCard) loadBBQR();
@@ -50,14 +49,18 @@ function DisplayQR({
 
   const loadBBQR = async () => {
     const data = await psbtToBBQR(qrContents);
-    setQrData(data);
+    setColdCardQrData(data);
   };
 
   return (
     <>
-      {qrData?.length && (
+      {(qrData?.length || coldCardQrData?.length) && (
         <VStack alignItems="center">
-          <KeeperQRCode qrData={qrData} size={windowWidth * 0.7} ecl="L" />
+          <KeeperQRCode
+            qrData={isColdCard ? coldCardQrData : qrData}
+            size={windowWidth * 0.7}
+            ecl="L"
+          />
           <Slider
             marginTop={5}
             marginBottom={2}
