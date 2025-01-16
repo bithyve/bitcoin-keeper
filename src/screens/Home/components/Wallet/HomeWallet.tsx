@@ -52,7 +52,9 @@ const HomeWallet = () => {
   return (
     <Box style={styles.walletContainer}>
       <DashedCta
-        backgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.DashedButtonCta`}
+        backgroundColor={
+          isDarkMode ? `${colorMode}.DashedButtonCta` : `${colorMode}.DashedButtonCta`
+        }
         hexagonBackgroundColor={isDarkMode ? Colors.pantoneGreen : Colors.pantoneGreen}
         textColor={isDarkMode ? Colors.White : `${colorMode}.pantoneGreen`}
         name="Add Wallet"

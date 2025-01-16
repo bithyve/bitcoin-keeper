@@ -19,6 +19,7 @@ import MenuFooter from 'src/components/MenuFooter';
 import Text from 'src/components/KeeperText';
 import HomeWallet from './components/Wallet/HomeWallet';
 import Colors from 'src/theme/Colors';
+import ManageKeys from './components/Keys/ManageKeys';
 
 function NewHomeScreen({ navigation }) {
   const { colorMode } = useColorMode();
@@ -48,7 +49,7 @@ function NewHomeScreen({ navigation }) {
       case wallet.keys:
         return (
           <Box>
-            <Text>keys </Text>
+            <ManageKeys />
           </Box>
         );
       case wallet.concierge:
@@ -109,6 +110,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: wp(30),
+    paddingVertical: wp(25),
   },
 });
