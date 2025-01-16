@@ -241,7 +241,7 @@ function SendConfirmation({ route }) {
         currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
           .currentBlockHeight;
       } catch (err) {
-        showToast(err);
+        console.log('Failed to re-fetch current block height: ' + err);
       }
       if (!currentSyncedBlockHeight) {
         showToast(

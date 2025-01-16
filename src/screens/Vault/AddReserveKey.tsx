@@ -185,6 +185,7 @@ function AddReserveKey({ route }) {
         </Box>
         <Box style={styles.bottomContainer}>
           <Buttons
+            primaryLoading={vaultCreating}
             primaryText={common.confirm}
             fullWidth
             primaryDisable={!selectedSigner || !selectedOption}
