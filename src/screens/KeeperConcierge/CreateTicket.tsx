@@ -42,6 +42,13 @@ import Node from 'src/services/electrum/node';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
+const DEFAULT_SELECTED_DETAILS = {
+  walletInfo: false,
+  deviceInfo: false,
+  appData: false,
+  networkInfo: false,
+};
+
 const CreateTicket = ({ navigation, route }) => {
   const { screenName, tags } = route.params;
   const { concierge: conciergeText } = useContext(LocalizationContext).translations;
@@ -64,12 +71,49 @@ const CreateTicket = ({ navigation, route }) => {
   const { torStatus } = useContext(TorContext);
   const { type: networkType } = useNetInfo();
   const nodes: NodeDetail[] = Node.getAllNodes();
+  const [selectedDetails, setSelectedDetails] = useState(DEFAULT_SELECTED_DETAILS);
 
   const DETAIL_OPTIONS = [
-    { label: 'Device Details', icon: <DeviceDetailsIcon />, onPress: () => addDeviceInfo() },
-    { label: 'Wallets Info', icon: <WalletInfoIcon />, onPress: () => addWalletInfo() },
-    { label: 'App Data', icon: <AppDataIcon />, onPress: () => addAppData() },
-    { label: 'Network Info', icon: <NetworkInfoIcon />, onPress: () => addNetworkInfo() },
+    {
+      label: 'Device Details',
+      icon: <DeviceDetailsIcon />,
+      onPress: () =>
+        setSelectedDetails({
+          ...selectedDetails,
+          deviceInfo: !selectedDetails.deviceInfo,
+        }),
+      id: 'deviceInfo',
+    },
+    {
+      label: 'Wallets Info',
+      icon: <WalletInfoIcon />,
+      onPress: () =>
+        setSelectedDetails({
+          ...selectedDetails,
+          walletInfo: !selectedDetails.walletInfo,
+        }),
+      id: 'walletInfo',
+    },
+    {
+      label: 'App Data',
+      icon: <AppDataIcon />,
+      onPress: () =>
+        setSelectedDetails({
+          ...selectedDetails,
+          appData: !selectedDetails.appData,
+        }),
+      id: 'appData',
+    },
+    {
+      label: 'Network Info',
+      icon: <NetworkInfoIcon />,
+      onPress: () =>
+        setSelectedDetails({
+          ...selectedDetails,
+          networkInfo: !selectedDetails.networkInfo,
+        }),
+      id: 'networkInfo',
+    },
   ];
 
   useEffect(() => {
@@ -108,10 +152,7 @@ const CreateTicket = ({ navigation, route }) => {
   };
 
   const addWalletInfo = () => {
-    setShowDetails(false);
-
-    let details = `${desc}\nI have ${allVaults?.length} vault(s) and ${wallets?.length} wallet(s) with following attributes:\n\n`;
-
+    let details = `\nI have ${allVaults?.length} vault(s) and ${wallets?.length} wallet(s) with following attributes:\n\n`;
     allVaults.forEach((vault) => {
       details += `Vault Name:\n${vault.presentationData.name}\n`;
       details += `${vault.scheme.m} of ${vault.scheme.n}, Multisig\nKeys:\n`;
@@ -125,39 +166,36 @@ const CreateTicket = ({ navigation, route }) => {
       details += `Wallet Name:\n${wallet.presentationData.name}\n1 of 1, SingleSig\n\n`;
     });
     details += '\n';
-    setDesc(details.trim() + `\n*****\n`);
+    return details.trim() + `\n*****\n`;
   };
 
   const addDeviceInfo = async () => {
-    setShowDetails(false);
     let device;
     if (isiOS) device = DeviceInfo.getDeviceId();
     else device = await DeviceInfo.getDevice();
     const os = DeviceInfo.getSystemVersion();
-    let details = `${desc}\nI have a ${device} running on ${
+    let details = `\nI have a ${device} running on ${
       isiOS ? 'iOS' : 'Android'
     } version ${os}\n*****\n`;
-    setDesc(details);
+    return details;
   };
 
-  const addAppData = async () => {
-    setShowDetails(false);
+  const addAppData = () => {
     const isAppUpgraded = appVersionHistory.length > 1;
     const currentVersion = appVersionHistory.pop().version;
     const installedVersion = appVersionHistory[0].version;
-    const details = `${desc}\nMy Keeper app in on ${currentVersion} version${
+    const details = `\nMy Keeper app in on ${currentVersion} version${
       isAppUpgraded ? ` upgraded from version ${installedVersion}` : ''
     } on ${plan} tier\n*****\n`;
-    setDesc(details);
+    return details;
   };
 
-  const addNetworkInfo = async () => {
-    setShowDetails(false);
+  const addNetworkInfo = () => {
     const activeNode = nodes.find((node) => node.isConnected);
-    let details = `${desc}\nMy app is connected to ${
+    let details = `\nMy app is connected to ${
       activeNode?.host || 'unknown'
     } node over a ${networkType} network ${torStatus === 'CONNECTED' ? 'over Tor' : ''}\n*****\n`;
-    setDesc(details);
+    return details;
   };
 
   const onNext = async () => {
@@ -271,10 +309,26 @@ const CreateTicket = ({ navigation, route }) => {
           showCloseIcon
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
+          buttonText={'Proceed'}
+          buttonCallback={async () => {
+            setShowDetails(false);
+            let finalDetails = desc;
+            if (selectedDetails.deviceInfo) finalDetails += await addDeviceInfo();
+            if (selectedDetails.walletInfo) finalDetails += addWalletInfo();
+            if (selectedDetails.appData) finalDetails += addAppData();
+            if (selectedDetails.networkInfo) finalDetails += addNetworkInfo();
+            setDesc(finalDetails);
+            setSelectedDetails(DEFAULT_SELECTED_DETAILS);
+          }}
           Content={() => (
             <Box style={styles.modal}>
               {DETAIL_OPTIONS.map((option, index) => (
-                <OptionItem key={index} option={option} colorMode={colorMode} />
+                <OptionItem
+                  key={index}
+                  option={option}
+                  colorMode={colorMode}
+                  active={selectedDetails[option.id]}
+                />
               ))}
             </Box>
           )}
@@ -329,22 +383,25 @@ const styles = StyleSheet.create({
   },
 });
 
-const OptionItem = ({ option, colorMode }) => (
-  <Pressable onPress={option.onPress}>
-    <Box
-      style={styles.optionCTR}
-      backgroundColor={`${colorMode}.boxSecondaryBackground`}
-      borderColor={`${colorMode}.greyBorder`}
-    >
-      <Box style={styles.optionIconCtr} backgroundColor={`${colorMode}.greyBorder`}>
-        {option.icon}
+const OptionItem = ({ option, colorMode, active }) => {
+  const borderColor = active ? `${colorMode}.pantoneGreen` : `${colorMode}.greyBorder`;
+  return (
+    <Pressable onPress={option.onPress}>
+      <Box
+        style={styles.optionCTR}
+        backgroundColor={`${colorMode}.boxSecondaryBackground`}
+        borderColor={borderColor}
+      >
+        <Box style={styles.optionIconCtr} backgroundColor={`${colorMode}.greyBorder`}>
+          {option.icon}
+        </Box>
+        <Text color={`${colorMode}.secondaryText`} fontSize={14} medium>
+          {option.label}
+        </Text>
       </Box>
-      <Text color={`${colorMode}.secondaryText`} fontSize={14} medium>
-        {option.label}
-      </Text>
-    </Box>
-  </Pressable>
-);
+    </Pressable>
+  );
+};
 
 
 
