@@ -59,14 +59,26 @@ function ResetInheritanceKey({ route }) {
 
   const dispatch = useDispatch();
 
-  const handleResetInheritanceKey = () => {
+  const handleResetInheritanceKey = async () => {
     if (!selectedOption) {
       showToast('Please select activation time', <ToastErrorIcon />);
       return;
     }
-    if (!currentBlockHeight) {
-      showToast('Failed to sync current block height', <ToastErrorIcon />);
-      return;
+    let currentSyncedBlockHeight = currentBlockHeight;
+    if (!currentSyncedBlockHeight) {
+      try {
+        currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+          .currentBlockHeight;
+      } catch (err) {
+        showToast(err);
+      }
+      if (!currentSyncedBlockHeight) {
+        showToast(
+          'Failed to fetch current chain data, please check your connection and try again',
+          <ToastErrorIcon />
+        );
+        return;
+      }
     }
     setCreating(true);
   };

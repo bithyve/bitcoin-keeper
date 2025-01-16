@@ -215,14 +215,26 @@ function SetupAssistedVault() {
       .catch((err) => showToast(err));
   }, []);
 
-  const createVault = useCallback(() => {
+  const createVault = useCallback(async () => {
     try {
       setIsCreating(true);
 
       const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
-      if (!currentBlockHeight) {
-        showToast('Failed to sync current block height');
-        return;
+      let currentSyncedBlockHeight = currentBlockHeight;
+      if (!currentSyncedBlockHeight) {
+        try {
+          currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+            .currentBlockHeight;
+        } catch (err) {
+          showToast(err);
+        }
+        if (!currentSyncedBlockHeight) {
+          showToast(
+            'Failed to fetch current chain data, please check your connection and try again',
+            <ToastErrorIcon />
+          );
+          return;
+        }
       }
       const assistedVaultSigners = [userKey, advisorKeys[0], advisorKeys[1]];
 
