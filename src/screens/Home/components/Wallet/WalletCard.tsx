@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -41,7 +41,6 @@ const WalletCard: React.FC<WalletCardProps> = ({
 }) => {
   const defaultHexagonBackgroundColor = Colors.White;
   const [isShowAmount, setIsShowAmount] = useState(false);
-  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { getWalletIcon } = useWalletAsset();
   const WalletIcon = getWalletIcon(wallet);
@@ -72,28 +71,11 @@ const WalletCard: React.FC<WalletCardProps> = ({
         </Box>
 
         <WalletLine style={styles.walletLine} width={wp(180)} height={hp(200)} />
-
-        {/* <Box style={styles.pillsContainer}>
-          {tags?.map((tag, index) => {
-            console.log(tags);
-            return (
-              <CardPill
-                key={tag}
-                heading={tag}
-                backgroundColor={index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`}
-                cardStyle={index % 2 !== 0 && styles.secondCard}
-              />
-            );
-          })}
-        </Box> */}
         <Box style={styles.pillsContainer}>
           {tags?.map(({ tag, color }, index) => (
             <CardPill
               key={tag}
               heading={tag}
-              // backgroundColor={
-              //   index % 2 !== 0 ? null : color || `${colorMode}.SignleSigCardPillBackColor` // Use `color` from the object if applicable
-              // }
               backgroundColor={color}
               cardStyle={index % 2 !== 0 && styles.secondCard}
             />

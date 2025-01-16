@@ -147,25 +147,6 @@ function WalletDetails({ route }: ScreenProps) {
     setPullRefresh(false);
   };
 
-  // const getWalletIcon = (wallet) => {
-  //   if (wallet.entityKind === EntityKind.VAULT) {
-  //     return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
-  //   } else if (wallet.entityKind === EntityKind.WALLET) {
-  //     return (
-  //       <HexagonIcon
-  //         width={58}
-  //         height={50}
-  //         backgroundColor={Colors.DarkGreen}
-  //         icon={<WalletIcon />}
-  //       />
-  //     );
-  //   } else if (isWhirlpoolWallet) {
-  //     return <WhirlpoolAccountIcon />;
-  //   } else {
-  //     return <TribeWalletIcon />;
-  //   }
-  // };
-
   return (
     <Box safeAreaTop style={styles.wrapper}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
