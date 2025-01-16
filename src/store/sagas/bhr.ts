@@ -983,7 +983,7 @@ function* backupAllSignersAndVaultsWorker() {
       }
     }
 
-    const finalData = {
+    yield call(Relay.backupAllSignersAndVaults, {
       appId: id,
       publicId,
       walletObject,
@@ -993,8 +993,7 @@ function* backupAllSignersAndVaultsWorker() {
       subscription: JSON.stringify(subscription),
       version,
       nodes: nodesToUpdate,
-    };
-    yield call(Relay.backupAllSignersAndVaults, finalData);
+    });
     yield put(setBackupAllSuccess(true));
     yield put(setPendingAllBackup(false));
     return true;
