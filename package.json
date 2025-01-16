@@ -69,6 +69,7 @@
     "react": "18.2.0",
     "react-localization": "1.0.19",
     "react-native": "0.72.4",
+    "react-native-background-timer": "2.4.1",
     "react-native-biometrics": "2.2.0",
     "react-native-blob-util": "0.18.3",
     "react-native-camera": "4.2.1",

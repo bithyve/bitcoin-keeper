@@ -42,6 +42,7 @@ import { getUSBSignerDetails } from 'src/hardware/usbSigner';
 import { VaultType } from 'src/services/wallets/enums';
 import WalletOperations from 'src/services/wallets/operations';
 import { getKeyUID } from 'src/utils/utilities';
+import BackgroundTimer from 'react-native-background-timer';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
@@ -176,7 +177,7 @@ function ConnectChannel() {
     }
   };
 
-  const handleChannelMessage = async ({ data }) => {
+  useEffect(() => {
     const signerSetup = (signerType, signerData) => {
       try {
         const { signer } = setupUSBSigner(signerType, signerData, isMultisig);
@@ -262,66 +263,56 @@ function ConnectChannel() {
         }
       }
     };
-
-    try {
-      const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
-      const responseData = decrypted.responseData.data;
-      if (mode == EMIT_MODES.HEALTH_CHECK) {
-        await handleVerification(responseData, signerType);
-      } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
-        const resAdd = responseData.address;
-        const hmac = responseData.hmac;
-        if (resAdd != receivingAddress) return;
-        dispatch(
-          updateKeyDetails(signer, 'registered', {
-            registered: true,
-            hmac,
-            vaultId,
-          })
-        );
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_VERIFICATION,
-            },
-          ])
-        );
-        navigation.goBack();
-        showToast(`Address verified successfully`, <TickIcon />);
-      } else {
-        signerSetup(signerType, responseData);
-      }
-    } catch (error) {
-      console.log('🚀 ~ channel.on ~ error:', error);
-    }
-  };
-
-  useEffect(() => {
     let appStateSubscription: any;
 
-    const handleAppStateChange = (nextAppState: AppStateStatus) => {
-      if (nextAppState === 'active') {
-        // Force reconnect when app becomes active
-        channel.disconnect();
-        channel.connect();
-        channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
-        channel.on(CHANNEL_MESSAGE, handleChannelMessage);
-      }
+    const startBackgroundListener = () => {
+      BackgroundTimer.start();
+
+      channel.connect();
+      channel.on(CHANNEL_MESSAGE, async ({ data }) => {
+        try {
+          const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
+          const responseData = decrypted.responseData.data;
+          if (mode == EMIT_MODES.HEALTH_CHECK) {
+            await handleVerification(responseData, signerType);
+          } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
+            const resAdd = responseData.address;
+            const hmac = responseData.hmac;
+            if (resAdd != receivingAddress) return;
+            dispatch(
+              updateKeyDetails(signer, 'registered', {
+                registered: true,
+                hmac,
+                vaultId,
+              })
+            );
+            dispatch(
+              healthCheckStatusUpdate([
+                {
+                  signerId: signer.masterFingerprint,
+                  status: hcStatusType.HEALTH_CHECK_VERIFICATION,
+                },
+              ])
+            );
+            navigation.goBack();
+            showToast(`Address verified successfully`, <TickIcon />);
+          } else {
+            signerSetup(signerType, responseData);
+          }
+        } catch (error) {
+          console.log('🚀 ~ channel.on ~ error:', error);
+        }
+      });
     };
 
-    // Set up app state listener
-    appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+    startBackgroundListener();
 
-    // Set up channel listener
-    channel.on(CHANNEL_MESSAGE, handleChannelMessage);
-
-    // Cleanup function
     return () => {
-      appStateSubscription.remove();
+      BackgroundTimer.stop();
       channel.disconnect();
+      appStateSubscription?.remove();
     };
-  }, [channel]);
+  }, []);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
