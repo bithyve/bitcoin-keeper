@@ -721,6 +721,7 @@ function SignerModals({
   serializedPSBTEnvelopFromProps,
   sendConfirmationRouteParams,
   tnxDetails,
+  isMiniscript,
 }: {
   vaultId: string;
   activeXfp: string;
@@ -763,6 +764,7 @@ function SignerModals({
   serializedPSBTEnvelopFromProps?: SerializedPSBTEnvelop;
   sendConfirmationRouteParams?: SendConfirmationRouteParams;
   tnxDetails?: tnxDetailsProps;
+  isMiniscript?: boolean;
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -1149,9 +1151,20 @@ function SignerModals({
               }
               secondaryCallback={() => {
                 setJadeModal(false);
-                navigation.dispatch(
-                  CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
-                );
+                // TODO: For now Jade only supports registration via USB for Miniscript
+                if (isMiniscript) {
+                  navigation.dispatch(
+                    CommonActions.navigate('RegisterWithChannel', {
+                      vaultKey,
+                      vaultId,
+                      signerType: signer.type,
+                    })
+                  );
+                } else {
+                  navigation.dispatch(
+                    CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
+                  );
+                }
               }}
               buttonCallback={() => {
                 setJadeModal(false);

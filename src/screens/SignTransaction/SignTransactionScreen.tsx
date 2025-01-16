@@ -841,6 +841,7 @@ function SignTransactionScreen() {
         sendConfirmationRouteParams={sendConfirmationRouteParams}
         tnxDetails={tnxDetails}
         isRemoteKey={false}
+        isMiniscript={!!defaultVault?.scheme?.miniscriptScheme}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal

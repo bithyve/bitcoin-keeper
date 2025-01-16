@@ -399,6 +399,8 @@ function SigningDeviceDetails({ route }) {
     try {
       let { senderAddresses, receiverAddresses, fees, signerMatched, feeRate, changeAddressIndex } =
         generateDataFromPSBT(serializedPSBT, signer);
+      // TODO: Need to find a way to detect Miniscript in PSBT without having to import the vault
+      let isMiniscript = false;
       if (!signerMatched) {
         showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
         navigation.goBack();
@@ -425,6 +427,9 @@ function SigningDeviceDetails({ route }) {
           parseInt(changeAddressIndex)
         );
       }
+      if (activeVault) {
+        isMiniscript = !!activeVault?.scheme?.miniscriptScheme;
+      }
       navigation.dispatch(
         CommonActions.navigate({
           name: 'PSBTSendConfirmation',
@@ -435,6 +440,7 @@ function SigningDeviceDetails({ route }) {
             signer,
             psbt: serializedPSBT,
             feeRate,
+            isMiniscript,
           },
         })
       );

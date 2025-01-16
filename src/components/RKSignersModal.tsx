@@ -29,7 +29,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
-const RKSignersModal = ({ signer, psbt }, ref) => {
+const RKSignersModal = ({ signer, psbt, isMiniscript }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const serializedPSBTEnvelop = {
@@ -344,6 +344,7 @@ const RKSignersModal = ({ signer, psbt }, ref) => {
         signerMap={signerMap}
         onFileSign={onFileSign}
         isRemoteKey={true}
+        isMiniscript={isMiniscript}
         serializedPSBTEnvelopFromProps={{
           serializedPSBT: psbt,
           isSigned: false,
