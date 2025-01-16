@@ -194,7 +194,8 @@ export default class WalletUtilities {
       if (height) {
         return { currentBlockHeight: height };
       } else {
-        throw new Error('Failed to fetch current block height');
+        console.error('Failed to fetch current block height');
+        return { currentBlockHeight: null };
       }
     } catch {
       try {
@@ -208,7 +209,8 @@ export default class WalletUtilities {
 
         return { currentBlockHeight };
       } catch (error) {
-        throw new Error('Failed to fetch current block height');
+        console.error('Failed to fetch current block height');
+        return { currentBlockHeight: null };
       }
     }
   };

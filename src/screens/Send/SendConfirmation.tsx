@@ -67,6 +67,7 @@ import KeyDropdown from './KeyDropdown';
 import CustomPriorityModal from './CustomPriorityModal';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -232,12 +233,24 @@ function SendConfirmation({ route }) {
     );
   }
 
-  const initialiseMiniscriptMultisigPaths = () => {
+  const initialiseMiniscriptMultisigPaths = async () => {
     // specifically initialises phases/paths for miniscript Vaults(to be generalised w/ the UI)
-    if (!currentBlockHeight) {
-      showToast('Failed to sync current block height');
-      navigation.goBack();
-      return;
+    let currentSyncedBlockHeight = currentBlockHeight;
+    if (!currentSyncedBlockHeight) {
+      try {
+        currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+          .currentBlockHeight;
+      } catch (err) {
+        showToast(err);
+      }
+      if (!currentSyncedBlockHeight) {
+        showToast(
+          'Failed to fetch current chain data, please check your connection and try again',
+          <ToastErrorIcon />
+        );
+        navigation.goBack();
+        return;
+      }
     }
 
     const { phases: availablePhases, signers: availableSigners } = getAvailableMiniscriptPhase(
@@ -291,8 +304,9 @@ function SendConfirmation({ route }) {
       sender.entityKind === EntityKind.VAULT &&
       (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
     ) {
-      // to be generalised once the generic UI is available
-      initialiseMiniscriptMultisigPaths();
+      initialiseMiniscriptMultisigPaths().catch((err) => {
+        console.log('Initialization error:', err);
+      });
     }
   }, []);
 

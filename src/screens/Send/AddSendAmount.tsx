@@ -327,12 +327,24 @@ function AddSendAmount({ route }) {
     }
   }, []);
 
-  const navigateToNext = () => {
+  const navigateToNext = async () => {
     if (sender.entityKind === EntityKind.VAULT) {
       if (sender.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-        if (!currentBlockHeight) {
-          showToast('Unable to sync current block height');
-          return;
+        let currentSyncedBlockHeight = currentBlockHeight;
+        if (!currentSyncedBlockHeight) {
+          try {
+            currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+              .currentBlockHeight;
+          } catch (err) {
+            showToast(err);
+          }
+          if (!currentSyncedBlockHeight) {
+            showToast(
+              'Failed to fetch current chain data, please check your connection and try again',
+              <ToastErrorIcon />
+            );
+            return;
+          }
         }
       }
     }
