@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, AppState, AppStateStatus } from 'react-native';
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -110,6 +110,7 @@ function ConnectChannel() {
   let walletName = null;
   let hmac = null;
   let receivingAddress;
+  let room;
 
   if (mode === InteracationMode.ADDRESS_VERIFICATION) {
     const { activeVault: vault } = useVault({ vaultId });
@@ -137,7 +138,7 @@ function ConnectChannel() {
     decryptionKey.current = data;
     const sha = crypto.createHash('sha256');
     sha.update(data);
-    const room = sha.digest().toString('hex');
+    room = sha.digest().toString('hex');
     const requestBody: RequestBody = {
       action:
         mode === InteracationMode.ADDRESS_VERIFICATION
@@ -158,7 +159,12 @@ function ConnectChannel() {
       requestBody.accountNumber = accountNumber;
     }
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
+    console.log(room);
+    channel.emit(JOIN_CHANNEL, {
+      room,
+      network: config.NETWORK_TYPE,
+      requestData,
+    });
     if (mode === InteracationMode.ADDRESS_VERIFICATION) {
       setNewTitle(`Verify Address on ${signer.signerName}`);
       setNewSubtitle(
@@ -170,49 +176,7 @@ function ConnectChannel() {
     }
   };
 
-  useEffect(() => {
-    let channelConnectionInterval = setInterval(() => {
-      if (!channel.connect) {
-        channel.connect();
-      }
-    }, 10000);
-    channel.on(CHANNEL_MESSAGE, async ({ data }) => {
-      try {
-        const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
-        const responseData = decrypted.responseData.data;
-        if (mode == EMIT_MODES.HEALTH_CHECK) {
-          await handleVerification(responseData, signerType);
-        } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
-          const resAdd = responseData.address;
-          const hmac = responseData.hmac;
-          if (resAdd != receivingAddress) return;
-          dispatch(
-            updateKeyDetails(signer, 'registered', {
-              registered: true,
-              hmac,
-              vaultId,
-            })
-          );
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_VERIFICATION,
-              },
-            ])
-          );
-          navigation.goBack();
-          showToast(`Address verified successfully`, <TickIcon />);
-        } else {
-          console.log('responseData');
-          console.log(responseData);
-          signerSetup(signerType, responseData);
-        }
-      } catch (error) {
-        console.log('🚀 ~ channel.on ~ error:', error);
-      }
-    });
-
+  const handleChannelMessage = async ({ data }) => {
     const signerSetup = (signerType, signerData) => {
       try {
         const { signer } = setupUSBSigner(signerType, signerData, isMultisig);
@@ -299,9 +263,63 @@ function ConnectChannel() {
       }
     };
 
+    try {
+      const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
+      const responseData = decrypted.responseData.data;
+      if (mode == EMIT_MODES.HEALTH_CHECK) {
+        await handleVerification(responseData, signerType);
+      } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
+        const resAdd = responseData.address;
+        const hmac = responseData.hmac;
+        if (resAdd != receivingAddress) return;
+        dispatch(
+          updateKeyDetails(signer, 'registered', {
+            registered: true,
+            hmac,
+            vaultId,
+          })
+        );
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_VERIFICATION,
+            },
+          ])
+        );
+        navigation.goBack();
+        showToast(`Address verified successfully`, <TickIcon />);
+      } else {
+        signerSetup(signerType, responseData);
+      }
+    } catch (error) {
+      console.log('🚀 ~ channel.on ~ error:', error);
+    }
+  };
+
+  useEffect(() => {
+    let appStateSubscription: any;
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        // Force reconnect when app becomes active
+        channel.disconnect();
+        channel.connect();
+        channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
+        channel.on(CHANNEL_MESSAGE, handleChannelMessage);
+      }
+    };
+
+    // Set up app state listener
+    appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+    // Set up channel listener
+    channel.on(CHANNEL_MESSAGE, handleChannelMessage);
+
+    // Cleanup function
     return () => {
+      appStateSubscription.remove();
       channel.disconnect();
-      clearInterval(channelConnectionInterval);
     };
   }, [channel]);
 
