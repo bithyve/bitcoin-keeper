@@ -81,9 +81,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: wp(104),
     height: hp(83),
-    paddingVertical: hp(10),
-    paddingLeft: 10,
-    paddingRight: 6,
+    padding: hp(10),
     borderRadius: 10,
     overflow: 'hidden',
     alignItems: 'center',

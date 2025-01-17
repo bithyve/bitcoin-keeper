@@ -87,7 +87,6 @@ function NewHomeScreen({ navigation }) {
       />
       <HomeScreenHeader
         colorMode={colorMode}
-        top={top}
         title={selectedOption}
         circleIconWrapper={
           <CircleIconWrapper width={wp(39)} icon={<WalletIcon />} backgroundColor={Colors.White} />
@@ -109,6 +108,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: wp(30),
+    paddingTop: wp(22),
   },
 });

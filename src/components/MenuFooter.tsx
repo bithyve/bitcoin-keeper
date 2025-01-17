@@ -95,7 +95,9 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: hp(85),
     borderRadius: 20,
-    padding: wp(20),
+    paddingHorizontal: wp(10),
+    paddingTop: hp(10),
+    paddingBottom: hp(26),
   },
   menuWrapper: {
     flexDirection: 'row',
@@ -116,7 +118,7 @@ const styles = StyleSheet.create({
   },
   menuText: {
     marginTop: 5,
-    fontSize: 14,
+    fontSize: 11,
     textAlign: 'center',
   },
 });

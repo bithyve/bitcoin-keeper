@@ -10,24 +10,19 @@ import { capitalizeEachWord } from 'src/utils/utilities';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
-  top: number;
   circleIconWrapper: React.ReactNode;
   title: string;
 }
 
 const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   colorMode,
-  top,
   circleIconWrapper,
   title,
 }) => {
   return (
-    <Box
-      backgroundColor={`${colorMode}.pantoneGreen`}
-      style={[styles.wrapper, { paddingTop: top }]}
-    >
+    <Box backgroundColor={`${colorMode}.pantoneGreen`} style={[styles.wrapper]}>
       <Box width="90%" style={styles.padding}>
-        <TouchableOpacity style={styles.headerData} testID={`btn_choosePlan`}>
+        <Box style={styles.headerData} testID={`btn_choosePlan`}>
           {circleIconWrapper}
           <Text
             testID="text_home_current_plan"
@@ -37,8 +32,8 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
           >
             {capitalizeEachWord(title)}
           </Text>
-        </TouchableOpacity>
-        <Box>
+        </Box>
+        <Box style={styles.headerData}>
           <TouchableOpacity style={{ padding: 5 }} testID="btn_settings">
             {/* <NotificationIcon /> */}
             <NotificationSimpleIcon />
@@ -58,16 +53,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   wrapper: {
-    paddingBottom: hp(10),
-    paddingHorizontal: wp(22),
-    paddingTop: hp(60),
+    paddingHorizontal: wp(10),
     width: '100%',
     alignItems: 'center',
     position: 'relative',
     minHeight: hp(127),
   },
   headerData: {
-    paddingVertical: hp(20),
+    paddingTop: wp(63),
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -41,62 +41,55 @@ const WalletCard: React.FC<WalletCardProps> = ({
 }) => {
   const defaultHexagonBackgroundColor = Colors.White;
   const [isShowAmount, setIsShowAmount] = useState(false);
-  const navigation = useNavigation();
   const { getWalletIcon } = useWalletAsset();
   const WalletIcon = getWalletIcon(wallet);
 
-  const handleWalletPress = (wallet, navigation) => {
-    if (wallet.entityKind === EntityKind.VAULT) {
-      navigation.navigate('VaultDetails', { vaultId: wallet.id, autoRefresh: true });
-    } else {
-      navigation.navigate('WalletDetails', { walletId: wallet.id, autoRefresh: true });
-    }
-  };
-
   return (
-    <TouchableOpacity onPress={() => handleWalletPress(wallet, navigation)}>
-      <LinearGradient
-        colors={backgroundColor}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={[styles.cardContainer]}
-      >
-        <Box style={styles.topLeftContainer}>
-          <HexagonIcon
-            width={iconWidth}
-            height={iconHeight}
-            backgroundColor={hexagonBackgroundColor || defaultHexagonBackgroundColor}
-            icon={<WalletIcon />}
+    <LinearGradient
+      colors={backgroundColor}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={[styles.cardContainer]}
+    >
+      <Box style={styles.topLeftContainer}>
+        <HexagonIcon
+          width={iconWidth}
+          height={iconHeight}
+          backgroundColor={hexagonBackgroundColor || defaultHexagonBackgroundColor}
+          icon={<WalletIcon />}
+        />
+      </Box>
+
+      <WalletLine style={styles.walletLine} width={wp(180)} height={hp(200)} />
+      <Box style={styles.pillsContainer}>
+        {tags?.map(({ tag, color }, index) => (
+          <CardPill
+            key={tag}
+            heading={tag}
+            backgroundColor={color}
+            cardStyle={index % 2 !== 0 && styles.secondCard}
+          />
+        ))}
+      </Box>
+
+      <Box style={styles.bottomContainer}>
+        <Box style={styles.bottomLeft}>
+          <Text color={Colors.White} style={styles.description}>
+            {description}
+          </Text>
+          <Text medium color={Colors.White} style={styles.title}>
+            {title}
+          </Text>
+        </Box>
+        <Box style={styles.bottomRight}>
+          <BalanceComponent
+            setIsShowAmount={setIsShowAmount}
+            isShowAmount={isShowAmount}
+            balance={totalBalance}
           />
         </Box>
-
-        <WalletLine style={styles.walletLine} width={wp(180)} height={hp(200)} />
-        <Box style={styles.pillsContainer}>
-          {tags?.map(({ tag, color }, index) => (
-            <CardPill
-              key={tag}
-              heading={tag}
-              backgroundColor={color}
-              cardStyle={index % 2 !== 0 && styles.secondCard}
-            />
-          ))}
-        </Box>
-
-        <Box style={styles.bottomContainer}>
-          <Box style={styles.bottomLeft}>
-            <Text style={styles.description}>{description}</Text>
-            <Text style={styles.title}>{title}</Text>
-          </Box>
-          <Box style={styles.bottomRight}>
-            <BalanceComponent
-              setIsShowAmount={setIsShowAmount}
-              isShowAmount={isShowAmount}
-              balance={totalBalance}
-            />
-          </Box>
-        </Box>
-      </LinearGradient>
-    </TouchableOpacity>
+      </Box>
+    </LinearGradient>
   );
 };
 
@@ -105,7 +98,7 @@ export default WalletCard;
 const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'column',
-    width: wp(320),
+    width: wp(327),
     height: wp(180),
     padding: wp(20),
     borderRadius: 10,
@@ -130,7 +123,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: hp(20),
     left: 20,
-    right: 20,
+    right: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     zIndex: 2,
@@ -140,12 +133,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: Colors.White,
   },
   description: {
     fontSize: 11,
-    color: Colors.White,
   },
   bottomRight: {
     justifyContent: 'center',
