@@ -48,7 +48,7 @@ function AddNewWallet({ navigation }) {
   const CREATE_WALLET_OPTIONS = [
     {
       icon: <NewWalletIcon />,
-      title: 'Single-Key Wallet',
+      title: 'Single-key wallet',
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 1, n: 1 });
