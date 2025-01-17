@@ -51,7 +51,7 @@ function AddNewWallet({ navigation }) {
   const CREATE_WALLET_OPTIONS = [
     {
       icon: <NewWalletIcon />,
-      title: 'Single-key wallet',
+      title: 'Single-key',
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 1, n: 1 });
@@ -158,6 +158,8 @@ function AddNewWallet({ navigation }) {
           icon={<SettingIcon />}
           iconWidth={22}
           iconHeight={20}
+          cardStyles={styles.enhancedVaultsCustomStyles}
+          titleSize={15}
         />
         <Buttons primaryText="Proceed" primaryDisable={!selectedWalletType} fullWidth />
       </Box>
@@ -445,6 +447,11 @@ const styles = StyleSheet.create({
   modalFooter: {
     padding: wp(15),
     paddingTop: 0,
+  },
+  enhancedVaultsCustomStyles: {
+    padding: 15,
+    gap: 15,
+    width: wp(320),
   },
   upgradeButtonCustomStyles: {
     container: {
