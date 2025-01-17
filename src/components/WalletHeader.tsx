@@ -40,20 +40,17 @@ const WalletHeader: React.FC<Props> = ({
     },
     backButton: {
       height: hp(44),
-      width: wp(30),
+      width: wp(28),
       justifyContent: 'center',
-      alignItems: 'center',
     },
     title: {
       fontSize: 18,
       fontWeight: 'bold',
-      marginLeft: wp(8),
     },
 
     settingBtn: {
       paddingHorizontal: 22,
       paddingVertical: 22,
-      backgroundColor: 'red',
     },
   });
 

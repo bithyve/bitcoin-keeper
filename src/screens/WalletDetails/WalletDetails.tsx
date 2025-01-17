@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
   },
   walletContainer: {
     paddingTop: wp(60),
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   settingBtn: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 16,
   },
   card: {

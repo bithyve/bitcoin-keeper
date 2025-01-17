@@ -98,10 +98,10 @@ export default WalletCard;
 const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'column',
-    width: wp(327),
+    width: '100%',
     height: wp(180),
     padding: wp(20),
-    borderRadius: 10,
+    borderRadius: 15,
     position: 'relative',
     overflow: 'hidden',
   },

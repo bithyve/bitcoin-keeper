@@ -53,14 +53,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   wrapper: {
-    paddingHorizontal: wp(10),
+    paddingHorizontal: wp(5),
     width: '100%',
     alignItems: 'center',
     position: 'relative',
     minHeight: hp(127),
   },
   headerData: {
-    paddingTop: wp(63),
+    paddingTop: wp(68),
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,

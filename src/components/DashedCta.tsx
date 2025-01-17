@@ -13,6 +13,7 @@ type DashedButtonProps = {
   callback?: (name: string) => void;
   cardStyles?: ViewStyle;
   iconWidth?: number;
+  customStyle?: ViewStyle;
   iconHeight?: number;
   loading?: boolean;
   description?: string;
@@ -34,6 +35,7 @@ function DashedCta({
   icon,
   cardStyles,
   backgroundColor,
+  customStyle,
   hexagonBackgroundColor,
   borderColor,
   textColor,
@@ -51,7 +53,7 @@ function DashedCta({
   return (
     <TouchableOpacity onPress={() => callback(name)}>
       <Box
-        style={[styles.AddCardContainer, cardStyles]}
+        style={[customStyle ? customStyle : styles.AddCardContainer, cardStyles]}
         backgroundColor={backgroundColor || defaultBackgroundColor}
         borderColor={defaultBorderColor}
       >
@@ -89,7 +91,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 5,
   },
-
   textCenter: {
     alignItems: 'center',
   },
