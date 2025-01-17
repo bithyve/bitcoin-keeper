@@ -443,7 +443,7 @@ export const parseTextforVaultConfig = (secret: string) => {
     };
     return parsedResponse;
   }
-  throw Error('Unsupported format!');
+  throw Error('Data provided does not match supported formats');
 };
 
 function parseInheritanceKeyMiniscript(miniscript: string): {
