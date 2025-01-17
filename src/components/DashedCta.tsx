@@ -22,6 +22,7 @@ type DashedButtonProps = {
   hexagonBackgroundColor?: string;
   borderColor?: string;
   textColor?: string;
+  textSize?: string;
   arrowIcon?: any;
   textPosition?: 'center' | 'left';
 };
@@ -71,7 +72,11 @@ function DashedCta({
               {name}
             </Text>
           )}
-          {description && <Text color={textColor || defaultTextColor}>{description}</Text>}
+          {description && (
+            <Text color={textColor || defaultTextColor} fontSize={13}>
+              {description}
+            </Text>
+          )}
         </Box>
         <Box>{arrowIcon && (isDarkMode ? <RightArrowWhite /> : <RightArrow />)}</Box>
       </Box>

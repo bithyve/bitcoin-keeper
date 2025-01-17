@@ -65,7 +65,10 @@ const HomeWallet = () => {
       title: 'Create Wallet',
       subtitle: 'Create a new Bitcoin wallet',
       icon: <NewWalletIcon />,
-      onPress: () => {},
+      onPress: () => {
+        setShowAddWalletModal(false);
+        navigation.navigate('AddNewWallet');
+      },
       id: 'newWallet',
     },
     {
@@ -85,16 +88,6 @@ const HomeWallet = () => {
       onPress: handleCollaborativeWalletCreation,
       id: 'importWallet',
     },
-    // {
-    //   label: 'App Data',
-    //   icon: <AppDataIcon />,
-    //   onPress: () =>
-    //     setSelectedDetails({
-    //       ...selectedDetails,
-    //       appData: !selectedDetails.appData,
-    //     }),
-    //   id: 'appData',
-    // },
   ];
 
   const renderWalletCard = ({ item }: { item: Wallet | Vault }) => {

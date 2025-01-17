@@ -79,7 +79,7 @@ function SetupVaultContent() {
   );
 }
 
-function NumberInput({ value, onDecrease, onIncrease }) {
+export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
 
   return (

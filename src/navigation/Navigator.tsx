@@ -91,6 +91,7 @@ import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
 import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
 import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
+import AddNewWallet from 'src/screens/AddWalletScreen/AddNewWallet';
 import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
@@ -314,6 +315,7 @@ function AppStack() {
         />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="AddWallet" component={AddWallet} />
+        <Stack.Screen name="AddNewWallet" component={AddNewWallet} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
         <Stack.Screen name="CloudBackup" component={CloudBackupScreen} />

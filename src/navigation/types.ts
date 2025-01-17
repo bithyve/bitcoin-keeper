@@ -130,6 +130,7 @@ export type AppStackParams = {
   MixProgress: undefined;
   AssignSignerType: undefined;
   AddWallet: undefined;
+  AddNewWallet: undefined;
   CanaryWallets: undefined;
   AssistedKeys: undefined;
   SafeKeepingTips: undefined;
