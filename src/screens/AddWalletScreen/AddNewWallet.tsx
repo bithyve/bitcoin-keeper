@@ -33,6 +33,9 @@ import DashedCta from 'src/components/DashedCta';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import SettingIcon from 'src/assets/images/new_icon_settings.svg';
 import CheckIcon from 'src/assets/images/planCheckMarkSelected.svg';
+import usePlan from 'src/hooks/usePlan';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
 
 function AddNewWallet({ navigation }) {
   const { colorMode } = useColorMode();
@@ -214,6 +217,7 @@ function AddNewWallet({ navigation }) {
         onClose={() => setShowEnhancedOptionsModal(false)}
         inheritanceKeySelected={inheritanceKeySelected}
         setInheritanceKeySelected={setInheritanceKeySelected}
+        navigation={navigation}
       />
     </ScreenWrapper>
   );
@@ -246,6 +250,7 @@ const EnhancedSecurityModal = ({
   onClose,
   inheritanceKeySelected,
   setInheritanceKeySelected,
+  navigation,
 }) => {
   const { colorMode } = useColorMode();
   const [pendingInheritanceKeySelected, setPendingInheritanceKeySelected] =
@@ -257,6 +262,9 @@ const EnhancedSecurityModal = ({
       setPendingInheritanceKeySelected(inheritanceKeySelected);
     }
   }, [isVisible, inheritanceKeySelected]);
+
+  const { plan } = usePlan();
+  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
 
   return (
     <KeeperModal
@@ -274,7 +282,20 @@ const EnhancedSecurityModal = ({
       Content={() => {
         return (
           <Box style={styles.enhancedOptionsContainer}>
+            {!isDiamondHand && (
+              <Box>
+                <UpgradeSubscription
+                  type={SubscriptionTier.L3}
+                  customStyles={styles.upgradeButtonCustomStyles}
+                  navigation={navigation}
+                  onPress={() => {
+                    onClose();
+                  }}
+                />
+              </Box>
+            )}
             <Pressable
+              disabled={!isDiamondHand}
               onPress={() => setPendingInheritanceKeySelected(!pendingInheritanceKeySelected)}
             >
               <Box
@@ -283,7 +304,12 @@ const EnhancedSecurityModal = ({
                 borderColor={`${colorMode}.border`}
               >
                 <Box style={styles.optionHeader}>
-                  <Text fontSize={18} color={`${colorMode}.primaryText`}>
+                  <Text
+                    fontSize={16}
+                    color={
+                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.whiteButtonText`
+                    }
+                  >
                     Inheritance Key
                   </Text>
                   {pendingInheritanceKeySelected ? (
@@ -297,29 +323,49 @@ const EnhancedSecurityModal = ({
                     ></Box>
                   )}
                 </Box>
-                <Text fontSize={14} color={`${colorMode}.secondaryText`}>
+                <Text
+                  fontSize={12}
+                  color={
+                    !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
+                  }
+                >
                   An extra key which will be added to your wallet quorum after a certain time
                 </Text>
               </Box>
             </Pressable>
 
-            <Pressable>
+            <Pressable disabled={!isDiamondHand}>
               <Box
                 style={styles.optionBox}
                 backgroundColor={`${colorMode}.boxSecondaryBackground`}
                 borderColor={`${colorMode}.border`}
               >
                 <Box style={styles.optionHeader}>
-                  <Text fontSize={18} color={`${colorMode}.primaryText`}>
+                  <Text
+                    fontSize={16}
+                    color={
+                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.whiteButtonText`
+                    }
+                  >
                     Emergency Key
                   </Text>
-                  <Box style={styles.comingSoon} backgroundColor={`${colorMode}.brownBackground`}>
+                  <Box
+                    style={styles.comingSoon}
+                    backgroundColor={
+                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.brownBackground`
+                    }
+                  >
                     <Text fontSize={10} color={`${colorMode}.white`} medium>
                       Coming Soon
                     </Text>
                   </Box>
                 </Box>
-                <Text fontSize={14} color={`${colorMode}.secondaryText`}>
+                <Text
+                  fontSize={12}
+                  color={
+                    !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
+                  }
+                >
                   A key with delayed full control to recover from extended key loss
                 </Text>
               </Box>
@@ -392,13 +438,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   comingSoon: {
-    paddingHorizontal: wp(10),
-    paddingVertical: hp(5),
+    paddingHorizontal: wp(8),
+    paddingVertical: hp(4),
     borderRadius: 20,
   },
   modalFooter: {
     padding: wp(15),
     paddingTop: 0,
+  },
+  upgradeButtonCustomStyles: {
+    container: {
+      borderTopWidth: 0,
+      justifyContent: 'space-between',
+    },
+    learnMoreContainer: {
+      paddingVertical: hp(3),
+      paddingHorizontal: wp(14),
+      fontSize: 13,
+    },
+    unlockAtText: {
+      fontSize: 15,
+      verticalAlign: 'bottom',
+    },
   },
 });
 
