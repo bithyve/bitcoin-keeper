@@ -972,17 +972,6 @@ function* backupAllSignersAndVaultsWorker() {
       };
     }
 
-    const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-    const nodesToUpdate = [];
-    if (nodes && nodes.length > 0) {
-      for (const index in nodes) {
-        const node = nodes[index];
-        node.isConnected = false;
-        const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
-        nodesToUpdate.push(encrytedNode);
-      }
-    }
-
     yield call(Relay.backupAllSignersAndVaults, {
       appId: id,
       publicId,
@@ -992,7 +981,6 @@ function* backupAllSignersAndVaultsWorker() {
       networkType,
       subscription: JSON.stringify(subscription),
       version,
-      nodes: nodesToUpdate,
     });
     yield put(setBackupAllSuccess(true));
     yield put(setPendingAllBackup(false));
@@ -1021,8 +1009,7 @@ function* checkBackupCondition() {
     return true;
   }
   if (pendingAllBackup) {
-    const allBackupRes = yield call(backupAllSignersAndVaultsWorker);
-    if (allBackupRes) yield put(setPendingAllBackup(false));
+    yield call(backupAllSignersAndVaultsWorker);
     return true;
   }
   return false;

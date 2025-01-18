@@ -115,7 +115,7 @@ function AppSettings({ navigation, route }) {
   useEffect(() => {
     if (backupAllSuccess && isFocused) {
       dispatch(setBackupAllSuccess(false));
-      dispatch(setAutomaticCloudBackup(!automaticCloudBackup));
+      dispatch(setAutomaticCloudBackup(true));
     }
   }, [backupAllSuccess]);
 
