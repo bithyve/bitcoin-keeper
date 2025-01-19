@@ -214,8 +214,9 @@ function* credentialsAuthWorker({ payload }) {
             }
           }
           yield put(connectToNode());
-          const { automaticCloudBackup } = yield select((state: RootState) => state.network);
-          const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
+          const { pendingAllBackup, automaticCloudBackup } = yield select(
+            (state: RootState) => state.bhr
+          );
           if (pendingAllBackup && automaticCloudBackup) yield put(backupAllSignersAndVaults());
         } catch (error) {
           yield put(setRecepitVerificationError(true));

@@ -55,6 +55,8 @@ const initialState: {
   backupAllFailure: boolean;
 
   pendingAllBackup: boolean;
+
+  automaticCloudBackup: boolean;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -99,6 +101,8 @@ const initialState: {
   backupAllSuccess: false,
 
   pendingAllBackup: false,
+
+  automaticCloudBackup: true,
 };
 
 const bhrSlice = createSlice({
@@ -278,6 +282,10 @@ const bhrSlice = createSlice({
     setPendingAllBackup: (state, action: PayloadAction<boolean>) => {
       state.pendingAllBackup = action.payload;
     },
+
+    setAutomaticCloudBackup: (state, action: PayloadAction<boolean>) => {
+      state.automaticCloudBackup = action.payload;
+    },
   },
 });
 
@@ -333,6 +341,8 @@ export const {
   setBackupAllFailure,
 
   setPendingAllBackup,
+
+  setAutomaticCloudBackup,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {

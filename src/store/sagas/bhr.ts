@@ -1000,8 +1000,7 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
 );
 
 function* checkBackupCondition() {
-  const { automaticCloudBackup } = yield select((state: RootState) => state.network);
-  const { pendingAllBackup } = yield select((state: RootState) => state.bhr);
+  const { pendingAllBackup, automaticCloudBackup } = yield select((state: RootState) => state.bhr);
   if (!automaticCloudBackup) return true;
   const netInfo = yield call(NetInfo.fetch);
   if (!netInfo.isConnected) {

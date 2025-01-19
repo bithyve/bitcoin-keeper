@@ -39,9 +39,12 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { setAutomaticCloudBackup } from 'src/store/reducers/network';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
-import { setBackupAllFailure, setBackupAllSuccess } from 'src/store/reducers/bhr';
+import {
+  setBackupAllFailure,
+  setBackupAllSuccess,
+  setAutomaticCloudBackup,
+} from 'src/store/reducers/bhr';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -50,8 +53,13 @@ function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
-  const { isCloudBsmsBackupRequired, backupAllLoading, backupAllFailure, backupAllSuccess } =
-    useAppSelector((state) => state.bhr);
+  const {
+    isCloudBsmsBackupRequired,
+    backupAllLoading,
+    backupAllFailure,
+    backupAllSuccess,
+    automaticCloudBackup,
+  } = useAppSelector((state) => state.bhr);
 
   const { plan } = usePlan();
   const versionHistory = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
@@ -66,7 +74,6 @@ function AppSettings({ navigation, route }) {
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
-  let { automaticCloudBackup } = useAppSelector((store) => store.network);
   const { showToast } = useToastMessage();
   const isFocused = useIsFocused(); // Check if the screen is in the foreground
 
