@@ -7,13 +7,11 @@ const initialState: {
   averageTxFees: AverageTxFeesByNetwork;
   initialNodesSaved: Boolean;
   oneDayInsight: HistoricalInisightData[];
-  automaticCloudBackup: boolean;
 } = {
   exchangeRates: null,
   averageTxFees: null,
   initialNodesSaved: false,
   oneDayInsight: [],
-  automaticCloudBackup: true,
 };
 
 const networkSlice = createSlice({
@@ -34,18 +32,10 @@ const networkSlice = createSlice({
     setOneDayInsight: (state, action: PayloadAction<HistoricalInisightData[]>) => {
       state.oneDayInsight = action.payload;
     },
-    setAutomaticCloudBackup: (state, action: PayloadAction<boolean>) => {
-      state.automaticCloudBackup = action.payload;
-    },
   },
 });
 
-export const {
-  setExchangeRates,
-  setAverageTxFee,
-  setInitialNodesSaved,
-  setOneDayInsight,
-  setAutomaticCloudBackup,
-} = networkSlice.actions;
+export const { setExchangeRates, setAverageTxFee, setInitialNodesSaved, setOneDayInsight } =
+  networkSlice.actions;
 
 export default networkSlice.reducer;

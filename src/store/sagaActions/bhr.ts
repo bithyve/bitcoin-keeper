@@ -14,6 +14,7 @@ export const BSMS_CLOUD_HEALTH_CHECK = 'BSMS_CLOUD_HEALTH_CHECK';
 export const DELETE_APP_IMAGE_ENTITY = 'DELETE_APP_IMAGE_ENTITY';
 export const HEALTH_CHECK_STATUS_UPDATE = 'HEALTH_CHECK_STATUS_UPDATE';
 export const BACKUP_ALL_SIGNERS_AND_VAULTS = 'BACKUP_ALL_SIGNERS_AND_VAULTS';
+export const SET_AUTOMATIC_CLOUD_BACKUP = 'SET_AUTOMATIC_CLOUD_BACKUP';
 
 export const updateAppImage = ({ wallets, signers }) => ({
   type: UPDATE_APP_IMAGE,
@@ -108,4 +109,9 @@ export const bsmsCloudHealthCheck = () => ({
 
 export const backupAllSignersAndVaults = () => ({
   type: BACKUP_ALL_SIGNERS_AND_VAULTS,
+});
+
+export const setAutomaticCloudBackup = (payload) => ({
+  type: SET_AUTOMATIC_CLOUD_BACKUP,
+  payload,
 });
