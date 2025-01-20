@@ -173,33 +173,51 @@ export const runRealmMigrations = ({
   }
 
   if (oldRealm.schemaVersion < 78) {
-    const oldNodeConnects = oldRealm.objects(RealmSchema.NodeConnect);
-    const newNodeConnects = newRealm.objects(RealmSchema.NodeConnect);
-    const oldDefaultNodeConnects = oldRealm.objects(RealmSchema.DefaultNodeConnect);
-    const newDefaultNodeConnects = newRealm.objects(RealmSchema.DefaultNodeConnect);
+    try {
+      const oldNodeConnects = oldRealm.objects(RealmSchema.NodeConnect);
+      const newNodeConnects = newRealm.objects(RealmSchema.NodeConnect);
 
-    for (let i = 0; i < oldNodeConnects.length; i++) {
-      const oldNodeConnect = oldNodeConnects[i];
-      const newNodeConnect = newNodeConnects[i];
+      // Check if DefaultNodeConnect schema exists before trying to access it
+      const hasDefaultNodeConnectSchema = oldRealm.schema.some(
+        (schema) => schema.name === RealmSchema.DefaultNodeConnect
+      );
 
-      // Remove the 'isDefault' property
-      if ('isDefault' in oldNodeConnect) {
-        if ('isDefault' in newNodeConnect) {
-          delete (newNodeConnect as any).isDefault;
+      for (let i = 0; i < oldNodeConnects.length; i++) {
+        try {
+          const oldNodeConnect = oldNodeConnects[i];
+          const newNodeConnect = newNodeConnects[i];
+
+          if ('isDefault' in oldNodeConnect && 'isDefault' in newNodeConnect) {
+            delete (newNodeConnect as any).isDefault;
+          }
+        } catch (innerError) {
+          console.warn('Error processing individual NodeConnect:', innerError);
+          // Continue with next item even if one fails
         }
       }
-    }
 
-    for (let i = 0; i < oldDefaultNodeConnects.length; i++) {
-      const oldDefaultNodeConnect = oldDefaultNodeConnects[i];
-      const newDefaultNodeConnect = newDefaultNodeConnects[i];
+      // Only process DefaultNodeConnect if the schema exists
+      if (hasDefaultNodeConnectSchema) {
+        const oldDefaultNodeConnects = oldRealm.objects(RealmSchema.DefaultNodeConnect);
+        const newDefaultNodeConnects = newRealm.objects(RealmSchema.DefaultNodeConnect);
 
-      // Remove the 'isDefault' property
-      if ('isDefault' in oldDefaultNodeConnect) {
-        if ('isDefault' in newDefaultNodeConnect) {
-          delete (newDefaultNodeConnect as any).isDefault;
+        for (let i = 0; i < oldDefaultNodeConnects.length; i++) {
+          try {
+            const oldDefaultNodeConnect = oldDefaultNodeConnects[i];
+            const newDefaultNodeConnect = newDefaultNodeConnects[i];
+
+            if ('isDefault' in oldDefaultNodeConnect && 'isDefault' in newDefaultNodeConnect) {
+              delete (newDefaultNodeConnect as any).isDefault;
+            }
+          } catch (innerError) {
+            console.warn('Error processing individual DefaultNodeConnect:', innerError);
+            // Continue with next item even if one fails
+          }
         }
       }
+    } catch (error) {
+      console.error('Error during schema migration 78:', error);
+      // Migration should continue even if this part fails
     }
   }
 
