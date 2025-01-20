@@ -15,14 +15,12 @@ import {
   KeyValidationErrorCode,
   VaultType,
   XpubTypes,
-  WalletType,
   MiniscriptTypes,
 } from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
@@ -32,7 +30,6 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
-import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
@@ -40,25 +37,16 @@ import Text from 'src/components/KeeperText';
 import idx from 'idx';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
-import SuccessIllustration from 'src/assets/images/Success.svg';
-import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
 import CardPill from 'src/components/CardPill';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import {
-  SETUPASSISTEDVAULT,
-  SETUPCOLLABORATIVEWALLET,
-  ADDRESERVEKEY,
-} from 'src/navigation/contants';
+import { SETUPCOLLABORATIVEWALLET, ADDRESERVEKEY } from 'src/navigation/contants';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import KeyAddedModal from 'src/components/KeyAddedModal';
-import CautionIllustration from 'src/assets/images/downgradetopleb.svg';
-import Dropdown from 'src/components/Dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
@@ -66,7 +54,6 @@ import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
 import { SDIcons } from './SigningDeviceIcons';
-import { TIMELOCK_DURATIONS } from './constants';
 import AddKeyButton from '../SigningDevices/components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
 import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
@@ -1020,9 +1007,8 @@ function AddSigningDevice() {
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation, common, signer, wallet: walletTranslation } = translations;
+  const { vault: vaultTranslation } = translations;
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
-  const [selectedDuration, setSelectedDuration] = useState('');
 
   const { signers } = useSigners();
   // filter out archived & hidden signers
@@ -1034,10 +1020,6 @@ function AddSigningDevice() {
   const isCollaborativeWallet = activeVault?.type == VaultType.COLLABORATIVE;
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
   const isAssistedWallet = activeVault?.type == VaultType.ASSISTED;
-  const isAssistedWalletFlow = parentScreen === SETUPASSISTEDVAULT;
-  const [timeLockCautionModal, setTimelockCautionModal] = useState(false);
-  const [selectDurationModal, setSelectDurationModal] = useState(false);
-  const [timeLockWalletCreatedModal, setTimeLockWalletCreatedModal] = useState(false);
   const [hotWalletSelected, setHotWalletSelected] = useState(false);
   const [hotWalletInstanceNum, setHotWalletInstanceNum] = useState(false);
 

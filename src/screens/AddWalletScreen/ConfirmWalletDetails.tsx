@@ -233,7 +233,6 @@ function ConfirmWalletDetails({ route }) {
   }
 
   function VaultCreatedModalContent(vault: Vault) {
-    console.log(vault);
     const tags = getWalletTags(vault).map((tag, index) => ({
       ...tag,
       key: `tag-${index}-${tag.tag}`,
