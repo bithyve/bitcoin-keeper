@@ -14,7 +14,7 @@ import { SignerType } from 'src/services/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getKeyUID } from 'src/utils/utilities';
-import { windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import DashedCta from 'src/components/DashedCta';
 import Colors from 'src/theme/Colors';
 import Plus from 'src/assets/images/add-plus-white.svg';
@@ -86,7 +86,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
                     ? getSignerNameFromType(signer.type, signer.isMock, false)
                     : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
-                description={getSignerDescription(signer)}
+                subtitle={getSignerDescription(signer)}
                 icon={SDIcons(signer.type, true).Icon}
                 image={signer?.extraData?.thumbnailPath}
                 showSelection={false}

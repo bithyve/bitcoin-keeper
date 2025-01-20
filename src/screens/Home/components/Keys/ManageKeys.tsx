@@ -35,7 +35,7 @@ const ManageKeys = () => {
         close={handleModalClose}
         title={vault.Addsigner}
         subTitle={vault.SelectSignerSubtitle}
-        modalBackground={`${colorMode}.textInputBackground`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.pantoneGreen`}
         subTitleColor={`${colorMode}.black`}
         DarkCloseIcon={isDarkMode}

@@ -308,7 +308,7 @@ export const customTheme = extendTheme({
       QrCode: Colors.WhiteCoffee,
       recieverAddress: Colors.DimGray,
       textInputBackground: Colors.SecondaryBackgroundDark,
-      secondaryBackground: Colors.PrimaryBlack,
+      secondaryBackground: Colors.SecondaryBackgroundDark,
       GreyText: Colors.SecondaryWhite,
       dateText: Colors.SecondaryWhite,
       Border: Colors.SecondaryWhite,

@@ -30,6 +30,8 @@ type SignerCardProps = {
   borderColor?: string;
   nameColor?: string;
   disabledWithTouch?: boolean;
+  titleSize: number;
+  subtitleFont: number;
 };
 
 function SignerCard({
@@ -55,6 +57,8 @@ function SignerCard({
   cardBackground,
   borderColor,
   nameColor,
+  titleSize,
+  subtitleFont,
   disabledWithTouch = false,
 }: SignerCardProps) {
   const backgroundColor =
@@ -109,7 +113,10 @@ function SignerCard({
         {titleComp}
         <Text
           color={cardNameColor}
-          style={styles.walletName}
+          style={{
+            ...styles.walletName,
+            fontSize: titleSize || styles.walletName.fontSize,
+          }}
           numberOfLines={isFullText ? 2 : 1}
           medium
         >
@@ -117,7 +124,13 @@ function SignerCard({
         </Text>
         {subtitle ? (
           <Text
-            style={[styles.walletSubtTitle, { marginBottom: isFeePriority ? -7 : 0 }]}
+            style={[
+              styles.walletSubtTitle,
+              {
+                fontSize: subtitleFont || styles.walletSubtTitle.fontSize,
+                marginBottom: isFeePriority ? -7 : 0,
+              },
+            ]}
             color={`${colorMode}.secondaryText`}
             numberOfLines={numberOfLines}
           >
