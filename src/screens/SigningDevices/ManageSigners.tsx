@@ -185,15 +185,6 @@ function ManageSigners({ route }: ScreenProps) {
           learnTextColor={`${colorMode}.buttonText`}
           titleColor={`${colorMode}.seashellWhiteText`}
           subTitleColor={`${colorMode}.seashellWhiteText`}
-          rightComponent={
-            <TouchableOpacity
-              style={styles.settingsButton}
-              onPress={() => setConfirmPassVisible(true)}
-              testID="btn_manage_singner_setting"
-            >
-              <LockShieldLight />
-            </TouchableOpacity>
-          }
           rightComponentBottomPadding={hp(-20)}
           icon={
             <CircleIconWrapper

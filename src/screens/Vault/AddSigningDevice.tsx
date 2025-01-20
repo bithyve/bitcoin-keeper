@@ -73,6 +73,7 @@ import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-i
 import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-illustration-dark.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import useWallets from 'src/hooks/useWallets';
+import SuccessIcon from 'src/assets/images/successSvg.svg';
 
 const onSignerSelect = (
   selected,
@@ -276,6 +277,7 @@ function Footer({
   vaultType,
   isHotWallet,
   hotWalletInstanceNum,
+  keyToRotate,
   signers,
 }) {
   const navigation = useNavigation();
@@ -335,9 +337,13 @@ function Footer({
         <Buttons
           primaryDisable={!!areSignersValid && !isHotWallet}
           primaryLoading={relayVaultUpdateLoading}
-          primaryText={common.proceed}
+          primaryText={keyToRotate ? 'Replace Key' : common.proceed}
           primaryCallback={
-            !isAddInheritanceKey
+            keyToRotate
+              ? () => {
+                  setCreating(true);
+                }
+              : !isAddInheritanceKey
               ? () => {
                   navigation.navigate('ConfirmWalletDetails', {
                     vaultKeys,
@@ -448,6 +454,7 @@ function Signers({
   setAddedKey,
   vaultType,
   selectedSignersFromParams,
+  activeVault,
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
@@ -536,7 +543,8 @@ function Signers({
 
     if (
       keyToRotate &&
-      (getKeyUID(keyToRotate) === getKeyUID(signer) || selectedSigners.get(getKeyUID(signer)))
+      (getKeyUID(keyToRotate) === getKeyUID(signer) ||
+        activeVault.signers.find((s) => getKeyUID(s) === getKeyUID(signer)))
     ) {
       return {
         title: vaultText.keyAlreadyUsedInVaultTitle,
@@ -662,10 +670,6 @@ function Signers({
                 vaultType,
                 showToast
               );
-              if (keyToRotate && vaultKeys.length === scheme.n) {
-                showToast('Updating vault keys and archiving the old vault', <TickIcon />);
-                setCreating(true);
-              }
             }}
             colorMode={colorMode}
           />
@@ -1060,13 +1064,6 @@ function AddSigningDevice() {
   const [generatedVaultId, setGeneratedVaultId] = useState('');
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
-
-  const { vaultSigners: keys } = useSigners(newVault?.id);
-  const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
-
-  const handleOptionSelect = useCallback((option) => {
-    setSelectedDuration(option);
-  }, []);
   const [inProgress, setInProgress] = useState(false);
 
   const handleModalClose = () => {
@@ -1196,72 +1193,6 @@ function AddSigningDevice() {
     );
   }
 
-  function Vault3_5CreatedModalContent(vault: Vault) {
-    const tags = ['Vault', `${vault.scheme.m}-of-${vault.scheme.n}`];
-    return (
-      <Box>
-        <Box>
-          <Text color={`${colorMode}.secondaryText`} style={styles.desc}>
-            {vaultTranslation.Vault3_5CreatedModalDesc1}
-          </Text>
-          <Text color={`${colorMode}.secondaryText`} style={styles.desc}>
-            {vaultTranslation.Vault3_5CreatedModalDesc2}
-          </Text>
-        </Box>
-        <Box style={styles.illustrationContainer}>
-          <SuccessIllustration />
-        </Box>
-        <Box>
-          <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
-            {vaultTranslation.Vault3_5CreatedModalDesc3}
-          </Text>
-        </Box>
-      </Box>
-    );
-  }
-
-  function TimeLockWalletCreatedContent(vault: Vault) {
-    return (
-      <Box>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
-          <Box style={styles.walletVaultInfoWrapper}>
-            <Box style={styles.iconWrapper}>
-              <HexagonIcon
-                width={44}
-                height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
-                icon={<VaultIcon />}
-              />
-            </Box>
-            <Box>
-              {vault.presentationData.description ? (
-                <Text fontSize={12} color={`${colorMode}.secondaryText`}>
-                  {vault.presentationData.description}
-                </Text>
-              ) : null}
-              <Text color={`${colorMode}.greenText`} medium style={styles.titleText}>
-                {vault.presentationData.name}
-              </Text>
-            </Box>
-          </Box>
-        </Box>
-        <Box>
-          <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
-            {vaultTranslation.VaultCreatedModalDesc}
-          </Text>
-        </Box>
-      </Box>
-    );
-  }
-  function TimeLockInfoModalContent() {
-    return (
-      <Box style={styles.timelockContent}>
-        <CautionIllustration style={styles.cautionIllustration} />
-        <Note title={common.note} subtitle={vaultTranslation.timeLockSetupNote} />
-      </Box>
-    );
-  }
-
   function SingleSigWallet(vault: Vault) {
     const tags = ['SINGLE-KEY', 'COLD'];
     return (
@@ -1343,33 +1274,6 @@ function AddSigningDevice() {
     <Box backgroundColor={`${colorMode}.primaryBackground`} flex={1}>
       <SafeAreaView style={styles.topContainer}>
         <Box style={styles.topSection}>
-          {/* <KeeperHeader
-            title={
-              isCollaborativeFlow
-                ? vaultTranslation.chooseCoSigner
-                : !isReserveKeyFlow
-                ? signer.addKeys
-                : signer.inheritanceKey
-            }
-            subtitle={
-              isCollaborativeFlow
-                ? vaultTranslation.forYourCollabVault
-                : !isReserveKeyFlow
-                ? subtitle
-                : signer.designateAsInheritanceKey
-            }
-            icon={
-              !isCollaborativeFlow && (
-                <HexagonIcon
-                  width={44}
-                  height={38}
-                  backgroundColor={Colors.pantoneGreen}
-                  icon={!isReserveKeyFlow ? <VaultIcon /> : <KEEPERAPPLIGHT />}
-                />
-              )
-            }
-            // To-Do-Learn-More
-          /> */}
           <WalletHeader title="Select your wallet keys" />
         </Box>
         <VaultMigrationController
@@ -1393,7 +1297,7 @@ function AddSigningDevice() {
         <Box flex={1}>
           <Signers
             keyToRotate={keyToRotate}
-            showSelection={!keyToRotate}
+            showSelection={true}
             signers={activeSigners}
             selectedSigners={selectedSigners}
             setSelectedSigners={setSelectedSigners}
@@ -1416,6 +1320,7 @@ function AddSigningDevice() {
             setHotWalletSelected={setHotWalletSelected}
             setHotWalletInstanceNum={setHotWalletInstanceNum}
             vaultType={vaultType}
+            activeVault={activeVault}
           />
         </Box>
         <Footer
@@ -1442,35 +1347,33 @@ function AddSigningDevice() {
           vaultType={vaultType}
           hotWalletInstanceNum={hotWalletInstanceNum}
           signers={activeSigners}
+          keyToRotate={keyToRotate}
         />
         <KeeperModal
           dismissible
           close={() => {}}
           visible={vaultCreatedModalVisible}
-          title={
-            isSSAddition ? 'Wallet Created Successfully' : vaultTranslation.vaultCreatedSuccessTitle
-          }
+          title={keyToRotate ? 'Key Replaced Successfully' : 'Wallet Created Successfully'}
           subTitle={
-            inheritanceSigner
-              ? `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been setup successfully. You can start receiving/transferring bitcoin`
+            keyToRotate
+              ? 'Your wallet key was successfully replaced, you can continue to use your updated wallet.'
               : `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`
           }
           Content={
-            isSSAddition
+            keyToRotate
+              ? () => {
+                  return (
+                    <Box flex={1} alignItems={'center'}>
+                      <SuccessIcon />
+                    </Box>
+                  );
+                }
+              : isSSAddition
               ? () => SingleSigWallet(newVault)
-              : inheritanceSigner
-              ? () => Vault3_5CreatedModalContent(newVault)
               : () => VaultCreatedModalContent(newVault)
           }
-          buttonText={
-            inheritanceSigner
-              ? vaultTranslation.addEmail
-              : isSSAddition
-              ? 'View Wallet'
-              : vaultTranslation.ViewVault
-          }
-          buttonCallback={inheritanceSigner ? viewAddEmail : viewVault}
-          secondaryButtonText={inheritanceSigner && common.cancel}
+          buttonText={'View Wallet'}
+          buttonCallback={viewVault}
           secondaryCallback={viewVault}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
@@ -1479,48 +1382,6 @@ function AddSigningDevice() {
           subTitleColor={`${colorMode}.secondaryText`}
           subTitleWidth={wp(280)}
           showCloseIcon={false}
-        />
-        <KeeperModal
-          closeOnOverlayClick
-          close={() => {
-            setTimeLockWalletCreatedModal(false);
-          }}
-          visible={timeLockWalletCreatedModal}
-          title={vaultTranslation.timeLockCreatedTitle}
-          subTitle={vaultTranslation.timeLockCreatedSubtitle}
-          buttonText={walletTranslation.ViewWallet}
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.primaryText`}
-          buttonTextColor={`${colorMode}.buttonText`}
-          buttonBackground={`${colorMode}.greenButtonBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          subTitleWidth={wp(280)}
-          showCloseIcon={false}
-          Content={() => TimeLockWalletCreatedContent(newVault)}
-        />
-        <KeeperModal
-          closeOnOverlayClick
-          close={() => {
-            setTimelockCautionModal(false);
-          }}
-          visible={timeLockCautionModal}
-          title={vaultTranslation.timeLockCautionTitle}
-          subTitle={vaultTranslation.timeLockCautionSubtitle}
-          buttonText={common.continue}
-          secondaryButtonText={common.cancel}
-          buttonCallback={() => {
-            setTimelockCautionModal(false);
-            setSelectDurationModal(true);
-          }}
-          secondaryCallback={() => setTimelockCautionModal(false)}
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.primaryText`}
-          buttonTextColor={`${colorMode}.buttonText`}
-          buttonBackground={`${colorMode}.greenButtonBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          subTitleWidth={wp(280)}
-          showCloseIcon={false}
-          Content={TimeLockInfoModalContent}
         />
         <KeyAddedModal
           visible={externalKeyAddedModal}

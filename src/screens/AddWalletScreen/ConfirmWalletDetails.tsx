@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect, useRef } from 'react';
 import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
@@ -412,25 +412,26 @@ function ConfirmWalletDetails({ route }) {
             </Text>
           </Pressable>
         </Box>
-        <Box flexDirection={'row'} flex={1} marginTop={hp(20)}>
-          {route.params.selectedSigners.map((signer) => {
-            console.log(signer);
-            return (
-              <SignerCard
-                key={getKeyUID(signer)}
-                name={getSignerNameFromType(signer.type, signer.isMock, signer.isAMF)}
-                description={getSignerDescription(signer)}
-                // customStyle={styles.signerCard}
-                icon={SDIcons(signer.type).Icon}
-                image={signer?.extraData?.thumbnailPath}
-                showSelection={false}
-                isFullText
-                colorVarient="green"
-                colorMode={colorMode}
-              />
-            );
-          })}
-        </Box>
+        <ScrollView>
+          <Box flexDirection={'row'} flex={1} marginTop={hp(20)} flexWrap={'wrap'}>
+            {route.params.selectedSigners.map((signer) => {
+              return (
+                <SignerCard
+                  key={getKeyUID(signer)}
+                  name={getSignerNameFromType(signer.type, signer.isMock, signer.isAMF)}
+                  description={getSignerDescription(signer)}
+                  // customStyle={styles.signerCard}
+                  icon={SDIcons(signer.type).Icon}
+                  image={signer?.extraData?.thumbnailPath}
+                  showSelection={false}
+                  isFullText
+                  colorVarient="green"
+                  colorMode={colorMode}
+                />
+              );
+            })}
+          </Box>
+        </ScrollView>
         <Box style={styles.footer}>
           <Buttons
             primaryText={'Create your Wallet'}

@@ -70,18 +70,10 @@ function Footer({
   const { common } = translations;
   const { colorMode } = useColorMode();
 
-  const ReInstateIcon = () => (
-    <CircleIconWrapper
-      icon={<ImportIcon />}
-      backgroundColor={`${colorMode}.brownBackground`}
-      width={wp(38)}
-    />
-  );
-
   const footerItems = vault.archived
     ? [
         {
-          Icon: ReInstateIcon,
+          Icon: ImportIcon,
           text: common.reinstate,
           onPress: () => {
             dispatch(reinstateVault(vault.id));

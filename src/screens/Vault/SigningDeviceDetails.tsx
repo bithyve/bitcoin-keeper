@@ -552,18 +552,28 @@ function SigningDeviceDetails({ route }) {
         }
       },
     },
-    {
-      text: 'Change Key',
-      Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
-      onPress: () =>
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'AddSigningDevice',
-            merge: true,
-            params: { vaultId, scheme: activeVault.scheme, keyToRotate: vaultKey },
-          })
-        ),
-    },
+    ...(activeVault
+      ? [
+          {
+            text: 'Change Key',
+            Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
+            onPress: () =>
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'AddSigningDevice',
+                  merge: true,
+                  params: {
+                    vaultId,
+                    name: activeVault.presentationData.name,
+                    description: activeVault.presentationData.description,
+                    scheme: activeVault.scheme,
+                    keyToRotate: vaultKey,
+                  },
+                })
+              ),
+          },
+        ]
+      : []),
     {
       text: 'Settings',
       Icon: () => <FooterIcon Icon={isDarkMode ? SettingIcon : SettingIconLight} />,
@@ -609,7 +619,7 @@ function SigningDeviceDetails({ route }) {
         <Box style={styles.paddedArea}>
           <Box style={styles.flex1}>
             <Text style={styles.recentHistoryText} color={`${colorMode}.secondaryText`} medium>
-              {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
+              {`Key used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
             </Text>
             {signerVaults.length > 0 ? (
               <ScrollView
