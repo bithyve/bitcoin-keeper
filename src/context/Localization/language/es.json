@@ -1500,7 +1500,7 @@
     "expertGuidanceButtonText": "Connect with Advisor",
     "comingSoonText": "Coming Soon",
     "conciergeTitle": "Keeper Concierge",
-    "conciergeAdditionDetailTitle": "Additional details",
-    "conciergeAdditionDetailSubTitle": "Easily resolve issues by sharing device details, wallet info, and app logs"
+    "conciergeAdditionDetailTitle": "Additional detail",
+    "conciergeAdditionDetailSubTitle": "You can share your Device Details, Wallet Info, App Data, and Network Info."
   }
 }
