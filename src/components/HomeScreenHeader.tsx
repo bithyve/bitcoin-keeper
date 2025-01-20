@@ -11,14 +11,12 @@ import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
-
   circleIconWrapper: React.ReactNode;
   title: string;
 }
 
 const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   colorMode,
-
   circleIconWrapper,
   title,
 }) => {
@@ -27,6 +25,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   return (
     <Box backgroundColor={`${colorMode}.pantoneGreen`} style={[styles.wrapper]}>
       <Box width="90%" style={styles.padding}>
+
         <Box
           style={[styles.headerData, { paddingTop: isSmallDevice ? wp(50) : wp(68) }]}
           testID={`btn_choosePlan`}
@@ -41,6 +40,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
             {capitalizeEachWord(title)}
           </Text>
         </Box>
+
         <Box style={[styles.headerData, { paddingTop: isSmallDevice ? wp(50) : wp(68) }]}>
           <TouchableOpacity style={{ padding: 5 }} testID="btn_settings">
             {/* <NotificationIcon /> */}
@@ -61,8 +61,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   wrapper: {
-    paddingBottom: hp(10),
-    paddingHorizontal: wp(22),
+    paddingHorizontal: wp(5),
     width: '100%',
     alignItems: 'center',
     position: 'relative',

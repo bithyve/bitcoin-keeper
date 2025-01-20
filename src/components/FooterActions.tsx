@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     width: wp(287),
     minHeight: hp(58),
     borderRadius: 70,
-    gap: 10,
+    gap: 30,
   },
 
   iconContainer: {

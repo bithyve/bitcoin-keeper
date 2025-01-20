@@ -94,7 +94,12 @@ function RegisterWithQR({ route, navigation }: any) {
                 ecl="L"
               />
             ) : (
-              <DisplayQR qrContents={qrContents} toBytes type="hex" />
+              <DisplayQR
+                qrContents={signer.type == SignerType.COLDCARD ? walletConfig : qrContents}
+                toBytes
+                type="hex"
+                signerType={signer.type}
+              />
             )}
           </Box>
           <Box style={styles.centerBottom}>

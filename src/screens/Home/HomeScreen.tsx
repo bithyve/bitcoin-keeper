@@ -127,6 +127,7 @@ function NewHomeScreen({ navigation }) {
         electrumErrorVisible={electrumErrorVisible}
         setElectrumErrorVisible={setElectrumErrorVisible}
       />
+
       <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
       <Box style={styles.content}>{content}</Box>
       <MenuFooter selectedOption={selectedOption} onOptionChange={handleOptionChange} />
@@ -143,6 +144,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: wp(25),
+    paddingTop: wp(22),
   },
 });

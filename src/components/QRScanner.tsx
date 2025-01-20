@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import CameraUnauthorized from './CameraUnauthorized';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/services/qr';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -14,6 +14,9 @@ import { QRreader } from 'react-native-qr-decode-image-camera';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Text from './KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { joinQRs } from 'src/services/qr/bbqr/join';
+import { extractBBQRIndex, isHexadecimal } from 'src/utils/utilities';
+import { Psbt } from 'bitcoinjs-lib';
 
 let decoder = new URRegistryDecoder();
 
@@ -31,6 +34,7 @@ function QRScanner({
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
   const [hasError, setHasError] = useState(false);
+  const bbqrArray = useRef([]);
 
   const { showToast } = useToastMessage();
 
@@ -73,19 +77,69 @@ function QRScanner({
   const onBarCodeRead = useCallback(
     (data) => {
       if (!qrData && !hasError) {
-        if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
-          setData(data.data);
-          setQrPercent(100);
-        } else {
+        if (data.data.startsWith('B$')) {
           try {
-            const { data: qrInfo, percentage } = decodeURBytes(decoder, data.data);
-            if (qrInfo) {
-              setData(qrInfo);
+            if (bbqrArray.current.length > 0 && bbqrArray.current.every((item) => item !== null))
+              return;
+            const { total, index } = extractBBQRIndex(data.data);
+            if (!bbqrArray.current.length) {
+              bbqrArray.current = Array(total).fill(null);
+              bbqrArray.current[index] = data.data;
+              setQrPercent(Math.round((1 / total) * 100));
+            } else {
+              if (!bbqrArray.current[index]) {
+                bbqrArray.current[index] = data.data;
+                setQrPercent(
+                  Math.round(
+                    (bbqrArray.current.filter((item) => item !== null).length / total) * 100
+                  )
+                );
+              }
+              if (bbqrArray.current.every((item) => item !== null)) {
+                setQrPercent(100);
+                const reassembled = joinQRs(bbqrArray.current);
+                const decoder = new TextDecoder('utf-8');
+                const jsonString = decoder.decode(reassembled.raw);
+                const jsonData = JSON.parse(jsonString);
+                setData(jsonData);
+              }
             }
-            setQrPercent(percentage);
-          } catch {
+          } catch (error) {
+            console.log('🚀 ~ error:', error);
             setHasError(true);
             resetQR(true);
+          }
+        } else {
+          if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
+            if (isHexadecimal(data.data)) {
+              // for hex response from coldcardQ
+              const binaryData = Buffer.from(data.data, 'hex');
+              try {
+                if (Psbt.fromBase64(binaryData.toString('base64'))) {
+                  setData(binaryData.toString('base64'));
+                } else {
+                  setData(data.data);
+                }
+              } catch {
+                setData(data.data);
+              }
+
+              setQrPercent(100);
+            } else {
+              setData(data.data);
+              setQrPercent(100);
+            }
+          } else {
+            try {
+              const { data: qrInfo, percentage } = decodeURBytes(decoder, data.data);
+              if (qrInfo) {
+                setData(qrInfo);
+              }
+              setQrPercent(percentage);
+            } catch {
+              setHasError(true);
+              resetQR(true);
+            }
           }
         }
       }

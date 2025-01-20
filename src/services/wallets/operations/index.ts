@@ -1513,7 +1513,8 @@ export default class WalletOperations {
     outgoing: number,
     outputs: OutputUTXOs[],
     change: string,
-    signerMap?: { [key: string]: Signer }
+    signerMap?: { [key: string]: Signer },
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier
   ):
     | {
         signedPSBT: bitcoinJS.Psbt;
@@ -1527,6 +1528,53 @@ export default class WalletOperations {
     const signer = signerMap[getKeyUID(vaultKey)];
     const payloadTarget = signer.type;
     let isSigned = false;
+
+    if (miniscriptSelectedSatisfier && signer.type === SignerType.BITBOX02) {
+      const subPaths = inputs.reduce((acc, input) => {
+        const { subPaths: inputSubPaths } = WalletUtilities.addressToMultiSig(
+          input.address,
+          wallet as Vault
+        );
+        return { ...acc, ...inputSubPaths };
+      }, {});
+
+      // Update bip32Derivation for each input to only include keys in selected path
+      for (let i = 0; i < PSBT.data.inputs.length; i++) {
+        const input = PSBT.data.inputs[i];
+        if (!input.bip32Derivation) continue;
+
+        const { selectedPaths } = miniscriptSelectedSatisfier;
+        const { miniscriptScheme } = wallet.scheme;
+        const { keyInfoMap } = miniscriptScheme;
+
+        const paths = [];
+        for (const path of selectedPaths) {
+          for (const key of path.keys) {
+            const keyDescriptor = keyInfoMap[key.uniqueKeyIdentifier];
+
+            const fragments = keyDescriptor.split('/');
+            const masterFingerprint = fragments[0].slice(1);
+            const multipathIndex = fragments[5];
+            const [script_type, xpub] = fragments[4].split(']');
+
+            const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+            const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
+            paths.push({
+              masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+              path: path.replaceAll('h', "'"),
+            });
+          }
+        }
+        input.bip32Derivation = input.bip32Derivation.filter((bip32Deriv) => {
+          return paths.some(
+            (path) =>
+              bip32Deriv.path === path.path &&
+              bip32Deriv.masterFingerprint.toString() === path.masterFingerprint.toString()
+          );
+        });
+      }
+    }
+
     if (signer.isMock && vaultKey.xpriv) {
       // case: if the signer is mock and has an xpriv attached to it, we'll sign the PSBT right away
       const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
@@ -1776,12 +1824,16 @@ export default class WalletOperations {
           outgoing,
           outputs,
           change,
-          signerMap
+          signerMap,
+          miniscriptSelectedSatisfier
         );
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }
 
-      return { serializedPSBTEnvelops, cachedTxid: hash256(PSBT.toBase64()) };
+      return {
+        serializedPSBTEnvelops,
+        cachedTxid: hash256(PSBT.toBase64()),
+      };
     } else {
       // case: wallet(single-sig)
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);

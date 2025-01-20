@@ -1,4 +1,4 @@
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, useColorMode } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
@@ -604,6 +604,17 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             ),
             name: SigningMode.USB,
           },
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.QR,
+          },
         ],
       };
     case SignerType.KEYSTONE:
@@ -858,6 +869,8 @@ function SignerModals({
               return;
             } else if (signingMode === SigningMode.USB) {
               navigateToChannelSigning(vaultKey, SignerType.COLDCARD);
+            } else if (signingMode === SigningMode.QR) {
+              navigateToQrSigning(vaultKey);
             } else {
               navigation.dispatch(
                 CommonActions.navigate('SignWithColdCard', {

@@ -11,8 +11,9 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import useWalletAsset from 'src/hooks/useWalletAsset';
-import { VisibilityType } from 'src/services/wallets/enums';
+import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -34,18 +35,27 @@ const HomeWallet = () => {
   );
 
   const renderWalletCard = ({ item }: { item: Wallet | Vault }) => {
+    const handleWalletPress = (item, navigation) => {
+      if (item.entityKind === EntityKind.VAULT) {
+        navigation.navigate('VaultDetails', { vaultId: item.id, autoRefresh: true });
+      } else {
+        navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
+      }
+    };
     return (
-      <WalletCard
-        backgroundColor={getWalletCardGradient(item)}
-        hexagonBackgroundColor={Colors.CyanGreen}
-        iconWidth={42}
-        iconHeight={38}
-        title={item.presentationData.name}
-        tags={getWalletTags(item)}
-        totalBalance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
-        description={item.presentationData.description}
-        wallet={item}
-      />
+      <TouchableOpacity onPress={() => handleWalletPress(item, navigation)}>
+        <WalletCard
+          backgroundColor={getWalletCardGradient(item)}
+          hexagonBackgroundColor={isDarkMode ? Colors.CyanGreen : Colors.CyanGreen}
+          iconWidth={42}
+          iconHeight={38}
+          title={item.presentationData.name}
+          tags={getWalletTags(item)}
+          totalBalance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
+          description={item.presentationData.description}
+          wallet={item}
+        />
+      </TouchableOpacity>
     );
   };
 
@@ -76,6 +86,6 @@ export default HomeWallet;
 
 const styles = StyleSheet.create({
   walletContainer: {
-    gap: 20,
+    gap: 15,
   },
 });

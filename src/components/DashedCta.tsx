@@ -67,7 +67,7 @@ function DashedCta({
         )}
         <Box style={[textPosition === 'center' ? styles.textCenter : styles.textLeft]}>
           {name && (
-            <Text semiBold color={textColor || defaultTextColor} fontSize={18}>
+            <Text semiBold color={textColor || defaultTextColor} fontSize={14}>
               {name}
             </Text>
           )}
@@ -81,15 +81,15 @@ function DashedCta({
 
 const styles = StyleSheet.create({
   AddCardContainer: {
-    width: wp(320),
-    padding: 15,
+    width: wp(327),
+    minHeight: hp(50),
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
+    gap: 5,
   },
   textCenter: {
     alignItems: 'center',

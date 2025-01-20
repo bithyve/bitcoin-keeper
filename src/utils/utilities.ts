@@ -12,6 +12,7 @@ import { isTestnet } from 'src/constants/Bitcoin';
 
 import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 import BIP32Factory from 'bip32';
+import { detectFileType, splitQRs } from 'src/services/qr/bbqr/split';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -481,7 +482,6 @@ export const getInputsToSignFromPSBT = (base64Str: string, signer: Signer) => {
   return inputsToSign;
 };
 
-
 export const calculateTicketsLeft = (tickets, planDetails) => {
   const PLEB_RESTRICTION = 1;
   const HODLER_RESTRICTION = 3;
@@ -546,3 +546,36 @@ export const checkSignerAccountsMatch = (signer: Signer): boolean => {
   const firstAccount = accountNumbers[0];
   return accountNumbers.every((num) => num === firstAccount);
 };
+
+export const extractBBQRIndex = (data) => {
+  if (!data.startsWith('B$')) {
+    throw new Error("Invalid string format. Must start with 'B$'.");
+  }
+  const total = data.substring(4, 6);
+  if (isNaN(total)) {
+    throw new Error('Invalid total. Must be numeric.');
+  }
+  const index = data.substring(6, 8);
+  if (isNaN(index)) {
+    throw new Error('Invalid index. Must be numeric.');
+  }
+  return {
+    total: parseInt(total, 10),
+    index: parseInt(index, 10),
+  };
+};
+
+export const psbtToBBQR = async (psbt) => {
+  try {
+    const { raw, fileType } = await detectFileType(psbt); // requires uint8array
+    const qrData = splitQRs(raw, fileType, { encoding: 'Z' });
+    return qrData.parts;
+  } catch (error) {
+    console.log('🚀 ~ psbtToBBQR ~ error:', error);
+    return '';
+  }
+};
+
+export function isHexadecimal(str) {
+  return /^[0-9a-fA-F]+$/.test(str);
+}
