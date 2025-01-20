@@ -7,6 +7,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import NotificationIcon from 'src/assets/images/header-notification-icon.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import { capitalizeEachWord } from 'src/utils/utilities';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -21,13 +22,18 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   circleIconWrapper,
   title,
 }) => {
+  const isSmallDevice = useIsSmallDevices();
+
   return (
     <Box
       backgroundColor={`${colorMode}.pantoneGreen`}
       style={[styles.wrapper, { paddingTop: top }]}
     >
       <Box width="90%" style={styles.padding}>
-        <TouchableOpacity style={styles.headerData} testID={`btn_choosePlan`}>
+        <Box
+          style={[styles.headerData, { paddingTop: isSmallDevice ? wp(50) : wp(68) }]}
+          testID={`btn_choosePlan`}
+        >
           {circleIconWrapper}
           <Text
             testID="text_home_current_plan"
@@ -37,8 +43,8 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
           >
             {capitalizeEachWord(title)}
           </Text>
-        </TouchableOpacity>
-        <Box>
+        </Box>
+        <Box style={[styles.headerData, { paddingTop: isSmallDevice ? wp(50) : wp(68) }]}>
           <TouchableOpacity style={{ padding: 5 }} testID="btn_settings">
             {/* <NotificationIcon /> */}
             <NotificationSimpleIcon />
@@ -67,7 +73,6 @@ const styles = StyleSheet.create({
     minHeight: hp(127),
   },
   headerData: {
-    paddingVertical: hp(20),
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,

@@ -1,54 +1,59 @@
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
-import DashedCta from 'src/components/DashedCta';
-import Plus from 'src/assets/images/add-plus-white.svg';
-
-import Colors from 'src/theme/Colors';
-import { StyleSheet, ViewStyle } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { wp } from 'src/constants/responsive';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import SignerContent from './SignerContent';
+import { useNavigation } from '@react-navigation/native';
+import SignerList from './SignerList';
 
 const ManageKeys = () => {
-  const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const { translations } = useContext(LocalizationContext);
+  const { vault } = translations;
+  const navigation = useNavigation();
 
-  const customStyle: ViewStyle = {
-    width: wp(162),
-    minHeight: wp(135),
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleModalOpen = () => {
+    setModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
   };
 
   return (
     <Box style={styles.containerWrapper}>
-      <DashedCta
-        backgroundColor={
-          isDarkMode ? `${colorMode}.DashedButtonCta` : `${colorMode}.DashedButtonCta`
-        }
-        hexagonBackgroundColor={isDarkMode ? Colors.pantoneGreen : Colors.pantoneGreen}
-        textColor={isDarkMode ? Colors.White : Colors.pantoneGreen}
-        name="Add keys"
-        callback={() => navigation.dispatch(CommonActions.navigate('SignerCategoryList', {}))}
-        icon={<Plus width={12.9} height={12.9} />}
-        iconWidth={33}
-        iconHeight={30}
-        customStyle={customStyle}
+      <Box style={styles.contentContainer}>
+        <SignerList navigation={navigation} handleModalOpen={handleModalOpen} />
+      </Box>
+      <KeeperModal
+        visible={modalVisible}
+        close={handleModalClose}
+        title={vault.Addsigner}
+        subTitle={vault.SelectSignerSubtitle}
+        modalBackground={`${colorMode}.textInputBackground`}
+        textColor={`${colorMode}.pantoneGreen`}
+        subTitleColor={`${colorMode}.black`}
+        DarkCloseIcon={isDarkMode}
+        Content={() => (
+          <SignerContent navigation={navigation} handleModalClose={handleModalClose} />
+        )}
       />
     </Box>
   );
 };
 
 export default ManageKeys;
+
 const styles = StyleSheet.create({
   containerWrapper: {
-    width: '100%',
-    flexWrap: 'wrap',
-    flex: 1,
+    paddingHorizontal: wp(5),
+  },
+  contentContainer: {
+    flexDirection: 'row',
   },
 });
