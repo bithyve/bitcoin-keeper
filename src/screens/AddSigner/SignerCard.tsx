@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Pressable } from 'native-base';
 import { Image, StyleSheet, ViewStyle } from 'react-native';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
@@ -143,8 +143,8 @@ function SignerCard({
 const styles = StyleSheet.create({
   walletContainer: {
     width: windowWidth / 3 - windowWidth * 0.05,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
+    paddingHorizontal: wp(15),
+    paddingVertical: hp(12),
     height: 125,
     alignItems: 'flex-start',
     borderRadius: 10,

@@ -11,24 +11,21 @@ import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
-  top: number;
+
   circleIconWrapper: React.ReactNode;
   title: string;
 }
 
 const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   colorMode,
-  top,
+
   circleIconWrapper,
   title,
 }) => {
   const isSmallDevice = useIsSmallDevices();
 
   return (
-    <Box
-      backgroundColor={`${colorMode}.pantoneGreen`}
-      style={[styles.wrapper, { paddingTop: top }]}
-    >
+    <Box backgroundColor={`${colorMode}.pantoneGreen`} style={[styles.wrapper]}>
       <Box width="90%" style={styles.padding}>
         <Box
           style={[styles.headerData, { paddingTop: isSmallDevice ? wp(50) : wp(68) }]}
@@ -66,7 +63,6 @@ const styles = StyleSheet.create({
   wrapper: {
     paddingBottom: hp(10),
     paddingHorizontal: wp(22),
-    paddingTop: hp(60),
     width: '100%',
     alignItems: 'center',
     position: 'relative',

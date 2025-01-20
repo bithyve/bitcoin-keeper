@@ -37,7 +37,7 @@ const HomeWallet = () => {
     return (
       <WalletCard
         backgroundColor={getWalletCardGradient(item)}
-        hexagonBackgroundColor={isDarkMode ? Colors.CyanGreen : Colors.CyanGreen}
+        hexagonBackgroundColor={Colors.CyanGreen}
         iconWidth={42}
         iconHeight={38}
         title={item.presentationData.name}
@@ -52,11 +52,9 @@ const HomeWallet = () => {
   return (
     <Box style={styles.walletContainer}>
       <DashedCta
-        backgroundColor={
-          isDarkMode ? `${colorMode}.DashedButtonCta` : `${colorMode}.DashedButtonCta`
-        }
-        hexagonBackgroundColor={isDarkMode ? Colors.pantoneGreen : Colors.pantoneGreen}
-        textColor={isDarkMode ? Colors.White : `${colorMode}.pantoneGreen`}
+        backgroundColor={`${colorMode}.DashedButtonCta`}
+        hexagonBackgroundColor={Colors.pantoneGreen}
+        textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"
         callback={() => navigation.navigate('AddWallet')}
         icon={<Plus width={8.6} height={8.6} />}

@@ -54,7 +54,7 @@ function NewHomeScreen({ navigation }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<WalletIcon />}
-              backgroundColor={Colors.White}
+              backgroundColor={`${colorMode}.modalGreenContent`}
             />
           ),
         };
@@ -66,7 +66,11 @@ function NewHomeScreen({ navigation }) {
             </Box>
           ),
           icon: (
-            <CircleIconWrapper width={wp(39)} icon={<KeysIcon />} backgroundColor={Colors.White} />
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={<KeysIcon />}
+              backgroundColor={`${colorMode}.modalGreenContent`}
+            />
           ),
         };
       case wallet.concierge:
@@ -77,7 +81,11 @@ function NewHomeScreen({ navigation }) {
             </Box>
           ),
           icon: (
-            <CircleIconWrapper width={wp(39)} icon={<WalletIcon />} backgroundColor={Colors.Gray} />
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={<WalletIcon />}
+              backgroundColor={`${colorMode}.modalGreenContent`}
+            />
           ),
         };
       case wallet.more:
@@ -88,7 +96,11 @@ function NewHomeScreen({ navigation }) {
             </Box>
           ),
           icon: (
-            <CircleIconWrapper width={wp(39)} icon={<WalletIcon />} backgroundColor={Colors.Blue} />
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={<WalletIcon />}
+              backgroundColor={`${colorMode}.modalGreenContent`}
+            />
           ),
         };
       default:

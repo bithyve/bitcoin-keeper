@@ -427,7 +427,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <Box style={styles.card}>
           <WalletCard
             backgroundColor={getWalletCardGradient(vault)}
-            hexagonBackgroundColor={isDarkMode ? Colors.CyanGreen : Colors.CyanGreen}
+            hexagonBackgroundColor={Colors.CyanGreen}
             icon={<WalletIcon />}
             iconWidth={42}
             iconHeight={38}
@@ -443,7 +443,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <HStack style={styles.actionCardContainer}>
           {!isCanaryWallet && (
             <FeatureCard
-              disable={disableBuy}
               cardName={common.buyBitCoin}
               callback={() =>
                 navigation.dispatch(
@@ -451,11 +450,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                 )
               }
               icon={<BTC />}
-              cardPillText={cardProps.cardPillText}
-              pillTextColor={cardProps.pillTextColor}
-              circleColor={cardProps.circleColor}
-              cardPillColor={cardProps.cardPillColor}
-              customCardPill={cardProps.customCardPill}
               customStyle={{ justifyContent: 'flex-end' }}
             />
           )}

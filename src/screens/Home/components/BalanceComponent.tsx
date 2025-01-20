@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -7,7 +7,6 @@ import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import Colors from 'src/theme/Colors';
 
 function BalanceComponent({ balance, isShowAmount, setIsShowAmount }) {
-  const { colorMode } = useColorMode();
   return (
     <Box style={styles.walletWrapper}>
       <TouchableOpacity
@@ -21,8 +20,8 @@ function BalanceComponent({ balance, isShowAmount, setIsShowAmount }) {
           amount={balance}
           hideAmounts={!isShowAmount}
           fontSize={19}
-          color={colorMode === 'light' ? Colors.SecondaryWhite : Colors.SecondaryWhite}
-          variation={colorMode === 'light' ? 'light' : 'light'}
+          color={Colors.SecondaryWhite}
+          variation={'light'}
         />
       </TouchableOpacity>
     </Box>

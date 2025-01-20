@@ -79,7 +79,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
               <SignerCard
                 key={getKeyUID(signer)}
                 onCardSelect={() => {
-                  handleCardSelect(signer, item);
+                  handleCardSelect(signer);
                 }}
                 name={
                   !signer.isBIP85
@@ -98,11 +98,9 @@ const SignerList = ({ navigation, handleModalOpen }) => {
             );
           })}
           <DashedCta
-            backgroundColor={
-              isDarkMode ? `${colorMode}.DashedButtonCta` : `${colorMode}.DashedButtonCta`
-            }
-            hexagonBackgroundColor={isDarkMode ? Colors.pantoneGreen : Colors.pantoneGreen}
-            textColor={isDarkMode ? Colors.White : Colors.pantoneGreen}
+            backgroundColor={`${colorMode}.DashedButtonCta`}
+            hexagonBackgroundColor={Colors.pantoneGreen}
+            textColor={`${colorMode}.greenWhiteText`}
             name={signer.addKey}
             callback={handleModalOpen}
             icon={<Plus width={12.9} height={12.9} />}
@@ -128,13 +126,11 @@ const styles = StyleSheet.create({
   addedSignersContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    // justifyContent: 'center',
     gap: 2,
     paddingBottom: 20,
   },
   signerCard: {
     width: windowWidth * 0.43,
-    // width: wp(160),
     height: wp(130),
   },
 });
