@@ -348,6 +348,7 @@ function VaultMigrationController({
           activeVault ? activeVault.scheme.miniscriptScheme : null
         );
         if (!vaultInfo) {
+          navigation.goBack();
           return;
         }
       }

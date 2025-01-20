@@ -11,7 +11,6 @@ import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/
 import { ADDRESERVEKEY } from 'src/navigation/contants';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
-import moment from 'moment';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KEEPERAPP from 'src/assets/images/KeeperIcon.svg';
 import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
@@ -185,11 +184,10 @@ function AddReserveKey({ route }) {
         </Box>
         <Box style={styles.bottomContainer}>
           <Buttons
-            primaryLoading={vaultCreating}
+            primaryLoading={vaultCreating || relayVaultUpdateLoading}
             primaryText={common.confirm}
             fullWidth
             primaryDisable={!selectedSigner || !selectedOption}
-            primaryLoading={relayVaultUpdateLoading}
             primaryCallback={() => {
               if (vaultId) {
                 setCreating(true);
