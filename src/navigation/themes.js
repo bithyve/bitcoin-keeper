@@ -58,6 +58,7 @@ export const customTheme = extendTheme({
       primaryGreenBackground: Colors.pantoneGreen,
       pillText: Colors.MidNightBlack,
       pantoneGreenLight: Colors.pantoneGreenLight,
+      CyanGreen: Colors.CyanGreen,
       // mainBackground: Colors.LightWhite,
       modalGreenBackground: Colors.pantoneGreen,
       modalGreenButton: Colors.pantoneGreen,
@@ -252,6 +253,7 @@ export const customTheme = extendTheme({
       sliderUnfilled: Colors.PaleGrey,
       greyBackground: Colors.lightGrey,
       ctaFooterBackground: Colors.GreenishGrey,
+      DashedButtonCta: Colors.DashedButtonCta,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -458,6 +460,8 @@ export const customTheme = extendTheme({
       sliderUnfilled: Colors.CharcoalGreen,
       greyBackground: Colors.darkGrey,
       ctaFooterBackground: Colors.SecondaryBlack,
+      DashedButtonCta: Colors.DashedButtonCtaDark,
+      CyanGreen: Colors.CyanGreen,
     },
   },
   config: {

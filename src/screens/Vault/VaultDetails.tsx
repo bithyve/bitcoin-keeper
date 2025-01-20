@@ -7,18 +7,15 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import SendIcon from 'src/assets/images/send.svg';
-import SendIconWhite from 'src/assets/images/send-white.svg';
-import RecieveIcon from 'src/assets/images/receive.svg';
-import RecieveIconWhite from 'src/assets/images/receive-white.svg';
-import SettingIcon from 'src/assets/images/settings.svg';
+import SendIcon from 'src/assets/images/send-diagonal-arrow-up.svg';
+import SendIconWhite from 'src/assets/images/send-diagonal-arrow-up.svg';
+import RecieveIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
+import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
+import SettingIcon from 'src/assets/images/settings-gear-green.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import VaultIcon from 'src/assets/images/vault_icon.svg';
-import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { VaultType } from 'src/services/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
@@ -26,13 +23,9 @@ import { useDispatch } from 'react-redux';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useVault from 'src/hooks/useVault';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
-import KeeperFooter from 'src/components/KeeperFooter';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import CardPill from 'src/components/CardPill';
-import ActionCard from 'src/components/ActionCard';
-import HexagonIcon from 'src/components/HexagonIcon';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
@@ -52,6 +45,12 @@ import { SentryErrorBoundary } from 'src/services/sentry';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
+import WalletHeader from 'src/components/WalletHeader';
+import FooterActions from 'src/components/FooterActions';
+import FeatureCard from 'src/components/FeatureCard';
+import WalletCard from '../Home/components/Wallet/WalletCard';
+import useWalletAsset from 'src/hooks/useWalletAsset';
+import Colors from 'src/theme/Colors';
 
 function Footer({
   vault,
@@ -110,7 +109,13 @@ function Footer({
           },
         },
       ];
-  return <KeeperFooter items={footerItems} wrappedScreen={false} />;
+  return (
+    <FooterActions
+      items={footerItems}
+      wrappedScreen={false}
+      backgroundColor={`${colorMode}.thirdBackground`}
+    />
+  );
 }
 
 function VaultInfo({ vault }: { vault: Vault }) {
@@ -296,6 +301,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     customCardPill: !disableBuy && <BTCAmountPill />,
     cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
   };
+  const isDarkMode = colorMode === 'dark';
+  const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
+  const WalletIcon = getWalletIcon(vault);
 
   useEffect(() => {
     const cached = [];
@@ -390,38 +398,13 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   );
 
   return (
-    <Box style={styles.wrapper} safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box style={styles.wrapper} safeAreaTop>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <VStack style={styles.topSection}>
-        <KeeperHeader
+        <WalletHeader
           title={vault.presentationData?.name}
-          titleColor={`${colorMode}.seashellWhiteText`}
-          mediumTitle
-          subTitleColor={`${colorMode}.seashellWhiteText`}
-          // TODO: Add collaborativeWalletIcon
-          icon={
-            <HexagonIcon
-              width={58}
-              height={50}
-              backgroundColor="rgba(9, 44, 39, 0.6)"
-              icon={
-                isCollaborativeWallet ? (
-                  <CollaborativeIcon />
-                ) : vault.type === VaultType.SINGE_SIG ? (
-                  <WalletIcon />
-                ) : (
-                  <VaultIcon />
-                )
-              }
-            />
-          }
-          subtitle={vault.presentationData?.description}
-          learnMore
-          learnTextColor={`${colorMode}.buttonText`}
-          learnBackgroundColor={`${colorMode}.pantoneGreen`}
-          learnMorePressed={() => dispatch(setIntroModal(true))}
-          contrastScreen={true}
+          data={vault}
           rightComponent={
             <TouchableOpacity
               style={styles.settingBtn}
@@ -440,15 +423,28 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             </TouchableOpacity>
           }
         />
-        <VaultInfo vault={vault} />
+
+        <Box style={styles.card}>
+          <WalletCard
+            backgroundColor={getWalletCardGradient(vault)}
+            hexagonBackgroundColor={isDarkMode ? Colors.CyanGreen : Colors.CyanGreen}
+            icon={<WalletIcon />}
+            iconWidth={42}
+            iconHeight={38}
+            title={vault.presentationData.name}
+            tags={getWalletTags(vault)}
+            totalBalance={vault.specs.balances.confirmed + vault.specs.balances.unconfirmed}
+            description={vault.presentationData.description}
+            wallet={vault}
+          />
+        </Box>
       </VStack>
       {!vault.archived && (
         <HStack style={styles.actionCardContainer}>
           {!isCanaryWallet && (
-            <ActionCard
+            <FeatureCard
               disable={disableBuy}
               cardName={common.buyBitCoin}
-              description={common.inToThisWallet}
               callback={() =>
                 navigation.dispatch(
                   CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
@@ -463,9 +459,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               customStyle={{ justifyContent: 'flex-end' }}
             />
           )}
-          <ActionCard
+          <FeatureCard
             cardName={common.viewAllCoins}
-            description={common.manageUTXO}
             callback={() =>
               navigation.navigate('UTXOManagement', {
                 data: vault,
@@ -477,9 +472,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             customStyle={{ justifyContent: 'flex-end' }}
           />
           {!isCanaryWallet && (
-            <ActionCard
+            <FeatureCard
               cardName={common.manageKeys}
-              description={common.forThisVault}
               callback={() =>
                 navigation.dispatch(
                   CommonActions.navigate({
@@ -495,7 +489,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         </HStack>
       )}
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
-        <Box flex={1} style={styles.transactionsContainer}>
+        <Box
+          flex={1}
+          style={styles.transactionsContainer}
+          backgroundColor={`${colorMode}.thirdBackground`}
+        >
           <TransactionList
             transactions={[...cachedTransactions, ...transactions]}
             pullDownRefresh={syncVault}
@@ -504,7 +502,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             isCollaborativeWallet={isCollaborativeWallet}
           />
         </Box>
-        <Box style={styles.footerContainer}>
+        <Box>
           <Footer
             vault={vault}
             isCollaborativeWallet={isCollaborativeWallet}
@@ -600,7 +598,6 @@ const styles = StyleSheet.create({
   },
   topSection: {
     paddingHorizontal: 20,
-    paddingTop: hp(15),
   },
   bottomSection: {
     paddingTop: wp(65),
@@ -610,10 +607,12 @@ const styles = StyleSheet.create({
   },
   transactionsContainer: {
     paddingHorizontal: wp(22),
+    marginTop: hp(5),
+    paddingTop: hp(24),
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
   },
-  footerContainer: {
-    paddingHorizontal: wp(28),
-  },
+
   transTitleWrapper: {
     marginLeft: wp(2),
     justifyContent: 'space-between',
@@ -776,12 +775,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   settingBtn: {
-    paddingHorizontal: 22,
-    paddingVertical: 22,
+    paddingHorizontal: 12,
+    paddingVertical: 16,
   },
   archivedBalance: {
     alignItems: 'flex-end',
     marginTop: hp(25),
+  },
+  card: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

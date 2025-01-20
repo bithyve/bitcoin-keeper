@@ -1,14 +1,14 @@
 import React from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import SendIcon from 'src/assets/images/send.svg';
-import SendIconWhite from 'src/assets/images/send-white.svg';
-import RecieveIcon from 'src/assets/images/receive.svg';
-import RecieveIconWhite from 'src/assets/images/receive-white.svg';
+import SendIcon from 'src/assets/images/send-diagonal-arrow-up.svg';
+import SendIconWhite from 'src/assets/images/send-diagonal-arrow-up.svg';
+import RecieveIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
+import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
 
-import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 import { useColorMode } from 'native-base';
+import FooterActions from 'src/components/FooterActions';
 
 function TransactionFooter({ currentWallet }) {
   const navigation = useNavigation();
@@ -31,8 +31,14 @@ function TransactionFooter({ currentWallet }) {
     },
   ];
 
-  if (isWatchOnly) footerItems.shift(); // disabling send flow for watch-only wallets
-  return <KeeperFooter items={footerItems} wrappedScreen={false} />;
+  if (isWatchOnly) footerItems.shift();
+  return (
+    <FooterActions
+      items={footerItems}
+      wrappedScreen={false}
+      backgroundColor={`${colorMode}.thirdBackground`}
+    />
+  );
 }
 
 export default TransactionFooter;

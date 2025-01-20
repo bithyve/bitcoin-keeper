@@ -614,7 +614,11 @@
     "sendingTo": "Sending To",
     "advancedDetails": "Advanced Details",
     "feeRate": "Fee Rate",
-    "networkFees": "Network Fees"
+    "networkFees": "Network Fees",
+    "homeWallets": "Wallets",
+    "keys": "Keys",
+    "concierge": "Concierge",
+    "more": "More"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
