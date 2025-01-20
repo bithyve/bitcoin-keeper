@@ -125,6 +125,7 @@ function AddReserveKey({ route }) {
                 reservedKey: selectedSigner ? selectedSigner[0] : null,
                 selectedDuration: selectedOption.label,
                 selectedSigners: route.params.selectedSigners,
+                vaultId,
               });
             }}
           />

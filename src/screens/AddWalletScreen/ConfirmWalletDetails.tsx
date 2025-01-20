@@ -65,7 +65,11 @@ function ConfirmWalletDetails({ route }) {
   const { wallets } = useWallets({ getAll: true });
   const { translations } = useContext(LocalizationContext);
   const { wallet, choosePlan, common, importWallet, vault: vaultTranslation } = translations;
-  const [walletName, setWalletName] = useState(route.params?.name);
+  const { vaultId } = route.params || {};
+  const { activeVault } = useVault({ vaultId });
+  const [walletName, setWalletName] = useState(
+    activeVault ? activeVault.presentationData.name : route.params?.name
+  );
   const { getWalletTags } = useWalletAsset();
 
   const isHotWallet = route.params?.isHotWallet;
@@ -86,7 +90,7 @@ function ConfirmWalletDetails({ route }) {
   );
   const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
 
-  const descriptionInputRef = useRef('');
+  const descriptionInputRef = useRef(activeVault ? activeVault.presentationData.description : '');
   const initialDescription = useRef(descriptionInputRef.current);
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const onDescriptionChange = (value) => {
@@ -454,7 +458,7 @@ function ConfirmWalletDetails({ route }) {
         scheme={route.params.scheme}
         name={walletName}
         description={descriptionInputRef.current}
-        vaultId={''}
+        vaultId={vaultId}
         setGeneratedVaultId={setGeneratedVaultId}
         setCreating={setCreating}
         vaultType={VaultType.MINISCRIPT}

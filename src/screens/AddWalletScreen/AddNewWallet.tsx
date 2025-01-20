@@ -1,26 +1,12 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useState, useEffect } from 'react';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import WalletActiveIcon from 'src/assets/images/wallet-white-small.svg';
-import WalletGreenIcon from 'src/assets/images/wallet-green-small.svg';
-import AdvancedGreenIcon from 'src/assets/images/advanced-green-small.svg';
-import AdvancedIcon from 'src/assets/images/advanced-white-small.svg';
-import ImportGreenIcon from 'src/assets/images/import-green-small.svg';
-import ImportIcon from 'src/assets/images/import-white-small.svg';
 import { Pressable, StyleSheet, Vibration } from 'react-native';
-import Wallets from './Wallets';
-import AdvancedWallets from './AdvancedWallets';
-import ImportWallets from './ImportWallets';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
-import KeyIcon from 'src/assets/images/multi-or-single-key.svg';
 import ImportWalletIcon from 'src/assets/images/vault_icon.svg';
 import AdvanceCustomizationIcon from 'src/assets/images/other_light.svg';
-import { useDispatch } from 'react-redux';
-import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import MenuCardWrapper from 'src/components/MenuCardWrapper';
 import { CommonActions } from '@react-navigation/native';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp, wp } from 'src/constants/responsive';
@@ -28,7 +14,6 @@ import { hp, wp } from 'src/constants/responsive';
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import Buttons from 'src/components/Buttons';
 import { NumberInput } from '../Vault/VaultSetup';
-import DashedButton from 'src/components/DashedButton';
 import DashedCta from 'src/components/DashedCta';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import SettingIcon from 'src/assets/images/new_icon_settings.svg';
@@ -36,18 +21,27 @@ import CheckIcon from 'src/assets/images/planCheckMarkSelected.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
-import { SignerType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, SignerType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import useVault from 'src/hooks/useVault';
 
-function AddNewWallet({ navigation }) {
+function AddNewWallet({ navigation, route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslations, common } = translations;
   const [selectedWalletType, setSelectedWalletType] = useState('');
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
-  const [scheme, setScheme] = useState({ m: 2, n: 3 });
-  const [inheritanceKeySelected, setInheritanceKeySelected] = useState(false);
+  const { vaultId } = route.params || {};
+  const { activeVault } = useVault({ vaultId });
+  const [scheme, setScheme] = useState(
+    activeVault ? { m: activeVault.scheme.m, n: activeVault.scheme.n } : { m: 2, n: 3 }
+  );
+  const [inheritanceKeySelected, setInheritanceKeySelected] = useState(
+    activeVault?.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+      MiniscriptTypes.INHERITANCE
+    ) || false
+  );
   const isDarkMode = colorMode === 'dark';
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
 
@@ -188,6 +182,7 @@ function AddNewWallet({ navigation }) {
                   isTimeLock: false,
                   currentBlockHeight,
                   isAddInheritanceKey: inheritanceKeySelected,
+                  vaultId,
                   // TODO: Instead of filter out use the disable with reason modal
                   ...(inheritanceKeySelected && {
                     signerFilters: [

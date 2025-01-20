@@ -139,7 +139,7 @@ function VaultSettings({ route }) {
           callback={() => {
             navigation.dispatch(
               CommonActions.navigate({
-                name: 'VaultSetup',
+                name: 'AddNewWallet',
                 params: {
                   vaultId,
                   isAddInheritanceKeyFromParams:

@@ -355,6 +355,7 @@ function Footer({
                     currentBlockHeight,
                     hotWalletInstanceNum,
                     selectedSigners: signersList,
+                    vaultId,
                   });
                 }
               : () =>
