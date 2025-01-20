@@ -271,7 +271,7 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { vaultKey, vaultId, signerId, vaultSigners, isUaiFlow } = route.params;
+  const { vaultKey, vaultId, isInheritanceKey, signerId, vaultSigners, isUaiFlow } = route.params;
   const { signers } = useSigners();
   const currentSigner =
     signers.find((signer) => getKeyUID(signer) === signerId) ||
@@ -557,20 +557,33 @@ function SigningDeviceDetails({ route }) {
           {
             text: 'Change Key',
             Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
-            onPress: () =>
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'AddSigningDevice',
-                  merge: true,
-                  params: {
-                    vaultId,
-                    name: activeVault.presentationData.name,
-                    description: activeVault.presentationData.description,
-                    scheme: activeVault.scheme,
-                    keyToRotate: vaultKey,
-                  },
-                })
-              ),
+            onPress: isInheritanceKey
+              ? () =>
+                  navigation.dispatch(
+                    CommonActions.navigate('AddReserveKey', {
+                      vaultId,
+                      name: activeVault.presentationData.name,
+                      description: activeVault.presentationData.description,
+                      scheme: activeVault.scheme,
+                      isAddInheritanceKey: true,
+                      currentBlockHeight: null,
+                      keyToRotate: signer,
+                    })
+                  )
+              : () =>
+                  navigation.dispatch(
+                    CommonActions.navigate({
+                      name: 'AddSigningDevice',
+                      merge: true,
+                      params: {
+                        vaultId,
+                        name: activeVault.presentationData.name,
+                        description: activeVault.presentationData.description,
+                        scheme: activeVault.scheme,
+                        keyToRotate: vaultKey,
+                      },
+                    })
+                  ),
           },
         ]
       : []),

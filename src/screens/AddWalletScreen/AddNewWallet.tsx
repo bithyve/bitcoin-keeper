@@ -40,7 +40,9 @@ function AddNewWallet({ navigation, route }) {
   const [inheritanceKeySelected, setInheritanceKeySelected] = useState(
     activeVault?.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
       MiniscriptTypes.INHERITANCE
-    ) || false
+    ) ||
+      route.isAddInheritanceKeyFromParams ||
+      false
   );
   const isDarkMode = colorMode === 'dark';
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
@@ -349,7 +351,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.whiteButtonText`
+                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.noteTextClosed`
                     }
                   >
                     Inheritance Key
@@ -386,7 +388,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.whiteButtonText`
+                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.noteTextClosed`
                     }
                   >
                     Emergency Key
@@ -397,7 +399,7 @@ const EnhancedSecurityModal = ({
                       !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.brownBackground`
                     }
                   >
-                    <Text fontSize={10} color={`${colorMode}.white`} medium>
+                    <Text fontSize={10} color={`${colorMode}.labelText`} medium>
                       Coming Soon
                     </Text>
                   </Box>

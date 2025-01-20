@@ -32,6 +32,7 @@ type SignerCardProps = {
   disabledWithTouch?: boolean;
   titleSize: number;
   subtitleFont: number;
+  badgeText?: string;
 };
 
 function SignerCard({
@@ -60,6 +61,7 @@ function SignerCard({
   titleSize,
   subtitleFont,
   disabledWithTouch = false,
+  badgeText,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -92,6 +94,22 @@ function SignerCard({
       }}
       testID={`btn_${name}`}
     >
+      {badgeText && (
+        <Box
+          position="absolute"
+          top={hp(10)}
+          right={0}
+          bg={`${colorMode}.BrownNeedHelp`}
+          px={3}
+          py={1}
+          borderTopLeftRadius={5}
+          borderBottomLeftRadius={5}
+        >
+          <Text color={`${colorMode}.buttonText`} fontSize={10} medium>
+            {badgeText}
+          </Text>
+        </Box>
+      )}
       <Box style={styles.selectionIcon}>
         {showSelection &&
           (isSelected ? <Checked /> : StaticIcon ? <StaticIcon /> : <Box style={styles.circle} />)}

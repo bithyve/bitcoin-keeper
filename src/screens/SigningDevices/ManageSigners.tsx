@@ -116,11 +116,12 @@ function ManageSigners({ route }: ScreenProps) {
     }, [relaySignersUpdate])
   );
 
-  const handleCardSelect = (signer, item) => {
+  const handleCardSelect = (signer, item, isInheritanceKey?) => {
     navigation.dispatch(
       CommonActions.navigate('SigningDeviceDetails', {
         signerId: getKeyUID(signer),
         vaultId,
+        isInheritanceKey,
         vaultKey: vaultKeys.length ? item : undefined,
         vaultSigners: vaultKeys,
       })
@@ -312,7 +313,7 @@ function SignersList({
   vaultKeys: VaultSigner[];
   signers: Signer[];
   signerMap: Record<string, Signer>;
-  handleCardSelect: (signer: Signer, item: VaultSigner) => void;
+  handleCardSelect: (signer: Signer, item: VaultSigner, isInheritanceKey?: boolean) => void;
   handleAddSigner: () => void;
   vault: Vault;
   typeBasedIndicator: Record<string, Record<string, boolean>>;

@@ -865,6 +865,8 @@ function Signers({
                 ? `Select the key to be rotated with ${getSignerNameFromType(signer.type)} (${
                     keyToRotate.masterFingerprint
                   })`
+                : isReserveKeyFlow
+                ? 'Select your Inheritance Key'
                 : isCollaborativeFlow
                 ? 'Select keys'
                 : scheme.n == 1
@@ -1257,11 +1259,6 @@ function AddSigningDevice() {
     navigation.dispatch(CommonActions.reset(navigationState));
   };
 
-  const viewAddEmail = () => {
-    setVaultCreatedModalVisible(false);
-    navigation.dispatch(CommonActions.navigate('IKSAddEmailPhone', { vaultId: generatedVaultId }));
-  };
-
   const vaultType = getVaultType({
     isCollaborativeWallet,
     isSSAddition,
@@ -1424,6 +1421,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: wp(32),
     paddingBottom: hp(15),
+    paddingTop: hp(15),
   },
   noteContainer: {
     width: wp(307),

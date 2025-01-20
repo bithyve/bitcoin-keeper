@@ -55,6 +55,7 @@ import SignerCard from '../AddSigner/SignerCard';
 import { getKeyUID } from 'src/utils/utilities';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import useSigners from 'src/hooks/useSigners';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -102,6 +103,12 @@ function ConfirmWalletDetails({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const vaultType = route.params.vaultType;
+
+  const { signers } = useSigners();
+
+  const inheritanceSigner = route.params.reservedKey
+    ? signers.find((s) => getKeyUID(s) === getKeyUID(route.params.reservedKey))
+    : undefined;
 
   const createNewHotWallet = useCallback(() => {
     // Note: only caters to new wallets(imported wallets currently have a different flow)
@@ -399,7 +406,8 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box flexDirection={'row'}>
           <Text fontSize={14} medium style={{ flex: 1 }}>
-            Your wallet keys
+            Your wallet key
+            {route.params.selectedSigners.length > 1 || route.params.isAddInheritanceKey ? 's' : ''}
           </Text>
           <Pressable
             style={styles.editKeysContainer}
@@ -434,6 +442,24 @@ function ConfirmWalletDetails({ route }) {
                 />
               );
             })}
+            {inheritanceSigner && (
+              <SignerCard
+                key={getKeyUID(inheritanceSigner)}
+                name={getSignerNameFromType(
+                  inheritanceSigner.type,
+                  inheritanceSigner.isMock,
+                  false
+                )}
+                description={getSignerDescription(inheritanceSigner)}
+                icon={SDIcons(inheritanceSigner.type).Icon}
+                image={inheritanceSigner?.extraData?.thumbnailPath}
+                showSelection={false}
+                isFullText
+                colorVarient="green"
+                colorMode={colorMode}
+                badgeText="Inheritance Key"
+              />
+            )}
           </Box>
         </ScrollView>
         <Box style={styles.footer}>
