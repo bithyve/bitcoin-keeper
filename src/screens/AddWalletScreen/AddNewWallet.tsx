@@ -36,6 +36,8 @@ import CheckIcon from 'src/assets/images/planCheckMarkSelected.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
+import { SignerType } from 'src/services/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 function AddNewWallet({ navigation }) {
   const { colorMode } = useColorMode();
@@ -47,6 +49,19 @@ function AddNewWallet({ navigation }) {
   const [scheme, setScheme] = useState({ m: 2, n: 3 });
   const [inheritanceKeySelected, setInheritanceKeySelected] = useState(false);
   const isDarkMode = colorMode === 'dark';
+  const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+
+  useEffect(() => {
+    // TODO: Add more as new options are added
+    const isMiniscriptEnabled = inheritanceKeySelected;
+    if (isMiniscriptEnabled && !currentBlockHeight) {
+      WalletUtilities.fetchCurrentBlockHeight()
+        .then(({ currentBlockHeight }) => {
+          setCurrentBlockHeight(currentBlockHeight);
+        })
+        .catch((err) => console.log('Failed to fetch the current chain data:', err));
+    }
+  }, [inheritanceKeySelected]);
 
   const CREATE_WALLET_OPTIONS = [
     {
@@ -161,7 +176,37 @@ function AddNewWallet({ navigation }) {
           cardStyles={styles.enhancedVaultsCustomStyles}
           titleSize={15}
         />
-        <Buttons primaryText="Proceed" primaryDisable={!selectedWalletType} fullWidth />
+        <Buttons
+          primaryText="Proceed"
+          primaryDisable={!selectedWalletType}
+          primaryCallback={() => {
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'AddSigningDevice',
+                params: {
+                  scheme,
+                  isTimeLock: false,
+                  currentBlockHeight,
+                  isAddInheritanceKey: inheritanceKeySelected,
+                  // TODO: Instead of filter out use the disable with reason modal
+                  ...(inheritanceKeySelected && {
+                    signerFilters: [
+                      SignerType.MY_KEEPER,
+                      SignerType.TAPSIGNER,
+                      SignerType.BITBOX02,
+                      SignerType.COLDCARD,
+                      SignerType.JADE,
+                      SignerType.LEDGER,
+                      SignerType.SPECTER,
+                      SignerType.SEED_WORDS,
+                    ],
+                  }),
+                },
+              })
+            );
+          }}
+          fullWidth
+        />
       </Box>
       <KeeperModal
         visible={customConfigModalVisible}

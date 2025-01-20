@@ -85,7 +85,7 @@ function SignWithChannel() {
   const navgation = useNavigation();
 
   let miniscriptPolicy = null;
-  if (activeVault.type === VaultType.INHERITANCE) {
+  if (activeVault.type === VaultType.MINISCRIPT) {
     miniscriptPolicy = generateOutputDescriptors(activeVault);
   }
   const walletName = activeVault.presentationData.name;

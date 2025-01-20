@@ -72,6 +72,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         const decoded = Buffer.from(splits[1], 'base64').toString();
         const params = urlParamsToObj(decoded);
         if (params.seed) {
+          // TODO: Need to understand which feature it's from and fix
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
             name: `${
@@ -286,6 +287,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           const splits = initialUrl.split('backup/');
           const decoded = Buffer.from(splits[1], 'base64').toString();
           const params = urlParamsToObj(decoded);
+          // TODO: Need to understand which feature it's from and fix
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,

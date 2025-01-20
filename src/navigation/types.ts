@@ -157,6 +157,7 @@ export type AppStackParams = {
       fcm: string;
     };
   };
+  ConfirmWalletDetails: undefined;
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;
   EnterWalletPath: undefined;

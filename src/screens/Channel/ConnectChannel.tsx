@@ -113,7 +113,7 @@ function ConnectChannel() {
 
   if (mode === InteracationMode.ADDRESS_VERIFICATION) {
     const { activeVault: vault } = useVault({ vaultId });
-    if (vault.type === VaultType.INHERITANCE) {
+    if (vault.type === VaultType.MINISCRIPT) {
       miniscriptPolicy = generateOutputDescriptors(vault);
       addressIndex = receiveAddressIndex;
       walletName = vault.presentationData.name;

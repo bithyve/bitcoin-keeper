@@ -92,6 +92,7 @@ import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
 import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
 import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
 import AddNewWallet from 'src/screens/AddWalletScreen/AddNewWallet';
+import ConfirmWalletDetails from 'src/screens/AddWalletScreen/ConfirmWalletDetails';
 import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
@@ -222,6 +223,7 @@ function AppStack() {
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
+        <Stack.Screen name="ConfirmWalletDetails" component={ConfirmWalletDetails} />
         <Stack.Screen name="EnterWalletPath" component={WalletPathScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />

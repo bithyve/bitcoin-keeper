@@ -18,9 +18,9 @@ import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
 import Buttons from 'src/components/Buttons';
 import { SDIcons } from './SigningDeviceIcons';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
-import CreateReserveKeyVault from './CreateReserveKeyVault';
 import { MONTHS_12, MONTHS_24, MONTHS_18 } from './constants';
 import { getKeyUID } from 'src/utils/utilities';
+import { VaultType } from 'src/services/wallets/enums';
 
 const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
 const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -39,7 +39,6 @@ function AddReserveKey({ route }) {
   const { common, vault: vaultTranslations } = translations;
   const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_TIMELOCK);
   const [selectedSigner, setSelectedSigner] = useState(null);
-  const [vaultCreating, setCreating] = useState(false);
 
   const reservedKey = selectedSigner ? signerMap[getKeyUID(selectedSigner[0])] : null;
   const isDarkMode = colorMode === 'dark';
@@ -59,7 +58,7 @@ function AddReserveKey({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={`${vaultTranslations.addInheritanceKey} (Early Access)`}
+        title={`${vaultTranslations.addInheritanceKey}`}
         subtitle={vaultTranslations.setIKSForVault}
       />
       <Box style={styles.container}>
@@ -113,23 +112,24 @@ function AddReserveKey({ route }) {
             primaryText={common.confirm}
             fullWidth
             primaryDisable={!selectedSigner || !selectedOption}
-            primaryCallback={() => setCreating(true)}
+            primaryCallback={() => {
+              navigation.navigate('ConfirmWalletDetails', {
+                vaultKeys,
+                scheme,
+                isHotWallet: false,
+                vaultType: VaultType.MINISCRIPT,
+                isTimeLock: false,
+                isAddInheritanceKey,
+                currentBlockHeight,
+                hotWalletInstanceNum: null,
+                reservedKey: selectedSigner ? selectedSigner[0] : null,
+                selectedDuration: selectedOption.label,
+                selectedSigners: route.params.selectedSigners,
+              });
+            }}
           />
         </Box>
       </Box>
-      <CreateReserveKeyVault
-        vaultCreating={vaultCreating}
-        setCreating={setCreating}
-        vaultKeys={vaultKeys}
-        reservedKey={selectedSigner ? selectedSigner[0] : null}
-        scheme={scheme}
-        name={name}
-        description={description}
-        vaultId={vaultId}
-        isAddInheritanceKey={isAddInheritanceKey}
-        currentBlockHeight={currentBlockHeight}
-        selectedDuration={selectedOption.label}
-      />
     </ScreenWrapper>
   );
 }

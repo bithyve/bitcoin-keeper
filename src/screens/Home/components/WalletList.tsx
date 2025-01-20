@@ -2,7 +2,13 @@ import React, { useContext } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box } from 'native-base';
 import AddCard from 'src/components/AddCard';
-import { DerivationPurpose, EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
+import {
+  DerivationPurpose,
+  EntityKind,
+  MiniscriptTypes,
+  VaultType,
+  WalletType,
+} from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
@@ -38,17 +44,21 @@ export function WalletsList({
           common.collaborative,
           `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
         ];
-      } else if (wallet.type === VaultType.ASSISTED) {
-        return ['Assisted', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
-      } else if (wallet.type === VaultType.TIMELOCKED) {
-        return ['Timelocked', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
-      } else if (wallet.type === VaultType.INHERITANCE) {
+      }
+      if (wallet.type === VaultType.MINISCRIPT) {
         return [
-          'Inheritance Key',
+          wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+            MiniscriptTypes.INHERITANCE
+          ) && 'Inheritance Key',
+          wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+            MiniscriptTypes.TIMELOCKED
+          ) && 'TIMELOCKED',
+          wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(MiniscriptTypes.ASSISTED) &&
+            'ASSISTED',
           `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
-        ];
+        ].filter(Boolean);
       } else {
-        return ['Vault', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+        return ['Multi-key', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
       }
     } else {
       let walletKind;
