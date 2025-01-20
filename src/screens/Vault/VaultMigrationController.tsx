@@ -81,7 +81,10 @@ function VaultMigrationController({
 
   useEffect(() => {
     if (vaultCreating) {
-      initiateNewVault();
+      initiateNewVault().catch((err) => {
+        console.log('Vault creation error:', err);
+        captureError(err);
+      });
     }
   }, [vaultCreating]);
 
@@ -209,7 +212,7 @@ function VaultMigrationController({
     }
   };
 
-  const prepareMiniscriptScheme = (
+  const prepareMiniscriptScheme = async (
     vaultInfo: NewVaultInfo,
     inheritanceSigner?: VaultSigner,
     existingMiniscriptScheme?: MiniscriptScheme
@@ -223,9 +226,22 @@ function VaultMigrationController({
     }
 
     const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
-    if (!currentBlockHeight) {
-      showToast('Failed to sync current block height', <ToastErrorIcon />);
-      return;
+    let currentSyncedBlockHeight = currentBlockHeight;
+    if (!currentSyncedBlockHeight) {
+      try {
+        currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+          .currentBlockHeight;
+      } catch (err) {
+        console.log('Failed to re-fetch current block height: ' + err);
+      }
+      if (!currentSyncedBlockHeight) {
+        showToast(
+          'Failed to fetch current chain data, please check your connection and try again',
+          <ToastErrorIcon />
+        );
+        setCreating(false);
+        return;
+      }
     }
 
     if (!selectedDuration) {
@@ -285,7 +301,7 @@ function VaultMigrationController({
     return vaultInfo;
   };
 
-  const initiateNewVault = () => {
+  const initiateNewVault = async () => {
     try {
       let vaultInfo: NewVaultInfo = {
         vaultType,
@@ -299,11 +315,14 @@ function VaultMigrationController({
 
       const isTimelockedInheritanceKey = isAddInheritanceKey;
       if (isTimeLock || isTimelockedInheritanceKey) {
-        vaultInfo = prepareMiniscriptScheme(
+        vaultInfo = await prepareMiniscriptScheme(
           vaultInfo,
           inheritanceKey,
           activeVault ? activeVault.scheme.miniscriptScheme : null
         );
+        if (!vaultInfo) {
+          return;
+        }
       }
 
       if (vaultAlreadyExists(vaultInfo)) {

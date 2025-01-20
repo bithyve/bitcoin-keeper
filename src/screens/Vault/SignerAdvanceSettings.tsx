@@ -357,12 +357,25 @@ function SignerAdvanceSettings({ route }: any) {
         );
         break;
       case SignerType.KEYSTONE:
-      case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.SPECTER:
       case SignerType.OTHER_SD:
       case SignerType.COLDCARD:
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+        break;
+      case SignerType.JADE:
+        // For now, Jade only supports registration via USB for Miniscript
+        if (activeVault.scheme.miniscriptScheme) {
+          navigation.dispatch(
+            CommonActions.navigate('RegisterWithChannel', {
+              vaultKey,
+              vaultId,
+              signerType: signer.type,
+            })
+          );
+        } else {
+          navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+        }
         break;
       case SignerType.PORTAL:
         navigation.dispatch(
