@@ -44,14 +44,14 @@ const SignerList = ({ navigation, handleModalOpen }) => {
 
   const customStyle: ViewStyle = {
     width: wp(162),
-    height: wp(127),
-    padding: 15,
+    height: wp(126),
+    // padding: 15,
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
+    gap: 4,
     marginLeft: 4,
     marginTop: 4,
   };
@@ -71,7 +71,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
                 typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[
                   item.masterFingerprint
                 ]) ||
-              (signer.type === SignerType.MY_KEEPER &&
+              (signer.type !== SignerType.MY_KEEPER &&
                 typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId]);
 
             return (
