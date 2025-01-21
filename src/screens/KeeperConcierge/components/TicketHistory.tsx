@@ -6,8 +6,11 @@ import { hp, wp } from 'src/constants/responsive';
 import EmptyIllustrationLight from 'src/assets/images/empty-ticket-illustration-light.svg';
 import EmptyIllustrationDark from 'src/assets/images/empty-ticket-illustration-dark.svg';
 import TicketList from './TicketList';
-import { useSelector } from 'react-redux';
-
+import { CTACardDotted } from 'src/components/CTACardDotted';
+import OnBoardCallActive from 'src/assets/images/onboardCallActive.svg';
+import OnBoardCallInActive from 'src/assets/images/onboardCallInactive.svg';
+import usePlan from 'src/hooks/usePlan';
+import { useAppSelector } from 'src/store/hooks';
 const HistoryTitle = () => {
   const { colorMode } = useColorMode();
   return (
@@ -38,12 +41,25 @@ const EmptyState = () => {
   );
 };
 
-const TicketHistory = () => {
-  const { tickets } = useSelector((state) => state.concierge);
+const TicketHistory = ({ onPressCTA }) => {
+  const { tickets, onboardCallScheduled } = useAppSelector((state) => state.concierge);
+  const { isOnL3 } = usePlan();
+
   return (
     <Box style={styles.container}>
       <HistoryTitle />
       {tickets.length ? <TicketList /> : <EmptyState />}
+      {!onboardCallScheduled && (
+        <Box style={{ marginHorizontal: wp(22), marginBottom: hp(80) }}>
+          <CTACardDotted
+            title={'Schedule your call'}
+            subTitle={'Schedule a call with expert support today.'}
+            icon={isOnL3 ? <OnBoardCallActive /> : <OnBoardCallInActive />}
+            isActive={isOnL3}
+            onPress={onPressCTA}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

@@ -5,6 +5,7 @@ import {
   GO_TO_CONCEIERGE,
   LOAD_CONCIERGE_USER,
   OPEN_CONCEIERGE,
+  SCHEDULE_ONBOARDING_CALL,
 } from '../sagaActions/concierge';
 import * as Zendesk from 'react-native-zendesk-messaging';
 import { Linking, Platform } from 'react-native';
@@ -20,6 +21,9 @@ import {
   setConciergeLoading,
   setConciergeUserSuccess,
   setConciergeUserFailed,
+  setOnboardCallFailed,
+  setOnboardCallSuccess,
+  setOnboardCallScheduled,
 } from '../reducers/concierge';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import ZendeskClass from 'src/services/backend/Zendesk';
@@ -133,9 +137,29 @@ function* addTicketStatusUAIWorker({
   }
 }
 
+function* scheduleOnboardingCallWorker({ payload }) {
+  try {
+    yield put(setConciergeLoading(true));
+    let res = yield call(ZendeskClass.createZendeskTicket, { onboardEmail: payload });
+    if (res.status === 201) {
+      yield put(setOnboardCallSuccess(true));
+      yield put(setOnboardCallScheduled(true));
+    }
+  } catch (error) {
+    yield put(setOnboardCallFailed(true));
+  } finally {
+    yield put(setConciergeLoading(false));
+  }
+}
+
 export const openConceirgeWatcher = createWatcher(openConceirge, OPEN_CONCEIERGE);
 export const loadConciergeUserWatcher = createWatcher(loadConciergeUserWorker, LOAD_CONCIERGE_USER);
 export const addTicketStatusUAIWatcher = createWatcher(
   addTicketStatusUAIWorker,
   ADD_TICKET_STATUS_UAI
 );
+export const scheduleOnboardingCallWatcher = createWatcher(
+  scheduleOnboardingCallWorker,
+  SCHEDULE_ONBOARDING_CALL
+);
+

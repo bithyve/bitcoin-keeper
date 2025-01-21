@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-
+import persistReducer from 'redux-persist/es/persistReducer';
+import { reduxStorage } from 'src/storage';
 
 export type conciergeUser = {
   id: string;
@@ -20,6 +21,9 @@ const initialState: {
   conciergeUserSuccess: boolean;
   conciergeLoading: boolean;
   commentsCounter: commentsCounter;
+  onboardCallSuccess: boolean;
+  onboardCallFailed: boolean;
+  onboardCallScheduled: boolean;
 } = {
   onboardingModal: false,
   tags: [],
@@ -29,6 +33,9 @@ const initialState: {
   conciergeUserFailed: false,
   conciergeUserSuccess: false,
   commentsCounter: {},
+  onboardCallSuccess: false,
+  onboardCallFailed: false,
+  onboardCallScheduled: false,
 };
 
 const conciergeSlice = createSlice({
@@ -63,6 +70,15 @@ const conciergeSlice = createSlice({
     updateTicketCommentsCount: (state, action: PayloadAction<commentsCounter>) => {
       state.commentsCounter = { ...state.commentsCounter, ...action.payload };
     },
+    setOnboardCallFailed: (state, action: PayloadAction<boolean>) => {
+      state.onboardCallFailed = action.payload;
+    },
+    setOnboardCallSuccess: (state, action: PayloadAction<boolean>) => {
+      state.onboardCallSuccess = action.payload;
+    },
+    setOnboardCallScheduled: (state, action: PayloadAction<boolean>) => {
+      state.onboardCallScheduled = action.payload;
+    },
   },
 });
 
@@ -76,6 +92,9 @@ export const {
   setConciergeUserFailed,
   setConciergeUserSuccess,
   updateTicketCommentsCount,
+  setOnboardCallFailed,
+  setOnboardCallSuccess,
+  setOnboardCallScheduled,
 } = conciergeSlice.actions;
 
 export default conciergeSlice.reducer;
