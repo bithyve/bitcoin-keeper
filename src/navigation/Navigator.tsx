@@ -14,7 +14,6 @@ import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
-import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/SeedScreens/ExportSeedScreen';
 import SeedDetailsScreen from 'src/screens/SeedScreens/SeedDetailsScreen';
 import KeeperLoader from 'src/components/KeeperLoader';
@@ -217,7 +216,6 @@ function AppStack() {
         <Stack.Screen name="SignerSelectionListScreen" component={SignerSelectionListScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
-        <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="ConfirmWalletDetails" component={ConfirmWalletDetails} />
         <Stack.Screen name="EnterWalletPath" component={WalletPathScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
