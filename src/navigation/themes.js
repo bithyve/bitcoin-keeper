@@ -259,6 +259,8 @@ export const customTheme = extendTheme({
       coalGreen: Colors.coalGreen,
       termsText: Colors.termsGrey,
       headerWhite: Colors.headerWhite,
+      graphiteTranslucentBG: Colors.GraphiteTranslucent,
+      SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -473,6 +475,8 @@ export const customTheme = extendTheme({
       CyanGreen: Colors.CyanGreen,
       coalGreen: Colors.coalGreen,
       headerWhite: Colors.headerWhite,
+      graphiteTranslucentBG: Colors.GraphiteTranslucent,
+      SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
     },
   },
   config: {
