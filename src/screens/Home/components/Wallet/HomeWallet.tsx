@@ -86,7 +86,7 @@ const HomeWallet = () => {
       subtitle: 'Create wallet with family and friends',
       icon: <CollaborativeWalletIcon />,
       onPress: handleCollaborativeWalletCreation,
-      id: 'importWallet',
+      id: 'collaborativeWallet',
     },
   ];
 

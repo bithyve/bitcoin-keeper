@@ -30,8 +30,8 @@ type SignerCardProps = {
   borderColor?: string;
   nameColor?: string;
   disabledWithTouch?: boolean;
-  titleSize: number;
-  subtitleFont: number;
+  titleSize?: number;
+  subtitleFont?: number;
   badgeText?: string;
 };
 

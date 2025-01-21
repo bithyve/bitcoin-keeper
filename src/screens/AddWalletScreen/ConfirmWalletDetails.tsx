@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect, useRef } from 'react';
 import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
 import {
@@ -50,7 +49,6 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import DerivationPathModalContent from '../EnterWalletDetailScreen/DerivationPathModal';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import WalletHeader from 'src/components/WalletHeader';
-import { SignersList } from '../SigningDevices/ManageSigners';
 import SignerCard from '../AddSigner/SignerCard';
 import { getKeyUID } from 'src/utils/utilities';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
@@ -65,7 +63,7 @@ function ConfirmWalletDetails({ route }) {
   const { showToast } = useToastMessage();
   const { wallets } = useWallets({ getAll: true });
   const { translations } = useContext(LocalizationContext);
-  const { wallet, choosePlan, common, importWallet, vault: vaultTranslation } = translations;
+  const { wallet, choosePlan, common, importWallet } = translations;
   const { vaultId } = route.params || {};
   const { activeVault } = useVault({ vaultId });
   const [walletName, setWalletName] = useState(

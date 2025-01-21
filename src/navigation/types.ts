@@ -116,7 +116,6 @@ export type AppStackParams = {
   UnlockTapsigner: undefined;
   ChangeTapsignerPin: undefined;
   UTXOSelection: { sender: Wallet | Vault; amount: string; address: string };
-  VaultCreationOptions: undefined;
   VaultConfigurationCreation: undefined;
   ScanQRFileRecovery: undefined;
   VaultSetup: {

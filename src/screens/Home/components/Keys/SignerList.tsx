@@ -14,7 +14,7 @@ import { SignerType } from 'src/services/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getKeyUID } from 'src/utils/utilities';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import DashedCta from 'src/components/DashedCta';
 import Colors from 'src/theme/Colors';
 import Plus from 'src/assets/images/add-plus-white.svg';
@@ -25,7 +25,6 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { signer } = translations;
-  const isDarkMode = colorMode === 'dark';
 
   const list = signers.filter((signer) => !signer.hidden);
   const { id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -93,7 +92,6 @@ const SignerList = ({ navigation, handleModalOpen }) => {
                 showDot={showDot}
                 colorVarient="green"
                 colorMode={colorMode}
-                customStyle={styles.signerCard}
               />
             );
           })}
@@ -128,9 +126,5 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 2,
     paddingBottom: 20,
-  },
-  signerCard: {
-    width: windowWidth * 0.43,
-    height: wp(130),
   },
 });

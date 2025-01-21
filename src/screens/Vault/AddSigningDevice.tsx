@@ -269,8 +269,7 @@ function Footer({
 }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultText } = translations;
-  const { wallets } = useWallets({ getAll: true });
+  const { common } = translations;
   const renderNotes = () => {
     const notes = [];
     if (amfSigners.length) {
@@ -288,14 +287,6 @@ function Footer({
       notes.push(
         <Box style={styles.noteContainer} key={message}>
           <Note title="WARNING" subtitle={message} subtitleColor="error" />
-        </Box>
-      );
-    }
-    if (isAddInheritanceKey) {
-      const message = vaultText.addSignerIKNote;
-      notes.push(
-        <Box style={styles.noteContainer} key={message}>
-          <Note title={common.note} subtitle={message} />
         </Box>
       );
     }
@@ -445,7 +436,6 @@ function Signers({
   activeVault,
 }) {
   const { level } = useSubscriptionLevel();
-  const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText, common } = translations;
   const [visible, setVisible] = useState(false);
