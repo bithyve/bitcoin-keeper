@@ -19,19 +19,18 @@ import WalletIcon from 'src/assets/images/WalletIcon.svg';
 import MenuFooter from 'src/components/MenuFooter';
 import Text from 'src/components/KeeperText';
 import HomeWallet from './components/Wallet/HomeWallet';
-import Colors from 'src/theme/Colors';
 import ManageKeys from './components/Keys/ManageKeys';
 
-function NewHomeScreen({ navigation }) {
+function NewHomeScreen({ navigation, route }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
+  const { addedSigner } = route.params || {};
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
   const { showToast } = useToastMessage();
-  const { top } = useSafeAreaInsets();
   const { translations } = useContext(LocalizationContext);
   const { home: homeTranslation, wallet } = translations;
   const [selectedOption, setSelectedOption] = useState(wallet.homeWallets);
@@ -62,7 +61,7 @@ function NewHomeScreen({ navigation }) {
         return {
           content: (
             <Box>
-              <ManageKeys />
+              <ManageKeys addedSigner={addedSigner} />
             </Box>
           ),
           icon: (

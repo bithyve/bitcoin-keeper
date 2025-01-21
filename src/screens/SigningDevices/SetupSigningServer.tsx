@@ -83,7 +83,7 @@ function SetupSigningServer({ route }: { route }) {
     dispatch(addSigningDevice([signingServerKey]));
     const navigationState = addSignerFlow
       ? {
-          name: 'ManageSigners',
+          name: 'Home',
           params: { addedSigner: signingServerKey },
         }
       : {
