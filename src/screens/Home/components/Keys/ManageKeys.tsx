@@ -24,7 +24,6 @@ const ManageKeys = ({ addedSigner }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-
   const [modalVisible, setModalVisible] = useState(false);
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
   const [inProgress, setInProgress] = useState(false);

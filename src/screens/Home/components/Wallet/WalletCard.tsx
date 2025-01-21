@@ -13,6 +13,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { EntityKind } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import useWalletAsset from 'src/hooks/useWalletAsset';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 type WalletCardProps = {
   backgroundColor?: string[];
@@ -43,6 +44,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
   const [isShowAmount, setIsShowAmount] = useState(false);
   const { getWalletIcon } = useWalletAsset();
   const WalletIcon = getWalletIcon(wallet);
+  const isSmallerDevice = useIsSmallDevices();
 
   return (
     <LinearGradient
@@ -81,7 +83,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
             {title}
           </Text>
         </Box>
-        <Box style={styles.bottomRight}>
+        <Box style={[styles.bottomRight, { bottom: isSmallerDevice ? -6 : -15 }]}>
           <BalanceComponent
             setIsShowAmount={setIsShowAmount}
             isShowAmount={isShowAmount}
@@ -138,6 +140,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   bottomRight: {
+    position: 'absolute',
+    right: 0,
+    // bottom: -15,
     justifyContent: 'center',
   },
   pillsContainer: {

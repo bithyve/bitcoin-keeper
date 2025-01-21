@@ -34,7 +34,6 @@ const styles = StyleSheet.create({
   walletWrapper: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 20,
   },
   noOfWallet: {
     fontSize: wp(20),
@@ -48,5 +47,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    paddingHorizontal: wp(20),
+    paddingVertical: hp(20),
   },
 });
