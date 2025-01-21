@@ -48,12 +48,12 @@ const TicketHistory = ({ onPressCTA }) => {
   return (
     <Box style={styles.container}>
       <HistoryTitle />
-      {tickets.length ? <TicketList /> : <EmptyState />}
+      <Box flex={1}>{tickets.length ? <TicketList /> : <EmptyState />}</Box>
       {!onboardCallScheduled && (
-        <Box style={{ marginHorizontal: wp(22), marginBottom: hp(80) }}>
+        <Box style={{ marginHorizontal: wp(22), marginBottom: hp(20) }}>
           <CTACardDotted
-            title={'Schedule your call'}
-            subTitle={'Schedule a call with expert support today.'}
+            title={'Schedule Onboarding Call'}
+            subTitle={'Schedule a call with our experts today.'}
             icon={isOnL3 ? <OnBoardCallActive /> : <OnBoardCallInActive />}
             isActive={isOnL3}
             onPress={onPressCTA}

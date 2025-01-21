@@ -31,6 +31,7 @@ import OnboardingCall from 'src/assets/images/onboardingCall.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { emailCheck } from 'src/utils/utilities';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'TechnicalSupport'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
@@ -87,9 +88,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   useEffect(() => {
     if (onboardCallSuccess) {
       dispatch(setOnboardCallSuccess(false));
-      showToast(
-        'Your onboarding call scheduled successfully. Please check your email for confirmation'
-      );
+      showToast('Please check your email to schedule the time for your call.', <TickIcon />);
     }
   }, [onboardCallSuccess]);
 
@@ -137,7 +136,9 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
     >
       <ConciergeHeader title={'Keeper Concierge'} />
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
-        <TicketHistory onPressCTA={() => setOnboardCall(true)} />
+        <Box flex={1}>
+          <TicketHistory onPressCTA={() => setOnboardCall(true)} />
+        </Box>
         <CreateTicketCTA
           onPress={() =>
             navigation.dispatch(
@@ -205,6 +206,7 @@ const styles = StyleSheet.create({
   onboardCallModalSubTitle: {
     textAlign: 'center',
     marginHorizontal: wp(18),
+    marginBottom: hp(18),
   },
 });
 
@@ -232,7 +234,7 @@ const OnboardCallContent = ({ submitOnboardEmail }) => {
       <Text
         color={`${colorMode}.secondaryText`}
         style={styles.onboardCallModalSubTitle}
-        fontSize={12}
+        fontSize={13}
       >
         {conciergeText.onboardingCallSubTitle}
       </Text>
@@ -245,11 +247,13 @@ const OnboardCallContent = ({ submitOnboardEmail }) => {
         autoCapitalize={'none'}
         autoCorrect={false}
       />
-      <Buttons
-        primaryText={conciergeText.onboardingCallCTA}
-        primaryCallback={validateEmail}
-        fullWidth
-      />
+      <Box marginTop={hp(10)}>
+        <Buttons
+          primaryText={conciergeText.onboardingCallCTA}
+          primaryCallback={validateEmail}
+          fullWidth
+        />
+      </Box>
     </>
   );
 };
