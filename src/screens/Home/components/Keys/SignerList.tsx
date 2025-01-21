@@ -67,12 +67,8 @@ const SignerList = ({ navigation, handleModalOpen }) => {
             }
 
             const showDot =
-              (signer.type !== SignerType.MY_KEEPER &&
-                typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[
-                  item.masterFingerprint
-                ]) ||
-              (signer.type !== SignerType.MY_KEEPER &&
-                typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId]);
+              signer.type !== SignerType.MY_KEEPER &&
+              typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
 
             return (
               <SignerCard
