@@ -59,8 +59,18 @@ import EmptyListIllustration from '../../components/EmptyListIllustration';
 import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
 import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-illustration-dark.svg';
 import WalletHeader from 'src/components/WalletHeader';
-import useWallets from 'src/hooks/useWallets';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
+
+const MINISCRIPT_SIGNERS = [
+  SignerType.MY_KEEPER,
+  SignerType.TAPSIGNER,
+  SignerType.BITBOX02,
+  SignerType.COLDCARD,
+  SignerType.JADE,
+  SignerType.LEDGER,
+  SignerType.SPECTER,
+  SignerType.SEED_WORDS,
+];
 
 const onSignerSelect = (
   selected,
@@ -466,7 +476,8 @@ function Signers({
     selectedSigners,
     scheme,
     signerMap,
-    keyToRotate
+    keyToRotate,
+    vaultType
   ) => {
     const validationResult = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
 
@@ -527,6 +538,13 @@ function Signers({
       return {
         title: vaultText.keyAlreadyUsedInVaultTitle,
         message: vaultText.keyAlreadyUsedInVaultMessage,
+      };
+    }
+
+    if (vaultType === VaultType.MINISCRIPT && !MINISCRIPT_SIGNERS.includes(signer.type)) {
+      return {
+        title: vaultText.keyDoesntSupportMiniscriptTitle,
+        message: vaultText.keyDoesntSupportMiniscriptMessage,
       };
     }
 
@@ -604,7 +622,8 @@ function Signers({
           selectedSigners,
           scheme,
           signerMap,
-          keyToRotate
+          keyToRotate,
+          vaultType
         );
         const disabled = disabledMessage !== null;
 
@@ -742,7 +761,11 @@ function Signers({
   ]);
 
   const renderReservedKeys = useCallback(() => {
-    const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
+    const myAppKeys = getSelectedKeysByType(
+      selectedSignersFromParams,
+      signerMap,
+      SignerType.MY_KEEPER
+    );
     const anySignerSelected = [...selectedSigners.values()].some((selected) => selected);
 
     const selectedFingerprintsSet = new Set(
@@ -752,26 +775,14 @@ function Signers({
     const signerCards = signers
       .filter((signer) => !signer.archived)
       .filter(
-        (signer) =>
-          [
-            SignerType.MY_KEEPER,
-            SignerType.TAPSIGNER,
-            SignerType.BITBOX02,
-            SignerType.COLDCARD,
-            SignerType.JADE,
-            SignerType.LEDGER,
-            SignerType.SPECTER,
-            SignerType.SEED_WORDS,
-          ].includes(signer.type) // Filter by desired signer types
+        (signer) => MINISCRIPT_SIGNERS.includes(signer.type) // Filter by desired signer types
       )
       .filter((signer) => !selectedFingerprintsSet.has(signer.masterFingerprint)) // Avoid selected signers from params
       .map((signer) => {
         const { isValid } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
         const disabled =
           !isValid ||
-          (signer.type === SignerType.MY_KEEPER &&
-            myAppKeys.length >= 1 &&
-            myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
+          (signer.type === SignerType.MY_KEEPER && myAppKeys.length >= 1) ||
           (anySignerSelected && !selectedSigners.get(getKeyUID(signer)));
 
         const handleCardSelect = (selected) => {

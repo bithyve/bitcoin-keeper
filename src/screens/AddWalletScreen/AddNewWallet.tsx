@@ -213,19 +213,6 @@ function AddNewWallet({ navigation, route }) {
                   currentBlockHeight,
                   isAddInheritanceKey: inheritanceKeySelected,
                   vaultId,
-                  // TODO: Instead of filter out use the disable with reason modal
-                  ...(inheritanceKeySelected && {
-                    signerFilters: [
-                      SignerType.MY_KEEPER,
-                      SignerType.TAPSIGNER,
-                      SignerType.BITBOX02,
-                      SignerType.COLDCARD,
-                      SignerType.JADE,
-                      SignerType.LEDGER,
-                      SignerType.SPECTER,
-                      SignerType.SEED_WORDS,
-                    ],
-                  }),
                 },
               })
             );

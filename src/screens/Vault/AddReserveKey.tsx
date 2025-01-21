@@ -76,7 +76,8 @@ function AddReserveKey({ route }) {
   const userKeyCallback = () => {
     navigation.push('AddSigningDevice', {
       parentScreen: ADDRESERVEKEY,
-      selectedSignersFromParams: vaultKeys,
+      selectedSignersFromParams:
+        vaultKeys && vaultKeys.length > 0 ? vaultKeys : route.params.selectedSigners,
       selectedReserveKey: selectedSigner,
       scheme,
       isAddInheritanceKey,

@@ -301,7 +301,6 @@ function SigningDeviceDetails({ route }) {
   const isDarkMode = colorMode === 'dark';
   const data = useQuery(RealmSchema.BackupHistory);
   const signerVaults: Vault[] = [];
-  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
 
   allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
