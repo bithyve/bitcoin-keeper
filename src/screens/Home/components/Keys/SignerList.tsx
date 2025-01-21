@@ -14,7 +14,7 @@ import { SignerType } from 'src/services/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getKeyUID } from 'src/utils/utilities';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import DashedCta from 'src/components/DashedCta';
 import Colors from 'src/theme/Colors';
 import Plus from 'src/assets/images/add-plus-white.svg';
@@ -67,12 +67,8 @@ const SignerList = ({ navigation, handleModalOpen }) => {
             }
 
             const showDot =
-              (signer.type !== SignerType.MY_KEEPER &&
-                typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[
-                  item.masterFingerprint
-                ]) ||
-              (signer.type !== SignerType.MY_KEEPER &&
-                typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId]);
+              signer.type !== SignerType.MY_KEEPER &&
+              typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
 
             return (
               <SignerCard
@@ -92,7 +88,6 @@ const SignerList = ({ navigation, handleModalOpen }) => {
                 showDot={showDot}
                 colorVarient="green"
                 colorMode={colorMode}
-                customStyle={styles.signerCard}
               />
             );
           })}
@@ -127,9 +122,5 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 2,
     paddingBottom: 20,
-  },
-  signerCard: {
-    width: windowWidth * 0.43,
-    height: wp(130),
   },
 });

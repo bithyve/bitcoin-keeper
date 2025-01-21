@@ -18,6 +18,8 @@ import { useDispatch } from 'react-redux';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import QRScanner from 'src/components/QRScanner';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import SignerImportIcon from 'src/assets/images/signer_import.svg';
+import { InteracationMode } from './HardwareModalMap';
 
 function WrappedImportIcon() {
   return (
@@ -82,16 +84,41 @@ function VaultConfigurationCreation() {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title={importWallet.usingConfigFile}
-          subtitle={importWallet.insertTextfromFile}
+          title={importWallet.importAWallet}
+          subtitle={
+            'Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data'
+          } // TODO: export subtitle
           learnMore
           learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setShowModal(true)}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-          <Box>
+          <Box marginTop={hp(10)}>
             <QRScanner onScanCompleted={initateRecovery} />
             <Box style={styles.optionsWrapper}>
+              {/* <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box> */}
+              <Box style={{ marginLeft: wp(25) }}>
+                <OptionCard
+                  title="Upload a file"
+                  description="Select a file from your storage locations"
+                  LeftIcon={<WrappedImportIcon />}
+                  callback={handleDocumentSelection}
+                />
+                {/* TODO: Re-enable this o */}
+                {/* <OptionCard
+                  title={'Import from ColdCard using NFC'}
+                  description={'Recover your vault by exporting if from ColdCard using NFC'}
+                  LeftIcon={<SignerImportIcon />}
+                  callback={() =>
+                    navigation.dispatch(
+                      CommonActions.navigate({
+                        name: 'AddColdCard',
+                        params: { mode: InteracationMode.CONFIG_RECOVERY },
+                      })
+                    )
+                  }
+                /> */}
+              </Box>
               <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
                 <Input
                   testID="input_walletConfigurationFile"
@@ -114,15 +141,6 @@ function VaultConfigurationCreation() {
                   }
                 />
               </Box>
-              <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box>
-              <Box>
-                <OptionCard
-                  title="Upload a file"
-                  description="Select a file from your storage locations"
-                  LeftIcon={<WrappedImportIcon />}
-                  callback={handleDocumentSelection}
-                />
-              </Box>
             </Box>
           </Box>
         </ScrollView>
@@ -134,6 +152,7 @@ function VaultConfigurationCreation() {
             }}
             primaryText={common.proceed}
             primaryLoading={recoveryLoading}
+            fullWidth
           />
         </Box>
       </KeyboardAvoidingView>
@@ -178,7 +197,7 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     flexDirection: 'column',
-    marginVertical: hp(20),
+    marginTop: hp(20),
     marginHorizontal: hp(5),
     width: '100%',
     alignItems: 'center',
@@ -192,7 +211,7 @@ const styles = StyleSheet.create({
     padding: 20,
     opacity: 0.5,
     fontSize: 13,
-    height: hp(60),
+    height: hp(80),
   },
   tileContainer: {
     position: 'absolute',

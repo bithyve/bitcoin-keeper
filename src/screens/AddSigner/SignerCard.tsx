@@ -30,8 +30,9 @@ type SignerCardProps = {
   borderColor?: string;
   nameColor?: string;
   disabledWithTouch?: boolean;
-  titleSize: number;
-  subtitleFont: number;
+  titleSize?: number;
+  subtitleFont?: number;
+  badgeText?: string;
 };
 
 function SignerCard({
@@ -60,6 +61,7 @@ function SignerCard({
   titleSize,
   subtitleFont,
   disabledWithTouch = false,
+  badgeText,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -92,6 +94,22 @@ function SignerCard({
       }}
       testID={`btn_${name}`}
     >
+      {badgeText && (
+        <Box
+          position="absolute"
+          top={hp(10)}
+          right={0}
+          bg={`${colorMode}.BrownNeedHelp`}
+          px={3}
+          py={1}
+          borderTopLeftRadius={5}
+          borderBottomLeftRadius={5}
+        >
+          <Text color={`${colorMode}.buttonText`} fontSize={10} medium>
+            {badgeText}
+          </Text>
+        </Box>
+      )}
       <Box style={styles.selectionIcon}>
         {showSelection &&
           (isSelected ? <Checked /> : StaticIcon ? <StaticIcon /> : <Box style={styles.circle} />)}
@@ -155,10 +173,10 @@ function SignerCard({
 
 const styles = StyleSheet.create({
   walletContainer: {
-    width: windowWidth / 3 - windowWidth * 0.05,
+    width: windowWidth * 0.43,
+    height: wp(130),
     paddingHorizontal: wp(15),
     paddingVertical: hp(12),
-    height: 125,
     alignItems: 'flex-start',
     borderRadius: 10,
     margin: 3,

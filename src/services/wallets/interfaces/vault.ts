@@ -2,6 +2,7 @@ import { InheritanceKeyInfo, SignerPolicy } from 'src/models/interfaces/Assisted
 import { BIP85Config, Balances, Transaction, UTXO } from '.';
 import {
   EntityKind,
+  MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
   ScriptTypes,
@@ -55,6 +56,7 @@ export interface MiniscriptScheme {
   keyInfoMap: KeyInfoMap;
   miniscriptPolicy: string; // miniscript policy
   miniscript: string; // miniscript
+  usedMiniscriptTypes: MiniscriptTypes[];
 }
 
 export interface VaultScheme {

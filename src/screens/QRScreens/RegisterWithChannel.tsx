@@ -67,7 +67,7 @@ function RegisterWithChannel() {
   // TODO: Should migrate to regualr descriptor format
   let descriptorString = null;
   let miniscriptPolicy = null;
-  if (vault.type === VaultType.INHERITANCE) {
+  if (vault.type === VaultType.MINISCRIPT) {
     miniscriptPolicy = generateOutputDescriptors(vault);
   } else {
     descriptorString = generateOutputDescriptors(vault, true).split('\n')[0];

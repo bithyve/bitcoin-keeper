@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/utils/service-utilities/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType, VaultType } from 'src/services/wallets/enums';
+import { SignerStorage, SignerType, VaultType, WalletType } from 'src/services/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
@@ -20,6 +20,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from './useToastMessage';
 import useVault from './useVault';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 const useConfigRecovery = () => {
   const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
@@ -51,7 +52,7 @@ const useConfigRecovery = () => {
       try {
         dispatch(addSigningDevice(signersList));
         const vaultInfo: NewVaultInfo = {
-          vaultType: miniscriptElements ? VaultType.INHERITANCE : VaultType.DEFAULT,
+          vaultType: miniscriptElements ? VaultType.MINISCRIPT : VaultType.DEFAULT,
           vaultScheme: scheme,
           vaultSigners: vaultSignersList,
           vaultDetails: {
@@ -88,6 +89,23 @@ const useConfigRecovery = () => {
 
   const initateRecovery = (text) => {
     setRecoveryLoading(true);
+    if (text.match(/^[XYZTUVxyztuv]pub[1-9A-HJ-NP-Za-km-z]{100,108}$/)) {
+      try {
+        const importedKey = text.trim();
+        const importedKeyDetails = WalletUtilities.getImportedKeyDetails(importedKey);
+        navigation.navigate('ImportWalletDetails', {
+          importedKey,
+          importedKeyDetails,
+          type: WalletType.IMPORTED,
+          name: 'Imported Wallet',
+          description: importedKeyDetails.watchOnly ? 'Watch Only' : 'Imported Wallet',
+        });
+        setRecoveryLoading(false);
+        return;
+      } catch (err) {
+        console.log('Failed to import watch only wallet', err);
+      }
+    }
     try {
       const parsedText: ParsedVauleText = parseTextforVaultConfig(text);
       if (parsedText) {
@@ -115,7 +133,6 @@ const useConfigRecovery = () => {
       recoveryError.failed = true;
       recoveryError.message = err;
       showToast(err.message ? err.message : err.toString(), <ToastErrorIcon />);
-      navigation.goBack();
     }
   };
 

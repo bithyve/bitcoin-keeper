@@ -14,7 +14,6 @@ import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
-import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/SeedScreens/ExportSeedScreen';
 import SeedDetailsScreen from 'src/screens/SeedScreens/SeedDetailsScreen';
 import KeeperLoader from 'src/components/KeeperLoader';
@@ -68,7 +67,6 @@ import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
 import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
 import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
 import MixProgress from 'src/screens/Mix/MixProgress';
-import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
 import UpdateWalletDetails from 'src/screens/WalletDetails/UpdateWalletDetails';
@@ -85,12 +83,11 @@ import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 import ChangeTapsignerPin from 'src/screens/SigningDevices/ChangeTapsignerPin';
 import UTXOSelection from 'src/screens/Send/UTXOSelection';
-import VaultSetup from 'src/screens/Vault/VaultSetup';
 import PrivacyAndDisplay from 'src/screens/AppSettings/PrivacyAndDisplay';
 import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
-import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
 import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
-import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
+import AddNewWallet from 'src/screens/AddWalletScreen/AddNewWallet';
+import ConfirmWalletDetails from 'src/screens/AddWalletScreen/ConfirmWalletDetails';
 import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
@@ -185,7 +182,6 @@ function LoginStack() {
       <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
       {/* Other SD */}
       <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
-      <Stack.Screen name="VaultSetup" component={VaultSetup} />
     </Stack.Navigator>
   );
 }
@@ -220,13 +216,12 @@ function AppStack() {
         <Stack.Screen name="SignerSelectionListScreen" component={SignerSelectionListScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
-        <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
+        <Stack.Screen name="ConfirmWalletDetails" component={ConfirmWalletDetails} />
         <Stack.Screen name="EnterWalletPath" component={WalletPathScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="SeedDetails" component={SeedDetailsScreen} />
-        <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
         <Stack.Screen name="ImportWalletDetails" component={ImportWalletDetailsScreen} />
         <Stack.Screen name="AddDetailsFinal" component={AddDetailsFinalScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
@@ -302,10 +297,8 @@ function AppStack() {
         <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
         <Stack.Screen name="ChangeTapsignerPin" component={ChangeTapsignerPin} />
         <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
-        <Stack.Screen name="VaultCreationOptions" component={VaultCreationOptions} />
         <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
         <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
-        <Stack.Screen name="VaultSetup" component={VaultSetup} />
         <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
         <Stack.Screen
           name="MixProgress"
@@ -313,7 +306,7 @@ function AppStack() {
           options={{ gestureEnabled: false }}
         />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
-        <Stack.Screen name="AddWallet" component={AddWallet} />
+        <Stack.Screen name="AddNewWallet" component={AddNewWallet} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
         <Stack.Screen name="CloudBackup" component={CloudBackupScreen} />

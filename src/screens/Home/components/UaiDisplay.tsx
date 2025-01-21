@@ -67,7 +67,7 @@ function UaiDisplay({ uaiStack, vaultId }) {
         return {
           cta: () => {
             navigtaion.dispatch(
-              CommonActions.navigate({ name: 'VaultSetup', merge: true, params: {} })
+              CommonActions.navigate({ name: 'AddNewWallet', merge: true, params: {} })
             );
           },
         };

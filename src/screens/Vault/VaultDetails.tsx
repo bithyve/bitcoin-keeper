@@ -14,7 +14,7 @@ import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
 import SettingIcon from 'src/assets/images/settings-gear-green.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import { VaultType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
@@ -70,18 +70,10 @@ function Footer({
   const { common } = translations;
   const { colorMode } = useColorMode();
 
-  const ReInstateIcon = () => (
-    <CircleIconWrapper
-      icon={<ImportIcon />}
-      backgroundColor={`${colorMode}.brownBackground`}
-      width={wp(38)}
-    />
-  );
-
   const footerItems = vault.archived
     ? [
         {
-          Icon: ReInstateIcon,
+          Icon: ImportIcon,
           text: common.reinstate,
           onPress: () => {
             dispatch(reinstateVault(vault.id));
@@ -115,59 +107,6 @@ function Footer({
       wrappedScreen={false}
       backgroundColor={`${colorMode}.thirdBackground`}
     />
-  );
-}
-
-function VaultInfo({ vault }: { vault: Vault }) {
-  const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const {
-    specs: { balances: { confirmed, unconfirmed } } = {
-      balances: { confirmed: 0, unconfirmed: 0 },
-    },
-  } = vault;
-
-  return (
-    <Box style={[styles.vaultInfoContainer, { flexDirection: vault.archived ? 'column' : 'row' }]}>
-      <HStack style={styles.pillsContainer}>
-        {vault.type === VaultType.SINGE_SIG && (
-          <CardPill heading="Cold" backgroundColor={`${colorMode}.SignleSigCardPillBackColor`} />
-        )}
-        <CardPill
-          backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
-          heading={`${
-            vault.type === VaultType.COLLABORATIVE
-              ? common.collaborative
-              : vault.type === VaultType.ASSISTED
-              ? common.ASSISTED
-              : vault.type === VaultType.TIMELOCKED
-              ? common.TIMELOCKED
-              : vault.type === VaultType.INHERITANCE
-              ? common.Inheritancekey
-              : vault.type === VaultType.SINGE_SIG
-              ? 'Single-Key'
-              : common.VAULT
-          }`}
-        />
-        {vault.scheme.n > 1 && (
-          <CardPill heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`} />
-        )}
-        {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
-        {vault.archived ? (
-          <CardPill heading={common.ARCHIVED} backgroundColor={`${colorMode}.greyBackground`} />
-        ) : null}
-      </HStack>
-      <Box style={vault.archived && styles.archivedBalance}>
-        <CurrencyInfo
-          hideAmounts={false}
-          amount={confirmed + unconfirmed}
-          fontSize={24}
-          color={`${colorMode}.buttonText`}
-          variation="light"
-        />
-      </Box>
-    </Box>
   );
 }
 

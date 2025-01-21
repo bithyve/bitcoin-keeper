@@ -72,7 +72,7 @@ KeeperModal.defaultProps = {
   learnMoreButtonPressed: () => {},
   learnMoreButtonText: null,
   learnButtonBackgroundColor: 'BrownNeedHelp',
-  learnButtonTextColor: 'light.learnMoreBorder',
+  learnButtonTextColor: 'light.white',
   closeOnOverlayClick: true,
   showCloseIcon: true,
   showCurrencyTypeSwitch: false,

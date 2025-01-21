@@ -183,7 +183,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler, walle
             primary: {
               text: 'Continue',
               cta: () => {
-                navigtaion.navigate('AddWallet');
+                navigtaion.navigate('AddNewWallet');
               },
             },
             secondary: skipBtnConfig(uai),
