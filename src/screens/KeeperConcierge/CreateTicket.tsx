@@ -26,10 +26,6 @@ import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
 import { getKeyUID } from 'src/utils/utilities';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppSelector } from 'src/store/hooks';
-import DeviceDetailsIcon from 'src/assets/images/details-device.svg';
-import WalletInfoIcon from 'src/assets/images/details-wallet.svg';
-import AppDataIcon from 'src/assets/images/details-app.svg';
-import NetworkInfoIcon from 'src/assets/images/details-network.svg';
 import Text from 'src/components/KeeperText';
 import DeviceInfo from 'react-native-device-info';
 import usePlan from 'src/hooks/usePlan';
@@ -41,6 +37,10 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import Node from 'src/services/electrum/node';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import CheckBoxActive from 'src/assets/images/checkbox_active.svg';
+import CheckBoxInactive from 'src/assets/images/checkbox_inactive.svg';
+import CheckBoxOutlineActive from 'src/assets/images/checkbox_outline_active.svg';
+import CheckBoxOutlineInActive from 'src/assets/images/checkbox_outline_inactive.svg';
 
 const DEFAULT_SELECTED_DETAILS = {
   walletInfo: false,
@@ -72,11 +72,11 @@ const CreateTicket = ({ navigation, route }) => {
   const { type: networkType } = useNetInfo();
   const nodes: NodeDetail[] = Node.getAllNodes();
   const [selectedDetails, setSelectedDetails] = useState(DEFAULT_SELECTED_DETAILS);
+  const allKeysTrue = Object.values(selectedDetails).every((value) => value);
 
   const DETAIL_OPTIONS = [
     {
       label: 'Device Details',
-      icon: <DeviceDetailsIcon />,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -86,7 +86,6 @@ const CreateTicket = ({ navigation, route }) => {
     },
     {
       label: 'Wallets Info',
-      icon: <WalletInfoIcon />,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -96,7 +95,6 @@ const CreateTicket = ({ navigation, route }) => {
     },
     {
       label: 'App Data',
-      icon: <AppDataIcon />,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -106,7 +104,6 @@ const CreateTicket = ({ navigation, route }) => {
     },
     {
       label: 'Network Info',
-      icon: <NetworkInfoIcon />,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -250,6 +247,32 @@ const CreateTicket = ({ navigation, route }) => {
 
   const closeDetailsModal = () => {
     setShowDetails(false);
+    setSelectedDetails(DEFAULT_SELECTED_DETAILS);
+  };
+
+  const handleModelSelectAll = () => {
+    console.log({ allKeysTrue });
+    if (allKeysTrue) {
+      setSelectedDetails(DEFAULT_SELECTED_DETAILS);
+    } else {
+      setSelectedDetails({
+        walletInfo: true,
+        deviceInfo: true,
+        appData: true,
+        networkInfo: true,
+      });
+    }
+  };
+
+  const handleAddDetails = async () => {
+    setShowDetails(false);
+    let finalDetails = desc;
+    if (selectedDetails.deviceInfo) finalDetails += await addDeviceInfo();
+    if (selectedDetails.walletInfo) finalDetails += addWalletInfo();
+    if (selectedDetails.appData) finalDetails += addAppData();
+    if (selectedDetails.networkInfo) finalDetails += addNetworkInfo();
+    setDesc(finalDetails);
+    setSelectedDetails(DEFAULT_SELECTED_DETAILS);
   };
 
   return (
@@ -309,28 +332,31 @@ const CreateTicket = ({ navigation, route }) => {
           showCloseIcon
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
-          buttonText={'Proceed'}
-          buttonCallback={async () => {
-            setShowDetails(false);
-            let finalDetails = desc;
-            if (selectedDetails.deviceInfo) finalDetails += await addDeviceInfo();
-            if (selectedDetails.walletInfo) finalDetails += addWalletInfo();
-            if (selectedDetails.appData) finalDetails += addAppData();
-            if (selectedDetails.networkInfo) finalDetails += addNetworkInfo();
-            setDesc(finalDetails);
-            setSelectedDetails(DEFAULT_SELECTED_DETAILS);
-          }}
+          buttonText={'Share'}
+          buttonCallback={handleAddDetails}
           Content={() => (
-            <Box style={styles.modal}>
-              {DETAIL_OPTIONS.map((option, index) => (
-                <OptionItem
-                  key={index}
-                  option={option}
-                  colorMode={colorMode}
-                  active={selectedDetails[option.id]}
-                />
-              ))}
-            </Box>
+            <>
+              <Pressable onPress={handleModelSelectAll} style={styles.modalActionCtr}>
+                {allKeysTrue ? (
+                  <CheckBoxOutlineActive width={wp(18)} height={wp(18)} />
+                ) : (
+                  <CheckBoxOutlineInActive width={wp(18)} height={wp(18)} />
+                )}
+                <Text fontSize={14} semiBold color={`${colorMode}.whiteButtonText`}>
+                  {allKeysTrue ? 'Unselect All' : 'Select All'}
+                </Text>
+              </Pressable>
+              <Box style={styles.optionsWrapper}>
+                {DETAIL_OPTIONS.map((option, index) => (
+                  <OptionItem
+                    key={index}
+                    option={option}
+                    colorMode={colorMode}
+                    active={selectedDetails[option.id]}
+                  />
+                ))}
+              </Box>
+            </>
           )}
         />
       </ContentWrapper>
@@ -359,11 +385,17 @@ const styles = StyleSheet.create({
     paddingTop: hp(10),
     paddingBottom: hp(10),
   },
-  modal: {
-    gap: hp(10),
+  modalActionCtr: {
+    flexDirection: 'row',
+    gap: wp(10),
+    marginBottom: hp(16),
+    alignItems: 'center',
   },
   modalDesc: {
     fontSize: 14,
+  },
+  optionsWrapper: {
+    gap: hp(10),
   },
   optionIconCtr: {
     height: hp(35),
@@ -374,27 +406,28 @@ const styles = StyleSheet.create({
   },
   optionCTR: {
     flexDirection: 'row',
-    paddingHorizontal: wp(12),
-    paddingVertical: hp(16),
+    paddingHorizontal: wp(16),
+    paddingVertical: hp(19),
     alignItems: 'center',
-    gap: wp(16),
+    gap: wp(20),
     borderRadius: 12,
     borderWidth: 1,
   },
 });
 
 const OptionItem = ({ option, colorMode, active }) => {
-  const borderColor = active ? `${colorMode}.pantoneGreen` : `${colorMode}.greyBorder`;
   return (
     <Pressable onPress={option.onPress}>
       <Box
         style={styles.optionCTR}
         backgroundColor={`${colorMode}.boxSecondaryBackground`}
-        borderColor={borderColor}
+        borderColor={`${colorMode}.greyBorder`}
       >
-        <Box style={styles.optionIconCtr} backgroundColor={`${colorMode}.greyBorder`}>
-          {option.icon}
-        </Box>
+        {active ? (
+          <CheckBoxActive width={wp(18)} height={wp(18)} />
+        ) : (
+          <CheckBoxInactive width={wp(18)} height={wp(18)} />
+        )}
         <Text color={`${colorMode}.secondaryText`} fontSize={14} medium>
           {option.label}
         </Text>
