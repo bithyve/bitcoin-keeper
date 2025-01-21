@@ -20,7 +20,6 @@ import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import LockShieldLight from 'src/assets/images/lock-shield-light.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -186,7 +185,6 @@ function ManageSigners({ route }: ScreenProps) {
           learnTextColor={`${colorMode}.buttonText`}
           titleColor={`${colorMode}.seashellWhiteText`}
           subTitleColor={`${colorMode}.seashellWhiteText`}
-          rightComponentBottomPadding={hp(-20)}
           icon={
             <CircleIconWrapper
               backgroundColor={`${colorMode}.seashellWhiteText`}
@@ -383,6 +381,7 @@ function SignersList({
           showDot={true}
           colorVarient="green"
           colorMode={colorMode}
+          customStyle={styles.signerCard}
         />
       );
     });
@@ -423,7 +422,7 @@ function SignersList({
                 typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[
                   item.masterFingerprint
                 ]) ||
-              (signer.type === SignerType.MY_KEEPER &&
+              (signer.type !== SignerType.MY_KEEPER &&
                 typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId]);
 
             return (
@@ -444,6 +443,7 @@ function SignersList({
                 showDot={showDot}
                 colorVarient="green"
                 colorMode={colorMode}
+                customStyle={styles.signerCard}
               />
             );
           })}
@@ -533,6 +533,10 @@ const styles = StyleSheet.create({
   settingsButton: {
     paddingHorizontal: 22,
     paddingVertical: 22,
+  },
+  signerCard: {
+    width: windowWidth * 0.43,
+    height: wp(130),
   },
 });
 

@@ -127,7 +127,7 @@ function SetupColdCard({ route }) {
         dispatch(addSigningDevice([coldcard]));
         const navigationState = addSignerFlow
           ? {
-              name: 'ManageSigners',
+              name: 'Home',
               params: { addedSigner: coldcard },
             }
           : {
