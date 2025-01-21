@@ -9,7 +9,7 @@ export class RealmDatabase {
 
   public static file = 'keeper.realm';
 
-  public static schemaVersion = 83;
+  public static schemaVersion = 84;
 
   /**
    * initializes/opens realm w/ appropriate configuration

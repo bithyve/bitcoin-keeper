@@ -38,6 +38,7 @@ import {
   BIP48ScriptTypes,
   DerivationPurpose,
   EntityKind,
+  MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
   ScriptTypes,
@@ -1922,8 +1923,16 @@ export default class WalletOperations {
             nSequence?: number;
           };
 
-          const vaultsWithTimelock = [VaultType.TIMELOCKED, VaultType.INHERITANCE]; // m-of-n style miniscript vaults w/ timelock
-          if (!vaultsWithTimelock.includes((wallet as Vault).type)) {
+          // Check for timelock using miniscript types
+          const hasTimelock =
+            (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+              MiniscriptTypes.TIMELOCKED
+            ) ||
+            (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+              MiniscriptTypes.INHERITANCE
+            );
+
+          if (!hasTimelock) {
             // scriptwitness selection for TIMELOCKED/INHERITANCE vault is done using the available partial signatures(simplifies UX)
             const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
               miniscriptScheme,

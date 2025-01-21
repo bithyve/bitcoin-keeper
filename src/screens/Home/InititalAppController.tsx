@@ -67,27 +67,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   function handleDeepLinkEvent(event) {
     const { url } = event;
     if (url) {
-      if (url.includes('backup')) {
-        const splits = url.split('backup/');
-        const decoded = Buffer.from(splits[1], 'base64').toString();
-        const params = urlParamsToObj(decoded);
-        if (params.seed) {
-          navigation.navigate('EnterWalletDetail', {
-            seed: params.seed,
-            name: `${
-              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-            } `,
-            path: params.path,
-            appId: params.appId,
-            description: `Imported from ${
-              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-            } `,
-            type: WalletType.IMPORTED,
-          });
-        } else {
-          showToast('Invalid deeplink');
-        }
-      }
       if (url.includes('remote/')) {
         handleRemoteKeyDeepLink(url);
       }
@@ -282,29 +261,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     try {
       const initialUrl = await Linking.getInitialURL();
       if (initialUrl) {
-        if (initialUrl.includes('backup')) {
-          const splits = initialUrl.split('backup/');
-          const decoded = Buffer.from(splits[1], 'base64').toString();
-          const params = urlParamsToObj(decoded);
-          if (params.seed) {
-            navigation.navigate('EnterWalletDetail', {
-              seed: params.seed,
-              name: `${
-                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
-              path: params.path,
-              appId: params.appId,
-              purpose: params.purpose,
-              description: `Imported from ${
-                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
-              type: WalletType.IMPORTED,
-            });
-          } else {
-            showToast('Invalid deeplink');
-          }
-        } else if (initialUrl.includes('create/')) {
-        } else if (initialUrl.includes('remote/')) {
+        if (initialUrl.includes('remote/')) {
           handleRemoteKeyDeepLink(initialUrl);
         }
       }

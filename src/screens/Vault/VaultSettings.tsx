@@ -18,13 +18,14 @@ import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
+import { EntityKind, MiniscriptTypes, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { getKeyUID, trimCWDefaultName } from 'src/utils/utilities';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -38,8 +39,8 @@ function VaultSettings({ route }) {
   const isCanaryWalletType = vault.type === VaultType.CANARY;
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
-  const isInheritanceVault =
-    vault?.type === VaultType.INHERITANCE && !!vault?.scheme?.miniscriptScheme;
+  const isMiniscriptVault =
+    vault?.type === VaultType.MINISCRIPT && !!vault?.scheme?.miniscriptScheme;
   const inheritanceKey = vault?.signers?.find(
     (signer) =>
       signer.masterFingerprint ===
@@ -70,7 +71,10 @@ function VaultSettings({ route }) {
     if (wallet?.entityKind === EntityKind.VAULT) {
       if (wallet.type === VaultType.COLLABORATIVE) {
         return <CollaborativeIcon />;
-      } else if (wallet.type === VaultType.ASSISTED) {
+      } else if (
+        wallet.type === VaultType.MINISCRIPT &&
+        (wallet as Vault).scheme?.miniscriptScheme.usedMiniscriptTypes[MiniscriptTypes.ASSISTED]
+      ) {
         return <AssistedIcon />;
       } else {
         return <VaultIcon />;
@@ -109,7 +113,7 @@ function VaultSettings({ route }) {
             navigation.dispatch(
               CommonActions.navigate('GenerateVaultDescriptor', {
                 vaultId,
-                isInheritanceVault,
+                isMiniscriptVault,
               })
             );
           }}
@@ -135,16 +139,21 @@ function VaultSettings({ route }) {
           callback={() => {
             navigation.dispatch(
               CommonActions.navigate({
-                name: 'VaultSetup',
+                name: 'AddNewWallet',
                 params: {
                   vaultId,
-                  isAddInheritanceKeyFromParams: vault.type === VaultType.INHERITANCE,
+                  isAddInheritanceKeyFromParams:
+                    vault.type === VaultType.MINISCRIPT &&
+                    vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+                      MiniscriptTypes.INHERITANCE
+                    ),
                 },
               })
             );
           }}
         />
-        {isInheritanceVault && (
+        {/* TODO: Update to be generic instead of only for inheritance kye */}
+        {isMiniscriptVault && (
           <OptionCard
             title={vaultText.resetIKTitle}
             description={vaultText.resetIKDesc}

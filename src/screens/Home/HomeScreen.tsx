@@ -7,6 +7,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import KeysIcon from 'src/assets/images/homeGreenKeyIcon.svg';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import InititalAppController from './InititalAppController';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -18,18 +19,18 @@ import WalletIcon from 'src/assets/images/WalletIcon.svg';
 import MenuFooter from 'src/components/MenuFooter';
 import Text from 'src/components/KeeperText';
 import HomeWallet from './components/Wallet/HomeWallet';
-import Colors from 'src/theme/Colors';
+import ManageKeys from './components/Keys/ManageKeys';
 
-function NewHomeScreen({ navigation }) {
+function NewHomeScreen({ navigation, route }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
+  const { addedSigner } = route.params || {};
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
   const { showToast } = useToastMessage();
-  const { top } = useSafeAreaInsets();
   const { translations } = useContext(LocalizationContext);
   const { home: homeTranslation, wallet } = translations;
   const [selectedOption, setSelectedOption] = useState(wallet.homeWallets);
@@ -37,36 +38,76 @@ function NewHomeScreen({ navigation }) {
   const handleOptionChange = (option) => {
     setSelectedOption(option);
   };
+
   const getContent = () => {
     switch (selectedOption) {
       case wallet.homeWallets:
-        return (
-          <Box>
-            <HomeWallet />
-          </Box>
-        );
+        return {
+          content: (
+            <Box>
+              <HomeWallet />
+            </Box>
+          ),
+
+          icon: (
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={<WalletIcon />}
+              backgroundColor={`${colorMode}.modalGreenContent`}
+            />
+          ),
+        };
       case wallet.keys:
-        return (
-          <Box>
-            <Text>keys </Text>
-          </Box>
-        );
+        return {
+          content: (
+            <Box>
+              <ManageKeys addedSigner={addedSigner} />
+            </Box>
+          ),
+          icon: (
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={<KeysIcon />}
+              backgroundColor={`${colorMode}.modalGreenContent`}
+            />
+          ),
+        };
       case wallet.concierge:
-        return (
-          <Box>
-            <Text>Concierge Content</Text>
-          </Box>
-        );
+        return {
+          content: (
+            <Box>
+              <Text>Concierge Content</Text>
+            </Box>
+          ),
+          icon: (
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={<WalletIcon />}
+              backgroundColor={`${colorMode}.modalGreenContent`}
+            />
+          ),
+        };
       case wallet.more:
-        return (
-          <Box>
-            <Text>More/Settings Content</Text>
-          </Box>
-        );
+        return {
+          content: (
+            <Box>
+              <Text>More/Settings Content</Text>
+            </Box>
+          ),
+          icon: (
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={<WalletIcon />}
+              backgroundColor={`${colorMode}.modalGreenContent`}
+            />
+          ),
+        };
       default:
-        return null;
+        return { content: null, icon: null };
     }
   };
+
+  const { content, icon } = getContent();
 
   useEffect(() => {
     if (relayWalletError) {
@@ -85,15 +126,9 @@ function NewHomeScreen({ navigation }) {
         electrumErrorVisible={electrumErrorVisible}
         setElectrumErrorVisible={setElectrumErrorVisible}
       />
-      <HomeScreenHeader
-        colorMode={colorMode}
-        title={selectedOption}
-        circleIconWrapper={
-          <CircleIconWrapper width={wp(39)} icon={<WalletIcon />} backgroundColor={Colors.White} />
-        }
-      />
 
-      <Box style={styles.content}>{getContent()}</Box>
+      <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
+      <Box style={styles.content}>{content}</Box>
       <MenuFooter selectedOption={selectedOption} onOptionChange={handleOptionChange} />
     </Box>
   );

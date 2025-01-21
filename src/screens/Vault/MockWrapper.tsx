@@ -37,7 +37,7 @@ function MockWrapper({
   navigation?: NavigationProp<any>;
   addSignerFlow?: boolean;
   mode: InteracationMode;
-  signerXfp?: string; // needed in Identification and HC flow
+  signerXfp?: string;
 }) {
   const dispatch = useDispatch();
   const nav = navigation ?? useNavigation();
@@ -50,7 +50,7 @@ function MockWrapper({
         dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
           ? {
-              name: 'ManageSigners',
+              name: 'Home',
               params: { addedSigner: signer },
             }
           : {

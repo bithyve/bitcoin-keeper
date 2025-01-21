@@ -22,6 +22,7 @@ type DashedButtonProps = {
   hexagonBackgroundColor?: string;
   borderColor?: string;
   textColor?: string;
+  titleSize?: number;
   arrowIcon?: any;
   textPosition?: 'center' | 'left';
 };
@@ -41,6 +42,7 @@ function DashedCta({
   textColor,
   arrowIcon,
   textPosition = 'center',
+  titleSize = 14,
 }: DashedButtonProps) {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
@@ -67,11 +69,15 @@ function DashedCta({
         )}
         <Box style={[textPosition === 'center' ? styles.textCenter : styles.textLeft]}>
           {name && (
-            <Text semiBold color={textColor || defaultTextColor} fontSize={14}>
+            <Text semiBold color={textColor || defaultTextColor} fontSize={titleSize}>
               {name}
             </Text>
           )}
-          {description && <Text color={textColor || defaultTextColor}>{description}</Text>}
+          {description && (
+            <Text color={textColor || defaultTextColor} fontSize={13} style={{ marginTop: hp(4) }}>
+              {description}
+            </Text>
+          )}
         </Box>
         <Box>{arrowIcon && (isDarkMode ? <RightArrowWhite /> : <RightArrow />)}</Box>
       </Box>

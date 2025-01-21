@@ -168,7 +168,7 @@ function WalletDetails({ route }: ScreenProps) {
         <Box style={styles.card}>
           <WalletCard
             backgroundColor={getWalletCardGradient(wallet)}
-            hexagonBackgroundColor={isDarkMode ? Colors.CyanGreen : Colors.CyanGreen}
+            hexagonBackgroundColor={Colors.CyanGreen}
             icon={<WalletIcon />}
             iconWidth={42}
             iconHeight={38}
@@ -182,17 +182,11 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <Box style={styles.actionCard}>
         <FeatureCard
-          disable={disableBuy}
           cardName={common.buyBitCoin}
           callback={() =>
             navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
           }
           icon={<BTC />}
-          cardPillText={cardProps.cardPillText}
-          pillTextColor={cardProps.pillTextColor}
-          circleColor={cardProps.circleColor}
-          cardPillColor={cardProps.cardPillColor}
-          customCardPill={cardProps.customCardPill}
           customStyle={{ justifyContent: 'flex-end' }}
         />
         <FeatureCard

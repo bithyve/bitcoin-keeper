@@ -806,6 +806,8 @@
     "anotherMobileKeyAlreadySelectedMessage": "You have already selected another mobile key for your vault. Since all mobile keys are derived from your Recovery Key and stored on your phone, it is not allowed to use more than one mobile key in each vault.",
     "keyAlreadyUsedInVaultTitle": "Key Already Used In Your Vault",
     "keyAlreadyUsedInVaultMessage": "This key is already used in your vault, please choose another key or add a new one.",
+    "keyDoesntSupportMiniscriptTitle": "This Device Doesn't Support Enhanced Vaults",
+    "keyDoesntSupportMiniscriptMessage": "This device type does not currently support Miniscript, which is necessary for using Enhaced Vaults features.",
     "keyFromSameDeviceAlreadySelectedTitle": "Another Key From The Same Device Already Selected",
     "keyFromSameDeviceAlreadySelectedMessage": "You have already selected another key which belongs to the same device. For security reasons, you cannot use multiple keys which belong to the same signing device in the same multisig vault.",
     "importXpub": "Import xPub",
@@ -1188,6 +1190,7 @@
     "insertTextfromFile": "Insert text from file",
     "watchOnly": "Watch Only",
     "usingConfigFile": "Using Wallet Configuration File",
+    "importAWalletSubtitle": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data as text",
     "usingConfigFileSubtitle": "Import a wallet from descriptor backup",
     "importXpub": "Import an xPub (Watch Only)",
     "importXpubSubtitle": "Import an extended public key (xPub)",
@@ -1214,7 +1217,7 @@
     "keyDetails": "Key Details",
     "keyDetailsSubtitle": "xPub for adding to another vault",
     "ManageKeys": "Manage Keys",
-    "ViewAndChangeKeyDetails": "View key details or add new",
+    "ViewAndChangeKeyDetails": "View and manage your wallet keys",
     "changeSignerTitle": "Change Signer",
     "changeSignerSubtitle": "Select a signer to replace the current one",
     "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault",
@@ -1271,7 +1274,7 @@
     "signTransaction": "Sign Transaction",
     "reject": "Reject",
     "acceptKey": "Accept Key",
-    "manageKeysModalSubtitle": "All your keys would be visible in this section.",
+    "manageKeysModalSubtitle": "In this section you can view and manage all the keys used in your wallet.",
     "manageKeysModalDesc": "You can ensure their accessibility via Health Checks, fund Canary Wallets, view fingerprints and even change signer type, all from this central location for keys.",
     "manageTapsigner": "Manage TAPSIGNER",
     "saveBackup": "Save Backup",
@@ -1503,6 +1506,8 @@
     "expertGuidanceDescription": "Talk to an advisor for tailored support – first session free",
     "expertGuidanceButtonText": "Connect with Advisor",
     "comingSoonText": "Coming Soon",
-    "conciergeTitle": "Keeper Concierge"
+    "conciergeTitle": "Keeper Concierge",
+    "conciergeAdditionDetailTitle": "Additional details",
+    "conciergeAdditionDetailSubTitle": "Easily resolve issues by sharing device details, wallet info, and app logs"
   }
 }

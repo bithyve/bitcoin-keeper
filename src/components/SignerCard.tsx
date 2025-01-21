@@ -18,6 +18,7 @@ function SignerCard({
   onCardSelect,
 }: SignerCardProps) {
   const isSelected = selectedCard === walletName;
+
   const { colorMode } = useColorMode();
   return (
     <Pressable

@@ -193,7 +193,7 @@ function ResetInheritanceKey({ route }) {
       <VaultMigrationController
         vaultCreating={vaultCreating}
         vaultKeys={otherSigners}
-        scheme={{ m: vault.scheme.m, n: vault.scheme.n }}
+        scheme={vault.scheme}
         name={vault.presentationData.name}
         description={vault.presentationData.description}
         vaultId={vault.id}
@@ -204,6 +204,7 @@ function ResetInheritanceKey({ route }) {
         isAddInheritanceKey={true}
         currentBlockHeight={currentBlockHeight}
         selectedDuration={selectedOption?.label}
+        miniscriptTypes={vault.scheme.miniscriptScheme.usedMiniscriptTypes}
       />
     </ScreenWrapper>
   );

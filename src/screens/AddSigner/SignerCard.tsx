@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Pressable } from 'native-base';
 import { Image, StyleSheet, ViewStyle } from 'react-native';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
@@ -30,6 +30,9 @@ type SignerCardProps = {
   borderColor?: string;
   nameColor?: string;
   disabledWithTouch?: boolean;
+  titleSize?: number;
+  subtitleFont?: number;
+  badgeText?: string;
 };
 
 function SignerCard({
@@ -55,7 +58,10 @@ function SignerCard({
   cardBackground,
   borderColor,
   nameColor,
+  titleSize,
+  subtitleFont,
   disabledWithTouch = false,
+  badgeText,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -88,6 +94,22 @@ function SignerCard({
       }}
       testID={`btn_${name}`}
     >
+      {badgeText && (
+        <Box
+          position="absolute"
+          top={hp(10)}
+          right={0}
+          bg={`${colorMode}.BrownNeedHelp`}
+          px={3}
+          py={1}
+          borderTopLeftRadius={5}
+          borderBottomLeftRadius={5}
+        >
+          <Text color={`${colorMode}.buttonText`} fontSize={10} medium>
+            {badgeText}
+          </Text>
+        </Box>
+      )}
       <Box style={styles.selectionIcon}>
         {showSelection &&
           (isSelected ? <Checked /> : StaticIcon ? <StaticIcon /> : <Box style={styles.circle} />)}
@@ -109,7 +131,10 @@ function SignerCard({
         {titleComp}
         <Text
           color={cardNameColor}
-          style={styles.walletName}
+          style={{
+            ...styles.walletName,
+            fontSize: titleSize || styles.walletName.fontSize,
+          }}
           numberOfLines={isFullText ? 2 : 1}
           medium
         >
@@ -117,7 +142,13 @@ function SignerCard({
         </Text>
         {subtitle ? (
           <Text
-            style={[styles.walletSubtTitle, { marginBottom: isFeePriority ? -7 : 0 }]}
+            style={[
+              styles.walletSubtTitle,
+              {
+                fontSize: subtitleFont || styles.walletSubtTitle.fontSize,
+                marginBottom: isFeePriority ? -7 : 0,
+              },
+            ]}
             color={`${colorMode}.secondaryText`}
             numberOfLines={numberOfLines}
           >
@@ -142,9 +173,10 @@ function SignerCard({
 
 const styles = StyleSheet.create({
   walletContainer: {
-    width: windowWidth / 3 - windowWidth * 0.05,
-    padding: 10,
-    height: 125,
+    width: windowWidth * 0.43,
+    height: wp(130),
+    paddingHorizontal: wp(15),
+    paddingVertical: hp(12),
     alignItems: 'flex-start',
     borderRadius: 10,
     margin: 3,

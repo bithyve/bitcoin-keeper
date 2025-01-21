@@ -179,5 +179,6 @@ const Colors = {
   LightMossGreen: 'rgba(192, 223, 161, 1)',
   PaleCyan: 'rgba(91, 191, 168, 1)',
   Aquamarine: 'rgba(136, 235, 220, 1)',
+  FooterBackGround: 'rgba(45, 103, 89, 0.1)',
 };
 export default Colors;

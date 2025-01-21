@@ -4,7 +4,13 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import idx from 'idx';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { DerivationPurpose, EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
+import {
+  DerivationPurpose,
+  EntityKind,
+  MiniscriptTypes,
+  VaultType,
+  WalletType,
+} from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import Colors from 'src/theme/Colors';
@@ -39,6 +45,8 @@ const useWalletAsset = () => {
 
   const getWalletTags = (wallet: Wallet | Vault) => {
     if (wallet.entityKind === EntityKind.VAULT) {
+      console.log((wallet as Vault).scheme.miniscriptScheme);
+
       switch (wallet.type) {
         case VaultType.SINGE_SIG:
           return [
@@ -60,14 +68,16 @@ const useWalletAsset = () => {
             { tag: 'Timelocked', color: Colors.mintGreen },
             { tag: getSchemeTag(wallet as Vault), color: Colors.LightMossGreen },
           ];
-        case VaultType.INHERITANCE:
+        case VaultType.MINISCRIPT:
           return [
-            { tag: 'Inheritance Key', color: Colors.Aquamarine },
+            wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+              MiniscriptTypes.INHERITANCE
+            ) && { tag: 'Inheritance Key', color: Colors.Aquamarine },
             { tag: getSchemeTag(wallet as Vault), color: Colors.LightMossGreen },
-          ];
+          ].filter(Boolean);
         default:
           return [
-            { tag: 'Vault', color: Colors.mintGreen },
+            { tag: 'Multi-key', color: Colors.mintGreen },
             { tag: getSchemeTag(wallet as Vault), color: Colors.LightMossGreen },
           ];
       }

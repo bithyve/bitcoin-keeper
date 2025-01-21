@@ -14,7 +14,7 @@ type Props = {
   titleColor?: string;
   contrastScreen?: boolean;
   data?: any;
-  rightComponent: any;
+  rightComponent?: any;
 };
 
 const WalletHeader: React.FC<Props> = ({
@@ -45,7 +45,6 @@ const WalletHeader: React.FC<Props> = ({
     },
     title: {
       fontSize: 18,
-      fontWeight: 'bold',
     },
 
     settingBtn: {
@@ -68,13 +67,13 @@ const WalletHeader: React.FC<Props> = ({
             </TouchableOpacity>
           )}
           {title && (
-            <Text color={titleColor} style={styles.title}>
+            <Text color={titleColor} style={styles.title} medium>
               {title}
             </Text>
           )}
         </Box>
 
-        <Box>{rightComponent}</Box>
+        {rightComponent && <Box>{rightComponent}</Box>}
       </Box>
     </Box>
   );

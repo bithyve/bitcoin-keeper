@@ -85,15 +85,6 @@ function SignerCategoryList() {
       Icon: isDarkMode ? <MobileKeyWhite /> : <MobileKeyBlack />,
       snippet: [],
     },
-    {
-      title: signer.addAssistedKey,
-      description: signer.keysOnServer,
-      signerCategory: SignerCategory.ASSISTED,
-      headerTitle: signer.assistedKeysHeader,
-      headerSubtitle: signer.keysKeptOnServer,
-      Icon: isDarkMode ? <AssistedSignerWhite /> : <AssistedSignerBlack />,
-      snippet: [],
-    },
   ];
 
   const handlePress = (category) => {
