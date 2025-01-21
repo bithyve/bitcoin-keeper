@@ -7,7 +7,7 @@ import Text from 'src/components/KeeperText';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 
 import { SignerType } from 'src/services/wallets/enums';
-import { psbtToBBQR } from 'src/utils/utilities';
+import { interpolateBBQR, psbtToBBQR } from 'src/utils/utilities';
 
 DisplayQR.defaultProps = {
   toBytes: true,
@@ -33,22 +33,22 @@ function DisplayQR({
   const { colorMode } = useColorMode();
   const [rotation, setRotation] = useState(100);
   const [coldCardQrData, setColdCardQrData] = useState(null);
-  const { qrData } = isColdCard
-    ? { qrData: null }
-    : useDynamicQrContent({
-        data: qrContents,
-        toBytes,
-        type,
-        rotation,
-        shouldRotate,
-      });
+  const { qrData } = useDynamicQrContent({
+    data: isColdCard ? coldCardQrData : qrContents,
+    toBytes,
+    type,
+    rotation,
+    shouldRotate,
+    showBBQR: isColdCard,
+  });
 
   useEffect(() => {
-    if (!qrData && isColdCard) loadBBQR();
-  }, []);
+    if (isColdCard) loadBBQR();
+  }, [rotation]);
 
   const loadBBQR = async () => {
-    const data = await psbtToBBQR(qrContents);
+    const val = interpolateBBQR(rotation);
+    const data = await psbtToBBQR(qrContents, val);
     setColdCardQrData(data);
   };
 
@@ -56,11 +56,7 @@ function DisplayQR({
     <>
       {(qrData?.length || coldCardQrData?.length) && (
         <VStack alignItems="center">
-          <KeeperQRCode
-            qrData={isColdCard ? coldCardQrData : qrData}
-            size={windowWidth * 0.7}
-            ecl="L"
-          />
+          <KeeperQRCode qrData={qrData} size={windowWidth * 0.7} ecl="L" />
           <Slider
             marginTop={5}
             marginBottom={2}
