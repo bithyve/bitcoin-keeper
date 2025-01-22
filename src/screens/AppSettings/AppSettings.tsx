@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useQuery } from '@realm/react';
-import { CommonActions } from '@react-navigation/native';
+import { CommonActions, useIsFocused } from '@react-navigation/native';
 
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -39,12 +39,27 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
+import {
+  setBackupAllFailure,
+  setBackupAllSuccess,
+  setAutomaticCloudBackup,
+} from 'src/store/reducers/bhr';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
-  const { isCloudBsmsBackupRequired } = useAppSelector((state) => state.bhr);
+  const {
+    isCloudBsmsBackupRequired,
+    backupAllLoading,
+    backupAllFailure,
+    backupAllSuccess,
+    automaticCloudBackup,
+  } = useAppSelector((state) => state.bhr);
 
   const { plan } = usePlan();
   const versionHistory = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
@@ -59,6 +74,8 @@ function AppSettings({ navigation, route }) {
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+  const { showToast } = useToastMessage();
+  const isFocused = useIsFocused(); // Check if the screen is in the foreground
 
   useEffect(() => {
     if (colorMode === 'dark') {
@@ -101,6 +118,25 @@ function AppSettings({ navigation, route }) {
       showDot: isCloudBsmsBackupRequired,
     },
   ];
+
+  useEffect(() => {
+    if (backupAllSuccess && isFocused) {
+      dispatch(setBackupAllSuccess(false));
+      dispatch(setAutomaticCloudBackup(true));
+    }
+  }, [backupAllSuccess]);
+
+  useEffect(() => {
+    if (backupAllFailure && isFocused) {
+      dispatch(setBackupAllFailure(false));
+      showToast('Automatic Cloud Backup failed. Please try again later.', <ToastErrorIcon />);
+    }
+  }, [backupAllFailure]);
+
+  const toggleAutomaticBackupMode = async () => {
+    if (!automaticCloudBackup) dispatch(backupAllSignersAndVaults());
+    else dispatch(setAutomaticCloudBackup(false));
+  };
 
   // TODO: add learn more modal
   return (
@@ -147,6 +183,16 @@ function AppSettings({ navigation, route }) {
               onValueChange={() => changeThemeMode()}
               value={colorMode === 'dark'}
               testID="switch_darkmode"
+            />
+          }
+        />
+        <OptionCard
+          title={'Automatic Cloud Backup'}
+          description={'Backup your Keeper app to cloud automatically.'}
+          Icon={
+            <Switch
+              onValueChange={() => toggleAutomaticBackupMode()}
+              value={automaticCloudBackup}
             />
           }
         />
@@ -267,6 +313,7 @@ function AppSettings({ navigation, route }) {
         }}
         Content={BackupModalContent}
       />
+      <ActivityIndicatorView visible={backupAllLoading} showLoader />
     </ScreenWrapper>
   );
 }

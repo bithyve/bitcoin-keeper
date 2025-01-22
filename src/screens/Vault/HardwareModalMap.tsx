@@ -568,13 +568,26 @@ const getSignerContent = (
           !isIdentification && [
             {
               title: 'Import',
-              icon: <Import />,
+              icon: (
+                <CircleIconWrapper
+                  icon={<Import />}
+                  backgroundColor={`${colorMode}.BrownNeedHelp`}
+                  width={35}
+                />
+              ),
               callback: () => {},
               name: KeyGenerationMode.IMPORT,
             },
             {
               title: 'Create',
-              icon: <RecoverImage />,
+              icon: (
+                <CircleIconWrapper
+                  icon={<RecoverImage />}
+                  backgroundColor={`${colorMode}.BrownNeedHelp`}
+                  width={35}
+                />
+              ),
+
               callback: () => {},
               name: KeyGenerationMode.CREATE,
             },
