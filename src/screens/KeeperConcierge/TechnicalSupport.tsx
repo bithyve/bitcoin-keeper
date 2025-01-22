@@ -3,7 +3,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
 import ConciergeHeader from './components/ConciergeHeader';
 import ContentWrapper from 'src/components/ContentWrapper';
-import { StyleSheet } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import TicketHistory from './components/TicketHistory';
 import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -27,7 +27,6 @@ import { useAppSelector } from 'src/store/hooks';
 import { loadConciergeUser, scheduleOnboardingCall } from 'src/store/sagaActions/concierge';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Buttons from 'src/components/Buttons';
-import OnboardingCall from 'src/assets/images/onboardingCall.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { emailCheck } from 'src/utils/utilities';
@@ -208,10 +207,20 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(18),
     marginBottom: hp(18),
   },
+  onboardCallModalIllustration: {
+    width: wp(170),
+    height: hp(173),
+    alignSelf: 'center',
+    marginBottom: hp(20),
+  },
 });
 
 const OnboardCallContent = ({ submitOnboardEmail }) => {
   const { colorMode } = useColorMode();
+  const illustration =
+    colorMode === 'dark'
+      ? require('src/assets/images/onboardingCallDark.png')
+      : require('src/assets/images/onboardingCall.png');
   const { concierge: conciergeText } = useContext(LocalizationContext).translations;
   const [onboardEmail, setOnboardEmail] = useState('');
   const [emailError, setEmailError] = useState(false);
@@ -227,7 +236,11 @@ const OnboardCallContent = ({ submitOnboardEmail }) => {
 
   return (
     <>
-      <OnboardingCall style={styles.illustration} />
+      <Image
+        source={illustration}
+        style={styles.onboardCallModalIllustration}
+        resizeMode="contain"
+      />
       <Text color={`${colorMode}.secondaryText`} style={styles.onboardCallModalTitle}>
         {conciergeText.onboardingCallTitle}
       </Text>
