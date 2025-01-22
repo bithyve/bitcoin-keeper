@@ -252,6 +252,8 @@ export const customTheme = extendTheme({
       sliderUnfilled: Colors.PaleGrey,
       greyBackground: Colors.lightGrey,
       ctaFooterBackground: Colors.GreenishGrey,
+      graphiteTranslucentBG: Colors.GraphiteTranslucent,
+      SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -458,6 +460,8 @@ export const customTheme = extendTheme({
       sliderUnfilled: Colors.CharcoalGreen,
       greyBackground: Colors.darkGrey,
       ctaFooterBackground: Colors.SecondaryBlack,
+      graphiteTranslucentBG: Colors.GraphiteTranslucent,
+      SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
     },
   },
   config: {

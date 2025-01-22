@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import PenLight from 'src/assets/images/pen-light.svg';
 import PenDark from 'src/assets/images/pen-dark.svg';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { useSelector } from 'react-redux';
 import { calculateTicketsLeft } from 'src/utils/utilities';
 import usePlan from 'src/hooks/usePlan';
@@ -37,7 +37,7 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
             primaryText="Ask the team"
             primaryCallback={onPress}
             RightIcon={isDarkMode ? PenLight : PenDark}
-            width={wp(150)}
+            fullWidth
           />
         </Box>
       )}
@@ -47,8 +47,9 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
 
 const styles = StyleSheet.create({
   helpButton: {
-    position: 'absolute',
-    bottom: '8%',
-    right: wp(29),
+    marginHorizontal: '3%',
+    marginVertical: hp(10),
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });

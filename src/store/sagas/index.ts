@@ -78,6 +78,7 @@ import {
   goToConceirgeWatcher,
   loadConciergeUserWatcher,
   addTicketStatusUAIWatcher,
+  scheduleOnboardingCallWatcher,
 } from './concierge';
 
 const rootSaga = function* () {
@@ -177,6 +178,7 @@ const rootSaga = function* () {
     goToConceirgeWatcher,
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
+    scheduleOnboardingCallWatcher,
   ];
 
   yield all(
