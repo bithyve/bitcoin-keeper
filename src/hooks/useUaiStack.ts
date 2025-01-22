@@ -29,7 +29,7 @@ const useUaiStack = (): { uaiStack: UAI[]; isLoading: boolean } => {
   const refreshUai = useAppSelector((state) => state.uai.refreshUai);
   const uaiActionMap = useAppSelector((state) => state.uai.uaiActionMap);
 
-  const nonActionedUais = UAIcollection.filter((uai) => !uaiActionMap[uai.id]);
+  const nonActionedUais = UAIcollection.filter((uai) => !uaiActionMap[uai.id] && !uai.lastActioned);
 
   const sortUAIsByPriorityAndLastActioned = (uaisArray: UAI[]): UAI[] => {
     return uaisArray.sort((a, b) => {

@@ -323,7 +323,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
         visible={insightModal}
         close={() => {
           setInsightModal(false);
-          dispatch(uaiActioned({ uaiId: uai.id, action: true }));
+          dispatch(uaiActioned({ uaiId: uai.id, action: false }));
         }}
         showCloseIcon={false}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -333,7 +333,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
         buttonText={'Done'}
         buttonCallback={() => {
           setInsightModal(false);
-          dispatch(uaiActioned({ uaiId: uai.id, action: true }));
+          dispatch(uaiActioned({ uaiId: uai.id, action: false }));
         }}
         Content={() => <FeeInsightsContent />}
       />

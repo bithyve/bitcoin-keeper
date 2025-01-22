@@ -54,14 +54,14 @@ const healthCheckReminderMinutes = (lastHealthCheck: Date) => {
 };
 
 function* addToUaiStackWorker({ payload }) {
-  const { entityId, uaiType, uaiDetails } = payload;
+  const { entityId, uaiType, uaiDetails, seenAt } = payload;
   const uai: UAI = {
     id: uuidv4(),
     entityId,
     uaiType,
     uaiDetails,
     createdAt: new Date(),
-    seenAt: null,
+    seenAt: seenAt ? seenAt : null,
   };
   try {
     yield call(dbManager.createObject, RealmSchema.UAI, uai);
@@ -305,24 +305,60 @@ function* uaiChecksWorker({ payload }) {
         uaiType.FEE_INISGHT,
         'uaiType'
       );
+      let lastSeenFeesNotification = null;
+
       if (uaiCollectionHC.length > 0) {
         for (const uai of uaiCollectionHC) {
-          dbManager.deleteObjectById(RealmSchema.UAI, uai.id);
+          if (uai.seenAt && !uai.lastActioned) {
+            if (!lastSeenFeesNotification || uai.seenAt > lastSeenFeesNotification) {
+              lastSeenFeesNotification = uai.seenAt;
+            }
+          }
         }
       }
+
       const graphData = yield select(oneDayInsightSelector);
       const statement = generateFeeStatement(graphData);
       if (statement) {
-        yield put(
-          addToUaiStack({
-            uaiType: uaiType.FEE_INISGHT,
-            uaiDetails: {
-              heading: 'Fee Insights',
-              body: statement,
-            },
-          })
-        );
-        yield put(setRefreshUai());
+        const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
+
+        // Delete all without createdAt
+        const uaisWithoutCreatedAt = uaiCollectionHC.filter((uai) => !uai.createdAt);
+        for (const uai of uaisWithoutCreatedAt) {
+          yield call(dbManager.deleteObjectById, RealmSchema.UAI, uai.id);
+        }
+
+        // Sort remaining by createdAt
+        const sortedUais = uaiCollectionHC
+          .filter((uai) => uai.createdAt)
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+        const latestActioned = sortedUais.find((uai) => uai.lastActioned);
+        const isLatestActionedOld =
+          latestActioned &&
+          new Date().getTime() - latestActioned.createdAt.getTime() > threeDaysInMs;
+
+        // Delete all except newest actioned (if it exists and is not old)
+        for (const uai of sortedUais) {
+          if (uai !== latestActioned || isLatestActionedOld) {
+            yield call(dbManager.deleteObjectById, RealmSchema.UAI, uai.id);
+          }
+        }
+
+        // Create new if needed
+        if (!latestActioned || isLatestActionedOld || lastSeenFeesNotification) {
+          yield put(
+            addToUaiStack({
+              uaiType: uaiType.FEE_INISGHT,
+              uaiDetails: {
+                heading: 'Fee Insights',
+                body: statement,
+              },
+              seenAt: lastSeenFeesNotification,
+            })
+          );
+          yield put(setRefreshUai());
+        }
       }
     }
     if (checkForTypes.includes(uaiType.DEFAULT)) {
