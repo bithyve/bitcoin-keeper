@@ -5,11 +5,11 @@ import { useAppSelector } from 'src/store/hooks';
 import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
-interface PriorityMap {
+interface UAIPriorityMap {
   [entityKind: string]: number;
 }
 
-const priorityMap: PriorityMap = {
+export const uaiPriorityMap: UAIPriorityMap = {
   [uaiType.SIGN_TRANSACTION]: 100,
   [uaiType.IKS_REQUEST]: 100,
   [uaiType.CANARAY_WALLET]: 100,
@@ -33,7 +33,7 @@ const useUaiStack = (): { uaiStack: UAI[]; isLoading: boolean } => {
 
   const sortUAIsByPriorityAndLastActioned = (uaisArray: UAI[]): UAI[] => {
     return uaisArray.sort((a, b) => {
-      const priorityDiff = priorityMap[b.uaiType] - priorityMap[a.uaiType];
+      const priorityDiff = uaiPriorityMap[b.uaiType] - uaiPriorityMap[a.uaiType];
       if (priorityDiff === 0) {
         if (!a.lastActioned && !b.lastActioned) return 0;
         if (!a.lastActioned) return -1;

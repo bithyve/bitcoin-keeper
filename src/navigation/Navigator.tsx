@@ -146,6 +146,7 @@ import ImportContactFile from 'src/screens/SigningDevices/ImportContactFile';
 import ContactDetails from 'src/screens/SigningDevices/ContactDetails';
 import ShareQR from 'src/screens/SigningDevices/ShareQR';
 import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
+import NotificationsCenter from 'src/screens/Home/Notifications/NotificationsCenter';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -192,6 +193,7 @@ function AppStack() {
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="NotificationsCenter" component={NotificationsCenter} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SignerCategoryList" component={SignerCategoryList} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />

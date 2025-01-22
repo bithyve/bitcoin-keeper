@@ -5,6 +5,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 export type AppStackParams = {
   Home: undefined;
+  NotificationsCenter: undefined;
   Login: undefined;
   SigningDeviceList: undefined;
   SignerCategoryList: undefined;

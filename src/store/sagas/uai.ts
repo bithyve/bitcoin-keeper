@@ -21,6 +21,7 @@ import {
   uaiActioned,
   UAI_ACTIONED,
   UAI_CHECKS,
+  UAIS_SEEN,
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
 import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
@@ -59,6 +60,8 @@ function* addToUaiStackWorker({ payload }) {
     entityId,
     uaiType,
     uaiDetails,
+    createdAt: new Date(),
+    seenAt: null,
   };
   try {
     yield call(dbManager.createObject, RealmSchema.UAI, uai);
@@ -314,7 +317,7 @@ function* uaiChecksWorker({ payload }) {
           addToUaiStack({
             uaiType: uaiType.FEE_INISGHT,
             uaiDetails: {
-              heading: 'Fee Insight',
+              heading: 'Fee Insights',
               body: statement,
             },
           })
@@ -383,6 +386,21 @@ function* uaiChecksWorker({ payload }) {
   }
 }
 
+function* uaisSeenWorker({ payload }) {
+  try {
+    const { uaiIds } = payload;
+
+    // Update seenAt for multiple UAIs
+    for (const uaiId of uaiIds) {
+      const updateData = { seenAt: new Date() };
+      yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiId, updateData);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const uaiChecksWatcher = createWatcher(uaiChecksWorker, UAI_CHECKS);
 export const addUaiStackWatcher = createWatcher(addToUaiStackWorker, ADD_TO_UAI_STACK);
 export const uaiActionedWatcher = createWatcher(uaiActionedWorker, UAI_ACTIONED);
+export const uaisSeenWatcher = createWatcher(uaisSeenWorker, UAIS_SEEN);

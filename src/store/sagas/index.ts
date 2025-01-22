@@ -31,7 +31,7 @@ import {
   updateCollaborativeChannelWatcher,
   fetchCollaborativeChannelWatcher,
 } from './wallets';
-import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
+import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher, uaisSeenWatcher } from './uai';
 import {
   changeAuthCredWatcher,
   changeLoginMethodWatcher,
@@ -146,6 +146,7 @@ const rootSaga = function* () {
     uaiChecksWatcher,
     addUaiStackWatcher,
     uaiActionedWatcher,
+    uaisSeenWatcher,
 
     // BHR
     updateAppImageWatcher,
