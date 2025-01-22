@@ -180,5 +180,6 @@ const Colors = {
   PaleCyan: 'rgba(91, 191, 168, 1)',
   Aquamarine: 'rgba(136, 235, 220, 1)',
   FooterBackGround: 'rgba(45, 103, 89, 0.1)',
+  horizontaldivider: 'rgba(232, 227, 221,1)',
 };
 export default Colors;
