@@ -369,8 +369,22 @@ const NotificationsCenter = () => {
 
   const { unseenNotifications, seenNotifications } = useMemo(
     () => ({
-      unseenNotifications: uaiStack.filter((uai) => !uai.seenAt),
-      seenNotifications: uaiStack.filter((uai) => uai.seenAt),
+      unseenNotifications: uaiStack
+        .filter((uai) => !uai.seenAt)
+        .sort((a, b) => {
+          if (!a.createdAt && !b.createdAt) return 0;
+          if (!a.createdAt) return 1;
+          if (!b.createdAt) return -1;
+          return b.createdAt.getTime() - a.createdAt.getTime();
+        }),
+      seenNotifications: uaiStack
+        .filter((uai) => uai.seenAt)
+        .sort((a, b) => {
+          if (!a.createdAt && !b.createdAt) return 0;
+          if (!a.createdAt) return 1;
+          if (!b.createdAt) return -1;
+          return b.createdAt.getTime() - a.createdAt.getTime();
+        }),
     }),
     [uaiStack]
   );

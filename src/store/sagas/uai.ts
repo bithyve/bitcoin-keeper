@@ -54,13 +54,13 @@ const healthCheckReminderMinutes = (lastHealthCheck: Date) => {
 };
 
 function* addToUaiStackWorker({ payload }) {
-  const { entityId, uaiType, uaiDetails, seenAt } = payload;
+  const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
     id: uuidv4(),
     entityId,
     uaiType,
     uaiDetails,
-    createdAt: new Date(),
+    createdAt: createdAt ? createdAt : new Date(),
     seenAt: seenAt ? seenAt : null,
   };
   try {
@@ -306,12 +306,14 @@ function* uaiChecksWorker({ payload }) {
         'uaiType'
       );
       let lastSeenFeesNotification = null;
+      let lastCreatedFeesNotification = null;
 
       if (uaiCollectionHC.length > 0) {
         for (const uai of uaiCollectionHC) {
           if (uai.seenAt && !uai.lastActioned) {
             if (!lastSeenFeesNotification || uai.seenAt > lastSeenFeesNotification) {
               lastSeenFeesNotification = uai.seenAt;
+              lastCreatedFeesNotification = uai.createdAt;
             }
           }
         }
@@ -354,6 +356,7 @@ function* uaiChecksWorker({ payload }) {
                 heading: 'Fee Insights',
                 body: statement,
               },
+              createdAt: lastCreatedFeesNotification,
               seenAt: lastSeenFeesNotification,
             })
           );

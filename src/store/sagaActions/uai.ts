@@ -12,6 +12,7 @@ export const addToUaiStack = (payload: {
     heading?: string;
     body?: string;
   };
+  createdAt?: Date;
   seenAt?: Date;
 }) => {
   return {
