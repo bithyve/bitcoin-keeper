@@ -56,7 +56,7 @@ const TicketHistory = ({ onPressCTA }) => {
             subTitle={'Schedule a call with our experts today.'}
             icon={isOnL3 ? <OnBoardCallActive /> : <OnBoardCallInActive />}
             isActive={isOnL3}
-            onPress={onPressCTA}
+            onPress={() => isOnL3 && onPressCTA()}
           />
         </Box>
       )}
