@@ -52,8 +52,6 @@ export const useSettingKeeper = () => {
       icon: <RecoveryKeyIcon width={14} height={14} />,
       onPress: () => {
         if (data.length === 0) {
-          console.log('no data');
-
           setConfirmPass(true);
         } else {
           navigation.navigate('WalletBackHistory');
