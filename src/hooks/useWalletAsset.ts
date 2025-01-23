@@ -41,12 +41,13 @@ const useWalletAsset = () => {
     }
   };
 
-  const getSchemeTag = (wallet: Vault) => `${wallet.scheme.m} of ${wallet.scheme.n}`;
+  const getSchemeTag = (wallet: Vault) =>
+    wallet.scheme.m === 1 && wallet.scheme.n === 1
+      ? 'Single-key'
+      : `${wallet.scheme.m} of ${wallet.scheme.n}`;
 
   const getWalletTags = (wallet: Wallet | Vault) => {
     if (wallet.entityKind === EntityKind.VAULT) {
-      console.log((wallet as Vault).scheme.miniscriptScheme);
-
       switch (wallet.type) {
         case VaultType.SINGE_SIG:
           return [

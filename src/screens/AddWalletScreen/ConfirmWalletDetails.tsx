@@ -261,7 +261,7 @@ function ConfirmWalletDetails({ route }) {
                 icon={<VaultIcon />}
               />
             </Box>
-            <Box>
+            <Box marginTop={hp(4)}>
               {vault.presentationData.description ? (
                 <Text fontSize={12} color={`${colorMode}.secondaryText`}>
                   {vault.presentationData.description}
@@ -307,7 +307,7 @@ function ConfirmWalletDetails({ route }) {
                 icon={<VaultIcon />}
               />
             </Box>
-            <Box>
+            <Box marginTop={hp(4)}>
               {vault.presentationData.description ? (
                 <Text fontSize={12} color={`${colorMode}.secondaryText`}>
                   {vault.presentationData.description}
@@ -470,7 +470,7 @@ function ConfirmWalletDetails({ route }) {
                   }
             }
             primaryDisable={!walletName}
-            primaryLoading={walletLoading || relayWalletUpdateLoading}
+            primaryLoading={vaultCreating || walletLoading || relayWalletUpdateLoading}
             fullWidth
           />
         </Box>

@@ -226,7 +226,6 @@ export const runRealmMigrations = ({
     const wallets = newRealm.objects(RealmSchema.Wallet) as any;
 
     [...vaults, ...wallets].forEach((wallet) => {
-      console.log(wallet.specs);
       if (wallet.specs) {
         wallet.specs.totalExternalAddresses = wallet.specs.nextFreeAddressIndex + 1;
       }

@@ -224,6 +224,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const isCanaryWallet = vault.type === VaultType.CANARY;
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = vault || { signers: [] };
+  console.log(vaultKeys);
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const [cachedTransactions, setCachedTransactions] = useState([]);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);

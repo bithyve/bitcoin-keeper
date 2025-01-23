@@ -341,12 +341,17 @@ function VaultMigrationController({
 
       const isTimelockedInheritanceKey = isAddInheritanceKey;
       if (isTimeLock || isTimelockedInheritanceKey) {
-        vaultInfo = await prepareMiniscriptScheme(
-          vaultInfo,
-          miniscriptTypes,
-          inheritanceKey,
-          activeVault ? activeVault.scheme.miniscriptScheme : null
-        );
+        try {
+          vaultInfo = await prepareMiniscriptScheme(
+            vaultInfo,
+            miniscriptTypes,
+            inheritanceKey,
+            activeVault ? activeVault.scheme.miniscriptScheme : null
+          );
+        } catch (err) {
+          showToast(`Failed to prepare enhanced vault: ${err.message}`, <ToastErrorIcon />);
+          return;
+        }
         if (!vaultInfo) {
           return;
         }
