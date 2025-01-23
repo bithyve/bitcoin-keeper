@@ -18,7 +18,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import Text from './KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import Colors from 'src/theme/Colors';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
@@ -43,6 +43,9 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
       name: wallet.concierge,
       defaultIcon: <ConciergeIcon />,
       selectedIcon: isDarkMode ? <ConceirgeWhite /> : <ConciergeGreen />,
+      callback: () => {
+        navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
+      },
     },
     {
       name: wallet.more,
@@ -57,7 +60,9 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
         {menuOptions.map((option) => (
           <TouchableOpacity
             key={option.name}
-            onPress={() => onOptionChange(option.name)}
+            onPress={
+              option.name === wallet.concierge ? option.callback : () => onOptionChange(option.name)
+            }
             style={[styles.menuItem]}
           >
             <Box style={styles.iconContainer}>
