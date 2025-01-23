@@ -31,6 +31,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
+import { updateAppImage } from 'src/store/sagaActions/bhr';
 
 const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL }) => {
   return (
@@ -109,6 +110,7 @@ const NodeSelection = () => {
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
+      dispatch(updateAppImage({ wallets: null, signers: null }));
       const newNode = updatedNodeList.find(
         (node) => node.host === nodeToSave.host && node.port === nodeToSave.port
       );

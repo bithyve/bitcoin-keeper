@@ -582,11 +582,18 @@ function* recoverApp(
     title: 'Restored version',
   });
 
+  const existingNodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
   if (appImage.nodes) {
     for (const node of appImage.nodes) {
       try {
-        const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
-        yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+        const decryptedNode = JSON.parse(decrypt(encryptionKey, node));
+        const isExistingNode = existingNodes.some(
+          (existingNode) =>
+            existingNode.id === decryptedNode.id ||
+            (existingNode.host === decryptedNode.host && existingNode.port === decryptedNode.port)
+        );
+        if (isExistingNode) continue;
+        yield call(dbManager.createObject, RealmSchema.NodeConnect, decryptedNode);
       } catch (err) {
         console.log('Error recovering a node: ', err);
         continue;
@@ -972,6 +979,16 @@ function* backupAllSignersAndVaultsWorker() {
       };
     }
 
+    const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    const nodesToUpdate = [];
+    if (nodes && nodes.length > 0) {
+      for (const index in nodes) {
+        const node = nodes[index];
+        node.isConnected = false;
+        const encryptedNode = encrypt(encryptionKey, JSON.stringify(node));
+        nodesToUpdate.push(encryptedNode);
+      }
+    }
     yield call(Relay.backupAllSignersAndVaults, {
       appId: id,
       publicId,
@@ -981,6 +998,7 @@ function* backupAllSignersAndVaultsWorker() {
       networkType,
       subscription: JSON.stringify(subscription),
       version,
+      nodes: nodesToUpdate,
     });
     yield put(setBackupAllSuccess(true));
     yield put(setPendingAllBackup(false));
