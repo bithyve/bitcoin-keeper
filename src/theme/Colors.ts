@@ -127,9 +127,11 @@ const Colors = {
   SilverMist: 'rgba(212, 212, 212, 0.6)',
   SilverMistTranslucent: 'rgba(212, 212, 212, 0.6)',
   Graphite: 'rgba(135, 135, 135, 1)',
+  GraphiteTranslucent: 'rgba(135, 135, 135, 0.05)',
   GraphiteLight: 'rgba(165, 165, 165, 1)',
   SeaShellBeige: 'rgba(242, 237, 230, 1)',
   SeaweedGreen: 'rgba(45, 103, 89, 1)',
+  SeaweedGreenTranslucent: 'rgba(45, 103, 89, 0.05)',
   LightCrimson: 'rgba(229, 69, 69, 1)',
   CoralRed: 'rgba(248, 107, 80, 1)',
   MediumGrey: 'rgba(142, 142, 142, 1)',
@@ -180,5 +182,8 @@ const Colors = {
   PaleCyan: 'rgba(91, 191, 168, 1)',
   Aquamarine: 'rgba(136, 235, 220, 1)',
   FooterBackGround: 'rgba(45, 103, 89, 0.1)',
+  horizontaldivider: 'rgba(232, 227, 221,1)',
+  termsGrey: 'rgba(78, 92, 106, 1)',
+  headerWhite: 'rgba(255, 255, 255, 1)',
 };
 export default Colors;

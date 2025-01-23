@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import React, { useState, useMemo, useEffect, useCallback, useContext } from 'react';
+import { StyleSheet } from 'react-native';
 import { Box } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
@@ -18,6 +18,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getUaiContent } from 'src/screens/Home/Notifications/NotificationsCenter';
 import { setRefreshUai } from 'src/store/reducers/uai';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -36,6 +37,8 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const { uaiStack } = useUaiStack();
   const navigtaion = useNavigation();
   const backupHistory = useQuery(RealmSchema.BackupHistory);
+  const { translations } = useContext(LocalizationContext);
+  const { wallet, common } = translations;
 
   useFocusEffect(
     useCallback(() => {
@@ -90,17 +93,6 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
         ticketId: parseInt(localLatestUnseenUai?.entityId),
         ticketStatus: localLatestUnseenUai?.uaiDetails.heading,
       }),
-    [uaiType.FEE_INISGHT]: () => {
-      if (backupHistory.length === 0) {
-        navigtaion.navigate('AppSettings', {
-          isUaiFlow: true,
-        });
-      } else {
-        navigtaion.navigate('WalletBackHistory', {
-          isUaiFlow: true,
-        });
-      }
-    },
   };
 
   return (
@@ -118,7 +110,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
               color={`${colorMode}.choosePlanHome`}
               medium
             >
-              {capitalizeEachWord(title)}
+              {capitalizeEachWord(title === wallet.more ? common.keeperSettings : title)}
             </Text>
           </Box>
 

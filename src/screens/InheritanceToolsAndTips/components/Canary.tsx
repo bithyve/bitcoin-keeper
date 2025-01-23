@@ -14,7 +14,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 function CanaryWallets({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning, common } = translations;
+  const { inheritancePlanning, common, wallet } = translations;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -39,7 +39,19 @@ function CanaryWallets({ navigation }) {
         <Box mt={5}>
           <DashedButton
             description={inheritancePlanning.canaryWalletCtaDescp}
-            callback={() => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' }))}
+            callback={() =>
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: 'Home',
+                      params: { selectedOption: wallet.keys },
+                    },
+                  ],
+                })
+              )
+            }
             name={inheritancePlanning.canaryWalletCtaHeading}
             icon={<Chip />}
           />

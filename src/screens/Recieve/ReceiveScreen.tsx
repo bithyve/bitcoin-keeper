@@ -317,6 +317,15 @@ function ReceiveScreen({ route }: { route }) {
                 accountNumber: getAccountFromSigner(signer),
               })
             );
+            // For now, Jade only supports registration via USB for Miniscript
+          } else if ((wallet as Vault).scheme.miniscriptScheme && signer.type === SignerType.JADE) {
+            navigation.dispatch(
+              CommonActions.navigate('RegisterWithChannel', {
+                vaultKey,
+                vaultId: wallet.id,
+                signerType: signer.type,
+              })
+            );
           } else {
             navigation.dispatch(
               CommonActions.navigate('RegisterWithQR', {

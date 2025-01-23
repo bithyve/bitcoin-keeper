@@ -1,6 +1,6 @@
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
@@ -40,11 +40,11 @@ import QRComms from 'src/assets/images/qr_comms.svg';
 import NfcComms from 'src/assets/images/nfc_comms.svg';
 import Import from 'src/assets/images/import.svg';
 import USBIcon from 'src/assets/images/usb_white.svg';
-import SignerCard from '../AddSigner/SignerCard';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
+import SetupSignerOptions from 'src/components/SetupSignerOptions';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -78,29 +78,21 @@ function ColdCardContent({
           {'Sign transaction via:'}
         </Text>
       </Box>
-      <HStack alignSelf={'flex-start'}>
+      <Box style={styles.setupOptionsContainer}>
         {supportedSigningOptions &&
           supportedSigningOptions.map((option) => (
-            <SignerCard
+            <SetupSignerOptions
               key={option.name}
               isSelected={signingMode === option.name}
-              isFullText={true}
               name={option.title}
               icon={option.icon}
-              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}
-              colorMode={colorMode}
-              customStyle={{
-                width: wp(95),
-                height: hp(
-                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
-                ),
-              }}
+              customStyle={styles.supportedMediumCardStyle}
             />
           ))}
-      </HStack>
+      </Box>
     </Box>
   );
 }
@@ -137,29 +129,21 @@ function PassportContent({
           {'Sign transaction via:'}
         </Text>
       </Box>
-      <HStack alignSelf={'flex-start'}>
+      <Box style={styles.setupOptionsContainer}>
         {supportedSigningOptions &&
           supportedSigningOptions.map((option) => (
-            <SignerCard
+            <SetupSignerOptions
               key={option.name}
               isSelected={signingMode === option.name}
-              isFullText={true}
               name={option.title}
               icon={option.icon}
-              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}
-              colorMode={colorMode}
-              customStyle={{
-                width: wp(95),
-                height: hp(
-                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
-                ),
-              }}
+              customStyle={styles.supportedMediumCardStyle}
             />
           ))}
-      </HStack>
+      </Box>
     </Box>
   );
 }
@@ -238,29 +222,21 @@ function KeystoneContent({
           {'Sign transaction via:'}
         </Text>
       </Box>
-      <HStack alignSelf={'flex-start'}>
+      <Box style={styles.setupOptionsContainer}>
         {supportedSigningOptions &&
           supportedSigningOptions.map((option) => (
-            <SignerCard
+            <SetupSignerOptions
               key={option.name}
               isSelected={signingMode === option.name}
-              isFullText={true}
               name={option.title}
               icon={option.icon}
-              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}
-              colorMode={colorMode}
-              customStyle={{
-                width: wp(95),
-                height: hp(
-                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
-                ),
-              }}
+              customStyle={styles.supportedMediumCardStyle}
             />
           ))}
-      </HStack>
+      </Box>
     </Box>
   );
 }
@@ -298,29 +274,21 @@ function JadeContent({
           {'Sign transaction via:'}
         </Text>
       </Box>
-      <HStack alignSelf={'flex-start'}>
+      <Box style={styles.setupOptionsContainer}>
         {supportedSigningOptions &&
           supportedSigningOptions.map((option) => (
-            <SignerCard
+            <SetupSignerOptions
               key={option.name}
               isSelected={signingMode === option.name}
-              isFullText={true}
               name={option.title}
               icon={option.icon}
-              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}
-              colorMode={colorMode}
-              customStyle={{
-                width: wp(95),
-                height: hp(
-                  supportedSigningOptions.some((opt) => opt.title.length > 10) ? 115 : 100
-                ),
-              }}
+              customStyle={styles.supportedMediumCardStyle}
             />
           ))}
-      </HStack>
+      </Box>
     </Box>
   );
 }
@@ -721,6 +689,7 @@ function SignerModals({
   serializedPSBTEnvelopFromProps,
   sendConfirmationRouteParams,
   tnxDetails,
+  isMiniscript,
 }: {
   vaultId: string;
   activeXfp: string;
@@ -763,6 +732,7 @@ function SignerModals({
   serializedPSBTEnvelopFromProps?: SerializedPSBTEnvelop;
   sendConfirmationRouteParams?: SendConfirmationRouteParams;
   tnxDetails?: tnxDetailsProps;
+  isMiniscript?: boolean;
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -1149,9 +1119,20 @@ function SignerModals({
               }
               secondaryCallback={() => {
                 setJadeModal(false);
-                navigation.dispatch(
-                  CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
-                );
+                // TODO: For now Jade only supports registration via USB for Miniscript
+                if (isMiniscript) {
+                  navigation.dispatch(
+                    CommonActions.navigate('RegisterWithChannel', {
+                      vaultKey,
+                      vaultId,
+                      signerType: signer.type,
+                    })
+                  );
+                } else {
+                  navigation.dispatch(
+                    CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
+                  );
+                }
               }}
               buttonCallback={() => {
                 setJadeModal(false);
@@ -1289,5 +1270,17 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(5),
     marginTop: wp(3),
     marginBottom: wp(10),
+  },
+  setupOptionsContainer: {
+    gap: wp(11),
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  supportedMediumCardStyle: {
+    width: '48%',
+    paddingTop: hp(14),
+    paddingBottom: hp(9),
+    paddingLeft: wp(12),
+    paddingRight: wp(14),
   },
 });

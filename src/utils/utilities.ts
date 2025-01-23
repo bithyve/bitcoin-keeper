@@ -565,17 +565,37 @@ export const extractBBQRIndex = (data) => {
   };
 };
 
-export const psbtToBBQR = async (psbt) => {
+export const psbtToBBQR = async (psbt, min = 1, max = 4) => {
   try {
     const { raw, fileType } = await detectFileType(psbt); // requires uint8array
-    const qrData = splitQRs(raw, fileType, { encoding: 'Z' });
+    const qrData = splitQRs(raw, fileType, { encoding: 'Z', minSplit: min, maxSplit: max });
     return qrData.parts;
   } catch (error) {
     console.log('🚀 ~ psbtToBBQR ~ error:', error);
-    return '';
+    return [''];
   }
 };
 
 export function isHexadecimal(str) {
   return /^[0-9a-fA-F]+$/.test(str);
+}
+
+export function interpolateBBQR(input) {
+  const points = [
+    { x: 10, y: 4 },
+    { x: 50, y: 3 },
+    { x: 150, y: 2 },
+    { x: 200, y: 1 },
+  ];
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    if (input >= p1.x && input <= p2.x) {
+      const t = (input - p1.x) / (p2.x - p1.x);
+      const interpolatedValue = p1.y + t * (p2.y - p1.y);
+      return Math.round(interpolatedValue);
+    }
+  }
+  if (input < points[0].x) return points[0].y;
+  if (input > points[points.length - 1].x) return points[points.length - 1].y;
 }

@@ -53,7 +53,7 @@ import { createWatcher } from '../utilities';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
-import { setWarning } from '../sagaActions/bhr';
+import { backupAllSignersAndVaults, setWarning } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
@@ -214,6 +214,10 @@ function* credentialsAuthWorker({ payload }) {
             }
           }
           yield put(connectToNode());
+          const { pendingAllBackup, automaticCloudBackup } = yield select(
+            (state: RootState) => state.bhr
+          );
+          if (pendingAllBackup && automaticCloudBackup) yield put(backupAllSignersAndVaults());
         } catch (error) {
           yield put(setRecepitVerificationError(true));
           // yield put(credsAuthenticated(false));

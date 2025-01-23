@@ -147,6 +147,8 @@ import ContactDetails from 'src/screens/SigningDevices/ContactDetails';
 import ShareQR from 'src/screens/SigningDevices/ShareQR';
 import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
 import NotificationsCenter from 'src/screens/Home/Notifications/NotificationsCenter';
+import SettingsApp from 'src/screens/Home/components/Settings/AppSettings';
+import InheritanceDocumentScreen from 'src/screens/Home/components/Settings/InheritanceDocumentScreen';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -309,6 +311,8 @@ function AppStack() {
         />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="AddNewWallet" component={AddNewWallet} />
+        <Stack.Screen name="SettingApp" component={SettingsApp} />
+        <Stack.Screen name="InheritanceDocumentScreen" component={InheritanceDocumentScreen} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
         <Stack.Screen name="CloudBackup" component={CloudBackupScreen} />

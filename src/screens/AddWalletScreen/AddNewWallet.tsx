@@ -20,7 +20,7 @@ import CheckIcon from 'src/assets/images/planCheckMarkSelected.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
-import { MiniscriptTypes, SignerType } from 'src/services/wallets/enums';
+import { MiniscriptTypes } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import { TouchableOpacity } from 'react-native-gesture-handler';

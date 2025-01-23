@@ -54,6 +54,7 @@ import {
   backupBsmsOnCloudWatcher,
   bsmsCloudHealthCheckWatcher,
   healthCheckSatutsUpdateWatcher,
+  backupAllSignersAndVaultsWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -77,6 +78,7 @@ import {
   goToConceirgeWatcher,
   loadConciergeUserWatcher,
   addTicketStatusUAIWatcher,
+  scheduleOnboardingCallWatcher,
 } from './concierge';
 
 const rootSaga = function* () {
@@ -163,6 +165,7 @@ const rootSaga = function* () {
     backupBsmsOnCloudWatcher,
     bsmsCloudHealthCheckWatcher,
     deleteAppImageEntityWatcher,
+    backupAllSignersAndVaultsWatcher,
     // upgrade
     updateVersionHistoryWatcher,
     migrateLablesWatcher,
@@ -176,6 +179,7 @@ const rootSaga = function* () {
     goToConceirgeWatcher,
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
+    scheduleOnboardingCallWatcher,
   ];
 
   yield all(

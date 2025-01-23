@@ -5,9 +5,10 @@ import { conciergeUser } from 'src/store/reducers/concierge';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 
 export type createZendeskTicketProps = {
-  desc: string;
+  desc?: string;
   imageToken?: string;
-  conciergeUser: conciergeUser;
+  conciergeUser?: conciergeUser;
+  onboardEmail?: string;
 };
 
 const isDev = config.ENVIRONMENT === APP_STAGE.DEVELOPMENT;
@@ -96,25 +97,49 @@ export default class Zendesk {
     desc,
     imageToken,
     conciergeUser,
+    onboardEmail,
   }: createZendeskTicketProps): Promise<any> => {
+    let body;
     try {
-      const body = {
-        ticket: {
-          comment: {
-            body: desc,
-            uploads: [imageToken],
+      if (onboardEmail) {
+        body = {
+          ticket: {
+            comment: {
+              body: `User Onboarded\nEmail:${onboardEmail}`,
+            },
+            subject: `${isDev ? 'DEV ' : ''}Onboarding Call - ${onboardEmail}`,
+            requester: {
+              email: onboardEmail,
+              name: onboardEmail,
+            },
+            custom_fields: [
+              {
+                id: 24479112842269,
+                value: onboardEmail,
+              },
+            ],
           },
-          priority: `${isDev ? 'normal' : 'urgent'}`,
-          subject: `${isDev ? 'DEV ' : ''}Conversation with ${conciergeUser.name}`,
-          external_id: conciergeUser.id,
-          submitter_id: conciergeUser.id,
-          assignee_id: `${isDev ? null : 16685599304861}`,
-        },
-      };
+        };
+      } else {
+        body = {
+          ticket: {
+            comment: {
+              body: desc,
+              uploads: [imageToken],
+            },
+            subject: `${isDev ? 'DEV ' : ''}Conversation with ${conciergeUser.name}`,
+            external_id: conciergeUser.id,
+            submitter_id: conciergeUser.id,
+            assignee_id: `${isDev ? null : 16685599304861}`,
+          },
+        };
+      }
+
+      body.ticket.priority = `${isDev ? 'normal' : 'urgent'}`;
       const res = await zendeskApi.post(zendeskEndpoints.createTicket, body);
       return { data: res.data, status: res.status };
     } catch (error) {
-      console.log('🚀 ~ Zendesk ~ createZendeskUser= ~ error:', error);
+      console.log('🚀 error ~ createZendeskTicket: ', error);
       throw new Error('Something went wrong');
     }
   };
