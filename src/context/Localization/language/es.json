@@ -1342,7 +1342,9 @@
     "hodler": "Hodler",
     "intermediate": "Intermediate",
     "diamondHand": "Diamond Hand",
-    "advanced": "Advanced"
+    "advanced": "Advanced",
+    "autoBackup": "Automatic Cloud Backup",
+    "autoBackupDesc": "Backup your Keeper app to cloud automatically"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",

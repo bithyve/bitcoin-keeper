@@ -1231,7 +1231,8 @@
     "advanced": "Advanced",
     "inheritanceDocuments": "Inheritance Documents",
     "bitcoinSecurity": "Bitcoin security tools and tips",
-
+    "autoBackup": "Automatic Cloud Backup",
+    "autoBackupDesc": "Backup your Keeper app to cloud automatically",
     "selectPlan": "Select a plan that fits your needs",
     "keyDetails": "Key Details",
     "keyDetailsSubtitle": "xPub for adding to another vault",

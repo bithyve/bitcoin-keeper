@@ -24,6 +24,8 @@ import { useNavigation } from '@react-navigation/native';
 import SettingModal from './Component/SettingModal';
 import { useSettingKeeper } from 'src/hooks/useSettingKeeper';
 import usePlan from 'src/hooks/usePlan';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { useAppSelector } from 'src/store/hooks';
 
 const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -35,6 +37,7 @@ const KeeperSettings = ({ route }) => {
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const { plan } = usePlan();
   const currentPlan = planData.find((p) => p.plan === plan);
+  const { backupAllLoading } = useAppSelector((state) => state.bhr);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -134,6 +137,7 @@ const KeeperSettings = ({ route }) => {
         </Box>
       </Box>
       <SettingModal isUaiFlow={isUaiFlow} confirmPass={confirmPass} />
+      <ActivityIndicatorView visible={backupAllLoading} showLoader />
     </ScrollView>
   );
 };
