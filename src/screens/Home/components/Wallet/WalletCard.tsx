@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   description: {
-    fontSize: 11,
+    fontSize: 12,
   },
   bottomRight: {
     justifyContent: 'center',
