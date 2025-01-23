@@ -23,29 +23,30 @@ function Switch({ value, onValueChange, loading, testID }: Props) {
     <TouchableOpacity testID={testID} onPress={() => onValueChange(!value)} disabled={loading}>
       <Box
         style={styles.container}
-        backgroundColor={value ? `${colorMode}.greenButtonBackground` : `${colorMode}.textColor2`}
+        backgroundColor={value ? `${colorMode}.Warmbeige` : `${colorMode}.textColor2`}
       >
         <Box
-          height={windowHeight > 600 ? 8 : 6}
-          width={windowHeight > 600 ? 12 : 10}
-          borderRadius={10}
+          height={windowHeight > 600 ? 6 : 5}
+          width={windowHeight > 600 ? 10 : 8}
+          borderRadius={8}
           justifyContent="center"
           alignItems="center"
+          backgroundColor={`${colorMode}.background`}
         >
           {value ? (
             <Box
-              height={windowHeight > 600 ? 6 : 5}
-              width={windowHeight > 600 ? 6 : 5}
-              borderRadius={15}
-              backgroundColor={`${colorMode}.fadedGray`}
+              height={windowHeight > 600 ? 4 : 3.5}
+              width={windowHeight > 600 ? 4 : 3.5}
+              borderRadius={8}
+              backgroundColor={`${colorMode}.greenButtonBackground`}
               alignSelf="flex-end"
               mx={1}
             />
           ) : (
             <Box
-              height={windowHeight > 600 ? 6 : 5}
-              width={windowHeight > 600 ? 6 : 5}
-              borderRadius={15}
+              height={windowHeight > 600 ? 4 : 3.5}
+              width={windowHeight > 600 ? 4 : 3.5}
+              borderRadius={8}
               backgroundColor={`${colorMode}.fadedGray`}
               alignSelf="flex-start"
               mx={1}

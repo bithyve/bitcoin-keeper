@@ -257,11 +257,14 @@ export const customTheme = extendTheme({
       ctaFooterBackground: Colors.GreenishGrey,
       DashedButtonCta: Colors.DashedButtonCta,
       coalGreen: Colors.coalGreen,
+      termsText: Colors.termsGrey,
+      headerWhite: Colors.headerWhite,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
       buttonText: Colors.SecondaryWhite,
       disabledDiamond: Colors.MediumGrey,
+      termsText: Colors.ChampagneBliss,
 
       primaryGreen: Colors.GenericViridian,
       darkGrey: Colors.DarkGrey,
@@ -373,7 +376,7 @@ export const customTheme = extendTheme({
       // SmokeGreen: Colors.SmokeGreen,
       // DeepOlive: Colors.DeepOlive,
       // PaleKhaki: Colors.PaleKhaki,
-      // Warmbeige: Colors.Warmbeige,
+      Warmbeige: Colors.Warmbeige,
       // PearlWhite: Colors.PearlWhite,
       // PaleIvory: Colors.PaleIvory,
       DarkSage: Colors.DarkSage,
@@ -469,6 +472,7 @@ export const customTheme = extendTheme({
       DashedButtonCta: Colors.DashedButtonCtaDark,
       CyanGreen: Colors.CyanGreen,
       coalGreen: Colors.coalGreen,
+      headerWhite: Colors.headerWhite,
     },
   },
   config: {

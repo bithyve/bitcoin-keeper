@@ -1,13 +1,14 @@
 import { StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+
 import KeysIcon from 'src/assets/images/homeGreenKeyIcon.svg';
+import SettingIcon from 'src/assets/images/settingsGreenIcon.svg';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import InititalAppController from './InititalAppController';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -20,11 +21,14 @@ import MenuFooter from 'src/components/MenuFooter';
 import Text from 'src/components/KeeperText';
 import HomeWallet from './components/Wallet/HomeWallet';
 import ManageKeys from './components/Keys/ManageKeys';
+import KeeperSettings from './components/Settings/keeperSettings';
+import { useNavigation } from '@react-navigation/native';
 
-function NewHomeScreen({ navigation, route }) {
+function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
-  const { addedSigner } = route.params || {};
+  const navigation = useNavigation();
+  const { addedSigner, selectedOption: selectedOptionFromRoute } = route.params || {};
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
@@ -33,11 +37,20 @@ function NewHomeScreen({ navigation, route }) {
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { home: homeTranslation, wallet } = translations;
-  const [selectedOption, setSelectedOption] = useState(wallet.homeWallets);
+  const [selectedOption, setSelectedOption] = useState(
+    selectedOptionFromRoute || wallet.homeWallets
+  );
 
   const handleOptionChange = (option) => {
     setSelectedOption(option);
   };
+
+  useEffect(() => {
+    if (selectedOptionFromRoute && selectedOptionFromRoute !== selectedOption) {
+      setSelectedOption(selectedOptionFromRoute);
+      navigation.setParams({ selectedOption: null });
+    }
+  }, [selectedOptionFromRoute]);
 
   const getContent = () => {
     switch (selectedOption) {
@@ -91,13 +104,13 @@ function NewHomeScreen({ navigation, route }) {
         return {
           content: (
             <Box>
-              <Text>More/Settings Content</Text>
+              <KeeperSettings route={route} />
             </Box>
           ),
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={<WalletIcon />}
+              icon={<SettingIcon />}
               backgroundColor={`${colorMode}.modalGreenContent`}
             />
           ),

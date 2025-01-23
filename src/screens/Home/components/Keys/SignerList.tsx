@@ -1,5 +1,4 @@
 import { CommonActions } from '@react-navigation/native';
-import { useQuery } from '@realm/react';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
@@ -7,12 +6,9 @@ import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import useSigners from 'src/hooks/useSigners';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { SignerType } from 'src/services/wallets/enums';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getKeyUID } from 'src/utils/utilities';
 import { wp } from 'src/constants/responsive';
 import DashedCta from 'src/components/DashedCta';
@@ -27,9 +23,6 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   const { signer } = translations;
 
   const list = signers.filter((signer) => !signer.hidden);
-  const { id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
-    getJSONFromRealmObject
-  )[0];
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
@@ -45,7 +38,6 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   const customStyle: ViewStyle = {
     width: wp(162),
     height: wp(126),
-    // padding: 15,
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',

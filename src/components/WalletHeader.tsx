@@ -3,7 +3,7 @@ import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import BackBlackButton from 'src/assets/images/header-arrow-icon.svg';
-import BackWhiteButton from 'src/assets/images/back_white.svg';
+import BackWhiteButton from 'src/assets/images/leftarrowCampainlight.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 

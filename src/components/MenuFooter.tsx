@@ -48,10 +48,6 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
       name: wallet.more,
       defaultIcon: <MoreIcon />,
       selectedIcon: isDarkMode ? <MoreWhite /> : <MoreGreen />,
-
-      callback: () => {
-        navigation.navigate('AppSettings');
-      },
     },
   ];
 
@@ -61,9 +57,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
         {menuOptions.map((option) => (
           <TouchableOpacity
             key={option.name}
-            onPress={
-              option.name === wallet.more ? option.callback : () => onOptionChange(option.name)
-            }
+            onPress={() => onOptionChange(option.name)}
             style={[styles.menuItem]}
           >
             <Box style={styles.iconContainer}>
