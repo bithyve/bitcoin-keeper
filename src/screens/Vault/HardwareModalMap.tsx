@@ -1178,6 +1178,8 @@ function HardwareModalMap({
         setInProgress(false);
         close();
         showToast('Error in Health check', <ToastErrorIcon />);
+      } finally {
+        setOtp('');
       }
     }
   };
