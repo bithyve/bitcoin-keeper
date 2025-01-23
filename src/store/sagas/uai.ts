@@ -21,6 +21,7 @@ import {
   uaiActioned,
   UAI_ACTIONED,
   UAI_CHECKS,
+  UAIS_SEEN,
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
 import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
@@ -53,12 +54,14 @@ const healthCheckReminderMinutes = (lastHealthCheck: Date) => {
 };
 
 function* addToUaiStackWorker({ payload }) {
-  const { entityId, uaiType, uaiDetails } = payload;
+  const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
     id: uuidv4(),
     entityId,
     uaiType,
     uaiDetails,
+    createdAt: createdAt ? createdAt : new Date(),
+    seenAt: seenAt ? seenAt : null,
   };
   try {
     yield call(dbManager.createObject, RealmSchema.UAI, uai);
@@ -302,24 +305,63 @@ function* uaiChecksWorker({ payload }) {
         uaiType.FEE_INISGHT,
         'uaiType'
       );
+      let lastSeenFeesNotification = null;
+      let lastCreatedFeesNotification = null;
+
       if (uaiCollectionHC.length > 0) {
         for (const uai of uaiCollectionHC) {
-          dbManager.deleteObjectById(RealmSchema.UAI, uai.id);
+          if (uai.seenAt && !uai.lastActioned) {
+            if (!lastSeenFeesNotification || uai.seenAt > lastSeenFeesNotification) {
+              lastSeenFeesNotification = uai.seenAt;
+              lastCreatedFeesNotification = uai.createdAt;
+            }
+          }
         }
       }
+
       const graphData = yield select(oneDayInsightSelector);
       const statement = generateFeeStatement(graphData);
       if (statement) {
-        yield put(
-          addToUaiStack({
-            uaiType: uaiType.FEE_INISGHT,
-            uaiDetails: {
-              heading: 'Fee Insight',
-              body: statement,
-            },
-          })
-        );
-        yield put(setRefreshUai());
+        const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
+
+        // Delete all without createdAt
+        const uaisWithoutCreatedAt = uaiCollectionHC.filter((uai) => !uai.createdAt);
+        for (const uai of uaisWithoutCreatedAt) {
+          yield call(dbManager.deleteObjectById, RealmSchema.UAI, uai.id);
+        }
+
+        // Sort remaining by createdAt
+        const sortedUais = uaiCollectionHC
+          .filter((uai) => uai.createdAt)
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+        const latestActioned = sortedUais.find((uai) => uai.lastActioned);
+        const isLatestActionedOld =
+          latestActioned &&
+          new Date().getTime() - latestActioned.createdAt.getTime() > threeDaysInMs;
+
+        // Delete all except newest actioned (if it exists and is not old)
+        for (const uai of sortedUais) {
+          if (uai !== latestActioned || isLatestActionedOld) {
+            yield call(dbManager.deleteObjectById, RealmSchema.UAI, uai.id);
+          }
+        }
+
+        // Create new if needed
+        if (!latestActioned || isLatestActionedOld || lastSeenFeesNotification) {
+          yield put(
+            addToUaiStack({
+              uaiType: uaiType.FEE_INISGHT,
+              uaiDetails: {
+                heading: 'Fee Insights',
+                body: statement,
+              },
+              createdAt: lastCreatedFeesNotification,
+              seenAt: lastSeenFeesNotification,
+            })
+          );
+          yield put(setRefreshUai());
+        }
       }
     }
     if (checkForTypes.includes(uaiType.DEFAULT)) {
@@ -383,6 +425,21 @@ function* uaiChecksWorker({ payload }) {
   }
 }
 
+function* uaisSeenWorker({ payload }) {
+  try {
+    const { uaiIds } = payload;
+
+    // Update seenAt for multiple UAIs
+    for (const uaiId of uaiIds) {
+      const updateData = { seenAt: new Date() };
+      yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiId, updateData);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const uaiChecksWatcher = createWatcher(uaiChecksWorker, UAI_CHECKS);
 export const addUaiStackWatcher = createWatcher(addToUaiStackWorker, ADD_TO_UAI_STACK);
 export const uaiActionedWatcher = createWatcher(uaiActionedWorker, UAI_ACTIONED);
+export const uaisSeenWatcher = createWatcher(uaisSeenWorker, UAIS_SEEN);

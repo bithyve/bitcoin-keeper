@@ -24,7 +24,7 @@ function InheritanceKeySection({
   vault: Vault;
   currentBlockHeight: number | null;
   signerMap: Record<string, Signer>;
-  handleCardSelect: (signer: Signer, item: VaultSigner) => void;
+  handleCardSelect: (signer: Signer, item: VaultSigner, isInheritanceKey: boolean) => void;
   setCurrentBlockHeight: (blockHeight: number | null) => void;
 }) {
   const { colorMode } = useColorMode();
@@ -114,7 +114,7 @@ function InheritanceKeySection({
         )}
       </Box>
       <SignerCard
-        onCardSelect={() => handleCardSelect(inheritanceKey, inheritanceKeyMeta)}
+        onCardSelect={() => handleCardSelect(inheritanceKey, inheritanceKeyMeta, true)}
         name={`${getSignerNameFromType(inheritanceKey.type, false, false)}`}
         description={getSignerDescription(inheritanceKey)}
         icon={SDIcons(inheritanceKey.type, true).Icon}

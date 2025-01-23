@@ -1,6 +1,6 @@
 import idx from 'idx';
 import { DescriptorChecksum } from 'src/services/wallets/operations/descriptors/checksum';
-import { EntityKind, MultisigScriptType } from '../../services/wallets/enums';
+import { EntityKind, MiniscriptTypes, MultisigScriptType } from '../../services/wallets/enums';
 import {
   MiniscriptElements,
   Vault,
@@ -408,7 +408,9 @@ export const parseTextforVaultConfig = (secret: string) => {
       [timelock]
     );
 
-    const miniscriptScheme = generateMiniscriptScheme(miniscriptElements);
+    const miniscriptScheme = generateMiniscriptScheme(miniscriptElements, [
+      MiniscriptTypes.INHERITANCE,
+    ]);
 
     // Verify the miniscript generated matches the input
     const { miniscript, keyInfoMap } = miniscriptScheme;
@@ -443,7 +445,7 @@ export const parseTextforVaultConfig = (secret: string) => {
     };
     return parsedResponse;
   }
-  throw Error('Unsupported format!');
+  throw Error('Data provided does not match supported formats');
 };
 
 function parseInheritanceKeyMiniscript(miniscript: string): {

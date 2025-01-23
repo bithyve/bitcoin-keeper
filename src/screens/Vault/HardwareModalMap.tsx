@@ -841,7 +841,7 @@ function PasswordEnter({
         dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
           ? {
-              name: 'ManageSigners',
+              name: 'Home',
               params: { addedSigner: signer },
             }
           : {
@@ -1121,7 +1121,7 @@ function HardwareModalMap({
           dispatch(addSigningDevice([hw.signer]));
           const navigationState = addSignerFlow
             ? {
-                name: 'ManageSigners',
+                name: 'Home',
                 params: { addedSigner: hw.signer },
               }
             : {
@@ -1229,7 +1229,7 @@ function HardwareModalMap({
       dispatch(addSigningDevice([signer]));
       const navigationState = addSignerFlow
         ? {
-            name: 'ManageSigners',
+            name: 'Home',
             params: { addedSigner: signer },
           }
         : {
@@ -1264,7 +1264,7 @@ function HardwareModalMap({
                 dispatch(addSigningDevice([signer]));
                 const navigationState = addSignerFlow
                   ? {
-                      name: 'ManageSigners',
+                      name: 'Home',
                       params: { addedSigner: signer },
                     }
                   : {
@@ -1390,7 +1390,7 @@ function HardwareModalMap({
         dispatch(addSigningDevice([hw.signer]));
         const navigationState = addSignerFlow
           ? {
-              name: 'ManageSigners',
+              name: 'Home',
               params: { addedSigner: hw.signer },
             }
           : {
@@ -1570,7 +1570,7 @@ function HardwareModalMap({
     } else {
       dispatch(addSigningDevice([hw]));
       const navigationState = addSignerFlow
-        ? { name: 'ManageSigners', params: { addedSigner: hw } }
+        ? { name: 'Home', params: { addedSigner: hw } }
         : {
             name: 'AddSigningDevice',
             merge: true,
@@ -1818,7 +1818,7 @@ function HardwareModalMap({
               dispatch(addSigningDevice([signer]));
               const navigationState = addSignerFlow
                 ? {
-                    name: 'ManageSigners',
+                    name: 'Home',
                     params: { addedSigner: signer },
                   }
                 : {

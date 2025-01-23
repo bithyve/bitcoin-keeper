@@ -24,7 +24,7 @@ function InheritanceTips({}) {
       callback: () =>
         navigation.dispatch(
           CommonActions.navigate({
-            name: 'VaultSetup',
+            name: 'AddNewWallet',
             params: { isAddInheritanceKeyFromParams: true, scheme: { m: 2, n: 3 } },
           })
         ),

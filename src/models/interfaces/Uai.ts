@@ -7,6 +7,8 @@ export interface UAI {
     heading?: string;
     body?: string;
   };
+  createdAt?: Date;
+  seenAt?: Date;
 }
 
 export enum IKSType {

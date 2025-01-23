@@ -1,5 +1,5 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { SignerType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, SignerType, VaultType } from 'src/services/wallets/enums';
 import { InheritanceKeyInfo } from 'src/models/interfaces/AssistedKeys';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';
@@ -260,6 +260,39 @@ export const runRealmMigrations = ({
 
     for (const objectIndex in newSigners) {
       newSigners[objectIndex].id = getKeyUID(oldSigners[objectIndex]);
+    }
+  }
+
+  if (oldRealm.schemaVersion < 84) {
+    const oldVaults = oldRealm.objects(RealmSchema.Vault) as any;
+    const newVaults = newRealm.objects(RealmSchema.Vault) as any;
+
+    for (let i = 0; i < oldVaults.length; i++) {
+      const oldVault = oldVaults[i];
+      const newVault = newVaults[i];
+
+      if (
+        oldVault.type === VaultType.TIMELOCKED ||
+        oldVault.type === VaultType.ASSISTED ||
+        oldVault.type === VaultType.INHERITANCE
+      ) {
+        const oldVaultPlain = getJSONFromRealmObject(oldVault);
+        newVault.scheme.miniscriptScheme.usedMiniscriptTypes = [
+          oldVaultPlain.type === VaultType.TIMELOCKED
+            ? MiniscriptTypes.TIMELOCKED
+            : oldVaultPlain.type === VaultType.ASSISTED
+            ? MiniscriptTypes.ASSISTED
+            : oldVaultPlain.type === VaultType.INHERITANCE
+            ? MiniscriptTypes.INHERITANCE
+            : false,
+        ].filter(Boolean);
+        newVault.type = VaultType.MINISCRIPT;
+      } else {
+        if (oldVault?.scheme?.miniscriptScheme?.miniscript) {
+          newVault.scheme.miniscriptScheme.usedMiniscriptTypes = [MiniscriptTypes.INHERITANCE];
+          newVault.type = VaultType.MINISCRIPT;
+        }
+      }
     }
   }
 };

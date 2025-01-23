@@ -59,7 +59,7 @@ function SetupOtherSDScreen({ route }) {
       } else if (mode === InteracationMode.VAULT_ADDITION) {
         dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
+          ? { name: 'Home' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
         showToast(
@@ -138,7 +138,7 @@ function SetupOtherSDScreen({ route }) {
           if (signer) {
             dispatch(addSigningDevice([signer]));
             const navigationState = addSignerFlow
-              ? { name: 'ManageSigners' }
+              ? { name: 'Home' }
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
             showToast('signer added successfully', <TickIcon />, IToastCategory.SIGNING_DEVICE);
@@ -183,7 +183,7 @@ function SetupOtherSDScreen({ route }) {
         });
         dispatch(addSigningDevice([coldcard]));
         const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
+          ? { name: 'Home' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
         return;
@@ -206,7 +206,7 @@ function SetupOtherSDScreen({ route }) {
             });
             dispatch(addSigningDevice([passport]));
             const navigationState = addSignerFlow
-              ? { name: 'ManageSigners' }
+              ? { name: 'Home' }
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
             return;
@@ -230,7 +230,7 @@ function SetupOtherSDScreen({ route }) {
               });
               dispatch(addSigningDevice([keystone]));
               const navigationState = addSignerFlow
-                ? { name: 'ManageSigners' }
+                ? { name: 'Home' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
               return;

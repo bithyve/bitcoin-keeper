@@ -5,8 +5,10 @@ import Text from 'src/components/KeeperText';
 import { useNavigation } from '@react-navigation/native';
 import { hp } from 'src/constants/responsive';
 
-function UpgradeSubscription({ type, customStyles, showText = true }) {
-  const navigation = useNavigation();
+function UpgradeSubscription({ type, customStyles, navigation = null, onPress = () => {}, showText = true }) {
+  if (!navigation) {
+    navigation = useNavigation();
+  }
   const { colorMode } = useColorMode();
 
   return (
@@ -15,10 +17,11 @@ function UpgradeSubscription({ type, customStyles, showText = true }) {
       borderColor={`${colorMode}.lightSkin`}
       justifyContent={'space-around'}
     >
-      {showText && <Text>Unlock at {type} Tier</Text>}
+      {showText && <Text style={StyleSheet.flatten([customStyles?.unlockAtText])}>Unlock at {type} Tier</Text>}
       <TouchableOpacity
         activeOpacity={0.6}
         onPress={() => {
+          onPress();
           navigation.navigate('ChoosePlan');
         }}
         testID="choosePlan"

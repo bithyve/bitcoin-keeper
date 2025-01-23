@@ -9,6 +9,8 @@ export const UAISchema: ObjectSchema = {
     entityId: 'string?',
     lastActioned: 'date?',
     uaiDetails: `${RealmSchema.UAIDetails}?`,
+    createdAt: 'date?',
+    seenAt: 'date?',
   },
   primaryKey: 'id',
 };

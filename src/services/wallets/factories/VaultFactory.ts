@@ -21,6 +21,7 @@ import idx from 'idx';
 import { getKeyUID } from 'src/utils/utilities';
 import {
   EntityKind,
+  MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
   ScriptTypes,
@@ -404,6 +405,7 @@ export const generateKeyFromXpub = (
 
 export const generateMiniscriptScheme = (
   miniscriptElements: MiniscriptElements,
+  miniscriptTypes: MiniscriptTypes[],
   existingMiniscriptScheme?: MiniscriptScheme
 ): MiniscriptScheme => {
   const {
@@ -420,6 +422,7 @@ export const generateMiniscriptScheme = (
     keyInfoMap,
     miniscriptPolicy,
     miniscript,
+    usedMiniscriptTypes: miniscriptTypes,
   };
 
   return miniscriptScheme;

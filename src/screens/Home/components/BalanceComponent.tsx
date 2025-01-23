@@ -1,35 +1,27 @@
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import Colors from 'src/theme/Colors';
 
-function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
-  const { colorMode } = useColorMode();
+function BalanceComponent({ balance, isShowAmount, setIsShowAmount }) {
   return (
     <Box style={styles.walletWrapper}>
-      <HStack color={`${colorMode}.black`} space={1}>
-        <Text style={styles.noOfWallet} bold>
-          {count}
-        </Text>
-        <Text style={styles.noOfWallet} bold>
-          Wallet{count > 1 && 's'}
-        </Text>
-      </HStack>
       <TouchableOpacity
         testID="btn_hideUnhideAmount"
-        onPress={setIsShowAmount}
+        onPress={() => {
+          setIsShowAmount(!isShowAmount);
+        }}
         style={styles.amount}
       >
         <CurrencyInfo
           amount={balance}
           hideAmounts={!isShowAmount}
-          fontSize={26}
-          color={colorMode === 'light' ? Colors.RichBlack : Colors.SecondaryWhite}
-          variation={colorMode === 'light' ? 'dark' : 'light'}
+          fontSize={19}
+          color={Colors.SecondaryWhite}
+          variation={'light'}
         />
       </TouchableOpacity>
     </Box>
@@ -50,7 +42,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(3),
   },
   amount: {
-    height: hp(25),
+    minHeight: hp(25),
     textAlign: 'center',
     gap: 5,
     alignItems: 'center',

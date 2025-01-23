@@ -113,6 +113,7 @@ export const generateWallet = async ({
   networkType,
   transferPolicy,
   parentMnemonic,
+  wallets,
 }: {
   type: WalletType;
   instanceNum: number;
@@ -124,6 +125,7 @@ export const generateWallet = async ({
   networkType: NetworkType;
   transferPolicy?: TransferPolicy;
   parentMnemonic?: string;
+  wallets: Wallet[];
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
 
@@ -188,8 +190,6 @@ export const generateWallet = async ({
     const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
 
     const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
-    id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic); // case: wallets(non-whirlpool) have master-fingerprints as their id
-
     derivationDetails = {
       instanceNum,
       mnemonic,
@@ -198,6 +198,18 @@ export const generateWallet = async ({
         ? derivationConfig.path
         : WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType),
     };
+    id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic);
+    const idWithDerivation = id + derivationDetails.xDerivationPath;
+    const existingWallet = wallets.find((wallet) => wallet.id === id);
+    if (existingWallet) {
+      if (existingWallet.derivationDetails.xDerivationPath === derivationDetails.xDerivationPath) {
+        throw Error('Hot wallet for this mobile key already exists.');
+      }
+    }
+    if (wallets.find((wallet) => wallet.id === idWithDerivation)) {
+      throw Error('Hot wallet for this mobile key already exists.');
+    }
+    id = idWithDerivation;
     specs = generateWalletSpecsFromMnemonic(mnemonic, network, derivationDetails.xDerivationPath);
   }
 

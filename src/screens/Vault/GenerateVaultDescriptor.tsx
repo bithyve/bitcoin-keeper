@@ -20,8 +20,8 @@ import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import DownloadPDF from 'src/assets/images/download-pdf-white.svg';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
-const ConfigQR = ({ isInheritanceVault, descriptorString, activeTab }) => {
-  return isInheritanceVault ? (
+const ConfigQR = ({ isMiniscriptVault, descriptorString, activeTab }) => {
+  return isMiniscriptVault ? (
     <Box style={styles.IKConfigContainer}>
       {activeTab === 0 ? (
         <KeeperQRCode size={windowWidth * 0.7} ecl="L" qrData={descriptorString} />
@@ -40,10 +40,10 @@ const ConfigQR = ({ isInheritanceVault, descriptorString, activeTab }) => {
 
 function GenerateVaultDescriptor() {
   const route = useRoute();
-  const { vaultId, isInheritanceVault } = route.params as {
+  const { vaultId, isMiniscriptVault } = route.params as {
     descriptorString: string;
     vaultId: string;
-    isInheritanceVault: boolean;
+    isMiniscriptVault: boolean;
   };
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -85,7 +85,7 @@ function GenerateVaultDescriptor() {
         subtitle="The vault configuration file is used to restore the vault on other devices."
       />
       <Box style={styles.container}>
-        {isInheritanceVault && (
+        {isMiniscriptVault && (
           <Box style={styles.tabBarContainer}>
             <TabBar
               radius={7}
@@ -101,7 +101,7 @@ function GenerateVaultDescriptor() {
           showsVerticalScrollIndicator={false}
         >
           <ConfigQR
-            isInheritanceVault={isInheritanceVault}
+            isMiniscriptVault={isMiniscriptVault}
             descriptorString={vaultDescriptorString}
             activeTab={activeTab}
           />
