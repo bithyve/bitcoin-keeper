@@ -517,7 +517,7 @@ function EnterSeedScreen({ route, navigation }) {
                 setSuggestedWords([]);
                 if (onChangeIndex < (step === 1 ? 11 : requiredWordsCount - 1)) {
                   inputRef.current[onChangeIndex + 1]?.focus();
-                }
+                } else Keyboard.dismiss();
               }}
             >
               <Text>{word}</Text>
