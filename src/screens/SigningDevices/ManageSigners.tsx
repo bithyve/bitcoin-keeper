@@ -421,9 +421,7 @@ function SignersList({
               (signer.type !== SignerType.MY_KEEPER &&
                 typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[
                   item.masterFingerprint
-                ]) ||
-              (signer.type !== SignerType.MY_KEEPER &&
-                typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId]);
+                ]);
 
             return (
               <SignerCard
