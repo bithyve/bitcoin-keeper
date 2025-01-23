@@ -527,6 +527,7 @@ function EnterSeedScreen({ route, navigation }) {
       </ScrollView>
     );
   };
+  const isRecovery = !isHealthCheck && !isImport && !isSignTransaction && !isIdentification;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -593,15 +594,18 @@ function EnterSeedScreen({ route, navigation }) {
           {renderSuggestions()}
         </Box>
         <Box style={styles.bottomContainerView}>
-          <Breadcrumbs
-            totalScreens={numberOfWordsToScreensMap[selectedNumberOfWords] || 0}
-            currentScreen={step}
-          />
+          {!isRecovery && (
+            <Breadcrumbs
+              totalScreens={numberOfWordsToScreensMap[selectedNumberOfWords] || 0}
+              currentScreen={step}
+            />
+          )}
 
           <Buttons
             primaryCallback={handleNext}
             primaryText={common.next}
-            secondaryText={common.needHelp}
+            secondaryText={isRecovery ? null : common.needHelp}
+            fullWidth={isRecovery}
             secondaryCallback={() => {
               navigation.dispatch(
                 CommonActions.navigate({
