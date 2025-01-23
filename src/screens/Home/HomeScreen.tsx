@@ -15,7 +15,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import HomeScreenHeader from 'src/components/HomeScreenHeader';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import WalletIcon from 'src/assets/images/WalletIcon.svg';
 import MenuFooter from 'src/components/MenuFooter';
 import HomeWallet from './components/Wallet/HomeWallet';
@@ -156,6 +156,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: wp(22),
+    paddingTop: hp(22),
   },
 });
