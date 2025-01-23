@@ -29,6 +29,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useColorMode } from 'native-base';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
 export const useSettingKeeper = () => {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -36,7 +37,7 @@ export const useSettingKeeper = () => {
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault, wallet, inheritancePlanning, settings, common } = translations;
+  const { vault, wallet, inheritancePlanning, settings, common, signer } = translations;
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
@@ -44,6 +45,26 @@ export const useSettingKeeper = () => {
   const changeThemeMode = () => {
     toggleColorMode();
   };
+  const planData = [
+    {
+      plan: SubscriptionTier.L1.toUpperCase(),
+      title: signer.Pleb,
+      subtitle: signer.Beginner,
+      description: signer.selectPlan,
+    },
+    {
+      plan: SubscriptionTier.L2.toUpperCase(),
+      title: signer.hodler,
+      subtitle: signer.intermediate,
+      description: signer.selectPlan,
+    },
+    {
+      plan: SubscriptionTier.L3.toUpperCase(),
+      title: signer.diamondHand,
+      subtitle: signer.advanced,
+      description: signer.selectPlan,
+    },
+  ];
 
   const BackAndRecovery = [
     {
@@ -234,5 +255,6 @@ export const useSettingKeeper = () => {
     appSetting,
     inheritanceDocument,
     confirmPass,
+    planData,
   };
 };

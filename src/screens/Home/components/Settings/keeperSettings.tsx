@@ -23,20 +23,25 @@ import { hp, windowWidth } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import SettingModal from './Component/SettingModal';
 import { useSettingKeeper } from 'src/hooks/useSettingKeeper';
+import usePlan from 'src/hooks/usePlan';
 
 const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { signer, inheritancePlanning, settings, common } = translations;
-  const { BackAndRecovery, General, keysAndwallet, Tips, confirmPass } = useSettingKeeper();
+  const { BackAndRecovery, General, keysAndwallet, Tips, confirmPass, planData } =
+    useSettingKeeper();
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
+  const { plan } = usePlan();
+  const currentPlan = planData.find((p) => p.plan === plan);
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <PlebContainer
-        title={signer.Pleb}
-        subtitle={signer.Beginner}
-        description={signer.selectPlan}
+        title={currentPlan.title}
+        subtitle={currentPlan.subtitle}
+        description={currentPlan.description}
         titleColor={`${colorMode}.whiteSecButtonText`}
         subtitleColor={`${colorMode}.whiteSecButtonText`}
         backgroundColor={Colors.coalGreen}

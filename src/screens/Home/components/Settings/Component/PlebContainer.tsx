@@ -7,7 +7,7 @@ import { windowWidth, wp } from 'src/constants/responsive';
 
 interface PlebContainerProps {
   backgroundColor?: string;
-  title?: string;
+  title?: any;
   subtitle?: string;
   titleColor?: string;
   subtitleColor?: string;
