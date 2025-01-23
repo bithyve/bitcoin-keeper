@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import React, { useContext, useEffect, useState } from 'react';
 import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
 import InheritanceSeedIcon from 'src/assets/images/inheritanceSeedIcon.svg';
 import InheritanceContactIcon from 'src/assets/images/inheritancecontacticon.svg';
@@ -30,10 +30,23 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useColorMode } from 'native-base';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import {
+  setBackupAllFailure,
+  setBackupAllSuccess,
+  setAutomaticCloudBackup,
+} from 'src/store/reducers/bhr';
+import useToastMessage from './useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 export const useSettingKeeper = () => {
+  const dispatch = useAppDispatch();
   const { colorMode, toggleColorMode } = useColorMode();
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
+  const isFocused = useIsFocused();
+
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
   const { translations } = useContext(LocalizationContext);
@@ -42,8 +55,29 @@ export const useSettingKeeper = () => {
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
   const { id }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const { backupAllFailure, backupAllSuccess, automaticCloudBackup } = useAppSelector(
+    (state) => state.bhr
+  );
+
   const changeThemeMode = () => {
     toggleColorMode();
+  };
+  useEffect(() => {
+    if (backupAllSuccess && isFocused) {
+      dispatch(setBackupAllSuccess(false));
+      dispatch(setAutomaticCloudBackup(true));
+    }
+  }, [backupAllSuccess]);
+
+  useEffect(() => {
+    if (backupAllFailure && isFocused) {
+      dispatch(setBackupAllFailure(false));
+      showToast('Automatic Cloud Backup failed. Please try again later.', <ToastErrorIcon />);
+    }
+  }, [backupAllFailure]);
+  const toggleAutomaticBackupMode = async () => {
+    if (!automaticCloudBackup) dispatch(backupAllSignersAndVaults());
+    else dispatch(setAutomaticCloudBackup(false));
   };
   const planData = [
     {
@@ -89,6 +123,17 @@ export const useSettingKeeper = () => {
       rightIcon: <UpgradeIcon width={64} height={20} />,
       onPress: () => navigation.navigate('CloudBackup'),
       isDiamond: true,
+    },
+    {
+      title: signer.autoBackup,
+      description: signer.autoBackupDesc,
+      icon: <DarkModeIcon width={14} height={14} />,
+      onPress: () => toggleAutomaticBackupMode(),
+      rightIcon: (
+        <Switch onValueChange={() => toggleAutomaticBackupMode()} value={automaticCloudBackup} />
+      ),
+      onRightPress: () => toggleAutomaticBackupMode(),
+      isDiamond: false,
     },
   ];
 

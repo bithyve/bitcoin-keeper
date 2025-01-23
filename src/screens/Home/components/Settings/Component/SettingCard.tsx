@@ -87,7 +87,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                         }
                       />
                     </Box>
-                    <Box>
+                    <Box style={styles.textContainer}>
                       <Text
                         color={applyDiamondCheck ? titleColor : `${colorMode}.disabledDiamond`}
                         fontSize={14}
@@ -98,7 +98,9 @@ const SettingCard: React.FC<SettingCardProps> = ({
                       </Text>
                       {item.description && (
                         <Text
+                          style={styles.content}
                           fontSize={12}
+                          numberOfLines={2}
                           color={applyDiamondCheck ? subtitleColor : `${colorMode}.disabledDiamond`}
                         >
                           {item.description}
@@ -106,23 +108,27 @@ const SettingCard: React.FC<SettingCardProps> = ({
                       )}
                     </Box>
                   </Box>
-                  {item.rightIcon ? (
-                    <TouchableOpacity onPress={item.onRightPress}>
-                      <Box>
-                        {item.isDiamond && isDiamondHands ? (
-                          isDarkMode ? (
-                            <WhiteRightArrowIcon />
+                  <Box style={styles.rightIcon}>
+                    {item.rightIcon ? (
+                      <TouchableOpacity onPress={item.onRightPress}>
+                        <Box>
+                          {item.isDiamond && isDiamondHands ? (
+                            isDarkMode ? (
+                              <WhiteRightArrowIcon />
+                            ) : (
+                              <RightArrowIcon />
+                            )
                           ) : (
-                            <RightArrowIcon />
-                          )
-                        ) : (
-                          item.rightIcon
-                        )}
+                            item.rightIcon
+                          )}
+                        </Box>
+                      </TouchableOpacity>
+                    ) : (
+                      <Box style={styles.arrow}>
+                        {isDarkMode ? <WhiteRightArrowIcon /> : <RightArrowIcon />}
                       </Box>
-                    </TouchableOpacity>
-                  ) : (
-                    <Box>{isDarkMode ? <WhiteRightArrowIcon /> : <RightArrowIcon />}</Box>
-                  )}
+                    )}
+                  </Box>
                 </Box>
               </TouchableOpacity>
               {index < items.length - 1 && (
@@ -160,22 +166,39 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  content: {
+    flexWrap: 'wrap',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  arrow: {
+    paddingRight: wp(10),
+  },
   document: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     gap: 10,
+    flex: 1,
+  },
+  textContainer: {
+    flex: 1,
   },
   title: {
-    marginBottom: 2,
+    marginBottom: 1,
   },
   icon: {
-    paddingBottom: 3,
+    marginTop: hp(10),
+    marginRight: wp(6),
+  },
+  rightIcon: {
+    width: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
   },
   redDot: {
     width: 6,
     height: 6,
-    borderRadius: 6 / 2,
+    borderRadius: 3,
     backgroundColor: 'red',
     position: 'absolute',
     top: 0,
