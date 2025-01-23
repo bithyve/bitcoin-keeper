@@ -1251,15 +1251,6 @@ function AddSigningDevice() {
     scheme,
   });
 
-  const vaultType = getVaultType({
-    isCollaborativeWallet,
-    isSSAddition,
-    isAssistedWallet,
-    isTimeLock,
-    isInheritance: isAddInheritanceKey,
-    scheme,
-  });
-
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} flex={1}>
       <SafeAreaView style={styles.topContainer}>
