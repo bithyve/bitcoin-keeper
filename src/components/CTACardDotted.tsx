@@ -1,7 +1,7 @@
 import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import UpgradeSubscription from 'src/screens/InheritanceToolsAndTips/components/UpgradeSubscription';
 
@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: 'row',
+    width: windowWidth * 0.88,
     paddingHorizontal: wp(16),
     paddingVertical: hp(14),
     borderRadius: 11,

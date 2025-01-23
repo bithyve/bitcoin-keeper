@@ -128,16 +128,9 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   };
 
   return (
-    <ConciergeScreenWrapper
-      backgroundcolor={`${colorMode}.pantoneGreen`}
-      barStyle="light-content"
-      loading={loading || conciergeLoading}
-    >
-      <ConciergeHeader title={'Keeper Concierge'} />
+    <ConciergeScreenWrapper barStyle="light-content" loading={loading || conciergeLoading}>
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
-        <Box flex={1}>
-          <TicketHistory onPressCTA={() => setOnboardCall(true)} />
-        </Box>
+        <TicketHistory onPressCTA={() => setOnboardCall(true)} />
         <CreateTicketCTA
           onPress={() =>
             navigation.dispatch(

@@ -23,6 +23,7 @@ const SettingsApp = () => {
         <SettingCard
           subtitleColor={`${colorMode}.balanceText`}
           backgroundColor={`${colorMode}.textInputBackground`}
+          borderColor={`${colorMode}.separator`}
           items={appSetting}
         />
       </Box>
