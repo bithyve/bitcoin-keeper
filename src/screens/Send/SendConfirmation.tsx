@@ -412,7 +412,11 @@ function SendConfirmation({ route }) {
     const remove = navigation.addListener('beforeRemove', (e) => {
       e.preventDefault();
       remove();
-      if (navigation.getState().index > 2 && isCachedTransaction) {
+
+      const routes = (e.data.action?.payload as any)?.routes || [];
+      const isDiscarding = routes.length > 1 ? routes[1]?.params?.isDiscarding : false;
+
+      if (navigation.getState().index > 2 && isCachedTransaction && !isDiscarding) {
         navigation.dispatch(
           CommonActions.reset({
             index: 1,
@@ -561,7 +565,10 @@ function SendConfirmation({ route }) {
     navigation.dispatch(
       CommonActions.reset({
         index: 1,
-        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
+        routes: [
+          { name: 'Home' },
+          { name: 'VaultDetails', params: { vaultId: sender?.id, isDiscarding: true } },
+        ],
       })
     );
   };
