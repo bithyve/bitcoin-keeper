@@ -181,7 +181,7 @@ function ScanQR() {
               setVisibleModal(false);
               navigation.dispatch(
                 CommonActions.navigate({
-                  name: 'TechnicalSupport',
+                  name: 'CreateTicket',
                   params: {
                     tags: [ConciergeTag.COLLABORATIVE_Wallet],
                     screenName: 'add-co-signer',

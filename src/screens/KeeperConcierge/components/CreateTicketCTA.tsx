@@ -5,10 +5,10 @@ import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import PenLight from 'src/assets/images/pen-light.svg';
 import PenDark from 'src/assets/images/pen-dark.svg';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useSelector } from 'react-redux';
-import { calculateTicketsLeft } from 'src/utils/utilities';
 import usePlan from 'src/hooks/usePlan';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 type CreateTicketCTAProps = {
   onPress: () => void;
@@ -21,7 +21,7 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
   const { tickets, conciergeLoading, conciergeUserFailed, conciergeUserSuccess } = useSelector(
     (state) => state?.concierge
   );
-  const planDetails = usePlan();
+  const isSmaller = useIsSmallDevices();
 
   useEffect(() => {
     if (conciergeLoading || conciergeUserFailed) return;
@@ -32,12 +32,12 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
   return (
     <>
       {display && (
-        <Box style={styles.helpButton}>
+        <Box style={[styles.helpButton, { marginBottom: isSmaller ? hp(25) : hp(-5) }]}>
           <Buttons
             primaryText="Ask the team"
             primaryCallback={onPress}
             RightIcon={isDarkMode ? PenLight : PenDark}
-            fullWidth
+            width={wp(windowWidth * 0.88)}
           />
         </Box>
       )}
@@ -48,7 +48,6 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
 const styles = StyleSheet.create({
   helpButton: {
     marginHorizontal: '3%',
-    marginVertical: hp(10),
     alignItems: 'center',
     justifyContent: 'space-between',
   },

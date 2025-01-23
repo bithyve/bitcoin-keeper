@@ -633,7 +633,7 @@ function ConfirmWalletDetails({ route }) {
           setVisibleModal(false);
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'TechnicalSupport',
+              name: 'CreateTicket',
               params: {
                 tags: [ConciergeTag.WALLET],
                 screenName: 'add-wallet-advanced-settings',

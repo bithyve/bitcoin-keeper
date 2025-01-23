@@ -15,14 +15,14 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import HomeScreenHeader from 'src/components/HomeScreenHeader';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import WalletIcon from 'src/assets/images/WalletIcon.svg';
 import MenuFooter from 'src/components/MenuFooter';
-import Text from 'src/components/KeeperText';
 import HomeWallet from './components/Wallet/HomeWallet';
 import ManageKeys from './components/Keys/ManageKeys';
 import KeeperSettings from './components/Settings/keeperSettings';
 import { useNavigation } from '@react-navigation/native';
+import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -89,7 +89,7 @@ function NewHomeScreen({ route }) {
         return {
           content: (
             <Box>
-              <Text>Concierge Content</Text>
+              <TechnicalSupport route={route} />
             </Box>
           ),
           icon: (
@@ -156,6 +156,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: wp(22),
+    paddingTop: hp(22),
   },
 });

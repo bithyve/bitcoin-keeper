@@ -609,7 +609,7 @@ function EnterSeedScreen({ route, navigation }) {
             secondaryCallback={() => {
               navigation.dispatch(
                 CommonActions.navigate({
-                  name: 'TechnicalSupport',
+                  name: 'CreateTicket',
                   params: {
                     tags: [ConciergeTag.VAULT],
                     screenName: 'sign-transaction-seed-key',

@@ -219,7 +219,7 @@ const CreateTicket = ({ navigation, route }) => {
         dispatch(updateTicketCommentsCount({ [res.data.ticket.id.toString()]: 1 }));
         navigation.dispatch(
           CommonActions.navigate({
-            name: 'TechnicalSupport',
+            name: 'CreateTicket',
             params: {
               ticketCreated: true,
               newTicketId: res.data.ticket.id,
@@ -435,7 +435,5 @@ const OptionItem = ({ option, colorMode, active }) => {
     </Pressable>
   );
 };
-
-
 
 export default CreateTicket;

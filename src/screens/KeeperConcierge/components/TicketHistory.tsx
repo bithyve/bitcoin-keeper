@@ -11,10 +11,12 @@ import OnBoardCallActive from 'src/assets/images/onboardCallActive.svg';
 import OnBoardCallInActive from 'src/assets/images/onboardCallInactive.svg';
 import usePlan from 'src/hooks/usePlan';
 import { useAppSelector } from 'src/store/hooks';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 const HistoryTitle = () => {
   const { colorMode } = useColorMode();
+  const isSmaller = useIsSmallDevices();
   return (
-    <Box style={styles.historyTitle}>
+    <Box style={[styles.historyTitle, { top: isSmaller ? hp(-25) : hp(-50) }]}>
       <Text color={`${colorMode}.GreyText`} fontSize={13}>
         Your Ticket History
       </Text>
@@ -25,6 +27,7 @@ const HistoryTitle = () => {
 const EmptyState = () => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const isSmaller = useIsSmallDevices();
   return (
     <Box style={styles.emptyStateContainer}>
       <Box style={styles.emptyTextContainer}>
@@ -36,7 +39,17 @@ const EmptyState = () => {
           Concierge team to help you with any question!
         </Text>
       </Box>
-      {isDarkMode ? <EmptyIllustrationDark /> : <EmptyIllustrationLight />}
+      {isDarkMode ? (
+        <EmptyIllustrationDark
+          width={isSmaller ? wp(150) : wp(177)}
+          height={isSmaller ? wp(100) : wp(140)}
+        />
+      ) : (
+        <EmptyIllustrationLight
+          width={isSmaller ? wp(150) : wp(177)}
+          height={isSmaller ? wp(100) : wp(140)}
+        />
+      )}
     </Box>
   );
 };
@@ -50,7 +63,7 @@ const TicketHistory = ({ onPressCTA }) => {
       <HistoryTitle />
       <Box flex={1}>{tickets.length ? <TicketList /> : <EmptyState />}</Box>
       {!onboardCallScheduled && (
-        <Box style={{ marginHorizontal: wp(22), marginBottom: hp(20) }}>
+        <Box style={{ marginHorizontal: wp(22), marginBottom: hp(15) }}>
           <CTACardDotted
             title={'Schedule Onboarding Call'}
             subTitle={'Schedule a call with our experts today.'}
@@ -69,15 +82,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   historyTitle: {
-    marginLeft: wp(24),
-    marginTop: hp(22),
-    marginBottom: hp(11),
+    position: 'absolute',
+    top: hp(-50),
+    left: wp(22),
   },
   emptyStateContainer: {
     flex: 0.8,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: hp(50),
+    gap: hp(20),
+    marginTop: hp(50),
   },
   emptyTextContainer: {
     width: wp(270),

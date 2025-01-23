@@ -174,7 +174,7 @@ function VaultConfigurationCreation() {
           setShowModal(false);
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'TechnicalSupport',
+              name: 'CreateTicket',
               params: {
                 tags: [ConciergeTag.WALLET],
                 screenName: 'import-wallet-config-file',

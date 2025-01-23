@@ -32,7 +32,7 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { emailCheck } from 'src/utils/utilities';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
-type ScreenProps = NativeStackScreenProps<AppStackParams, 'TechnicalSupport'>;
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'CreateTicket'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
   const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
@@ -128,16 +128,9 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   };
 
   return (
-    <ConciergeScreenWrapper
-      backgroundcolor={`${colorMode}.pantoneGreen`}
-      barStyle="light-content"
-      loading={loading || conciergeLoading}
-    >
-      <ConciergeHeader title={'Keeper Concierge'} />
+    <ConciergeScreenWrapper barStyle="light-content" loading={loading || conciergeLoading}>
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
-        <Box flex={1}>
-          <TicketHistory onPressCTA={() => setOnboardCall(true)} />
-        </Box>
+        <TicketHistory onPressCTA={() => setOnboardCall(true)} />
         <CreateTicketCTA
           onPress={() =>
             navigation.dispatch(

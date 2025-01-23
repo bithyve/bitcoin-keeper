@@ -54,7 +54,7 @@ const KeeperConcierge = () => {
 
   useEffect(() => {
     if (conciergeUserSuccess == true) {
-      navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport' }));
+      navigation.dispatch(CommonActions.navigate({ name: 'CreateTicket' }));
       dispatch(setConciergeUserSuccess(false));
     }
   }, [conciergeUserSuccess]);
@@ -155,7 +155,7 @@ const KeeperConcierge = () => {
 
   const checkConciergeUser = () => {
     if (conciergeUser !== null) {
-      navigation.dispatch(CommonActions.navigate({ name: 'TechnicalSupport', params }));
+      navigation.dispatch(CommonActions.navigate({ name: 'CreateTicket', params }));
       return;
     }
     dispatch(loadConciergeUser());

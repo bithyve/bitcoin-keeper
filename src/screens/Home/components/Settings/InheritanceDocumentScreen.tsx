@@ -23,6 +23,7 @@ const InheritanceDocumentScreen = () => {
         <SettingCard
           subtitleColor={`${colorMode}.balanceText`}
           backgroundColor={`${colorMode}.textInputBackground`}
+          borderColor={`${colorMode}.separator`}
           items={inheritanceDocument}
         />
       </Box>
