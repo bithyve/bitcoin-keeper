@@ -753,7 +753,7 @@ function SigningDeviceDetails({ route }) {
                 setDetailModal(false);
                 navigation.dispatch(
                   CommonActions.navigate({
-                    name: 'TechnicalSupport',
+                    name: 'CreateTicket',
                     params: {
                       tags: [ConciergeTag.KEYS],
                       screenName: 'signing-device-details',

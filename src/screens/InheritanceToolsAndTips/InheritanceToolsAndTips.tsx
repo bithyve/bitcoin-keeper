@@ -108,7 +108,7 @@ function InheritanceToolsAndTips({ navigation }) {
           setInheritanceModal(false);
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'TechnicalSupport',
+              name: 'CreateTicket',
               params: {
                 tags: [ConciergeTag.INHERITANCE],
                 screenName: 'inheritance-tools-and-tips',

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, StatusBarStyle, StyleSheet } from 'react-native';
 import { Box, StatusBar, useColorMode } from 'native-base';
+import { hp, wp } from 'src/constants/responsive';
 
 function ConciergeScreenWrapper({
   children,
@@ -29,9 +30,9 @@ function ConciergeScreenWrapper({
       {loading && (
         <Box
           position={'absolute'}
-          top={0}
-          left={0}
-          right={0}
+          top={hp(-22)}
+          left={wp(-2)}
+          right={wp(-2)}
           bottom={0}
           alignItems={'center'}
           justifyContent={'center'}

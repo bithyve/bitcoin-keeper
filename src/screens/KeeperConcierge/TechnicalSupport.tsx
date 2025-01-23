@@ -32,7 +32,7 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { emailCheck } from 'src/utils/utilities';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
-type ScreenProps = NativeStackScreenProps<AppStackParams, 'TechnicalSupport'>;
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'CreateTicket'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
   const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
