@@ -37,7 +37,7 @@ const PendingHealthCheckModal = ({
 
   let keys = keysList;
 
-  if (selectedItem.entityKind === EntityKind.VAULT) {
+  if (selectedItem && selectedItem.entityKind === EntityKind.VAULT) {
     keys = keys.filter(
       (key) =>
         key.masterFingerprint !==
