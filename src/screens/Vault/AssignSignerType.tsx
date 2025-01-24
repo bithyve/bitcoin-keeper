@@ -18,6 +18,13 @@ import UnknownSignerInfo from './components/UnknownSignerInfo';
 import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import AssignSignerTypeCard from './components/AssignSignerTypeCard';
+import { useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_check.svg';
+import { useDispatch } from 'react-redux';
+import { resetSignersUpdateState } from 'src/store/reducers/bhr';
+import { useNavigation } from '@react-navigation/native';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 type IProps = {
   navigation: any;
@@ -35,6 +42,27 @@ function AssignSignerType({ route }: IProps) {
   const { translations } = useContext(LocalizationContext);
   const { signer: signerText } = translations;
   const { isOnL1, isOnL2 } = usePlan();
+  const { relaySignersUpdate, relaySignerUpdateError, realySignersUpdateErrorMessage } =
+    useAppSelector((state) => state.bhr);
+  const { showToast } = useToastMessage();
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (relaySignersUpdate) {
+      dispatch(resetSignersUpdateState());
+      showToast('Signer type updated successfully', <TickIcon />);
+      navigation.goBack();
+    }
+  }, [relaySignersUpdate]);
+
+  useEffect(() => {
+    if (relaySignerUpdateError) {
+      dispatch(resetSignersUpdateState());
+      showToast(realySignersUpdateErrorMessage, <ToastErrorIcon />);
+      navigation.goBack();
+    }
+  }, [relaySignerUpdateError]);
 
   const availableSigners = [
     SignerType.BITBOX02,
@@ -43,9 +71,9 @@ function AssignSignerType({ route }: IProps) {
     SignerType.KEYSTONE,
     SignerType.LEDGER,
     SignerType.PASSPORT,
+    SignerType.PORTAL,
     SignerType.SEEDSIGNER,
     SignerType.SPECTER,
-    SignerType.TAPSIGNER,
     SignerType.TREZOR,
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
@@ -82,33 +110,36 @@ function AssignSignerType({ route }: IProps) {
         ) : (
           <Box>
             <Box>
-              {availableSigners.map((type: SignerType, index: number) => {
-                const { disabled, message: connectivityStatus } = getDeviceStatus(
-                  type,
-                  isNfcSupported,
-                  isOnL1,
-                  isOnL2,
-                  { m: 2, n: 3 },
-                  appSigners
-                );
+              {availableSigners
+                .filter((type) => type != signer?.type)
+                .map((type: SignerType, index: number) => {
+                  const { disabled, message: connectivityStatus } = getDeviceStatus(
+                    type,
+                    isNfcSupported,
+                    isOnL1,
+                    isOnL2,
+                    { m: 2, n: 3 },
+                    appSigners
+                  );
 
-                let message = connectivityStatus;
-                if (!connectivityStatus) {
-                  message = getSDMessage({ type });
-                }
+                  let message = connectivityStatus;
+                  if (!connectivityStatus) {
+                    message = getSDMessage({ type });
+                  }
 
-                return (
-                  <AssignSignerTypeCard
-                    key={type}
-                    type={type}
-                    disabled={disabled}
-                    first={index === 0}
-                    last={index === availableSigners.length - 1}
-                    vault={vault}
-                    primaryMnemonic={primaryMnemonic}
-                  />
-                );
-              })}
+                  return (
+                    <AssignSignerTypeCard
+                      key={type}
+                      type={type}
+                      disabled={disabled}
+                      first={index === 0}
+                      last={index === availableSigners.length - 1}
+                      vault={vault}
+                      primaryMnemonic={primaryMnemonic}
+                      signer={signer}
+                    />
+                  );
+                })}
             </Box>
             <Box style={styles.noteContainer}>
               <Note subtitle={signerText.changeSignerNote} />
