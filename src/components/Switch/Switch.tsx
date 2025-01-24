@@ -21,8 +21,12 @@ function Switch({ value, onValueChange, loading, testID }: Props) {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
 
-  const backgroundColor = isDarkMode ? `${colorMode}.Warmbeige` : `${colorMode}.textColor2`;
-  const dotColor = isDarkMode ? `${colorMode}.greenButtonBackground` : `${colorMode}.fadedGray`;
+  const backgroundColor = value
+    ? `${colorMode}.greenButtonBackground`
+    : isDarkMode
+    ? `#383838`
+    : `${colorMode}.textColor2`;
+  const dotColor = `${colorMode}.fadedGray`;
 
   return (
     <TouchableOpacity testID={testID} onPress={() => onValueChange(!value)} disabled={loading}>
