@@ -177,6 +177,7 @@ function WalletDetails({ route }: ScreenProps) {
             totalBalance={wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed}
             description={wallet.presentationData.description}
             wallet={wallet}
+            allowHideBalance={false}
           />
         </Box>
       </Box>

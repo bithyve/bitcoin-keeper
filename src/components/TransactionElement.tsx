@@ -94,16 +94,14 @@ function TransactionElement({
           <CurrencyInfo
             hideAmounts={false}
             amount={transaction?.amount}
-            fontSize={16}
+            fontSize={15}
             color={`${colorMode}.primaryText`}
-            balanceMaxWidth={transaction?.amount < 10000000 ? wp(75) : wp(90)}
+            balanceMaxWidth={wp(90)}
             variation={colorMode === 'light' ? 'richBlack' : 'light'}
           />
-          {transaction?.amount < 10000000 && (
-            <Box style={[styles.arrowIconWrapper]}>
-              {colorMode === 'dark' ? <IconArrowWhite /> : <IconArrow />}
-            </Box>
-          )}
+          <Box style={[styles.arrowIconWrapper]}>
+            {colorMode === 'dark' ? <IconArrowWhite /> : <IconArrow />}
+          </Box>
         </Box>
       </Box>
     </TouchableOpacity>

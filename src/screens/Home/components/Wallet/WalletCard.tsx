@@ -23,6 +23,9 @@ type WalletCardProps = {
   description?: string;
   totalBalance?: number;
   wallet?: any;
+  allowHideBalance?: boolean;
+  isShowAmount?: boolean;
+  setIsShowAmount?: () => void;
 };
 
 const WalletCard: React.FC<WalletCardProps> = ({
@@ -35,9 +38,11 @@ const WalletCard: React.FC<WalletCardProps> = ({
   description,
   totalBalance,
   wallet,
+  allowHideBalance = true,
+  isShowAmount,
+  setIsShowAmount,
 }) => {
   const defaultHexagonBackgroundColor = Colors.White;
-  const [isShowAmount, setIsShowAmount] = useState(false);
   const { getWalletIcon } = useWalletAsset();
   const WalletIcon = getWalletIcon(wallet);
 
@@ -80,8 +85,8 @@ const WalletCard: React.FC<WalletCardProps> = ({
         </Box>
         <Box style={styles.bottomRight}>
           <BalanceComponent
-            setIsShowAmount={setIsShowAmount}
-            isShowAmount={isShowAmount}
+            setIsShowAmount={setIsShowAmount ? setIsShowAmount : () => {}}
+            isShowAmount={allowHideBalance ? isShowAmount : true}
             balance={totalBalance}
           />
         </Box>

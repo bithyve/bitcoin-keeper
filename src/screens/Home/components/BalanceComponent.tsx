@@ -1,14 +1,37 @@
 import { Box } from 'native-base';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import { useDispatch } from 'react-redux';
 import { hp, wp } from 'src/constants/responsive';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
+import { useAppSelector } from 'src/store/hooks';
+import { setCurrencyKind } from 'src/store/reducers/settings';
 import Colors from 'src/theme/Colors';
 
 function BalanceComponent({ balance, isShowAmount, setIsShowAmount }) {
+  const dispatch = useDispatch();
+  const { currencyKind } = useAppSelector((state) => state.settings);
+
   const handleToggle = (e) => {
     e.stopPropagation();
-    setIsShowAmount(!isShowAmount);
+    if (!isShowAmount) {
+      setIsShowAmount(true);
+      return;
+    }
+
+    // Cycle through currency kinds
+    switch (currencyKind) {
+      case CurrencyKind.BITCOIN:
+        dispatch(setCurrencyKind(CurrencyKind.FIAT));
+        break;
+      case CurrencyKind.FIAT:
+        dispatch(setCurrencyKind(CurrencyKind.BITCOIN));
+        setIsShowAmount(false);
+        break;
+      default:
+        dispatch(setCurrencyKind(CurrencyKind.BITCOIN));
+    }
   };
 
   return (

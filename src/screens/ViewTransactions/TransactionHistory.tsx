@@ -13,6 +13,9 @@ import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import WalletHeader from 'src/components/WalletHeader';
+import Text from 'src/components/KeeperText';
 
 function TransactionHistory({ route }) {
   const { colorMode } = useColorMode();
@@ -76,9 +79,9 @@ function TransactionHistory({ route }) {
         backgroundColor="transparent"
       />
       <Box style={styles.topSection}>
-        <KeeperHeader
+        <WalletHeader
           title={transactionsText.transactionHistory}
-          subtitle={transactionsText.viewAllRecords}
+          rightComponent={<CurrencyTypeSwitch />}
         />
       </Box>
       <Box style={styles.bottomSection} backgroundColor={`${colorMode}.boxSecondaryBackground`}>
@@ -106,9 +109,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topSection: {
-    paddingTop: hp(17),
-    paddingHorizontal: 20,
-    paddingBottom: 25,
+    paddingTop: hp(20),
+    paddingHorizontal: wp(20),
+    paddingBottom: hp(30),
   },
   bottomSection: {
     borderTopLeftRadius: 40,
