@@ -140,7 +140,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   bottomRight: {
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    flex: 1,
   },
   pillsContainer: {
     flexDirection: 'row',
