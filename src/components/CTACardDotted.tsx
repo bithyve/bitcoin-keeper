@@ -21,7 +21,7 @@ export const CTACardDotted = ({
   onPress,
 }: CTACardDottedProps) => {
   const { colorMode } = useColorMode();
-  const color = isActive ? `${colorMode}.dashedButtonBorder` : `${colorMode}.placeHolderTextColor`;
+  const color = isActive ? `${colorMode}.noteTextClosed` : `${colorMode}.placeHolderTextColor`;
 
   return (
     <Pressable onPress={onPress}>
