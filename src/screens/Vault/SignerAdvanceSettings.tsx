@@ -45,7 +45,7 @@ import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useCanaryVault from 'src/hooks/useCanaryWallets';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -521,6 +521,7 @@ function SignerAdvanceSettings({ route }: any) {
   }
 
   const navigateToAssignSigner = () => {
+    dispatch(resetSignersUpdateState());
     setWarning(false);
     navigation.dispatch(
       CommonActions.navigate({
