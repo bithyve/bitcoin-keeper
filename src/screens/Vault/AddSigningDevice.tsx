@@ -114,8 +114,14 @@ const onSignerSelect = (
       setHotWalletInstanceNum(null);
     }
   } else {
-    if (selectedSigners.size >= scheme.n) {
-      showToast('You have selected the total keys, please proceed to create the wallet');
+    const maxKeys = scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+      MiniscriptTypes.INHERITANCE
+    )
+      ? scheme.n + 1
+      : scheme.n;
+
+    if (selectedSigners.size >= maxKeys) {
+      showToast('You have already selected the total keys', null, IToastCategory.DEFAULT, 1700);
       return;
     }
     // TODO: Need special implementation in case of mobile key single sig without Miniscript.
@@ -146,6 +152,7 @@ const onSignerSelect = (
 };
 
 const getVaultType = ({
+  activeVault,
   isCollaborativeWallet,
   isSSAddition,
   isAssistedWallet,
@@ -153,6 +160,7 @@ const getVaultType = ({
   isInheritance,
   scheme,
 }) => {
+  if (activeVault) return activeVault.type;
   if (isInheritance || isTimeLock || isAssistedWallet) return VaultType.MINISCRIPT;
   if (isCollaborativeWallet) return VaultType.COLLABORATIVE;
   if (isSSAddition || scheme.n === 1) return VaultType.SINGE_SIG;
@@ -333,7 +341,7 @@ function Footer({
       {!(isCollaborativeFlow || isAssistedWalletFlow) && renderNotes()}
       {!(isCollaborativeFlow || isAssistedWalletFlow) && !isReserveKeyFlow ? (
         <Buttons
-          primaryDisable={!!areSignersValid && !isHotWallet}
+          primaryDisable={!areSignersValid && !isHotWallet}
           primaryLoading={relayVaultUpdateLoading}
           primaryText={keyToRotate ? 'Replace Key' : common.proceed}
           primaryCallback={
@@ -1003,7 +1011,7 @@ function AddSigningDevice() {
     description = '',
     isInheritance = false,
     vaultId = '',
-    scheme,
+    scheme: schemeParam,
     keyToRotate,
     parentScreen = '',
     onGoBack,
@@ -1029,6 +1037,7 @@ function AddSigningDevice() {
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
   const { activeVault, allVaults } = useVault({ vaultId });
+  const scheme = activeVault ? activeVault.scheme : schemeParam;
   const isCollaborativeWallet = activeVault?.type == VaultType.COLLABORATIVE;
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
   const isAssistedWallet = activeVault?.type == VaultType.ASSISTED;
@@ -1255,6 +1264,7 @@ function AddSigningDevice() {
   };
 
   const vaultType = getVaultType({
+    activeVault,
     isCollaborativeWallet,
     isSSAddition,
     isAssistedWallet,
@@ -1262,6 +1272,17 @@ function AddSigningDevice() {
     isInheritance: isAddInheritanceKey,
     scheme,
   });
+
+  const maxKeys = scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+    MiniscriptTypes.INHERITANCE
+  )
+    ? scheme.n + 1
+    : scheme.n;
+
+  if (selectedSigners.size >= maxKeys) {
+    // Handle the case where the selectedSigners exceed the maxKeys
+    console.warn('Selected signers exceed the maximum allowed');
+  }
 
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} flex={1}>
