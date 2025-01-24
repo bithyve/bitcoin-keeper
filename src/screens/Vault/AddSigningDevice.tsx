@@ -176,7 +176,8 @@ const isAssistedKeyValidForScheme = (
 
 const isSignerValidForScheme = (
   signer: Signer,
-  scheme
+  scheme,
+  vaultType
 ): { isValid: boolean; code?: KeyValidationErrorCode } => {
   if (signer.type === SignerType.POLICY_SERVER) {
     return isAssistedKeyValidForScheme(scheme);
@@ -186,8 +187,7 @@ const isSignerValidForScheme = (
   const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
   const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
 
-  // TODO: Needed for now as the mobile key doesn't save the P2WPKH details, need to update when uniting vaults and wallets
-  if (signer.type === SignerType.MY_KEEPER) {
+  if (signer.type === SignerType.MY_KEEPER && vaultType === VaultType.MINISCRIPT) {
     return { isValid: true };
   }
 
