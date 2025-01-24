@@ -91,6 +91,7 @@ function VaultMigrationController({
       initiateNewVault().catch((err) => {
         console.log('Vault creation error:', err);
         captureError(err);
+        setCreating(false);
       });
     }
   }, [vaultCreating]);
