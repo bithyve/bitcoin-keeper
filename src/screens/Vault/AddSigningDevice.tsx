@@ -176,7 +176,8 @@ const isAssistedKeyValidForScheme = (
 
 const isSignerValidForScheme = (
   signer: Signer,
-  scheme
+  scheme,
+  activeVault
 ): { isValid: boolean; code?: KeyValidationErrorCode } => {
   if (signer.type === SignerType.POLICY_SERVER) {
     return isAssistedKeyValidForScheme(scheme);
@@ -186,8 +187,10 @@ const isSignerValidForScheme = (
   const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
   const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
 
-  // TODO: Needed for now as the mobile key doesn't save the P2WPKH details, need to update when uniting vaults and wallets
-  if (signer.type === SignerType.MY_KEEPER) {
+  if (
+    signer.type === SignerType.MY_KEEPER &&
+    (!activeVault || activeVault.type === VaultType.MINISCRIPT)
+  ) {
     return { isValid: true };
   }
 
@@ -195,6 +198,9 @@ const isSignerValidForScheme = (
     (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
     (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
   ) {
+    if (signer.type === SignerType.MY_KEEPER) {
+      return { isValid: false, code: KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED };
+    }
     return { isValid: false, code: KeyValidationErrorCode.MISSING_XPUB };
   }
 
@@ -218,13 +224,13 @@ const setInitialKeys = (
     );
     const isMultisig =
       scheme.n > 1 ||
-      activeVault?.vaultType === VaultType.MINISCRIPT ||
+      activeVault?.type === VaultType.MINISCRIPT ||
       vaultType === VaultType.MINISCRIPT;
     const modifiedVaultKeysForScriptType = [];
     const updatedSignerMap = new Map();
     vaultKeys.forEach((key) => {
       const signer = signerMap[getKeyUID(key)];
-      if (isSignerValidForScheme(signer, scheme).isValid) {
+      if (isSignerValidForScheme(signer, scheme, activeVault).isValid) {
         if (modifiedVaultKeysForScriptType.length < scheme.n) {
           updatedSignerMap.set(getKeyUID(key), true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -483,7 +489,7 @@ function Signers({
     keyToRotate,
     vaultType
   ) => {
-    const validationResult = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+    const validationResult = isSignerValidForScheme(signer, scheme, activeVault);
 
     if (!validationResult.isValid) {
       let title, message;
@@ -696,7 +702,7 @@ function Signers({
           !coSignersMap.has(getKeyUID(signer))
       )
       .map((signer) => {
-        const { isValid } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+        const { isValid } = isSignerValidForScheme(signer, scheme, activeVault);
         const disabled =
           !isValid ||
           (signer.type === SignerType.MY_KEEPER &&
@@ -783,7 +789,7 @@ function Signers({
       )
       .filter((signer) => !selectedFingerprintsSet.has(signer.masterFingerprint)) // Avoid selected signers from params
       .map((signer) => {
-        const { isValid } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+        const { isValid } = isSignerValidForScheme(signer, scheme, activeVault);
         const disabled =
           !isValid ||
           (signer.type === SignerType.MY_KEEPER && myAppKeys.length >= 1) ||

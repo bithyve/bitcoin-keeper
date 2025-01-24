@@ -73,7 +73,7 @@ function VaultSettings({ route }) {
         return <CollaborativeIcon />;
       } else if (
         wallet.type === VaultType.MINISCRIPT &&
-        (wallet as Vault).scheme?.miniscriptScheme.usedMiniscriptTypes[MiniscriptTypes.ASSISTED]
+        (wallet as Vault).scheme?.miniscriptScheme?.usedMiniscriptTypes[MiniscriptTypes.ASSISTED]
       ) {
         return <AssistedIcon />;
       } else {

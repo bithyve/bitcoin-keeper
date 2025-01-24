@@ -91,6 +91,7 @@ function VaultMigrationController({
       initiateNewVault().catch((err) => {
         console.log('Vault creation error:', err);
         captureError(err);
+        setCreating(false);
       });
     }
   }, [vaultCreating]);
@@ -349,17 +350,15 @@ function VaultMigrationController({
             activeVault ? activeVault.scheme.miniscriptScheme : null
           );
         } catch (err) {
-          showToast(`Failed to prepare enhanced vault: ${err.message}`, <ToastErrorIcon />);
-          return;
+          throw Error(`Failed to prepare enhanced vault: ${err.message}`);
         }
         if (!vaultInfo) {
-          return;
+          throw Error(`Failed to prepare enhanced vault`);
         }
       }
 
       if (vaultAlreadyExists(vaultInfo)) {
-        Alert.alert('Vault with this configuration already exists.');
-        return;
+        throw Error('Vault with this configuration already exists.');
       }
 
       if (activeVault) {
@@ -372,6 +371,8 @@ function VaultMigrationController({
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       }
     } catch (err) {
+      showToast(err?.message ? err?.message : err.toString(), <ToastErrorIcon />);
+      setCreating(false);
       captureError(err);
     }
   };

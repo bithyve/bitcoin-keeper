@@ -484,7 +484,7 @@ function ConfirmWalletDetails({ route }) {
         vaultId={vaultId}
         setGeneratedVaultId={setGeneratedVaultId}
         setCreating={setCreating}
-        vaultType={VaultType.MINISCRIPT}
+        vaultType={vaultType}
         inheritanceKey={route.params.reservedKey ?? null}
         isAddInheritanceKey={route.params.isAddInheritanceKey}
         currentBlockHeight={route.params.currentBlockHeight}
