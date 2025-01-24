@@ -222,6 +222,7 @@ export function* updateVaultImageWorker({
     return response;
   } catch (err) {
     captureError(err);
+    return { updated: false, error: err };
   }
 }
 
@@ -261,6 +262,7 @@ export function* deleteAppImageEntityWorker({
     return response;
   } catch (err) {
     captureError(err);
+    return { updated: false, error: err };
   }
 }
 
@@ -283,6 +285,7 @@ export function* deleteVaultImageWorker({
     return response;
   } catch (err) {
     captureError(err);
+    return { updated: false, error: err };
   }
 }
 

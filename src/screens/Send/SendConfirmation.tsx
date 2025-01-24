@@ -446,10 +446,6 @@ function SendConfirmation({ route }) {
           sender.entityKind === EntityKind.VAULT &&
           (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
         ) {
-          console.log('selectedPhase');
-          console.log(selectedPhase);
-          console.log('selectedPaths');
-          console.log(selectedPaths);
           if (!selectedPhase || !selectedPaths) {
             showToast('Invalid phase/path selection', <ToastErrorIcon />);
             return;
@@ -698,8 +694,9 @@ function SendConfirmation({ route }) {
         close={() => setPhaseSelectionModalVisible(false)}
         title="Select Signing Option"
         subTitle={`\nSelect how you would like to sign.\n\nUsing the regular option is better to reduce the transaction fee${
-          defaultVault.scheme.miniscriptScheme?.usedMiniscriptTypes.length == 1 &&
-          defaultVault.scheme.miniscriptScheme?.usedMiniscriptTypes?.includes(
+          sender.entityKind === EntityKind.VAULT &&
+          (sender as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.length == 1 &&
+          (sender as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes?.includes(
             MiniscriptTypes.INHERITANCE
           )
             ? ' if you are not planning to use the Inheritance Key.'
@@ -766,24 +763,30 @@ function SendConfirmation({ route }) {
   };
 
   const getPhaseDescription = (phase) => {
+    if (!sender.entityKind === EntityKind.VAULT) {
+      return null;
+    }
     const isInheritancePhase = phase.paths[0]?.keys?.find(
       (key) => key.identifier === INHERITANCE_KEY1_IDENTIFIER
     );
 
     if (isInheritancePhase) {
       return {
-        title: defaultVault.scheme.m == 1 ? 'Use the Inheritance Key' : 'Use with Inheritance Key',
+        title:
+          (sender as Vault).scheme.m == 1 ? 'Use the Inheritance Key' : 'Use with Inheritance Key',
         subtitle:
-          defaultVault.scheme.m == 1
+          (sender as Vault).scheme.m == 1
             ? 'Spend using the Inheritance Key'
             : 'Spend using the Inheritance Key and the regular keys',
       };
     }
 
+    console.log('(sender as Vault).scheme.n');
+    console.log(JSON.stringify((sender as Vault).scheme, null, 2));
     return {
-      title: defaultVault.scheme.n == 1 ? 'Use the regular key' : 'Use only regular keys',
+      title: (sender as Vault).scheme.n == 1 ? 'Use the regular key' : 'Use only regular keys',
       subtitle:
-        defaultVault.scheme.n == 1
+        (sender as Vault).scheme.n == 1
           ? 'Spend using the regular key'
           : 'Spend using only the regular vault keys',
     };
