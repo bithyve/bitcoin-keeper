@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import KeysIcon from 'src/assets/images/homeGreenKeyIcon.svg';
+import ConciergeIcon from 'src/assets/images/faq-green.svg';
 import SettingIcon from 'src/assets/images/settingsGreenIcon.svg';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import InititalAppController from './InititalAppController';
@@ -95,7 +96,13 @@ function NewHomeScreen({ route }) {
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={<WalletIcon />}
+              icon={
+                <ConciergeIcon
+                  width={wp(20)}
+                  height={hp(20)}
+                  style={{ marginRight: wp(1), marginBottom: hp(1) }}
+                />
+              }
               backgroundColor={`${colorMode}.modalGreenContent`}
             />
           ),
