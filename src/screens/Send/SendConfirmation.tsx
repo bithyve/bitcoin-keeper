@@ -12,6 +12,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
   EntityKind,
+  MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
   TxPriority,
@@ -68,6 +69,8 @@ import CustomPriorityModal from './CustomPriorityModal';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import { Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -203,13 +206,16 @@ function SendConfirmation({ route }) {
   const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
-  const [selectedExternalSigner, setSelectedExternalSigner] = useState<VaultSigner | null>(null);
+  const [availablePhases, setAvailablePhases] = useState([]);
   const [availablePaths, setAvailablePaths] = useState(null);
   const [selectedPhase, setSelectedPhase] = useState(null);
   const [selectedPaths, setSelectedPaths] = useState(null);
   const [availableSigners, setAvailableSigners] = useState({});
   const [externalSigners, setExternalSigners] = useState([]);
   const { signerMap } = useSignerMap();
+
+  // Add new state for phase selection modal
+  const [phaseSelectionModalVisible, setPhaseSelectionModalVisible] = useState(false);
 
   function SigningInfo({ onPress, availableSigners }) {
     const { colorMode } = useColorMode();
@@ -253,49 +259,23 @@ function SendConfirmation({ route }) {
       }
     }
 
-    const { phases: availablePhases, signers: availableSigners } = getAvailableMiniscriptPhase(
-      sender as Vault,
-      currentBlockHeight
-    ); // provides available phases/signers(generic)
+    const { phases: availablePhasesOptions, signers: availableSigners } =
+      getAvailableMiniscriptPhase(sender as Vault, currentBlockHeight); // provides available phases/signers(generic)
 
     // upon generalisation of the UI we should be able to show/set paths
     // in the available phases as the options which are available for the user to choose from
 
     // currently for Advisor Vault only the latest phase and path are considered and the signers from
     // the latest phase are only available for signing
-    if (!availablePhases || availablePhases.length === 0) {
+    if (!availablePhasesOptions || availablePhasesOptions.length === 0) {
       showToast('No spending paths available; timelock is active');
       navigation.goBack();
     }
 
-    const latestPhase = availablePhases[availablePhases.length - 1];
-    const latestSigners = {};
-
-    const pathsAvailable = [];
-    latestPhase.paths.forEach((path) => {
-      pathsAvailable.push(path);
-      path.keys.forEach((key) => {
-        latestSigners[key.identifier] = availableSigners[key.identifier];
-      });
-    });
-
-    setSelectedPhase(latestPhase.id);
-    setAvailablePaths(pathsAvailable);
-    setAvailableSigners(latestSigners);
-
-    if (sender.type === VaultType.ASSISTED) {
-      const latestExtSigners = [];
-      for (const key in latestSigners) {
-        if (key === ASSISTED_VAULT_ENTITIES.AK1 || key === ASSISTED_VAULT_ENTITIES.AK2) {
-          latestExtSigners.push(signerMap[getKeyUID(availableSigners[key])]);
-        }
-      }
-      if (latestExtSigners.length === 2) {
-        // case: UK + AK1/AK2
-        // set: AK1 as default option
-        if (!selectedExternalSigner) setSelectedExternalSigner(latestExtSigners[0]);
-      }
-      setExternalSigners(latestExtSigners);
+    if (availablePhasesOptions.length == 1) {
+      selectPhase(availablePhasesOptions[0]);
+    } else {
+      setAvailablePhases(availablePhasesOptions);
     }
   };
 
@@ -309,33 +289,6 @@ function SendConfirmation({ route }) {
       });
     }
   }, []);
-
-  useEffect(() => {
-    // Assisted Vault: remapping selected path based on selected signer
-    // upon generalising the UI, user should be able to directly select the path from available paths
-    // and the additional steps of mapping the available paths to external signers and
-    // then remapping the selected signer to the available paths in order to get the selected path can be avoided
-
-    if (!availablePaths) return;
-
-    if (!selectedExternalSigner) {
-      if (availablePaths.length === 1) {
-        // case: UK only or AK1 + AK2 only
-        setSelectedPaths([availablePaths[0].id]);
-      } else setSelectedPaths(null); // error case: path is not selected b/w 1.UK + AK1 and 2.UK + AK2
-    } else {
-      // case: UK + AK1/AK2
-      const pathSelected = [];
-      availablePaths.forEach((path) => {
-        path.keys.forEach((key) => {
-          if (getKeyUID(availableSigners[key.identifier]) === getKeyUID(selectedExternalSigner)) {
-            pathSelected.push(path.id);
-          }
-        });
-      });
-      setSelectedPaths(pathSelected);
-    }
-  }, [selectedExternalSigner, availablePaths]);
 
   const isMoveAllFunds =
     parentScreen === MANAGEWALLETS ||
@@ -412,7 +365,11 @@ function SendConfirmation({ route }) {
     const remove = navigation.addListener('beforeRemove', (e) => {
       e.preventDefault();
       remove();
-      if (navigation.getState().index > 2 && isCachedTransaction) {
+
+      const routes = (e.data.action?.payload as any)?.routes || [];
+      const isDiscarding = routes.length > 1 ? routes[1]?.params?.isDiscarding : false;
+
+      if (navigation.getState().index > 2 && isCachedTransaction && !isDiscarding) {
         navigation.dispatch(
           CommonActions.reset({
             index: 1,
@@ -463,19 +420,12 @@ function SendConfirmation({ route }) {
   const [inProgress, setProgress] = useState(false);
 
   const onProceed = () => {
-    setProgress(true);
+    if (!isCachedTransaction && availablePhases?.length > 1 && !selectedPhase) {
+      setPhaseSelectionModalVisible(true);
+    } else {
+      setProgress(true);
+    }
   };
-
-  const handleOptionSelect = useCallback(
-    (option: VaultSigner) => {
-      if (selectedExternalSigner && getKeyUID(selectedExternalSigner) !== getKeyUID(option)) {
-        if (serializedPSBTEnvelops) dispatch(sendPhaseTwoReset()); // reset, existing send phase two vars, upon change of signer
-      }
-      setSelectedExternalSigner(option);
-      setExternalKeySelectionModal(false);
-    },
-    [selectedExternalSigner, serializedPSBTEnvelops]
-  );
 
   // useEffect(
   //   () => () => {
@@ -496,6 +446,10 @@ function SendConfirmation({ route }) {
           sender.entityKind === EntityKind.VAULT &&
           (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
         ) {
+          console.log('selectedPhase');
+          console.log(selectedPhase);
+          console.log('selectedPaths');
+          console.log(selectedPaths);
           if (!selectedPhase || !selectedPaths) {
             showToast('Invalid phase/path selection', <ToastErrorIcon />);
             return;
@@ -561,7 +515,10 @@ function SendConfirmation({ route }) {
     navigation.dispatch(
       CommonActions.reset({
         index: 1,
-        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
+        routes: [
+          { name: 'Home' },
+          { name: 'VaultDetails', params: { vaultId: sender?.id, isDiscarding: true } },
+        ],
       })
     );
   };
@@ -733,6 +690,105 @@ function SendConfirmation({ route }) {
     );
   };
 
+  // Add modal component
+  const PhaseSelectionModal = () => {
+    return (
+      <KeeperModal
+        visible={phaseSelectionModalVisible}
+        close={() => setPhaseSelectionModalVisible(false)}
+        title="Select Signing Option"
+        subTitle={`\nSelect how you would like to sign.\n\nUsing the regular option is better to reduce the transaction fee${
+          defaultVault.scheme.miniscriptScheme?.usedMiniscriptTypes.length == 1 &&
+          defaultVault.scheme.miniscriptScheme?.usedMiniscriptTypes?.includes(
+            MiniscriptTypes.INHERITANCE
+          )
+            ? ' if you are not planning to use the Inheritance Key.'
+            : ''
+        }`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <Box style={{ gap: wp(15), marginBottom: hp(10) }}>
+            {availablePhases.map((phase) => (
+              <Pressable
+                key={phase.id}
+                onPress={() => {
+                  selectPhase(phase);
+                  setPhaseSelectionModalVisible(false);
+                  setTimeout(() => setProgress(true), 100);
+                }}
+              >
+                <Box
+                  style={styles.optionCTR}
+                  backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                  borderColor={`${colorMode}.separator`}
+                >
+                  {/* <Box style={styles.optionIconCtr} backgroundColor={`${colorMode}.pantoneGreen`}>
+                  {option.icon}
+                </Box> */}
+                  <Box>
+                    <Text
+                      color={`${colorMode}.secondaryText`}
+                      fontSize={16}
+                      medium
+                      style={styles.optionTitle}
+                    >
+                      {getPhaseDescription(phase).title}
+                    </Text>
+                    <Text color={`${colorMode}.secondaryText`} fontSize={13}>
+                      {getPhaseDescription(phase).subtitle}
+                    </Text>
+                  </Box>
+                </Box>
+              </Pressable>
+            ))}
+          </Box>
+        )}
+      />
+    );
+  };
+
+  const selectPhase = (phase: Phase) => {
+    const latestSigners = {};
+    const pathsAvailable = [];
+    phase.paths.forEach((path) => {
+      pathsAvailable.push(path);
+      path.keys.forEach((key) => {
+        latestSigners[key.identifier] = availableSigners[key.identifier];
+      });
+    });
+
+    setSelectedPhase(phase.id);
+    setAvailablePaths(pathsAvailable);
+    setSelectedPaths(pathsAvailable.map((path) => path.id));
+    setAvailableSigners(latestSigners);
+  };
+
+  const getPhaseDescription = (phase) => {
+    const isInheritancePhase = phase.paths[0]?.keys?.find(
+      (key) => key.identifier === INHERITANCE_KEY1_IDENTIFIER
+    );
+
+    if (isInheritancePhase) {
+      return {
+        title: defaultVault.scheme.m == 1 ? 'Use the Inheritance Key' : 'Use with Inheritance Key',
+        subtitle:
+          defaultVault.scheme.m == 1
+            ? 'Spend using the Inheritance Key'
+            : 'Spend using the Inheritance Key and the regular keys',
+      };
+    }
+
+    return {
+      title: defaultVault.scheme.n == 1 ? 'Use the regular key' : 'Use only regular keys',
+      subtitle:
+        defaultVault.scheme.n == 1
+          ? 'Spend using the regular key'
+          : 'Spend using only the regular vault keys',
+    };
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -863,29 +919,6 @@ function SendConfirmation({ route }) {
             SecondaryIcon={isDarkMode ? <ShareWhite /> : <ShareGreen />}
             primaryButtonWidth={wp(142)}
           />
-        )}
-      />
-      <KeeperModal
-        visible={externalKeySelectionModal}
-        close={() => setExternalKeySelectionModal(false)}
-        title="External Key Selection"
-        subTitle="Whose key should be used to sign the transaction along with yours?"
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.white`}
-        showCloseIcon={false}
-        buttonText={common.confirm}
-        secondaryButtonText={common.cancel}
-        Content={() => (
-          <Box style={styles.externalKeyModal}>
-            <KeyDropdown
-              label="Choose External key"
-              options={externalSigners}
-              selectedOption={selectedExternalSigner}
-              onOptionSelect={handleOptionSelect}
-            />
-          </Box>
         )}
       />
       <KeeperModal
@@ -1060,6 +1093,8 @@ function SendConfirmation({ route }) {
           existingCustomPriorityFee={customFeePerByte}
         />
       )}
+      {/* Phase Selection Modal */}
+      <PhaseSelectionModal />
     </ScreenWrapper>
   );
 }
@@ -1187,5 +1222,24 @@ const styles = StyleSheet.create({
     gap: 5,
     paddingVertical: hp(10),
     paddingHorizontal: wp(15),
+  },
+  optionTitle: {
+    marginBottom: hp(5),
+  },
+  optionIconCtr: {
+    height: hp(39),
+    width: wp(39),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+  },
+  optionCTR: {
+    flexDirection: 'row',
+    paddingHorizontal: wp(15),
+    paddingVertical: hp(22),
+    alignItems: 'center',
+    gap: wp(16),
+    borderRadius: 12,
+    borderWidth: 1,
   },
 });

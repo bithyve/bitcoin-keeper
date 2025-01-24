@@ -44,7 +44,7 @@ export function generateInheritanceVaultElements(
   scheme: VaultScheme,
   timelocks: number[]
 ): MiniscriptElements {
-  if (signers.length < 2) throw new Error('At least 2 signers are required for the Vault');
+  // if (signers.length < 2) throw new Error('At least 2 signers are required for the Vault');
   if (scheme.m > signers.length) {
     throw new Error('Threshold (m) cannot be greater than the number of signers (n)');
   }
@@ -85,7 +85,13 @@ export function generateInheritanceVaultElements(
     {
       id: 2,
       timelock,
-      paths: [{ id: 1, threshold: scheme.m, keys: [...keysInfo, inheritanceKeyInfo] }],
+      paths: [
+        {
+          id: 1,
+          threshold: scheme.m,
+          keys: scheme.m === 1 ? [inheritanceKeyInfo] : [...keysInfo, inheritanceKeyInfo],
+        },
+      ],
       requiredPaths: 1,
       probability: 1,
     },

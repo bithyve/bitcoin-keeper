@@ -8,7 +8,7 @@ import NFC from 'src/services/nfc';
 import SigningDeviceCard from './components/SigningDeviceCard';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import { SignerCategory, SignerType } from 'src/services/wallets/enums';
+import { SignerCategory, SignerType, VaultType } from 'src/services/wallets/enums';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import useSigners from 'src/hooks/useSigners';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -42,6 +42,7 @@ const SigningDeviceList = () => {
     signerCategory,
     headerTitle,
     headerSubtitle,
+    vaultType,
   }: {
     scheme: VaultScheme;
     addSignerFlow: boolean;
@@ -50,6 +51,7 @@ const SigningDeviceList = () => {
     signerCategory: string;
     headerTitle: string;
     headerSubtitle: string;
+    vaultType?: VaultType;
   } = route.params as any;
   const { colorMode } = useColorMode();
   const { isOnL1, isOnL2 } = usePlan();
@@ -60,7 +62,9 @@ const SigningDeviceList = () => {
   const dispatch = useDispatch();
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const { signer, common } = translations;
-  const isMultisig = addSignerFlow ? true : scheme.n !== 1;
+  const isMultisig = addSignerFlow
+    ? true
+    : scheme.n !== 1 || scheme.miniscriptScheme || vaultType === VaultType.MINISCRIPT;
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];

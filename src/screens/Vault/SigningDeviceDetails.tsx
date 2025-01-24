@@ -523,40 +523,41 @@ function SigningDeviceDetails({ route }) {
   ].filter(Boolean);
 
   const vaultSignerFooterItems = [
-    {
-      text: 'Health Check',
-      Icon: () => (
-        <FooterIcon
-          Icon={isDarkMode ? HealthCheckDark : HealthCheckLight}
-          showDot={
-            (signer.type !== SignerType.MY_KEEPER &&
-              entityBasedIndicator?.[signer.masterFingerprint]?.[
-                uaiType.SIGNING_DEVICES_HEALTH_CHECK
-              ]) ||
-            (signer.type === SignerType.MY_KEEPER &&
-              typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId])
-          }
-        />
-      ),
-      onPress: () => {
-        if (signer.type === SignerType.UNKOWN_SIGNER) {
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'AssignSignerType',
-              params: {
-                parentNavigation: navigation,
-                vault: activeVault,
-                signer,
-              },
-            })
-          );
-        } else if (signer.type === SignerType.MY_KEEPER) {
-          setShowMobileKeyModal(true);
-        } else {
-          setVisible(true);
-        }
-      },
-    },
+    ...(signer.type !== SignerType.MY_KEEPER
+      ? [
+          {
+            text: 'Health Check',
+            Icon: () => (
+              <FooterIcon
+                Icon={isDarkMode ? HealthCheckDark : HealthCheckLight}
+                showDot={
+                  entityBasedIndicator?.[signer.masterFingerprint]?.[
+                    uaiType.SIGNING_DEVICES_HEALTH_CHECK
+                  ]
+                }
+              />
+            ),
+            onPress: () => {
+              if (signer.type === SignerType.UNKOWN_SIGNER) {
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'AssignSignerType',
+                    params: {
+                      parentNavigation: navigation,
+                      vault: activeVault,
+                      signer,
+                    },
+                  })
+                );
+              } else if (signer.type === SignerType.MY_KEEPER) {
+                setShowMobileKeyModal(true);
+              } else {
+                setVisible(true);
+              }
+            },
+          },
+        ]
+      : []),
     ...(activeVault
       ? [
           {

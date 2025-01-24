@@ -153,9 +153,9 @@ const getVaultType = ({
   isInheritance,
   scheme,
 }) => {
+  if (isInheritance || isTimeLock || isAssistedWallet) return VaultType.MINISCRIPT;
   if (isCollaborativeWallet) return VaultType.COLLABORATIVE;
   if (isSSAddition || scheme.n === 1) return VaultType.SINGE_SIG;
-  if (isInheritance || isTimeLock || isAssistedWallet) return VaultType.MINISCRIPT;
   return VaultType.DEFAULT;
 };
 
@@ -203,6 +203,7 @@ const isSignerValidForScheme = (
 
 const setInitialKeys = (
   activeVault,
+  vaultType,
   scheme,
   signerMap,
   setVaultKeys,
@@ -215,7 +216,10 @@ const setInitialKeys = (
     const vaultKeys = activeVault.signers.filter(
       (key) => keyToRotate && getKeyUID(key) !== getKeyUID(keyToRotate)
     );
-    const isMultisig = scheme.n > 1;
+    const isMultisig =
+      scheme.n > 1 ||
+      activeVault?.vaultType === VaultType.MINISCRIPT ||
+      vaultType === VaultType.MINISCRIPT;
     const modifiedVaultKeysForScriptType = [];
     const updatedSignerMap = new Map();
     vaultKeys.forEach((key) => {
@@ -459,7 +463,7 @@ function Signers({
     code: '',
     clickedSigner: null,
   });
-  const isMultisig = scheme.n !== 1;
+  const isMultisig = scheme.n !== 1 || vaultType === VaultType.MINISCRIPT;
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -870,6 +874,7 @@ function Signers({
                       CommonActions.navigate('SignerCategoryList', {
                         scheme,
                         vaultId,
+                        vaultType,
                         vaultSigners: vaultKeys,
                       })
                     )
@@ -1114,6 +1119,7 @@ function AddSigningDevice() {
   useEffect(() => {
     setInitialKeys(
       activeVault,
+      vaultType,
       scheme,
       signerMap,
       setVaultKeys,
@@ -1158,7 +1164,7 @@ function AddSigningDevice() {
                 icon={<VaultIcon />}
               />
             </Box>
-            <Box>
+            <Box marginTop={hp(4)}>
               {vault.presentationData.description ? (
                 <Text fontSize={12} color={`${colorMode}.secondaryText`}>
                   {vault.presentationData.description}
@@ -1206,7 +1212,7 @@ function AddSigningDevice() {
                 icon={<VaultIcon />}
               />
             </Box>
-            <Box>
+            <Box marginTop={hp(4)}>
               {vault.presentationData.description ? (
                 <Text fontSize={12} color={`${colorMode}.secondaryText`}>
                   {vault.presentationData.description}
