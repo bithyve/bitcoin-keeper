@@ -425,6 +425,8 @@ PODS:
   - react-native-mmkv (2.11.0):
     - MMKV (>= 1.2.13)
     - React-Core
+  - react-native-netinfo (11.4.1):
+    - React-Core
   - react-native-nfc-manager (3.16.0):
     - React-Core
   - react-native-pdf (6.7.1):
@@ -665,6 +667,7 @@ DEPENDENCIES:
   - react-native-html-to-pdf (from `../node_modules/react-native-html-to-pdf`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
@@ -814,6 +817,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-nfc-manager:
     :path: "../node_modules/react-native-nfc-manager"
   react-native-pdf:
@@ -944,6 +949,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: bee9fca67c1b8ab7d9cf1c8e19a50968dc15ba2e
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: 005cf0fc175b43fd5a1abca9ad02fc50c5db45d3
+  react-native-background-timer: 4638ae3bee00320753647900b21260b10587b6f7
   react-native-biometrics: ecca256a9e1c8b430f78c4e3dcb16b57ea1418e0
   react-native-blob-util: 4be49d669870f01645b63d33342718e95d0d48b1
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
@@ -955,6 +961,7 @@ SPEC CHECKSUMS:
   react-native-html-to-pdf: 7a49e6c58ac5221bcc093027b195f4b214f27a9d
   react-native-image-picker: 1f5318beec2ebed6695454ffb9bea8c4152f1598
   react-native-mmkv: 5a46c73e3e12aa872c4485ae0e4414b4040af79a
+  react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-nfc-manager: e5d2ce2f7fee42d1ee0eb6b99f3405d5e330112e
   react-native-pdf: b0380c1ad48f30943665cd783c4c305e341c0822
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
