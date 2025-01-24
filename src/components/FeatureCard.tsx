@@ -21,7 +21,7 @@ function FeatureCard({
   customStyle,
   callback,
 
-  smallDeviceHeight = hp(100),
+  smallDeviceHeight = hp(84),
   smallDeviceWidth = wp(105),
 }: FeatureCardProps) {
   const { colorMode } = useColorMode();
@@ -41,7 +41,7 @@ function FeatureCard({
         <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
           {icon && icon}
         </Box>
-        <Text numberOfLines={2} medium style={styles.cardName} color={`${colorMode}.primaryText`}>
+        <Text numberOfLines={1} medium style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
         </Text>
       </Box>
@@ -52,7 +52,7 @@ function FeatureCard({
 const styles = StyleSheet.create({
   cardContainer: {
     width: wp(104),
-    height: hp(83),
+    minHeight: hp(83),
     padding: hp(10),
     borderRadius: 10,
     overflow: 'hidden',
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
 
   cardName: {
-    fontSize: 13,
+    fontSize: 12,
     lineHeight: 16,
   },
 });

@@ -19,7 +19,7 @@ import NosterIcon from 'src/assets/images/noster.svg';
 import NosterDarkIcon from 'src/assets/images/noster-white.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
 import TelegramDark from 'src/assets/images/Telegram-white.svg';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import SettingModal from './Component/SettingModal';
 import { useSettingKeeper } from 'src/hooks/useSettingKeeper';
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   bottomNav: {
     width: windowWidth * 0.89,
     flexDirection: 'row',
-    gap: 12,
+    gap: wp(12),
     justifyContent: 'center',
     marginBottom: hp(10),
   },

@@ -42,7 +42,7 @@ function SetupSeedWordSigner({ route }) {
           opacity={showWordIndex === index ? 1 : 0.5}
         >
           <Text
-            fontSize={20}
+            fontSize={18}
             bold
             letterSpacing={1.64}
             // marginRight={3}
@@ -52,7 +52,7 @@ function SetupSeedWordSigner({ route }) {
             {index + 1}
           </Text>
           <Text
-            fontSize={20}
+            fontSize={18}
             backgroundColor="green.700"
             letterSpacing={1}
             color={`${colorMode}.GreyText`}

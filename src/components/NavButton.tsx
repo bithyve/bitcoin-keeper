@@ -36,17 +36,17 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
 const styles = StyleSheet.create({
   NavButtonContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 12,
+    paddingHorizontal: wp(10),
     height: hp(45),
     borderRadius: 10,
     marginBottom: hp(8),
     alignItems: 'center',
-    gap: 8,
+    gap: wp(8),
   },
   headingWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: wp(8),
   },
   heading: {
     fontSize: 13,

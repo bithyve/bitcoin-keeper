@@ -124,9 +124,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                         </Box>
                       </TouchableOpacity>
                     ) : (
-                      <Box style={styles.arrow}>
-                        {isDarkMode ? <WhiteRightArrowIcon /> : <RightArrowIcon />}
-                      </Box>
+                      <Box>{isDarkMode ? <WhiteRightArrowIcon /> : <RightArrowIcon />}</Box>
                     )}
                   </Box>
                 </Box>
@@ -170,9 +168,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     fontSize: 12,
     marginTop: 4,
-  },
-  arrow: {
-    paddingRight: wp(10),
   },
   document: {
     flexDirection: 'row',

@@ -1,14 +1,11 @@
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import PenLight from 'src/assets/images/pen-light.svg';
 import PenDark from 'src/assets/images/pen-dark.svg';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { windowWidth, wp } from 'src/constants/responsive';
 import { useSelector } from 'react-redux';
-import usePlan from 'src/hooks/usePlan';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 type CreateTicketCTAProps = {
   onPress: () => void;
@@ -21,7 +18,6 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
   const { tickets, conciergeLoading, conciergeUserFailed, conciergeUserSuccess } = useSelector(
     (state) => state?.concierge
   );
-  const isSmaller = useIsSmallDevices();
 
   useEffect(() => {
     if (conciergeLoading || conciergeUserFailed) return;
@@ -32,12 +28,12 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
   return (
     <>
       {display && (
-        <Box style={[styles.helpButton, { marginBottom: isSmaller ? hp(25) : hp(-5) }]}>
+        <Box style={[styles.helpButton]}>
           <Buttons
             primaryText="Ask the team"
             primaryCallback={onPress}
             RightIcon={isDarkMode ? PenLight : PenDark}
-            width={wp(windowWidth * 0.88)}
+            width={wp(windowWidth * 0.87)}
           />
         </Box>
       )}

@@ -373,7 +373,8 @@ function ConfirmWalletDetails({ route }) {
           )
         }
       />
-      <Box style={{ flex: 1, justifyContent: 'space-between' }}>
+
+      <ScrollView contentContainerStyle={{ flex: 1, justifyContent: 'space-between' }}>
         <Box style={styles.fieldsContainer}>
           <Text fontSize={14} medium>
             Your wallet name
@@ -459,22 +460,23 @@ function ConfirmWalletDetails({ route }) {
             )}
           </Box>
         </ScrollView>
-        <Box style={styles.footer}>
-          <Buttons
-            primaryText={'Create your Wallet'}
-            primaryCallback={
-              isHotWallet
-                ? createNewHotWallet
-                : () => {
-                    setCreating(true);
-                  }
-            }
-            primaryDisable={!walletName}
-            primaryLoading={vaultCreating || walletLoading || relayWalletUpdateLoading}
-            fullWidth
-          />
-        </Box>
+      </ScrollView>
+      <Box style={styles.footer}>
+        <Buttons
+          primaryText={'Create your Wallet'}
+          primaryCallback={
+            isHotWallet
+              ? createNewHotWallet
+              : () => {
+                  setCreating(true);
+                }
+          }
+          primaryDisable={!walletName}
+          primaryLoading={vaultCreating || walletLoading || relayWalletUpdateLoading}
+          fullWidth
+        />
       </Box>
+
       <VaultMigrationController
         vaultCreating={vaultCreating}
         vaultKeys={route.params.vaultKeys}

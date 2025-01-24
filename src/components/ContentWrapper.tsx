@@ -1,5 +1,7 @@
 import React from 'react';
 import { Box } from 'native-base';
+import { StyleSheet } from 'react-native';
+import { hp } from 'src/constants/responsive';
 
 type ContentWrapperProps = {
   backgroundColor?: string;
@@ -9,10 +11,15 @@ type ContentWrapperProps = {
 
 const ContentWrapper = ({ backgroundColor, children, padding = 0 }: ContentWrapperProps) => {
   return (
-    <Box safeAreaBottom flex={1} background={backgroundColor} style={{ padding }}>
+    <Box flex={1} background={backgroundColor} style={[style.Container, { padding: padding }]}>
       {children}
     </Box>
   );
 };
 
 export default ContentWrapper;
+const style = StyleSheet.create({
+  Container: {
+    marginBottom: hp(10),
+  },
+});

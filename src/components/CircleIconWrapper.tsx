@@ -1,5 +1,5 @@
 import { Box } from 'native-base';
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, PixelRatio } from 'react-native';
 
 type Props = {
   icon: Element;
@@ -9,15 +9,27 @@ type Props = {
 };
 
 function CircleIconWrapper({ icon, width = 50, backgroundColor, image = null }: Props) {
+  const scaledWidth = PixelRatio.roundToNearestPixel(width);
+
   return (
     <Box
-      width={width}
-      height={width}
-      borderRadius={width / 2}
+      width={scaledWidth}
+      height={scaledWidth}
+      borderRadius={scaledWidth / 2}
       backgroundColor={backgroundColor}
       style={styles.alignItems}
     >
-      {image ? <Image src={image} style={styles.associatedContactImage} /> : icon}
+      {image ? (
+        <Image
+          source={{ uri: image }}
+          style={[
+            styles.associatedContactImage,
+            { width: scaledWidth * 0.5, height: scaledWidth * 0.5, borderRadius: scaledWidth / 2 },
+          ]}
+        />
+      ) : (
+        icon
+      )}
     </Box>
   );
 }
@@ -28,11 +40,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   associatedContactImage: {
-    width: '50%',
-    height: '50%',
-    borderRadius: 100,
     alignSelf: 'center',
-    justifyContent: 'center',
+    resizeMode: 'cover',
   },
 });
 

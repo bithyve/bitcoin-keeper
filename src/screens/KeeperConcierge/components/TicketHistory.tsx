@@ -12,11 +12,13 @@ import OnBoardCallInActive from 'src/assets/images/onboardCallInactive.svg';
 import usePlan from 'src/hooks/usePlan';
 import { useAppSelector } from 'src/store/hooks';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import { CreateTicketCTA } from './CreateTicketCTA';
+import { CommonActions } from '@react-navigation/native';
 const HistoryTitle = () => {
   const { colorMode } = useColorMode();
   const isSmaller = useIsSmallDevices();
   return (
-    <Box style={[styles.historyTitle, { top: isSmaller ? hp(-25) : hp(-50) }]}>
+    <Box style={[styles.historyTitle, { top: isSmaller ? hp(-50) : hp(-50) }]}>
       <Text color={`${colorMode}.GreyText`} fontSize={13}>
         Your Ticket History
       </Text>
@@ -54,7 +56,7 @@ const EmptyState = () => {
   );
 };
 
-const TicketHistory = ({ onPressCTA }) => {
+const TicketHistory = ({ onPressCTA, screenName, tags, navigation }) => {
   const { tickets, onboardCallScheduled } = useAppSelector((state) => state.concierge);
   const { isOnL3 } = usePlan();
 
@@ -73,17 +75,30 @@ const TicketHistory = ({ onPressCTA }) => {
           />
         </Box>
       )}
+      <CreateTicketCTA
+        onPress={() =>
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'CreateTicket',
+              params: {
+                screenName,
+                tags,
+              },
+            })
+          )
+        }
+      />
     </Box>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    paddingBottom: hp(20),
     flex: 1,
   },
   historyTitle: {
     position: 'absolute',
-    top: hp(-50),
     left: wp(22),
   },
   emptyStateContainer: {

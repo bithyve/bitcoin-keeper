@@ -1,7 +1,6 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
-import ConciergeHeader from './components/ConciergeHeader';
 import ContentWrapper from 'src/components/ContentWrapper';
 import { Image, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
@@ -21,7 +20,6 @@ import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Zendesk from 'src/services/backend/Zendesk';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { CreateTicketCTA } from './components/CreateTicketCTA';
 import { showOnboarding } from 'src/store/reducers/concierge';
 import { useAppSelector } from 'src/store/hooks';
 import { loadConciergeUser, scheduleOnboardingCall } from 'src/store/sagaActions/concierge';
@@ -130,19 +128,11 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   return (
     <ConciergeScreenWrapper barStyle="light-content" loading={loading || conciergeLoading}>
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
-        <TicketHistory onPressCTA={() => setOnboardCall(true)} />
-        <CreateTicketCTA
-          onPress={() =>
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'CreateTicket',
-                params: {
-                  screenName,
-                  tags,
-                },
-              })
-            )
-          }
+        <TicketHistory
+          onPressCTA={() => setOnboardCall(true)}
+          screenName={screenName}
+          tags={tags}
+          navigation={navigation}
         />
       </ContentWrapper>
       <KeeperModal
