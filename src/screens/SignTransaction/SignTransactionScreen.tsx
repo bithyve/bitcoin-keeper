@@ -735,7 +735,7 @@ function SignTransactionScreen() {
       <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Choose at least ${scheme.m} to sign the transaction`}
+        subtitle={`Choose ${scheme.m} key${scheme.m == 1 ? '' : 's'} to sign the transaction`}
       />
       <FlatList
         contentContainerStyle={styles.contentContainerStyle}
