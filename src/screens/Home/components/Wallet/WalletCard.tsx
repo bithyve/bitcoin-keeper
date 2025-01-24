@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -9,9 +9,6 @@ import Colors from 'src/theme/Colors';
 import BalanceComponent from '../BalanceComponent';
 import CardPill from 'src/components/CardPill';
 import LinearGradient from 'react-native-linear-gradient';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { EntityKind } from 'src/services/wallets/enums';
-import { useNavigation } from '@react-navigation/native';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 
 type WalletCardProps = {
@@ -132,7 +129,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   title: {
-    fontSize: 14,
+    fontSize: 15,
   },
   description: {
     fontSize: 12,

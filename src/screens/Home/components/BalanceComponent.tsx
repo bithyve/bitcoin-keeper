@@ -1,27 +1,30 @@
 import { Box } from 'native-base';
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import Colors from 'src/theme/Colors';
 
 function BalanceComponent({ balance, isShowAmount, setIsShowAmount }) {
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    setIsShowAmount(!isShowAmount);
+  };
+
   return (
     <Box style={styles.walletWrapper}>
       <TouchableOpacity
         testID="btn_hideUnhideAmount"
-        onPress={() => {
-          setIsShowAmount(!isShowAmount);
-        }}
+        onPress={handleToggle}
         style={styles.amount}
+        activeOpacity={0.7}
       >
         <CurrencyInfo
           amount={balance}
           hideAmounts={!isShowAmount}
           fontSize={19}
           color={Colors.SecondaryWhite}
-          variation={'light'}
+          variation="light"
         />
       </TouchableOpacity>
     </Box>
@@ -35,11 +38,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 20,
-  },
-  noOfWallet: {
-    fontSize: wp(20),
-    lineHeight: 27,
-    marginBottom: hp(3),
   },
   amount: {
     minHeight: hp(25),
