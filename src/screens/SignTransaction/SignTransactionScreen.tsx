@@ -580,7 +580,7 @@ function SignTransactionScreen() {
             }
           }
           if (!configurationForVault) {
-            showToast(`Missing vault configuration for ${defaultVault.id}`);
+            showToast(`Missing wallet configuration for ${defaultVault.id}`);
             return;
           }
           signTransaction({

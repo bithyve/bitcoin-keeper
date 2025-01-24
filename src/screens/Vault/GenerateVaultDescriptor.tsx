@@ -81,25 +81,27 @@ function GenerateVaultDescriptor() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Vault Configuration File"
-        subtitle="The vault configuration file is used to restore the vault on other devices."
+        title="Wallet Configuration File"
+        subtitle="The wallet configuration file is used to restore the wallet on other devices."
       />
-      <Box style={styles.container}>
-        {isMiniscriptVault && (
-          <Box style={styles.tabBarContainer}>
-            <TabBar
-              radius={7}
-              width="95%"
-              tabs={tabsData}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
-          </Box>
-        )}
-        <ScrollView
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        >
+      <Box height={hp(15)} />
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Box style={styles.container}>
+          {isMiniscriptVault && (
+            <Box style={styles.tabBarContainer}>
+              <TabBar
+                radius={7}
+                width="95%"
+                tabs={tabsData}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+            </Box>
+          )}
+
           <ConfigQR
             isMiniscriptVault={isMiniscriptVault}
             descriptorString={vaultDescriptorString}
@@ -142,8 +144,8 @@ function GenerateVaultDescriptor() {
               }}
             />
           </Box>
-        </ScrollView>
-      </Box>
+        </Box>
+      </ScrollView>
     </ScreenWrapper>
   );
 }
@@ -156,11 +158,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    marginTop: hp(30),
     alignItems: 'center',
   },
   tabBarContainer: {
-    marginTop: hp(30),
     marginBottom: hp(10),
   },
   inputWrapper: {
@@ -171,8 +171,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    marginVertical: hp(30),
-    marginBottom: hp(30),
+    marginTop: hp(15),
+    marginBottom: hp(20),
     paddingLeft: wp(20),
     paddingRight: wp(8),
     borderWidth: 1,
