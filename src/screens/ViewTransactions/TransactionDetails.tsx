@@ -37,6 +37,7 @@ import { useDispatch } from 'react-redux';
 import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import { getLabelChanges } from '../UTXOManagement/components/LabelsEditor';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import BTC from 'src/assets/images/btc.svg';
 
 export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
@@ -57,7 +58,7 @@ export function EditNoteContent({ existingNote, noteRef }: { existingNote: strin
 
 function TransactionDetails({ route }) {
   const { colorMode } = useColorMode();
-  const { getSatUnit, getBalance } = useBalance();
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { transactions, common } = translations;
@@ -191,7 +192,15 @@ function TransactionDetails({ route }) {
               </Text>
             </Box>
           </Box>
-          <Box>
+          <Box flexDir={'row'} alignItems={'center'}>
+            {!getSatUnit() && (
+              <Text
+                color={`${colorMode}.dateText`}
+                style={[styles.unitText, { height: '100%', marginRight: wp(5), marginTop: hp(5) }]}
+              >
+                {getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
+              </Text>
+            )}
             <Text style={styles.amountText}>
               {`${getBalance(transaction.amount)} `}
               <Text color={`${colorMode}.dateText`} style={styles.unitText}>
@@ -362,7 +371,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   unitText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '400',
   },
   listSubContainer: {
