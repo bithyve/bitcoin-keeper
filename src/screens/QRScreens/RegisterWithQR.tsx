@@ -34,10 +34,17 @@ function RegisterWithQR({ route, navigation }: any) {
   const { signer } = useSignerFromKey(vaultKey);
   const walletConfig =
     signer.type === SignerType.SPECTER
-      ? `${SPECTER_PREFIX}${generateOutputDescriptors(activeVault, false).replaceAll(
-          '/<0;1>/*',
-          ''
-        )}${activeVault.isMultiSig ? ' )' : ''}`
+      ? activeVault.scheme.miniscriptScheme
+        ? `addwallet ${activeVault.presentationData.name}&${generateOutputDescriptors(
+            activeVault,
+            false
+          )
+            .replace('/**', '/{0,1}/*')
+            .replace(/<(\d+);(\d+)>/g, '{$1,$2}')}`
+        : `${SPECTER_PREFIX}${generateOutputDescriptors(activeVault, false).replaceAll(
+            '/<0;1>/*',
+            ''
+          )}${activeVault.isMultiSig ? ' )' : ''}`
       : activeVault.scheme.miniscriptScheme
       ? generateOutputDescriptors(activeVault)
       : getWalletConfig({ vault: activeVault, signerType: signer.type });
