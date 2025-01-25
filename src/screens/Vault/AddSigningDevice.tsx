@@ -60,6 +60,7 @@ import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-i
 import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-illustration-dark.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
+import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 
 const MINISCRIPT_SIGNERS = [
   SignerType.MY_KEEPER,
@@ -294,6 +295,7 @@ function Footer({
   hotWalletInstanceNum,
   keyToRotate,
   signers,
+  activeVault,
 }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -345,29 +347,34 @@ function Footer({
           primaryLoading={relayVaultUpdateLoading}
           primaryText={keyToRotate ? 'Replace Key' : common.proceed}
           primaryCallback={
-            keyToRotate
-              ? () => {
-                  setCreating(true);
-                }
-              : !isAddInheritanceKey
-              ? () => {
-                  navigation.navigate('ConfirmWalletDetails', {
-                    vaultKeys,
-                    scheme,
-                    isHotWallet,
-                    vaultType,
-                    isTimeLock,
-                    isAddInheritanceKey,
-                    currentBlockHeight,
-                    hotWalletInstanceNum,
-                    selectedSigners: signersList,
-                    vaultId,
-                  });
-                }
+            !isAddInheritanceKey
+              ? keyToRotate
+                ? () => {
+                    setCreating(true);
+                  }
+                : () => {
+                    navigation.navigate('ConfirmWalletDetails', {
+                      vaultKeys,
+                      scheme,
+                      isHotWallet,
+                      vaultType,
+                      isTimeLock,
+                      isAddInheritanceKey,
+                      currentBlockHeight,
+                      hotWalletInstanceNum,
+                      selectedSigners: signersList,
+                      vaultId,
+                    });
+                  }
               : () =>
                   navigation.dispatch(
                     CommonActions.navigate('AddReserveKey', {
-                      vaultKeys,
+                      vaultKeys: vaultKeys.filter(
+                        (signer) =>
+                          signer.masterFingerprint !==
+                          activeVault?.scheme?.miniscriptScheme?.miniscriptElements
+                            ?.signerFingerprints[INHERITANCE_KEY1_IDENTIFIER]
+                      ),
                       vaultId,
                       scheme,
                       name,
@@ -1020,7 +1027,7 @@ function AddSigningDevice() {
     addedSigner,
     selectedSignersFromParams,
     isTimeLock = false,
-    isAddInheritanceKey = false,
+    isAddInheritanceKey: isAddInheritanceKeyParam = false,
     currentBlockHeight,
     signerFilters = [],
   } = route.params;
@@ -1038,6 +1045,11 @@ function AddSigningDevice() {
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
   const { activeVault, allVaults } = useVault({ vaultId });
   const scheme = activeVault ? activeVault.scheme : schemeParam;
+  const isAddInheritanceKey = activeVault
+    ? activeVault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+        MiniscriptTypes.INHERITANCE
+      )
+    : isAddInheritanceKeyParam;
   const isCollaborativeWallet = activeVault?.type == VaultType.COLLABORATIVE;
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
   const isAssistedWallet = activeVault?.type == VaultType.ASSISTED;
@@ -1362,6 +1374,7 @@ function AddSigningDevice() {
           hotWalletInstanceNum={hotWalletInstanceNum}
           signers={activeSigners}
           keyToRotate={keyToRotate}
+          activeVault={activeVault}
         />
         <KeeperModal
           dismissible

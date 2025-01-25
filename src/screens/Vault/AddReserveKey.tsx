@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useCallback, useContext, useState, useEffect } from 'react';
+import React, { useCallback, useContext, useState, useEffect, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import HorizontalAddCard from 'src/components/HorizontalAddCard';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -30,6 +30,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 
 const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
 const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -69,21 +70,37 @@ function AddReserveKey({ route }) {
 
   const dispatch = useDispatch();
 
-  const reservedKey = selectedSigner ? signerMap[getKeyUID(selectedSigner[0])] : null;
+  const reservedKey = useMemo(() => {
+    if (!selectedSigner || !signerMap) return null;
+    return signerMap[getKeyUID(selectedSigner[0])];
+  }, [selectedSigner, signerMap]);
+
   const isDarkMode = colorMode === 'dark';
 
-  const userKeyCallback = () => {
-    navigation.push('AddSigningDevice', {
-      parentScreen: ADDRESERVEKEY,
-      selectedSignersFromParams:
-        vaultKeys && vaultKeys.length > 0 ? vaultKeys : route.params.selectedSigners,
-      selectedReserveKey: selectedSigner,
-      scheme,
-      isAddInheritanceKey,
-      currentBlockHeight,
-      onGoBack: (signer) => setSelectedSigner(signer),
-    });
-  };
+  useEffect(() => {
+    if (selectedSigner || keyToRotate) return;
+
+    if (
+      !activeVault?.id ||
+      !activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints
+    )
+      return;
+
+    const inheritanceKeyFingerprint =
+      activeVault.scheme.miniscriptScheme.miniscriptElements.signerFingerprints[
+        INHERITANCE_KEY1_IDENTIFIER
+      ];
+
+    if (!inheritanceKeyFingerprint) return;
+
+    const inheritanceKey = activeVault.signers.find(
+      (key) => key.masterFingerprint === inheritanceKeyFingerprint
+    );
+
+    if (inheritanceKey) {
+      setSelectedSigner([inheritanceKey]);
+    }
+  }, [activeVault?.id, keyToRotate, selectedSigner]);
 
   useFocusEffect(
     useCallback(() => {
@@ -129,6 +146,27 @@ function AddReserveKey({ route }) {
         .catch((err) => console.log('Failed to fetch the current chain data:', err));
     }
   }, []);
+
+  const userKeyCallback = useCallback(() => {
+    navigation.push('AddSigningDevice', {
+      parentScreen: ADDRESERVEKEY,
+      selectedSignersFromParams:
+        vaultKeys && vaultKeys.length > 0 ? vaultKeys : route.params.selectedSigners,
+      selectedReserveKey: selectedSigner,
+      scheme,
+      isAddInheritanceKey,
+      currentBlockHeight,
+      onGoBack: (signer) => setSelectedSigner(signer),
+    });
+  }, [
+    navigation,
+    vaultKeys,
+    route.params.selectedSigners,
+    selectedSigner,
+    scheme,
+    isAddInheritanceKey,
+    currentBlockHeight,
+  ]);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -239,9 +277,15 @@ function AddReserveKey({ route }) {
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}
-        vaultKeys={vaultKeys.filter((key) =>
-          keyToRotate ? getKeyUID(key) !== getKeyUID(keyToRotate) : true
-        )}
+        vaultKeys={vaultKeys
+          .filter((key) => (keyToRotate ? getKeyUID(key) !== getKeyUID(keyToRotate) : true))
+          .filter(
+            (signer) =>
+              signer.masterFingerprint !==
+              activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
+                INHERITANCE_KEY1_IDENTIFIER
+              ]
+          )}
         scheme={scheme}
         name={name}
         description={description}

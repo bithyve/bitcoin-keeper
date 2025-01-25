@@ -229,7 +229,7 @@ function SignTransactionScreen() {
   }, [sendAndReceive, snapshotOptions]);
 
   useEffect(() => {
-    if (relayVaultUpdate) {
+    if (relayVaultUpdate && intrimVault) {
       const navigationState = {
         index: 1,
         routes: [
@@ -252,7 +252,7 @@ function SignTransactionScreen() {
       showToast(`Error: ${realyVaultErrorMessage}`, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
     }
-  }, [relayVaultUpdate, relayVaultError]);
+  }, [relayVaultUpdate, relayVaultError, intrimVault]);
 
   useEffect(() => {
     if (isMigratingNewVault) {
