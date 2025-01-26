@@ -866,6 +866,9 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
     const { vaultId } = payload;
     const oldVault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON() as Vault;
     let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    if (!migratedVault) {
+      return;
+    }
     migratedVault = {
       ...migratedVault,
       archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,

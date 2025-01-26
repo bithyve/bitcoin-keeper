@@ -253,9 +253,9 @@ function AddReserveKey({ route }) {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title={'Inheritance Key Replaced Successfully'}
+        title={'Key Replaced Successfully'}
         subTitle={
-          'Your Inheritance Key was successfully replaced, you can continue to use your updated wallet.'
+          'Your key was successfully replaced, you can continue to use your updated wallet.'
         }
         Content={() => {
           return (
