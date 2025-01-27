@@ -212,6 +212,7 @@ function AddNewWallet({ navigation, route }) {
                   isTimeLock: false,
                   currentBlockHeight,
                   isAddInheritanceKey: inheritanceKeySelected,
+                  isNewSchemeFlow: true,
                   vaultId,
                 },
               })
