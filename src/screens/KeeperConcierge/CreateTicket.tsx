@@ -20,9 +20,8 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { CommonActions } from '@react-navigation/native';
 import Zendesk from 'src/services/backend/Zendesk';
-import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
+import { loadConciergeTickets, updateTicketCommentsCount } from 'src/store/reducers/concierge';
 import { getKeyUID } from 'src/utils/utilities';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppSelector } from 'src/store/hooks';
@@ -41,6 +40,7 @@ import CheckBoxActive from 'src/assets/images/checkbox_active.svg';
 import CheckBoxInactive from 'src/assets/images/checkbox_inactive.svg';
 import CheckBoxOutlineActive from 'src/assets/images/checkbox_outline_active.svg';
 import CheckBoxOutlineInActive from 'src/assets/images/checkbox_outline_inactive.svg';
+import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 
 const DEFAULT_SELECTED_DETAILS = {
   walletInfo: false,
@@ -73,6 +73,8 @@ const CreateTicket = ({ navigation, route }) => {
   const nodes: NodeDetail[] = Node.getAllNodes();
   const [selectedDetails, setSelectedDetails] = useState(DEFAULT_SELECTED_DETAILS);
   const allKeysTrue = Object.values(selectedDetails).every((value) => value);
+  const [showModal, setShowModal] = useState(false);
+  const [modalTicketId, setModalTicketId] = useState('');
 
   const DETAIL_OPTIONS = [
     {
@@ -217,15 +219,10 @@ const CreateTicket = ({ navigation, route }) => {
       });
       if (res.status === 201) {
         dispatch(updateTicketCommentsCount({ [res.data.ticket.id.toString()]: 1 }));
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'CreateTicket',
-            params: {
-              ticketCreated: true,
-              newTicketId: res.data.ticket.id,
-            },
-          })
-        );
+        const tickets = await Zendesk.fetchZendeskTickets(conciergeUser.id);
+        if (tickets.status === 200) dispatch(loadConciergeTickets(tickets.data.tickets));
+        setModalTicketId(res.data.ticket.id);
+        setShowModal(true);
       } else {
         showToast('Something went wrong. Please try again!', <ToastErrorIcon />);
         return;
@@ -273,6 +270,12 @@ const CreateTicket = ({ navigation, route }) => {
     if (selectedDetails.networkInfo) finalDetails += addNetworkInfo();
     setDesc(finalDetails);
     setSelectedDetails(DEFAULT_SELECTED_DETAILS);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setModalTicketId('');
+    navigation.pop();
   };
 
   return (
@@ -360,6 +363,24 @@ const CreateTicket = ({ navigation, route }) => {
           )}
         />
       </ContentWrapper>
+      <KeeperModal
+        visible={showModal}
+        title="Support Ticket Raised"
+        subTitle={`Your ticket reference number is #${modalTicketId}`}
+        close={closeModal}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
+        buttonText={'Okay'}
+        buttonCallback={closeModal}
+        Content={() => (
+          <Box style={styles.modal}>
+            <SuccessCircleIllustration style={styles.illustration} />
+            <Text color={`${colorMode}.secondaryText`} style={styles.modalDesc}>
+              Hi! Acknowledging your message. Someone from the team will get back to you shortly.
+            </Text>
+          </Box>
+        )}
+      />
     </ConciergeScreenWrapper>
   );
 };
@@ -412,6 +433,14 @@ const styles = StyleSheet.create({
     gap: wp(20),
     borderRadius: 12,
     borderWidth: 1,
+  },
+  illustration: {
+    marginBottom: hp(20),
+    marginRight: wp(15),
+    alignSelf: 'center',
+  },
+  modal: {
+    alignItems: 'center',
   },
 });
 

@@ -1,12 +1,11 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
-import ConciergeHeader from './components/ConciergeHeader';
 import ContentWrapper from 'src/components/ContentWrapper';
 import { Image, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import TicketHistory from './components/TicketHistory';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import {
   loadConciergeTickets,
@@ -16,7 +15,6 @@ import {
 } from 'src/store/reducers/concierge';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
-import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Zendesk from 'src/services/backend/Zendesk';
@@ -47,15 +45,8 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
 
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const {
-    newTicketId = '',
-    ticketCreated = false,
-    screenName = '',
-    tags = [],
-  } = route.params || {};
+  const { screenName = '', tags = [] } = route.params || {};
   const { showToast } = useToastMessage();
-  const [modalTicketId, setModalTicketId] = useState('');
   const [onboardCall, setOnboardCall] = useState(false);
 
   useEffect(() => {
@@ -71,18 +62,6 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       navigation.dispatch(CommonActions.goBack());
     }
   }, [conciergeUserFailed]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (ticketCreated && newTicketId) {
-        setShowModal(true);
-        getTickets();
-        setModalTicketId(newTicketId);
-        // @ts-ignore
-        navigation.setParams({ ticketCreated: false, newTicketId: '' });
-      }
-    }, [route.params])
-  );
 
   useEffect(() => {
     if (onboardCallSuccess) {
@@ -113,11 +92,6 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
     }
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setModalTicketId('');
-  };
-
   const closeOnboardCall = () => {
     setOnboardCall(false);
   };
@@ -146,25 +120,6 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
         />
       </ContentWrapper>
       <KeeperModal
-        visible={showModal}
-        title="Support Ticket Raised"
-        subTitle={`Your ticket reference number is #${modalTicketId}`}
-        close={closeModal}
-        showCloseIcon
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalWhiteContent`}
-        buttonText={'Okay'}
-        buttonCallback={closeModal}
-        Content={() => (
-          <Box style={styles.modal}>
-            <SuccessCircleIllustration style={styles.illustration} />
-            <Text color={`${colorMode}.secondaryText`} style={styles.modalDesc}>
-              Hi! Acknowledging your message. Someone from the team will get back to you shortly.
-            </Text>
-          </Box>
-        )}
-      />
-      <KeeperModal
         visible={onboardCall}
         close={closeOnboardCall}
         showCloseIcon
@@ -177,12 +132,6 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
 };
 
 const styles = StyleSheet.create({
-  modal: {
-    alignItems: 'center',
-  },
-  modalDesc: {
-    width: '95%',
-  },
   illustration: {
     marginBottom: hp(20),
     marginRight: wp(15),
