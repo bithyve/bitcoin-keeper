@@ -192,7 +192,8 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
               text: 'Backup',
               cta: () => {
                 if (backupHistory.length === 0) {
-                  navigtaion.navigate('AppSettings', {
+                  navigtaion.navigate('Home', {
+                    selectedOption: 'More',
                     isUaiFlow: true,
                   });
                 } else {

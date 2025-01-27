@@ -5,7 +5,6 @@ import { getRoutingInstrumentation } from 'src/services/sentry';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
-import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
 import ArchivedVault from 'src/screens/Vault/ArchivedVault';
 import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
@@ -203,7 +202,6 @@ function AppStack() {
         <Stack.Screen name="SetupPortal" component={SetupPortal} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="PassportConfigRecovery" component={PassportConfigRecovery} />
-        <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="ManageWallets" component={ManageWallets} />

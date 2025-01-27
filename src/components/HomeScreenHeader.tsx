@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useContext } from 'react';
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { Box } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
@@ -77,7 +77,8 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
       }),
     [uaiType.RECOVERY_PHRASE_HEALTH_CHECK]: () => {
       if (backupHistory.length === 0) {
-        navigtaion.navigate('AppSettings', {
+        navigtaion.navigate('Home', {
+          selectedOption: 'More',
           isUaiFlow: true,
         });
       } else {
@@ -97,7 +98,15 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
 
   return (
     <Box>
-      <Box backgroundColor={`${colorMode}.pantoneGreen`} style={[styles.wrapper]}>
+      <Box
+        backgroundColor={`${colorMode}.pantoneGreen`}
+        style={[
+          styles.wrapper,
+          isSmallDevice
+            ? { paddingTop: hp(10), minHeight: hp(117) }
+            : { paddingTop: hp(2), minHeight: hp(127) },
+        ]}
+      >
         <Box width="90%" style={styles.padding}>
           <Box
             style={[styles.headerData, { paddingTop: isSmallDevice ? wp(50) : wp(68) }]}
@@ -183,7 +192,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     position: 'relative',
-    minHeight: hp(127),
   },
   headerData: {
     flexDirection: 'row',
