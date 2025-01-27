@@ -25,6 +25,7 @@ import IconSettings from 'src/assets/images/settings.svg';
 import IconGreySettings from 'src/assets/images/settings_grey.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Colors from 'src/theme/Colors';
+import { useIsFocused } from '@react-navigation/native';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -117,6 +118,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const appCreationError = useAppSelector((state) => state.login.appCreationError);
   const { translations } = useContext(LocalizationContext);
   const { login, common } = translations;
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     if (appCreated) {
@@ -139,7 +141,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   }
 
   useEffect(() => {
-    if (appImageError) {
+    if (appImageError && isFocused) {
       showToast('Failed to get app image');
     }
   }, [appImageRecoverd, appImageError]);

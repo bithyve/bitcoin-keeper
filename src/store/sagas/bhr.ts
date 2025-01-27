@@ -158,7 +158,8 @@ export function* updateAppImageWorker({
   } catch (err) {
     console.log({ err });
     console.error('App image update failed', err);
-    return { updated: false, error: err };
+    yield put(setPendingAllBackup(true));
+    return { updated: true, error: '' };
   }
 }
 
@@ -222,7 +223,8 @@ export function* updateVaultImageWorker({
     return response;
   } catch (err) {
     captureError(err);
-    return { updated: false, error: err };
+    yield put(setPendingAllBackup(true));
+    return { updated: true, error: '' };
   }
 }
 
@@ -339,7 +341,7 @@ function* seedBackedUpWorker() {
 function* getAppImageWorker({ payload }) {
   const { primaryMnemonic } = payload;
   try {
-    yield put(setAppImageError(false));
+    yield put(setAppImageError(''));
     yield put(setAppRecoveryLoading(true));
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
@@ -404,8 +406,7 @@ function* getAppImageWorker({ payload }) {
     const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
     yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
   } catch (err) {
-    console.log(err);
-    yield put(setAppImageError(true));
+    yield put(setAppImageError(err.message));
   } finally {
     yield put(setAppRecoveryLoading(false));
     yield put(appImagerecoveryRetry());
