@@ -6,6 +6,7 @@ import { Box, HStack } from 'native-base';
 import useBalance from 'src/hooks/useBalance';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
+import { hp, wp } from 'src/constants/responsive';
 
 interface ICurrencyInfo {
   hideAmounts: boolean;
@@ -51,7 +52,7 @@ function CurrencyInfo({
             style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]}
             testID="view_hideCurrencyView"
           >
-            <Hidden color={color} />
+            <Hidden height={hp(45)} width={wp(45)} color={color} />
           </Box>
         )}
       </Box>
@@ -71,6 +72,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   hiddenContainer: {
-    marginLeft: 3,
+    marginRight: wp(2),
   },
 });
