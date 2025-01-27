@@ -1063,6 +1063,7 @@
     "analyticsDescription": "No personal or bitcoin data is shared",
     "changePasscode": "Change Passcode",
     "changePasscodeDescription": "The PIN used when logging in",
+    "personalCloudBackup": "Personal Cloud Backup",
     "deleteKeys": "Show and delete keys",
     "deleteKeysSubtitle": "for hidden keys",
     "currencyErrorTitle": "Currency Not Available",

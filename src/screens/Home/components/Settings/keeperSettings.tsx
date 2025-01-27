@@ -2,7 +2,6 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import Colors from 'src/theme/Colors';
 import PlebContainer from './Component/PlebContainer';
-import PlebIcon from 'src/assets/images/plebIcon.svg';
 import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
 import InheritanceDocumentIcon from 'src/assets/images/inheritanceDocumentIcon.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -49,7 +48,7 @@ const KeeperSettings = ({ route }) => {
         subtitleColor={`${colorMode}.whiteSecButtonText`}
         backgroundColor={Colors.coalGreen}
         onPress={() => navigation.navigate('ChoosePlan')}
-        icon={<PlebIcon width={30} height={30} />}
+        icon={currentPlan.icon}
       />
       <InheritanceDocument
         title={signer.inheritanceDocuments}
