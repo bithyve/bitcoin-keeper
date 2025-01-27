@@ -20,7 +20,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import AssignSignerTypeCard from './components/AssignSignerTypeCard';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_check.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useNavigation } from '@react-navigation/native';
@@ -47,11 +47,15 @@ function AssignSignerType({ route }: IProps) {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const [goBackSuccessMessage, setGoBackSuccessMessage] = useState('');
+  const [goBackErrorMessage, setGoBackErrorMessage] = useState('');
 
   useEffect(() => {
     if (relaySignersUpdate) {
       dispatch(resetSignersUpdateState());
-      showToast('Signer type updated successfully', <TickIcon />);
+      setGoBackSuccessMessage('Signer type updated successfully');
+    } else if (goBackSuccessMessage) {
+      showToast(goBackSuccessMessage, <TickIcon />);
       navigation.goBack();
     }
   }, [relaySignersUpdate]);
@@ -59,7 +63,9 @@ function AssignSignerType({ route }: IProps) {
   useEffect(() => {
     if (relaySignerUpdateError) {
       dispatch(resetSignersUpdateState());
-      showToast(realySignersUpdateErrorMessage, <ToastErrorIcon />);
+      setGoBackErrorMessage(realySignersUpdateErrorMessage);
+    } else if (goBackErrorMessage) {
+      showToast(goBackErrorMessage, <ToastErrorIcon />);
       navigation.goBack();
     }
   }, [relaySignerUpdateError]);

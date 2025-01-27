@@ -107,7 +107,7 @@ const updateInputsForFeeCalculation = (wallet: Wallet | Vault, inputUTXOs) => {
       }
     } else {
       if (isTaproot) {
-        u.script = { length: 15 }; // P2TR
+        u.script = { length: 24 }; // P2TR
       } else if (isNativeSegwit) {
         u.script = { length: 27 }; // P2WPKH
       } else if (isWrappedSegwit) {

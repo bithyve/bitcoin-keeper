@@ -353,7 +353,7 @@ function VaultMigrationController({
           throw Error(`Failed to prepare enhanced vault: ${err.message}`);
         }
         if (!vaultInfo) {
-          throw Error(`Failed to prepare enhanced vault`);
+          return;
         }
       }
 

@@ -446,8 +446,8 @@
     "confirmPassSubTitle": "To view recovery key please enter passcode",
     "SendSuccess": "Send Successful",
     "ViewDetails": "View Details",
-    "ViewWallets": "View Wallets",
-    "ManageWallets": "Manage Wallets",
+    "ViewWallets": "View Wallet",
+    "ManageWallets": "Manage Wallet",
     "ManageWalletsDesc": "Securely manage all your wallets",
 
     "approveTransVault": "Approve Transfer to vault",

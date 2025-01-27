@@ -781,8 +781,6 @@ function SendConfirmation({ route }) {
       };
     }
 
-    console.log('(sender as Vault).scheme.n');
-    console.log(JSON.stringify((sender as Vault).scheme, null, 2));
     return {
       title: (sender as Vault).scheme.n == 1 ? 'Use the regular key' : 'Use only regular keys',
       subtitle:
