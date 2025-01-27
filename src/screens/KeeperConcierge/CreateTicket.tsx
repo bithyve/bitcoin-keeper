@@ -180,7 +180,7 @@ const CreateTicket = ({ navigation, route }) => {
   const addAppData = () => {
     const isAppUpgraded = appVersionHistory.length > 1;
     const currentVersion = appVersionHistory.pop().version;
-    const installedVersion = appVersionHistory[0].version;
+    const installedVersion = appVersionHistory?.[0]?.version;
     const details = `\nMy Keeper app in on ${currentVersion} version${
       isAppUpgraded ? ` upgraded from version ${installedVersion}` : ''
     } on ${plan} tier\n*****\n`;
