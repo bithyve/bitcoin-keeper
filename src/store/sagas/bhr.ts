@@ -341,7 +341,7 @@ function* seedBackedUpWorker() {
 function* getAppImageWorker({ payload }) {
   const { primaryMnemonic } = payload;
   try {
-    yield put(setAppImageError(false));
+    yield put(setAppImageError(''));
     yield put(setAppRecoveryLoading(true));
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
@@ -406,8 +406,7 @@ function* getAppImageWorker({ payload }) {
     const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
     yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
   } catch (err) {
-    console.log(err);
-    yield put(setAppImageError(true));
+    yield put(setAppImageError(err.message));
   } finally {
     yield put(setAppRecoveryLoading(false));
     yield put(appImagerecoveryRetry());

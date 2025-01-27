@@ -427,6 +427,7 @@ export default class Relay {
       return data;
     } catch (err) {
       captureError(err);
+      if (err?.code == 'ERR_NETWORK') throw new Error('Network Error');
       throw new Error('Failed get App Image');
     }
   };
