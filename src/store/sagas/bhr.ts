@@ -992,6 +992,9 @@ function* backupAllSignersAndVaultsWorker() {
         nodesToUpdate.push(encryptedNode);
       }
     }
+
+    const labels = yield call(dbManager.getCollection, RealmSchema.Tags);
+
     yield call(Relay.backupAllSignersAndVaults, {
       appId: id,
       publicId,
@@ -1002,6 +1005,7 @@ function* backupAllSignersAndVaultsWorker() {
       subscription: JSON.stringify(subscription),
       version,
       nodes: nodesToUpdate,
+      labels,
     });
     yield put(setBackupAllSuccess(true));
     yield put(setPendingAllBackup(false));
@@ -1020,7 +1024,7 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
   BACKUP_ALL_SIGNERS_AND_VAULTS
 );
 
-function* checkBackupCondition() {
+export function* checkBackupCondition() {
   const { pendingAllBackup, automaticCloudBackup } = yield select((state: RootState) => state.bhr);
   if (!automaticCloudBackup) return true;
   const netInfo = yield call(NetInfo.fetch);
