@@ -149,7 +149,13 @@ function NewHomeScreen({ route }) {
 
       <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
       <Box style={styles.content}>{content}</Box>
-      <MenuFooter selectedOption={selectedOption} onOptionChange={handleOptionChange} />
+      <MenuFooter
+        selectedOption={selectedOption}
+        onOptionChange={(option) => {
+          route.params = {};
+          handleOptionChange(option);
+        }}
+      />
     </Box>
   );
 }
