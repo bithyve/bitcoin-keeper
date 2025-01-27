@@ -1010,6 +1010,7 @@ function AddSigningDevice() {
       currentBlockHeight?: number;
       selectedSignersFromParams?: Signer[];
       isAddInheritanceKey?: boolean;
+      isNewSchemeFlow?: boolean;
       signerFilters?: SignerType | Array<SignerType>;
     };
   };
@@ -1028,6 +1029,7 @@ function AddSigningDevice() {
     selectedSignersFromParams,
     isTimeLock = false,
     isAddInheritanceKey: isAddInheritanceKeyParam = false,
+    isNewSchemeFlow = false,
     currentBlockHeight,
     signerFilters = [],
   } = route.params;
@@ -1044,8 +1046,10 @@ function AddSigningDevice() {
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
   const { activeVault, allVaults } = useVault({ vaultId });
-  const scheme = activeVault ? activeVault.scheme : schemeParam;
-  const isAddInheritanceKey = activeVault
+  const scheme = isNewSchemeFlow ? schemeParam : activeVault ? activeVault.scheme : schemeParam;
+  const isAddInheritanceKey = isNewSchemeFlow
+    ? isAddInheritanceKeyParam
+    : activeVault
     ? activeVault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
         MiniscriptTypes.INHERITANCE
       )

@@ -20,7 +20,7 @@ function CardPill({ heading, backgroundColor, headingColor, cardStyle }: CardPil
       style={[styles.pillContainer, cardStyle && cardStyle]}
     >
       <Text
-        bold
+        semiBold
         style={styles.heading}
         color={headingColor || `${colorMode}.pillText`}
         numberOfLines={1}

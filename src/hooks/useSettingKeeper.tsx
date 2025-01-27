@@ -19,6 +19,9 @@ import AppSetIcon from 'src/assets/images/app-settng.svg';
 import ManageKeyIcon from 'src/assets/images/setting-manage-wallet-icon.svg';
 import ManageWalletIcon from 'src/assets/images/setting-hidden-Key-icon.svg';
 import CanaryIcon from 'src/assets/images/bird-white.svg';
+import PlebIcon from 'src/assets/images/plebIcon.svg';
+import HodlerIcon from 'src/assets/images/hodlerIcon.svg';
+import DiamondIcon from 'src/assets/images/diamondHandsIcon.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -85,18 +88,21 @@ export const useSettingKeeper = () => {
       title: signer.Pleb,
       subtitle: signer.Beginner,
       description: signer.selectPlan,
+      icon: <PlebIcon width={30} height={30} />,
     },
     {
       plan: SubscriptionTier.L2.toUpperCase(),
       title: signer.hodler,
       subtitle: signer.intermediate,
       description: signer.selectPlan,
+      icon: <HodlerIcon width={30} height={30} />,
     },
     {
       plan: SubscriptionTier.L3.toUpperCase(),
-      title: signer.diamondHand,
+      title: signer.diamondHands,
       subtitle: signer.advanced,
       description: signer.selectPlan,
+      icon: <DiamondIcon width={30} height={30} />,
     },
   ];
 

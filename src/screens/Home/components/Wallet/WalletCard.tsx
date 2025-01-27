@@ -116,22 +116,23 @@ const styles = StyleSheet.create({
   topLeftContainer: {
     position: 'absolute',
     top: 20,
-    left: 20,
+    left: wp(13),
     zIndex: 2,
     flexDirection: 'row',
     alignItems: 'center',
   },
   bottomContainer: {
     position: 'absolute',
-    bottom: hp(20),
-    left: 20,
-    right: 10,
+    bottom: hp(17),
+    left: wp(16),
+    right: wp(5),
     flexDirection: 'row',
     justifyContent: 'space-between',
     zIndex: 2,
   },
   bottomLeft: {
     flexDirection: 'column',
+    left: wp(3),
   },
   title: {
     fontSize: 15,
@@ -143,6 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     flex: 1,
+    marginTop: hp(5),
   },
   pillsContainer: {
     flexDirection: 'row',
