@@ -375,6 +375,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             totalBalance={vault.specs.balances.confirmed + vault.specs.balances.unconfirmed}
             description={vault.presentationData.description}
             wallet={vault}
+            allowHideBalance={false}
           />
         </Box>
       </VStack>

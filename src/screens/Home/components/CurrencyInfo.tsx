@@ -31,19 +31,21 @@ function CurrencyInfo({
   return (
     <HStack style={styles.vaultBalanceContainer} testID="view_currencyView">
       <Box style={styles.rowCenter}>
-        {getCurrencyIcon(BTC, variation)}
         {!hideAmounts ? (
-          <Box style={styles.rowCenter}>
-            <Text
-              color={color}
-              style={{ fontSize, paddingVertical: 5, maxWidth: balanceMaxWidth || null }}
-              bold={bold}
-              numberOfLines={1}
-              testID="text_balance"
-            >
-              {` ${getBalance(amount)} ${getSatUnit()}`}
-            </Text>
-          </Box>
+          <>
+            {!getSatUnit() && getCurrencyIcon(BTC, variation)}
+            <Box style={styles.rowCenter}>
+              <Text
+                color={color}
+                style={{ fontSize, paddingVertical: 5, maxWidth: balanceMaxWidth || null }}
+                bold={bold}
+                numberOfLines={1}
+                testID="text_balance"
+              >
+                {` ${getBalance(amount)} ${getSatUnit()}`}
+              </Text>
+            </Box>
+          </>
         ) : (
           <Box
             style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]}

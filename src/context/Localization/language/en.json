@@ -345,7 +345,7 @@
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions",
     "advancedDetails": "Advanced Details",
-    "transactionHistory": "Transaction History",
+    "transactionHistory": "Transactions History",
     "viewAllRecords": "View all your records"
   },
   "DiscountCodes": {
@@ -1226,7 +1226,7 @@
     "Beginner": "Beginner",
     "hodler": "Hodler",
     "intermediate": "Intermediate",
-    "diamondHand": "Diamond Hand",
+    "diamondHands": "Diamond Hands",
     "advanced": "Advanced",
     "inheritanceDocuments": "Inheritance Documents",
     "bitcoinSecurity": "Bitcoin security tools and tips",

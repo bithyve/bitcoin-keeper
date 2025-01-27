@@ -348,7 +348,7 @@
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions",
     "advancedDetails": "Advanced Details",
-    "transactionHistory": "Transaction History",
+    "transactionHistory": "Transactions History",
     "viewAllRecords": "View all your records"
   },
   "DiscountCodes": {
@@ -1340,7 +1340,7 @@
     "designateAsInheritanceKey": "Designate a key as the Inheritance Key",
     "hodler": "Hodler",
     "intermediate": "Intermediate",
-    "diamondHand": "Diamond Hand",
+    "diamondHands": "Diamond Hands",
     "advanced": "Advanced",
     "autoBackup": "Automatic Cloud Backup",
     "autoBackupDesc": "Backup your Keeper app to cloud automatically"

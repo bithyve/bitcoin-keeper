@@ -47,6 +47,7 @@ const HomeWallet = () => {
   const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
     (item) => item !== null
   );
+  const [isShowAmount, setIsShowAmount] = useState(false);
 
   const handleCollaborativeWalletCreation = () => {
     setShowAddWalletModal(false);
@@ -110,6 +111,8 @@ const HomeWallet = () => {
           totalBalance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
           description={item.presentationData.description}
           wallet={item}
+          isShowAmount={isShowAmount}
+          setIsShowAmount={setIsShowAmount}
         />
       </TouchableOpacity>
     );

@@ -695,7 +695,7 @@ function SendConfirmation({ route }) {
         title="Select Signing Option"
         subTitle={`\nSelect how you would like to sign.\n\nUsing the regular option is better to reduce the transaction fee${
           sender.entityKind === EntityKind.VAULT &&
-          (sender as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.length == 1 &&
+          (sender as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes?.length == 1 &&
           (sender as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes?.includes(
             MiniscriptTypes.INHERITANCE
           )
