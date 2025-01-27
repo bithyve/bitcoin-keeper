@@ -158,7 +158,8 @@ export function* updateAppImageWorker({
   } catch (err) {
     console.log({ err });
     console.error('App image update failed', err);
-    return { updated: false, error: err };
+    yield put(setPendingAllBackup(true));
+    return { updated: true, error: '' };
   }
 }
 
@@ -222,7 +223,8 @@ export function* updateVaultImageWorker({
     return response;
   } catch (err) {
     captureError(err);
-    return { updated: false, error: err };
+    yield put(setPendingAllBackup(true));
+    return { updated: true, error: '' };
   }
 }
 
