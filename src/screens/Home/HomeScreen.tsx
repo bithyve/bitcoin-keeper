@@ -42,14 +42,9 @@ function NewHomeScreen({ route }) {
     selectedOptionFromRoute || wallet.homeWallets
   );
 
-  const handleOptionChange = (option) => {
-    setSelectedOption(option);
-  };
-
   useEffect(() => {
     if (selectedOptionFromRoute && selectedOptionFromRoute !== selectedOption) {
       setSelectedOption(selectedOptionFromRoute);
-      navigation.setParams({ selectedOption: null });
     }
   }, [selectedOptionFromRoute]);
 
@@ -152,8 +147,7 @@ function NewHomeScreen({ route }) {
       <MenuFooter
         selectedOption={selectedOption}
         onOptionChange={(option) => {
-          route.params = {};
-          handleOptionChange(option);
+          navigation.navigate('Home', { selectedOption: option });
         }}
       />
     </Box>

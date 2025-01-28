@@ -51,7 +51,7 @@ function MockWrapper({
         const navigationState = addSignerFlow
           ? {
               name: 'Home',
-              params: { addedSigner: signer },
+              params: { selectedOption: 'Keys', addedSigner: signer },
             }
           : {
               name: 'AddSigningDevice',

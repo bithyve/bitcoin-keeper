@@ -209,8 +209,8 @@ function ConnectChannel() {
           dispatch(addSigningDevice([signer]));
           const navigationState = addSignerFlow
             ? {
-                name: 'ManageSigners',
-                params: { addedSigner: signer },
+                name: 'Home',
+                params: { selectedOption: 'Keys', addedSigner: signer },
               }
             : {
                 name: 'AddSigningDevice',

@@ -79,6 +79,17 @@ const ManageKeys = ({ addedSigner }) => {
     }, [relaySignersUpdate])
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      if (addedSigner) {
+        setKeyAddedModalVisible(true);
+      }
+      return () => {
+        navigation.setParams({ addedSigner: null });
+      };
+    }, [])
+  );
+
   return (
     <Box style={styles.containerWrapper}>
       <Box style={styles.contentContainer}>

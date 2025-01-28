@@ -203,7 +203,7 @@ function SetupTapsigner({ route }) {
         const navigationState = addSignerFlow
           ? {
               name: 'Home',
-              params: { addedSigner: tapsigner },
+              params: { selectedOption: 'Keys', addedSigner: tapsigner },
             }
           : {
               name: 'AddSigningDevice',

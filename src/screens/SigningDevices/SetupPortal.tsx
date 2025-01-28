@@ -234,7 +234,12 @@ function SetupPortal({ route }) {
         const navigationState = addSignerFlow
           ? {
               name: 'Home',
-              params: { addedSigner: portalSigner, addSignerFlow, showModal: true },
+              params: {
+                selectedOption: 'Keys',
+                addedSigner: portalSigner,
+                addSignerFlow,
+                showModal: true,
+              },
             }
           : {
               name: 'AddSigningDevice',
@@ -332,7 +337,12 @@ function SetupPortal({ route }) {
       const navigationState = addSignerFlow
         ? {
             name: 'Home',
-            params: { addedSigner: portalSigner, addSignerFlow, showModal: true },
+            params: {
+              selectedOption: 'Keys',
+              addedSigner: portalSigner,
+              addSignerFlow,
+              showModal: true,
+            },
           }
         : {
             name: 'AddSigningDevice',
