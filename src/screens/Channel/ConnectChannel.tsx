@@ -49,8 +49,10 @@ function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const [channelCreated, setChannelCreated] = useState(false);
 
   const callback = (data) => {
-    onBarCodeRead(data);
-    setChannelCreated(true);
+    let success = onBarCodeRead(data);
+    if (success) {
+      setChannelCreated(true);
+    }
   };
 
   return !channelCreated ? (
@@ -136,44 +138,58 @@ function ConnectChannel() {
   }
 
   const onBarCodeRead = (data) => {
-    decryptionKey.current = data;
-    const sha = crypto.createHash('sha256');
-    sha.update(data);
-    room = sha.digest().toString('hex');
-    const requestBody: RequestBody = {
-      action:
-        mode === InteracationMode.ADDRESS_VERIFICATION
-          ? EMIT_MODES.VERIFY_ADDRESS
-          : mode == EMIT_MODES.HEALTH_CHECK
-          ? EMIT_MODES.HEALTH_CHECK
-          : EMIT_MODES.ADD_DEVICE,
-      signerType,
-    };
-    if (mode === InteracationMode.ADDRESS_VERIFICATION) {
-      requestBody.descriptorString = descriptorString;
-      requestBody.miniscriptPolicy = miniscriptPolicy;
-      requestBody.addressIndex = addressIndex;
-      requestBody.walletName = walletName;
-      requestBody.hmac = hmac;
-      requestBody.receivingAddress = receivingAddress;
-    } else {
-      requestBody.accountNumber = accountNumber;
-    }
-    const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-    console.log(room);
-    channel.emit(JOIN_CHANNEL, {
-      room,
-      network: config.NETWORK_TYPE,
-      requestData,
-    });
-    if (mode === InteracationMode.ADDRESS_VERIFICATION) {
-      setNewTitle(`Verify Address on ${signer.signerName}`);
-      setNewSubtitle(
-        'Please follow the instructions on the desktop app. Make sure the address you see here matches the one on your hardware device screen.'
-      );
-      setNewNote(
-        'Only use the address from Keeper mobile app if it matches the address displayed on your device'
-      );
+    try {
+      decryptionKey.current = data;
+      const sha = crypto.createHash('sha256');
+      sha.update(data);
+      room = sha.digest().toString('hex');
+      const requestBody: RequestBody = {
+        action:
+          mode === InteracationMode.ADDRESS_VERIFICATION
+            ? EMIT_MODES.VERIFY_ADDRESS
+            : mode == EMIT_MODES.HEALTH_CHECK
+            ? EMIT_MODES.HEALTH_CHECK
+            : EMIT_MODES.ADD_DEVICE,
+        signerType,
+      };
+      if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+        requestBody.descriptorString = descriptorString;
+        requestBody.miniscriptPolicy = miniscriptPolicy;
+        requestBody.addressIndex = addressIndex;
+        requestBody.walletName = walletName;
+        requestBody.hmac = hmac;
+        requestBody.receivingAddress = receivingAddress;
+      } else {
+        requestBody.accountNumber = accountNumber;
+      }
+      const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
+      channel.emit(JOIN_CHANNEL, {
+        room,
+        network: config.NETWORK_TYPE,
+        requestData,
+      });
+      if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+        setNewTitle(`Verify Address on ${signer.signerName}`);
+        setNewSubtitle(
+          'Please follow the instructions on the desktop app. Make sure the address you see here matches the one on your hardware device screen.'
+        );
+        setNewNote(
+          'Only use the address from Keeper mobile app if it matches the address displayed on your device'
+        );
+      }
+      return true;
+    } catch (error) {
+      console.log('Error in onBarCodeRead:', error);
+      if (error.message && error.message.includes('TypeError: invalid key length 1')) {
+        showToast(
+          'QR scanned is invalid, please make sure to scan the QR from the Keeper Desktop app.',
+          <ToastErrorIcon />
+        );
+      } else {
+        showToast('Failed to connect to the Desktop App, please try again', <ToastErrorIcon />);
+      }
+      return false;
+      // throw error;
     }
   };
 

@@ -50,7 +50,7 @@ const DEFAULT_SELECTED_DETAILS = {
 };
 
 const CreateTicket = ({ navigation, route }) => {
-  const { screenName, tags } = route.params;
+  const { screenName, tags, errorDetails } = route.params;
   const { concierge: conciergeText } = useContext(LocalizationContext).translations;
   const { colorMode } = useColorMode();
   const textAreaRef = useRef(null);
@@ -130,7 +130,11 @@ const CreateTicket = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    if (!desc.length && screenName.length) {
+    if (errorDetails) {
+      setDesc(
+        `Hi, I have encountered the following error while using the app:\n${errorDetails}\n\nAt app navigation state: ${screenName}\n*****\n`
+      );
+    } else if (!desc.length && screenName.length) {
       setDesc(`Hi, I need some help with ${screenName}(${tags.join(', ')})\n*****\n`);
     }
     const timer = setTimeout(() => {
@@ -222,6 +226,7 @@ const CreateTicket = ({ navigation, route }) => {
         const tickets = await Zendesk.fetchZendeskTickets(conciergeUser.id);
         if (tickets.status === 200) dispatch(loadConciergeTickets(tickets.data.tickets));
         setModalTicketId(res.data.ticket.id);
+        Keyboard.dismiss();
         setShowModal(true);
       } else {
         showToast('Something went wrong. Please try again!', <ToastErrorIcon />);

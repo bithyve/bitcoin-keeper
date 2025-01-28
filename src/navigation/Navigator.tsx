@@ -1,11 +1,15 @@
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
-import React, { useContext, useRef } from 'react';
+import {
+  CommonActions,
+  DefaultTheme,
+  NavigationContainer,
+  useNavigation,
+} from '@react-navigation/native';
+import React, { useContext, useRef, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { getRoutingInstrumentation } from 'src/services/sentry';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
-import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
 import ArchivedVault from 'src/screens/Vault/ArchivedVault';
 import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
@@ -149,42 +153,66 @@ import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
 import NotificationsCenter from 'src/screens/Home/Notifications/NotificationsCenter';
 import SettingsApp from 'src/screens/Home/components/Settings/AppSettings';
 import InheritanceDocumentScreen from 'src/screens/Home/components/Settings/InheritanceDocumentScreen';
+import KeeperModal from 'src/components/KeeperModal';
+import { Box } from 'native-base';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import ErrorIllustration from 'src/assets/images/invalid-seed-illustration.svg';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen options={{ gestureEnabled: false }} name="Splash" component={SplashScreen} />
-      <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
-      <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
-      <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
-      <Stack.Screen name="NodeSettings" component={NodeSettings} />
-      <Stack.Screen name="NodeSelection" component={NodeSelection} />
-      <Stack.Screen name="ScanNode" component={ScanNode} />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="Splash"
+        component={withErrorBoundary(SplashScreen)}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="Login"
+        component={withErrorBoundary(Login)}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="CreatePin"
+        component={withErrorBoundary(CreatePin)}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="ResetPin"
+        component={withErrorBoundary(ResetPin)}
+      />
+      <Stack.Screen name="NodeSettings" component={withErrorBoundary(NodeSettings)} />
+      <Stack.Screen name="NodeSelection" component={withErrorBoundary(NodeSelection)} />
+      <Stack.Screen name="ScanNode" component={withErrorBoundary(ScanNode)} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="OnBoardingSlides"
-        component={OnBoardingSlides}
+        component={withErrorBoundary(OnBoardingSlides)}
       />
       <Stack.Screen
         name="NewKeeperApp"
         options={{ gestureEnabled: false }}
-        component={NewKeeperApp}
+        component={withErrorBoundary(NewKeeperApp)}
       />
       {/* Cold Card */}
-      <Stack.Screen name="AddColdCardRecovery" component={SetupColdCard} />
+      <Stack.Screen name="AddColdCardRecovery" component={withErrorBoundary(SetupColdCard)} />
       {/* Tap Signer  */}
-      <Stack.Screen name="AddTapsignerRecovery" component={SetupTapsigner} />
+      <Stack.Screen name="AddTapsignerRecovery" component={withErrorBoundary(SetupTapsigner)} />
       {/* QR Based SDs */}
-      <Stack.Screen options={{ gestureEnabled: false }} name="ScanQR" component={ScanQR} />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="ScanQR"
+        component={withErrorBoundary(ScanQR)}
+      />
       {/* Channel Based SDs */}
-      <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
+      <Stack.Screen name="ConnectChannel" component={withErrorBoundary(ConnectChannel)} />
       {/* Mobile Key, Seed Key */}
-      <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
-      <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
+      <Stack.Screen name="EnterSeedScreen" component={withErrorBoundary(EnterSeedScreen)} />
+      <Stack.Screen name="UnlockTapsigner" component={withErrorBoundary(UnlockTapsigner)} />
       {/* Other SD */}
-      <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
+      <Stack.Screen name="SetupOtherSDScreen" component={withErrorBoundary(SetupOtherSDScreen)} />
     </Stack.Navigator>
   );
 }
@@ -194,150 +222,350 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="NotificationsCenter" component={NotificationsCenter} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="SignerCategoryList" component={SignerCategoryList} />
-        <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
-        <Stack.Screen name="TapsignerAction" component={SetupTapsigner} />
-        <Stack.Screen name="SetupPortal" component={SetupPortal} />
-        <Stack.Screen name="AddColdCard" component={SetupColdCard} />
-        <Stack.Screen name="PassportConfigRecovery" component={PassportConfigRecovery} />
-        <Stack.Screen name="AppSettings" component={AppSettings} />
-        <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
-        <Stack.Screen name="TorSettings" component={TorSettings} />
-        <Stack.Screen name="ManageWallets" component={ManageWallets} />
-        <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
-        <Stack.Screen name="PreviewPDF" component={PreviewPDF} />
-        <Stack.Screen name="InheritanceStatus" component={InheritanceStatus} />
-        <Stack.Screen name="InheritanceSetupInfo" component={InheritanceSetupInfo} />
-        <Stack.Screen name="IKSAddEmailPhone" component={IKSAddEmailPhone} />
-        <Stack.Screen name="EnterOTPEmailConfirmation" component={EnterOTPEmailConfirmation} />
-        <Stack.Screen name="Send" component={SendScreen} />
-        <Stack.Screen name="SelectWallet" component={SelectWalletScreen} />
-        <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
-        <Stack.Screen name="Receive" component={ReceiveScreen} />
-        <Stack.Screen name="SignerSelectionListScreen" component={SignerSelectionListScreen} />
-        <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
-        <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
-        <Stack.Screen name="ConfirmWalletDetails" component={ConfirmWalletDetails} />
-        <Stack.Screen name="EnterWalletPath" component={WalletPathScreen} />
-        <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
-        <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
-        <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
-        <Stack.Screen name="SeedDetails" component={SeedDetailsScreen} />
-        <Stack.Screen name="ImportWalletDetails" component={ImportWalletDetailsScreen} />
-        <Stack.Screen name="AddDetailsFinal" component={AddDetailsFinalScreen} />
-        <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
-        <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
-        <Stack.Screen name="PSBTSendConfirmation" component={PSBTSendConfirmation} />
-        <Stack.Screen name="WalletDetails" component={WalletDetails} />
-        <Stack.Screen name="VaultDetails" component={VaultDetails} />
-        <Stack.Screen name="UTXOManagement" component={UTXOManagement} />
-        <Stack.Screen name="WalletSettings" component={WalletSettings} />
-        <Stack.Screen name="BackupWallet" component={BackupWallet} />
-        <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
-        <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
-        <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />
-        <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
-        <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
-        <Stack.Screen name="InheritanceToolsAndTips" component={InheritanceToolsAndTips} />
-        <Stack.Screen name="DiscountCodes" component={DiscountCodes} />
-        <Stack.Screen name="CanaryWallets" component={CanaryWallets} />
-        <Stack.Screen name="AssistedKeys" component={AssistedKeys} />
-        <Stack.Screen name="SafeKeepingTips" component={SafeKeepingTips} />
-        <Stack.Screen name="SafeGuardingTips" component={SafeGuardingTips} />
-        <Stack.Screen name="MasterRecoveryKey" component={MasterRecoveryKey} />
-        <Stack.Screen name="PersonalCloudBackup" component={PersonalCloudBackup} />
-        <Stack.Screen name="WalletConfigurationFiles" component={WalletConfigurationFiles} />
-        <Stack.Screen name="BackupAndRecoveryTips" component={BackupAndRecoveryTips} />
-        <Stack.Screen name="LetterOfAttorney" component={LetterOfAttorney} />
-        <Stack.Screen name="RecoveryInstruction" component={RecoveryInstruction} />
-        <Stack.Screen name="PrintableTemplates" component={PrintableTemplates} />
-        <Stack.Screen name="InheritanceTips" component={InheritanceTips} />
-        <Stack.Screen name="RecoveryPhraseTemplate" component={RecoveryPhraseTemplate} />
-        <Stack.Screen name="TrustedContactTemplates" component={TrustedContactTemplates} />
+        <Stack.Screen name="Home" component={withErrorBoundary(HomeScreen)} />
+        <Stack.Screen
+          name="NotificationsCenter"
+          component={withErrorBoundary(NotificationsCenter)}
+        />
+        <Stack.Screen name="Login" component={withErrorBoundary(Login)} />
+        <Stack.Screen name="SignerCategoryList" component={withErrorBoundary(SignerCategoryList)} />
+        <Stack.Screen name="SigningDeviceList" component={withErrorBoundary(SigningDeviceList)} />
+        <Stack.Screen name="TapsignerAction" component={withErrorBoundary(SetupTapsigner)} />
+        <Stack.Screen name="SetupPortal" component={withErrorBoundary(SetupPortal)} />
+        <Stack.Screen name="AddColdCard" component={withErrorBoundary(SetupColdCard)} />
+        <Stack.Screen
+          name="PassportConfigRecovery"
+          component={withErrorBoundary(PassportConfigRecovery)}
+        />
+        <Stack.Screen name="AppVersionHistory" component={withErrorBoundary(AppVersionHistory)} />
+        <Stack.Screen name="TorSettings" component={withErrorBoundary(TorSettings)} />
+        <Stack.Screen name="ManageWallets" component={withErrorBoundary(ManageWallets)} />
+        <Stack.Screen name="SetupInheritance" component={withErrorBoundary(SetupInheritance)} />
+        <Stack.Screen name="PreviewPDF" component={withErrorBoundary(PreviewPDF)} />
+        <Stack.Screen name="InheritanceStatus" component={withErrorBoundary(InheritanceStatus)} />
+        <Stack.Screen
+          name="InheritanceSetupInfo"
+          component={withErrorBoundary(InheritanceSetupInfo)}
+        />
+        <Stack.Screen name="IKSAddEmailPhone" component={withErrorBoundary(IKSAddEmailPhone)} />
+        <Stack.Screen
+          name="EnterOTPEmailConfirmation"
+          component={withErrorBoundary(EnterOTPEmailConfirmation)}
+        />
+        <Stack.Screen name="Send" component={withErrorBoundary(SendScreen)} />
+        <Stack.Screen name="SelectWallet" component={withErrorBoundary(SelectWalletScreen)} />
+        <Stack.Screen name="UTXOLabeling" component={withErrorBoundary(UTXOLabeling)} />
+        <Stack.Screen name="Receive" component={withErrorBoundary(ReceiveScreen)} />
+        <Stack.Screen
+          name="SignerSelectionListScreen"
+          component={withErrorBoundary(SignerSelectionListScreen)}
+        />
+        <Stack.Screen name="ChangeLanguage" component={withErrorBoundary(ChangeLanguage)} />
+        <Stack.Screen name="ChoosePlan" component={withErrorBoundary(ChoosePlan)} />
+        <Stack.Screen
+          name="ConfirmWalletDetails"
+          component={withErrorBoundary(ConfirmWalletDetails)}
+        />
+        <Stack.Screen name="EnterWalletPath" component={withErrorBoundary(WalletPathScreen)} />
+        <Stack.Screen
+          name="UpdateWalletDetails"
+          component={withErrorBoundary(UpdateWalletDetails)}
+        />
+        <Stack.Screen
+          name="WalletDetailsSettings"
+          component={withErrorBoundary(WalletDetailsSettings)}
+        />
+        <Stack.Screen name="ExportSeed" component={withErrorBoundary(ExportSeedScreen)} />
+        <Stack.Screen name="SeedDetails" component={withErrorBoundary(SeedDetailsScreen)} />
+        <Stack.Screen
+          name="ImportWalletDetails"
+          component={withErrorBoundary(ImportWalletDetailsScreen)}
+        />
+        <Stack.Screen name="AddDetailsFinal" component={withErrorBoundary(AddDetailsFinalScreen)} />
+        <Stack.Screen name="AddSendAmount" component={withErrorBoundary(AddSendAmount)} />
+        <Stack.Screen name="SendConfirmation" component={withErrorBoundary(SendConfirmation)} />
+        <Stack.Screen
+          name="PSBTSendConfirmation"
+          component={withErrorBoundary(PSBTSendConfirmation)}
+        />
+        <Stack.Screen name="WalletDetails" component={withErrorBoundary(WalletDetails)} />
+        <Stack.Screen name="VaultDetails" component={withErrorBoundary(VaultDetails)} />
+        <Stack.Screen name="UTXOManagement" component={withErrorBoundary(UTXOManagement)} />
+        <Stack.Screen name="WalletSettings" component={withErrorBoundary(WalletSettings)} />
+        <Stack.Screen name="BackupWallet" component={withErrorBoundary(BackupWallet)} />
+        <Stack.Screen
+          name="SigningDeviceDetails"
+          component={withErrorBoundary(SigningDeviceDetails)}
+        />
+        <Stack.Screen
+          name="WalletBackHistory"
+          component={withErrorBoundary(WalletBackHistoryScreen)}
+        />
+        <Stack.Screen name="AppBackupSettings" component={withErrorBoundary(AppBackupSettings)} />
+        <Stack.Screen
+          name="SignTransactionScreen"
+          component={withErrorBoundary(SignTransactionScreen)}
+        />
+        <Stack.Screen name="AddSigningDevice" component={withErrorBoundary(AddSigningDevice)} />
+        <Stack.Screen
+          name="InheritanceToolsAndTips"
+          component={withErrorBoundary(InheritanceToolsAndTips)}
+        />
+        <Stack.Screen name="DiscountCodes" component={withErrorBoundary(DiscountCodes)} />
+        <Stack.Screen name="CanaryWallets" component={withErrorBoundary(CanaryWallets)} />
+        <Stack.Screen name="AssistedKeys" component={withErrorBoundary(AssistedKeys)} />
+        <Stack.Screen name="SafeKeepingTips" component={withErrorBoundary(SafeKeepingTips)} />
+        <Stack.Screen name="SafeGuardingTips" component={withErrorBoundary(SafeGuardingTips)} />
+        <Stack.Screen name="MasterRecoveryKey" component={withErrorBoundary(MasterRecoveryKey)} />
+        <Stack.Screen
+          name="PersonalCloudBackup"
+          component={withErrorBoundary(PersonalCloudBackup)}
+        />
+        <Stack.Screen
+          name="WalletConfigurationFiles"
+          component={withErrorBoundary(WalletConfigurationFiles)}
+        />
+        <Stack.Screen
+          name="BackupAndRecoveryTips"
+          component={withErrorBoundary(BackupAndRecoveryTips)}
+        />
+        <Stack.Screen name="LetterOfAttorney" component={withErrorBoundary(LetterOfAttorney)} />
+        <Stack.Screen
+          name="RecoveryInstruction"
+          component={withErrorBoundary(RecoveryInstruction)}
+        />
+        <Stack.Screen name="PrintableTemplates" component={withErrorBoundary(PrintableTemplates)} />
+        <Stack.Screen name="InheritanceTips" component={withErrorBoundary(InheritanceTips)} />
+        <Stack.Screen
+          name="RecoveryPhraseTemplate"
+          component={withErrorBoundary(RecoveryPhraseTemplate)}
+        />
+        <Stack.Screen
+          name="TrustedContactTemplates"
+          component={withErrorBoundary(TrustedContactTemplates)}
+        />
         <Stack.Screen
           name="AdditionalSignerDetailsTemplate"
-          component={AdditionalSignerDetailsTemplate}
+          component={withErrorBoundary(AdditionalSignerDetailsTemplate)}
         />
 
-        <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
-        <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
-        <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
-        <Stack.Screen name="VaultSettings" component={VaultSettings} />
-        <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
-        <Stack.Screen name="ChoosePolicyNew" component={ChoosePolicyNew} />
-        <Stack.Screen name="AddDescription" component={AddDescription} />
-        <Stack.Screen name="AllTransactions" component={AllTransactions} />
-        <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
-        <Stack.Screen name="TransactionHistory" component={TransactionHistory} />
-        <Stack.Screen name="TransactionAdvancedDetails" component={TransactionAdvancedDetails} />
-        <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
-        <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
-        <Stack.Screen name="ScanQR" component={ScanQR} />
-        <Stack.Screen name="ShowPSBT" component={ShowPSBT} />
-        <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
-        <Stack.Screen name="SignWithQR" component={SignWithQR} />
-        <Stack.Screen name="NodeSettings" component={NodeSettings} />
-        <Stack.Screen name="NodeSelection" component={NodeSelection} />
-        <Stack.Screen name="ScanNode" component={ScanNode} />
-        <Stack.Screen name="PrivacyAndDisplay" component={PrivacyAndDisplay} />
-        <Stack.Screen name="NetworkSetting" component={NetworkSetting} />
-        <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
-        <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
-        <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
-        <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
-        <Stack.Screen name="PoolSelection" component={PoolSelection} />
-        <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
-        <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
-        <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
-        <Stack.Screen name="AdditionalDetails" component={AdditionalDetails} />
-        <Stack.Screen name="KeyHistory" component={KeyHistory} />
-        <Stack.Screen name="RemoteSharing" component={RemoteSharing} />
-        <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
-        <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
-        <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
-        <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
-        <Stack.Screen name="ChangeTapsignerPin" component={ChangeTapsignerPin} />
-        <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
-        <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
-        <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
-        <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
+        <Stack.Screen name="SetupSigningServer" component={withErrorBoundary(SetupSigningServer)} />
+        <Stack.Screen
+          name="SetupSeedWordSigner"
+          component={withErrorBoundary(SetupSeedWordSigner)}
+        />
+        <Stack.Screen name="ArchivedVault" component={withErrorBoundary(ArchivedVault)} />
+        <Stack.Screen name="VaultSettings" component={withErrorBoundary(VaultSettings)} />
+        <Stack.Screen name="SignWithColdCard" component={withErrorBoundary(SignWithColdCard)} />
+        <Stack.Screen name="ChoosePolicyNew" component={withErrorBoundary(ChoosePolicyNew)} />
+        <Stack.Screen name="AddDescription" component={withErrorBoundary(AddDescription)} />
+        <Stack.Screen name="AllTransactions" component={withErrorBoundary(AllTransactions)} />
+        <Stack.Screen name="TransactionDetails" component={withErrorBoundary(TransactionDetails)} />
+        <Stack.Screen name="TransactionHistory" component={withErrorBoundary(TransactionHistory)} />
+        <Stack.Screen
+          name="TransactionAdvancedDetails"
+          component={withErrorBoundary(TransactionAdvancedDetails)}
+        />
+        <Stack.Screen name="TimelockScreen" component={withErrorBoundary(TimelockScreen)} />
+        <Stack.Screen
+          name="SignerAdvanceSettings"
+          component={withErrorBoundary(SignerAdvanceSettings)}
+        />
+        <Stack.Screen name="ScanQR" component={withErrorBoundary(ScanQR)} />
+        <Stack.Screen name="ShowPSBT" component={withErrorBoundary(ShowPSBT)} />
+        <Stack.Screen name="RegisterWithQR" component={withErrorBoundary(RegisterWithQR)} />
+        <Stack.Screen name="SignWithQR" component={withErrorBoundary(SignWithQR)} />
+        <Stack.Screen name="NodeSettings" component={withErrorBoundary(NodeSettings)} />
+        <Stack.Screen name="NodeSelection" component={withErrorBoundary(NodeSelection)} />
+        <Stack.Screen name="ScanNode" component={withErrorBoundary(ScanNode)} />
+        <Stack.Screen name="PrivacyAndDisplay" component={withErrorBoundary(PrivacyAndDisplay)} />
+        <Stack.Screen name="NetworkSetting" component={withErrorBoundary(NetworkSetting)} />
+        <Stack.Screen name="ConnectChannel" component={withErrorBoundary(ConnectChannel)} />
+        <Stack.Screen
+          name="RegisterWithChannel"
+          component={withErrorBoundary(RegisterWithChannel)}
+        />
+        <Stack.Screen name="SetupOtherSDScreen" component={withErrorBoundary(SetupOtherSDScreen)} />
+        <Stack.Screen name="SignWithChannel" component={withErrorBoundary(SignWithChannel)} />
+        <Stack.Screen name="PoolSelection" component={withErrorBoundary(PoolSelection)} />
+        <Stack.Screen name="BroadcastPremix" component={withErrorBoundary(BroadcastPremix)} />
+        <Stack.Screen
+          name="WhirlpoolConfiguration"
+          component={withErrorBoundary(WhirlpoolConfiguration)}
+        />
+        <Stack.Screen name="CosignerDetails" component={withErrorBoundary(CosignerDetails)} />
+        <Stack.Screen name="AdditionalDetails" component={withErrorBoundary(AdditionalDetails)} />
+        <Stack.Screen name="KeyHistory" component={withErrorBoundary(KeyHistory)} />
+        <Stack.Screen name="RemoteSharing" component={withErrorBoundary(RemoteSharing)} />
+        <Stack.Screen
+          name="GenerateVaultDescriptor"
+          component={withErrorBoundary(GenerateVaultDescriptor)}
+        />
+        <Stack.Screen
+          name="SetupCollaborativeWallet"
+          component={withErrorBoundary(SetupCollaborativeWallet)}
+        />
+        <Stack.Screen name="EnterSeedScreen" component={withErrorBoundary(EnterSeedScreen)} />
+        <Stack.Screen name="UnlockTapsigner" component={withErrorBoundary(UnlockTapsigner)} />
+        <Stack.Screen name="ChangeTapsignerPin" component={withErrorBoundary(ChangeTapsignerPin)} />
+        <Stack.Screen name="UTXOSelection" component={withErrorBoundary(UTXOSelection)} />
+        <Stack.Screen
+          name="VaultConfigurationCreation"
+          component={withErrorBoundary(VaultConfigurationCreation)}
+        />
+        <Stack.Screen name="ScanQRFileRecovery" component={withErrorBoundary(ScanQRFileRecovery)} />
+        <Stack.Screen
+          name="SigningDeviceConfigRecovery"
+          component={withErrorBoundary(SigningDeviceConfigRecovery)}
+        />
         <Stack.Screen
           name="MixProgress"
-          component={MixProgress}
+          component={withErrorBoundary(MixProgress)}
           options={{ gestureEnabled: false }}
         />
-        <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
-        <Stack.Screen name="AddNewWallet" component={AddNewWallet} />
-        <Stack.Screen name="SettingApp" component={SettingsApp} />
-        <Stack.Screen name="InheritanceDocumentScreen" component={InheritanceDocumentScreen} />
-        <Stack.Screen name="ManageSigners" component={ManageSigners} />
-        <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
-        <Stack.Screen name="CloudBackup" component={CloudBackupScreen} />
-        <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
-        <Stack.Screen name="HandleFile" component={HandleFileScreen} />
-        <Stack.Screen name="AssistedWalletTimeline" component={AssistedWalletTimeline} />
-        <Stack.Screen name="SetupAssistedVault" component={SetupAssistedVault} />
-        <Stack.Screen name="AssociateContact" component={AssociateContact} />
-        <Stack.Screen name="AddContact" component={AddContact} />
-        <Stack.Screen name="ContactProfile" component={ContactProfile} />
-        <Stack.Screen name="EditContact" component={EditContact} />
-        <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
-        <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
-        <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
-        <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
-        <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
-        <Stack.Screen name="TicketDetails" component={TicketDetails} />
-        <Stack.Screen name="CreateTicket" component={CreateTicket} />
-        <Stack.Screen name="ImportContactFile" component={ImportContactFile} />
-        <Stack.Screen name="ContactDetails" component={ContactDetails} />
-        <Stack.Screen name="ShareQR" component={ShareQR} />
+        <Stack.Screen name="AssignSignerType" component={withErrorBoundary(AssignSignerType)} />
+        <Stack.Screen name="AddNewWallet" component={withErrorBoundary(AddNewWallet)} />
+        <Stack.Screen name="SettingApp" component={withErrorBoundary(SettingsApp)} />
+        <Stack.Screen
+          name="InheritanceDocumentScreen"
+          component={withErrorBoundary(InheritanceDocumentScreen)}
+        />
+        <Stack.Screen name="ManageSigners" component={withErrorBoundary(ManageSigners)} />
+        <Stack.Screen name="BuyBitcoin" component={withErrorBoundary(BuyBitcoinScreen)} />
+        <Stack.Screen name="CloudBackup" component={withErrorBoundary(CloudBackupScreen)} />
+        <Stack.Screen name="DeleteKeys" component={withErrorBoundary(DeleteKeys)} />
+        <Stack.Screen name="HandleFile" component={withErrorBoundary(HandleFileScreen)} />
+        <Stack.Screen
+          name="AssistedWalletTimeline"
+          component={withErrorBoundary(AssistedWalletTimeline)}
+        />
+        <Stack.Screen name="SetupAssistedVault" component={withErrorBoundary(SetupAssistedVault)} />
+        <Stack.Screen name="AssociateContact" component={withErrorBoundary(AssociateContact)} />
+        <Stack.Screen name="AddContact" component={withErrorBoundary(AddContact)} />
+        <Stack.Screen name="ContactProfile" component={withErrorBoundary(ContactProfile)} />
+        <Stack.Screen name="EditContact" component={withErrorBoundary(EditContact)} />
+        <Stack.Screen
+          name="ManageTapsignerSettings"
+          component={withErrorBoundary(ManageTapsignerSettings)}
+        />
+        <Stack.Screen name="AddReserveKey" component={withErrorBoundary(AddReserveKey)} />
+        <Stack.Screen
+          name="ResetInheritanceKey"
+          component={withErrorBoundary(ResetInheritanceKey)}
+        />
+        <Stack.Screen name="KeeperConcierge" component={withErrorBoundary(KeeperConcierge)} />
+        <Stack.Screen name="TechnicalSupport" component={withErrorBoundary(TechnicalSupport)} />
+        <Stack.Screen name="TicketDetails" component={withErrorBoundary(TicketDetails)} />
+        <Stack.Screen name="CreateTicket" component={withErrorBoundary(CreateTicket)} />
+        <Stack.Screen name="ImportContactFile" component={withErrorBoundary(ImportContactFile)} />
+        <Stack.Screen name="ContactDetails" component={withErrorBoundary(ContactDetails)} />
+        <Stack.Screen name="ShareQR" component={withErrorBoundary(ShareQR)} />
       </Stack.Navigator>
     </RealmProvider>
   );
 }
+
+// Create a functional component for the error UI
+function ErrorFallback({ resetError, error }: { resetError: () => void; error: any }) {
+  const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(true);
+  const { colorMode } = useColorMode();
+
+  const handleGoBack = () => {
+    setModalVisible(false);
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      resetError();
+    }
+  };
+
+  const handleReportIssue = () => {
+    setModalVisible(false);
+    resetError();
+    const navigationState = {
+      index: 1,
+      routes: [
+        { name: 'Home' },
+        {
+          name: 'CreateTicket',
+          params: {
+            tags: [ConciergeTag.ERROR_REPORT],
+            screenName: navigation
+              .getState()
+              .routes.map((route) => route.name)
+              .join(' -> '),
+            errorDetails: error.toString(),
+          },
+        },
+      ],
+    };
+    navigation.dispatch(CommonActions.reset(navigationState));
+  };
+
+  return (
+    <Box style={{ flex: 1 }}>
+      <KeeperModal
+        visible={modalVisible}
+        title="Keeper Encountered an Error"
+        subTitle="Keeper has encountered an error, please send the issue report to our concierge team and we will help you resolve the issue."
+        close={handleGoBack}
+        showCloseIcon
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
+        buttonText="Report Issue"
+        buttonCallback={handleReportIssue}
+        secondaryButtonText="Go Back"
+        secondaryCallback={handleGoBack}
+        Content={() => (
+          <Box style={{ alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <ErrorIllustration />
+          </Box>
+        )}
+      />
+    </Box>
+  );
+}
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; errorEncountered: any }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, errorEncountered: null };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, errorEncountered: error };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.log('Error caught:', error, errorInfo);
+  }
+
+  resetError = () => {
+    this.setState({ hasError: false, errorEncountered: null });
+  };
+
+  render(): React.ReactNode {
+    if (this.state.hasError) {
+      return <ErrorFallback resetError={this.resetError} error={this.state.errorEncountered} />;
+    }
+    return this.props.children;
+  }
+}
+
+// Create ErrorBoundary wrapper component
+function withErrorBoundary(WrappedComponent: React.ComponentType<any>) {
+  return function WithErrorBoundaryComponent(props: any) {
+    return (
+      <ErrorBoundary>
+        <WrappedComponent {...props} />
+      </ErrorBoundary>
+    );
+  };
+}
+
 function Navigator() {
   const Stack = createNativeStackNavigator();
   const navigation = useRef();

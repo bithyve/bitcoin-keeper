@@ -182,14 +182,6 @@ function VaultMigrationController({
     }
   };
 
-  const vaultAlreadyExists = (vaultInfo: NewVaultInfo) => {
-    const allVaultIds = allVaults.map((vault) => vault.id);
-    const deletedVaultIds = archivedVaults.map((vault) => vault.id);
-
-    const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
-    return allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId);
-  };
-
   const getTimelockDuration = (miniscriptTypes, selectedDuration, networkType) => {
     const durationIdentifier =
       selectedDuration === MONTHS_3
@@ -357,8 +349,8 @@ function VaultMigrationController({
         }
       }
 
-      if (vaultAlreadyExists(vaultInfo)) {
-        throw Error('Vault with this configuration already exists.');
+      if (vaultAlreadyExists(vaultInfo, allVaults, archivedVaults)) {
+        throw Error('Wallet with this configuration already exists.');
       }
 
       if (activeVault) {
@@ -379,5 +371,13 @@ function VaultMigrationController({
 
   return null;
 }
+
+export const vaultAlreadyExists = (vaultInfo: NewVaultInfo, allVaults, archivedVaults) => {
+  const allVaultIds = allVaults.map((vault) => vault.id);
+  const deletedVaultIds = archivedVaults.map((vault) => vault.id);
+
+  const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
+  return allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId);
+};
 
 export default VaultMigrationController;
