@@ -1,6 +1,6 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import PenLight from 'src/assets/images/pen-light.svg';
 import PenDark from 'src/assets/images/pen-dark.svg';
@@ -33,7 +33,7 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
             primaryText="Ask the team"
             primaryCallback={onPress}
             RightIcon={isDarkMode ? PenLight : PenDark}
-            width={wp(windowWidth * 0.9)}
+            width={Platform.OS === 'ios' ? wp(windowWidth * 0.87) : wp(windowWidth * 0.9)}
           />
         </Box>
       )}
