@@ -82,6 +82,15 @@ export const useSettingKeeper = () => {
     if (!automaticCloudBackup) dispatch(backupAllSignersAndVaults());
     else dispatch(setAutomaticCloudBackup(false));
   };
+
+  const toggleDebounce = (callback, delay = 300) => {
+    let timeoutId;
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => callback(), delay);
+    };
+  };
+
   const planData = [
     {
       plan: SubscriptionTier.L1.toUpperCase(),
@@ -130,15 +139,19 @@ export const useSettingKeeper = () => {
       onPress: () => navigation.navigate('CloudBackup'),
       isDiamond: true,
     },
+
     {
       title: signer.autoBackup,
       description: signer.autoBackupDesc,
       icon: <DarkModeIcon width={14} height={14} />,
-      onPress: () => toggleAutomaticBackupMode(),
+      onPress: toggleDebounce(() => toggleAutomaticBackupMode()),
       rightIcon: (
-        <Switch onValueChange={() => toggleAutomaticBackupMode()} value={automaticCloudBackup} />
+        <Switch
+          onValueChange={toggleDebounce(() => toggleAutomaticBackupMode())}
+          value={automaticCloudBackup}
+        />
       ),
-      onRightPress: () => toggleAutomaticBackupMode(),
+      onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
       isDiamond: false,
     },
   ];
@@ -148,15 +161,15 @@ export const useSettingKeeper = () => {
       title: settings.DarkMode,
       description: settings.DarkModeSubTitle,
       icon: <DarkModeIcon width={14} height={14} />,
-      onPress: () => changeThemeMode(),
+      onPress: toggleDebounce(() => changeThemeMode()),
       rightIcon: (
         <Switch
-          onValueChange={() => changeThemeMode()}
+          onValueChange={toggleDebounce(() => changeThemeMode())}
           value={colorMode === 'dark'}
           testID="switch_darkmode"
         />
       ),
-      onRightPress: () => changeThemeMode(),
+      onRightPress: toggleDebounce(() => changeThemeMode()),
       isDiamond: false,
     },
     {

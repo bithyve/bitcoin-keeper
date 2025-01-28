@@ -33,7 +33,7 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
             primaryText="Ask the team"
             primaryCallback={onPress}
             RightIcon={isDarkMode ? PenLight : PenDark}
-            width={wp(windowWidth * 0.87)}
+            width={wp(windowWidth * 0.9)}
           />
         </Box>
       )}

@@ -25,6 +25,8 @@ import useVault from 'src/hooks/useVault';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
+import SettingIconWhite from 'src/assets/images/settings-gear.svg';
+
 import CardPill from 'src/components/CardPill';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
@@ -359,7 +361,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                     }
               }
             >
-              <SettingIcon width={24} height={24} />
+              {isDarkMode ? (
+                <SettingIconWhite width={24} height={24} />
+              ) : (
+                <SettingIcon width={24} height={24} />
+              )}
             </TouchableOpacity>
           }
         />

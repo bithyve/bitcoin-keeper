@@ -18,7 +18,7 @@ const HistoryTitle = () => {
   const { colorMode } = useColorMode();
   const isSmaller = useIsSmallDevices();
   return (
-    <Box style={[styles.historyTitle, { top: isSmaller ? hp(-50) : hp(-50) }]}>
+    <Box style={[styles.historyTitle]}>
       <Text color={`${colorMode}.GreyText`} fontSize={13}>
         Your Ticket History
       </Text>
@@ -94,12 +94,11 @@ const TicketHistory = ({ onPressCTA, screenName, tags, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: hp(20),
+    paddingBottom: hp(10),
     flex: 1,
   },
   historyTitle: {
-    position: 'absolute',
-    left: wp(22),
+    paddingHorizontal: wp(22),
   },
   emptyStateContainer: {
     flex: 0.8,

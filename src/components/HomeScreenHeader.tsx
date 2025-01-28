@@ -7,7 +7,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import NotificationDotIcon from 'src/assets/images/header-notifications-dot-icon.svg';
 import { capitalizeEachWord } from 'src/utils/utilities';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import useUaiStack, { uaiPriorityMap } from 'src/hooks/useUaiStack';
 import XIcon from 'src/assets/images/x.svg';
@@ -32,7 +31,6 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   title,
 }) => {
   const navigation = useNavigation();
-  const isSmallDevice = useIsSmallDevices();
   const dispatch = useDispatch();
   const { uaiStack } = useUaiStack();
   const navigtaion = useNavigation();
@@ -108,10 +106,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
         ]}
       >
         <Box width="90%" style={styles.padding}>
-          <Box
-            style={[styles.headerData, { paddingTop: isSmallDevice ? wp(50) : wp(68) }]}
-            testID={`btn_choosePlan`}
-          >
+          <Box style={[styles.headerData]} testID={`btn_choosePlan`}>
             {circleIconWrapper}
             <Text
               testID="text_home_current_plan"
@@ -123,7 +118,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
             </Text>
           </Box>
 
-          <Box style={[styles.headerData, { paddingTop: isSmallDevice ? wp(50) : wp(68) }]}>
+          <Box style={[styles.headerData]}>
             <TouchableOpacity
               style={{ padding: 5 }}
               testID="btn_settings"
@@ -196,6 +191,7 @@ const styles = StyleSheet.create({
   headerData: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingTop: wp(68),
     gap: 10,
   },
   headerText: {
