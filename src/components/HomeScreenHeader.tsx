@@ -108,7 +108,13 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
         ]}
       >
         <Box width="90%" style={styles.padding}>
-          <Box style={[styles.headerData]} testID={`btn_choosePlan`}>
+          <Box
+            style={[
+              styles.headerData,
+              isSmallDevice ? { paddingTop: wp(50) } : { paddingTop: wp(68) },
+            ]}
+            testID={`btn_choosePlan`}
+          >
             {circleIconWrapper}
             <Text
               testID="text_home_current_plan"
@@ -120,7 +126,12 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
             </Text>
           </Box>
 
-          <Box style={[styles.headerData]}>
+          <Box
+            style={[
+              styles.headerData,
+              isSmallDevice ? { paddingTop: wp(50) } : { paddingTop: wp(68) },
+            ]}
+          >
             <TouchableOpacity
               style={{ padding: 5 }}
               testID="btn_settings"
@@ -193,7 +204,6 @@ const styles = StyleSheet.create({
   headerData: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: wp(68),
     gap: 10,
   },
   headerText: {
