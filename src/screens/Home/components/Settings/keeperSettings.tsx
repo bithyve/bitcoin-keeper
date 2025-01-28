@@ -148,7 +148,8 @@ const styles = StyleSheet.create({
   bottomNav: {
     width: windowWidth * 0.89,
     flexDirection: 'row',
-    gap: wp(12),
+    gap: wp(10),
+
     justifyContent: 'center',
     marginBottom: hp(10),
   },

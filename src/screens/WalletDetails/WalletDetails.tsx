@@ -8,6 +8,7 @@ import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import SettingIcon from 'src/assets/images/settings-gear-green.svg';
+import SettingIconWhite from 'src/assets/images/settings-gear.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -160,7 +161,11 @@ function WalletDetails({ route }: ScreenProps) {
                 navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
               }
             >
-              <SettingIcon width={24} height={24} />
+              {isDarkMode ? (
+                <SettingIconWhite width={24} height={24} />
+              ) : (
+                <SettingIcon width={24} height={24} />
+              )}
             </TouchableOpacity>
           }
         />

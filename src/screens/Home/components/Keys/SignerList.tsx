@@ -1,7 +1,7 @@
 import { CommonActions } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
-import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
+import { Platform, ScrollView, StyleSheet, ViewStyle } from 'react-native';
 import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
@@ -105,9 +105,9 @@ export default SignerList;
 const styles = StyleSheet.create({
   wrapper: {
     display: 'flex',
-    paddingLeft: 15,
     justifyContent: 'center',
     alignContent: 'center',
+    ...(Platform.OS === 'ios' ? { paddingLeft: wp(15) } : {}),
   },
   addedSignersContainer: {
     flexDirection: 'row',
