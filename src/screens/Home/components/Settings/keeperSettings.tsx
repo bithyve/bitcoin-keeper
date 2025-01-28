@@ -104,7 +104,7 @@ const KeeperSettings = ({ route }) => {
           <NavButton
             icon={colorMode === 'dark' ? <NosterDarkIcon /> : <NosterIcon />}
             heading="Nostr"
-            link="https://twitter.com/bitcoinKeeper_"
+            link="https://primal.net/p/npub1mlzukkwhuhl3y7wd6kw20fz6s99l8d0uqtj4sskhvaaud8rwcuuszt2t6p"
           />
         </Box>
         <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>

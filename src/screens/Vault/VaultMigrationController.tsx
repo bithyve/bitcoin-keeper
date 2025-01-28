@@ -358,7 +358,7 @@ function VaultMigrationController({
       }
 
       if (vaultAlreadyExists(vaultInfo)) {
-        throw Error('Vault with this configuration already exists.');
+        throw Error('Wallet with this configuration already exists.');
       }
 
       if (activeVault) {

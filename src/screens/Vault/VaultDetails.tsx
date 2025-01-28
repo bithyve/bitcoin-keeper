@@ -198,7 +198,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   } = route.params || {};
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const { vaultSigners: keys } = useSigners(vault.id);
@@ -222,6 +221,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const isAssistedWallet = vault.type === VaultType.ASSISTED;
   const isCanaryWallet = vault.type === VaultType.CANARY;
+  const introModal =
+    useAppSelector((state) => state.vault.introModal) && (isCollaborativeWallet || isCanaryWallet);
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = vault || { signers: [] };
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);

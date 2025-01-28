@@ -328,16 +328,6 @@ export const getDeviceStatus = (
       } else {
         return { message: '', disabled: false };
       }
-    case SignerType.MY_KEEPER:
-    case SignerType.KEEPER:
-      return !addSignerFlow && scheme?.n < 2
-        ? {
-            message: `You can add an ${getSignerNameFromType(
-              type
-            )} in a multisig configuration only`,
-            disabled: true,
-          }
-        : { message: '', disabled: false };
     case SignerType.POLICY_SERVER:
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
     case SignerType.INHERITANCEKEY:
