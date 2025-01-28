@@ -9,12 +9,14 @@ function ConciergeScreenWrapper({
   paddingHorizontal = 0,
   barStyle,
   loading = false,
+  wrapperStyle = {},
 }: {
   children: any;
   barStyle?: StatusBarStyle;
   backgroundcolor?: any;
   paddingHorizontal?: number;
   loading?: boolean;
+  wrapperStyle?: any;
 }) {
   const { colorMode } = useColorMode();
   const computedBarStyle = barStyle ?? (colorMode === 'light' ? 'dark-content' : 'light-content');
@@ -23,7 +25,7 @@ function ConciergeScreenWrapper({
       safeAreaTop
       background={backgroundcolor}
       backgroundColor={backgroundcolor}
-      style={[styles.wrapper, { paddingHorizontal: paddingHorizontal }]}
+      style={[styles.wrapper, { paddingHorizontal: paddingHorizontal }, wrapperStyle]}
     >
       <StatusBar barStyle={computedBarStyle} backgroundColor="transparent" />
       {children}
@@ -51,6 +53,5 @@ export default ConciergeScreenWrapper;
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    paddingTop: hp(0),
   },
 });

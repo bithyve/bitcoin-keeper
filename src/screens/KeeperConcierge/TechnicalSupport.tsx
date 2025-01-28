@@ -101,7 +101,11 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   };
 
   return (
-    <ConciergeScreenWrapper barStyle="light-content" loading={loading || conciergeLoading}>
+    <ConciergeScreenWrapper
+      barStyle="light-content"
+      loading={loading || conciergeLoading}
+      wrapperStyle={{ paddingTop: hp(0) }}
+    >
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         <TicketHistory
           onPressCTA={() => setOnboardCall(true)}
