@@ -18,6 +18,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getUaiContent } from 'src/screens/Home/Notifications/NotificationsCenter';
 import { setRefreshUai } from 'src/store/reducers/uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -37,6 +38,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const backupHistory = useQuery(RealmSchema.BackupHistory);
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
+  const isSmallDevice = useIsSmallDevices();
 
   useFocusEffect(
     useCallback(() => {
