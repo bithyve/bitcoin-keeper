@@ -133,7 +133,7 @@ function AddNewWallet({ navigation, route }) {
     }
   };
   const onDecreaseN = () => {
-    if (scheme.n > 2 && scheme.n > scheme.m) {
+    if (scheme.n > 1 && scheme.n > scheme.m) {
       Vibration.vibrate(50);
       setScheme({ ...scheme, n: scheme.n - 1 });
     }
@@ -258,7 +258,7 @@ function AddNewWallet({ navigation, route }) {
                 color={`${colorMode}.primaryText`}
                 testID="text_totalKeys"
               >
-                Total Keys in Wallet
+                Total Keys in the Wallet
               </Text>
               <Text
                 style={{ fontSize: 12 }}

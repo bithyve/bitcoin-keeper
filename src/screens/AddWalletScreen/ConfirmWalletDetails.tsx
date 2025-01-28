@@ -54,6 +54,7 @@ import { getKeyUID } from 'src/utils/utilities';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import useSigners from 'src/hooks/useSigners';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -101,6 +102,8 @@ function ConfirmWalletDetails({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const vaultType = route.params.vaultType;
+
+  const isSmallDevice = useIsSmallDevices();
 
   const { signers } = useSigners();
 
@@ -423,7 +426,12 @@ function ConfirmWalletDetails({ route }) {
           </Pressable>
         </Box>
         <ScrollView>
-          <Box flexDirection={'row'} flex={1} marginTop={hp(20)} flexWrap={'wrap'}>
+          <Box
+            flexDirection={'row'}
+            flex={1}
+            marginTop={isSmallDevice ? hp(4) : hp(20)}
+            flexWrap={'wrap'}
+          >
             {route.params.selectedSigners.map((signer) => {
               return (
                 <SignerCard
@@ -502,20 +510,25 @@ function ConfirmWalletDetails({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         showCloseIcon={false}
-        Content={() => (
-          <Box style={styles.descriptionInput}>
-            <KeeperTextInput
-              ref={(input) => {
-                descriptionInputRef.current = input ? input.value : '';
-              }}
-              placeholder="Add a description (Optional)"
-              defaultValue={descriptionInputRef.current}
-              onChangeText={onDescriptionChange}
-              testID="vault_description"
-              maxLength={20}
-            />
-          </Box>
-        )}
+        Content={() => {
+          const [description, setDescription] = useState(descriptionInputRef.current);
+
+          return (
+            <Box style={styles.descriptionInput}>
+              <KeeperTextInput
+                placeholder="Add a description (Optional)"
+                value={description}
+                onChangeText={(value) => {
+                  setDescription(value);
+                  descriptionInputRef.current = value;
+                  onDescriptionChange(value);
+                }}
+                testID="vault_description"
+                maxLength={20}
+              />
+            </Box>
+          );
+        }}
         buttonText="Save Changes"
         buttonCallback={() => {
           setShowDescriptionModal(false);
@@ -691,7 +704,7 @@ const styles = StyleSheet.create({
   },
   editKeysContainer: {
     flexDirection: 'row',
-    gap: 5,
+    gap: hp(5),
     alignItems: 'center',
     paddingHorizontal: wp(16),
   },

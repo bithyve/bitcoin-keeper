@@ -192,7 +192,8 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
               text: 'Backup',
               cta: () => {
                 if (backupHistory.length === 0) {
-                  navigtaion.navigate('AppSettings', {
+                  navigtaion.navigate('Home', {
+                    selectedOption: 'More',
                     isUaiFlow: true,
                   });
                 } else {
@@ -252,6 +253,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
             primary: {
               text: 'View',
               cta: () => {
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
                 navigtaion.navigate('TicketDetails', {
                   ticketId: parseInt(uai.entityId),
                   ticketStatus: uai.uaiDetails.heading,

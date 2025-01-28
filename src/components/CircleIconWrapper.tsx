@@ -2,29 +2,36 @@ import { Box } from 'native-base';
 import { Image, StyleSheet, PixelRatio } from 'react-native';
 
 type Props = {
-  icon: Element;
+  icon: React.ReactElement;
   width?: number;
   backgroundColor?: string;
   image?: string;
 };
 
 function CircleIconWrapper({ icon, width = 50, backgroundColor, image = null }: Props) {
-  const scaledWidth = PixelRatio.roundToNearestPixel(width);
-
+  const scaledWidth = PixelRatio.roundToNearestPixel(width || 50);
   return (
     <Box
-      width={scaledWidth}
-      height={scaledWidth}
-      borderRadius={scaledWidth / 2}
       backgroundColor={backgroundColor}
-      style={styles.alignItems}
+      style={[
+        styles.alignItems,
+        {
+          width: scaledWidth,
+          height: scaledWidth,
+          borderRadius: scaledWidth / 2,
+        },
+      ]}
     >
       {image ? (
         <Image
           source={{ uri: image }}
           style={[
             styles.associatedContactImage,
-            { width: scaledWidth * 0.5, height: scaledWidth * 0.5, borderRadius: scaledWidth / 2 },
+            {
+              width: scaledWidth * 0.5,
+              height: scaledWidth * 0.5,
+              borderRadius: scaledWidth * 0.25,
+            },
           ]}
         />
       ) : (

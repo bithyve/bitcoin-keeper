@@ -25,6 +25,8 @@ import useVault from 'src/hooks/useVault';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
+import SettingIconWhite from 'src/assets/images/settings-gear.svg';
+
 import CardPill from 'src/components/CardPill';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
@@ -198,7 +200,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   } = route.params || {};
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const { vaultSigners: keys } = useSigners(vault.id);
@@ -222,6 +223,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const isAssistedWallet = vault.type === VaultType.ASSISTED;
   const isCanaryWallet = vault.type === VaultType.CANARY;
+  const introModal =
+    useAppSelector((state) => state.vault.introModal) && (isCollaborativeWallet || isCanaryWallet);
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = vault || { signers: [] };
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
@@ -358,7 +361,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                     }
               }
             >
-              <SettingIcon width={24} height={24} />
+              {isDarkMode ? (
+                <SettingIconWhite width={24} height={24} />
+              ) : (
+                <SettingIcon width={24} height={24} />
+              )}
             </TouchableOpacity>
           }
         />

@@ -123,7 +123,8 @@ export default function CreatePin(props) {
           <Passwordlock />
         </Box>
         <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
-          You would be locked out of the app if you forget your passcode and will have to recover it
+          You will be locked out of the app if you forget your passcode and will have to recover it
+          using the Recovery Key.
         </Text>
       </Box>
     );
@@ -192,7 +193,7 @@ export default function CreatePin(props) {
         close={() => {}}
         title="Remember your passcode"
         subTitle="Please remember your passcode and backup your app by writing down the 12-word Recovery
-        Key"
+        Key."
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
