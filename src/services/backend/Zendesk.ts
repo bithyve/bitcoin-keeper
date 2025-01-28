@@ -136,6 +136,10 @@ export default class Zendesk {
       }
 
       body.ticket.priority = `${isDev ? 'normal' : 'urgent'}`;
+      body.ticket.custom_fields = [
+        ...(body?.ticket?.custom_fields ?? []),
+        { id: 24752059256477, value: config.ENVIRONMENT },
+      ];
       const res = await zendeskApi.post(zendeskEndpoints.createTicket, body);
       return { data: res.data, status: res.status };
     } catch (error) {

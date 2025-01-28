@@ -253,6 +253,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
             primary: {
               text: 'View',
               cta: () => {
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
                 navigtaion.navigate('TicketDetails', {
                   ticketId: parseInt(uai.entityId),
                   ticketStatus: uai.uaiDetails.heading,
