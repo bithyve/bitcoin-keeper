@@ -185,13 +185,12 @@ export default SignerList;
 const styles = StyleSheet.create({
   wrapper: {
     display: 'flex',
-    justifyContent: 'center',
     alignContent: 'center',
   },
   addedSignersContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: wp(4),
+    gap: wp(2),
     paddingBottom: 20,
   },
 });

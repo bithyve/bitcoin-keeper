@@ -19,20 +19,32 @@ import NosterDarkIcon from 'src/assets/images/noster-white.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
 import TelegramDark from 'src/assets/images/Telegram-white.svg';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import SettingModal from './Component/SettingModal';
 import { useSettingKeeper } from 'src/hooks/useSettingKeeper';
 import usePlan from 'src/hooks/usePlan';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { useAppSelector } from 'src/store/hooks';
+import KeeperModal from 'src/components/KeeperModal';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { signer, inheritancePlanning, settings, common } = translations;
-  const { BackAndRecovery, General, keysAndwallet, Tips, confirmPass, planData } =
-    useSettingKeeper();
+  const {
+    BackAndRecovery,
+    General,
+    keysAndwallet,
+    Tips,
+    confirmPass,
+    setConfirmPass,
+    planData,
+    hiddenKeyPass,
+    setHiddenKeyPass,
+  } = useSettingKeeper();
+
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
 
   useEffect(() => {
@@ -46,6 +58,7 @@ const KeeperSettings = ({ route }) => {
   const { plan } = usePlan();
   const currentPlan = planData.find((p) => p.plan === plan);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
+  const onSuccess = () => navigation.dispatch(CommonActions.navigate('DeleteKeys'));
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -144,8 +157,34 @@ const KeeperSettings = ({ route }) => {
           </Pressable>
         </Box>
       </Box>
-      <SettingModal isUaiFlow={isUaiFlow} confirmPass={confirmPass} />
+      <SettingModal
+        isUaiFlow={isUaiFlow}
+        confirmPass={confirmPass}
+        setConfirmPass={setConfirmPass}
+      />
       <ActivityIndicatorView visible={backupAllLoading} showLoader />
+      <KeeperModal
+        visible={hiddenKeyPass}
+        closeOnOverlayClick={false}
+        close={() => {
+          setHiddenKeyPass(false);
+        }}
+        title={settings.EnterPasscodeTitle}
+        subTitleWidth={wp(240)}
+        subTitle={settings.EnterPasscodeSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics={false}
+            close={() => {
+              setHiddenKeyPass(false);
+            }}
+            onSuccess={onSuccess}
+          />
+        )}
+      />
     </ScrollView>
   );
 };
