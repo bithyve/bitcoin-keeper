@@ -79,16 +79,16 @@ const ManageKeys = ({ addedSigner }) => {
     }, [relaySignersUpdate])
   );
 
-  useFocusEffect(
-    useCallback(() => {
+  useEffect(() => {
+    if (addedSigner) {
+      setKeyAddedModalVisible(true);
+    }
+    return () => {
       if (addedSigner) {
-        setKeyAddedModalVisible(true);
-      }
-      return () => {
         navigation.setParams({ addedSigner: null });
-      };
-    }, [])
-  );
+      }
+    };
+  }, []);
 
   return (
     <Box style={styles.containerWrapper}>
@@ -118,7 +118,7 @@ export default ManageKeys;
 
 const styles = StyleSheet.create({
   containerWrapper: {
-    paddingHorizontal: wp(5),
+    paddingHorizontal: '4.5%',
   },
   contentContainer: {
     flexDirection: 'row',
