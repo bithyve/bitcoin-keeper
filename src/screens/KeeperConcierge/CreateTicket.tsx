@@ -117,7 +117,7 @@ const CreateTicket = ({ navigation, route }) => {
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
-      setKeyboardHeight(e.endCoordinates.height - (isiOS ? hp(32) : 0));
+      setKeyboardHeight(e.endCoordinates.height - (isiOS ? hp(10) : 0));
     });
     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', (e) => {
       setKeyboardHeight(0);

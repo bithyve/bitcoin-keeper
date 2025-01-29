@@ -52,6 +52,7 @@ export const useSettingKeeper = () => {
 
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
+  const [hiddenKeyPass, setHiddenKeyPass] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { vault, wallet, inheritancePlanning, settings, common, signer } = translations;
   const { typeBasedIndicator } = useIndicatorHook({
@@ -192,7 +193,7 @@ export const useSettingKeeper = () => {
       title: common.manageKeys,
       description: common.manageKeysDesc,
       icon: <ManageKeyIcon width={14} height={14} />,
-      onPress: () => navigation.navigate('DeleteKeys'),
+      onPress: () => setHiddenKeyPass(true),
       isDiamond: false,
     },
     {
@@ -319,6 +320,9 @@ export const useSettingKeeper = () => {
     appSetting,
     inheritanceDocument,
     confirmPass,
+    setConfirmPass,
     planData,
+    hiddenKeyPass,
+    setHiddenKeyPass,
   };
 };

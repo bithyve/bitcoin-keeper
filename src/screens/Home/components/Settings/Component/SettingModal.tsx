@@ -11,7 +11,7 @@ import BackupModalContent from 'src/screens/AppSettings/BackupModal';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
-const SettingModal = ({ isUaiFlow, confirmPass }) => {
+const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -33,7 +33,10 @@ const SettingModal = ({ isUaiFlow, confirmPass }) => {
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
-        close={() => setConfirmPassVisible(false)}
+        close={() => {
+          setConfirmPassVisible(false);
+          setConfirmPass(false);
+        }}
         title="Confirm Passcode"
         subTitleWidth={wp(240)}
         subTitle="To back up the app recovery key"
@@ -45,6 +48,7 @@ const SettingModal = ({ isUaiFlow, confirmPass }) => {
             useBiometrics
             close={() => {
               setConfirmPassVisible(false);
+              setConfirmPass(false);
             }}
             onSuccess={() => {
               setConfirmPassVisible(false);
