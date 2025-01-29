@@ -187,7 +187,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignContent: 'center',
-    ...(Platform.OS === 'ios' ? { paddingLeft: wp(15) } : {}),
   },
   addedSignersContainer: {
     flexDirection: 'row',

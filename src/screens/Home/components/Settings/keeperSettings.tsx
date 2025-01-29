@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import Colors from 'src/theme/Colors';
 import PlebContainer from './Component/PlebContainer';
 import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
@@ -34,6 +34,15 @@ const KeeperSettings = ({ route }) => {
   const { BackAndRecovery, General, keysAndwallet, Tips, confirmPass, planData } =
     useSettingKeeper();
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
+
+  useEffect(() => {
+    return () => {
+      if (isUaiFlow) {
+        navigation.setParams({ isUaiFlow: false });
+      }
+    };
+  }, []); // Empty dependency array means this runs once on mount
+
   const { plan } = usePlan();
   const currentPlan = planData.find((p) => p.plan === plan);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);

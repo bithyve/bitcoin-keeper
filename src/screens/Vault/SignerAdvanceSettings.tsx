@@ -68,6 +68,8 @@ import useSigners from 'src/hooks/useSigners';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import { vaultAlreadyExists } from './VaultMigrationController';
+import useArchivedVaults from 'src/hooks/useArchivedVaults';
 
 const { width } = Dimensions.get('screen');
 
@@ -195,6 +197,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
 
   const { activeVault, allVaults } = useVault({ vaultId, includeArchived: false });
+  const { archivedVaults } = useArchivedVaults();
   const allUnhiddenVaults = allVaults.filter((vault) => {
     return idx(vault, (_) => _.presentationData.visibility) !== VisibilityType.HIDDEN;
   });
@@ -265,10 +268,16 @@ function SignerAdvanceSettings({ route }: any) {
             description: `Canary Wallet for ${signer.signerName}`,
           },
         };
+        if (vaultAlreadyExists(vaultInfo, allVaults, archivedVaults)) {
+          throw Error('Single-key wallet for this device already exists');
+        }
+
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
         return vaultInfo;
       } catch (err) {
         captureError(err);
+        showToast(err && err.message ? err.message.toString() : err.toString());
+        setCanaryVaultLoading(false);
         return false;
       }
     },
@@ -593,6 +602,7 @@ function SignerAdvanceSettings({ route }: any) {
       }
     } catch (err) {
       console.log('Something Went Wrong', err);
+      setCanaryVaultLoading(false);
     }
   };
 

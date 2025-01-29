@@ -842,7 +842,7 @@ function PasswordEnter({
         const navigationState = addSignerFlow
           ? {
               name: 'Home',
-              params: { addedSigner: signer },
+              params: { selectedOption: 'Keys', addedSigner: signer },
             }
           : {
               name: 'AddSigningDevice',
@@ -1122,7 +1122,7 @@ function HardwareModalMap({
           const navigationState = addSignerFlow
             ? {
                 name: 'Home',
-                params: { addedSigner: hw.signer },
+                params: { selectedOption: 'Keys', addedSigner: hw.signer },
               }
             : {
                 name: 'AddSigningDevice',
@@ -1232,7 +1232,7 @@ function HardwareModalMap({
       const navigationState = addSignerFlow
         ? {
             name: 'Home',
-            params: { addedSigner: signer },
+            params: { selectedOption: 'Keys', addedSigner: signer },
           }
         : {
             name: 'AddSigningDevice',
@@ -1267,7 +1267,7 @@ function HardwareModalMap({
                 const navigationState = addSignerFlow
                   ? {
                       name: 'Home',
-                      params: { addedSigner: signer },
+                      params: { selectedOption: 'Keys', addedSigner: signer },
                     }
                   : {
                       name: 'AddSigningDevice',
@@ -1393,7 +1393,7 @@ function HardwareModalMap({
         const navigationState = addSignerFlow
           ? {
               name: 'Home',
-              params: { addedSigner: hw.signer },
+              params: { selectedOption: 'Keys', addedSigner: hw.signer },
             }
           : {
               name: 'AddSigningDevice',
@@ -1572,7 +1572,7 @@ function HardwareModalMap({
     } else {
       dispatch(addSigningDevice([hw]));
       const navigationState = addSignerFlow
-        ? { name: 'Home', params: { addedSigner: hw } }
+        ? { name: 'Home', params: { selectedOption: 'Keys', addedSigner: hw } }
         : {
             name: 'AddSigningDevice',
             merge: true,
@@ -1821,7 +1821,7 @@ function HardwareModalMap({
               const navigationState = addSignerFlow
                 ? {
                     name: 'Home',
-                    params: { addedSigner: signer },
+                    params: { selectedOption: 'Keys', addedSigner: signer },
                   }
                 : {
                     name: 'AddSigningDevice',

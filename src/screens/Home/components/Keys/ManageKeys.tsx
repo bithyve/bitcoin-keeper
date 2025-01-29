@@ -79,6 +79,17 @@ const ManageKeys = ({ addedSigner }) => {
     }, [relaySignersUpdate])
   );
 
+  useEffect(() => {
+    if (addedSigner) {
+      setKeyAddedModalVisible(true);
+    }
+    return () => {
+      if (addedSigner) {
+        navigation.setParams({ addedSigner: null });
+      }
+    };
+  }, []);
+
   return (
     <Box style={styles.containerWrapper}>
       <Box style={styles.contentContainer}>
@@ -107,7 +118,7 @@ export default ManageKeys;
 
 const styles = StyleSheet.create({
   containerWrapper: {
-    paddingHorizontal: wp(5),
+    paddingHorizontal: '4.5%',
   },
   contentContainer: {
     flexDirection: 'row',
