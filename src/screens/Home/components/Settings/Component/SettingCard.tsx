@@ -118,7 +118,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                     {item.rightIcon ? (
                       <TouchableOpacity onPress={item.onRightPress}>
                         <Box>
-                          {applyDiamondCheck ? (
+                          {(item?.isDiamond && isDiamondHands) || (item?.isHodler && isHodler) ? (
                             isDarkMode ? (
                               <WhiteRightArrowIcon />
                             ) : (
