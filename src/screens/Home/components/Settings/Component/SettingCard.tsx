@@ -17,6 +17,7 @@ interface SettingCardItemProps {
   icon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   isDiamond?: boolean;
+  isHodler?: boolean;
   showDot?: boolean;
   onPress?: () => void;
   onRightPress?: () => void;
@@ -41,8 +42,9 @@ const SettingCard: React.FC<SettingCardProps> = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
-  const { plan } = usePlan();
+  const { plan, isOnL2Above } = usePlan();
   const isDiamondHands = plan === SubscriptionTier.L3.toUpperCase();
+  const isHodler = isOnL2Above;
 
   return (
     <>
@@ -65,7 +67,11 @@ const SettingCard: React.FC<SettingCardProps> = ({
         borderColor={borderColor}
       >
         {items.map((item, index) => {
-          const applyDiamondCheck = item.isDiamond ? isDiamondHands : true;
+          const applyDiamondCheck = item?.isHodler
+            ? isHodler
+            : item?.isDiamond
+            ? isDiamondHands
+            : true;
 
           return (
             <React.Fragment key={index}>
@@ -112,7 +118,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                     {item.rightIcon ? (
                       <TouchableOpacity onPress={item.onRightPress}>
                         <Box>
-                          {item.isDiamond && isDiamondHands ? (
+                          {applyDiamondCheck ? (
                             isDarkMode ? (
                               <WhiteRightArrowIcon />
                             ) : (
