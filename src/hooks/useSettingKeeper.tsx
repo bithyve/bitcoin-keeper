@@ -130,6 +130,7 @@ export const useSettingKeeper = () => {
       },
       showDot: typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[id],
       isDiamond: false,
+      isHodler: false,
     },
     {
       title: settings.personalCloudBackup,
@@ -139,6 +140,7 @@ export const useSettingKeeper = () => {
       rightIcon: <UpgradeIcon width={64} height={20} />,
       onPress: () => navigation.navigate('CloudBackup'),
       isDiamond: true,
+      isHodler: true,
     },
 
     {
@@ -154,6 +156,7 @@ export const useSettingKeeper = () => {
       ),
       onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
       isDiamond: false,
+      isHodler: false,
     },
   ];
 
