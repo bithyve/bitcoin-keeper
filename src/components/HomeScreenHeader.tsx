@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useContext } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
@@ -18,7 +18,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getUaiContent } from 'src/screens/Home/Notifications/NotificationsCenter';
 import { setRefreshUai } from 'src/store/reducers/uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -38,8 +37,6 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const backupHistory = useQuery(RealmSchema.BackupHistory);
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
-  const isSmallDevice = useIsSmallDevices();
-
   useFocusEffect(
     useCallback(() => {
       dispatch(setRefreshUai());
@@ -97,24 +94,10 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   };
 
   return (
-    <Box>
-      <Box
-        backgroundColor={`${colorMode}.pantoneGreen`}
-        style={[
-          styles.wrapper,
-          isSmallDevice
-            ? { paddingTop: hp(10), minHeight: hp(117) }
-            : { paddingTop: hp(2), minHeight: hp(127) },
-        ]}
-      >
+    <Box backgroundColor={`${colorMode}.pantoneGreen`}>
+      <Box backgroundColor={`${colorMode}.pantoneGreen`} style={[styles.wrapper]}>
         <Box width="90%" style={styles.padding}>
-          <Box
-            style={[
-              styles.headerData,
-              isSmallDevice ? { paddingTop: wp(50) } : { paddingTop: wp(68) },
-            ]}
-            testID={`btn_choosePlan`}
-          >
+          <Box style={styles.headerData} testID={`btn_choosePlan`}>
             {circleIconWrapper}
             <Text
               testID="text_home_current_plan"
@@ -126,18 +109,17 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
             </Text>
           </Box>
 
-          <Box
-            style={[
-              styles.headerData,
-              isSmallDevice ? { paddingTop: wp(50) } : { paddingTop: wp(68) },
-            ]}
-          >
+          <Box style={styles.headerData}>
             <TouchableOpacity
               style={{ padding: 5 }}
               testID="btn_settings"
               onPress={() => navigation.dispatch(CommonActions.navigate('NotificationsCenter'))}
             >
-              {hasUnseenUai ? <NotificationDotIcon /> : <NotificationSimpleIcon />}
+              {hasUnseenUai ? (
+                <NotificationDotIcon width={19} height={22} />
+              ) : (
+                <NotificationSimpleIcon width={19} height={22} />
+              )}
             </TouchableOpacity>
           </Box>
         </Box>
@@ -194,11 +176,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: hp(24),
   },
+
   wrapper: {
     paddingHorizontal: wp(5),
+    height: hp(127),
     width: '100%',
     alignItems: 'center',
+    justifyContent: 'flex-end',
     position: 'relative',
   },
   headerData: {

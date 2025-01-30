@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
   wrapper: {
     display: 'flex',
     alignContent: 'center',
+    justifyContent: 'center',
   },
   addedSignersContainer: {
     flexDirection: 'row',
