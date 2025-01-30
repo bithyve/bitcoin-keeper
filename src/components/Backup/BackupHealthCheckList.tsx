@@ -21,7 +21,7 @@ import AdvnaceOptions from 'src/assets/images/settings.svg';
 import KeeperFooter from '../KeeperFooter';
 import HealthCheckComponent from './HealthCheckComponent';
 import KeeperModal from '../KeeperModal';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import SigningDeviceChecklist from 'src/screens/Vault/SigningDeviceChecklist';
 
 function Content() {
@@ -101,25 +101,27 @@ function BackupHealthCheckList({ isUaiFlow }) {
 
   return (
     <Box>
-      <Box height={'80%'}>
-        <FlatList
-          data={history}
-          contentContainerStyle={{ flexGrow: 1 }}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => (
-            <SigningDeviceChecklist
-              status={item?.title}
-              key={index.toString()}
-              date={moment.unix(item?.date).toDate()}
-            />
-          )}
+      <Box>
+        <Box flex={1} style={styles.Wrapper}>
+          <FlatList
+            data={history}
+            contentContainerStyle={{ flexGrow: 1 }}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item, index }) => (
+              <SigningDeviceChecklist
+                status={item?.title}
+                key={index.toString()}
+                date={moment.unix(item?.date).toDate()}
+              />
+            )}
+          />
+        </Box>
+        <KeeperFooter
+          marginX={30}
+          wrappedScreen={Platform.OS === 'ios' ? true : false}
+          items={footerItems}
         />
       </Box>
-      <KeeperFooter
-        wrappedScreen={Platform.OS === 'ios' ? true : false}
-        marginX={35}
-        items={footerItems}
-      />
 
       <ModalWrapper
         visible={showConfirmSeedModal}
@@ -166,3 +168,9 @@ function BackupHealthCheckList({ isUaiFlow }) {
   );
 }
 export default BackupHealthCheckList;
+
+const styles = StyleSheet.create({
+  Wrapper: {
+    marginHorizontal: 5,
+  },
+});
