@@ -38,6 +38,7 @@ import HealthCheckIcon from 'src/assets/images/health_check_reminder.svg';
 import TechSupportIcon from 'src/assets/images/tech_support_received.svg';
 import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
+import uai from 'src/store/reducers/uai';
 
 type CardProps = {
   totalLength: number;
@@ -70,6 +71,16 @@ interface uaiDefinationInterface {
     hideHiddenVaults?: boolean;
   };
 }
+
+let SUPPORTED_NOTOFOCATION_TYPES = [
+  uaiType.SECURE_VAULT,
+  uaiType.VAULT_TRANSFER,
+  uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+  uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+  uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+  uaiType.CANARAY_WALLET,
+  uaiType.ZENDESK_TICKET,
+];
 
 const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
   const { colorMode } = useColorMode();
@@ -373,6 +384,7 @@ const NotificationsCenter = () => {
     () => ({
       unseenNotifications: uaiStack
         .filter((uai) => !uai.seenAt)
+        .filter((uai) => SUPPORTED_NOTOFOCATION_TYPES.includes(uai.uaiType))
         .sort((a, b) => {
           if (!a.createdAt && !b.createdAt) return 0;
           if (!a.createdAt) return 1;
@@ -381,6 +393,7 @@ const NotificationsCenter = () => {
         }),
       seenNotifications: uaiStack
         .filter((uai) => uai.seenAt)
+        .filter((uai) => SUPPORTED_NOTOFOCATION_TYPES.includes(uai.uaiType))
         .sort((a, b) => {
           if (!a.createdAt && !b.createdAt) return 0;
           if (!a.createdAt) return 1;
@@ -469,6 +482,11 @@ const NotificationsCenter = () => {
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
               />
+              {seenNotifications.length == 0 && unseenNotifications.length == 0 && (
+                <Box height={'95%'} marginLeft={wp(15)}>
+                  <Text fontSize={14}>You have no new notifications</Text>
+                </Box>
+              )}
             </Box>
           )}
         </Box>
