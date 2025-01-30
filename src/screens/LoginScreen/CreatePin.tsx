@@ -49,7 +49,7 @@ export default function CreatePin(props) {
 
   useEffect(() => {
     if (hasCreds) {
-      props.navigation.navigate('OnBoardingSlides');
+      props.navigation.replace('OnBoardingSlides');
     }
   }, [hasCreds]);
 

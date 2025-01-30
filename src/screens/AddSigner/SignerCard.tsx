@@ -184,14 +184,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   walletName: {
-    fontSize: 14,
+    fontSize: 16,
     marginTop: hp(6),
   },
   walletSubtTitle: {
-    fontSize: 11,
+    fontSize: 14,
   },
   walletDescription: {
-    fontSize: 11,
+    fontSize: 14,
   },
   feeText: {
     fontSize: 16,
