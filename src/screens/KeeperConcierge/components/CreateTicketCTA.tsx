@@ -1,10 +1,10 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import PenLight from 'src/assets/images/pen-light.svg';
 import PenDark from 'src/assets/images/pen-dark.svg';
-import { windowWidth, wp } from 'src/constants/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import { useSelector } from 'react-redux';
 
 type CreateTicketCTAProps = {
@@ -33,7 +33,7 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
             primaryText="Ask the team"
             primaryCallback={onPress}
             RightIcon={isDarkMode ? PenLight : PenDark}
-            width={Platform.OS === 'ios' ? wp(windowWidth * 0.87) : wp(windowWidth * 0.9)}
+            width={windowWidth * 0.88}
           />
         </Box>
       )}
