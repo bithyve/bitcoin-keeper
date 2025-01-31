@@ -1,7 +1,7 @@
 import { CommonActions } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useMemo, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, ViewStyle } from 'react-native';
+import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
 import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
@@ -107,7 +107,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
 
   const customStyle: ViewStyle = {
     width: wp(162),
-    height: wp(126),
+    height: wp(132),
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',

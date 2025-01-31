@@ -69,6 +69,8 @@ const useWalletAsset = () => {
             { tag: 'Timelocked', color: Colors.mintGreen },
             { tag: getSchemeTag(wallet as Vault), color: Colors.LightMossGreen },
           ];
+        case VaultType.CANARY:
+          return [{ tag: 'Canary', color: Colors.LightMossGreen }];
         case VaultType.MINISCRIPT:
           return [
             wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(

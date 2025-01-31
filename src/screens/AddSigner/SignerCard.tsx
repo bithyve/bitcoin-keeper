@@ -174,7 +174,7 @@ function SignerCard({
 const styles = StyleSheet.create({
   walletContainer: {
     width: windowWidth * 0.43,
-    height: wp(126),
+    height: wp(135),
     paddingHorizontal: wp(15),
     paddingVertical: hp(12),
     alignItems: 'flex-start',
