@@ -9,13 +9,14 @@ import {
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import RNIap, {
+import {
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
   getAvailablePurchases,
   SubscriptionPurchase,
   requestSubscription,
+  finishTransaction,
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
@@ -177,7 +178,7 @@ function ChoosePlan() {
     }
   }
 
-  async function processPurchase(purchase: SubscriptionPurchase) {
+  const processPurchase = async (purchase: SubscriptionPurchase) => {
     setRequesting(true);
     try {
       let response;
@@ -215,12 +216,12 @@ function ChoosePlan() {
       } else if (response.error) {
         showToast(response.error);
       }
-      if (receipt) await RNIap.finishTransaction({ purchase, isConsumable: false });
+      if (receipt) await finishTransaction({ purchase, isConsumable: false });
     } catch (error) {
       setRequesting(false);
       console.log(error);
     }
-  }
+  };
 
   function getPlanData(offers) {
     let offer;
