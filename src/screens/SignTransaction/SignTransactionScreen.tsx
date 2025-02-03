@@ -307,7 +307,7 @@ function SignTransactionScreen() {
     };
   }, []);
 
-  const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
+  const { withModal, nfcVisible: TSNfcVisible, closeNfc: closeTSNfc } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const { inheritanceSigningRequestId } = useAppSelector((state) => state.sendAndReceive);
 
@@ -341,29 +341,34 @@ function SignTransactionScreen() {
         const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
         const { signerType, serializedPSBT, signingPayload, xfp } = copySerializedPSBTEnvelop;
         if (SignerType.TAPSIGNER === signerType) {
-          const { signingPayload: signedPayload, signedSerializedPSBT } =
-            await signTransactionWithTapsigner({
-              setTapsignerModal,
-              signingPayload,
-              currentKey,
-              withModal,
-              defaultVault,
-              serializedPSBT,
-              card,
-              cvc: tapsignerCVC,
-              signer,
-            });
-          dispatch(
-            updatePSBTEnvelops({ signedSerializedPSBT, xfp, signingPayload: signedPayload })
-          );
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SIGNING,
-              },
-            ])
-          );
+          try {
+            const { signingPayload: signedPayload, signedSerializedPSBT } =
+              await signTransactionWithTapsigner({
+                setTapsignerModal,
+                signingPayload,
+                currentKey,
+                withModal,
+                defaultVault,
+                serializedPSBT,
+                card,
+                cvc: tapsignerCVC,
+                signer,
+              });
+            dispatch(
+              updatePSBTEnvelops({ signedSerializedPSBT, xfp, signingPayload: signedPayload })
+            );
+            dispatch(
+              healthCheckStatusUpdate([
+                {
+                  signerId: signer.masterFingerprint,
+                  status: hcStatusType.HEALTH_CHECK_SIGNING,
+                },
+              ])
+            );
+          } catch (error) {
+            closeTSNfc();
+            throw error;
+          }
         } else if (SignerType.COLDCARD === signerType) {
           await signTransactionWithColdCard({
             setColdCardModal,
@@ -842,7 +847,10 @@ function SignTransactionScreen() {
         isRemoteKey={false}
         isMiniscript={!!defaultVault?.scheme?.miniscriptScheme}
       />
-      <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
+      <NfcPrompt
+        visible={nfcVisible || TSNfcVisible}
+        close={() => (TSNfcVisible ? closeTSNfc() : closeNfc())}
+      />
       <KeeperModal
         visible={visibleModal}
         close={() => {
