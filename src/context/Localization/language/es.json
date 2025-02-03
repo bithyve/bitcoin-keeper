@@ -193,6 +193,8 @@
     "Createpasscode": "Create a passcode",
     "Confirmyourpasscode": "Confirm your passcode",
     "CreateApp": "Create a fresh app or recover an exisiting one",
+    "RecoverExistingAppDesc": "Have an inaccessible Keeper app with wallets in it? You have nothing to worry if you have that app's 12-word Recovery Key. Insert the words in the Recovery section on the welcome screen all all your wallets would be restored as expected.",
+    "NewSatrtWalet": "A new hot wallet will be created automatically for you. You can create and manage different kinds of wallets from the wallets section of the app.",
     "CreateSingleKeyWallet": "Create new single-key wallets:",
     "StoreBicoin": "You can use these wallets to store small amounts of bitcoin for day to day transactions.",
     "CreateMultiKeyWallet": "Create new multi-key wallets:",
