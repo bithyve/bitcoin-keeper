@@ -406,13 +406,19 @@ export const generateKeyFromXpub = (
 export const generateMiniscriptScheme = (
   miniscriptElements: MiniscriptElements,
   miniscriptTypes: MiniscriptTypes[],
-  existingMiniscriptScheme?: MiniscriptScheme
+  existingMiniscriptScheme?: MiniscriptScheme,
+  importedKeyUsageCounts?: Record<string, number>
 ): MiniscriptScheme => {
   const {
     miniscriptPhases,
     policy: miniscriptPolicy,
     keyInfoMap,
-  } = generateMiniscriptPolicy(miniscriptElements, existingMiniscriptScheme);
+  } = generateMiniscriptPolicy(
+    miniscriptElements,
+    existingMiniscriptScheme,
+    importedKeyUsageCounts
+  );
+
   const { miniscript } = generateMiniscript(miniscriptPolicy);
   const miniscriptScheme: MiniscriptScheme = {
     miniscriptElements: {

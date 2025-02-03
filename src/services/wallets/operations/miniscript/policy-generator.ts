@@ -140,11 +140,22 @@ function nestOrFragments(policies: string[], probabilities: number[]): string {
 
 export const generateMiniscriptPolicy = (
   miniscriptElements: MiniscriptElements,
-  existingMiniscriptScheme?: MiniscriptScheme
+  existingMiniscriptScheme?: MiniscriptScheme,
+  importedKeyUsageCounts?: Record<string, number>
 ): { miniscriptPhases: Phase[]; policy: string; keyInfoMap: KeyInfoMap } => {
   const { phases: miniscriptPhases } = miniscriptElements;
 
-  const keyUsageCounts: Record<string, number> = existingMiniscriptScheme
+  const keyUsageCounts: Record<string, number> = importedKeyUsageCounts
+    ? Object.entries(miniscriptElements.signerFingerprints).reduce(
+        (acc, [identifier, fingerprint]) => {
+          if (importedKeyUsageCounts[fingerprint] !== undefined) {
+            acc[identifier] = importedKeyUsageCounts[fingerprint];
+          }
+          return acc;
+        },
+        {} as Record<string, number>
+      )
+    : existingMiniscriptScheme
     ? deriveKeyUsageCount(existingMiniscriptScheme, miniscriptElements)
     : {};
 
