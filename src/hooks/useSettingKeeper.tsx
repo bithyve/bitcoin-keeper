@@ -154,7 +154,7 @@ export const useSettingKeeper = () => {
           value={automaticCloudBackup}
         />
       ),
-      onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
+      onRightPress: toggleDebounce(() => {}),
       isDiamond: false,
       isHodler: false,
     },
