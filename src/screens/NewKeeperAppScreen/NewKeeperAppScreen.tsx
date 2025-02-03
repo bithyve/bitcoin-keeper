@@ -78,19 +78,8 @@ function StartNewModalContent() {
     <Box style={{ width: windowWidth * 0.8 }}>
       <Box>
         <Box>
-          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>
-            {login.CreateSingleKeyWallet}{' '}
-          </Text>
           <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>
-            {login.StoreBicoin}
-          </Text>
-        </Box>
-        <Box>
-          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>
-            {login.CreateMultiKeyWallet}{' '}
-          </Text>
-          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>
-            {login.CreateMultiKeyWalletDesc}
+            {login.NewSatrtWalet}
           </Text>
         </Box>
         <Box>
@@ -98,7 +87,7 @@ function StartNewModalContent() {
             {login.RecoverApp}{' '}
           </Text>
           <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>
-            {login.RecoverAppDesc}
+            {login.RecoverExistingAppDesc}
           </Text>
         </Box>
       </Box>

@@ -183,6 +183,8 @@
     "confirmNewPasscode": "Confirm the new passcode",
     "MismatchPasscode": "Passcodes do not match",
     "enter_your": "Enter your ",
+    "NewSatrtWalet": "A new hot wallet will be created automatically for you. You can create and manage different kinds of wallets from the wallets section of the app.",
+    "RecoverExistingAppDesc": "Have an inaccessible Keeper app with wallets in it? You have nothing to worry if you have that app's 12-word Recovery Key. Insert the words in the Recovery section on the welcome screen and all your wallets will be restored as expected.",
     "ForgotPasscode": "Forgot Passcode?",
     "forgotPasscodeDesc": "Type in the words exactly like they were displayed",
     "StoreBicoin": "You can use these wallets to store small amounts of bitcoin for day to day transactions.",

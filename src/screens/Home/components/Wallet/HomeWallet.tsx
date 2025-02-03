@@ -64,7 +64,7 @@ const HomeWallet = () => {
   const CREATE_WALLET_OPTIONS = [
     {
       title: 'Create Wallet',
-      subtitle: 'Create a new Bitcoin wallet',
+      subtitle: 'Create a new bitcoin wallet',
       icon: <NewWalletIcon />,
       onPress: () => {
         setShowAddWalletModal(false);
@@ -194,7 +194,7 @@ const OptionItem = ({ option, colorMode }) => {
           >
             {option.title}
           </Text>
-          <Text color={`${colorMode}.secondaryText`} fontSize={13}>
+          <Text color={`${colorMode}.secondaryText`} fontSize={12}>
             {option.subtitle}
           </Text>
         </Box>
