@@ -59,16 +59,14 @@ function PasscodeVerifyModal({
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
-        setTimeout(async () => {
-          const { success, signature } = await RNBiometrics.createSignature({
-            promptMessage: 'Authenticate',
-            payload: appId,
-            cancelButtonText: 'Use PIN',
-          });
-          if (success) {
-            dispatch(credsAuth(signature, LoginMethod.BIOMETRIC, true));
-          }
-        }, 200);
+        const { success, signature } = await RNBiometrics.createSignature({
+          promptMessage: 'Authenticate',
+          payload: appId,
+          cancelButtonText: 'Use PIN',
+        });
+        if (success) {
+          dispatch(credsAuth(signature, LoginMethod.BIOMETRIC, true));
+        }
       } catch (error) {
         //
         console.log(error);
