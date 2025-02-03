@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { View, Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -42,18 +42,14 @@ function Buttons({
     }
   };
 
-  if (primaryLoading) {
-    return <ActivityIndicatorView visible={primaryLoading} />;
-  }
-
   const getPrimaryButton = () => (
     <TouchableOpacity
       onPress={onPrimaryInteraction}
-      disabled={primaryDisable || disableNoOverlay}
+      disabled={primaryDisable || disableNoOverlay || primaryLoading}
       activeOpacity={activeOpacity}
       testID="btn_primaryText"
       style={{
-        width: secondaryText ? width : fullWidth ? '100%' : width,
+        width: secondaryText ? (primaryLoading ? '100%' : width) : fullWidth ? '100%' : width,
       }}
     >
       <Box
@@ -73,23 +69,34 @@ function Buttons({
         ]}
         backgroundColor={primaryBackgroundColor || `${colorMode}.greenButtonBackground`}
       >
-        {LeftIcon && <LeftIcon />}
-        <Text
-          numberOfLines={1}
-          style={styles.btnText}
-          color={primaryTextColor || `${colorMode}.buttonText`}
-          fontWeight={primaryFontWeight}
-        >
-          {primaryText}
-        </Text>
-        {RightIcon && <RightIcon />}
+        {primaryLoading ? (
+          <ActivityIndicator
+            testID="activityIndicator"
+            size={hp(20)}
+            animating
+            color={primaryTextColor || `${colorMode}.buttonText`}
+          />
+        ) : (
+          <>
+            {LeftIcon && <LeftIcon />}
+            <Text
+              numberOfLines={1}
+              style={styles.btnText}
+              color={primaryTextColor || `${colorMode}.buttonText`}
+              fontWeight={primaryFontWeight}
+            >
+              {primaryText}
+            </Text>
+            {RightIcon && <RightIcon />}
+          </>
+        )}
       </Box>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      {secondaryText !== '' && (
+      {secondaryText !== '' && !primaryLoading && (
         <TouchableOpacity
           style={[
             styles.cancelBtn,

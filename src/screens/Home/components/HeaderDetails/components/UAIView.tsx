@@ -2,70 +2,33 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import { hp, wp } from 'src/constants/responsive';
+import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 
-function UAIView({
-  title,
-  subTitle,
-  primaryCallbackText,
-  primaryCallback,
-  secondaryCallbackText,
-  secondaryCallback,
-}) {
+function UAIView({ title, subTitle, icon, primaryCallbackText, primaryCallback }) {
   const { colorMode } = useColorMode();
 
   return (
     <Box style={styles.container}>
-      <Box style={styles.contentContainer}>
-        <Box style={styles.messageContainer} testID="btn_uaiTitleText">
-          <Text
-            style={styles.titleText}
-            color={`${colorMode}.BrownNeedHelp`}
-            bold
-            numberOfLines={1}
-          >
-            {title}
-          </Text>
-          <Text
-            style={styles.subtitleText}
-            color={`${colorMode}.primaryText`}
-            numberOfLines={2}
-            medium
-          >
-            {subTitle}
-          </Text>
+      <TouchableOpacity
+        style={styles.primaryButton}
+        onPress={primaryCallback}
+        testID="btn_uaiPrimary"
+      >
+        <Box style={styles.contentContainer}>
+          <Box style={styles.iconCtr} backgroundColor={`${colorMode}.pantoneGreen`}>
+            {icon}
+          </Box>
+          <Box style={styles.messageContainer} testID="btn_uaiTitleText">
+            <Text style={styles.titleText} color={`${colorMode}.black`} medium numberOfLines={1}>
+              {title}
+            </Text>
+            <Text style={styles.subtitleText} color={`${colorMode}.primaryText`} numberOfLines={2}>
+              {subTitle}
+            </Text>
+          </Box>
         </Box>
-
-        <Box style={styles.actionsContainer}>
-          {secondaryCallbackText && (
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={secondaryCallback}
-              testID="btn_uaiSkip"
-            >
-              <Text style={styles.secondaryButtonText} bold color={`${colorMode}.learnMoreBorder`}>
-                {secondaryCallbackText.toUpperCase()}
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {primaryCallbackText && primaryCallback && (
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={primaryCallback}
-              testID="btn_uaiPrimary"
-            >
-              <Box
-                style={styles.primaryButtonInner}
-                backgroundColor={`${colorMode}.modalGreenButton`}
-              >
-                <Text style={styles.primaryButtonText} bold color={`${colorMode}.buttonText`}>
-                  {primaryCallbackText.toUpperCase()}
-                </Text>
-              </Box>
-            </TouchableOpacity>
-          )}
-        </Box>
-      </Box>
+      </TouchableOpacity>
     </Box>
   );
 }
@@ -80,21 +43,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingHorizontal: wp(20),
+    paddingVertical: hp(10),
     width: '100%',
   },
   messageContainer: {
     flex: 1,
-    marginRight: 15,
+    marginRight: wp(10),
     justifyContent: 'center',
   },
   titleText: {
-    fontSize: 12,
-    marginBottom: 4,
+    fontSize: 15,
+    marginBottom: hp(4),
   },
   subtitleText: {
-    fontSize: 14,
+    fontSize: 12,
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -123,6 +86,14 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: 10,
+  },
+  iconCtr: {
+    height: hp(39),
+    width: wp(39),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+    marginRight: wp(15),
   },
 });
 

@@ -45,7 +45,7 @@ import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useCanaryVault from 'src/hooks/useCanaryWallets';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -68,6 +68,8 @@ import useSigners from 'src/hooks/useSigners';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import { vaultAlreadyExists } from './VaultMigrationController';
+import useArchivedVaults from 'src/hooks/useArchivedVaults';
 
 const { width } = Dimensions.get('screen');
 
@@ -195,6 +197,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
 
   const { activeVault, allVaults } = useVault({ vaultId, includeArchived: false });
+  const { archivedVaults } = useArchivedVaults();
   const allUnhiddenVaults = allVaults.filter((vault) => {
     return idx(vault, (_) => _.presentationData.visibility) !== VisibilityType.HIDDEN;
   });
@@ -265,10 +268,16 @@ function SignerAdvanceSettings({ route }: any) {
             description: `Canary Wallet for ${signer.signerName}`,
           },
         };
+        if (vaultAlreadyExists(vaultInfo, allVaults, archivedVaults)) {
+          throw Error('Single-key wallet for this device already exists');
+        }
+
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
         return vaultInfo;
       } catch (err) {
         captureError(err);
+        showToast(err && err.message ? err.message.toString() : err.toString());
+        setCanaryVaultLoading(false);
         return false;
       }
     },
@@ -357,12 +366,25 @@ function SignerAdvanceSettings({ route }: any) {
         );
         break;
       case SignerType.KEYSTONE:
-      case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.SPECTER:
       case SignerType.OTHER_SD:
       case SignerType.COLDCARD:
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+        break;
+      case SignerType.JADE:
+        // For now, Jade only supports registration via USB for Miniscript
+        if (activeVault.scheme.miniscriptScheme) {
+          navigation.dispatch(
+            CommonActions.navigate('RegisterWithChannel', {
+              vaultKey,
+              vaultId,
+              signerType: signer.type,
+            })
+          );
+        } else {
+          navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+        }
         break;
       case SignerType.PORTAL:
         navigation.dispatch(
@@ -508,6 +530,7 @@ function SignerAdvanceSettings({ route }: any) {
   }
 
   const navigateToAssignSigner = () => {
+    dispatch(resetSignersUpdateState());
     setWarning(false);
     navigation.dispatch(
       CommonActions.navigate({
@@ -579,6 +602,7 @@ function SignerAdvanceSettings({ route }: any) {
       }
     } catch (err) {
       console.log('Something Went Wrong', err);
+      setCanaryVaultLoading(false);
     }
   };
 

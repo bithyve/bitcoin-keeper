@@ -73,6 +73,7 @@ function EnterSeedScreen({ route, navigation }) {
   const [selectedNumberOfWords, setSelectedNumberOfWords] = useState(
     selectedNumberOfWordsFromParams || SEED_WORDS_12
   );
+  const [showNetworkModal, setShowNetworkModal] = useState(false);
   const options = [SEED_WORDS_12, SEED_WORDS_18, SEED_WORDS_24];
   const numberOfWordsToScreensMap = {
     [SEED_WORDS_12]: 1,
@@ -91,7 +92,7 @@ function EnterSeedScreen({ route, navigation }) {
     setInvalidSeedsModal(true);
   };
   const closeInvalidSeedsModal = () => {
-    dispatch(setAppImageError(false));
+    dispatch(setAppImageError(''));
     setInvalidSeedsModal(false);
   };
 
@@ -104,7 +105,13 @@ function EnterSeedScreen({ route, navigation }) {
   }, [appId]);
 
   useEffect(() => {
-    if (appImageError) openInvalidSeedsModal();
+    if (appImageError) {
+      if (appImageError === 'Network Error') {
+        dispatch(setAppImageError(''));
+        setRecoveryLoading(false);
+        setShowNetworkModal(true);
+      } else openInvalidSeedsModal();
+    }
   }, [appRecoveryLoading, appImageError, appImageRecoverd]);
 
   const generateSeedWordsArray = useCallback(() => {
@@ -517,7 +524,7 @@ function EnterSeedScreen({ route, navigation }) {
                 setSuggestedWords([]);
                 if (onChangeIndex < (step === 1 ? 11 : requiredWordsCount - 1)) {
                   inputRef.current[onChangeIndex + 1]?.focus();
-                }
+                } else Keyboard.dismiss();
               }}
             >
               <Text>{word}</Text>
@@ -527,6 +534,7 @@ function EnterSeedScreen({ route, navigation }) {
       </ScrollView>
     );
   };
+  const isRecovery = !isHealthCheck && !isImport && !isSignTransaction && !isIdentification;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -593,19 +601,22 @@ function EnterSeedScreen({ route, navigation }) {
           {renderSuggestions()}
         </Box>
         <Box style={styles.bottomContainerView}>
-          <Breadcrumbs
-            totalScreens={numberOfWordsToScreensMap[selectedNumberOfWords] || 0}
-            currentScreen={step}
-          />
+          {!isRecovery && (
+            <Breadcrumbs
+              totalScreens={numberOfWordsToScreensMap[selectedNumberOfWords] || 0}
+              currentScreen={step}
+            />
+          )}
 
           <Buttons
             primaryCallback={handleNext}
             primaryText={common.next}
-            secondaryText={common.needHelp}
+            secondaryText={isRecovery ? null : common.needHelp}
+            fullWidth={isRecovery}
             secondaryCallback={() => {
               navigation.dispatch(
                 CommonActions.navigate({
-                  name: 'TechnicalSupport',
+                  name: 'CreateTicket',
                   params: {
                     tags: [ConciergeTag.VAULT],
                     screenName: 'sign-transaction-seed-key',
@@ -649,6 +660,20 @@ function EnterSeedScreen({ route, navigation }) {
             setRecoverySuccessModal(false);
             navigation.replace('App', { screen: 'Home' });
           }}
+        />
+        <KeeperModal
+          dismissible={false}
+          close={() => setShowNetworkModal(false)}
+          visible={showNetworkModal}
+          title="Something went wrong"
+          subTitle="Please check your internet connection and try again."
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          subTitleWidth={wp(230)}
+          showCloseIcon={false}
+          buttonText={'Try again'}
+          buttonCallback={() => setShowNetworkModal(false)}
         />
       </KeyboardAvoidingView>
       <ActivityIndicatorView showLoader={true} visible={hcLoading || recoveryLoading} />

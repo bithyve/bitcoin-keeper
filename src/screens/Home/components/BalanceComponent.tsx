@@ -1,35 +1,53 @@
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import Text from 'src/components/KeeperText';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { useDispatch } from 'react-redux';
 import { hp, wp } from 'src/constants/responsive';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
+import { useAppSelector } from 'src/store/hooks';
+import { setCurrencyKind } from 'src/store/reducers/settings';
 import Colors from 'src/theme/Colors';
 
-function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
-  const { colorMode } = useColorMode();
+function BalanceComponent({ balance, isShowAmount, setIsShowAmount }) {
+  const dispatch = useDispatch();
+  const { currencyKind } = useAppSelector((state) => state.settings);
+
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    if (!isShowAmount) {
+      setIsShowAmount(true);
+      return;
+    }
+
+    // Cycle through currency kinds
+    switch (currencyKind) {
+      case CurrencyKind.BITCOIN:
+        dispatch(setCurrencyKind(CurrencyKind.FIAT));
+        break;
+      case CurrencyKind.FIAT:
+        dispatch(setCurrencyKind(CurrencyKind.BITCOIN));
+        setIsShowAmount(false);
+        break;
+      default:
+        dispatch(setCurrencyKind(CurrencyKind.BITCOIN));
+    }
+  };
+
   return (
     <Box style={styles.walletWrapper}>
-      <HStack color={`${colorMode}.black`} space={1}>
-        <Text style={styles.noOfWallet} bold>
-          {count}
-        </Text>
-        <Text style={styles.noOfWallet} bold>
-          Wallet{count > 1 && 's'}
-        </Text>
-      </HStack>
       <TouchableOpacity
         testID="btn_hideUnhideAmount"
-        onPress={setIsShowAmount}
+        onPress={handleToggle}
         style={styles.amount}
+        activeOpacity={0.7}
       >
         <CurrencyInfo
           amount={balance}
           hideAmounts={!isShowAmount}
-          fontSize={26}
-          color={colorMode === 'light' ? Colors.RichBlack : Colors.SecondaryWhite}
-          variation={colorMode === 'light' ? 'dark' : 'light'}
+          fontSize={19}
+          color={Colors.SecondaryWhite}
+          variation="light"
         />
       </TouchableOpacity>
     </Box>
@@ -44,13 +62,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 20,
   },
-  noOfWallet: {
-    fontSize: wp(20),
-    lineHeight: 27,
-    marginBottom: hp(3),
-  },
   amount: {
-    height: hp(25),
+    minHeight: hp(25),
     textAlign: 'center',
     gap: 5,
     alignItems: 'center',

@@ -1,5 +1,5 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { SignerType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, SignerType, VaultType } from 'src/services/wallets/enums';
 import { InheritanceKeyInfo } from 'src/models/interfaces/AssistedKeys';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';
@@ -173,33 +173,51 @@ export const runRealmMigrations = ({
   }
 
   if (oldRealm.schemaVersion < 78) {
-    const oldNodeConnects = oldRealm.objects(RealmSchema.NodeConnect);
-    const newNodeConnects = newRealm.objects(RealmSchema.NodeConnect);
-    const oldDefaultNodeConnects = oldRealm.objects(RealmSchema.DefaultNodeConnect);
-    const newDefaultNodeConnects = newRealm.objects(RealmSchema.DefaultNodeConnect);
+    try {
+      const oldNodeConnects = oldRealm.objects(RealmSchema.NodeConnect);
+      const newNodeConnects = newRealm.objects(RealmSchema.NodeConnect);
 
-    for (let i = 0; i < oldNodeConnects.length; i++) {
-      const oldNodeConnect = oldNodeConnects[i];
-      const newNodeConnect = newNodeConnects[i];
+      // Check if DefaultNodeConnect schema exists before trying to access it
+      const hasDefaultNodeConnectSchema = oldRealm.schema.some(
+        (schema) => schema.name === RealmSchema.DefaultNodeConnect
+      );
 
-      // Remove the 'isDefault' property
-      if ('isDefault' in oldNodeConnect) {
-        if ('isDefault' in newNodeConnect) {
-          delete (newNodeConnect as any).isDefault;
+      for (let i = 0; i < oldNodeConnects.length; i++) {
+        try {
+          const oldNodeConnect = oldNodeConnects[i];
+          const newNodeConnect = newNodeConnects[i];
+
+          if ('isDefault' in oldNodeConnect && 'isDefault' in newNodeConnect) {
+            delete (newNodeConnect as any).isDefault;
+          }
+        } catch (innerError) {
+          console.warn('Error processing individual NodeConnect:', innerError);
+          // Continue with next item even if one fails
         }
       }
-    }
 
-    for (let i = 0; i < oldDefaultNodeConnects.length; i++) {
-      const oldDefaultNodeConnect = oldDefaultNodeConnects[i];
-      const newDefaultNodeConnect = newDefaultNodeConnects[i];
+      // Only process DefaultNodeConnect if the schema exists
+      if (hasDefaultNodeConnectSchema) {
+        const oldDefaultNodeConnects = oldRealm.objects(RealmSchema.DefaultNodeConnect);
+        const newDefaultNodeConnects = newRealm.objects(RealmSchema.DefaultNodeConnect);
 
-      // Remove the 'isDefault' property
-      if ('isDefault' in oldDefaultNodeConnect) {
-        if ('isDefault' in newDefaultNodeConnect) {
-          delete (newDefaultNodeConnect as any).isDefault;
+        for (let i = 0; i < oldDefaultNodeConnects.length; i++) {
+          try {
+            const oldDefaultNodeConnect = oldDefaultNodeConnects[i];
+            const newDefaultNodeConnect = newDefaultNodeConnects[i];
+
+            if ('isDefault' in oldDefaultNodeConnect && 'isDefault' in newDefaultNodeConnect) {
+              delete (newDefaultNodeConnect as any).isDefault;
+            }
+          } catch (innerError) {
+            console.warn('Error processing individual DefaultNodeConnect:', innerError);
+            // Continue with next item even if one fails
+          }
         }
       }
+    } catch (error) {
+      console.error('Error during schema migration 78:', error);
+      // Migration should continue even if this part fails
     }
   }
 
@@ -208,7 +226,6 @@ export const runRealmMigrations = ({
     const wallets = newRealm.objects(RealmSchema.Wallet) as any;
 
     [...vaults, ...wallets].forEach((wallet) => {
-      console.log(wallet.specs);
       if (wallet.specs) {
         wallet.specs.totalExternalAddresses = wallet.specs.nextFreeAddressIndex + 1;
       }
@@ -242,6 +259,39 @@ export const runRealmMigrations = ({
 
     for (const objectIndex in newSigners) {
       newSigners[objectIndex].id = getKeyUID(oldSigners[objectIndex]);
+    }
+  }
+
+  if (oldRealm.schemaVersion < 84) {
+    const oldVaults = oldRealm.objects(RealmSchema.Vault) as any;
+    const newVaults = newRealm.objects(RealmSchema.Vault) as any;
+
+    for (let i = 0; i < oldVaults.length; i++) {
+      const oldVault = oldVaults[i];
+      const newVault = newVaults[i];
+
+      if (
+        oldVault.type === VaultType.TIMELOCKED ||
+        oldVault.type === VaultType.ASSISTED ||
+        oldVault.type === VaultType.INHERITANCE
+      ) {
+        const oldVaultPlain = getJSONFromRealmObject(oldVault);
+        newVault.scheme.miniscriptScheme.usedMiniscriptTypes = [
+          oldVaultPlain.type === VaultType.TIMELOCKED
+            ? MiniscriptTypes.TIMELOCKED
+            : oldVaultPlain.type === VaultType.ASSISTED
+            ? MiniscriptTypes.ASSISTED
+            : oldVaultPlain.type === VaultType.INHERITANCE
+            ? MiniscriptTypes.INHERITANCE
+            : false,
+        ].filter(Boolean);
+        newVault.type = VaultType.MINISCRIPT;
+      } else {
+        if (oldVault?.scheme?.miniscriptScheme?.miniscript) {
+          newVault.scheme.miniscriptScheme.usedMiniscriptTypes = [MiniscriptTypes.INHERITANCE];
+          newVault.type = VaultType.MINISCRIPT;
+        }
+      }
     }
   }
 };

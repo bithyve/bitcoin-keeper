@@ -1,4 +1,4 @@
-import { SignerType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, SignerType } from 'src/services/wallets/enums';
 import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -66,14 +66,27 @@ const useSignerIntel = ({
       }
     }
   });
+  let areSignersValid = false;
 
-  const areSignersValid =
-    vaultKeys.every((signer) => !signer) ||
-    scheme.n !== vaultKeys.length ||
-    areSignersSame({ existingKeys, vaultKeys }) ||
-    invalidIKS ||
-    invalidSS;
-
+  if (!selectedSigners) {
+    areSignersValid = false;
+  } else {
+    const signerCount = Array.from(selectedSigners.keys()).length;
+    const maxKeys = scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+      MiniscriptTypes.INHERITANCE
+    )
+      ? scheme.n + 1
+      : scheme.n;
+    areSignersValid =
+      signerCount > 0 &&
+      !(
+        vaultKeys.every((signer) => !signer) ||
+        maxKeys !== vaultKeys.length ||
+        areSignersSame({ existingKeys, vaultKeys }) ||
+        invalidIKS ||
+        invalidSS
+      );
+  }
   return {
     areSignersValid,
     amfSigners,

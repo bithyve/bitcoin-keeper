@@ -173,7 +173,7 @@ function CollaborativeModals({
             setLearnMoreModal?.(false);
             navigation.dispatch(
               CommonActions.navigate({
-                name: 'TechnicalSupport',
+                name: 'CreateTicket',
                 params: {
                   tags: [ConciergeTag.COLLABORATIVE_Wallet],
                   screenName: 'setup-collaborative-vault',

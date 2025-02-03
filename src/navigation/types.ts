@@ -5,6 +5,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 export type AppStackParams = {
   Home: undefined;
+  NotificationsCenter: undefined;
   Login: undefined;
   SigningDeviceList: undefined;
   SignerCategoryList: undefined;
@@ -116,7 +117,6 @@ export type AppStackParams = {
   UnlockTapsigner: undefined;
   ChangeTapsignerPin: undefined;
   UTXOSelection: { sender: Wallet | Vault; amount: string; address: string };
-  VaultCreationOptions: undefined;
   VaultConfigurationCreation: undefined;
   ScanQRFileRecovery: undefined;
   VaultSetup: {
@@ -130,6 +130,7 @@ export type AppStackParams = {
   MixProgress: undefined;
   AssignSignerType: undefined;
   AddWallet: undefined;
+  AddNewWallet: undefined;
   CanaryWallets: undefined;
   AssistedKeys: undefined;
   SafeKeepingTips: undefined;
@@ -156,6 +157,7 @@ export type AppStackParams = {
       fcm: string;
     };
   };
+  ConfirmWalletDetails: undefined;
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;
   EnterWalletPath: undefined;

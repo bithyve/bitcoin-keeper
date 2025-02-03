@@ -25,6 +25,7 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import QRScanner from 'src/components/QRScanner';
 import { VaultType } from 'src/services/wallets/enums';
+import BackgroundTimer from 'react-native-background-timer';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -67,7 +68,7 @@ function RegisterWithChannel() {
   // TODO: Should migrate to regualr descriptor format
   let descriptorString = null;
   let miniscriptPolicy = null;
-  if (vault.type === VaultType.INHERITANCE) {
+  if (vault.type === VaultType.MINISCRIPT) {
     miniscriptPolicy = generateOutputDescriptors(vault);
   } else {
     descriptorString = generateOutputDescriptors(vault, true).split('\n')[0];
@@ -94,40 +95,43 @@ function RegisterWithChannel() {
   };
 
   useEffect(() => {
-    let channelConnectionInterval = setInterval(() => {
-      if (!channel.connect) {
-        channel.connect();
-      }
-    }, 10000);
-    channel.on(CHANNEL_MESSAGE, async ({ data }) => {
-      try {
-        const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
-        const hmac = decrypted.responseData.data.hmac;
-        const resAdd = decrypted.responseData.data.address;
-        if (resAdd != firstExtAdd) return;
-        dispatch(
-          updateKeyDetails(vaultKey, 'registered', {
-            registered: true,
-            hmac,
-            vaultId: vault.id,
-          })
-        );
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_REGISTRATION,
-            },
-          ])
-        );
-        navigation.goBack();
-      } catch (error) {
-        captureError(error);
-      }
-    });
+    const startBackgroundListener = () => {
+      BackgroundTimer.start();
+
+      channel.connect();
+      channel.on(CHANNEL_MESSAGE, async ({ data }) => {
+        try {
+          const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
+          const hmac = decrypted.responseData.data.hmac;
+          const resAdd = decrypted.responseData.data.address;
+          if (resAdd != firstExtAdd) return;
+          dispatch(
+            updateKeyDetails(vaultKey, 'registered', {
+              registered: true,
+              hmac,
+              vaultId: vault.id,
+            })
+          );
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_REGISTRATION,
+              },
+            ])
+          );
+          navigation.goBack();
+        } catch (error) {
+          captureError(error);
+        }
+      });
+    };
+
+    startBackgroundListener();
+
     return () => {
+      BackgroundTimer.stop();
       channel.disconnect();
-      clearInterval(channelConnectionInterval);
     };
   }, [channel]);
 

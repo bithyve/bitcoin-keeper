@@ -79,9 +79,9 @@ PODS:
   - libportal-react-native (0.3.0):
     - libportal-ios
     - React-Core
-  - MMKV (1.3.5):
-    - MMKVCore (~> 1.3.5)
-  - MMKVCore (1.3.5)
+  - MMKV (2.0.0):
+    - MMKVCore (~> 2.0.0)
+  - MMKVCore (2.0.0)
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
     - nanopb/encode (= 2.30908.0)
@@ -392,6 +392,8 @@ PODS:
   - React-jsinspector (0.72.4)
   - React-logger (0.72.4):
     - glog
+  - react-native-background-timer (2.4.1):
+    - React-Core
   - react-native-biometrics (2.2.0):
     - React-Core
   - react-native-blob-util (0.18.3):
@@ -422,6 +424,8 @@ PODS:
     - React-Core
   - react-native-mmkv (2.11.0):
     - MMKV (>= 1.2.13)
+    - React-Core
+  - react-native-netinfo (11.4.1):
     - React-Core
   - react-native-nfc-manager (3.16.0):
     - React-Core
@@ -575,7 +579,7 @@ PODS:
     - React-Core
   - RNLocalize (2.2.2):
     - React-Core
-  - RNReanimated (3.6.1):
+  - RNReanimated (3.8.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
@@ -651,6 +655,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-background-timer (from `../node_modules/react-native-background-timer`)
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
   - react-native-camera (from `../node_modules/react-native-camera`)
@@ -662,6 +667,7 @@ DEPENDENCIES:
   - react-native-html-to-pdf (from `../node_modules/react-native-html-to-pdf`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
@@ -787,6 +793,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-background-timer:
+    :path: "../node_modules/react-native-background-timer"
   react-native-biometrics:
     :path: "../node_modules/react-native-biometrics"
   react-native-blob-util:
@@ -809,6 +817,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-nfc-manager:
     :path: "../node_modules/react-native-nfc-manager"
   react-native-pdf:
@@ -898,7 +908,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/bithyve/libportal-ios.git
 
 SPEC CHECKSUMS:
-  boost: 57d2868c099736d80fcd648bf211b4431e51a558
+  boost: 7dcd2de282d72e344012f7d6564d024930a6a440
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
@@ -917,14 +927,14 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   libportal-ios: d9aa55474e2d5be8e38e96345dd37be34fda45b4
   libportal-react-native: ed03515a66cc90e64643603e4b0c5708c66772a7
-  MMKV: 506311d0494023c2f7e0b62cc1f31b7370fa3cfb
-  MMKVCore: 9e2e5fd529b64a9fe15f1a7afb3d73b2e27b4db9
+  MMKV: f7d1d5945c8765f97f39c3d121f353d46735d801
+  MMKVCore: c04b296010fcb1d1638f2c69405096aac12f6390
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PDFGenerator: 17d6bc525db0a3fcd156fbf00f9d1b8d5cc75d1e
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   QrCode: 2daa9df3b0c309db370888fb207714acdadc4aa4
   QRCoder: cbd2bee531cc86d286df7942334cfed94c803ae4
-  RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
+  RCT-Folly: 8dc08ca5a393b48b1c523ab6220dfdcc0fe000ad
   RCTRequired: c0569ecc035894e4a68baecb30fe6a7ea6e399f9
   RCTTypeSafety: e90354072c21236e0bcf1699011e39acd25fea2f
   React: a1be3c6dc0a6e949ccd3e659781aa47bbae1868f
@@ -939,6 +949,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: bee9fca67c1b8ab7d9cf1c8e19a50968dc15ba2e
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: 005cf0fc175b43fd5a1abca9ad02fc50c5db45d3
+  react-native-background-timer: 4638ae3bee00320753647900b21260b10587b6f7
   react-native-biometrics: ecca256a9e1c8b430f78c4e3dcb16b57ea1418e0
   react-native-blob-util: 4be49d669870f01645b63d33342718e95d0d48b1
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
@@ -950,6 +961,7 @@ SPEC CHECKSUMS:
   react-native-html-to-pdf: 7a49e6c58ac5221bcc093027b195f4b214f27a9d
   react-native-image-picker: 1f5318beec2ebed6695454ffb9bea8c4152f1598
   react-native-mmkv: 5a46c73e3e12aa872c4485ae0e4414b4040af79a
+  react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-nfc-manager: e5d2ce2f7fee42d1ee0eb6b99f3405d5e330112e
   react-native-pdf: b0380c1ad48f30943665cd783c4c305e341c0822
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
@@ -985,7 +997,7 @@ SPEC CHECKSUMS:
   RNIap: db3f43e41ed9d7b5c04fbfe759b10ac344521af6
   RNKeychain: df33ae4d27df06622fc14190b790ba8749f6be76
   RNLocalize: 19917c3f32cf6386f7d2957a638a4281669cae57
-  RNReanimated: 49a1e0d191bdaefe1b394eb258bc52a42bcf704c
+  RNReanimated: e85473000000298d6e2a23a191a3a3d9ef3cd3ee
   RNScreens: 4f2dbf88d1ba333a4455a29833e30510b21f14c5
   RNSentry: 57cc5b69e739fce9515cbc2975b820d6ea5faeae
   RNShare: d1da96f570164d84821ee9d75740eee7ec2efa87

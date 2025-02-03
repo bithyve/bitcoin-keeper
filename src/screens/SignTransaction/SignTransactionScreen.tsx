@@ -229,7 +229,7 @@ function SignTransactionScreen() {
   }, [sendAndReceive, snapshotOptions]);
 
   useEffect(() => {
-    if (relayVaultUpdate) {
+    if (relayVaultUpdate && intrimVault) {
       const navigationState = {
         index: 1,
         routes: [
@@ -252,7 +252,7 @@ function SignTransactionScreen() {
       showToast(`Error: ${realyVaultErrorMessage}`, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
     }
-  }, [relayVaultUpdate, relayVaultError]);
+  }, [relayVaultUpdate, relayVaultError, intrimVault]);
 
   useEffect(() => {
     if (isMigratingNewVault) {
@@ -290,8 +290,7 @@ function SignTransactionScreen() {
 
     const hasThresholdSignatures = signedTxCount >= defaultVault.scheme.m;
     if (defaultVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-      const vaultsWithTimelock = [VaultType.TIMELOCKED, VaultType.INHERITANCE]; // m-of-n style miniscript vaults w/ timelock
-      if (vaultsWithTimelock.includes(defaultVault.type)) return hasThresholdSignatures;
+      if (defaultVault.type === VaultType.MINISCRIPT) return hasThresholdSignatures;
       else if (signedTxCount === serializedPSBTEnvelops.length) return true;
     } else return hasThresholdSignatures;
   };
@@ -581,7 +580,7 @@ function SignTransactionScreen() {
             }
           }
           if (!configurationForVault) {
-            showToast(`Missing vault configuration for ${defaultVault.id}`);
+            showToast(`Missing wallet configuration for ${defaultVault.id}`);
             return;
           }
           signTransaction({
@@ -736,7 +735,7 @@ function SignTransactionScreen() {
       <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Choose at least ${scheme.m} to sign the transaction`}
+        subtitle={`Choose ${scheme.m} key${scheme.m == 1 ? '' : 's'} to sign the transaction`}
       />
       <FlatList
         contentContainerStyle={styles.contentContainerStyle}
@@ -841,6 +840,7 @@ function SignTransactionScreen() {
         sendConfirmationRouteParams={sendConfirmationRouteParams}
         tnxDetails={tnxDetails}
         isRemoteKey={false}
+        isMiniscript={!!defaultVault?.scheme?.miniscriptScheme}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal

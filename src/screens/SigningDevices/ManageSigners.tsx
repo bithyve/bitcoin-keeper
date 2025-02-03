@@ -20,7 +20,6 @@ import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import LockShieldLight from 'src/assets/images/lock-shield-light.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -116,11 +115,12 @@ function ManageSigners({ route }: ScreenProps) {
     }, [relaySignersUpdate])
   );
 
-  const handleCardSelect = (signer, item) => {
+  const handleCardSelect = (signer, item, isInheritanceKey?) => {
     navigation.dispatch(
       CommonActions.navigate('SigningDeviceDetails', {
         signerId: getKeyUID(signer),
         vaultId,
+        isInheritanceKey,
         vaultKey: vaultKeys.length ? item : undefined,
         vaultSigners: vaultKeys,
       })
@@ -185,16 +185,6 @@ function ManageSigners({ route }: ScreenProps) {
           learnTextColor={`${colorMode}.buttonText`}
           titleColor={`${colorMode}.seashellWhiteText`}
           subTitleColor={`${colorMode}.seashellWhiteText`}
-          rightComponent={
-            <TouchableOpacity
-              style={styles.settingsButton}
-              onPress={() => setConfirmPassVisible(true)}
-              testID="btn_manage_singner_setting"
-            >
-              <LockShieldLight />
-            </TouchableOpacity>
-          }
-          rightComponentBottomPadding={hp(-20)}
           icon={
             <CircleIconWrapper
               backgroundColor={`${colorMode}.seashellWhiteText`}
@@ -261,7 +251,7 @@ function ManageSigners({ route }: ScreenProps) {
           setShowLearnMoreModal(false);
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'TechnicalSupport',
+              name: 'CreateTicket',
               params: {
                 tags: [ConciergeTag.KEYS],
                 screenName: 'manage-keys',
@@ -321,7 +311,7 @@ function SignersList({
   vaultKeys: VaultSigner[];
   signers: Signer[];
   signerMap: Record<string, Signer>;
-  handleCardSelect: (signer: Signer, item: VaultSigner) => void;
+  handleCardSelect: (signer: Signer, item: VaultSigner, isInheritanceKey?: boolean) => void;
   handleAddSigner: () => void;
   vault: Vault;
   typeBasedIndicator: Record<string, Record<string, boolean>>;
@@ -391,6 +381,7 @@ function SignersList({
           showDot={true}
           colorVarient="green"
           colorMode={colorMode}
+          customStyle={styles.signerCard}
         />
       );
     });
@@ -430,9 +421,7 @@ function SignersList({
               (signer.type !== SignerType.MY_KEEPER &&
                 typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[
                   item.masterFingerprint
-                ]) ||
-              (signer.type === SignerType.MY_KEEPER &&
-                typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId]);
+                ]);
 
             return (
               <SignerCard
@@ -452,6 +441,7 @@ function SignersList({
                 showDot={showDot}
                 colorVarient="green"
                 colorMode={colorMode}
+                customStyle={styles.signerCard}
               />
             );
           })}
@@ -541,6 +531,10 @@ const styles = StyleSheet.create({
   settingsButton: {
     paddingHorizontal: 22,
     paddingVertical: 22,
+  },
+  signerCard: {
+    width: windowWidth * 0.43,
+    height: wp(130),
   },
 });
 

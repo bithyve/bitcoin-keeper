@@ -14,12 +14,13 @@ import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { getKeyUID } from 'src/utils/utilities';
+import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 
 const PendingHealthCheckModal = ({
   selectedItem,
   vaultKeys,
   signerMap,
-  keys,
+  keys: keysList,
   showHealthCheckModal,
   setShowHealthCheckModal,
   pendingHealthCheckCount,
@@ -33,6 +34,18 @@ const PendingHealthCheckModal = ({
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
+
+  let keys = keysList;
+
+  if (selectedItem && selectedItem.entityKind === EntityKind.VAULT) {
+    keys = keys.filter(
+      (key) =>
+        key.masterFingerprint !==
+        selectedItem?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
+          INHERITANCE_KEY1_IDENTIFIER
+        ]
+    );
+  }
 
   useEffect(() => {
     const countPendingHealthChecks = () => {

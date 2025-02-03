@@ -1,23 +1,42 @@
 import { Box } from 'native-base';
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, PixelRatio } from 'react-native';
 
 type Props = {
-  icon: Element;
+  icon: React.ReactElement;
   width?: number;
   backgroundColor?: string;
   image?: string;
 };
 
 function CircleIconWrapper({ icon, width = 50, backgroundColor, image = null }: Props) {
+  const scaledWidth = PixelRatio.roundToNearestPixel(width || 50);
   return (
     <Box
-      width={width}
-      height={width}
-      borderRadius={width / 2}
       backgroundColor={backgroundColor}
-      style={styles.alignItems}
+      style={[
+        styles.alignItems,
+        {
+          width: scaledWidth,
+          height: scaledWidth,
+          borderRadius: scaledWidth / 2,
+        },
+      ]}
     >
-      {image ? <Image src={image} style={styles.associatedContactImage} /> : icon}
+      {image ? (
+        <Image
+          source={{ uri: image }}
+          style={[
+            styles.associatedContactImage,
+            {
+              width: scaledWidth * 0.5,
+              height: scaledWidth * 0.5,
+              borderRadius: scaledWidth * 0.25,
+            },
+          ]}
+        />
+      ) : (
+        icon
+      )}
     </Box>
   );
 }
@@ -28,11 +47,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   associatedContactImage: {
-    width: '50%',
-    height: '50%',
-    borderRadius: 100,
     alignSelf: 'center',
-    justifyContent: 'center',
+    resizeMode: 'cover',
   },
 });
 

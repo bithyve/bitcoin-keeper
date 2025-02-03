@@ -12,16 +12,16 @@ type CardPillProps = {
   height?: number;
 };
 
-function CardPill({ heading, backgroundColor, headingColor, cardStyle, height }: CardPillProps) {
+function CardPill({ heading, backgroundColor, headingColor, cardStyle }: CardPillProps) {
   const { colorMode } = useColorMode();
   return (
     <Box
       backgroundColor={backgroundColor || `${colorMode}.walletTypePillBack`}
-      style={[styles.pillContainer, cardStyle && cardStyle, { height: height || 17 }]}
+      style={[styles.pillContainer, cardStyle && cardStyle]}
     >
       <Text
-        bold
-        style={[styles.heading, { opacity: colorMode === 'light' ? 0.75 : 1 }]}
+        semiBold
+        style={styles.heading}
         color={headingColor || `${colorMode}.pillText`}
         numberOfLines={1}
       >

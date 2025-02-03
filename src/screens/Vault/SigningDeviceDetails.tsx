@@ -271,7 +271,7 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { vaultKey, vaultId, signerId, vaultSigners, isUaiFlow } = route.params;
+  const { vaultKey, vaultId, isInheritanceKey, signerId, vaultSigners, isUaiFlow } = route.params;
   const { signers } = useSigners();
   const currentSigner =
     signers.find((signer) => getKeyUID(signer) === signerId) ||
@@ -301,7 +301,6 @@ function SigningDeviceDetails({ route }) {
   const isDarkMode = colorMode === 'dark';
   const data = useQuery(RealmSchema.BackupHistory);
   const signerVaults: Vault[] = [];
-  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
 
   allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
@@ -399,6 +398,8 @@ function SigningDeviceDetails({ route }) {
     try {
       let { senderAddresses, receiverAddresses, fees, signerMatched, feeRate, changeAddressIndex } =
         generateDataFromPSBT(serializedPSBT, signer);
+      // TODO: Need to find a way to detect Miniscript in PSBT without having to import the vault
+      let isMiniscript = false;
       if (!signerMatched) {
         showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
         navigation.goBack();
@@ -425,6 +426,9 @@ function SigningDeviceDetails({ route }) {
           parseInt(changeAddressIndex)
         );
       }
+      if (activeVault) {
+        isMiniscript = !!activeVault?.scheme?.miniscriptScheme;
+      }
       navigation.dispatch(
         CommonActions.navigate({
           name: 'PSBTSendConfirmation',
@@ -435,6 +439,7 @@ function SigningDeviceDetails({ route }) {
             signer,
             psbt: serializedPSBT,
             feeRate,
+            isMiniscript,
           },
         })
       );
@@ -518,52 +523,76 @@ function SigningDeviceDetails({ route }) {
   ].filter(Boolean);
 
   const vaultSignerFooterItems = [
-    {
-      text: 'Health Check',
-      Icon: () => (
-        <FooterIcon
-          Icon={isDarkMode ? HealthCheckDark : HealthCheckLight}
-          showDot={
-            (signer.type !== SignerType.MY_KEEPER &&
-              entityBasedIndicator?.[signer.masterFingerprint]?.[
-                uaiType.SIGNING_DEVICES_HEALTH_CHECK
-              ]) ||
-            (signer.type === SignerType.MY_KEEPER &&
-              typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId])
-          }
-        />
-      ),
-      onPress: () => {
-        if (signer.type === SignerType.UNKOWN_SIGNER) {
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'AssignSignerType',
-              params: {
-                parentNavigation: navigation,
-                vault: activeVault,
-                signer,
-              },
-            })
-          );
-        } else if (signer.type === SignerType.MY_KEEPER) {
-          setShowMobileKeyModal(true);
-        } else {
-          setVisible(true);
-        }
-      },
-    },
-    {
-      text: 'Change Key',
-      Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
-      onPress: () =>
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'AddSigningDevice',
-            merge: true,
-            params: { vaultId, scheme: activeVault.scheme, keyToRotate: vaultKey },
-          })
-        ),
-    },
+    ...(signer.type !== SignerType.MY_KEEPER
+      ? [
+          {
+            text: 'Health Check',
+            Icon: () => (
+              <FooterIcon
+                Icon={isDarkMode ? HealthCheckDark : HealthCheckLight}
+                showDot={
+                  entityBasedIndicator?.[signer.masterFingerprint]?.[
+                    uaiType.SIGNING_DEVICES_HEALTH_CHECK
+                  ]
+                }
+              />
+            ),
+            onPress: () => {
+              if (signer.type === SignerType.UNKOWN_SIGNER) {
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'AssignSignerType',
+                    params: {
+                      parentNavigation: navigation,
+                      vault: activeVault,
+                      signer,
+                    },
+                  })
+                );
+              } else if (signer.type === SignerType.MY_KEEPER) {
+                setShowMobileKeyModal(true);
+              } else {
+                setVisible(true);
+              }
+            },
+          },
+        ]
+      : []),
+    ...(activeVault
+      ? [
+          {
+            text: 'Change Key',
+            Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
+            onPress: isInheritanceKey
+              ? () =>
+                  navigation.dispatch(
+                    CommonActions.navigate('AddReserveKey', {
+                      vaultId,
+                      name: activeVault.presentationData.name,
+                      description: activeVault.presentationData.description,
+                      scheme: activeVault.scheme,
+                      isAddInheritanceKey: true,
+                      currentBlockHeight: null,
+                      keyToRotate: signer,
+                    })
+                  )
+              : () =>
+                  navigation.dispatch(
+                    CommonActions.navigate({
+                      name: 'AddSigningDevice',
+                      merge: true,
+                      params: {
+                        vaultId,
+                        name: activeVault.presentationData.name,
+                        description: activeVault.presentationData.description,
+                        scheme: activeVault.scheme,
+                        keyToRotate: vaultKey,
+                      },
+                    })
+                  ),
+          },
+        ]
+      : []),
     {
       text: 'Settings',
       Icon: () => <FooterIcon Icon={isDarkMode ? SettingIcon : SettingIconLight} />,
@@ -609,7 +638,7 @@ function SigningDeviceDetails({ route }) {
         <Box style={styles.paddedArea}>
           <Box style={styles.flex1}>
             <Text style={styles.recentHistoryText} color={`${colorMode}.secondaryText`} medium>
-              {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
+              {`Key used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
             </Text>
             {signerVaults.length > 0 ? (
               <ScrollView
@@ -725,7 +754,7 @@ function SigningDeviceDetails({ route }) {
                 setDetailModal(false);
                 navigation.dispatch(
                   CommonActions.navigate({
-                    name: 'TechnicalSupport',
+                    name: 'CreateTicket',
                     params: {
                       tags: [ConciergeTag.KEYS],
                       screenName: 'signing-device-details',

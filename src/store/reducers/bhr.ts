@@ -15,7 +15,7 @@ const initialState: {
   loading: boolean;
   appRecoveryLoading: boolean;
   appImageRecoverd: boolean;
-  appImageError: boolean;
+  appImageError: string;
   appImagerecoveryRetry: boolean;
   downloadingBackup: boolean;
   recoverBackupFailed: boolean;
@@ -49,6 +49,14 @@ const initialState: {
   keyDeletedSuccessModalVisible: boolean;
 
   seedWords: Array<seedWordItem>;
+
+  backupAllLoading: boolean;
+  backupAllSuccess: boolean;
+  backupAllFailure: boolean;
+
+  pendingAllBackup: boolean;
+
+  automaticCloudBackup: boolean;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -58,7 +66,7 @@ const initialState: {
 
   appRecoveryLoading: false,
   appImageRecoverd: false,
-  appImageError: false,
+  appImageError: '',
 
   appImagerecoveryRetry: false,
   downloadingBackup: false,
@@ -87,6 +95,14 @@ const initialState: {
   deletingKeyModalVisible: false,
   keyDeletedSuccessModalVisible: false,
   seedWords: [],
+
+  backupAllLoading: false,
+  backupAllFailure: false,
+  backupAllSuccess: false,
+
+  pendingAllBackup: false,
+
+  automaticCloudBackup: true,
 };
 
 const bhrSlice = createSlice({
@@ -115,7 +131,7 @@ const bhrSlice = createSlice({
     setAppRecoveryLoading: (state, action: PayloadAction<boolean>) => {
       state.appRecoveryLoading = action.payload;
     },
-    setAppImageError: (state, action: PayloadAction<boolean>) => {
+    setAppImageError: (state, action: PayloadAction<string>) => {
       state.appImageError = action.payload;
     },
     appImagerecoveryRetry: (state) => {
@@ -252,6 +268,24 @@ const bhrSlice = createSlice({
     resetSeedWords: (state) => {
       state.seedWords = [];
     },
+    setBackupAllLoading: (state, action: PayloadAction<boolean>) => {
+      state.backupAllLoading = action.payload;
+    },
+    setBackupAllSuccess: (state, action: PayloadAction<boolean>) => {
+      state.backupAllSuccess = action.payload;
+      state.backupAllLoading = false;
+    },
+    setBackupAllFailure: (state, action: PayloadAction<boolean>) => {
+      state.backupAllFailure = action.payload;
+      state.backupAllLoading = false;
+    },
+    setPendingAllBackup: (state, action: PayloadAction<boolean>) => {
+      state.pendingAllBackup = action.payload;
+    },
+
+    setAutomaticCloudBackup: (state, action: PayloadAction<boolean>) => {
+      state.automaticCloudBackup = action.payload;
+    },
   },
 });
 
@@ -301,6 +335,14 @@ export const {
 
   setSeedWord,
   resetSeedWords,
+
+  setBackupAllLoading,
+  setBackupAllSuccess,
+  setBackupAllFailure,
+
+  setPendingAllBackup,
+
+  setAutomaticCloudBackup,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -336,6 +378,10 @@ const bhrPersistConfig = {
     'cloudBsmsBackupError',
 
     'seedWords',
+
+    'backupAllLoading',
+    'backupAllFailure',
+    'backupAllSuccess',
   ],
 };
 

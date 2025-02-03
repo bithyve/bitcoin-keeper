@@ -12,6 +12,7 @@ import { isTestnet } from 'src/constants/Bitcoin';
 
 import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 import BIP32Factory from 'bip32';
+import { detectFileType, splitQRs } from 'src/services/qr/bbqr/split';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -481,7 +482,6 @@ export const getInputsToSignFromPSBT = (base64Str: string, signer: Signer) => {
   return inputsToSign;
 };
 
-
 export const calculateTicketsLeft = (tickets, planDetails) => {
   const PLEB_RESTRICTION = 1;
   const HODLER_RESTRICTION = 3;
@@ -546,3 +546,56 @@ export const checkSignerAccountsMatch = (signer: Signer): boolean => {
   const firstAccount = accountNumbers[0];
   return accountNumbers.every((num) => num === firstAccount);
 };
+
+export const extractBBQRIndex = (data) => {
+  if (!data.startsWith('B$')) {
+    throw new Error("Invalid string format. Must start with 'B$'.");
+  }
+  const total = data.substring(4, 6);
+  if (isNaN(total)) {
+    throw new Error('Invalid total. Must be numeric.');
+  }
+  const index = data.substring(6, 8);
+  if (isNaN(index)) {
+    throw new Error('Invalid index. Must be numeric.');
+  }
+  return {
+    total: parseInt(total, 10),
+    index: parseInt(index, 10),
+  };
+};
+
+export const psbtToBBQR = async (psbt, min = 1, max = 4) => {
+  try {
+    const { raw, fileType } = await detectFileType(psbt); // requires uint8array
+    const qrData = splitQRs(raw, fileType, { encoding: 'Z', minSplit: min, maxSplit: max });
+    return qrData.parts;
+  } catch (error) {
+    console.log('🚀 ~ psbtToBBQR ~ error:', error);
+    return [''];
+  }
+};
+
+export function isHexadecimal(str) {
+  return /^[0-9a-fA-F]+$/.test(str);
+}
+
+export function interpolateBBQR(input) {
+  const points = [
+    { x: 10, y: 4 },
+    { x: 50, y: 3 },
+    { x: 150, y: 2 },
+    { x: 200, y: 1 },
+  ];
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    if (input >= p1.x && input <= p2.x) {
+      const t = (input - p1.x) / (p2.x - p1.x);
+      const interpolatedValue = p1.y + t * (p2.y - p1.y);
+      return Math.round(interpolatedValue);
+    }
+  }
+  if (input < points[0].x) return points[0].y;
+  if (input > points[points.length - 1].x) return points[points.length - 1].y;
+}

@@ -12,6 +12,7 @@ export enum ConciergeTag {
   KEYS = 'keys',
   SETTINGS = 'settings',
   KEEPER_CONCIERGE = 'keeper-concierge',
+  ERROR_REPORT = 'error-report',
 }
 
 export enum ConciergeTicketStatus {

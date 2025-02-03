@@ -58,7 +58,7 @@ const PlanDetailsCards = ({ plansData, currentPosition, restorePurchases }) => {
                 <Box style={styles.iconContainer}>
                   <PlanCheckMark />
                 </Box>
-                <Text fontSize={14} color={`${colorMode}.secondaryText`}>
+                <Text fontSize={13} color={`${colorMode}.secondaryText`}>
                   {`${benifit}`}
                 </Text>
               </Box>
@@ -67,7 +67,7 @@ const PlanDetailsCards = ({ plansData, currentPosition, restorePurchases }) => {
       </Box>
       {showRestore && (
         <Text
-          style={{ fontSize: 13, lineHeight: 17, marginTop: hp(25) }}
+          style={{ fontSize: 13, lineHeight: 17, marginTop: hp(12) }}
           color={`${colorMode}.noteText`}
         >
           {choosePlan.noteSubTitle}
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     paddingLeft: wp(21),
-    paddingBottom: hp(31),
+    paddingBottom: hp(25),
   },
   benefitContainer: {
     flexDirection: 'row',

@@ -83,6 +83,7 @@ export function* setupKeeperAppWorker({ payload }) {
             id: uuidv4(),
             threshold: 0,
           },
+          instanceNum: 0,
         },
       };
 
@@ -149,6 +150,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
           id: uuidv4(),
           threshold: defaultTransferPolicyThreshold,
         },
+        instanceNum: 0,
       },
     };
     yield call(addNewWalletsWorker, { payload: [defaultWallet] });

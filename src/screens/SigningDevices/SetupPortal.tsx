@@ -233,8 +233,13 @@ function SetupPortal({ route }) {
         dispatch(addSigningDevice([portalSigner]));
         const navigationState = addSignerFlow
           ? {
-              name: 'ManageSigners',
-              params: { addedSigner: portalSigner, addSignerFlow, showModal: true },
+              name: 'Home',
+              params: {
+                selectedOption: 'Keys',
+                addedSigner: portalSigner,
+                addSignerFlow,
+                showModal: true,
+              },
             }
           : {
               name: 'AddSigningDevice',
@@ -331,8 +336,13 @@ function SetupPortal({ route }) {
       dispatch(addSigningDevice([portalSigner]));
       const navigationState = addSignerFlow
         ? {
-            name: 'ManageSigners',
-            params: { addedSigner: portalSigner, addSignerFlow, showModal: true },
+            name: 'Home',
+            params: {
+              selectedOption: 'Keys',
+              addedSigner: portalSigner,
+              addSignerFlow,
+              showModal: true,
+            },
           }
         : {
             name: 'AddSigningDevice',

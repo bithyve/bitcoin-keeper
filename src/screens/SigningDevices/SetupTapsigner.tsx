@@ -202,8 +202,8 @@ function SetupTapsigner({ route }) {
         dispatch(addSigningDevice([tapsigner]));
         const navigationState = addSignerFlow
           ? {
-              name: 'ManageSigners',
-              params: { addedSigner: tapsigner },
+              name: 'Home',
+              params: { selectedOption: 'Keys', addedSigner: tapsigner },
             }
           : {
               name: 'AddSigningDevice',

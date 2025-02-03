@@ -2,39 +2,27 @@ import { Pressable, StyleSheet } from 'react-native';
 import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-
 import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
-import WalletIcon from 'src/assets/images/daily_wallet.svg';
-import VaultIcon from 'src/assets/images/vault_icon.svg';
-import TribeWalletIcon from 'src/assets/images/hexagontile_wallet.svg';
-
-import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import SettingIcon from 'src/assets/images/settings.svg';
+import SettingIcon from 'src/assets/images/settings-gear-green.svg';
+import SettingIconWhite from 'src/assets/images/settings-gear.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
-import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
-
-import { DerivationPurpose, EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, WalletType } from 'src/services/wallets/enums';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import CardPill from 'src/components/CardPill';
-import ActionCard from 'src/components/ActionCard';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Colors from 'src/theme/Colors';
-import HexagonIcon from 'src/components/HexagonIcon';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import LearnMoreModal from './components/LearnMoreModal';
 import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
@@ -42,6 +30,10 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import WalletHeader from 'src/components/WalletHeader';
+import WalletCard from '../Home/components/Wallet/WalletCard';
+import useWalletAsset from 'src/hooks/useWalletAsset';
+import FeatureCard from 'src/components/FeatureCard';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -73,6 +65,7 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'WalletDetails'>;
 function WalletDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -87,6 +80,9 @@ function WalletDetails({ route }: ScreenProps) {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = wallet;
+
+  const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
+  const WalletIcon = getWalletIcon(wallet);
 
   const walletType = idx(wallet, (_) => _.type) || 'DEFAULT';
   const { walletSyncing } = useAppSelector((state) => state.wallet);
@@ -119,8 +115,6 @@ function WalletDetails({ route }: ScreenProps) {
 
   useEffect(() => {
     if (!syncing) {
-      // temporarily disabled due to huge performance lag (never call dispatch in useEffect)
-      // dispatch(refreshWallets([wallet], { hardRefresh: true }));
     }
   }, []);
 
@@ -154,41 +148,12 @@ function WalletDetails({ route }: ScreenProps) {
     setPullRefresh(false);
   };
 
-  const getWalletIcon = (wallet) => {
-    if (wallet.entityKind === EntityKind.VAULT) {
-      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
-    } else if (wallet.entityKind === EntityKind.WALLET) {
-      return (
-        <HexagonIcon
-          width={58}
-          height={50}
-          backgroundColor={Colors.DarkGreen}
-          icon={<WalletIcon />}
-        />
-      );
-    } else if (isWhirlpoolWallet) {
-      return <WhirlpoolAccountIcon />;
-    } else {
-      return <TribeWalletIcon />;
-    }
-  };
-
   return (
-    <Box safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`} style={styles.wrapper}>
-      <StatusBar barStyle="light-content" />
+    <Box safeAreaTop style={styles.wrapper}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <Box style={styles.topContainer}>
-        <KeeperHeader
-          learnMore
-          learnTextColor={`${colorMode}.buttonText`}
-          learnBackgroundColor={`${colorMode}.pantoneGreen`}
-          learnMorePressed={() => dispatch(setIntroModal(true))}
-          contrastScreen={true}
+        <WalletHeader
           title={name}
-          titleColor={`${colorMode}.seashellWhiteText`}
-          mediumTitle
-          subtitle={walletType === 'IMPORTED' ? 'Imported wallet' : description}
-          subTitleColor={`${colorMode}.seashellWhiteText`}
-          icon={getWalletIcon(wallet)}
           rightComponent={
             <TouchableOpacity
               style={styles.settingBtn}
@@ -196,48 +161,42 @@ function WalletDetails({ route }: ScreenProps) {
                 navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
               }
             >
-              <SettingIcon width={24} height={24} />
+              {isDarkMode ? (
+                <SettingIconWhite width={24} height={24} />
+              ) : (
+                <SettingIcon width={24} height={24} />
+              )}
             </TouchableOpacity>
           }
         />
-        <Box style={styles.balanceWrapper}>
-          <Box style={styles.unconfirmBalanceView}>
-            <CardPill
-              heading={walletKind}
-              backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
-            />
-            <CardPill heading={isTaprootWallet ? 'Taproot' : 'Single-Key'} />
-          </Box>
-          <Box style={styles.availableBalanceView}>
-            <CurrencyInfo
-              hideAmounts={false}
-              amount={unconfirmed + confirmed}
-              fontSize={24}
-              color={`${colorMode}.buttonText`}
-              variation="light"
-            />
-          </Box>
+
+        <Box style={styles.card}>
+          <WalletCard
+            backgroundColor={getWalletCardGradient(wallet)}
+            hexagonBackgroundColor={Colors.CyanGreen}
+            icon={<WalletIcon />}
+            iconWidth={42}
+            iconHeight={38}
+            title={wallet.presentationData.name}
+            tags={getWalletTags(wallet)}
+            totalBalance={wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed}
+            description={wallet.presentationData.description}
+            wallet={wallet}
+            allowHideBalance={false}
+          />
         </Box>
       </Box>
       <Box style={styles.actionCard}>
-        <ActionCard
-          disable={disableBuy}
+        <FeatureCard
           cardName={common.buyBitCoin}
-          description={common.inToThisWallet}
           callback={() =>
             navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
           }
           icon={<BTC />}
-          cardPillText={cardProps.cardPillText}
-          pillTextColor={cardProps.pillTextColor}
-          circleColor={cardProps.circleColor}
-          cardPillColor={cardProps.cardPillColor}
-          customCardPill={cardProps.customCardPill}
           customStyle={{ justifyContent: 'flex-end' }}
         />
-        <ActionCard
+        <FeatureCard
           cardName={common.viewAllCoins}
-          description={common.manageUTXO}
           callback={() =>
             navigation.navigate('UTXOManagement', {
               data: wallet,
@@ -251,7 +210,11 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
         {wallet ? (
-          <>
+          <Box
+            flex={1}
+            style={styles.transactionsContainer}
+            backgroundColor={`${colorMode}.thirdBackground`}
+          >
             {wallet?.specs?.transactions?.length ? (
               <HStack style={styles.transTitleWrapper}>
                 <Text color={`${colorMode}.black`} medium fontSize={wp(14)}>
@@ -278,7 +241,7 @@ function WalletDetails({ route }: ScreenProps) {
               wallet={wallet}
             />
             <TransactionFooter currentWallet={wallet} />
-          </>
+          </Box>
         ) : (
           <Box style={styles.addNewWalletContainer}>
             <AddWalletIcon />
@@ -302,11 +265,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topContainer: {
-    paddingHorizontal: 20,
-    paddingTop: hp(15),
+    paddingHorizontal: 18,
   },
   walletContainer: {
-    paddingHorizontal: wp(20),
     paddingTop: wp(60),
     paddingBottom: 20,
     flex: 1,
@@ -357,6 +318,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     justifyContent: 'space-between',
   },
+  transactionsContainer: {
+    paddingHorizontal: wp(22),
+    marginTop: hp(5),
+    paddingTop: hp(24),
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+  },
   unconfirmBalanceView: {
     width: '50%',
     flexDirection: 'row',
@@ -389,8 +357,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   settingBtn: {
-    paddingHorizontal: 22,
-    paddingVertical: 22,
+    paddingHorizontal: 8,
+    paddingVertical: 16,
+  },
+  card: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 export default SentryErrorBoundary(WalletDetails);

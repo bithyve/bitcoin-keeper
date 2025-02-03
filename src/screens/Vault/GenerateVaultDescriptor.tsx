@@ -20,8 +20,8 @@ import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import DownloadPDF from 'src/assets/images/download-pdf-white.svg';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
-const ConfigQR = ({ isInheritanceVault, descriptorString, activeTab }) => {
-  return isInheritanceVault ? (
+const ConfigQR = ({ isMiniscriptVault, descriptorString, activeTab }) => {
+  return isMiniscriptVault ? (
     <Box style={styles.IKConfigContainer}>
       {activeTab === 0 ? (
         <KeeperQRCode size={windowWidth * 0.7} ecl="L" qrData={descriptorString} />
@@ -40,10 +40,10 @@ const ConfigQR = ({ isInheritanceVault, descriptorString, activeTab }) => {
 
 function GenerateVaultDescriptor() {
   const route = useRoute();
-  const { vaultId, isInheritanceVault } = route.params as {
+  const { vaultId, isMiniscriptVault } = route.params as {
     descriptorString: string;
     vaultId: string;
-    isInheritanceVault: boolean;
+    isMiniscriptVault: boolean;
   };
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -81,27 +81,29 @@ function GenerateVaultDescriptor() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Vault Configuration File"
-        subtitle="The vault configuration file is used to restore the vault on other devices."
+        title="Wallet Configuration File"
+        subtitle="The wallet configuration file is used to restore the wallet on other devices."
       />
-      <Box style={styles.container}>
-        {isInheritanceVault && (
-          <Box style={styles.tabBarContainer}>
-            <TabBar
-              radius={7}
-              width="95%"
-              tabs={tabsData}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
-          </Box>
-        )}
-        <ScrollView
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        >
+      <Box height={hp(15)} />
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Box style={styles.container}>
+          {isMiniscriptVault && (
+            <Box style={styles.tabBarContainer}>
+              <TabBar
+                radius={7}
+                width="95%"
+                tabs={tabsData}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+            </Box>
+          )}
+
           <ConfigQR
-            isInheritanceVault={isInheritanceVault}
+            isMiniscriptVault={isMiniscriptVault}
             descriptorString={vaultDescriptorString}
             activeTab={activeTab}
           />
@@ -120,7 +122,10 @@ function GenerateVaultDescriptor() {
             </Box>
           </TouchableOpacity>
           <Box style={styles.optionsContainer}>
-            <ShareWithNfc data={vaultDescriptorString} fileName={`${vaultId}-backup.txt`} />
+            <ShareWithNfc
+              data={vaultDescriptorString}
+              fileName={`${vault.presentationData.name.replace(/\s+/g, '-')}.txt`}
+            />
             <OptionCTA
               icon={
                 <CircleIconWrapper
@@ -139,8 +144,8 @@ function GenerateVaultDescriptor() {
               }}
             />
           </Box>
-        </ScrollView>
-      </Box>
+        </Box>
+      </ScrollView>
     </ScreenWrapper>
   );
 }
@@ -153,11 +158,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    marginTop: hp(30),
     alignItems: 'center',
   },
   tabBarContainer: {
-    marginTop: hp(30),
     marginBottom: hp(10),
   },
   inputWrapper: {
@@ -168,8 +171,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    marginVertical: hp(30),
-    marginBottom: hp(30),
+    marginTop: hp(15),
+    marginBottom: hp(20),
     paddingLeft: wp(20),
     paddingRight: wp(8),
     borderWidth: 1,

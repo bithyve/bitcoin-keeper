@@ -24,6 +24,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import ServerItem from './components/ServerItem';
 import WarningNote from 'src/components/WarningNote';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { updateAppImage } from 'src/store/sagaActions/bhr';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -68,6 +69,7 @@ function NodeSettings() {
     if (status) {
       const updatedNodes = Node.getAllNodes();
       setNodeList(updatedNodes);
+      dispatch(updateAppImage({ wallets: null, signers: null }));
     }
   };
 

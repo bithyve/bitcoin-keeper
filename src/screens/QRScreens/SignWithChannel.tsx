@@ -29,6 +29,7 @@ import { getPsbtForHwi } from 'src/hardware';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import QRScanner from 'src/components/QRScanner';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
+import BackgroundTimer from 'react-native-background-timer';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -85,7 +86,7 @@ function SignWithChannel() {
   const navgation = useNavigation();
 
   let miniscriptPolicy = null;
-  if (activeVault.type === VaultType.INHERITANCE) {
+  if (activeVault.type === VaultType.MINISCRIPT) {
     miniscriptPolicy = generateOutputDescriptors(activeVault);
   }
   const walletName = activeVault.presentationData.name;
@@ -114,65 +115,68 @@ function SignWithChannel() {
   };
 
   useEffect(() => {
-    let channelConnectionInterval = setInterval(() => {
-      if (!channel.connect) {
-        channel.connect();
-      }
-    }, 10000);
+    const startBackgroundListener = () => {
+      BackgroundTimer.start();
 
-    channel.on(CHANNEL_MESSAGE, async ({ data }) => {
-      try {
-        const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
-        onSignedTnx(decrypted.responseData);
-      } catch (error) {
-        console.log('🚀 ~ channel.on ~ error:', error);
-      }
-    });
-    const onSignedTnx = (data) => {
-      try {
-        const signedSerializedPSBT = data.data.signedSerializedPSBT;
-        const hmac = data.data.hmac;
-        dispatch(
-          updateKeyDetails(vaultKey, 'registered', {
-            registered: true,
-            hmac,
-            vaultId,
-          })
-        );
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_SIGNING,
-            },
-          ])
-        );
-        if (isRemoteKey) {
-          navgation.dispatch(
-            CommonActions.navigate({
-              name: 'ShowPSBT',
-              params: {
-                data: signedSerializedPSBT,
-                encodeToBytes: false,
-                title: 'Signed PSBT',
-                subtitle: 'Please scan until all the QR data has been retrieved',
-                type: SignerType.KEEPER, // signer used as external key
-              },
-            })
-          );
-          return;
+      channel.connect();
+      channel.on(CHANNEL_MESSAGE, async ({ data }) => {
+        try {
+          const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
+          onSignedTnx(decrypted.responseData);
+        } catch (error) {
+          console.log('🚀 ~ channel.on ~ error:', error);
         }
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
-        navgation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
-      } catch (error) {
-        captureError(error);
-      }
+      });
     };
+
+    startBackgroundListener();
+
     return () => {
+      BackgroundTimer.stop();
       channel.disconnect();
-      clearInterval(channelConnectionInterval);
     };
   }, [channel]);
+
+  const onSignedTnx = (data) => {
+    try {
+      const signedSerializedPSBT = data.data.signedSerializedPSBT;
+      const hmac = data.data.hmac;
+      dispatch(
+        updateKeyDetails(vaultKey, 'registered', {
+          registered: true,
+          hmac,
+          vaultId,
+        })
+      );
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SIGNING,
+          },
+        ])
+      );
+      if (isRemoteKey) {
+        navgation.dispatch(
+          CommonActions.navigate({
+            name: 'ShowPSBT',
+            params: {
+              data: signedSerializedPSBT,
+              encodeToBytes: false,
+              title: 'Signed PSBT',
+              subtitle: 'Please scan until all the QR data has been retrieved',
+              type: SignerType.KEEPER, // signer used as external key
+            },
+          })
+        );
+        return;
+      }
+      dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+      navgation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
+    } catch (error) {
+      captureError(error);
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>

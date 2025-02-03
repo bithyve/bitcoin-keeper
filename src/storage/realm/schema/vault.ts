@@ -219,6 +219,7 @@ export const MiniscriptSchemeSchema: ObjectSchema = {
     keyInfoMap: '{}',
     miniscriptPolicy: 'string',
     miniscript: 'string',
+    usedMiniscriptTypes: 'string[]',
   },
 };
 

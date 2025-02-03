@@ -4,6 +4,7 @@
 import {
   DerivationPurpose,
   EntityKind,
+  MiniscriptTypes,
   MultisigScriptType,
   SignerType,
   VaultType,
@@ -404,19 +405,16 @@ function* addNewWallet(
 
   switch (walletType) {
     case WalletType.DEFAULT:
-      const defaultWalletInstacnes = wallets.filter(
-        (wallet) => wallet.type === WalletType.DEFAULT
-      ).length;
-
       const defaultWallet: Wallet = yield call(generateWallet, {
         type: WalletType.DEFAULT,
-        instanceNum: defaultWalletInstacnes, // zero-indexed
+        instanceNum: instanceNum, // zero-indexed
         walletName: walletName || 'Default Wallet',
         walletDescription: walletDescription || '',
         derivationConfig,
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
+        wallets,
       });
       return defaultWallet;
 
@@ -429,46 +427,9 @@ function* addNewWallet(
         importDetails,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
+        wallets,
       });
       return importedWallet;
-
-    // Whirpool wallet types premix,postmix, badbank
-    case WalletType.PRE_MIX:
-      const preMixWallet: Wallet = yield call(generateWallet, {
-        type: WalletType.PRE_MIX,
-        instanceNum, // deposit account's index
-        walletName: 'Pre mix Wallet',
-        walletDescription: '',
-        derivationConfig,
-        networkType: config.NETWORK_TYPE,
-        parentMnemonic,
-      });
-      return preMixWallet;
-
-    case WalletType.POST_MIX:
-      const postMixWallet: Wallet = yield call(generateWallet, {
-        type: WalletType.POST_MIX,
-        instanceNum, // deposit account's index
-        walletName: 'Post mix Wallet',
-        walletDescription: '',
-        derivationConfig,
-        networkType: config.NETWORK_TYPE,
-        parentMnemonic,
-      });
-      return postMixWallet;
-
-    case WalletType.BAD_BANK:
-      const badBankWallet: Wallet = yield call(generateWallet, {
-        type: WalletType.BAD_BANK,
-        instanceNum, // deposit account's index
-        walletName: 'Bad Bank Wallet',
-        walletDescription: '',
-        derivationConfig,
-        networkType: config.NETWORK_TYPE,
-        parentMnemonic,
-      });
-      return badBankWallet;
-
     default:
       throw new Error(`Unsupported wallet-type ${walletType}`);
   }
@@ -506,7 +467,7 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
     }
   } catch (err) {
     console.log(err);
-    yield put(relayWalletUpdateFail(''));
+    yield put(relayWalletUpdateFail(err.message ? err.message : err.toString()));
     return false;
   }
 }
@@ -519,6 +480,7 @@ export interface NewVaultInfo {
   vaultSigners: VaultSigner[];
   miniscriptElements?: MiniscriptElements;
   vaultDetails?: NewVaultDetails;
+  miniscriptTypes?: MiniscriptTypes[];
 }
 
 export function* addNewVaultWorker({
@@ -904,6 +866,9 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
     const { vaultId } = payload;
     const oldVault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON() as Vault;
     let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    if (!migratedVault) {
+      return;
+    }
     migratedVault = {
       ...migratedVault,
       archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,

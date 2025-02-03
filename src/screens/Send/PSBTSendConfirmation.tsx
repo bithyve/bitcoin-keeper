@@ -23,12 +23,20 @@ export interface PSBTSendConfirmationParams {
   signer: Signer;
   psbt: string;
   feeRate: string;
+  isMiniscript?: boolean;
 }
 
 function PSBTSendConfirmation({ route }) {
   const { colorMode } = useColorMode();
-  const { sender, recipient, fees, signer, psbt, feeRate }: PSBTSendConfirmationParams =
-    route.params;
+  const {
+    sender,
+    recipient,
+    fees,
+    signer,
+    psbt,
+    feeRate,
+    isMiniscript,
+  }: PSBTSendConfirmationParams = route.params;
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslations, common } = translations;
@@ -150,7 +158,12 @@ function PSBTSendConfirmation({ route }) {
         primaryCallback={() => signerModalRef.current.openModal()}
       />
 
-      <RKSignersModal signer={signer} psbt={psbt} ref={signerModalRef} />
+      <RKSignersModal
+        signer={signer}
+        psbt={psbt}
+        ref={signerModalRef}
+        isMiniscript={isMiniscript}
+      />
     </ScreenWrapper>
   );
 }

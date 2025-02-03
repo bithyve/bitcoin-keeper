@@ -1,6 +1,12 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { MultisigScriptType, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
+import {
+  MiniscriptTypes,
+  MultisigScriptType,
+  NetworkType,
+  TxPriority,
+  VaultType,
+} from 'src/services/wallets/enums';
 import {
   MiniscriptElements,
   MiniscriptScheme,
@@ -55,6 +61,7 @@ function VaultMigrationController({
   isAddInheritanceKey = false,
   currentBlockHeight = null,
   selectedDuration = null,
+  miniscriptTypes = [],
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -81,7 +88,11 @@ function VaultMigrationController({
 
   useEffect(() => {
     if (vaultCreating) {
-      initiateNewVault();
+      initiateNewVault().catch((err) => {
+        console.log('Vault creation error:', err);
+        captureError(err);
+        setCreating(false);
+      });
     }
   }, [vaultCreating]);
 
@@ -102,7 +113,7 @@ function VaultMigrationController({
       setCreating(false);
       if (
         activeVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG &&
-        activeVault.type === VaultType.INHERITANCE
+        activeVault.type === VaultType.MINISCRIPT
       ) {
         WalletUtilities.fetchCurrentBlockHeight()
           .then(({ currentBlockHeight }) => {
@@ -171,15 +182,7 @@ function VaultMigrationController({
     }
   };
 
-  const vaultAlreadyExists = (vaultInfo: NewVaultInfo) => {
-    const allVaultIds = allVaults.map((vault) => vault.id);
-    const deletedVaultIds = archivedVaults.map((vault) => vault.id);
-
-    const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
-    return allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId);
-  };
-
-  const getTimelockDuration = (vaultType, selectedDuration, networkType) => {
+  const getTimelockDuration = (miniscriptTypes, selectedDuration, networkType) => {
     const durationIdentifier =
       selectedDuration === MONTHS_3
         ? 'MONTHS_3'
@@ -198,23 +201,30 @@ function VaultMigrationController({
       return;
     }
 
-    if (vaultType === VaultType.INHERITANCE) {
+    if (miniscriptTypes.includes(MiniscriptTypes.INHERITANCE)) {
       return networkType === NetworkType.MAINNET
         ? INHERITANCE_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
         : INHERITANCE_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
-    } else if (vaultType === VaultType.TIMELOCKED) {
+    } else if (miniscriptTypes.includes(MiniscriptTypes.TIMELOCKED)) {
       return networkType === NetworkType.MAINNET
         ? TIMELOCKED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
         : TIMELOCKED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
     }
   };
 
-  const prepareMiniscriptScheme = (
+  const prepareMiniscriptScheme = async (
     vaultInfo: NewVaultInfo,
+    miniscriptTypes: MiniscriptTypes[],
     inheritanceSigner?: VaultSigner,
     existingMiniscriptScheme?: MiniscriptScheme
   ) => {
-    if (![VaultType.TIMELOCKED, VaultType.INHERITANCE].includes(vaultInfo.vaultType)) {
+    if (
+      vaultInfo.vaultType !== VaultType.MINISCRIPT ||
+      !(
+        miniscriptTypes.includes(MiniscriptTypes.INHERITANCE) ||
+        miniscriptTypes.includes(MiniscriptTypes.TIMELOCKED)
+      )
+    ) {
       showToast(
         'Invalid vault type - supported only for timelocked and inheritance',
         <ToastErrorIcon />
@@ -222,10 +232,32 @@ function VaultMigrationController({
       return;
     }
 
-    const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
-    if (!currentBlockHeight) {
-      showToast('Failed to sync current block height', <ToastErrorIcon />);
+    // TODO: Support multiple options
+    if (miniscriptTypes.length !== 1) {
+      showToast(
+        'Multiple Minsicript options combined are not currently supported',
+        <ToastErrorIcon />
+      );
       return;
+    }
+
+    const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
+    let currentSyncedBlockHeight = currentBlockHeight;
+    if (!currentSyncedBlockHeight) {
+      try {
+        currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+          .currentBlockHeight;
+      } catch (err) {
+        console.log('Failed to re-fetch current block height: ' + err);
+      }
+      if (!currentSyncedBlockHeight) {
+        showToast(
+          'Failed to fetch current chain data, please check your connection and try again',
+          <ToastErrorIcon />
+        );
+        setCreating(false);
+        return;
+      }
     }
 
     if (!selectedDuration) {
@@ -233,8 +265,9 @@ function VaultMigrationController({
       return;
     }
 
+    // TODO: Support multiple options
     const timelockDuration = getTimelockDuration(
-      vaultInfo.vaultType,
+      miniscriptTypes,
       selectedDuration,
       config.NETWORK_TYPE
     );
@@ -246,13 +279,13 @@ function VaultMigrationController({
     const timelocks = [currentBlockHeight + timelockDuration];
 
     let miniscriptElements: MiniscriptElements;
-    if (vaultInfo.vaultType === VaultType.TIMELOCKED) {
+    if (miniscriptTypes.includes(MiniscriptTypes.TIMELOCKED)) {
       miniscriptElements = generateTimelockedVaultElements(
         vaultInfo.vaultSigners,
         vaultInfo.vaultScheme,
         timelocks
       );
-    } else if (vaultType === VaultType.INHERITANCE) {
+    } else if (miniscriptTypes.includes(MiniscriptTypes.INHERITANCE)) {
       miniscriptElements = generateInheritanceVaultElements(
         vaultInfo.vaultSigners,
         inheritanceSigner,
@@ -269,6 +302,7 @@ function VaultMigrationController({
 
     const miniscriptScheme: MiniscriptScheme = generateMiniscriptScheme(
       miniscriptElements,
+      miniscriptTypes,
       existingMiniscriptScheme
     );
     const vaultScheme: VaultScheme = {
@@ -278,14 +312,14 @@ function VaultMigrationController({
     };
     vaultInfo.vaultScheme = vaultScheme;
 
-    if (vaultType == VaultType.INHERITANCE) {
+    if (miniscriptTypes.includes(MiniscriptTypes.INHERITANCE)) {
       vaultInfo.vaultSigners = [...vaultInfo.vaultSigners, inheritanceSigner];
     }
 
     return vaultInfo;
   };
 
-  const initiateNewVault = () => {
+  const initiateNewVault = async () => {
     try {
       let vaultInfo: NewVaultInfo = {
         vaultType,
@@ -295,21 +329,28 @@ function VaultMigrationController({
           name,
           description,
         },
+        miniscriptTypes,
       };
 
       const isTimelockedInheritanceKey = isAddInheritanceKey;
       if (isTimeLock || isTimelockedInheritanceKey) {
-        vaultInfo = prepareMiniscriptScheme(
-          vaultInfo,
-          inheritanceKey,
-          activeVault ? activeVault.scheme.miniscriptScheme : null
-        );
+        try {
+          vaultInfo = await prepareMiniscriptScheme(
+            vaultInfo,
+            miniscriptTypes,
+            inheritanceKey,
+            activeVault ? activeVault.scheme.miniscriptScheme : null
+          );
+        } catch (err) {
+          throw Error(`Failed to prepare enhanced vault: ${err.message}`);
+        }
+        if (!vaultInfo) {
+          return;
+        }
       }
 
-      if (vaultAlreadyExists(vaultInfo)) {
-        Alert.alert('Vault with this configuration already exists.');
-        navigation.goBack();
-        return;
+      if (vaultAlreadyExists(vaultInfo, allVaults, archivedVaults)) {
+        throw Error('Wallet with this configuration already exists.');
       }
 
       if (activeVault) {
@@ -322,11 +363,21 @@ function VaultMigrationController({
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       }
     } catch (err) {
+      showToast(err?.message ? err?.message : err.toString(), <ToastErrorIcon />);
+      setCreating(false);
       captureError(err);
     }
   };
 
   return null;
 }
+
+export const vaultAlreadyExists = (vaultInfo: NewVaultInfo, allVaults, archivedVaults) => {
+  const allVaultIds = allVaults.map((vault) => vault.id);
+  const deletedVaultIds = archivedVaults.map((vault) => vault.id);
+
+  const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
+  return allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId);
+};
 
 export default VaultMigrationController;

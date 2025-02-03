@@ -31,7 +31,7 @@ import {
   updateCollaborativeChannelWatcher,
   fetchCollaborativeChannelWatcher,
 } from './wallets';
-import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
+import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher, uaisSeenWatcher } from './uai';
 import {
   changeAuthCredWatcher,
   changeLoginMethodWatcher,
@@ -54,6 +54,7 @@ import {
   backupBsmsOnCloudWatcher,
   bsmsCloudHealthCheckWatcher,
   healthCheckSatutsUpdateWatcher,
+  backupAllSignersAndVaultsWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -77,6 +78,7 @@ import {
   goToConceirgeWatcher,
   loadConciergeUserWatcher,
   addTicketStatusUAIWatcher,
+  scheduleOnboardingCallWatcher,
 } from './concierge';
 
 const rootSaga = function* () {
@@ -146,6 +148,7 @@ const rootSaga = function* () {
     uaiChecksWatcher,
     addUaiStackWatcher,
     uaiActionedWatcher,
+    uaisSeenWatcher,
 
     // BHR
     updateAppImageWatcher,
@@ -162,6 +165,7 @@ const rootSaga = function* () {
     backupBsmsOnCloudWatcher,
     bsmsCloudHealthCheckWatcher,
     deleteAppImageEntityWatcher,
+    backupAllSignersAndVaultsWatcher,
     // upgrade
     updateVersionHistoryWatcher,
     migrateLablesWatcher,
@@ -175,6 +179,7 @@ const rootSaga = function* () {
     goToConceirgeWatcher,
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
+    scheduleOnboardingCallWatcher,
   ];
 
   yield all(

@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, AppState, AppStateStatus } from 'react-native';
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -42,14 +42,17 @@ import { getUSBSignerDetails } from 'src/hardware/usbSigner';
 import { VaultType } from 'src/services/wallets/enums';
 import WalletOperations from 'src/services/wallets/operations';
 import { getKeyUID } from 'src/utils/utilities';
+import BackgroundTimer from 'react-native-background-timer';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
 
   const callback = (data) => {
-    onBarCodeRead(data);
-    setChannelCreated(true);
+    let success = onBarCodeRead(data);
+    if (success) {
+      setChannelCreated(true);
+    }
   };
 
   return !channelCreated ? (
@@ -110,10 +113,11 @@ function ConnectChannel() {
   let walletName = null;
   let hmac = null;
   let receivingAddress;
+  let room;
 
   if (mode === InteracationMode.ADDRESS_VERIFICATION) {
     const { activeVault: vault } = useVault({ vaultId });
-    if (vault.type === VaultType.INHERITANCE) {
+    if (vault.type === VaultType.MINISCRIPT) {
       miniscriptPolicy = generateOutputDescriptors(vault);
       addressIndex = receiveAddressIndex;
       walletName = vault.presentationData.name;
@@ -134,85 +138,62 @@ function ConnectChannel() {
   }
 
   const onBarCodeRead = (data) => {
-    decryptionKey.current = data;
-    const sha = crypto.createHash('sha256');
-    sha.update(data);
-    const room = sha.digest().toString('hex');
-    const requestBody: RequestBody = {
-      action:
-        mode === InteracationMode.ADDRESS_VERIFICATION
-          ? EMIT_MODES.VERIFY_ADDRESS
-          : mode == EMIT_MODES.HEALTH_CHECK
-          ? EMIT_MODES.HEALTH_CHECK
-          : EMIT_MODES.ADD_DEVICE,
-      signerType,
-    };
-    if (mode === InteracationMode.ADDRESS_VERIFICATION) {
-      requestBody.descriptorString = descriptorString;
-      requestBody.miniscriptPolicy = miniscriptPolicy;
-      requestBody.addressIndex = addressIndex;
-      requestBody.walletName = walletName;
-      requestBody.hmac = hmac;
-      requestBody.receivingAddress = receivingAddress;
-    } else {
-      requestBody.accountNumber = accountNumber;
-    }
-    const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
-    if (mode === InteracationMode.ADDRESS_VERIFICATION) {
-      setNewTitle(`Verify Address on ${signer.signerName}`);
-      setNewSubtitle(
-        'Please follow the instructions on the desktop app. Make sure the address you see here matches the one on your hardware device screen.'
-      );
-      setNewNote(
-        'Only use the address from Keeper mobile app if it matches the address displayed on your device'
-      );
+    try {
+      decryptionKey.current = data;
+      const sha = crypto.createHash('sha256');
+      sha.update(data);
+      room = sha.digest().toString('hex');
+      const requestBody: RequestBody = {
+        action:
+          mode === InteracationMode.ADDRESS_VERIFICATION
+            ? EMIT_MODES.VERIFY_ADDRESS
+            : mode == EMIT_MODES.HEALTH_CHECK
+            ? EMIT_MODES.HEALTH_CHECK
+            : EMIT_MODES.ADD_DEVICE,
+        signerType,
+      };
+      if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+        requestBody.descriptorString = descriptorString;
+        requestBody.miniscriptPolicy = miniscriptPolicy;
+        requestBody.addressIndex = addressIndex;
+        requestBody.walletName = walletName;
+        requestBody.hmac = hmac;
+        requestBody.receivingAddress = receivingAddress;
+      } else {
+        requestBody.accountNumber = accountNumber;
+      }
+      const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
+      channel.emit(JOIN_CHANNEL, {
+        room,
+        network: config.NETWORK_TYPE,
+        requestData,
+      });
+      if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+        setNewTitle(`Verify Address on ${signer.signerName}`);
+        setNewSubtitle(
+          'Please follow the instructions on the desktop app. Make sure the address you see here matches the one on your hardware device screen.'
+        );
+        setNewNote(
+          'Only use the address from Keeper mobile app if it matches the address displayed on your device'
+        );
+      }
+      return true;
+    } catch (error) {
+      console.log('Error in onBarCodeRead:', error);
+      if (error.message && error.message.includes('TypeError: invalid key length 1')) {
+        showToast(
+          'QR scanned is invalid, please make sure to scan the QR from the Keeper Desktop app.',
+          <ToastErrorIcon />
+        );
+      } else {
+        showToast('Failed to connect to the Desktop App, please try again', <ToastErrorIcon />);
+      }
+      return false;
+      // throw error;
     }
   };
 
   useEffect(() => {
-    let channelConnectionInterval = setInterval(() => {
-      if (!channel.connect) {
-        channel.connect();
-      }
-    }, 10000);
-    channel.on(CHANNEL_MESSAGE, async ({ data }) => {
-      try {
-        const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
-        const responseData = decrypted.responseData.data;
-        if (mode == EMIT_MODES.HEALTH_CHECK) {
-          await handleVerification(responseData, signerType);
-        } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
-          const resAdd = responseData.address;
-          const hmac = responseData.hmac;
-          if (resAdd != receivingAddress) return;
-          dispatch(
-            updateKeyDetails(signer, 'registered', {
-              registered: true,
-              hmac,
-              vaultId,
-            })
-          );
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_VERIFICATION,
-              },
-            ])
-          );
-          navigation.goBack();
-          showToast(`Address verified successfully`, <TickIcon />);
-        } else {
-          console.log('responseData');
-          console.log(responseData);
-          signerSetup(signerType, responseData);
-        }
-      } catch (error) {
-        console.log('🚀 ~ channel.on ~ error:', error);
-      }
-    });
-
     const signerSetup = (signerType, signerData) => {
       try {
         const { signer } = setupUSBSigner(signerType, signerData, isMultisig);
@@ -228,8 +209,8 @@ function ConnectChannel() {
           dispatch(addSigningDevice([signer]));
           const navigationState = addSignerFlow
             ? {
-                name: 'ManageSigners',
-                params: { addedSigner: signer },
+                name: 'Home',
+                params: { selectedOption: 'Keys', addedSigner: signer },
               }
             : {
                 name: 'AddSigningDevice',
@@ -298,12 +279,56 @@ function ConnectChannel() {
         }
       }
     };
+    let appStateSubscription: any;
+
+    const startBackgroundListener = () => {
+      BackgroundTimer.start();
+
+      channel.connect();
+      channel.on(CHANNEL_MESSAGE, async ({ data }) => {
+        try {
+          const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
+          const responseData = decrypted.responseData.data;
+          if (mode == EMIT_MODES.HEALTH_CHECK) {
+            await handleVerification(responseData, signerType);
+          } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
+            const resAdd = responseData.address;
+            const hmac = responseData.hmac;
+            if (resAdd != receivingAddress) return;
+            dispatch(
+              updateKeyDetails(signer, 'registered', {
+                registered: true,
+                hmac,
+                vaultId,
+              })
+            );
+            dispatch(
+              healthCheckStatusUpdate([
+                {
+                  signerId: signer.masterFingerprint,
+                  status: hcStatusType.HEALTH_CHECK_VERIFICATION,
+                },
+              ])
+            );
+            navigation.goBack();
+            showToast(`Address verified successfully`, <TickIcon />);
+          } else {
+            signerSetup(signerType, responseData);
+          }
+        } catch (error) {
+          console.log('🚀 ~ channel.on ~ error:', error);
+        }
+      });
+    };
+
+    startBackgroundListener();
 
     return () => {
+      BackgroundTimer.stop();
       channel.disconnect();
-      clearInterval(channelConnectionInterval);
+      appStateSubscription?.remove();
     };
-  }, [channel]);
+  }, []);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>

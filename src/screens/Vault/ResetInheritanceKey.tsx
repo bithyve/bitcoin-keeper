@@ -59,16 +59,29 @@ function ResetInheritanceKey({ route }) {
 
   const dispatch = useDispatch();
 
-  const handleResetInheritanceKey = () => {
+  const handleResetInheritanceKey = async () => {
     if (!selectedOption) {
       showToast('Please select activation time', <ToastErrorIcon />);
+      setCreating(false);
       return;
     }
-    if (!currentBlockHeight) {
-      showToast('Failed to sync current block height', <ToastErrorIcon />);
-      return;
+    let currentSyncedBlockHeight = currentBlockHeight;
+    if (!currentSyncedBlockHeight) {
+      try {
+        currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+          .currentBlockHeight;
+      } catch (err) {
+        console.log('Failed to re-fetch current block height: ' + err);
+      }
+      if (!currentSyncedBlockHeight) {
+        showToast(
+          'Failed to fetch current chain data, please check your connection and try again',
+          <ToastErrorIcon />
+        );
+        setCreating(false);
+        return;
+      }
     }
-    setCreating(true);
   };
 
   useEffect(() => {
@@ -88,6 +101,10 @@ function ResetInheritanceKey({ route }) {
 
   useEffect(() => {
     try {
+      if (!currentBlockHeight) {
+        setCurrentTimeUntilActivation('Loading time until activation...');
+        return;
+      }
       const blocksUntilActivation =
         vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0] - currentBlockHeight;
       if (blocksUntilActivation > 0) {
@@ -155,7 +172,6 @@ function ResetInheritanceKey({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <ActivityIndicatorView visible={vaultCreating} />
       <KeeperHeader title={vaultText.resetIKTitle} subtitle={vaultText.resetIKDesc} />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
@@ -184,16 +200,20 @@ function ResetInheritanceKey({ route }) {
         </Box>
         <Box>
           <Buttons
+            primaryLoading={vaultCreating}
             primaryText={vaultText.revaultNow}
             fullWidth
-            primaryCallback={handleResetInheritanceKey}
+            primaryCallback={() => {
+              setCreating(true);
+              handleResetInheritanceKey();
+            }}
           />
         </Box>
       </Box>
       <VaultMigrationController
         vaultCreating={vaultCreating}
         vaultKeys={otherSigners}
-        scheme={{ m: vault.scheme.m, n: vault.scheme.n }}
+        scheme={vault.scheme}
         name={vault.presentationData.name}
         description={vault.presentationData.description}
         vaultId={vault.id}
@@ -204,6 +224,7 @@ function ResetInheritanceKey({ route }) {
         isAddInheritanceKey={true}
         currentBlockHeight={currentBlockHeight}
         selectedDuration={selectedOption?.label}
+        miniscriptTypes={vault.scheme.miniscriptScheme.usedMiniscriptTypes}
       />
     </ScreenWrapper>
   );

@@ -23,7 +23,7 @@ import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault'
 import { useDispatch } from 'react-redux';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import SDCategoryCard from './components/SDCategoryCard';
-import { SignerCategory, SignerType } from 'src/services/wallets/enums';
+import { SignerCategory, SignerType, VaultType } from 'src/services/wallets/enums';
 import { SDIcons } from './SigningDeviceIcons';
 
 function SignerCategoryList() {
@@ -33,11 +33,13 @@ function SignerCategoryList() {
     addSignerFlow = false,
     vaultId,
     vaultSigners,
+    vaultType,
   }: {
     scheme: VaultScheme;
     addSignerFlow: boolean;
     vaultId: string;
     vaultSigners?: VaultSigner[];
+    vaultType?: VaultType;
   } = route.params as any;
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -85,15 +87,6 @@ function SignerCategoryList() {
       Icon: isDarkMode ? <MobileKeyWhite /> : <MobileKeyBlack />,
       snippet: [],
     },
-    {
-      title: signer.addAssistedKey,
-      description: signer.keysOnServer,
-      signerCategory: SignerCategory.ASSISTED,
-      headerTitle: signer.assistedKeysHeader,
-      headerSubtitle: signer.keysKeptOnServer,
-      Icon: isDarkMode ? <AssistedSignerWhite /> : <AssistedSignerBlack />,
-      snippet: [],
-    },
   ];
 
   const handlePress = (category) => {
@@ -102,6 +95,7 @@ function SignerCategoryList() {
         name: 'SigningDeviceList',
         params: {
           scheme,
+          vaultType,
           addSignerFlow,
           vaultId,
           vaultSigners,
@@ -185,7 +179,7 @@ function SignerCategoryList() {
           dispatch(setSdIntroModal(false));
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'TechnicalSupport',
+              name: 'CreateTicket',
               params: {
                 tags: [ConciergeTag.KEYS],
                 screenName: 'signing-device-list',

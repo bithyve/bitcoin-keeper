@@ -1,6 +1,6 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { call, put } from 'redux-saga/effects';
+import { call, delay, put } from 'redux-saga/effects';
 import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
 import { LabelRefType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
@@ -12,6 +12,8 @@ import { createWatcher } from '../utilities';
 
 import { ADD_LABELS, BULK_UPDATE_LABELS, BULK_UPDATE_UTXO_LABELS } from '../sagaActions/utxos';
 import { resetState, setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
+import { setPendingAllBackup } from '../reducers/bhr';
+import { checkBackupCondition } from './bhr';
 
 export function* addLabelsWorker({
   payload,
@@ -42,10 +44,15 @@ export function* addLabelsWorker({
       tags.push(tag);
     });
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const updated = yield call(Relay.modifyLabels, id, tags, []);
-    if (updated) {
-      yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
-      yield put(resetState());
+    yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
+    yield put(resetState());
+    try {
+      const backupResponse = yield call(checkBackupCondition);
+      if (!backupResponse) yield call(Relay.modifyLabels, id, tags, []);
+      else yield delay(100);
+    } catch (error) {
+      console.log('🚀 ~ addLabelsWorker error:', error);
+      yield put(setPendingAllBackup(true));
     }
   } catch (e) {
     yield put(setSyncingUTXOError(e));
@@ -91,18 +98,23 @@ export function* bulkUpdateLabelsWorker({
       deletedTagIds = labelChanges.deleted.map((label) => `${idSuffix}${label.name}`);
     }
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const updated = yield call(
-      Relay.modifyLabels,
-      id,
-      addedTags.length ? addedTags : [],
-      deletedTagIds.length ? deletedTagIds : []
-    );
-    if (updated) {
-      yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
-      for (const element of deletedTagIds) {
-        yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
-        yield put(resetState());
-      }
+    yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
+    for (const element of deletedTagIds) {
+      yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
+      yield put(resetState());
+    }
+    try {
+      const backupResponse = yield call(checkBackupCondition);
+      if (!backupResponse)
+        yield call(
+          Relay.modifyLabels,
+          id,
+          addedTags.length ? addedTags : [],
+          deletedTagIds.length ? deletedTagIds : []
+        );
+      else yield delay(100);
+    } catch (error) {
+      yield put(setPendingAllBackup(true));
     }
   } catch (e) {
     yield put(setSyncingUTXOError(e));
@@ -120,22 +132,28 @@ export function* bulkUpdateUTXOLabelsWorker({
     yield put(setSyncingUTXOs(true));
     const { addedTags, deletedTagIds } = payload;
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const updated = yield call(
-      Relay.modifyLabels,
-      id,
-      addedTags.length ? addedTags : [],
-      deletedTagIds.length ? deletedTagIds : []
-    );
-    if (updated) {
-      if (addedTags) {
-        yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
+    if (addedTags) {
+      yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
+    }
+    if (deletedTagIds) {
+      for (const element of deletedTagIds) {
+        yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
       }
-      if (deletedTagIds) {
-        for (const element of deletedTagIds) {
-          yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
-        }
-      }
-      yield put(resetState());
+    }
+    yield put(resetState());
+    try {
+      const backupResponse = yield call(checkBackupCondition);
+      if (!backupResponse)
+        yield call(
+          Relay.modifyLabels,
+          id,
+          addedTags.length ? addedTags : [],
+          deletedTagIds.length ? deletedTagIds : []
+        );
+      else yield delay(100);
+    } catch (error) {
+      console.log('🚀 ~ bulkUpdateUTXOLabelsWorker error:', error);
+      yield put(setPendingAllBackup(true));
     }
   } catch (e) {
     yield put(setSyncingUTXOError(e));

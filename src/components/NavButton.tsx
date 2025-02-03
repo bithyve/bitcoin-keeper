@@ -22,7 +22,7 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
         <Box style={styles.headingWrapper}>
           {icon}
           <Box>
-            <Text color={`${colorMode}.navButtonText`} style={styles.heading}>
+            <Text color={`${colorMode}.termsText`} style={styles.heading}>
               {heading}
             </Text>
           </Box>
@@ -36,18 +36,17 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
 const styles = StyleSheet.create({
   NavButtonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
+    paddingHorizontal: wp(10),
     height: hp(45),
-    width: wp(166),
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: hp(8),
     alignItems: 'center',
+    gap: wp(8),
   },
   headingWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
+    gap: wp(8),
   },
   heading: {
     fontSize: 13,

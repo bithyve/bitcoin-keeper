@@ -61,8 +61,9 @@ function KeeperTextInput({
             </Pressable>
           ) : maxLength ? (
             <Box>
+              {inputRef}
               <KeeperText color={`${colorMode}.GreyText`} bold style={styles.limitText}>
-                {value ? value.length : '0'}/{maxLength}
+                {value ? value.length : inputRef ? inputRef : '0'}/{maxLength}
               </KeeperText>
             </Box>
           ) : (

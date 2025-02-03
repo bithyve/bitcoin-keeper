@@ -21,6 +21,7 @@ import idx from 'idx';
 import { getKeyUID } from 'src/utils/utilities';
 import {
   EntityKind,
+  MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
   ScriptTypes,
@@ -115,7 +116,7 @@ export const generateVault = async ({
     shell: defaultShell,
   };
 
-  const isMultiSig = scheme.n !== 1; // single key Vault is BIP-84 P2WPKH single-sig and not 1-of-1 BIP-48 P2WSH multi-sig
+  const isMultiSig = scheme.n !== 1 || type === VaultType.MINISCRIPT; // single key Vault is BIP-84 P2WPKH single-sig and not 1-of-1 BIP-48 P2WSH multi-sig
   const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
 
   const specs: VaultSpecs = {
@@ -404,6 +405,7 @@ export const generateKeyFromXpub = (
 
 export const generateMiniscriptScheme = (
   miniscriptElements: MiniscriptElements,
+  miniscriptTypes: MiniscriptTypes[],
   existingMiniscriptScheme?: MiniscriptScheme
 ): MiniscriptScheme => {
   const {
@@ -420,6 +422,7 @@ export const generateMiniscriptScheme = (
     keyInfoMap,
     miniscriptPolicy,
     miniscript,
+    usedMiniscriptTypes: miniscriptTypes,
   };
 
   return miniscriptScheme;
