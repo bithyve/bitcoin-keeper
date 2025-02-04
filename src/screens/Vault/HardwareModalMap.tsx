@@ -764,6 +764,8 @@ function SignerContent({
   );
 }
 
+// TODO: Also compare xpubs
+
 const verifyPassport = (qrData, signer) => {
   const { masterFingerprint } = getPassportDetails(qrData);
   return masterFingerprint === signer.masterFingerprint;
@@ -797,6 +799,11 @@ const verifyKeeperSigner = (qrData, signer) => {
     const message = crossInteractionHandler(err);
     throw new Error(message);
   }
+};
+
+const verifyColdCard = (qrData, signer, isMultiSig) => {
+  const { masterFingerprint } = extractColdCardExport(qrData, isMultiSig);
+  return masterFingerprint === signer.masterFingerprint;
 };
 
 function PasswordEnter({
@@ -1436,6 +1443,9 @@ function HardwareModalMap({
           break;
         case SignerType.JADE:
           healthcheckStatus = verifyJade(qrData, signer);
+          break;
+        case SignerType.COLDCARD:
+          healthcheckStatus = verifyColdCard(qrData, signer, isMultisig);
           break;
         default:
           break;
