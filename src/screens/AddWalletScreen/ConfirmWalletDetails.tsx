@@ -55,6 +55,7 @@ import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import useSigners from 'src/hooks/useSigners';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -643,6 +644,7 @@ function ConfirmWalletDetails({ route }) {
         buttonTextColor={`${colorMode}.whiteButtonText`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setAdvancedSettingsVisible(false);
           setVisibleModal(false);

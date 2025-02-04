@@ -25,6 +25,7 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import SDCategoryCard from './components/SDCategoryCard';
 import { SignerCategory, SignerType, VaultType } from 'src/services/wallets/enums';
 import { SDIcons } from './SigningDeviceIcons';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 function SignerCategoryList() {
   const route = useRoute();
@@ -175,6 +176,7 @@ function SignerCategoryList() {
         buttonTextColor={`${colorMode}.whiteButtonText`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           dispatch(setSdIntroModal(false));
           navigation.dispatch(
