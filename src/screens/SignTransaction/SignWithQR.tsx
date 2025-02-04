@@ -26,7 +26,7 @@ import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getKeyUID } from 'src/utils/utilities';
+import { getKeyUID, isHexadecimal } from 'src/utils/utilities';
 import { hp, windowWidth } from 'src/constants/responsive';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import DisplayQR from '../QRScreens/DisplayQR';
@@ -88,7 +88,9 @@ function SignWithQR() {
 
   const signTransaction = (signedSerializedPSBT) => {
     try {
-      Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
+      if (!isHexadecimal(signedSerializedPSBT)) {
+        Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
+      }
       dispatch(
         healthCheckStatusUpdate([
           {
@@ -108,7 +110,11 @@ function SignWithQR() {
           const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
           dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: tx.toHex() }));
         } else {
-          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
+          if (isHexadecimal(signedSerializedPSBT)) {
+            dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: signedSerializedPSBT }));
+          } else {
+            dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
+          }
         }
       } else {
         if (isRemoteKey) {
