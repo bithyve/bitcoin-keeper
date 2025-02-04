@@ -22,14 +22,16 @@ function KeeperQRCode({
 
   return (
     <Box style={styles.qrWrapper} borderColor={`${colorMode}.qrBorderColor`}>
-      <QRCode
-        value={qrData}
-        {...(logoBackgroundColor ? { logoBackgroundColor } : {})}
-        size={size}
-        ecl={ecl}
-        logo={KeeperIcon}
-        logoSize={showLogo ? size * 0.2 : 0}
-      />
+      {qrData && (
+        <QRCode
+          value={qrData}
+          {...(logoBackgroundColor ? { logoBackgroundColor } : {})}
+          size={size}
+          ecl={ecl}
+          logo={KeeperIcon}
+          logoSize={showLogo ? size * 0.2 : 0}
+        />
+      )}
     </Box>
   );
 }

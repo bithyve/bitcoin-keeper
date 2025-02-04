@@ -48,8 +48,17 @@ function DisplayQR({
 
   const loadBBQR = async () => {
     const val = interpolateBBQR(rotation);
-    const data = await psbtToBBQR(qrContents, val);
-    setColdCardQrData(data);
+    for (let i = val; i > 0; i--) {
+      try {
+        const data = await psbtToBBQR(qrContents, i);
+        if (data && data.length > 0 && data[0]) {
+          setColdCardQrData(data);
+          break;
+        }
+      } catch {
+        console.log('Failed to generate BBQr');
+      }
+    }
   };
 
   return (
