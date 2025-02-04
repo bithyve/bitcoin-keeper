@@ -44,7 +44,7 @@ function UnknownSignerInfo({ signer }: Props) {
       <Box>
         <Text fontSize={11}>xPub</Text>
         <Text fontSize={11} medium numberOfLines={3}>
-          {signer.signerXpubs.P2WSH[0].xpub}
+          {signer?.signerXpubs?.P2WSH[0]?.xpub || signer?.signerXpubs?.P2WPKH[0]?.xpub}
         </Text>
       </Box>
     </Box>
