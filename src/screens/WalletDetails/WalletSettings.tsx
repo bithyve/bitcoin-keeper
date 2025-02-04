@@ -22,6 +22,7 @@ import { VisibilityType } from 'src/services/wallets/enums';
 import { WalletType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
 import BackupModalContent from '../AppSettings/BackupModal';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -31,6 +32,7 @@ function WalletSettings({ route }) {
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
+  const [loadingState, setLoadingState] = useState(false);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
@@ -62,6 +64,13 @@ function WalletSettings({ route }) {
       captureError(error);
       showToast(walletTranslation.somethingWentWrong);
     }
+  };
+
+  const handleTransferPolicy = async () => {
+    setLoadingState(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setTransferPolicyVisible(true);
+    setLoadingState(false);
   };
 
   return (
@@ -96,13 +105,13 @@ function WalletSettings({ route }) {
           <OptionCard
             title={walletTranslation.TransferPolicy}
             description={walletTranslation.TransferPolicyDesc}
-            callback={() => {
-              setTransferPolicyVisible(true);
-            }}
+            callback={handleTransferPolicy}
           />
         )}
         {TestSatsComponent}
       </ScrollView>
+      <ActivityIndicatorView visible={loadingState} showLoader />
+
       <KeeperModal
         visible={transferPolicyVisible}
         close={() => {
