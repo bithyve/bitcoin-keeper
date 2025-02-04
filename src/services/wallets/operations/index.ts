@@ -103,22 +103,23 @@ const updateInputsForFeeCalculation = (wallet: Wallet | Vault, inputUTXOs) => {
 
       // TODO: Update Taproot when implementing Taproot multisig
       if (isTaproot || isNativeSegwit) {
-        const baseSize = isInheritanceVault ? 28 : 8;
+        const baseSize = isInheritanceVault ? 28 : 22;
         const additionalPubkeys = isInheritanceVault && m != 1 ? (n - 1) * 34 : 0;
         u.script = {
-          length: Math.ceil((baseSize + m * 74 + n * 34 + additionalPubkeys) / 4),
+          length: Math.ceil((baseSize + m * 74 + n * 34 + additionalPubkeys + n * 4) / 4),
         };
       } else if (isWrappedSegwit) {
-        const baseSize = isInheritanceVault ? 55 : 35;
+        const baseSize = isInheritanceVault ? 55 : 49;
         const additionalPubkeys = isInheritanceVault && m != 1 ? (n - 1) * 34 : 0;
         u.script = {
-          length: baseSize + Math.ceil((baseSize + m * 74 + n * 34 + additionalPubkeys) / 4),
+          length:
+            baseSize + Math.ceil((baseSize + m * 74 + n * 34 + additionalPubkeys + n * 4) / 4),
         };
       } else {
-        const baseSize = isInheritanceVault ? 29 : 9;
+        const baseSize = isInheritanceVault ? 29 : 23;
         const additionalPubkeys = isInheritanceVault && m != 1 ? (n - 1) * 34 : 0;
         u.script = {
-          length: baseSize + m * 74 + n * 34 + additionalPubkeys,
+          length: baseSize + m * 74 + n * 34 + additionalPubkeys + n * 4,
         };
       }
     } else {
