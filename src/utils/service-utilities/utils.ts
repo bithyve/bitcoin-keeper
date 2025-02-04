@@ -396,8 +396,8 @@ export const parseTextforVaultConfig = (secret: string) => {
     return parsedResponse;
   }
   if (secret.includes('after(')) {
-    const { signers, inheritanceKey, timelock } = parseInheritanceKeyMiniscript(secret);
-
+    const { signers, inheritanceKey, timelock, importedKeyUsageCounts } =
+      parseInheritanceKeyMiniscript(secret);
     const multiMatch = secret.match(/thresh\((\d+),/);
     const m = multiMatch ? parseInt(multiMatch[1]) : 1;
 
@@ -408,9 +408,12 @@ export const parseTextforVaultConfig = (secret: string) => {
       [timelock]
     );
 
-    const miniscriptScheme = generateMiniscriptScheme(miniscriptElements, [
-      MiniscriptTypes.INHERITANCE,
-    ]);
+    const miniscriptScheme = generateMiniscriptScheme(
+      miniscriptElements,
+      [MiniscriptTypes.INHERITANCE],
+      null,
+      importedKeyUsageCounts
+    );
 
     // Verify the miniscript generated matches the input
     const { miniscript, keyInfoMap } = miniscriptScheme;
@@ -452,52 +455,109 @@ function parseInheritanceKeyMiniscript(miniscript: string): {
   signers: VaultSigner[];
   inheritanceKey: VaultSigner | null;
   timelock: number | null;
+  importedKeyUsageCounts: Record<string, number>;
 } {
   // Remove wsh() wrapper and checksum
   const innerScript = miniscript.replace('wsh(', '').replace(/\)#.*$/, '');
 
-  // Extract all key expressions with derivation path
-  const keyRegex = /\[([A-F0-9]{8})(\/[0-9h'/]+)\]([a-zA-Z0-9]+)/g;
+  // Extract all key expressions with derivation path and path restrictions
+  const keyRegex = /\[([A-F0-9]{8})(\/[0-9h'/]+)\]([a-zA-Z0-9]+)\/<(\d+);(\d+)>\//g;
   const matches = [...innerScript.matchAll(keyRegex)];
 
-  const fingerprintCounts = new Map<string, number>();
-  const keys = matches.map((match) => {
-    const fingerprint = match[1];
-    fingerprintCounts.set(fingerprint, (fingerprintCounts.get(fingerprint) || 0) + 1);
-    return {
-      masterFingerprint: fingerprint,
-      derivationPath: 'm' + match[2],
-      xpub: match[3],
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(
-        match[3],
-        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-      ),
-    } as VaultSigner;
-  });
+  // Track each occurrence to calculate importedKeyUsageCounts
+  const keyOccurrences = matches.map((match) => ({
+    masterFingerprint: match[1],
+    derivationPath: 'm' + match[2],
+    xpub: match[3],
+    pathRestriction: `<${match[4]};${match[5]}>`,
+    xfp: WalletUtilities.getFingerprintFromExtendedKey(
+      match[3],
+      WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+    ),
+  }));
 
-  // Find fingerprint that appears only once and remove it from keys array
-  const inheritanceKeyFingerprint = Array.from(fingerprintCounts.entries()).find(
-    ([_, count]) => count === 1
-  )?.[0];
-  const inheritanceKey = keys.find((key) => key.masterFingerprint === inheritanceKeyFingerprint);
+  // Create unique signers list (without duplicates)
+  const uniqueKeys = Array.from(
+    new Map(
+      keyOccurrences.map((key) => [
+        key.xpub,
+        {
+          masterFingerprint: key.masterFingerprint,
+          derivationPath: key.derivationPath,
+          xpub: key.xpub,
+          xfp: key.xfp,
+        },
+      ])
+    ).values()
+  );
 
-  // Filter out duplicate keys by xpub and the IK
-  const signers = keys.filter(
-    (key, index, self) =>
-      index ===
-      self.findIndex(
-        (k) => k.xpub === key.xpub && key.masterFingerprint !== inheritanceKeyFingerprint
-      )
+  let inheritanceKey: VaultSigner | null = null;
+
+  // Check if script contains thresh( for multi-key format
+  if (innerScript.includes('thresh(')) {
+    const fingerprintCounts = new Map<string, number>();
+    matches.forEach((match) => {
+      const fingerprint = match[1];
+      fingerprintCounts.set(fingerprint, (fingerprintCounts.get(fingerprint) || 0) + 1);
+    });
+
+    const inheritanceKeyFingerprint = Array.from(fingerprintCounts.entries()).find(
+      ([_, count]) => count === 1
+    )?.[0];
+    inheritanceKey =
+      uniqueKeys.find((key) => key.masterFingerprint === inheritanceKeyFingerprint) || null;
+  } else {
+    // For simple inheritance format, find key inside and_v(...after())
+    const andAfterMatch = innerScript.match(/and_v\(v:pkh\(\[([A-F0-9]{8})[^\]]*\][^)]*\),after/);
+    if (andAfterMatch) {
+      const inheritanceKeyFingerprint = andAfterMatch[1];
+      inheritanceKey =
+        uniqueKeys.find((key) => key.masterFingerprint === inheritanceKeyFingerprint) || null;
+    }
+  }
+
+  const signers = uniqueKeys.filter(
+    (key) => key.masterFingerprint !== inheritanceKey?.masterFingerprint
   );
 
   // Extract timelock value
   const afterMatch = innerScript.match(/after\((\d+)\)/);
   const timelock = afterMatch ? parseInt(afterMatch[1]) : null;
 
+  // Derive importedKeyUsageCounts from occurrences
+  const importedKeyUsageCounts: Record<string, number> = {};
+  keyOccurrences.forEach((occurrence) => {
+    const match = occurrence.pathRestriction.match(/<(\d+);/);
+    if (match) {
+      const index = parseInt(match[1], 10);
+      if (index > 0) {
+        const count = index / 2;
+        if (
+          importedKeyUsageCounts[occurrence.masterFingerprint] === undefined ||
+          count < importedKeyUsageCounts[occurrence.masterFingerprint]
+        ) {
+          importedKeyUsageCounts[occurrence.masterFingerprint] = count;
+        }
+      }
+    }
+  });
+
+  // Second pass: if a fingerprint has a <0;1> occurrence, set its count to 0
+  keyOccurrences.forEach((occurrence) => {
+    const match = occurrence.pathRestriction.match(/<(\d+);/);
+    if (match) {
+      const index = parseInt(match[1], 10);
+      if (index === 0) {
+        delete importedKeyUsageCounts[occurrence.masterFingerprint];
+      }
+    }
+  });
+
   return {
     signers,
     inheritanceKey,
     timelock,
+    importedKeyUsageCounts,
   };
 }
 

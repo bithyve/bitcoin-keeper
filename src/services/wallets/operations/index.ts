@@ -74,7 +74,7 @@ const testnetFeeSurcharge = (wallet: Wallet | Vault) =>
      the nodes reject the tx if the overall fee for the tx is low(which is the case w/ electrum)
      therefore we up the feeRatesPerByte by 1 to handle this case until we find a better sol
     */
-  config.NETWORK_TYPE === NetworkType.TESTNET && wallet.entityKind === EntityKind.VAULT ? 1 : 0;
+  config.NETWORK_TYPE === NetworkType.TESTNET && wallet.entityKind === EntityKind.VAULT ? 0 : 0;
 
 // Helper function for deep cloning
 const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
@@ -90,19 +90,35 @@ const updateInputsForFeeCalculation = (wallet: Wallet | Vault, inputUTXOs) => {
   return inputUTXOs.map((u) => {
     if (wallet.entityKind == 'VAULT' && (wallet as Vault).isMultiSig) {
       const m = (wallet as Vault).scheme.m;
-      const n = (wallet as Vault).scheme.n;
+      let n = (wallet as Vault).scheme.n;
+      const isInheritanceVault =
+        (wallet as Vault).type === VaultType.MINISCRIPT &&
+        (wallet as Vault).scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+          MiniscriptTypes.INHERITANCE
+        );
+
+      if (isInheritanceVault) {
+        n += 1; // Account for inheritance key
+      }
+
       // TODO: Update Taproot when implementing Taproot multisig
       if (isTaproot || isNativeSegwit) {
+        const baseSize = isInheritanceVault ? 28 : 8;
+        const additionalPubkeys = isInheritanceVault && m != 1 ? (n - 1) * 34 : 0;
         u.script = {
-          length: Math.ceil((8 + m * 74 + n * 34) / 4),
+          length: Math.ceil((baseSize + m * 74 + n * 34 + additionalPubkeys) / 4),
         };
       } else if (isWrappedSegwit) {
+        const baseSize = isInheritanceVault ? 55 : 35;
+        const additionalPubkeys = isInheritanceVault && m != 1 ? (n - 1) * 34 : 0;
         u.script = {
-          length: 35 + Math.ceil((8 + m * 74 + n * 34) / 4),
+          length: baseSize + Math.ceil((baseSize + m * 74 + n * 34 + additionalPubkeys) / 4),
         };
       } else {
+        const baseSize = isInheritanceVault ? 29 : 9;
+        const additionalPubkeys = isInheritanceVault && m != 1 ? (n - 1) * 34 : 0;
         u.script = {
-          length: 9 + m * 74 + n * 34,
+          length: baseSize + m * 74 + n * 34 + additionalPubkeys,
         };
       }
     } else {

@@ -14,7 +14,7 @@ import React from 'react';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
@@ -80,8 +80,11 @@ function UnlockTapsigner() {
           primaryText="Unlock"
           primaryCallback={unlockTapsignerWithProgress}
           primaryLoading={inProgress}
+          fullWidth
         />
-        <Note title="Note" subtitle="This might take approximately 15s or less" />
+        <Box marginTop={hp(20)}>
+          <Note title="Note" subtitle="This might take approximately 15s or less" />
+        </Box>
       </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>

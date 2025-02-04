@@ -135,7 +135,8 @@ function VaultSettings({ route }) {
         <OptionCard
           title={vaultText.vaultSchemeTitle}
           description={vaultText.vaultSchemeDesc}
-          visible={!isCanaryWalletType}
+          // visible={!isCanaryWalletType}
+          visible={false} // disable update scheme as it gives wrong behavior
           callback={() => {
             navigation.dispatch(
               CommonActions.navigate({
