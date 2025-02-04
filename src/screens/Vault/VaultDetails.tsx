@@ -38,7 +38,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
-import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
+import { sendPhaseOneReset, setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
@@ -246,6 +246,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const isDarkMode = colorMode === 'dark';
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(vault);
+
+  useEffect(() => {
+    dispatch(sendPhaseOneReset());
+  }, []);
 
   useEffect(() => {
     const cached = [];

@@ -436,7 +436,11 @@ function AddSendAmount({ route }) {
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful) {
-      navigateToNext();
+      if (amountToSend && amountToSend !== '0') {
+        navigateToNext();
+      } else {
+        dispatch(sendPhaseOneReset());
+      }
     } else if (sendPhaseOneState.hasFailed) {
       if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
         showToast('Insufficient balance for the amount to be sent + fees');
@@ -585,26 +589,6 @@ function AddSendAmount({ route }) {
         currencyCode={currencyCode}
         specificBitcoinAmount={maxAmountToSend}
       />
-      {/* <Box style={styles.RecipientInfo}>
-        <HexagonIcon
-          width={34}
-          height={30}
-          icon={isAddress ? <AddressIcon /> : getSmallWalletIcon(recipient)}
-          backgroundColor={isDarkMode ? Colors.DullBrown : Colors.brownColor}
-        />
-        <Text color={`${colorMode}.primaryText`}>
-          {isAddress ? 'Sending to address' : `Sending to ${recipient?.entityKind.toLowerCase()}`}
-        </Text>
-        <Text
-          color={`${colorMode}.primaryText`}
-          medium
-          numberOfLines={isAddress ? 1 : undefined}
-          ellipsizeMode="middle"
-          style={styles.receipientText}
-        >
-          {isAddress ? address : recipient?.presentationData?.name}
-        </Text>
-      </Box> */}
       <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
         <Box
           style={[styles.dashedButton]}

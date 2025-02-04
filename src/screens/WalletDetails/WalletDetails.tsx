@@ -34,6 +34,7 @@ import WalletHeader from 'src/components/WalletHeader';
 import WalletCard from '../Home/components/Wallet/WalletCard';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import FeatureCard from 'src/components/FeatureCard';
+import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -116,6 +117,10 @@ function WalletDetails({ route }: ScreenProps) {
   useEffect(() => {
     if (!syncing) {
     }
+  }, []);
+
+  useEffect(() => {
+    dispatch(sendPhaseOneReset());
   }, []);
 
   useEffect(() => {
