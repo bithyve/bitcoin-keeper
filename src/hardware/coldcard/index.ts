@@ -28,13 +28,13 @@ export const extractColdCardExport = (data, isMultisig) => {
 };
 
 export const getConfigDetails = async () => {
-  const { data } = (await NFC.read(NfcTech.NfcV))[0];
+  const { data } = (await NFC.read(NfcTech.Ndef))[0];
   return data;
 };
 
 export const getColdcardDetails = async (isMultisig: boolean) => {
   try {
-    const { data } = (await NFC.read(NfcTech.NfcV))[0];
+    const { data } = (await NFC.read(NfcTech.Ndef))[0];
     return extractColdCardExport(data, isMultisig);
   } catch (_) {
     if (_.toString() === 'Error') {
@@ -50,7 +50,7 @@ export const signWithColdCard = async (message) => {
 };
 
 export const receivePSBTFromColdCard = async () => {
-  const signedData = await NFC.read(NfcTech.NfcV);
+  const signedData = await NFC.read(NfcTech.Ndef);
   const payload = {
     name: '',
     signature: '',
@@ -70,7 +70,7 @@ export const receivePSBTFromColdCard = async () => {
 };
 
 export const receiveTxHexFromColdCard = async () => {
-  const signedData = await NFC.read(NfcTech.NfcV);
+  const signedData = await NFC.read(NfcTech.Ndef);
   const payload = {
     txid: '',
     txn: '',

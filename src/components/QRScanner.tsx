@@ -98,10 +98,16 @@ function QRScanner({
               if (bbqrArray.current.every((item) => item !== null)) {
                 setQrPercent(100);
                 const reassembled = joinQRs(bbqrArray.current);
-                const decoder = new TextDecoder('utf-8');
-                const jsonString = decoder.decode(reassembled.raw);
-                const jsonData = JSON.parse(jsonString);
-                setData(jsonData);
+                try {
+                  const decoder = new TextDecoder('utf-8');
+                  const jsonString = decoder.decode(reassembled.raw);
+
+                  const jsonData = JSON.parse(jsonString);
+                  setData(jsonData);
+                } catch {
+                  // Should be a PSBT
+                  setData(Buffer.from(reassembled.raw).toString('base64'));
+                }
               }
             }
           } catch (error) {
