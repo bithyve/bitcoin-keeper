@@ -1102,7 +1102,9 @@
     "serverSelectionTitle": "Server Selection",
     "serverSelectionSubtitle": "Select a server you'd like to use. Add your own node for enhanced privacy.",
     "publicServerNote": "It’s recommended to use your own Electrum server to protect your privacy",
-    "connectToServer": "Connect to Server"
+    "connectToServer": "Connect to Server",
+    "assistedServerBackup": "Assisted Server Backup",
+    "assistedServerBackupSubtitle": "Securely back up encrypted data on Keeper server"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",

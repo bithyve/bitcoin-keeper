@@ -14,6 +14,7 @@ import SettingHistoryIcon from 'src/assets/images/settingHistory.svg';
 import RecoveryKeyIcon from 'src/assets/images/recover_white.svg';
 import CloudIcon from 'src/assets/images/clouduser.svg';
 import DarkModeIcon from 'src/assets/images/dark-mode-icom.svg';
+import CloudBackupIcon from 'src/assets/images/cloud-backup-icon.svg';
 import GeneralPRIcon from 'src/assets/images/general-pref-icon.svg';
 import AppSetIcon from 'src/assets/images/app-settng.svg';
 import ManageKeyIcon from 'src/assets/images/setting-manage-wallet-icon.svg';
@@ -144,9 +145,9 @@ export const useSettingKeeper = () => {
     },
 
     {
-      title: signer.autoBackup,
-      description: signer.autoBackupDesc,
-      icon: <DarkModeIcon width={14} height={14} />,
+      title: settings.assistedServerBackup,
+      description: settings.assistedServerBackupSubtitle,
+      icon: <CloudBackupIcon width={14} height={14} />,
       onPress: toggleDebounce(() => toggleAutomaticBackupMode()),
       rightIcon: (
         <Switch
