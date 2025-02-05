@@ -49,6 +49,7 @@ type ModalProps = {
   showCurrencyTypeSwitch?: boolean;
   justifyContent?: ResponsiveValue<string | number>;
   loading?: boolean;
+  secondaryIcon?: any;
 };
 
 KeeperModal.defaultProps = {
@@ -78,6 +79,7 @@ KeeperModal.defaultProps = {
   showCurrencyTypeSwitch: false,
   justifyContent: 'flex-end',
   loading: false,
+  secondaryIcon: null,
 };
 
 function KeeperModal(props: ModalProps) {
@@ -110,6 +112,7 @@ function KeeperModal(props: ModalProps) {
     showCurrencyTypeSwitch,
     justifyContent,
     loading,
+    secondaryIcon,
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
@@ -239,6 +242,7 @@ function KeeperModal(props: ModalProps) {
                       }
                       secondaryCallback={secondaryCallback}
                       secondaryText={secondaryButtonText}
+                      SecondaryIcon={secondaryIcon}
                       secondaryTextColor={
                         secButtonTextColor == 'headerText'
                           ? `${colorMode}.headerText`

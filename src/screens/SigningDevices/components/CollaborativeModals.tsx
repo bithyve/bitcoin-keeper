@@ -17,6 +17,7 @@ import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import MenuOption from 'src/components/MenuOption';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Signer } from 'src/services/wallets/interfaces/vault';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 interface AddKeyOption {
   icon: JSX.Element;
@@ -169,6 +170,7 @@ function CollaborativeModals({
           buttonTextColor={`${colorMode}.modalWhiteButtonText`}
           buttonBackground={`${colorMode}.modalWhiteButton`}
           secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+          secondaryIcon={<ConciergeNeedHelp />}
           secondaryCallback={() => {
             setLearnMoreModal?.(false);
             navigation.dispatch(

@@ -81,6 +81,7 @@ import {
   findChangeFromReceiverAddresses,
   findVaultFromSenderAddress,
 } from 'src/utils/service-utilities/utils';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -750,6 +751,7 @@ function SigningDeviceDetails({ route }) {
               buttonTextColor={`${colorMode}.modalWhiteButtonText`}
               buttonBackground={`${colorMode}.modalWhiteButton`}
               secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+              secondaryIcon={<ConciergeNeedHelp />}
               secondaryCallback={() => {
                 setDetailModal(false);
                 navigation.dispatch(

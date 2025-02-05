@@ -48,6 +48,7 @@ import { SentryErrorBoundary } from 'src/services/sentry';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import InheritanceKeySection from './components/InheritanceKeySection';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -247,6 +248,7 @@ function ManageSigners({ route }: ScreenProps) {
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setShowLearnMoreModal(false);
           navigation.dispatch(
