@@ -261,12 +261,15 @@ export const customTheme = extendTheme({
       headerWhite: Colors.headerWhite,
       graphiteTranslucentBG: Colors.GraphiteTranslucent,
       SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
+      modalHeaderTitle: Colors.SeaweedGreen,
+      modalSubtitleBlack: Colors.modalSubtitleBlack,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
       buttonText: Colors.SecondaryWhite,
       disabledDiamond: Colors.MediumGrey,
       termsText: Colors.ChampagneBliss,
+      modalSubtitleBlack: Colors.SecondaryWhite,
 
       primaryGreen: Colors.GenericViridian,
       darkGrey: Colors.DarkGrey,
@@ -276,6 +279,7 @@ export const customTheme = extendTheme({
       primaryGreenBackground: Colors.SecondaryBlack,
       pantoneGreenLight: Colors.pantoneGreenLight,
       SeaweedGreen: Colors.SeaweedGreen,
+      modalHeaderTitle: Colors.SecondaryWhite,
       // mainBackground: Colors.LightWhite,
       modalGreenBackground: Colors.DullGreenDark,
       modalGreenButton: Colors.DullGreenDark,

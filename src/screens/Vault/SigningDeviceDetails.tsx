@@ -731,7 +731,8 @@ function SigningDeviceDetails({ route }) {
                 showToast('Device health check skipped!');
                 setSkipHealthCheckModalVisible(false);
               }}
-              textColor={`${colorMode}.primaryText`}
+              textColor={`${colorMode}.modalHeaderTitle`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={HealthCheckSkipContent}
             />
 
@@ -795,8 +796,8 @@ function SigningDeviceDetails({ route }) {
               subTitleWidth={wp(240)}
               subTitle={signerTranslations.RKBackupPassSubTitle}
               modalBackground={`${colorMode}.modalWhiteBackground`}
-              subTitleColor={`${colorMode}.secondaryText`}
-              textColor={`${colorMode}.primaryText`}
+              textColor={`${colorMode}.modalHeaderTitle`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => (
                 <PasscodeVerifyModal
                   useBiometrics

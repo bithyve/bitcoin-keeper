@@ -211,8 +211,8 @@ function ManageSigners({ route }: ScreenProps) {
         subTitle={signerTranslation.keyReceiveMessage}
         close={() => setTimerModal(false)}
         visible={timerModal}
-        textColor={`${colorMode}.primaryText`}
-        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.modalGreenButton`}
@@ -280,8 +280,8 @@ function ManageSigners({ route }: ScreenProps) {
         subTitleWidth={wp(240)}
         subTitle={settings.EnterPasscodeSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics={false}

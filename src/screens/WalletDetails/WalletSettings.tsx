@@ -112,8 +112,8 @@ function WalletSettings({ route }) {
         subTitle={walletTranslation.editTransPolicySubTitle}
         subTitleWidth={wp(220)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         showCurrencyTypeSwitch={true}
         Content={() => (
@@ -140,8 +140,8 @@ function WalletSettings({ route }) {
         closeOnOverlayClick
         subTitle={walletTranslation?.confirmPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics
@@ -191,8 +191,8 @@ function WalletSettings({ route }) {
         subTitleWidth={wp(240)}
         subTitle={walletTranslation.xpubModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <ShowXPub
             data={wallet?.specs?.xpub}

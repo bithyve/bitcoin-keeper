@@ -38,8 +38,8 @@ function VaultCreatedModal({
       title="New vault Created"
       subTitle={subtitle}
       buttonText="View vault"
-      textColor={`${colorMode}.primaryText`}
-      subTitleColor={`${colorMode}.secondaryText`}
+      textColor={`${colorMode}.modalHeaderTitle`}
+      subTitleColor={`${colorMode}.modalSubtitleBlack`}
       buttonCallback={close}
       close={close}
       Content={NewVaultContent}

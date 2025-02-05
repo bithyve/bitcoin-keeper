@@ -222,8 +222,8 @@ function UpdateWalletDetails({ route }) {
           title={walletTranslation.changePathOfDefaultWallet}
           subTitle={walletTranslation.changePathOfDefaultWalletSubTitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={WaringsContent}
         />
       </KeyboardAvoidingView>

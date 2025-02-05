@@ -173,8 +173,8 @@ const KeeperSettings = ({ route }) => {
         subTitleWidth={wp(240)}
         subTitle={settings.EnterPasscodeSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics={false}

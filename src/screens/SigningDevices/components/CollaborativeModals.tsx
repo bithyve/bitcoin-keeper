@@ -193,8 +193,8 @@ function CollaborativeModals({
           title={vaultText.addContactModalTitle}
           subTitle={vaultText.addContactModalSubtitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonTextColor={`${colorMode}.buttonText`}
           Content={() => <AddKeyContent addKeyOptions={addKeyOptions} />}
         />
@@ -206,8 +206,8 @@ function CollaborativeModals({
           close={() => setNfcModal?.(false)}
           DarkCloseIcon={colorMode === 'dark'}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonTextColor={`${colorMode}.buttonText`}
           Content={() => <NFCModalContent onTryAnotherMethod={handleTryAnotherMethod} />}
         />

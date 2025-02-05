@@ -43,7 +43,8 @@ function KeyAddedModal({ visible, close, signer }) {
         close={close}
         showCloseIcon
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalWhiteContent`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={buttonText}
         buttonCallback={buttonCallback}
         secondaryButtonText={secondaryButtonText}

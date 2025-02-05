@@ -239,9 +239,9 @@ function ChoosePolicyNew({ navigation, route }) {
         }}
         title="Confirm OTP to change policy"
         subTitle="To complete setting up the signer"
-        textColor={`${colorMode}.primaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={otpContent}
       />
     </ScreenWrapper>

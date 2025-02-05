@@ -41,8 +41,8 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
         subTitleWidth={wp(240)}
         subTitle="To back up the app recovery key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics

@@ -8,8 +8,8 @@ import {
 } from 'react-native';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 
-import Close from 'src/assets/images/modal_close.svg';
-import CloseGreen from 'src/assets/images/modal_close_green.svg';
+import Close from 'src/assets/images/keeperModalCrossIcon.svg';
+import CloseGreen from 'src/assets/images/keeperModalCrossIcon.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -152,60 +152,64 @@ function KeeperModal(props: ModalProps) {
             }
             style={styles.container}
           >
-            {showCloseIcon ? (
-              <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
-                {getCloseIcon()}
-              </TouchableOpacity>
-            ) : null}
-            {showCurrencyTypeSwitch ? (
-              <Box style={styles.currencySwitch}>
-                <CurrencyTypeSwitch />
-              </Box>
-            ) : null}
-            {learnMoreButton && (
-              <TouchableOpacity
-                style={styles.learnMoreButton}
-                onPress={learnMoreButtonPressed}
-                testID="btn_learnMore"
-              >
-                <Box
-                  borderColor={
-                    learnButtonTextColor === 'light.white' ? 'light.white' : 'light.learnMoreBorder'
-                  }
-                  backgroundColor={
-                    learnButtonBackgroundColor == 'BrownNeedHelp'
-                      ? `${colorMode}.BrownNeedHelp`
-                      : learnButtonBackgroundColor
-                  }
-                  style={styles.learnMoreButtonContainer}
-                >
-                  <Text color={learnButtonTextColor} style={styles.learnMoreText}>
-                    {learnMoreButtonText ? learnMoreButtonText : common.learnMore}
-                  </Text>
+            <Box style={styles.header}>
+              {showCloseIcon ? (
+                <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
+                  {getCloseIcon()}
+                </TouchableOpacity>
+              ) : null}
+              {showCurrencyTypeSwitch ? (
+                <Box style={styles.currencySwitch}>
+                  <CurrencyTypeSwitch />
                 </Box>
-              </TouchableOpacity>
-            )}
-            {title || subTitle ? (
-              <Modal.Header style={styles.headerContainer}>
-                <Text
-                  testID="text_modal_title"
-                  style={styles.title}
-                  semiBold
-                  color={textColor === 'black' ? `${colorMode}.black` : textColor}
+              ) : null}
+              {learnMoreButton && (
+                <TouchableOpacity
+                  style={styles.learnMoreButton}
+                  onPress={learnMoreButtonPressed}
+                  testID="btn_learnMore"
                 >
-                  {title}
-                </Text>
-                {subTitle ? (
-                  <Text
-                    testID="text_modal_subtitle"
-                    style={styles.subTitle}
-                    color={subTitleColor === 'black' ? `${colorMode}.black` : subTitleColor}
+                  <Box
+                    borderColor={
+                      learnButtonTextColor === 'light.white'
+                        ? 'light.white'
+                        : 'light.learnMoreBorder'
+                    }
+                    backgroundColor={
+                      learnButtonBackgroundColor == 'BrownNeedHelp'
+                        ? `${colorMode}.BrownNeedHelp`
+                        : learnButtonBackgroundColor
+                    }
+                    style={styles.learnMoreButtonContainer}
                   >
-                    {`${subTitle}`}
+                    <Text color={learnButtonTextColor} style={styles.learnMoreText}>
+                      {learnMoreButtonText ? learnMoreButtonText : common.learnMore}
+                    </Text>
+                  </Box>
+                </TouchableOpacity>
+              )}
+              {title || subTitle ? (
+                <Modal.Header style={styles.headerContainer}>
+                  <Text
+                    testID="text_modal_title"
+                    style={styles.title}
+                    semiBold
+                    color={textColor === 'black' ? `${colorMode}.black` : textColor}
+                  >
+                    {title}
                   </Text>
-                ) : null}
-              </Modal.Header>
-            ) : null}
+                  {subTitle ? (
+                    <Text
+                      testID="text_modal_subtitle"
+                      style={styles.subTitle}
+                      color={subTitleColor === 'black' ? `${colorMode}.black` : subTitleColor}
+                    >
+                      {`${subTitle}`}
+                    </Text>
+                  ) : null}
+                </Modal.Header>
+              ) : null}
+            </Box>
             <ScrollView
               style={{ maxHeight: maxModalHeight * 0.85 }}
               showsVerticalScrollIndicator={false}
@@ -265,15 +269,21 @@ const getStyles = (subTitleWidth) =>
       borderRadius: 10,
       padding: '3%',
     },
+
     title: {
-      fontSize: 20,
+      fontSize: 18,
       lineHeight: 27.2,
-      marginBottom: hp(5),
+      marginBottom: hp(3),
     },
+
     subTitle: {
       fontSize: 14,
       lineHeight: 20,
       width: subTitleWidth,
+    },
+    header: {
+      paddingBottom: hp(-10),
+      marginBottom: hp(-10),
     },
     secCta: {
       color: '#073E39',
@@ -286,7 +296,7 @@ const getStyles = (subTitleWidth) =>
     close: {
       position: 'absolute',
       right: 20,
-      top: 16,
+      top: 24,
       zIndex: 999,
     },
     currencySwitch: {

@@ -967,10 +967,10 @@ function Signers({
             visible={showSignerModal}
             title={modalContent.title}
             modalBackground={`${colorMode}.modalWhiteBackground`}
-            textColor={`${colorMode}.primaryText`}
             buttonTextColor={`${colorMode}.buttonText`}
             buttonBackground={`${colorMode}.greenButtonBackground`}
-            subTitleColor={`${colorMode}.secondaryText`}
+            textColor={`${colorMode}.modalHeaderTitle`}
+            subTitleColor={`${colorMode}.modalSubtitleBlack`}
             subTitleWidth={wp(280)}
             showCloseIcon={true}
             DarkCloseIcon={isDarkMode}
@@ -1408,10 +1408,10 @@ function AddSigningDevice() {
           buttonCallback={viewVault}
           secondaryCallback={viewVault}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.primaryText`}
           buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           subTitleWidth={wp(280)}
           showCloseIcon={false}
         />
