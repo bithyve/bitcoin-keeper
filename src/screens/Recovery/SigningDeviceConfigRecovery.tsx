@@ -164,8 +164,8 @@ function SigningDeviceConfigRecovery({ navigation }) {
           subTitle="Get your Coldcard ready"
           buttonText="Proceed"
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonCallback={() => {
             navigation.dispatch(
               CommonActions.navigate({
@@ -183,7 +183,8 @@ function SigningDeviceConfigRecovery({ navigation }) {
           close={close}
           title="Recover using Passport"
           subTitle="Get your Foundation Passport ready before proceeding"
-          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonText="Continue"
           buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={() => {
@@ -195,7 +196,6 @@ function SigningDeviceConfigRecovery({ navigation }) {
             );
             close();
           }}
-          textColor={`${colorMode}.primaryText`}
           Content={PassportSetupContent}
         />
       </>

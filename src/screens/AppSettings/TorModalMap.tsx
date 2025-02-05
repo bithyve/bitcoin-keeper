@@ -51,8 +51,8 @@ function TorModalMap({ visible, close }) {
         close={close}
         title="Connecting to Tor"
         subTitle="Network calls and some functions may work slower when enabled"
-        textColor={`${colorMode}.primaryText`}
-        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={TorConnectionContent}
       />
       <KeeperModal
@@ -60,13 +60,13 @@ function TorModalMap({ visible, close }) {
         close={close}
         title="Connection Error"
         subTitle="There was an error when connecting via Tor. You could continue without connecting to Tor or try after sometime."
-        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText="Close"
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           close();
         }}
-        textColor={`${colorMode}.primaryText`}
         Content={TorConnectionFailed}
       />
     </>

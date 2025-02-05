@@ -508,8 +508,8 @@ function ConfirmWalletDetails({ route }) {
         title="Add Description"
         subTitle="This will reflect on the home screen"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         Content={() => {
           const [description, setDescription] = useState(descriptionInputRef.current);
@@ -547,9 +547,9 @@ function ConfirmWalletDetails({ route }) {
         title={importWallet.derivationPath}
         subTitle="Change or update purpose"
         subTitleWidth={wp(240)}
-        subTitleColor={`${colorMode}.secondaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         learnMoreButton={true}
         learnButtonTextColor={`${colorMode}.white`}
@@ -595,10 +595,10 @@ function ConfirmWalletDetails({ route }) {
         buttonText={'View Wallet'}
         buttonCallback={viewVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}
       />

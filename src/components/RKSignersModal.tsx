@@ -292,8 +292,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript }, ref) => {
         title="Enter Passcode"
         subTitle={'Confirm passcode to sign with mobile key'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics={false}

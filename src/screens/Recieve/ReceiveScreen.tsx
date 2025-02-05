@@ -490,8 +490,8 @@ function ReceiveScreen({ route }: { route }) {
         title={home.RequestSpecificAmount}
         subTitle={home.amountdesc}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={AddAmountContent}
       />
       {labelsModalVisible && (

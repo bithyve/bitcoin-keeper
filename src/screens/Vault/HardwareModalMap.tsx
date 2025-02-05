@@ -2155,7 +2155,8 @@ function HardwareModalMap({
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={buttonCallback}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={Content}
         secondaryButtonText={
@@ -2182,8 +2183,8 @@ function HardwareModalMap({
         subTitleWidth={wp(240)}
         subTitle="Confirm passcode to generate key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             close={() => {
@@ -2207,7 +2208,8 @@ function HardwareModalMap({
         }}
         title="Enter your password"
         subTitle="The one you use to login to the app"
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() =>
           PasswordEnter({
             primaryMnemonic,
@@ -2259,8 +2261,8 @@ function HardwareModalMap({
             ? 'To complete setting up the signer'
             : 'To complete recovery of the signer'
         }
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={SigningServerOTPModal}
       />
       <KeeperModal

@@ -352,8 +352,8 @@ function PrivacyAndDisplay({ route }) {
         subTitleWidth={wp(240)}
         subTitle="Enter your existing passcode"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             primaryText="Confirm"
@@ -385,8 +385,8 @@ function PrivacyAndDisplay({ route }) {
         secondaryButtonText={common.cancel}
         secondaryCallback={() => setPasscodeHCModal(false)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <Box style={styles.PasscodeHCModal}>
             <PasscodeLockIllustration width={wp(160)} height={hp(125)} />
@@ -427,8 +427,8 @@ function PrivacyAndDisplay({ route }) {
         }}
         title={settings.changePasscode}
         subTitleWidth={wp(240)}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <ConfirmPasscode
             setConfirmPasscodeModal={setConfirmPasscode}

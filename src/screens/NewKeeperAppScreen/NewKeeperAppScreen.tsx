@@ -362,7 +362,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setIntroModalVisible(false);
         }}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
         buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(300)}
       />

@@ -488,8 +488,8 @@ function LoginScreen({ navigation, route }) {
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         showCloseIcon={false}
         buttonText={modelButtonText}
@@ -507,8 +507,8 @@ function LoginScreen({ navigation, route }) {
         subTitle="Please check your internet connection and try again. If you continue offline, some features may not be available."
         Content={NoInternetModalContent}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         subTitleWidth={wp(230)}
         showCloseIcon={false}
         buttonText={'Retry'}

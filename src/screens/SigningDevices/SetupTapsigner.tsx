@@ -525,8 +525,8 @@ function SetupTapsigner({ route }) {
         title={signerTranslations.TapsignerSetupStatus}
         subTitle={signerTranslations.TapsignerSetupStatusSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={StatusModalContent}
       />
     </ScreenWrapper>
