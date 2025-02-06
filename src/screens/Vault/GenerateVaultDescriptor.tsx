@@ -124,7 +124,9 @@ function GenerateVaultDescriptor() {
           <Box style={styles.optionsContainer}>
             <ShareWithNfc
               data={vaultDescriptorString}
-              fileName={`${vault.presentationData.name.replace(/[^a-zA-Z0-9]/g, '')}.txt`}
+              fileName={`${
+                vault.presentationData.name.replace(/[^a-zA-Z0-9]/g, '') || 'untitled'
+              }.txt`}
             />
             <OptionCTA
               icon={
