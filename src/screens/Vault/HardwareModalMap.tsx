@@ -153,7 +153,7 @@ const getSignerContent = (
         type: SignerType.COLDCARD,
         Illustration: <ColdCardSetupImage />,
         Instructions: [
-          'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. Then transfer the file via SD card or NFC.',
+          'Export the Coldcard data by going to Advanced/Tools > Export wallet > Generic JSON.',
           'Or instead, use the Keeper Desktop app to connect to the Coldcard via USB',
         ],
         title: isHealthcheck ? 'Verify Coldcard' : coldcard.SetupTitle,
