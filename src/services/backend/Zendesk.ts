@@ -12,6 +12,7 @@ export type createZendeskTicketProps = {
 };
 
 const isDev = config.ENVIRONMENT === APP_STAGE.DEVELOPMENT;
+const zendeskSupport = 16685599304861;
 
 export default class Zendesk {
   public static fetchZendeskTickets = async (conciergeUserId: string): Promise<any> => {
@@ -135,11 +136,12 @@ export default class Zendesk {
       }
 
       body.ticket.priority = `${isDev ? 'normal' : 'urgent'}`;
-      body.ticket.assignee_id = `${isDev ? null : 16685599304861}`;
+      body.ticket.assignee_id = `${isDev ? null : zendeskSupport}`;
       body.ticket.custom_fields = [
         ...(body?.ticket?.custom_fields ?? []),
         { id: 24752059256477, value: config.ENVIRONMENT },
       ];
+      body.ticket.email_ccs = isDev ? [] : [{ user_id: zendeskSupport, action: 'put' }];
       const res = await zendeskApi.post(zendeskEndpoints.createTicket, body);
       return { data: res.data, status: res.status };
     } catch (error) {
