@@ -86,10 +86,10 @@ function SignWithChannel() {
   const navgation = useNavigation();
 
   let miniscriptPolicy = null;
-  if (activeVault.type === VaultType.MINISCRIPT) {
+  if (activeVault?.type === VaultType.MINISCRIPT) {
     miniscriptPolicy = generateOutputDescriptors(activeVault);
   }
-  const walletName = activeVault.presentationData.name;
+  const walletName = activeVault?.presentationData.name;
   let hmac = null;
   const currentHmac = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId)?.hmac;
   if (currentHmac) {
