@@ -130,12 +130,12 @@ export default class Zendesk {
             subject: `${isDev ? 'DEV ' : ''}Conversation with ${conciergeUser.name}`,
             external_id: conciergeUser.id,
             submitter_id: conciergeUser.id,
-            assignee_id: `${isDev ? null : 16685599304861}`,
           },
         };
       }
 
       body.ticket.priority = `${isDev ? 'normal' : 'urgent'}`;
+      body.ticket.assignee_id = `${isDev ? null : 16685599304861}`;
       body.ticket.custom_fields = [
         ...(body?.ticket?.custom_fields ?? []),
         { id: 24752059256477, value: config.ENVIRONMENT },
