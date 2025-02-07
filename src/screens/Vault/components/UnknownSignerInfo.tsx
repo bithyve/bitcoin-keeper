@@ -41,12 +41,6 @@ function UnknownSignerInfo({ signer }: Props) {
           </Text>
         </Box>
       </Box>
-      <Box>
-        <Text fontSize={11}>xPub</Text>
-        <Text fontSize={11} medium numberOfLines={3}>
-          {signer.signerXpubs.P2WSH[0].xpub}
-        </Text>
-      </Box>
     </Box>
   );
 }

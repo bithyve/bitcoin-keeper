@@ -48,8 +48,8 @@ function IdentifySignerModal({ visible, close, signer, secondaryCallback, vaultI
       textColor={`${colorMode}.modalHeaderTitle`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       close={close}
-      title="Assign signer type"
-      subTitle="Identify your signer type for enhanced connectivity and communication"
+      title="Assign device type"
+      subTitle="Identify your device type for enhanced connectivity and communication"
       buttonText="Identify"
       secondaryButtonText="Skip"
       secondaryCallback={cleanedSecondaryCallback}
