@@ -71,6 +71,7 @@ function AssignSignerType({ route }: IProps) {
   }, [relaySignerUpdateError]);
 
   const availableSigners = [
+    SignerType.KEEPER,
     SignerType.BITBOX02,
     SignerType.COLDCARD,
     SignerType.JADE,
@@ -81,7 +82,6 @@ function AssignSignerType({ route }: IProps) {
     SignerType.SEEDSIGNER,
     SignerType.SPECTER,
     SignerType.TREZOR,
-    SignerType.KEEPER,
     SignerType.SEED_WORDS,
     SignerType.POLICY_SERVER,
   ];
