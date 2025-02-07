@@ -1547,7 +1547,10 @@ export default class WalletOperations {
     const payloadTarget = signer.type;
     let isSigned = false;
 
-    if (miniscriptSelectedSatisfier && signer.type === SignerType.BITBOX02) {
+    if (
+      miniscriptSelectedSatisfier &&
+      (signer.type === SignerType.BITBOX02 || signer.type === SignerType.KEEPER)
+    ) {
       const subPaths = inputs.reduce((acc, input) => {
         const { subPaths: inputSubPaths } = WalletUtilities.addressToMultiSig(
           input.address,
@@ -1583,13 +1586,23 @@ export default class WalletOperations {
             });
           }
         }
-        input.bip32Derivation = input.bip32Derivation.filter((bip32Deriv) => {
+        const newBip32Derivation = input.bip32Derivation.filter((bip32Deriv) => {
           return paths.some(
             (path) =>
               bip32Deriv.path === path.path &&
               bip32Deriv.masterFingerprint.toString() === path.masterFingerprint.toString()
           );
         });
+        if (signer.type === SignerType.BITBOX02) {
+          input.bip32Derivation = newBip32Derivation;
+        } else {
+          input.unknownKeyVals = [
+            {
+              key: Buffer.from('SELECTED_MINISCRIPT_BIP32_DERIVATIONS'),
+              value: Buffer.from(JSON.stringify(newBip32Derivation)),
+            },
+          ];
+        }
       }
     }
 

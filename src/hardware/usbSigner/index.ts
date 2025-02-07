@@ -23,7 +23,7 @@ export const getUSBSignerDetails = (data, isMultisig) => {
     return {
       xpub,
       derivationPath,
-      masterFingerprint: mfp,
+      masterFingerprint: mfp?.toUpperCase(),
       xpubDetails,
     };
   } catch (_) {
