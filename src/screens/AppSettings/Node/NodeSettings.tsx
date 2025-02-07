@@ -182,8 +182,8 @@ function NodeSettings() {
         subTitle={common.disconnectingFromServerText}
         buttonText={common.disconnect}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={async () => {
           setElectrumDisconnectWarningVisible(false);

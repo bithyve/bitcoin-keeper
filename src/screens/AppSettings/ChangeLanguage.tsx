@@ -233,7 +233,7 @@ function ChangeLanguage() {
             setShowCurrency(false);
           }}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
           showCloseIcon={false}
           buttonText={null}
           buttonCallback={() => {}}
@@ -263,7 +263,7 @@ function ChangeLanguage() {
             setShowLanguages(false);
           }}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
           showCloseIcon={false}
           buttonText={null}
           buttonCallback={() => {}}

@@ -251,7 +251,7 @@ function DeleteKeys({ route }) {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('ManageWallets'));
         }}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
         Content={() => <Content vaultsUsed={vaultsUsed} colorMode={colorMode} />}
       />
       <KeeperModal
@@ -260,9 +260,9 @@ function DeleteKeys({ route }) {
         showCloseIcon={false}
         title={signerText.deletingKey}
         subTitle={signerText.keyWillBeDeleted}
-        subTitleColor={`${colorMode}.secondaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={DeleteLoadingContent}
       />
       <KeeperModal
@@ -272,9 +272,9 @@ function DeleteKeys({ route }) {
         showCloseIcon={false}
         title={signerText.keyDeletedSuccessfully}
         subTitle={signerText.keyDeletedSuccessMessage}
-        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonText={signerText.continue}
@@ -292,8 +292,8 @@ function DeleteKeys({ route }) {
         subTitleWidth={wp(240)}
         subTitle={signerText.confirmPasscodeToDeleteKey}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <Box>
             {signerToDelete && (

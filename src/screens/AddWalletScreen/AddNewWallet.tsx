@@ -225,7 +225,9 @@ function AddNewWallet({ navigation, route }) {
         visible={customConfigModalVisible}
         close={() => setCustomConfigModalVisible(false)}
         title="Create a custom wallet"
-        subTitle=""
+        subTitle="Select the total number of keys"
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={common.confirm}
         buttonCallback={() => {
           setCustomConfigModalVisible(false);
@@ -234,6 +236,23 @@ function AddNewWallet({ navigation, route }) {
         Content={() => {
           return (
             <Box>
+              <Text
+                style={{ marginBottom: hp(10) }}
+                fontSize={14}
+                medium
+                color={`${colorMode}.primaryText`}
+                testID="text_totalKeys"
+              >
+                Total Keys For wallet Configuration
+              </Text>
+              <Text
+                style={{ fontSize: 12 }}
+                color={`${colorMode}.secondaryText`}
+                testID="text_totalKeys_subTitle"
+              >
+                {vaultTranslations.selectTheTotalNumberOfKeys}
+              </Text>
+              <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
               <Text
                 style={{ marginBottom: hp(10) }}
                 fontSize={14}
@@ -251,23 +270,6 @@ function AddNewWallet({ navigation, route }) {
                 {vaultTranslations.minimumNumberOfKeysToSignATransaction}
               </Text>
               <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
-              <Text
-                style={{ marginBottom: hp(10) }}
-                fontSize={14}
-                medium
-                color={`${colorMode}.primaryText`}
-                testID="text_totalKeys"
-              >
-                Total Keys in the Wallet
-              </Text>
-              <Text
-                style={{ fontSize: 12 }}
-                color={`${colorMode}.secondaryText`}
-                testID="text_totalKeys_subTitle"
-              >
-                {vaultTranslations.selectTheTotalNumberOfKeys}
-              </Text>
-              <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
             </Box>
           );
         }}
@@ -332,6 +334,8 @@ const EnhancedSecurityModal = ({
       close={() => {
         onClose();
       }}
+      textColor={`${colorMode}.modalHeaderTitle`}
+      subTitleColor={`${colorMode}.modalSubtitleBlack`}
       title="Enhanced Security Options"
       subTitle="You'll be prompted to configure your enhanced options after you select your normal wallet keys"
       buttonText="Save Changes"
@@ -508,8 +512,8 @@ const styles = StyleSheet.create({
   },
   enhancedVaultsCustomStyles: {
     padding: 15,
-    gap: 15,
-    width: wp(320),
+    gap: 10,
+    width: wp(327),
   },
   upgradeButtonCustomStyles: {
     container: {

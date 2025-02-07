@@ -236,7 +236,7 @@ function SetupSigningServer({ route }: { route }) {
           }}
           title="Confirm OTP to setup 2FA"
           subTitle="To complete setting up the signer"
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
           Content={otpContent}
         />
       </View>

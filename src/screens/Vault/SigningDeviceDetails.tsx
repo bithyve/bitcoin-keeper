@@ -81,6 +81,7 @@ import {
   findChangeFromReceiverAddresses,
   findVaultFromSenderAddress,
 } from 'src/utils/service-utilities/utils';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -731,7 +732,8 @@ function SigningDeviceDetails({ route }) {
                 showToast('Device health check skipped!');
                 setSkipHealthCheckModalVisible(false);
               }}
-              textColor={`${colorMode}.primaryText`}
+              textColor={`${colorMode}.modalHeaderTitle`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={HealthCheckSkipContent}
             />
 
@@ -750,6 +752,7 @@ function SigningDeviceDetails({ route }) {
               buttonTextColor={`${colorMode}.modalWhiteButtonText`}
               buttonBackground={`${colorMode}.modalWhiteButton`}
               secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+              secondaryIcon={<ConciergeNeedHelp />}
               secondaryCallback={() => {
                 setDetailModal(false);
                 navigation.dispatch(
@@ -795,8 +798,8 @@ function SigningDeviceDetails({ route }) {
               subTitleWidth={wp(240)}
               subTitle={signerTranslations.RKBackupPassSubTitle}
               modalBackground={`${colorMode}.modalWhiteBackground`}
-              subTitleColor={`${colorMode}.secondaryText`}
-              textColor={`${colorMode}.primaryText`}
+              textColor={`${colorMode}.modalHeaderTitle`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => (
                 <PasscodeVerifyModal
                   useBiometrics

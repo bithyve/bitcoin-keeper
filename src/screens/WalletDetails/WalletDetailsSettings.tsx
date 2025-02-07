@@ -74,9 +74,9 @@ function WalletDetailsSettings({ route }) {
           showCloseIcon={false}
           modalBackground={`${colorMode}.primaryBackground`}
           title={walletTranslation.XPubTitle}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           subTitle={walletTranslation.walletXPubSubTitle}
-          subTitleColor={`${colorMode}.secondaryText`}
           subTitleWidth={wp(300)}
           Content={() => (
             <ShowXPub
@@ -98,8 +98,8 @@ function WalletDetailsSettings({ route }) {
           subTitleWidth={wp(240)}
           subTitle="This will reflect on the home screen"
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           showCloseIcon={false}
           Content={() => (
             <EditWalletDetailsModal wallet={wallet} close={() => setWalletDetailVisible(false)} />

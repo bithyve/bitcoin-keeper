@@ -30,6 +30,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { hp, wp } from 'src/constants/responsive';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 const SigningDeviceList = () => {
   const navigation = useNavigation();
@@ -247,6 +248,7 @@ const SigningDeviceList = () => {
         buttonTextColor={`${colorMode}.whiteButtonText`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           dispatch(setSdIntroModal(false));
           navigation.dispatch(

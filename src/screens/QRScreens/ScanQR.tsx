@@ -22,6 +22,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NFCOption from '../NFCChannel/NFCOption';
 import Note from 'src/components/Note/Note';
 import { SignerType } from 'src/services/wallets/enums';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 const decoder = new URRegistryDecoder();
 
@@ -174,6 +175,7 @@ function ScanQR() {
             buttonTextColor={`${colorMode}.whiteButtonText`}
             buttonBackground={`${colorMode}.whiteButtonBackground`}
             secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+            secondaryIcon={<ConciergeNeedHelp />}
             buttonCallback={() => {
               setVisibleModal(false);
             }}

@@ -91,8 +91,8 @@ function DescriptionModal({
     <KeeperModal
       visible={visible}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.primaryText`}
-      subTitleColor={`${colorMode}.secondaryText`}
+      textColor={`${colorMode}.modalHeaderTitle`}
+      subTitleColor={`${colorMode}.modalSubtitleBlack`}
       close={close}
       title="Add Description"
       subTitle="Optionally you can add a short description to the signer"

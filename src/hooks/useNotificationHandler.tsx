@@ -75,8 +75,8 @@ const NotificationHandler = () => {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={'Inheritance Key request'}
         subTitle={foregroundNotifcation?.notification?.title}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonText={'Decline'}
         buttonCallback={() => declineRequest()}
@@ -93,8 +93,8 @@ const NotificationHandler = () => {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={foregroundNotifcation?.notification?.title}
         subTitle={foregroundNotifcation?.notification?.body}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonText={'Ok'}
         buttonCallback={() => setShowRemoteNotificationModel(false)}

@@ -20,6 +20,7 @@ import { useDispatch } from 'react-redux';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import MenuCardWrapper from 'src/components/MenuCardWrapper';
 import { CommonActions } from '@react-navigation/native';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 function InheritanceToolsAndTips({ navigation }) {
   const { colorMode } = useColorMode();
@@ -104,6 +105,7 @@ function InheritanceToolsAndTips({ navigation }) {
         buttonTextColor={`${colorMode}.whiteButtonText`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setInheritanceModal(false);
           navigation.dispatch(

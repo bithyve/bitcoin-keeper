@@ -952,8 +952,8 @@ function SignerAdvanceSettings({ route }: any) {
         title="Changing Signer Type"
         subTitle="Are you sure you want to change the signer type?"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText="Continue"
         secondaryButtonText="Cancel"
         secondaryCallback={() => setWarning(false)}
@@ -966,8 +966,8 @@ function SignerAdvanceSettings({ route }: any) {
         title="Registered Email"
         subTitle="Delete or edit registered email"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={EditModalContent}
       />
       <KeeperModal
@@ -977,8 +977,8 @@ function SignerAdvanceSettings({ route }: any) {
         subTitle="Are you sure you want to delete email id?"
         subTitleWidth={wp(200)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         buttonText="Delete"
         buttonCallback={() => {
@@ -1004,7 +1004,8 @@ function SignerAdvanceSettings({ route }: any) {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
         }}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
       />
       <KeeperModal
@@ -1017,8 +1018,8 @@ function SignerAdvanceSettings({ route }: any) {
           actionAfterPasscode === 'hideKey' ? 'To hide the key' : 'To view Mobile Key seed words'
         }
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics={false}
@@ -1037,8 +1038,8 @@ function SignerAdvanceSettings({ route }: any) {
         title={`${signerTranslation.backingUp} ${signer.signerName}`}
         subTitle={`${signerTranslation.writeBackupSeed} ${signer.signerName}. ${signerTranslation.doItPrivately}`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() =>
           backupModalContent({
             title: signer.signerName,
@@ -1061,8 +1062,8 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setShowOTPModal(false)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={vaultTranslation.oneTimeBackupTitle}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={SigningServerOTPModal}
       />
       <HardwareModalMap

@@ -48,8 +48,8 @@ function EnterPasswordModal({
     <KeeperModal
       visible={visible}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.primaryText`}
-      subTitleColor={`${colorMode}.secondaryText`}
+      textColor={`${colorMode}.modalHeaderTitle`}
+      subTitleColor={`${colorMode}.modalSubtitleBlack`}
       close={close}
       title="Enter PDF File Password"
       subTitle="Secure your BSMS PDF files by protecting them with a password of your choice."

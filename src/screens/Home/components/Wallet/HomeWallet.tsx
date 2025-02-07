@@ -142,6 +142,8 @@ const HomeWallet = () => {
         title="Add a New Wallet"
         subTitle="Create a new wallet or import existing one"
         close={() => setShowAddWalletModal(false)}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon
         Content={() => (
           <Box style={styles.addWalletOptionsList}>
