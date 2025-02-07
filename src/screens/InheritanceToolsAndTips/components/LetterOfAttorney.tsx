@@ -18,6 +18,8 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
+import { credsAuthenticated } from 'src/store/reducers/login';
+import { useDispatch } from 'react-redux';
 
 function LetterOfAttorney() {
   const { signers } = useSigners();
@@ -30,6 +32,7 @@ function LetterOfAttorney() {
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const dispatch = useDispatch();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -55,6 +58,7 @@ function LetterOfAttorney() {
             icon={<DownArrow />}
             description={inheritancePlanning.letterOfAttorneyCtaDescp}
             callback={() => {
+              dispatch(credsAuthenticated(false));
               setConfirmPassVisible(true);
             }}
             name={inheritancePlanning.letterOfAttorneyCtaTitle}
