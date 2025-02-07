@@ -23,6 +23,12 @@ import CanaryIcon from 'src/assets/images/bird-white.svg';
 import PlebIcon from 'src/assets/images/plebIcon.svg';
 import HodlerIcon from 'src/assets/images/hodlerIcon.svg';
 import DiamondIcon from 'src/assets/images/diamondHandsIcon.svg';
+import PlebGreenSub from 'src/assets/images/Pleb-green-sub-icon.svg';
+import PlebWhiteSub from 'src/assets/images/pleb-white-sub-icon.svg';
+import HodlerWhiteSub from 'src/assets/images/Hodler-white-sub-icon.svg';
+import HodlerGreenSub from 'src/assets/images/Hodler-green-sub-icon.svg';
+import DiamondGreenSub from 'src/assets/images/DiamondHands-green-sub-icon.svg';
+import DiamondWhiteSub from 'src/assets/images/DiamondHands-white-sub-iocn.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -100,6 +106,9 @@ export const useSettingKeeper = () => {
       subtitle: signer.Beginner,
       description: signer.plebDescription,
       icon: <PlebIcon width={30} height={30} />,
+      sublightIcon: <PlebGreenSub width={24} height={24} />,
+      subDarkIcon: <PlebWhiteSub width={24} height={24} />,
+      subDescription: 'Start your bitcoin journey with our free subscription',
     },
     {
       plan: SubscriptionTier.L2.toUpperCase(),
@@ -107,6 +116,9 @@ export const useSettingKeeper = () => {
       subtitle: signer.intermediate,
       description: signer.hodlerDescription,
       icon: <HodlerIcon width={30} height={30} />,
+      sublightIcon: <HodlerGreenSub width={24} height={24} />,
+      subDarkIcon: <HodlerWhiteSub width={24} height={24} />,
+      subDescription: 'Unlock features to easily manage bigger bitcoin stacks',
     },
     {
       plan: SubscriptionTier.L3.toUpperCase(),
@@ -114,6 +126,9 @@ export const useSettingKeeper = () => {
       subtitle: signer.advanced,
       description: signer.DiamondHandsDesciption,
       icon: <DiamondIcon width={30} height={30} />,
+      sublightIcon: <DiamondGreenSub width={24} height={24} />,
+      subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
+      subDescription: 'Unlock to protect significant amount of bitcoin and inheritance planning',
     },
   ];
 

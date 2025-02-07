@@ -185,5 +185,6 @@ const Colors = {
   horizontaldivider: 'rgba(232, 227, 221,1)',
   termsGrey: 'rgba(78, 92, 106, 1)',
   headerWhite: 'rgba(255, 255, 255, 1)',
+  darkBorderGreen: 'rgba(89, 116, 107, 1)',
 };
 export default Colors;
