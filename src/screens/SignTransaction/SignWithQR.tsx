@@ -5,8 +5,8 @@ import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React, { useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType, XpubTypes, RKInteractionMode } from 'src/services/wallets/enums';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { SignerType } from 'src/services/wallets/enums';
+import { Alert, Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -21,8 +21,6 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import WalletCopiableData from 'src/components/WalletCopiableData';
-import idx from 'idx';
-import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -32,6 +30,8 @@ import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
+import KeeperQRCode from 'src/components/KeeperQRCode';
+const { width } = Dimensions.get('window');
 
 function SignWithQR() {
   const { colorMode } = useColorMode();
@@ -174,12 +174,16 @@ function SignWithQR() {
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          <DisplayQR
-            qrContents={serializedPSBT}
-            toBytes={encodeToBytes}
-            type="base64"
-            signerType={signer.type}
-          />
+          {signer.type === SignerType.SPECTER ? (
+            <KeeperQRCode qrData={`sign ${serializedPSBT}`} size={width * 0.85} ecl="L" />
+          ) : (
+            <DisplayQR
+              qrContents={serializedPSBT}
+              toBytes={encodeToBytes}
+              type="base64"
+              signerType={signer.type}
+            />
+          )}
           <Box style={styles.fingerprint}>
             <WalletCopiableData data={serializedPSBT} dataType="psbt" />
           </Box>
