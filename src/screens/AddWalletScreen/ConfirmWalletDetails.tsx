@@ -378,7 +378,10 @@ function ConfirmWalletDetails({ route }) {
         }
       />
 
-      <ScrollView contentContainerStyle={{ flex: 1, justifyContent: 'space-between' }}>
+      <ScrollView
+        contentContainerStyle={{ flex: 1, justifyContent: 'space-between' }}
+        showsVerticalScrollIndicator={false}
+      >
         <Box style={styles.fieldsContainer}>
           <Text fontSize={14} medium>
             Your wallet name
@@ -426,7 +429,7 @@ function ConfirmWalletDetails({ route }) {
             </Text>
           </Pressable>
         </Box>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <Box
             flexDirection={'row'}
             flex={1}
