@@ -19,6 +19,7 @@ import useVault from 'src/hooks/useVault';
 import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import DownloadPDF from 'src/assets/images/download-pdf-white.svg';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import { sanitizeFileName } from 'src/utils/utilities';
 
 const ConfigQR = ({ isMiniscriptVault, descriptorString, activeTab }) => {
   return isMiniscriptVault ? (
@@ -124,9 +125,7 @@ function GenerateVaultDescriptor() {
           <Box style={styles.optionsContainer}>
             <ShareWithNfc
               data={vaultDescriptorString}
-              fileName={`${
-                vault.presentationData.name.replace(/[^a-zA-Z0-9]/g, '') || 'untitled'
-              }.txt`}
+              fileName={`${sanitizeFileName(vault.presentationData.name)}.txt`}
             />
             <OptionCTA
               icon={

@@ -80,7 +80,7 @@ const AssignSignerTypeCard = ({
       <KeeperModal
         visible={showConfirm}
         close={() => setShowConfirm(false)}
-        title="Changing Signer Type"
+        title="Changing Device Type"
         subTitle={`Are you sure you want to change the device type to ${getSignerNameFromType(
           type
         )}?`}
