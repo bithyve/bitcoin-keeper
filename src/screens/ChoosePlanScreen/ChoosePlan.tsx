@@ -44,8 +44,8 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import TierUpgradeModal, { UPGRADE_TYPE } from './TierUpgradeModal';
 import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import SubscriptionList from './components/SubscriptionList';
+import usePlan from 'src/hooks/usePlan';
 const { width } = Dimensions.get('window');
 
 const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
@@ -75,9 +75,7 @@ function ChoosePlan() {
   const disptach = useDispatch();
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
   const [showPromocodeModal, setShowPromocodeModal] = useState(false);
-  const selectedPlan = items?.[currentPosition]?.name;
-
-  const showRestore = selectedPlan?.toString()?.toLowerCase() !== SubscriptionTier.L1.toLowerCase();
+  const { isOnL1 } = usePlan();
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -503,7 +501,7 @@ function ChoosePlan() {
       <WalletHeader
         title={choosePlan.choosePlantitle}
         rightComponent={
-          showRestore && (
+          isOnL1 && (
             <Pressable onPress={restorePurchases} testID="btn_restorePurchases">
               {isDarkMode ? (
                 <CircularWhiteArrow width={22} height={22} />
