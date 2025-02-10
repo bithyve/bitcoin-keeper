@@ -43,6 +43,8 @@ import {
 } from 'src/store/reducers/bhr';
 import useToastMessage from './useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { setThemeMode } from 'src/store/reducers/settings';
+import ThemeMode from 'src/models/enums/ThemeMode';
 
 export const useSettingKeeper = () => {
   const dispatch = useAppDispatch();
@@ -63,6 +65,14 @@ export const useSettingKeeper = () => {
   const { backupAllFailure, backupAllSuccess, automaticCloudBackup } = useAppSelector(
     (state) => state.bhr
   );
+
+  useEffect(() => {
+    if (colorMode === 'dark') {
+      dispatch(setThemeMode(ThemeMode.DARK));
+    } else {
+      dispatch(setThemeMode(ThemeMode.LIGHT));
+    }
+  }, [colorMode]);
 
   const changeThemeMode = () => {
     toggleColorMode();
