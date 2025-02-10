@@ -16,6 +16,7 @@ import PinInputsView from '../AppPinInput/PinInputsView';
 import Text from '../KeeperText';
 
 const RNBiometrics = new ReactNativeBiometrics();
+let processing = false;
 
 interface Props {
   useBiometrics: boolean;
@@ -53,25 +54,28 @@ function PasscodeVerifyModal({
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
-    if (useBiometrics) biometricAuth();
+    if (useBiometrics) {
+      if (processing) return;
+      processing = true;
+      biometricAuth();
+    }
   }, [useBiometrics]);
 
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
-        setTimeout(async () => {
-          const { success, signature } = await RNBiometrics.createSignature({
-            promptMessage: 'Authenticate',
-            payload: appId,
-            cancelButtonText: 'Use PIN',
-          });
-          if (success) {
-            dispatch(credsAuth(signature, LoginMethod.BIOMETRIC, true));
-          }
-        }, 200);
+        const { success, signature } = await RNBiometrics.createSignature({
+          promptMessage: 'Authenticate',
+          payload: appId,
+          cancelButtonText: 'Use PIN',
+        });
+        if (success) {
+          dispatch(credsAuth(signature, LoginMethod.BIOMETRIC, true));
+        }
       } catch (error) {
-        //
-        console.log(error);
+        console.log('🚀 ~ biometricAuth ~ error:', error);
+      } finally {
+        processing = false;
       }
     }
   };

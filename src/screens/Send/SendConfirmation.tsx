@@ -71,6 +71,7 @@ import { SentryErrorBoundary } from 'src/services/sentry';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import { Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
+import { credsAuthenticated } from 'src/store/reducers/login';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -892,7 +893,10 @@ function SendConfirmation({ route }) {
           if (isCachedTransaction) discardCachedTransaction();
           else navigation.goBack();
         }}
-        primaryCallback={() => setConfirmPassVisible(true)}
+        primaryCallback={() => {
+          dispatch(credsAuthenticated(false));
+          setConfirmPassVisible(true);
+        }}
         primaryLoading={inProgress}
       />
       <KeeperModal
