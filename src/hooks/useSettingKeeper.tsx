@@ -148,14 +148,9 @@ export const useSettingKeeper = () => {
       title: settings.assistedServerBackup,
       description: settings.assistedServerBackupSubtitle,
       icon: <CloudBackupIcon width={14} height={14} />,
-      onPress: toggleDebounce(() => toggleAutomaticBackupMode()),
-      rightIcon: (
-        <Switch
-          onValueChange={toggleDebounce(() => toggleAutomaticBackupMode())}
-          value={automaticCloudBackup}
-        />
-      ),
-      onRightPress: toggleDebounce(() => {}),
+      onPress: () => {},
+      rightIcon: <Switch onValueChange={() => {}} value={automaticCloudBackup} />,
+      onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
       isDiamond: false,
       isHodler: false,
     },
