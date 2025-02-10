@@ -134,6 +134,7 @@ function SetupSigningServer({ route }: { route }) {
                 showToast('Invalid OTP');
               }
             }}
+            testID="otpClipboardButton"
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>

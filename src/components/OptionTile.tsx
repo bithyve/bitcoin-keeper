@@ -27,7 +27,7 @@ function OptionTile({ title, icon, customStyle, callback, image }: OptionTilePro
   };
 
   return (
-    <TouchableOpacity onPress={callback}>
+    <TouchableOpacity onPress={callback} testID={`btn_${title}`}>
       <Box
         style={[styles.cardContainer, customStyle]}
         backgroundColor={`${colorMode}.seashellWhite`}

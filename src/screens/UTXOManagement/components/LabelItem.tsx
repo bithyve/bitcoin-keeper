@@ -69,7 +69,7 @@ function LabelItem({
         </Text>
 
         {!item.isSystem && editable ? (
-          <TouchableOpacity onPress={() => onCloseClick(index)}>
+          <TouchableOpacity onPress={() => onCloseClick(index)} testID={`btn_delete_${item.name}`}>
             <Box style={styles.deleteContainer}>
               <DeleteCross size={wp(8)} />
             </Box>

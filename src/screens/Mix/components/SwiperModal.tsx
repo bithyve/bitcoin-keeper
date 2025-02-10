@@ -116,6 +116,7 @@ function List() {
             onPress={() =>
               currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))
             }
+            testID={`${currentPosition === 0 ? 'next' : 'proceed'}`}
           >
             <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
               <Text style={styles.ctaText} color={`${colorMode}.modalWhiteButtonText`} bold>

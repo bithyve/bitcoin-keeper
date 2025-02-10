@@ -16,7 +16,7 @@ const TicketItem = ({ ticket, handlePress }) => {
   const isSolved = ticket.status == ConciergeTicketStatus.SOLVED;
 
   return (
-    <TouchableOpacity onPress={handlePress}>
+    <TouchableOpacity onPress={handlePress} testID="ticket_item">
       <Box
         style={styles.box}
         backgroundColor={`${colorMode}.primaryBackground`}

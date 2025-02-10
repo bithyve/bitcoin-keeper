@@ -10,7 +10,7 @@ export function AddKeyButton({ short = false, onPress }: { short?: boolean; onPr
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   return (
-    <TouchableOpacity onPress={onPress} style={styles.addNewBtn}>
+    <TouchableOpacity onPress={onPress} style={styles.addNewBtn} testID="btn_add_new_key">
       <Text color={`${colorMode}.textGreen`} bold style={styles.addNew}>
         {short ? 'Add a key' : 'Add a new key'}
       </Text>

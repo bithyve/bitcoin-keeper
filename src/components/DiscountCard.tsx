@@ -21,6 +21,7 @@ function DiscountCard({ card, handleSelectedOffer }: DiscountCardProps) {
         handleSelectedOffer(card);
       }}
       style={styles.discountCardContainer}
+      testID="btn_discountCard"
     >
       <HStack>
         <HStack style={styles.offerNameSection}>

@@ -46,7 +46,11 @@ const FeerateStatement = (props: Props) => {
   }
 
   return (
-    <TouchableOpacity onPress={showFeesInsightModal} style={styles.feeInsightContainer}>
+    <TouchableOpacity
+      onPress={showFeesInsightModal}
+      style={styles.feeInsightContainer}
+      testID="fee_insight"
+    >
       <Box>
         <Box>
           <Text color={`${colorMode}.primaryText`} fontSize={16} medium>
