@@ -29,6 +29,7 @@ import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import Buttons from 'src/components/Buttons';
 
 const getTitle = (mode) => {
   switch (mode) {
@@ -37,7 +38,7 @@ const getTitle = (mode) => {
     case InteracationMode.VAULT_ADDITION:
       return 'Setting up Coldcard';
     case InteracationMode.HEALTH_CHECK || InteracationMode.IDENTIFICATION:
-      return 'Verify Coldcard';
+      return 'Health Check Coldcard';
   }
 };
 
@@ -64,7 +65,7 @@ function SetupColdCard({ route }) {
   const isConfigRecovery = mode === InteracationMode.CONFIG_RECOVERY;
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
 
-  useEffect(() => {
+  const startNfcRead = () => {
     NfcManager.isSupported().then((supported) => {
       if (supported) {
         if (mode === InteracationMode.HEALTH_CHECK) verifyColdCardWithProgress();
@@ -78,7 +79,7 @@ function SetupColdCard({ route }) {
         showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
-  }, []);
+  };
 
   const handleNFCError = (error) => {
     if (error instanceof HWError) {
@@ -192,8 +193,8 @@ function SetupColdCard({ route }) {
   };
 
   const instructions = isConfigRecovery
-    ? 'Export the Vault config by going to Settings > Multisig Wallets > <Your Wallet> > Descriptors > Export > Press 3 to share via NFC'
-    : 'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n';
+    ? '\nExport the wallet config by going to Settings > Multisig Wallets > <Your Wallet> > Descriptors > Export > Press 3 to share via NFC'
+    : '\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose the account number (default 0) and transfer over NFC.\n\nMake sure you remember the account you had chosen (This is important for recovering your wallet).\n';
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -205,6 +206,12 @@ function SetupColdCard({ route }) {
         <Box style={styles.header}>
           <KeeperHeader title={getTitle(mode)} subtitle={instructions} />
         </Box>
+        <Buttons
+          fullWidth
+          primaryCallback={startNfcRead}
+          primaryText="Start NFC"
+          primaryDisable={nfcVisible}
+        />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </MockWrapper>
     </ScreenWrapper>
