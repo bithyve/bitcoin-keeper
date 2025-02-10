@@ -1,7 +1,7 @@
 import { Box, Flex, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import PlanCheckMark from 'src/assets/images/planCheckMark.svg';
 import PlanCheckMarkWhite from 'src/assets/images/plan-white-check.svg';
 
@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     gap: 10,
     width: wp(260),
     alignItems: 'flex-start',
+    marginVertical: hp(6),
   },
   iconContainer: {
     marginTop: 6,

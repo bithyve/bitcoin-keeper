@@ -56,10 +56,10 @@ const SubscriptionList: React.FC<{
           ? 'Free'
           : isMonthly
           ? matchedPlan?.monthlyPlanDetails?.price
-            ? 'US' + matchedPlan.monthlyPlanDetails.price + '/'
+            ? matchedPlan.monthlyPlanDetails.price + '/'
             : ''
           : matchedPlan?.yearlyPlanDetails?.price
-          ? 'US' + matchedPlan.yearlyPlanDetails.price + '/'
+          ? matchedPlan.yearlyPlanDetails.price + '/'
           : '';
 
         const Trail = isMonthly
