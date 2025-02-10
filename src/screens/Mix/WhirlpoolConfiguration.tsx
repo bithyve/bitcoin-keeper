@@ -72,6 +72,7 @@ export default function WhirlpoolConfiguration({ route }) {
               onFeeSelectionCallback(fee);
               setTransactionPriority(fee?.priority);
             }}
+            testID={`fee_item_${fee.fee}`}
           >
             <Box style={styles.feeItem}>
               <Box style={styles.priorityWrapper}>

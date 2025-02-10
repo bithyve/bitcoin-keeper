@@ -15,9 +15,10 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { captureError } from 'src/services/sentry';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
+import { useNavigation } from '@react-navigation/native';
 
 export const fetchKeyExpression = (signer: Signer) => {
-  for (const type of [XpubTypes.P2WSH, XpubTypes.P2WPKH]) {
+  for (const type of [XpubTypes.P2WSH]) {
     if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
       const keyDescriptor = getKeyExpression(
         signer.masterFingerprint,
@@ -38,6 +39,7 @@ function CosignerDetails({ route }: ScreenProps) {
   const { showToast } = useToastMessage();
   const [details, setDetails] = React.useState('');
   const { signer } = route.params;
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (!details) {
@@ -46,10 +48,18 @@ function CosignerDetails({ route }: ScreenProps) {
           const keyDescriptor = fetchKeyExpression(signer);
           setDetails(keyDescriptor);
         } catch (error) {
-          showToast(
-            "We're sorry, but we have trouble retrieving the key information",
-            <ToastErrorIcon />
-          );
+          if (error && error.message === 'Missing key details.') {
+            showToast(
+              'Missing key details of multi-key type, please add key details from Add Device',
+              <ToastErrorIcon />
+            );
+          } else {
+            showToast(
+              "We're sorry, but we have trouble retrieving the key information",
+              <ToastErrorIcon />
+            );
+          }
+          navigation.goBack();
         }
       }, 200);
     }

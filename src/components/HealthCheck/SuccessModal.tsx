@@ -71,12 +71,12 @@ function SuccessModal(props) {
               backgroundColor="transparent"
               flexDirection="row"
             >
-              <TouchableOpacity onPress={cancelButtonPressed}>
+              <TouchableOpacity onPress={cancelButtonPressed} testID={`btn_${cancelButtonText}`}>
                 <Text fontSize={13} bold letterSpacing={1} color={cancelButtonColor} mr={wp(18)}>
                   {cancelButtonText}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={buttonPressed}>
+              <TouchableOpacity onPress={buttonPressed} testID={`btn_${buttonText}`}>
                 <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                   <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                     {buttonText}

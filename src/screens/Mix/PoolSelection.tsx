@@ -28,7 +28,11 @@ const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
     {pools &&
       pools.map((pool) => (
-        <TouchableOpacity onPress={() => onPoolSelectionCallback(pool)} key={pool.denomination}>
+        <TouchableOpacity
+          onPress={() => onPoolSelectionCallback(pool)}
+          key={pool.denomination}
+          testID="btn_pool"
+        >
           <Box style={styles.poolItem}>
             <Text style={styles.poolItemText} color="#073e39">
               {satsEnabled ? pool?.denomination : SatsToBtc(pool?.denomination)}

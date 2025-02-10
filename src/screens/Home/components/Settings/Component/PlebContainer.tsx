@@ -27,7 +27,7 @@ const PlebContainer: React.FC<PlebContainerProps> = ({
   onPress,
 }) => {
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} testID={`btn_pleb_${title}`}>
       <Box backgroundColor={backgroundColor} style={styles.Container}>
         <Box>
           <Text color={titleColor} fontSize={14} semiBold style={styles.title}>

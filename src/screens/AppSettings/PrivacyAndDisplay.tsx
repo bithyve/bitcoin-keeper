@@ -313,7 +313,7 @@ function PrivacyAndDisplay({ route }) {
                     loading={!sensorType}
                   />
                 ) : (
-                  <TouchableOpacity onPress={requestPermission}>
+                  <TouchableOpacity onPress={requestPermission} testID="btn_biometricSettings">
                     <Box
                       style={styles.settingsCTA}
                       backgroundColor={`${colorMode}.coffeeBackground`}

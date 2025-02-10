@@ -74,6 +74,7 @@ function WalletSendInfo({
           style={{
             marginRight: wp(5),
           }}
+          testID={`btn_edit_wallet_send_info`}
         >
           {/* { Do not have right assert in xd} */}
           <EditIcon />

@@ -72,7 +72,7 @@ function ScanQR() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} testID={`scanQr`}>
       <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <MockWrapper
           signerType={type}
