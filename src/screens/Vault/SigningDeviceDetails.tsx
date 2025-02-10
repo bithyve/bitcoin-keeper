@@ -83,6 +83,7 @@ import {
 } from 'src/utils/service-utilities/utils';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
+import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -396,6 +397,21 @@ function SigningDeviceDetails({ route }) {
       })
     );
   };
+
+  const navigateToAssignSigner = () => {
+    dispatch(resetSignersUpdateState());
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AssignSignerType',
+        params: {
+          parentNavigation: navigation,
+          vault: activeVault,
+          signer,
+        },
+      })
+    );
+  };
+
   const signPSBT = async (serializedPSBT) => {
     try {
       let { senderAddresses, receiverAddresses, fees, signerMatched, feeRate, changeAddressIndex } =
@@ -483,10 +499,16 @@ function SigningDeviceDetails({ route }) {
       Icon: () => <FooterIcon Icon={isDarkMode ? KeyDetailsDark : KeyDetailsLight} />,
       onPress: navigateToCosignerDetails,
     },
-    signer?.type !== SignerType.KEEPER && {
-      text: 'Sign Transaction',
-      Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
-      onPress: navigateToScanPSBT,
+    signer?.type !== SignerType.KEEPER &&
+      signer?.type !== SignerType.UNKOWN_SIGNER && {
+        text: 'Sign Transaction',
+        Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
+        onPress: navigateToScanPSBT,
+      },
+    signer?.type === SignerType.UNKOWN_SIGNER && {
+      text: 'Set Device Type',
+      Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
+      onPress: navigateToAssignSigner,
     },
     signer?.type !== SignerType.MY_KEEPER && {
       text: 'Health Check',
