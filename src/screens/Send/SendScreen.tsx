@@ -469,15 +469,13 @@ function SendScreen({ route }) {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <Box style={styles.CTAWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-        <Box style={styles.proceedButton}>
-          <Buttons
-            primaryCallback={handleProceed}
-            primaryText={common.proceed}
-            primaryDisable={!paymentInfo.trim() && !selectedWallet}
-            fullWidth
-          />
-        </Box>
+      <Box backgroundColor={`${colorMode}.primaryBackground`}>
+        <Buttons
+          primaryCallback={handleProceed}
+          primaryText={common.proceed}
+          primaryDisable={!paymentInfo.trim() && !selectedWallet}
+          fullWidth
+        />
       </Box>
 
       <PendingHealthCheckModal
@@ -521,19 +519,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(25),
     marginTop: hp(5),
   },
-  CTAWrapper: {
-    marginLeft: wp(20),
-    marginBottom: hp(10),
-    paddingHorizontal: wp(11),
-    position: 'absolute',
-    bottom: windowHeight > 680 ? hp(15) : hp(8),
-    width: '100%',
-  },
   sendToWalletWrapper: {
     marginTop: windowHeight > 680 ? hp(10) : hp(10),
-  },
-  proceedButton: {
-    marginVertical: 5,
   },
   scannerContainer: {
     alignItems: 'center',
