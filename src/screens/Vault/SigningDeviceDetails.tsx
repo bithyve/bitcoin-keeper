@@ -82,6 +82,7 @@ import {
   findVaultFromSenderAddress,
 } from 'src/utils/service-utilities/utils';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import { credsAuthenticated } from 'src/store/reducers/login';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -778,6 +779,7 @@ function SigningDeviceDetails({ route }) {
               buttonText={common.continue}
               buttonCallback={() => {
                 if (data.length === 0) {
+                  dispatch(credsAuthenticated(false));
                   setConfirmPassVisible(true);
                 } else {
                   setShowMobileKeyModal(false);

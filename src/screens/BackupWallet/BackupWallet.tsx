@@ -18,6 +18,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import OptionCard from 'src/components/OptionCard';
 import KeeperModal from 'src/components/KeeperModal';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { useDispatch } from 'react-redux';
+import { credsAuthenticated } from 'src/store/reducers/login';
 
 function BackupWallet() {
   const { colorMode } = useColorMode();
@@ -27,6 +29,7 @@ function BackupWallet() {
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [healthCheckSuccessModal, setHealthCheckSuccessModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const dispatch = useDispatch();
 
   const [skipHealthCheckModal, setSkipHealthCheckModal] = useState(false);
   const navigation = useNavigation();
@@ -45,6 +48,7 @@ function BackupWallet() {
           title={BackupWallet.exportAppSeed}
           description=""
           callback={() => {
+            dispatch(credsAuthenticated(false));
             setConfirmPassVisible(true);
           }}
         />
