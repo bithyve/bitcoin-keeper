@@ -322,11 +322,15 @@ export const runRealmMigrations = ({
                   if (!existingSigner[key][xpubType]) {
                     existingSigner[key][xpubType] = signerJSON[key][xpubType];
                   } else {
-                    // Merge arrays of xpub details
-                    existingSigner[key][xpubType] = [
-                      ...existingSigner[key][xpubType],
-                      ...signerJSON[key][xpubType],
-                    ];
+                    // Deduplicate xpubs based on xpub+derivationPath combination
+                    const uniqueXpubs = new Map();
+                    [...existingSigner[key][xpubType], ...signerJSON[key][xpubType]].forEach(
+                      (xpubEntry) => {
+                        const key = `${xpubEntry.xpub}_${xpubEntry.derivationPath}`;
+                        uniqueXpubs.set(key, xpubEntry);
+                      }
+                    );
+                    existingSigner[key][xpubType] = Array.from(uniqueXpubs.values());
                   }
                 });
               } else if (key === 'healthCheckDetails') {
