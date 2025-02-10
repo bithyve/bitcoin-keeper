@@ -43,6 +43,8 @@ import {
 } from 'src/store/reducers/bhr';
 import useToastMessage from './useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { setThemeMode } from 'src/store/reducers/settings';
+import ThemeMode from 'src/models/enums/ThemeMode';
 import { credsAuthenticated } from 'src/store/reducers/login';
 
 export const useSettingKeeper = () => {
@@ -64,6 +66,14 @@ export const useSettingKeeper = () => {
   const { backupAllFailure, backupAllSuccess, automaticCloudBackup } = useAppSelector(
     (state) => state.bhr
   );
+
+  useEffect(() => {
+    if (colorMode === 'dark') {
+      dispatch(setThemeMode(ThemeMode.DARK));
+    } else {
+      dispatch(setThemeMode(ThemeMode.LIGHT));
+    }
+  }, [colorMode]);
 
   const changeThemeMode = () => {
     toggleColorMode();
@@ -150,14 +160,9 @@ export const useSettingKeeper = () => {
       title: settings.assistedServerBackup,
       description: settings.assistedServerBackupSubtitle,
       icon: <CloudBackupIcon width={14} height={14} />,
-      onPress: toggleDebounce(() => toggleAutomaticBackupMode()),
-      rightIcon: (
-        <Switch
-          onValueChange={toggleDebounce(() => toggleAutomaticBackupMode())}
-          value={automaticCloudBackup}
-        />
-      ),
-      onRightPress: toggleDebounce(() => {}),
+      onPress: () => {},
+      rightIcon: <Switch onValueChange={() => {}} value={automaticCloudBackup} />,
+      onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
       isDiamond: false,
       isHodler: false,
     },
