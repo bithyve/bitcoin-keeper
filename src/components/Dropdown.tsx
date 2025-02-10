@@ -66,7 +66,11 @@ function Dropdown({ label, options, selectedOption, onOptionSelect }: Props) {
       {isOpen && (
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.optionsContainer}>
           {options.map((option, index) => (
-            <TouchableOpacity key={option} onPress={() => handleOptionSelect(option)}>
+            <TouchableOpacity
+              key={option}
+              onPress={() => handleOptionSelect(option)}
+              testID={`btn-${label}`}
+            >
               <Box
                 style={styles.optionContainer}
                 borderBottomWidth={index === options.length - 1 ? 0 : 1}

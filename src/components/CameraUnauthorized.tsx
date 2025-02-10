@@ -34,6 +34,7 @@ function CameraUnauthorized() {
         style={{
           marginTop: hp(15),
         }}
+        testID="btn_cameraSettings"
       >
         <Box
           borderColor={`${colorMode}.learnMoreBorder`}

@@ -91,7 +91,7 @@ function HealthCheckModal(props) {
             }
           />
           <Box alignSelf="flex-end" flexDirection="row" backgroundColor="transparent">
-            <TouchableOpacity onPress={onPress}>
+            <TouchableOpacity onPress={onPress} testID={`btn_${buttonText}`}>
               <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                 <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                   {buttonText}

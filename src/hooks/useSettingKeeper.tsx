@@ -45,6 +45,7 @@ import useToastMessage from './useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
+import { credsAuthenticated } from 'src/store/reducers/login';
 
 export const useSettingKeeper = () => {
   const dispatch = useAppDispatch();
@@ -134,6 +135,7 @@ export const useSettingKeeper = () => {
       icon: <RecoveryKeyIcon width={14} height={14} />,
       onPress: () => {
         if (data.length === 0) {
+          dispatch(credsAuthenticated(false));
           setConfirmPass(true);
         } else {
           navigation.navigate('WalletBackHistory');

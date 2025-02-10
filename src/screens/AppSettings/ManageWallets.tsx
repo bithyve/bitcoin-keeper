@@ -259,6 +259,7 @@ function ManageWallets() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            testID="manageWallets_moveFunds"
             onPress={() => {
               setShowDeleteVaultBalanceAlert(false);
               navigation.dispatch(

@@ -4,6 +4,7 @@ import SignerModals from '../screens/SignTransaction/SignerModals';
 import { ScriptTypes, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
+  signTransactionWithColdCard,
   signTransactionWithPortal,
   signTransactionWithSeedWords,
   signTransactionWithTapsigner,
@@ -29,7 +30,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
-const RKSignersModal = ({ signer, psbt, isMiniscript }, ref) => {
+const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const serializedPSBTEnvelop = {
@@ -248,6 +249,13 @@ const RKSignersModal = ({ signer, psbt, isMiniscript }, ref) => {
           ])
         );
         return signedSerializedPSBT;
+      } else if (SignerType.COLDCARD === signerType) {
+        await signTransactionWithColdCard({
+          setColdCardModal,
+          withNfcModal,
+          serializedPSBTEnvelop,
+          closeNfc,
+        });
       }
     } catch (error) {
       console.log('🚀 ~ signTransaction ~ error:', error);
@@ -305,7 +313,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript }, ref) => {
         )}
       />
       <SignerModals
-        vaultId={''}
+        vaultId={vaultId || ''}
         vaultKeys={[vaultKeys]}
         activeXfp={vaultKeys.masterFingerprint}
         coldCardModal={coldCardModal}

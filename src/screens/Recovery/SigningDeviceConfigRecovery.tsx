@@ -137,6 +137,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
           style={{
             opacity: disabled ? 0.4 : 1,
           }}
+          testID="btn_signingDevice"
         >
           <Box
             backgroundColor={`${colorMode}.seashellWhite`}

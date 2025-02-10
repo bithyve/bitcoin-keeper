@@ -19,6 +19,7 @@ function CustomGreenButton(props: Props) {
       onPress={() => {
         props.onPress();
       }}
+      testID="btn_customGreenButton"
     >
       <Box
         style={[

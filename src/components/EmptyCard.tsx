@@ -31,6 +31,7 @@ function EmptyCard({
         backgroundColor={`${colorMode}.pantoneGreenLight`}
         borderColor={`${colorMode}.pantoneGreen`}
         style={[styles.AddCardContainer]}
+        testID={`btn_${name}`}
       >
         <Box>
           <EmptyCardBg />

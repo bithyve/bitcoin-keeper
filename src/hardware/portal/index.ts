@@ -180,7 +180,7 @@ export const getPortalDetailsFromDescriptor = (descriptor: string) => {
     const xpub = match[3];
     xpubDetails[XpubTypes.P2WSH] = { xpub, derivationPath };
 
-    return { xpub, derivationPath, masterFingerprint: mfp, xpubDetails };
+    return { xpub, derivationPath, masterFingerprint: mfp?.toUpperCase(), xpubDetails };
   } else {
     throw new Error('Invalid descriptor format');
   }

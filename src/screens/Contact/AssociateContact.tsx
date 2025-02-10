@@ -83,7 +83,10 @@ function AssociateContact({ route }) {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => handleContactPress(item)}>
+    <TouchableOpacity
+      onPress={() => handleContactPress(item)}
+      testID={`contact_item_${item.recordID}`}
+    >
       <Box style={styles.contactItem}>
         {item.thumbnailPath !== '' ? (
           <Image source={{ uri: item.thumbnailPath || '' }} style={styles.avatar} />

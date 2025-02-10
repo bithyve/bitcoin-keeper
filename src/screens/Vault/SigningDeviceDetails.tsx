@@ -82,6 +82,9 @@ import {
   findVaultFromSenderAddress,
 } from 'src/utils/service-utilities/utils';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import { credsAuthenticated } from 'src/store/reducers/login';
+import { Psbt, script } from 'bitcoinjs-lib';
+import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -395,12 +398,44 @@ function SigningDeviceDetails({ route }) {
       })
     );
   };
+
+  const navigateToAssignSigner = () => {
+    dispatch(resetSignersUpdateState());
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AssignSignerType',
+        params: {
+          parentNavigation: navigation,
+          vault: activeVault,
+          signer,
+        },
+      })
+    );
+  };
+
   const signPSBT = async (serializedPSBT) => {
     try {
       let { senderAddresses, receiverAddresses, fees, signerMatched, feeRate, changeAddressIndex } =
         generateDataFromPSBT(serializedPSBT, signer);
-      // TODO: Need to find a way to detect Miniscript in PSBT without having to import the vault
       let isMiniscript = false;
+      try {
+        const psbt = Psbt.fromBase64(serializedPSBT);
+        // Check script ASM for Miniscript-specific patterns
+        const miniscriptPatterns = ['OP_CHECKLOCKTIMEVERIFY', 'OP_CHECKSEQUENCEVERIFY'];
+
+        psbt.data.inputs.forEach((input) => {
+          if (input.witnessUtxo?.script) {
+            const witnessScript = script.decompile(input.witnessScript);
+            // Convert to ASM format to check opcodes
+            const asm = script.toASM(witnessScript);
+            console.log(asm);
+            isMiniscript = miniscriptPatterns.some((pattern) => asm.includes(pattern));
+          }
+        });
+      } catch (error) {
+        console.log('Error checking if miniscript:', error);
+      }
+
       if (!signerMatched) {
         showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
         navigation.goBack();
@@ -430,6 +465,34 @@ function SigningDeviceDetails({ route }) {
       if (activeVault) {
         isMiniscript = !!activeVault?.scheme?.miniscriptScheme;
       }
+      if (signer.type === SignerType.BITBOX02) {
+        // Update PSBT inputs to use SELECTED_MINISCRIPT_BIP32_DERIVATIONS if they exist
+        // This is needed for Miniscript since the BitBox02 only produces one signature,
+        // but the Ledger and Coldcard require to pass all bip32 derivations to sign,
+        //so the BitBox02 will only produce signature for one of these and we can't control
+        // if it's the correct one or not
+        const psbt = Psbt.fromBase64(serializedPSBT);
+        psbt.data.inputs.map((input) => {
+          if (input.unknownKeyVals) {
+            const newBip32Derivations = input.unknownKeyVals.find(
+              (keyVal) => keyVal.key.toString() === 'SELECTED_MINISCRIPT_BIP32_DERIVATIONS'
+            );
+            if (newBip32Derivations) {
+              const parsed = JSON.parse(Buffer.from(newBip32Derivations.value).toString());
+
+              // PSBT expects bip32Derivation to be an array of:
+              // { masterFingerprint: Buffer, pubkey: Buffer, path: string }
+              input.bip32Derivation = parsed.map((deriv) => ({
+                masterFingerprint: Buffer.from(deriv.masterFingerprint.data),
+                pubkey: Buffer.from(deriv.pubkey.data),
+                path: deriv.path,
+              }));
+            }
+          }
+        });
+        serializedPSBT = psbt.toBase64();
+      }
+
       navigation.dispatch(
         CommonActions.navigate({
           name: 'PSBTSendConfirmation',
@@ -441,6 +504,7 @@ function SigningDeviceDetails({ route }) {
             psbt: serializedPSBT,
             feeRate,
             isMiniscript,
+            activeVault,
           },
         })
       );
@@ -482,10 +546,16 @@ function SigningDeviceDetails({ route }) {
       Icon: () => <FooterIcon Icon={isDarkMode ? KeyDetailsDark : KeyDetailsLight} />,
       onPress: navigateToCosignerDetails,
     },
-    signer?.type !== SignerType.KEEPER && {
-      text: 'Sign Transaction',
-      Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
-      onPress: navigateToScanPSBT,
+    signer?.type !== SignerType.KEEPER &&
+      signer?.type !== SignerType.UNKOWN_SIGNER && {
+        text: 'Sign Transaction',
+        Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
+        onPress: navigateToScanPSBT,
+      },
+    signer?.type === SignerType.UNKOWN_SIGNER && {
+      text: 'Set Device Type',
+      Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
+      onPress: navigateToAssignSigner,
     },
     signer?.type !== SignerType.MY_KEEPER && {
       text: 'Health Check',
@@ -778,6 +848,7 @@ function SigningDeviceDetails({ route }) {
               buttonText={common.continue}
               buttonCallback={() => {
                 if (data.length === 0) {
+                  dispatch(credsAuthenticated(false));
                   setConfirmPassVisible(true);
                 } else {
                   setShowMobileKeyModal(false);

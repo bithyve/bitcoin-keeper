@@ -589,7 +589,10 @@ function AddSendAmount({ route }) {
         currencyCode={currencyCode}
         specificBitcoinAmount={maxAmountToSend}
       />
-      <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
+      <TouchableOpacity
+        onPress={() => setTransPriorityModalVisible(true)}
+        testID="transaction_priority"
+      >
         <Box
           style={[styles.dashedButton]}
           backgroundColor={`${colorMode}.newDashedButtonBackground`}

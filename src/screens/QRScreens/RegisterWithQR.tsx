@@ -21,6 +21,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { UR, UREncoder } from '@ngraveio/bc-ur';
 import { getFragmentedData } from 'src/services/qr';
+import { sanitizeFileName } from 'src/utils/utilities';
 
 const { width } = Dimensions.get('window');
 
@@ -116,7 +117,7 @@ function RegisterWithQR({ route, navigation }: any) {
               signer={signer}
               vaultKey={vaultKey}
               vaultId={vaultId}
-              fileName={`${activeVault.presentationData.name.replace(/\s+/g, '-')}.txt`}
+              fileName={`${sanitizeFileName(activeVault.presentationData.name)}.txt`}
               useNdef
               isUSBAvailable={signer.type == SignerType.COLDCARD || signer.type == SignerType.JADE}
             />

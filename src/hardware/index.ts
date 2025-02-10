@@ -96,7 +96,7 @@ export const generateSignerFromMetaData = ({
       },
     ],
     addedOn: new Date(),
-    masterFingerprint,
+    masterFingerprint: masterFingerprint.toUpperCase(),
     isBIP85,
     signerPolicy,
     inheritanceKeyInfo,
@@ -109,7 +109,7 @@ export const generateSignerFromMetaData = ({
     derivationPath: derivationPath.replaceAll('h', "'"),
     xpub,
     xpriv,
-    masterFingerprint,
+    masterFingerprint: masterFingerprint.toUpperCase(),
   };
 
   return { signer, key };

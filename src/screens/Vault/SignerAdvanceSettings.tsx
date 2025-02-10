@@ -915,8 +915,8 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isAssistedKey || signersWithoutRegistration ? null : (
           <OptionCard
-            title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
-            description="Select from signer list"
+            title={isOtherSD ? 'Assign device type' : 'Change device type'}
+            description="Select from device list"
             callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
           />
         )}

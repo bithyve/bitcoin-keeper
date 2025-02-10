@@ -349,6 +349,7 @@ function ReceiveScreen({ route }: { route }) {
             <TouchableOpacity
               onPress={generateNewReceiveAddress}
               style={styles.getNewAddressContainer}
+              testID="btn_get_new_address"
             >
               <Text color={`${colorMode}.textGreen`} style={styles.getNewAddressText} semiBold>
                 {home.GetNewAddress}
@@ -376,7 +377,7 @@ function ReceiveScreen({ route }: { route }) {
           borderColor={`${colorMode}.greyBorder`}
         >
           <AddressUsageBadge used={addressUsed} />
-          <TouchableOpacity onPress={() => setLabelsModalVisible(true)}>
+          <TouchableOpacity onPress={() => setLabelsModalVisible(true)} testID="btn_add_labels">
             {labels.length > 0 ? (
               <Box style={styles.labelsRow}>
                 <UTXOLabel labels={labels} center addMoreBtn />
@@ -403,6 +404,7 @@ function ReceiveScreen({ route }: { route }) {
               }
             }}
             style={styles.addressPageBtn}
+            testID={`btn_address_page_${currentAddressIdx - 1}`}
           >
             {colorMode === 'light' ? (
               <NavLeft width={wp(22)} height={hp(22)} />
@@ -459,7 +461,10 @@ function ReceiveScreen({ route }: { route }) {
         </HStack>
       </ScrollView>
       <Box style={styles.BottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
+        <TouchableOpacity
+          onPress={() => setModalVisible(true)}
+          testID={`btn_${home.requestSpecificAmount}`}
+        >
           <Text color={`${colorMode}.textGreen`} style={styles.addAmountText} semiBold>
             {home.requestSpecificAmount}
           </Text>

@@ -23,6 +23,8 @@ import { WalletType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
 import BackupModalContent from '../AppSettings/BackupModal';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { credsAuthenticated } from 'src/store/reducers/login';
+import { useDispatch } from 'react-redux';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -43,6 +45,7 @@ function WalletSettings({ route }) {
   const TestSatsComponent = useTestSats({ wallet });
   const isImported = wallet.type === WalletType.IMPORTED;
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+  const dispatch = useDispatch();
 
   const updateWalletVisibility = () => {
     try {
@@ -97,6 +100,7 @@ function WalletSettings({ route }) {
             title={walletTranslation.walletSeedWord}
             description={walletTranslation.walletSeedWordSubTitle}
             callback={() => {
+              dispatch(credsAuthenticated(false));
               setConfirmPassVisible(true);
             }}
           />

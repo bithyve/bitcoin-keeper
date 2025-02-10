@@ -196,6 +196,7 @@ function AddDetailsFinalScreen({ route }) {
                     setPurposeLbl(item.label);
                   }}
                   style={styles.flagWrapper1}
+                  testID={`purpose_item_${item.value}`}
                 >
                   <Text style={styles.purposeText}>{item.label}</Text>
                 </TouchableOpacity>

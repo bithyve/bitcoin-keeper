@@ -364,43 +364,27 @@ function* getAppImageWorker({ payload }) {
       });
     }
     if (appImage && subscription) {
-      if (subscription.isValid) {
-        yield put(setAppImageRecoverd(true));
-        yield call(
-          recoverApp,
-          primaryMnemonic,
-          primarySeed,
-          encryptionKey,
-          appID,
-          subscription,
-          appImage,
-          allVaultImages,
-          UTXOinfos,
-          labels,
-          previousVersion
-        );
-      } else {
-        const plebSubscription = {
-          productId: SubscriptionTier.L1,
-          name: SubscriptionTier.L1,
-          level: AppSubscriptionLevel.L1,
-          icon: 'assets/ic_pleb.svg',
-          receipt: '',
-        };
-        yield call(
-          recoverApp,
-          primaryMnemonic,
-          primarySeed,
-          encryptionKey,
-          appID,
-          plebSubscription,
-          appImage,
-          allVaultImages,
-          UTXOinfos,
-          labels,
-          previousVersion
-        );
-      }
+      // always set recovered app plan to pleb
+      const plebSubscription = {
+        productId: SubscriptionTier.L1,
+        name: SubscriptionTier.L1,
+        level: AppSubscriptionLevel.L1,
+        icon: 'assets/ic_pleb.svg',
+        receipt: '',
+      };
+      yield call(
+        recoverApp,
+        primaryMnemonic,
+        primarySeed,
+        encryptionKey,
+        appID,
+        plebSubscription,
+        appImage,
+        allVaultImages,
+        UTXOinfos,
+        labels,
+        previousVersion
+      );
     }
 
     const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);

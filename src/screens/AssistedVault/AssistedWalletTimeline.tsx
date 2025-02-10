@@ -89,6 +89,7 @@ function AssistedWalletTimeline({
                 onPress={() => {
                   navigation.navigate('SetupAssistedVault');
                 }}
+                testID={`btn_createWallet`}
               >
                 <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
                   <Text style={styles.ctaText} color={`${colorMode}.modalWhiteButtonText`} bold>
