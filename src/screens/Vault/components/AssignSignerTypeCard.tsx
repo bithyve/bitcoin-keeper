@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import KeeperModal from 'src/components/KeeperModal';
 import { getSignerNameFromType } from 'src/hardware';
+import ChangeSignerIllustration from 'src/assets/images/changeSignerIllustration.svg';
 
 type AssignSignerTypeCardProps = {
   type: SignerType;
@@ -79,8 +80,8 @@ const AssignSignerTypeCard = ({
       <KeeperModal
         visible={showConfirm}
         close={() => setShowConfirm(false)}
-        title="Changing Signer Type"
-        subTitle={`Are you sure you want to change the signer type to ${getSignerNameFromType(
+        title="Changing Device Type"
+        subTitle={`Are you sure you want to change the device type to ${getSignerNameFromType(
           type
         )}?`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -90,6 +91,11 @@ const AssignSignerTypeCard = ({
         secondaryButtonText="Cancel"
         secondaryCallback={() => setShowConfirm(false)}
         buttonCallback={changeSignerType}
+        Content={() => (
+          <Box style={styles.illustrationContainer}>
+            <ChangeSignerIllustration />
+          </Box>
+        )}
       />
     </>
   );
@@ -133,6 +139,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     padding: 1,
     letterSpacing: 0.65,
+  },
+  illustrationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

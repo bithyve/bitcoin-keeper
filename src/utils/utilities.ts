@@ -599,3 +599,8 @@ export function interpolateBBQR(input) {
   if (input < points[0].x) return points[0].y;
   if (input > points[points.length - 1].x) return points[points.length - 1].y;
 }
+
+export const sanitizeFileName = (fileName: string) => {
+  const sanitized = fileName.trim().replace(/[^a-zA-Z0-9]/g, '-');
+  return sanitized.replace(/^-+|-+$/g, '').length === 0 ? 'untitled' : sanitized;
+};
