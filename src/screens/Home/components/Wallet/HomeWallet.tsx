@@ -100,7 +100,10 @@ const HomeWallet = () => {
       }
     };
     return (
-      <TouchableOpacity onPress={() => handleWalletPress(item, navigation)}>
+      <TouchableOpacity
+        onPress={() => handleWalletPress(item, navigation)}
+        testID={`wallet_item_${item.id}`}
+      >
         <WalletCard
           backgroundColor={getWalletCardGradient(item)}
           hexagonBackgroundColor={isDarkMode ? Colors.CyanGreen : Colors.CyanGreen}

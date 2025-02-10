@@ -174,6 +174,7 @@ function SignWithColdCard({ route }: { route }) {
                 onPress={() => {
                   showMk4Helper(true);
                 }}
+                testID={`btn_need_help`}
               >
                 <Text fontSize={14} bold>
                   {' Need Help?'}

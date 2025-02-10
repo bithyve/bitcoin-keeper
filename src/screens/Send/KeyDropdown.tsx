@@ -71,7 +71,11 @@ function KeyDropdown({ label, options, selectedOption, onOptionSelect }: Props) 
       {isOpen && (
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.optionsContainer}>
           {options.map((option, index) => (
-            <TouchableOpacity key={getKeyUID(option)} onPress={() => handleOptionSelect(option)}>
+            <TouchableOpacity
+              key={getKeyUID(option)}
+              onPress={() => handleOptionSelect(option)}
+              testID={`btn_${getKeyUID(option)}`}
+            >
               <Box
                 style={styles.optionContainer}
                 borderBottomWidth={index === options.length - 1 ? 0 : 1}

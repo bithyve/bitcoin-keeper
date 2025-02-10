@@ -78,6 +78,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
               <TouchableOpacity
                 onPress={applyDiamondCheck ? item.onPress : null}
                 disabled={!applyDiamondCheck}
+                testID={`btn_setting_${item.title}`}
               >
                 <Box style={styles.Container}>
                   <Box style={styles.document}>
@@ -116,7 +117,10 @@ const SettingCard: React.FC<SettingCardProps> = ({
                   </Box>
                   <Box style={styles.rightIcon}>
                     {item.rightIcon ? (
-                      <TouchableOpacity onPress={item.onRightPress}>
+                      <TouchableOpacity
+                        onPress={item.onRightPress}
+                        testID={`btn_right_${item.title}`}
+                      >
                         <Box>
                           {(item?.isDiamond && isDiamondHands) || (item?.isHodler && isHodler) ? (
                             isDarkMode ? (

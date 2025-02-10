@@ -31,6 +31,7 @@ function DashedButton({
       <Box
         style={[styles.AddCardContainer]}
         backgroundColor={`${colorMode}.dashedButtonBackground`}
+        testID={`btn_${name}`}
       >
         <HexagonIcon
           width={iconWidth}

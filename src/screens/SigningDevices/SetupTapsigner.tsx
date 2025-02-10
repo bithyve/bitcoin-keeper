@@ -474,6 +474,7 @@ function SetupTapsigner({ route }) {
           onPress={() => {
             checkTapsignerSetupStatus();
           }}
+          testID="checkTapsignerSetupStatus"
         >
           <Box flexDirection="row">
             <Text color={`${colorMode}.textGreen`} style={styles.checkInitialStatus} medium>
