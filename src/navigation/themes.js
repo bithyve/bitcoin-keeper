@@ -233,6 +233,7 @@ export const customTheme = extendTheme({
       brownBackground: Colors.brownColor,
       keyPadText: Colors.GreenishGrey,
       noteText: Colors.Graphite,
+      darkBorderGreen: Colors.SeaweedGreen,
       SeaweedGreen: Colors.SeaweedGreen,
       noteTextClosed: Colors.SeaweedGreen,
       solidGreyBorder: Colors.SilverMistSolid,
@@ -259,6 +260,7 @@ export const customTheme = extendTheme({
       coalGreen: Colors.coalGreen,
       termsText: Colors.termsGrey,
       headerWhite: Colors.headerWhite,
+      subPlansubtitle: Colors.coalGreen,
       graphiteTranslucentBG: Colors.GraphiteTranslucent,
       SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
       modalHeaderTitle: Colors.SeaweedGreen,
@@ -269,6 +271,7 @@ export const customTheme = extendTheme({
       buttonText: Colors.SecondaryWhite,
       disabledDiamond: Colors.MediumGrey,
       termsText: Colors.ChampagneBliss,
+      subPlansubtitle: Colors.headerWhite,
       modalSubtitleBlack: Colors.SecondaryWhite,
 
       primaryGreen: Colors.GenericViridian,
@@ -350,6 +353,7 @@ export const customTheme = extendTheme({
       gradientEnd: Colors.DeepAquamarine, // linearGradient
       error: Colors.CongoPink,
       black: Colors.White,
+      darkBorderGreen: Colors.darkBorderGreen,
       fadedGray: Colors.SecondaryWhite,
       fadedblue: Colors.FadeBlue,
       dustySageGreen: Colors.DustySageGreen,

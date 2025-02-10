@@ -1,11 +1,11 @@
 import {
   ActivityIndicator,
   Platform,
-  ScrollView,
   Alert,
   Linking,
   StyleSheet,
   Dimensions,
+  Pressable,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
@@ -19,8 +19,8 @@ import {
   finishTransaction,
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
-import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
-import KeeperHeader from 'src/components/KeeperHeader';
+import CircularGreenArrow from 'src/assets/images/DashedCircleArrow.svg';
+import CircularWhiteArrow from 'src/assets/images/DashedCirculrarWhiteArrow.svg';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -43,7 +43,9 @@ import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import TierUpgradeModal, { UPGRADE_TYPE } from './TierUpgradeModal';
 import Buttons from 'src/components/Buttons';
-import PlanDetailsCards from './components/PlanDetailsCards';
+import WalletHeader from 'src/components/WalletHeader';
+import SubscriptionList from './components/SubscriptionList';
+import usePlan from 'src/hooks/usePlan';
 const { width } = Dimensions.get('window');
 
 const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
@@ -53,8 +55,9 @@ function ChoosePlan() {
   const navigation = useNavigation();
   const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { choosePlan, common } = translations;
+  const { choosePlan, common, signer } = translations;
   const [currentPosition, setCurrentPosition] = useState(initialPosition);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
@@ -72,7 +75,7 @@ function ChoosePlan() {
   const disptach = useDispatch();
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
   const [showPromocodeModal, setShowPromocodeModal] = useState(false);
-  const isOldSub = OLD_SUBS_PRODUCT_ID.includes(subscription.productId);
+  const { isOnL1 } = usePlan();
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -385,7 +388,6 @@ function ChoosePlan() {
   }
 
   function PromocodeModalContent() {
-    const { colorMode } = useColorMode();
     const [code, setcode] = useState('');
     const [isInvalidCode, setIsInvalidCode] = useState(false);
     const [activeOffer, setActiveOffer] = useState(null);
@@ -475,45 +477,46 @@ function ChoosePlan() {
     );
   }
 
-  const getActionBtnTitle = () => {
+  const getButtonState = () => {
+    if (!items || loading) return { text: '', disabled: true };
+
+    const currentItem = items[currentPosition];
+    if (!currentItem) return { text: 'Get Started', disabled: false };
+
+    const isPleb = currentItem.productIds.includes('pleb');
     const isSubscribed =
-      items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) &&
-      subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly');
-    if (isSubscribed) return 'Subscribed';
-    return `Continue - ${
-      (isMonthly
-        ? items[currentPosition]?.monthlyPlanDetails
-        : items[currentPosition]?.yearlyPlanDetails
-      )?.price || 'Free'
-    }`;
-  };
+      (!isPleb &&
+        currentItem.productIds.includes(subscription.productId.toLowerCase()) &&
+        subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly')) ||
+      (isPleb && subscription.productId.toLowerCase() === 'pleb');
 
-  const showBtmCTR = () => {
-    if (loading) return false;
-    if (!items) return false;
-    if (isOldSub) {
-      const newProdID = subscription.productId.split('.')[0].toLowerCase();
-      return !items[currentPosition].productIds.some((productId) => productId.includes(newProdID));
-    }
-
-    return (
-      !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) ||
-      (subscription.productId.toLowerCase() !== 'pleb' &&
-        !subscription.productId.toLowerCase().includes(isMonthly ? 'monthly' : 'yearly'))
-    );
+    return {
+      text: isSubscribed ? 'Current Plan' : 'Get Started',
+      disabled: isSubscribed,
+    };
   };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={choosePlan.choosePlantitle}
-        subtitle={choosePlan.choosePlanSubtitle}
-        topRightComponent={
-          <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
+        rightComponent={
+          isOnL1 && (
+            <Pressable onPress={restorePurchases} testID="btn_restorePurchases">
+              {isDarkMode ? (
+                <CircularWhiteArrow width={22} height={22} />
+              ) : (
+                <CircularGreenArrow width={22} height={22} />
+              )}
+            </Pressable>
+          )
         }
-        rightComponentPadding={wp(0)}
-        rightComponentBottomPadding={hp(5)}
-        // To-Do-Learn-More
+      />
+      <MonthlyYearlySwitch
+        title2="Monthly"
+        title1="Yearly"
+        value={isMonthly}
+        onValueChange={() => setIsMonthly(!isMonthly)}
       />
       <KeeperModal
         visible={requesting}
@@ -521,8 +524,8 @@ function ChoosePlan() {
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         buttonText={null}
         buttonCallback={() => {}}
@@ -535,8 +538,8 @@ function ChoosePlan() {
         title="Subscribe with Promo code"
         subTitle={`Please enter the code to redeem discount`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         buttonText={null}
         buttonCallback={() => {}}
@@ -554,50 +557,19 @@ function ChoosePlan() {
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
         <Box flex={1}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-            style={{ flex: 1 }}
-          >
-            <ChoosePlanCarousel
-              data={items}
-              onPress={(item, level) => processSubscription(item, level)}
-              onChange={(item) => setCurrentPosition(item)}
-              isMonthly={isMonthly}
-              requesting={requesting}
-              currentPosition={currentPosition}
-            />
-
-            <Box mt={10}>
-              <Box ml={0}>
-                <PlanDetailsCards
-                  plansData={items}
-                  currentPosition={currentPosition}
-                  restorePurchases={restorePurchases}
-                />
-              </Box>
-            </Box>
-          </ScrollView>
+          <SubscriptionList
+            plans={items}
+            currentPosition={currentPosition}
+            onChange={(item) => setCurrentPosition(item)}
+            primaryCallback={() => processSubscription(items[currentPosition], currentPosition)}
+            isMonthly={isMonthly}
+            getButtonText={getButtonState}
+          />
         </Box>
-      )}
-
-      {/* BTM CTR */}
-
-      {showBtmCTR() && (
-        <>
-          <Box style={styles.ctaWrapper}>
-            <Buttons
-              primaryCallback={() => processSubscription(items[currentPosition], currentPosition)}
-              primaryText={getActionBtnTitle()}
-              fullWidth
-            />
-          </Box>
-        </>
       )}
     </ScreenWrapper>
   );
 }
-
 
 const styles = StyleSheet.create({
   noteWrapper: {
