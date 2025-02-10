@@ -294,4 +294,110 @@ export const runRealmMigrations = ({
       }
     }
   }
+
+  if (oldRealm.schemaVersion < 86) {
+    try {
+      const newSigners = newRealm.objects(RealmSchema.Signer) as Signer[];
+      const newVaults = newRealm.objects(RealmSchema.Vault) as Vault[];
+
+      // First pass: Create a map of uppercase IDs to their signers
+      const upperCaseSignerMap = {};
+      for (const signer of newSigners) {
+        const upperCaseId = signer.id?.toUpperCase();
+        const upperCaseMfp = signer.masterFingerprint?.toUpperCase();
+
+        if (upperCaseId) {
+          if (!upperCaseSignerMap[upperCaseId]) {
+            upperCaseSignerMap[upperCaseId] = signer;
+          } else {
+            // Merge properties from duplicate signer into existing one
+            const existingSigner = upperCaseSignerMap[upperCaseId];
+            const signerJSON = signer.toJSON();
+
+            // Update properties individually, merging where needed
+            Object.keys(signerJSON).forEach((key) => {
+              if (key === 'signerXpubs') {
+                // Merge xpubs for each type
+                Object.keys(signerJSON[key] || {}).forEach((xpubType) => {
+                  if (!existingSigner[key][xpubType]) {
+                    existingSigner[key][xpubType] = signerJSON[key][xpubType];
+                  } else {
+                    // Merge arrays of xpub details
+                    existingSigner[key][xpubType] = [
+                      ...existingSigner[key][xpubType],
+                      ...signerJSON[key][xpubType],
+                    ];
+                  }
+                });
+              } else if (key === 'healthCheckDetails') {
+                // Ensure healthCheckDetails is always an array
+                const existingDetails = Array.isArray(existingSigner[key])
+                  ? existingSigner[key]
+                  : [];
+                const newDetails = Array.isArray(signerJSON[key]) ? signerJSON[key] : [];
+                existingSigner[key] = [...existingDetails, ...newDetails];
+              } else if (key === 'lastHealthCheck' || key === 'addedOn') {
+                // Handle date fields
+                const dateValue = signerJSON[key] ? new Date(signerJSON[key]) : null;
+                existingSigner[key] = existingSigner[key] ?? dateValue;
+              } else if (Array.isArray(existingSigner[key])) {
+                // Merge arrays
+                existingSigner[key] = [...existingSigner[key], ...signerJSON[key]];
+              } else if (typeof signerJSON[key] === 'object' && signerJSON[key] !== null) {
+                // Merge nested objects
+                existingSigner[key] = { ...existingSigner[key], ...signerJSON[key] };
+              } else {
+                // For primitive values, keep existing value if present
+                existingSigner[key] = existingSigner[key] ?? signerJSON[key];
+              }
+            });
+
+            // Ensure ID and masterFingerprint are uppercase
+            existingSigner.id = upperCaseId;
+            existingSigner.masterFingerprint = upperCaseMfp;
+
+            newRealm.delete(signer);
+          }
+        }
+      }
+
+      // Second pass: Update remaining signers to uppercase
+      for (const signer of newSigners) {
+        if (signer.isValid()) {
+          signer.id = signer.id?.toUpperCase();
+          signer.masterFingerprint = signer.masterFingerprint?.toUpperCase();
+        }
+      }
+
+      // Update vault signers
+      for (const vault of newVaults) {
+        vault.signers.forEach((signer) => {
+          if (signer.masterFingerprint) {
+            signer.masterFingerprint = signer.masterFingerprint.toUpperCase();
+          }
+        });
+      }
+
+      // Node cleanup
+      const nodeConnects = newRealm.objects(RealmSchema.NodeConnect);
+      if (nodeConnects.length > 1) {
+        const blockstreamNodes = nodeConnects.filtered('host CONTAINS "blockstream"');
+        if (blockstreamNodes.length > 0) {
+          // If blockstream node was connected, make the first remaining node connected
+          const wasConnected = blockstreamNodes[0].isConnected;
+          if (wasConnected) {
+            const remainingNodes = nodeConnects.filtered('NOT(host CONTAINS "blockstream")');
+            if (remainingNodes.length > 0) {
+              remainingNodes[0].isConnected = true;
+            }
+          }
+
+          newRealm.delete(blockstreamNodes);
+        }
+      }
+    } catch (error) {
+      console.error('Error during schema migration 86:', error);
+      // Migration should continue even if this part fails
+    }
+  }
 };
