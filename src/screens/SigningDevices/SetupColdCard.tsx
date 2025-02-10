@@ -30,6 +30,12 @@ import { InteracationMode } from '../Vault/HardwareModalMap';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import Buttons from 'src/components/Buttons';
+import Text from 'src/components/KeeperText';
+import WalletHeader from 'src/components/WalletHeader';
+import { hp, wp } from 'src/constants/responsive';
+import ColdCardIllustration from 'src/assets/images/ColdCardSetup.svg';
+import HealthCheckIllustration from 'src/assets/images/health-check-illustration.svg';
+import HealthCheckIllustrationDark from 'src/assets/images/health-check-illustration-dark.svg';
 
 const getTitle = (mode) => {
   switch (mode) {
@@ -194,7 +200,13 @@ function SetupColdCard({ route }) {
 
   const instructions = isConfigRecovery
     ? '\nExport the wallet config by going to Settings > Multisig Wallets > <Your Wallet> > Descriptors > Export > Press 3 to share via NFC'
-    : '\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose the account number (default 0) and transfer over NFC.\n\nMake sure you remember the account you had chosen (This is important for recovering your wallet).\n';
+    : mode === InteracationMode.CANARY_ADDITION
+    ? '\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose the account number (default 0) and transfer over NFC.'
+    : '\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose 0 for the account number and transfer over NFC.';
+  const instructions2 =
+    mode === InteracationMode.VAULT_ADDITION
+      ? 'Make sure you remember the account you had chosen (This is important for recovering your wallet).'
+      : '';
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -203,8 +215,27 @@ function SetupColdCard({ route }) {
         signerXfp={signer?.masterFingerprint}
         mode={mode}
       >
-        <Box style={styles.header}>
-          <KeeperHeader title={getTitle(mode)} subtitle={instructions} />
+        <WalletHeader title={getTitle(mode)} />
+        <Box flex={1} marginTop={hp(30)}>
+          <Box backgroundColor={`${colorMode}.boxSecondaryBackground`} style={styles.container}>
+            <Text fontSize={14} color={`${colorMode}.textColor3`}>
+              {instructions}
+            </Text>
+            <Box style={styles.illustration}>
+              {mode === InteracationMode.HEALTH_CHECK ? (
+                colorMode === 'light' ? (
+                  <HealthCheckIllustration />
+                ) : (
+                  <HealthCheckIllustrationDark />
+                )
+              ) : (
+                <ColdCardIllustration />
+              )}
+            </Box>
+            <Text fontSize={14} color={`${colorMode}.textColor3`}>
+              {instructions2}
+            </Text>
+          </Box>
         </Box>
         <Buttons
           fullWidth
@@ -220,17 +251,14 @@ function SetupColdCard({ route }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 10,
-    paddingTop: 30,
+    paddingHorizontal: wp(20),
+    paddingTop: hp(5),
+    paddingBottom: hp(20),
+    borderRadius: 15,
   },
-  header: {
-    flex: 1,
-  },
-  buttonContainer: {
-    bottom: 0,
-    position: 'absolute',
-    right: 0,
+  illustration: {
+    alignSelf: 'center',
+    marginVertical: hp(40),
   },
 });
 
