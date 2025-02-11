@@ -265,6 +265,8 @@ export const customTheme = extendTheme({
       SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
       modalHeaderTitle: Colors.SeaweedGreen,
       modalSubtitleBlack: Colors.modalSubtitleBlack,
+      subPlansubtitle: Colors.coalGreen,
+      textColor3: Colors.coalGreen,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -485,6 +487,7 @@ export const customTheme = extendTheme({
       headerWhite: Colors.headerWhite,
       graphiteTranslucentBG: Colors.GraphiteTranslucent,
       SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
+      textColor3: Colors.SecondaryWhite,
     },
   },
   config: {

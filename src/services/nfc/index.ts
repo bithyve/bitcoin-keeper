@@ -103,15 +103,34 @@ export default class NFC {
       if (supported) {
         await NfcManager.start();
         await NfcManager.requestTechnology(techRequest);
-        const data = await NfcManager.ndefHandler.writeNdefMessage(bytes);
+
         if (Platform.OS === 'ios') {
-          await NfcManager.setAlertMessageIOS('Success');
+          await NfcManager.setAlertMessageIOS('Hold your device steady...');
         }
-        await NfcManager.cancelTechnologyRequest();
-        return { data };
+
+        while (true) {
+          try {
+            const data = await NfcManager.ndefHandler.writeNdefMessage(bytes);
+            if (Platform.OS === 'ios') {
+              await NfcManager.setAlertMessageIOS('Success');
+            }
+            await NfcManager.cancelTechnologyRequest();
+            return { data };
+          } catch (writeError) {
+            if (writeError.toString() === 'Error') {
+              if (Platform.OS === 'ios') {
+                await NfcManager.setAlertMessageIOS('Please align the NFC reader...');
+              }
+              // Small delay before retry
+              await new Promise((resolve) => setTimeout(resolve, 500));
+              continue;
+            }
+            throw writeError;
+          }
+        }
       }
     } catch (error) {
-      console.log(error);
+      console.log('NFC write error:', error);
       if (Platform.OS === 'ios') {
         await NfcManager.invalidateSessionWithErrorIOS('Something went wrong!');
       }
