@@ -88,7 +88,7 @@ function ShareWithNfc({
         Vibration.vibrate([700, 50, 100, 50], true);
         const enc = NFC.encodeTextRecord(data);
         await NFC.send([NfcTech.Ndef], enc);
-        Vibration.cancel();
+        cleanUp();
       } else {
         setVisible(true);
         await NFC.startTagSession({ session, content: data });
@@ -100,6 +100,7 @@ function ShareWithNfc({
         console.log('NFC interaction cancelled.');
         return;
       }
+      cleanUp();
       captureError(err);
     }
   };
