@@ -152,7 +152,7 @@ export const NetworkAmount = (
 export const getUnit = (currentCurrency, satsEnabled = false) => {
   const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
   // disable sats mode
-  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET && satsEnabled) {
+  if (isBitcoin && satsEnabled) {
     return 'sats';
   }
   return '';
