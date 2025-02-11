@@ -597,8 +597,10 @@ export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT
 
 export function* addSigningDeviceWorker({
   payload: { signers },
+  callback,
 }: {
   payload: { signers: Signer[] };
+  callback: () => void;
 }) {
   if (!signers.length) return;
   for (let i = 0; i < signers.length; i++) {
@@ -741,6 +743,7 @@ export function* addSigningDeviceWorker({
     } else if (signers.length === 1) {
       yield put(relaySignersUpdateFail('The signer already exists.'));
     }
+    if (callback) callback();
   } catch (error) {
     captureError(error);
     yield put(relaySignersUpdateFail('An error occurred while updating signers.'));
