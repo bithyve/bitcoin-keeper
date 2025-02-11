@@ -25,8 +25,6 @@ import { sanitizeFileName } from 'src/utils/utilities';
 
 const { width } = Dimensions.get('window');
 
-const SPECTER_PREFIX = 'addwallet keeper vault&';
-
 function RegisterWithQR({ route, navigation }: any) {
   const { colorMode } = useColorMode();
   const { vaultKey, vaultId = '' }: { vaultKey: VaultSigner; vaultId: string } = route.params;
