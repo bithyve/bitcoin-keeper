@@ -21,7 +21,7 @@ import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { getSecurityTip } from 'src/constants/defaultData';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
-import { setTorEnabled } from 'src/store/reducers/settings';
+import { setSubscription, setTorEnabled } from 'src/store/reducers/settings';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import SubScription from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
@@ -68,6 +68,7 @@ function LoginScreen({ navigation, route }) {
   const [loginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
+  const isOnPleb = useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L1;
 
   const [canLogin, setCanLogin] = useState(false);
   const {
@@ -145,6 +146,16 @@ function LoginScreen({ navigation, route }) {
   useEffect(() => {
     requestUserPermission();
   }, []);
+
+  useEffect(() => {
+    if (recepitVerificationError && isOnPleb) {
+      setLoginError(false);
+      setLogging(false);
+      dispatch(setRecepitVerificationError(false));
+      dispatch(setOfflineStatus(true));
+      navigation.replace('App');
+    }
+  }, [recepitVerificationError]);
 
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
@@ -388,6 +399,7 @@ function LoginScreen({ navigation, route }) {
     dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
       subscription: updatedSubscription,
     });
+    dispatch(setSubscription(updatedSubscription.name));
     dispatch(setOfflineStatus(true));
     navigation.replace('App');
   }
@@ -502,7 +514,7 @@ function LoginScreen({ navigation, route }) {
       <KeeperModal
         dismissible={false}
         close={() => {}}
-        visible={recepitVerificationError}
+        visible={!isOnPleb && recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again. If you continue offline, some features may not be available."
         Content={NoInternetModalContent}

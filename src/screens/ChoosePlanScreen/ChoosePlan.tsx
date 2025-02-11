@@ -46,6 +46,7 @@ import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
 import SubscriptionList from './components/SubscriptionList';
 import usePlan from 'src/hooks/usePlan';
+import { setSubscription } from 'src/store/reducers/settings';
 const { width } = Dimensions.get('window');
 
 const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
@@ -213,6 +214,7 @@ function ChoosePlan() {
         dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
           subscription,
         });
+        disptach(setSubscription(subscription.name));
         setShowUpgradeModal(true);
         setLoading(true);
         init();
@@ -290,6 +292,7 @@ function ChoosePlan() {
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription: updatedSubscription,
           });
+          disptach(setSubscription(subscription.name));
           disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
           // disptach(resetVaultMigration());
           setShowUpgradeModal(true);
