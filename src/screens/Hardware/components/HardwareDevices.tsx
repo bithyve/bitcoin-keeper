@@ -43,12 +43,14 @@ const HardwareDevices = () => {
       image: <Passport />,
       flagIcon: <FlagUSA />,
       country: wallet.hardwareFoundationCountry,
+      link: 'https://foundation.xyz/keeper',
     },
     {
       title: wallet.hardwareLedger,
       image: <Legder />,
       flagIcon: <FlagFrance />,
       country: wallet.hardwareLedgerCountry,
+      link: 'https://shop.ledger.com/?r=6df8a00ac94d',
     },
     {
       title: wallet.hardwareTrezor,
