@@ -25,7 +25,12 @@ const ResellerCard = (props: Props) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.textInputBackground`}>
+    <Box
+      style={styles.container}
+      backgroundColor={`${colorMode}.textInputBackground`}
+      borderColor={`${colorMode}.separator`}
+      borderWidth={1}
+    >
       <Box style={styles.primaryContainer}>
         <Box backgroundColor={`${colorMode}.backgroundbitSaga`} style={styles.iconWrapper}>
           {props.icon}

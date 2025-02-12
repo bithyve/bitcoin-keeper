@@ -24,7 +24,12 @@ const DeviceCard = (props: Props) => {
   const isDarkMode = colorMode === 'dark';
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.textInputBackground`}>
+    <Box
+      style={styles.container}
+      backgroundColor={`${colorMode}.textInputBackground`}
+      borderColor={`${colorMode}.separator`}
+      borderWidth={1}
+    >
       <Box style={styles.imageContainer} backgroundColor={`${colorMode}.hardWareImageBackGround`}>
         {props.image}
       </Box>
@@ -86,7 +91,6 @@ const styles = StyleSheet.create({
     borderRadius: wp(10),
     paddingVertical: hp(12),
     paddingHorizontal: wp(10),
-    border: 1,
     flexDirection: 'row',
   },
   imageContainer: {
