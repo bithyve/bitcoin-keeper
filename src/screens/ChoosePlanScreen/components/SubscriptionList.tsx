@@ -93,6 +93,7 @@ const SubscriptionList: React.FC<{
               toggleExpand(index);
             }}
             style={styles.touchable}
+            key={index}
           >
             <Box
               key={index}

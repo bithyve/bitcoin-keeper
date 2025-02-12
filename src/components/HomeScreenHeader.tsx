@@ -105,7 +105,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
               color={`${colorMode}.choosePlanHome`}
               medium
             >
-              {capitalizeEachWord(title === wallet.more ? common.keeperSettings : title)}
+              {capitalizeEachWord(title === wallet.more ? common.moreOption : title)}
             </Text>
           </Box>
 
