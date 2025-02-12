@@ -202,7 +202,7 @@ function SignWithQR() {
       </Box>
       <Box style={styles.bottom}>
         <Buttons
-          primaryText="Receive Transaction"
+          primaryText="Scan Transaction"
           primaryCallback={navigateToQrScan}
           secondaryText={isRemoteKey ? null : 'Vault Details'}
           secondaryCallback={navigateToVaultRegistration}
