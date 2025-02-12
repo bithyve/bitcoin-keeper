@@ -99,6 +99,7 @@ export const customTheme = extendTheme({
       lightAccent: Colors.MacaroniAndCheese,
       QrCode: Colors.WhiteCoffee,
       recieverAddress: Colors.DimGray,
+      hardWareImageBackGround: Colors.hardWareImageBackGround,
       textInputBackground: Colors.ChampagneBliss,
       thirdBackground: Colors.Warmbeige,
       GreyText: Colors.Feldgrau,
@@ -119,6 +120,8 @@ export const customTheme = extendTheme({
       indicator: Colors.OutrageousOrange,
       addTransactionText: Colors.PineTree,
       sendMax: Colors.JackoBean,
+      backgroundbitSaga: Colors.Black,
+
       inActiveMsg: Colors.RichBlack,
       vaultCardText: Colors.Bisque,
       walletTypePillBack: Colors.Bisque,
@@ -137,6 +140,7 @@ export const customTheme = extendTheme({
       seashellWhite: Colors.Seashell,
       seashellWhiteText: Colors.Seashell,
       lightSeashell: Colors.lightSeashell,
+      locationgrey: Colors.locationGrey,
       // Champagne: Colors.Champagne,
       BrownNeedHelp: Colors.RussetBrown,
       policySubtitle: Colors.GreenishGrey,
@@ -344,6 +348,8 @@ export const customTheme = extendTheme({
       errorRed: Colors.CarmineRed,
       textWallet: Colors.MediumJungleGreen,
       indicator: Colors.OutrageousOrange,
+      locationgrey: Colors.locationDark,
+
       addTransactionText: Colors.PineTree,
       sendMax: Colors.JackoBean,
       inActiveMsg: Colors.SpanishGray,
@@ -355,6 +361,7 @@ export const customTheme = extendTheme({
       gradientEnd: Colors.DeepAquamarine, // linearGradient
       error: Colors.CongoPink,
       black: Colors.White,
+      backgroundbitSaga: Colors.backgroundbitSaga,
       darkBorderGreen: Colors.darkBorderGreen,
       fadedGray: Colors.SecondaryWhite,
       fadedblue: Colors.FadeBlue,
@@ -384,6 +391,8 @@ export const customTheme = extendTheme({
       MintWhisper: Colors.MintWhisper,
       lightSkin: Colors.DarkSkin,
       SlateGrey: Colors.GraphiteLight,
+      hardWareImageBackGround: Colors.hardWareDarkImageBackGround,
+
       // LightKhaki: Colors.LightKhaki,
       // SmokeGreen: Colors.SmokeGreen,
       // DeepOlive: Colors.DeepOlive,

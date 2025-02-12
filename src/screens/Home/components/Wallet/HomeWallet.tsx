@@ -15,7 +15,7 @@ import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import ImportWalletIcon from 'src/assets/images/import.svg';
@@ -213,6 +213,7 @@ export default HomeWallet;
 const styles = StyleSheet.create({
   walletContainer: {
     gap: 15,
+    width: windowWidth * 0.88,
   },
   addWalletOptionsList: {
     gap: wp(15),
@@ -236,5 +237,8 @@ const styles = StyleSheet.create({
     gap: wp(16),
     borderRadius: 12,
     borderWidth: 1,
+  },
+  customStyle: {
+    marginBottom: hp(10),
   },
 });

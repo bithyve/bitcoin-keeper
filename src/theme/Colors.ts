@@ -187,7 +187,12 @@ const Colors = {
   headerWhite: 'rgba(255, 255, 255, 1)',
 
   darkBorderGreen: 'rgba(89, 116, 107, 1)',
+  backgroundbitSaga: 'rgba(144, 144, 144, 1)',
 
+  locationGrey: 'rgba(114, 114, 114, 1)',
+  locationDark: 'rgba(207, 207, 207, 1)',
   modalSubtitleBlack: 'rgba(4, 21, 19, 1)',
+  hardWareImageBackGround: 'rgba(45, 103, 89, 0.09)',
+  hardWareDarkImageBackGround: 'rgba(253, 247, 240, 0.09)',
 };
 export default Colors;
