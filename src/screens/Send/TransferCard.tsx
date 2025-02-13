@@ -107,7 +107,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
               {amount && (
                 <Box style={styles.amountContainer}>
                   <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    {!isCurrentCurrencyFiat &&
+                    {!getSatUnit() &&
                       getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
                     <Text
                       color={amountColor || `${colorMode}.textGreenGrey`}
@@ -119,7 +119,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
 
                     <Text
                       color={unitColor || `${colorMode}.textGreenGrey`}
-                      fontSize={unitFontSize || 12}
+                      fontSize={unitFontSize || 14}
                       fontWeight={unitFontWeight}
                     >
                       {getSatUnit()}

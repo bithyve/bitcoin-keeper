@@ -868,7 +868,7 @@ function SendConfirmation({ route }) {
             amount={amounts.reduce((sum, amount) => sum + amount, 0)}
             amountFontSize={16}
             amountFontWeight={200}
-            unitFontSize={12}
+            unitFontSize={14}
             unitFontWeight={200}
           />
           <AmountDetails
@@ -878,7 +878,7 @@ function SendConfirmation({ route }) {
             amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
             amountFontSize={16}
             amountFontWeight={200}
-            unitFontSize={12}
+            unitFontSize={14}
             unitFontWeight={200}
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
@@ -892,7 +892,7 @@ function SendConfirmation({ route }) {
             }
             amountFontSize={18}
             amountFontWeight={200}
-            unitFontSize={12}
+            unitFontSize={14}
             unitFontWeight={200}
           />
         </Box>
