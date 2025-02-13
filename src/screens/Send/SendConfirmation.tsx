@@ -559,6 +559,9 @@ function SendConfirmation({ route }) {
             txFeeInfo,
             transactionPriority,
           },
+          amounts,
+          addresses,
+          internalRecipients,
         })
       );
       setProgress(false);

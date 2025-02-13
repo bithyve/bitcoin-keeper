@@ -31,30 +31,32 @@ function SendSuccessfulContent({
   return (
     <Box style={styles.container}>
       <ReceiptWrapper>
+        <TransferCard
+          title="Sent from"
+          subTitle={sender?.presentationData?.name}
+          titleFontSize={15}
+          titleFontWeight={300}
+          subTitleFontSize={14}
+          subTitleFontWeight={200}
+          amountFontSize={14}
+          amountFontWeight={200}
+          unitFontWeight={300}
+          unitColor={`${colorMode}.modalUnitColor`}
+        />
         {amounts.flatMap((amount, index) => [
           <TransferCard
-            title="Send from"
-            subTitle={sender?.presentationData?.name}
-            titleFontSize={15}
-            titleFontWeight={300}
-            amount={amount}
-            subTitleFontSize={14}
-            subTitleFontWeight={200}
-            amountFontSize={14}
-            amountFontWeight={200}
-            unitFontSize={12}
-            unitFontWeight={300}
-            unitColor={`${colorMode}.modalUnitColor`}
-          />,
-          <TransferCard
-            title="Send to"
+            title="Sent to"
             titleFontWeight={300}
             subTitle={
-              !addresses[index] ? recipients[index]?.presentationData?.name : addresses[index]
+              recipients[index]?.presentationData?.name
+                ? recipients[index]?.presentationData?.name
+                : addresses[index]
             }
             subTitleFontWeight={200}
             titleFontSize={15}
             subTitleFontSize={14}
+            amount={amount}
+            unitFontSize={14}
           />,
         ])}
       </ReceiptWrapper>
@@ -68,7 +70,7 @@ function SendSuccessfulContent({
           amountFontSize={15}
           amountFontWeight={200}
           amountColor={`${colorMode}.primaryText`}
-          unitFontSize={12}
+          unitFontSize={14}
           unitFontWeight={300}
           unitColor={`${colorMode}.modalUnitColor`}
         />
@@ -81,7 +83,7 @@ function SendSuccessfulContent({
           amountFontSize={15}
           amountFontWeight={200}
           amountColor={`${colorMode}.primaryText`}
-          unitFontSize={12}
+          unitFontSize={14}
           unitFontWeight={300}
           unitColor={`${colorMode}.modalUnitColor`}
         />
