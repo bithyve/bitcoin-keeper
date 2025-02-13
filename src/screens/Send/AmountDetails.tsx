@@ -55,8 +55,7 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
       {amount && (
         <Box style={styles.amtTitleWrapper}>
           <Box style={styles.currencyIcon}>
-            {!isCurrentCurrencyFiat &&
-              getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
+            {!getSatUnit() && getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
             &nbsp;
             <Text
               color={amountColor || `${colorMode}.secondaryText`}
@@ -67,7 +66,7 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
             </Text>
             <Text
               color={unitColor || `${colorMode}.secondaryText`}
-              fontSize={unitFontSize || 12}
+              fontSize={unitFontSize || 14}
               fontWeight={unitFontWeight}
             >
               {isCurrentCurrencyFiat ? '' : customUnit ?? getSatUnit()}

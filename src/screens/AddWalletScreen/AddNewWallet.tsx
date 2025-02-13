@@ -243,7 +243,7 @@ function AddNewWallet({ navigation, route }) {
                 color={`${colorMode}.primaryText`}
                 testID="text_totalKeys"
               >
-                Total Keys For wallet Configuration
+                Total Keys For Wallet Configuration
               </Text>
               <Text
                 style={{ fontSize: 12 }}

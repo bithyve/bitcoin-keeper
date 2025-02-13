@@ -12,10 +12,10 @@ import Buttons from 'src/components/Buttons';
 
 function SendSuccessfulContent({
   transactionPriority,
-  amount,
+  amounts,
   sender,
-  recipient,
-  address,
+  recipients,
+  addresses,
   primaryText,
   primaryCallback,
   secondaryText,
@@ -32,27 +32,33 @@ function SendSuccessfulContent({
     <Box style={styles.container}>
       <ReceiptWrapper>
         <TransferCard
-          title="Send From"
+          title="Sent from"
           subTitle={sender?.presentationData?.name}
           titleFontSize={15}
           titleFontWeight={300}
-          amount={amount}
           subTitleFontSize={14}
           subTitleFontWeight={200}
           amountFontSize={14}
           amountFontWeight={200}
-          unitFontSize={12}
           unitFontWeight={300}
           unitColor={`${colorMode}.modalUnitColor`}
         />
-        <TransferCard
-          title="Send To"
-          titleFontWeight={300}
-          subTitle={!address ? recipient?.presentationData?.name : address}
-          subTitleFontWeight={200}
-          titleFontSize={15}
-          subTitleFontSize={14}
-        />
+        {amounts.flatMap((amount, index) => [
+          <TransferCard
+            title="Sent to"
+            titleFontWeight={300}
+            subTitle={
+              recipients[index]?.presentationData?.name
+                ? recipients[index]?.presentationData?.name
+                : addresses[index]
+            }
+            subTitleFontWeight={200}
+            titleFontSize={15}
+            subTitleFontSize={14}
+            amount={amount}
+            unitFontSize={14}
+          />,
+        ])}
       </ReceiptWrapper>
       <Box style={styles.detailsContainer}>
         <AmountDetails
@@ -60,11 +66,11 @@ function SendSuccessfulContent({
           titleFontSize={15}
           titleFontWeight={200}
           titleColor={`${colorMode}.textGreenGrey`}
-          amount={amount}
+          amount={amounts.reduce((sum, amount) => sum + amount, 0)}
           amountFontSize={15}
           amountFontWeight={200}
           amountColor={`${colorMode}.primaryText`}
-          unitFontSize={12}
+          unitFontSize={14}
           unitFontWeight={300}
           unitColor={`${colorMode}.modalUnitColor`}
         />
@@ -77,7 +83,7 @@ function SendSuccessfulContent({
           amountFontSize={15}
           amountFontWeight={200}
           amountColor={`${colorMode}.primaryText`}
-          unitFontSize={12}
+          unitFontSize={14}
           unitFontWeight={300}
           unitColor={`${colorMode}.modalUnitColor`}
         />
@@ -87,7 +93,10 @@ function SendSuccessfulContent({
           titleFontSize={15}
           titleFontWeight={200}
           titleColor={`${colorMode}.primaryText`}
-          amount={amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
+          amount={
+            amounts.reduce((sum, amount) => sum + amount, 0) +
+            txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+          }
           amountFontSize={16}
           amountFontWeight={200}
           amountColor={`${colorMode}.primaryText`}
