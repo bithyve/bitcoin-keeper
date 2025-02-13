@@ -604,7 +604,7 @@ function AddSendAmount({ route }) {
         currencyCode={currencyCode}
         specificBitcoinAmount={maxAmountToSend}
       />
-      {currentRecipientIdx === totalRecipients && (
+      {currentRecipientIdx === totalRecipients ? (
         <TouchableOpacity
           onPress={() => setTransPriorityModalVisible(true)}
           testID="transaction_priority"
@@ -642,6 +642,12 @@ function AddSendAmount({ route }) {
             {colorMode === 'light' ? <ArrowIcon height="100%" /> : <ArrowIconWhite height="100%" />}
           </Box>
         </TouchableOpacity>
+      ) : (
+        <Box margin={hp(50)}>
+          <Text style={{ textAlign: 'center', alignSelf: 'center' }}>
+            Recipient {currentRecipientIdx} of {totalRecipients}
+          </Text>
+        </Box>
       )}
       <KeyPadView
         onPressNumber={onPressNumber}
