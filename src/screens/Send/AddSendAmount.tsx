@@ -463,6 +463,7 @@ function AddSendAmount({ route }) {
           internalRecipientWallet: null,
           internalRecipients,
           currentRecipientIdx: currentRecipientIdx + 1,
+          note,
         })
       );
     }

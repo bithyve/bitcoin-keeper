@@ -84,6 +84,7 @@ function SendScreen({ route }) {
     recipients: finalRecipients = [],
     totalRecipients = 1,
     currentRecipientIdx = 1,
+    note: txNote = '',
   } = route.params as {
     sender: Wallet | Vault;
     selectedUTXOs?: UTXO[];
@@ -98,13 +99,14 @@ function SendScreen({ route }) {
     }>;
     totalRecipients: number;
     currentRecipientIdx: number;
+    note: string;
   };
 
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState(txNote);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(null);
   const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
   const network = WalletUtilities.getNetworkByType(sender.networkType);
