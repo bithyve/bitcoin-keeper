@@ -57,17 +57,17 @@ const useWalletAsset = () => {
         case VaultType.COLLABORATIVE:
           return [
             { tag: 'Collaborative', color: Colors.mintGreen },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.LightMossGreen },
+            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
           ];
         case VaultType.ASSISTED:
           return [
             { tag: 'Assisted', color: Colors.LightMossGreen },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.mintGreen },
+            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
           ];
         case VaultType.TIMELOCKED:
           return [
             { tag: 'Timelocked', color: Colors.mintGreen },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.LightMossGreen },
+            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
           ];
         case VaultType.CANARY:
           return [{ tag: 'Canary', color: Colors.LightMossGreen }];
@@ -76,12 +76,12 @@ const useWalletAsset = () => {
             wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
               MiniscriptTypes.INHERITANCE
             ) && { tag: 'Inheritance Key', color: Colors.Aquamarine },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.LightMossGreen },
+            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
           ].filter(Boolean);
         default:
           return [
-            { tag: 'Multi-key', color: Colors.mintGreen },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.LightMossGreen },
+            { tag: 'Multi-key', color: Colors.LabelLight3 },
+            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
           ];
       }
     } else {
@@ -94,8 +94,11 @@ const useWalletAsset = () => {
         derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86;
 
       return [
-        { tag: walletKind, color: Colors.LightMossGreen },
-        { tag: isTaprootWallet ? 'Taproot' : 'Single-Key', color: Colors.PaleCyan },
+        { tag: walletKind, color: Colors.DesertSand },
+        {
+          tag: isTaprootWallet ? 'Taproot' : 'Single-Key',
+          color: isTaprootWallet ? Colors.PaleCyan : Colors.LabelLight3,
+        },
       ];
     }
   };
