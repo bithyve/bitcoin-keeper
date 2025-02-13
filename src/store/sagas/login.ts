@@ -178,6 +178,7 @@ function* credentialsAuthWorker({ payload }) {
             dbManager.getObjectByIndex,
             RealmSchema.KeeperApp
           );
+          yield put(connectToNode());
           const response = yield call(Relay.verifyReceipt, id, publicId);
           yield put(credsAuthenticated(true));
           yield put(credsAuthenticatedError(''));
@@ -213,7 +214,6 @@ function* credentialsAuthWorker({ payload }) {
               yield put(setRecepitVerificationFailed(true));
             }
           }
-          yield put(connectToNode());
           const { pendingAllBackup, automaticCloudBackup } = yield select(
             (state: RootState) => state.bhr
           );
