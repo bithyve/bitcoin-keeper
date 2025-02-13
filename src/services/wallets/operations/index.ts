@@ -751,11 +751,22 @@ export default class WalletOperations {
     });
 
     let outputUTXOs = [];
-    for (const recipient of recipients) {
-      outputUTXOs.push({
-        address: recipient.address,
-        value: availableBalance,
-      });
+
+    let remainingBalance = availableBalance;
+    for (let i = 0; i < recipients.length; i++) {
+      const recipient = recipients[i];
+      if (i === recipients.length - 1) {
+        outputUTXOs.push({
+          address: recipient.address,
+          value: remainingBalance,
+        });
+      } else {
+        outputUTXOs.push({
+          address: recipient.address,
+          value: recipient.amount,
+        });
+        remainingBalance -= recipient.amount;
+      }
     }
     outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
 
@@ -773,7 +784,7 @@ export default class WalletOperations {
         netAmount += recipient.amount;
       });
       if (outputUTXOs && outputUTXOs.length) {
-        outputUTXOs[0].value = availableBalance - fee - i;
+        outputUTXOs[outputUTXOs.length - 1].value = remainingBalance - fee - i;
       }
 
       ({ inputs, outputs, fee } = coinselect(
@@ -783,7 +794,8 @@ export default class WalletOperations {
       ));
       i++;
     }
-    fee = availableBalance - outputUTXOs[0].value;
+
+    fee = remainingBalance - outputUTXOs[outputUTXOs.length - 1].value;
 
     return {
       fee,
@@ -854,7 +866,11 @@ export default class WalletOperations {
     if (!defaultPriorityInputs || !defaultPriorityOutputs) {
       const defaultDebitedAmount = netAmount + defaultPriorityFee;
       if (outputUTXOs && outputUTXOs.length && defaultDebitedAmount > availableBalance) {
-        outputUTXOs[0].value = availableBalance - defaultPriorityFee;
+        const otherOutputsTotal = outputUTXOs
+          .slice(0, -1)
+          .reduce((sum, output) => sum + output.value, 0);
+        outputUTXOs[outputUTXOs.length - 1].value =
+          availableBalance - defaultPriorityFee - otherOutputsTotal;
       }
 
       const assets = coinselect(
@@ -899,7 +915,10 @@ export default class WalletOperations {
           });
           const debitedAmount = netAmount + fee;
           if (outputUTXOs && outputUTXOs.length && debitedAmount > availableBalance) {
-            outputUTXOs[0].value = availableBalance - fee;
+            const otherOutputsTotal = outputUTXOs
+              .slice(0, -1)
+              .reduce((sum, output) => sum + output.value, 0);
+            outputUTXOs[outputUTXOs.length - 1].value = availableBalance - fee - otherOutputsTotal;
           }
 
           ({ inputs, outputs, fee } = coinselect(
@@ -998,7 +1017,10 @@ export default class WalletOperations {
       const debitedAmount = netAmount + fee;
 
       if (outputUTXOs && outputUTXOs.length && debitedAmount > availableBalance) {
-        outputUTXOs[0].value = availableBalance - fee;
+        const otherOutputsTotal = outputUTXOs
+          .slice(0, -1)
+          .reduce((sum, output) => sum + output.value, 0);
+        outputUTXOs[outputUTXOs.length - 1].value = availableBalance - fee - otherOutputsTotal;
       }
 
       ({ inputs, outputs, fee } = coinselect(

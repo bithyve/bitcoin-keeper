@@ -258,12 +258,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       const snapshot: cachedTxSnapshot = snapshots[cachedTxid];
       if (!snapshot.routeParams) continue; // route params missing
 
-      const { address, amount, recipient, sender, transferType, date } = snapshot.routeParams;
+      const { addresses, amounts, sender, transferType, date } = snapshot.routeParams;
       if (sender?.id !== vault.id) continue; // doesn't belong to the current vault
 
       const cachedTx = {
-        address,
-        amount,
+        address: addresses[0], // TODO: Refactor, doesn't seem to be used
+        amount: amounts.reduce((sum, amount) => sum + amount, 0),
         blockTime: null,
         confirmations: 0,
         date,

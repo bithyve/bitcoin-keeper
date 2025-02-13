@@ -72,6 +72,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import { Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 import { credsAuthenticated } from 'src/store/reducers/login';
+import WalletHeader from 'src/components/WalletHeader';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -79,9 +80,9 @@ const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
-  recipient: Wallet | Vault;
-  address: string;
-  amount: number;
+  internalRecipients: (Wallet | Vault)[];
+  addresses: string[];
+  amounts: number[];
   walletId: string;
   uiMetaData: any;
   transferType: TransferType;
@@ -153,14 +154,14 @@ function SendConfirmation({ route }) {
   const dispatch = useDispatch();
   const {
     sender,
-    recipient,
-    address,
-    amount: originalAmount,
+    internalRecipients,
+    addresses,
+    amounts: originalAmounts,
     walletId,
     transferType,
     uaiSetActionFalse,
     note,
-    label,
+    label = [], // TODO: Need to refactor or delete
     selectedUTXOs,
     parentScreen,
     currentBlockHeight,
@@ -320,11 +321,13 @@ function SendConfirmation({ route }) {
   const [isFeeHigh, setIsFeeHigh] = useState(false);
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
 
-  const [amount, setAmount] = useState(
+  const [amounts, setAmounts] = useState(
     isCachedTransaction
-      ? originalAmount
-      : (txRecipientsOptions?.[transactionPriority] ||
-          customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
+      ? originalAmounts
+      : (
+          txRecipientsOptions?.[transactionPriority] ||
+          customTxRecipientsOptions?.[transactionPriority]
+        )?.map((recipient) => recipient.amount)
   );
 
   const [customEstBlocks, setCustomEstBlocks] = useState(0);
@@ -332,9 +335,11 @@ function SendConfirmation({ route }) {
 
   useEffect(() => {
     if (!isCachedTransaction) {
-      setAmount(
-        (txRecipientsOptions?.[transactionPriority] ||
-          customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
+      setAmounts(
+        (
+          txRecipientsOptions?.[transactionPriority] ||
+          customTxRecipientsOptions?.[transactionPriority]
+        )?.map((recipient) => recipient.amount)
       );
     }
   }, [txRecipientsOptions, customTxRecipientsOptions, transactionPriority]);
@@ -399,9 +404,11 @@ function SendConfirmation({ route }) {
   useEffect(() => {
     let hasHighFee = false;
     const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
-    if (selectedFee > amount / 10) hasHighFee = true; // if fee is greater than 10% of the amount being sent
+    if (selectedFee > amounts.reduce((sum, amount) => sum + amount, 0) / 10) hasHighFee = true; // if fee is greater than 10% of the total amount being sent
 
-    setFeePercentage(Math.trunc((selectedFee / amount) * 100));
+    setFeePercentage(
+      Math.trunc((selectedFee / amounts.reduce((sum, amount) => sum + amount, 0)) * 100)
+    );
 
     if (hasHighFee) {
       setIsFeeHigh(true);
@@ -410,13 +417,17 @@ function SendConfirmation({ route }) {
 
     if (
       !isCachedTransaction &&
-      originalAmount !==
-        (txRecipientsOptions?.[transactionPriority] ||
-          customTxRecipientsOptions?.[transactionPriority])?.[0]?.amount
+      JSON.stringify(originalAmounts) !==
+        JSON.stringify(
+          (
+            txRecipientsOptions?.[transactionPriority] ||
+            customTxRecipientsOptions?.[transactionPriority]
+          )?.map((recipient) => recipient.amount)
+        )
     ) {
       setAmountChangedAlertVisible(true);
     }
-  }, [transactionPriority, amount]);
+  }, [transactionPriority, amounts]);
 
   const [inProgress, setProgress] = useState(false);
 
@@ -563,7 +574,7 @@ function SendConfirmation({ route }) {
 
   const viewDetails = () => {
     setVisibleModal(false);
-    if (vaultTransfers.includes(transferType)) {
+    if (vaultTransfers.includes(transferType) && internalRecipients.length > 0) {
       const navigationState = {
         index: 1,
         routes: [
@@ -573,7 +584,7 @@ function SendConfirmation({ route }) {
             params: {
               transactionToast: true,
               autoRefresh: true,
-              vaultId: recipient.id,
+              vaultId: internalRecipients[0].id,
             },
           },
         ],
@@ -793,13 +804,7 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title="Send Confirmation"
-        subtitle={subTitle}
-        rightComponent={<CurrencyTypeSwitch />}
-        rightComponentPadding={wp(10)}
-        rightComponentBottomPadding={hp(5)}
-      />
+      <WalletHeader title="Send Confirmation" rightComponent={<CurrencyTypeSwitch />} />
 
       <ScrollView
         style={styles.container}
@@ -808,27 +813,31 @@ function SendConfirmation({ route }) {
       >
         <Box style={styles.receiptContainer}>
           <ReceiptWrapper>
-            <TransferCard
-              title="Amount Transferred from"
-              titleFontSize={16}
-              titleFontWeight={300}
-              subTitle={sender?.presentationData?.name}
-              subTitleFontSize={15}
-              subTitleFontWeight={200}
-              amount={amount}
-              amountFontSize={16}
-              amountFontWeight={200}
-              unitFontSize={13}
-              unitFontWeight={200}
-            />
-            <TransferCard
-              title="Sending To"
-              titleFontSize={16}
-              titleFontWeight={300}
-              subTitle={recipient?.presentationData?.name || address}
-              subTitleFontSize={15}
-              subTitleFontWeight={200}
-            />
+            {amounts.flatMap((amount, index) => [
+              <TransferCard
+                key={`from-${index}`}
+                title="Amount to send"
+                titleFontSize={16}
+                titleFontWeight={300}
+                subTitle={sender?.presentationData?.name}
+                subTitleFontSize={15}
+                subTitleFontWeight={200}
+                amount={amount}
+                amountFontSize={16}
+                amountFontWeight={200}
+                unitFontSize={13}
+                unitFontWeight={200}
+              />,
+              <TransferCard
+                key={`to-${index}`}
+                title="Sending to"
+                titleFontSize={16}
+                titleFontWeight={300}
+                subTitle={internalRecipients[index]?.presentationData?.name || addresses[index]}
+                subTitleFontSize={15}
+                subTitleFontWeight={200}
+              />,
+            ])}
             <TouchableOpacity
               testID="btn_transactionPriority"
               onPress={() => setTransPriorityModalVisible(true)}
@@ -857,7 +866,7 @@ function SendConfirmation({ route }) {
             title={walletTranslations.totalAmount}
             titleFontSize={16}
             titleFontWeight={300}
-            amount={amount}
+            amount={amounts.reduce((sum, amount) => sum + amount, 0)}
             amountFontSize={16}
             amountFontWeight={200}
             unitFontSize={12}
@@ -878,7 +887,10 @@ function SendConfirmation({ route }) {
             title={walletTranslations.total}
             titleFontSize={16}
             titleFontWeight={300}
-            amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount + amount}
+            amount={
+              txFeeInfo[transactionPriority?.toLowerCase()]?.amount +
+              amounts.reduce((sum, amount) => sum + amount, 0)
+            }
             amountFontSize={18}
             amountFontWeight={200}
             unitFontSize={12}
@@ -911,10 +923,10 @@ function SendConfirmation({ route }) {
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
-            amount={amount || sourceWalletAmount}
+            amounts={amounts || [sourceWalletAmount]}
             sender={sender || sourceWallet}
-            recipient={recipient || defaultVault}
-            address={address}
+            recipients={internalRecipients || [defaultVault]}
+            addresses={addresses}
             primaryText={
               !isMoveAllFunds ? walletTranslations.ViewWallets : walletTranslations.ManageWallets
             }
@@ -999,7 +1011,7 @@ function SendConfirmation({ route }) {
           <HighFeeAlert
             transactionPriority={transactionPriority}
             txFeeInfo={txFeeInfo}
-            amountToSend={amount}
+            amountToSend={amounts.reduce((sum, amount) => sum + amount, 0)}
             isFeeHigh={isFeeHigh}
             isUsualFeeHigh={isUsualFeeHigh}
             setTopText={setTopText}
@@ -1080,7 +1092,10 @@ function SendConfirmation({ route }) {
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
           subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType || sourceWallet?.networkType}
-          recipients={[{ address, amount: originalAmount }]} // TODO: rewire for Batch Send
+          recipients={addresses.map((address, index) => ({
+            address,
+            amount: originalAmounts[index],
+          }))}
           sender={sender || sourceWallet}
           selectedUTXOs={selectedUTXOs}
           buttonCallback={(setCustomTxPriority, customFeePerByte) => {
@@ -1119,6 +1134,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginHorizontal: wp(0),
+    marginTop: hp(5),
   },
   contentContainer: {
     paddingBottom: hp(30),

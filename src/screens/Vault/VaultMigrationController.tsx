@@ -120,9 +120,9 @@ function VaultMigrationController({
             navigation.dispatch(
               CommonActions.navigate('SendConfirmation', {
                 sender: activeVault,
-                recipient: temporaryVault,
-                address: recipients[0].address,
-                amount: parseInt(recipients[0].amount, 10),
+                internalRecipients: [temporaryVault],
+                addresses: [recipients[0].address],
+                amounts: [parseInt(recipients[0].amount, 10)],
                 transferType: TransferType.VAULT_TO_VAULT,
                 currentBlockHeight,
               })
@@ -136,9 +136,9 @@ function VaultMigrationController({
         navigation.dispatch(
           CommonActions.navigate('SendConfirmation', {
             sender: activeVault,
-            recipient: temporaryVault,
-            address: recipients[0].address,
-            amount: parseInt(recipients[0].amount, 10),
+            internalRecipients: [temporaryVault],
+            addresses: [recipients[0].address],
+            amounts: [parseInt(recipients[0].amount, 10)],
             transferType: TransferType.VAULT_TO_VAULT,
           })
         );
