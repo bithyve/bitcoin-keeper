@@ -813,21 +813,19 @@ function SendConfirmation({ route }) {
       >
         <Box style={styles.receiptContainer}>
           <ReceiptWrapper>
+            <TransferCard
+              title="Sending from"
+              titleFontSize={16}
+              titleFontWeight={300}
+              subTitle={sender?.presentationData?.name}
+              subTitleFontSize={15}
+              subTitleFontWeight={200}
+              amountFontSize={16}
+              amountFontWeight={200}
+              unitFontSize={13}
+              unitFontWeight={200}
+            />
             {amounts.flatMap((amount, index) => [
-              <TransferCard
-                key={`from-${index}`}
-                title="Amount to send"
-                titleFontSize={16}
-                titleFontWeight={300}
-                subTitle={sender?.presentationData?.name}
-                subTitleFontSize={15}
-                subTitleFontWeight={200}
-                amount={amount}
-                amountFontSize={16}
-                amountFontWeight={200}
-                unitFontSize={13}
-                unitFontWeight={200}
-              />,
               <TransferCard
                 key={`to-${index}`}
                 title="Sending to"
@@ -836,6 +834,7 @@ function SendConfirmation({ route }) {
                 subTitle={internalRecipients[index]?.presentationData?.name || addresses[index]}
                 subTitleFontSize={15}
                 subTitleFontWeight={200}
+                amount={amount}
               />,
             ])}
             <TouchableOpacity

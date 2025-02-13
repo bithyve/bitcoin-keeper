@@ -9,7 +9,7 @@ import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import RightArrowGrey from 'src/assets/images/icon_arrow_grey.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 
 interface TransferCardProps {
   title: string;
@@ -100,29 +100,32 @@ const TransferCard: React.FC<TransferCardProps> = ({
                 color={subTitleColor || `${colorMode}.textGreenGrey`}
                 fontSize={subTitleFontSize || 14}
                 fontWeight={subTitleFontWeight}
+                style={{ flex: -1, marginRight: wp(15) }}
               >
                 {subTitle}
               </Text>
               {amount && (
                 <Box style={styles.amountContainer}>
-                  {!isCurrentCurrencyFiat &&
-                    getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
-                  <Text
-                    color={amountColor || `${colorMode}.textGreenGrey`}
-                    fontSize={amountFontSize || 15}
-                    fontWeight={amountFontWeight}
-                  >
-                    {` ${getBalance(amount)} `}
-                  </Text>
+                  <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {!isCurrentCurrencyFiat &&
+                      getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
+                    <Text
+                      color={amountColor || `${colorMode}.textGreenGrey`}
+                      fontSize={amountFontSize || 15}
+                      fontWeight={amountFontWeight}
+                    >
+                      {` ${getBalance(amount)} `}
+                    </Text>
 
-                  <Text
-                    color={unitColor || `${colorMode}.textGreenGrey`}
-                    fontSize={unitFontSize || 12}
-                    fontWeight={unitFontWeight}
-                  >
-                    {getSatUnit()}
-                    {isCurrentCurrencyFiat && currencyCode}
-                  </Text>
+                    <Text
+                      color={unitColor || `${colorMode}.textGreenGrey`}
+                      fontSize={unitFontSize || 12}
+                      fontWeight={unitFontWeight}
+                    >
+                      {getSatUnit()}
+                      {isCurrentCurrencyFiat && currencyCode}
+                    </Text>
+                  </Box>
                 </Box>
               )}
             </Box>
@@ -184,7 +187,8 @@ const styles = StyleSheet.create({
   },
   amountContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    height: '100%',
   },
   rowContainer: {
     flexDirection: 'row',

@@ -660,7 +660,7 @@ function AddSendAmount({ route }) {
       />
       <Box style={styles.ctaBtnWrapper}>
         <Buttons
-          primaryText={common.send}
+          primaryText={currentRecipientIdx === totalRecipients ? common.send : common.next}
           primaryDisable={Boolean(Number(amount) <= 0 || errorMessage)}
           primaryCallback={executeSendPhaseOne}
           fullWidth
