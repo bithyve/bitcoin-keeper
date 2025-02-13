@@ -10,6 +10,7 @@ import Text from 'src/components/KeeperText';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { useAppSelector } from 'src/store/hooks';
+import { hp } from 'src/constants/responsive';
 
 const TransactionPriorityDetails = ({
   transactionPriority,
@@ -54,11 +55,10 @@ const TransactionPriorityDetails = ({
           <Box style={styles.rightContainer}>
             <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
               {estimationSign}
-            </Text>
-            <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
+              &nbsp;
               {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation *
                 10}
-              min
+              &nbsp;minutes
             </Text>
           </Box>
         </Box>
@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
   },
   transTitleText: {
     fontSize: 16,
+    marginBottom: hp(5),
   },
   transLabelText: {
     fontSize: 14,
