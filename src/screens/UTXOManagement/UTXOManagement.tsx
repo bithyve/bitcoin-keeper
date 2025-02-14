@@ -244,18 +244,8 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
   return (
     <ScreenWrapper paddingHorizontal={0} backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <Box marginLeft={5}>
-        {/* <KeeperHeader
-          // learnMore
-          learnMorePressed={() => setLearnModalVisible(true)}
-          learnTextColor={`${colorMode}.buttonText`}
-          title={wallet?.presentationData?.name}
-          subtitle={wallet?.presentationData?.description}
-          icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
-        /> */}
-        <Box style={{ marginLeft: wp(10), marginRight: wp(22) }}>
-          <WalletHeader title="Manage Coins" rightComponent={<CurrencyTypeSwitch />} />
-        </Box>
+      <Box style={{ marginLeft: wp(15), marginRight: wp(22) }}>
+        <WalletHeader title="Manage Coins" rightComponent={<CurrencyTypeSwitch />} />
       </Box>
       <Box style={styles.contentContainer}>
         {/* {isWhirlpoolWallet && (
