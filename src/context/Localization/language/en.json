@@ -75,7 +75,6 @@
     "disconnect": "Disconnect",
     "sats": "sats",
     "delete": "Delete",
-    "moreOption": "More Option",
     "tips": "Tips",
     "connectionError": "Connection error",
     "electrumErrorSubTitle": "Check your network and try again",

@@ -9,7 +9,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import KeysIcon from 'src/assets/images/homeGreenKeyIcon.svg';
 import ConciergeIcon from 'src/assets/images/faq-green.svg';
-import SettingIcon from 'src/assets/images/more-green.svg';
+import SettingIcon from 'src/assets/images/settingsGreenIcon.svg';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import InititalAppController from './InititalAppController';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

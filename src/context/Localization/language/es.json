@@ -118,8 +118,6 @@
     "manageUTXO": "manage UTXO",
     "manageKeys": "Manage Keys",
     "manageKeysDesc": "Securely manage your keys with ease",
-    "moreOption": "More Option",
-
     "forThisVault": "for this vault",
     "saveChanges": "Save Changes",
     "signerFingerPrint": "Signer Fingerprint",
