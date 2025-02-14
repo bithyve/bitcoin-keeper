@@ -37,6 +37,8 @@ import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
+import WalletHeader from 'src/components/WalletHeader';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -124,13 +126,8 @@ function Footer({
     <UTXOFooter
       setEnableSelection={setEnableSelection}
       enableSelection={enableSelection}
-      setInitiateWhirlpool={setInitiateWhirlpool}
-      setIsRemix={setIsRemix}
-      setInitateWhirlpoolMix={setInitateWhirlpoolMix}
       wallet={wallet}
       utxos={utxos}
-      setRemixingToVault={setRemixingToVault}
-      vaultId={vaultId}
     />
   );
 }
@@ -248,14 +245,17 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
     <ScreenWrapper paddingHorizontal={0} backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <Box marginLeft={5}>
-        <KeeperHeader
+        {/* <KeeperHeader
           // learnMore
           learnMorePressed={() => setLearnModalVisible(true)}
           learnTextColor={`${colorMode}.buttonText`}
           title={wallet?.presentationData?.name}
           subtitle={wallet?.presentationData?.description}
           icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
-        />
+        /> */}
+        <Box style={{ marginLeft: wp(10), marginRight: wp(22) }}>
+          <WalletHeader title="Manage Coins" rightComponent={<CurrencyTypeSwitch />} />
+        </Box>
       </Box>
       <Box style={styles.contentContainer}>
         {/* {isWhirlpoolWallet && (
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    marginTop: hp(30),
+    marginTop: hp(10),
     marginBottom: hp(15),
   },
 });
