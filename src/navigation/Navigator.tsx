@@ -153,6 +153,7 @@ import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
 import NotificationsCenter from 'src/screens/Home/Notifications/NotificationsCenter';
 import SettingsApp from 'src/screens/Home/components/Settings/AppSettings';
 import InheritanceDocumentScreen from 'src/screens/Home/components/Settings/InheritanceDocumentScreen';
+import HardwareWallet from 'src/screens/Hardware/Hardware';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -266,6 +267,7 @@ function AppStack() {
         />
 
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
+        <Stack.Screen name="HardwareWallet" component={HardwareWallet} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />

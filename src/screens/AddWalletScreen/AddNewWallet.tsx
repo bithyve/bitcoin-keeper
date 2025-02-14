@@ -9,7 +9,7 @@ import ImportWalletIcon from 'src/assets/images/vault_icon.svg';
 import AdvanceCustomizationIcon from 'src/assets/images/other_light.svg';
 import { CommonActions } from '@react-navigation/native';
 import WalletHeader from 'src/components/WalletHeader';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import Buttons from 'src/components/Buttons';
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
   enhancedVaultsCustomStyles: {
     padding: 15,
     gap: 10,
-    width: wp(327),
+    width: windowWidth * 0.88,
   },
   upgradeButtonCustomStyles: {
     container: {
