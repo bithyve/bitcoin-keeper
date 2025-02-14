@@ -2,7 +2,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { useSettingKeeper } from 'src/hooks/useSettingKeeper';
 import ArrowRightGreen from 'src/assets/images/right-green-icon.svg';
 import ArrowDownGreen from 'src/assets/images/down-green-icon.svg';
@@ -93,6 +93,7 @@ const SubscriptionList: React.FC<{
               toggleExpand(index);
             }}
             style={styles.touchable}
+            key={index}
           >
             <Box
               key={index}
@@ -233,10 +234,12 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    marginVertical: 20,
+    marginTop: hp(20),
+    marginBottom: hp(10),
     opacity: 0.2,
   },
   price: {
+    paddingTop: hp(10),
     fontSize: 22,
     fontWeight: '700',
   },
