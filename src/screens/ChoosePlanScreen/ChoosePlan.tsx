@@ -352,6 +352,7 @@ function ChoosePlan() {
       setRequesting(true);
       const purchases = await getAvailablePurchases();
       setRequesting(false);
+      console.log('🚀 ~ purchases.length:', purchases);
       if (purchases.length === 0) {
         showToast(choosePlan.noAvailablePurchaseMessage);
       } else {
@@ -504,7 +505,7 @@ function ChoosePlan() {
       <WalletHeader
         title={choosePlan.choosePlantitle}
         rightComponent={
-          isOnL1 && (
+          true && (
             <Pressable onPress={restorePurchases} testID="btn_restorePurchases">
               {isDarkMode ? (
                 <CircularWhiteArrow width={22} height={22} />

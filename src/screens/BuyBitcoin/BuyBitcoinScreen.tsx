@@ -20,6 +20,7 @@ import { EntityKind, VaultType } from 'src/services/wallets/enums';
 function BuyBitcoinScreen({ route }) {
   const { colorMode } = useColorMode();
   const { currencyCode } = useAppSelector((state) => state.settings);
+  console.log('🚀 ~ BuyBitcoinScreen ~ currencyCode:', currencyCode);
   const { translations } = useContext(LocalizationContext);
   const { common, ramp: rampTranslations } = translations;
 
@@ -37,6 +38,16 @@ function BuyBitcoinScreen({ route }) {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const buyWithBanxa = (address: string) => {
+    try {
+      const url = `https://checkout.banxa.com/?coinType=BTC&fiatAmount=500&theme=${colorMode}&fiatType=${currencyCode}&primaryColor=#2d6759&backgroundColor=000&walletAddress=${address}`;
+      Linking.openURL(url);
+      console.log('🚀 ~ buyWithBanxa ~ url:', url);
+    } catch (error) {
+      console.log('🚀 ~ buyWithBanxa ~ error:', error);
     }
   };
 
@@ -124,6 +135,11 @@ function BuyBitcoinScreen({ route }) {
           fullWidth
         />
       </Box>
+      <Buttons
+        primaryText={common.proceed}
+        primaryCallback={() => buyWithBanxa(receivingAddress)}
+        fullWidth
+      />
     </ScreenWrapper>
   );
 }
