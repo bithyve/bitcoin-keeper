@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   MiniscriptTypes,
   MultisigScriptType,
@@ -10,6 +10,7 @@ import {
 import {
   MiniscriptElements,
   MiniscriptScheme,
+  MiniscriptTxSelectedSatisfier,
   VaultScheme,
   VaultSigner,
 } from 'src/services/wallets/interfaces/vault';
@@ -45,6 +46,9 @@ import {
   INHERITANCE_VAULT_TIMELOCKS_TESTNET,
 } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import { MONTHS_12, MONTHS_3, MONTHS_6, MONTHS_18, MONTHS_24 } from './constants';
+import MiniscriptPathSelector, {
+  MiniscriptPathSelectorRef,
+} from 'src/components/MiniscriptPathSelector';
 
 function VaultMigrationController({
   vaultCreating,
@@ -79,6 +83,8 @@ function VaultMigrationController({
   const { archivedVaults } = useArchivedVaults();
 
   const [recipients, setRecepients] = useState<any[]>();
+  const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
+  const [miniscriptSelectedSatisfier, setMiniscriptSelectedSatisfier] = useState(null);
 
   useEffect(() => {
     if (temporaryVault && temporaryVault.id) {
@@ -125,6 +131,7 @@ function VaultMigrationController({
                 amounts: [parseInt(recipients[0].amount, 10)],
                 transferType: TransferType.VAULT_TO_VAULT,
                 currentBlockHeight,
+                miniscriptSelectedSatisfier,
               })
             );
           })
@@ -140,6 +147,7 @@ function VaultMigrationController({
             addresses: [recipients[0].address],
             amounts: [parseInt(recipients[0].amount, 10)],
             transferType: TransferType.VAULT_TO_VAULT,
+            miniscriptSelectedSatisfier,
           })
         );
       }
@@ -155,19 +163,35 @@ function VaultMigrationController({
     const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
     const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
 
+    if (activeVault.type === VaultType.MINISCRIPT) {
+      miniscriptPathSelectorRef.current?.selectVaultSpendingPaths();
+      return;
+    }
+
+    proceedWithSweep(receivingAddress, feePerByte);
+  };
+
+  const proceedWithSweep = (
+    receivingAddress: string,
+    feePerByte: number,
+    satisfier?: MiniscriptTxSelectedSatisfier
+  ) => {
     const { fee: sendMaxFee } = WalletOperations.calculateSendMaxFee(
       activeVault,
       [{ address: receivingAddress, amount: 0 }],
-      feePerByte
+      feePerByte,
+      null,
+      satisfier
     );
+
     if (sendMaxFee && temporaryVault) {
       const maxBalance = confirmed + unconfirmed - sendMaxFee;
-
       setRecepients([{ address: receivingAddress, amount: maxBalance }]);
       dispatch(
         sendPhaseOne({
           wallet: activeVault,
           recipients: [{ address: receivingAddress, amount: maxBalance }],
+          miniscriptSelectedSatisfier: satisfier,
         })
       );
     }
@@ -178,6 +202,7 @@ function VaultMigrationController({
     if (netBanalce === 0) {
       dispatch(finaliseVaultMigration(activeVault.id));
     } else {
+      // TODO: get miniscript selected satisfier!
       initiateSweep();
     }
   };
@@ -369,7 +394,23 @@ function VaultMigrationController({
     }
   };
 
-  return null;
+  return (
+    <>
+      <MiniscriptPathSelector
+        ref={miniscriptPathSelectorRef}
+        vault={activeVault}
+        onPathSelected={(satisfier) => {
+          setMiniscriptSelectedSatisfier(satisfier);
+          const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
+          const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
+          const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+          proceedWithSweep(receivingAddress, feePerByte, satisfier);
+        }}
+        onError={(err) => showToast(err, <ToastErrorIcon />)}
+        onCancel={() => setCreating(false)}
+      />
+    </>
+  );
 }
 
 export const vaultAlreadyExists = (vaultInfo: NewVaultInfo, allVaults, archivedVaults) => {
