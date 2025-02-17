@@ -156,7 +156,6 @@ const styles = StyleSheet.create({
   title2Conntainer: {
     marginTop: hp(20),
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
   },
 });

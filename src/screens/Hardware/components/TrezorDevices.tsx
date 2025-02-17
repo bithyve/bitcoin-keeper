@@ -10,29 +10,29 @@ const TrezorDevices = ({ wallet }) => {
   const TrezorData = [
     {
       id: 1,
-      title2: 'Trezor Model T',
+      title2: wallet.TrezorModelT,
       image: <TrezorT />,
-      link: 'https://www.trezor.io/',
+      link: 'https://affil.trezor.io/aff_c?offer_id=134&aff_id=35017',
     },
     {
       id: 2,
-      title2: 'Trezor Model One',
+      title2: wallet.TrezorModel1,
       image: <TrezorOne />,
-      link: 'https://www.trezor.io/',
+      link: 'https://affil.trezor.io/aff_c?offer_id=135&aff_id=35017',
     },
     {
       id: 3,
-      title2: 'Trezor Safe 3',
-      title2Sub: ' - BTC Only',
+      title2: wallet.TrezorSafe3,
+      title2Sub: wallet.TrezorBTCOnly,
       image: <Trezor3 />,
-      link: 'https://www.trezor.io/',
+      link: 'https://affil.trezor.io/aff_c?offer_id=239&aff_id=35017',
     },
     {
       id: 4,
-      title2: 'Trezor Safe 5',
-      title2Sub: ' - BTC Only',
+      title2: wallet.TrezorSafe5,
+      title2Sub: wallet.TrezorBTCOnly,
       image: <Trezor5 />,
-      link: 'https://www.trezor.io/',
+      link: 'https://affil.trezor.io/aff_c?offer_id=238&aff_id=35017',
     },
   ];
   return (
