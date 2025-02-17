@@ -65,12 +65,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
       <WalletLine style={styles.walletLine} width={wp(180)} height={hp(200)} />
       <Box style={styles.pillsContainer}>
         {tags?.map(({ tag, color }, index) => (
-          <CardPill
-            key={tag}
-            heading={tag}
-            backgroundColor={color}
-            cardStyle={index % 2 !== 0 && styles.secondCard}
-          />
+          <CardPill key={tag} heading={tag} backgroundColor={color} />
         ))}
       </Box>
 

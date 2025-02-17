@@ -76,10 +76,11 @@ const useWalletAsset = () => {
           break;
         case VaultType.MINISCRIPT:
           tags = [
+            wallet.scheme.m !== 1 || wallet.scheme.n !== 1 ? { tag: 'Multi-key' } : null,
             wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
               MiniscriptTypes.INHERITANCE
-            ) && { tag: 'Inheritance Key' },
-            { tag: getSchemeTag(wallet as Vault) },
+            ) && { tag: getSchemeTag(wallet as Vault) },
+            { tag: 'Inheritance key' },
           ].filter(Boolean);
           break;
         default:
