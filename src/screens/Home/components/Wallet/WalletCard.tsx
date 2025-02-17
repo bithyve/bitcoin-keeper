@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';

@@ -46,43 +46,44 @@ const useWalletAsset = () => {
       ? 'Single-key'
       : `${wallet.scheme.m} of ${wallet.scheme.n}`;
 
+  const TAG_COLORS = [
+    Colors.LabelLight3,
+    Colors.DesertSand,
+    Colors.Aquamarine,
+    Colors.mintGreen,
+    Colors.LightMossGreen,
+  ];
+
   const getWalletTags = (wallet: Wallet | Vault) => {
+    let tags: { tag: string; color?: string }[] = [];
+
     if (wallet.entityKind === EntityKind.VAULT) {
       switch (wallet.type) {
         case VaultType.SINGE_SIG:
-          return [
-            { tag: 'Cold', color: Colors.mintGreen },
-            { tag: 'Single-key', color: Colors.LabelLight3 },
-          ];
+          tags = [{ tag: 'Cold' }, { tag: 'Single-key' }];
+          break;
         case VaultType.COLLABORATIVE:
-          return [
-            { tag: 'Collaborative', color: Colors.mintGreen },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
-          ];
+          tags = [{ tag: 'Collaborative' }, { tag: getSchemeTag(wallet as Vault) }];
+          break;
         case VaultType.ASSISTED:
-          return [
-            { tag: 'Assisted', color: Colors.LightMossGreen },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
-          ];
+          tags = [{ tag: 'Assisted' }, { tag: getSchemeTag(wallet as Vault) }];
+          break;
         case VaultType.TIMELOCKED:
-          return [
-            { tag: 'Timelocked', color: Colors.mintGreen },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
-          ];
+          tags = [{ tag: 'Timelocked' }, { tag: getSchemeTag(wallet as Vault) }];
+          break;
         case VaultType.CANARY:
-          return [{ tag: 'Canary', color: Colors.LightMossGreen }];
+          tags = [{ tag: 'Canary' }];
+          break;
         case VaultType.MINISCRIPT:
-          return [
+          tags = [
             wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
               MiniscriptTypes.INHERITANCE
-            ) && { tag: 'Inheritance Key', color: Colors.Aquamarine },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
+            ) && { tag: 'Inheritance Key' },
+            { tag: getSchemeTag(wallet as Vault) },
           ].filter(Boolean);
+          break;
         default:
-          return [
-            { tag: 'Multi-key', color: Colors.LabelLight3 },
-            { tag: getSchemeTag(wallet as Vault), color: Colors.DesertSand },
-          ];
+          tags = [{ tag: 'Multi-key' }, { tag: getSchemeTag(wallet as Vault) }];
       }
     } else {
       let walletKind = wallet.type === WalletType.DEFAULT ? 'Hot Wallet' : 'Imported Wallet';
@@ -93,14 +94,13 @@ const useWalletAsset = () => {
       const isTaprootWallet =
         derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86;
 
-      return [
-        { tag: walletKind, color: Colors.DesertSand },
-        {
-          tag: isTaprootWallet ? 'Taproot' : 'Single-Key',
-          color: isTaprootWallet ? Colors.PaleCyan : Colors.LabelLight3,
-        },
-      ];
+      tags = [{ tag: walletKind }, { tag: isTaprootWallet ? 'Taproot' : 'Single-Key' }];
     }
+
+    return tags.map((tag, index) => ({
+      ...tag,
+      color: TAG_COLORS[index % TAG_COLORS.length],
+    }));
   };
 
   return { getWalletIcon, getWalletCardGradient, getWalletTags };
