@@ -7,8 +7,10 @@ import { hp, wp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 
 type Props = {
-  title: string;
-  image: Element;
+  title?: string;
+  title2?: string;
+  title2Sub?: string;
+  image?: Element;
   flagIcon?: Element;
   country?: string;
   plan?: any;
@@ -17,6 +19,7 @@ type Props = {
   link?: string;
   madeText?: string;
   buttonText?: string;
+  onPress?: () => void;
 };
 
 const DeviceCard = (props: Props) => {
@@ -34,34 +37,60 @@ const DeviceCard = (props: Props) => {
         {props.image}
       </Box>
       <Box style={styles.secondoryContainer}>
-        <Box>
-          <Text medium fontSize={15} color={`${colorMode}.primaryText`} style={styles.title}>
-            {props.title}
-          </Text>
-
-          <Box style={styles.rowContainer}>
-            <Text
-              color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.GreenishGrey`}
-            >
-              {props.madeText}{' '}
+        {props.title && (
+          <Box style={styles.titleContainer}>
+            <Text medium fontSize={15} color={`${colorMode}.primaryText`} style={styles.title}>
+              {props.title}
             </Text>
-            <Box style={styles.flagContainer}>
+
+            <Box style={styles.rowContainer}>
               <Text
                 color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.GreenishGrey`}
               >
-                {props.country}
+                {props.madeText}{' '}
               </Text>
-              {props.flagIcon}
+              <Box style={styles.flagContainer}>
+                <Text
+                  color={
+                    isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.GreenishGrey`
+                  }
+                >
+                  {props.country}
+                </Text>
+                {props.flagIcon}
+              </Box>
             </Box>
           </Box>
-        </Box>
+        )}
+        {props.title2 && (
+          <Box style={styles.title2Conntainer}>
+            <Text medium fontSize={15} color={`${colorMode}.primaryText`} style={styles.title}>
+              {props.title2}
+            </Text>
+            <Text
+              medium
+              fontSize={12}
+              color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.GreenishGrey`}
+              style={styles.title}
+            >
+              {props.title2Sub}
+            </Text>
+          </Box>
+        )}
         <Box>
           <Buttons
             fullWidth
+            primaryFontWeight="medium"
             primaryText={props.buttonText}
             primaryBackgroundColor={`${colorMode}.SeaweedGreen`}
-            paddingVertical={hp(10)}
-            primaryCallback={() => openLink(props.link)}
+            paddingVertical={hp(8)}
+            primaryCallback={() => {
+              if (props.onPress) {
+                props.onPress();
+              } else {
+                openLink(props.link);
+              }
+            }}
             borderRadius={6}
           />
           {props.plan ? (
@@ -100,7 +129,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secondoryContainer: {
-    gap: wp(20),
+    gap: wp(10),
     flex: 1,
     justifyContent: 'space-between',
     paddingLeft: wp(20),
@@ -120,5 +149,14 @@ const styles = StyleSheet.create({
   },
   subText: {
     marginTop: hp(10),
+  },
+  titleContainer: {
+    marginBottom: hp(10),
+  },
+  title2Conntainer: {
+    marginTop: hp(20),
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

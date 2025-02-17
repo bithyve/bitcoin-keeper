@@ -59,6 +59,7 @@ const ResellerCard = (props: Props) => {
           primaryBackgroundColor={`${colorMode}.SeaweedGreen`}
           fullWidth
           paddingVertical={hp(10)}
+          primaryFontWeight="medium"
           RightIcon={ShopIcon}
           borderRadius={6}
           primaryCallback={() => openLink(props.link)}
@@ -121,5 +122,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: wp(2),
     marginBottom: hp(8),
+    marginTop: hp(4),
   },
 });

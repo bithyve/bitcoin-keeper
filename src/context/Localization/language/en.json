@@ -412,10 +412,11 @@
     "Blockchain": "Blockchain.com",
     "AddVault": "Add a vault",
     "AddWallet": "Add a Wallet",
+    "TrezorModalSub": "Choose a Hardware Model for your bitcoin security",
 
     "hardwareBitSaga": "Bitsaga",
     "hardwareBitSagaSubTitle": "Your Trusted Provider of Secure and Reliable Bitcoin Hardware Wallets.",
-    "hardwareBitBox": "BitBox2",
+    "hardwareBitBox": "Box02",
     "hardwareColdcard": "Coldcard",
     "hardwareFoundation": "Foundation Passport",
     "hardwareLedger": "Ledger",

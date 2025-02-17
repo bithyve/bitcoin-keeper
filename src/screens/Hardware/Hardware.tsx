@@ -6,7 +6,7 @@ import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import WalletHeader from 'src/components/WalletHeader';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import usePlan from 'src/hooks/usePlan';
 import UpgradeIcon from 'src/assets/images/upgrade-circle-icon.svg';
@@ -35,11 +35,14 @@ const HardwareWallet = () => {
       />
       {isOnL1 && (
         <Box style={styles.plancontainer}>
-          <Text>{wallet.subscribeTextHardware}</Text>
+          <Text semiBold>{wallet.subscribeTextHardware}</Text>
 
           <Buttons
             fullWidth
+            primaryFontWeight="medium"
             primaryText={common.upgrade}
+            paddingVertical={wp(12)}
+            borderRadius={5}
             primaryBackgroundColor={`${colorMode}.brownColor`}
             LeftIcon={UpgradeIcon}
             primaryCallback={() => {
