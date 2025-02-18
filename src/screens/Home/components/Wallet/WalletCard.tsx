@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import WalletLine from 'src/assets/images/walletCardLines.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
@@ -100,7 +100,7 @@ export default WalletCard;
 const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'column',
-    width: '100%',
+    width: windowWidth * 0.88,
     height: wp(180),
     padding: wp(20),
     borderRadius: 15,

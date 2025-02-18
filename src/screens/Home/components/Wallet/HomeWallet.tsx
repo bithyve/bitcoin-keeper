@@ -213,7 +213,6 @@ export default HomeWallet;
 const styles = StyleSheet.create({
   walletContainer: {
     gap: 15,
-    width: windowWidth * 0.88,
   },
   addWalletOptionsList: {
     gap: wp(15),
