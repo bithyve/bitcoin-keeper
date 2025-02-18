@@ -52,6 +52,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import { credsAuthenticated } from 'src/store/reducers/login';
+import usePlan from './usePlan';
 
 export const useSettingKeeper = () => {
   const dispatch = useAppDispatch();
@@ -59,6 +60,7 @@ export const useSettingKeeper = () => {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const isFocused = useIsFocused();
+  const { isOnL2Above, isOnL3 } = usePlan();
 
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
@@ -165,7 +167,7 @@ export const useSettingKeeper = () => {
       description: inheritancePlanning.personalCloudDescp,
       icon: <CloudIcon width={16} height={12} />,
       onRightPress: () => navigation.navigate('ChoosePlan'),
-      rightIcon: <UpgradeIcon width={64} height={20} />,
+      rightIcon: isOnL2Above ? null : <UpgradeIcon width={64} height={20} />,
       onPress: () => navigation.navigate('CloudBackup'),
       isDiamond: true,
       isHodler: true,
@@ -176,10 +178,16 @@ export const useSettingKeeper = () => {
       description: settings.assistedServerBackupSubtitle,
       icon: <CloudBackupIcon width={14} height={14} />,
       onPress: () => {},
-      rightIcon: <Switch onValueChange={() => {}} value={automaticCloudBackup} />,
-      onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
+      rightIcon: isOnL2Above ? (
+        <Switch onValueChange={() => {}} value={automaticCloudBackup} />
+      ) : (
+        <UpgradeIcon width={64} height={20} />
+      ),
+      onRightPress: isOnL2Above
+        ? toggleDebounce(() => toggleAutomaticBackupMode())
+        : () => navigation.navigate('ChoosePlan'),
       isDiamond: false,
-      isHodler: false,
+      isHodler: true,
     },
   ];
 
@@ -233,7 +241,7 @@ export const useSettingKeeper = () => {
       title: vault.canaryWallet,
       description: inheritancePlanning.canaryWalletDesp,
       icon: <CanaryIcon width={14} height={14} />,
-      rightIcon: <UpgradeIcon width={64} height={20} />,
+      rightIcon: isOnL3 ? null : <UpgradeIcon width={64} height={20} />,
       onRightPress: () => navigation.navigate('ChoosePlan'),
 
       onPress: () => navigation.navigate('CanaryWallets'),
