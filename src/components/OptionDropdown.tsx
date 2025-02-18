@@ -1,4 +1,4 @@
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { hp, wp } from 'src/constants/responsive';
@@ -81,29 +81,35 @@ function OptionDropdown({ label, options, selectedOption, onOptionSelect }: Prop
           backgroundColor={`${colorMode}.boxSecondaryBackground`}
           style={styles.optionsContainer}
         >
-          {options.map((option, index) => (
-            <TouchableOpacity
-              key={option.value.toString()}
-              onPress={() => handleOptionSelect(option)}
-            >
-              <Box style={styles.optionContainer}>
-                <Text
-                  color={
-                    internalSelectedOption?.value === option.value
-                      ? `${colorMode}.greenText`
-                      : `${colorMode}.GreyText`
-                  }
-                  style={styles.optionText}
-                >
-                  {`${option.label}`}
-                </Text>
-                {internalSelectedOption?.value === option.value && <TickIcon />}
-              </Box>
-              {index !== options.length - 1 && (
-                <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.separator} />
-              )}
-            </TouchableOpacity>
-          ))}
+          <ScrollView
+            style={styles.scrollView}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={false}
+          >
+            {options.map((option, index) => (
+              <TouchableOpacity
+                key={option.value.toString()}
+                onPress={() => handleOptionSelect(option)}
+              >
+                <Box style={styles.optionContainer}>
+                  <Text
+                    color={
+                      internalSelectedOption?.value === option.value
+                        ? `${colorMode}.greenText`
+                        : `${colorMode}.GreyText`
+                    }
+                    style={styles.optionText}
+                  >
+                    {`${option.label}`}
+                  </Text>
+                  {internalSelectedOption?.value === option.value && <TickIcon />}
+                </Box>
+                {index !== options.length - 1 && (
+                  <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.separator} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </Box>
       )}
     </Box>
@@ -152,6 +158,7 @@ const styles = StyleSheet.create({
     marginTop: hp(5),
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    maxHeight: hp(200),
   },
   optionContainer: {
     flexDirection: 'row',
@@ -160,6 +167,9 @@ const styles = StyleSheet.create({
     paddingTop: hp(10),
     paddingBottom: hp(15),
     paddingHorizontal: wp(20),
+  },
+  scrollView: {
+    maxHeight: hp(200),
   },
   separator: {
     height: 1,

@@ -44,7 +44,15 @@ import {
   INHERITANCE_VAULT_TIMELOCKS_MAINNET,
   INHERITANCE_VAULT_TIMELOCKS_TESTNET,
 } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
-import { MONTHS_12, MONTHS_3, MONTHS_6, MONTHS_18, MONTHS_24 } from './constants';
+import {
+  MONTHS_12,
+  MONTHS_3,
+  MONTHS_6,
+  MONTHS_18,
+  MONTHS_24,
+  MONTHS_30,
+  MONTHS_36,
+} from './constants';
 
 function VaultMigrationController({
   vaultCreating,
@@ -194,6 +202,10 @@ function VaultMigrationController({
         ? 'MONTHS_18'
         : selectedDuration === MONTHS_24
         ? 'MONTHS_24'
+        : selectedDuration === MONTHS_30
+        ? 'MONTHS_30'
+        : selectedDuration === MONTHS_36
+        ? 'MONTHS_36'
         : null;
 
     if (!durationIdentifier) {
