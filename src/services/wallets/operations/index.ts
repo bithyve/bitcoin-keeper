@@ -1651,18 +1651,31 @@ export default class WalletOperations {
           const { miniscriptScheme } = (wallet as Vault).scheme;
           if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
 
-          for (const { bip32Derivation } of PSBT.data.inputs) {
-            for (let { masterFingerprint, path, pubkey } of bip32Derivation) {
-              if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
-                const pathFragments = path.split('/');
-                const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
-                const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
-                subPath = [chainIndex, childIndex];
-                publicKey = pubkey;
-                break;
-              }
+          const psbtInputIndex = PSBT.txInputs.findIndex((psbtInput) => {
+            // Reverse the bytes of the hash to match txId format
+            const psbtHash = Buffer.from(psbtInput.hash).reverse().toString('hex');
+            return (
+              psbtHash === inputs[inputIndex].txId && psbtInput.index === inputs[inputIndex].vout
+            );
+          });
+
+          if (psbtInputIndex === -1) {
+            console.log('No match found!');
+            throw new Error('Could not find matching PSBT input');
+          }
+
+          // PSBT.data.inputs and PSBT.txInputs are expected to be parallel arrays that maintain the same order
+          const { bip32Derivation } = PSBT.data.inputs[psbtInputIndex];
+
+          for (let { masterFingerprint, path, pubkey } of bip32Derivation) {
+            if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
+              const pathFragments = path.split('/');
+              const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
+              const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
+              subPath = [chainIndex, childIndex];
+              publicKey = pubkey;
+              break;
             }
-            if (publicKey) break;
           }
         }
 
