@@ -10690,11 +10690,6 @@ react-native-tor@0.1.8:
     "@types/async" "^3.2.6"
     async "^3.2.0"
 
-react-native-zendesk-messaging@0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/react-native-zendesk-messaging/-/react-native-zendesk-messaging-0.2.1.tgz#5edf91313b5f05936df22132da56d0cc80bcf87c"
-  integrity sha512-hDb2bG+ven/v2hAtnIrq+abjBjgfzoYSYtlhpfJ9GVgfFogaOcI4FjcX6XO/1IStVLKPcQit5CBTycVPT5CSCA==
-
 react-native@0.72.4:
   version "0.72.4"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.72.4.tgz#97b57e22e4d7657eaf4d1f62a678511fcf9bdda7"
