@@ -627,7 +627,10 @@
     "homeWallets": "Wallets",
     "keys": "Keys",
     "concierge": "Concierge",
-    "more": "More"
+    "more": "More",
+    "learnMoreTitle": "Wallet Management",
+    "learnMoreSubTitle": "Pull down the transactions list within the wallet for latest transaction statuses and wallet balances.",
+    "learnMoreDesc": "Hide the wallet for privacy or to declutter your home screen. Trigger sats transfers for easy cold storage and jot down the seedwords to backup the wallet."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
