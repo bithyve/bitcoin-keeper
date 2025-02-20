@@ -171,6 +171,15 @@ function TransactionList({
           navigation.dispatch(
             CommonActions.navigate('SendConfirmation', {
               ...item.snapshot.routeParams,
+              addresses: item.snapshot.routeParams.addresses
+                ? item.snapshot.routeParams.addresses
+                : [item.snapshot.routeParams.address],
+              amounts: item.snapshot.routeParams.amounts
+                ? item.snapshot.routeParams.amounts
+                : [item.snapshot.routeParams.amount],
+              internalRecipients: item.snapshot.routeParams.internalRecipients
+                ? item.snapshot.routeParams.internalRecipients
+                : [item.snapshot.routeParams.recipient],
             })
           );
         } else {
@@ -292,12 +301,13 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       const snapshot: cachedTxSnapshot = snapshots[cachedTxid];
       if (!snapshot.routeParams) continue; // route params missing
 
-      const { addresses, amounts, sender, transferType, date } = snapshot.routeParams;
+      const { address, addresses, amount, amounts, sender, transferType, date } =
+        snapshot.routeParams;
       if (sender?.id !== vault.id) continue; // doesn't belong to the current vault
 
       const cachedTx = {
-        address: addresses[0], // TODO: Refactor, doesn't seem to be used
-        amount: amounts.reduce((sum, amount) => sum + amount, 0),
+        address: address ? address : addresses[0], // TODO: Refactor, doesn't seem to be used
+        amount: amount ? amount : amounts.reduce((sum, amount) => sum + amount, 0),
         blockTime: null,
         confirmations: 0,
         date,
