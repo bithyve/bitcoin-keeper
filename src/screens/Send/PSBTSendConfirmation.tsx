@@ -85,16 +85,13 @@ function PSBTSendConfirmation({ route }) {
             <TransferCard
               title={walletTranslations.sendingTo}
               titleFontSize={16}
-              titleFontWeight={300}
               unitFontSize={13}
-              unitFontWeight={200}
               type="list"
               list={recipient.filter((address) => !address.isChange)}
             />
             <TransferCard
               title={walletTranslations.advancedDetails}
               titleFontSize={16}
-              titleFontWeight={500}
               type="cta"
               onPress={() => {
                 navigation.dispatch(
@@ -111,47 +108,35 @@ function PSBTSendConfirmation({ route }) {
           <AmountDetails
             title={walletTranslations.totalAmount}
             titleFontSize={16}
-            titleFontWeight={300}
             amount={originalAmount}
             amountFontSize={16}
-            amountFontWeight={200}
             unitFontSize={12}
-            unitFontWeight={200}
           />
           {/* TODO: Need to suppot fee rate estimation for Miniscript */}
           {feeRate && feeRate !== 'NaN' && (
             <AmountDetails
               title={walletTranslations.feeRate}
               titleFontSize={16}
-              titleFontWeight={300}
               amount={feeRate}
               amountFontSize={16}
-              amountFontWeight={200}
               unitFontSize={12}
-              unitFontWeight={200}
               customUnit="sats/vbyte"
             />
           )}
           <AmountDetails
             title={walletTranslations.networkFee}
             titleFontSize={16}
-            titleFontWeight={300}
             amount={fees}
             amountFontSize={16}
-            amountFontWeight={200}
             unitFontSize={12}
-            unitFontWeight={200}
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
             title={walletTranslations.total}
             titleFontSize={16}
-            titleFontWeight={300}
             amount={fees + originalAmount}
             amountFontSize={18}
-            amountFontWeight={200}
             unitFontSize={12}
-            unitFontWeight={200}
           />
         </Box>
       </ScrollView>

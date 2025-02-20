@@ -580,24 +580,20 @@ function SendConfirmation({ route }) {
             <TransferCard
               title="Sending from"
               titleFontSize={16}
-              titleFontWeight={300}
+              titleFontWeight={500}
               subTitle={sender?.presentationData?.name}
               subTitleFontSize={15}
-              subTitleFontWeight={200}
               amountFontSize={16}
-              amountFontWeight={200}
               unitFontSize={13}
-              unitFontWeight={200}
             />
             {amounts.flatMap((amount, index) => [
               <TransferCard
                 key={`to-${index}`}
                 title="Sending to"
                 titleFontSize={16}
-                titleFontWeight={300}
+                titleFontWeight={500}
                 subTitle={internalRecipients[index]?.presentationData?.name || addresses[index]}
                 subTitleFontSize={15}
-                subTitleFontWeight={200}
                 amount={amount}
               />,
             ])}
@@ -628,36 +624,27 @@ function SendConfirmation({ route }) {
           <AmountDetails
             title={walletTranslations.totalAmount}
             titleFontSize={16}
-            titleFontWeight={300}
             amount={amounts.reduce((sum, amount) => sum + amount, 0)}
             amountFontSize={16}
-            amountFontWeight={200}
             unitFontSize={14}
-            unitFontWeight={200}
           />
           <AmountDetails
-            title={walletTranslations.totalFees}
+            title={walletTranslations.networkFee}
             titleFontSize={16}
-            titleFontWeight={300}
             amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
             amountFontSize={16}
-            amountFontWeight={200}
             unitFontSize={14}
-            unitFontWeight={200}
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
             title={walletTranslations.total}
             titleFontSize={16}
-            titleFontWeight={300}
             amount={
               txFeeInfo[transactionPriority?.toLowerCase()]?.amount +
               amounts.reduce((sum, amount) => sum + amount, 0)
             }
             amountFontSize={18}
-            amountFontWeight={200}
             unitFontSize={14}
-            unitFontWeight={200}
           />
         </Box>
       </ScrollView>
