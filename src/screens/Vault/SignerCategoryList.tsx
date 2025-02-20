@@ -4,52 +4,47 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { hp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
-import HardwareSignerBlack from 'src/assets/images/hardware-signer-black.svg';
-import HardwareSignerWhite from 'src/assets/images/hardware-signer-white.svg';
-import MobileKeyBlack from 'src/assets/images/mobile_key.svg';
-import MobileKeyWhite from 'src/assets/images/mobile_key_light.svg';
-import AssistedSignerBlack from 'src/assets/images/assisted-signer-black.svg';
-import AssistedSignerWhite from 'src/assets/images/assisted-signer-white.svg';
+import HardwareSignerBlack from 'src/assets/images/SignerHardware.svg';
+import HardwareSignerWhite from 'src/assets/images/SignerWhiteHardware.svg';
+import MobileKeyBlack from 'src/assets/images/signerSoftwareBlack.svg';
+import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { useDispatch } from 'react-redux';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import SDCategoryCard from './components/SDCategoryCard';
 import { SignerCategory, SignerType, VaultType } from 'src/services/wallets/enums';
 import { SDIcons } from './SigningDeviceIcons';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
-function SignerCategoryList() {
-  const route = useRoute();
-  const {
-    scheme,
-    addSignerFlow = false,
-    vaultId,
-    vaultSigners,
-    vaultType,
-  }: {
-    scheme: VaultScheme;
-    addSignerFlow: boolean;
-    vaultId: string;
-    vaultSigners?: VaultSigner[];
-    vaultType?: VaultType;
-  } = route.params as any;
-  const navigation = useNavigation();
+function SignerCategoryList({
+  scheme,
+  addSignerFlow = false,
+  vaultId,
+  vaultSigners,
+  vaultType,
+  navigation,
+  setShowOpenSignerModal,
+}: {
+  scheme: VaultScheme;
+  addSignerFlow?: boolean;
+  vaultId: string;
+  vaultSigners?: VaultSigner[];
+  vaultType?: VaultType;
+  navigation: any;
+  setShowOpenSignerModal: (show: boolean) => void;
+}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const dispatch = useAppDispatch();
-  const reduxDispatch = useDispatch();
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const isDarkMode = colorMode === 'dark';
-  const { vault, signer, common } = translations;
+  const { signer, common } = translations;
 
   const hardwareSigners = [
     { type: SignerType.COLDCARD, background: 'dullCreamBackground', isTrue: false },
@@ -106,6 +101,7 @@ function SignerCategoryList() {
         },
       })
     );
+    setShowOpenSignerModal(false);
   };
 
   const signerCategories = signerCategoriesData.map((category) => ({
@@ -127,25 +123,9 @@ function SignerCategoryList() {
   }
 
   return (
-    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title={vault.Addsigner}
-        subtitle={vault.SelectSignerSubtitle}
-        learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
-        learnTextColor={`${colorMode}.buttonText`}
-        learnMorePressed={() => {
-          dispatch(setSdIntroModal(true));
-        }}
-      />
+    <Box>
       <Box style={styles.scrollViewWrapper}>
-        <ScrollView
-          style={styles.scrollViewContainer}
-          contentContainerStyle={styles.contentContainerStyle}
-          showsVerticalScrollIndicator={false}
-          testID={'Signer_Scroll'}
-        >
+        <ScrollView showsVerticalScrollIndicator={false} testID={'Signer_Scroll'}>
           <Box style={styles.categoryContainer}>
             {signerCategories.map((item, index) => (
               <SDCategoryCard
@@ -193,7 +173,7 @@ function SignerCategoryList() {
           dispatch(setSdIntroModal(false));
         }}
       />
-    </ScreenWrapper>
+    </Box>
   );
 }
 
@@ -206,14 +186,6 @@ const styles = StyleSheet.create({
   },
   scrollViewWrapper: {
     flex: 1,
-    paddingHorizontal: '2.5%',
-    paddingTop: '8%',
-  },
-  scrollViewContainer: {
-    flex: 1,
-  },
-  contentContainerStyle: {
-    flexGrow: 1,
   },
   categoryContainer: {
     gap: hp(10),
@@ -222,4 +194,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
+
 export default SignerCategoryList;

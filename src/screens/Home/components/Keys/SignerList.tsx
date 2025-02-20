@@ -106,7 +106,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   };
 
   const customStyle: ViewStyle = {
-    width: wp(162),
+    width: wp(160),
     height: wp(132),
     borderRadius: 10,
     borderWidth: 2,
@@ -184,14 +184,13 @@ export default SignerList;
 
 const styles = StyleSheet.create({
   wrapper: {
-    display: 'flex',
     alignContent: 'center',
     justifyContent: 'center',
   },
   addedSignersContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: wp(2),
     paddingBottom: 20,
+    gap: wp(2),
   },
 });

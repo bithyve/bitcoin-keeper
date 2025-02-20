@@ -121,6 +121,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: '4.5%',
   },
   contentContainer: {
-    flexDirection: 'row',
+    flex: 1,
   },
 });

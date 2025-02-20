@@ -62,6 +62,11 @@ import KeyWarningIllustration from 'src/assets/images/reserve-key-illustration-l
 import WalletHeader from 'src/components/WalletHeader';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import DashedCta from 'src/components/DashedCta';
+import Plus from 'src/assets/images/add-plus-white.svg';
+
+import Colors from 'src/theme/Colors';
+import SignerCategoryList from './SignerCategoryList';
 
 const MINISCRIPT_SIGNERS = [
   SignerType.MY_KEEPER,
@@ -945,6 +950,7 @@ function Signers({
 
   const isDarkMode = colorMode === 'dark';
   const signer: Signer = keyToRotate ? signerMap[getKeyUID(keyToRotate)] : null;
+  const [showOpenSignerModal, setShowOpenSignerModal] = useState(false);
 
   return (
     <Box style={styles.signerContainer}>
@@ -964,23 +970,6 @@ function Signers({
                 ? 'Select a key for your wallet'
                 : `Select ${scheme.n} keys for your wallet`}
             </Text>
-            {!isCollaborativeFlow && (
-              <Box style={styles.addKeyBtnWrapper}>
-                <AddKeyButton
-                  short
-                  onPress={() =>
-                    navigation.dispatch(
-                      CommonActions.navigate('SignerCategoryList', {
-                        scheme,
-                        vaultId,
-                        vaultType,
-                        vaultSigners: vaultKeys,
-                      })
-                    )
-                  }
-                />
-              </Box>
-            )}
           </Box>
           {signers.length ? (
             <Box>
@@ -989,9 +978,33 @@ function Signers({
                   <>
                     {renderSigners(signerFilters)}
                     {signerFilters.length <= 0 && renderAssistedKeysShell()}
+                    <DashedCta
+                      backgroundColor={`${colorMode}.DashedButtonCta`}
+                      hexagonBackgroundColor={Colors.pantoneGreen}
+                      textColor={`${colorMode}.greenWhiteText`}
+                      name={'Add Key'}
+                      callback={() => setShowOpenSignerModal(true)}
+                      icon={<Plus width={12.9} height={12.9} />}
+                      iconWidth={33}
+                      iconHeight={30}
+                      customStyle={styles.DashedButton}
+                    />
                   </>
                 ) : isReserveKeyFlow ? (
-                  <>{renderReservedKeys()}</>
+                  <>
+                    {renderReservedKeys()}
+                    <DashedCta
+                      backgroundColor={`${colorMode}.DashedButtonCta`}
+                      hexagonBackgroundColor={Colors.pantoneGreen}
+                      textColor={`${colorMode}.greenWhiteText`}
+                      name={'Add Key'}
+                      callback={() => setShowOpenSignerModal(true)}
+                      icon={<Plus width={12.9} height={12.9} />}
+                      iconWidth={33}
+                      iconHeight={30}
+                      customStyle={styles.DashedButton}
+                    />
+                  </>
                 ) : signers.filter(
                     (signer) => signer.type === SignerType.KEEPER && !signer.archived
                   ).length ? (
@@ -1004,6 +1017,29 @@ function Signers({
           ) : (
             <EmptyListIllustration listType="keys" />
           )}
+          <KeeperModal
+            close={() => setShowOpenSignerModal(false)}
+            visible={showOpenSignerModal}
+            title={'Add a signer key'}
+            subTitle={'For one of the Keys'}
+            modalBackground={`${colorMode}.modalWhiteBackground`}
+            buttonTextColor={`${colorMode}.buttonText`}
+            buttonBackground={`${colorMode}.greenButtonBackground`}
+            textColor={`${colorMode}.modalHeaderTitle`}
+            subTitleColor={`${colorMode}.modalSubtitleBlack`}
+            subTitleWidth={wp(280)}
+            showCloseIcon={true}
+            Content={() => (
+              <SignerCategoryList
+                scheme={scheme}
+                vaultId={vaultId}
+                vaultType={vaultType}
+                vaultSigners={vaultKeys}
+                navigation={navigation}
+                setShowOpenSignerModal={setShowOpenSignerModal}
+              />
+            )}
+          />
 
           <HardwareModalMap
             visible={visible}
@@ -1635,6 +1671,18 @@ const styles = StyleSheet.create({
   },
   modalButtonContainer: {
     marginTop: hp(40),
+  },
+  DashedButton: {
+    width: wp(162),
+    height: wp(132),
+    borderRadius: 10,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginLeft: 4,
+    marginTop: 4,
   },
 });
 
