@@ -17,6 +17,7 @@ import usePlan from 'src/hooks/usePlan';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
 import TrezorDevices from './TrezorDevices';
+import CoinkiteDevices from './CoinkiteDevices';
 
 const HardwareDevices = () => {
   const { isOnL1 } = usePlan();
@@ -24,8 +25,13 @@ const HardwareDevices = () => {
   const { common, wallet } = translations;
   const { colorMode } = useColorMode();
   const [isOpen, setIsOpen] = useState(false);
+  const [coinkiteOpen, setCoinkiteOpen] = useState(false);
   const handlePress = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleCoinkitePress = () => {
+    setCoinkiteOpen(!coinkiteOpen);
   };
 
   const data = [
@@ -35,9 +41,9 @@ const HardwareDevices = () => {
       image: <BitBox />,
       flagIcon: <FlagSwizerland />,
       country: wallet.hardwareBitBoxCountry,
-      subscribeText: wallet.hardwareSubscribeText,
-      unSubscribeText: wallet.hardwareUnsubscribeText,
       link: 'https://shop.bitbox.swiss/?ref=bjhikjbf',
+      subscribeText: '',
+      unSubscribeText: '',
     },
     {
       id: 2,
@@ -45,7 +51,11 @@ const HardwareDevices = () => {
       image: <ColdCard />,
       flagIcon: <FlagCanada />,
       country: wallet.hardwareColdcardCountry,
-      link: 'https://store.coinkite.com/promo/BITCOINKEEPER',
+      subscribeText: wallet.hardwareSubscribeText,
+      unSubscribeText: wallet.hardwareUnsubscribeText,
+      ...(isOnL1
+        ? { link: 'https://store.coinkite.com/' }
+        : { onPress: () => handleCoinkitePress() }),
     },
     {
       id: 3,
@@ -54,6 +64,8 @@ const HardwareDevices = () => {
       flagIcon: <FlagUSA />,
       country: wallet.hardwareFoundationCountry,
       link: 'https://foundation.xyz/keeper',
+      subscribeText: '',
+      unSubscribeText: '',
     },
     {
       id: 4,
@@ -62,6 +74,8 @@ const HardwareDevices = () => {
       flagIcon: <FlagFrance />,
       country: wallet.hardwareLedgerCountry,
       link: 'https://shop.ledger.com/?r=6df8a00ac94d',
+      subscribeText: '',
+      unSubscribeText: '',
     },
     {
       id: 5,
@@ -70,6 +84,8 @@ const HardwareDevices = () => {
       flagIcon: <FlagRepublic />,
       country: wallet.hardwareTrezorCountry,
       onPress: () => handlePress(),
+      subscribeText: '',
+      unSubscribeText: '',
     },
   ];
   return (
@@ -101,6 +117,17 @@ const HardwareDevices = () => {
         textColor={`${colorMode}.modalHeaderTitle`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => <TrezorDevices wallet={wallet} />}
+      />
+      <KeeperModal
+        visible={coinkiteOpen}
+        title={wallet.hardwareColdcard}
+        subTitle={wallet.TrezorModalSub}
+        close={() => setCoinkiteOpen(false)}
+        showCloseIcon
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => <CoinkiteDevices wallet={wallet} />}
       />
     </Box>
   );
