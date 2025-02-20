@@ -153,6 +153,7 @@ import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
 import NotificationsCenter from 'src/screens/Home/Notifications/NotificationsCenter';
 import SettingsApp from 'src/screens/Home/components/Settings/AppSettings';
 import InheritanceDocumentScreen from 'src/screens/Home/components/Settings/InheritanceDocumentScreen';
+import PurchaseWithChannel from 'src/screens/QRScreens/PurchaseWithChannel';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -337,6 +338,7 @@ function AppStack() {
         <Stack.Screen name="ImportContactFile" component={ImportContactFile} />
         <Stack.Screen name="ContactDetails" component={ContactDetails} />
         <Stack.Screen name="ShareQR" component={ShareQR} />
+        <Stack.Screen name="PurchaseWithChannel" component={PurchaseWithChannel} />
       </Stack.Navigator>
     </RealmProvider>
   );
