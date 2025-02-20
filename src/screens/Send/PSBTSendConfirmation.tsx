@@ -118,17 +118,20 @@ function PSBTSendConfirmation({ route }) {
             unitFontSize={12}
             unitFontWeight={200}
           />
-          <AmountDetails
-            title={walletTranslations.feeRate}
-            titleFontSize={16}
-            titleFontWeight={300}
-            amount={feeRate}
-            amountFontSize={16}
-            amountFontWeight={200}
-            unitFontSize={12}
-            unitFontWeight={200}
-            customUnit="sats/vbyte"
-          />
+          {/* TODO: Need to suppot fee rate estimation for Miniscript */}
+          {feeRate && feeRate !== 'NaN' && (
+            <AmountDetails
+              title={walletTranslations.feeRate}
+              titleFontSize={16}
+              titleFontWeight={300}
+              amount={feeRate}
+              amountFontSize={16}
+              amountFontWeight={200}
+              unitFontSize={12}
+              unitFontWeight={200}
+              customUnit="sats/vbyte"
+            />
+          )}
           <AmountDetails
             title={walletTranslations.networkFee}
             titleFontSize={16}
