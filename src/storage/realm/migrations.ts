@@ -404,4 +404,10 @@ export const runRealmMigrations = ({
       // Migration should continue even if this part fails
     }
   }
+
+  // Add missing isDesktopPurchase field
+  if (oldRealm.schemaVersion < 87) {
+    const newSubs = newRealm.objects(RealmSchema.StoreSubscription) as any;
+    newSubs['isDesktopPurchase'] = false;
+  }
 };
