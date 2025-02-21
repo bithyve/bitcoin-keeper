@@ -204,7 +204,7 @@ export const signTransactionWithPortal = async ({
     const signedRes = await PORTAL.signPSBT(psbt);
     // Check if psbt and signed psbt are same, if yes then vault registration is required.
     if (psbt == signedRes) {
-      throw { message: 'Please register the vault before signing.' };
+      throw new Error('Please register the vault before signing.');
     }
     await PORTAL.stopReading();
     return { signedSerializedPSBT: signedRes };
