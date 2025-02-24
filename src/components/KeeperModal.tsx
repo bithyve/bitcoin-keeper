@@ -155,7 +155,7 @@ function KeeperModal(props: ModalProps) {
             }
             style={styles.container}
           >
-            <Box style={styles.header}>
+            <Box>
               {showCloseIcon ? (
                 <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
                   {getCloseIcon()}
@@ -284,10 +284,6 @@ const getStyles = (subTitleWidth) =>
       fontSize: 14,
       lineHeight: 20,
       width: subTitleWidth,
-    },
-    header: {
-      paddingBottom: hp(-10),
-      marginBottom: hp(-10),
     },
     secCta: {
       color: '#073E39',

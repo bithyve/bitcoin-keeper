@@ -18,7 +18,7 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
+import SeedSignerSetup from 'src/assets/images/seedsigner-setup-horizontal.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import { SignerType, SigningMode } from 'src/services/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
