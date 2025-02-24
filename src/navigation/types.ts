@@ -172,6 +172,7 @@ export type AppStackParams = {
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
   AddReserveKey: undefined;
+  AddEmergencyKey: undefined;
   ResetInheritanceKey: undefined;
   KeeperConcierge: undefined;
   TechnicalSupport: {

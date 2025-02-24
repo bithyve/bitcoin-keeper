@@ -49,9 +49,11 @@ function deriveKeyUsageCount(
   const keyUsageCounts: Record<string, number> = {};
 
   for (const currentIdentifier in signerFingerprints) {
+    const fingerprint = signerFingerprints[currentIdentifier];
+
     for (const identifier in existingSignerFingerprints) {
-      if (existingSignerFingerprints[identifier] === signerFingerprints[currentIdentifier]) {
-        const previousIdentifier = identifier; // how the signer was identified in the previous scheme
+      if (existingSignerFingerprints[identifier] === fingerprint) {
+        const previousIdentifier = identifier;
 
         for (const key in existingKeyInfoMap) {
           const [parsedKey, multipath] = key.split('<');
@@ -63,10 +65,10 @@ function deriveKeyUsageCount(
             // update the keyUsageCounts with the largest count(derived using externalIndex) for each parsedKey equivalent to the previousIdentifier
             const usageCount = externalIndex / 2 + 1;
             if (
-              keyUsageCounts[currentIdentifier] === undefined ||
-              usageCount > keyUsageCounts[currentIdentifier]
+              keyUsageCounts[fingerprint] === undefined ||
+              usageCount > keyUsageCounts[fingerprint]
             ) {
-              keyUsageCounts[currentIdentifier] = usageCount;
+              keyUsageCounts[fingerprint] = usageCount;
             }
           }
         }
@@ -84,8 +86,9 @@ function generateUniqueKeyIdentifier(
   keyUsageCounts: Record<string, number>,
   keyInfoMap: KeyInfoMap
 ): string {
-  keyUsageCounts[key.identifier] = (keyUsageCounts[key.identifier] || 0) + 1;
-  const externalIndex = (keyUsageCounts[key.identifier] - 1) * 2;
+  const fingerprint = key.descriptor.substring(1, 9);
+  keyUsageCounts[fingerprint] = (keyUsageCounts[fingerprint] || 0) + 1;
+  const externalIndex = (keyUsageCounts[fingerprint] - 1) * 2;
   const changeIndex = externalIndex + 1;
   const suffix = `${externalIndex};${changeIndex}`;
   const uniqueIdentifier = `${key.identifier}<${suffix}>`;

@@ -220,10 +220,8 @@ function ResetInheritanceKey({ route }) {
         setGeneratedVaultId={setGeneratedVaultId}
         setCreating={setCreating}
         vaultType={vault.type}
-        inheritanceKey={inheritanceSigner}
-        isAddInheritanceKey={true}
+        inheritanceKeys={[{ key: inheritanceSigner, duration: selectedOption?.label }]}
         currentBlockHeight={currentBlockHeight}
-        selectedDuration={selectedOption?.label}
         miniscriptTypes={vault.scheme.miniscriptScheme.usedMiniscriptTypes}
       />
     </ScreenWrapper>

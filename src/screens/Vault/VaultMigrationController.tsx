@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   MiniscriptTypes,
   MultisigScriptType,
@@ -32,23 +32,30 @@ import {
   generateMiniscriptScheme,
   generateVaultId,
 } from 'src/services/wallets/factories/VaultFactory';
-import { Alert } from 'react-native';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
-import {
-  TIMELOCKED_VAULT_TIMELOCKS_MAINNET,
-  TIMELOCKED_VAULT_TIMELOCKS_TESTNET,
-  generateTimelockedVaultElements,
-} from 'src/services/wallets/operations/miniscript/default/TimelockedVault';
 import config from 'src/utils/service-utilities/config';
 import {
-  generateInheritanceVaultElements,
-  INHERITANCE_VAULT_TIMELOCKS_MAINNET,
-  INHERITANCE_VAULT_TIMELOCKS_TESTNET,
-} from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
-import { MONTHS_12, MONTHS_3, MONTHS_6, MONTHS_18, MONTHS_24 } from './constants';
+  MONTHS_12,
+  MONTHS_3,
+  MONTHS_6,
+  MONTHS_18,
+  MONTHS_24,
+  MONTHS_30,
+  MONTHS_36,
+  MONTHS_42,
+  MONTHS_48,
+  MONTHS_54,
+  MONTHS_60,
+} from './constants';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
+import {
+  ENHANCED_VAULT_TIMELOCKS_MAINNET,
+  ENHANCED_VAULT_TIMELOCKS_TESTNET,
+  generateEnhancedVaultElements,
+} from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import { getKeyUID } from 'src/utils/utilities';
 
 function VaultMigrationController({
   vaultCreating,
@@ -60,11 +67,9 @@ function VaultMigrationController({
   setCreating,
   setGeneratedVaultId,
   vaultType = VaultType.DEFAULT,
-  isTimeLock = false,
-  inheritanceKey = null,
-  isAddInheritanceKey = false,
+  inheritanceKeys = [],
+  emergencyKeys = [],
   currentBlockHeight = null,
-  selectedDuration = null,
   miniscriptTypes = [],
 }) {
   const navigation = useNavigation();
@@ -207,7 +212,7 @@ function VaultMigrationController({
     }
   };
 
-  const getTimelockDuration = (miniscriptTypes, selectedDuration, networkType) => {
+  const getTimelockDuration = (selectedDuration, networkType) => {
     const durationIdentifier =
       selectedDuration === MONTHS_3
         ? 'MONTHS_3'
@@ -219,6 +224,18 @@ function VaultMigrationController({
         ? 'MONTHS_18'
         : selectedDuration === MONTHS_24
         ? 'MONTHS_24'
+        : selectedDuration === MONTHS_30
+        ? 'MONTHS_30'
+        : selectedDuration === MONTHS_36
+        ? 'MONTHS_36'
+        : selectedDuration === MONTHS_42
+        ? 'MONTHS_42'
+        : selectedDuration === MONTHS_48
+        ? 'MONTHS_48'
+        : selectedDuration === MONTHS_54
+        ? 'MONTHS_54'
+        : selectedDuration === MONTHS_60
+        ? 'MONTHS_60'
         : null;
 
     if (!durationIdentifier) {
@@ -226,32 +243,27 @@ function VaultMigrationController({
       return;
     }
 
-    if (miniscriptTypes.includes(MiniscriptTypes.INHERITANCE)) {
-      return networkType === NetworkType.MAINNET
-        ? INHERITANCE_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
-        : INHERITANCE_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
-    } else if (miniscriptTypes.includes(MiniscriptTypes.TIMELOCKED)) {
-      return networkType === NetworkType.MAINNET
-        ? TIMELOCKED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
-        : TIMELOCKED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
-    }
+    return networkType === NetworkType.MAINNET
+      ? ENHANCED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
+      : ENHANCED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
   };
 
   const prepareMiniscriptScheme = async (
     vaultInfo: NewVaultInfo,
     miniscriptTypes: MiniscriptTypes[],
-    inheritanceSigner?: VaultSigner,
+    inheritanceSigners?: { key: VaultSigner; duration: string }[],
+    emergencySigners?: { key: VaultSigner; duration: string }[],
     existingMiniscriptScheme?: MiniscriptScheme
   ) => {
     if (
       vaultInfo.vaultType !== VaultType.MINISCRIPT ||
       !(
         miniscriptTypes.includes(MiniscriptTypes.INHERITANCE) ||
-        miniscriptTypes.includes(MiniscriptTypes.TIMELOCKED)
+        miniscriptTypes.includes(MiniscriptTypes.EMERGENCY)
       )
     ) {
       showToast(
-        'Invalid vault type - supported only for timelocked and inheritance',
+        'Invalid vault type - supported only for inheritance and emergency',
         <ToastErrorIcon />
       );
       return;
@@ -285,39 +297,40 @@ function VaultMigrationController({
       }
     }
 
-    if (!selectedDuration) {
-      showToast('Please select the duration for timelock', <ToastErrorIcon />);
-      return;
+    const inheritanceSignerWithTimelocks = [];
+    const emergencySignerWithTimelocks = [];
+
+    if (inheritanceSigners?.length) {
+      for (const { key, duration } of inheritanceSigners) {
+        const timelock = getTimelockDuration(duration, config.NETWORK_TYPE);
+        if (!timelock) {
+          showToast('Failed to determine inheritance timelock duration', <ToastErrorIcon />);
+          return;
+        }
+        inheritanceSignerWithTimelocks.push({
+          signer: key,
+          timelock: currentBlockHeight + timelock,
+        });
+      }
     }
 
-    // TODO: Support multiple options
-    const timelockDuration = getTimelockDuration(
-      miniscriptTypes,
-      selectedDuration,
-      config.NETWORK_TYPE
+    if (emergencySigners?.length) {
+      for (const { key, duration } of emergencySigners) {
+        const timelock = getTimelockDuration(duration, config.NETWORK_TYPE);
+        if (!timelock) {
+          showToast('Failed to determine emergency timelock duration', <ToastErrorIcon />);
+          return;
+        }
+        emergencySignerWithTimelocks.push({ signer: key, timelock: currentBlockHeight + timelock });
+      }
+    }
+
+    let miniscriptElements: MiniscriptElements = generateEnhancedVaultElements(
+      vaultInfo.vaultSigners,
+      inheritanceSignerWithTimelocks,
+      emergencySignerWithTimelocks,
+      vaultInfo.vaultScheme
     );
-    if (!timelockDuration) {
-      showToast('Failed to determine timelock duration', <ToastErrorIcon />);
-      return;
-    }
-
-    const timelocks = [currentBlockHeight + timelockDuration];
-
-    let miniscriptElements: MiniscriptElements;
-    if (miniscriptTypes.includes(MiniscriptTypes.TIMELOCKED)) {
-      miniscriptElements = generateTimelockedVaultElements(
-        vaultInfo.vaultSigners,
-        vaultInfo.vaultScheme,
-        timelocks
-      );
-    } else if (miniscriptTypes.includes(MiniscriptTypes.INHERITANCE)) {
-      miniscriptElements = generateInheritanceVaultElements(
-        vaultInfo.vaultSigners,
-        inheritanceSigner,
-        vaultInfo.vaultScheme,
-        timelocks
-      );
-    }
 
     if (!miniscriptElements) {
       showToast('Failed to generate miniscript elements', <ToastErrorIcon />);
@@ -338,7 +351,21 @@ function VaultMigrationController({
     vaultInfo.vaultScheme = vaultScheme;
 
     if (miniscriptTypes.includes(MiniscriptTypes.INHERITANCE)) {
-      vaultInfo.vaultSigners = [...vaultInfo.vaultSigners, inheritanceSigner];
+      vaultInfo.vaultSigners = [
+        ...vaultInfo.vaultSigners,
+        ...inheritanceSignerWithTimelocks.map(({ signer }) => signer),
+      ];
+    }
+
+    if (miniscriptTypes.includes(MiniscriptTypes.EMERGENCY)) {
+      vaultInfo.vaultSigners = [
+        ...vaultInfo.vaultSigners,
+        ...emergencySignerWithTimelocks
+          .map(({ signer }) => signer)
+          .filter(
+            (signer) => !vaultInfo.vaultSigners.find((vs) => getKeyUID(vs) === getKeyUID(signer))
+          ),
+      ];
     }
 
     return vaultInfo;
@@ -357,13 +384,13 @@ function VaultMigrationController({
         miniscriptTypes,
       };
 
-      const isTimelockedInheritanceKey = isAddInheritanceKey;
-      if (isTimeLock || isTimelockedInheritanceKey) {
+      if (vaultType === VaultType.MINISCRIPT) {
         try {
           vaultInfo = await prepareMiniscriptScheme(
             vaultInfo,
             miniscriptTypes,
-            inheritanceKey,
+            inheritanceKeys,
+            emergencyKeys,
             activeVault ? activeVault.scheme.miniscriptScheme : null
           );
         } catch (err) {
@@ -396,19 +423,21 @@ function VaultMigrationController({
 
   return (
     <>
-      <MiniscriptPathSelector
-        ref={miniscriptPathSelectorRef}
-        vault={activeVault}
-        onPathSelected={(satisfier) => {
-          setMiniscriptSelectedSatisfier(satisfier);
-          const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
-          const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
-          const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
-          proceedWithSweep(receivingAddress, feePerByte, satisfier);
-        }}
-        onError={(err) => showToast(err, <ToastErrorIcon />)}
-        onCancel={() => setCreating(false)}
-      />
+      {activeVault && (
+        <MiniscriptPathSelector
+          ref={miniscriptPathSelectorRef}
+          vault={activeVault}
+          onPathSelected={(satisfier) => {
+            setMiniscriptSelectedSatisfier(satisfier);
+            const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
+            const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
+            const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+            proceedWithSweep(receivingAddress, feePerByte, satisfier);
+          }}
+          onError={(err) => showToast(err, <ToastErrorIcon />)}
+          onCancel={() => setCreating(false)}
+        />
+      )}
     </>
   );
 }

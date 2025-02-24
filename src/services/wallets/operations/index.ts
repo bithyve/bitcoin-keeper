@@ -135,7 +135,7 @@ const updateInputsForFeeCalculation = (
               scriptSize += 1; // just the opcode byte
             } else if (op.startsWith('<HASH160')) {
               scriptSize += 21; // push(1) + hash160(20)
-            } else if (op.startsWith('<K') || op.startsWith('<IK')) {
+            } else if (op.startsWith('<K') || op.startsWith('<IK') || op.startsWith('<EK')) {
               scriptSize += 34; // push(1) + pubkey(33)
             } else if (
               op.startsWith('<') &&

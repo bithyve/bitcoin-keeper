@@ -108,9 +108,18 @@ function ConfirmWalletDetails({ route }) {
 
   const { signers } = useSigners();
 
-  const inheritanceSigner = route.params.reservedKey
-    ? signers.find((s) => getKeyUID(s) === getKeyUID(route.params.reservedKey))
-    : undefined;
+  // TODO: Update to be an array
+  const inheritanceSigners = route.params.reservedKeys
+    ? route.params.reservedKeys.map((reserveKey) =>
+        signers.find((s) => getKeyUID(s) === getKeyUID(reserveKey.key))
+      )
+    : [];
+
+  const emergencySigners = route.params.emergencyKeys
+    ? route.params.emergencyKeys.map((emergencyKey) =>
+        signers.find((s) => getKeyUID(s) === getKeyUID(emergencyKey.key))
+      )
+    : [];
 
   const createNewHotWallet = useCallback(() => {
     // Note: only caters to new wallets(imported wallets currently have a different flow)
@@ -412,12 +421,17 @@ function ConfirmWalletDetails({ route }) {
         <Box flexDirection={'row'}>
           <Text fontSize={14} medium style={{ flex: 1 }}>
             Your wallet key
-            {route.params.selectedSigners.length > 1 || route.params.isAddInheritanceKey ? 's' : ''}
+            {route.params.selectedSigners.length > 1 || vaultType === VaultType.MINISCRIPT
+              ? 's'
+              : ''}
           </Text>
           <Pressable
             style={styles.editKeysContainer}
             onPress={() => {
               if (route.params.isAddInheritanceKey) {
+                navigation.goBack();
+              }
+              if (route.params.isAddEmercencyKey) {
                 navigation.goBack();
               }
               navigation.goBack();
@@ -452,7 +466,7 @@ function ConfirmWalletDetails({ route }) {
                 />
               );
             })}
-            {inheritanceSigner && (
+            {inheritanceSigners.map((inheritanceSigner) => (
               <SignerCard
                 key={getKeyUID(inheritanceSigner)}
                 name={getSignerNameFromType(
@@ -469,7 +483,21 @@ function ConfirmWalletDetails({ route }) {
                 colorMode={colorMode}
                 badgeText="Inheritance Key"
               />
-            )}
+            ))}
+            {emergencySigners.map((emergencySigner) => (
+              <SignerCard
+                key={getKeyUID(emergencySigner)}
+                name={getSignerNameFromType(emergencySigner.type, emergencySigner.isMock, false)}
+                description={getSignerDescription(emergencySigner)}
+                icon={SDIcons(emergencySigner.type).Icon}
+                image={emergencySigner?.extraData?.thumbnailPath}
+                showSelection={false}
+                isFullText
+                colorVarient="green"
+                colorMode={colorMode}
+                badgeText="Emergency Key"
+              />
+            ))}
           </Box>
         </ScrollView>
       </ScrollView>
@@ -499,11 +527,13 @@ function ConfirmWalletDetails({ route }) {
         setGeneratedVaultId={setGeneratedVaultId}
         setCreating={setCreating}
         vaultType={vaultType}
-        inheritanceKey={route.params.reservedKey ?? null}
-        isAddInheritanceKey={route.params.isAddInheritanceKey}
+        inheritanceKeys={route.params.reservedKeys ?? []}
+        emergencyKeys={route.params.emergencyKeys ?? []}
         currentBlockHeight={route.params.currentBlockHeight}
-        selectedDuration={route.params.selectedDuration}
-        miniscriptTypes={route.params.isAddInheritanceKey ? [MiniscriptTypes.INHERITANCE] : []}
+        miniscriptTypes={[
+          ...(route.params.isAddInheritanceKey ? [MiniscriptTypes.INHERITANCE] : []),
+          ...(route.params.isAddEmergencyKey ? [MiniscriptTypes.EMERGENCY] : []),
+        ]}
       />
       <KeeperModal
         visible={showDescriptionModal}

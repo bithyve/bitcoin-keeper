@@ -44,7 +44,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { SETUPCOLLABORATIVEWALLET, ADDRESERVEKEY } from 'src/navigation/contants';
+import { SETUPCOLLABORATIVEWALLET, ADDRESERVEKEY, ADDEMERGENCYKEY } from 'src/navigation/contants';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import KeyAddedModal from 'src/components/KeyAddedModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -61,7 +61,10 @@ import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-il
 import KeyWarningIllustration from 'src/assets/images/reserve-key-illustration-light.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
-import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import {
+  EMERGENCY_KEY_IDENTIFIER,
+  INHERITANCE_KEY_IDENTIFIER,
+} from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
 const MINISCRIPT_SIGNERS = [
   SignerType.MY_KEEPER,
@@ -117,11 +120,10 @@ const onSignerSelect = (
       setHotWalletInstanceNum(null);
     }
   } else {
-    const maxKeys = scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
-      MiniscriptTypes.INHERITANCE
-    )
-      ? scheme.n + 1
-      : scheme.n;
+    const maxKeys =
+      scheme?.miniscriptScheme?.usedMiniscriptTypes?.length > 0
+        ? Object.keys(scheme?.miniscriptScheme?.keyInfoMap || {}).length
+        : scheme.n;
 
     if (selectedSigners.size >= maxKeys) {
       showToast('You have already selected the total keys', null, IToastCategory.DEFAULT, 1700);
@@ -161,10 +163,11 @@ const getVaultType = ({
   isAssistedWallet,
   isTimeLock,
   isInheritance,
+  isEmergency,
   scheme,
 }) => {
   if (activeVault) return activeVault.type;
-  if (isInheritance || isTimeLock || isAssistedWallet) return VaultType.MINISCRIPT;
+  if (isInheritance || isEmergency || isTimeLock || isAssistedWallet) return VaultType.MINISCRIPT;
   if (isCollaborativeWallet) return VaultType.COLLABORATIVE;
   if (isSSAddition || scheme.n === 1) return VaultType.SINGE_SIG;
   return VaultType.DEFAULT;
@@ -354,7 +357,9 @@ function Footer({
   isTimeLock,
   setTimelockCautionModal,
   isReserveKeyFlow,
+  isEmergencyKeyFlow,
   isAddInheritanceKey,
+  isAddEmergencyKey,
   currentBlockHeight,
   vaultKeys,
   onGoBack,
@@ -406,7 +411,7 @@ function Footer({
 
   const isProceedDisabled =
     (isCollaborativeFlow || isAssistedWalletFlow) && selectedSigners.size === 0;
-  const isConfirmDisabled = isReserveKeyFlow && selectedSigners.size === 0;
+  const isConfirmDisabled = (isReserveKeyFlow || isEmergencyKeyFlow) && selectedSigners.size === 0;
   const signersList = Array.from(selectedSigners.keys()).map((id) =>
     signers.find((s) => getKeyUID(s) === id)
   );
@@ -414,45 +419,90 @@ function Footer({
   return (
     <Box style={styles.bottomContainer}>
       {!(isCollaborativeFlow || isAssistedWalletFlow) && renderNotes()}
-      {!(isCollaborativeFlow || isAssistedWalletFlow) && !isReserveKeyFlow ? (
+      {!(isCollaborativeFlow || isAssistedWalletFlow) &&
+      !isReserveKeyFlow &&
+      !isEmergencyKeyFlow ? (
         <Buttons
           primaryDisable={!areSignersValid && !isHotWallet}
           primaryLoading={relayVaultUpdateLoading}
           primaryText={keyToRotate ? 'Replace Key' : common.proceed}
           primaryCallback={
             !isAddInheritanceKey
-              ? keyToRotate
-                ? () => {
-                    setCreating(true);
-                  }
-                : () => {
-                    navigation.navigate('ConfirmWalletDetails', {
-                      vaultKeys,
-                      scheme,
-                      isHotWallet,
-                      vaultType,
-                      isTimeLock,
-                      isAddInheritanceKey,
-                      currentBlockHeight,
-                      hotWalletInstanceNum,
-                      selectedSigners: signersList,
-                      vaultId,
-                    });
-                  }
+              ? !isAddEmergencyKey
+                ? keyToRotate
+                  ? () => {
+                      setCreating(true);
+                    }
+                  : () => {
+                      navigation.navigate('ConfirmWalletDetails', {
+                        vaultKeys,
+                        scheme,
+                        isHotWallet,
+                        vaultType,
+                        isTimeLock,
+                        isAddInheritanceKey,
+                        currentBlockHeight,
+                        hotWalletInstanceNum,
+                        selectedSigners: signersList,
+                        vaultId,
+                      });
+                    }
+                : () =>
+                    navigation.dispatch(
+                      CommonActions.navigate('AddEmergencyKey', {
+                        vaultKeys: vaultKeys.filter(
+                          (signer) =>
+                            !Object.keys(
+                              activeVault?.scheme?.miniscriptScheme?.miniscriptElements
+                                ?.signerFingerprints || {}
+                            )
+                              .filter((key) => key.startsWith(EMERGENCY_KEY_IDENTIFIER))
+                              .some((key) => {
+                                const fingerprint =
+                                  activeVault?.scheme?.miniscriptScheme?.miniscriptElements
+                                    ?.signerFingerprints[key];
+                                const fingerprintCount = Object.values(
+                                  activeVault?.scheme?.miniscriptScheme?.miniscriptElements
+                                    ?.signerFingerprints || {}
+                                ).filter((fp) => fp === fingerprint).length;
+                                return (
+                                  signer.masterFingerprint === fingerprint && fingerprintCount === 1
+                                );
+                              })
+                        ),
+                        vaultId,
+                        scheme,
+                        name,
+                        description,
+                        isAddInheritanceKey,
+                        isAddEmergencyKey,
+                        currentBlockHeight,
+                        selectedSigners: signersList,
+                      })
+                    )
               : () =>
                   navigation.dispatch(
                     CommonActions.navigate('AddReserveKey', {
                       vaultKeys: vaultKeys.filter(
                         (signer) =>
-                          signer.masterFingerprint !==
-                          activeVault?.scheme?.miniscriptScheme?.miniscriptElements
-                            ?.signerFingerprints[INHERITANCE_KEY1_IDENTIFIER]
+                          !Object.keys(
+                            activeVault?.scheme?.miniscriptScheme?.miniscriptElements
+                              ?.signerFingerprints || {}
+                          )
+                            .filter((key) => key.startsWith(INHERITANCE_KEY_IDENTIFIER))
+                            .some(
+                              (key) =>
+                                signer.masterFingerprint ===
+                                activeVault?.scheme?.miniscriptScheme?.miniscriptElements
+                                  ?.signerFingerprints[key]
+                            )
                       ),
                       vaultId,
                       scheme,
                       name,
                       description,
                       isAddInheritanceKey,
+                      isAddEmergencyKey,
                       currentBlockHeight,
                       selectedSigners: signersList,
                     })
@@ -460,7 +510,7 @@ function Footer({
           }
           fullWidth
         />
-      ) : isReserveKeyFlow ? (
+      ) : isReserveKeyFlow || isEmergencyKeyFlow ? (
         <Buttons
           primaryDisable={isConfirmDisabled}
           primaryLoading={relayVaultUpdateLoading}
@@ -543,6 +593,7 @@ function Signers({
   isCollaborativeFlow,
   isAssistedWalletFlow,
   isReserveKeyFlow,
+  isEmergencyKeyFlow,
   signerFilters,
   coSigners,
   setExternalKeyAddedModal,
@@ -943,6 +994,83 @@ function Signers({
     setCreating,
   ]);
 
+  const renderEmergencyKeys = useCallback(() => {
+    const myAppKeys = getSelectedKeysByType(
+      selectedSignersFromParams,
+      signerMap,
+      SignerType.MY_KEEPER
+    );
+
+    const signerCards = signers
+      .filter((signer) => !signer.archived)
+      .map((signer) => {
+        const disabledMessage = getDisabledMessage(
+          signer,
+          myAppKeys,
+          selectedSigners,
+          scheme,
+          signerMap,
+          keyToRotate,
+          vaultType
+        );
+        const disabled = disabledMessage !== null;
+        return (
+          <SignerCard
+            showSelection={showSelection}
+            disabledWithTouch={disabled}
+            key={getKeyUID(signer)}
+            name={
+              !signer.isBIP85
+                ? getSignerNameFromType(signer.type, signer.isMock)
+                : `${getSignerNameFromType(signer.type, signer.isMock)} +`
+            }
+            description={getSignerDescription(signer)}
+            icon={SDIcons(signer.type).Icon}
+            image={signer?.extraData?.thumbnailPath}
+            isSelected={!!selectedSigners.get(getKeyUID(signer))}
+            onCardSelect={(selected) => {
+              handleSignerSelect(
+                selected,
+                signer,
+                disabledMessage,
+                vaultType,
+                setModalContent,
+                setShowSignerModal,
+                onSignerSelect,
+                {
+                  scheme,
+                  vaultKeys,
+                  setVaultKeys,
+                  selectedSigners,
+                  setSelectedSigners,
+                  setHotWalletSelected,
+                  setHotWalletInstanceNum,
+                  showToast,
+                }
+              );
+            }}
+            colorMode={colorMode}
+          />
+        );
+      });
+
+    return signerCards;
+  }, [
+    signers,
+    selectedSigners,
+    selectedSignersFromParams,
+    scheme,
+    signerMap,
+    vaultKeys,
+    keyToRotate,
+    showSelection,
+    colorMode,
+    setSelectedSigners,
+    setVaultKeys,
+    showToast,
+    setCreating,
+  ]);
+
   const isDarkMode = colorMode === 'dark';
   const signer: Signer = keyToRotate ? signerMap[getKeyUID(keyToRotate)] : null;
 
@@ -958,6 +1086,8 @@ function Signers({
                   })`
                 : isReserveKeyFlow
                 ? 'Select your Inheritance Key'
+                : isEmergencyKeyFlow
+                ? 'Select your Emergency Key'
                 : isCollaborativeFlow
                 ? 'Select keys'
                 : scheme.n == 1
@@ -985,13 +1115,15 @@ function Signers({
           {signers.length ? (
             <Box>
               <Box style={styles.addedSigners}>
-                {!isCollaborativeFlow && !isReserveKeyFlow ? (
+                {!isCollaborativeFlow && !isReserveKeyFlow && !isEmergencyKeyFlow ? (
                   <>
                     {renderSigners(signerFilters)}
                     {signerFilters.length <= 0 && renderAssistedKeysShell()}
                   </>
                 ) : isReserveKeyFlow ? (
                   <>{renderReservedKeys()}</>
+                ) : isEmergencyKeyFlow ? (
+                  <>{renderEmergencyKeys()}</>
                 ) : signers.filter(
                     (signer) => signer.type === SignerType.KEEPER && !signer.archived
                   ).length ? (
@@ -1004,18 +1136,6 @@ function Signers({
           ) : (
             <EmptyListIllustration listType="keys" />
           )}
-
-          <HardwareModalMap
-            visible={visible}
-            close={close}
-            type={SignerType.INHERITANCEKEY}
-            mode={InteracationMode.VAULT_ADDITION}
-            isMultisig={isMultisig}
-            primaryMnemonic={primaryMnemonic}
-            addSignerFlow={false}
-            vaultId={vaultId}
-            vaultSigners={vaultKeys}
-          />
           <HardwareModalMap
             visible={showSSModal}
             close={closeSSModal}
@@ -1089,6 +1209,7 @@ function AddSigningDevice() {
       currentBlockHeight?: number;
       selectedSignersFromParams?: Signer[];
       isAddInheritanceKey?: boolean;
+      isAddEmergencyKey?: boolean;
       isNewSchemeFlow?: boolean;
       signerFilters?: SignerType | Array<SignerType>;
     };
@@ -1108,6 +1229,7 @@ function AddSigningDevice() {
     selectedSignersFromParams,
     isTimeLock = false,
     isAddInheritanceKey: isAddInheritanceKeyParam = false,
+    isAddEmergencyKey: isAddEmergencyKeyParam = false,
     isNewSchemeFlow = false,
     currentBlockHeight,
     signerFilters = [],
@@ -1133,6 +1255,11 @@ function AddSigningDevice() {
         MiniscriptTypes.INHERITANCE
       )
     : isAddInheritanceKeyParam;
+  const isAddEmergencyKey = isNewSchemeFlow
+    ? isAddEmergencyKeyParam
+    : activeVault
+    ? activeVault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(MiniscriptTypes.EMERGENCY)
+    : isAddEmergencyKeyParam;
   const isCollaborativeWallet = activeVault?.type == VaultType.COLLABORATIVE;
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
   const isAssistedWallet = activeVault?.type == VaultType.ASSISTED;
@@ -1140,6 +1267,7 @@ function AddSigningDevice() {
   const [hotWalletInstanceNum, setHotWalletInstanceNum] = useState(false);
 
   const isReserveKeyFlow = parentScreen === ADDRESERVEKEY;
+  const isEmergencyKeyFlow = parentScreen === ADDEMERGENCYKEY;
   const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
   const [addedKey, setAddedKey] = useState(null);
 
@@ -1238,14 +1366,6 @@ function AddSigningDevice() {
       keyToRotate
     );
   }, []);
-
-  const subtitle = isSSAddition
-    ? 'Choose a single sig key to create a wallet'
-    : scheme.n > 1
-    ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
-        isInheritance ? ' for Inheritance' : ''
-      }`
-    : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
 
   function VaultCreatedModalContent(vault: Vault) {
     const tags = ['Vault', `${vault.scheme.m}-of-${vault.scheme.n}`];
@@ -1365,6 +1485,7 @@ function AddSigningDevice() {
     isAssistedWallet,
     isTimeLock,
     isInheritance: isAddInheritanceKey,
+    isEmergency: isAddEmergencyKey,
     scheme,
   });
 
@@ -1395,12 +1516,10 @@ function AddSigningDevice() {
           setGeneratedVaultId={setGeneratedVaultId}
           setCreating={setCreating}
           vaultType={vaultType}
-          isTimeLock={route.params.isTimeLock}
-          isAddInheritanceKey={isAddInheritanceKey}
           currentBlockHeight={currentBlockHeight}
           miniscriptTypes={[
             ...(isAddInheritanceKey ? [MiniscriptTypes.INHERITANCE] : []),
-            ...(route.params.isTimeLock ? [MiniscriptTypes.TIMELOCKED] : []),
+            ...(isAddEmergencyKey ? [MiniscriptTypes.EMERGENCY] : []),
           ]}
         />
         <Box flex={1}>
@@ -1421,6 +1540,7 @@ function AddSigningDevice() {
             setCreating={setCreating}
             isCollaborativeFlow={isCollaborativeFlow}
             isReserveKeyFlow={isReserveKeyFlow}
+            isEmergencyKeyFlow={isEmergencyKeyFlow}
             signerFilters={signerFilters}
             coSigners={coSigners}
             setExternalKeyAddedModal={setExternalKeyAddedModal}
@@ -1443,7 +1563,9 @@ function AddSigningDevice() {
           setCreating={setCreating}
           isCollaborativeFlow={isCollaborativeFlow}
           isReserveKeyFlow={isReserveKeyFlow}
+          isEmergencyKeyFlow={isEmergencyKeyFlow}
           isAddInheritanceKey={isAddInheritanceKey}
+          isAddEmergencyKey={isAddEmergencyKey}
           currentBlockHeight={currentBlockHeight}
           onGoBack={onGoBack}
           vaultKeys={vaultKeys}

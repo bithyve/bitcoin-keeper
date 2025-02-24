@@ -24,6 +24,8 @@ import { MiniscriptTypes } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -72,12 +74,21 @@ function AddNewWallet({ navigation, route }) {
       route.isAddInheritanceKeyFromParams ||
       false
   );
+
+  const [emergencyKeySelected, setEmergencyKeySelected] = useState(
+    activeVault?.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+      MiniscriptTypes.EMERGENCY
+    ) ||
+      route.isAddEmergencKeyFromParams ||
+      false
+  );
   const isDarkMode = colorMode === 'dark';
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+  const { showToast } = useToastMessage();
 
   useEffect(() => {
     // TODO: Add more as new options are added
-    const isMiniscriptEnabled = inheritanceKeySelected;
+    const isMiniscriptEnabled = inheritanceKeySelected || emergencyKeySelected;
     if (isMiniscriptEnabled && !currentBlockHeight) {
       WalletUtilities.fetchCurrentBlockHeight()
         .then(({ currentBlockHeight }) => {
@@ -85,7 +96,7 @@ function AddNewWallet({ navigation, route }) {
         })
         .catch((err) => console.log('Failed to fetch the current chain data:', err));
     }
-  }, [inheritanceKeySelected]);
+  }, [inheritanceKeySelected, emergencyKeySelected]);
 
   const CREATE_WALLET_OPTIONS = [
     {
@@ -204,6 +215,13 @@ function AddNewWallet({ navigation, route }) {
           primaryText="Proceed"
           primaryDisable={!selectedWalletType}
           primaryCallback={() => {
+            if (scheme.m === 1 && scheme.n === 1 && emergencyKeySelected) {
+              showToast(
+                'Single-key wallet cannot use Emergency Key, only Inheritance Key.',
+                <ToastErrorIcon />
+              );
+              return;
+            }
             navigation.dispatch(
               CommonActions.navigate({
                 name: 'AddSigningDevice',
@@ -212,6 +230,7 @@ function AddNewWallet({ navigation, route }) {
                   isTimeLock: false,
                   currentBlockHeight,
                   isAddInheritanceKey: inheritanceKeySelected,
+                  isAddEmergencyKey: emergencyKeySelected,
                   isNewSchemeFlow: true,
                   vaultId,
                 },
@@ -279,6 +298,8 @@ function AddNewWallet({ navigation, route }) {
         onClose={() => setShowEnhancedOptionsModal(false)}
         inheritanceKeySelected={inheritanceKeySelected}
         setInheritanceKeySelected={setInheritanceKeySelected}
+        emergencyKeySelected={emergencyKeySelected}
+        setEmergencyKeySelected={setEmergencyKeySelected}
         navigation={navigation}
       />
     </ScreenWrapper>
@@ -312,18 +333,23 @@ const EnhancedSecurityModal = ({
   onClose,
   inheritanceKeySelected,
   setInheritanceKeySelected,
+  emergencyKeySelected,
+  setEmergencyKeySelected,
   navigation,
 }) => {
   const { colorMode } = useColorMode();
   const [pendingInheritanceKeySelected, setPendingInheritanceKeySelected] =
     useState(inheritanceKeySelected);
+  const [pendingEmergencyKeySelected, setPendingEmergencyKeySelected] =
+    useState(emergencyKeySelected);
 
   // Reset pending state when modal opens
   useEffect(() => {
     if (isVisible) {
       setPendingInheritanceKeySelected(inheritanceKeySelected);
+      setPendingEmergencyKeySelected(emergencyKeySelected);
     }
-  }, [isVisible, inheritanceKeySelected]);
+  }, [isVisible, inheritanceKeySelected, emergencyKeySelected]);
 
   const { plan } = usePlan();
   const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
@@ -342,6 +368,7 @@ const EnhancedSecurityModal = ({
       buttonCallback={() => {
         onClose();
         setInheritanceKeySelected(pendingInheritanceKeySelected);
+        setEmergencyKeySelected(pendingEmergencyKeySelected);
       }}
       Content={() => {
         return (
@@ -398,7 +425,10 @@ const EnhancedSecurityModal = ({
               </Box>
             </Pressable>
 
-            <Pressable disabled={!isDiamondHand}>
+            <Pressable
+              disabled={!isDiamondHand}
+              onPress={() => setPendingEmergencyKeySelected(!pendingEmergencyKeySelected)}
+            >
               <Box
                 style={styles.optionBox}
                 backgroundColor={`${colorMode}.boxSecondaryBackground`}
@@ -413,16 +443,16 @@ const EnhancedSecurityModal = ({
                   >
                     Emergency Key
                   </Text>
-                  <Box
-                    style={styles.comingSoon}
-                    backgroundColor={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.brownBackground`
-                    }
-                  >
-                    <Text fontSize={10} color={`${colorMode}.labelText`} medium>
-                      Coming Soon
-                    </Text>
-                  </Box>
+                  {pendingEmergencyKeySelected ? (
+                    <Box style={styles.checkmark} backgroundColor={`${colorMode}.pantoneGreen`}>
+                      <CheckIcon height={12} width={12} />
+                    </Box>
+                  ) : (
+                    <Box
+                      style={[styles.checkmark, { opacity: 0.2 }]}
+                      backgroundColor={`${colorMode}.secondaryGrey`}
+                    ></Box>
+                  )}
                 </Box>
                 <Text
                   fontSize={12}
@@ -500,11 +530,6 @@ const styles = StyleSheet.create({
     padding: wp(10),
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  comingSoon: {
-    paddingHorizontal: wp(8),
-    paddingVertical: hp(4),
-    borderRadius: 20,
   },
   modalFooter: {
     padding: wp(15),

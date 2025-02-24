@@ -76,6 +76,10 @@ const useWalletAsset = () => {
             wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
               MiniscriptTypes.INHERITANCE
             ) && { tag: 'Inheritance Key', color: Colors.Aquamarine },
+            wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+              MiniscriptTypes.EMERGENCY
+              // TODO: Update tag color
+            ) && { tag: 'Emergency Key', color: Colors.Aquamarine },
             { tag: getSchemeTag(wallet as Vault), color: Colors.LightMossGreen },
           ].filter(Boolean);
         default:

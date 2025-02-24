@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo, useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
-import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { hp, wp } from 'src/constants/responsive';
@@ -13,18 +12,28 @@ import Text from 'src/components/KeeperText';
 import TimerOutlineLight from 'src/assets/images/timer-outline.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { StyleSheet } from 'react-native';
+import { getKeyTimelock } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
 function InheritanceKeySection({
   vault,
+  inheritanceKey,
+  inheritanceKeyMeta,
+  inheritanceKeyIdentifier,
   currentBlockHeight,
-  signerMap,
   handleCardSelect,
   setCurrentBlockHeight,
 }: {
   vault: Vault;
+  inheritanceKey: Signer;
+  inheritanceKeyMeta: VaultSigner;
+  inheritanceKeyIdentifier: string;
   currentBlockHeight: number | null;
-  signerMap: Record<string, Signer>;
-  handleCardSelect: (signer: Signer, item: VaultSigner, isInheritanceKey: boolean) => void;
+  handleCardSelect: (
+    signer: Signer,
+    item: VaultSigner,
+    isInheritanceKey: boolean,
+    isEmergencyKey?: boolean
+  ) => void;
   setCurrentBlockHeight: (blockHeight: number | null) => void;
 }) {
   const { colorMode } = useColorMode();
@@ -32,17 +41,6 @@ function InheritanceKeySection({
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
   const [currentTimeUntilActivation, setCurrentTimeUntilActivation] = useState('');
-  const inheritanceKeyMeta = useMemo(() => {
-    return vault?.signers?.find(
-      (signer) =>
-        signer.masterFingerprint ===
-        vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
-          INHERITANCE_KEY1_IDENTIFIER
-        ]
-    );
-  }, [vault]);
-
-  const inheritanceKey = inheritanceKeyMeta ? signerMap[getKeyUID(inheritanceKeyMeta)] : null;
 
   useEffect(() => {
     WalletUtilities.fetchCurrentBlockHeight()
@@ -53,11 +51,12 @@ function InheritanceKeySection({
   }, [setCurrentBlockHeight, showToast]);
 
   useEffect(() => {
-    if (!inheritanceKeyMeta || currentBlockHeight === null) return;
+    if (!inheritanceKey || currentBlockHeight === null) return;
 
     try {
       const blocksUntilActivation =
-        vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0] - currentBlockHeight;
+        getKeyTimelock(inheritanceKeyIdentifier, vault.scheme.miniscriptScheme.miniscriptElements) -
+        currentBlockHeight;
 
       if (blocksUntilActivation > 0) {
         const seconds = blocksUntilActivation * 10 * 60;
@@ -84,7 +83,7 @@ function InheritanceKeySection({
     } catch {
       showToast(vaultText.failedToCheckIKActivationTime, null, IToastCategory.DEFAULT, 3000, true);
     }
-  }, [currentBlockHeight, inheritanceKeyMeta, translations, vault, showToast]);
+  }, [currentBlockHeight, inheritanceKey, translations, vault, showToast]);
 
   if (!inheritanceKey) return null;
 
