@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -18,6 +17,8 @@ export interface Props {
   length?: number;
   height?: any;
   width?: any;
+  marginTop?: any;
+  marginBottom?: any;
 }
 function CVVInputsView({
   passCode,
@@ -27,6 +28,8 @@ function CVVInputsView({
   length = 6,
   height = wp('8%'),
   width = wp('8%'),
+  marginTop = hp('2%'),
+  marginBottom = hp('2.5%'),
 }: Props) {
   const [hide, setHide] = useState(false);
   const { colorMode } = useColorMode();
@@ -71,7 +74,7 @@ function CVVInputsView({
         marginLeft: -25,
       }}
     >
-      <Box flexDirection="row" mt={hp('2%')} marginBottom={hp('2.5%')} width="auto">
+      <Box flexDirection="row" mt={marginTop} marginBottom={marginBottom} width="auto">
         <Box
           height={height}
           width={width}

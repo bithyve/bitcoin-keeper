@@ -395,7 +395,7 @@ const getSignerContent = (
     case SignerType.POLICY_SERVER:
       const subtitle =
         keyGenerationMode !== KeyGenerationMode.RECOVER
-          ? 'The Signing Server will hold one of the keys of the Vault'
+          ? 'The Server Key is a key stored securely on Keeper’s servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.'
           : 'Recover an existing Signing Server using other signers from the Vault';
       return {
         type: SignerType.POLICY_SERVER,
@@ -411,7 +411,7 @@ const getSignerContent = (
               'At least 2 signers are required in order to identify and recover an existing Signing Server',
               'OTP from the authenticator is also required along with the two signers to initiate Signing Server recovery.',
             ],
-        title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
+        title: isHealthcheck ? 'Verify Signing Server' : 'Set up the Server Key',
         subTitle: subtitle,
         options: isHealthcheck
           ? []
@@ -2069,20 +2069,31 @@ function HardwareModalMap({
     }
   };
 
-  const Content = useCallback(
-    () => (
+  const Content = useCallback(() => {
+    if (signerType === SignerType.POLICY_SERVER) {
+      return (
+        <Box style={styles.modalContainer}>
+          {Illustration}
+          <Text>
+            This adds an extra layer of flexibility and security to your Bitcoin holdings while
+            keeping you in control.
+          </Text>
+        </Box>
+      );
+    }
+
+    return (
       <SignerContent
         Illustration={Illustration}
-        Instructions={Instructions}
         mode={mode}
         options={options}
+        Instructions={Instructions}
         keyGenerationMode={keyGenerationMode}
         sepInstruction={sepInstruction}
         onSelect={onSelect}
       />
-    ),
-    [keyGenerationMode, options]
-  );
+    );
+  }, [signerType, keyGenerationMode, options]); // Add dependencies as required
 
   const buttonCallback = () => {
     close();
@@ -2151,7 +2162,13 @@ function HardwareModalMap({
         close={close}
         title={title}
         subTitle={subTitle}
-        buttonText={signerType === SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
+        buttonText={
+          signerType === SignerType.SEED_WORDS
+            ? 'Next'
+            : signerType === SignerType.POLICY_SERVER
+            ? 'Start the Setup'
+            : 'Proceed'
+        }
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={buttonCallback}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -2160,11 +2177,7 @@ function HardwareModalMap({
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={Content}
         secondaryButtonText={
-          isHealthcheck
-            ? 'Skip'
-            : type === SignerType.INHERITANCEKEY || type === SignerType.POLICY_SERVER
-            ? 'Cancel'
-            : null
+          isHealthcheck ? 'Skip' : type === SignerType.INHERITANCEKEY ? 'Cancel' : null
         }
         secondaryCallback={
           isHealthcheck
@@ -2290,6 +2303,7 @@ function HardwareModalMap({
         }}
         Content={BackupModalContent}
       />
+
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </>
   );
@@ -2323,6 +2337,12 @@ const styles = StyleSheet.create({
     gap: wp(11),
     flexDirection: 'row',
     flexWrap: 'wrap',
+  },
+  modalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 25,
   },
 });
 export default HardwareModalMap;
