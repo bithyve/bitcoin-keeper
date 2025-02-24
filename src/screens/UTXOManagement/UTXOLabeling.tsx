@@ -219,8 +219,8 @@ function UTXOLabeling() {
       <KeeperModal
         visible={txNoteModalVisible}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
-        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         close={() => setTxNoteModalVisible(false)}
         title={common.addNote}
         subTitle={txTranslations.updateLabelSubTitle}

@@ -1547,7 +1547,10 @@ export default class WalletOperations {
     const payloadTarget = signer.type;
     let isSigned = false;
 
-    if (miniscriptSelectedSatisfier && signer.type === SignerType.BITBOX02) {
+    if (
+      miniscriptSelectedSatisfier &&
+      (signer.type === SignerType.BITBOX02 || signer.type === SignerType.KEEPER)
+    ) {
       const subPaths = inputs.reduce((acc, input) => {
         const { subPaths: inputSubPaths } = WalletUtilities.addressToMultiSig(
           input.address,
@@ -1583,13 +1586,23 @@ export default class WalletOperations {
             });
           }
         }
-        input.bip32Derivation = input.bip32Derivation.filter((bip32Deriv) => {
+        const newBip32Derivation = input.bip32Derivation.filter((bip32Deriv) => {
           return paths.some(
             (path) =>
               bip32Deriv.path === path.path &&
               bip32Deriv.masterFingerprint.toString() === path.masterFingerprint.toString()
           );
         });
+        if (signer.type === SignerType.BITBOX02) {
+          input.bip32Derivation = newBip32Derivation;
+        } else {
+          input.unknownKeyVals = [
+            {
+              key: Buffer.from('SELECTED_MINISCRIPT_BIP32_DERIVATIONS'),
+              value: Buffer.from(JSON.stringify(newBip32Derivation)),
+            },
+          ];
+        }
       }
     }
 
@@ -1638,18 +1651,31 @@ export default class WalletOperations {
           const { miniscriptScheme } = (wallet as Vault).scheme;
           if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
 
-          for (const { bip32Derivation } of PSBT.data.inputs) {
-            for (let { masterFingerprint, path, pubkey } of bip32Derivation) {
-              if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
-                const pathFragments = path.split('/');
-                const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
-                const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
-                subPath = [chainIndex, childIndex];
-                publicKey = pubkey;
-                break;
-              }
+          const psbtInputIndex = PSBT.txInputs.findIndex((psbtInput) => {
+            // Reverse the bytes of the hash to match txId format
+            const psbtHash = Buffer.from(psbtInput.hash).reverse().toString('hex');
+            return (
+              psbtHash === inputs[inputIndex].txId && psbtInput.index === inputs[inputIndex].vout
+            );
+          });
+
+          if (psbtInputIndex === -1) {
+            console.log('No match found!');
+            throw new Error('Could not find matching PSBT input');
+          }
+
+          // PSBT.data.inputs and PSBT.txInputs are expected to be parallel arrays that maintain the same order
+          const { bip32Derivation } = PSBT.data.inputs[psbtInputIndex];
+
+          for (let { masterFingerprint, path, pubkey } of bip32Derivation) {
+            if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
+              const pathFragments = path.split('/');
+              const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
+              const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
+              subPath = [chainIndex, childIndex];
+              publicKey = pubkey;
+              break;
             }
-            if (publicKey) break;
           }
         }
 

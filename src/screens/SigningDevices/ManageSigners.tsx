@@ -48,6 +48,7 @@ import { SentryErrorBoundary } from 'src/services/sentry';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import InheritanceKeySection from './components/InheritanceKeySection';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -211,8 +212,8 @@ function ManageSigners({ route }: ScreenProps) {
         subTitle={signerTranslation.keyReceiveMessage}
         close={() => setTimerModal(false)}
         visible={timerModal}
-        textColor={`${colorMode}.primaryText`}
-        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.modalGreenButton`}
@@ -247,6 +248,7 @@ function ManageSigners({ route }: ScreenProps) {
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setShowLearnMoreModal(false);
           navigation.dispatch(
@@ -280,8 +282,8 @@ function ManageSigners({ route }: ScreenProps) {
         subTitleWidth={wp(240)}
         subTitle={settings.EnterPasscodeSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics={false}

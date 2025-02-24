@@ -140,8 +140,8 @@ function TorSettings() {
         }}
         closeOnOverlayClick={true}
         dismissible={true}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         title={settings.orbotConnection}
         subTitle={settings.orbotConnectionSubTitle}
         showCloseIcon={false}

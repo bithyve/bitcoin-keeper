@@ -2,7 +2,6 @@ import { HCESession, NFCTagType4NDEFContentType, NFCTagType4 } from 'react-nativ
 import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
 import { Platform } from 'react-native';
 import { captureError } from '../sentry';
-import { startConnection } from 'cktap-protocol-react-native/nfc';
 
 const TNF_MAP = {
   EMPTY: 0x0,
@@ -50,15 +49,23 @@ export default class NFC {
       if (supported) {
         await NfcManager.start();
         await NfcManager.requestTechnology(techRequest);
-        const { ndefMessage } = await NfcManager.getTag();
-        if (ndefMessage) {
+        let tag = await NfcManager.getTag();
+        while (!tag.ndefMessage) {
+          if (Platform.OS === 'ios') {
+            await NfcManager.setAlertMessageIOS('Reading... Keep your device NFC chip aligned');
+            await NfcManager.restartTechnologyRequestIOS();
+          }
+
+          tag = await NfcManager.getTag();
+        }
+        if (tag.ndefMessage) {
           if (Platform.OS === 'ios') {
             await NfcManager.setAlertMessageIOS('Success');
           }
           await NfcManager.cancelTechnologyRequest();
         }
 
-        const records = ndefMessage.map((record) => {
+        const records = tag.ndefMessage.map((record) => {
           const tnfName = tnfValueToName(record.tnf);
           const rtdName = rtdValueToName(record.type);
           let data;
@@ -96,15 +103,34 @@ export default class NFC {
       if (supported) {
         await NfcManager.start();
         await NfcManager.requestTechnology(techRequest);
-        const data = await NfcManager.ndefHandler.writeNdefMessage(bytes);
+
         if (Platform.OS === 'ios') {
-          await NfcManager.setAlertMessageIOS('Success');
+          await NfcManager.setAlertMessageIOS('Hold your device steady...');
         }
-        await NfcManager.cancelTechnologyRequest();
-        return { data };
+
+        while (true) {
+          try {
+            const data = await NfcManager.ndefHandler.writeNdefMessage(bytes);
+            if (Platform.OS === 'ios') {
+              await NfcManager.setAlertMessageIOS('Success');
+            }
+            await NfcManager.cancelTechnologyRequest();
+            return { data };
+          } catch (writeError) {
+            if (writeError.toString() === 'Error') {
+              if (Platform.OS === 'ios') {
+                await NfcManager.setAlertMessageIOS('Please align the NFC reader...');
+              }
+              // Small delay before retry
+              await new Promise((resolve) => setTimeout(resolve, 500));
+              continue;
+            }
+            throw writeError;
+          }
+        }
       }
     } catch (error) {
-      console.log(error);
+      console.log('NFC write error:', error);
       if (Platform.OS === 'ios') {
         await NfcManager.invalidateSessionWithErrorIOS('Something went wrong!');
       }

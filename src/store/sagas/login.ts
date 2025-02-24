@@ -48,11 +48,11 @@ import {
   setPinResetCreds,
 } from '../reducers/storage';
 
-import { RootState } from '../store';
+import { RootState, store } from '../store';
 import { createWatcher } from '../utilities';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
-import { setLoginMethod } from '../reducers/settings';
+import { setLoginMethod, setSubscription } from '../reducers/settings';
 import { backupAllSignersAndVaults, setWarning } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
@@ -178,6 +178,7 @@ function* credentialsAuthWorker({ payload }) {
             dbManager.getObjectByIndex,
             RealmSchema.KeeperApp
           );
+          yield put(connectToNode());
           const response = yield call(Relay.verifyReceipt, id, publicId);
           yield put(credsAuthenticated(true));
           yield put(credsAuthenticatedError(''));
@@ -213,7 +214,6 @@ function* credentialsAuthWorker({ payload }) {
               yield put(setRecepitVerificationFailed(true));
             }
           }
-          yield put(connectToNode());
           const { pendingAllBackup, automaticCloudBackup } = yield select(
             (state: RootState) => state.bhr
           );
@@ -244,6 +244,7 @@ async function downgradeToPleb() {
   dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
     subscription: updatedSubscription,
   });
+  store.dispatch(setSubscription(updatedSubscription.name));
   await Relay.updateSubscription(app.id, app.publicId, {
     productId: SubscriptionTier.L1.toLowerCase(),
   });

@@ -20,13 +20,15 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+
   useEffect(() => {
-    if (confirmPass) {
+    if (confirmPass || isUaiFlow) {
+      navigation.setParams({ isUaiFlow: false });
       setConfirmPassVisible(true);
     }
-  }, [confirmPass]);
+  }, [confirmPass, isUaiFlow]);
 
   return (
     <Box>
@@ -41,8 +43,8 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
         subTitleWidth={wp(240)}
         subTitle="To back up the app recovery key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics

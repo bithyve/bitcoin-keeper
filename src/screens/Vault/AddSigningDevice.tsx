@@ -58,6 +58,7 @@ import AddKeyButton from '../SigningDevices/components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
 import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
 import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-illustration-dark.svg';
+import KeyWarningIllustration from 'src/assets/images/reserve-key-illustration-light.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
@@ -69,8 +70,9 @@ const MINISCRIPT_SIGNERS = [
   SignerType.COLDCARD,
   SignerType.JADE,
   SignerType.LEDGER,
-  // SignerType.SPECTER,
+  SignerType.SPECTER,
   SignerType.SEED_WORDS,
+  SignerType.KEEPER,
 ];
 
 const onSignerSelect = (
@@ -268,6 +270,76 @@ const getSelectedKeysByType = (vaultKeys, signerMap, type) => {
   return vaultKeys.filter((key) => signerMap[getKeyUID(key)].type === type);
 };
 
+const handleSignerSelect = (
+  selected: boolean,
+  signer: Signer,
+  disabledMessage: { title: string; message: string; code?: string; clickedSigner?: Signer } | null,
+  vaultType: VaultType,
+  setModalContent: (content: {
+    name: string;
+    title: string;
+    subtitle: string;
+    message: string;
+    code: string | null;
+    clickedSigner: Signer | null;
+  }) => void,
+  setShowSignerModal: (show: boolean) => void,
+  onSignerSelect: Function,
+  {
+    scheme,
+    vaultKeys,
+    setVaultKeys,
+    selectedSigners,
+    setSelectedSigners,
+    setHotWalletSelected,
+    setHotWalletInstanceNum,
+    showToast,
+  }
+) => {
+  console.log('disabledMessage');
+  console.log(disabledMessage);
+  if (disabledMessage) {
+    setModalContent({
+      name: getSignerNameFromType(signer.type),
+      title: disabledMessage.title,
+      message: disabledMessage.message,
+      subtitle: '',
+      code: disabledMessage.code,
+      clickedSigner: disabledMessage.clickedSigner,
+    });
+    setShowSignerModal(true);
+    return;
+  }
+
+  if (!selected && signer?.type === SignerType.KEEPER && vaultType === VaultType.MINISCRIPT) {
+    setModalContent({
+      name: getSignerNameFromType(signer.type),
+      title: 'Verify with Key Holder',
+      subtitle:
+        'Please make sure the external key uses a device which has Miniscript support, as it is required to sign transactions of the Enhanced Vault.',
+      message:
+        'At the moment, the following devices are supported: Keeper Mobile Key, BitBox02, Coldcard, Blockstream Jade, Ledger, and TAPSIGNER.',
+      code: null,
+      clickedSigner: signer,
+    });
+    setShowSignerModal(true);
+  }
+
+  onSignerSelect(
+    selected,
+    signer,
+    scheme,
+    vaultKeys,
+    setVaultKeys,
+    selectedSigners,
+    setSelectedSigners,
+    setHotWalletSelected,
+    setHotWalletInstanceNum,
+    vaultType,
+    showToast
+  );
+};
+
 function Footer({
   amfSigners,
   invalidSS,
@@ -417,7 +489,15 @@ function SignerUnavailableContent({ modalContent, setShowSignerModal, setVisible
   return (
     <Box>
       <Box style={styles.unAvailableIllustration}>
-        {isDarkMode ? <KeyUnAvailableIllustrationDark /> : <KeyUnAvailableIllustrationLight />}
+        {modalContent.code ? (
+          isDarkMode ? (
+            <KeyUnAvailableIllustrationDark />
+          ) : (
+            <KeyUnAvailableIllustrationLight />
+          )
+        ) : (
+          <KeyWarningIllustration />
+        )}
       </Box>
       <Text color={`${colorMode}.secondaryText`}>{modalContent.message}</Text>
       <Box style={styles.modalButtonContainer}>
@@ -482,6 +562,7 @@ function Signers({
     name: '',
     title: '',
     message: '',
+    subtitle: null,
     code: '',
     clickedSigner: null,
   });
@@ -668,30 +749,24 @@ function Signers({
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={(selected) => {
-              if (disabledMessage) {
-                setModalContent({
-                  name: getSignerNameFromType(signer.type),
-                  title: disabledMessage.title,
-                  message: disabledMessage.message,
-                  code: disabledMessage.code,
-                  clickedSigner: disabledMessage.clickedSigner,
-                });
-                setShowSignerModal(true);
-                return;
-              }
-
-              onSignerSelect(
+              handleSignerSelect(
                 selected,
                 signer,
-                scheme,
-                vaultKeys,
-                setVaultKeys,
-                selectedSigners,
-                setSelectedSigners,
-                setHotWalletSelected,
-                setHotWalletInstanceNum,
+                disabledMessage,
                 vaultType,
-                showToast
+                setModalContent,
+                setShowSignerModal,
+                onSignerSelect,
+                {
+                  scheme,
+                  vaultKeys,
+                  setVaultKeys,
+                  selectedSigners,
+                  setSelectedSigners,
+                  setHotWalletSelected,
+                  setHotWalletInstanceNum,
+                  showToast,
+                }
               );
             }}
             colorMode={colorMode}
@@ -792,7 +867,6 @@ function Signers({
       signerMap,
       SignerType.MY_KEEPER
     );
-    const anySignerSelected = [...selectedSigners.values()].some((selected) => selected);
 
     const selectedFingerprintsSet = new Set(
       selectedSignersFromParams.map((signer) => signer.masterFingerprint)
@@ -800,39 +874,22 @@ function Signers({
 
     const signerCards = signers
       .filter((signer) => !signer.archived)
-      .filter(
-        (signer) => MINISCRIPT_SIGNERS.includes(signer.type) // Filter by desired signer types
-      )
       .filter((signer) => !selectedFingerprintsSet.has(signer.masterFingerprint)) // Avoid selected signers from params
       .map((signer) => {
-        const { isValid } = isSignerValidForScheme(signer, scheme, activeVault, isMultisig);
-        const disabled =
-          !isValid ||
-          (signer.type === SignerType.MY_KEEPER && myAppKeys.length >= 1) ||
-          (anySignerSelected && !selectedSigners.get(getKeyUID(signer)));
-
-        const handleCardSelect = (selected) => {
-          if (disabled) return;
-
-          onSignerSelect(
-            selected,
-            signer,
-            scheme,
-            vaultKeys,
-            setVaultKeys,
-            selectedSigners,
-            setSelectedSigners,
-            setHotWalletSelected,
-            setHotWalletInstanceNum,
-            vaultType,
-            showToast
-          );
-        };
-
+        const disabledMessage = getDisabledMessage(
+          signer,
+          myAppKeys,
+          selectedSigners,
+          scheme,
+          signerMap,
+          keyToRotate,
+          vaultType
+        );
+        const disabled = disabledMessage !== null;
         return (
           <SignerCard
             showSelection={showSelection}
-            disabled={disabled}
+            disabledWithTouch={disabled}
             key={getKeyUID(signer)}
             name={
               !signer.isBIP85
@@ -843,7 +900,27 @@ function Signers({
             icon={SDIcons(signer.type).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
-            onCardSelect={handleCardSelect}
+            onCardSelect={(selected) => {
+              handleSignerSelect(
+                selected,
+                signer,
+                disabledMessage,
+                vaultType,
+                setModalContent,
+                setShowSignerModal,
+                onSignerSelect,
+                {
+                  scheme,
+                  vaultKeys,
+                  setVaultKeys,
+                  selectedSigners,
+                  setSelectedSigners,
+                  setHotWalletSelected,
+                  setHotWalletInstanceNum,
+                  showToast,
+                }
+              );
+            }}
             colorMode={colorMode}
           />
         );
@@ -966,11 +1043,12 @@ function Signers({
             close={() => setShowSignerModal(false)}
             visible={showSignerModal}
             title={modalContent.title}
+            subTitle={modalContent.subtitle || ''}
             modalBackground={`${colorMode}.modalWhiteBackground`}
-            textColor={`${colorMode}.primaryText`}
             buttonTextColor={`${colorMode}.buttonText`}
             buttonBackground={`${colorMode}.greenButtonBackground`}
-            subTitleColor={`${colorMode}.secondaryText`}
+            textColor={`${colorMode}.modalHeaderTitle`}
+            subTitleColor={`${colorMode}.modalSubtitleBlack`}
             subTitleWidth={wp(280)}
             showCloseIcon={true}
             DarkCloseIcon={isDarkMode}
@@ -1408,10 +1486,10 @@ function AddSigningDevice() {
           buttonCallback={viewVault}
           secondaryCallback={viewVault}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.primaryText`}
           buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           subTitleWidth={wp(280)}
           showCloseIcon={false}
         />

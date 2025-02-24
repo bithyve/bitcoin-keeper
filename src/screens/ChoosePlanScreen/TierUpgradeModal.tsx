@@ -88,8 +88,8 @@ function TierUpgradeModal({
       title={content?.title}
       subTitle={content?.subTitle}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      subTitleColor={`${colorMode}.secondaryText`}
-      textColor={`${colorMode}.primaryText`}
+      textColor={`${colorMode}.modalHeaderTitle`}
+      subTitleColor={`${colorMode}.modalSubtitleBlack`}
       buttonText={common.Okay}
       buttonTextColor={`${colorMode}.buttonText`}
       buttonBackground={`${colorMode}.greenButtonBackground`}

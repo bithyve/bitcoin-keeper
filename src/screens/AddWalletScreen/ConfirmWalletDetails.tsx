@@ -55,6 +55,7 @@ import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import useSigners from 'src/hooks/useSigners';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -243,16 +244,8 @@ function ConfirmWalletDetails({ route }) {
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
           <Box style={styles.pillsContainer}>
-            {tags?.map((tag, index) => {
-              return (
-                <CardPill
-                  key={tag.key}
-                  heading={tag.tag}
-                  backgroundColor={
-                    index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`
-                  }
-                />
-              );
+            {tags?.map(({ tag, color }) => {
+              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
             })}
           </Box>
           <Box style={styles.walletVaultInfoWrapper}>
@@ -285,20 +278,13 @@ function ConfirmWalletDetails({ route }) {
       ...tag,
       key: `tag-${index}-${tag.tag}`,
     }));
+
     return (
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
           <Box style={styles.pillsContainer}>
-            {tags?.map((tag, index) => {
-              return (
-                <CardPill
-                  key={tag.key}
-                  heading={tag.tag}
-                  backgroundColor={
-                    index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`
-                  }
-                />
-              );
+            {tags?.map(({ tag, color }) => {
+              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
             })}
           </Box>
           <Box style={styles.walletVaultInfoWrapper}>
@@ -377,7 +363,10 @@ function ConfirmWalletDetails({ route }) {
         }
       />
 
-      <ScrollView contentContainerStyle={{ flex: 1, justifyContent: 'space-between' }}>
+      <ScrollView
+        contentContainerStyle={{ flex: 1, justifyContent: 'space-between' }}
+        showsVerticalScrollIndicator={false}
+      >
         <Box style={styles.fieldsContainer}>
           <Text fontSize={14} medium>
             Your wallet name
@@ -425,7 +414,7 @@ function ConfirmWalletDetails({ route }) {
             </Text>
           </Pressable>
         </Box>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <Box
             flexDirection={'row'}
             flex={1}
@@ -507,8 +496,8 @@ function ConfirmWalletDetails({ route }) {
         title="Add Description"
         subTitle="This will reflect on the home screen"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         Content={() => {
           const [description, setDescription] = useState(descriptionInputRef.current);
@@ -546,9 +535,9 @@ function ConfirmWalletDetails({ route }) {
         title={importWallet.derivationPath}
         subTitle="Change or update purpose"
         subTitleWidth={wp(240)}
-        subTitleColor={`${colorMode}.secondaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         learnMoreButton={true}
         learnButtonTextColor={`${colorMode}.white`}
@@ -594,10 +583,10 @@ function ConfirmWalletDetails({ route }) {
         buttonText={'View Wallet'}
         buttonCallback={viewVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}
       />
@@ -643,6 +632,7 @@ function ConfirmWalletDetails({ route }) {
         buttonTextColor={`${colorMode}.whiteButtonText`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setAdvancedSettingsVisible(false);
           setVisibleModal(false);

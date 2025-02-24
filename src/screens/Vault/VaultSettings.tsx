@@ -177,8 +177,8 @@ function VaultSettings({ route }) {
         subTitleWidth={wp(240)}
         subTitle={vaultText.vaultEditSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         Content={() => (
           <EditWalletDetailsModal

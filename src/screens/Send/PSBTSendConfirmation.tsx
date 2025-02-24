@@ -8,7 +8,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { TransactionType } from 'src/services/wallets/enums';
-import { Signer } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import RKSignersModal from '../../components/RKSignersModal';
 import ReceiptWrapper from './ReceiptWrapper';
 import TransferCard from './TransferCard';
@@ -24,6 +24,7 @@ export interface PSBTSendConfirmationParams {
   psbt: string;
   feeRate: string;
   isMiniscript?: boolean;
+  activeVault?: Vault | null;
 }
 
 function PSBTSendConfirmation({ route }) {
@@ -36,6 +37,7 @@ function PSBTSendConfirmation({ route }) {
     psbt,
     feeRate,
     isMiniscript,
+    activeVault,
   }: PSBTSendConfirmationParams = route.params;
 
   const { translations } = useContext(LocalizationContext);
@@ -163,6 +165,7 @@ function PSBTSendConfirmation({ route }) {
         psbt={psbt}
         ref={signerModalRef}
         isMiniscript={isMiniscript}
+        vaultId={activeVault?.id || ''}
       />
     </ScreenWrapper>
   );

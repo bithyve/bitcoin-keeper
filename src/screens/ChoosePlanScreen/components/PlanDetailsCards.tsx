@@ -1,78 +1,30 @@
 import { Box, Flex, useColorMode } from 'native-base';
-import React, { useContext } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import PlanCheckMark from 'src/assets/images/planCheckMark.svg';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
+import PlanCheckMarkWhite from 'src/assets/images/plan-white-check.svg';
 
-const TitleCard = ({ plansData, currentPosition, restorePurchases, showRestore }) => {
+const PlanDetailsCards = ({ plansData, currentPosition }) => {
   const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { choosePlan } = translations;
+  const isDarkMode = colorMode === 'dark';
   return (
-    <Flex
-      backgroundColor={`${colorMode}.secondaryBackground`}
-      borderColor={`${colorMode}.solidGreyBorder`}
-      style={styles.titleContainer}
-      minWidth={showRestore ? wp(195) : null}
-    >
-      <Text style={styles.titleText} color={`${colorMode}.primaryText`} bold>
-        {plansData?.[currentPosition]?.name + ' Features'}
-      </Text>
-      {showRestore && (
-        <Pressable onPress={restorePurchases} testID="btn_restorePurchases">
-          <Text style={styles.restorePurchase} semiBold color={`${colorMode}.brownColor`}>
-            {choosePlan.restorePurchases}
-          </Text>
-        </Pressable>
-      )}
-    </Flex>
-  );
-};
-
-const PlanDetailsCards = ({ plansData, currentPosition, restorePurchases }) => {
-  const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { choosePlan } = translations;
-  const selectedPlan = plansData?.[currentPosition]?.name;
-  const showRestore = selectedPlan?.toString()?.toLowerCase() !== SubscriptionTier.L1.toLowerCase();
-  return (
-    <Flex
-      style={styles.container}
-      backgroundColor={`${colorMode}.secondaryBackground`}
-      borderColor={`${colorMode}.solidGreyBorder`}
-    >
-      <TitleCard
-        plansData={plansData}
-        currentPosition={currentPosition}
-        restorePurchases={restorePurchases}
-        showRestore={showRestore}
-      />
-      <Box marginTop={showRestore ? 57 : 39}>
+    <Flex style={styles.container} backgroundColor={`${colorMode}.secondaryBackground`}>
+      <Box>
         {plansData?.[currentPosition]?.benifits.map(
           (benifit) =>
             benifit !== '*Coming soon' && (
               <Box style={styles.benefitContainer} key={benifit}>
                 <Box style={styles.iconContainer}>
-                  <PlanCheckMark />
+                  {isDarkMode ? <PlanCheckMarkWhite /> : <PlanCheckMark />}
                 </Box>
-                <Text fontSize={13} color={`${colorMode}.secondaryText`}>
+                <Text fontSize={13} color={`${colorMode}.subPlansubtitle`}>
                   {`${benifit}`}
                 </Text>
               </Box>
             )
         )}
       </Box>
-      {showRestore && (
-        <Text
-          style={{ fontSize: 13, lineHeight: 17, marginTop: hp(12) }}
-          color={`${colorMode}.noteText`}
-        >
-          {choosePlan.noteSubTitle}
-        </Text>
-      )}
     </Flex>
   );
 };
@@ -82,17 +34,13 @@ export default PlanDetailsCards;
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingLeft: wp(21),
-    paddingBottom: hp(25),
   },
   benefitContainer: {
     flexDirection: 'row',
     gap: 10,
     width: wp(260),
     alignItems: 'flex-start',
-    marginBottom: 10,
+    marginVertical: hp(6),
   },
   iconContainer: {
     marginTop: 6,
@@ -107,15 +55,5 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 12,
     zIndex: 1,
-  },
-  titleText: {
-    fontSize: 13,
-    lineHeight: 29,
-  },
-  restorePurchase: {
-    fontSize: 13,
-    lineHeight: 17,
-    marginBottom: 2,
-    textDecorationLine: 'underline',
   },
 });

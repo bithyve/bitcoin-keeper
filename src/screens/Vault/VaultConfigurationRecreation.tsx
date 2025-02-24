@@ -20,6 +20,7 @@ import QRScanner from 'src/components/QRScanner';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import SignerImportIcon from 'src/assets/images/signer_import.svg';
 import { InteracationMode } from './HardwareModalMap';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 function WrappedImportIcon() {
   return (
@@ -170,6 +171,7 @@ function VaultConfigurationCreation() {
         buttonTextColor={`${colorMode}.whiteButtonText`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setShowModal(false);
           navigation.dispatch(

@@ -72,6 +72,7 @@ export default function WhirlpoolConfiguration({ route }) {
               onFeeSelectionCallback(fee);
               setTransactionPriority(fee?.priority);
             }}
+            testID={`fee_item_${fee.fee}`}
           >
             <Box style={styles.feeItem}>
               <Box style={styles.priorityWrapper}>
@@ -294,8 +295,8 @@ export default function WhirlpoolConfiguration({ route }) {
           title="Change Priority"
           subTitle="Select a priority for your transaction"
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonCallback={closeFeeSelectionModal}
           closeOnOverlayClick={false}
           Content={() => feesContent(fees, onFeeSelectionCallback)}

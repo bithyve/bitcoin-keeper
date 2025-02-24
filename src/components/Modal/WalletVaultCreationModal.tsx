@@ -6,12 +6,12 @@ import HexagonIcon from '../HexagonIcon';
 import KeeperModal from '../KeeperModal';
 import Text from '../KeeperText';
 import CardPill from '../CardPill';
-import { getWalletTags } from 'src/utils/utilities';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { EntityKind, VaultType } from 'src/services/wallets/enums';
 import Colors from 'src/theme/Colors';
+import useWalletAsset from 'src/hooks/useWalletAsset';
 
 const getWalletIcon = (walletType) => {
   if (walletType === EntityKind.VAULT) {
@@ -34,14 +34,8 @@ function WalletCreatedModalContent(props) {
         borderColor={`${colorMode}.dullGreyBorder`}
       >
         <Box style={styles.pillsContainer}>
-          {props.tags?.map((tag, index) => {
-            return (
-              <CardPill
-                key={tag}
-                heading={tag}
-                backgroundColor={index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`}
-              />
-            );
+          {props.tags?.map(({ tag, color }) => {
+            return <CardPill key={tag} heading={tag} backgroundColor={color} />;
           })}
         </Box>
         <Box style={styles.walletVaultInfoWrapper}>
@@ -75,7 +69,11 @@ function WalletCreatedModalContent(props) {
   );
 }
 function WalletVaultCreationModal(props) {
+  const { getWalletTags } = useWalletAsset();
   const { colorMode } = useColorMode();
+  const wallet = {
+    type: props.walletType,
+  };
 
   const Content = useCallback(() => {
     return (
@@ -84,7 +82,7 @@ function WalletVaultCreationModal(props) {
         walletType={props.walletType}
         walletName={props.walletName}
         walletDescription={props.walletDescription}
-        tags={getWalletTags(props.walletType)}
+        tags={getWalletTags(wallet)}
       />
     );
   }, [props.descriptionMessage, props.walletType, props.walletName, props.walletDescription]);
@@ -102,8 +100,8 @@ function WalletVaultCreationModal(props) {
         props.buttonCallback();
       }}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.primaryText`}
-      subTitleColor={`${colorMode}.secondaryText`}
+      textColor={`${colorMode}.modalHeaderTitle`}
+      subTitleColor={`${colorMode}.modalSubtitleBlack`}
       subTitleWidth={wp(280)}
       showCloseIcon={false}
     />

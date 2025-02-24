@@ -474,6 +474,7 @@ function SetupTapsigner({ route }) {
           onPress={() => {
             checkTapsignerSetupStatus();
           }}
+          testID="checkTapsignerSetupStatus"
         >
           <Box flexDirection="row">
             <Text color={`${colorMode}.textGreen`} style={styles.checkInitialStatus} medium>
@@ -525,8 +526,8 @@ function SetupTapsigner({ route }) {
         title={signerTranslations.TapsignerSetupStatus}
         subTitle={signerTranslations.TapsignerSetupStatusSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={StatusModalContent}
       />
     </ScreenWrapper>

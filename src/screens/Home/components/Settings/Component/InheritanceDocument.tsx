@@ -40,7 +40,11 @@ const InheritanceDocument: React.FC<InheritanceDocumentProps> = ({
   const { plan } = usePlan();
   const isDiamondHands = plan === SubscriptionTier.L3.toUpperCase();
   return (
-    <TouchableOpacity onPress={onPress} disabled={!isDiamondHands}>
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={!isDiamondHands}
+      testID={`btn_inheritance_${title}`}
+    >
       <Box backgroundColor={backgroundColor} borderColor={borderColor} style={styles.Container}>
         <Box style={styles.document}>
           <Box style={styles.icon}>

@@ -100,7 +100,10 @@ const HomeWallet = () => {
       }
     };
     return (
-      <TouchableOpacity onPress={() => handleWalletPress(item, navigation)}>
+      <TouchableOpacity
+        onPress={() => handleWalletPress(item, navigation)}
+        testID={`wallet_item_${item.id}`}
+      >
         <WalletCard
           backgroundColor={getWalletCardGradient(item)}
           hexagonBackgroundColor={isDarkMode ? Colors.CyanGreen : Colors.CyanGreen}
@@ -142,6 +145,8 @@ const HomeWallet = () => {
         title="Add a New Wallet"
         subTitle="Create a new wallet or import existing one"
         close={() => setShowAddWalletModal(false)}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon
         Content={() => (
           <Box style={styles.addWalletOptionsList}>

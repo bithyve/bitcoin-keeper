@@ -9,7 +9,6 @@ import { TorContextProvider } from 'src/context/TorContext';
 import { HCESessionProvider } from 'react-native-hce';
 import { LocalizationProvider } from 'src/context/Localization/LocContext';
 import { AppContextProvider } from 'src/context/AppContext';
-import * as Zendesk from 'react-native-zendesk-messaging';
 import config from 'src/utils/service-utilities/config';
 import { customTheme } from './src/navigation/themes';
 import Navigator from './src/navigation/Navigator';
@@ -37,9 +36,6 @@ function AndroidProvider({ children }: { children: ReactElement }) {
 function App() {
   useEffect(() => {
     initConnection();
-    Zendesk.initialize({ channelKey: config.ZENDESK_CHANNEL_ID })
-      .then(() => {})
-      .catch((error) => console.log('zendesk init error ', error));
     return () => {
       endConnection();
     };

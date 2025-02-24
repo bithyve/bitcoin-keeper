@@ -9,6 +9,7 @@ import Text from 'src/components/KeeperText';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 function LinkedWalletContent() {
   return (
@@ -47,6 +48,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       buttonTextColor={`${colorMode}.whiteButtonText`}
       buttonBackground={`${colorMode}.whiteButtonBackground`}
       secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+      secondaryIcon={<ConciergeNeedHelp />}
       secondaryCallback={() => {
         dispatch(setIntroModal(false));
         navigation.dispatch(

@@ -189,8 +189,8 @@ function ChangeTapsignerPin() {
         title="Activate New PIN"
         subTitle="Get your TAPSIGNER ready before proceeding"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText="Continue"
         secondaryButtonText="Cancel"
         secondaryCallback={() => setShowPinModal(false)}
@@ -208,8 +208,8 @@ function ChangeTapsignerPin() {
         title="Pin Activated"
         subTitle="Your TAPSIGNER new pin has been activated"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText="Okay"
         buttonCallback={() => {
           console.log('Pressed pin activated btn');

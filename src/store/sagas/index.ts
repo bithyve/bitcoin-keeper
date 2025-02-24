@@ -74,8 +74,6 @@ import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
 import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
 import {
-  openConceirgeWatcher,
-  goToConceirgeWatcher,
   loadConciergeUserWatcher,
   addTicketStatusUAIWatcher,
   scheduleOnboardingCallWatcher,
@@ -175,8 +173,6 @@ const rootSaga = function* () {
     bulkUpdateLabelWatcher,
     bulkUpdateUTXOLabelWatcher,
     // concierge
-    openConceirgeWatcher,
-    goToConceirgeWatcher,
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
     scheduleOnboardingCallWatcher,

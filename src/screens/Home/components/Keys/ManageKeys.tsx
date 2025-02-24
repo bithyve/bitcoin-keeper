@@ -101,8 +101,8 @@ const ManageKeys = ({ addedSigner }) => {
         title={vault.Addsigner}
         subTitle={vault.SelectSignerSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.textGreen`}
-        subTitleColor={`${colorMode}.black`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <SignerContent navigation={navigation} handleModalClose={handleModalClose} />
         )}

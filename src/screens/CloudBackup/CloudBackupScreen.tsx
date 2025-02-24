@@ -27,6 +27,7 @@ import { wp } from 'src/constants/responsive';
 import { setBackupModal } from 'src/store/reducers/settings';
 import EnterPasswordModal from './EnterPasswordModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 function CloudBackupScreen() {
   const navigation = useNavigation();
@@ -175,6 +176,7 @@ function CloudBackupScreen() {
         buttonTextColor={`${colorMode}.whiteButtonText`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setShowModal(false);
           if (setBackupModal) {

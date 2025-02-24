@@ -259,6 +259,7 @@ function ManageWallets() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            testID="manageWallets_moveFunds"
             onPress={() => {
               setShowDeleteVaultBalanceAlert(false);
               navigation.dispatch(
@@ -373,10 +374,10 @@ function ManageWallets() {
         visible={showDeleteVaultBalanceAlert}
         title={isWallet ? settings.DeleteWalletModalTitle : settings.DeleteVaultModalTitle}
         subTitle={isWallet ? settings.DeleteWalletModalSubTitle : settings.DeleteVaultModalSubTitle}
-        textColor={`${colorMode}.primaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={DeleteVaultBalanceAlertModalContent}
-        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={isWallet ? false : true}
@@ -391,8 +392,8 @@ function ManageWallets() {
         subTitleWidth={wp(240)}
         subTitle="Confirm passcode to unhide wallets"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             forcedMode={passwordMode === PasswordMode.SHOWALL && isOnL2Above}
@@ -413,8 +414,8 @@ function ManageWallets() {
         subTitleWidth={wp(240)}
         subTitle={'Confirm passcode to delete the vault'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics={false}

@@ -282,8 +282,8 @@ function TransactionDetails({ route }) {
           <KeeperModal
             visible={visible}
             modalBackground={`${colorMode}.modalWhiteBackground`}
-            textColor={`${colorMode}.primaryText`}
-            subTitleColor={`${colorMode}.secondaryText`}
+            textColor={`${colorMode}.modalHeaderTitle`}
+            subTitleColor={`${colorMode}.modalSubtitleBlack`}
             close={close}
             title={common.addNote}
             subTitle={transactions.updateLabelSubTitle}

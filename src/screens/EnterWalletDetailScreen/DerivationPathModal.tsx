@@ -105,6 +105,7 @@ function DerivationPathModalContent({
                     setPurpose(item.value);
                   }}
                   style={styles.flagWrapper1}
+                  testID={`purpose_item_${item.value}`}
                 >
                   <Box style={styles.labelContainer}>
                     <Text

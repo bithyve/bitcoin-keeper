@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "scripts": {
     "ios": "react-native run-ios",
@@ -109,7 +109,6 @@
     "react-native-svg": "13.13.0",
     "react-native-tcp-socket": "5.6.2",
     "react-native-tor": "0.1.8",
-    "react-native-zendesk-messaging": "0.2.1",
     "react-redux": "7.2.8",
     "readable-stream": "1.0.33",
     "realm": "11.10.2",

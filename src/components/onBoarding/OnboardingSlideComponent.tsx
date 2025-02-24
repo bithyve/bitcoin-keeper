@@ -12,7 +12,12 @@ function OnboardingSlideComponent(props) {
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
-        <Text fontSize={20} color={`${colorMode}.primaryBackground`} textAlign="center" letterSpacing={0.2}>
+        <Text
+          fontSize={20}
+          color={`${colorMode}.primaryBackground`}
+          textAlign="center"
+          letterSpacing={0.2}
+        >
           {props.title}
         </Text>
       </Box>
@@ -27,6 +32,7 @@ function OnboardingSlideComponent(props) {
           <TouchableOpacity
             onPress={() => props.navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
             style={styles.buttonWrapper}
+            testID={'btn_startApp'}
           >
             <Text fontSize={14} color={`${colorMode}.primaryBackground`} textAlign="center" bold>
               Start App&nbsp;&nbsp;

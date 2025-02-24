@@ -18,7 +18,7 @@ import {
 import SigningServer from 'src/services/backend/SigningServer';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
-import { getKeyUID } from 'src/utils/utilities';
+import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import {
   EntityKind,
   MiniscriptTypes,
@@ -109,15 +109,33 @@ export const generateVault = async ({
     if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
   }
 
+  const isMultiSig = scheme.n !== 1 || type === VaultType.MINISCRIPT; // single key Vault is BIP-84 P2WPKH single-sig and not 1-of-1 BIP-48 P2WSH multi-sig
+  const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
+
+  // Safety check, must use correct derivations:
+  signers.map((signer) => {
+    const accountNumber = getAccountFromSigner(signer);
+    const expectedDerivationPath = isMultiSig
+      ? networkType === NetworkType.MAINNET
+        ? `m/48'/0'/${accountNumber}'/2'`
+        : `m/48'/1'/${accountNumber}'/2'`
+      : networkType === NetworkType.MAINNET
+      ? `m/84'/0'/${accountNumber}'`
+      : `m/84'/1'/${accountNumber}'`;
+
+    if (expectedDerivationPath !== signer.derivationPath) {
+      throw new Error(
+        `Invalid derivation path for signer. Expected: ${expectedDerivationPath}, but got: ${signer.derivationPath}`
+      );
+    }
+  });
+
   const presentationData: VaultPresentationData = {
     name: vaultName,
     description: vaultDescription,
     visibility: VisibilityType.DEFAULT,
     shell: defaultShell,
   };
-
-  const isMultiSig = scheme.n !== 1 || type === VaultType.MINISCRIPT; // single key Vault is BIP-84 P2WPKH single-sig and not 1-of-1 BIP-48 P2WSH multi-sig
-  const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
 
   const specs: VaultSpecs = {
     xpubs,

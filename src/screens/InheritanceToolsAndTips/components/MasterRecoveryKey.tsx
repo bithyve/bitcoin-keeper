@@ -16,6 +16,8 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import MasterKey from 'src/assets/images/master_key.svg';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
+import { credsAuthenticated } from 'src/store/reducers/login';
+import { useDispatch } from 'react-redux';
 
 function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
@@ -23,6 +25,7 @@ function MasterRecoveryKey({ navigation }) {
   const { inheritancePlanning } = translations;
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const dispatch = useDispatch();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -52,6 +55,7 @@ function MasterRecoveryKey({ navigation }) {
             icon={<MasterKey />}
             description="Please view in a private location"
             callback={() => {
+              dispatch(credsAuthenticated(false));
               setConfirmPassVisible(true);
             }}
             name="View Recovery Key"
@@ -73,8 +77,8 @@ function MasterRecoveryKey({ navigation }) {
         subTitleWidth={wp(240)}
         subTitle="To back up the app recovery key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics

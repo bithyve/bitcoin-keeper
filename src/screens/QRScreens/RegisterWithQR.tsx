@@ -21,10 +21,9 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { UR, UREncoder } from '@ngraveio/bc-ur';
 import { getFragmentedData } from 'src/services/qr';
+import { sanitizeFileName } from 'src/utils/utilities';
 
 const { width } = Dimensions.get('window');
-
-const SPECTER_PREFIX = 'addwallet keeper vault&';
 
 function RegisterWithQR({ route, navigation }: any) {
   const { colorMode } = useColorMode();
@@ -34,18 +33,13 @@ function RegisterWithQR({ route, navigation }: any) {
   const { signer } = useSignerFromKey(vaultKey);
   const walletConfig =
     signer.type === SignerType.SPECTER
-      ? activeVault.scheme.miniscriptScheme
-        ? `addwallet ${activeVault.presentationData.name}&${generateOutputDescriptors(
-            activeVault,
-            false,
-            false
-          )
-            .replace('/**', '/{0,1}/*')
-            .replace(/<(\d+);(\d+)>/g, '{$1,$2}')}`
-        : `${SPECTER_PREFIX}${generateOutputDescriptors(activeVault, false, false).replaceAll(
-            '/<0;1>/*',
-            ''
-          )}`
+      ? `addwallet ${activeVault.presentationData.name}&${generateOutputDescriptors(
+          activeVault,
+          false,
+          false
+        )
+          .replace('/**', '/{0,1}/*')
+          .replace(/<(\d+);(\d+)>/g, '{$1,$2}')}`
       : activeVault.scheme.miniscriptScheme
       ? generateOutputDescriptors(activeVault)
       : getWalletConfig({ vault: activeVault, signerType: signer.type });
@@ -116,7 +110,7 @@ function RegisterWithQR({ route, navigation }: any) {
               signer={signer}
               vaultKey={vaultKey}
               vaultId={vaultId}
-              fileName={`${activeVault.presentationData.name.replace(/\s+/g, '-')}.txt`}
+              fileName={`${sanitizeFileName(activeVault.presentationData.name)}.txt`}
               useNdef
               isUSBAvailable={signer.type == SignerType.COLDCARD || signer.type == SignerType.JADE}
             />

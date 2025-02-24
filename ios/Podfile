@@ -87,7 +87,6 @@ post_install do |installer|
      "Pods/hermes-engine/destroot/Library/Frameworks/macosx/hermes.framework/Versions/Current/hermes",
      "Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64/hermes.framework/hermes",
      "Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64_x86_64-maccatalyst/hermes.framework/hermes",
-     "Pods/ZendeskSDKLogger/ZendeskSDKLogger.xcframework/ios-arm64/ZendeskSDKLogger.framework/ZendeskSDKLogger"  # => removes bitcode from zendesk logger sdk
    ]
 
    framework_paths.each do |framework_relative_path|
