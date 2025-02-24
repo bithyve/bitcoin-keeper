@@ -118,7 +118,6 @@
     "manageUTXO": "manage UTXO",
     "manageKeys": "Manage Keys",
     "manageKeysDesc": "Securely manage your keys with ease",
-
     "forThisVault": "for this vault",
     "saveChanges": "Save Changes",
     "signerFingerPrint": "Signer Fingerprint",
@@ -1237,8 +1236,8 @@
     "keyDetailsSubtitle": "xPub for adding to another vault",
     "ManageKeys": "Manage Keys",
     "ViewAndChangeKeyDetails": "View and manage your wallet keys",
-    "changeSignerTitle": "Change Signer",
-    "changeSignerSubtitle": "Select a signer to replace the current one",
+    "changeSignerTitle": "Update Device Type",
+    "changeSignerSubtitle": "Select the device used for this key",
     "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault",
     "coSignerAlreadyAdded": "This co-signer has already been added",
     "OTBModalNote": "You will only be shown the words once.",

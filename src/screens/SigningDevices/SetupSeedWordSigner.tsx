@@ -30,6 +30,7 @@ function SetupSeedWordSigner({ route }) {
         onPress={() => {
           setShowWordIndex(index);
         }}
+        testID={`seed_item_${index}`}
       >
         <Box
           backgroundColor={`${colorMode}.seedCard`}

@@ -27,9 +27,10 @@ export const addNewVault = (payload: {
   payload,
 });
 
-export const addSigningDevice = (signers: Signer[]) => ({
+export const addSigningDevice = (signers: Signer[], callback = null) => ({
   type: ADD_SIGINING_DEVICE,
   payload: { signers },
+  callback,
 });
 
 export const deleteSigningDevice = (signers: Signer[]) => ({

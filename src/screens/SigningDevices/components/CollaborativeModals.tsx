@@ -17,6 +17,7 @@ import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import MenuOption from 'src/components/MenuOption';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Signer } from 'src/services/wallets/interfaces/vault';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 interface AddKeyOption {
   icon: JSX.Element;
@@ -169,6 +170,7 @@ function CollaborativeModals({
           buttonTextColor={`${colorMode}.modalWhiteButtonText`}
           buttonBackground={`${colorMode}.modalWhiteButton`}
           secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+          secondaryIcon={<ConciergeNeedHelp />}
           secondaryCallback={() => {
             setLearnMoreModal?.(false);
             navigation.dispatch(
@@ -193,8 +195,8 @@ function CollaborativeModals({
           title={vaultText.addContactModalTitle}
           subTitle={vaultText.addContactModalSubtitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonTextColor={`${colorMode}.buttonText`}
           Content={() => <AddKeyContent addKeyOptions={addKeyOptions} />}
         />
@@ -206,8 +208,8 @@ function CollaborativeModals({
           close={() => setNfcModal?.(false)}
           DarkCloseIcon={colorMode === 'dark'}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonTextColor={`${colorMode}.buttonText`}
           Content={() => <NFCModalContent onTryAnotherMethod={handleTryAnotherMethod} />}
         />

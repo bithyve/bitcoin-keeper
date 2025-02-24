@@ -38,8 +38,8 @@ export function DowngradeModal() {
       subTitle={choosePlan.validateSubscriptionSubTitle}
       Content={() => <DowngradeModalContent />}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      subTitleColor={`${colorMode}.secondaryText`}
-      textColor={`${colorMode}.primaryText`}
+      textColor={`${colorMode}.modalHeaderTitle`}
+      subTitleColor={`${colorMode}.modalSubtitleBlack`}
       subTitleWidth={wp(210)}
       showCloseIcon={false}
       buttonText={common.continue}

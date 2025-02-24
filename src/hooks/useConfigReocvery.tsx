@@ -50,19 +50,21 @@ const useConfigRecovery = () => {
         return;
       }
       try {
-        dispatch(addSigningDevice(signersList));
-        const vaultInfo: NewVaultInfo = {
-          vaultType: miniscriptElements ? VaultType.MINISCRIPT : VaultType.DEFAULT,
-          vaultScheme: scheme,
-          vaultSigners: vaultSignersList,
-          vaultDetails: {
-            name: 'Imported Vault',
-            description: 'Secure your sats',
-          },
-          miniscriptElements,
-        };
-        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-        setTimeout(() => {}, 3000);
+        dispatch(
+          addSigningDevice(signersList, () => {
+            const vaultInfo: NewVaultInfo = {
+              vaultType: miniscriptElements ? VaultType.MINISCRIPT : VaultType.DEFAULT,
+              vaultScheme: scheme,
+              vaultSigners: vaultSignersList,
+              vaultDetails: {
+                name: 'Imported Vault',
+                description: 'Secure your sats',
+              },
+              miniscriptElements,
+            };
+            dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+          })
+        );
       } catch (err) {
         captureError(err);
       }

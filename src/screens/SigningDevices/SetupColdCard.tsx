@@ -29,6 +29,13 @@ import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import Buttons from 'src/components/Buttons';
+import Text from 'src/components/KeeperText';
+import WalletHeader from 'src/components/WalletHeader';
+import { hp, wp } from 'src/constants/responsive';
+import ColdCardIllustration from 'src/assets/images/ColdCardSetup.svg';
+import HealthCheckIllustration from 'src/assets/images/health-check-illustration.svg';
+import HealthCheckIllustrationDark from 'src/assets/images/health-check-illustration-dark.svg';
 
 const getTitle = (mode) => {
   switch (mode) {
@@ -37,7 +44,7 @@ const getTitle = (mode) => {
     case InteracationMode.VAULT_ADDITION:
       return 'Setting up Coldcard';
     case InteracationMode.HEALTH_CHECK || InteracationMode.IDENTIFICATION:
-      return 'Verify Coldcard';
+      return 'Health Check Coldcard';
   }
 };
 
@@ -64,7 +71,7 @@ function SetupColdCard({ route }) {
   const isConfigRecovery = mode === InteracationMode.CONFIG_RECOVERY;
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
 
-  useEffect(() => {
+  const startNfcRead = () => {
     NfcManager.isSupported().then((supported) => {
       if (supported) {
         if (mode === InteracationMode.HEALTH_CHECK) verifyColdCardWithProgress();
@@ -78,7 +85,7 @@ function SetupColdCard({ route }) {
         showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
-  }, []);
+  };
 
   const handleNFCError = (error) => {
     if (error instanceof HWError) {
@@ -192,8 +199,14 @@ function SetupColdCard({ route }) {
   };
 
   const instructions = isConfigRecovery
-    ? 'Export the Vault config by going to Settings > Multisig Wallets > <Your Wallet> > Descriptors > Export > Press 3 to share via NFC'
-    : 'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n';
+    ? '\nExport the wallet config by going to Settings > Multisig Wallets > <Your Wallet> > Descriptors > Export > Press 3 to share via NFC'
+    : mode === InteracationMode.CANARY_ADDITION
+    ? '\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose the account number (default 0) and transfer over NFC.'
+    : '\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose 0 for the account number and transfer over NFC.';
+  const instructions2 =
+    mode === InteracationMode.VAULT_ADDITION
+      ? 'Make sure you remember the account you had chosen (This is important for recovering your wallet).'
+      : '';
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -202,9 +215,34 @@ function SetupColdCard({ route }) {
         signerXfp={signer?.masterFingerprint}
         mode={mode}
       >
-        <Box style={styles.header}>
-          <KeeperHeader title={getTitle(mode)} subtitle={instructions} />
+        <WalletHeader title={getTitle(mode)} />
+        <Box flex={1} marginTop={hp(30)}>
+          <Box backgroundColor={`${colorMode}.boxSecondaryBackground`} style={styles.container}>
+            <Text fontSize={14} color={`${colorMode}.textColor3`}>
+              {instructions}
+            </Text>
+            <Box style={styles.illustration}>
+              {mode === InteracationMode.HEALTH_CHECK ? (
+                colorMode === 'light' ? (
+                  <HealthCheckIllustration />
+                ) : (
+                  <HealthCheckIllustrationDark />
+                )
+              ) : (
+                <ColdCardIllustration />
+              )}
+            </Box>
+            <Text fontSize={14} color={`${colorMode}.textColor3`}>
+              {instructions2}
+            </Text>
+          </Box>
         </Box>
+        <Buttons
+          fullWidth
+          primaryCallback={startNfcRead}
+          primaryText="Start NFC"
+          primaryDisable={nfcVisible}
+        />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </MockWrapper>
     </ScreenWrapper>
@@ -213,17 +251,14 @@ function SetupColdCard({ route }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 10,
-    paddingTop: 30,
+    paddingHorizontal: wp(20),
+    paddingTop: hp(5),
+    paddingBottom: hp(20),
+    borderRadius: 15,
   },
-  header: {
-    flex: 1,
-  },
-  buttonContainer: {
-    bottom: 0,
-    position: 'absolute',
-    right: 0,
+  illustration: {
+    alignSelf: 'center',
+    marginVertical: hp(40),
   },
 });
 

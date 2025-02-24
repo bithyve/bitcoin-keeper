@@ -9,7 +9,7 @@ export class RealmDatabase {
 
   public static file = 'keeper.realm';
 
-  public static schemaVersion = 85;
+  public static schemaVersion = 86;
 
   /**
    * initializes/opens realm w/ appropriate configuration
@@ -20,7 +20,13 @@ export class RealmDatabase {
     key: ArrayBuffer | ArrayBufferView | Int8Array
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      if (this.realm) return { success: true }; // database already initialized
+      // if the realm instance is already initialized, close it to prevent
+      // Realm from getting stuck in a weird state (e.g. realm reference object
+      // exists but the realm is closed)
+      if (this.realm) {
+        this.realm.close();
+      }
+
       const realmConfig: Realm.Configuration = {
         path: RealmDatabase.file,
         schema,
@@ -33,6 +39,7 @@ export class RealmDatabase {
       this.realm = await Realm.open(realmConfig);
       return { success: true };
     } catch (err) {
+      console.log('🚀 ~ RealmDatabase ~ err:', err);
       captureError(err);
       return { success: false, error: err.toString() };
     }

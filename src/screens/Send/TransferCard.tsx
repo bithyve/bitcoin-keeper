@@ -68,6 +68,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
       <TouchableOpacity
         disabled={isDefaultType}
         onPress={() => (isListType ? setShowList((value) => !value) : onPress())}
+        testID={`transferCard_${title}`}
       >
         <Box style={[styles.container, (isCTAType || isListType) && styles.rowContainer]}>
           <Text

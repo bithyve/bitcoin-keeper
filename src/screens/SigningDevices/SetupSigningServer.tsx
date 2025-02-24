@@ -134,6 +134,7 @@ function SetupSigningServer({ route }: { route }) {
                 showToast('Invalid OTP');
               }
             }}
+            testID="otpClipboardButton"
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
@@ -236,7 +237,7 @@ function SetupSigningServer({ route }: { route }) {
           }}
           title="Confirm OTP to setup 2FA"
           subTitle="To complete setting up the signer"
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
           Content={otpContent}
         />
       </View>

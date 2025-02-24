@@ -58,6 +58,7 @@ function DashedCta({
         style={[customStyle ? customStyle : styles.AddCardContainer, cardStyles]}
         backgroundColor={backgroundColor || defaultBackgroundColor}
         borderColor={defaultBorderColor}
+        testID={`btn_${name}`}
       >
         {icon && (
           <HexagonIcon

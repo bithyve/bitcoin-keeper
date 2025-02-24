@@ -53,6 +53,7 @@ import FeatureCard from 'src/components/FeatureCard';
 import WalletCard from '../Home/components/Wallet/WalletCard';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import Colors from 'src/theme/Colors';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 function Footer({
   vault,
@@ -349,7 +350,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <VStack style={styles.topSection}>
         <WalletHeader
-          title={vault.presentationData?.name}
           data={vault}
           rightComponent={
             <TouchableOpacity
@@ -484,6 +484,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         buttonTextColor={`${colorMode}.whiteButtonText`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           dispatch(setIntroModal(false));
           navigation.dispatch(

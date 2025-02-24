@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import ThemeMode from 'src/models/enums/ThemeMode';
 
 const initialState: {
@@ -22,6 +23,7 @@ const initialState: {
     inheritanceKey: boolean;
   };
   backupModal: boolean;
+  subscription: string;
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -41,6 +43,7 @@ const initialState: {
     inheritanceKey: false,
   },
   backupModal: true,
+  subscription: SubscriptionTier.L1,
 };
 
 const settingsSlice = createSlice({
@@ -95,6 +98,9 @@ const settingsSlice = createSlice({
     setBackupModal: (state, action: PayloadAction<boolean>) => {
       state.backupModal = action.payload;
     },
+    setSubscription(state, action: PayloadAction<string>) {
+      state.subscription = action.payload;
+    },
   },
 });
 
@@ -115,6 +121,7 @@ export const {
   setOTBStatusSS,
   setOTBStatusIKS,
   setBackupModal,
+  setSubscription,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

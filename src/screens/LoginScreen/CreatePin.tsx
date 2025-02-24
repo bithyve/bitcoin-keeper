@@ -192,8 +192,7 @@ export default function CreatePin(props) {
         visible={createPassword}
         close={() => {}}
         title="Remember your passcode"
-        subTitle="Please remember your passcode and backup your app by writing down the 12-word Recovery
-        Key."
+        subTitle="Storing the devices securely is an important responsibility. Please ensure their safety and accessibility. Losing them may lead to permanent loss of your bitcoin."
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}

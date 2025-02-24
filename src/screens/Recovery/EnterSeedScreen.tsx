@@ -637,7 +637,7 @@ function EnterSeedScreen({ route, navigation }) {
           buttonText="Retry"
           buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={closeInvalidSeedsModal}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
           Content={InValidSeedsScreen}
         />
         <KeeperModal
@@ -646,8 +646,8 @@ function EnterSeedScreen({ route, navigation }) {
           subTitle="All your wallets and data about your vault has been recovered"
           buttonText="Continue"
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
           Content={RecoverySuccessModalContent}
@@ -668,8 +668,8 @@ function EnterSeedScreen({ route, navigation }) {
           title="Something went wrong"
           subTitle="Please check your internet connection and try again."
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           subTitleWidth={wp(230)}
           showCloseIcon={false}
           buttonText={'Try again'}

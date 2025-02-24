@@ -23,6 +23,12 @@ import CanaryIcon from 'src/assets/images/bird-white.svg';
 import PlebIcon from 'src/assets/images/plebIcon.svg';
 import HodlerIcon from 'src/assets/images/hodlerIcon.svg';
 import DiamondIcon from 'src/assets/images/diamondHandsIcon.svg';
+import PlebGreenSub from 'src/assets/images/Pleb-green-sub-icon.svg';
+import PlebWhiteSub from 'src/assets/images/pleb-white-sub-icon.svg';
+import HodlerWhiteSub from 'src/assets/images/Hodler-white-sub-icon.svg';
+import HodlerGreenSub from 'src/assets/images/Hodler-green-sub-icon.svg';
+import DiamondGreenSub from 'src/assets/images/DiamondHands-green-sub-icon.svg';
+import DiamondWhiteSub from 'src/assets/images/DiamondHands-white-sub-iocn.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -43,6 +49,9 @@ import {
 } from 'src/store/reducers/bhr';
 import useToastMessage from './useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { setThemeMode } from 'src/store/reducers/settings';
+import ThemeMode from 'src/models/enums/ThemeMode';
+import { credsAuthenticated } from 'src/store/reducers/login';
 
 export const useSettingKeeper = () => {
   const dispatch = useAppDispatch();
@@ -63,6 +72,14 @@ export const useSettingKeeper = () => {
   const { backupAllFailure, backupAllSuccess, automaticCloudBackup } = useAppSelector(
     (state) => state.bhr
   );
+
+  useEffect(() => {
+    if (colorMode === 'dark') {
+      dispatch(setThemeMode(ThemeMode.DARK));
+    } else {
+      dispatch(setThemeMode(ThemeMode.LIGHT));
+    }
+  }, [colorMode]);
 
   const changeThemeMode = () => {
     toggleColorMode();
@@ -100,6 +117,9 @@ export const useSettingKeeper = () => {
       subtitle: signer.Beginner,
       description: signer.plebDescription,
       icon: <PlebIcon width={30} height={30} />,
+      sublightIcon: <PlebGreenSub width={24} height={24} />,
+      subDarkIcon: <PlebWhiteSub width={24} height={24} />,
+      subDescription: 'Start your bitcoin journey with our free subscription',
     },
     {
       plan: SubscriptionTier.L2.toUpperCase(),
@@ -107,6 +127,9 @@ export const useSettingKeeper = () => {
       subtitle: signer.intermediate,
       description: signer.hodlerDescription,
       icon: <HodlerIcon width={30} height={30} />,
+      sublightIcon: <HodlerGreenSub width={24} height={24} />,
+      subDarkIcon: <HodlerWhiteSub width={24} height={24} />,
+      subDescription: 'Unlock features to easily manage bigger bitcoin stacks',
     },
     {
       plan: SubscriptionTier.L3.toUpperCase(),
@@ -114,6 +137,9 @@ export const useSettingKeeper = () => {
       subtitle: signer.advanced,
       description: signer.DiamondHandsDesciption,
       icon: <DiamondIcon width={30} height={30} />,
+      sublightIcon: <DiamondGreenSub width={24} height={24} />,
+      subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
+      subDescription: 'Unlock to protect significant amount of bitcoin and inheritance planning',
     },
   ];
 
@@ -124,6 +150,7 @@ export const useSettingKeeper = () => {
       icon: <RecoveryKeyIcon width={14} height={14} />,
       onPress: () => {
         if (data.length === 0) {
+          dispatch(credsAuthenticated(false));
           setConfirmPass(true);
         } else {
           navigation.navigate('WalletBackHistory');
@@ -148,14 +175,9 @@ export const useSettingKeeper = () => {
       title: settings.assistedServerBackup,
       description: settings.assistedServerBackupSubtitle,
       icon: <CloudBackupIcon width={14} height={14} />,
-      onPress: toggleDebounce(() => toggleAutomaticBackupMode()),
-      rightIcon: (
-        <Switch
-          onValueChange={toggleDebounce(() => toggleAutomaticBackupMode())}
-          value={automaticCloudBackup}
-        />
-      ),
-      onRightPress: toggleDebounce(() => {}),
+      onPress: () => {},
+      rightIcon: <Switch onValueChange={() => {}} value={automaticCloudBackup} />,
+      onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
       isDiamond: false,
       isHodler: false,
     },

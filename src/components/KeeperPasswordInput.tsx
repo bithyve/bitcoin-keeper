@@ -20,7 +20,7 @@ export const KeeperPasswordInput = ({
   const { colorMode } = useColorMode();
   const [passwordVisible, setPasswordVisible] = useState(false);
   return (
-    <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
+    <TouchableOpacity activeOpacity={0.7} onPress={onPress} testID="btn_password">
       <Box
         height={50}
         backgroundColor={`${colorMode}.seashellWhite`}

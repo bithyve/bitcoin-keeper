@@ -31,6 +31,7 @@ import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useSigners from 'src/hooks/useSigners';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import BackupModalContent from './BackupModal';
+import { credsAuthenticated } from 'src/store/reducers/login';
 
 function AppBackupSettings() {
   const { colorMode } = useColorMode();
@@ -135,6 +136,7 @@ function AppBackupSettings() {
           title={settings.ViewRKTitle}
           description={settings.ViewRKDesc}
           callback={() => {
+            dispatch(credsAuthenticated(false));
             setConfirmPassVisible(true);
           }}
         />
@@ -156,8 +158,8 @@ function AppBackupSettings() {
         subTitleWidth={wp(240)}
         subTitle={settings.confirmPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics

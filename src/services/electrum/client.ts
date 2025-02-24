@@ -96,6 +96,7 @@ export default class ElectrumClient {
           //   ElectrumClient.connect,
           //   ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500
           // );
+          return ElectrumClient.reconnect();
         }
       };
 

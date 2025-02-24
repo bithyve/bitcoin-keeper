@@ -22,6 +22,9 @@ import { VisibilityType } from 'src/services/wallets/enums';
 import { WalletType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
 import BackupModalContent from '../AppSettings/BackupModal';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { credsAuthenticated } from 'src/store/reducers/login';
+import { useDispatch } from 'react-redux';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -31,6 +34,7 @@ function WalletSettings({ route }) {
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
+  const [loadingState, setLoadingState] = useState(false);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
@@ -41,6 +45,7 @@ function WalletSettings({ route }) {
   const TestSatsComponent = useTestSats({ wallet });
   const isImported = wallet.type === WalletType.IMPORTED;
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+  const dispatch = useDispatch();
 
   const updateWalletVisibility = () => {
     try {
@@ -62,6 +67,13 @@ function WalletSettings({ route }) {
       captureError(error);
       showToast(walletTranslation.somethingWentWrong);
     }
+  };
+
+  const handleTransferPolicy = async () => {
+    setLoadingState(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setTransferPolicyVisible(true);
+    setLoadingState(false);
   };
 
   return (
@@ -88,6 +100,7 @@ function WalletSettings({ route }) {
             title={walletTranslation.walletSeedWord}
             description={walletTranslation.walletSeedWordSubTitle}
             callback={() => {
+              dispatch(credsAuthenticated(false));
               setConfirmPassVisible(true);
             }}
           />
@@ -96,13 +109,13 @@ function WalletSettings({ route }) {
           <OptionCard
             title={walletTranslation.TransferPolicy}
             description={walletTranslation.TransferPolicyDesc}
-            callback={() => {
-              setTransferPolicyVisible(true);
-            }}
+            callback={handleTransferPolicy}
           />
         )}
         {TestSatsComponent}
       </ScrollView>
+      <ActivityIndicatorView visible={loadingState} showLoader />
+
       <KeeperModal
         visible={transferPolicyVisible}
         close={() => {
@@ -112,8 +125,8 @@ function WalletSettings({ route }) {
         subTitle={walletTranslation.editTransPolicySubTitle}
         subTitleWidth={wp(220)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         showCurrencyTypeSwitch={true}
         Content={() => (
@@ -140,8 +153,8 @@ function WalletSettings({ route }) {
         closeOnOverlayClick
         subTitle={walletTranslation?.confirmPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics
@@ -191,8 +204,8 @@ function WalletSettings({ route }) {
         subTitleWidth={wp(240)}
         subTitle={walletTranslation.xpubModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <ShowXPub
             data={wallet?.specs?.xpub}

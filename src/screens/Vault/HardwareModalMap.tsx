@@ -153,7 +153,7 @@ const getSignerContent = (
         type: SignerType.COLDCARD,
         Illustration: <ColdCardSetupImage />,
         Instructions: [
-          'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. Then transfer the file via SD card or NFC.',
+          'Export the Coldcard data by going to Advanced/Tools > Export wallet > Generic JSON.',
           'Or instead, use the Keeper Desktop app to connect to the Coldcard via USB',
         ],
         title: isHealthcheck ? 'Verify Coldcard' : coldcard.SetupTitle,
@@ -2155,7 +2155,8 @@ function HardwareModalMap({
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={buttonCallback}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={Content}
         secondaryButtonText={
@@ -2182,8 +2183,8 @@ function HardwareModalMap({
         subTitleWidth={wp(240)}
         subTitle="Confirm passcode to generate key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
             close={() => {
@@ -2207,7 +2208,8 @@ function HardwareModalMap({
         }}
         title="Enter your password"
         subTitle="The one you use to login to the app"
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() =>
           PasswordEnter({
             primaryMnemonic,
@@ -2259,8 +2261,8 @@ function HardwareModalMap({
             ? 'To complete setting up the signer'
             : 'To complete recovery of the signer'
         }
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={SigningServerOTPModal}
       />
       <KeeperModal
