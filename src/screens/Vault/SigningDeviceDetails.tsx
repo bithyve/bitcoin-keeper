@@ -428,7 +428,6 @@ function SigningDeviceDetails({ route }) {
             const witnessScript = script.decompile(input.witnessScript);
             // Convert to ASM format to check opcodes
             const asm = script.toASM(witnessScript);
-            console.log(asm);
             isMiniscript = miniscriptPatterns.some((pattern) => asm.includes(pattern));
           }
         });

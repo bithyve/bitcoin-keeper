@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
@@ -14,7 +14,7 @@ import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
 import SettingIcon from 'src/assets/images/settings-gear-green.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
+import { VaultType } from 'src/services/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
@@ -27,7 +27,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import SettingIconWhite from 'src/assets/images/settings-gear.svg';
 
-import CardPill from 'src/components/CardPill';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
@@ -42,10 +41,8 @@ import { sendPhaseOneReset, setStateFromSnapshot } from 'src/store/reducers/send
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import BTCAmountPill from 'src/components/BTCAmountPill';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import WalletHeader from 'src/components/WalletHeader';
 import FooterActions from 'src/components/FooterActions';
@@ -54,6 +51,10 @@ import WalletCard from '../Home/components/Wallet/WalletCard';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import Colors from 'src/theme/Colors';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import MiniscriptPathSelector, {
+  MiniscriptPathSelectorRef,
+} from 'src/components/MiniscriptPathSelector';
 
 function Footer({
   vault,
@@ -72,6 +73,22 @@ function Footer({
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { colorMode } = useColorMode();
+  const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
+
+  const handlePathSelected = (miniscriptSelectedSatisfier) => {
+    navigation.dispatch(
+      CommonActions.navigate('Send', {
+        sender: vault,
+        miniscriptSelectedSatisfier,
+      })
+    );
+  };
+
+  const selectVaultSpendingPaths = async () => {
+    if (miniscriptPathSelectorRef.current) {
+      await miniscriptPathSelectorRef.current.selectVaultSpendingPaths();
+    }
+  };
 
   const footerItems = vault.archived
     ? [
@@ -88,8 +105,16 @@ function Footer({
         {
           Icon: colorMode === 'light' ? SendIcon : SendIconWhite,
           text: common.send,
-          onPress: () => {
-            navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+          onPress: async () => {
+            if (vault.type === VaultType.MINISCRIPT) {
+              try {
+                await selectVaultSpendingPaths();
+              } catch (err) {
+                showToast(err, <ToastErrorIcon />);
+              }
+            } else {
+              navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+            }
           },
         },
         {
@@ -105,11 +130,20 @@ function Footer({
         },
       ];
   return (
-    <FooterActions
-      items={footerItems}
-      wrappedScreen={false}
-      backgroundColor={`${colorMode}.thirdBackground`}
-    />
+    <>
+      <FooterActions
+        items={footerItems}
+        wrappedScreen={false}
+        backgroundColor={`${colorMode}.thirdBackground`}
+      />
+      <MiniscriptPathSelector
+        ref={miniscriptPathSelectorRef}
+        vault={vault}
+        onPathSelected={handlePathSelected}
+        onError={(err) => showToast(err, <ToastErrorIcon />)}
+        onCancel={() => {}}
+      />
+    </>
   );
 }
 
@@ -137,6 +171,15 @@ function TransactionList({
           navigation.dispatch(
             CommonActions.navigate('SendConfirmation', {
               ...item.snapshot.routeParams,
+              addresses: item.snapshot.routeParams.addresses
+                ? item.snapshot.routeParams.addresses
+                : [item.snapshot.routeParams.address],
+              amounts: item.snapshot.routeParams.amounts
+                ? item.snapshot.routeParams.amounts
+                : [item.snapshot.routeParams.amount],
+              internalRecipients: item.snapshot.routeParams.internalRecipients
+                ? item.snapshot.routeParams.internalRecipients
+                : [item.snapshot.routeParams.recipient],
             })
           );
         } else {
@@ -258,12 +301,13 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       const snapshot: cachedTxSnapshot = snapshots[cachedTxid];
       if (!snapshot.routeParams) continue; // route params missing
 
-      const { addresses, amounts, sender, transferType, date } = snapshot.routeParams;
+      const { address, addresses, amount, amounts, sender, transferType, date } =
+        snapshot.routeParams;
       if (sender?.id !== vault.id) continue; // doesn't belong to the current vault
 
       const cachedTx = {
-        address: addresses[0], // TODO: Refactor, doesn't seem to be used
-        amount: amounts.reduce((sum, amount) => sum + amount, 0),
+        address: address ? address : addresses[0], // TODO: Refactor, doesn't seem to be used
+        amount: amount ? amount : amounts.reduce((sum, amount) => sum + amount, 0),
         blockTime: null,
         confirmations: 0,
         date,
@@ -733,6 +777,25 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  optionTitle: {
+    marginBottom: hp(5),
+  },
+  optionIconCtr: {
+    height: hp(39),
+    width: wp(39),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+  },
+  optionCTR: {
+    flexDirection: 'row',
+    paddingHorizontal: wp(15),
+    paddingVertical: hp(22),
+    alignItems: 'center',
+    gap: wp(16),
+    borderRadius: 12,
+    borderWidth: 1,
   },
 });
 

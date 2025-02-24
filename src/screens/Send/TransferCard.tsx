@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useColorMode } from 'native-base';
 import useBalance from 'src/hooks/useBalance';
@@ -10,6 +10,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import RightArrowGrey from 'src/assets/images/icon_arrow_grey.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 import { hp, wp } from 'src/constants/responsive';
+import Text from 'src/components/KeeperText';
 
 interface TransferCardProps {
   title: string;
@@ -143,7 +144,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
                   <Box maxWidth={'60%'}>
                     <Text
                       color={`${colorMode}.secondaryText`}
-                      fontSize={10}
+                      fontSize={13}
                       fontWeight={500}
                       ellipsizeMode="middle"
                     >

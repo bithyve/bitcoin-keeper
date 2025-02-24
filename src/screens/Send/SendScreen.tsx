@@ -39,7 +39,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation, CommonActions, StackActions } from '@react-navigation/native';
 import { TransferType } from 'src/models/enums/TransferType';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/services/wallets/operations';
@@ -64,6 +64,7 @@ import IconGreySettings from 'src/assets/images/settings_grey.svg';
 import { TouchableOpacity } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { NumberInput } from '../AddWalletScreen/AddNewWallet';
+import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -85,6 +86,7 @@ function SendScreen({ route }) {
     totalRecipients = 1,
     currentRecipientIdx = 1,
     note: txNote = '',
+    miniscriptSelectedSatisfier = null,
   } = route.params as {
     sender: Wallet | Vault;
     selectedUTXOs?: UTXO[];
@@ -100,6 +102,7 @@ function SendScreen({ route }) {
     totalRecipients: number;
     currentRecipientIdx: number;
     note: string;
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   };
 
   const [showNote, setShowNote] = useState(true);
@@ -212,6 +215,7 @@ function SendScreen({ route }) {
         recipients: finalRecipients,
         totalRecipients: localTotalRecipients,
         currentRecipientIdx,
+        miniscriptSelectedSatisfier,
       })
     );
   };

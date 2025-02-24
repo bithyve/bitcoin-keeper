@@ -23,7 +23,7 @@ import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation, StackActions } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/models/enums/TransferType';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import { BtcToSats, SATOSHIS_IN_BTC, SatsToBtc } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 import useExchangeRates from 'src/hooks/useExchangeRates';
@@ -64,6 +64,7 @@ import AmountDetailsInput from './AmountDetailsInput';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
 import PriorityModal from './PriorityModal';
+import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 
 const capitalizeFirstLetter = (string) => {
   if (!string) return '';
@@ -91,6 +92,7 @@ function AddSendAmount({ route }) {
     recipients: finalRecipients = [],
     totalRecipients = 1,
     currentRecipientIdx = 1,
+    miniscriptSelectedSatisfier = null,
   }: {
     sender: Wallet | Vault;
     internalRecipients: (Wallet | Vault)[];
@@ -109,6 +111,7 @@ function AddSendAmount({ route }) {
     }>;
     totalRecipients: number;
     currentRecipientIdx: number;
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   } = route.params;
   const [amount, setAmount] = useState(prefillAmount || '0');
   const [amountToSend, setAmountToSend] = useState('0');
@@ -255,6 +258,7 @@ function AddSendAmount({ route }) {
           transactionPriority === TxPriority.CUSTOM
             ? customFeePerByte
             : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+        miniscriptSelectedSatisfier,
       })
     );
   }, [transactionPriority, customFeePerByte]);
@@ -280,6 +284,7 @@ function AddSendAmount({ route }) {
             transactionPriority === TxPriority.CUSTOM
               ? customFeePerByte
               : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+          miniscriptSelectedSatisfier,
         })
       );
     }
@@ -379,6 +384,7 @@ function AddSendAmount({ route }) {
           feePerByte: customFeePerByte.toString(),
           customEstimatedBlocks: customEstBlocks.toString(),
           selectedUTXOs,
+          miniscriptSelectedSatisfier,
         })
       );
     }
@@ -396,6 +402,7 @@ function AddSendAmount({ route }) {
         date: new Date(),
         transactionPriority,
         customFeePerByte,
+        miniscriptSelectedSatisfier,
       })
     );
   };
@@ -416,6 +423,7 @@ function AddSendAmount({ route }) {
             transactionPriority === TxPriority.CUSTOM
               ? customFeePerByte
               : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+          miniscriptSelectedSatisfier,
         })
       );
       onSendMax();
@@ -449,6 +457,7 @@ function AddSendAmount({ route }) {
           wallet: sender,
           recipients,
           selectedUTXOs,
+          miniscriptSelectedSatisfier,
         })
       );
     } else {
@@ -464,6 +473,7 @@ function AddSendAmount({ route }) {
           internalRecipients,
           currentRecipientIdx: currentRecipientIdx + 1,
           note,
+          miniscriptSelectedSatisfier,
         })
       );
     }
@@ -719,6 +729,7 @@ function AddSendAmount({ route }) {
             }
           }}
           existingCustomPriorityFee={customFeePerByte}
+          miniscriptSelectedSatisfier={miniscriptSelectedSatisfier}
         />
       )}
     </ScreenWrapper>

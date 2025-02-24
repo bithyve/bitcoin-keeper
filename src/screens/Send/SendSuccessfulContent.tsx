@@ -26,7 +26,7 @@ function SendSuccessfulContent({
   const { colorMode } = useColorMode();
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTransactions } = translations;
+  const { wallet: walletTranslations } = translations;
 
   return (
     <Box style={styles.container}>
@@ -35,25 +35,21 @@ function SendSuccessfulContent({
           title="Sent from"
           subTitle={sender?.presentationData?.name}
           titleFontSize={15}
-          titleFontWeight={300}
+          titleFontWeight={500}
           subTitleFontSize={14}
-          subTitleFontWeight={200}
           amountFontSize={14}
-          amountFontWeight={200}
-          unitFontWeight={300}
           unitColor={`${colorMode}.modalUnitColor`}
         />
         {amounts.flatMap((amount, index) => [
           <TransferCard
             title="Sent to"
-            titleFontWeight={300}
             subTitle={
               recipients[index]?.presentationData?.name
                 ? recipients[index]?.presentationData?.name
                 : addresses[index]
             }
-            subTitleFontWeight={200}
             titleFontSize={15}
+            titleFontWeight={500}
             subTitleFontSize={14}
             amount={amount}
             unitFontSize={14}
@@ -62,52 +58,43 @@ function SendSuccessfulContent({
       </ReceiptWrapper>
       <Box style={styles.detailsContainer}>
         <AmountDetails
-          title={walletTransactions.totalAmount}
+          title={walletTranslations.totalAmount}
           titleFontSize={15}
-          titleFontWeight={200}
           titleColor={`${colorMode}.textGreenGrey`}
           amount={amounts.reduce((sum, amount) => sum + amount, 0)}
           amountFontSize={15}
-          amountFontWeight={200}
           amountColor={`${colorMode}.primaryText`}
           unitFontSize={14}
-          unitFontWeight={300}
           unitColor={`${colorMode}.modalUnitColor`}
         />
         <AmountDetails
-          title={walletTransactions.totalFees}
+          title={walletTranslations.networkFee}
           titleFontSize={15}
-          titleFontWeight={200}
           titleColor={`${colorMode}.textGreenGrey`}
           amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
           amountFontSize={15}
-          amountFontWeight={200}
           amountColor={`${colorMode}.primaryText`}
           unitFontSize={14}
-          unitFontWeight={300}
           unitColor={`${colorMode}.modalUnitColor`}
         />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.receiptBorder`} />
         <AmountDetails
-          title={walletTransactions.total}
+          title={walletTranslations.total}
           titleFontSize={15}
-          titleFontWeight={200}
           titleColor={`${colorMode}.primaryText`}
           amount={
             amounts.reduce((sum, amount) => sum + amount, 0) +
             txFeeInfo[transactionPriority?.toLowerCase()]?.amount
           }
           amountFontSize={16}
-          amountFontWeight={200}
           amountColor={`${colorMode}.primaryText`}
           unitFontSize={14}
-          unitFontWeight={300}
           unitColor={`${colorMode}.modalUnitColor`}
         />
       </Box>
       <Box style={styles.sendSuccessfullNote}>
         <Text color={`${colorMode}.placeHolderTextColor`} fontSize={13}>
-          {walletTransactions.sendTransSuccessMsg}
+          {walletTranslations.sendTransSuccessMsg}
         </Text>
       </Box>
       <Box>
