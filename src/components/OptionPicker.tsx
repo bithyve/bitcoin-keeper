@@ -143,19 +143,18 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   optionsContainer: {
-    paddingVertical: hp(10),
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    gap: hp(10),
   },
   optionContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: hp(10),
-    paddingBottom: hp(15),
   },
   separator: {
     height: 1,
+    alignSelf: 'center',
+    width: '100%',
+    marginVertical: hp(20),
   },
 });

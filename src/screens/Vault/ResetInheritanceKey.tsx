@@ -35,11 +35,11 @@ import {
   MONTHS_36,
 } from './constants';
 
-const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_3, value: 3 * 30 * 24 * 60 * 60 * 1000 };
+const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
 const INHERITANCE_TIMELOCK_DURATIONS = [
-  DEFAULT_INHERITANCE_TIMELOCK,
+  { label: MONTHS_3, value: 3 * 30 * 24 * 60 * 60 * 1000 },
   { label: MONTHS_6, value: 6 * 30 * 24 * 60 * 60 * 1000 },
-  { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
+  DEFAULT_INHERITANCE_TIMELOCK,
   { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
   { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
   { label: MONTHS_30, value: 30 * 30 * 24 * 60 * 60 * 1000 },
@@ -52,7 +52,7 @@ function ResetInheritanceKey({ route }) {
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_TIMELOCK);
   const signer: Signer = signerMap[signerId];
   const inheritanceSigner = vault.signers.find((signer) => getKeyUID(signer) === signerId);
   const otherSigners = vault.signers.filter((signer) => getKeyUID(signer) !== signerId);
