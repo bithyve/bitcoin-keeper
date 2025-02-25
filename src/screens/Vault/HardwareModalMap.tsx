@@ -396,7 +396,7 @@ const getSignerContent = (
       const subtitle =
         keyGenerationMode !== KeyGenerationMode.RECOVER
           ? 'The Server Key is a key stored securely on Keeper’s servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.'
-          : 'Recover an existing Signing Server using other signers from the Vault';
+          : 'Recover an existing Server Key using other signers from the Vault';
       return {
         type: SignerType.POLICY_SERVER,
         Illustration: <SigningServerIllustration />,
@@ -405,13 +405,13 @@ const getSignerContent = (
           : keyGenerationMode !== KeyGenerationMode.RECOVER
           ? [
               '2FA Authenticator will have to be set up to use this option',
-              'On providing a correct OTP from the authenticator app, the Signing Server will sign the transaction.',
+              'On providing a correct OTP from the authenticator app, the Server Key will sign the transaction.',
             ]
           : [
-              'At least 2 signers are required in order to identify and recover an existing Signing Server',
-              'OTP from the authenticator is also required along with the two signers to initiate Signing Server recovery.',
+              'At least 2 signers are required in order to identify and recover an existing Server Key.',
+              'OTP from the authenticator is also required along with the two signers to initiate Server Key recovery.',
             ],
-        title: isHealthcheck ? 'Verify Signing Server' : 'Set up the Server Key',
+        title: isHealthcheck ? 'Verify Server Key' : 'Set up the Server Key',
         subTitle: subtitle,
         options: isHealthcheck
           ? []
@@ -1649,7 +1649,7 @@ function HardwareModalMap({
           signerPolicy: response.policy,
         });
         if (mapped) {
-          showToast('Signing Server verified successfully', <TickIcon />);
+          showToast('Server key verified successfully', <TickIcon />);
         } else {
           showToast('Something Went Wrong!', <ToastErrorIcon />);
         }
@@ -2265,7 +2265,7 @@ function HardwareModalMap({
             ? 'Confirm OTP to perform health check'
             : keyGenerationMode !== KeyGenerationMode.RECOVER
             ? 'Confirm OTP to setup 2FA'
-            : 'Confirm OTP to recover Signing Server'
+            : 'Confirm OTP to recover Server Key'
         }
         subTitle={
           signingServerHealthCheckOTPModal
