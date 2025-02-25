@@ -44,13 +44,17 @@ const ServerKeyPolicyCard = (props: Props) => {
           style={styles.inputContainer}
         >
           <Box style={styles.alignCenter}>
-            <Text>{props.maxTransaction ? props.maxTransaction : '0'} </Text>
-            <Text>
-              sats{' '}
-              {props.timelimit && props?.timelimit?.value !== 0
-                ? '/' + ' ' + props.timelimit?.label
-                : ''}
-            </Text>
+            <Text>{props.maxTransaction ? props.maxTransaction : 'off'} </Text>
+            {props.maxTransaction ? (
+              <Text>
+                sats{' '}
+                {props.timelimit && props?.timelimit?.value !== 0
+                  ? '/' + ' ' + props.timelimit?.label
+                  : ''}
+              </Text>
+            ) : (
+              ''
+            )}
           </Box>
           <EditIcon />
         </Box>

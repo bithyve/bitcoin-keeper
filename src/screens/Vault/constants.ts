@@ -1,4 +1,5 @@
 export const NO_LIMIT = 'No limit';
+export const OFF = 'Off';
 export const DAY_1 = '1 day';
 export const DAY_3 = '3 day';
 export const DAY_5 = '5 day';
@@ -24,4 +25,5 @@ export const TIMELOCK_DURATIONS = [
   NO_LIMIT,
   DAY_3,
   DAY_5,
+  OFF,
 ];

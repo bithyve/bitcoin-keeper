@@ -11,8 +11,6 @@ import {
   MONTHS_3,
   MONTHS_6,
   MONTHS_12,
-  MONTHS_24,
-  MONTHS_18,
   MONTH_1,
   WEEK_1,
   WEEKS_2,
@@ -38,16 +36,14 @@ const SpendingLimit = ({ route }) => {
   );
 
   const INHERITANCE_TIMELOCK_DURATIONS = [
-    DEFAULT_INHERITANCE_TIMELOCK,
     { label: NO_LIMIT, value: 0 },
     { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 },
+    DEFAULT_INHERITANCE_TIMELOCK,
     { label: WEEKS_2, value: 14 * 24 * 60 * 60 * 1000 },
     { label: MONTH_1, value: 30 * 24 * 60 * 60 * 1000 },
     { label: MONTHS_3, value: 3 * 30 * 24 * 60 * 60 * 1000 },
     { label: MONTHS_6, value: 6 * 30 * 24 * 60 * 60 * 1000 },
     { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
-    { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
-    { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
   ];
   const handleConfirm = () => {
     navigation.navigate('ChoosePolicyNew', {

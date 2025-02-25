@@ -6,7 +6,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import OptionDropdown from 'src/components/OptionDropdown';
-import { WEEK_1, WEEKS_2, DAY_3, DAY_5, DAY_1 } from './constants';
+import { WEEK_1, WEEKS_2, DAY_3, DAY_5, DAY_1, OFF } from './constants';
 import Buttons from 'src/components/Buttons';
 import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
@@ -24,6 +24,7 @@ const SigningDelay = ({ route }) => {
   );
 
   const INHERITANCE_TIMELOCK_DURATIONS = [
+    { label: OFF, value: 0 },
     DEFAULT_INHERITANCE_TIMELOCK,
     { label: DAY_3, value: 3 * 24 * 60 * 60 * 1000 },
     { label: DAY_5, value: 5 * 24 * 60 * 60 * 1000 },
