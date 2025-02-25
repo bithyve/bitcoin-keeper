@@ -92,7 +92,7 @@ function* fetchOneDayInsightWorker() {
 export const fetchOneDayInsightWatcher = createWatcher(fetchOneDayInsightWorker, ONE_DAY_INSIGHT);
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
-  const { wallet, recipients, selectedUTXOs } = payload;
+  const { wallet, recipients, selectedUTXOs, miniscriptSelectedSatisfier } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -113,7 +113,8 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
       wallet,
       recipients,
       averageTxFeeByNetwork,
-      selectedUTXOs
+      selectedUTXOs,
+      miniscriptSelectedSatisfier
     );
 
     if (!txPrerequisites) throw new Error('Send failed: unable to generate tx pre-requisite');
@@ -338,7 +339,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
 export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
 
 function* corssTransferWorker({ payload }: CrossTransferAction) {
-  const { sender, recipient, amount } = payload;
+  const { sender, recipient, amount, miniscriptSelectedSatisfier } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -363,7 +364,9 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
       WalletOperations.transferST1,
       sender,
       recipients,
-      averageTxFeeByNetwork
+      averageTxFeeByNetwork,
+      null,
+      miniscriptSelectedSatisfier
     );
 
     if (txPrerequisites) {
@@ -394,7 +397,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
 export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRANSFER);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
-  const { recipients, wallet, selectedUTXOs } = payload;
+  const { recipients, wallet, selectedUTXOs, miniscriptSelectedSatisfier } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -407,7 +410,8 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     wallet,
     recipients,
     feePerByte,
-    selectedUTXOs
+    selectedUTXOs,
+    miniscriptSelectedSatisfier
   );
 
   yield put(setSendMaxFee(fee));
@@ -430,7 +434,14 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
       return;
     }
 
-    const { wallet, recipients, feePerByte, customEstimatedBlocks, selectedUTXOs } = payload;
+    const {
+      wallet,
+      recipients,
+      feePerByte,
+      customEstimatedBlocks,
+      selectedUTXOs,
+      miniscriptSelectedSatisfier,
+    } = payload;
     const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
       (state) => state.sendAndReceive.sendPhaseOne
     );
@@ -467,7 +478,8 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
         wallet,
         outputs,
         parseInt(feePerByte, 10),
-        selectedUTXOs
+        selectedUTXOs,
+        miniscriptSelectedSatisfier
       );
 
     if (customTxPrerequisites[TxPriority.CUSTOM]?.inputs) {

@@ -7,6 +7,10 @@ import ThreeDotsGrey from 'src/assets/images/three-dots-grey.svg';
 import ThreeDotsWhite from 'src/assets/images/three-dots-white.svg';
 
 import Text from 'src/components/KeeperText';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
+import { useAppSelector } from 'src/store/hooks';
+import { hp } from 'src/constants/responsive';
 
 const TransactionPriorityDetails = ({
   transactionPriority,
@@ -19,6 +23,9 @@ const TransactionPriorityDetails = ({
 }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const isCurrentCurrencyFiat = currentCurrency === CurrencyKind.FIAT;
+  const currencyCode = useCurrencyCode();
   const { wallet: walletTransactions } = translations;
   const isDarkMode = colorMode === 'dark';
 
@@ -48,11 +55,10 @@ const TransactionPriorityDetails = ({
           <Box style={styles.rightContainer}>
             <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
               {estimationSign}
-            </Text>
-            <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
+              &nbsp;
               {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation *
                 10}
-              min
+              &nbsp;minutes
             </Text>
           </Box>
         </Box>
@@ -64,7 +70,7 @@ const TransactionPriorityDetails = ({
           </Box>
           <Box style={styles.rightContainer}>
             <Box style={styles.transSatsFeeWrapper}>
-              {getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
+              {!getSatUnit() && getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
               &nbsp;
               <Text color={`${colorMode}.textGreenGrey`} style={styles.transSatsFeeText}>
                 {`${getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)} `}
@@ -72,6 +78,7 @@ const TransactionPriorityDetails = ({
               {
                 <Text color={`${colorMode}.textGreenGrey`} style={styles.satsText}>
                   {getSatUnit()}
+                  {isCurrentCurrencyFiat && currencyCode}
                 </Text>
               }
             </Box>
@@ -99,6 +106,7 @@ const styles = StyleSheet.create({
   },
   transTitleText: {
     fontSize: 16,
+    marginBottom: hp(5),
   },
   transLabelText: {
     fontSize: 14,
@@ -107,7 +115,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   satsText: {
-    fontSize: 12,
+    fontSize: 14,
   },
   transSatsFeeWrapper: {
     alignItems: 'center',
