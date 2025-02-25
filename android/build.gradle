@@ -23,10 +23,3 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
-allprojects {
-    repositories {
-        maven {
-            url "https://zendesk.jfrog.io/artifactory/repo"
-        }
-    }
-}

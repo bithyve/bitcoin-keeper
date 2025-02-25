@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     width: windowWidth * 0.9,
     paddingLeft: 15,
     bottom: hp(40),
-    height: 70,
+    minHeight: hp(70),
     fontSize: 13,
     elevation: 6,
     shadowOpacity: 0.6,

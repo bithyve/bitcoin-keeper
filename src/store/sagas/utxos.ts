@@ -1,6 +1,6 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { call, delay, put } from 'redux-saga/effects';
+import { call, delay, fork, put } from 'redux-saga/effects';
 import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
 import { LabelRefType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
@@ -106,7 +106,7 @@ export function* bulkUpdateLabelsWorker({
     try {
       const backupResponse = yield call(checkBackupCondition);
       if (!backupResponse)
-        yield call(
+        yield fork(
           Relay.modifyLabels,
           id,
           addedTags.length ? addedTags : [],

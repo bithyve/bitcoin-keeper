@@ -28,7 +28,6 @@ function QRScanner({
   hideCamera?: boolean;
 }) {
   const { colorMode } = useColorMode();
-  const isSmallDevice = useIsSmallDevices();
 
   const [isFocused, setIsFocused] = useState(false);
   const [qrPercent, setQrPercent] = useState(0);
@@ -199,7 +198,7 @@ function QRScanner({
             <Box style={styles.cameraView} />
           )}
         </Box>
-        <Box style={[styles.uploadButton, { top: isSmallDevice ? hp(295) : hp(240) }]}>
+        <Box style={[styles.uploadButton, { top: windowWidth * 0.7 - 25 }]}>
           <UploadImage backgroundColor={`${colorMode}.brownColor`} onPress={handleChooseImage} />
         </Box>
       </VStack>

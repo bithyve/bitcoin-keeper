@@ -20,13 +20,15 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+
   useEffect(() => {
-    if (confirmPass) {
+    if (confirmPass || isUaiFlow) {
+      navigation.setParams({ isUaiFlow: false });
       setConfirmPassVisible(true);
     }
-  }, [confirmPass]);
+  }, [confirmPass, isUaiFlow]);
 
   return (
     <Box>

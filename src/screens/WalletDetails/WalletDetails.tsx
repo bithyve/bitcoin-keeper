@@ -158,7 +158,6 @@ function WalletDetails({ route }: ScreenProps) {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <Box style={styles.topContainer}>
         <WalletHeader
-          title={name}
           rightComponent={
             <TouchableOpacity
               style={styles.settingBtn}

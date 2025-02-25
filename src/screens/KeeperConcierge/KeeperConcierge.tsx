@@ -23,7 +23,7 @@ import CardPill from 'src/components/CardPill';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import StackedCirclesList from '../Vault/components/StackedCircleList';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ConciergeTag, goToConcierge, loadConciergeUser } from 'src/store/sagaActions/concierge';
+import { loadConciergeUser } from 'src/store/sagaActions/concierge';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -88,23 +88,6 @@ const KeeperConcierge = () => {
   ];
 
   const cardsData = [
-    {
-      title: concierge.smartHelpTitle,
-      description: concierge.smartHelpDescription,
-      LeftComponent: (
-        <CircleIconWrapper
-          icon={isDarkMode ? <KBOutlineDark /> : <KBOutlineLight />}
-          width={wp(35)}
-          backgroundColor={`${colorMode}.greyBackground`}
-        />
-      ),
-      buttonText: concierge.smartHelpButtonText,
-      buttonIcon: isDarkMode ? KbCtaDark : KbCtaLight,
-      titleComponent: null,
-      buttonCallback: () => {
-        dispatch(goToConcierge([], ConciergeTag.KEEPER_CONCIERGE));
-      },
-    },
     {
       title: concierge.technicalSupportTitle,
       description: concierge.technicalSupportDescription,
