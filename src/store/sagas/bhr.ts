@@ -214,7 +214,6 @@ export function* updateVaultImageWorker({
       appID: id,
       vaultShellId: vault.shellId,
       vaultId: vault.id,
-      scheme: vault.scheme,
       signersData,
       vault: vaultEncrypted,
       subscription: subscriptionStrings,
@@ -961,7 +960,6 @@ function* backupAllSignersAndVaultsWorker() {
       vaultObject[vault.id] = {
         vaultShellId: vault.shellId,
         vaultId: vault.id,
-        scheme: vault.scheme,
         signersData,
         vault: vaultEncrypted,
       };

@@ -432,18 +432,6 @@ export default class Relay {
     }
   };
 
-  public static vaultCheck = async (vaultId): Promise<any> => {
-    try {
-      const res = await RestClient.post(`${RELAY}vaultCheck`, {
-        vaultId,
-      });
-      const data = res.data || res.json;
-      return data;
-    } catch (err) {
-      captureError(err);
-      throw new Error('VaultCheckAPI Failed');
-    }
-  };
 
   public static getVaultMetaData = async (xfpHash: String, signerId?: String): Promise<any> => {
     try {
