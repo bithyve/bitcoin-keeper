@@ -396,19 +396,21 @@ function VaultMigrationController({
 
   return (
     <>
-      <MiniscriptPathSelector
-        ref={miniscriptPathSelectorRef}
-        vault={activeVault}
-        onPathSelected={(satisfier) => {
-          setMiniscriptSelectedSatisfier(satisfier);
-          const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
-          const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
-          const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
-          proceedWithSweep(receivingAddress, feePerByte, satisfier);
-        }}
-        onError={(err) => showToast(err, <ToastErrorIcon />)}
-        onCancel={() => setCreating(false)}
-      />
+      {activeVault && (
+        <MiniscriptPathSelector
+          ref={miniscriptPathSelectorRef}
+          vault={activeVault}
+          onPathSelected={(satisfier) => {
+            setMiniscriptSelectedSatisfier(satisfier);
+            const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
+            const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
+            const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+            proceedWithSweep(receivingAddress, feePerByte, satisfier);
+          }}
+          onError={(err) => showToast(err, <ToastErrorIcon />)}
+          onCancel={() => setCreating(false)}
+        />
+      )}
     </>
   );
 }
