@@ -970,6 +970,11 @@ function Signers({
                 ? 'Select a key for your wallet'
                 : `Select ${scheme.n} keys for your wallet`}
             </Text>
+            {!isCollaborativeFlow && (
+              <Box style={styles.addKeyBtnWrapper}>
+                <AddKeyButton short onPress={() => setShowOpenSignerModal(true)} />
+              </Box>
+            )}
           </Box>
           {signers.length ? (
             <Box>
@@ -978,33 +983,9 @@ function Signers({
                   <>
                     {renderSigners(signerFilters)}
                     {signerFilters.length <= 0 && renderAssistedKeysShell()}
-                    <DashedCta
-                      backgroundColor={`${colorMode}.DashedButtonCta`}
-                      hexagonBackgroundColor={Colors.pantoneGreen}
-                      textColor={`${colorMode}.greenWhiteText`}
-                      name={'Add Key'}
-                      callback={() => setShowOpenSignerModal(true)}
-                      icon={<Plus width={12.9} height={12.9} />}
-                      iconWidth={33}
-                      iconHeight={30}
-                      customStyle={styles.DashedButton}
-                    />
                   </>
                 ) : isReserveKeyFlow ? (
-                  <>
-                    {renderReservedKeys()}
-                    <DashedCta
-                      backgroundColor={`${colorMode}.DashedButtonCta`}
-                      hexagonBackgroundColor={Colors.pantoneGreen}
-                      textColor={`${colorMode}.greenWhiteText`}
-                      name={'Add Key'}
-                      callback={() => setShowOpenSignerModal(true)}
-                      icon={<Plus width={12.9} height={12.9} />}
-                      iconWidth={33}
-                      iconHeight={30}
-                      customStyle={styles.DashedButton}
-                    />
-                  </>
+                  <>{renderReservedKeys()}</>
                 ) : signers.filter(
                     (signer) => signer.type === SignerType.KEEPER && !signer.archived
                   ).length ? (
