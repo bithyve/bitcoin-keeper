@@ -41,29 +41,29 @@ function SetupSigningServer({ route }: { route }) {
   const { vault: vaultTranslation, signingServer, common } = translations;
   const [validationModal, showValidationModal] = useState(false);
   const [setupData, setSetupData] = useState(null);
-  const [validationKey, setValidationKey] = useState('true');
+  const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
   const [backupKeyModal, setBackupKeyModal] = useState(false);
   // const { addSignerFlow = false } = route.params;
   const addSignerFlow = false;
 
-  // const registerSigningServer = async () => {
-  //   try {
-  //     const { setupData } = await SigningServer.register(policy);
-  //     setSetupData(setupData);
-  //     setValidationKey(setupData.verification.verifier);
-  //   } catch (err) {
-  //     showToast('Something went wrong. Please try again!');
-  //   }
-  // };
+  const registerSigningServer = async () => {
+    try {
+      const { policy } = route.params;
+      const { setupData } = await SigningServer.register(policy);
+      setSetupData(setupData);
+      setValidationKey(setupData.verification.verifier);
+    } catch (err) {
+      showToast('Something went wrong. Please try again!');
+    }
+  };
 
   const validateSetup = async () => {
     const verificationToken = Number(otp);
     try {
-      // const { valid } = await SigningServer.validate(setupData.id, verificationToken);
-      const valid = true;
+      const { valid } = await SigningServer.validate(setupData.id, verificationToken);
       if (valid) {
-        // setIsSetupValidated(valid);
+        setIsSetupValidated(valid);
         showValidationModal(false);
         setBackupKeyModal(true);
       } else {
@@ -77,7 +77,7 @@ function SetupSigningServer({ route }: { route }) {
   };
 
   const setupSigningServerKey = async () => {
-    // const { policy } = route.params;
+    const { policy } = route.params;
     const { id, isBIP85, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
     const { signer: signingServerKey } = generateSignerFromMetaData({
       xpub,
@@ -88,7 +88,7 @@ function SetupSigningServer({ route }: { route }) {
       isMultisig: true,
       xfp: id,
       isBIP85,
-      // signerPolicy: policy,
+      signerPolicy: policy,
     });
 
     dispatch(addSigningDevice([signingServerKey]));
@@ -105,9 +105,9 @@ function SetupSigningServer({ route }: { route }) {
     navigation.dispatch(CommonActions.navigate(navigationState));
   };
 
-  // useEffect(() => {
-  //   registerSigningServer();
-  // }, []);
+  useEffect(() => {
+    registerSigningServer();
+  }, []);
 
   useEffect(() => {
     if (setupData && isSetupValidated) setupSigningServerKey();
@@ -183,7 +183,7 @@ function SetupSigningServer({ route }: { route }) {
   const BackupModalContent = useCallback(() => {
     return (
       <Box style={styles.modalContainer}>
-        {<SigningServerIllustration />}
+        <SigningServerIllustration />
         <Box>
           <Text fontSize={12} semiBold style={styles.modalTitle}>
             {signingServer.attention}:
@@ -200,7 +200,7 @@ function SetupSigningServer({ route }: { route }) {
               navigation.navigate('ServerKeySuccessScreen');
             }}
             primaryText={common.Later}
-            primaryBackgroundColor={'transparent'}
+            primaryBackgroundColor="transparent"
             primaryTextColor={
               isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.brownColor`
             }
@@ -213,7 +213,7 @@ function SetupSigningServer({ route }: { route }) {
               navigation.navigate('ServerKeySuccessScreen');
             }}
             primaryText={common.Never}
-            primaryBackgroundColor={'transparent'}
+            primaryBackgroundColor="transparent"
             primaryTextColor={
               isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.brownColor`
             }
@@ -252,11 +252,7 @@ function SetupSigningServer({ route }: { route }) {
                 />
               </Box>
               <Box>
-                <WalletCopiableData
-                  data={validationKey}
-                  dataType="2fa"
-                  width={'95%'}
-                ></WalletCopiableData>
+                <WalletCopiableData data={validationKey} dataType="2fa" width="95%" />
               </Box>
             </Box>
           )}
