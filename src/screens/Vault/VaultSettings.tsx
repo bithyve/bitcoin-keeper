@@ -19,6 +19,7 @@ import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import {
   EMERGENCY_KEY_IDENTIFIER,
+  getVaultEnhancedSigners,
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
@@ -43,18 +44,8 @@ function VaultSettings({ route }) {
   const { showToast } = useToastMessage();
   const isMiniscriptVault =
     vault?.type === VaultType.MINISCRIPT && !!vault?.scheme?.miniscriptScheme;
-  const inheritanceKeys = vault?.signers?.filter((signer) =>
-    Object.entries(vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints)
-      .filter(([identifier]) => identifier.startsWith(INHERITANCE_KEY_IDENTIFIER))
-      .map(([_, fp]) => fp)
-      .includes(signer.masterFingerprint)
-  );
-  const emergencyKeys = vault?.signers?.filter((signer) =>
-    Object.entries(vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints)
-      .filter(([identifier]) => identifier.startsWith(EMERGENCY_KEY_IDENTIFIER))
-      .map(([_, fp]) => fp)
-      .includes(signer.masterFingerprint)
-  );
+  const { inheritanceSigners: inheritanceKeys, emergencySigners: emergencyKeys } =
+    getVaultEnhancedSigners(vault);
 
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
   const [needHelpModal, setNeedHelpModal] = useState(false);
@@ -151,11 +142,11 @@ function VaultSettings({ route }) {
       },
     inheritanceKeys.length && {
       title: emergencyKeys
-                ? vaultText.resetKeysTitle
-                : vaultText.resetIKTitle + (inheritanceKeys.length > 1 ? 's' : ''),
+        ? vaultText.resetKeysTitle
+        : vaultText.resetIKTitle + (inheritanceKeys.length > 1 ? 's' : ''),
       description: emergencyKeys
-                ? vaultText.resetKeysDesc
-                : vaultText.resetIKDesc + (inheritanceKeys.length > 1 ? 's' : ''),
+        ? vaultText.resetKeysDesc
+        : vaultText.resetIKDesc + (inheritanceKeys.length > 1 ? 's' : ''),
       icon: null,
       isDiamond: false,
       onPress: () =>
@@ -166,19 +157,20 @@ function VaultSettings({ route }) {
           })
         ),
     },
-    emergencyKeys.length && inheritanceKeys.length === 0 && {
-      title: vaultText.resetEKTitle + (emergencyKeys.length > 1 ? 's' : ''),
-      description: vaultText.resetEKDesc + (emergencyKeys.length > 1 ? 's' : ''),
-      icon: null,
-      isDiamond: false,
-      onPress: () =>
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'ResetEmergencyKey',
-            params: { vault },
-          })
-        ),
-    },
+    emergencyKeys.length &&
+      inheritanceKeys.length === 0 && {
+        title: vaultText.resetEKTitle + (emergencyKeys.length > 1 ? 's' : ''),
+        description: vaultText.resetEKDesc + (emergencyKeys.length > 1 ? 's' : ''),
+        icon: null,
+        isDiamond: false,
+        onPress: () =>
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'ResetEmergencyKey',
+              params: { vault },
+            })
+          ),
+      },
   ].filter(Boolean);
 
   return (
