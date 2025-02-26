@@ -45,7 +45,6 @@ function ChoosePolicyNew({ navigation, route }) {
   const [otp, setOtp] = useState('');
 
   const { maxTransaction, timelimit, delayTime } = route.params;
-  console.log('maxTransaction', maxTransaction);
 
   const [spendingLimit, setSpendingLimit] = useState(null);
   const [timeLimit, setTimeLimit] = useState(null);
