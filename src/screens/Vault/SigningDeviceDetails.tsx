@@ -201,7 +201,7 @@ const getSignerContent = (type: SignerType) => {
       };
     case SignerType.POLICY_SERVER:
       return {
-        title: 'Signing Server',
+        title: 'Server Key',
         subTitle:
           'The key on the signer will sign a transaction depending on the policy and authentication',
         assert: <SigningServerIllustration />,

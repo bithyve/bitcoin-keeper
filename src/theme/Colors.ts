@@ -190,5 +190,6 @@ const Colors = {
   darkBorderGreen: 'rgba(89, 116, 107, 1)',
 
   modalSubtitleBlack: 'rgba(4, 21, 19, 1)',
+  BrownBorder: 'rgba(145, 120, 92, 0.2))',
 };
 export default Colors;
