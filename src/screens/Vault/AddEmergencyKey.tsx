@@ -49,8 +49,6 @@ import {
 
 export const DEFAULT_EMERGENCY_KEY_TIMELOCK = { label: MONTHS_36, value: MONTHS_36 };
 export const EMERGENCY_TIMELOCK_DURATIONS = [
-  { label: MONTHS_3, value: MONTHS_3 },
-  { label: MONTHS_6, value: MONTHS_6 },
   { label: MONTHS_12, value: MONTHS_12 },
   { label: MONTHS_18, value: MONTHS_18 },
   { label: MONTHS_24, value: MONTHS_24 },

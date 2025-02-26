@@ -17,7 +17,18 @@ import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
 import Buttons from 'src/components/Buttons';
 import { SDIcons } from './SigningDeviceIcons';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
-import { MONTHS_12, MONTHS_24, MONTHS_18 } from './constants';
+import {
+  MONTHS_12,
+  MONTHS_24,
+  MONTHS_18,
+  MONTHS_6,
+  MONTHS_30,
+  MONTHS_36,
+  MONTHS_42,
+  MONTHS_48,
+  MONTHS_54,
+  MONTHS_60,
+} from './constants';
 import { getKeyUID } from 'src/utils/utilities';
 import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
@@ -32,14 +43,18 @@ import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { INHERITANCE_KEY_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
-export const DEFAULT_INHERITANCE_TIMELOCK = {
-  label: MONTHS_12,
-  value: 12 * 30 * 24 * 60 * 60 * 1000,
-};
+export const DEFAULT_INHERITANCE_KEY_TIMELOCK = { label: MONTHS_12, value: MONTHS_12 };
 export const INHERITANCE_TIMELOCK_DURATIONS = [
-  DEFAULT_INHERITANCE_TIMELOCK,
-  { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
-  { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
+  { label: MONTHS_6, value: MONTHS_6 },
+  { label: MONTHS_12, value: MONTHS_12 },
+  { label: MONTHS_18, value: MONTHS_18 },
+  { label: MONTHS_24, value: MONTHS_24 },
+  { label: MONTHS_30, value: MONTHS_30 },
+  { label: MONTHS_36, value: MONTHS_36 },
+  { label: MONTHS_42, value: MONTHS_42 },
+  { label: MONTHS_48, value: MONTHS_48 },
+  { label: MONTHS_54, value: MONTHS_54 },
+  { label: MONTHS_60, value: MONTHS_60 },
 ];
 
 function AddReserveKey({ route }) {
@@ -59,7 +74,7 @@ function AddReserveKey({ route }) {
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultTranslations } = translations;
-  const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_TIMELOCK);
+  const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_KEY_TIMELOCK);
   const [selectedSigner, setSelectedSigner] = useState(null);
   const { activeVault, allVaults } = useVault({ vaultId });
   const vaultKeys = vaultKeysParam || activeVault?.signers || [];
