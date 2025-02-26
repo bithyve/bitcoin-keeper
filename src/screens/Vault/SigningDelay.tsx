@@ -40,9 +40,12 @@ const SigningDelay = ({ route }) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ScreenWrapper>
-        <WalletHeader title={signingServer.configureLimit} />
-        <Text color={`${colorMode}.modalSubtitleBlack`} style={styles.subtitleText}>
-          {signingServer.configureLimitSubTitle}
+        <WalletHeader title={signingServer.signigDelay} />
+        <Text color={`${colorMode}.subPlansubtitle`} medium style={styles.title}>
+          {signingServer.signigDelaySubTitle}
+        </Text>
+        <Text color={`${colorMode}.policySubtitle`} style={styles.subtitleText}>
+          {signingServer.serverSigningDelaySubTitle}
         </Text>
         <Box style={styles.fieldWrapper}>
           <OptionDropdown
@@ -63,7 +66,12 @@ export default SigningDelay;
 
 const styles = StyleSheet.create({
   subtitleText: {
-    marginTop: 12,
+    fontSize: 12,
+    marginTop: 8,
+  },
+  title: {
+    fontSize: 14,
+    marginTop: 20,
   },
   fieldWrapper: {
     marginTop: 15,
@@ -72,5 +80,6 @@ const styles = StyleSheet.create({
   },
   btnWrapper: {
     paddingTop: hp(windowHeight > 700 ? 18 : 0),
+    paddingBottom: hp(20),
   },
 });
