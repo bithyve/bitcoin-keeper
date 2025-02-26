@@ -31,7 +31,7 @@ function EnhancedKeysSection({
     signer: Signer,
     item: VaultSigner,
     isInheritanceKey: boolean,
-    isEmergencyKey?: boolean
+    isEmergencyKey: boolean
   ) => void;
   setCurrentBlockHeight: (blockHeight: number | null) => void;
 }) {
@@ -116,7 +116,14 @@ function EnhancedKeysSection({
       {keys.map((key, index) => (
         <SignerCard
           key={index}
-          onCardSelect={() => handleCardSelect(key.key, key.keyMeta[index], true)}
+          onCardSelect={() =>
+            handleCardSelect(
+              key.key,
+              key.keyMeta,
+              key.identifier.startsWith(INHERITANCE_KEY_IDENTIFIER),
+              key.identifier.startsWith(EMERGENCY_KEY_IDENTIFIER)
+            )
+          }
           name={`${getSignerNameFromType(key.key.type, false, false)}`}
           description={getSignerDescription(key.key)}
           icon={SDIcons(key.key.type, true).Icon}

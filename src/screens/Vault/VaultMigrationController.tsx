@@ -1,5 +1,5 @@
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState, useRef } from 'react';
+import { CommonActions, useNavigation, useFocusEffect } from '@react-navigation/native';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   MiniscriptTypes,
   MultisigScriptType,
@@ -91,77 +91,84 @@ function VaultMigrationController({
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
   const [miniscriptSelectedSatisfier, setMiniscriptSelectedSatisfier] = useState(null);
 
-  useEffect(() => {
-    if (temporaryVault && temporaryVault.id) {
-      setGeneratedVaultId(temporaryVault.id);
-    }
-  }, [temporaryVault]);
+  useFocusEffect(
+    useCallback(() => {
+      if (temporaryVault && temporaryVault.id) {
+        setGeneratedVaultId(temporaryVault.id);
+      }
+    }, [temporaryVault])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (vaultCreating) {
+        initiateNewVault().catch((err) => {
+          console.log('Vault creation error:', err);
+          captureError(err);
+          setCreating(false);
+        });
+      }
+    }, [vaultCreating])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (vaultId && temporaryVault) {
+        dispatch(sendPhasesReset());
+        createNewVault();
+      }
+    }, [temporaryVault, vaultId])
+  );
 
   useEffect(() => {
-    if (vaultCreating) {
-      initiateNewVault().catch((err) => {
-        console.log('Vault creation error:', err);
-        captureError(err);
-        setCreating(false);
-      });
-    }
-  }, [vaultCreating]);
-
-  useEffect(() => {
-    if (vaultId && temporaryVault) {
-      createNewVault();
-    }
-  }, [temporaryVault]);
-
-  useEffect(() => {
-    return () => {
-      dispatch(sendPhasesReset());
-    };
+    dispatch(sendPhasesReset());
   }, []);
 
-  useEffect(() => {
-    if (sendPhaseOneState.isSuccessful && temporaryVault) {
-      setCreating(false);
-      if (
-        activeVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG &&
-        activeVault.type === VaultType.MINISCRIPT
-      ) {
-        WalletUtilities.fetchCurrentBlockHeight()
-          .then(({ currentBlockHeight }) => {
-            navigation.dispatch(
-              CommonActions.navigate('SendConfirmation', {
-                sender: activeVault,
-                internalRecipients: [temporaryVault],
-                addresses: [recipients[0].address],
-                amounts: [parseInt(recipients[0].amount, 10)],
-                transferType: TransferType.VAULT_TO_VAULT,
-                currentBlockHeight,
-                miniscriptSelectedSatisfier,
-              })
-            );
-          })
-          .catch((err) => {
-            captureError(err);
-            showToast('Failed to fetch current block height', <ToastErrorIcon />);
-          });
-      } else {
-        navigation.dispatch(
-          CommonActions.navigate('SendConfirmation', {
-            sender: activeVault,
-            internalRecipients: [temporaryVault],
-            addresses: [recipients[0].address],
-            amounts: [parseInt(recipients[0].amount, 10)],
-            transferType: TransferType.VAULT_TO_VAULT,
-            miniscriptSelectedSatisfier,
-          })
-        );
+  useFocusEffect(
+    useCallback(() => {
+      if (sendPhaseOneState.isSuccessful && temporaryVault) {
+        setCreating(false);
+        if (
+          activeVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG &&
+          activeVault.type === VaultType.MINISCRIPT
+        ) {
+          WalletUtilities.fetchCurrentBlockHeight()
+            .then(({ currentBlockHeight }) => {
+              navigation.dispatch(
+                CommonActions.navigate('SendConfirmation', {
+                  sender: activeVault,
+                  internalRecipients: [temporaryVault],
+                  addresses: [recipients[0].address],
+                  amounts: [parseInt(recipients[0].amount, 10)],
+                  transferType: TransferType.VAULT_TO_VAULT,
+                  currentBlockHeight,
+                  miniscriptSelectedSatisfier,
+                })
+              );
+            })
+            .catch((err) => {
+              captureError(err);
+              showToast('Failed to fetch current block height', <ToastErrorIcon />);
+            });
+        } else {
+          navigation.dispatch(
+            CommonActions.navigate('SendConfirmation', {
+              sender: activeVault,
+              internalRecipients: [temporaryVault],
+              addresses: [recipients[0].address],
+              amounts: [parseInt(recipients[0].amount, 10)],
+              transferType: TransferType.VAULT_TO_VAULT,
+              miniscriptSelectedSatisfier,
+            })
+          );
+        }
+      } else if (sendPhaseOneState.hasFailed) {
+        if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
+          showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
+        } else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
       }
-    } else if (sendPhaseOneState.hasFailed) {
-      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
-        showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
-      } else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
-    }
-  }, [sendPhaseOneState]);
+    }, [sendPhaseOneState, temporaryVault, activeVault, recipients, miniscriptSelectedSatisfier])
+  );
 
   const initiateSweep = () => {
     const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
@@ -207,7 +214,6 @@ function VaultMigrationController({
     if (netBanalce === 0) {
       dispatch(finaliseVaultMigration(activeVault.id));
     } else {
-      // TODO: get miniscript selected satisfier!
       initiateSweep();
     }
   };

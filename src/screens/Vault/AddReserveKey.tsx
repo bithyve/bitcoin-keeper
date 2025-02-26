@@ -248,10 +248,6 @@ function AddReserveKey({ route }) {
             fullWidth
             primaryDisable={!selectedSigner || !selectedOption}
             primaryCallback={() => {
-              if (vaultId) {
-                setCreating(true);
-                return;
-              }
               if (isAddEmergencyKey) {
                 navigation.navigate('AddEmergencyKey', {
                   vaultKeys,
@@ -263,11 +259,16 @@ function AddReserveKey({ route }) {
                   isAddEmergencyKey,
                   currentBlockHeight,
                   selectedSigners: route.params.selectedSigners,
+                  keyToRotate,
                   inheritanceKeys: selectedSigner
                     ? [{ key: selectedSigner[0], duration: selectedOption.label }]
                     : [],
                 });
               } else {
+                if (vaultId) {
+                  setCreating(true);
+                  return;
+                }
                 navigation.navigate('ConfirmWalletDetails', {
                   vaultKeys,
                   scheme,

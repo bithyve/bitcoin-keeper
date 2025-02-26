@@ -308,25 +308,15 @@ function AddEmergencyKey({ route }) {
           .filter((key) => (keyToRotate ? getKeyUID(key) !== getKeyUID(keyToRotate) : true))
           .filter(
             (signer) =>
-              !Object.entries(
-                activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints || {}
-              )
-                .filter(([key]) => key.startsWith(INHERITANCE_KEY_IDENTIFIER))
-                .map(([_, value]) => value)
-                .includes(signer.masterFingerprint)
-          )
-          .filter(
-            (signer) =>
-              !Object.entries(
-                activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints || {}
-              )
-                .filter(([key]) => key.startsWith(EMERGENCY_KEY_IDENTIFIER))
-                .map(([_, value]) => value)
-                .includes(signer.masterFingerprint) &&
-              !Object.entries(
+              Object.entries(
                 activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints || {}
               )
                 .filter(([key]) => key.startsWith('K'))
+                .map(([_, value]) => value)
+                .includes(signer.masterFingerprint) ||
+              !Object.entries(
+                activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints || {}
+              )
                 .map(([_, value]) => value)
                 .includes(signer.masterFingerprint)
           )}
