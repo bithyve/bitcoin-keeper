@@ -13,9 +13,9 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		18788ED8284652050002EFFD /* (null) in Resources */ = {isa = PBXBuildFile; };
+		18788ED8284652050002EFFD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
-		18BD1AA02834FA4100DB19E0 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		3368C03D4ADA4631B63D54F8 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F1E12F69D30C4430BF22E132 /* Inter-Regular.ttf */; };
 		35112D502BD7DAE700343479 /* CloudBackupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35112D4F2BD7DAE700343479 /* CloudBackupHelper.swift */; };
 		35112D512BD7DAE700343479 /* CloudBackupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35112D4F2BD7DAE700343479 /* CloudBackupHelper.swift */; };
@@ -23,7 +23,7 @@
 		35112D552BD7DB3000343479 /* cloudbackup.m in Sources */ = {isa = PBXBuildFile; fileRef = 35112D532BD7DB3000343479 /* cloudbackup.m */; };
 		413074DFD01E46F1A0D40BD6 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6702D068A26E40DDA1F0E809 /* Inter-Bold.ttf */; };
 		6E4BDC34AF74480989D9A260 /* Inter-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 27E1FF466EB94B23BC3AD629 /* Inter-SemiBoldItalic.ttf */; };
-		75EA47EFF012F028F07CCEA1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		75EA47EFF012F028F07CCEA1 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		7C2A5DE61DBCE4EC104A7B6A /* libPods-hexa_keeper_dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C538A96813BB011ADE87E0F /* libPods-hexa_keeper_dev.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		930C25704B7849FA8CCE06C7 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 108E1077B46C4AAE85FD7B47 /* Inter-SemiBold.ttf */; };
@@ -37,8 +37,8 @@
 		F49B77E42848DF5200F9AFBD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		F49B77E82848DF5200F9AFBD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		F49B77E92848DF5200F9AFBD /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		F49B77EA2848DF5200F9AFBD /* (null) in Resources */ = {isa = PBXBuildFile; };
-		F49B77EF2848DF5200F9AFBD /* (null) in Resources */ = {isa = PBXBuildFile; };
+		F49B77EA2848DF5200F9AFBD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		F49B77EF2848DF5200F9AFBD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		F4F207EE2849D20A005E79DA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F4F207ED2849D20A005E79DA /* GoogleService-Info.plist */; };
 		F4F7F75D2A0558650027FE4C /* keepScreenAwake.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F7F75C2A0558650027FE4C /* keepScreenAwake.m */; };
 		F4F7F75E2A0558650027FE4C /* keepScreenAwake.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F7F75C2A0558650027FE4C /* keepScreenAwake.m */; };
@@ -128,7 +128,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				75EA47EFF012F028F07CCEA1 /* (null) in Frameworks */,
+				75EA47EFF012F028F07CCEA1 /* BuildFile in Frameworks */,
 				E2FB8B685EB0426D644CB5CE /* libPods-hexa_keeper.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -445,8 +445,8 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				18BD1AA02834FA4100DB19E0 /* (null) in Resources */,
-				18788ED8284652050002EFFD /* (null) in Resources */,
+				18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */,
+				18788ED8284652050002EFFD /* BuildFile in Resources */,
 				18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */,
 				413074DFD01E46F1A0D40BD6 /* Inter-Bold.ttf in Resources */,
 				ECAEA7317141416FAA0B52C5 /* Inter-BoldItalic.ttf in Resources */,
@@ -468,9 +468,9 @@
 				F4F207EE2849D20A005E79DA /* GoogleService-Info.plist in Resources */,
 				F49B77E82848DF5200F9AFBD /* LaunchScreen.storyboard in Resources */,
 				F49B77E92848DF5200F9AFBD /* Images.xcassets in Resources */,
-				F49B77EA2848DF5200F9AFBD /* (null) in Resources */,
+				F49B77EA2848DF5200F9AFBD /* BuildFile in Resources */,
 				F42D52AF284A3D2600235E3E /* hexa_keeper_dev-Info.plist in Resources */,
-				F49B77EF2848DF5200F9AFBD /* (null) in Resources */,
+				F49B77EF2848DF5200F9AFBD /* BuildFile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -489,7 +489,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/zsh;
-			shellScript = "set -e\n\nexport NODE_BINARY=/Users/benkaufman/.nvm/versions/node/v20.11.0/bin/node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
+			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		0896D9709856BDD81BD7D5D5 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -647,7 +647,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/zsh;
-			shellScript = "set -e\n\nexport NODE_BINARY=/Users/benkaufman/.nvm/versions/node/v20.11.0/bin/node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
+			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -791,7 +791,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 467;
+				CURRENT_PROJECT_VERSION = 470;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -916,7 +916,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Bithyve UK Ltd (Y5TCB759QL)";
-				CURRENT_PROJECT_VERSION = 467;
+				CURRENT_PROJECT_VERSION = 470;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1172,9 +1172,10 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 470;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1284,6 +1285,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.hexawallet.hexakeeper.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Keeper Development";
 				SWIFT_OBJC_BRIDGING_HEADER = "whirlpool/hexa_keeper-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "hexa_keeper-Swift.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1301,10 +1303,9 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CURRENT_PROJECT_VERSION = 467;
+				CURRENT_PROJECT_VERSION = 470;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
-				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
@@ -1414,8 +1415,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "4bff6035-a2eb-4b53-a161-79f0e10e8ede";
 				PROVISIONING_PROFILE_SPECIFIER = "Keeper Distribution";
-				PROVISIONING_PROFILE = "cd711cf7-1c75-4302-ad18-39de9d4f8bef";
-				PROVISIONING_PROFILE_SPECIFIER = "Keeper Development";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Keeper Development";
 				SWIFT_OBJC_BRIDGING_HEADER = "whirlpool/hexa_keeper-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "hexa_keeper-Swift.h";
 				SWIFT_VERSION = 5.0;

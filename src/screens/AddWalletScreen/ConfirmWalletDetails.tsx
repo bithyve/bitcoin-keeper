@@ -253,16 +253,8 @@ function ConfirmWalletDetails({ route }) {
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
           <Box style={styles.pillsContainer}>
-            {tags?.map((tag, index) => {
-              return (
-                <CardPill
-                  key={tag.key}
-                  heading={tag.tag}
-                  backgroundColor={
-                    index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`
-                  }
-                />
-              );
+            {tags?.map(({ tag, color }) => {
+              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
             })}
           </Box>
           <Box style={styles.walletVaultInfoWrapper}>
@@ -295,20 +287,13 @@ function ConfirmWalletDetails({ route }) {
       ...tag,
       key: `tag-${index}-${tag.tag}`,
     }));
+
     return (
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
           <Box style={styles.pillsContainer}>
-            {tags?.map((tag, index) => {
-              return (
-                <CardPill
-                  key={tag.key}
-                  heading={tag.tag}
-                  backgroundColor={
-                    index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`
-                  }
-                />
-              );
+            {tags?.map(({ tag, color }) => {
+              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
             })}
           </Box>
           <Box style={styles.walletVaultInfoWrapper}>

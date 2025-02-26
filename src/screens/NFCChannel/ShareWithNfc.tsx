@@ -95,12 +95,11 @@ function ShareWithNfc({
         Vibration.vibrate([700, 50, 100, 50], true);
       }
     } catch (err) {
-      Vibration.cancel();
+      cleanUp();
       if (err.toString() === 'Error: Not even registered') {
         console.log('NFC interaction cancelled.');
         return;
       }
-      cleanUp();
       captureError(err);
     }
   };

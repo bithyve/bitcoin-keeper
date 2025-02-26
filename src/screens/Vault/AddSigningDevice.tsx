@@ -73,7 +73,7 @@ const MINISCRIPT_SIGNERS = [
   SignerType.COLDCARD,
   SignerType.JADE,
   SignerType.LEDGER,
-  // SignerType.SPECTER,
+  SignerType.SPECTER,
   SignerType.SEED_WORDS,
   SignerType.KEEPER,
 ];

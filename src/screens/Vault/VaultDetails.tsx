@@ -394,7 +394,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <VStack style={styles.topSection}>
         <WalletHeader
-          title={vault.presentationData?.name}
           data={vault}
           rightComponent={
             <TouchableOpacity

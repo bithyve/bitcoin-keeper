@@ -36,7 +36,7 @@ import {
   WhirlpoolConfig,
   WalletDerivationDetails,
 } from 'src/services/wallets/interfaces/wallet';
-import { call, delay, put, select } from 'redux-saga/effects';
+import { call, delay, fork, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
   setSyncing,
@@ -1107,7 +1107,7 @@ function* refreshWalletsWorker({
           );
         }
 
-        yield call(bulkUpdateLabelsWorker, {
+        yield fork(bulkUpdateLabelsWorker, {
           payload: { labelChanges, UTXO: utxo, wallet: synchedWallet as any },
         });
       }
