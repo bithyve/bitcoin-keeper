@@ -1,8 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { Pressable, StyleSheet } from 'react-native';
-import { Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
-import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -11,6 +10,10 @@ import { getAvailableMiniscriptPhase } from 'src/services/wallets/factories/Vaul
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import {
+  EMERGENCY_KEY_IDENTIFIER,
+  INHERITANCE_KEY_IDENTIFIER,
+} from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
 interface MiniscriptPathSelectorProps {
   vault: Vault;
@@ -29,7 +32,10 @@ export const MiniscriptPathSelector = forwardRef<
 >(({ vault, onPathSelected, onError, onCancel }: MiniscriptPathSelectorProps, ref) => {
   const { colorMode } = useColorMode();
   const [modalVisible, setModalVisible] = useState(false);
+  const [pathsModalVisible, setPathsModalVisible] = useState(false);
   const [availablePhases, setAvailablePhases] = useState<Phase[]>([]);
+  const [selectedPhase, setSelectedPhase] = useState<Phase>(null);
+  const [availablePaths, setAvailablePaths] = useState<Path[]>([]);
   const [currentBlockHeight, setCurrentBlockHeight] = useState<number | null>(null);
 
   useEffect(() => {
@@ -44,25 +50,121 @@ export const MiniscriptPathSelector = forwardRef<
 
   const parseSelectedPhase = (phase: Phase) => {
     const pathsAvailable = phase.paths;
-    return {
-      phaseId: phase.id,
-      availablePaths: pathsAvailable,
-      selectedPaths: pathsAvailable.map((path) => path.id),
-    };
+
+    setSelectedPhase(phase);
+    if (pathsAvailable.length === phase.requiredPaths) {
+      // Automatically select all paths
+      return {
+        phaseId: phase.id,
+        availablePaths: pathsAvailable,
+        selectedPaths: pathsAvailable.map((path) => path.id),
+      };
+    } else {
+      // Allow user to select paths
+      setAvailablePaths(pathsAvailable);
+      return {
+        phaseId: phase.id,
+        availablePaths: pathsAvailable,
+        selectedPaths: [], // Start with no paths selected
+      };
+    }
   };
 
   const getPhaseDescription = (phase: Phase) => {
-    const isInheritancePhase = phase.paths[0]?.keys?.find(
-      (key) => key.identifier === INHERITANCE_KEY1_IDENTIFIER
-    );
+    const inheritanceKeysInPhase = phase.paths[0]?.keys?.filter((key) =>
+      key.identifier.startsWith(INHERITANCE_KEY_IDENTIFIER)
+    ).length;
 
-    if (isInheritancePhase) {
+    const emergencyKeysInPhase = phase.paths?.reduce((count, path) => {
+      return (
+        count +
+        (path.keys?.filter((key) => key.identifier.startsWith(EMERGENCY_KEY_IDENTIFIER)).length ||
+          0)
+      );
+    }, 0);
+
+    if (inheritanceKeysInPhase && emergencyKeysInPhase) {
       return {
-        title: vault.scheme.m == 1 ? 'Use the Inheritance Key' : 'Use with Inheritance Key',
+        title: `Use with Enhanced Keys`,
+        subtitle: `Spend using the Inheritance Key and the regular keys`,
+      };
+    }
+
+    if (emergencyKeysInPhase) {
+      return {
+        title: `Use ${emergencyKeysInPhase > 1 ? 'an' : 'the'} Emergency Key`,
+        subtitle: `Spend using ${emergencyKeysInPhase > 1 ? 'an' : 'the'} Emergency Key`,
+      };
+    }
+
+    if (inheritanceKeysInPhase) {
+      const multiKeysAppendix = inheritanceKeysInPhase === 1 ? '' : 's';
+      return {
+        title:
+          vault.scheme.m == 1
+            ? `Use the Inheritance Key${multiKeysAppendix}`
+            : `Use with Inheritance Key${multiKeysAppendix}`,
         subtitle:
           vault.scheme.m == 1
-            ? 'Spend using the Inheritance Key'
-            : 'Spend using the Inheritance Key and the regular keys',
+            ? `Spend using the Inheritance Key${multiKeysAppendix}`
+            : `Spend using the Inheritance Key and the regular keys${multiKeysAppendix}`,
+      };
+    }
+
+    return {
+      title: vault.scheme.n == 1 ? 'Use the regular key' : 'Use only regular keys',
+      subtitle:
+        vault.scheme.n == 1
+          ? 'Spend using the regular key'
+          : 'Spend using only the regular vault keys',
+    };
+  };
+
+  const getPathDescription = (path: Path) => {
+    const inheritanceKeysInPhase = path.keys?.filter((key) =>
+      key.identifier.startsWith(INHERITANCE_KEY_IDENTIFIER)
+    ).length;
+
+    const emergencyKey = path.keys?.find((key) =>
+      key.identifier.startsWith(EMERGENCY_KEY_IDENTIFIER)
+    );
+
+    const totalEmergencyKeys = Object.entries(vault.scheme.miniscriptScheme.keyInfoMap).filter(
+      ([identifier, _]) => identifier.startsWith(EMERGENCY_KEY_IDENTIFIER)
+    ).length;
+
+    if (emergencyKey) {
+      return {
+        title: `Use the${
+          totalEmergencyKeys == 1
+            ? ''
+            : ' ' +
+              convertNumberToOrdinal(
+                parseInt(emergencyKey.identifier.replace(EMERGENCY_KEY_IDENTIFIER, ''))
+              )
+        } Emergency Key`,
+        subtitle: `Spend using the${
+          totalEmergencyKeys == 1
+            ? ''
+            : ' ' +
+              convertNumberToOrdinal(
+                parseInt(emergencyKey.identifier.replace(EMERGENCY_KEY_IDENTIFIER, ''))
+              )
+        } Emergency Key`,
+      };
+    }
+
+    if (inheritanceKeysInPhase) {
+      const multiKeysAppendix = inheritanceKeysInPhase === 1 ? '' : 's';
+      return {
+        title:
+          vault.scheme.m == 1
+            ? `Use the Inheritance Key${multiKeysAppendix}`
+            : `Use with Inheritance Key${multiKeysAppendix}`,
+        subtitle:
+          vault.scheme.m == 1
+            ? `Spend using the Inheritance Key${multiKeysAppendix}`
+            : `Spend using the Inheritance Key and the regular keys${multiKeysAppendix}`,
       };
     }
 
@@ -104,7 +206,16 @@ export const MiniscriptPathSelector = forwardRef<
     setAvailablePhases(availablePhasesOptions);
 
     if (availablePhasesOptions.length === 1) {
-      handlePhaseSelection(availablePhasesOptions[0]);
+      const phase = availablePhasesOptions[0];
+      const { selectedPaths } = parseSelectedPhase(phase);
+
+      if (selectedPaths.length === 0) {
+        // Show modal for user to select paths
+        setPathsModalVisible(true);
+      } else {
+        // Automatically handle phase selection
+        handlePhaseSelection(phase);
+      }
     } else {
       setModalVisible(true);
     }
@@ -112,11 +223,26 @@ export const MiniscriptPathSelector = forwardRef<
 
   const handlePhaseSelection = (phase: Phase) => {
     const { phaseId, selectedPaths } = parseSelectedPhase(phase);
+    if (selectedPaths.length) {
+      const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
+        vault.scheme.miniscriptScheme,
+        {
+          selectedPhase: phaseId,
+          selectedPaths: selectedPaths,
+        }
+      );
+      onPathSelected(miniscriptSelectedSatisfier);
+    } else {
+      setPathsModalVisible(true);
+    }
+  };
+
+  const handlePathsSelection = (paths: Path[]) => {
     const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
       vault.scheme.miniscriptScheme,
       {
-        selectedPhase: phaseId,
-        selectedPaths: selectedPaths,
+        selectedPhase: selectedPhase.id,
+        selectedPaths: paths.map((path) => path.id),
       }
     );
     onPathSelected(miniscriptSelectedSatisfier);
@@ -178,6 +304,54 @@ export const MiniscriptPathSelector = forwardRef<
           </Box>
         )}
       />
+      {/* TODO: For now we just assume one path to select, but need to implement multiple selection based on the phase.requiredPaths */}
+      {availablePaths && (
+        <KeeperModal
+          visible={pathsModalVisible}
+          close={() => {
+            setPathsModalVisible(false);
+            onCancel();
+          }}
+          title="Select Signing Path"
+          subTitle={`\nSelect how you would like to sign.`}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
+          Content={() => (
+            <Box style={{ gap: wp(15), marginBottom: hp(10) }}>
+              {availablePaths.map((path) => (
+                <Pressable
+                  key={path.id}
+                  onPress={() => {
+                    setPathsModalVisible(false);
+                    handlePathsSelection([path]);
+                  }}
+                >
+                  <Box
+                    style={styles.optionCTR}
+                    backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                    borderColor={`${colorMode}.separator`}
+                  >
+                    <Box>
+                      <Text
+                        color={`${colorMode}.secondaryText`}
+                        fontSize={16}
+                        medium
+                        style={styles.optionTitle}
+                      >
+                        {getPathDescription(path).title}
+                      </Text>
+                      <Text color={`${colorMode}.secondaryText`} fontSize={13}>
+                        {getPathDescription(path).subtitle}
+                      </Text>
+                    </Box>
+                  </Box>
+                </Pressable>
+              ))}
+            </Box>
+          )}
+        />
+      )}
     </>
   );
 });
@@ -198,3 +372,9 @@ const styles = StyleSheet.create({
 });
 
 export default MiniscriptPathSelector;
+
+export function convertNumberToOrdinal(n: number): string {
+  const suffixes = ['th', 'st', 'nd', 'rd'];
+  const value = n % 100;
+  return n + (suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]);
+}

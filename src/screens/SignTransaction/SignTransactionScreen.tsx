@@ -720,7 +720,11 @@ function SignTransactionScreen() {
       <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Choose ${scheme.m} key${scheme.m == 1 ? '' : 's'} to sign the transaction`}
+        subtitle={
+          serializedPSBTEnvelops.length == 1
+            ? 'Sign the transaction with your key'
+            : `Choose ${serializedPSBTEnvelops.length} keys to sign the transaction`
+        }
       />
       <FlatList
         contentContainerStyle={styles.contentContainerStyle}

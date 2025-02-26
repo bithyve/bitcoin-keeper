@@ -187,7 +187,8 @@ export function generateEnhancedVaultElements(
               {
                 id: 1,
                 threshold: currentThreshold,
-                keys: currentQuorum,
+                keys:
+                  currentThreshold === 1 ? inheritanceSigners.map((s) => s.keyInfo) : currentQuorum,
               },
             ]
           : []),
