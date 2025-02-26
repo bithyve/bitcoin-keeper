@@ -228,9 +228,6 @@ export function generateEnhancedVaultElements(
     signerFingerprints,
   };
 
-  console.log('Generated Miniscript elements:');
-  console.log(JSON.stringify(miniscriptElements, null, 2));
-
   return miniscriptElements;
 }
 
