@@ -5,6 +5,7 @@ import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
 import EditIcon from 'src/assets/images/Edit-Icon.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { numberWithCommas } from 'src/utils/utilities';
 
 type Props = {
   signingServer?: any;
@@ -44,7 +45,7 @@ const ServerKeyPolicyCard = (props: Props) => {
           style={styles.inputContainer}
         >
           <Box style={styles.alignCenter}>
-            <Text>{props.maxTransaction ? props.maxTransaction : 'off'} </Text>
+            <Text>{props.maxTransaction ? numberWithCommas(props.maxTransaction) : 'off'} </Text>
             {props.maxTransaction ? (
               <Text>
                 sats{' '}

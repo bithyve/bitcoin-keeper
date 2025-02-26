@@ -45,6 +45,21 @@ function ChoosePolicyNew({ navigation, route }) {
   const [otp, setOtp] = useState('');
 
   const { maxTransaction, timelimit, delayTime } = route.params;
+  console.log('maxTransaction', maxTransaction);
+
+  const [spendingLimit, setSpendingLimit] = useState(null);
+  const [timeLimit, setTimeLimit] = useState(null);
+  const [signingDelay, setSigningDelay] = useState(null);
+
+  useEffect(() => {
+    if (maxTransaction !== undefined) {
+      setSpendingLimit(maxTransaction);
+      setTimeLimit(timelimit);
+    }
+    if (delayTime !== undefined) {
+      setSigningDelay(delayTime);
+    }
+  }, [route.params]);
 
   // const existingRestrictions = idx(currentSigner, (_) => _.signerPolicy.restrictions);
   // const existingExceptions = idx(currentSigner, (_) => _.signerPolicy.exceptions);
@@ -215,9 +230,9 @@ function ChoosePolicyNew({ navigation, route }) {
         <ServerKeyPolicyCard
           signingServer={signingServer}
           navigation={navigation}
-          maxTransaction={maxTransaction}
-          timelimit={timelimit}
-          delayTime={delayTime}
+          maxTransaction={spendingLimit}
+          timelimit={timeLimit}
+          delayTime={signingDelay}
         />
       </Box>
 
