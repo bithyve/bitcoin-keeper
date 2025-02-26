@@ -20,6 +20,7 @@ import {
 import Buttons from 'src/components/Buttons';
 import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
+import { numberWithCommas } from 'src/utils/utilities';
 
 const SpendingLimit = ({ route }) => {
   const navigation = useNavigation();
@@ -53,6 +54,12 @@ const SpendingLimit = ({ route }) => {
     });
   };
 
+  const handleInputChange = (text: string) => {
+    let cleanedText = text.replace(/[^0-9.]/g, '');
+    let formattedText = numberWithCommas(cleanedText);
+    setMaxTransaction(formattedText);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ flex: 1 }}>
@@ -65,7 +72,7 @@ const SpendingLimit = ({ route }) => {
             <PolicyField
               onPress={() => {}}
               value={maxTransaction}
-              onChangeText={(text) => setMaxTransaction(text)}
+              onChangeText={handleInputChange}
             />
             <OptionDropdown
               options={INHERITANCE_TIMELOCK_DURATIONS}

@@ -152,10 +152,12 @@ function SetupSigningServer({ route }: { route }) {
               passcodeFlag={false}
               backgroundColor
               textColor
-              height={hp(40)}
-              width={hp(40)}
+              height={hp(46)}
+              width={hp(46)}
               marginTop={hp(0)}
               marginBottom={hp(40)}
+              inputGap={2}
+              customStyle={styles.CVVInputsView}
             />
           </TouchableOpacity>
         </Box>
@@ -356,6 +358,10 @@ const styles = StyleSheet.create({
   modalButtonContainer: {
     flexDirection: 'row',
     gap: 10,
+  },
+  CVVInputsView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 export default SetupSigningServer;

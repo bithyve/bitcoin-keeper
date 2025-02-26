@@ -19,20 +19,25 @@ export interface Props {
   width?: any;
   marginTop?: any;
   marginBottom?: any;
+  inputGap?: any;
+  customStyle?: any;
 }
 function CVVInputsView({
   passCode,
   passcodeFlag,
   backgroundColor,
   textColor,
+  customStyle,
   length = 6,
   height = wp('8%'),
   width = wp('8%'),
   marginTop = hp('2%'),
   marginBottom = hp('2.5%'),
+  inputGap = 4,
 }: Props) {
   const [hide, setHide] = useState(false);
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
 
   useEffect(() => {
     if (passCode.length <= 6) {
@@ -44,11 +49,16 @@ function CVVInputsView({
     }
   }, [passCode]);
 
-  const getBackgroundColor = () => (backgroundColor ? Colors.White : 'rgba(253,247,240, 0.2)');
+  const getBackgroundColor = () =>
+    backgroundColor
+      ? isDarkMode
+        ? Colors.SecondaryBackgroundDark
+        : Colors.ChampagneBliss
+      : 'rgba(253,247,240, 0.2)';
 
   const getTextColor = () => (textColor ? `${colorMode}.textBlack` : `${colorMode}.white`);
 
-  const getDotColor = () => (textColor ? 'black' : 'white');
+  const getDotColor = () => (textColor ? (isDarkMode ? 'white' : 'black') : 'white');
 
   const getPin = (num: number) => {
     if (passCode.length === num && !hide) {
@@ -68,18 +78,18 @@ function CVVInputsView({
   };
 
   return (
-    <Box
-      alignSelf="baseline"
-      style={{
-        marginLeft: -25,
-      }}
-    >
-      <Box flexDirection="row" mt={marginTop} marginBottom={marginBottom} width="auto">
+    <Box alignSelf="baseline" style={customStyle ? customStyle : { marginLeft: -25 }}>
+      <Box
+        flexDirection="row"
+        mt={marginTop}
+        marginBottom={marginBottom}
+        width="auto"
+        gap={inputGap}
+      >
         <Box
           height={height}
           width={width}
           borderRadius={7}
-          ml={4}
           alignItems="center"
           justifyContent="center"
           backgroundColor={getBackgroundColor()}
@@ -90,7 +100,6 @@ function CVVInputsView({
           height={height}
           width={width}
           borderRadius={7}
-          ml={4}
           alignItems="center"
           justifyContent="center"
           backgroundColor={getBackgroundColor()}
@@ -101,7 +110,6 @@ function CVVInputsView({
           height={height}
           width={width}
           borderRadius={7}
-          ml={4}
           alignItems="center"
           justifyContent="center"
           backgroundColor={getBackgroundColor()}
@@ -112,7 +120,6 @@ function CVVInputsView({
           height={height}
           width={width}
           borderRadius={7}
-          ml={4}
           alignItems="center"
           justifyContent="center"
           backgroundColor={getBackgroundColor()}
@@ -125,7 +132,6 @@ function CVVInputsView({
               height={height}
               width={width}
               borderRadius={7}
-              ml={4}
               alignItems="center"
               justifyContent="center"
               backgroundColor={getBackgroundColor()}
@@ -136,7 +142,6 @@ function CVVInputsView({
               height={height}
               width={width}
               borderRadius={7}
-              ml={4}
               alignItems="center"
               justifyContent="center"
               backgroundColor={getBackgroundColor()}

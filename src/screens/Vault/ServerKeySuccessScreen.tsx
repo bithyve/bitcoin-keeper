@@ -16,10 +16,10 @@ const ServerKeySuccessScreen = () => {
     <ScreenWrapper>
       <Box style={styles.container}>
         <SigningServerIllustration />
-        <Text semiBold fontSize={18} color={`${colorMode}.textGreen`} style={styles.title}>
+        <Text semiBold fontSize={20} color={`${colorMode}.textGreen`} style={styles.title}>
           {signingServer.successTitle}
         </Text>
-        <Text fontSize={12} color={`${colorMode}.secondaryText`} style={styles.subtitle}>
+        <Text fontSize={18} color={`${colorMode}.secondaryText`} style={styles.subtitle}>
           {signingServer.successSubTitle}
         </Text>
       </Box>
