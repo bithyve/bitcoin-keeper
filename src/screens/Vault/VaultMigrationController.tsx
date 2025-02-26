@@ -269,15 +269,6 @@ function VaultMigrationController({
       return;
     }
 
-    // TODO: Support multiple options
-    if (miniscriptTypes.length !== 1) {
-      showToast(
-        'Multiple Minsicript options combined are not currently supported',
-        <ToastErrorIcon />
-      );
-      return;
-    }
-
     const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
     let currentSyncedBlockHeight = currentBlockHeight;
     if (!currentSyncedBlockHeight) {

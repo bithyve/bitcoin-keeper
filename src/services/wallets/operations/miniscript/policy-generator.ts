@@ -204,6 +204,9 @@ export const generateMiniscriptPolicy = (
     policy = policyParts.length > 1 ? `thresh(1, ${policyParts.join(', ')})` : policyParts[0];
   }
 
+  console.log('Policy!!!!');
+  console.log(policy);
+  console.log(JSON.stringify(miniscriptPhases, null, 2));
   if (!isGeneratedPolicyValid(policy, miniscriptPhases)) {
     throw new Error('All paths of the generated policy are not valid');
   }

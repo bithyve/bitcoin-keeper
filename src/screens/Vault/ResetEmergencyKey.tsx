@@ -10,6 +10,7 @@ import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import moment from 'moment';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useDispatch } from 'react-redux';
@@ -17,29 +18,30 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import { useAppSelector } from 'src/store/hooks';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
 import OptionPicker from 'src/components/OptionPicker';
 import { getSignerDescription } from 'src/hardware';
 import IKSInfocard from './components/IKSInfoCard';
 import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
-import { INHERITANCE_TIMELOCK_DURATIONS } from './AddReserveKey';
+import { EMERGENCY_TIMELOCK_DURATIONS } from './AddEmergencyKey';
 import {
+  EMERGENCY_KEY_IDENTIFIER,
   getKeyTimelock,
   getVaultEnhancedSigners,
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
-function ResetInheritanceKey({ route }) {
-  const { vault }: { signerIds: string[]; vault: Vault } = route.params;
+function ResetEmergencyKey({ route }) {
+  const { inheritanceKeys = [], vault }: { inheritanceKeys; vault: Vault } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, any>>({});
-  const { inheritanceSigners, emergencySigners, otherSigners } = getVaultEnhancedSigners(vault);
-  const hasEmergencyKeys = emergencySigners.length > 0;
-  const signers: Signer[] = inheritanceSigners.map(
+  const { emergencySigners, otherSigners } = getVaultEnhancedSigners(vault);
+  const signers: Signer[] = emergencySigners.map(
     (emergencySigner) => signerMap[getKeyUID(emergencySigner)]
   );
   const { vault: vaultText, common } = translations;
@@ -57,18 +59,18 @@ function ResetInheritanceKey({ route }) {
 
   const dispatch = useDispatch();
 
-  const handleResetInheritanceKey = async () => {
-    const hasAllSelections = inheritanceSigners
+  const handleResetEmergencyKey = async () => {
+    const hasAllSelections = emergencySigners
       .map((signer) => getKeyUID(signer))
       .every((id) => selectedOptions[id]);
     if (!hasAllSelections) {
       showToast(
         'Please select activation time' +
-          (inheritanceSigners.length === 1 ? '' : ' for all inheritance keys'),
+          (emergencySigners.length === 1 ? '' : 'for all emergency keys'),
         <ToastErrorIcon />
       );
       setCreating(false);
-      return false;
+      return;
     }
     let currentSyncedBlockHeight = currentBlockHeight;
     if (!currentSyncedBlockHeight) {
@@ -84,10 +86,9 @@ function ResetInheritanceKey({ route }) {
           <ToastErrorIcon />
         );
         setCreating(false);
-        return false;
+        return;
       }
     }
-    return true;
   };
 
   useEffect(() => {
@@ -103,7 +104,7 @@ function ResetInheritanceKey({ route }) {
       if (!currentBlockHeight) {
         setActivationTimes((prev) => {
           const newTimes = {};
-          inheritanceSigners.forEach((signer) => {
+          signers.forEach((signer) => {
             newTimes[getKeyUID(signer)] = 'Loading time until activation...';
           });
           return newTimes;
@@ -117,7 +118,7 @@ function ResetInheritanceKey({ route }) {
             Object.entries(vault.scheme.miniscriptScheme.keyInfoMap)
               .find(
                 ([identifier, descriptor]) =>
-                  identifier.startsWith(INHERITANCE_KEY_IDENTIFIER) &&
+                  identifier.startsWith(EMERGENCY_KEY_IDENTIFIER) &&
                   descriptor.substring(1, 9) === signer.masterFingerprint
               )[0]
               .split('<')[0],
@@ -142,7 +143,7 @@ function ResetInheritanceKey({ route }) {
             }`;
           }
         } else {
-          timeString = vaultText.IKAlreadyActive;
+          timeString = vaultText.EKAlreadyActive;
         }
 
         setActivationTimes((prev) => ({
@@ -152,8 +153,14 @@ function ResetInheritanceKey({ route }) {
             : `Activates in ${timeString}`,
         }));
       });
-    } catch (e) {
-      showToast(e.toString(), null, IToastCategory.DEFAULT, 3000, true);
+    } catch {
+      showToast(
+        'Failed to check current activation time for Emergency Key',
+        null,
+        IToastCategory.DEFAULT,
+        3000,
+        true
+      );
     }
   }, [currentBlockHeight, vault]);
 
@@ -190,8 +197,8 @@ function ResetInheritanceKey({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={vaultText.resetIKTitle + (inheritanceSigners.length > 1 ? 's' : '')}
-        subtitle={vaultText.resetIKDesc + (inheritanceSigners.length > 1 ? 's' : '')}
+        title={vaultText.resetEKTitle + (emergencySigners.length > 1 ? 's' : '')}
+        subtitle={vaultText.resetEKDesc + (emergencySigners.length > 1 ? 's' : '')}
       />
       <Box style={styles.container}>
         {signers.map((signer) => (
@@ -213,7 +220,7 @@ function ResetInheritanceKey({ route }) {
               </Box>
               <OptionPicker
                 label={vaultText.selectActivationTime}
-                options={INHERITANCE_TIMELOCK_DURATIONS}
+                options={EMERGENCY_TIMELOCK_DURATIONS}
                 selectedOption={selectedOptions[getKeyUID(signer)]}
                 onOptionSelect={(option) =>
                   setSelectedOptions((prev) => ({
@@ -228,27 +235,11 @@ function ResetInheritanceKey({ route }) {
         <Box>
           <Buttons
             primaryLoading={vaultCreating}
-            primaryText={hasEmergencyKeys ? common.continue : vaultText.revaultNow}
+            primaryText={vaultText.revaultNow}
             fullWidth
-            primaryCallback={async () => {
-              let isValid = await handleResetInheritanceKey();
-              if (!isValid) return;
-              if (hasEmergencyKeys) {
-                navigation.dispatch(
-                  CommonActions.navigate({
-                    name: 'ResetEmergencyKey',
-                    params: {
-                      inheritanceKeys: inheritanceSigners.map((signer) => ({
-                        key: signer,
-                        duration: selectedOptions[getKeyUID(signer)]?.label,
-                      })),
-                      vault,
-                    },
-                  })
-                );
-              } else {
-                setCreating(true);
-              }
+            primaryCallback={() => {
+              setCreating(true);
+              handleResetEmergencyKey();
             }}
           />
         </Box>
@@ -263,7 +254,8 @@ function ResetInheritanceKey({ route }) {
         setGeneratedVaultId={setGeneratedVaultId}
         setCreating={setCreating}
         vaultType={vault.type}
-        inheritanceKeys={inheritanceSigners.map((signer) => ({
+        inheritanceKeys={inheritanceKeys}
+        emergencyKeys={emergencySigners.map((signer) => ({
           key: signer,
           duration: selectedOptions[getKeyUID(signer)]?.label,
         }))}
@@ -274,7 +266,7 @@ function ResetInheritanceKey({ route }) {
   );
 }
 
-export default ResetInheritanceKey;
+export default ResetEmergencyKey;
 
 const styles = StyleSheet.create({
   container: {

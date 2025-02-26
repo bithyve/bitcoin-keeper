@@ -32,8 +32,11 @@ import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { INHERITANCE_KEY_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
-const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
-const INHERITANCE_TIMELOCK_DURATIONS = [
+export const DEFAULT_INHERITANCE_TIMELOCK = {
+  label: MONTHS_12,
+  value: 12 * 30 * 24 * 60 * 60 * 1000,
+};
+export const INHERITANCE_TIMELOCK_DURATIONS = [
   DEFAULT_INHERITANCE_TIMELOCK,
   { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
   { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },

@@ -47,8 +47,8 @@ import {
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
-const DEFAULT_EMERGENCY_KEY_TIMELOCK = { label: MONTHS_36, value: MONTHS_36 };
-const EMERGENCY_TIMELOCK_DURATIONS = [
+export const DEFAULT_EMERGENCY_KEY_TIMELOCK = { label: MONTHS_36, value: MONTHS_36 };
+export const EMERGENCY_TIMELOCK_DURATIONS = [
   { label: MONTHS_3, value: MONTHS_3 },
   { label: MONTHS_6, value: MONTHS_6 },
   { label: MONTHS_12, value: MONTHS_12 },

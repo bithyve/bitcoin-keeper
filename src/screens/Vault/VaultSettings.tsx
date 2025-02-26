@@ -23,9 +23,12 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { getKeyUID, trimCWDefaultName } from 'src/utils/utilities';
-import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 import { Vault } from 'src/services/wallets/interfaces/vault';
+import {
+  EMERGENCY_KEY_IDENTIFIER,
+  INHERITANCE_KEY_IDENTIFIER,
+} from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -41,13 +44,19 @@ function VaultSettings({ route }) {
   const { showToast } = useToastMessage();
   const isMiniscriptVault =
     vault?.type === VaultType.MINISCRIPT && !!vault?.scheme?.miniscriptScheme;
-  const inheritanceKey = vault?.signers?.find(
-    (signer) =>
-      signer.masterFingerprint ===
-      vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
-        INHERITANCE_KEY1_IDENTIFIER
-      ]
+  const inheritanceKeys = vault?.signers?.filter((signer) =>
+    Object.entries(vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints)
+      .filter(([identifier]) => identifier.startsWith(INHERITANCE_KEY_IDENTIFIER))
+      .map(([_, fp]) => fp)
+      .includes(signer.masterFingerprint)
   );
+  const emergencyKeys = vault?.signers?.filter((signer) =>
+    Object.entries(vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints)
+      .filter(([identifier]) => identifier.startsWith(EMERGENCY_KEY_IDENTIFIER))
+      .map(([_, fp]) => fp)
+      .includes(signer.masterFingerprint)
+  );
+
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
 
   const updateWalletVisibility = () => {
@@ -153,20 +162,42 @@ function VaultSettings({ route }) {
             );
           }}
         />
-        {/* TODO: Update to be generic instead of only for inheritance kye */}
-        {isMiniscriptVault && (
+        {inheritanceKeys.length ? (
           <OptionCard
-            title={vaultText.resetIKTitle}
-            description={vaultText.resetIKDesc}
+            title={
+              emergencyKeys
+                ? vaultText.resetKeysTitle
+                : vaultText.resetIKTitle + (inheritanceKeys.length > 1 ? 's' : '')
+            }
+            description={
+              emergencyKeys
+                ? vaultText.resetKeysDesc
+                : vaultText.resetIKDesc + (inheritanceKeys.length > 1 ? 's' : '')
+            }
             callback={() => {
               navigation.dispatch(
                 CommonActions.navigate({
                   name: 'ResetInheritanceKey',
-                  params: { signerId: getKeyUID(inheritanceKey), vault },
+                  params: { vault },
                 })
               );
             }}
           />
+        ) : (
+          emergencyKeys.length && (
+            <OptionCard
+              title={vaultText.resetEKTitle + (emergencyKeys.length > 1 ? 's' : '')}
+              description={vaultText.resetEKDesc + (emergencyKeys.length > 1 ? 's' : '')}
+              callback={() => {
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'ResetEmergencyKey',
+                    params: { vault },
+                  })
+                );
+              }}
+            />
+          )
         )}
         {TestSatsComponent}
       </ScrollView>

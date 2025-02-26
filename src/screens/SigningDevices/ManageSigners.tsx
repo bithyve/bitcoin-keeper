@@ -18,7 +18,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { SignerStorage, SignerType } from 'src/services/wallets/enums';
+import { SignerStorage, SignerType, VaultType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -42,10 +42,11 @@ import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import InheritanceKeySection from './components/InheritanceKeySection';
+import EnhancedKeysSection from './components/EnhancedKeysSection';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import {
   EMERGENCY_KEY_IDENTIFIER,
+  getKeyTimelock,
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
@@ -478,29 +479,24 @@ function SignersList({
           )}
         </Box>
 
-        {inheritanceKeys.map((inheritanceKey) => (
-          <InheritanceKeySection
-            inheritanceKey={inheritanceKey.key}
-            inheritanceKeyMeta={inheritanceKey.keyMeta}
-            inheritanceKeyIdentifier={inheritanceKey.identifier}
-            vault={vault}
-            currentBlockHeight={currentBlockHeight}
-            handleCardSelect={handleCardSelect}
-            setCurrentBlockHeight={setCurrentBlockHeight}
-          />
-        ))}
-        {/* TODO: Need to update to show all keys of specific time together and update text to be for both key types */}
-        {emergencyKeys.map((emergencyKey) => (
-          <InheritanceKeySection
-            inheritanceKey={emergencyKey.key}
-            inheritanceKeyMeta={emergencyKey.keyMeta}
-            inheritanceKeyIdentifier={emergencyKey.identifier}
-            vault={vault}
-            currentBlockHeight={currentBlockHeight}
-            handleCardSelect={handleCardSelect}
-            setCurrentBlockHeight={setCurrentBlockHeight}
-          />
-        ))}
+        {vault.type === VaultType.MINISCRIPT &&
+          vault.scheme.miniscriptScheme.miniscriptElements.timelocks.map((timelock) => (
+            <EnhancedKeysSection
+              keys={inheritanceKeys
+                .concat(emergencyKeys)
+                .filter(
+                  (key) =>
+                    getKeyTimelock(
+                      key.identifier,
+                      vault.scheme.miniscriptScheme.miniscriptElements
+                    ) === timelock
+                )}
+              vault={vault}
+              currentBlockHeight={currentBlockHeight}
+              handleCardSelect={handleCardSelect}
+              setCurrentBlockHeight={setCurrentBlockHeight}
+            />
+          ))}
       </ScrollView>
     </SafeAreaView>
   );

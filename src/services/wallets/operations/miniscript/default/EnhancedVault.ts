@@ -1,5 +1,5 @@
 import { getDerivationPath } from 'src/utils/service-utilities/utils';
-import { MiniscriptElements, VaultScheme, VaultSigner } from '../../../interfaces/vault';
+import { MiniscriptElements, Vault, VaultScheme, VaultSigner } from '../../../interfaces/vault';
 import { KeyInfo, Phase } from '../policy-generator';
 import { getKeyUID } from 'src/utils/utilities';
 
@@ -109,6 +109,7 @@ export function generateEnhancedVaultElements(
 
   const timelocks = [...inheritanceSigners, ...emergencySigners]
     .map((s) => s.timelock)
+    .filter((value, index, self) => self.indexOf(value) === index)
     .sort((a, b) => a - b);
 
   // Combine inheritance and emergency signers and sort by timelock
@@ -133,8 +134,9 @@ export function generateEnhancedVaultElements(
     return acc;
   }, {} as Record<number, typeof timelockSigners>);
 
-  const currentQuorum = keysInfo;
+  const currentQuorum = [...keysInfo];
   const currentThreshold = scheme.m;
+  const activatedEmergencyKeys = [];
 
   const probabilities =
     timelocks.length === 0
@@ -160,6 +162,22 @@ export function generateEnhancedVaultElements(
 
       if (inheritanceSigners.length) {
         currentQuorum.push(...inheritanceSigners.map((s) => s.keyInfo));
+      }
+
+      if (emergencySigners.length) {
+        activatedEmergencyKeys.push(...emergencySigners);
+      }
+
+      if (
+        inheritanceSigners.some((inheritanceSigner) =>
+          activatedEmergencyKeys.some(
+            (emergencySigner) =>
+              inheritanceSigner.keyInfo.descriptor.substring(1, 9) ===
+              emergencySigner.keyInfo.descriptor.substring(1, 9)
+          )
+        )
+      ) {
+        throw new Error('Emergency Key cannot become an Inheritance Key.');
       }
 
       const paths = [
@@ -232,4 +250,27 @@ export function getKeyTimelock(
 
   // If key is not found in any phase, return -1 or throw error
   return -1;
+}
+
+export function getVaultEnhancedSigners(vault: Vault) {
+  const inheritanceSigners = vault?.signers?.filter((signer) =>
+    Object.entries(vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints)
+      .filter(([identifier]) => identifier.startsWith(INHERITANCE_KEY_IDENTIFIER))
+      .map(([_, fp]) => fp)
+      .includes(signer.masterFingerprint)
+  );
+  const emergencySigners = vault?.signers?.filter((signer) =>
+    Object.entries(vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints)
+      .filter(([identifier]) => identifier.startsWith(EMERGENCY_KEY_IDENTIFIER))
+      .map(([_, fp]) => fp)
+      .includes(signer.masterFingerprint)
+  );
+  // Normal signers
+  const otherSigners = vault?.signers?.filter((signer) =>
+    Object.entries(vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints)
+      .filter(([identifier]) => identifier.startsWith('K'))
+      .map(([_, fp]) => fp)
+      .includes(signer.masterFingerprint)
+  );
+  return { emergencySigners, inheritanceSigners, otherSigners };
 }

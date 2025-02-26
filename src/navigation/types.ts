@@ -174,6 +174,7 @@ export type AppStackParams = {
   AddReserveKey: undefined;
   AddEmergencyKey: undefined;
   ResetInheritanceKey: undefined;
+  ResetEmergencyKey: undefined;
   KeeperConcierge: undefined;
   TechnicalSupport: {
     newTicketId: string;
