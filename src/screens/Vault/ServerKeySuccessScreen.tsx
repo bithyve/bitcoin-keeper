@@ -7,11 +7,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import SigningServerIllustration from 'src/assets/images/Server-key-successful-illustration.svg';
 import { hp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useNavigation } from '@react-navigation/native';
 
 const ServerKeySuccessScreen = () => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { signingServer } = translations;
+  const navigation = useNavigation();
   return (
     <ScreenWrapper>
       <Box style={styles.container}>
@@ -23,7 +25,13 @@ const ServerKeySuccessScreen = () => {
           {signingServer.successSubTitle}
         </Text>
       </Box>
-      <Buttons primaryCallback={() => {}} fullWidth primaryText="Finish" />
+      <Buttons
+        primaryCallback={() => {
+          // navigation.navigate('SigningDeviceDetails');
+        }}
+        fullWidth
+        primaryText="Finish"
+      />
     </ScreenWrapper>
   );
 };

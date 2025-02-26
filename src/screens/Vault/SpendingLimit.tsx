@@ -29,7 +29,9 @@ const SpendingLimit = ({ route }) => {
   const { signingServer, common } = translations;
   const { totalSats, totalTime } = route.params;
 
-  const [maxTransaction, setMaxTransaction] = useState(totalSats ? `${totalSats}` : '0');
+  const [maxTransaction, setMaxTransaction] = useState(
+    totalSats ? numberWithCommas(totalSats) : '0'
+  );
 
   const DEFAULT_INHERITANCE_TIMELOCK = { label: WEEK_1, value: 7 * 24 * 60 * 60 * 1000 };
   const [selectedOption, setSelectedOption] = useState(
@@ -49,7 +51,7 @@ const SpendingLimit = ({ route }) => {
   const handleConfirm = () => {
     navigation.navigate('ChoosePolicyNew', {
       isUpdate: true,
-      maxTransaction: maxTransaction,
+      maxTransaction: maxTransaction.replace(/,/g, ''),
       timelimit: selectedOption,
     });
   };
