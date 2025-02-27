@@ -162,10 +162,10 @@ function VaultSettings({ route }) {
           ),
       },
     inheritanceKeys.length && {
-      title: emergencyKeys
+      title: emergencyKeys.length
         ? vaultText.resetKeysTitle
         : vaultText.resetIKTitle + (inheritanceKeys.length > 1 ? 's' : ''),
-      description: emergencyKeys
+      description: emergencyKeys.length
         ? vaultText.resetKeysDesc
         : vaultText.resetIKDesc + (inheritanceKeys.length > 1 ? 's' : ''),
       icon: null,
