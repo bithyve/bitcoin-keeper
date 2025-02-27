@@ -149,15 +149,7 @@ export const generateMiniscriptPolicy = (
   const { phases: miniscriptPhases } = miniscriptElements;
 
   const keyUsageCounts: Record<string, number> = importedKeyUsageCounts
-    ? Object.entries(miniscriptElements.signerFingerprints).reduce(
-        (acc, [identifier, fingerprint]) => {
-          if (importedKeyUsageCounts[fingerprint] !== undefined) {
-            acc[identifier] = importedKeyUsageCounts[fingerprint];
-          }
-          return acc;
-        },
-        {} as Record<string, number>
-      )
+    ? importedKeyUsageCounts
     : existingMiniscriptScheme
     ? deriveKeyUsageCount(existingMiniscriptScheme, miniscriptElements)
     : {};
