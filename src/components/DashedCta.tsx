@@ -3,7 +3,7 @@ import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import HexagonIcon from './HexagonIcon';
 import Colors from 'src/theme/Colors';
-import { hp, wp } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 import Text from './KeeperText';
 import RightArrow from 'src/assets/images/icon_arrow.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
@@ -88,7 +88,6 @@ function DashedCta({
 
 const styles = StyleSheet.create({
   AddCardContainer: {
-    width: wp(327),
     minHeight: hp(50),
     borderRadius: 10,
     borderWidth: 2,
