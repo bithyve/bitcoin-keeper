@@ -154,6 +154,22 @@ function SendScreen({ route }) {
         navigation.goBack();
       }
     }
+    if (sender.entityKind === EntityKind.VAULT) {
+      if ((sender as Vault).isMigrating) {
+        const newVault = vaults
+          .reverse()
+          .find(
+            (vault) =>
+              vault.id !== sender.id &&
+              !vault.archived &&
+              vault.archivedId === (sender as Vault).archivedId
+          );
+        if (newVault) {
+          showToast('Automatically selected the recipient wallet to complete the migration.');
+          handleSelectWallet(newVault);
+        }
+      }
+    }
   }, [sender]);
 
   useEffect(() => {
@@ -175,7 +191,7 @@ function SendScreen({ route }) {
   }, [visibleWallets]);
 
   useEffect(() => {
-    handleSelectWallet(internalRecipientWallet);
+    if (internalRecipientWallet) handleSelectWallet(internalRecipientWallet);
   }, [internalRecipientWallet]);
 
   const handleSelectWallet = (wallet) => {
