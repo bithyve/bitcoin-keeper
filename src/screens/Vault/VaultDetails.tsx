@@ -303,8 +303,15 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           archived: true,
           isMigrating: false,
         });
-        showToast('Vault migrated successfully', <TickIcon />);
-        navigation.navigate('Home');
+        showToast(
+          'Vault migration completed successfully',
+          <TickIcon />,
+          IToastCategory.DEFAULT,
+          5000
+        );
+        setTimeout(() => {
+          navigation.navigate('Home');
+        }, 100);
       } catch (error) {
         console.log(error);
       }
