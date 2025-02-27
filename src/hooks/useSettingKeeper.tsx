@@ -60,7 +60,7 @@ export const useSettingKeeper = () => {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const isFocused = useIsFocused();
-  const { isOnL2Above, isOnL3 } = usePlan();
+  const { isOnL2Above } = usePlan();
 
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
@@ -241,11 +241,11 @@ export const useSettingKeeper = () => {
       title: vault.canaryWallet,
       description: inheritancePlanning.canaryWalletDesp,
       icon: <CanaryIcon width={14} height={14} />,
-      rightIcon: isOnL3 ? null : <UpgradeIcon width={64} height={20} />,
+      rightIcon: isOnL2Above ? null : <UpgradeIcon width={64} height={20} />,
       onRightPress: () => navigation.navigate('ChoosePlan'),
-
       onPress: () => navigation.navigate('CanaryWallets'),
-      isDiamond: true,
+      isDiamond: false,
+      isHodler: true,
     },
   ];
   const Tips = [
