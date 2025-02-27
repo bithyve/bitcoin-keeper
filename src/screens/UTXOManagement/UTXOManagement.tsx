@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
@@ -17,7 +17,7 @@ import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTota
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import { WalletType } from 'src/services/wallets/enums';
+import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
@@ -37,8 +37,10 @@ import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
-import WalletHeader from 'src/components/WalletHeader';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import MiniscriptPathSelector, {
+  MiniscriptPathSelectorRef,
+} from 'src/components/MiniscriptPathSelector';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -78,6 +80,9 @@ function Footer({
   vaultId,
 }) {
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
+  const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
+  const [miniscriptSelectedSatisfier, setMiniscriptSelectedSatisfier] = useState(null);
 
   const goToWhirlpoolConfiguration = () => {
     setEnableSelection(false);
@@ -98,30 +103,53 @@ function Footer({
   };
 
   return enableSelection ? (
-    <FinalizeFooter
-      initiateWhirlpool={initiateWhirlpool}
-      setEnableSelection={setEnableSelection}
-      setInitiateWhirlpool={setInitiateWhirlpool}
-      initateWhirlpoolMix={initateWhirlpoolMix}
-      setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-      secondaryText="Cancel"
-      footerCallback={() => {
-        if (initateWhirlpoolMix) {
-          inititateWhirlpoolMixProcess();
-        } else if (initiateWhirlpool) {
-          goToWhirlpoolConfiguration();
-        } else if (selectedAccount === WalletType.BAD_BANK) {
-          setSendBadBankModalVisible();
-        } else {
+    <>
+      <FinalizeFooter
+        initiateWhirlpool={initiateWhirlpool}
+        setEnableSelection={setEnableSelection}
+        setInitiateWhirlpool={setInitiateWhirlpool}
+        initateWhirlpoolMix={initateWhirlpoolMix}
+        setInitateWhirlpoolMix={setInitateWhirlpoolMix}
+        secondaryText="Cancel"
+        footerCallback={() => {
+          if (initateWhirlpoolMix) {
+            inititateWhirlpoolMixProcess();
+          } else if (initiateWhirlpool) {
+            goToWhirlpoolConfiguration();
+          } else if (selectedAccount === WalletType.BAD_BANK) {
+            setSendBadBankModalVisible();
+          } else if (
+            wallet.entityKind === EntityKind.VAULT &&
+            (wallet as Vault).type === VaultType.MINISCRIPT
+          ) {
+            miniscriptPathSelectorRef.current?.selectVaultSpendingPaths();
+          } else {
+            setEnableSelection(false);
+            navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+          }
+        }}
+        selectedUTXOs={selectedUTXOs}
+        isRemix={isRemix}
+        remixingToVault={remixingToVault}
+        setRemixingToVault={setRemixingToVault}
+      />
+      <MiniscriptPathSelector
+        ref={miniscriptPathSelectorRef}
+        vault={wallet}
+        onPathSelected={(satisfier) => {
           setEnableSelection(false);
-          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
-        }
-      }}
-      selectedUTXOs={selectedUTXOs}
-      isRemix={isRemix}
-      remixingToVault={remixingToVault}
-      setRemixingToVault={setRemixingToVault}
-    />
+          navigation.dispatch(
+            CommonActions.navigate('Send', {
+              sender: wallet,
+              selectedUTXOs,
+              miniscriptSelectedSatisfier: satisfier,
+            })
+          );
+        }}
+        onError={(err) => showToast(err)}
+        onCancel={() => setEnableSelection(true)}
+      />
+    </>
   ) : (
     <UTXOFooter
       setEnableSelection={setEnableSelection}
@@ -346,7 +374,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
         )}
       />
       <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
-      <SendBadBankSatsModal
+      {/* <SendBadBankSatsModal
         visible={sendBadBankModalVisible}
         closeModal={() => setSendBadBankModalVisible(false)}
         onclick={() => {
@@ -359,7 +387,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
             })
           );
         }}
-      />
+      /> */}
 
       {/* <InitiateWhirlpoolModal
         visible={whirlpoolIntroModal}

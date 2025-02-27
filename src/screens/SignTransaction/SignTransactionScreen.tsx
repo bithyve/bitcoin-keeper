@@ -77,6 +77,8 @@ import {
 } from './signWithSD';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import SendSuccessfulContent from '../Send/SendSuccessfulContent';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -91,6 +93,10 @@ function SignTransactionScreen() {
     isMoveAllFunds,
     tnxDetails,
     miniscriptTxElements,
+    sender,
+    internalRecipients,
+    addresses,
+    amounts,
   } = (route.params || {
     note: '',
     label: [],
@@ -99,6 +105,9 @@ function SignTransactionScreen() {
     isMoveAllFunds: false,
     sender: {},
     miniscriptTxElements: null,
+    internalRecipients: [],
+    addresses: [],
+    amounts: [],
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
@@ -111,6 +120,9 @@ function SignTransactionScreen() {
       selectedPhase: number;
       selectedPaths: number[];
     };
+    internalRecipients: (Wallet | Vault)[];
+    addresses: string[];
+    amounts: number[];
   };
 
   const { activeVault: defaultVault } = useVault({
@@ -646,38 +658,6 @@ function SignTransactionScreen() {
     }
   };
 
-  function SendSuccessfulContent({
-    primaryText,
-    primaryCallback,
-    secondaryText,
-    secondaryCallback,
-    SecondaryIcon,
-    primaryButtonWidth,
-  }) {
-    const { colorMode } = useColorMode();
-    return (
-      <Box>
-        <Box alignSelf="center">
-          {isDarkMode ? <SuccessDarkIllustration /> : <SuccessLightIllustration />}
-        </Box>
-        <Text color={`${colorMode}.primaryText`} fontSize={14} padding={2}>
-          {walletTransactions.sendTransSuccessMsg}
-        </Text>
-        <Box paddingTop={6}>
-          <Buttons
-            primaryText={primaryText}
-            primaryCallback={primaryCallback}
-            primaryTextColor={`${colorMode}.buttonText`}
-            secondaryText={secondaryText}
-            secondaryCallback={secondaryCallback}
-            SecondaryIcon={SecondaryIcon}
-            width={primaryButtonWidth}
-          />
-        </Box>
-      </Box>
-    );
-  }
-
   const viewDetails = () => {
     setVisibleModal(false);
     navigation.dispatch(
@@ -864,6 +844,11 @@ function SignTransactionScreen() {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <SendSuccessfulContent
+            transactionPriority={tnxDetails.transactionPriority}
+            amounts={amounts}
+            sender={sender}
+            recipients={internalRecipients}
+            addresses={addresses}
             primaryText={
               !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
             }

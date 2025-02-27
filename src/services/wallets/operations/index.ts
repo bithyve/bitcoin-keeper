@@ -9,8 +9,6 @@
 import * as bitcoinJS from 'bitcoinjs-lib';
 
 import ECPairFactory from 'ecpair';
-import coinselect from 'coinselect';
-import coinselectSplit from 'coinselect/split';
 import config from 'src/utils/service-utilities/config';
 import { parseInt } from 'lodash';
 import ElectrumClient from 'src/services/electrum/client';
@@ -30,7 +28,6 @@ import {
   SyncedWallet,
   Transaction,
   TransactionPrerequisite,
-  TransactionPrerequisiteElements,
   TransactionRecipients,
   UTXO,
 } from '../interfaces';
@@ -58,8 +55,10 @@ import {
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 import { generateScriptWitnesses } from './miniscript/miniscript';
-import { Phase } from './miniscript/policy-generator';
+import { Path, Phase } from './miniscript/policy-generator';
 import { getKeyUID } from 'src/utils/utilities';
+import { generateBitcoinScript } from './miniscript/miniscript';
+import { coinselect } from './coinselectFixed';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -79,7 +78,25 @@ const testnetFeeSurcharge = (wallet: Wallet | Vault) =>
 // Helper function for deep cloning
 const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
 
-const updateInputsForFeeCalculation = (wallet: Wallet | Vault, inputUTXOs) => {
+const fixedCoinselect = (wallet: Wallet | Vault, inputUTXOs, outputUTXOs, feePerByte) => {
+  if ([ScriptTypes.P2WPKH, ScriptTypes.P2WSH, ScriptTypes.P2TR].includes(wallet.scriptType)) {
+    outputUTXOs[0]['isSegWit'] = true;
+  } else {
+    outputUTXOs[0]['isSegWit'] = false;
+  }
+  if (wallet.entityKind == 'VAULT' && (wallet as Vault).isMultiSig) {
+    outputUTXOs[0]['isMultisig'] = true;
+  } else {
+    outputUTXOs[0]['isMultisig'] = false;
+  }
+  return coinselect(inputUTXOs, outputUTXOs, feePerByte + testnetFeeSurcharge(wallet));
+};
+
+const updateInputsForFeeCalculation = (
+  wallet: Wallet | Vault,
+  inputUTXOs,
+  miniscriptSelectedSatisfier
+) => {
   const isNativeSegwit =
     wallet.scriptType === ScriptTypes.P2WPKH || wallet.scriptType === ScriptTypes.P2WSH;
   const isWrappedSegwit =
@@ -89,37 +106,75 @@ const updateInputsForFeeCalculation = (wallet: Wallet | Vault, inputUTXOs) => {
 
   return inputUTXOs.map((u) => {
     if (wallet.entityKind == 'VAULT' && (wallet as Vault).isMultiSig) {
-      const m = (wallet as Vault).scheme.m;
+      let m = (wallet as Vault).scheme.m;
       let n = (wallet as Vault).scheme.n;
-      const isInheritanceVault =
-        (wallet as Vault).type === VaultType.MINISCRIPT &&
-        (wallet as Vault).scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
-          MiniscriptTypes.INHERITANCE
-        );
 
-      if (isInheritanceVault) {
-        n += 1; // Account for inheritance key
+      if ((wallet as Vault).type === VaultType.MINISCRIPT) {
+        // Get witness data requirements from ASM
+        const asm = miniscriptSelectedSatisfier.selectedScriptWitness.asm;
+
+        const sigCount = (asm.match(/<sig\([^)]+\)>/g) || []).length; // Match signatures
+        // Match only top-level placeholders that aren't signatures
+        let witnessKeyCount = (asm.replace(/<sig\([^)]+\)>/g, '').match(/<[^>]+>/g) || []).length;
+
+        const cleanAsm = asm
+          .replace(/<[^>]+>/g, '')
+          .replace(/[()>]/g, '')
+          .trim();
+        const addedElements = cleanAsm.split(' ').filter((x) => x).length;
+
+        if (isTaproot || isNativeSegwit) {
+          const miniscript = (wallet as Vault).scheme?.miniscriptScheme.miniscript;
+          const { asm } = generateBitcoinScript(miniscript);
+          const script = asm.split(' ');
+
+          // Calculate script size for witness
+          let scriptSize = 0;
+          script.forEach((op) => {
+            if (op.startsWith('OP_')) {
+              scriptSize += 1; // just the opcode byte
+            } else if (op.startsWith('<HASH160')) {
+              scriptSize += 21; // push(1) + hash160(20)
+            } else if (op.startsWith('<K') || op.startsWith('<IK')) {
+              scriptSize += 34; // push(1) + pubkey(33)
+            } else if (
+              op.startsWith('<') &&
+              script[script.indexOf(op) + 1] === 'OP_CHECKLOCKTIMEVERIFY'
+            ) {
+              scriptSize += 4; // push(1) + timelock(3)
+            } else if (op !== '') {
+              scriptSize += 2; // push byte(1) + data(1)
+            }
+          });
+
+          // Needed since from 4 or more the Miniscript generated uses nester ors, with all but the first pubkey as pubkey hashes.
+          if (m === 1 && n >= 4 && witnessKeyCount === 0) {
+            witnessKeyCount += 1;
+          }
+
+          u.script = {
+            length: Math.ceil(
+              (1 + addedElements * 2 + scriptSize + sigCount * 74 + witnessKeyCount * 34) / 4
+            ),
+          };
+        }
+        return u;
       }
-
       // TODO: Update Taproot when implementing Taproot multisig
       if (isTaproot || isNativeSegwit) {
-        const baseSize = isInheritanceVault ? 28 : 22;
-        const additionalPubkeys = isInheritanceVault && m != 1 ? (n - 1) * 34 : 0;
+        const baseSize = 22;
         u.script = {
-          length: Math.ceil((baseSize + m * 74 + n * 34 + additionalPubkeys + n * 4) / 4),
+          length: Math.ceil((baseSize + m * 74 + n * 34 + n * 4) / 4),
         };
       } else if (isWrappedSegwit) {
-        const baseSize = isInheritanceVault ? 55 : 49;
-        const additionalPubkeys = isInheritanceVault && m != 1 ? (n - 1) * 34 : 0;
+        const baseSize = 49;
         u.script = {
-          length:
-            baseSize + Math.ceil((baseSize + m * 74 + n * 34 + additionalPubkeys + n * 4) / 4),
+          length: baseSize + Math.ceil((baseSize + m * 74 + n * 34 + n * 4) / 4),
         };
       } else {
-        const baseSize = isInheritanceVault ? 29 : 23;
-        const additionalPubkeys = isInheritanceVault && m != 1 ? (n - 1) * 34 : 0;
+        const baseSize = 23;
         u.script = {
-          length: baseSize + m * 74 + n * 34 + additionalPubkeys + n * 4,
+          length: baseSize + m * 74 + n * 34 + n * 4,
         };
       }
     } else {
@@ -142,13 +197,10 @@ const updateOutputsForFeeCalculation = (outputs, network) => {
     if (o.address && (o.address.startsWith('bc1') || o.address.startsWith('tb1'))) {
       // in case address is non-typical and takes more bytes than coinselect library anticipates by default
       o.script = {
-        length:
-          bitcoinJS.address.toOutputScript(
-            o.address,
-            network === NetworkType.MAINNET
-              ? bitcoinJS.networks.bitcoin
-              : bitcoinJS.networks.testnet
-          ).length + 3,
+        length: bitcoinJS.address.toOutputScript(
+          o.address,
+          network === NetworkType.MAINNET ? bitcoinJS.networks.bitcoin : bitcoinJS.networks.testnet
+        ).length,
       };
     }
   }
@@ -734,7 +786,8 @@ export default class WalletOperations {
       amount: number;
     }[],
     feePerByte: number,
-    selectedUTXOs?: UTXO[]
+    selectedUTXOs?: UTXO[],
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier
   ): { fee: number } => {
     let inputUTXOs;
     if (selectedUTXOs && selectedUTXOs.length) {
@@ -743,7 +796,7 @@ export default class WalletOperations {
       inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
     }
 
-    inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
+    inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
 
     let availableBalance = 0;
     inputUTXOs.forEach((utxo) => {
@@ -751,19 +804,26 @@ export default class WalletOperations {
     });
 
     let outputUTXOs = [];
-    for (const recipient of recipients) {
-      outputUTXOs.push({
-        address: recipient.address,
-        value: availableBalance,
-      });
+
+    let remainingBalance = availableBalance;
+    for (let i = 0; i < recipients.length; i++) {
+      const recipient = recipients[i];
+      if (i === recipients.length - 1) {
+        outputUTXOs.push({
+          address: recipient.address,
+          value: remainingBalance,
+        });
+      } else {
+        outputUTXOs.push({
+          address: recipient.address,
+          value: recipient.amount,
+        });
+        remainingBalance -= recipient.amount;
+      }
     }
     outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
 
-    let { inputs, outputs, fee } = coinselect(
-      inputUTXOs,
-      outputUTXOs,
-      feePerByte + testnetFeeSurcharge(wallet)
-    );
+    let { inputs, outputs, fee } = fixedCoinselect(wallet, inputUTXOs, outputUTXOs, feePerByte);
 
     let i = 0;
     const MAX_RETRIES = 10000; // Could raise to allow more retries in case of many uneconomic UTXOs in a wallet
@@ -773,17 +833,19 @@ export default class WalletOperations {
         netAmount += recipient.amount;
       });
       if (outputUTXOs && outputUTXOs.length) {
-        outputUTXOs[0].value = availableBalance - fee - i;
+        outputUTXOs[outputUTXOs.length - 1].value = remainingBalance - fee - i;
       }
 
-      ({ inputs, outputs, fee } = coinselect(
+      ({ inputs, outputs, fee } = fixedCoinselect(
+        wallet,
         deepClone(inputUTXOs),
         deepClone(outputUTXOs),
-        feePerByte + testnetFeeSurcharge(wallet)
+        feePerByte
       ));
       i++;
     }
-    fee = availableBalance - outputUTXOs[0].value;
+
+    fee = remainingBalance - outputs[outputs.length - 1].value;
 
     return {
       fee,
@@ -797,7 +859,8 @@ export default class WalletOperations {
       amount: number;
     }[],
     averageTxFees: AverageTxFees,
-    selectedUTXOs?: UTXO[]
+    selectedUTXOs?: UTXO[],
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier
   ):
     | {
         fee: number;
@@ -818,7 +881,7 @@ export default class WalletOperations {
       inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
     }
 
-    inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
+    inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
 
     let availableBalance = 0;
     inputUTXOs.forEach((utxo) => {
@@ -838,10 +901,11 @@ export default class WalletOperations {
     const defaultTxPriority = TxPriority.LOW; // doing base calculation with low fee (helps in sending the tx even if higher priority fee isn't possible)
     const defaultFeePerByte = averageTxFees[defaultTxPriority].feePerByte;
     const defaultEstimatedBlocks = averageTxFees[defaultTxPriority].estimatedBlocks;
-    const assets = coinselect(
+    const assets = fixedCoinselect(
+      wallet,
       deepClone(inputUTXOs),
       deepClone(outputUTXOs),
-      defaultFeePerByte + testnetFeeSurcharge(wallet)
+      defaultFeePerByte
     );
     let defaultPriorityInputs = assets.inputs;
     let defaultPriorityOutputs = assets.outputs;
@@ -854,13 +918,18 @@ export default class WalletOperations {
     if (!defaultPriorityInputs || !defaultPriorityOutputs) {
       const defaultDebitedAmount = netAmount + defaultPriorityFee;
       if (outputUTXOs && outputUTXOs.length && defaultDebitedAmount > availableBalance) {
-        outputUTXOs[0].value = availableBalance - defaultPriorityFee;
+        const otherOutputsTotal = outputUTXOs
+          .slice(0, -1)
+          .reduce((sum, output) => sum + output.value, 0);
+        outputUTXOs[outputUTXOs.length - 1].value =
+          availableBalance - defaultPriorityFee - otherOutputsTotal;
       }
 
-      const assets = coinselect(
+      const assets = fixedCoinselect(
+        wallet,
         deepClone(inputUTXOs),
         deepClone(outputUTXOs),
-        defaultFeePerByte + testnetFeeSurcharge(wallet)
+        defaultFeePerByte
       );
 
       if (!assets.inputs || !assets.outputs) {
@@ -886,10 +955,11 @@ export default class WalletOperations {
         };
       } else {
         // re-computing inputs with a non-default priority fee
-        let { inputs, outputs, fee } = coinselect(
+        let { inputs, outputs, fee } = fixedCoinselect(
+          wallet,
           deepClone(inputUTXOs),
           deepClone(outputUTXOs),
-          averageTxFees[priority].feePerByte + testnetFeeSurcharge(wallet)
+          averageTxFees[priority].feePerByte
         );
 
         if (!inputs || !outputs) {
@@ -899,13 +969,17 @@ export default class WalletOperations {
           });
           const debitedAmount = netAmount + fee;
           if (outputUTXOs && outputUTXOs.length && debitedAmount > availableBalance) {
-            outputUTXOs[0].value = availableBalance - fee;
+            const otherOutputsTotal = outputUTXOs
+              .slice(0, -1)
+              .reduce((sum, output) => sum + output.value, 0);
+            outputUTXOs[outputUTXOs.length - 1].value = availableBalance - fee - otherOutputsTotal;
           }
 
-          ({ inputs, outputs, fee } = coinselect(
+          ({ inputs, outputs, fee } = fixedCoinselect(
+            wallet,
             deepClone(inputUTXOs),
             deepClone(outputUTXOs),
-            averageTxFees[priority].feePerByte + testnetFeeSurcharge(wallet)
+            averageTxFees[priority].feePerByte
           ));
         }
 
@@ -963,7 +1037,8 @@ export default class WalletOperations {
       value: number;
     }[],
     customTxFeePerByte: number,
-    selectedUTXOs?: UTXO[]
+    selectedUTXOs?: UTXO[],
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier
   ): {
     txPrerequisites: TransactionPrerequisite;
     txRecipients: TransactionRecipients;
@@ -975,13 +1050,14 @@ export default class WalletOperations {
       inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
     }
 
-    inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs);
+    inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
     outputUTXOs = updateOutputsForFeeCalculation(outputUTXOs, wallet.networkType);
 
-    let { inputs, outputs, fee } = coinselect(
+    let { inputs, outputs, fee } = fixedCoinselect(
+      wallet,
       deepClone(inputUTXOs),
       deepClone(outputUTXOs),
-      customTxFeePerByte + testnetFeeSurcharge(wallet)
+      customTxFeePerByte
     );
 
     if (!inputs) {
@@ -998,13 +1074,17 @@ export default class WalletOperations {
       const debitedAmount = netAmount + fee;
 
       if (outputUTXOs && outputUTXOs.length && debitedAmount > availableBalance) {
-        outputUTXOs[0].value = availableBalance - fee;
+        const otherOutputsTotal = outputUTXOs
+          .slice(0, -1)
+          .reduce((sum, output) => sum + output.value, 0);
+        outputUTXOs[outputUTXOs.length - 1].value = availableBalance - fee - otherOutputsTotal;
       }
 
-      ({ inputs, outputs, fee } = coinselect(
+      ({ inputs, outputs, fee } = fixedCoinselect(
+        wallet,
         deepClone(inputUTXOs),
         deepClone(outputUTXOs),
-        customTxFeePerByte + testnetFeeSurcharge(wallet)
+        customTxFeePerByte
       ));
     }
 
@@ -1651,18 +1731,31 @@ export default class WalletOperations {
           const { miniscriptScheme } = (wallet as Vault).scheme;
           if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
 
-          for (const { bip32Derivation } of PSBT.data.inputs) {
-            for (let { masterFingerprint, path, pubkey } of bip32Derivation) {
-              if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
-                const pathFragments = path.split('/');
-                const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
-                const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
-                subPath = [chainIndex, childIndex];
-                publicKey = pubkey;
-                break;
-              }
+          const psbtInputIndex = PSBT.txInputs.findIndex((psbtInput) => {
+            // Reverse the bytes of the hash to match txId format
+            const psbtHash = Buffer.from(psbtInput.hash).reverse().toString('hex');
+            return (
+              psbtHash === inputs[inputIndex].txId && psbtInput.index === inputs[inputIndex].vout
+            );
+          });
+
+          if (psbtInputIndex === -1) {
+            console.log('No match found!');
+            throw new Error('Could not find matching PSBT input');
+          }
+
+          // PSBT.data.inputs and PSBT.txInputs are expected to be parallel arrays that maintain the same order
+          const { bip32Derivation } = PSBT.data.inputs[psbtInputIndex];
+
+          for (let { masterFingerprint, path, pubkey } of bip32Derivation) {
+            if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
+              const pathFragments = path.split('/');
+              const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
+              const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
+              subPath = [chainIndex, childIndex];
+              publicKey = pubkey;
+              break;
             }
-            if (publicKey) break;
           }
         }
 
@@ -1747,7 +1840,8 @@ export default class WalletOperations {
       amount: number;
     }[],
     averageTxFees: AverageTxFees,
-    selectedUTXOs?: UTXO[]
+    selectedUTXOs?: UTXO[],
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier
   ): Promise<{
     txPrerequisites: TransactionPrerequisite;
     txRecipients: TransactionRecipients;
@@ -1764,7 +1858,8 @@ export default class WalletOperations {
         wallet,
         recipients,
         averageTxFees,
-        selectedUTXOs
+        selectedUTXOs,
+        miniscriptSelectedSatisfier
       );
 
     if (balance < outgoingAmount + fee) throw new Error('Insufficient balance');

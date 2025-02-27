@@ -168,7 +168,7 @@ export const isReading = () => {
   return keepReading;
 };
 
-export const getPortalDetailsFromDescriptor = (descriptor: string) => {
+export const getPortalDetailsFromDescriptor = (descriptor: string, isMultisig: boolean) => {
   const regex = /\[([0-9a-fA-F]+)\/([0-9'\/]+)\]([xtyz][A-Za-z0-9]+)/;
   //  /^\[(\w+\/(?:\d+'?\/)*\d+')\](tpub[a-zA-Z0-9]+)$/; // single sig
   const match = descriptor.match(regex);
@@ -178,8 +178,7 @@ export const getPortalDetailsFromDescriptor = (descriptor: string) => {
     const mfp = match[1].toUpperCase();
     const derivationPath = 'm/' + match[2];
     const xpub = match[3];
-    xpubDetails[XpubTypes.P2WSH] = { xpub, derivationPath };
-
+    xpubDetails[isMultisig ? XpubTypes.P2WSH : XpubTypes.P2WPKH] = { xpub, derivationPath };
     return { xpub, derivationPath, masterFingerprint: mfp?.toUpperCase(), xpubDetails };
   } else {
     throw new Error('Invalid descriptor format');

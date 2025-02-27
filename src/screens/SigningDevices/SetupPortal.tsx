@@ -46,7 +46,7 @@ function SetupPortal({ route }) {
     mode,
     signer,
     isMultisig,
-    accountNumber,
+    accountNumber = 0,
     signTransaction,
     addSignerFlow = false,
     vaultId,
@@ -201,8 +201,8 @@ function SetupPortal({ route }) {
   const getPortalDetails = async () => {
     await PORTAL.startReading();
     await checkAndUnlock(cvc, setPortalStatus);
-    const descriptor = await PORTAL.getXpub({ accountNumber, isMultisig: true });
-    const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub);
+    const descriptor = await PORTAL.getXpub({ accountNumber, isMultisig });
+    const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub, isMultisig);
     return signer;
   };
 
