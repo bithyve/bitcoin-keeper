@@ -186,9 +186,8 @@ const Colors = {
   termsGrey: 'rgba(78, 92, 106, 1)',
   headerWhite: 'rgba(255, 255, 255, 1)',
   DesertSand: 'rgba(234, 210, 181, 1)',
-
   darkBorderGreen: 'rgba(89, 116, 107, 1)',
-
+  FlameOrange: 'rgba(221, 89, 64, 1)',
   modalSubtitleBlack: 'rgba(4, 21, 19, 1)',
   BrownBorder: 'rgba(145, 120, 92, 0.2))',
 };

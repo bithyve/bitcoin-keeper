@@ -1,12 +1,24 @@
 import Text from 'src/components/KeeperText';
-import { Box, ScrollView, useColorMode, View } from 'native-base';
+import { Box, Center, ScrollView, useColorMode, View } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import KeeperHeader from 'src/components/KeeperHeader';
 import SigningServerIllustration from 'src/assets/images/backup-server-illustration.svg';
-
+import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import Ledger from 'src/assets/images/ledger_image.svg';
+import SeedSigner from 'src/assets/images/seedsigner-setup-horizontal.svg';
+import Keystone from 'src/assets/images/keystone_illustration.svg';
+import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
+import PassportSVG from 'src/assets/images/illustration_passport.svg';
+import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
+import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
+import BitboxImage from 'src/assets/images/bitboxSetup.svg';
+import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import JadeSVG from 'src/assets/images/illustration_jade.svg';
+import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType, VaultType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
@@ -39,7 +51,7 @@ import { captureError } from 'src/services/sentry';
 import { emailCheck, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
-import config from 'src/utils/service-utilities/config';
+import config, { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault, refillMobileKey } from 'src/store/sagaActions/vaults';
@@ -76,6 +88,7 @@ import WalletHeader from 'src/components/WalletHeader';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import Buttons from 'src/components/Buttons';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 const { width } = Dimensions.get('screen');
 
@@ -169,6 +182,7 @@ function SignerAdvanceSettings({ route }: any) {
     SignersWithRKSupport.includes(signer.type) && !!signer.signerXpubs[XpubTypes.P2WSH]?.[0];
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const showBackupModal = useSelector((state) => state?.settings?.backupModal);
+  const [detailModal, setDetailModal] = useState(false);
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
@@ -846,6 +860,14 @@ function SignerAdvanceSettings({ route }: any) {
       showToast('This signer does not support one-time backup');
     }
   };
+
+  const handleBackupModal = () => {
+    setDisplayBackupModal(true);
+  };
+  const navigateToSigningRequests = () => {
+    navigation.navigate('SigningRequest');
+  };
+
   const BackupModalContent = useCallback(() => {
     return (
       <Box style={styles.modalContainer}>
@@ -867,10 +889,6 @@ function SignerAdvanceSettings({ route }: any) {
       </Box>
     );
   }, []);
-
-  const handleBackupModal = () => {
-    setDisplayBackupModal(true);
-  };
 
   const displayedCards = [
     !isMobileKey && (
@@ -897,7 +915,7 @@ function SignerAdvanceSettings({ route }: any) {
         callback={registerSigner}
       />
     ),
-    isPolicyServer && vaultId && (
+    isPolicyServer && (
       <OptionCard
         key="configurationSetting"
         title="Configuration Setting"
@@ -910,7 +928,7 @@ function SignerAdvanceSettings({ route }: any) {
         key="signingRequests"
         title="Signing requests"
         description="See your pending signing requests"
-        callback={navigateToPolicyChange}
+        callback={navigateToSigningRequests}
       />
     ),
     showOneTimeBackup && (
@@ -994,13 +1012,183 @@ function SignerAdvanceSettings({ route }: any) {
     ),
   ].filter(Boolean);
 
+  const getSignerContent = (type: SignerType) => {
+    switch (type) {
+      case SignerType.COLDCARD:
+        return {
+          title: 'Coldcard',
+          subTitle:
+            'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip.',
+          assert: <ColdCardSetupImage />,
+          description:
+            '\u2022 Coldcard provides the best physical security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.',
+          FAQ: 'https://coldcard.com/docs/faq',
+        };
+      case SignerType.TAPSIGNER:
+        return {
+          title: 'TAPSIGNER',
+          subTitle:
+            'TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone.',
+          assert: <TapsignerSetupImage />,
+          description:
+            '\u2022 TAPSIGNER’s lower cost makes hardware wallet features and security available to a wider market around the world.\n\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s). \n\u2022 The card form factor makes it easy to carry and easy to conceal.',
+          FAQ: 'https://tapsigner.com/faq',
+        };
+      case SignerType.LEDGER:
+        return {
+          title: 'LEDGER',
+          subTitle:
+            'Ledger has industry-leading security to keep your Bitcoin secure at all times. Buy, sell, exchange, and grow your assets with our partners easily and securely. With Ledger, you can secure, store and manage your Bitcoin.',
+          assert: <Ledger />,
+          description: '',
+          FAQ: 'https://support.ledger.com/hc/en-us/categories/4404369571601?support=true',
+        };
+      case SignerType.SEEDSIGNER:
+        return {
+          title: 'SeedSigner',
+          subTitle:
+            'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signer using inexpensive, publicly available hardware components (usually < $50).',
+          assert: <SeedSigner />,
+          description:
+            '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022 It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
+          FAQ: 'https://seedsigner.com/faqs/',
+        };
+      case SignerType.KEYSTONE:
+        return {
+          title: 'Keystone',
+          subTitle:
+            'It offers a convenient cold storage solution with open source firmware, a 4-inch touchscreen, and multi-key support. Protect your bitcoin with the right balance between a secure and convenient hardware wallet with mobile phone support.',
+          assert: <Keystone />,
+          description:
+            "\u2022 With QR codes, you can verify all data transmission to ensure that information coming into Keystone contains no trojans or viruses, while information going out doesn't leak private keys or any other sensitive information.",
+          FAQ: 'https://support.keyst.one/miscellaneous/faq',
+        };
+      case SignerType.PASSPORT:
+        return {
+          title: 'Foundation Passport',
+          subTitle:
+            'Foundation products empower individuals to reclaim their digital sovereignty by taking control of your money and data. Foundation offers best-in-class security and privacy via openness. No walled gardens; no closed source engineering',
+          assert: <PassportSVG />,
+          description:
+            '\u2022 Passport has no direct connection with the outside world – meaning your keys are never directly exposed online. It uses a camera and QR codes for communication. This provides hardcore, air-gapped security while offering a seamless user experience.\n\u2022 Passport’s software and hardware are both fully open source. No walled gardens, no closed source engineering. Connect Passport to their Envoy mobile app for a seamless experience.',
+          FAQ: 'https://docs.foundationdevices.com',
+        };
+      case SignerType.MOBILE_KEY:
+        return {
+          title: 'Mobile Key',
+          subTitle: 'You could use the wallet key on your app as one of the signing keys',
+          assert: <MobileKeyIllustration />,
+          description:
+            '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
+          FAQ: KEEPER_KNOWLEDGEBASE,
+        };
+      case SignerType.SEED_WORDS:
+        return {
+          title: 'Seed Key',
+          subTitle: 'You could use a newly generated seed (12 words) as one of the signing keys',
+          assert: <SeedWordsIllustration />,
+          description:
+            '\u2022 Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
+          FAQ: '',
+        };
+      case SignerType.MY_KEEPER:
+      case SignerType.KEEPER:
+        return {
+          title: `${getSignerNameFromType(type)} as signer`,
+          subTitle: 'You can use a specific BIP-85 wallet on Keeper as a signer',
+          assert: <KeeperSetupImage />,
+          description:
+            '\u2022 Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used.',
+          FAQ: KEEPER_KNOWLEDGEBASE,
+        };
+      case SignerType.POLICY_SERVER:
+        return {
+          title: 'Server Key',
+          subTitle:
+            'The key on the signer will sign a transaction depending on the policy and authentication',
+          assert: <SigningServerIllustration />,
+          description:
+            '\u2022 An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
+          FAQ: '',
+        };
+      case SignerType.BITBOX02:
+        return {
+          title: 'Bitbox 02',
+          subTitle: 'Easy backup and restore with a microSD card',
+          assert: <BitboxImage />,
+          description:
+            '\u2022 BitBox02 is known for its ease of use, open-source firmware, and security features like backup recovery via microSD card, USB-C connectivity, and integration with the BitBoxApp.\n\u2022 The wallet prioritizes privacy and security with advanced encryption and verification protocols, making it ideal for users who value high security in managing their bitcoin.',
+          FAQ: 'https://shiftcrypto.ch/support/',
+        };
+      case SignerType.TREZOR:
+        return {
+          title: 'Trezor',
+          subTitle:
+            'Trezor Suite is designed for every level of user. Easily and securely send, receive, and manage coins with confidence',
+          assert: <TrezorSetup />,
+          description:
+            '\u2022Sleek, secure design.\n\u2022 Digital Independence.\n\u2022 Easy hardware wallet backup',
+          FAQ: 'https://trezor.io/support',
+        };
+      case SignerType.JADE:
+        return {
+          title: 'Jade Blockstream',
+          subTitle:
+            'Jade is an easy-to-use, purely open-source hardware wallet that offers advanced security for your Bitcoin.',
+          assert: <JadeSVG />,
+          description:
+            '\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions',
+          FAQ: 'https://help.blockstream.com/hc/en-us/categories/900000061906-Blockstream-Jade',
+        };
+      case SignerType.INHERITANCEKEY:
+        return {
+          title: 'Inheritance Key',
+          subTitle:
+            'An additional key setup with special conditions to help transfer bitcoin to the beneficiary.',
+          assert: <InhertanceKeyIcon />,
+          description:
+            '\u2022 Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
+          FAQ: `${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`,
+        };
+      case SignerType.SPECTER:
+        return {
+          title: 'Specter DIY',
+          subTitle:
+            'An open-source hardware wallet for users to take full control over their Bitcoin security.',
+          assert: <SpecterSetupImage />,
+          description:
+            '\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions.',
+          FAQ: `https://docs.specter.solutions/diy/faq/`,
+        };
+      default:
+        return {
+          title: '',
+          subTitle: '',
+          assert: null,
+          description: '',
+          FAQ: '',
+        };
+    }
+  };
+  const { title, subTitle, assert, description } = getSignerContent(signer?.type);
+  function SignerContent() {
+    return (
+      <Box>
+        <Center>{assert}</Center>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.contentDescription}>
+          {description}
+        </Text>
+      </Box>
+    );
+  }
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
       <WalletHeader
         title="Sever Key Settings"
         rightComponent={
-          <TouchableOpacity style={styles.infoIcon} onPress={() => {}}>
+          <TouchableOpacity style={styles.infoIcon} onPress={() => setDetailModal(true)}>
             {isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}
           </TouchableOpacity>
         }
@@ -1164,6 +1352,36 @@ function SignerAdvanceSettings({ route }: any) {
         isMultisig={true}
         addSignerFlow={false}
       />
+      <KeeperModal
+        visible={detailModal}
+        close={() => setDetailModal(false)}
+        title={!signer.isBIP85 ? title : title + ' +'}
+        subTitle={subTitle}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={SignerContent}
+        subTitleWidth={wp(280)}
+        DarkCloseIcon
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
+        secondaryCallback={() => {
+          setDetailModal(false);
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'CreateTicket',
+              params: {
+                tags: [ConciergeTag.KEYS],
+                screenName: 'signing-device-details',
+              },
+            })
+          );
+        }}
+        buttonCallback={() => setDetailModal(false)}
+      />
     </ScreenWrapper>
   );
 }
@@ -1282,6 +1500,10 @@ const styles = StyleSheet.create({
   noteDescription: {
     fontSize: 12,
     padding: 1,
+  },
+  contentDescription: {
+    fontSize: 14,
+    marginTop: hp(25),
   },
   editModalContainer: {},
   fw800: {
