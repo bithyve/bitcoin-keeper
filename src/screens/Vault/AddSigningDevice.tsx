@@ -50,18 +50,18 @@ import KeyAddedModal from 'src/components/KeyAddedModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
-import SignerCard from '../AddSigner/SignerCard';
-import VaultMigrationController from './VaultMigrationController';
-import { SDIcons } from './SigningDeviceIcons';
-import AddKeyButton from '../SigningDevices/components/AddKeyButton';
-import EmptyListIllustration from '../../components/EmptyListIllustration';
 import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
 import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-illustration-dark.svg';
 import KeyWarningIllustration from 'src/assets/images/reserve-key-illustration-light.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import SignerCard from '../AddSigner/SignerCard';
+import VaultMigrationController from './VaultMigrationController';
+import { SDIcons } from './SigningDeviceIcons';
+import AddKeyButton from '../SigningDevices/components/AddKeyButton';
+import EmptyListIllustration from '../../components/EmptyListIllustration';
 
 const MINISCRIPT_SIGNERS = [
   SignerType.MY_KEEPER,
@@ -73,6 +73,7 @@ const MINISCRIPT_SIGNERS = [
   SignerType.SPECTER,
   SignerType.SEED_WORDS,
   SignerType.KEEPER,
+  SignerType.POLICY_SERVER,
 ];
 
 const onSignerSelect = (
@@ -875,6 +876,7 @@ function Signers({
     const signerCards = signers
       .filter((signer) => !signer.archived)
       .filter((signer) => !selectedFingerprintsSet.has(signer.masterFingerprint)) // Avoid selected signers from params
+      .filter((signer) => signer.type !== SignerType.POLICY_SERVER) // Policy/Signing server cannot be used as an Inheritance Key
       .map((signer) => {
         const disabledMessage = getDisabledMessage(
           signer,
@@ -1473,7 +1475,7 @@ function AddSigningDevice() {
             keyToRotate
               ? () => {
                   return (
-                    <Box flex={1} alignItems={'center'}>
+                    <Box flex={1} alignItems="center">
                       <SuccessIcon />
                     </Box>
                   );
@@ -1482,7 +1484,7 @@ function AddSigningDevice() {
               ? () => SingleSigWallet(newVault)
               : () => VaultCreatedModalContent(newVault)
           }
-          buttonText={'View Wallet'}
+          buttonText="View Wallet"
           buttonCallback={viewVault}
           secondaryCallback={viewVault}
           modalBackground={`${colorMode}.modalWhiteBackground`}

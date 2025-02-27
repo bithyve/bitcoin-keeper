@@ -18,6 +18,7 @@ import { isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 import { hash256 } from 'src/utils/service-utilities/encryption';
+import { getKeyUID } from 'src/utils/utilities';
 import ecc from './taproot-utils/noble_ecc';
 import {
   AverageTxFees,
@@ -59,7 +60,6 @@ import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wa
 import WalletUtilities from './utils';
 import { generateScriptWitnesses } from './miniscript/miniscript';
 import { Phase } from './miniscript/policy-generator';
-import { getKeyUID } from 'src/utils/utilities';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -1547,10 +1547,13 @@ export default class WalletOperations {
     const payloadTarget = signer.type;
     let isSigned = false;
 
-    if (
-      miniscriptSelectedSatisfier &&
-      (signer.type === SignerType.BITBOX02 || signer.type === SignerType.KEEPER)
-    ) {
+    const keysOnlyInSelectedPathSigners = [
+      SignerType.BITBOX02,
+      SignerType.KEEPER,
+      SignerType.POLICY_SERVER,
+      SignerType.INHERITANCEKEY,
+    ];
+    if (miniscriptSelectedSatisfier && keysOnlyInSelectedPathSigners.includes(signer.type)) {
       const subPaths = inputs.reduce((acc, input) => {
         const { subPaths: inputSubPaths } = WalletUtilities.addressToMultiSig(
           input.address,
@@ -1593,7 +1596,12 @@ export default class WalletOperations {
               bip32Deriv.masterFingerprint.toString() === path.masterFingerprint.toString()
           );
         });
-        if (signer.type === SignerType.BITBOX02) {
+
+        if (
+          signer.type === SignerType.BITBOX02 ||
+          signer.type === SignerType.POLICY_SERVER ||
+          signer.type === SignerType.INHERITANCEKEY
+        ) {
           input.bip32Derivation = newBip32Derivation;
         } else {
           input.unknownKeyVals = [
@@ -1620,7 +1628,9 @@ export default class WalletOperations {
       signer.type === SignerType.LEDGER ||
       signer.type === SignerType.TREZOR ||
       signer.type === SignerType.BITBOX02 ||
-      signer.type === SignerType.KEEPER // for external key since it can be of any signer type
+      signer.type === SignerType.KEEPER || // for external key since it can be of any signer type
+      signer.type === SignerType.POLICY_SERVER ||
+      signer.type === SignerType.INHERITANCEKEY
     ) {
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
@@ -1690,32 +1700,32 @@ export default class WalletOperations {
           publicKey: publicKey.toString('hex'),
         });
       }
-      signingPayload.push({
-        payloadTarget,
-        inputsToSign,
-        inputs,
-        outputs,
-        change,
-      });
-    } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
-      signingPayload.push({ payloadTarget, inputs });
-    } else if (
-      signer.type === SignerType.POLICY_SERVER ||
-      signer.type === SignerType.INHERITANCEKEY
-    ) {
-      const childIndexArray = [];
-      for (const input of inputs) {
-        const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
-        childIndexArray.push({
-          subPath,
-          inputIdentifier: {
-            txId: input.txId,
-            vout: input.vout,
-            value: input.value,
-          },
+
+      if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+        const childIndexArray = [];
+        for (let index = 0; index < inputs.length; index++) {
+          childIndexArray.push({
+            subPath: inputsToSign[index].subPath.substring(1).split('/').map(Number),
+            inputIdentifier: {
+              txId: inputs[index].txId,
+              vout: inputs[index].vout,
+              value: inputs[index].value,
+            },
+          });
+        }
+
+        signingPayload.push({ payloadTarget, childIndexArray, outgoing });
+      } else {
+        signingPayload.push({
+          payloadTarget,
+          inputsToSign,
+          inputs,
+          outputs,
+          change,
         });
       }
-      signingPayload.push({ payloadTarget, childIndexArray, outgoing });
+    } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
+      signingPayload.push({ payloadTarget, inputs });
     }
 
     if (isSignerAMF(signer)) signingPayload.push({ payloadTarget, inputs });

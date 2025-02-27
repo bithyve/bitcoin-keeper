@@ -1,16 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { ScrollView, useColorMode } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { Box, useColorMode } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useWallets from 'src/hooks/useWallets';
-import { StyleSheet } from 'react-native';
-import OptionCard from 'src/components/OptionCard';
+import { Pressable, StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
@@ -25,6 +23,13 @@ import BackupModalContent from '../AppSettings/BackupModal';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { useDispatch } from 'react-redux';
+import WalletHeader from 'src/components/WalletHeader';
+import SettingCard from '../Home/components/Settings/Component/SettingCard';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import Text from 'src/components/KeeperText';
+import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
+import WalletInfoIllustration from 'src/assets/images/walletInfoIllustration.svg';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -45,6 +50,7 @@ function WalletSettings({ route }) {
   const TestSatsComponent = useTestSats({ wallet });
   const isImported = wallet.type === WalletType.IMPORTED;
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+  const [needHelpModal, setNeedHelpModal] = useState(false);
   const dispatch = useDispatch();
 
   const updateWalletVisibility = () => {
@@ -76,44 +82,76 @@ function WalletSettings({ route }) {
     setLoadingState(false);
   };
 
+  function modalContent() {
+    return (
+      <Box>
+        <Box style={styles.illustration}>
+          <WalletInfoIllustration />
+        </Box>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+          {walletTranslation.learnMoreDesc}
+        </Text>
+      </Box>
+    );
+  }
+
+  const actions = [
+    {
+      title: walletTranslation.WalletDetails,
+      description: walletTranslation.changeWalletDetails,
+      icon: null,
+      isDiamond: false,
+      onPress: () => navigation.navigate('WalletDetailsSettings', { wallet }),
+    },
+    {
+      title: 'Hide Wallet',
+      description: 'Hidden wallets can be managed from Manage Wallets',
+      icon: null,
+      isDiamond: false,
+      onPress: () => updateWalletVisibility(),
+    },
+    walletMnemonic && {
+      title: walletTranslation.walletSeedWord,
+      description: walletTranslation.walletSeedWordSubTitle,
+      icon: null,
+      isDiamond: false,
+      onPress: () => {
+        dispatch(credsAuthenticated(false));
+        setConfirmPassVisible(true);
+      },
+    },
+
+    !isImported && {
+      title: walletTranslation.TransferPolicy,
+      description: walletTranslation.TransferPolicyDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: handleTransferPolicy,
+    },
+  ].filter(Boolean);
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.walletSettings} subtitle={settings.walletSettingSubTitle} />
-      <ScrollView
-        contentContainerStyle={styles.optionsListContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        <OptionCard
-          title={walletTranslation.WalletDetails}
-          description={walletTranslation.changeWalletDetails}
-          callback={() => {
-            navigation.navigate('WalletDetailsSettings', { wallet });
-          }}
-        />
-        <OptionCard
-          title="Hide Wallet"
-          description="Hidden wallets can be managed from Manage Wallets"
-          callback={() => updateWalletVisibility()}
-        />
-        {walletMnemonic && (
-          <OptionCard
-            title={walletTranslation.walletSeedWord}
-            description={walletTranslation.walletSeedWordSubTitle}
-            callback={() => {
-              dispatch(credsAuthenticated(false));
-              setConfirmPassVisible(true);
-            }}
+      <Box style={styles.container}>
+        <Box style={styles.header}>
+          <WalletHeader
+            title={settings.walletSettings}
+            rightComponent={
+              <Pressable onPress={() => setNeedHelpModal(true)}>
+                <LearnMoreIcon />
+              </Pressable>
+            }
           />
-        )}
-        {!isImported && (
-          <OptionCard
-            title={walletTranslation.TransferPolicy}
-            description={walletTranslation.TransferPolicyDesc}
-            callback={handleTransferPolicy}
-          />
-        )}
+        </Box>
+
+        <SettingCard
+          subtitleColor={`${colorMode}.balanceText`}
+          backgroundColor={`${colorMode}.textInputBackground`}
+          borderColor={`${colorMode}.separator`}
+          items={actions}
+        />
         {TestSatsComponent}
-      </ScrollView>
+      </Box>
       <ActivityIndicatorView visible={loadingState} showLoader />
 
       <KeeperModal
@@ -219,89 +257,57 @@ function WalletSettings({ route }) {
           />
         )}
       />
+
+      <KeeperModal
+        visible={needHelpModal}
+        close={() => setNeedHelpModal(false)}
+        title={walletTranslation.learnMoreTitle}
+        subTitle={walletTranslation.learnMoreSubTitle}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={modalContent}
+        subTitleWidth={wp(280)}
+        DarkCloseIcon
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
+        secondaryCallback={() => {
+          setNeedHelpModal(false);
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'CreateTicket',
+              params: {
+                tags: [ConciergeTag.WALLET],
+                screenName: 'wallet-settings',
+              },
+            })
+          );
+        }}
+        buttonCallback={() => setNeedHelpModal(false)}
+      />
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  Container: {
-    flex: 1,
-    padding: 20,
-    position: 'relative',
+  container: { flex: 1 },
+  header: {
+    marginBottom: 18,
   },
-  fingerprint: {
-    alignItems: 'center',
+  modalDesc: {
+    fontSize: 14,
+    padding: 1,
+    marginBottom: 15,
+    width: wp(295),
   },
-  walletCardContainer: {
-    borderRadius: hp(20),
-    width: wp(320),
-    paddingHorizontal: 5,
-    paddingVertical: 20,
-    position: 'relative',
-    marginLeft: -wp(20),
-  },
-  walletCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: wp(10),
-  },
-  walletDetailsWrapper: {
-    width: wp(155),
-  },
-  walletName: {
-    letterSpacing: 0.28,
-    fontSize: 15,
-  },
-  walletBalance: {
-    letterSpacing: 1.2,
-    fontSize: 23,
-    padding: 5,
-  },
-  optionsListContainer: {
-    paddingHorizontal: wp(10),
+
+  illustration: {
     marginTop: 20,
-  },
-  optionContainer: {
-    marginTop: hp(20),
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-  },
-  optionTitle: {
-    fontSize: 14,
-    letterSpacing: 1.12,
-  },
-  optionSubtitle: {
-    fontSize: 12,
-    letterSpacing: 0.6,
-    width: '90%',
-  },
-  cancelBtn: {
-    marginRight: wp(20),
-    borderRadius: 10,
-  },
-  btnText: {
-    fontSize: 12,
-    letterSpacing: 0.84,
-  },
-  createBtn: {
-    paddingVertical: hp(15),
-    borderRadius: 10,
-    paddingHorizontal: 20,
-  },
-  BalanceModalContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 10,
-  },
-  modalContainer: {
-    gap: 40,
-  },
-  unhideText: {
-    fontSize: 14,
-    width: wp(200),
+    alignSelf: 'center',
+    marginBottom: 40,
   },
 });
 export default WalletSettings;

@@ -1,31 +1,29 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import { ScrollView, useColorMode } from 'native-base';
+import { Pressable, StyleSheet } from 'react-native';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, wp } from 'src/constants/responsive';
 import { getArchivedVaults } from 'src/utils/service-utilities/utils';
-import Colors from 'src/theme/Colors';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import OptionCard from 'src/components/OptionCard';
-import VaultIcon from 'src/assets/images/vault_icon.svg';
-import HexagonIcon from 'src/components/HexagonIcon';
 import useTestSats from 'src/hooks/useTestSats';
 import KeeperModal from 'src/components/KeeperModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
-import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { EntityKind, MiniscriptTypes, VaultType, VisibilityType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { getKeyUID, trimCWDefaultName } from 'src/utils/utilities';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import WalletHeader from 'src/components/WalletHeader';
+import SettingCard from '../Home/components/Settings/Component/SettingCard';
+import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
+import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
+import Text from 'src/components/KeeperText';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -35,7 +33,7 @@ function VaultSettings({ route }) {
   const TestSatsComponent = useTestSats({ wallet: vault });
   const [vaultDetailVisible, setVaultDetailVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultText } = translations;
+  const { vault: vaultText, common } = translations;
   const isCanaryWalletType = vault.type === VaultType.CANARY;
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
@@ -49,6 +47,7 @@ function VaultSettings({ route }) {
       ]
   );
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
+  const [needHelpModal, setNeedHelpModal] = useState(false);
 
   const updateWalletVisibility = () => {
     try {
@@ -67,109 +66,118 @@ function VaultSettings({ route }) {
     }
   };
 
-  const getWalletIcon = (wallet) => {
-    if (wallet?.entityKind === EntityKind.VAULT) {
-      if (wallet.type === VaultType.COLLABORATIVE) {
-        return <CollaborativeIcon />;
-      } else if (
-        wallet.type === VaultType.MINISCRIPT &&
-        (wallet as Vault).scheme?.miniscriptScheme?.usedMiniscriptTypes[MiniscriptTypes.ASSISTED]
-      ) {
-        return <AssistedIcon />;
-      } else {
-        return <VaultIcon />;
-      }
-    } else {
-      return <WalletIcon />;
-    }
-  };
+  function modalContent() {
+    return (
+      <Box>
+        <Box style={styles.illustration}>
+          <VaultSetupIcon />
+        </Box>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+          {vaultText.keeperSupportSigningDevice}
+        </Text>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+          {vaultText.additionalOptionForSignDevice}
+        </Text>
+      </Box>
+    );
+  }
+
+  const actions = [
+    {
+      title: vaultText.vaultDetailsTitle,
+      description: vaultText.vaultDetailsDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => setVaultDetailVisible(true),
+    },
+    {
+      title: vaultText.vaultConfigurationFileTitle,
+      description: vaultText.vaultConfigurationFileDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () =>
+        navigation.dispatch(
+          CommonActions.navigate('GenerateVaultDescriptor', {
+            vaultId,
+            isMiniscriptVault,
+          })
+        ),
+    },
+    !isCanaryWalletType &&
+      hasArchivedVaults && {
+        title: vaultText.vaultArchiveTitle,
+        description: vaultText.vaultArchiveDesc,
+        icon: null,
+        isDiamond: false,
+        onPress: () => navigation.dispatch(CommonActions.navigate('ArchivedVault', { vaultId })),
+      },
+    !isCanaryWalletType && {
+      title: vaultText.vaultHideTitle,
+      description: vaultText.vaultHideDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => updateWalletVisibility(),
+    },
+    false && // disable update scheme as it gives wrong behavior
+      !isCanaryWalletType && {
+        title: vaultText.vaultSchemeTitle,
+        description: vaultText.vaultSchemeDesc,
+        icon: null,
+        isDiamond: false,
+        onPress: () =>
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'AddNewWallet',
+              params: {
+                vaultId,
+                isAddInheritanceKeyFromParams:
+                  vault.type === VaultType.MINISCRIPT &&
+                  vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+                    MiniscriptTypes.INHERITANCE
+                  ),
+              },
+            })
+          ),
+      },
+    // TODO: Update to be generic instead of only for inheritance key
+    isMiniscriptVault && {
+      title: vaultText.resetIKTitle,
+      description: vaultText.resetIKDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () =>
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ResetInheritanceKey',
+            params: { signerId: getKeyUID(inheritanceKey), vault },
+          })
+        ),
+    },
+  ].filter(Boolean);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title={isCollaborativeWallet ? vaultText.collabSettingsTitle : vaultText.vaultSettingsTitle}
-        subtitle={vaultText.vaultSettingsSubtitle}
-        icon={
-          <HexagonIcon
-            width={44}
-            height={38}
-            backgroundColor={Colors.pantoneGreen}
-            icon={getWalletIcon(vault)}
+      <Box style={styles.container}>
+        <Box style={styles.header}>
+          <WalletHeader
+            title={
+              isCollaborativeWallet ? vaultText.collabSettingsTitle : vaultText.vaultSettingsTitle
+            }
+            rightComponent={
+              <Pressable onPress={() => setNeedHelpModal(true)}>
+                <LearnMoreIcon />
+              </Pressable>
+            }
           />
-        }
-      />
-      <ScrollView contentContainerStyle={styles.optionViewWrapper}>
-        <OptionCard
-          title={vaultText.vaultDetailsTitle}
-          description={vaultText.vaultDetailsDesc}
-          callback={() => {
-            setVaultDetailVisible(true);
-          }}
+        </Box>
+        <SettingCard
+          subtitleColor={`${colorMode}.balanceText`}
+          backgroundColor={`${colorMode}.textInputBackground`}
+          borderColor={`${colorMode}.separator`}
+          items={actions}
         />
-        <OptionCard
-          title={vaultText.vaultConfigurationFileTitle}
-          description={vaultText.vaultConfigurationFileDesc}
-          callback={() => {
-            navigation.dispatch(
-              CommonActions.navigate('GenerateVaultDescriptor', {
-                vaultId,
-                isMiniscriptVault,
-              })
-            );
-          }}
-        />
-        <OptionCard
-          title={vaultText.vaultArchiveTitle}
-          description={vaultText.vaultArchiveDesc}
-          callback={() => {
-            navigation.dispatch(CommonActions.navigate('ArchivedVault', { vaultId }));
-          }}
-          visible={!isCanaryWalletType && hasArchivedVaults}
-        />
-        <OptionCard
-          title={vaultText.vaultHideTitle}
-          description={vaultText.vaultHideDesc}
-          callback={() => updateWalletVisibility()}
-          visible={!isCanaryWalletType}
-        />
-        <OptionCard
-          title={vaultText.vaultSchemeTitle}
-          description={vaultText.vaultSchemeDesc}
-          // visible={!isCanaryWalletType}
-          visible={false} // disable update scheme as it gives wrong behavior
-          callback={() => {
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'AddNewWallet',
-                params: {
-                  vaultId,
-                  isAddInheritanceKeyFromParams:
-                    vault.type === VaultType.MINISCRIPT &&
-                    vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
-                      MiniscriptTypes.INHERITANCE
-                    ),
-                },
-              })
-            );
-          }}
-        />
-        {/* TODO: Update to be generic instead of only for inheritance kye */}
-        {isMiniscriptVault && (
-          <OptionCard
-            title={vaultText.resetIKTitle}
-            description={vaultText.resetIKDesc}
-            callback={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'ResetInheritanceKey',
-                  params: { signerId: getKeyUID(inheritanceKey), vault },
-                })
-              );
-            }}
-          />
-        )}
         {TestSatsComponent}
-      </ScrollView>
+      </Box>
       <KeeperModal
         visible={vaultDetailVisible}
         close={() => setVaultDetailVisible(false)}
@@ -187,40 +195,56 @@ function VaultSettings({ route }) {
           />
         )}
       />
+      <KeeperModal
+        visible={needHelpModal}
+        close={() => setNeedHelpModal(false)}
+        title={vaultText.keeperVault}
+        subTitle={vaultText.vaultLearnMoreSubtitle}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={modalContent}
+        subTitleWidth={wp(280)}
+        DarkCloseIcon
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryIcon={<ConciergeNeedHelp />}
+        secondaryCallback={() => {
+          setNeedHelpModal(false);
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'CreateTicket',
+              params: {
+                tags: [ConciergeTag.WALLET],
+                screenName: 'wallet-settings',
+              },
+            })
+          );
+        }}
+        buttonCallback={() => setNeedHelpModal(false)}
+      />
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  optionViewWrapper: {
-    marginTop: hp(30),
-    paddingHorizontal: wp(10),
+  container: { flex: 1 },
+  header: {
+    marginBottom: 18,
   },
-  cancelBtn: {
-    marginRight: wp(20),
-    borderRadius: 10,
-  },
-  btnText: {
-    fontSize: 12,
-    letterSpacing: 0.84,
-  },
-  createBtn: {
-    paddingVertical: hp(15),
-    borderRadius: 10,
-    paddingHorizontal: 20,
-  },
-  BalanceModalContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 10,
-  },
-  modalContainer: {
-    gap: 40,
-  },
-  unhideText: {
+  modalDesc: {
     fontSize: 14,
-    width: wp(200),
+    padding: 1,
+    marginBottom: 15,
+    width: wp(295),
+  },
+
+  illustration: {
+    marginTop: 20,
+    alignSelf: 'center',
+    marginBottom: 40,
   },
 });
 export default VaultSettings;

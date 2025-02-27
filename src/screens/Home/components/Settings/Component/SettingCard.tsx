@@ -82,18 +82,20 @@ const SettingCard: React.FC<SettingCardProps> = ({
               >
                 <Box style={styles.Container}>
                   <Box style={styles.document}>
-                    <Box style={styles.icon}>
-                      {item.showDot ? <Box style={styles.redDot} /> : null}
-                      <CircleIconWrapper
-                        width={wp(25)}
-                        icon={item.icon}
-                        backgroundColor={
-                          applyDiamondCheck
-                            ? `${colorMode}.pantoneGreen`
-                            : `${colorMode}.disabledDiamond`
-                        }
-                      />
-                    </Box>
+                    {item?.icon && (
+                      <Box style={styles.icon}>
+                        {item.showDot ? <Box style={styles.redDot} /> : null}
+                        <CircleIconWrapper
+                          width={wp(25)}
+                          icon={item.icon}
+                          backgroundColor={
+                            applyDiamondCheck
+                              ? `${colorMode}.pantoneGreen`
+                              : `${colorMode}.disabledDiamond`
+                          }
+                        />
+                      </Box>
+                    )}
                     <Box style={styles.textContainer}>
                       <Text
                         color={applyDiamondCheck ? titleColor : `${colorMode}.disabledDiamond`}
