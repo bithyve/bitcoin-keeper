@@ -43,6 +43,7 @@ import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
 import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
+import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -401,6 +402,8 @@ function LoginScreen({ navigation, route }) {
     });
     dispatch(setSubscription(updatedSubscription.name));
     dispatch(setOfflineStatus(true));
+    // disable assisted server backup for pleb
+    dispatch(setAutomaticCloudBackup(false));
     navigation.replace('App');
   }
 

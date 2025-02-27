@@ -47,6 +47,8 @@ import WalletHeader from 'src/components/WalletHeader';
 import SubscriptionList from './components/SubscriptionList';
 import usePlan from 'src/hooks/usePlan';
 import { setSubscription } from 'src/store/reducers/settings';
+import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
+import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 const { width } = Dimensions.get('window');
 
 const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
@@ -292,6 +294,7 @@ function ChoosePlan() {
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription: updatedSubscription,
           });
+          if (response.level === AppSubscriptionLevel.L1) disptach(setAutomaticCloudBackup(false));
           disptach(setSubscription(subscription.name));
           disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
           // disptach(resetVaultMigration());
