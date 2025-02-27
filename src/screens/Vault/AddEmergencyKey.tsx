@@ -313,7 +313,7 @@ function AddEmergencyKey({ route }) {
         }
         currentBlockHeight={currentBlockHeight}
         miniscriptTypes={[
-          ...(inheritanceKeys ? [MiniscriptTypes.INHERITANCE] : []),
+          ...(inheritanceKeys.length ? [MiniscriptTypes.INHERITANCE] : []),
           MiniscriptTypes.EMERGENCY,
         ]}
         setVaultCreatedModalVisible={setVaultCreatedModalVisible}
