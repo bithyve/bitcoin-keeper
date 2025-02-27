@@ -62,6 +62,8 @@ import { SIGNTRANSACTION } from 'src/navigation/contants';
 import config from 'src/utils/service-utilities/config';
 import { isReading, stopReading } from 'src/hardware/portal';
 import { hp, wp } from 'src/constants/responsive';
+import { getKeyUID } from 'src/utils/utilities';
+import { SentryErrorBoundary } from 'src/services/sentry';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { formatDuration } from '../Vault/HardwareModalMap';
 import SignerModals from './SignerModals';
@@ -75,8 +77,6 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import { getKeyUID } from 'src/utils/utilities';
-import { SentryErrorBoundary } from 'src/services/sentry';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -402,6 +402,7 @@ function SignTransactionScreen() {
             showOTPModal,
             showToast,
           });
+          if (!signedSerializedPSBT) return;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(
             healthCheckStatusUpdate([

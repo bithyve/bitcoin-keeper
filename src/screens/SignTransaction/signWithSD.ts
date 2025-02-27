@@ -121,6 +121,7 @@ export const signTransactionWithSigningServer = async ({
   } catch (error) {
     captureError(error);
     showToast(`${error.message}`);
+    return { signedSerializedPSBT: null };
   }
 };
 
