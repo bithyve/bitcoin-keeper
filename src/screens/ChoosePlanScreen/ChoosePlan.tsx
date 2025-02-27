@@ -351,10 +351,30 @@ function ChoosePlan() {
     try {
       setRequesting(true);
       const purchases = await getAvailablePurchases();
-      setRequesting(false);
       if (purchases.length === 0) {
+        const btcPurchase = await Relay.restoreBtcPurchase(id);
+        if (btcPurchase) {
+          const subscription: SubScription = {
+            productId: btcPurchase.productId,
+            receipt: btcPurchase.receipt,
+            name: btcPurchase.name,
+            level: btcPurchase.level,
+            icon: btcPurchase.icon,
+          };
+          calculateModalContent(btcPurchase, appSubscription);
+          dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+            subscription,
+          });
+          disptach(setSubscription(subscription.name));
+          setShowUpgradeModal(true);
+          setRequesting(false);
+          init();
+          return;
+        }
+        setRequesting(false);
         showToast(choosePlan.noAvailablePurchaseMessage);
       } else {
+        setRequesting(false);
         for (let i = 0; i < purchases.length; i++) {
           const purchase = purchases[i];
           if (purchase.productId === subscription.productId) {

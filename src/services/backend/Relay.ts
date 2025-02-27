@@ -773,4 +773,17 @@ export default class Relay {
       throw new Error('Error while create BTCPay Order');
     }
   };
+
+  public static restoreBtcPurchase = async (appId): Promise<any> => {
+    try {
+      const res = await RestClient.get(`${RELAY}restoreBtcPurchase?appId=${appId}`);
+      const data = res?.data;
+      return data;
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ restoreBtcPurchase= ~ err:', err);
+      captureError(err);
+      if (err?.code == 'ERR_NETWORK') throw new Error('Network Error');
+      throw new Error(err.message);
+    }
+  };
 }
