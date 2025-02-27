@@ -9,7 +9,6 @@ import {
 } from '../../services/wallets/interfaces/vault';
 import { Wallet } from '../../services/wallets/interfaces/wallet';
 import WalletOperations from '../../services/wallets/operations';
-import { generateInheritanceVaultElements } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from './config';
 import { generateMiniscriptScheme } from 'src/services/wallets/factories/VaultFactory';
