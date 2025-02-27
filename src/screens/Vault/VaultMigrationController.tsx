@@ -4,6 +4,7 @@ import {
   MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
+  SignerType,
   TxPriority,
   VaultType,
 } from 'src/services/wallets/enums';
@@ -23,7 +24,7 @@ import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/services/wallets/operations';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
@@ -58,6 +59,10 @@ import {
 import { getKeyUID } from 'src/utils/utilities';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { resetVaultMigration } from 'src/store/reducers/vaults';
+import KeeperModal from 'src/components/KeeperModal';
+import useSigners from 'src/hooks/useSigners';
+import { Box } from 'native-base';
+import Text from 'src/components/KeeperText';
 
 function VaultMigrationController({
   vaultCreating,
@@ -105,6 +110,23 @@ function VaultMigrationController({
   } = useAppSelector((state) => state.bhr);
   const [savedGeneratedVaultId, setSavedGeneratedVaultId] = useState(null);
   const [newVault, setNewVault] = useState(null);
+  const [checkAddressModalVisible, setCheckAddressModalVisible] = useState(false);
+  const { vaultSigners } = useSigners(activeVault?.id);
+
+  const DEVICES_WITH_SCREEN = [
+    SignerType.BITBOX02,
+    SignerType.COLDCARD,
+    SignerType.JADE,
+    SignerType.KEEPER,
+    SignerType.KEYSTONE,
+    SignerType.LEDGER,
+    SignerType.OTHER_SD,
+    SignerType.PASSPORT,
+    SignerType.PORTAL,
+    SignerType.SEEDSIGNER,
+    SignerType.SPECTER,
+    SignerType.TREZOR,
+  ];
 
   useFocusEffect(
     useCallback(() => {
@@ -176,6 +198,7 @@ function VaultMigrationController({
   );
 
   const initiateSweep = () => {
+    dispatch(resetVaultMigration());
     const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
     const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
     const receivingAddress = WalletOperations.getNextFreeAddress(newVault);
@@ -224,14 +247,17 @@ function VaultMigrationController({
       if (activeVault && !hasMigrationSucceeded && !migrationError) {
         return;
       }
-      if (relayVaultUpdate && newVault) {
+      if ((relayVaultUpdate || hasMigrationSucceeded) && newVault) {
         dispatch(resetRealyVaultState());
         setCreating(false);
         const netBanalce = confirmed + unconfirmed;
 
         if (vaultId && netBanalce !== 0 && hasMigrationSucceeded) {
-          dispatch(resetVaultMigration());
-          initiateSweep();
+          if (vaultSigners.some((signer) => DEVICES_WITH_SCREEN.includes(signer.type))) {
+            setCheckAddressModalVisible(true);
+          } else {
+            initiateSweep();
+          }
           return;
         }
         if (migrationError) {
@@ -492,6 +518,62 @@ function VaultMigrationController({
           onCancel={() => setCreating(false)}
         />
       )}
+
+      <KeeperModal
+        visible={checkAddressModalVisible}
+        closeOnOverlayClick={false}
+        close={() => {
+          setCheckAddressModalVisible(false);
+          dispatch(resetVaultMigration());
+          showToast(
+            'Wallet update initiated successfully, you can continue transferring the funds from the Send tab.',
+            null,
+            IToastCategory.DEFAULT,
+            6000
+          );
+          setTimeout(() => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 1,
+                routes: [
+                  { name: 'Home' },
+                  { name: 'VaultDetails', params: { vaultId: activeVault.id } },
+                ],
+              })
+            );
+          }, 200);
+        }}
+        title="Verify the new wallet address"
+        Content={() => (
+          <Box style={{ gap: 20 }}>
+            <Text>
+              Your updated wallet has been successfully created and is ready to receive funds from
+              the previous wallet.
+            </Text>
+            <Text>
+              We recommend verifying the new wallet address on your hardware device before
+              transferring funds.
+            </Text>
+            <Text>
+              You can transfer the funds now or later. Your old wallet will remain visible in the
+              Wallets tab until the transfer is complete.
+            </Text>
+          </Box>
+        )}
+        modalBackground="modalWhiteBackground"
+        textColor="modalHeaderTitle"
+        subTitleColor="modalSubtitleBlack"
+        buttonText="Check address"
+        secondaryButtonText="Transfer funds"
+        buttonCallback={() => {
+          setCheckAddressModalVisible(false);
+          navigation.dispatch(CommonActions.navigate('Receive', { wallet: newVault }));
+        }}
+        secondaryCallback={() => {
+          setCheckAddressModalVisible(false);
+          initiateSweep();
+        }}
+      />
     </>
   );
 }
