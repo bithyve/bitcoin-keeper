@@ -316,6 +316,7 @@ function AddEmergencyKey({ route }) {
           ...(inheritanceKeys ? [MiniscriptTypes.INHERITANCE] : []),
           MiniscriptTypes.EMERGENCY,
         ]}
+        setVaultCreatedModalVisible={setVaultCreatedModalVisible}
       />
     </ScreenWrapper>
   );

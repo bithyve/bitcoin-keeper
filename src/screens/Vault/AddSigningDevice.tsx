@@ -1501,6 +1501,7 @@ function AddSigningDevice() {
             ...(isAddInheritanceKey ? [MiniscriptTypes.INHERITANCE] : []),
             ...(isAddEmergencyKey ? [MiniscriptTypes.EMERGENCY] : []),
           ]}
+          setVaultCreatedModalVisible={setVaultCreatedModalVisible}
         />
         <Box flex={1}>
           <Signers

@@ -321,6 +321,7 @@ function AddReserveKey({ route }) {
         }
         currentBlockHeight={currentBlockHeight}
         miniscriptTypes={[MiniscriptTypes.INHERITANCE]}
+        setVaultCreatedModalVisible={setVaultCreatedModalVisible}
       />
     </ScreenWrapper>
   );

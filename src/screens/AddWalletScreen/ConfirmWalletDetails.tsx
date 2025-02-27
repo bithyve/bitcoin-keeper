@@ -499,6 +499,7 @@ function ConfirmWalletDetails({ route }) {
           ...(route.params.isAddInheritanceKey ? [MiniscriptTypes.INHERITANCE] : []),
           ...(route.params.isAddEmergencyKey ? [MiniscriptTypes.EMERGENCY] : []),
         ]}
+        setVaultCreatedModalVisible={setVaultCreatedModalVisible}
       />
       <KeeperModal
         visible={showDescriptionModal}

@@ -78,6 +78,7 @@ function VaultMigrationController({
   emergencyKeys = [],
   currentBlockHeight = null,
   miniscriptTypes = [],
+  setVaultCreatedModalVisible = null,
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -264,6 +265,11 @@ function VaultMigrationController({
           showToast(migrationError.toString(), <ToastErrorIcon />);
         }
         dispatch(resetVaultMigration());
+
+        if (setVaultCreatedModalVisible) {
+          setVaultCreatedModalVisible(true);
+          return;
+        }
 
         const navigationState = {
           index: 1,
