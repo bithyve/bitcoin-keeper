@@ -30,6 +30,7 @@ import KeeperQRCode from 'src/components/KeeperQRCode';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import WalletHeader from 'src/components/WalletHeader';
 import Colors from 'src/theme/Colors';
+import { setShowBackupModal } from 'src/store/reducers/signer';
 
 function SetupSigningServer({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -197,6 +198,7 @@ function SetupSigningServer({ route }: { route }) {
           <Buttons
             primaryCallback={() => {
               setBackupKeyModal(false);
+              dispatch(setShowBackupModal(true));
               navigation.navigate('ServerKeySuccessScreen');
             }}
             primaryText={common.Later}
@@ -210,6 +212,7 @@ function SetupSigningServer({ route }: { route }) {
           <Buttons
             primaryCallback={() => {
               setBackupKeyModal(false);
+              dispatch(setShowBackupModal(false));
               navigation.navigate('ServerKeySuccessScreen');
             }}
             primaryText={common.Never}

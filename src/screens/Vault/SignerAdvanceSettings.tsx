@@ -1,10 +1,12 @@
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode, View } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
+import SigningServerIllustration from 'src/assets/images/backup-server-illustration.svg';
+
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType, VaultType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
@@ -12,7 +14,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import idx from 'idx';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
@@ -26,7 +28,7 @@ import DeleteIcon from 'src/assets/images/delete_phone.svg';
 import { hp, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ScrollView, TextInput } from 'react-native-gesture-handler';
+import { TextInput } from 'react-native-gesture-handler';
 import {
   InheritanceAlert,
   InheritanceConfiguration,
@@ -70,6 +72,10 @@ import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import { vaultAlreadyExists } from './VaultMigrationController';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
+import WalletHeader from 'src/components/WalletHeader';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import Buttons from 'src/components/Buttons';
 
 const { width } = Dimensions.get('screen');
 
@@ -110,6 +116,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const {
     vaultKey,
     vaultId,
@@ -131,6 +138,7 @@ function SignerAdvanceSettings({ route }: any) {
   const {
     vault: vaultTranslation,
     common,
+    signingServer,
     signer: signerTranslation,
     BackupWallet,
     seed: seedTranslation,
@@ -152,6 +160,7 @@ function SignerAdvanceSettings({ route }: any) {
   const [seed, setSeed] = useState('');
   const [vaultUsed, setVaultUsed] = useState<Vault>();
   const [canaryWalletId, setCanaryWalletId] = useState<string>();
+  const [displayBackupModal, setDisplayBackupModal] = useState(false);
   const [otp, setOtp] = useState('');
   const [actionAfterPasscode, setActionAfterPasscode] = useState<
     null | 'hideKey' | 'mobileKeySeed'
@@ -159,6 +168,7 @@ function SignerAdvanceSettings({ route }: any) {
   const supportsRKSigning =
     SignersWithRKSupport.includes(signer.type) && !!signer.signerXpubs[XpubTypes.P2WSH]?.[0];
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
+  const showBackupModal = useSelector((state) => state?.settings?.backupModal);
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
@@ -836,114 +846,183 @@ function SignerAdvanceSettings({ route }: any) {
       showToast('This signer does not support one-time backup');
     }
   };
+  const BackupModalContent = useCallback(() => {
+    return (
+      <Box style={styles.modalContainer}>
+        {<SigningServerIllustration />}
+        <Box>
+          <Text fontSize={12} semiBold style={styles.modalTitle}>
+            {signingServer.attention}:
+          </Text>
+          <Text fontSize={12} style={styles.modalTitle}>
+            {signingServer.attentionSubTitle}
+          </Text>
+        </Box>
+        <Buttons
+          primaryCallback={() => {}}
+          fullWidth
+          primaryText="Backup Now"
+          paddingVertical={13}
+        />
+      </Box>
+    );
+  }, []);
+
+  const handleBackupModal = () => {
+    setDisplayBackupModal(true);
+  };
+
+  const displayedCards = [
+    !isMobileKey && (
+      <OptionCard
+        key="keyHistory"
+        title="Key History"
+        description="View the usage timeline"
+        callback={navigateToKeyHistory}
+      />
+    ),
+    isInheritanceKey && vaultId && (
+      <OptionCard
+        key="registeredEmail"
+        title="Registered Email"
+        description="View, change or delete"
+        callback={() => setEditEmailModal(true)}
+      />
+    ),
+    !(isAssistedKey || signersWithoutRegistration || !vaultId) && (
+      <OptionCard
+        key="manualRegistration"
+        title="Manual Registration"
+        description="Register your active vault"
+        callback={registerSigner}
+      />
+    ),
+    isPolicyServer && vaultId && (
+      <OptionCard
+        key="configurationSetting"
+        title="Configuration Setting"
+        description="Secure and customizable settings"
+        callback={navigateToPolicyChange}
+      />
+    ),
+    isPolicyServer && (
+      <OptionCard
+        key="signingRequests"
+        title="Signing requests"
+        description="See your pending signing requests"
+        callback={navigateToPolicyChange}
+      />
+    ),
+    showOneTimeBackup && (
+      <OptionCard
+        key="oneTimeBackup"
+        title={vaultTranslation.oneTimeBackupTitle}
+        description={
+          disableOneTimeBackup ? BackupWallet.viewBackupHistory : vaultTranslation.oneTimeBackupDesc
+        }
+        callback={() => {
+          disableOneTimeBackup ? navigation.goBack() : setBackupModal(true);
+        }}
+      />
+    ),
+    isTapsigner && (
+      <OptionCard
+        key="manageTapsigner"
+        title="Manage TAPSIGNER"
+        description="Manage your TAPSIGNER card"
+        callback={openTapsignerSettings}
+      />
+    ),
+    <OptionCard
+      key="additionalInfo"
+      title="Additional Info"
+      description="Associate contact or Edit description"
+      callback={navigateToAdditionalDetails}
+    />,
+    isMobileKey && (
+      <OptionCard
+        key="mobileKeySeedWords"
+        title={seedTranslation.mobileKeySeedWordsTitle}
+        description={signerTranslation.mobileKeySeedOptionSubtitle}
+        callback={() => {
+          setActionAfterPasscode('mobileKeySeed');
+          setConfirmPassVisible(true);
+        }}
+      />
+    ),
+    !(isAssistedKey || signersWithoutRegistration) && (
+      <OptionCard
+        key="changeDeviceType"
+        title={isOtherSD ? 'Assign device type' : 'Change device type'}
+        description="Select from device list"
+        callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
+      />
+    ),
+    !vaultId && (
+      <OptionCard
+        key="hideKey"
+        title="Hide key"
+        description="Hide this key from the list"
+        callback={() => {
+          for (const vaultItem of allUnhiddenVaults) {
+            if (vaultItem.signers.find((s) => getKeyUID(s) === getKeyUID(signer))) {
+              setVaultUsed(vaultItem);
+              setHideWarning(true);
+              return;
+            }
+          }
+          setActionAfterPasscode('hideKey');
+          setConfirmPassVisible(true);
+        }}
+      />
+    ),
+    isCanaryWalletAllowed && (
+      <OptionCard
+        key="canaryWallet"
+        title="Canary Wallet"
+        description="Your on-chain key alert"
+        callback={handleCanaryWallet}
+      />
+    ),
+    isPolicyServer && showBackupModal && (
+      <OptionCard
+        key="backupServerKey"
+        title="Back up Server Key"
+        description="Save a backup of the Server Key"
+        callback={handleBackupModal}
+      />
+    ),
+  ].filter(Boolean);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
-      <KeeperHeader
-        title="Settings"
-        subtitle={
-          !signer.isBIP85
-            ? `for ${getSignerNameFromType(signer.type, signer.isMock, false)}`
-            : `for ${`${getSignerNameFromType(signer.type, signer.isMock, false)} +`}`
+      <WalletHeader
+        title="Sever Key Settings"
+        rightComponent={
+          <TouchableOpacity style={styles.infoIcon} onPress={() => {}}>
+            {isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}
+          </TouchableOpacity>
         }
       />
-      <ScrollView contentContainerStyle={styles.contentContainerStyle}>
-        <OptionCard
-          title="Key History"
-          description="View the usage timeline"
-          callback={navigateToKeyHistory}
-          visible={!isMobileKey}
-        />
-        {isInheritanceKey && vaultId && (
-          <OptionCard
-            title="Registered Email"
-            description="View, change or delete"
-            callback={() => {
-              setEditEmailModal(true);
-            }}
-          />
-        )}
-        {isAssistedKey || signersWithoutRegistration || !vaultId ? null : (
-          <OptionCard
-            title="Manual Registration"
-            description="Register your active vault"
-            callback={registerSigner}
-          />
-        )}
-        {isPolicyServer && vaultId && (
-          <OptionCard
-            title="Change Verification & Policy"
-            description="Restriction and threshold"
-            callback={navigateToPolicyChange}
-          />
-        )}
-        {showOneTimeBackup && (
-          <OptionCard
-            title={vaultTranslation.oneTimeBackupTitle}
-            description={
-              disableOneTimeBackup
-                ? BackupWallet.viewBackupHistory
-                : vaultTranslation.oneTimeBackupDesc
-            }
-            callback={() => {
-              disableOneTimeBackup ? navigation.goBack() : setBackupModal(true);
-            }}
-          />
-        )}
-        {isTapsigner && (
-          <OptionCard
-            title="Manage TAPSIGNER"
-            description="Manage your TAPSIGNER card"
-            callback={openTapsignerSettings}
-          />
-        )}
-        <OptionCard
-          title="Additional Info"
-          description="Associate contact or Edit description"
-          callback={navigateToAdditionalDetails}
-        />
-        {isMobileKey && (
-          <OptionCard
-            title={seedTranslation.mobileKeySeedWordsTitle}
-            description={signerTranslation.mobileKeySeedOptionSubtitle}
-            callback={() => {
-              setActionAfterPasscode('mobileKeySeed');
-              setConfirmPassVisible(true);
-            }}
-          />
-        )}
-        {isAssistedKey || signersWithoutRegistration ? null : (
-          <OptionCard
-            title={isOtherSD ? 'Assign device type' : 'Change device type'}
-            description="Select from device list"
-            callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
-          />
-        )}
-        {vaultId ? null : (
-          <OptionCard
-            title="Hide key"
-            description="Hide this key from the list"
-            callback={() => {
-              for (const vaultItem of allUnhiddenVaults) {
-                if (vaultItem.signers.find((s) => getKeyUID(s) === getKeyUID(signer))) {
-                  setVaultUsed(vaultItem);
-                  setHideWarning(true);
-                  return;
-                }
-              }
-              setActionAfterPasscode('hideKey');
-              setConfirmPassVisible(true);
-            }}
-          />
-        )}
-        {isCanaryWalletAllowed && (
-          <OptionCard
-            title="Canary Wallet"
-            description="Your on-chain key alert"
-            callback={handleCanaryWallet}
-          />
-        )}
+      <ScrollView>
+        <Box
+          backgroundColor={
+            isDarkMode ? `${colorMode}.modalWhiteBackground` : `${colorMode}.ChampagneBliss`
+          }
+          style={styles.contentContainerStyle}
+          borderColor={`${colorMode}.separator`}
+          borderWidth={1}
+        >
+          {displayedCards.map((card, index) => (
+            <Box key={card.key}>
+              {card}
+              {index < displayedCards.length - 1 && (
+                <View style={styles.divider} backgroundColor={`${colorMode}.textColor3`} />
+              )}
+            </Box>
+          ))}
+        </Box>
       </ScrollView>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <KeeperModal
@@ -960,6 +1039,17 @@ function SignerAdvanceSettings({ route }: any) {
         buttonCallback={navigateToAssignSigner}
         Content={WarningContent}
       />
+      <KeeperModal
+        visible={displayBackupModal}
+        close={() => setDisplayBackupModal(false)}
+        title={signingServer.BackUpModalTitle}
+        subTitle={signingServer.BackUpModalSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={BackupModalContent}
+      />
+
       <KeeperModal
         visible={editEmailModal}
         close={() => setEditEmailModal(false)}
@@ -1096,6 +1186,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#694B2E',
+  },
+  divider: {
+    height: 1,
+    marginVertical: hp(5),
+    opacity: 0.1,
   },
   item: {
     alignItems: 'center',
@@ -1264,8 +1359,10 @@ const styles = StyleSheet.create({
     marginRight: wp(40),
   },
   contentContainerStyle: {
-    paddingTop: hp(30),
-    paddingHorizontal: wp(10),
+    marginTop: hp(20),
+    paddingHorizontal: wp(20),
+    paddingVertical: hp(10),
+    borderRadius: wp(15),
   },
   signerVaults: {
     gap: 5,
@@ -1312,5 +1409,20 @@ const styles = StyleSheet.create({
   },
   noteWrapper: {
     marginBottom: hp(15),
+  },
+  infoIcon: {
+    width: wp(40),
+    height: wp(40),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  modalTitle: {
+    marginBottom: 10,
   },
 });
