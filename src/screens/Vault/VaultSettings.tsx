@@ -44,8 +44,9 @@ function VaultSettings({ route }) {
   const { showToast } = useToastMessage();
   const isMiniscriptVault =
     vault?.type === VaultType.MINISCRIPT && !!vault?.scheme?.miniscriptScheme;
-  const { inheritanceSigners: inheritanceKeys, emergencySigners: emergencyKeys } =
-    getVaultEnhancedSigners(vault);
+  const { inheritanceSigners: inheritanceKeys, emergencySigners: emergencyKeys } = isMiniscriptVault
+    ? getVaultEnhancedSigners(vault)
+    : { inheritanceSigners: [], emergencySigners: [] };
 
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
   const [needHelpModal, setNeedHelpModal] = useState(false);
@@ -61,6 +62,18 @@ function VaultSettings({ route }) {
         },
       });
       showToast(vaultText.vaultHiddenSuccessMessage, <TickIcon />, IToastCategory.DEFAULT, 5000);
+      navigation.navigate('Home');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const archiveWallet = () => {
+    try {
+      dbManager.updateObjectById(RealmSchema.Vault, vault.id, {
+        archived: true,
+        isMigrating: false,
+      });
       navigation.navigate('Home');
     } catch (error) {
       console.log(error);
@@ -119,6 +132,14 @@ function VaultSettings({ route }) {
       isDiamond: false,
       onPress: () => updateWalletVisibility(),
     },
+    vault.archivedId &&
+      vault.isMigrating && {
+        title: 'Archive this wallet',
+        description: 'If you have finished migrating to the new vault archive the wallet here',
+        icon: null,
+        isDiamond: false,
+        onPress: () => archiveWallet(),
+      },
     false && // disable update scheme as it gives wrong behavior
       !isCanaryWalletType && {
         title: vaultText.vaultSchemeTitle,

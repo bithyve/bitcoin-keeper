@@ -1334,25 +1334,25 @@ function AddSigningDevice() {
     };
   }, [relaySignersUpdate]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (relayVaultUpdate && newVault) {
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-        setVaultCreatedModalVisible(true);
-      } else if (relayVaultUpdate) {
-        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (relayVaultUpdate && newVault) {
+  //       dispatch(resetRealyVaultState());
+  //       setCreating(false);
+  //       setVaultCreatedModalVisible(true);
+  //     } else if (relayVaultUpdate) {
+  //       navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
+  //       dispatch(resetRealyVaultState());
+  //       setCreating(false);
+  //     }
 
-      if (relayVaultError) {
-        showToast(realyVaultErrorMessage, <ToastErrorIcon />);
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
-    }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
-  );
+  //     if (relayVaultError) {
+  //       showToast(realyVaultErrorMessage, <ToastErrorIcon />);
+  //       dispatch(resetRealyVaultState());
+  //       setCreating(false);
+  //     }
+  //   }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
+  // );
 
   useEffect(() => {
     setInitialKeys(

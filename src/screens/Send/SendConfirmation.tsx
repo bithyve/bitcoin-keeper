@@ -123,13 +123,8 @@ function SendConfirmation({ route }) {
   const navigation = useNavigation();
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
-  const txOutputs = useAppSelector((state) => state.sendAndReceive.sendPhaseOne.outputs);
-  if (!txOutputs) {
-    navigation.goBack();
-    return;
-  }
   const txRecipientsOptions = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseOne.outputs.txRecipients
+    (state) => state.sendAndReceive.sendPhaseOne?.outputs?.txRecipients
   );
   const customTxRecipientsOptions = useAppSelector(
     (state) => state.sendAndReceive.customPrioritySendPhaseOne?.outputs?.customTxRecipients
