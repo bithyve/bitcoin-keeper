@@ -83,6 +83,14 @@ export function generateEnhancedVaultElements(
     )}]${signerInfo.signer.xpub}`,
   }));
 
+  if (scheme.m === 1 && emergencyKeysInfo.length > 0) {
+    throw new Error(
+      scheme.n === 1
+        ? 'Single-key wallet cannot use Emergency Key, only Inheritance Key.'
+        : 'Multi-key wallets with a threshold of 1 cannot use Emergency Key, only Inheritance Key.'
+    );
+  }
+
   if (keysInfo.length !== scheme.n) throw new Error('Invalid inputs; scheme mismatch');
 
   const signerFingerprints = Object.fromEntries(
