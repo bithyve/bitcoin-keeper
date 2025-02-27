@@ -215,9 +215,11 @@ function AddNewWallet({ navigation, route }) {
           primaryText="Proceed"
           primaryDisable={!selectedWalletType}
           primaryCallback={() => {
-            if (scheme.m === 1 && scheme.n === 1 && emergencyKeySelected) {
+            if (scheme.m === 1 && emergencyKeySelected) {
               showToast(
-                'Single-key wallet cannot use Emergency Key, only Inheritance Key.',
+                scheme.n === 1
+                  ? 'Single-key wallet cannot use Emergency Key, only Inheritance Key.'
+                  : 'Multi-key wallets with a threshold of 1 cannot use Emergency Key, only Inheritance Key.',
                 <ToastErrorIcon />
               );
               return;
