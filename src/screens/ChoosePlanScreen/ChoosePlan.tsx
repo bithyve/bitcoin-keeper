@@ -38,7 +38,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import TierUpgradeModal, { UPGRADE_TYPE } from './TierUpgradeModal';
@@ -303,7 +303,7 @@ function ChoosePlan() {
               onPress: () => {},
               style: 'cancel',
             },
-            {
+            !appSubscription?.isDesktopPurchase && {
               text: common.manage,
               onPress: () => manageSubscription(response.productId),
             },
@@ -570,6 +570,11 @@ function ChoosePlan() {
           />
         </Box>
       )}
+
+      <Buttons
+        primaryText="Desktop Subscription Management"
+        primaryCallback={() => navigation.dispatch(CommonActions.navigate('PurchaseWithChannel'))}
+      />
     </ScreenWrapper>
   );
 }
