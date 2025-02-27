@@ -336,26 +336,6 @@ function ConfirmWalletDetails({ route }) {
     navigation.dispatch(CommonActions.reset(navigationState));
   };
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     if (relayVaultUpdate && newVault) {
-  //       dispatch(resetRealyVaultState());
-  //       setCreating(false);
-  //       setVaultCreatedModalVisible(true);
-  //     } else if (relayVaultUpdate) {
-  //       navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-  //       dispatch(resetRealyVaultState());
-  //       setCreating(false);
-  //     }
-
-  //     if (relayVaultError) {
-  //       showToast(realyVaultErrorMessage, <ToastErrorIcon />);
-  //       dispatch(resetRealyVaultState());
-  //       setCreating(false);
-  //     }
-  //   }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
-  // );
-
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
