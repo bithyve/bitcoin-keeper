@@ -120,9 +120,11 @@ function SendConfirmation({ route }) {
     customFeePerByte: initialCustomFeePerByte,
     miniscriptSelectedSatisfier,
   }: SendConfirmationRouteParams = route.params;
+  const navigation = useNavigation();
+
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const txRecipientsOptions = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseOne.outputs.txRecipients
+    (state) => state.sendAndReceive.sendPhaseOne?.outputs?.txRecipients
   );
   const customTxRecipientsOptions = useAppSelector(
     (state) => state.sendAndReceive.customPrioritySendPhaseOne?.outputs?.customTxRecipients
@@ -212,8 +214,6 @@ function SendConfirmation({ route }) {
       );
     }
   }, [txRecipientsOptions, customTxRecipientsOptions, transactionPriority]);
-
-  const navigation = useNavigation();
 
   function checkUsualFee(data: any[]) {
     if (data.length === 0) {

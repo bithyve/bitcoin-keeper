@@ -55,6 +55,8 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 function Footer({
   vault,
@@ -292,8 +294,29 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const WalletIcon = getWalletIcon(vault);
 
   useEffect(() => {
-    dispatch(sendPhaseOneReset());
-  }, []);
+    if (
+      vault?.specs?.balances?.confirmed + vault?.specs?.balances?.unconfirmed === 0 &&
+      vault?.isMigrating
+    ) {
+      try {
+        dbManager.updateObjectById(RealmSchema.Vault, vault.id, {
+          archived: true,
+          isMigrating: false,
+        });
+        showToast(
+          'Vault migration completed successfully',
+          <TickIcon />,
+          IToastCategory.DEFAULT,
+          5000
+        );
+        setTimeout(() => {
+          navigation.navigate('Home');
+        }, 100);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }, [vault]);
 
   useEffect(() => {
     const cached = [];

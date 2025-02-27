@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
@@ -18,7 +18,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { SignerStorage, SignerType } from 'src/services/wallets/enums';
+import { SignerStorage, SignerType, VaultType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -38,17 +38,17 @@ import AddKeyButton from './components/AddKeyButton';
 import EmptyListIllustration from '../../components/EmptyListIllustration';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { useQuery } from '@realm/react';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
-import InheritanceKeySection from './components/InheritanceKeySection';
+import EnhancedKeysSection from './components/EnhancedKeysSection';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import {
+  EMERGENCY_KEY_IDENTIFIER,
+  getKeyTimelock,
+  INHERITANCE_KEY_IDENTIFIER,
+} from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -116,12 +116,13 @@ function ManageSigners({ route }: ScreenProps) {
     }, [relaySignersUpdate])
   );
 
-  const handleCardSelect = (signer, item, isInheritanceKey?) => {
+  const handleCardSelect = (signer, item, isInheritanceKey?, isEmergencyKey?) => {
     navigation.dispatch(
       CommonActions.navigate('SigningDeviceDetails', {
         signerId: getKeyUID(signer),
         vaultId,
         isInheritanceKey,
+        isEmergencyKey,
         vaultKey: vaultKeys.length ? item : undefined,
         vaultSigners: vaultKeys,
       })
@@ -313,7 +314,12 @@ function SignersList({
   vaultKeys: VaultSigner[];
   signers: Signer[];
   signerMap: Record<string, Signer>;
-  handleCardSelect: (signer: Signer, item: VaultSigner, isInheritanceKey?: boolean) => void;
+  handleCardSelect: (
+    signer: Signer,
+    item: VaultSigner,
+    isInheritanceKey?: boolean,
+    isEmergencyKey?: boolean
+  ) => void;
   handleAddSigner: () => void;
   vault: Vault;
   typeBasedIndicator: Record<string, Record<string, boolean>>;
@@ -323,19 +329,28 @@ function SignersList({
   const { showToast } = useToastMessage();
   const isNonVaultManageSignerFlow = !vault; // Manage Signers flow accessible via home screen
   const shellKeys = [];
-  const { id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
-    getJSONFromRealmObject
-  )[0];
 
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
-  const inheritanceKeyMeta = vault?.signers?.find(
-    (signer) =>
-      signer?.masterFingerprint ===
-      vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
-        INHERITANCE_KEY1_IDENTIFIER
-      ]
-  );
-  const inheritanceKey = inheritanceKeyMeta ? signerMap[getKeyUID(inheritanceKeyMeta)] : null;
+
+  const inheritanceKeys = vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints
+    ? Object.entries(vault.scheme.miniscriptScheme.miniscriptElements.signerFingerprints)
+        .filter(([key]) => key.startsWith(INHERITANCE_KEY_IDENTIFIER))
+        .map(([identifier, fingerprint]) => ({
+          identifier,
+          key: signerMap[getKeyUID(vault.signers.find((s) => s.masterFingerprint === fingerprint))],
+          keyMeta: vault.signers.find((s) => s.masterFingerprint === fingerprint),
+        }))
+    : [];
+
+  const emergencyKeys = vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints
+    ? Object.entries(vault.scheme.miniscriptScheme.miniscriptElements.signerFingerprints)
+        .filter(([key]) => key.startsWith(EMERGENCY_KEY_IDENTIFIER))
+        .map(([identifier, fingerprint]) => ({
+          identifier,
+          key: signerMap[getKeyUID(vault.signers.find((s) => s.masterFingerprint === fingerprint))],
+          keyMeta: vault.signers.find((s) => s.masterFingerprint === fingerprint),
+        }))
+    : [];
 
   const shellAssistedKeys = useMemo(() => {
     const generateShellAssistedKey = (signerType: SignerType) => ({
@@ -406,7 +421,18 @@ function SignersList({
             if (
               !signer ||
               signer.archived ||
-              signer?.masterFingerprint === inheritanceKeyMeta?.masterFingerprint
+              inheritanceKeys.map((inheritanceKey) => inheritanceKey.key).includes(signer)
+            ) {
+              return null;
+            }
+            if (
+              emergencyKeys.map((emergencyKey) => emergencyKey.key).includes(signer) &&
+              !Object.entries(
+                vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints || {}
+              ).some(
+                ([key, fingerprint]) =>
+                  key.startsWith('K') && fingerprint === signer.masterFingerprint
+              )
             ) {
               return null;
             }
@@ -453,15 +479,24 @@ function SignersList({
           )}
         </Box>
 
-        {inheritanceKey && (
-          <InheritanceKeySection
-            vault={vault}
-            currentBlockHeight={currentBlockHeight}
-            signerMap={signerMap}
-            handleCardSelect={handleCardSelect}
-            setCurrentBlockHeight={setCurrentBlockHeight}
-          />
-        )}
+        {vault.type === VaultType.MINISCRIPT &&
+          vault.scheme.miniscriptScheme.miniscriptElements.timelocks.map((timelock) => (
+            <EnhancedKeysSection
+              keys={inheritanceKeys
+                .concat(emergencyKeys)
+                .filter(
+                  (key) =>
+                    getKeyTimelock(
+                      key.identifier,
+                      vault.scheme.miniscriptScheme.miniscriptElements
+                    ) === timelock
+                )}
+              vault={vault}
+              currentBlockHeight={currentBlockHeight}
+              handleCardSelect={handleCardSelect}
+              setCurrentBlockHeight={setCurrentBlockHeight}
+            />
+          ))}
       </ScrollView>
     </SafeAreaView>
   );

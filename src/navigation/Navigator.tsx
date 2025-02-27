@@ -133,8 +133,10 @@ import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
 import ResetInheritanceKey from 'src/screens/Vault/ResetInheritanceKey';
+import ResetEmergencyKey from 'src/screens/Vault/ResetEmergencyKey';
 import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import AddReserveKey from 'src/screens/Vault/AddReserveKey';
+import AddEmergencyKey from 'src/screens/Vault/AddEmergencyKey';
 import { useColorMode } from 'native-base';
 import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
@@ -327,7 +329,9 @@ function AppStack() {
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
         <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
+        <Stack.Screen name="AddEmergencyKey" component={AddEmergencyKey} />
         <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
+        <Stack.Screen name="ResetEmergencyKey" component={ResetEmergencyKey} />
         <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
         <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
         <Stack.Screen name="TicketDetails" component={TicketDetails} />
