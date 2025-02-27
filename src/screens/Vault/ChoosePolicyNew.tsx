@@ -83,15 +83,11 @@ function ChoosePolicyNew({ navigation, route }) {
   const parseAmount = (amountString: string): number => Number(amountString.replace(/,/g, ''));
 
   const onConfirm = () => {
-    // if (isUpdate) {
-    //   showValidationModal(true);
-    // } else {
-    // }
-    const maxAmount = maxTransaction ? parseAmount(maxTransaction) : 0;
+    const maxAmount = spendingLimit ? parseAmount(spendingLimit) : 0;
     const restrictions: SignerRestriction = {
       none: maxAmount === 0,
       maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
-      timeWindow: maxAmount === 0 ? null : timelimit.value,
+      timeWindow: maxAmount === 0 ? null : timeLimit?.value,
     };
     const exceptions: SignerException = {
       none: true,
@@ -103,7 +99,7 @@ function ChoosePolicyNew({ navigation, route }) {
       },
       restrictions,
       exceptions,
-      signingDelay: delayTime || null,
+      signingDelay: signingDelay?.value || null,
     };
 
     navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } }));
