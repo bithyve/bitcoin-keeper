@@ -145,7 +145,7 @@ export interface Vault {
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
   archived: boolean;
-  isMigrating: boolean;
+  isMigrating?: boolean;
   archivedId?: string;
   scriptType: ScriptTypes;
   receivingAddress?: string;
