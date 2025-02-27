@@ -125,26 +125,6 @@ function AddEmergencyKey({ route }) {
     }
   }, [activeVault?.id, keyToRotate, selectedSigner]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (relayVaultUpdate && newVault) {
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-        setVaultCreatedModalVisible(true);
-      } else if (relayVaultUpdate) {
-        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
-
-      if (relayVaultError) {
-        showToast(realyVaultErrorMessage, <ToastErrorIcon />);
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
-    }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
-  );
-
   const viewVault = () => {
     setVaultCreatedModalVisible(false);
     const navigationState = {
@@ -333,9 +313,10 @@ function AddEmergencyKey({ route }) {
         }
         currentBlockHeight={currentBlockHeight}
         miniscriptTypes={[
-          ...(inheritanceKeys ? [MiniscriptTypes.INHERITANCE] : []),
+          ...(inheritanceKeys.length ? [MiniscriptTypes.INHERITANCE] : []),
           MiniscriptTypes.EMERGENCY,
         ]}
+        setVaultCreatedModalVisible={setVaultCreatedModalVisible}
       />
     </ScreenWrapper>
   );

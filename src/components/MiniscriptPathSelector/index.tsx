@@ -14,6 +14,7 @@ import {
   EMERGENCY_KEY_IDENTIFIER,
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
 interface MiniscriptPathSelectorProps {
   vault: Vault;
@@ -37,6 +38,7 @@ export const MiniscriptPathSelector = forwardRef<
   const [selectedPhase, setSelectedPhase] = useState<Phase>(null);
   const [availablePaths, setAvailablePaths] = useState<Path[]>([]);
   const [currentBlockHeight, setCurrentBlockHeight] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (vault.type === VaultType.MINISCRIPT) {
@@ -231,8 +233,11 @@ export const MiniscriptPathSelector = forwardRef<
           selectedPaths: selectedPaths,
         }
       );
+      setIsLoading(false);
+
       onPathSelected(miniscriptSelectedSatisfier);
     } else {
+      setIsLoading(false);
       setPathsModalVisible(true);
     }
   };
@@ -245,6 +250,7 @@ export const MiniscriptPathSelector = forwardRef<
         selectedPaths: paths.map((path) => path.id),
       }
     );
+    setIsLoading(false);
     onPathSelected(miniscriptSelectedSatisfier);
   };
 
@@ -254,6 +260,7 @@ export const MiniscriptPathSelector = forwardRef<
 
   return (
     <>
+      {isLoading && <ActivityIndicatorView visible={isLoading} />}
       <KeeperModal
         visible={modalVisible}
         close={() => {
@@ -276,8 +283,11 @@ export const MiniscriptPathSelector = forwardRef<
               <Pressable
                 key={phase.id}
                 onPress={() => {
+                  setIsLoading(true);
                   setModalVisible(false);
-                  handlePhaseSelection(phase);
+                  setTimeout(() => {
+                    handlePhaseSelection(phase);
+                  }, 200);
                 }}
               >
                 <Box
@@ -323,8 +333,11 @@ export const MiniscriptPathSelector = forwardRef<
                 <Pressable
                   key={path.id}
                   onPress={() => {
+                    setIsLoading(true);
                     setPathsModalVisible(false);
-                    handlePathsSelection([path]);
+                    setTimeout(() => {
+                      handlePathsSelection([path]);
+                    }, 200);
                   }}
                 >
                   <Box

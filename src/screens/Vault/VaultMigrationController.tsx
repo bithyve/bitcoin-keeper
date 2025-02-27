@@ -4,6 +4,7 @@ import {
   MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
+  SignerType,
   TxPriority,
   VaultType,
 } from 'src/services/wallets/enums';
@@ -23,7 +24,7 @@ import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/services/wallets/operations';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
@@ -56,6 +57,12 @@ import {
   generateEnhancedVaultElements,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import { getKeyUID } from 'src/utils/utilities';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import { resetVaultMigration } from 'src/store/reducers/vaults';
+import KeeperModal from 'src/components/KeeperModal';
+import useSigners from 'src/hooks/useSigners';
+import { Box } from 'native-base';
+import Text from 'src/components/KeeperText';
 
 function VaultMigrationController({
   vaultCreating,
@@ -71,12 +78,15 @@ function VaultMigrationController({
   emergencyKeys = [],
   currentBlockHeight = null,
   miniscriptTypes = [],
+  setVaultCreatedModalVisible = null,
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { activeVault, allVaults } = useVault({ vaultId });
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
+  const hasMigrationSucceeded = useAppSelector((state) => state.vault.hasMigrationSucceeded);
+  const migrationError = useAppSelector((state) => state.vault.error);
   const averageTxFees: AverageTxFeesByNetwork = useAppSelector(
     (state) => state.network.averageTxFees
   );
@@ -90,11 +100,41 @@ function VaultMigrationController({
   const [recipients, setRecepients] = useState<any[]>();
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
   const [miniscriptSelectedSatisfier, setMiniscriptSelectedSatisfier] = useState(null);
+  const {
+    relayVaultUpdate,
+    relayVaultError,
+    realyVaultErrorMessage,
+    relaySignersUpdate,
+    realySignersUpdateErrorMessage,
+    relaySignersUpdateLoading,
+    realySignersAdded,
+  } = useAppSelector((state) => state.bhr);
+  const [savedGeneratedVaultId, setSavedGeneratedVaultId] = useState(null);
+  const [newVault, setNewVault] = useState(null);
+  const [checkAddressModalVisible, setCheckAddressModalVisible] = useState(false);
+  const { vaultSigners } = useSigners(activeVault?.id);
+
+  const DEVICES_WITH_SCREEN = [
+    SignerType.BITBOX02,
+    SignerType.COLDCARD,
+    SignerType.JADE,
+    SignerType.KEEPER,
+    SignerType.KEYSTONE,
+    SignerType.LEDGER,
+    SignerType.OTHER_SD,
+    SignerType.PASSPORT,
+    SignerType.PORTAL,
+    SignerType.SEEDSIGNER,
+    SignerType.SPECTER,
+    SignerType.TREZOR,
+  ];
 
   useFocusEffect(
     useCallback(() => {
       if (temporaryVault && temporaryVault.id) {
         setGeneratedVaultId(temporaryVault.id);
+        setSavedGeneratedVaultId(temporaryVault.id);
+        setNewVault(temporaryVault);
       }
     }, [temporaryVault])
   );
@@ -126,54 +166,43 @@ function VaultMigrationController({
 
   useFocusEffect(
     useCallback(() => {
-      if (sendPhaseOneState.isSuccessful && temporaryVault) {
+      if (sendPhaseOneState.isSuccessful && newVault) {
         setCreating(false);
-        if (
-          activeVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG &&
-          activeVault.type === VaultType.MINISCRIPT
-        ) {
-          WalletUtilities.fetchCurrentBlockHeight()
-            .then(({ currentBlockHeight }) => {
-              navigation.dispatch(
-                CommonActions.navigate('SendConfirmation', {
+
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 2,
+            routes: [
+              { name: 'Home' },
+              { name: 'VaultDetails', params: { vaultId: activeVault.id } },
+              {
+                name: 'SendConfirmation',
+                params: {
                   sender: activeVault,
-                  internalRecipients: [temporaryVault],
+                  internalRecipients: [newVault],
                   addresses: [recipients[0].address],
                   amounts: [parseInt(recipients[0].amount, 10)],
                   transferType: TransferType.VAULT_TO_VAULT,
                   currentBlockHeight,
                   miniscriptSelectedSatisfier,
-                })
-              );
-            })
-            .catch((err) => {
-              captureError(err);
-              showToast('Failed to fetch current block height', <ToastErrorIcon />);
-            });
-        } else {
-          navigation.dispatch(
-            CommonActions.navigate('SendConfirmation', {
-              sender: activeVault,
-              internalRecipients: [temporaryVault],
-              addresses: [recipients[0].address],
-              amounts: [parseInt(recipients[0].amount, 10)],
-              transferType: TransferType.VAULT_TO_VAULT,
-              miniscriptSelectedSatisfier,
-            })
-          );
-        }
+                },
+              },
+            ],
+          })
+        );
       } else if (sendPhaseOneState.hasFailed) {
         if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
           showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
         } else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
       }
-    }, [sendPhaseOneState, temporaryVault, activeVault, recipients, miniscriptSelectedSatisfier])
+    }, [sendPhaseOneState, newVault, activeVault, recipients, miniscriptSelectedSatisfier])
   );
 
   const initiateSweep = () => {
+    dispatch(resetVaultMigration());
     const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
     const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
-    const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+    const receivingAddress = WalletOperations.getNextFreeAddress(newVault);
 
     if (activeVault.type === VaultType.MINISCRIPT) {
       miniscriptPathSelectorRef.current?.selectVaultSpendingPaths();
@@ -196,7 +225,7 @@ function VaultMigrationController({
       satisfier
     );
 
-    if (sendMaxFee && temporaryVault) {
+    if (sendMaxFee && newVault) {
       const maxBalance = confirmed + unconfirmed - sendMaxFee;
       setRecepients([{ address: receivingAddress, amount: maxBalance }]);
       dispatch(
@@ -210,13 +239,72 @@ function VaultMigrationController({
   };
 
   const createNewVault = () => {
-    const netBanalce = confirmed + unconfirmed;
-    if (netBanalce === 0) {
-      dispatch(finaliseVaultMigration(activeVault.id));
-    } else {
-      initiateSweep();
-    }
+    dispatch(finaliseVaultMigration(activeVault.id));
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const newVault = allVaults.filter((v) => v.id === savedGeneratedVaultId)[0];
+      if (activeVault && !hasMigrationSucceeded && !migrationError) {
+        return;
+      }
+      if ((relayVaultUpdate || hasMigrationSucceeded) && newVault) {
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+        const netBanalce = confirmed + unconfirmed;
+
+        if (vaultId && netBanalce !== 0 && hasMigrationSucceeded) {
+          if (vaultSigners.some((signer) => DEVICES_WITH_SCREEN.includes(signer.type))) {
+            setCheckAddressModalVisible(true);
+          } else {
+            initiateSweep();
+          }
+          return;
+        }
+        if (migrationError) {
+          showToast(migrationError.toString(), <ToastErrorIcon />);
+        }
+        dispatch(resetVaultMigration());
+
+        if (setVaultCreatedModalVisible) {
+          setVaultCreatedModalVisible(true);
+          return;
+        }
+
+        const navigationState = {
+          index: 1,
+          routes: [
+            { name: 'Home' },
+            {
+              name: 'VaultDetails',
+              params: { vaultId: savedGeneratedVaultId, vaultTransferSuccessful: true },
+            },
+          ],
+        };
+        navigation.dispatch(CommonActions.reset(navigationState));
+      } else if (relayVaultUpdate) {
+        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+      }
+
+      if (relayVaultError) {
+        showToast(realyVaultErrorMessage, <ToastErrorIcon />);
+        dispatch(resetRealyVaultState());
+        setCreating(false);
+      }
+    }, [
+      hasMigrationSucceeded,
+      migrationError,
+      vaultId,
+      relayVaultUpdate,
+      relayVaultError,
+      savedGeneratedVaultId,
+      allVaults,
+      navigation,
+      dispatch,
+    ])
+  );
 
   const getTimelockDuration = (selectedDuration, networkType) => {
     const durationIdentifier =
@@ -409,6 +497,7 @@ function VaultMigrationController({
         // case: new vault creation
         const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
         setGeneratedVaultId(generatedVaultId);
+        setSavedGeneratedVaultId(generatedVaultId);
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       }
     } catch (err) {
@@ -428,13 +517,69 @@ function VaultMigrationController({
             setMiniscriptSelectedSatisfier(satisfier);
             const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
             const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
-            const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+            const receivingAddress = WalletOperations.getNextFreeAddress(newVault);
             proceedWithSweep(receivingAddress, feePerByte, satisfier);
           }}
           onError={(err) => showToast(err, <ToastErrorIcon />)}
           onCancel={() => setCreating(false)}
         />
       )}
+
+      <KeeperModal
+        visible={checkAddressModalVisible}
+        closeOnOverlayClick={false}
+        close={() => {
+          setCheckAddressModalVisible(false);
+          dispatch(resetVaultMigration());
+          showToast(
+            'Wallet update initiated successfully, you can continue transferring the funds from the Send tab.',
+            null,
+            IToastCategory.DEFAULT,
+            6000
+          );
+          setTimeout(() => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 1,
+                routes: [
+                  { name: 'Home' },
+                  { name: 'VaultDetails', params: { vaultId: activeVault.id } },
+                ],
+              })
+            );
+          }, 200);
+        }}
+        title="Verify the new wallet address"
+        Content={() => (
+          <Box style={{ gap: 20 }}>
+            <Text>
+              Your updated wallet has been successfully created and is ready to receive funds from
+              the previous wallet.
+            </Text>
+            <Text>
+              We recommend verifying the new wallet address on your hardware device before
+              transferring funds.
+            </Text>
+            <Text>
+              You can transfer the funds now or later. Your old wallet will remain visible in the
+              Wallets tab until the transfer is complete.
+            </Text>
+          </Box>
+        )}
+        modalBackground="modalWhiteBackground"
+        textColor="modalHeaderTitle"
+        subTitleColor="modalSubtitleBlack"
+        buttonText="Check address"
+        secondaryButtonText="Transfer funds"
+        buttonCallback={() => {
+          setCheckAddressModalVisible(false);
+          navigation.dispatch(CommonActions.navigate('Receive', { wallet: newVault }));
+        }}
+        secondaryCallback={() => {
+          setCheckAddressModalVisible(false);
+          initiateSweep();
+        }}
+      />
     </>
   );
 }

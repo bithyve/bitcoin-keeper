@@ -89,6 +89,7 @@ const useWalletAsset = () => {
         default:
           tags = [{ tag: 'Multi-key' }, { tag: getSchemeTag(wallet as Vault) }];
       }
+      if ((wallet as Vault).isMigrating) tags.push({ tag: 'In-Transition' });
     } else {
       let walletKind = wallet.type === WalletType.DEFAULT ? 'Hot Wallet' : 'Imported Wallet';
       const isWatchOnly = wallet.type === WalletType.IMPORTED && !idx(wallet, (_) => _.specs.xpriv);
