@@ -1580,7 +1580,6 @@ export default class WalletOperations {
             const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
             const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
             subPaths.push([chainIndex, childIndex]);
-            break;
           }
         }
         if (subPaths.length === 0) throw new Error('Failed to sign internally - missing subpath');
