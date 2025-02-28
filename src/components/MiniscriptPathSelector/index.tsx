@@ -260,110 +260,116 @@ export const MiniscriptPathSelector = forwardRef<
 
   return (
     <>
-      {isLoading && <ActivityIndicatorView visible={isLoading} />}
-      <KeeperModal
-        visible={modalVisible}
-        close={() => {
-          setModalVisible(false);
-          onCancel();
-        }}
-        title="Select Signing Option"
-        subTitle={`\nSelect how you would like to sign.\n\nUsing the regular option is better to reduce the transaction fee${
-          vault.scheme.miniscriptScheme?.usedMiniscriptTypes?.length == 1 &&
-          vault.scheme.miniscriptScheme?.usedMiniscriptTypes?.includes(MiniscriptTypes.INHERITANCE)
-            ? ' if you are not planning to use the Inheritance Key.'
-            : ''
-        }`}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        Content={() => (
-          <Box style={{ gap: wp(15), marginBottom: hp(10) }}>
-            {availablePhases.map((phase) => (
-              <Pressable
-                key={phase.id}
-                onPress={() => {
-                  setIsLoading(true);
-                  setModalVisible(false);
-                  setTimeout(() => {
-                    handlePhaseSelection(phase);
-                  }, 200);
-                }}
-              >
-                <Box
-                  style={styles.optionCTR}
-                  backgroundColor={`${colorMode}.boxSecondaryBackground`}
-                  borderColor={`${colorMode}.separator`}
-                >
-                  <Box>
-                    <Text
-                      color={`${colorMode}.secondaryText`}
-                      fontSize={16}
-                      medium
-                      style={styles.optionTitle}
-                    >
-                      {getPhaseDescription(phase).title}
-                    </Text>
-                    <Text color={`${colorMode}.secondaryText`} fontSize={13}>
-                      {getPhaseDescription(phase).subtitle}
-                    </Text>
-                  </Box>
-                </Box>
-              </Pressable>
-            ))}
-          </Box>
-        )}
-      />
-      {/* TODO: For now we just assume one path to select, but need to implement multiple selection based on the phase.requiredPaths */}
-      {availablePaths && (
-        <KeeperModal
-          visible={pathsModalVisible}
-          close={() => {
-            setPathsModalVisible(false);
-            onCancel();
-          }}
-          title="Select Signing Path"
-          subTitle={`\nSelect how you would like to sign.`}
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
-          subTitleColor={`${colorMode}.modalSubtitleBlack`}
-          Content={() => (
-            <Box style={{ gap: wp(15), marginBottom: hp(10) }}>
-              {availablePaths.map((path) => (
-                <Pressable
-                  key={path.id}
-                  onPress={() => {
-                    setIsLoading(true);
-                    setPathsModalVisible(false);
-                    setTimeout(() => {
-                      handlePathsSelection([path]);
-                    }, 200);
-                  }}
-                >
-                  <Box
-                    style={styles.optionCTR}
-                    backgroundColor={`${colorMode}.boxSecondaryBackground`}
-                    borderColor={`${colorMode}.separator`}
+      {vault && vault.type === VaultType.MINISCRIPT && (
+        <>
+          {isLoading && <ActivityIndicatorView visible={isLoading} />}
+          <KeeperModal
+            visible={modalVisible}
+            close={() => {
+              setModalVisible(false);
+              onCancel();
+            }}
+            title="Select Signing Option"
+            subTitle={`\nSelect how you would like to sign.\n\nUsing the regular option is better to reduce the transaction fee${
+              vault.scheme.miniscriptScheme?.usedMiniscriptTypes?.length == 1 &&
+              vault.scheme.miniscriptScheme?.usedMiniscriptTypes?.includes(
+                MiniscriptTypes.INHERITANCE
+              )
+                ? ' if you are not planning to use the Inheritance Key.'
+                : ''
+            }`}
+            modalBackground={`${colorMode}.modalWhiteBackground`}
+            textColor={`${colorMode}.modalHeaderTitle`}
+            subTitleColor={`${colorMode}.modalSubtitleBlack`}
+            Content={() => (
+              <Box style={{ gap: wp(15), marginBottom: hp(10) }}>
+                {availablePhases.map((phase) => (
+                  <Pressable
+                    key={phase.id}
+                    onPress={() => {
+                      setIsLoading(true);
+                      setModalVisible(false);
+                      setTimeout(() => {
+                        handlePhaseSelection(phase);
+                      }, 200);
+                    }}
                   >
-                    <Box>
-                      <Text
-                        color={`${colorMode}.secondaryText`}
-                        fontSize={16}
-                        medium
-                        style={styles.optionTitle}
-                      >
-                        {getPathDescription(path).title}
-                      </Text>
-                      <Text color={`${colorMode}.secondaryText`} fontSize={13}>
-                        {getPathDescription(path).subtitle}
-                      </Text>
+                    <Box
+                      style={styles.optionCTR}
+                      backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                      borderColor={`${colorMode}.separator`}
+                    >
+                      <Box>
+                        <Text
+                          color={`${colorMode}.secondaryText`}
+                          fontSize={16}
+                          medium
+                          style={styles.optionTitle}
+                        >
+                          {getPhaseDescription(phase).title}
+                        </Text>
+                        <Text color={`${colorMode}.secondaryText`} fontSize={13}>
+                          {getPhaseDescription(phase).subtitle}
+                        </Text>
+                      </Box>
                     </Box>
-                  </Box>
-                </Pressable>
-              ))}
-            </Box>
+                  </Pressable>
+                ))}
+              </Box>
+            )}
+          />
+          {/* TODO: For now we just assume one path to select, but need to implement multiple selection based on the phase.requiredPaths */}
+          {availablePaths && (
+            <KeeperModal
+              visible={pathsModalVisible}
+              close={() => {
+                setPathsModalVisible(false);
+                onCancel();
+              }}
+              title="Select Signing Path"
+              subTitle={`\nSelect how you would like to sign.`}
+              modalBackground={`${colorMode}.modalWhiteBackground`}
+              textColor={`${colorMode}.modalHeaderTitle`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
+              Content={() => (
+                <Box style={{ gap: wp(15), marginBottom: hp(10) }}>
+                  {availablePaths.map((path) => (
+                    <Pressable
+                      key={path.id}
+                      onPress={() => {
+                        setIsLoading(true);
+                        setPathsModalVisible(false);
+                        setTimeout(() => {
+                          handlePathsSelection([path]);
+                        }, 200);
+                      }}
+                    >
+                      <Box
+                        style={styles.optionCTR}
+                        backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                        borderColor={`${colorMode}.separator`}
+                      >
+                        <Box>
+                          <Text
+                            color={`${colorMode}.secondaryText`}
+                            fontSize={16}
+                            medium
+                            style={styles.optionTitle}
+                          >
+                            {getPathDescription(path).title}
+                          </Text>
+                          <Text color={`${colorMode}.secondaryText`} fontSize={13}>
+                            {getPathDescription(path).subtitle}
+                          </Text>
+                        </Box>
+                      </Box>
+                    </Pressable>
+                  ))}
+                </Box>
+              )}
+            />
           )}
-        />
+        </>
       )}
     </>
   );
