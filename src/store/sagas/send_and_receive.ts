@@ -238,52 +238,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     }
 
     if (finalOutputs) {
-      const changeOutputIndex = finalOutputs.findIndex((output) =>
-        Object.values(wallet.specs.addresses.internal).includes(output.address)
-      );
-
-      const changeOutput = changeOutputIndex !== -1 ? finalOutputs[changeOutputIndex] : null;
-
-      if (changeOutput) {
-        let labels: { ref: string; label: string; isSystem: boolean }[] = yield call(
-          dbManager.getCollection,
-          RealmSchema.Tags
-        );
-
-        const labelChanges = {
-          added: [],
-          deleted: [],
-        };
-
-        const prevUTXOsLabels = labels.filter((label) =>
-          inputs.map((input) => input.txId + ':' + input.vout).includes(label.ref)
-        );
-        labelChanges.added.push({
-          name: 'Change',
-          isSystem: false,
-        });
-
-        if (prevUTXOsLabels) {
-          labelChanges.added.push(
-            ...prevUTXOsLabels.map((label) => ({
-              name: label.label,
-              isSystem: label.isSystem,
-            }))
-          );
-        }
-        console.log('label changes');
-        console.log(labelChanges);
-        console.log(prevUTXOsLabels);
-        console.log(changeOutput);
-        console.log(wallet);
-        yield fork(bulkUpdateLabelsWorker, {
-          payload: {
-            labelChanges,
-            UTXO: { txId: txid, vout: changeOutputIndex },
-            wallet: wallet as any,
-          },
-        });
-      }
+      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid);
     }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
@@ -300,6 +255,51 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 }
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
+
+function* handleChangeOutputLabels(finalOutputs, inputs, wallet, txid) {
+  const changeOutputIndex = finalOutputs.findIndex((output) =>
+    Object.values(wallet.specs.addresses.internal).includes(output.address)
+  );
+
+  const changeOutput = changeOutputIndex !== -1 ? finalOutputs[changeOutputIndex] : null;
+
+  if (changeOutput) {
+    let labels: { ref: string; label: string; isSystem: boolean }[] = yield call(
+      dbManager.getCollection,
+      RealmSchema.Tags
+    );
+
+    const labelChanges = {
+      added: [],
+      deleted: [],
+    };
+
+    const prevUTXOsLabels = labels.filter((label) =>
+      inputs.map((input) => input.txId + ':' + input.vout).includes(label.ref)
+    );
+    labelChanges.added.push({
+      name: 'Change',
+      isSystem: false,
+    });
+
+    if (prevUTXOsLabels) {
+      labelChanges.added.push(
+        ...prevUTXOsLabels.map((label) => ({
+          name: label.label,
+          isSystem: label.isSystem,
+        }))
+      );
+    }
+
+    yield fork(bulkUpdateLabelsWorker, {
+      payload: {
+        labelChanges,
+        UTXO: { txId: txid, vout: changeOutputIndex },
+        wallet: wallet as any,
+      },
+    });
+  }
+}
 
 function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
@@ -373,52 +373,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     }
 
     if (finalOutputs) {
-      const changeOutputIndex = finalOutputs.findIndex((output) =>
-        Object.values(wallet.specs.addresses.internal).includes(output.address)
-      );
-
-      const changeOutput = changeOutputIndex !== -1 ? finalOutputs[changeOutputIndex] : null;
-
-      if (changeOutput) {
-        let labels: { ref: string; label: string; isSystem: boolean }[] = yield call(
-          dbManager.getCollection,
-          RealmSchema.Tags
-        );
-
-        const labelChanges = {
-          added: [],
-          deleted: [],
-        };
-
-        const prevUTXOsLabels = labels.filter((label) =>
-          inputs.map((input) => input.txId + ':' + input.vout).includes(label.ref)
-        );
-        labelChanges.added.push({
-          name: 'Change',
-          isSystem: false,
-        });
-
-        if (prevUTXOsLabels) {
-          labelChanges.added.push(
-            ...prevUTXOsLabels.map((label) => ({
-              name: label.label,
-              isSystem: label.isSystem,
-            }))
-          );
-        }
-        console.log('label changes');
-        console.log(labelChanges);
-        console.log(prevUTXOsLabels);
-        console.log(changeOutput);
-        console.log(wallet);
-        yield fork(bulkUpdateLabelsWorker, {
-          payload: {
-            labelChanges,
-            UTXO: { txId: txid, vout: changeOutputIndex },
-            wallet: wallet as any,
-          },
-        });
-      }
+      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid);
     }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
