@@ -1093,13 +1093,6 @@ function* refreshWalletsWorker({
           deleted: [],
         };
 
-        if (Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
-          labelChanges.added.push({
-            name: 'Change',
-            isSystem: false,
-          });
-        }
-
         const utxoLabels = labels ? labels.filter((label) => label.ref === utxo.address) : [];
         if (utxoLabels.length > 0) {
           labelChanges.added.push(

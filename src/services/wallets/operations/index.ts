@@ -1893,6 +1893,7 @@ export default class WalletOperations {
         cachedTxid?;
         txid: string;
         finalOutputs: bitcoinJS.TxOutput[];
+        inputs: InputUTXOs[];
       }
   > => {
     const { PSBT, inputs, outputs, change, miniscriptSelectedSatisfier } =
@@ -1975,6 +1976,7 @@ export default class WalletOperations {
       return {
         txid,
         finalOutputs,
+        inputs,
       };
     }
   };
@@ -1993,6 +1995,7 @@ export default class WalletOperations {
   ): Promise<{
     txid: string;
     finalOutputs: bitcoinJS.TxOutput[];
+    inputs: InputUTXOs[];
   }> => {
     let inputs;
     if (txnPriority === TxPriority.CUSTOM) {
@@ -2085,6 +2088,7 @@ export default class WalletOperations {
     return {
       txid,
       finalOutputs,
+      inputs,
     };
   };
 }
