@@ -611,16 +611,14 @@ export default class WalletOperations {
     });
     wallet.specs.confirmedUTXOs = updatedConfirmedUTXOSet;
 
-    if (wallet.networkType === NetworkType.TESTNET) {
-      // uncofirmed balance spend on testnet is activated
-      const updatedUnconfirmedUTXOSet = [];
-      wallet.specs.unconfirmedUTXOs.forEach((unconfirmedUTXO) => {
-        if (!consumedUTXOs[unconfirmedUTXO.txId]) {
-          updatedUnconfirmedUTXOSet.push(unconfirmedUTXO);
-        }
-      });
-      wallet.specs.unconfirmedUTXOs = updatedUnconfirmedUTXOSet;
-    }
+    // uncofirmed balance spend on testnet is activated
+    const updatedUnconfirmedUTXOSet = [];
+    wallet.specs.unconfirmedUTXOs.forEach((unconfirmedUTXO) => {
+      if (!consumedUTXOs[unconfirmedUTXO.txId]) {
+        updatedUnconfirmedUTXOSet.push(unconfirmedUTXO);
+      }
+    });
+    wallet.specs.unconfirmedUTXOs = updatedUnconfirmedUTXOSet;
   };
 
   static mockFeeRates = () => {

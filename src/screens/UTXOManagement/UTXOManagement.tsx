@@ -77,7 +77,6 @@ function Footer({
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
-  const [miniscriptSelectedSatisfier, setMiniscriptSelectedSatisfier] = useState(null);
 
   const goToWhirlpoolConfiguration = () => {
     setEnableSelection(false);
