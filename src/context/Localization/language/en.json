@@ -927,6 +927,8 @@
     "attention": "Attention",
     "attentionSubTitle": "If you choose to save it, make sure to store it safely, as this is the private key of the Server Key, and can be used to sign any transaction on behalf of it.",
     "BackUpModalTitle": "Back up Server Key",
+    "timeUntilSigning": "Time until signing",
+
     "BackUpModalSubTitle": "For independent recovery, you can download a one-time backup of your Server Key’s private key. For security reasons, this backup can only be saved once and cannot be downloaded again. You can choose to back it up now, save it later, or disable it entirely.",
     "successTitle": "Server Key Setup is Successful",
     "successSubTitle": "The server key setup was successful, ensuring secure and reliable operations. Your system is now ready to handle signing requests with confidence."
