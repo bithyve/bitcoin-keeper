@@ -163,11 +163,8 @@ function SignTransactionScreen() {
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
 
-  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { relayVaultError, realyVaultErrorMessage } = useAppSelector((state) => state.bhr);
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
-  const intrimVault = useAppSelector((state) => state.vault.intrimVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const sendFailedMessage = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
@@ -241,30 +238,11 @@ function SignTransactionScreen() {
   }, [sendAndReceive, snapshotOptions]);
 
   useEffect(() => {
-    if (relayVaultUpdate && intrimVault) {
-      const navigationState = {
-        index: 1,
-        routes: [
-          { name: 'Home' },
-          {
-            name: 'VaultDetails',
-            params: {
-              vaultTransferSuccessful: true,
-              transactionToast: true,
-              autoRefresh: true,
-              vaultId: intrimVault?.id || '',
-            },
-          },
-        ],
-      };
-      navigation.dispatch(CommonActions.reset(navigationState));
-      dispatch(resetRealyVaultState());
-    }
     if (relayVaultError) {
       showToast(`Error: ${realyVaultErrorMessage}`, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
     }
-  }, [relayVaultUpdate, relayVaultError, intrimVault]);
+  }, [relayVaultError, realyVaultErrorMessage]);
 
   useEffect(() => {
     if (isMigratingNewVault) {

@@ -100,15 +100,9 @@ function VaultMigrationController({
   const [recipients, setRecepients] = useState<any[]>();
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
   const [miniscriptSelectedSatisfier, setMiniscriptSelectedSatisfier] = useState(null);
-  const {
-    relayVaultUpdate,
-    relayVaultError,
-    realyVaultErrorMessage,
-    relaySignersUpdate,
-    realySignersUpdateErrorMessage,
-    relaySignersUpdateLoading,
-    realySignersAdded,
-  } = useAppSelector((state) => state.bhr);
+  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
   const [savedGeneratedVaultId, setSavedGeneratedVaultId] = useState(null);
   const [newVault, setNewVault] = useState(null);
   const [checkAddressModalVisible, setCheckAddressModalVisible] = useState(false);
