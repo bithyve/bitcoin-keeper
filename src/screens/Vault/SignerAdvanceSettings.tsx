@@ -915,7 +915,7 @@ function SignerAdvanceSettings({ route }: any) {
         callback={registerSigner}
       />
     ),
-    isPolicyServer && (
+    isPolicyServer && vaultId && (
       <OptionCard
         key="configurationSetting"
         title="Configuration Setting"
@@ -923,7 +923,7 @@ function SignerAdvanceSettings({ route }: any) {
         callback={navigateToPolicyChange}
       />
     ),
-    isPolicyServer && (
+    isPolicyServer && vaultId && (
       <OptionCard
         key="signingRequests"
         title="Signing requests"
@@ -1186,7 +1186,17 @@ function SignerAdvanceSettings({ route }: any) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
       <WalletHeader
-        title="Sever Key Settings"
+        title={
+          !signer.isBIP85
+            ? ` ${getSignerNameFromType(signer.type, signer.isMock, false).replace(
+                /\*+/g,
+                ''
+              )} Settings`
+            : ` ${getSignerNameFromType(signer.type, signer.isMock, false).replace(
+                /\*+/g,
+                ''
+              )} Settings`
+        }
         rightComponent={
           <TouchableOpacity style={styles.infoIcon} onPress={() => setDetailModal(true)}>
             {isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}

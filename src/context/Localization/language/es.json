@@ -929,6 +929,7 @@
     "BackUpModalTitle": "Back up Server Key",
     "BackUpModalSubTitle": "For independent recovery, you can download a one-time backup of your Server Key’s private key. For security reasons, this backup can only be saved once and cannot be downloaded again. You can choose to back it up now, save it later, or disable it entirely.",
     "successTitle": "Server Key Setup is Successful",
+    "timeUntilSigning": "Time until signing",
     "successSubTitle": "The server key setup was successful, ensuring secure and reliable operations. Your system is now ready to handle signing requests with confidence."
   },
   "externalKey": {
