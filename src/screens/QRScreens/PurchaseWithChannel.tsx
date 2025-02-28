@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
 import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
@@ -68,12 +68,11 @@ function PurchaseWithChannel() {
   useEffect(() => {
     const startBackgroundListener = () => {
       BackgroundTimer.start();
-      const isSocketActive = channel.connected; // TODO: check if needed
+      const isSocketActive = channel.connected;
       if (isSocketActive) return;
       channel.connect();
       channel.on(CHANNEL_MESSAGE, async ({ data }) => {
         try {
-          console.log('Data: ', data);
           if (data?.isUpdated) {
             const { productId, receipt, name, level, icon } = data;
             const subscription: SubScription = {
@@ -91,8 +90,18 @@ function PurchaseWithChannel() {
             dispatch(setSubscription(subscription.name));
             setShowUpgradeModal(true);
           } else {
-            showToast('Something went wrong, Please try again!.', <ToastErrorIcon />);
-            navigation.goBack();
+            if (data?.error) {
+              Alert.alert('Error', data.error, [
+                {
+                  text: 'ok',
+                  onPress: () => navigation.goBack(),
+                  style: 'cancel',
+                },
+              ]);
+            } else {
+              showToast('Something went wrong, Please try again!.', <ToastErrorIcon />);
+              navigation.goBack();
+            }
           }
         } catch (error) {
           console.log('🚀 ~ channel.on ~ error:', error);
