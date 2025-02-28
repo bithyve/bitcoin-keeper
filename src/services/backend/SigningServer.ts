@@ -293,6 +293,7 @@ export default class SigningServer {
     FCM?: string
   ): Promise<{
     signedPSBT: string;
+    delayed: boolean;
   }> => {
     let res: AxiosResponse;
 
@@ -311,9 +312,10 @@ export default class SigningServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const { signedPSBT } = res.data;
+    const { signedPSBT, delayed } = res.data;
     return {
       signedPSBT,
+      delayed,
     };
   };
 
