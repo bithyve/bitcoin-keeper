@@ -21,6 +21,8 @@ import Buttons from 'src/components/Buttons';
 import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { numberWithCommas } from 'src/utils/utilities';
+import { NetworkType } from 'src/services/wallets/enums';
+import config from 'src/utils/service-utilities/config';
 
 const SpendingLimit = ({ route }) => {
   const navigation = useNavigation();
@@ -33,21 +35,37 @@ const SpendingLimit = ({ route }) => {
     totalSats ? numberWithCommas(totalSats) : '0'
   );
 
-  const DEFAULT_INHERITANCE_TIMELOCK = { label: WEEK_1, value: 7 * 24 * 60 * 60 * 1000 };
-  const [selectedOption, setSelectedOption] = useState(
-    totalTime ? totalTime : DEFAULT_INHERITANCE_TIMELOCK
-  );
+  const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
 
-  const INHERITANCE_TIMELOCK_DURATIONS = [
+  const MAINNET_INHERITANCE_TIMELOCK_DURATIONS = [
     { label: NO_LIMIT, value: 0 },
     { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 },
-    DEFAULT_INHERITANCE_TIMELOCK,
+    { label: WEEK_1, value: 7 * 24 * 60 * 60 * 1000 },
     { label: WEEKS_2, value: 14 * 24 * 60 * 60 * 1000 },
     { label: MONTH_1, value: 30 * 24 * 60 * 60 * 1000 },
     { label: MONTHS_3, value: 3 * 30 * 24 * 60 * 60 * 1000 },
     { label: MONTHS_6, value: 6 * 30 * 24 * 60 * 60 * 1000 },
     { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
   ];
+
+  const TESTNET_INHERITANCE_TIMELOCK_DURATIONS = [
+    { label: NO_LIMIT, value: 0 },
+    { label: DAY_1, value: 30 * 60 * 1000 }, // 30 minutes
+    { label: WEEK_1, value: 60 * 60 * 1000 }, //  1 hour
+    { label: WEEKS_2, value: 2 * 60 * 60 * 1000 }, //  2 hours
+    { label: MONTH_1, value: 6 * 60 * 60 * 1000 }, //  6 hours
+    { label: MONTHS_3, value: 12 * 60 * 60 * 1000 }, //  12 hours
+    { label: MONTHS_6, value: 18 * 60 * 60 * 1000 }, //  18 hours
+    { label: MONTHS_12, value: 24 * 60 * 60 * 1000 }, //  24 hours
+  ];
+
+  const INHERITANCE_TIMELOCK_DURATIONS = isMainNet
+    ? MAINNET_INHERITANCE_TIMELOCK_DURATIONS
+    : TESTNET_INHERITANCE_TIMELOCK_DURATIONS;
+
+  const DEFAULT_INHERITANCE_TIMELOCK = INHERITANCE_TIMELOCK_DURATIONS[2];
+  const [selectedOption, setSelectedOption] = useState(totalTime || DEFAULT_INHERITANCE_TIMELOCK);
+
   const handleConfirm = () => {
     navigation.navigate('ChoosePolicyNew', {
       isUpdate: true,

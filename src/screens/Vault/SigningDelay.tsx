@@ -10,6 +10,8 @@ import { WEEK_1, WEEKS_2, DAY_3, DAY_5, DAY_1, OFF } from './constants';
 import Buttons from 'src/components/Buttons';
 import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
+import { NetworkType } from 'src/services/wallets/enums';
+import config from 'src/utils/service-utilities/config';
 
 const SigningDelay = ({ route }) => {
   const navigation = useNavigation();
@@ -18,19 +20,33 @@ const SigningDelay = ({ route }) => {
   const { signingServer, common } = translations;
   const { totalDelay } = route.params;
 
-  const DEFAULT_INHERITANCE_TIMELOCK = { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 };
-  const [selectedOption, setSelectedOption] = useState(
-    totalDelay ? totalDelay : DEFAULT_INHERITANCE_TIMELOCK
-  );
+  const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
 
-  const INHERITANCE_TIMELOCK_DURATIONS = [
+  const MAINNET_DURATIONS = [
     { label: OFF, value: 0 },
-    DEFAULT_INHERITANCE_TIMELOCK,
+    { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 },
     { label: DAY_3, value: 3 * 24 * 60 * 60 * 1000 },
     { label: DAY_5, value: 5 * 24 * 60 * 60 * 1000 },
     { label: WEEK_1, value: 7 * 24 * 60 * 60 * 1000 },
     { label: WEEKS_2, value: 14 * 24 * 60 * 60 * 1000 },
   ];
+
+  const TESTNET_DURATIONS = [
+    { label: OFF, value: 0 },
+    { label: DAY_1, value: 30 * 60 * 1000 }, // 30 min
+    { label: DAY_3, value: 60 * 60 * 1000 }, // 1 hour
+    { label: DAY_5, value: 2 * 60 * 60 * 1000 }, // 2 hour
+    { label: WEEK_1, value: 6 * 60 * 60 * 1000 }, // 6 hours
+    { label: WEEKS_2, value: 12 * 60 * 60 * 1000 }, // 12 hours
+  ];
+
+  const INHERITANCE_TIMELOCK_DURATIONS = isMainNet ? MAINNET_DURATIONS : TESTNET_DURATIONS;
+
+  const DEFAULT_INHERITANCE_TIMELOCK = isMainNet ? MAINNET_DURATIONS[1] : TESTNET_DURATIONS[1];
+
+  const [selectedOption, setSelectedOption] = useState(
+    totalDelay ? totalDelay : DEFAULT_INHERITANCE_TIMELOCK
+  );
   const handleDelay = () => {
     navigation.navigate('ChoosePolicyNew', {
       delayTime: selectedOption,
