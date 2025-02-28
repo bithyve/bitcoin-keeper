@@ -2,12 +2,12 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-// import {
-//   SignerException,
-//   SignerPolicy,
-//   SignerRestriction,
-//   VerificationType,
-// } from 'src/models/interfaces/AssistedKeys';
+import {
+  SignerException,
+  SignerPolicy,
+  SignerRestriction,
+  VerificationType,
+} from 'src/models/interfaces/AssistedKeys';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 // import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import Buttons from 'src/components/Buttons';
@@ -30,9 +30,9 @@ import { useAppSelector } from 'src/store/hooks';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { setSignerPolicyError } from 'src/store/reducers/wallets';
 import WalletHeader from 'src/components/WalletHeader';
-import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -80,35 +80,30 @@ function ChoosePolicyNew({ navigation, route }) {
   const policyError = useAppSelector((state) => state.wallet?.signerPolicyError);
   const [isLoading, setIsLoading] = useState(false);
 
-  // const onNext = () => {
-  //   if (isUpdate) {
-  //     showValidationModal(true);
-  //   } else {
-  //     const maxAmount = Number(maxTransaction);
-  //     const restrictions: SignerRestriction = {
-  //       none: maxAmount === 0,
-  //       maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
-  //     };
+  const parseAmount = (amountString: string): number => Number(amountString.replace(/,/g, ''));
 
-  //     const minAmount = Number(minTransaction);
-  //     const exceptions: SignerException = {
-  //       none: minAmount === 0,
-  //       transactionAmount: minAmount === 0 ? null : minAmount,
-  //     };
+  const onConfirm = () => {
+    const maxAmount = spendingLimit ? parseAmount(spendingLimit) : 0;
+    const restrictions: SignerRestriction = {
+      none: maxAmount === 0,
+      maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
+      timeWindow: maxAmount === 0 ? null : timeLimit?.value,
+    };
+    const exceptions: SignerException = {
+      none: true,
+    };
 
-  //     const policy: SignerPolicy = {
-  //       verification: {
-  //         method: VerificationType.TWO_FA,
-  //       },
-  //       restrictions,
-  //       exceptions,
-  //     };
+    const policy: SignerPolicy = {
+      verification: {
+        method: VerificationType.TWO_FA,
+      },
+      restrictions,
+      exceptions,
+      signingDelay: signingDelay?.value || null,
+    };
 
-  //     navigation.dispatch(
-  //       CommonActions.navigate({ name: 'SetupSigningServer', params: { policy, addSignerFlow } })
-  //     );
-  //   }
-  // };
+    navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } }));
+  };
 
   // const confirmChangePolicy = async () => {
   //   const maxAmount = Number(maxTransaction);
@@ -132,10 +127,6 @@ function ChoosePolicyNew({ navigation, route }) {
   //     updateSignerPolicy(route.params.signer, route.params.vaultKey, updates, verificationToken)
   //   );
   // };
-
-  const onConfirm = () => {
-    navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer' }));
-  };
 
   useEffect(() => {
     if (validationModal) {
@@ -174,7 +165,7 @@ function ChoosePolicyNew({ navigation, route }) {
     };
 
     return (
-      <Box width={'100%'}>
+      <Box width="100%">
         <Box>
           <TouchableOpacity
             onPress={async () => {

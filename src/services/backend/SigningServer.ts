@@ -289,9 +289,11 @@ export default class SigningServer {
         value: number;
       };
     }>,
-    outgoing: number
+    outgoing: number,
+    FCM?: string
   ): Promise<{
     signedPSBT: string;
+    delayed: boolean;
   }> => {
     let res: AxiosResponse;
 
@@ -303,15 +305,17 @@ export default class SigningServer {
         serializedPSBT,
         childIndexArray,
         outgoing,
+        FCM,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
 
-    const { signedPSBT } = res.data;
+    const { signedPSBT, delayed } = res.data;
     return {
       signedPSBT,
+      delayed,
     };
   };
 

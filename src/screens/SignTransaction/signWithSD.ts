@@ -102,6 +102,7 @@ export const signTransactionWithSigningServer = async ({
   serializedPSBT,
   showOTPModal,
   showToast,
+  fcmToken,
 }) => {
   try {
     showOTPModal(false);
@@ -109,18 +110,29 @@ export const signTransactionWithSigningServer = async ({
     const outgoing = idx(signingPayload, (_) => _[0].outgoing);
     if (!childIndexArray) throw new Error('Invalid signing payload');
 
-    const { signedPSBT } = await SigningServer.signPSBT(
+    const { signedPSBT, delayed } = await SigningServer.signPSBT(
       xfp,
       signingServerOTP ? Number(signingServerOTP) : null,
       serializedPSBT,
       childIndexArray,
-      outgoing
+      outgoing,
+      fcmToken
     );
-    if (!signedPSBT) throw new Error('signer: failed to sign');
-    return { signedSerializedPSBT: signedPSBT };
+
+    if (delayed) {
+      Alert.alert(
+        'Transaction delayed',
+        'Your transaction is being processed. You will receive a notification when it is signed.'
+      );
+      return { delayed };
+    } else {
+      if (!signedPSBT) throw new Error('Server Key: failed to sign');
+      return { signedSerializedPSBT: signedPSBT };
+    }
   } catch (error) {
     captureError(error);
     showToast(`${error.message}`);
+    return { signedSerializedPSBT: null };
   }
 };
 
