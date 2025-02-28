@@ -150,7 +150,7 @@ function SignTransactionScreen() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-
+  const fcmToken = useAppSelector((state) => state.notifications.fcmToken);
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -401,6 +401,7 @@ function SignTransactionScreen() {
             serializedPSBT,
             showOTPModal,
             showToast,
+            fcmToken,
           });
           if (!signedSerializedPSBT) return;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));

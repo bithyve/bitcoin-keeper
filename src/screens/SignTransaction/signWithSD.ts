@@ -102,6 +102,7 @@ export const signTransactionWithSigningServer = async ({
   serializedPSBT,
   showOTPModal,
   showToast,
+  fcmToken,
 }) => {
   try {
     showOTPModal(false);
@@ -114,7 +115,8 @@ export const signTransactionWithSigningServer = async ({
       signingServerOTP ? Number(signingServerOTP) : null,
       serializedPSBT,
       childIndexArray,
-      outgoing
+      outgoing,
+      fcmToken
     );
     if (!signedPSBT) throw new Error('signer: failed to sign');
     return { signedSerializedPSBT: signedPSBT };

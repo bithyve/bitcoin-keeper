@@ -289,7 +289,8 @@ export default class SigningServer {
         value: number;
       };
     }>,
-    outgoing: number
+    outgoing: number,
+    FCM?: string
   ): Promise<{
     signedPSBT: string;
   }> => {
@@ -303,6 +304,7 @@ export default class SigningServer {
         serializedPSBT,
         childIndexArray,
         outgoing,
+        FCM,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
