@@ -1,20 +1,15 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
-import VaultIcon from 'src/assets/images/icon_vault.svg';
-import LinkedWallet from 'src/assets/images/walletUtxos.svg';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
 import { Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
-import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
@@ -23,7 +18,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import BatteryIllustration from 'src/assets/images/CautionIllustration.svg';
 import useWallets from 'src/hooks/useWallets';
-import { Box, HStack, useColorMode, VStack } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
@@ -34,13 +29,13 @@ import useVault from 'src/hooks/useVault';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import LearnMoreModal from './components/LearnMoreModal';
-import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
-import SendBadBankSatsModal from './components/SendBadBankSatsModal';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
 import useToastMessage from 'src/hooks/useToastMessage';
+import WalletHeader from 'src/components/WalletHeader';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
