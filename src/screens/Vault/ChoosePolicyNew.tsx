@@ -32,6 +32,9 @@ import { setSignerPolicyError } from 'src/store/reducers/wallets';
 import WalletHeader from 'src/components/WalletHeader';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import { Signer } from 'src/services/wallets/interfaces/vault';
+import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
 
 function ChoosePolicyNew({ navigation, route }) {
@@ -40,7 +43,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common, vault: vaultTranslation } = translations;
-
+  const signer: Signer = route?.params?.signer;
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
 
@@ -59,6 +62,15 @@ function ChoosePolicyNew({ navigation, route }) {
       setSigningDelay(delayTime);
     }
   }, [route.params]);
+
+  useEffect(() => {
+    // TODO: remap and fix the label for timelimit and signing delay
+    if (signer && signer.signerPolicy) {
+      setSpendingLimit(`${signer.signerPolicy?.restrictions?.maxTransactionAmount}`);
+      setTimeLimit({ label: '1 day', value: signer.signerPolicy?.restrictions?.timeWindow });
+      setSigningDelay({ label: '1 day', value: signer.signerPolicy?.signingDelay });
+    }
+  }, [signer]);
 
   // const existingRestrictions = idx(currentSigner, (_) => _.signerPolicy.restrictions);
   // const existingExceptions = idx(currentSigner, (_) => _.signerPolicy.exceptions);
@@ -82,7 +94,7 @@ function ChoosePolicyNew({ navigation, route }) {
 
   const parseAmount = (amountString: string): number => Number(amountString.replace(/,/g, ''));
 
-  const onConfirm = () => {
+  const preparePolicy = () => {
     const maxAmount = spendingLimit ? parseAmount(spendingLimit) : 0;
     const restrictions: SignerRestriction = {
       none: maxAmount === 0,
@@ -102,31 +114,28 @@ function ChoosePolicyNew({ navigation, route }) {
       signingDelay: signingDelay?.value || null,
     };
 
-    navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } }));
+    return policy;
   };
 
-  // const confirmChangePolicy = async () => {
-  //   const maxAmount = Number(maxTransaction);
-  //   const restrictions: SignerRestriction = {
-  //     none: maxAmount === 0,
-  //     maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
-  //   };
+  const onConfirm = () => {
+    if (signer) {
+      // case: policy update
+      showValidationModal(true);
+    } else {
+      // case: new signer policy registration
+      const policy = preparePolicy();
+      navigation.dispatch(
+        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
+      );
+    }
+  };
 
-  //   const minAmount = Number(minTransaction);
-  //   const exceptions: SignerException = {
-  //     none: minAmount === 0,
-  //     transactionAmount: minAmount === 0 ? null : minAmount,
-  //   };
-  //   const updates = {
-  //     restrictions,
-  //     exceptions,
-  //   };
-  //   const verificationToken = Number(otp);
-  //   setIsLoading(true);
-  //   dispatch(
-  //     updateSignerPolicy(route.params.signer, route.params.vaultKey, updates, verificationToken)
-  //   );
-  // };
+  const onConfirmUpdatePolicy = () => {
+    const verificationToken = Number(otp);
+    setIsLoading(true);
+    const policy = preparePolicy();
+    dispatch(updateSignerPolicy(signer, route.params.vaultKey, policy, verificationToken));
+  };
 
   useEffect(() => {
     if (validationModal) {
@@ -183,7 +192,9 @@ function ChoosePolicyNew({ navigation, route }) {
             {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
-            <Box>{/* <CustomGreenButton onPress={confirmChangePolicy} value="Confirm" /> */}</Box>
+            <Box>
+              <CustomGreenButton onPress={onConfirmUpdatePolicy} value="Confirm" />
+            </Box>
           </Box>
         </Box>
         <KeyPadView
