@@ -644,7 +644,10 @@ function SignTransactionScreen() {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, vaultId, transactionToast: true } },
+          {
+            name: 'VaultDetails',
+            params: { autoRefresh: true, hardRefresh: true, vaultId, transactionToast: true },
+          },
         ],
       })
     );

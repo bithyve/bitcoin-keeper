@@ -435,17 +435,19 @@ export default class WalletOperations {
     synchedWallets: SyncedWallet[];
   }> => {
     const synchedWallets = [];
+    const gapLimit = hardRefresh ? config.GAP_LIMIT : config.GAP_LIMIT / 2;
     for (const wallet of wallets) {
       let needsRecheck = true;
 
+      // Using nextFreeAddressIndex instead of totalExternalAddresses as the beginning point here in case many usused addreses were generated
       let currentRecheckExternal =
-        hardRefresh || wallet.specs.totalExternalAddresses - 1 < config.GAP_LIMIT
+        hardRefresh || wallet.specs.nextFreeAddressIndex < gapLimit
           ? 0
-          : wallet.specs.totalExternalAddresses - 1 - config.GAP_LIMIT;
+          : wallet.specs.nextFreeAddressIndex - gapLimit;
       let currentRecheckInternal =
-        hardRefresh || wallet.specs.nextFreeChangeAddressIndex < config.GAP_LIMIT
+        hardRefresh || wallet.specs.nextFreeChangeAddressIndex < gapLimit
           ? 0
-          : wallet.specs.nextFreeChangeAddressIndex - config.GAP_LIMIT;
+          : wallet.specs.nextFreeChangeAddressIndex - gapLimit;
 
       const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
       const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
@@ -475,7 +477,7 @@ export default class WalletOperations {
         const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
         for (
           let itr = currentRecheckExternal;
-          itr < wallet.specs.totalExternalAddresses - 1 + config.GAP_LIMIT;
+          itr < wallet.specs.totalExternalAddresses - 1 + gapLimit;
           itr++
         ) {
           let address: string;
@@ -515,7 +517,7 @@ export default class WalletOperations {
         const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
         for (
           let itr = currentRecheckInternal;
-          itr < wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
+          itr < wallet.specs.nextFreeChangeAddressIndex + gapLimit;
           itr++
         ) {
           let address: string;
@@ -552,8 +554,8 @@ export default class WalletOperations {
           addresses.push(address);
         }
 
-        currentRecheckExternal = wallet.specs.totalExternalAddresses - 1 + config.GAP_LIMIT;
-        currentRecheckInternal = wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
+        currentRecheckExternal = wallet.specs.totalExternalAddresses - 1 + gapLimit;
+        currentRecheckInternal = wallet.specs.nextFreeChangeAddressIndex + gapLimit;
 
         // sync utxos & balances
         const utxosByAddress = await ElectrumClient.syncUTXOByAddress(addresses, network);
