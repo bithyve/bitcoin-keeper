@@ -460,8 +460,8 @@ export default class WalletOperations {
       let unconfirmedUTXOs: InputUTXOs[] = [];
 
       if (!hardRefresh) {
-        unconfirmedUTXOs = wallet.specs.unconfirmedUTXOs;
-        confirmedUTXOs = wallet.specs.confirmedUTXOs;
+        unconfirmedUTXOs = [...wallet.specs.unconfirmedUTXOs];
+        confirmedUTXOs = [...wallet.specs.confirmedUTXOs];
         balances = wallet.specs.balances;
       }
 
