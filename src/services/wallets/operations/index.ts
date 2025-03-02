@@ -674,16 +674,28 @@ export default class WalletOperations {
     // update primary utxo set and balance
     const updatedConfirmedUTXOSet = [];
     wallet.specs.confirmedUTXOs.forEach((confirmedUTXO) => {
-      if (!consumedUTXOs[confirmedUTXO.txId]) updatedConfirmedUTXOSet.push(confirmedUTXO);
+      if (consumedUTXOs[confirmedUTXO.txId]) {
+        if (consumedUTXOs[confirmedUTXO.txId].vout === confirmedUTXO.vout) {
+          wallet.specs.balances.confirmed -= consumedUTXOs[confirmedUTXO.txId].value;
+          return;
+        }
+      }
+
+      updatedConfirmedUTXOSet.push(confirmedUTXO);
     });
     wallet.specs.confirmedUTXOs = updatedConfirmedUTXOSet;
 
     // uncofirmed balance spend on testnet is activated
     const updatedUnconfirmedUTXOSet = [];
     wallet.specs.unconfirmedUTXOs.forEach((unconfirmedUTXO) => {
-      if (!consumedUTXOs[unconfirmedUTXO.txId]) {
-        updatedUnconfirmedUTXOSet.push(unconfirmedUTXO);
+      if (consumedUTXOs[unconfirmedUTXO.txId]) {
+        if (consumedUTXOs[unconfirmedUTXO.txId].vout === unconfirmedUTXO.vout) {
+          wallet.specs.balances.unconfirmed -= consumedUTXOs[unconfirmedUTXO.txId].value;
+          return;
+        }
       }
+
+      updatedUnconfirmedUTXOSet.push(unconfirmedUTXO);
     });
     wallet.specs.unconfirmedUTXOs = updatedUnconfirmedUTXOSet;
   };

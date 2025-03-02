@@ -43,11 +43,17 @@ export type AppStackParams = {
   AddSendAmount: undefined;
   SendConfirmation: undefined;
   PSBTSendConfirmation: undefined;
-  WalletDetails: { autoRefresh?: boolean; walletId: string; transactionToast?: boolean };
+  WalletDetails: {
+    autoRefresh?: boolean;
+    hardRefresh?: boolean;
+    walletId: string;
+    transactionToast?: boolean;
+  };
   VaultDetails: {
     vaultId: string;
     vaultTransferSuccessful: boolean;
     autoRefresh: boolean;
+    hardRefresh?: boolean;
     transactionToast?: boolean;
   };
   UTXOManagement:

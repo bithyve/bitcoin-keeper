@@ -465,7 +465,12 @@ function SendConfirmation({ route }) {
           { name: 'Home' },
           {
             name: 'WalletDetails',
-            params: { autoRefresh: true, walletId: sender?.id, transactionToast: true },
+            params: {
+              autoRefresh: true,
+              hardRefresh: true,
+              walletId: sender?.id,
+              transactionToast: true,
+            },
           },
         ],
       };
