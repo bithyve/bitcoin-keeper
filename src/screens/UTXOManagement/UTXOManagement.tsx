@@ -221,7 +221,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
       setInitateWhirlpoolMix(false);
       setSelectedWallet(wallet);
       if (!walletSyncing[wallet.id]) {
-        dispatch(refreshWallets([wallet], { hardRefresh: true }));
+        dispatch(refreshWallets([wallet], { hardRefresh: false }));
       }
     }
   }, [selectedAccount]);

@@ -1039,13 +1039,14 @@ function* syncWalletsWorker({
     };
   };
 }) {
-  const { wallets } = payload;
+  const { wallets, options } = payload;
   const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
 
   const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
     WalletOperations.syncWalletsViaElectrumClient,
     wallets,
-    network
+    network,
+    options.hardRefresh
   );
 
   return {

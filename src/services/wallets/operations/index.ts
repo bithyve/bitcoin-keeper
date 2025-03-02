@@ -429,164 +429,231 @@ export default class WalletOperations {
 
   static syncWalletsViaElectrumClient = async (
     wallets: (Wallet | Vault)[],
-    network: bitcoinJS.networks.Network
+    network: bitcoinJS.networks.Network,
+    hardRefresh?: boolean
   ): Promise<{
     synchedWallets: SyncedWallet[];
   }> => {
     const synchedWallets = [];
     for (const wallet of wallets) {
-      const addresses = [];
+      let needsRecheck = true;
+
+      let currentRecheckExternal =
+        hardRefresh || wallet.specs.totalExternalAddresses - 1 < config.GAP_LIMIT
+          ? 0
+          : wallet.specs.totalExternalAddresses - 1 - config.GAP_LIMIT;
+      let currentRecheckInternal =
+        hardRefresh || wallet.specs.nextFreeChangeAddressIndex < config.GAP_LIMIT
+          ? 0
+          : wallet.specs.nextFreeChangeAddressIndex - config.GAP_LIMIT;
+
+      const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+      const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
+      let balances: Balances = {
+        confirmed: 0,
+        unconfirmed: 0,
+      };
+      const newUTXOs = [];
+      let confirmedUTXOs: InputUTXOs[] = [];
+      let unconfirmedUTXOs: InputUTXOs[] = [];
+
+      if (!hardRefresh) {
+        unconfirmedUTXOs = wallet.specs.unconfirmedUTXOs;
+        confirmedUTXOs = wallet.specs.confirmedUTXOs;
+        balances = wallet.specs.balances;
+      }
 
       let purpose;
       if (wallet.entityKind === EntityKind.WALLET) {
         purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
       }
 
-      const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
-      const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
+      while (needsRecheck) {
+        const addresses = [];
 
-      // collect external(receive) chain addresses
-      const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
-      for (let itr = 0; itr < wallet.specs.totalExternalAddresses - 1 + config.GAP_LIMIT; itr++) {
-        let address: string;
-        let pubsToCache: string[];
-        if (addressCache.external[itr]) address = addressCache.external[itr]; // cache hit
-        else {
-          // cache miss
-          if ((wallet as Vault).isMultiSig) {
-            const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, false);
-            address = multisig.address;
-            pubsToCache = multisig.orderPreservedPubkeys; // optional(currently not available for miniscript based vaults)
-          } else {
-            let xpub = null;
-            if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-            else xpub = (wallet as Wallet).specs.xpub;
+        // collect external(receive) chain addresses
+        const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
+        for (
+          let itr = currentRecheckExternal;
+          itr < wallet.specs.totalExternalAddresses - 1 + config.GAP_LIMIT;
+          itr++
+        ) {
+          let address: string;
+          let pubsToCache: string[];
+          if (addressCache.external[itr]) address = addressCache.external[itr]; // cache hit
+          else {
+            // cache miss
+            if ((wallet as Vault).isMultiSig) {
+              const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, false);
+              address = multisig.address;
+              pubsToCache = multisig.orderPreservedPubkeys; // optional(currently not available for miniscript based vaults)
+            } else {
+              let xpub = null;
+              if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+              else xpub = (wallet as Wallet).specs.xpub;
 
-            const singlesig = WalletUtilities.getAddressAndPubByIndex(
-              xpub,
-              false,
-              itr,
-              network,
-              purpose
+              const singlesig = WalletUtilities.getAddressAndPubByIndex(
+                xpub,
+                false,
+                itr,
+                network,
+                purpose
+              );
+              address = singlesig.address;
+              pubsToCache = [singlesig.pub];
+            }
+
+            addressCache.external[itr] = address;
+            if (pubsToCache) addressPubs[address] = pubsToCache.join('/');
+          }
+
+          externalAddresses[address] = itr;
+          addresses.push(address);
+        }
+
+        // collect internal(change) chain addresses
+        const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
+        for (
+          let itr = currentRecheckInternal;
+          itr < wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
+          itr++
+        ) {
+          let address: string;
+          let pubsToCache: string[];
+
+          if (addressCache.internal[itr]) address = addressCache.internal[itr]; // cache hit
+          else {
+            // cache miss
+            if ((wallet as Vault).isMultiSig) {
+              const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, true);
+              address = multisig.address;
+              pubsToCache = multisig.orderPreservedPubkeys; // optional(currently not available for miniscript based vaults)
+            } else {
+              let xpub = null;
+              if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+              else xpub = (wallet as Wallet).specs.xpub;
+
+              const singlesig = WalletUtilities.getAddressAndPubByIndex(
+                xpub,
+                true,
+                itr,
+                network,
+                purpose
+              );
+              address = singlesig.address;
+              pubsToCache = [singlesig.pub];
+            }
+
+            addressCache.internal[itr] = address;
+            if (pubsToCache) addressPubs[address] = pubsToCache.join('/');
+          }
+
+          internalAddresses[address] = itr;
+          addresses.push(address);
+        }
+
+        currentRecheckExternal = wallet.specs.totalExternalAddresses - 1 + config.GAP_LIMIT;
+        currentRecheckInternal = wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
+
+        // sync utxos & balances
+        const utxosByAddress = await ElectrumClient.syncUTXOByAddress(addresses, network);
+
+        for (const address in utxosByAddress) {
+          const utxos = utxosByAddress[address];
+          for (const utxo of utxos) {
+            const existsInConfirmed = confirmedUTXOs.some(
+              (confirmedUTXO) =>
+                confirmedUTXO.txId === utxo.txId && confirmedUTXO.vout === utxo.vout
             );
-            address = singlesig.address;
-            pubsToCache = [singlesig.pub];
-          }
 
-          addressCache.external[itr] = address;
-          if (pubsToCache) addressPubs[address] = pubsToCache.join('/');
-        }
-
-        externalAddresses[address] = itr;
-        addresses.push(address);
-      }
-
-      // collect internal(change) chain addresses
-      const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
-      for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT; itr++) {
-        let address: string;
-        let pubsToCache: string[];
-
-        if (addressCache.internal[itr]) address = addressCache.internal[itr]; // cache hit
-        else {
-          // cache miss
-          if ((wallet as Vault).isMultiSig) {
-            const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, true);
-            address = multisig.address;
-            pubsToCache = multisig.orderPreservedPubkeys; // optional(currently not available for miniscript based vaults)
-          } else {
-            let xpub = null;
-            if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-            else xpub = (wallet as Wallet).specs.xpub;
-
-            const singlesig = WalletUtilities.getAddressAndPubByIndex(
-              xpub,
-              true,
-              itr,
-              network,
-              purpose
+            const existsInUnconfirmed = unconfirmedUTXOs.some(
+              (unconfirmedUTXO) =>
+                unconfirmedUTXO.txId === utxo.txId && unconfirmedUTXO.vout === utxo.vout
             );
-            address = singlesig.address;
-            pubsToCache = [singlesig.pub];
-          }
 
-          addressCache.internal[itr] = address;
-          if (pubsToCache) addressPubs[address] = pubsToCache.join('/');
+            if (utxo.height > 0) {
+              if (existsInConfirmed) {
+                continue;
+              }
+              if (existsInUnconfirmed) {
+                unconfirmedUTXOs = unconfirmedUTXOs.filter(
+                  (unconfirmedUTXO) =>
+                    !(unconfirmedUTXO.txId === utxo.txId && unconfirmedUTXO.vout === utxo.vout)
+                );
+                balances.unconfirmed -= utxo.value;
+              }
+
+              confirmedUTXOs.push(utxo);
+              balances.confirmed += utxo.value;
+            } else {
+              if (existsInUnconfirmed) {
+                continue;
+              }
+              // Should not happen unless it was in a block that was confirmed then a fork removed that block without adding that transaction
+              if (existsInConfirmed) {
+                confirmedUTXOs = confirmedUTXOs.filter(
+                  (confirmedUTXO) =>
+                    !(confirmedUTXO.txId === utxo.txId && confirmedUTXO.vout === utxo.vout)
+                );
+                balances.confirmed -= utxo.value;
+              }
+              unconfirmedUTXOs.push(utxo);
+              balances.unconfirmed += utxo.value;
+            }
+          }
         }
 
-        internalAddresses[address] = itr;
-        addresses.push(address);
-      }
+        // Check if a UTXO is new in the wallet
+        for (const utxo of [...confirmedUTXOs, ...unconfirmedUTXOs]) {
+          const existsInConfirmed = wallet.specs.confirmedUTXOs.some(
+            (confirmedUTXO) => confirmedUTXO.txId === utxo.txId && confirmedUTXO.vout === utxo.vout
+          );
 
-      // sync utxos & balances
-      const utxosByAddress = await ElectrumClient.syncUTXOByAddress(addresses, network);
+          const existsInUnconfirmed = wallet.specs.unconfirmedUTXOs.some(
+            (unconfirmedUTXO) =>
+              unconfirmedUTXO.txId === utxo.txId && unconfirmedUTXO.vout === utxo.vout
+          );
 
-      const balances: Balances = {
-        confirmed: 0,
-        unconfirmed: 0,
-      };
-      const confirmedUTXOs: InputUTXOs[] = [];
-      const unconfirmedUTXOs: InputUTXOs[] = [];
-      for (const address in utxosByAddress) {
-        const utxos = utxosByAddress[address];
-        for (const utxo of utxos) {
-          if (utxo.height > 0 || internalAddresses[utxo.address] !== undefined) {
-            // defaulting utxo's on the change branch to confirmed
-            confirmedUTXOs.push(utxo);
-            balances.confirmed += utxo.value;
-          } else {
-            unconfirmedUTXOs.push(utxo);
-            balances.unconfirmed += utxo.value;
+          if (!existsInConfirmed && !existsInUnconfirmed) {
+            newUTXOs.push(utxo);
           }
         }
-      }
 
-      const newUTXOs = [];
-
-      for (const utxo of [...confirmedUTXOs, ...unconfirmedUTXOs]) {
-        const existsInConfirmed = wallet.specs.confirmedUTXOs.some(
-          (confirmedUTXO) => confirmedUTXO.txId === utxo.txId && confirmedUTXO.vout === utxo.vout
+        // sync & populate transactionsInfo
+        const {
+          transactions,
+          lastUsedAddressIndex,
+          lastUsedChangeAddressIndex,
+          totalExternalAddresses,
+          hasNewUpdates,
+        } = await WalletOperations.fetchTransactions(
+          wallet,
+          addresses,
+          externalAddresses,
+          internalAddresses,
+          network
         );
 
-        const existsInUnconfirmed = wallet.specs.unconfirmedUTXOs.some(
-          (unconfirmedUTXO) =>
-            unconfirmedUTXO.txId === utxo.txId && unconfirmedUTXO.vout === utxo.vout
-        );
+        needsRecheck =
+          totalExternalAddresses > wallet.specs.totalExternalAddresses ||
+          lastUsedChangeAddressIndex + 1 > wallet.specs.nextFreeChangeAddressIndex;
 
-        if (!existsInConfirmed && !existsInUnconfirmed) {
-          newUTXOs.push(utxo);
-        }
+        // update wallet w/ latest utxos, balances and transactions
+        wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
+        wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
+        wallet.specs.totalExternalAddresses = totalExternalAddresses;
+        wallet.specs.addresses = addressCache;
+        wallet.specs.addressPubs = addressPubs;
+        wallet.specs.receivingAddress =
+          WalletOperations.getNextFreeExternalAddress(wallet).receivingAddress;
+        wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
+        wallet.specs.confirmedUTXOs = confirmedUTXOs;
+        wallet.specs.balances = balances;
+        wallet.specs.transactions = transactions;
+        wallet.specs.hasNewUpdates = hasNewUpdates;
+        wallet.specs.lastSynched = Date.now();
       }
 
-      // sync & populate transactionsInfo
-      const {
-        transactions,
-        lastUsedAddressIndex,
-        lastUsedChangeAddressIndex,
-        totalExternalAddresses,
-        hasNewUpdates,
-      } = await WalletOperations.fetchTransactions(
-        wallet,
-        addresses,
-        externalAddresses,
-        internalAddresses,
-        network
-      );
-
-      // update wallet w/ latest utxos, balances and transactions
-      wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
-      wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
-      wallet.specs.totalExternalAddresses = totalExternalAddresses;
-      wallet.specs.addresses = addressCache;
-      wallet.specs.addressPubs = addressPubs;
-      wallet.specs.receivingAddress =
-        WalletOperations.getNextFreeExternalAddress(wallet).receivingAddress;
-      wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
-      wallet.specs.confirmedUTXOs = confirmedUTXOs;
-      wallet.specs.balances = balances;
-      wallet.specs.transactions = transactions;
-      wallet.specs.hasNewUpdates = hasNewUpdates;
-      wallet.specs.lastSynched = Date.now();
       synchedWallets.push({
         synchedWallet: wallet,
         newUTXOs,

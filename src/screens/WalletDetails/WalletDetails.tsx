@@ -124,7 +124,7 @@ function WalletDetails({ route }: ScreenProps) {
   }, []);
 
   useEffect(() => {
-    if (autoRefresh) pullDownRefresh();
+    if (autoRefresh) pullDownRefresh(false);
   }, [autoRefresh]);
 
   useEffect(() => {
@@ -147,9 +147,9 @@ function WalletDetails({ route }: ScreenProps) {
     }
   }, [syncing]);
 
-  const pullDownRefresh = () => {
+  const pullDownRefresh = (hardRefresh) => {
     setPullRefresh(true);
-    dispatch(refreshWallets([wallet], { hardRefresh: true }));
+    dispatch(refreshWallets([wallet], { hardRefresh }));
     setPullRefresh(false);
   };
 
