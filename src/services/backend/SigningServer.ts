@@ -3,6 +3,7 @@ import config from 'src/utils/service-utilities/config';
 import { asymmetricDecrypt, generateRSAKeypair } from 'src/utils/service-utilities/encryption';
 import {
   CosignersMapUpdate,
+  DelayedTransaction,
   SignerException,
   SignerPolicy,
   SignerRestriction,
@@ -320,6 +321,29 @@ export default class SigningServer {
       delayedTransaction,
     };
   };
+
+  static fetchSignedDelayedTransaction = async (
+    txid: string,
+    verificationToken: string
+  ): Promise<{
+    delayedTransaction: DelayedTransaction;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchSignedDelayedTransaction`, {
+        HEXA_ID,
+        txid,
+        verificationToken,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { delayedTransaction } = res.data;
+
+    return {
+      delayedTransaction,
     };
   };
 

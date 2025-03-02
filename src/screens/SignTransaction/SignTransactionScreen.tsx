@@ -579,13 +579,45 @@ function SignTransactionScreen() {
             (envelop) => envelop.xfp === vaultKey.xfp
           )[0];
           const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
+
+          // case: old policy w/ exception - auto sign
           if (
             !signer.signerPolicy.exceptions.none &&
             outgoing <= signer.signerPolicy.exceptions.transactionAmount
           ) {
             showToast('Auto-signing, send amount smaller than max no-check amount');
             signTransaction({ xfp: vaultKey.xfp }); // case: OTP not required
-          } else showOTPModal(true);
+            return;
+          }
+          // case: new policy - delayed signing
+          const delayedTxid = hash256(serializedPSBTEnvelop.serializedPSBT);
+          const delayedTx: DelayedTransaction = delayedTransactions[delayedTxid];
+          if (delayedTx) {
+            if (delayedTx.signedPSBT) {
+              dispatch(
+                updatePSBTEnvelops({
+                  signedSerializedPSBT: delayedTx.signedPSBT,
+                  xfp: vaultKey.xfp,
+                })
+              );
+              dispatch(
+                healthCheckStatusUpdate([
+                  {
+                    signerId: signer.masterFingerprint,
+                    status: hcStatusType.HEALTH_CHECK_SIGNING,
+                  },
+                ])
+              );
+
+              dispatch(deleteDelayedTransaction(delayedTxid));
+              return;
+            } else {
+              showToast('Transaction already submitted for signing');
+              return;
+            }
+          }
+
+          showOTPModal(true);
         } else showOTPModal(true);
         break;
       case SignerType.INHERITANCEKEY:
