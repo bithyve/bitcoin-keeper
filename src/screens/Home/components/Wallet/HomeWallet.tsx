@@ -24,6 +24,10 @@ import CollaborativeWalletIcon from 'src/assets/images/collaborative_vault_white
 import { useAppSelector } from 'src/store/hooks';
 import { resetCollaborativeSession } from 'src/store/reducers/vaults';
 import { useDispatch } from 'react-redux';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { RefreshControl } from 'react-native';
+import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -40,6 +44,11 @@ const HomeWallet = () => {
   const dispatch = useDispatch();
   const [showAddWalletModal, setShowAddWalletModal] = useState(false);
   const [collabSessionExistsModalVisible, setCollabSessionExistsModalVisible] = useState(false);
+  const [pullRefresh, setPullRefresh] = useState(false);
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const syncing =
+    ELECTRUM_CLIENT.isClientConnected &&
+    Object.values(walletSyncing).some((isSyncing) => isSyncing);
 
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
@@ -59,6 +68,13 @@ const HomeWallet = () => {
         navigation.navigate('SetupCollaborativeWallet');
       }, 500); // delaying navigation by 0.5 second to ensure collaborative session reset
     }
+  };
+
+  const pullDownRefresh = () => {
+    setPullRefresh(true);
+
+    dispatch(refreshWallets(allWallets, { hardRefresh: false }));
+    setPullRefresh(false);
   };
 
   const CREATE_WALLET_OPTIONS = [
@@ -123,6 +139,7 @@ const HomeWallet = () => {
 
   return (
     <Box style={styles.walletContainer}>
+      <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
         backgroundColor={`${colorMode}.DashedButtonCta`}
         hexagonBackgroundColor={Colors.pantoneGreen}
@@ -136,6 +153,7 @@ const HomeWallet = () => {
       <FlatList
         data={allWallets}
         renderItem={renderWalletCard}
+        refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         keyExtractor={(item, index) => `${item.id || index}`}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}

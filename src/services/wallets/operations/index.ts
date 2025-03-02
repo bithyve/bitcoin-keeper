@@ -469,7 +469,7 @@ export default class WalletOperations {
       }
 
       while (needsRecheck) {
-        const addresses = [];
+        let addresses = [];
 
         // collect external(receive) chain addresses
         const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
@@ -620,6 +620,12 @@ export default class WalletOperations {
         }
 
         // sync & populate transactionsInfo
+        if (!hardRefresh) {
+          addresses = addresses.filter((address) =>
+            newUTXOs.some((utxo) => utxo.address === address)
+          );
+        }
+
         const {
           transactions,
           lastUsedAddressIndex,
