@@ -4,27 +4,23 @@ import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp } from 'src/constants/responsive';
+import { useAppSelector } from 'src/store/hooks';
+import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import SigningRequestCard from './components/SigningRequestCard';
 
-const SigningRequest = () => {
-  const signingRequests = [
-    {
-      id: 1,
-      title: 'Bank Payment',
-      dateTime: '30 Aug 24 . 2:00 AM',
-      amount: '0.0000014',
-      timeRemaining: '2 Days Remains',
-      buttonText: 'Cancel',
-    },
-    {
-      id: 2,
-      title: 'Fee Payment',
-      dateTime: '30 Aug 24 . 2:00 AM',
-      amount: '0.0000014',
-      timeRemaining: '2 Days Remains',
-      buttonText: 'Cancel',
-    },
-  ];
+function SigningRequest() {
+  const delayedTransactions = useAppSelector((state) => state.storage.delayedTransactions) || {};
+  const signingRequests = [];
+  for (const txid in delayedTransactions) {
+    const delayedTx: DelayedTransaction = delayedTransactions[txid];
+    signingRequests.push({
+      id: txid,
+      title: 'Server Key Signing Request',
+      dateTime: delayedTx.timestamp,
+      amount: delayedTx.outgoing,
+      timeRemaining: delayedTx.delayUntil - Date.now(),
+    });
+  }
 
   return (
     <ScreenWrapper>
@@ -38,15 +34,15 @@ const SigningRequest = () => {
               dateTime={request.dateTime}
               amount={request.amount}
               timeRemaining={request.timeRemaining}
-              buttonText={request.buttonText}
-              onCancel={() => {}}
+              // buttonText={request.buttonText}
+              // onCancel={() => {}}
             />
           ))}
         </Box>
       </ScrollView>
     </ScreenWrapper>
   );
-};
+}
 
 export default SigningRequest;
 

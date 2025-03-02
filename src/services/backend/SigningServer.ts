@@ -294,6 +294,7 @@ export default class SigningServer {
   ): Promise<{
     signedPSBT: string;
     delayed: boolean;
+    delayedTransaction: DelayedTransaction;
   }> => {
     let res: AxiosResponse;
 
@@ -312,10 +313,13 @@ export default class SigningServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const { signedPSBT, delayed } = res.data;
+    const { signedPSBT, delayed, delayedTransaction } = res.data;
     return {
       signedPSBT,
       delayed,
+      delayedTransaction,
+    };
+  };
     };
   };
 

@@ -40,6 +40,19 @@ export interface SignerPolicy {
   signingDelay?: number; // delay in milliseconds
 }
 
+export interface DelayedTransaction {
+  txid: string;
+  serializedPSBT: string;
+  signerId: string;
+  childIndexArray: any[];
+  outgoing: number;
+  verificationToken: string;
+  timestamp: number;
+  delayUntil: number;
+  FCM: string;
+  signedPSBT?: string;
+}
+
 export enum CosignersMapUpdateAction {
   ADD = 'ADD',
   REMOVE = 'REMOVE',
