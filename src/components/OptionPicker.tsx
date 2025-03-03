@@ -13,7 +13,7 @@ type Option = {
 };
 
 type Props = {
-  label: string;
+  label?: string;
   options: Option[];
   selectedOption: Option | null;
   onOptionSelect: (option: Option) => void;
@@ -76,16 +76,17 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
           borderColor={`${colorMode}.dullGreyBorder`}
           style={styles.dropdownContainer}
         >
-          <Text
-            medium
-            color={isOpen ? `${colorMode}.greenTextDisabled` : `${colorMode}.greenText`}
-            style={styles.labelText}
-          >
-            {selectedOption ? `${selectedOption.label}` : label}
-          </Text>
+          {label && (
+            <Text
+              medium
+              color={isOpen ? `${colorMode}.greenTextDisabled` : `${colorMode}.greenText`}
+              style={styles.labelText}
+            >
+              {selectedOption ? `${selectedOption.label}` : label}
+            </Text>
+          )}
 
           <Box style={styles.arrowContainer}>
-            <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.emptyView} />
             <Box
               style={[
                 styles.icArrow,
@@ -116,6 +117,7 @@ const styles = StyleSheet.create({
   dropdownContainer: {
     borderRadius: 10,
     height: hp(50),
+    width: wp(50),
     paddingHorizontal: wp(20),
     flexDirection: 'row',
     alignItems: 'center',
@@ -141,6 +143,7 @@ const styles = StyleSheet.create({
   },
   icArrow: {
     alignSelf: 'center',
+    justifyContent: 'center',
   },
   optionsContainer: {
     flexDirection: 'column',

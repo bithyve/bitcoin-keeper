@@ -24,34 +24,7 @@ import { MiniscriptTypes } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-
-export function NumberInput({ value, onDecrease, onIncrease }) {
-  const { colorMode } = useColorMode();
-
-  return (
-    <HStack
-      style={styles.inputContainer}
-      backgroundColor={`${colorMode}.seashellWhite`}
-      borderColor={`${colorMode}.greyBorder`}
-    >
-      <TouchableOpacity testID="btn_decreaseValue" style={styles.button} onPress={onDecrease}>
-        <Text style={styles.buttonText} color={`${colorMode}.greenText`}>
-          -
-        </Text>
-      </TouchableOpacity>
-      <Box style={{ height: 30, borderLeftWidth: 0.2, paddingHorizontal: 5 }} />
-      <Text style={styles.buttonValue} bold color={`${colorMode}.greenText`}>
-        {value}
-      </Text>
-      <Box style={{ height: 30, borderRightWidth: 0.2, paddingHorizontal: 5 }} />
-      <TouchableOpacity testID="increaseValue" style={styles.button} onPress={onIncrease}>
-        <Text style={styles.buttonText} color={`${colorMode}.greenText`}>
-          +
-        </Text>
-      </TouchableOpacity>
-    </HStack>
-  );
-}
+import NumberInput from 'src/components/NumberInput';
 
 function AddNewWallet({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -529,31 +502,6 @@ const styles = StyleSheet.create({
       fontSize: 15,
       verticalAlign: 'bottom',
     },
-  },
-  button: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-  buttonText: {
-    fontSize: 37,
-    lineHeight: hp(36),
-    textAlign: 'center',
-    verticalAlign: 'middle',
-  },
-  buttonValue: {
-    fontSize: 17,
-    lineHeight: hp(20),
-    margin: 10,
-    flex: 1,
-    textAlign: 'center',
-  },
-  inputContainer: {
-    height: hp(50),
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: hp(20),
-    borderWidth: 1,
   },
 });
 

@@ -39,6 +39,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import NumberInput from 'src/components/NumberInput';
 
 const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
 const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -223,8 +224,29 @@ function AddReserveKey({ route }) {
               </Text>
             </Box>
             <Box style={styles.dropDownContainer}>
+              <Box style={styles.numberInputContainer}>
+                <NumberInput
+                  value={selectedOption.label}
+                  onDecrease={() => {
+                    const currentIndex = INHERITANCE_TIMELOCK_DURATIONS.findIndex(
+                      (option) => option.value === selectedOption.value
+                    );
+                    if (currentIndex > 0) {
+                      setSelectedOption(INHERITANCE_TIMELOCK_DURATIONS[currentIndex - 1]);
+                    }
+                  }}
+                  onIncrease={() => {
+                    const currentIndex = INHERITANCE_TIMELOCK_DURATIONS.findIndex(
+                      (option) => option.value === selectedOption.value
+                    );
+                    if (currentIndex < INHERITANCE_TIMELOCK_DURATIONS.length - 1) {
+                      setSelectedOption(INHERITANCE_TIMELOCK_DURATIONS[currentIndex + 1]);
+                    }
+                  }}
+                />
+              </Box>
+
               <OptionPicker
-                label={vaultTranslations.selectActivationTime}
                 options={INHERITANCE_TIMELOCK_DURATIONS}
                 selectedOption={selectedOption}
                 onOptionSelect={(option) => setSelectedOption(option)}
@@ -334,9 +356,16 @@ const styles = StyleSheet.create({
     gap: hp(25),
   },
   dropDownContainer: {
-    marginTop: hp(20),
+    marginTop: hp(5),
+    flexDirection: 'row',
+    gap: wp(5),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottomContainer: {
     gap: hp(20),
+  },
+  numberInputContainer: {
+    width: '85%',
   },
 });
