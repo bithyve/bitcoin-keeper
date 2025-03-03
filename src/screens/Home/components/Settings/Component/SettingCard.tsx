@@ -123,17 +123,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                         onPress={item.onRightPress}
                         testID={`btn_right_${item.title}`}
                       >
-                        <Box>
-                          {(item?.isDiamond && isDiamondHands) || (item?.isHodler && isHodler) ? (
-                            isDarkMode ? (
-                              <WhiteRightArrowIcon />
-                            ) : (
-                              <RightArrowIcon />
-                            )
-                          ) : (
-                            item.rightIcon
-                          )}
-                        </Box>
+                        <Box>{item.rightIcon}</Box>
                       </TouchableOpacity>
                     ) : (
                       <Box>{isDarkMode ? <WhiteRightArrowIcon /> : <RightArrowIcon />}</Box>
@@ -198,7 +188,6 @@ const styles = StyleSheet.create({
     marginRight: wp(6),
   },
   rightIcon: {
-    width: 40,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },

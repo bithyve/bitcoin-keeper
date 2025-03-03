@@ -551,8 +551,11 @@ export function* addNewVaultWorker({
 
       if (isMigrated) {
         const oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
+        const isWalletEmpty =
+          oldVault.specs.balances.confirmed === 0 && oldVault.specs.balances.unconfirmed === 0;
         const updatedParams = {
-          archived: true,
+          archived: isWalletEmpty,
+          isMigrating: !isWalletEmpty,
           archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
         };
         const archivedVaultresponse = yield call(updateVaultImageWorker, {
@@ -1089,13 +1092,6 @@ function* refreshWalletsWorker({
           added: [],
           deleted: [],
         };
-
-        if (Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
-          labelChanges.added.push({
-            name: 'Change',
-            isSystem: false,
-          });
-        }
 
         const utxoLabels = labels ? labels.filter((label) => label.ref === utxo.address) : [];
         if (utxoLabels.length > 0) {
@@ -1634,6 +1630,7 @@ function* reinstateVaultWorker({ payload }) {
     const vault: Vault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON();
     const updatedParams = {
       archived: false,
+      isMigrating: false,
       archivedId: null,
       presentationData: {
         ...vault.presentationData,

@@ -364,7 +364,11 @@ export default class WalletUtilities {
 
         for (const key in keyInfo) {
           const info = keyInfo[key];
-          if (info.masterFingerprint.toString('hex').toUpperCase() === masterFingerprint) {
+          if (
+            info.masterFingerprint.toString('hex').toUpperCase() === masterFingerprint &&
+            info.path.replace('h', "'").split("'").pop().split('/')[1] ===
+              externalChainIndex.toString()
+          ) {
             // signer identified (note: a signer can have multiple keys(multipath))
             const inputPath = info.path.split('/'); // external/internal chain index
             const chainIndex = inputPath[inputPath.length - 2];

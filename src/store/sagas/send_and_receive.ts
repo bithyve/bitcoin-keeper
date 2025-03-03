@@ -1,6 +1,6 @@
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import { EntityKind, LabelRefType, TxPriority } from 'src/services/wallets/enums';
-import { call, put, select } from 'redux-saga/effects';
+import { call, fork, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
@@ -47,7 +47,7 @@ import {
   SendPhaseTwoAction,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
-import { addLabelsWorker } from './utxos';
+import { addLabelsWorker, bulkUpdateLabelsWorker } from './utxos';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { getKeyUID } from 'src/utils/utilities';
@@ -92,7 +92,7 @@ function* fetchOneDayInsightWorker() {
 export const fetchOneDayInsightWatcher = createWatcher(fetchOneDayInsightWorker, ONE_DAY_INSIGHT);
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
-  const { wallet, recipients, selectedUTXOs } = payload;
+  const { wallet, recipients, selectedUTXOs, miniscriptSelectedSatisfier } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -113,7 +113,8 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
       wallet,
       recipients,
       averageTxFeeByNetwork,
-      selectedUTXOs
+      selectedUTXOs,
+      miniscriptSelectedSatisfier
     );
 
     if (!txPrerequisites) throw new Error('Send failed: unable to generate tx pre-requisite');
@@ -168,7 +169,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       .forEach((signer) => (signerMap[getKeyUID(signer as Signer)] = signer));
   }
   try {
-    const { txid, serializedPSBTEnvelops, cachedTxid, finalOutputs } = yield call(
+    const { txid, serializedPSBTEnvelops, cachedTxid, finalOutputs, inputs } = yield call(
       WalletOperations.transferST2,
       wallet,
       txPrerequisites,
@@ -235,6 +236,10 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         });
       }
     }
+
+    if (finalOutputs) {
+      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid);
+    }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(setElectrumNotConnectedErr(err?.message));
@@ -250,6 +255,51 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 }
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
+
+function* handleChangeOutputLabels(finalOutputs, inputs, wallet, txid) {
+  const changeOutputIndex = finalOutputs.findIndex((output) =>
+    Object.values(wallet.specs.addresses.internal).includes(output.address)
+  );
+
+  const changeOutput = changeOutputIndex !== -1 ? finalOutputs[changeOutputIndex] : null;
+
+  if (changeOutput) {
+    let labels: { ref: string; label: string; isSystem: boolean }[] = yield call(
+      dbManager.getCollection,
+      RealmSchema.Tags
+    );
+
+    const labelChanges = {
+      added: [],
+      deleted: [],
+    };
+
+    const prevUTXOsLabels = labels.filter((label) =>
+      inputs.map((input) => input.txId + ':' + input.vout).includes(label.ref)
+    );
+    labelChanges.added.push({
+      name: 'Change',
+      isSystem: false,
+    });
+
+    if (prevUTXOsLabels) {
+      labelChanges.added.push(
+        ...prevUTXOsLabels.map((label) => ({
+          name: label.label,
+          isSystem: label.isSystem,
+        }))
+      );
+    }
+
+    yield fork(bulkUpdateLabelsWorker, {
+      payload: {
+        labelChanges,
+        UTXO: { txId: txid, vout: changeOutputIndex },
+        wallet: wallet as any,
+      },
+    });
+  }
+}
 
 function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
@@ -277,7 +327,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       }
     }
 
-    const { txid, finalOutputs } = yield call(
+    const { txid, finalOutputs, inputs } = yield call(
       WalletOperations.transferST3,
       wallet,
       serializedPSBTEnvelops,
@@ -321,6 +371,10 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
         },
       });
     }
+
+    if (finalOutputs) {
+      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid);
+    }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(setElectrumNotConnectedErr(err?.message));
@@ -338,7 +392,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
 export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
 
 function* corssTransferWorker({ payload }: CrossTransferAction) {
-  const { sender, recipient, amount } = payload;
+  const { sender, recipient, amount, miniscriptSelectedSatisfier } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -363,7 +417,9 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
       WalletOperations.transferST1,
       sender,
       recipients,
-      averageTxFeeByNetwork
+      averageTxFeeByNetwork,
+      null,
+      miniscriptSelectedSatisfier
     );
 
     if (txPrerequisites) {
@@ -394,7 +450,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
 export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRANSFER);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
-  const { recipients, wallet, selectedUTXOs } = payload;
+  const { recipients, wallet, selectedUTXOs, miniscriptSelectedSatisfier } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -407,7 +463,8 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     wallet,
     recipients,
     feePerByte,
-    selectedUTXOs
+    selectedUTXOs,
+    miniscriptSelectedSatisfier
   );
 
   yield put(setSendMaxFee(fee));
@@ -430,7 +487,14 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
       return;
     }
 
-    const { wallet, recipients, feePerByte, customEstimatedBlocks, selectedUTXOs } = payload;
+    const {
+      wallet,
+      recipients,
+      feePerByte,
+      customEstimatedBlocks,
+      selectedUTXOs,
+      miniscriptSelectedSatisfier,
+    } = payload;
     const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
       (state) => state.sendAndReceive.sendPhaseOne
     );
@@ -467,7 +531,8 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
         wallet,
         outputs,
         parseInt(feePerByte, 10),
-        selectedUTXOs
+        selectedUTXOs,
+        miniscriptSelectedSatisfier
       );
 
     if (customTxPrerequisites[TxPriority.CUSTOM]?.inputs) {

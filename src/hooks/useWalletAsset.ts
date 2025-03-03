@@ -77,15 +77,19 @@ const useWalletAsset = () => {
         case VaultType.MINISCRIPT:
           tags = [
             wallet.scheme.m !== 1 || wallet.scheme.n !== 1 ? { tag: 'Multi-key' } : null,
+            { tag: getSchemeTag(wallet as Vault) },
             wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
               MiniscriptTypes.INHERITANCE
-            ) && { tag: getSchemeTag(wallet as Vault) },
-            { tag: 'Inheritance key' },
+            ) && { tag: 'Inheritance key' },
+            wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+              MiniscriptTypes.EMERGENCY
+            ) && { tag: 'Emergency key' },
           ].filter(Boolean);
           break;
         default:
           tags = [{ tag: 'Multi-key' }, { tag: getSchemeTag(wallet as Vault) }];
       }
+      if ((wallet as Vault).isMigrating) tags.push({ tag: 'In-Transition' });
     } else {
       let walletKind = wallet.type === WalletType.DEFAULT ? 'Hot Wallet' : 'Imported Wallet';
       const isWatchOnly = wallet.type === WalletType.IMPORTED && !idx(wallet, (_) => _.specs.xpriv);

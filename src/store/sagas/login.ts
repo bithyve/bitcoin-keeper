@@ -61,6 +61,7 @@ import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { fetchSignedDelayedTransaction } from '../sagaActions/storage';
+import { setAutomaticCloudBackup } from '../reducers/bhr';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -247,6 +248,7 @@ async function downgradeToPleb() {
     subscription: updatedSubscription,
   });
   store.dispatch(setSubscription(updatedSubscription.name));
+  store.dispatch(setAutomaticCloudBackup(false));
   await Relay.updateSubscription(app.id, app.publicId, {
     productId: SubscriptionTier.L1.toLowerCase(),
   });

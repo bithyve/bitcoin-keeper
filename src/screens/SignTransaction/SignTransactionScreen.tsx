@@ -65,6 +65,7 @@ import { hp, wp } from 'src/constants/responsive';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import { deleteDelayedTransaction, updateDelayedTransaction } from 'src/store/reducers/storage';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { formatDuration } from '../Vault/HardwareModalMap';
 import SignerModals from './SignerModals';
@@ -78,6 +79,7 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
+import SendSuccessfulContent from '../Send/SendSuccessfulContent';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -92,6 +94,10 @@ function SignTransactionScreen() {
     isMoveAllFunds,
     tnxDetails,
     miniscriptTxElements,
+    sender,
+    internalRecipients,
+    addresses,
+    amounts,
   } = (route.params || {
     note: '',
     label: [],
@@ -100,6 +106,9 @@ function SignTransactionScreen() {
     isMoveAllFunds: false,
     sender: {},
     miniscriptTxElements: null,
+    internalRecipients: [],
+    addresses: [],
+    amounts: [],
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
@@ -112,6 +121,9 @@ function SignTransactionScreen() {
       selectedPhase: number;
       selectedPaths: number[];
     };
+    internalRecipients: (Wallet | Vault)[];
+    addresses: string[];
+    amounts: number[];
   };
 
   const { activeVault: defaultVault } = useVault({
@@ -155,8 +167,8 @@ function SignTransactionScreen() {
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
+
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
-  const intrimVault = useAppSelector((state) => state.vault.intrimVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const sendFailedMessage = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
@@ -232,30 +244,11 @@ function SignTransactionScreen() {
   }, [sendAndReceive, snapshotOptions]);
 
   useEffect(() => {
-    if (relayVaultUpdate && intrimVault) {
-      const navigationState = {
-        index: 1,
-        routes: [
-          { name: 'Home' },
-          {
-            name: 'VaultDetails',
-            params: {
-              vaultTransferSuccessful: true,
-              transactionToast: true,
-              autoRefresh: true,
-              vaultId: intrimVault?.id || '',
-            },
-          },
-        ],
-      };
-      navigation.dispatch(CommonActions.reset(navigationState));
-      dispatch(resetRealyVaultState());
-    }
     if (relayVaultError) {
       showToast(`Error: ${realyVaultErrorMessage}`, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
     }
-  }, [relayVaultUpdate, relayVaultError, intrimVault]);
+  }, [relayVaultError, realyVaultErrorMessage]);
 
   useEffect(() => {
     if (isMigratingNewVault) {
@@ -292,6 +285,7 @@ function SignTransactionScreen() {
     });
 
     const hasThresholdSignatures = signedTxCount >= defaultVault.scheme.m;
+    if (signedTxCount === serializedPSBTEnvelops.length) return true;
     if (defaultVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
       if (defaultVault.type === VaultType.MINISCRIPT) return hasThresholdSignatures;
       else if (signedTxCount === serializedPSBTEnvelops.length) return true;
@@ -691,38 +685,6 @@ function SignTransactionScreen() {
     }
   };
 
-  function SendSuccessfulContent({
-    primaryText,
-    primaryCallback,
-    secondaryText,
-    secondaryCallback,
-    SecondaryIcon,
-    primaryButtonWidth,
-  }) {
-    const { colorMode } = useColorMode();
-    return (
-      <Box>
-        <Box alignSelf="center">
-          {isDarkMode ? <SuccessDarkIllustration /> : <SuccessLightIllustration />}
-        </Box>
-        <Text color={`${colorMode}.primaryText`} fontSize={14} padding={2}>
-          {walletTransactions.sendTransSuccessMsg}
-        </Text>
-        <Box paddingTop={6}>
-          <Buttons
-            primaryText={primaryText}
-            primaryCallback={primaryCallback}
-            primaryTextColor={`${colorMode}.buttonText`}
-            secondaryText={secondaryText}
-            secondaryCallback={secondaryCallback}
-            SecondaryIcon={SecondaryIcon}
-            width={primaryButtonWidth}
-          />
-        </Box>
-      </Box>
-    );
-  }
-
   const viewDetails = () => {
     setVisibleModal(false);
     navigation.dispatch(
@@ -785,7 +747,11 @@ function SignTransactionScreen() {
       <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Choose ${scheme.m} key${scheme.m == 1 ? '' : 's'} to sign the transaction`}
+        subtitle={
+          serializedPSBTEnvelops.length == 1
+            ? 'Sign the transaction with your key'
+            : `Choose ${serializedPSBTEnvelops.length} keys to sign the transaction`
+        }
       />
       <FlatList
         contentContainerStyle={styles.contentContainerStyle}
@@ -909,6 +875,11 @@ function SignTransactionScreen() {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <SendSuccessfulContent
+            transactionPriority={tnxDetails.transactionPriority}
+            amounts={amounts}
+            sender={sender}
+            recipients={internalRecipients}
+            addresses={addresses}
             primaryText={
               !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
             }
