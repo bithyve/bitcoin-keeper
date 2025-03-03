@@ -20,7 +20,7 @@ function UTXOSelectionTotal(props: any) {
       </Box>
       <Box style={styles.totalWrapper}>
         <Text style={styles.selectionTotalText}>Total</Text>
-        <Box>{getCurrencyIcon(BTC, variation)}</Box>
+        {!getSatUnit() && <Box>{getCurrencyIcon(BTC, variation)}</Box>}
         <Text style={styles.selectionText}>
           {`${getBalance(selectionTotal)} `}
           <Text color={`${colorMode}.GreyText`} style={styles.selectionText}>

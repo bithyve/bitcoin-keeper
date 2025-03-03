@@ -116,7 +116,6 @@ export type AppStackParams = {
   EnterSeedScreen: undefined;
   UnlockTapsigner: undefined;
   ChangeTapsignerPin: undefined;
-  UTXOSelection: { sender: Wallet | Vault; amount: string; address: string };
   VaultConfigurationCreation: undefined;
   ScanQRFileRecovery: undefined;
   VaultSetup: {
@@ -173,7 +172,9 @@ export type AppStackParams = {
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
   AddReserveKey: undefined;
+  AddEmergencyKey: undefined;
   ResetInheritanceKey: undefined;
+  ResetEmergencyKey: undefined;
   KeeperConcierge: undefined;
   TechnicalSupport: {
     newTicketId: string;

@@ -275,7 +275,8 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { vaultKey, vaultId, isInheritanceKey, signerId, vaultSigners, isUaiFlow } = route.params;
+  const { vaultKey, vaultId, isInheritanceKey, isEmergencyKey, signerId, vaultSigners, isUaiFlow } =
+    route.params;
   const { signers } = useSigners();
   const currentSigner =
     signers.find((signer) => getKeyUID(signer) === signerId) ||
@@ -428,7 +429,6 @@ function SigningDeviceDetails({ route }) {
             const witnessScript = script.decompile(input.witnessScript);
             // Convert to ASM format to check opcodes
             const asm = script.toASM(witnessScript);
-            console.log(asm);
             isMiniscript = miniscriptPatterns.some((pattern) => asm.includes(pattern));
           }
         });
@@ -629,12 +629,28 @@ function SigningDeviceDetails({ route }) {
           },
         ]
       : []),
-    ...(activeVault
+    ...(activeVault &&
+    ((!isInheritanceKey && !isEmergencyKey) ||
+      !activeVault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.length ||
+      activeVault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.length < 2)
       ? [
           {
             text: 'Change Key',
             Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
-            onPress: isInheritanceKey
+            onPress: isEmergencyKey
+              ? () =>
+                  navigation.dispatch(
+                    CommonActions.navigate('AddEmergencyKey', {
+                      vaultId,
+                      name: activeVault.presentationData.name,
+                      description: activeVault.presentationData.description,
+                      scheme: activeVault.scheme,
+                      isAddEmergencyKey: true,
+                      currentBlockHeight: null,
+                      keyToRotate: signer,
+                    })
+                  )
+              : isInheritanceKey
               ? () =>
                   navigation.dispatch(
                     CommonActions.navigate('AddReserveKey', {
