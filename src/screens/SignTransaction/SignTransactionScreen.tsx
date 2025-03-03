@@ -646,7 +646,7 @@ function SignTransactionScreen() {
           { name: 'Home' },
           {
             name: 'VaultDetails',
-            params: { autoRefresh: true, hardRefresh: true, vaultId, transactionToast: true },
+            params: { autoRefresh: true, hardRefresh: false, vaultId, transactionToast: true },
           },
         ],
       })
@@ -656,7 +656,7 @@ function SignTransactionScreen() {
   const viewManageWallets = () => {
     new Promise((resolve, reject) => {
       try {
-        const result = dispatch(refreshWallets([sender], { hardRefresh: true }));
+        const result = dispatch(refreshWallets([sender], { hardRefresh: false }));
         resolve(result);
       } catch (error) {
         reject(error);

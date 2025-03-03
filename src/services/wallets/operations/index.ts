@@ -59,6 +59,7 @@ import { Path, Phase } from './miniscript/policy-generator';
 import { getKeyUID } from 'src/utils/utilities';
 import { generateBitcoinScript } from './miniscript/miniscript';
 import { coinselect } from './coinselectFixed';
+import { isTestnet } from 'src/constants/Bitcoin';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -206,6 +207,33 @@ const updateOutputsForFeeCalculation = (outputs, network) => {
   }
   return outputs;
 };
+
+function utxpArraysAreEqual(arr1: InputUTXOs[], arr2: InputUTXOs[]): boolean {
+  if (arr1.length !== arr2.length) return false;
+
+  // Sort both arrays by txId and vout
+  const sortedArr1 = [...arr1].sort((a, b) => {
+    if (a.txId !== b.txId) return a.txId.localeCompare(b.txId);
+    return a.vout - b.vout;
+  });
+
+  const sortedArr2 = [...arr2].sort((a, b) => {
+    if (a.txId !== b.txId) return a.txId.localeCompare(b.txId);
+    return a.vout - b.vout;
+  });
+
+  // Compare sorted arrays
+  for (let i = 0; i < sortedArr1.length; i++) {
+    if (
+      sortedArr1[i].txId !== sortedArr2[i].txId ||
+      sortedArr1[i].vout !== sortedArr2[i].vout ||
+      sortedArr1[i].value !== sortedArr2[i].value
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 
 export default class WalletOperations {
   public static getExternalInternalAddressAtIdx = (
@@ -477,7 +505,7 @@ export default class WalletOperations {
       if (!hardRefresh) {
         unconfirmedUTXOs = [...wallet.specs.unconfirmedUTXOs];
         confirmedUTXOs = [...wallet.specs.confirmedUTXOs];
-        balances = wallet.specs.balances;
+        balances = { ...wallet.specs.balances };
       }
 
       let purpose;
@@ -668,11 +696,15 @@ export default class WalletOperations {
         wallet.specs.addressPubs = addressPubs;
         wallet.specs.receivingAddress =
           WalletOperations.getNextFreeExternalAddress(wallet).receivingAddress;
+        wallet.specs.hasNewUpdates =
+          hasNewUpdates ||
+          newUTXOs.length !== 0 ||
+          !utxpArraysAreEqual(wallet.specs.unconfirmedUTXOs, unconfirmedUTXOs) ||
+          !utxpArraysAreEqual(wallet.specs.confirmedUTXOs, confirmedUTXOs);
         wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
         wallet.specs.confirmedUTXOs = confirmedUTXOs;
         wallet.specs.balances = balances;
         wallet.specs.transactions = transactions;
-        wallet.specs.hasNewUpdates = hasNewUpdates || newUTXOs.length !== 0;
         wallet.specs.lastSynched = Date.now();
       }
 
@@ -687,7 +719,11 @@ export default class WalletOperations {
     };
   };
 
-  static removeConsumedUTXOs = (wallet: Wallet | Vault, inputs: InputUTXOs[]) => {
+  static removeConsumedUTXOs = (
+    wallet: Wallet | Vault,
+    inputs: InputUTXOs[],
+    changeUTXO: UTXO | null
+  ) => {
     const consumedUTXOs: { [txid: string]: InputUTXOs } = {};
     inputs.forEach((input) => {
       consumedUTXOs[input.txId] = input;
@@ -719,6 +755,11 @@ export default class WalletOperations {
 
       updatedUnconfirmedUTXOSet.push(unconfirmedUTXO);
     });
+
+    if (changeUTXO) {
+      updatedUnconfirmedUTXOSet.push(changeUTXO);
+      wallet.specs.balances.unconfirmed += changeUTXO.value;
+    }
     wallet.specs.unconfirmedUTXOs = updatedUnconfirmedUTXOSet;
   };
 
@@ -1927,7 +1968,21 @@ export default class WalletOperations {
       throw new Error(err || txid);
     }
 
-    WalletOperations.removeConsumedUTXOs(wallet, inputs); // chip consumed utxos
+    const changeOutput = WalletOperations.getOutputsFromTxHex(txHex).find((out) =>
+      Object.values(wallet.specs.addresses.internal).includes(out.address)
+    );
+
+    const changeUTXO: UTXO | null = changeOutput
+      ? {
+          txId: txid,
+          vout: changeOutput.index,
+          value: changeOutput.value,
+          address: changeOutput.address,
+          height: 0,
+        }
+      : null;
+
+    WalletOperations.removeConsumedUTXOs(wallet, inputs, changeUTXO); // chip consumed utxos
     return txid;
   };
 
@@ -2187,5 +2242,23 @@ export default class WalletOperations {
       txid,
       finalOutputs,
     };
+  };
+
+  static getOutputsFromTxHex = (txHex: string) => {
+    // Decode the transaction hex
+    const tx = bitcoinJS.Transaction.fromHex(txHex);
+
+    // Extract outputs
+    const outputs = tx.outs.map((output, index) => ({
+      index,
+      value: output.value, // Value in satoshis
+      script: output.script.toString('hex'), // Script in hex format
+      address: bitcoinJS.address.fromOutputScript(
+        output.script,
+        isTestnet() ? bitcoinJS.networks.testnet : bitcoinJS.networks.bitcoin
+      ), // Decode address if possible
+    }));
+
+    return outputs;
   };
 }

@@ -467,7 +467,7 @@ function SendConfirmation({ route }) {
             name: 'WalletDetails',
             params: {
               autoRefresh: true,
-              hardRefresh: true,
+              hardRefresh: false,
               walletId: sender?.id,
               transactionToast: true,
             },
@@ -481,7 +481,7 @@ function SendConfirmation({ route }) {
   const viewManageWallets = () => {
     new Promise((resolve, reject) => {
       try {
-        const result = dispatch(refreshWallets([sender], { hardRefresh: true }));
+        const result = dispatch(refreshWallets([sender], { hardRefresh: false }));
         resolve(result);
       } catch (error) {
         reject(error);
