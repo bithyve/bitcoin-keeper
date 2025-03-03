@@ -81,14 +81,14 @@ import Note from 'src/components/Note/Note';
 import useSigners from 'src/hooks/useSigners';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
-import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
-import { vaultAlreadyExists } from './VaultMigrationController';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
 import WalletHeader from 'src/components/WalletHeader';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import Buttons from 'src/components/Buttons';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import { vaultAlreadyExists } from './VaultMigrationController';
+import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
@@ -871,7 +871,7 @@ function SignerAdvanceSettings({ route }: any) {
   const BackupModalContent = useCallback(() => {
     return (
       <Box style={styles.modalContainer}>
-        {<SigningServerIllustration />}
+        <SigningServerIllustration />
         <Box>
           <Text fontSize={12} semiBold style={styles.modalTitle}>
             {signingServer.attention}:
@@ -929,18 +929,6 @@ function SignerAdvanceSettings({ route }: any) {
         title="Signing requests"
         description="See your pending signing requests"
         callback={navigateToSigningRequests}
-      />
-    ),
-    showOneTimeBackup && (
-      <OptionCard
-        key="oneTimeBackup"
-        title={vaultTranslation.oneTimeBackupTitle}
-        description={
-          disableOneTimeBackup ? BackupWallet.viewBackupHistory : vaultTranslation.oneTimeBackupDesc
-        }
-        callback={() => {
-          disableOneTimeBackup ? navigation.goBack() : setBackupModal(true);
-        }}
       />
     ),
     isTapsigner && (
@@ -1002,12 +990,29 @@ function SignerAdvanceSettings({ route }: any) {
         callback={handleCanaryWallet}
       />
     ),
-    isPolicyServer && showBackupModal && (
+    // isPolicyServer && showBackupModal && (
+    //   <OptionCard
+    //     key="backupServerKey"
+    //     title="Back up Server Key"
+    //     description={
+    //       disableOneTimeBackup ? BackupWallet.viewBackupHistory : 'Save a backup of the Server Key'
+    //     }
+    //     callback={() => {
+    //       disableOneTimeBackup ? navigation.goBack() : handleBackupModal();
+    //     }}
+    //   />
+    // ),
+    isPolicyServer && showOneTimeBackup && (
       <OptionCard
         key="backupServerKey"
         title="Back up Server Key"
-        description="Save a backup of the Server Key"
-        callback={handleBackupModal}
+        description={
+          disableOneTimeBackup ? 'Server key backed up' : 'Save a backup of the Server Key'
+        }
+        callback={() => {
+          if (!disableOneTimeBackup) setBackupModal(true);
+        }}
+        disabled={disableOneTimeBackup}
       />
     ),
   ].filter(Boolean);
@@ -1158,7 +1163,7 @@ function SignerAdvanceSettings({ route }: any) {
           assert: <SpecterSetupImage />,
           description:
             '\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions.',
-          FAQ: `https://docs.specter.solutions/diy/faq/`,
+          FAQ: 'https://docs.specter.solutions/diy/faq/',
         };
       default:
         return {
@@ -1365,7 +1370,7 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={detailModal}
         close={() => setDetailModal(false)}
-        title={!signer.isBIP85 ? title : title + ' +'}
+        title={!signer.isBIP85 ? title : `${title} +`}
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
