@@ -1006,6 +1006,7 @@ function Signers({
 
     const signerCards = signers
       .filter((signer) => !signer.archived)
+      .filter((signer) => signer.type !== SignerType.POLICY_SERVER) // Policy/Signing server cannot be used as an Emergency Key
       .map((signer) => {
         const disabledMessage = getDisabledMessage(
           signer,
