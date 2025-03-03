@@ -9,6 +9,7 @@
     "cancel": "Cancel",
     "Goback": "Go back",
     "clear": "Clear",
+    "Never": "Never",
     "settings": "Settings",
     "keeperSettings": "Keeper Settings",
     "add_new": "Add New",
@@ -914,12 +915,25 @@
     "SetupDescription": "Connect the Trezor to your computer and open the Bitcoin Keeper desktop app"
   },
   "signingServer": {
-    "choosePolicy": "Choose Policy",
-    "choosePolicySubTitle": "For the signer",
+    "choosePolicy": "Choose Server Key Policy",
+    "choosePolicySubTitle": "Here you can configure your Server Key with a spending policy. You can also change it later,but note that updating it will enforce a delay.",
     "maxNoCheckAmt": "Max no-check amount",
     "maxNoCheckAmtSubTitle": "The signer will sign a transaction of this amount or lower, even without a 2FA verification code",
     "maxAllowedAmt": "Max allowed amount",
-    "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the signer will not sign it. You will have to use other devices for it"
+    "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the signer will not sign it. You will have to use other devices for it",
+    "configureLimit": "Configure Spending Limit",
+    "configureLimitSubTitle": "Select the maximum amount the server key will be allowed to sign for in a certain time period.",
+    "signigDelay": "Signing Delay",
+    "signigDelaySubTitle": "Your transaction will be signed after the set delay for added security.",
+    "serverSigningDelayTitle": "Select the Server Key signing delay",
+    "serverSigningDelaySubTitle": "Here you can select a delay for the Server Key to sign transactions. After requesting the Server Key to sign a transaction, the server will wait the time you select here before signing it.",
+    "attention": "Attention",
+    "attentionSubTitle": "If you choose to save it, make sure to store it safely, as this is the private key of the Server Key, and can be used to sign any transaction on behalf of it.",
+    "BackUpModalTitle": "Back up Server Key",
+    "BackUpModalSubTitle": "For independent recovery, you can download a one-time backup of your Server Key’s private key. For security reasons, this backup can only be saved once and cannot be downloaded again. You can choose to back it up now, save it later, or disable it entirely.",
+    "successTitle": "Server Key Setup is Successful",
+    "timeUntilSigning": "Time until signing",
+    "successSubTitle": "The server key setup was successful, ensuring secure and reliable operations. Your system is now ready to handle signing requests with confidence."
   },
   "externalKey": {
     "modalInstruction1": "Choose a Key from another Keeper app",

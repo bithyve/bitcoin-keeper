@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-import { call, put } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import { generateEncryptionKey } from 'src/utils/service-utilities/encryption';
 import { v4 as uuidv4 } from 'uuid';
 import BIP85 from 'src/services/wallets/operations/BIP85';
@@ -13,13 +13,19 @@ import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import Relay from 'src/services/backend/Relay';
 import config from 'src/utils/service-utilities/config';
+import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
+import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
+import SigningServer from 'src/services/backend/SigningServer';
 import { createWatcher } from '../utilities';
-import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
+import {
+  FETCH_SIGNED_DELAYED_TRANSACTION,
+  SETUP_KEEPER_APP,
+  SETUP_KEEPER_APP_VAULT_RECOVERY,
+} from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
-import { setAppId } from '../reducers/storage';
+import { setAppId, updateDelayedTransaction } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
-import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 
 export const defaultTransferPolicyThreshold = null;
 export const maxTransferPolicyThreshold = 1e11;
@@ -165,4 +171,39 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
 export const setupKeeperVaultRecoveryAppWatcher = createWatcher(
   setupKeeperVaultRecoveryAppWorker,
   SETUP_KEEPER_APP_VAULT_RECOVERY
+);
+
+function* fetchSignedDelayedTransactionWorker() {
+  const delayedTransactions: { [txid: string]: DelayedTransaction } = yield select(
+    (state) => state.storage.delayedTransactions
+  );
+
+  for (const txid in delayedTransactions) {
+    try {
+      const { delayUntil, verificationToken, signedPSBT } = delayedTransactions[txid];
+      if (!signedPSBT) {
+        const now = Date.now();
+
+        const shouldBeSigned = delayUntil - now <= 0; // delayed expired, transaction must be signed by the Server Key
+        if (shouldBeSigned) {
+          const { delayedTransaction }: { delayedTransaction: DelayedTransaction } = yield call(
+            SigningServer.fetchSignedDelayedTransaction,
+            txid,
+            verificationToken.toString()
+          );
+
+          if (delayedTransaction.signedPSBT) {
+            yield put(updateDelayedTransaction(delayedTransaction));
+          }
+        }
+      }
+    } catch (err) {
+      console.log({ err });
+    }
+  }
+}
+
+export const fetchSignedDelayedTransactionWatcher = createWatcher(
+  fetchSignedDelayedTransactionWorker,
+  FETCH_SIGNED_DELAYED_TRANSACTION
 );

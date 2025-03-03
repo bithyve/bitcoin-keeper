@@ -201,7 +201,7 @@ const getSignerContent = (type: SignerType) => {
       };
     case SignerType.POLICY_SERVER:
       return {
-        title: 'Signing Server',
+        title: 'Server Key',
         subTitle:
           'The key on the signer will sign a transaction depending on the policy and authentication',
         assert: <SigningServerIllustration />,
@@ -694,15 +694,17 @@ function SigningDeviceDetails({ route }) {
               image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
             />
           }
-          rightComponent={
+          topRightComponent={
             !vaultKey ? (
-              <TouchableOpacity onPress={navigateToSettings} testID="btn_manage_singner_setting">
+              <TouchableOpacity
+                style={styles.settingIcon}
+                onPress={navigateToSettings}
+                testID="btn_manage_singner_setting"
+              >
                 <SettingIcon />
               </TouchableOpacity>
             ) : null
           }
-          rightComponentPadding={wp(0)}
-          rightComponentBottomPadding={hp(10)}
         />
       </Box>
       <Box style={styles.bottomSection} backgroundColor={`${colorMode}.thirdBackground`}>
@@ -1098,6 +1100,12 @@ const styles = StyleSheet.create({
   },
   footerWrapper: {
     justifyContent: 'center',
+  },
+  settingIcon: {
+    width: wp(40),
+    height: wp(40),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
