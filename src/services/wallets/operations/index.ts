@@ -365,11 +365,10 @@ export default class WalletOperations {
     });
     transactions = transactions.filter(
       (tx) =>
-        (txids.includes(tx.txid) ||
-          [...tx.senderAddresses, ...tx.recipientAddresses].some(
-            (address) => !addresses.includes(address)
-          )) &&
-        !newTxids.includes(tx.txid)
+        txids.includes(tx.txid) ||
+        [...tx.senderAddresses, ...tx.recipientAddresses].some(
+          (address) => !addresses.includes(address)
+        )
     );
 
     const txs = await ElectrumClient.getTransactionsById(newTxids);
