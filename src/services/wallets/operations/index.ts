@@ -346,7 +346,7 @@ export default class WalletOperations {
     internalAddresses: { [address: string]: number },
     network: bitcoinJS.Network
   ) => {
-    const transactions = wallet.specs.transactions;
+    let transactions = wallet.specs.transactions;
     let lastUsedAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
     let lastUsedChangeAddressIndex = wallet.specs.nextFreeChangeAddressIndex - 1;
     let totalExternalAddresses = wallet.specs.totalExternalAddresses;
@@ -358,7 +358,21 @@ export default class WalletOperations {
     }
 
     const { txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(addresses, network);
-    const txs = await ElectrumClient.getTransactionsById(txids);
+
+    let newTxids = txids.filter((txid) => {
+      const tx = wallet.specs.transactions.find((tx) => tx.txid === txid);
+      return !tx || tx.confirmations < 6;
+    });
+    transactions = transactions.filter(
+      (tx) =>
+        (txids.includes(tx.txid) ||
+          [...tx.senderAddresses, ...tx.recipientAddresses].some(
+            (address) => !addresses.includes(address)
+          )) &&
+        !newTxids.includes(tx.txid)
+    );
+
+    const txs = await ElectrumClient.getTransactionsById(newTxids);
 
     // fetch input transactions(for new ones), in order to construct the inputs
     const inputTxIds = [];
@@ -397,10 +411,12 @@ export default class WalletOperations {
       if (existingTx) {
         // transaction already exists in the database, should update till transaction has 3+ confs
         if (!tx.confirmations) continue; // unconfirmed transaction
-        if (existingTx.confirmations > 3) continue; // 3+ confs
+        if (existingTx.confirmations > 6) continue; // 6+ confs
         if (existingTx.confirmations !== tx.confirmations) {
           // update transaction confirmations
           existingTx.confirmations = tx.confirmations;
+          existingTx.blockTime = tx.blocktime;
+          existingTx.date = tx.time ? new Date(tx.time * 1000).toUTCString() : existingTx.date;
           hasNewUpdates = true;
         }
       } else {
@@ -621,7 +637,6 @@ export default class WalletOperations {
           }
         }
 
-        // sync & populate transactionsInfo
         if (!hardRefresh) {
           addresses = addresses.filter((address) =>
             newUTXOs.some((utxo) => utxo.address === address)
@@ -658,7 +673,7 @@ export default class WalletOperations {
         wallet.specs.confirmedUTXOs = confirmedUTXOs;
         wallet.specs.balances = balances;
         wallet.specs.transactions = transactions;
-        wallet.specs.hasNewUpdates = hasNewUpdates;
+        wallet.specs.hasNewUpdates = hasNewUpdates || newUTXOs.length !== 0;
         wallet.specs.lastSynched = Date.now();
       }
 

@@ -1086,7 +1086,7 @@ function* refreshWalletsWorker({
     }
     for (const synchedWalletWithUTXOs of synchedWallets) {
       const { synchedWallet } = synchedWalletWithUTXOs;
-      // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+      if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
       for (const utxo of synchedWalletWithUTXOs.newUTXOs) {
         const labelChanges = {
