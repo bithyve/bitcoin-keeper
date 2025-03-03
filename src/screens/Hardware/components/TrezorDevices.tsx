@@ -6,33 +6,33 @@ import TrezorOne from 'src/assets/images/trezor-model-one.svg';
 import Trezor3 from 'src/assets/images/Trezor-safe-3.svg';
 import Trezor5 from 'src/assets/images/Trezor-safe-5.svg';
 import { StyleSheet } from 'react-native';
-const TrezorDevices = ({ wallet }) => {
+const TrezorDevices = ({ wallet, getSellerLink }) => {
   const TrezorData = [
     {
       id: 1,
       title2: wallet.TrezorModelT,
       image: <TrezorT />,
-      link: 'https://affil.trezor.io/aff_c?offer_id=134&aff_id=35017',
+      link: getSellerLink('trezorModelT'),
     },
     {
       id: 2,
       title2: wallet.TrezorModel1,
       image: <TrezorOne />,
-      link: 'https://affil.trezor.io/aff_c?offer_id=135&aff_id=35017',
+      link: getSellerLink('trezorModelOne'),
     },
     {
       id: 3,
       title2: wallet.TrezorSafe3,
       title2Sub: wallet.TrezorBTCOnly,
       image: <Trezor3 />,
-      link: 'https://affil.trezor.io/aff_c?offer_id=239&aff_id=35017',
+      link: getSellerLink('trezorSafe3'),
     },
     {
       id: 4,
       title2: wallet.TrezorSafe5,
       title2Sub: wallet.TrezorBTCOnly,
       image: <Trezor5 />,
-      link: 'https://affil.trezor.io/aff_c?offer_id=238&aff_id=35017',
+      link: getSellerLink('trezorSafe5'),
     },
   ];
   return (

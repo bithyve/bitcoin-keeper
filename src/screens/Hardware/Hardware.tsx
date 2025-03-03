@@ -2,7 +2,6 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
-import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import WalletHeader from 'src/components/WalletHeader';
@@ -35,8 +34,6 @@ const HardwareWallet = () => {
       />
       {isOnL1 && (
         <Box style={styles.plancontainer}>
-          <Text semiBold>{wallet.subscribeTextHardware}</Text>
-
           <Buttons
             fullWidth
             primaryFontWeight="medium"

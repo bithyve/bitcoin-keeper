@@ -48,6 +48,7 @@ const ResellerCard = (props: Props) => {
           <Text
             fontSize={13}
             color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.primaryText`}
+            style={styles.subTitle}
           >
             {props.subTitle}
           </Text>
@@ -123,5 +124,8 @@ const styles = StyleSheet.create({
     gap: wp(2),
     marginBottom: hp(8),
     marginTop: hp(4),
+  },
+  subTitle: {
+    width: '90%',
   },
 });

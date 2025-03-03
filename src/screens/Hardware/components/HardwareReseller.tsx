@@ -18,9 +18,9 @@ const HardwareReseller = () => {
       country: wallet.hardwareBitSagaCountry,
       subTitle: wallet.hardwareBitSagaSubTitle,
       icon: <BitSaga />,
-      subscribeText: wallet.hardwareSubscribeText,
-      unSubscribeText: wallet.hardwareUnsubscribeText,
-      link: 'https://shop.bitbox.swiss/?ref=bjhikjbf',
+      subscribeText: '',
+      unSubscribeText: '',
+      link: '',
     },
   ];
   return (
