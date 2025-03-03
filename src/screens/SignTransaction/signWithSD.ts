@@ -110,7 +110,7 @@ export const signTransactionWithSigningServer = async ({
     const outgoing = idx(signingPayload, (_) => _[0].outgoing);
     if (!childIndexArray) throw new Error('Invalid signing payload');
 
-    const { signedPSBT, delayed } = await SigningServer.signPSBT(
+    const { signedPSBT, delayed, delayedTransaction } = await SigningServer.signPSBT(
       xfp,
       signingServerOTP ? Number(signingServerOTP) : null,
       serializedPSBT,
@@ -120,11 +120,7 @@ export const signTransactionWithSigningServer = async ({
     );
 
     if (delayed) {
-      Alert.alert(
-        'Transaction delayed',
-        'Your transaction is being processed. You will receive a notification when it is signed.'
-      );
-      return { delayed };
+      return { delayed, delayedTransaction };
     } else {
       if (!signedPSBT) throw new Error('Server Key: failed to sign');
       return { signedSerializedPSBT: signedPSBT };
