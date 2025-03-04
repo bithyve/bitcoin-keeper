@@ -12,7 +12,6 @@ import MobileKeyBlack from 'src/assets/images/signerSoftwareBlack.svg';
 import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import { CommonActions } from '@react-navigation/native';
 import DashedCta from 'src/components/DashedCta';
-import Colors from 'src/theme/Colors';
 
 const SignerContent = ({ navigation, handleModalClose }) => {
   const { colorMode } = useColorMode();
@@ -92,7 +91,7 @@ const SignerContent = ({ navigation, handleModalClose }) => {
         ))}
         <DashedCta
           backgroundColor={`${colorMode}.DashedButtonCta`}
-          hexagonBackgroundColor={Colors.pantoneGreen}
+          borderColor={`${colorMode}.dashedButtonBorderColor`}
           textColor={`${colorMode}.greenWhiteText`}
           name={signer.purchaseWallet}
           cardStyles={styles.cardStyles}

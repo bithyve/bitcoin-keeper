@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   AddCardContainer: {
     minHeight: hp(50),
     borderRadius: 10,
-    borderWidth: 2,
+    borderWidth: 1,
     borderStyle: 'dashed',
     flexDirection: 'row',
     alignItems: 'center',

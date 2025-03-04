@@ -75,8 +75,8 @@ const HardwareDevices = () => {
       flagIcon: <FlagUSA />,
       country: wallet.hardwareFoundationCountry,
       link: getSellerLink('foundation'),
-      subscribeText: '',
-      unSubscribeText: '',
+      subscribeText: wallet.hardwareFoundationSubscribeText,
+      unSubscribeText: wallet.hardwareFoundationSubscribeText,
     },
     {
       id: 4,

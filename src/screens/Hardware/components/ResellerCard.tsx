@@ -66,24 +66,26 @@ const ResellerCard = (props: Props) => {
           primaryCallback={() => openLink(props.link)}
         />
         {props.plan ? (
-          <Text
-            style={styles.subText}
-            semiBold
-            fontSize={12}
-            color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.coalGreen`}
-          >
-            {props.unSubscribeText}
-          </Text>
-        ) : (
+          props.unSubscribeText ? (
+            <Text
+              style={[props.unSubscribeText ? styles.subText : {}]}
+              semiBold
+              fontSize={12}
+              color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.coalGreen`}
+            >
+              {props.unSubscribeText}
+            </Text>
+          ) : null
+        ) : props.subscribeText ? (
           <Text
             semiBold
             fontSize={12}
             color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.brownColor`}
-            style={styles.subText}
+            style={[props.subscribeText ? styles.subText : {}]}
           >
             {props.subscribeText}
           </Text>
-        )}
+        ) : null}
       </Box>
     </Box>
   );
@@ -95,6 +97,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: wp(10),
     paddingVertical: hp(20),
+
     paddingHorizontal: wp(18),
     border: 1,
     gap: wp(10),
