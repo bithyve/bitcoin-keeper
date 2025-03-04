@@ -123,6 +123,8 @@ class Configuration {
     android: config.ZENDESK_ANDROID_CHANNEL_ID?.trim(),
   });
 
+  public RENEWAL_WINDOW: number;
+
   constructor() {
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()
       ? config.ENVIRONMENT.trim()
@@ -133,6 +135,11 @@ class Configuration {
         : bitcoinJS.networks.testnet;
     this.NETWORK_TYPE =
       this.ENVIRONMENT === APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
+
+    this.RENEWAL_WINDOW =
+      this.ENVIRONMENT === APP_STAGE.PRODUCTION
+        ? 30.44 * 3 * 24 * 60 * 60 * 1000 // 3 months
+        : 3 * 60 * 60 * 1000; // 20 mins  || 3 hours
   }
 
   public setNetwork = (network: NetworkType) => {
