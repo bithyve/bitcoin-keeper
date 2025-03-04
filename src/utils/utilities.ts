@@ -304,7 +304,13 @@ export const timeFromTimeStamp = (timestamp: string): string => {
 export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
-    const vBytes = estimateVByteFromPSBT(base64Str);
+    let vBytes = null;
+    try {
+      vBytes = estimateVByteFromPSBT(base64Str);
+    } catch {
+      // TODO: Need to support for Miniscript
+      console.log('Failed to estimate transaction size');
+    }
     const signersList = [];
     let signerMatched = false;
 
@@ -376,7 +382,10 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
 
     // Calculate transaction fees
     const fees = totalInput - totalOutput;
-    const feeRate = (fees / vBytes).toFixed(2);
+    let feeRate = null;
+    if (vBytes) {
+      feeRate = (fees / vBytes).toFixed(2);
+    }
     return {
       senderAddresses: inputs,
       receiverAddresses: outputs,

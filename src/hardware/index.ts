@@ -163,7 +163,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Passport';
       break;
     case SignerType.POLICY_SERVER:
-      name = 'Signing Server';
+      name = 'Server Key';
       break;
     case SignerType.SEED_WORDS:
       name = 'Seed Key';

@@ -9,113 +9,132 @@ import {
   VerificationType,
 } from 'src/models/interfaces/AssistedKeys';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
-import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
-import AppNumPad from 'src/components/AppNumPad';
+// import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
 import Clipboard from '@react-native-community/clipboard';
-import idx from 'idx';
+// import idx from 'idx';
 import { useDispatch } from 'react-redux';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { numberWithCommas } from 'src/utils/utilities';
+// import { numberWithCommas } from 'src/utils/utilities';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+// import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
-import PolicyField from 'src/screens/Vault/components/PolicyField';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
-import useVault from 'src/hooks/useVault';
+// import useVault from 'src/hooks/useVault';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useAppSelector } from 'src/store/hooks';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { setSignerPolicyError } from 'src/store/reducers/wallets';
+import WalletHeader from 'src/components/WalletHeader';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import { Signer } from 'src/services/wallets/interfaces/vault';
+import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common, vault: vaultTranslation } = translations;
-
-  const [selectedPolicy, setSelectedPolicy] = useState('max');
+  const signer: Signer = route?.params?.signer;
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
 
-  const { isUpdate, addSignerFlow, vaultId, signer: currentSigner } = route.params;
+  const { maxTransaction, timelimit, delayTime } = route.params;
 
-  const existingRestrictions = idx(currentSigner, (_) => _.signerPolicy.restrictions);
-  const existingExceptions = idx(currentSigner, (_) => _.signerPolicy.exceptions);
+  const [spendingLimit, setSpendingLimit] = useState(null);
+  const [timeLimit, setTimeLimit] = useState(null);
+  const [signingDelay, setSigningDelay] = useState(null);
 
-  const existingMaxTransactionRestriction = idx(
-    existingRestrictions,
-    (_) => _.maxTransactionAmount
-  );
-  const existingMaxTransactionException = idx(existingExceptions, (_) => _.transactionAmount);
+  useEffect(() => {
+    if (maxTransaction !== undefined) {
+      setSpendingLimit(maxTransaction);
+      setTimeLimit(timelimit);
+    }
+    if (delayTime !== undefined) {
+      setSigningDelay(delayTime);
+    }
+  }, [route.params]);
 
-  const [maxTransaction, setMaxTransaction] = useState(
-    existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '10000000'
-  );
-  const [minTransaction, setMinTransaction] = useState(
-    existingMaxTransactionException ? `${existingMaxTransactionException}` : '1000000'
-  );
-  const { activeVault } = useVault({ vaultId });
+  useEffect(() => {
+    // TODO: remap and fix the label for timelimit and signing delay
+    if (signer && signer.signerPolicy) {
+      setSpendingLimit(`${signer.signerPolicy?.restrictions?.maxTransactionAmount}`);
+      setTimeLimit({ label: '1 day', value: signer.signerPolicy?.restrictions?.timeWindow });
+      setSigningDelay({ label: '1 day', value: signer.signerPolicy?.signingDelay });
+    }
+  }, [signer]);
+
+  // const existingRestrictions = idx(currentSigner, (_) => _.signerPolicy.restrictions);
+  // const existingExceptions = idx(currentSigner, (_) => _.signerPolicy.exceptions);
+
+  // const existingMaxTransactionRestriction = idx(
+  //   existingRestrictions,
+  //   (_) => _.maxTransactionAmount
+  // );
+  // const existingMaxTransactionException = idx(existingExceptions, (_) => _.transactionAmount);
+
+  // const [maxTransaction, setMaxTransaction] = useState(
+  //   existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '10000000'
+  // );
+  // const [minTransaction, setMinTransaction] = useState(
+  //   existingMaxTransactionException ? `${existingMaxTransactionException}` : '1000000'
+  // );
+  // const { activeVault } = useVault({ vaultId });
   const dispatch = useDispatch();
   const policyError = useAppSelector((state) => state.wallet?.signerPolicyError);
   const [isLoading, setIsLoading] = useState(false);
 
-  const onNext = () => {
-    if (isUpdate) {
+  const parseAmount = (amountString: string): number => Number(amountString.replace(/,/g, ''));
+
+  const preparePolicy = () => {
+    const maxAmount = spendingLimit ? parseAmount(spendingLimit) : 0;
+    const restrictions: SignerRestriction = {
+      none: maxAmount === 0,
+      maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
+      timeWindow: maxAmount === 0 ? null : timeLimit?.value,
+    };
+    const exceptions: SignerException = {
+      none: true,
+    };
+
+    const policy: SignerPolicy = {
+      verification: {
+        method: VerificationType.TWO_FA,
+      },
+      restrictions,
+      exceptions,
+      signingDelay: signingDelay?.value || null,
+    };
+
+    return policy;
+  };
+
+  const onConfirm = () => {
+    if (signer) {
+      // case: policy update
       showValidationModal(true);
     } else {
-      const maxAmount = Number(maxTransaction);
-      const restrictions: SignerRestriction = {
-        none: maxAmount === 0,
-        maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
-      };
-
-      const minAmount = Number(minTransaction);
-      const exceptions: SignerException = {
-        none: minAmount === 0,
-        transactionAmount: minAmount === 0 ? null : minAmount,
-      };
-
-      const policy: SignerPolicy = {
-        verification: {
-          method: VerificationType.TWO_FA,
-        },
-        restrictions,
-        exceptions,
-      };
-
+      // case: new signer policy registration
+      const policy = preparePolicy();
       navigation.dispatch(
-        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy, addSignerFlow } })
+        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
       );
     }
   };
 
-  const confirmChangePolicy = async () => {
-    const maxAmount = Number(maxTransaction);
-    const restrictions: SignerRestriction = {
-      none: maxAmount === 0,
-      maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
-    };
-
-    const minAmount = Number(minTransaction);
-    const exceptions: SignerException = {
-      none: minAmount === 0,
-      transactionAmount: minAmount === 0 ? null : minAmount,
-    };
-    const updates = {
-      restrictions,
-      exceptions,
-    };
+  const onConfirmUpdatePolicy = () => {
     const verificationToken = Number(otp);
     setIsLoading(true);
-    dispatch(
-      updateSignerPolicy(route.params.signer, route.params.vaultKey, updates, verificationToken)
-    );
+    const policy = preparePolicy();
+    dispatch(updateSignerPolicy(signer, route.params.vaultKey, policy, verificationToken));
   };
 
   useEffect(() => {
@@ -130,7 +149,7 @@ function ChoosePolicyNew({ navigation, route }) {
         setIsLoading(false);
         dispatch(setSignerPolicyError('idle'));
         showValidationModal(false);
-        resetFields();
+        // resetFields();
         showToast('2FA token is either invalid or has expired');
       }
     }
@@ -155,7 +174,7 @@ function ChoosePolicyNew({ navigation, route }) {
     };
 
     return (
-      <Box width={'100%'}>
+      <Box width="100%">
         <Box>
           <TouchableOpacity
             onPress={async () => {
@@ -174,7 +193,7 @@ function ChoosePolicyNew({ navigation, route }) {
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
-              <CustomGreenButton onPress={confirmChangePolicy} value="Confirm" />
+              <CustomGreenButton onPress={onConfirmUpdatePolicy} value="Confirm" />
             </Box>
           </Box>
         </Box>
@@ -188,54 +207,44 @@ function ChoosePolicyNew({ navigation, route }) {
     );
   }, [otp]);
 
-  const resetFields = () => {
-    setMaxTransaction(
-      existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '10000000'
-    );
-    setMinTransaction(
-      existingMaxTransactionException ? `${existingMaxTransactionException}` : '1000000'
-    );
-    setOtp('');
-  };
+  // const resetFields = () => {
+  //   setMaxTransaction(
+  //     existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '10000000'
+  //   );
+  //   setMinTransaction(
+  //     existingMaxTransactionException ? `${existingMaxTransactionException}` : '1000000'
+  //   );
+  //   setOtp('');
+  // };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={isLoading} />
-      <KeeperHeader
+      <WalletHeader
         title={signingServer.choosePolicy}
-        subtitle={signingServer.choosePolicySubTitle}
+        rightComponent={
+          <TouchableOpacity>{isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}</TouchableOpacity>
+        }
       />
+      <Text style={styles.desc}>{signingServer.choosePolicySubTitle}</Text>
       <Box style={styles.fieldContainer}>
-        <PolicyField
-          title={signingServer.maxNoCheckAmt}
-          subTitle={signingServer.maxNoCheckAmtSubTitle}
-          onPress={() => setSelectedPolicy('min')}
-          value={numberWithCommas(minTransaction)}
-        />
-        <PolicyField
-          title={signingServer.maxAllowedAmt}
-          subTitle={signingServer.maxAllowedAmtSubTitle}
-          onPress={() => setSelectedPolicy('max')}
-          value={numberWithCommas(maxTransaction)}
+        <ServerKeyPolicyCard
+          signingServer={signingServer}
+          navigation={navigation}
+          maxTransaction={spendingLimit}
+          timelimit={timeLimit}
+          delayTime={signingDelay}
         />
       </Box>
-      <Box>
-        <AppNumPad
-          setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => {}}
-          color={`${colorMode}.greenText`}
-          height={windowHeight > 600 ? 50 : 80}
-          darkDeleteIcon
-        />
-      </Box>
+
       <Box style={styles.btnWrapper}>
-        <Buttons primaryText={common.next} primaryCallback={onNext} fullWidth />
+        <Buttons primaryText={common.confirm} primaryCallback={() => onConfirm()} fullWidth />
       </Box>
       <KeeperModal
         visible={validationModal}
         close={() => {
           showValidationModal(false);
-          resetFields();
+          // resetFields();
         }}
         title="Confirm OTP to change policy"
         subTitle="To complete setting up the signer"
@@ -252,6 +261,7 @@ const styles = StyleSheet.create({
   btnWrapper: {
     paddingTop: hp(windowHeight > 700 ? 18 : 0),
     paddingHorizontal: '3%',
+    paddingBottom: hp(20),
   },
   cvvInputInfoText: {
     fontSize: 14,
@@ -259,8 +269,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   fieldContainer: {
-    paddingHorizontal: wp(10),
+    paddingVertical: wp(10),
     flex: 1,
+  },
+  desc: {
+    marginVertical: hp(15),
   },
 });
 

@@ -20,6 +20,7 @@ type Props = {
 
 function WalletCopiableData({ title, data, dataType, copy, width = '90%', height = 55 }: Props) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
 
   const { translations } = useContext(LocalizationContext);
@@ -28,7 +29,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
   return (
     <Box
       backgroundColor={`${colorMode}.seashellWhite`}
-      borderColor={`${colorMode}.greyBorder`}
+      borderColor={isDarkMode ? `${colorMode}.dullGreyBorder` : `${colorMode}.greyBorder`}
       style={styles.container}
       width={width}
       height={height}

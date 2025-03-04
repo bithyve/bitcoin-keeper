@@ -1,29 +1,24 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import KeeperHeader from 'src/components/KeeperHeader';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
-import VaultIcon from 'src/assets/images/icon_vault.svg';
-import LinkedWallet from 'src/assets/images/walletUtxos.svg';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
 import { Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
-import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import { WalletType } from 'src/services/wallets/enums';
+import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import BatteryIllustration from 'src/assets/images/CautionIllustration.svg';
 import useWallets from 'src/hooks/useWallets';
-import { Box, HStack, useColorMode, VStack } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
@@ -34,9 +29,13 @@ import useVault from 'src/hooks/useVault';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import LearnMoreModal from './components/LearnMoreModal';
-import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
-import SendBadBankSatsModal from './components/SendBadBankSatsModal';
+import MiniscriptPathSelector, {
+  MiniscriptPathSelectorRef,
+} from 'src/components/MiniscriptPathSelector';
+import useToastMessage from 'src/hooks/useToastMessage';
+import WalletHeader from 'src/components/WalletHeader';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -76,6 +75,8 @@ function Footer({
   vaultId,
 }) {
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
+  const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
 
   const goToWhirlpoolConfiguration = () => {
     setEnableSelection(false);
@@ -96,41 +97,59 @@ function Footer({
   };
 
   return enableSelection ? (
-    <FinalizeFooter
-      initiateWhirlpool={initiateWhirlpool}
-      setEnableSelection={setEnableSelection}
-      setInitiateWhirlpool={setInitiateWhirlpool}
-      initateWhirlpoolMix={initateWhirlpoolMix}
-      setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-      secondaryText="Cancel"
-      footerCallback={() => {
-        if (initateWhirlpoolMix) {
-          inititateWhirlpoolMixProcess();
-        } else if (initiateWhirlpool) {
-          goToWhirlpoolConfiguration();
-        } else if (selectedAccount === WalletType.BAD_BANK) {
-          setSendBadBankModalVisible();
-        } else {
+    <>
+      <FinalizeFooter
+        initiateWhirlpool={initiateWhirlpool}
+        setEnableSelection={setEnableSelection}
+        setInitiateWhirlpool={setInitiateWhirlpool}
+        initateWhirlpoolMix={initateWhirlpoolMix}
+        setInitateWhirlpoolMix={setInitateWhirlpoolMix}
+        secondaryText="Cancel"
+        footerCallback={() => {
+          if (initateWhirlpoolMix) {
+            inititateWhirlpoolMixProcess();
+          } else if (initiateWhirlpool) {
+            goToWhirlpoolConfiguration();
+          } else if (selectedAccount === WalletType.BAD_BANK) {
+            setSendBadBankModalVisible();
+          } else if (
+            wallet.entityKind === EntityKind.VAULT &&
+            (wallet as Vault).type === VaultType.MINISCRIPT
+          ) {
+            miniscriptPathSelectorRef.current?.selectVaultSpendingPaths();
+          } else {
+            setEnableSelection(false);
+            navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+          }
+        }}
+        selectedUTXOs={selectedUTXOs}
+        isRemix={isRemix}
+        remixingToVault={remixingToVault}
+        setRemixingToVault={setRemixingToVault}
+      />
+      <MiniscriptPathSelector
+        ref={miniscriptPathSelectorRef}
+        vault={wallet}
+        onPathSelected={(satisfier) => {
           setEnableSelection(false);
-          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
-        }
-      }}
-      selectedUTXOs={selectedUTXOs}
-      isRemix={isRemix}
-      remixingToVault={remixingToVault}
-      setRemixingToVault={setRemixingToVault}
-    />
+          navigation.dispatch(
+            CommonActions.navigate('Send', {
+              sender: wallet,
+              selectedUTXOs,
+              miniscriptSelectedSatisfier: satisfier,
+            })
+          );
+        }}
+        onError={(err) => showToast(err)}
+        onCancel={() => setEnableSelection(true)}
+      />
+    </>
   ) : (
     <UTXOFooter
       setEnableSelection={setEnableSelection}
       enableSelection={enableSelection}
-      setInitiateWhirlpool={setInitiateWhirlpool}
-      setIsRemix={setIsRemix}
-      setInitateWhirlpoolMix={setInitateWhirlpoolMix}
       wallet={wallet}
       utxos={utxos}
-      setRemixingToVault={setRemixingToVault}
-      vaultId={vaultId}
     />
   );
 }
@@ -202,7 +221,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
       setInitateWhirlpoolMix(false);
       setSelectedWallet(wallet);
       if (!walletSyncing[wallet.id]) {
-        dispatch(refreshWallets([wallet], { hardRefresh: true }));
+        dispatch(refreshWallets([wallet], { hardRefresh: false }));
       }
     }
   }, [selectedAccount]);
@@ -247,15 +266,8 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
   return (
     <ScreenWrapper paddingHorizontal={0} backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <Box marginLeft={5}>
-        <KeeperHeader
-          // learnMore
-          learnMorePressed={() => setLearnModalVisible(true)}
-          learnTextColor={`${colorMode}.buttonText`}
-          title={wallet?.presentationData?.name}
-          subtitle={wallet?.presentationData?.description}
-          icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
-        />
+      <Box style={{ marginLeft: wp(15), marginRight: wp(22) }}>
+        <WalletHeader title="Manage Coins" rightComponent={<CurrencyTypeSwitch />} />
       </Box>
       <Box style={styles.contentContainer}>
         {/* {isWhirlpoolWallet && (
@@ -356,7 +368,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
         )}
       />
       <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
-      <SendBadBankSatsModal
+      {/* <SendBadBankSatsModal
         visible={sendBadBankModalVisible}
         closeModal={() => setSendBadBankModalVisible(false)}
         onclick={() => {
@@ -369,7 +381,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
             })
           );
         }}
-      />
+      /> */}
 
       {/* <InitiateWhirlpoolModal
         visible={whirlpoolIntroModal}
@@ -412,7 +424,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    marginTop: hp(30),
+    marginTop: hp(10),
     marginBottom: hp(15),
   },
 });

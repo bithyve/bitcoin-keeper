@@ -86,7 +86,6 @@ import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborat
 import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 import ChangeTapsignerPin from 'src/screens/SigningDevices/ChangeTapsignerPin';
-import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import PrivacyAndDisplay from 'src/screens/AppSettings/PrivacyAndDisplay';
 import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
@@ -134,8 +133,10 @@ import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
 import ResetInheritanceKey from 'src/screens/Vault/ResetInheritanceKey';
+import ResetEmergencyKey from 'src/screens/Vault/ResetEmergencyKey';
 import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import AddReserveKey from 'src/screens/Vault/AddReserveKey';
+import AddEmergencyKey from 'src/screens/Vault/AddEmergencyKey';
 import { useColorMode } from 'native-base';
 import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
@@ -154,6 +155,10 @@ import NotificationsCenter from 'src/screens/Home/Notifications/NotificationsCen
 import SettingsApp from 'src/screens/Home/components/Settings/AppSettings';
 import InheritanceDocumentScreen from 'src/screens/Home/components/Settings/InheritanceDocumentScreen';
 import HardwareWallet from 'src/screens/Hardware/Hardware';
+import SpendingLimit from 'src/screens/Vault/SpendingLimit';
+import SigningDelay from 'src/screens/Vault/SigningDelay';
+import ServerKeySuccessScreen from 'src/screens/Vault/ServerKeySuccessScreen';
+import SigningRequest from 'src/screens/Vault/SigningRequest';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -268,6 +273,10 @@ function AppStack() {
 
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="HardwareWallet" component={HardwareWallet} />
+        <Stack.Screen name="SpendingLimit" component={SpendingLimit} />
+        <Stack.Screen name="SigningDelay" component={SigningDelay} />
+        <Stack.Screen name="SigningRequest" component={SigningRequest} />
+        <Stack.Screen name="ServerKeySuccessScreen" component={ServerKeySuccessScreen} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
@@ -305,7 +314,6 @@ function AppStack() {
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
         <Stack.Screen name="ChangeTapsignerPin" component={ChangeTapsignerPin} />
-        <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
         <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
         <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
         <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
@@ -331,7 +339,9 @@ function AppStack() {
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
         <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
+        <Stack.Screen name="AddEmergencyKey" component={AddEmergencyKey} />
         <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
+        <Stack.Screen name="ResetEmergencyKey" component={ResetEmergencyKey} />
         <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
         <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
         <Stack.Screen name="TicketDetails" component={TicketDetails} />

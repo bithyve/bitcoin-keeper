@@ -21,8 +21,11 @@ export interface SingerVerification {
 }
 
 export interface SignerRestriction {
-  none: boolean;
+  // aka Signer's SpendingLimit
+  none: Boolean;
   maxTransactionAmount?: number; // max amount for an outgoing transaction
+  timeWindow?: number; // time period in milliseconds (e.g., 7 days = 7 * 24 * 60 * 60 * 1000)
+  // note: if timeWindow is present, maxTransactionAmount turns into the aggregate maximum amount allowed in that time period
 }
 
 export interface SignerException {
@@ -34,6 +37,20 @@ export interface SignerPolicy {
   verification: SingerVerification;
   restrictions: SignerRestriction;
   exceptions: SignerException;
+  signingDelay?: number; // delay in milliseconds
+}
+
+export interface DelayedTransaction {
+  txid: string;
+  serializedPSBT: string;
+  signerId: string;
+  childIndexArray: any[];
+  outgoing: number;
+  verificationToken: string;
+  timestamp: number;
+  delayUntil: number;
+  FCM: string;
+  signedPSBT?: string;
 }
 
 export enum CosignersMapUpdateAction {
