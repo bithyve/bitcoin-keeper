@@ -364,11 +364,7 @@ export default class WalletUtilities {
 
         for (const key in keyInfo) {
           const info = keyInfo[key];
-          if (
-            info.masterFingerprint.toString('hex').toUpperCase() === masterFingerprint &&
-            info.path.replace('h', "'").split("'").pop().split('/')[1] ===
-              externalChainIndex.toString()
-          ) {
+          if (info.masterFingerprint.toString('hex').toUpperCase() === masterFingerprint) {
             // signer identified (note: a signer can have multiple keys(multipath))
             const inputPath = info.path.split('/'); // external/internal chain index
             const chainIndex = inputPath[inputPath.length - 2];
@@ -930,32 +926,6 @@ export default class WalletUtilities {
     }
 
     throw new Error(`Could not find multisig for: ${address}`);
-  };
-
-  static getSubPathForAddress = (
-    address: string,
-    wallet: Wallet | Vault
-  ): {
-    subPath: number[];
-  } => {
-    const { totalExternalAddresses, nextFreeChangeAddressIndex } = wallet.specs;
-    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
-
-    const closingExtIndex = totalExternalAddresses - 1 + config.GAP_LIMIT;
-    for (let itr = 0; itr <= totalExternalAddresses - 1 + closingExtIndex; itr++) {
-      if (addressCache.external[itr] === address) {
-        return { subPath: [0, itr] };
-      }
-    }
-
-    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
-    for (let itr = 0; itr <= closingIntIndex; itr++) {
-      if (addressCache.internal[itr] === address) {
-        return { subPath: [1, itr] };
-      }
-    }
-
-    throw new Error(`Could not find subpath for multisig: ${address}`);
   };
 
   static generatePaymentURI = (

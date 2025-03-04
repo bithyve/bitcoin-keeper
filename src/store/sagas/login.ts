@@ -18,6 +18,8 @@ import { uaiType } from 'src/models/interfaces/Uai';
 import * as SecureStore from 'src/storage/secure-store';
 
 import dbManager from 'src/storage/realm/dbManager';
+import SubScription from 'src/models/interfaces/Subscription';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
@@ -58,8 +60,7 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
-import SubScription from 'src/models/interfaces/Subscription';
-import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { fetchSignedDelayedTransaction } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
 import { manipulateIosProdProductId } from 'src/utils/utilities';
 
@@ -155,7 +156,7 @@ function* credentialsAuthWorker({ payload }) {
       const { success, error } = yield call(dbManager.initializeRealm, uint8array);
 
       if (!success) {
-        throw Error('Failed to load the database:' + error);
+        throw Error(`Failed to load the database:${error}`);
       }
 
       const previousVersion = yield select((state) => state.storage.appVersion);
@@ -191,6 +192,7 @@ function* credentialsAuthWorker({ payload }) {
 
           yield put(fetchExchangeRates());
           yield put(getMessages());
+          yield put(fetchSignedDelayedTransaction());
 
           yield put(
             uaiChecks([
@@ -306,7 +308,7 @@ async function updateSubscription(level: AppSubscriptionLevel) {
     receipt: '',
     productId: selectedSubscription.productId,
     name: selectedSubscription.name,
-    level: level,
+    level,
     icon: selectedSubscription.icon,
   };
 

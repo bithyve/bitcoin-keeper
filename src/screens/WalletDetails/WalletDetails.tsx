@@ -72,7 +72,12 @@ function WalletDetails({ route }: ScreenProps) {
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletTranslations } = translations;
-  const { autoRefresh = false, walletId, transactionToast = false } = route.params || {};
+  const {
+    autoRefresh = false,
+    hardRefresh: autoHardRefresh = false,
+    walletId,
+    transactionToast = false,
+  } = route.params || {};
   const [syncingCompleted, setSyncingCompleted] = useState(false);
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
@@ -124,7 +129,7 @@ function WalletDetails({ route }: ScreenProps) {
   }, []);
 
   useEffect(() => {
-    if (autoRefresh) pullDownRefresh();
+    if (autoRefresh) pullDownRefresh(autoHardRefresh);
   }, [autoRefresh]);
 
   useEffect(() => {
@@ -147,9 +152,9 @@ function WalletDetails({ route }: ScreenProps) {
     }
   }, [syncing]);
 
-  const pullDownRefresh = () => {
+  const pullDownRefresh = (hardRefresh) => {
     setPullRefresh(true);
-    dispatch(refreshWallets([wallet], { hardRefresh: true }));
+    dispatch(refreshWallets([wallet], { hardRefresh }));
     setPullRefresh(false);
   };
 

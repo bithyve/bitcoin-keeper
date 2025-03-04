@@ -405,7 +405,7 @@ describe('Vault: Multi-sig(2-of-3)', () => {
     signedSerializedPSBTs.push(signedSerializedPSBT);
   });
 
-  test('vault operations: Sign PSBT(signer - signing server)', async () => {
+  test('vault operations: Sign PSBT(signer - server key)', async () => {
     const { inputs, outputs } = txPrerequisites[txnPriority];
 
     let outgoing = 0;

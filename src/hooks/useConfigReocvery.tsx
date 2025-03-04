@@ -34,6 +34,7 @@ const useConfigRecovery = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { allVaults } = useVault({});
+  const [generatedVaultId, setGeneratedVaultId] = useState(null);
 
   const recoveryError = {
     failed: false,
@@ -63,6 +64,7 @@ const useConfigRecovery = () => {
               miniscriptElements,
             };
             dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+            setGeneratedVaultId(generatedVaultId);
           })
         );
       } catch (err) {
@@ -73,21 +75,28 @@ const useConfigRecovery = () => {
   }, [scheme, signersList]);
 
   useEffect(() => {
-    if (relayVaultUpdate) {
+    if (relayVaultUpdate && generatedVaultId) {
       const navigationState = {
-        index: 0,
-        routes: [{ name: 'Home' }],
+        index: 1,
+        routes: [
+          { name: 'Home' },
+          {
+            name: 'VaultDetails',
+            params: { autoRefresh: true, hardRefresh: true, vaultId: generatedVaultId },
+          },
+        ],
       };
+      setGeneratedVaultId(null);
       dispatch(resetRealyVaultState());
       setRecoveryLoading(false);
-      showToast('Vault imported successfully!', <TickIcon />);
+      showToast('Wallet imported successfully!', <TickIcon />);
       navigation.dispatch(CommonActions.reset(navigationState));
     }
     if (relayVaultError) {
-      showToast('Vault import failed!');
+      showToast('Wallet import failed!');
       setRecoveryLoading(false);
     }
-  }, [relayVaultUpdate, relayVaultError]);
+  }, [relayVaultUpdate, relayVaultError, generatedVaultId]);
 
   const initateRecovery = (text) => {
     setRecoveryLoading(true);

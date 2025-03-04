@@ -165,7 +165,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
         Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light, width, height),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
-            Signing Server +
+            Server Key +
           </Text>
         ),
         type: SignerStorage.HOT,
