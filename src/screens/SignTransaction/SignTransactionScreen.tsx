@@ -48,8 +48,8 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
-import { InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
-import { generateKey } from 'src/utils/service-utilities/encryption';
+import { DelayedTransaction, InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
+import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -62,6 +62,10 @@ import { SIGNTRANSACTION } from 'src/navigation/contants';
 import config from 'src/utils/service-utilities/config';
 import { isReading, stopReading } from 'src/hardware/portal';
 import { hp, wp } from 'src/constants/responsive';
+import { getKeyUID } from 'src/utils/utilities';
+import { SentryErrorBoundary } from 'src/services/sentry';
+import { deleteDelayedTransaction, updateDelayedTransaction } from 'src/store/reducers/storage';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { formatDuration } from '../Vault/HardwareModalMap';
 import SignerModals from './SignerModals';
@@ -75,10 +79,7 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import { getKeyUID } from 'src/utils/utilities';
-import { SentryErrorBoundary } from 'src/services/sentry';
 import SendSuccessfulContent from '../Send/SendSuccessfulContent';
-import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -162,13 +163,18 @@ function SignTransactionScreen() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+  const fcmToken = useAppSelector((state) => state.notifications.fcmToken);
+  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
 
-  const { relayVaultError, realyVaultErrorMessage } = useAppSelector((state) => state.bhr);
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const sendFailedMessage = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
   );
+  const delayedTransactions = useAppSelector((state) => state.storage.delayedTransactions) || {};
+
   const [broadcasting, setBroadcasting] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
   const card = useRef(new CKTapCard()).current;
@@ -385,23 +391,33 @@ function SignTransactionScreen() {
             ])
           );
         } else if (SignerType.POLICY_SERVER === signerType) {
-          const { signedSerializedPSBT } = await signTransactionWithSigningServer({
-            xfp,
-            signingPayload,
-            signingServerOTP,
-            serializedPSBT,
-            showOTPModal,
-            showToast,
-          });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SIGNING,
-              },
-            ])
-          );
+          const { signedSerializedPSBT, delayed, delayedTransaction } =
+            await signTransactionWithSigningServer({
+              xfp,
+              signingPayload,
+              signingServerOTP,
+              serializedPSBT,
+              showOTPModal,
+              showToast,
+              fcmToken,
+            });
+
+          if (delayed) {
+            showToast(
+              'Your transaction is being processed. You will receive a notification when it is signed'
+            );
+            dispatch(updateDelayedTransaction(delayedTransaction));
+          } else if (signedSerializedPSBT) {
+            dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+            dispatch(
+              healthCheckStatusUpdate([
+                {
+                  signerId: signer.masterFingerprint,
+                  status: hcStatusType.HEALTH_CHECK_SIGNING,
+                },
+              ])
+            );
+          }
         } else if (SignerType.INHERITANCEKEY === signerType) {
           let requestId = inheritanceSigningRequestId;
           let isNewRequest = false;
@@ -496,7 +512,7 @@ function SignTransactionScreen() {
         }
       }
     },
-    [activeXfp, serializedPSBTEnvelops, inheritanceSigningRequestId]
+    [activeXfp, serializedPSBTEnvelops, inheritanceSigningRequestId, delayedTransactions]
   );
 
   const onFileSign = (signedSerializedPSBT: string) => {
@@ -557,13 +573,45 @@ function SignTransactionScreen() {
             (envelop) => envelop.xfp === vaultKey.xfp
           )[0];
           const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
+
+          // case: old policy w/ exception - auto sign
           if (
             !signer.signerPolicy.exceptions.none &&
             outgoing <= signer.signerPolicy.exceptions.transactionAmount
           ) {
             showToast('Auto-signing, send amount smaller than max no-check amount');
             signTransaction({ xfp: vaultKey.xfp }); // case: OTP not required
-          } else showOTPModal(true);
+            return;
+          }
+          // case: new policy - delayed signing
+          const delayedTxid = hash256(serializedPSBTEnvelop.serializedPSBT);
+          const delayedTx: DelayedTransaction = delayedTransactions[delayedTxid];
+          if (delayedTx) {
+            if (delayedTx.signedPSBT) {
+              dispatch(
+                updatePSBTEnvelops({
+                  signedSerializedPSBT: delayedTx.signedPSBT,
+                  xfp: vaultKey.xfp,
+                })
+              );
+              dispatch(
+                healthCheckStatusUpdate([
+                  {
+                    signerId: signer.masterFingerprint,
+                    status: hcStatusType.HEALTH_CHECK_SIGNING,
+                  },
+                ])
+              );
+
+              dispatch(deleteDelayedTransaction(delayedTxid));
+              return;
+            } else {
+              showToast('Transaction already submitted for signing');
+              return;
+            }
+          }
+
+          showOTPModal(true);
         } else showOTPModal(true);
         break;
       case SignerType.INHERITANCEKEY:

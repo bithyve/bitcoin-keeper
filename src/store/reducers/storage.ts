@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 
 interface InheritanceToolVisitedHistoryType {
   BUY_NEW_HARDWARE_SIGNER: number;
@@ -35,6 +36,7 @@ const initialState: {
   recoveryAppCreated: boolean;
   inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
   dontShowConceirgeOnboarding: boolean;
+  delayedTransactions: { [txid: string]: DelayedTransaction };
 } = {
   appId: '',
   resetCred: {
@@ -68,6 +70,7 @@ const initialState: {
     ADDITIONAL_SIGNER_DETAILS: null,
   },
   dontShowConceirgeOnboarding: false,
+  delayedTransactions: {},
 };
 
 const storageSlice = createSlice({
@@ -124,6 +127,17 @@ const storageSlice = createSlice({
     setDontShowConceirgeOnboarding: (state) => {
       state.dontShowConceirgeOnboarding = true;
     },
+    updateDelayedTransaction: (state, action: PayloadAction<DelayedTransaction>) => {
+      state.delayedTransactions = {
+        ...(state.delayedTransactions || {}),
+        [action.payload.txid]: action.payload,
+      };
+    },
+    deleteDelayedTransaction: (state, action: PayloadAction<string>) => {
+      if (state.delayedTransactions && state.delayedTransactions[action.payload]) {
+        delete state.delayedTransactions[action.payload];
+      }
+    },
   },
 });
 
@@ -140,6 +154,8 @@ export const {
   setRecoveryCreatedApp,
   updateLastVisitedTimestamp,
   setDontShowConceirgeOnboarding,
+  updateDelayedTransaction,
+  deleteDelayedTransaction,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

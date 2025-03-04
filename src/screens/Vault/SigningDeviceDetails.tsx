@@ -54,9 +54,6 @@ import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
-import IdentifySignerModal from './components/IdentifySignerModal';
-import { SDColoredIcons } from './SigningDeviceIcons';
 import { getPsbtForHwi, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
@@ -74,7 +71,6 @@ import { generateDataFromPSBT, getAccountFromSigner, getKeyUID } from 'src/utils
 import idx from 'idx';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
-import SignerCard from '../AddSigner/SignerCard';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import { captureError } from 'src/services/sentry';
 import {
@@ -85,6 +81,10 @@ import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { Psbt, script } from 'bitcoinjs-lib';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
+import SignerCard from '../AddSigner/SignerCard';
+import { SDColoredIcons } from './SigningDeviceIcons';
+import IdentifySignerModal from './components/IdentifySignerModal';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -96,19 +96,21 @@ export const SignersReqVault = [
 
 export const CHANGE_INDEX_THRESHOLD = 100;
 
-const EmptyActivityView = ({ colorMode, isDarkMode }) => (
-  <Box style={styles.emptyWrapper}>
-    <Text color={`${colorMode}.secondaryText`} style={styles.emptyText} medium>
-      {'No activity detected!'}
-    </Text>
-    <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
-      {`This Signer isn't linked to a wallet yet. Ready to unlock its power?`}
-    </Text>
-    <Box style={styles.emptyStateContainer}>
-      {!isDarkMode ? <EmptyStateLight /> : <EmptyStateDark />}
+function EmptyActivityView({ colorMode, isDarkMode }) {
+  return (
+    <Box style={styles.emptyWrapper}>
+      <Text color={`${colorMode}.secondaryText`} style={styles.emptyText} medium>
+        No activity detected!
+      </Text>
+      <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
+        This Signer isn't linked to a wallet yet. Ready to unlock its power?
+      </Text>
+      <Box style={styles.emptyStateContainer}>
+        {!isDarkMode ? <EmptyStateLight /> : <EmptyStateDark />}
+      </Box>
     </Box>
-  </Box>
-);
+  );
+}
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -201,7 +203,7 @@ const getSignerContent = (type: SignerType) => {
       };
     case SignerType.POLICY_SERVER:
       return {
-        title: 'Signing Server',
+        title: 'Server Key',
         subTitle:
           'The key on the signer will sign a transaction depending on the policy and authentication',
         assert: <SigningServerIllustration />,
@@ -256,7 +258,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <SpecterSetupImage />,
         description:
           '\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions.',
-        FAQ: `https://docs.specter.solutions/diy/faq/`,
+        FAQ: 'https://docs.specter.solutions/diy/faq/',
       };
     default:
       return {
@@ -454,8 +456,9 @@ function SigningDeviceDetails({ route }) {
         if (
           parseInt(changeAddressIndex) >
           activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
-        )
+        ) {
           throw new Error('Change index is too high.');
+        }
         receiverAddresses = findChangeFromReceiverAddresses(
           activeVault,
           receiverAddresses,
@@ -469,7 +472,7 @@ function SigningDeviceDetails({ route }) {
         // Update PSBT inputs to use SELECTED_MINISCRIPT_BIP32_DERIVATIONS if they exist
         // This is needed for Miniscript since the BitBox02 only produces one signature,
         // but the Ledger and Coldcard require to pass all bip32 derivations to sign,
-        //so the BitBox02 will only produce signature for one of these and we can't control
+        // so the BitBox02 will only produce signature for one of these and we can't control
         // if it's the correct one or not
         const psbt = Psbt.fromBase64(serializedPSBT);
         psbt.data.inputs.map((input) => {
@@ -517,7 +520,7 @@ function SigningDeviceDetails({ route }) {
 
   function FooterIcon({ Icon, showDot = false }) {
     return (
-      <Box justifyContent="center" alignItems="center" position={'relative'}>
+      <Box justifyContent="center" alignItems="center" position="relative">
         <Icon />
         {showDot && <Box style={styles.redDot} />}
       </Box>
@@ -547,6 +550,7 @@ function SigningDeviceDetails({ route }) {
       onPress: navigateToCosignerDetails,
     },
     signer?.type !== SignerType.KEEPER &&
+      signer?.type !== SignerType.POLICY_SERVER &&
       signer?.type !== SignerType.UNKOWN_SIGNER && {
         text: 'Sign Transaction',
         Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
@@ -699,7 +703,7 @@ function SigningDeviceDetails({ route }) {
           learnBackgroundColor={`${colorMode}.pantoneGreen`}
           learnTextColor={`${colorMode}.buttonText`}
           mediumTitle
-          title={signer?.signerName}
+          title={signer?.signerName === 'Signing Server' ? 'Server Key' : signer?.signerName}
           titleColor={`${colorMode}.modalGreenContent`}
           subTitleColor={`${colorMode}.modalGreenContent`}
           subtitle={getSignerDescription(signer)}
@@ -710,15 +714,17 @@ function SigningDeviceDetails({ route }) {
               image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
             />
           }
-          rightComponent={
+          topRightComponent={
             !vaultKey ? (
-              <TouchableOpacity onPress={navigateToSettings} testID="btn_manage_singner_setting">
+              <TouchableOpacity
+                style={styles.settingIcon}
+                onPress={navigateToSettings}
+                testID="btn_manage_singner_setting"
+              >
                 <SettingIcon />
               </TouchableOpacity>
             ) : null
           }
-          rightComponentPadding={wp(0)}
-          rightComponentBottomPadding={hp(10)}
         />
       </Box>
       <Box style={styles.bottomSection} backgroundColor={`${colorMode}.thirdBackground`}>
@@ -765,7 +771,7 @@ function SigningDeviceDetails({ route }) {
                 title={common.signerFingerPrint}
                 data={signer.masterFingerprint}
                 dataType="fingerprint"
-                width={'95%'}
+                width="95%"
                 height={62}
               />
             </Box>
@@ -826,7 +832,7 @@ function SigningDeviceDetails({ route }) {
             <KeeperModal
               visible={detailModal}
               close={() => setDetailModal(false)}
-              title={!signer.isBIP85 ? title : title + ' +'}
+              title={!signer.isBIP85 ? title : `${title} +`}
               subTitle={subTitle}
               modalBackground={`${colorMode}.modalGreenBackground`}
               textColor={`${colorMode}.modalGreenContent`}
@@ -1114,6 +1120,12 @@ const styles = StyleSheet.create({
   },
   footerWrapper: {
     justifyContent: 'center',
+  },
+  settingIcon: {
+    width: wp(40),
+    height: wp(40),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
