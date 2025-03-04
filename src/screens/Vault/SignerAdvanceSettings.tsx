@@ -915,11 +915,11 @@ function SignerAdvanceSettings({ route }: any) {
         callback={registerSigner}
       />
     ),
-    isPolicyServer && vaultId && (
+    isPolicyServer && (
       <OptionCard
         key="configurationSetting"
-        title="Configuration Setting"
-        description="Secure and customizable settings"
+        title="Server Policy Setting"
+        description="Update your server key signing policy"
         callback={navigateToPolicyChange}
       />
     ),

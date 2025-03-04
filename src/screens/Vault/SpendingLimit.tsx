@@ -29,7 +29,7 @@ const SpendingLimit = ({ route }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common } = translations;
-  const { totalSats, totalTime } = route.params;
+  const { totalSats, totalTime, addSignerFlow } = route.params;
 
   const [maxTransaction, setMaxTransaction] = useState(
     totalSats ? numberWithCommas(totalSats) : '0'
@@ -71,6 +71,7 @@ const SpendingLimit = ({ route }) => {
       isUpdate: true,
       maxTransaction: maxTransaction.replace(/,/g, ''),
       timelimit: selectedOption,
+      addSignerFlow,
     });
   };
 
