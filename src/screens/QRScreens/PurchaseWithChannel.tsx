@@ -25,6 +25,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TierUpgradeModal, { UPGRADE_TYPE } from '../ChoosePlanScreen/TierUpgradeModal';
 import { useQuery } from '@realm/react';
+import { manipulateIosProdProductId } from 'src/utils/utilities';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -76,7 +77,7 @@ function PurchaseWithChannel() {
           if (data?.isUpdated) {
             const { productId, receipt, name, level, icon } = data;
             const subscription: SubScription = {
-              productId,
+              productId: manipulateIosProdProductId(productId),
               receipt,
               name,
               level,

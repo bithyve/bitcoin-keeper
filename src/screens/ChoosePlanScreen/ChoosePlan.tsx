@@ -51,6 +51,7 @@ import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import { BrownButton } from 'src/components/BrownButton';
 import config from 'src/utils/service-utilities/config';
+import { manipulateIosProdProductId } from 'src/utils/utilities';
 const { width } = Dimensions.get('window');
 
 const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
@@ -374,11 +375,12 @@ function ChoosePlan() {
         const btcPurchase = await Relay.restoreBtcPurchase(id);
         if (btcPurchase) {
           const subscription: SubScription = {
-            productId: btcPurchase.productId,
+            productId: manipulateIosProdProductId(btcPurchase.productId),
             receipt: btcPurchase.receipt,
             name: btcPurchase.name,
             level: btcPurchase.level,
             icon: btcPurchase.icon,
+            isDesktopPurchase: true,
           };
           calculateModalContent(btcPurchase, appSubscription);
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
@@ -605,7 +607,7 @@ function ChoosePlan() {
             onChange={(item) => setCurrentPosition(item)}
             primaryCallback={() => {
               if (!isOnL1 && appSubscription.isDesktopPurchase) {
-                Alert.alert('You already have an active BTC based subscription.');
+                Alert.alert('', 'You already have an active BTC based subscription.');
                 return;
               }
               processSubscription(items[currentPosition], currentPosition);

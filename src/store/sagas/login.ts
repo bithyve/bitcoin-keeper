@@ -61,6 +61,7 @@ import { connectToNode } from '../sagaActions/network';
 import SubScription from 'src/models/interfaces/Subscription';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
+import { manipulateIosProdProductId } from 'src/utils/utilities';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -261,10 +262,11 @@ async function updateSubscriptionFromRelayData(data) {
   const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const updatedSubscription: SubScription = {
     receipt: data.transactionReceipt,
-    productId: data.productId,
+    productId: manipulateIosProdProductId(data.productId),
     name: data.plan,
     level: data.level,
     icon: data.icon,
+    isDesktopPurchase: true,
   };
   dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
     subscription: updatedSubscription,
