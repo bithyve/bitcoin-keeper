@@ -13,6 +13,7 @@ type Props = {
   maxTransaction?: any;
   timelimit?: any;
   delayTime?: any;
+  addSignerFlow?: boolean;
 };
 
 const ServerKeyPolicyCard = (props: Props) => {
@@ -22,11 +23,13 @@ const ServerKeyPolicyCard = (props: Props) => {
     props.navigation.navigate('SpendingLimit', {
       totalSats: props.maxTransaction,
       totalTime: props.timelimit,
+      addSignerFlow: props.addSignerFlow,
     });
   };
   const handleDelay = () => {
     props.navigation.navigate('SigningDelay', {
       totalDelay: props.delayTime,
+      addSignerFlow: props.addSignerFlow,
     });
   };
   return (

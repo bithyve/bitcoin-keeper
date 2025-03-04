@@ -47,7 +47,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
 
-  const { maxTransaction, timelimit, delayTime } = route.params;
+  const { maxTransaction, timelimit, delayTime, addSignerFlow } = route.params;
 
   const [spendingLimit, setSpendingLimit] = useState(null);
   const [timeLimit, setTimeLimit] = useState(null);
@@ -125,7 +125,7 @@ function ChoosePolicyNew({ navigation, route }) {
       // case: new signer policy registration
       const policy = preparePolicy();
       navigation.dispatch(
-        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
+        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy, addSignerFlow } })
       );
     }
   };
@@ -234,6 +234,7 @@ function ChoosePolicyNew({ navigation, route }) {
           maxTransaction={spendingLimit}
           timelimit={timeLimit}
           delayTime={signingDelay}
+          addSignerFlow={addSignerFlow}
         />
       </Box>
 
