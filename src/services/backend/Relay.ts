@@ -432,7 +432,6 @@ export default class Relay {
     }
   };
 
-
   public static getVaultMetaData = async (xfpHash: String, signerId?: String): Promise<any> => {
     try {
       const res: any = await RestClient.post(`${RELAY}getVaultMetaData`, {
@@ -674,6 +673,22 @@ export default class Relay {
       }
     } catch (error) {
       console.log('🚀 ~ Relay ~ getRemoteKey= ~ error:', error);
+    }
+  };
+  public static fetchHardwareReferralLinks = async (appId: string): Promise<any> => {
+    try {
+      const response = await RestClient.get(`${RELAY}getHardwareReferralLinks?appId=${appId}`);
+
+      const data = (response as AxiosResponse).data || (response as any).json;
+
+      if (data) {
+        return data;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      captureError(error);
+      throw error;
     }
   };
 

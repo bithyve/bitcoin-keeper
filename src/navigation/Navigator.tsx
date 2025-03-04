@@ -154,6 +154,7 @@ import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
 import NotificationsCenter from 'src/screens/Home/Notifications/NotificationsCenter';
 import SettingsApp from 'src/screens/Home/components/Settings/AppSettings';
 import InheritanceDocumentScreen from 'src/screens/Home/components/Settings/InheritanceDocumentScreen';
+import HardwareWallet from 'src/screens/Hardware/Hardware';
 import SpendingLimit from 'src/screens/Vault/SpendingLimit';
 import SigningDelay from 'src/screens/Vault/SigningDelay';
 import ServerKeySuccessScreen from 'src/screens/Vault/ServerKeySuccessScreen';
@@ -271,10 +272,10 @@ function AppStack() {
         />
 
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
+        <Stack.Screen name="HardwareWallet" component={HardwareWallet} />
         <Stack.Screen name="SpendingLimit" component={SpendingLimit} />
         <Stack.Screen name="SigningDelay" component={SigningDelay} />
         <Stack.Screen name="SigningRequest" component={SigningRequest} />
-
         <Stack.Screen name="ServerKeySuccessScreen" component={ServerKeySuccessScreen} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
