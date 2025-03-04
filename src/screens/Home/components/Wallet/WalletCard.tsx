@@ -143,9 +143,13 @@ const styles = StyleSheet.create({
   },
   pillsContainer: {
     flexDirection: 'row',
+    position: 'absolute',
+    top: 20,
+    right: wp(13),
     gap: 5,
     justifyContent: 'flex-end',
     flexWrap: 'wrap',
+    width: '80%',
   },
   secondCard: {
     maxWidth: wp(80),

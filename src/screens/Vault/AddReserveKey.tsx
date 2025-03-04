@@ -17,7 +17,18 @@ import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
 import Buttons from 'src/components/Buttons';
 import { SDIcons } from './SigningDeviceIcons';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
-import { MONTHS_12, MONTHS_24, MONTHS_18 } from './constants';
+import {
+  MONTHS_12,
+  MONTHS_24,
+  MONTHS_18,
+  MONTHS_6,
+  MONTHS_30,
+  MONTHS_36,
+  MONTHS_42,
+  MONTHS_48,
+  MONTHS_54,
+  MONTHS_60,
+} from './constants';
 import { getKeyUID } from 'src/utils/utilities';
 import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
@@ -30,13 +41,20 @@ import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
+import { INHERITANCE_KEY_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
-const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
-const INHERITANCE_TIMELOCK_DURATIONS = [
-  DEFAULT_INHERITANCE_TIMELOCK,
-  { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
-  { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
+export const DEFAULT_INHERITANCE_KEY_TIMELOCK = { label: MONTHS_12, value: MONTHS_12 };
+export const INHERITANCE_TIMELOCK_DURATIONS = [
+  { label: MONTHS_6, value: MONTHS_6 },
+  { label: MONTHS_12, value: MONTHS_12 },
+  { label: MONTHS_18, value: MONTHS_18 },
+  { label: MONTHS_24, value: MONTHS_24 },
+  { label: MONTHS_30, value: MONTHS_30 },
+  { label: MONTHS_36, value: MONTHS_36 },
+  { label: MONTHS_42, value: MONTHS_42 },
+  { label: MONTHS_48, value: MONTHS_48 },
+  { label: MONTHS_54, value: MONTHS_54 },
+  { label: MONTHS_60, value: MONTHS_60 },
 ];
 
 function AddReserveKey({ route }) {
@@ -47,6 +65,7 @@ function AddReserveKey({ route }) {
     description,
     vaultId,
     isAddInheritanceKey,
+    isAddEmergencyKey,
     currentBlockHeight: currentBlockHeightParam,
     keyToRotate,
   } = route.params;
@@ -55,7 +74,7 @@ function AddReserveKey({ route }) {
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultTranslations } = translations;
-  const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_TIMELOCK);
+  const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_KEY_TIMELOCK);
   const [selectedSigner, setSelectedSigner] = useState(null);
   const { activeVault, allVaults } = useVault({ vaultId });
   const vaultKeys = vaultKeysParam || activeVault?.signers || [];
@@ -70,6 +89,7 @@ function AddReserveKey({ route }) {
 
   const dispatch = useDispatch();
 
+  // TODO: Allow multiple inheritance keys
   const reservedKey = useMemo(() => {
     if (!selectedSigner || !signerMap) return null;
     return signerMap[getKeyUID(selectedSigner[0])];
@@ -86,10 +106,10 @@ function AddReserveKey({ route }) {
     )
       return;
 
-    const inheritanceKeyFingerprint =
-      activeVault.scheme.miniscriptScheme.miniscriptElements.signerFingerprints[
-        INHERITANCE_KEY1_IDENTIFIER
-      ];
+    // TODO: Support multiple inheritance keys
+    const inheritanceKeyFingerprint = Object.entries(
+      activeVault.scheme.miniscriptScheme.miniscriptElements.signerFingerprints
+    ).find(([key]) => key.startsWith(INHERITANCE_KEY_IDENTIFIER))?.[1];
 
     if (!inheritanceKeyFingerprint) return;
 
@@ -101,26 +121,6 @@ function AddReserveKey({ route }) {
       setSelectedSigner([inheritanceKey]);
     }
   }, [activeVault?.id, keyToRotate, selectedSigner]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (relayVaultUpdate && newVault) {
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-        setVaultCreatedModalVisible(true);
-      } else if (relayVaultUpdate) {
-        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
-
-      if (relayVaultError) {
-        showToast(realyVaultErrorMessage, <ToastErrorIcon />);
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
-    }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
-  );
 
   const viewVault = () => {
     setVaultCreatedModalVisible(false);
@@ -152,9 +152,9 @@ function AddReserveKey({ route }) {
       parentScreen: ADDRESERVEKEY,
       selectedSignersFromParams:
         vaultKeys && vaultKeys.length > 0 ? vaultKeys : route.params.selectedSigners,
-      selectedReserveKey: selectedSigner,
       scheme,
       isAddInheritanceKey,
+      isAddEmergencyKey,
       currentBlockHeight,
       onGoBack: (signer) => setSelectedSigner(signer),
     });
@@ -165,6 +165,7 @@ function AddReserveKey({ route }) {
     selectedSigner,
     scheme,
     isAddInheritanceKey,
+    isAddEmergencyKey,
     currentBlockHeight,
   ]);
 
@@ -227,24 +228,44 @@ function AddReserveKey({ route }) {
             fullWidth
             primaryDisable={!selectedSigner || !selectedOption}
             primaryCallback={() => {
-              if (vaultId) {
-                setCreating(true);
-                return;
+              if (isAddEmergencyKey) {
+                navigation.navigate('AddEmergencyKey', {
+                  vaultKeys,
+                  vaultId,
+                  scheme,
+                  name,
+                  description,
+                  isAddInheritanceKey,
+                  isAddEmergencyKey,
+                  currentBlockHeight,
+                  selectedSigners: route.params.selectedSigners,
+                  keyToRotate,
+                  inheritanceKeys: selectedSigner
+                    ? [{ key: selectedSigner[0], duration: selectedOption.label }]
+                    : [],
+                });
+              } else {
+                if (vaultId) {
+                  setCreating(true);
+                  return;
+                }
+                navigation.navigate('ConfirmWalletDetails', {
+                  vaultKeys,
+                  scheme,
+                  isHotWallet: false,
+                  vaultType: VaultType.MINISCRIPT,
+                  isTimeLock: false,
+                  isAddInheritanceKey,
+                  isAddEmergencyKey,
+                  currentBlockHeight,
+                  hotWalletInstanceNum: null,
+                  reservedKeys: selectedSigner
+                    ? [{ key: selectedSigner[0], duration: selectedOption.label }]
+                    : [],
+                  selectedSigners: route.params.selectedSigners,
+                  vaultId,
+                });
               }
-              navigation.navigate('ConfirmWalletDetails', {
-                vaultKeys,
-                scheme,
-                isHotWallet: false,
-                vaultType: VaultType.MINISCRIPT,
-                isTimeLock: false,
-                isAddInheritanceKey,
-                currentBlockHeight,
-                hotWalletInstanceNum: null,
-                reservedKey: selectedSigner ? selectedSigner[0] : null,
-                selectedDuration: selectedOption.label,
-                selectedSigners: route.params.selectedSigners,
-                vaultId,
-              });
             }}
           />
         </Box>
@@ -281,10 +302,12 @@ function AddReserveKey({ route }) {
           .filter((key) => (keyToRotate ? getKeyUID(key) !== getKeyUID(keyToRotate) : true))
           .filter(
             (signer) =>
-              signer.masterFingerprint !==
-              activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
-                INHERITANCE_KEY1_IDENTIFIER
-              ]
+              !Object.entries(
+                activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints || {}
+              )
+                .filter(([key]) => key.startsWith(INHERITANCE_KEY_IDENTIFIER))
+                .map(([_, value]) => value)
+                .includes(signer.masterFingerprint)
           )}
         scheme={scheme}
         name={name}
@@ -293,11 +316,12 @@ function AddReserveKey({ route }) {
         setGeneratedVaultId={setGeneratedVaultId}
         setCreating={setCreating}
         vaultType={VaultType.MINISCRIPT}
-        inheritanceKey={selectedSigner ? selectedSigner[0] : null}
-        isAddInheritanceKey={true}
+        inheritanceKeys={
+          selectedSigner ? [{ key: selectedSigner[0], duration: selectedOption.label }] : []
+        }
         currentBlockHeight={currentBlockHeight}
-        selectedDuration={selectedOption.label}
         miniscriptTypes={[MiniscriptTypes.INHERITANCE]}
+        setVaultCreatedModalVisible={setVaultCreatedModalVisible}
       />
     </ScreenWrapper>
   );

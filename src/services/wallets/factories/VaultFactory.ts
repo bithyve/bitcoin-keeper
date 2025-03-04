@@ -167,6 +167,7 @@ export const generateVault = async ({
     presentationData,
     specs,
     archived: false,
+    isMigrating: false,
     scriptType,
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);

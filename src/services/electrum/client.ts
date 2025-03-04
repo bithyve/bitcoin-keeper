@@ -309,6 +309,9 @@ export default class ElectrumClient {
     txids: any[];
     txidToAddress: { [tx_hash: string]: string };
   }> {
+    if (addresses.length === 0) {
+      return { historyByAddress: {}, txids: [], txidToAddress: {} };
+    }
     ElectrumClient.checkConnection();
 
     const historyByAddress = {};
@@ -360,6 +363,9 @@ export default class ElectrumClient {
     batchsize: number = 40,
     includeHex: boolean = false
   ): Promise<{ [txid: string]: ElectrumTransaction }> {
+    if (txids.length === 0) {
+      return {};
+    }
     ElectrumClient.checkConnection();
 
     const res = {};

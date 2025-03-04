@@ -551,8 +551,11 @@ export function* addNewVaultWorker({
 
       if (isMigrated) {
         const oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
+        const isWalletEmpty =
+          oldVault.specs.balances.confirmed === 0 && oldVault.specs.balances.unconfirmed === 0;
         const updatedParams = {
-          archived: true,
+          archived: isWalletEmpty,
+          isMigrating: !isWalletEmpty,
           archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
         };
         const archivedVaultresponse = yield call(updateVaultImageWorker, {
@@ -1036,13 +1039,14 @@ function* syncWalletsWorker({
     };
   };
 }) {
-  const { wallets } = payload;
+  const { wallets, options } = payload;
   const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
 
   const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
     WalletOperations.syncWalletsViaElectrumClient,
     wallets,
-    network
+    network,
+    options.hardRefresh
   );
 
   return {
@@ -1082,20 +1086,13 @@ function* refreshWalletsWorker({
     }
     for (const synchedWalletWithUTXOs of synchedWallets) {
       const { synchedWallet } = synchedWalletWithUTXOs;
-      // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+      if (!synchedWallet.specs.hasNewUpdates && !options.hardRefresh) continue; // no new updates found
 
       for (const utxo of synchedWalletWithUTXOs.newUTXOs) {
         const labelChanges = {
           added: [],
           deleted: [],
         };
-
-        if (Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
-          labelChanges.added.push({
-            name: 'Change',
-            isSystem: false,
-          });
-        }
 
         const utxoLabels = labels ? labels.filter((label) => label.ref === utxo.address) : [];
         if (utxoLabels.length > 0) {
@@ -1634,6 +1631,7 @@ function* reinstateVaultWorker({ payload }) {
     const vault: Vault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON();
     const updatedParams = {
       archived: false,
+      isMigrating: false,
       archivedId: null,
       presentationData: {
         ...vault.presentationData,

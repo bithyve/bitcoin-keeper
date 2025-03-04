@@ -15,8 +15,13 @@ import { MiniscriptTypes, VaultType, VisibilityType } from 'src/services/wallets
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { getKeyUID, trimCWDefaultName } from 'src/utils/utilities';
-import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import {
+  EMERGENCY_KEY_IDENTIFIER,
+  getVaultEnhancedSigners,
+  INHERITANCE_KEY_IDENTIFIER,
+} from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
 import SettingCard from '../Home/components/Settings/Component/SettingCard';
 import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
@@ -39,13 +44,10 @@ function VaultSettings({ route }) {
   const { showToast } = useToastMessage();
   const isMiniscriptVault =
     vault?.type === VaultType.MINISCRIPT && !!vault?.scheme?.miniscriptScheme;
-  const inheritanceKey = vault?.signers?.find(
-    (signer) =>
-      signer.masterFingerprint ===
-      vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
-        INHERITANCE_KEY1_IDENTIFIER
-      ]
-  );
+  const { inheritanceSigners: inheritanceKeys, emergencySigners: emergencyKeys } = isMiniscriptVault
+    ? getVaultEnhancedSigners(vault)
+    : { inheritanceSigners: [], emergencySigners: [] };
+
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
   const [needHelpModal, setNeedHelpModal] = useState(false);
 
@@ -60,6 +62,18 @@ function VaultSettings({ route }) {
         },
       });
       showToast(vaultText.vaultHiddenSuccessMessage, <TickIcon />, IToastCategory.DEFAULT, 5000);
+      navigation.navigate('Home');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const archiveWallet = () => {
+    try {
+      dbManager.updateObjectById(RealmSchema.Vault, vault.id, {
+        archived: true,
+        isMigrating: false,
+      });
       navigation.navigate('Home');
     } catch (error) {
       console.log(error);
@@ -118,6 +132,14 @@ function VaultSettings({ route }) {
       isDiamond: false,
       onPress: () => updateWalletVisibility(),
     },
+    vault.archivedId &&
+      vault.isMigrating && {
+        title: 'Archive this wallet',
+        description: 'If you have finished migrating to the new vault archive the wallet here',
+        icon: null,
+        isDiamond: false,
+        onPress: () => archiveWallet(),
+      },
     false && // disable update scheme as it gives wrong behavior
       !isCanaryWalletType && {
         title: vaultText.vaultSchemeTitle,
@@ -139,20 +161,37 @@ function VaultSettings({ route }) {
             })
           ),
       },
-    // TODO: Update to be generic instead of only for inheritance key
-    isMiniscriptVault && {
-      title: vaultText.resetIKTitle,
-      description: vaultText.resetIKDesc,
+    inheritanceKeys.length && {
+      title: emergencyKeys.length
+        ? vaultText.resetKeysTitle
+        : vaultText.resetIKTitle + (inheritanceKeys.length > 1 ? 's' : ''),
+      description: emergencyKeys.length
+        ? vaultText.resetKeysDesc
+        : vaultText.resetIKDesc + (inheritanceKeys.length > 1 ? 's' : ''),
       icon: null,
       isDiamond: false,
       onPress: () =>
         navigation.dispatch(
           CommonActions.navigate({
             name: 'ResetInheritanceKey',
-            params: { signerId: getKeyUID(inheritanceKey), vault },
+            params: { vault },
           })
         ),
     },
+    emergencyKeys.length &&
+      inheritanceKeys.length === 0 && {
+        title: vaultText.resetEKTitle + (emergencyKeys.length > 1 ? 's' : ''),
+        description: vaultText.resetEKDesc + (emergencyKeys.length > 1 ? 's' : ''),
+        icon: null,
+        isDiamond: false,
+        onPress: () =>
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'ResetEmergencyKey',
+              params: { vault },
+            })
+          ),
+      },
   ].filter(Boolean);
 
   return (

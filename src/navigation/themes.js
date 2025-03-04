@@ -220,6 +220,7 @@ export const customTheme = extendTheme({
       boxSecondaryBackground: Colors.ChampagneBliss,
       borderBrown: Colors.brownColor,
       separator: Colors.separator,
+      FlameOrange: Colors.FlameOrange,
       alertRed: Colors.AlertRed,
       newBadgeGreen: Colors.NewBadgeGreen,
       textGreen: Colors.pantoneGreen,
@@ -272,6 +273,7 @@ export const customTheme = extendTheme({
       modalSubtitleBlack: Colors.modalSubtitleBlack,
       subPlansubtitle: Colors.coalGreen,
       textColor3: Colors.coalGreen,
+      BrownBorder: Colors.BrownBorder,
     },
     dark: {
       navButtonText: Colors.SecondaryWhite,
@@ -280,6 +282,7 @@ export const customTheme = extendTheme({
       termsText: Colors.ChampagneBliss,
       subPlansubtitle: Colors.headerWhite,
       modalSubtitleBlack: Colors.SecondaryWhite,
+      BrownBorder: Colors.separator,
 
       primaryGreen: Colors.GenericViridian,
       darkGrey: Colors.DarkGrey,
@@ -321,6 +324,8 @@ export const customTheme = extendTheme({
       yellowButtonTextColor: Colors.White,
       btcLabelBack: Colors.PeriwinkleDark,
       white: Colors.SecondaryBlack,
+      FlameOrange: Colors.FlameOrange,
+
       primaryText: Colors.SecondaryWhite,
       secondaryText: Colors.SecondaryWhite,
       learnMoreBorder: Colors.SecondaryWhite,
