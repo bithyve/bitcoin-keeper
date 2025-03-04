@@ -137,9 +137,8 @@ function PurchaseWithChannel() {
       appId: id,
       roomId: room,
     };
-    const res = await Relay.createBTCPayOrder(requestBody);
-    if (res?.id) {
-      requestBody['orderId'] = res.id;
+    const res = await Relay.checkEligibilityForBtcPay(requestBody);
+    if (res.status) {
       requestBody['action'] = EMIT_MODES.PURCHASE_SUBS;
       console.log('=> ', JSON.stringify(requestBody));
       const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);

@@ -432,7 +432,6 @@ export default class Relay {
     }
   };
 
-
   public static getVaultMetaData = async (xfpHash: String, signerId?: String): Promise<any> => {
     try {
       const res: any = await RestClient.post(`${RELAY}getVaultMetaData`, {
@@ -750,9 +749,9 @@ export default class Relay {
     }
   };
 
-  public static createBTCPayOrder = async (body): Promise<any> => {
+  public static checkEligibilityForBtcPay = async (body): Promise<any> => {
     try {
-      const res = await RestClient.post(`${RELAY}createBtcPayOrder`, body);
+      const res = await RestClient.post(`${RELAY}eligibleForBtcPay`, body);
       const data = res?.data;
       return data;
     } catch (err) {
