@@ -144,8 +144,8 @@ function PurchaseWithChannel() {
       const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
       channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
     } else {
-      showToast('Something went wrong. Please try again later.', <ToastErrorIcon />);
       navigation.goBack();
+      showToast(res.error ?? 'Something went wrong, Please try again!.', <ToastErrorIcon />);
     }
   };
 
