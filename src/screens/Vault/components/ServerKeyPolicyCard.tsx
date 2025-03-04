@@ -45,7 +45,7 @@ const ServerKeyPolicyCard = (props: Props) => {
           style={styles.inputContainer}
         >
           <Box style={styles.alignCenter}>
-            <Text>{props.maxTransaction ? numberWithCommas(props.maxTransaction) : 'off'} </Text>
+            <Text>{props.maxTransaction ? numberWithCommas(props.maxTransaction) : 'Off'} </Text>
             {props.maxTransaction ? (
               <Text>
                 sats{' '}
@@ -75,7 +75,7 @@ const ServerKeyPolicyCard = (props: Props) => {
           style={styles.inputContainer}
         >
           <Box style={styles.alignCenter}>
-            <Text>{props.delayTime ? props.delayTime?.label : 'off'} </Text>
+            <Text>{props.delayTime ? props.delayTime?.label : 'Off'} </Text>
           </Box>
           <EditIcon />
         </Box>

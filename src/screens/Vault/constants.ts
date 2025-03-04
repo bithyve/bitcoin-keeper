@@ -1,8 +1,8 @@
 export const NO_LIMIT = 'No limit';
 export const OFF = 'Off';
 export const DAY_1 = '1 day';
-export const DAY_3 = '3 day';
-export const DAY_5 = '5 day';
+export const DAY_3 = '3 days';
+export const DAY_5 = '5 days';
 export const WEEK_1 = '1 week';
 export const WEEKS_2 = '2 weeks';
 export const MONTH_1 = '1 month';

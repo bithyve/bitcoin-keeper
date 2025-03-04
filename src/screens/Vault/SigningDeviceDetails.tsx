@@ -703,7 +703,7 @@ function SigningDeviceDetails({ route }) {
           learnBackgroundColor={`${colorMode}.pantoneGreen`}
           learnTextColor={`${colorMode}.buttonText`}
           mediumTitle
-          title={signer?.signerName}
+          title={signer?.signerName === 'Signing Server' ? 'Server Key' : signer?.signerName}
           titleColor={`${colorMode}.modalGreenContent`}
           subTitleColor={`${colorMode}.modalGreenContent`}
           subtitle={getSignerDescription(signer)}
