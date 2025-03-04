@@ -479,7 +479,7 @@ function SignersList({
           )}
         </Box>
 
-        {vault.type === VaultType.MINISCRIPT &&
+        {vault?.type === VaultType.MINISCRIPT &&
           vault.scheme.miniscriptScheme.miniscriptElements.timelocks.map((timelock) => (
             <EnhancedKeysSection
               keys={inheritanceKeys
