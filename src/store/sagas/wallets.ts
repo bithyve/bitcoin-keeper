@@ -1039,13 +1039,14 @@ function* syncWalletsWorker({
     };
   };
 }) {
-  const { wallets } = payload;
+  const { wallets, options } = payload;
   const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
 
   const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
     WalletOperations.syncWalletsViaElectrumClient,
     wallets,
-    network
+    network,
+    options.hardRefresh
   );
 
   return {
@@ -1085,7 +1086,7 @@ function* refreshWalletsWorker({
     }
     for (const synchedWalletWithUTXOs of synchedWallets) {
       const { synchedWallet } = synchedWalletWithUTXOs;
-      // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+      if (!synchedWallet.specs.hasNewUpdates && !options.hardRefresh) continue; // no new updates found
 
       for (const utxo of synchedWalletWithUTXOs.newUTXOs) {
         const labelChanges = {

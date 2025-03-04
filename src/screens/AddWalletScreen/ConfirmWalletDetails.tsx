@@ -329,7 +329,12 @@ function ConfirmWalletDetails({ route }) {
         { name: 'Home' },
         {
           name: 'VaultDetails',
-          params: { vaultId: generatedVaultId, vaultTransferSuccessful: true },
+          params: {
+            vaultId: generatedVaultId,
+            vaultTransferSuccessful: true,
+            autoRefresh: true,
+            hardRefresh: true,
+          },
         },
       ],
     };

@@ -241,6 +241,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const {
     vaultTransferSuccessful = false,
     autoRefresh = false,
+    hardRefresh: autoHardRefresh = false,
     vaultId = '',
     transactionToast = false,
   } = route.params || {};
@@ -353,7 +354,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   }, [snapshots]);
 
   useEffect(() => {
-    if (autoRefresh) syncVault();
+    if (autoRefresh) syncVault(autoHardRefresh);
   }, [autoRefresh]);
 
   useEffect(() => {
@@ -376,9 +377,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     }
   }, [syncing, ELECTRUM_CLIENT]);
 
-  const syncVault = () => {
+  const syncVault = (hardRefresh) => {
     setPullRefresh(true);
-    dispatch(refreshWallets([vault], { hardRefresh: true }));
+    dispatch(refreshWallets([vault], { hardRefresh }));
     setPullRefresh(false);
   };
 
@@ -508,7 +509,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         >
           <TransactionList
             transactions={[...cachedTransactions, ...transactions]}
-            pullDownRefresh={syncVault}
+            pullDownRefresh={() => syncVault(true)}
             pullRefresh={pullRefresh}
             vault={vault}
             isCollaborativeWallet={isCollaborativeWallet}
