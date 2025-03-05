@@ -613,3 +613,36 @@ export const sanitizeFileName = (fileName: string) => {
   const sanitized = fileName.trim().replace(/[^a-zA-Z0-9]/g, '-');
   return sanitized.replace(/^-+|-+$/g, '').length === 0 ? 'untitled' : sanitized;
 };
+export function formatDateTime(timestamp) {
+  const dateObj = new Date(timestamp);
+
+  const formattedDate = dateObj.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit',
+  });
+
+  const formattedTime = dateObj.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  return `${formattedDate} . ${formattedTime}`;
+}
+
+export function formatRemainingTime(milliseconds) {
+  if (milliseconds <= 0) return '0s';
+
+  const minutes = Math.floor(milliseconds / (1000 * 60));
+  const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+  const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+
+  if (months >= 1) return `${months} Month${months > 1 ? 's' : ''}`;
+  if (weeks >= 1) return `${weeks} Week${weeks > 1 ? 's' : ''}`;
+  if (days >= 1) return `${days} Day${days > 1 ? 's' : ''}`;
+  if (hours >= 1) return `${hours} Hour${hours > 1 ? 's' : ''}`;
+  return `${minutes} Min${minutes > 1 ? 's' : ''}`;
+}

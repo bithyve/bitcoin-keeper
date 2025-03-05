@@ -7,18 +7,24 @@ import { hp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import SigningRequestCard from './components/SigningRequestCard';
+import { formatDateTime, formatRemainingTime } from 'src/utils/utilities';
 
 function SigningRequest() {
   const delayedTransactions = useAppSelector((state) => state.storage.delayedTransactions) || {};
   const signingRequests = [];
+  function formatTxId(txid) {
+    return txid.length > 15 ? txid.substring(0, 15) + '...' : txid;
+  }
+
   for (const txid in delayedTransactions) {
     const delayedTx: DelayedTransaction = delayedTransactions[txid];
+
     signingRequests.push({
       id: txid,
-      title: 'Server Key Signing Request',
-      dateTime: delayedTx.timestamp,
+      title: formatTxId(txid),
+      dateTime: formatDateTime(delayedTx.timestamp),
       amount: delayedTx.outgoing,
-      timeRemaining: delayedTx.delayUntil - Date.now(),
+      timeRemaining: formatRemainingTime(delayedTx.delayUntil - Date.now()),
     });
   }
 

@@ -532,22 +532,36 @@ function SignerAdvanceSettings({ route }: any) {
               }
             }}
           >
-            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+            <CVVInputsView
+              passCode={otp}
+              passcodeFlag={false}
+              backgroundColor
+              textColor
+              height={hp(46)}
+              width={hp(46)}
+              marginTop={hp(0)}
+              marginBottom={hp(10)}
+              inputGap={2}
+              customStyle={styles.CVVInputsView}
+            />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
-            {vaultTranslation.cvvSigningServerInfo}
-          </Text>
-          <Box mt={10} alignSelf="flex-end" mr={2}>
-            <Box>
-              <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
-            </Box>
-          </Box>
         </Box>
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
           keyColor={`${colorMode}.primaryText`}
         />
+        <Box mt={5} alignSelf="flex-end">
+          <Box>
+            <Buttons
+              primaryCallback={() => {
+                onPressConfirm();
+              }}
+              fullWidth
+              primaryText="Confirm"
+            />
+          </Box>
+        </Box>
       </Box>
     );
   }
@@ -616,7 +630,10 @@ function SignerAdvanceSettings({ route }: any) {
           </Text>
         </Box>
         <Buttons
-          primaryCallback={() => {}}
+          primaryCallback={() => {
+            setDisplayBackupModal(false);
+            initiateOneTimeBackup();
+          }}
           fullWidth
           primaryText="Backup Now"
           paddingVertical={13}
@@ -737,7 +754,7 @@ function SignerAdvanceSettings({ route }: any) {
           disableOneTimeBackup ? 'Server key backed up' : 'Save a backup of the Server Key'
         }
         callback={() => {
-          if (!disableOneTimeBackup) setBackupModal(true);
+          if (!disableOneTimeBackup) setDisplayBackupModal(true);
         }}
         disabled={disableOneTimeBackup}
       />
@@ -1037,7 +1054,8 @@ function SignerAdvanceSettings({ route }: any) {
         visible={showOTPModal}
         close={() => setShowOTPModal(false)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        title={vaultTranslation.oneTimeBackupTitle}
+        title={common.confirm2FACodeTitle}
+        subTitle={common.confirm2FACodeSubtitle}
         textColor={`${colorMode}.modalHeaderTitle`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={SigningServerOTPModal}
@@ -1304,7 +1322,6 @@ const styles = StyleSheet.create({
   cvvInputInfoText: {
     fontSize: 14,
     width: '100%',
-    marginTop: 2,
   },
   otpModal: {
     width: '100%',
@@ -1329,5 +1346,9 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     marginBottom: 10,
+  },
+  CVVInputsView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -395,7 +395,9 @@ const getSignerContent = (
     case SignerType.POLICY_SERVER:
       const subtitle =
         keyGenerationMode !== KeyGenerationMode.RECOVER
-          ? 'The Server Key is a key stored securely on Keeper’s servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.'
+          ? isHealthcheck
+            ? 'Get your Server Key ready before proceeding'
+            : 'The Server Key is a key stored securely on Keeper’s servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.'
           : 'Recover an existing Server Key using other signers from the Vault';
       return {
         type: SignerType.POLICY_SERVER,
@@ -1732,43 +1734,19 @@ function HardwareModalMap({
               }
             }}
           >
-            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+            <CVVInputsView
+              passCode={otp}
+              passcodeFlag={false}
+              backgroundColor
+              textColor
+              height={hp(46)}
+              width={hp(46)}
+              marginTop={hp(0)}
+              marginBottom={hp(20)}
+              inputGap={2}
+              customStyle={styles.CVVInputsView}
+            />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
-            {vaultTranslation.cvvSigningServerInfo}
-          </Text>
-          <Box mt={10} alignSelf="flex-end" mr={2}>
-            <Box>
-              <Buttons
-                primaryCallback={() => {
-                  if (mode === InteracationMode.HEALTH_CHECK) {
-                    checkSigningServerHealth();
-                    setSigningServerHealthCheckOTPModal(false);
-                  } else if (
-                    mode === InteracationMode.VAULT_ADDITION &&
-                    keyGenerationMode === KeyGenerationMode.RECOVER
-                  ) {
-                    recoverSigningServer(otp);
-                    setSigningServerRecoverOTPModal(false);
-                  } else {
-                    if (mode === InteracationMode.IDENTIFICATION) {
-                      findSigningServer(otp);
-                    } else {
-                      verifySigningServer(otp);
-                    }
-                  }
-                }}
-                primaryText={common.confirm}
-                secondaryText={
-                  mode === InteracationMode.HEALTH_CHECK && signerTranslation.forgot2FA
-                }
-                secondaryCallback={() => {
-                  setSigningServerHealthCheckOTPModal(false);
-                  showToast(signerTranslation.forgot2FANote, null, IToastCategory.DEFAULT, 5000);
-                }}
-              />
-            </Box>
-          </Box>
         </Box>
         <KeyPadView
           onPressNumber={onPressNumber}
@@ -1776,6 +1754,36 @@ function HardwareModalMap({
           keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
+        <Box mt={10} alignSelf="flex-end" mr={2}>
+          <Box>
+            <Buttons
+              primaryCallback={() => {
+                if (mode === InteracationMode.HEALTH_CHECK) {
+                  checkSigningServerHealth();
+                  setSigningServerHealthCheckOTPModal(false);
+                } else if (
+                  mode === InteracationMode.VAULT_ADDITION &&
+                  keyGenerationMode === KeyGenerationMode.RECOVER
+                ) {
+                  recoverSigningServer(otp);
+                  setSigningServerRecoverOTPModal(false);
+                } else {
+                  if (mode === InteracationMode.IDENTIFICATION) {
+                    findSigningServer(otp);
+                  } else {
+                    verifySigningServer(otp);
+                  }
+                }
+              }}
+              primaryText={common.confirm}
+              secondaryText={mode === InteracationMode.HEALTH_CHECK && signerTranslation.forgot2FA}
+              secondaryCallback={() => {
+                setSigningServerHealthCheckOTPModal(false);
+                showToast(signerTranslation.forgot2FANote, null, IToastCategory.DEFAULT, 5000);
+              }}
+            />
+          </Box>
+        </Box>
       </Box>
     );
   }
@@ -2074,10 +2082,14 @@ function HardwareModalMap({
       return (
         <Box style={styles.modalContainer}>
           {Illustration}
-          <Text>
-            This adds an extra layer of flexibility and security to your Bitcoin holdings while
-            keeping you in control.
-          </Text>
+          {isHealthcheck ? (
+            <Instruction text="Health Check is initiated if a signer is not used for the last 180 days" />
+          ) : (
+            <Text>
+              This adds an extra layer of flexibility and security to your Bitcoin holdings while
+              keeping you in control.
+            </Text>
+          )}
         </Box>
       );
     }
@@ -2166,7 +2178,9 @@ function HardwareModalMap({
           signerType === SignerType.SEED_WORDS
             ? 'Next'
             : signerType === SignerType.POLICY_SERVER
-            ? 'Start the Setup'
+            ? isHealthcheck
+              ? 'Start Health Check'
+              : 'Start the Setup'
             : 'Proceed'
         }
         buttonTextColor={`${colorMode}.buttonText`}
@@ -2262,14 +2276,14 @@ function HardwareModalMap({
         }}
         title={
           signingServerHealthCheckOTPModal
-            ? 'Confirm OTP to perform health check'
+            ? common.confirm2FACodeTitle
             : keyGenerationMode !== KeyGenerationMode.RECOVER
             ? 'Confirm OTP to setup 2FA'
             : 'Confirm OTP to recover Server Key'
         }
         subTitle={
           signingServerHealthCheckOTPModal
-            ? 'To check health of the signer'
+            ? common.confirm2FACodeSubtitle
             : keyGenerationMode !== KeyGenerationMode.RECOVER
             ? 'To complete setting up the signer'
             : 'To complete recovery of the signer'
@@ -2317,7 +2331,7 @@ const styles = StyleSheet.create({
   cvvInputInfoText: {
     fontSize: 14,
     width: '100%',
-    marginTop: 2,
+    marginVertical: 2,
   },
   infoText: {
     padding: 3,
@@ -2343,6 +2357,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 25,
+  },
+  CVVInputsView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 export default HardwareModalMap;

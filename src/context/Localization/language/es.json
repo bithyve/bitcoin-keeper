@@ -127,6 +127,8 @@
     "added": "Added",
     "collaborativeWallet": "Collaborative Wallet",
     "confirmPassCode": "Confirm Passcode",
+    "confirm2FACodeTitle": "Confirm 2FA Code",
+    "confirm2FACodeSubtitle": "Confirm the currrent 2FA code from your authenticator app",
     "backupNow": "Backup Now",
     "dontShowAgain": "Don’t show me this message again",
     "for": "For",

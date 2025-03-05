@@ -7,16 +7,7 @@ import WalletHeader from 'src/components/WalletHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import PolicyField from './components/PolicyField';
 import OptionDropdown from 'src/components/OptionDropdown';
-import {
-  MONTHS_3,
-  MONTHS_6,
-  MONTHS_12,
-  MONTH_1,
-  WEEK_1,
-  WEEKS_2,
-  DAY_1,
-  NO_LIMIT,
-} from './constants';
+import { MONTHS_3, MONTHS_6, MONTHS_12, MONTH_1, WEEK_1, WEEKS_2, DAY_1, OFF } from './constants';
 import Buttons from 'src/components/Buttons';
 import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
@@ -38,7 +29,7 @@ const SpendingLimit = ({ route }) => {
   const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
 
   const MAINNET_INHERITANCE_TIMELOCK_DURATIONS = [
-    { label: NO_LIMIT, value: 0 },
+    { label: OFF, value: 0 },
     { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 },
     { label: WEEK_1, value: 7 * 24 * 60 * 60 * 1000 },
     { label: WEEKS_2, value: 14 * 24 * 60 * 60 * 1000 },
@@ -49,9 +40,9 @@ const SpendingLimit = ({ route }) => {
   ];
 
   const TESTNET_INHERITANCE_TIMELOCK_DURATIONS = [
-    { label: NO_LIMIT, value: 0 },
+    { label: OFF, value: 0 },
     { label: DAY_1, value: 30 * 60 * 1000 }, // 30 minutes
-    { label: WEEK_1, value: 60 * 60 * 1000 }, //  1 hour
+    { label: WEEK_1, value: 90 * 60 * 1000 }, //  1.5 hour
     { label: WEEKS_2, value: 2 * 60 * 60 * 1000 }, //  2 hours
     { label: MONTH_1, value: 6 * 60 * 60 * 1000 }, //  6 hours
     { label: MONTHS_3, value: 12 * 60 * 60 * 1000 }, //  12 hours
