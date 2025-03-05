@@ -371,6 +371,28 @@ export default class SigningServer {
     };
   };
 
+  static migrateSignerPolicy = async (
+    id: string,
+    oldPolicy: SignerPolicy
+  ): Promise<{
+    newPolicy: SignerPolicy;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/migrateSignerPolicy`, {
+        HEXA_ID,
+        id,
+        oldPolicy,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { newPolicy } = res.data;
+    return { newPolicy };
+  };
+
   static migrateSignersV2ToV3 = async (
     vaultId: string,
     appId: string,
