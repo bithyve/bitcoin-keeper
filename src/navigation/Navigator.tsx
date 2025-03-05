@@ -159,6 +159,7 @@ import SpendingLimit from 'src/screens/Vault/SpendingLimit';
 import SigningDelay from 'src/screens/Vault/SigningDelay';
 import ServerKeySuccessScreen from 'src/screens/Vault/ServerKeySuccessScreen';
 import SigningRequest from 'src/screens/Vault/SigningRequest';
+import PurchaseWithChannel from 'src/screens/QRScreens/PurchaseWithChannel';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -349,6 +350,7 @@ function AppStack() {
         <Stack.Screen name="ImportContactFile" component={ImportContactFile} />
         <Stack.Screen name="ContactDetails" component={ContactDetails} />
         <Stack.Screen name="ShareQR" component={ShareQR} />
+        <Stack.Screen name="PurchaseWithChannel" component={PurchaseWithChannel} />
       </Stack.Navigator>
     </RealmProvider>
   );

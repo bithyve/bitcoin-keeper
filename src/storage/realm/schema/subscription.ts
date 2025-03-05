@@ -21,5 +21,9 @@ export const StoreSubscriptionSchema: ObjectSchema = {
       type: 'int',
       default: 0,
     },
+    isDesktopPurchase: {
+      type: 'bool',
+      default: false,
+    },
   },
 };

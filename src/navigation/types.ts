@@ -193,6 +193,7 @@ export type AppStackParams = {
   ImportContactFile: undefined;
   ContactDetails: undefined;
   ShareQR: undefined;
+  PurchaseWithChannel: undefined;
 };
 
 // Usage:

@@ -6,6 +6,7 @@ export default interface SubScription {
   receipt?: string;
   level: number;
   icon: string;
+  isDesktopPurchase?: boolean;
 }
 
 export type SubScriptionPlan = {

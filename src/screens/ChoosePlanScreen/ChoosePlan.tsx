@@ -38,7 +38,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import TierUpgradeModal, { UPGRADE_TYPE } from './TierUpgradeModal';
@@ -49,6 +49,9 @@ import usePlan from 'src/hooks/usePlan';
 import { setSubscription } from 'src/store/reducers/settings';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import { BrownButton } from 'src/components/BrownButton';
+import config from 'src/utils/service-utilities/config';
+import { manipulateIosProdProductId } from 'src/utils/utilities';
 const { width } = Dimensions.get('window');
 
 const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
@@ -79,6 +82,7 @@ function ChoosePlan() {
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
   const [showPromocodeModal, setShowPromocodeModal] = useState(false);
   const { isOnL1 } = usePlan();
+  const [enableDesktopManagement, setEnableDesktopManagement] = useState(true);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -107,6 +111,19 @@ function ChoosePlan() {
     // To calculate same index as in ChoosePlanCarousel
     setCurrentPosition(initialPosition !== 0 ? initialPosition : subscription.level - 1);
   }, []);
+
+  useEffect(() => {
+    if (!isOnL1 && !appSubscription?.isDesktopPurchase) {
+      setEnableDesktopManagement(false);
+      return;
+    } else {
+      if (appSubscription?.isDesktopPurchase) {
+        const { expirationTime } = JSON.parse(appSubscription?.receipt ?? '{}');
+        setEnableDesktopManagement(expirationTime - Date.now() <= config.RENEWAL_WINDOW);
+        return;
+      } else setEnableDesktopManagement(true);
+    }
+  }, [appSubscription]);
 
   async function init() {
     let data = [];
@@ -306,7 +323,7 @@ function ChoosePlan() {
               onPress: () => {},
               style: 'cancel',
             },
-            {
+            !appSubscription?.isDesktopPurchase && {
               text: common.manage,
               onPress: () => manageSubscription(response.productId),
             },
@@ -354,10 +371,31 @@ function ChoosePlan() {
     try {
       setRequesting(true);
       const purchases = await getAvailablePurchases();
-      setRequesting(false);
       if (purchases.length === 0) {
+        const btcPurchase = await Relay.restoreBtcPurchase(id);
+        if (btcPurchase) {
+          const subscription: SubScription = {
+            productId: manipulateIosProdProductId(btcPurchase.productId),
+            receipt: btcPurchase.receipt,
+            name: btcPurchase.name,
+            level: btcPurchase.level,
+            icon: btcPurchase.icon,
+            isDesktopPurchase: true,
+          };
+          calculateModalContent(btcPurchase, appSubscription);
+          dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+            subscription,
+          });
+          disptach(setSubscription(subscription.name));
+          setShowUpgradeModal(true);
+          setRequesting(false);
+          init();
+          return;
+        }
+        setRequesting(false);
         showToast(choosePlan.noAvailablePurchaseMessage);
       } else {
+        setRequesting(false);
         for (let i = 0; i < purchases.length; i++) {
           const purchase = purchases[i];
           if (purchase.productId === subscription.productId) {
@@ -567,9 +605,23 @@ function ChoosePlan() {
             plans={items}
             currentPosition={currentPosition}
             onChange={(item) => setCurrentPosition(item)}
-            primaryCallback={() => processSubscription(items[currentPosition], currentPosition)}
+            primaryCallback={() => {
+              if (!isOnL1 && appSubscription.isDesktopPurchase) {
+                Alert.alert('', 'You already have an active BTC based subscription.');
+                return;
+              }
+              processSubscription(items[currentPosition], currentPosition);
+            }}
             isMonthly={isMonthly}
             getButtonText={getButtonState}
+            listFooterCta={
+              enableDesktopManagement && (
+                <BrownButton
+                  title="Desktop Subscription Management"
+                  onPress={() => navigation.dispatch(CommonActions.navigate('PurchaseWithChannel'))}
+                />
+              )
+            }
           />
         </Box>
       )}
