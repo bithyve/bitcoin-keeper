@@ -24,7 +24,7 @@ function SigningRequest() {
 
   return (
     <ScreenWrapper>
-      <WalletHeader title="Signing Request" />
+      <WalletHeader title="Signing Requests" />
       <ScrollView contentContainerStyle={styles.container}>
         <Box gap={hp(20)}>
           {signingRequests.map((request) => (
