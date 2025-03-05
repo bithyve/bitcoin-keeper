@@ -238,12 +238,7 @@ export default class Relay {
     return res.data || res.json;
   };
 
-  public static verifyReceipt = async (
-    id: string,
-    appID: string
-  ): Promise<{
-    created: boolean;
-  }> => {
+  public static verifyReceipt = async (id: string, appID: string): Promise<any> => {
     let res;
     try {
       res = await RestClient.post(`${RELAY}verifyReceipt`, {

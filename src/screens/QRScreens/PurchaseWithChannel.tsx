@@ -62,9 +62,11 @@ function PurchaseWithChannel() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeType, setUpgradeType] = useState(null);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const { id, subscription: currentSubscription }: KeeperApp = dbManager.getObjectByIndex(
-    RealmSchema.KeeperApp
-  );
+  const {
+    id,
+    subscription: currentSubscription,
+    publicId,
+  }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
 
   useEffect(() => {
     const startBackgroundListener = () => {
@@ -75,12 +77,17 @@ function PurchaseWithChannel() {
       channel.on(CHANNEL_MESSAGE, async ({ data }) => {
         try {
           if (data?.isUpdated) {
-            const { productId, receipt, name, level, icon } = data;
+            const { icon } = data;
+            const res = await Relay.verifyReceipt(id, publicId);
+            if (!res.isValid || res.level == 1) {
+              showToast('Something went wrong, Please try again!.', <ToastErrorIcon />);
+              navigation.goBack();
+            }
             const subscription: SubScription = {
-              productId: manipulateIosProdProductId(productId),
-              receipt,
-              name,
-              level,
+              productId: manipulateIosProdProductId(res?.productId),
+              receipt: res?.transactionReceipt,
+              name: res?.plan,
+              level: res?.level,
               icon,
               isDesktopPurchase: true,
             };
