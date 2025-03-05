@@ -24,9 +24,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType, VaultType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import idx from 'idx';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
@@ -35,20 +34,11 @@ import WarningIllustration from 'src/assets/images/warning.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
 import WalletVault from 'src/assets/images/vault-hexa-green.svg';
-import DeleteIcon from 'src/assets/images/delete_phone.svg';
-
 import { hp, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { TextInput } from 'react-native-gesture-handler';
-import {
-  InheritanceAlert,
-  InheritanceConfiguration,
-  InheritancePolicy,
-} from 'src/models/interfaces/AssistedKeys';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
-import { emailCheck, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
+import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import config, { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
@@ -71,12 +61,8 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
-import { generateKey } from 'src/utils/service-utilities/encryption';
-import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
-import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import Note from 'src/components/Note/Note';
 import useSigners from 'src/hooks/useSigners';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -88,24 +74,9 @@ import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import Buttons from 'src/components/Buttons';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { vaultAlreadyExists } from './VaultMigrationController';
-import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
-
-const SignersWithRKSupport = [
-  SignerType.MY_KEEPER,
-  SignerType.JADE,
-  SignerType.SEED_WORDS,
-  SignerType.TAPSIGNER,
-  SignerType.SEEDSIGNER,
-  SignerType.SPECTER,
-  SignerType.LEDGER,
-  SignerType.TREZOR,
-  SignerType.BITBOX02,
-  SignerType.COLDCARD,
-  SignerType.PASSPORT,
-  SignerType.PORTAL,
-];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -153,17 +124,12 @@ function SignerAdvanceSettings({ route }: any) {
     common,
     signingServer,
     signer: signerTranslation,
-    BackupWallet,
     seed: seedTranslation,
   } = translations;
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const isSmallDevice = useIsSmallDevices();
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const [editEmailModal, setEditEmailModal] = useState(false);
-  const [deleteEmailModal, setDeleteEmailModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
   const [OTBLoading, setOTBLoading] = useState(false);
@@ -178,10 +144,6 @@ function SignerAdvanceSettings({ route }: any) {
   const [actionAfterPasscode, setActionAfterPasscode] = useState<
     null | 'hideKey' | 'mobileKeySeed'
   >(null);
-  const supportsRKSigning =
-    SignersWithRKSupport.includes(signer.type) && !!signer.signerXpubs[XpubTypes.P2WSH]?.[0];
-  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
-  const showBackupModal = useSelector((state) => state?.settings?.backupModal);
   const [detailModal, setDetailModal] = useState(false);
 
   useEffect(() => {
@@ -207,15 +169,6 @@ function SignerAdvanceSettings({ route }: any) {
   const CANARY_SCHEME = { m: 1, n: 1 };
 
   const { isOnL2Above } = usePlan();
-
-  const inheritanceKeyExistingEmailCount =
-    useAppSelector((state) => state.storage.inheritanceKeyExistingEmailCount) || 0; // || 0 for backward compatibility: inheritanceKeyExistingEmailCount might be undefined for upgraded apps
-
-  const currentEmail =
-    idx(
-      signer,
-      (_) => _.inheritanceKeyInfo.policy.alert.emails[inheritanceKeyExistingEmailCount]
-    ) || '';
 
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
@@ -263,7 +216,6 @@ function SignerAdvanceSettings({ route }: any) {
   }: {
     oneTimeBackupStatus: {
       signingServer: boolean;
-      inheritanceKey: boolean;
     };
   } = useAppSelector((state) => state.settings);
 
@@ -310,72 +262,6 @@ function SignerAdvanceSettings({ route }: any) {
 
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
-
-  const updateIKSPolicy = async (removeEmail: string, newEmail?: string) => {
-    try {
-      if (!removeEmail && !newEmail) {
-        showToast('Nothing to update');
-        navigation.goBack();
-        return;
-      }
-
-      if (signer.inheritanceKeyInfo === undefined) {
-        showToast('Something went wrong, IKS configuration missing', <TickIcon />);
-      }
-
-      const existingPolicy: InheritancePolicy = signer.inheritanceKeyInfo.policy;
-      const existingAlert: InheritanceAlert | any =
-        idx(signer, (_) => _.inheritanceKeyInfo.policy.alert) || {};
-      const existingEmails = existingAlert.emails || [];
-
-      // remove the previous email
-      existingEmails[inheritanceKeyExistingEmailCount] = '';
-
-      // add the new email(if provided)
-      if (newEmail) existingEmails[inheritanceKeyExistingEmailCount] = newEmail; // only update email for the latest inheritor(for source app, inheritanceKeyExistingEmailCount is 0)
-
-      const updatedPolicy: InheritancePolicy = {
-        ...existingPolicy,
-        alert: {
-          ...existingAlert,
-          emails: existingEmails,
-        },
-      };
-
-      let configurationForVault: InheritanceConfiguration = null;
-      for (const config of signer.inheritanceKeyInfo.configurations) {
-        if (config.id === vaultId) {
-          configurationForVault = config;
-          break;
-        }
-      }
-
-      if (!configurationForVault) {
-        showToast(`Something went wrong, IKS configuration missing for vault: ${vaultId}`);
-        return;
-      }
-
-      const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
-        vaultKey.xfp,
-        updatedPolicy,
-        configurationForVault
-      );
-
-      if (updated) {
-        const updateInheritanceKeyInfo = {
-          ...signer.inheritanceKeyInfo,
-          policy: updatedPolicy,
-        };
-
-        dispatch(updateSignerDetails(signer, 'inheritanceKeyInfo', updateInheritanceKeyInfo));
-        showToast(`Email ${newEmail ? 'updated' : 'deleted'}`, <TickIcon />);
-        navigation.goBack();
-      } else showToast(`Failed to ${newEmail ? 'update' : 'delete'} email`);
-    } catch (err) {
-      captureError(err);
-      showToast(`Failed to ${newEmail ? 'update' : 'delete'} email`);
-    }
-  };
 
   const registerSigner = async () => {
     switch (signer.type) {
@@ -463,93 +349,6 @@ function SignerAdvanceSettings({ route }: any) {
           </Text>
         </Box>
       </>
-    );
-  }
-
-  function EditModalContent() {
-    const [email, setEmail] = useState(currentEmail);
-    const [emailStatusFail, setEmailStatusFail] = useState(false);
-    return (
-      <Box style={styles.editModalContainer}>
-        <Box>
-          <TextInput
-            style={styles.textInput}
-            placeholder="pleb@bitcoin.com"
-            value={email}
-            onChangeText={(value) => {
-              setEmail(value.trim());
-              emailStatusFail && setEmailStatusFail(false);
-            }}
-          />
-          {emailStatusFail && (
-            <Text color={`${colorMode}.errorRed`} style={styles.errorStyle}>
-              Email is not correct
-            </Text>
-          )}
-          {currentEmail && (
-            <TouchableOpacity
-              onPress={() => {
-                setEditEmailModal(false);
-                setDeleteEmailModal(true);
-              }}
-            >
-              <Box style={styles.deleteContentWrapper} backgroundColor={`${colorMode}.LightBrown`}>
-                <Box>
-                  <DeleteIcon />
-                </Box>
-                <Box>
-                  <Text style={styles.fw800} color={`${colorMode}.BrownNeedHelp`} fontSize={13}>
-                    Delete Email
-                  </Text>
-                  <Box fontSize={12}>This is a irreversible action</Box>
-                </Box>
-              </Box>
-            </TouchableOpacity>
-          )}
-          <Box style={styles.warningIconWrapper}>
-            <WarningIllustration />
-          </Box>
-          <Text style={styles.noteText} medium color={`${colorMode}.primaryGreenBackground`}>
-            Note:
-          </Text>
-          <Text color={`${colorMode}.greenText`} style={styles.noteDescription}>
-            If notification is not declined continuously for 30 days, the key will be activated
-          </Text>
-        </Box>
-        {currentEmail !== email && (
-          <TouchableOpacity
-            style={styles.updateBtnCtaStyle}
-            onPress={() => {
-              if (!emailCheck(email)) {
-                setEmailStatusFail(true);
-              } else {
-                updateIKSPolicy(currentEmail, email);
-              }
-            }}
-          >
-            <Box backgroundColor={`${colorMode}.greenButtonBackground`} style={styles.cta}>
-              <Text style={styles.ctaText} color={`${colorMode}.white`} bold>
-                Update
-              </Text>
-            </Box>
-          </TouchableOpacity>
-        )}
-      </Box>
-    );
-  }
-
-  function DeleteEmailModalContent() {
-    return (
-      <Box style={styles.deleteEmailContent}>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.emailContainer}>
-          <Text fontSize={13} color={`${colorMode}.secondaryText`}>
-            {currentEmail}
-          </Text>
-        </Box>
-        <Text color={`${colorMode}.greenText`} style={styles.deleteRegisteredEmailNote}>
-          You would not receive daily reminders about your Inheritance Key if it is used
-        </Text>
-      </Box>
     );
   }
 
@@ -754,29 +553,26 @@ function SignerAdvanceSettings({ route }: any) {
   }
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
-  const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
   const isAppKey = signer.type === SignerType.KEEPER;
   const isMyAppKey = signer.type === SignerType.MY_KEEPER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
   const signersWithoutRegistration = isAppKey || isMyAppKey || isTapsigner;
-  const isAssistedKey = isPolicyServer || isInheritanceKey;
+  const isAssistedKey = isPolicyServer;
   const isMobileKey = signer.type === SignerType.MY_KEEPER;
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const CANARY_NON_SUPPORTED_DEVICES = [
     SignerType.UNKOWN_SIGNER,
-    SignerType.INHERITANCEKEY,
     SignerType.POLICY_SERVER,
     SignerType.MOBILE_KEY,
     SignerType.MY_KEEPER,
   ];
   const isCanaryWalletAllowed = isOnL2Above && !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
 
-  const showOneTimeBackup = (isPolicyServer || isInheritanceKey) && vaultId && signer?.isBIP85;
+  const showOneTimeBackup = isPolicyServer && signer?.isBIP85;
   let disableOneTimeBackup = false; // disables OTB once the user has backed it up
   if (showOneTimeBackup) {
     if (isPolicyServer) disableOneTimeBackup = oneTimeBackupStatus?.signingServer;
-    else if (isInheritanceKey) disableOneTimeBackup = oneTimeBackupStatus?.inheritanceKey;
   }
 
   const onSuccess = () => {
@@ -794,76 +590,15 @@ function SignerAdvanceSettings({ route }: any) {
     setConfirmPassVisible(false);
   };
 
-  const { inheritanceOTBRequestId } = useAppSelector((state) => state.storage);
   const initiateOneTimeBackup = async () => {
     if (isPolicyServer) {
       setShowOTPModal(true);
-      setBackupModal(false);
-    } else if (isInheritanceKey) {
-      try {
-        setOTBLoading(true);
-        let configurationForVault: InheritanceConfiguration = null;
-        const iksConfigs = idx(signer, (_) => _.inheritanceKeyInfo.configurations) || [];
-        for (const config of iksConfigs) {
-          if (config.id === activeVault.id) {
-            configurationForVault = config;
-            break;
-          }
-        }
-        if (!configurationForVault) {
-          showToast('Unable to find IKS configuration');
-          return;
-        }
-
-        let requestId = inheritanceOTBRequestId;
-        let isNewRequest = false;
-        if (!requestId) {
-          requestId = `request-${generateKey(14)}`;
-          isNewRequest = true;
-        }
-
-        const { requestStatus, backup } = await InheritanceKeyServer.fetchBackup(
-          vaultKey.xfp,
-          requestId,
-          configurationForVault
-        );
-        setOTBLoading(false);
-
-        if (requestStatus && isNewRequest) dispatch(setInheritanceOTBRequestId(requestId));
-
-        // process request based on status
-        if (requestStatus.isDeclined) {
-          showToast('One Time Backup request has been declined', <ToastErrorIcon />);
-        } else if (!requestStatus.isApproved) {
-          showToast(
-            `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
-            <TickIcon />
-          );
-          // dispatch(setInheritanceOTBRequestId('')); // clear existing request
-        } else if (requestStatus.isApproved && backup) {
-          navigation.navigate('ExportSeed', {
-            vaultKey,
-            vaultId,
-            seed: backup.mnemonic,
-            derivationPath: backup.derivationPath,
-            signer,
-            isFromAssistedKey: true,
-            isIKS: true,
-          });
-        } else showToast('Unknown request status, please try again');
-      } catch (err) {
-        showToast(`${err}`);
-      }
-      // navigation.navigate('SignerBackupSeed');
       setBackupModal(false);
     } else {
       showToast('This signer does not support one-time backup');
     }
   };
 
-  const handleBackupModal = () => {
-    setDisplayBackupModal(true);
-  };
   const navigateToSigningRequests = () => {
     navigation.navigate('SigningRequest');
   };
@@ -899,14 +634,6 @@ function SignerAdvanceSettings({ route }: any) {
         callback={navigateToKeyHistory}
       />
     ),
-    isInheritanceKey && vaultId && (
-      <OptionCard
-        key="registeredEmail"
-        title="Registered Email"
-        description="View, change or delete"
-        callback={() => setEditEmailModal(true)}
-      />
-    ),
     !(isAssistedKey || signersWithoutRegistration || !vaultId) && (
       <OptionCard
         key="manualRegistration"
@@ -923,7 +650,7 @@ function SignerAdvanceSettings({ route }: any) {
         callback={navigateToPolicyChange}
       />
     ),
-    isPolicyServer && vaultId && (
+    isPolicyServer && (
       <OptionCard
         key="signingRequests"
         title="Signing requests"
@@ -1145,16 +872,6 @@ function SignerAdvanceSettings({ route }: any) {
             '\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions',
           FAQ: 'https://help.blockstream.com/hc/en-us/categories/900000061906-Blockstream-Jade',
         };
-      case SignerType.INHERITANCEKEY:
-        return {
-          title: 'Inheritance Key',
-          subTitle:
-            'An additional key setup with special conditions to help transfer bitcoin to the beneficiary.',
-          assert: <InhertanceKeyIcon />,
-          description:
-            '\u2022 Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
-          FAQ: `${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`,
-        };
       case SignerType.SPECTER:
         return {
           title: 'Specter DIY',
@@ -1252,35 +969,6 @@ function SignerAdvanceSettings({ route }: any) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={BackupModalContent}
       />
-
-      <KeeperModal
-        visible={editEmailModal}
-        close={() => setEditEmailModal(false)}
-        title="Registered Email"
-        subTitle="Delete or edit registered email"
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        Content={EditModalContent}
-      />
-      <KeeperModal
-        visible={deleteEmailModal}
-        close={() => setDeleteEmailModal(false)}
-        title="Deleting Registered Email"
-        subTitle="Are you sure you want to delete email id?"
-        subTitleWidth={wp(200)}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        showCloseIcon={false}
-        buttonText="Delete"
-        buttonCallback={() => {
-          updateIKSPolicy(currentEmail);
-        }}
-        secondaryButtonText="Cancel"
-        secondaryCallback={() => setDeleteEmailModal(false)}
-        Content={DeleteEmailModalContent}
-      />
       <KeeperModal
         visible={warningEnabled && !!vaultUsed}
         close={() => setHideWarning(false)}
@@ -1337,12 +1025,7 @@ function SignerAdvanceSettings({ route }: any) {
           backupModalContent({
             title: signer.signerName,
             subTitle: `${common.added} ${moment(signer.addedOn).calendar().toLowerCase()}`,
-            icon:
-              signer.type === SignerType.INHERITANCEKEY ? (
-                <InhertanceKeyIcon />
-              ) : (
-                <SigningServerIcon />
-              ),
+            icon: <SigningServerIcon />,
           })
         }
         buttonText={common.proceed}
@@ -1571,21 +1254,6 @@ const styles = StyleSheet.create({
     width: wp(105),
     paddingTop: 5,
     paddingLeft: 14,
-  },
-  deleteEmailContent: {
-    gap: 60,
-    marginTop: 40,
-  },
-  deleteRegisteredEmailNote: {
-    width: wp(200),
-    fontSize: 14,
-    letterSpacing: 0.13,
-  },
-  emailContainer: {
-    borderRadius: 10,
-    height: hp(65),
-    padding: 15,
-    justifyContent: 'center',
   },
   pv20: {
     paddingVertical: 20,
