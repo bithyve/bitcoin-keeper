@@ -147,7 +147,6 @@ function PurchaseWithChannel() {
     const res = await Relay.checkEligibilityForBtcPay(requestBody);
     if (res.status) {
       requestBody['action'] = EMIT_MODES.PURCHASE_SUBS;
-      console.log('=> ', JSON.stringify(requestBody));
       const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
       channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
     } else {
