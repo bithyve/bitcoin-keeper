@@ -20,6 +20,7 @@ import * as SecureStore from 'src/storage/secure-store';
 import dbManager from 'src/storage/realm/dbManager';
 import SubScription from 'src/models/interfaces/Subscription';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { manipulateIosProdProductId } from 'src/utils/utilities';
 import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
@@ -60,9 +61,8 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
-import { fetchSignedDelayedTransaction } from '../sagaActions/storage';
+import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
-import { manipulateIosProdProductId } from 'src/utils/utilities';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -193,6 +193,7 @@ function* credentialsAuthWorker({ payload }) {
           yield put(fetchExchangeRates());
           yield put(getMessages());
           yield put(fetchSignedDelayedTransaction());
+          yield put(fetchDelayedPolicyUpdate());
 
           yield put(
             uaiChecks([
@@ -220,8 +221,9 @@ function* credentialsAuthWorker({ payload }) {
           } else if (
             response?.paymentType == 'btc_payment' &&
             response?.level != subscription?.level
-          )
+          ) {
             yield call(updateSubscriptionFromRelayData, response);
+          }
 
           const { pendingAllBackup, automaticCloudBackup } = yield select(
             (state: RootState) => state.bhr

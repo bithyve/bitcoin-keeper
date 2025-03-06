@@ -14,16 +14,17 @@ import dbManager from 'src/storage/realm/dbManager';
 import Relay from 'src/services/backend/Relay';
 import config from 'src/utils/service-utilities/config';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
-import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
+import { DelayedPolicyUpdate, DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
 import { createWatcher } from '../utilities';
 import {
+  FETCH_DELAYED_POLICY_UPDATE,
   FETCH_SIGNED_DELAYED_TRANSACTION,
   SETUP_KEEPER_APP,
   SETUP_KEEPER_APP_VAULT_RECOVERY,
 } from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
-import { setAppId, updateDelayedTransaction } from '../reducers/storage';
+import { setAppId, updateDelayedPolicyUpdate, updateDelayedTransaction } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 
@@ -206,4 +207,39 @@ function* fetchSignedDelayedTransactionWorker() {
 export const fetchSignedDelayedTransactionWatcher = createWatcher(
   fetchSignedDelayedTransactionWorker,
   FETCH_SIGNED_DELAYED_TRANSACTION
+);
+
+function* fetchDelayedPolicyUpdateWorker() {
+  const delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate } = yield select(
+    (state) => state.storage.delayedPolicyUpdate
+  );
+
+  for (const policyId in delayedPolicyUpdate) {
+    try {
+      const { delayUntil, verificationToken, isApplied } = delayedPolicyUpdate[policyId];
+      if (!isApplied) {
+        const now = Date.now();
+
+        const shouldBeApplied = delayUntil - now <= 0; // delayed expired, policy must be updated
+        if (shouldBeApplied) {
+          const { delayedPolicy }: { delayedPolicy: DelayedPolicyUpdate } = yield call(
+            SigningServer.fetchDelayedPolicyUpdate,
+            policyId,
+            verificationToken.toString()
+          );
+
+          if (delayedPolicy.isApplied) {
+            yield put(updateDelayedPolicyUpdate(delayedPolicy));
+          }
+        }
+      }
+    } catch (err) {
+      console.log({ err });
+    }
+  }
+}
+
+export const fetchDelayedPolicyUpdateWatcher = createWatcher(
+  fetchDelayedPolicyUpdateWorker,
+  FETCH_DELAYED_POLICY_UPDATE
 );

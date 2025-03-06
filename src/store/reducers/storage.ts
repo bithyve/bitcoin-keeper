@@ -37,7 +37,7 @@ const initialState: {
   inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
   dontShowConceirgeOnboarding: boolean;
   delayedTransactions: { [txid: string]: DelayedTransaction };
-  delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate };
+  delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate }; // contains a single policy update at a time
 } = {
   appId: '',
   resetCred: {
@@ -140,7 +140,7 @@ const storageSlice = createSlice({
         delete state.delayedTransactions[action.payload];
       }
     },
-    setDelayedPolicyUpdate: (state, action: PayloadAction<DelayedPolicyUpdate>) => {
+    updateDelayedPolicyUpdate: (state, action: PayloadAction<DelayedPolicyUpdate>) => {
       state.delayedPolicyUpdate = {
         ...(state.delayedPolicyUpdate || {}),
         [action.payload.policyId]: action.payload,
@@ -169,7 +169,7 @@ export const {
   setDontShowConceirgeOnboarding,
   updateDelayedTransaction,
   deleteDelayedTransaction,
-  setDelayedPolicyUpdate,
+  updateDelayedPolicyUpdate,
   deleteDelayedPolicyUpdate,
 } = storageSlice.actions;
 

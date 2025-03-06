@@ -18,6 +18,7 @@ import {
   InheritanceKeyInfo,
   InheritancePolicy,
   SignerException,
+  SignerPolicy,
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
 import {
@@ -1279,22 +1280,27 @@ export function* updateSignerPolicyWorker({
   payload: {
     signer: Signer;
     signingKey: VaultSigner;
-    updates: { restrictions?: SignerRestriction; exceptions?: SignerException };
+    updates: SignerPolicy;
     verificationToken: number;
   };
 }) {
-  const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
-  const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
   const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
 
   const { signer, signingKey, updates, verificationToken } = payload;
   try {
+    const signerId =
+      signingKey?.xfp ||
+      WalletUtilities.getFingerprintFromExtendedKey(
+        signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+        config.NETWORK
+      );
+
     const {
       updated,
       delayedPolicyUpdate,
     }: { updated: boolean; delayedPolicyUpdate: DelayedPolicyUpdate } = yield call(
       SigningServer.updatePolicy,
-      signingKey.xfp,
+      signerId,
       verificationToken,
       updates,
       fcmToken
@@ -1309,27 +1315,18 @@ export function* updateSignerPolicyWorker({
         throw new Error('Failed to update the policy');
       }
 
-      const { signers } = activeVault;
-      for (const current of signers) {
-        if (current.xfp !== signingKey.xfp) continue;
-
-        const updatedSignerPolicy = {
-          ...signer.signerPolicy,
-          restrictions: updates.restrictions,
-          exceptions: updates.exceptions,
-        };
-
-        const signerKeyUID = getKeyUID(signer);
-        yield call(
-          dbManager.updateObjectByQuery,
-          RealmSchema.Signer,
-          (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
-          {
-            signerPolicy: updatedSignerPolicy,
-          }
-        );
-        break;
-      }
+      const updatedSignerPolicy = {
+        ...signer.signerPolicy,
+        ...updates,
+      };
+      dbManager.updateObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          signerPolicy: updatedSignerPolicy,
+        }
+      );
     }
     yield put(setSignerPolicyError('success'));
   } catch (err) {

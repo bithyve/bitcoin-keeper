@@ -52,6 +52,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [spendingLimit, setSpendingLimit] = useState(null);
   const [timeLimit, setTimeLimit] = useState(null);
   const [signingDelay, setSigningDelay] = useState(null);
+  const [signer, setSigner] = useState(route?.params?.signer);
 
   useEffect(() => {
     if (maxTransaction !== undefined) {
@@ -133,8 +134,8 @@ function ChoosePolicyNew({ navigation, route }) {
   const onConfirmUpdatePolicy = () => {
     const verificationToken = Number(otp);
     setIsLoading(true);
-    const policy = preparePolicy();
-    dispatch(updateSignerPolicy(signer, route.params.vaultKey, policy, verificationToken));
+    const newPolicy = preparePolicy();
+    dispatch(updateSignerPolicy(signer, route.params.vaultKey, newPolicy, verificationToken));
   };
 
   useEffect(() => {
