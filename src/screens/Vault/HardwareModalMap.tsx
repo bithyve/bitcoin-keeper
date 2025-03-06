@@ -298,7 +298,7 @@ const getSignerContent = (
         type: SignerType.MOBILE_KEY,
         Illustration: <MobileKeyIllustration />,
         Instructions: [
-          'Make sure that this wallet’s Recovery Key is backed-up properly to secure this key.',
+          "Make sure that this wallet's Recovery Key is backed-up properly to secure this key.",
         ],
         title: isHealthcheck ? 'Verify Recovery Key' : 'Set up a Mobile Key',
         subTitle: 'Your passcode or biometrics act as your key for signing transactions',
@@ -396,8 +396,8 @@ const getSignerContent = (
       const subtitle =
         keyGenerationMode !== KeyGenerationMode.RECOVER
           ? isHealthcheck
-            ? 'Get your Server Key ready before proceeding'
-            : 'The Server Key is a key stored securely on Keeper’s servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.'
+            ? 'Health check your Server Key with your 2FA authentication.'
+            : `The Server Key is a key stored securely on Keeper's servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.`
           : 'Recover an existing Server Key using other signers from the Vault';
       return {
         type: SignerType.POLICY_SERVER,
@@ -622,7 +622,7 @@ const getSignerContent = (
         Illustration: <OtherSDSetup />,
         Instructions: [
           'Provide the Signer details either by entering them or scanning',
-          'The hardened part of the derivation path of the xpub has to be denoted with a “h” or “”. Please do not use any other character',
+          `The hardened part of the derivation path of the xpub has to be denoted with a "h" or "'". Please do not use any other character`,
         ],
         title: isHealthcheck ? 'Verify Signer' : 'Setting up Signer',
         subTitle: 'Get your Signer ready before proceeding',
@@ -714,7 +714,7 @@ function SignerContent({
       <Box style={{ alignSelf: 'center', marginRight: 35 }}>{Illustration}</Box>
       <Box marginTop="4">
         {mode === InteracationMode.HEALTH_CHECK && (
-          <Instruction text="Health Check is initiated if a signer is not used for the last 180 days" />
+          <Instruction text="Keeper will automatically remind you to perform a health check on a key that has not been used in the last 180 days." />
         )}
         {Instructions?.map((instruction) => (
           <Instruction text={instruction} key={instruction} />
@@ -2085,7 +2085,7 @@ function HardwareModalMap({
         <Box style={styles.modalContainer}>
           {Illustration}
           {isHealthcheck ? (
-            <Instruction text="Health Check is initiated if a signer is not used for the last 180 days" />
+            <Instruction text="Keeper will automatically remind you to perform a health check on a key that has not been used in the last 180 days." />
           ) : (
             <Text>
               This adds an extra layer of flexibility and security to your Bitcoin holdings while

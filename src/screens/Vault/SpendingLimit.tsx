@@ -27,7 +27,7 @@ const SpendingLimit = ({ route }) => {
 
   const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
 
-  const MAINNET_TIMELOCK_DURATIONS = [
+  const MAINNET_SERVER_POLICY_DURATIONS = [
     { label: OFF, value: 0 },
     { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 },
     { label: WEEK_1, value: 7 * 24 * 60 * 60 * 1000 },
@@ -38,20 +38,22 @@ const SpendingLimit = ({ route }) => {
     { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
   ];
 
-  const TESTNET_TIMELOCK_DURATIONS = [
+  const TESTNET_SERVER_POLICY_DURATIONS = [
     { label: OFF, value: 0 },
-    { label: DAY_1, value: 30 * 60 * 1000 }, // 30 minutes
-    { label: WEEK_1, value: 90 * 60 * 1000 }, //  1.5 hour
-    { label: WEEKS_2, value: 2 * 60 * 60 * 1000 }, //  2 hours
-    { label: MONTH_1, value: 6 * 60 * 60 * 1000 }, //  6 hours
-    { label: MONTHS_3, value: 12 * 60 * 60 * 1000 }, //  12 hours
-    { label: MONTHS_6, value: 18 * 60 * 60 * 1000 }, //  18 hours
-    { label: MONTHS_12, value: 24 * 60 * 60 * 1000 }, //  24 hours
+    { label: DAY_1, value: 5 * 60 * 1000 }, // 5 minutes
+    { label: WEEK_1, value: 30 * 60 * 1000 }, //  30 minutes
+    { label: WEEKS_2, value: 1 * 60 * 1000 }, //  1 hour
+    { label: MONTH_1, value: 2 * 60 * 1000 }, //  2 hours
+    { label: MONTHS_3, value: 3 * 60 * 60 * 1000 }, //  3 hours
+    { label: MONTHS_6, value: 4 * 60 * 60 * 1000 }, //  4 hours
+    { label: MONTHS_12, value: 5 * 60 * 60 * 1000 }, //  5 hours
   ];
 
-  const TIMELOCK_DURATIONS = isMainNet ? MAINNET_TIMELOCK_DURATIONS : TESTNET_TIMELOCK_DURATIONS;
+  const SERVER_POLICY_DURATIONS = isMainNet
+    ? MAINNET_SERVER_POLICY_DURATIONS
+    : TESTNET_SERVER_POLICY_DURATIONS;
 
-  const DEFAULT_TIMELOCK = TIMELOCK_DURATIONS[2];
+  const DEFAULT_TIMELOCK = SERVER_POLICY_DURATIONS[2];
   const [selectedOption, setSelectedOption] = useState(totalTime || DEFAULT_TIMELOCK);
 
   const handleConfirm = () => {
@@ -84,7 +86,7 @@ const SpendingLimit = ({ route }) => {
               onChangeText={handleInputChange}
             />
             <OptionDropdown
-              options={TIMELOCK_DURATIONS}
+              options={SERVER_POLICY_DURATIONS}
               selectedOption={selectedOption}
               onOptionSelect={(option) => setSelectedOption(option)}
             />

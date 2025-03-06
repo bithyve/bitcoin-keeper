@@ -33,11 +33,11 @@ const SigningDelay = ({ route }) => {
 
   const TESTNET_DURATIONS = [
     { label: OFF, value: 0 },
-    { label: DAY_1, value: 30 * 60 * 1000 }, // 30 min
-    { label: DAY_3, value: 45 * 60 * 1000 }, // 45 minutes
-    { label: DAY_5, value: 60 * 60 * 1000 }, // 1 hours
-    { label: WEEK_1, value: 90 * 60 * 1000 }, // 1.5 hours
-    { label: WEEKS_2, value: 2 * 60 * 60 * 1000 }, // 2 hours
+    { label: DAY_1, value: 5 * 60 * 1000 }, // 5 minutes
+    { label: DAY_3, value: 10 * 60 * 1000 }, // 10 minutes
+    { label: DAY_5, value: 15 * 60 * 1000 }, // 15 minutes
+    { label: WEEK_1, value: 30 * 60 * 1000 }, // 30 minutes
+    { label: WEEKS_2, value: 1 * 60 * 60 * 1000 }, // 1 hour
   ];
 
   const TIMELOCK_DURATIONS = isMainNet ? MAINNET_DURATIONS : TESTNET_DURATIONS;

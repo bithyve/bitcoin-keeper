@@ -691,7 +691,7 @@ function SignerAdvanceSettings({ route }: any) {
     <OptionCard
       key="additionalInfo"
       title="Additional Info"
-      description="Associate contact or Edit description"
+      description="Associate contact or edit description"
       callback={navigateToAdditionalDetails}
     />,
     isMobileKey && (
