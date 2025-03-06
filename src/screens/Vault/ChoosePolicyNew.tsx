@@ -36,6 +36,20 @@ import { Signer } from 'src/services/wallets/interfaces/vault';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
+import config from 'src/utils/service-utilities/config';
+import { NetworkType } from 'src/services/wallets/enums';
+import {
+  MONTHS_3,
+  MONTHS_6,
+  MONTHS_12,
+  MONTH_1,
+  WEEK_1,
+  WEEKS_2,
+  DAY_1,
+  DAY_3,
+  DAY_5,
+  OFF,
+} from './constants';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -62,13 +76,48 @@ function ChoosePolicyNew({ navigation, route }) {
       setSigningDelay(delayTime);
     }
   }, [route.params]);
+  const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
+
+  const MAINNET_TIMELOCK_DURATIONS = [
+    { label: OFF, value: 0 },
+    { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 },
+    { label: DAY_3, value: 3 * 24 * 60 * 60 * 1000 },
+    { label: DAY_5, value: 5 * 24 * 60 * 60 * 1000 },
+    { label: WEEK_1, value: 7 * 24 * 60 * 60 * 1000 },
+    { label: WEEKS_2, value: 14 * 24 * 60 * 60 * 1000 },
+    { label: MONTH_1, value: 30 * 24 * 60 * 60 * 1000 },
+    { label: MONTHS_3, value: 3 * 30 * 24 * 60 * 60 * 1000 },
+    { label: MONTHS_6, value: 6 * 30 * 24 * 60 * 60 * 1000 },
+    { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
+  ];
+
+  const TESTNET_TIMELOCK_DURATIONS = [
+    { label: OFF, value: 0 },
+    { label: DAY_1, value: 30 * 60 * 1000 }, // 30 minutes
+    { label: DAY_3, value: 45 * 60 * 1000 }, // 45 minutes
+    { label: DAY_5, value: 60 * 60 * 1000 }, // 1 hours
+    { label: WEEK_1, value: 90 * 60 * 1000 }, //  1.5 hour
+    { label: WEEKS_2, value: 2 * 60 * 60 * 1000 }, //  2 hours
+    { label: MONTH_1, value: 6 * 60 * 60 * 1000 }, //  6 hours
+    { label: MONTHS_3, value: 12 * 60 * 60 * 1000 }, //  12 hours
+    { label: MONTHS_6, value: 18 * 60 * 60 * 1000 }, //  18 hours
+    { label: MONTHS_12, value: 24 * 60 * 60 * 1000 }, //  24 hours
+  ];
+
+  const TIMELOCK_DURATIONS = isMainNet ? MAINNET_TIMELOCK_DURATIONS : TESTNET_TIMELOCK_DURATIONS;
 
   useEffect(() => {
     // TODO: remap and fix the label for timelimit and signing delay
     if (signer && signer.signerPolicy) {
       setSpendingLimit(`${signer.signerPolicy?.restrictions?.maxTransactionAmount}`);
-      setTimeLimit({ label: '1 day', value: signer.signerPolicy?.restrictions?.timeWindow });
-      setSigningDelay({ label: '1 day', value: signer.signerPolicy?.signingDelay });
+      const matchedTimeLimit = TIMELOCK_DURATIONS.find(
+        (option) => option.value === signer.signerPolicy?.restrictions?.timeWindow
+      );
+      setTimeLimit(matchedTimeLimit);
+      const matchedSigningDelay = TIMELOCK_DURATIONS.find(
+        (option) => option.value === signer.signerPolicy?.signingDelay
+      );
+      setSigningDelay(matchedSigningDelay);
     }
   }, [signer]);
 
@@ -186,16 +235,19 @@ function ChoosePolicyNew({ navigation, route }) {
               }
             }}
           >
-            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+            <CVVInputsView
+              passCode={otp}
+              passcodeFlag={false}
+              backgroundColor
+              textColor
+              height={hp(46)}
+              width={hp(46)}
+              marginTop={hp(0)}
+              marginBottom={hp(20)}
+              inputGap={2}
+              customStyle={styles.CVVInputsView}
+            />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
-            {vaultTranslation.cvvSigningServerInfo}
-          </Text>
-          <Box mt={10} alignSelf="flex-end" mr={2}>
-            <Box>
-              <CustomGreenButton onPress={onConfirmUpdatePolicy} value="Confirm" />
-            </Box>
-          </Box>
         </Box>
         <KeyPadView
           onPressNumber={onPressNumber}
@@ -203,6 +255,17 @@ function ChoosePolicyNew({ navigation, route }) {
           keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
+        <Box mt={5} alignSelf="flex-end">
+          <Box>
+            <Buttons
+              primaryCallback={() => {
+                onConfirmUpdatePolicy();
+              }}
+              fullWidth
+              primaryText="Confirm"
+            />
+          </Box>
+        </Box>
       </Box>
     );
   }, [otp]);
@@ -247,8 +310,8 @@ function ChoosePolicyNew({ navigation, route }) {
           showValidationModal(false);
           // resetFields();
         }}
-        title="Confirm OTP to change policy"
-        subTitle="To complete setting up the signer"
+        title={common.confirm2FACodeTitle}
+        subTitle={common.confirm2FACodeSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalHeaderTitle`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -275,6 +338,10 @@ const styles = StyleSheet.create({
   },
   desc: {
     marginVertical: hp(15),
+  },
+  CVVInputsView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

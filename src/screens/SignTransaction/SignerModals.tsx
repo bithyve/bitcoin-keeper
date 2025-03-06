@@ -3,7 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -45,6 +45,7 @@ import { InteracationMode } from '../Vault/HardwareModalMap';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import SetupSignerOptions from 'src/components/SetupSignerOptions';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -503,26 +504,18 @@ function OtpContent({ signTransaction }) {
   return (
     <Box width={'100%'}>
       <Box>
-        <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
-        <Text
-          fontSize={13}
-          letterSpacing={0.65}
-          width={wp(290)}
-          color={`${colorMode}.greenText`}
-          marginTop={2}
-        >
-          If you lose your authenticator app, use the other signers to reset the signer
-        </Text>
-        <Box mt={10} alignSelf="flex-end" mr={2}>
-          <Box>
-            <CustomGreenButton
-              onPress={() => {
-                signTransaction({ signingServerOTP: otp });
-              }}
-              value="proceed"
-            />
-          </Box>
-        </Box>
+        <CVVInputsView
+          passCode={otp}
+          passcodeFlag={false}
+          backgroundColor
+          textColor
+          height={hp(46)}
+          width={hp(46)}
+          marginTop={hp(0)}
+          marginBottom={hp(20)}
+          inputGap={2}
+          customStyle={styles.CVVInputsView}
+        />
       </Box>
       <KeyPadView
         onPressNumber={onPressNumber}
@@ -530,6 +523,17 @@ function OtpContent({ signTransaction }) {
         keyColor={`${colorMode}.primaryText`}
         ClearIcon={<DeleteIcon />}
       />
+      <Box mt={5} alignSelf="flex-end" mr={2}>
+        <Box>
+          <Buttons
+            primaryCallback={() => {
+              signTransaction({ signingServerOTP: otp });
+            }}
+            fullWidth
+            primaryText="proceed"
+          />
+        </Box>
+      </Box>
     </Box>
   );
 }
@@ -736,6 +740,8 @@ function SignerModals({
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
@@ -932,9 +938,10 @@ function SignerModals({
               close={() => {
                 showOTPModal(false);
               }}
-              title="Confirm OTP to sign transaction"
-              subTitle="To sign using signer key"
+              title={common.confirm2FACodeTitle}
+              subTitle={common.confirm2FACodeSubtitle}
               textColor={`${colorMode}.modalHeaderTitle`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => <OtpContent signTransaction={signTransaction} />}
             />
           );
@@ -1287,5 +1294,9 @@ const styles = StyleSheet.create({
     paddingBottom: hp(9),
     paddingLeft: wp(12),
     paddingRight: wp(14),
+  },
+  CVVInputsView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -53,7 +53,7 @@ function SigningRequestCard({ title, dateTime, amount, timeRemaining }) {
 
       <Box style={styles.header}>
         <Text medium>{signingServer.timeUntilSigning}:</Text>
-        <Text fontSize={13}>{timeRemaining}</Text>
+        {timeRemaining && <Text fontSize={13}>{timeRemaining} Remains</Text>}
       </Box>
 
       {/* <Box style={styles.btnContainer}>
