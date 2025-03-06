@@ -10,7 +10,6 @@ import { createXpubDetails, extractKeyFromDescriptor, generateSignerFromMetaData
 import HWError from './HWErrorState';
 import { getSpecterDetails } from './specter';
 import { getKeystoneDetails } from './keystone';
-import { extractJadeExport } from './jade';
 import config from 'src/utils/service-utilities/config';
 import { extractColdCardExport, getColdcardDetailsFromChannel } from './coldcard';
 import { getLedgerDetailsFromChannel } from './ledger';
@@ -82,7 +81,7 @@ const setupKeystone = (qrData, isMultisig) => {
 };
 
 const setupJade = (qrData) => {
-  const { xpub, derivationPath, masterFingerprint, xpubDetails } = extractJadeExport(qrData);
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = createXpubDetails(qrData);
   const { signer: jade, key } = generateSignerFromMetaData({
     xpub,
     derivationPath,
