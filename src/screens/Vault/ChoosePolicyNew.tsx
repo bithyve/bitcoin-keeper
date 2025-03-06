@@ -113,18 +113,11 @@ function ChoosePolicyNew({ navigation, route }) {
       const matchedTimeLimit = TIMELOCK_DURATIONS.find(
         (option) => option.value === signer.signerPolicy?.restrictions?.timeWindow
       );
-      setTimeLimit(
-        matchedTimeLimit || {
-          label: 'Unknown',
-          value: signer.signerPolicy?.restrictions?.timeWindow,
-        }
-      );
+      setTimeLimit(matchedTimeLimit);
       const matchedSigningDelay = TIMELOCK_DURATIONS.find(
         (option) => option.value === signer.signerPolicy?.signingDelay
       );
-      setSigningDelay(
-        matchedSigningDelay || { label: 'Unknown', value: signer.signerPolicy?.signingDelay }
-      );
+      setSigningDelay(matchedSigningDelay);
     }
   }, [signer]);
 

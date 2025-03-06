@@ -21,9 +21,8 @@ const SpendingLimit = ({ route }) => {
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common } = translations;
   const { totalSats, totalTime, addSignerFlow } = route.params;
-
   const [maxTransaction, setMaxTransaction] = useState(
-    totalSats ? numberWithCommas(totalSats) : '0'
+    totalSats && totalSats !== 'null' ? numberWithCommas(totalSats) : '0'
   );
 
   const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
