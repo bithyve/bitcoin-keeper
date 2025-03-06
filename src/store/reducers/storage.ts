@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
+import { DelayedPolicyUpdate, DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 
 interface InheritanceToolVisitedHistoryType {
   BUY_NEW_HARDWARE_SIGNER: number;
@@ -37,6 +37,7 @@ const initialState: {
   inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
   dontShowConceirgeOnboarding: boolean;
   delayedTransactions: { [txid: string]: DelayedTransaction };
+  delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate }; // contains a single policy update at a time
 } = {
   appId: '',
   resetCred: {
@@ -71,6 +72,7 @@ const initialState: {
   },
   dontShowConceirgeOnboarding: false,
   delayedTransactions: {},
+  delayedPolicyUpdate: {},
 };
 
 const storageSlice = createSlice({
@@ -138,6 +140,17 @@ const storageSlice = createSlice({
         delete state.delayedTransactions[action.payload];
       }
     },
+    updateDelayedPolicyUpdate: (state, action: PayloadAction<DelayedPolicyUpdate>) => {
+      state.delayedPolicyUpdate = {
+        ...(state.delayedPolicyUpdate || {}),
+        [action.payload.policyId]: action.payload,
+      };
+    },
+    deleteDelayedPolicyUpdate: (state, action: PayloadAction<string>) => {
+      if (state.delayedPolicyUpdate && state.delayedPolicyUpdate[action.payload]) {
+        delete state.delayedPolicyUpdate[action.payload];
+      }
+    },
   },
 });
 
@@ -156,6 +169,8 @@ export const {
   setDontShowConceirgeOnboarding,
   updateDelayedTransaction,
   deleteDelayedTransaction,
+  updateDelayedPolicyUpdate,
+  deleteDelayedPolicyUpdate,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

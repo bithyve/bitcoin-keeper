@@ -35,6 +35,7 @@ import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import { fetchDelayedPolicyUpdate } from 'src/store/sagaActions/storage';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
 
 function ChoosePolicyNew({ navigation, route }) {
@@ -43,7 +44,6 @@ function ChoosePolicyNew({ navigation, route }) {
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common, vault: vaultTranslation } = translations;
-  const signer: Signer = route?.params?.signer;
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
 
@@ -52,6 +52,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [spendingLimit, setSpendingLimit] = useState(null);
   const [timeLimit, setTimeLimit] = useState(null);
   const [signingDelay, setSigningDelay] = useState(null);
+  const [signer, setSigner] = useState(route?.params?.signer);
 
   useEffect(() => {
     if (maxTransaction !== undefined) {
@@ -90,7 +91,16 @@ function ChoosePolicyNew({ navigation, route }) {
   // const { activeVault } = useVault({ vaultId });
   const dispatch = useDispatch();
   const policyError = useAppSelector((state) => state.wallet?.signerPolicyError);
+  const delayedPolicyUpdate = useAppSelector((state) => state.storage.delayedPolicyUpdate);
+
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // check for delayed policy updates
+    if (Object.keys(delayedPolicyUpdate).length > 0) {
+      dispatch(fetchDelayedPolicyUpdate());
+    }
+  }, []);
 
   const parseAmount = (amountString: string): number => Number(amountString.replace(/,/g, ''));
 
@@ -120,6 +130,11 @@ function ChoosePolicyNew({ navigation, route }) {
   const onConfirm = () => {
     if (signer) {
       // case: policy update
+      if (Object.keys(delayedPolicyUpdate).length > 0) {
+        showToast('Please wait for the previous policy update to complete');
+        return;
+      }
+
       showValidationModal(true);
     } else {
       // case: new signer policy registration
@@ -133,8 +148,17 @@ function ChoosePolicyNew({ navigation, route }) {
   const onConfirmUpdatePolicy = () => {
     const verificationToken = Number(otp);
     setIsLoading(true);
-    const policy = preparePolicy();
-    dispatch(updateSignerPolicy(signer, route.params.vaultKey, policy, verificationToken));
+    const newPolicy = preparePolicy();
+    const policyUpdates: {
+      restrictions: SignerRestriction;
+      exceptions: SignerException;
+      signingDelay: number;
+    } = {
+      restrictions: newPolicy.restrictions,
+      exceptions: newPolicy.exceptions,
+      signingDelay: newPolicy.signingDelay,
+    };
+    dispatch(updateSignerPolicy(signer, route.params.vaultKey, policyUpdates, verificationToken));
   };
 
   useEffect(() => {
