@@ -512,6 +512,8 @@ export default class WalletOperations {
         purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
       }
 
+      let walletHasNewUpdates = false;
+
       while (needsRecheck) {
         let addresses = [];
 
@@ -664,8 +666,12 @@ export default class WalletOperations {
         }
 
         if (!hardRefresh) {
-          addresses = addresses.filter((address) =>
-            newUTXOs.some((utxo) => utxo.address === address)
+          addresses = addresses.filter(
+            (address) =>
+              newUTXOs.some((utxo) => utxo.address === address) ||
+              [...confirmedUTXOs, ...unconfirmedUTXOs]
+                .filter((utxo) => utxo.address == address)
+                .some((utxo) => !wallet.specs.transactions.map((tx) => tx.txid).includes(utxo.txId))
           );
         }
 
@@ -683,6 +689,14 @@ export default class WalletOperations {
           network
         );
 
+        walletHasNewUpdates =
+          hasNewUpdates ||
+          newUTXOs.length !== 0 ||
+          !utxpArraysAreEqual(wallet.specs.unconfirmedUTXOs, unconfirmedUTXOs) ||
+          !utxpArraysAreEqual(wallet.specs.confirmedUTXOs, confirmedUTXOs)
+            ? true
+            : walletHasNewUpdates;
+
         needsRecheck =
           totalExternalAddresses > wallet.specs.totalExternalAddresses ||
           lastUsedChangeAddressIndex + 1 > wallet.specs.nextFreeChangeAddressIndex;
@@ -695,11 +709,7 @@ export default class WalletOperations {
         wallet.specs.addressPubs = addressPubs;
         wallet.specs.receivingAddress =
           WalletOperations.getNextFreeExternalAddress(wallet).receivingAddress;
-        wallet.specs.hasNewUpdates =
-          hasNewUpdates ||
-          newUTXOs.length !== 0 ||
-          !utxpArraysAreEqual(wallet.specs.unconfirmedUTXOs, unconfirmedUTXOs) ||
-          !utxpArraysAreEqual(wallet.specs.confirmedUTXOs, confirmedUTXOs);
+        wallet.specs.hasNewUpdates = walletHasNewUpdates;
         wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
         wallet.specs.confirmedUTXOs = confirmedUTXOs;
         wallet.specs.balances = balances;
