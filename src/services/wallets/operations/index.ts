@@ -388,7 +388,7 @@ export default class WalletOperations {
 
     let newTxids = txids.filter((txid) => {
       const tx = wallet.specs.transactions.find((tx) => tx.txid === txid);
-      return !tx || tx.confirmations < 6;
+      return !tx || tx.confirmations <= 6;
     });
     transactions = transactions.filter(
       (tx) =>
@@ -671,7 +671,12 @@ export default class WalletOperations {
               newUTXOs.some((utxo) => utxo.address === address) ||
               [...confirmedUTXOs, ...unconfirmedUTXOs]
                 .filter((utxo) => utxo.address == address)
-                .some((utxo) => !wallet.specs.transactions.map((tx) => tx.txid).includes(utxo.txId))
+                .some(
+                  (utxo) => !wallet.specs.transactions.map((tx) => tx.txid).includes(utxo.txId)
+                ) ||
+              wallet.specs.transactions
+                .filter((tx) => tx.address === address)
+                .some((tx) => tx.confirmations <= 6)
           );
         }
 
