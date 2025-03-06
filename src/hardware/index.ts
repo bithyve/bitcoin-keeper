@@ -77,8 +77,10 @@ export const generateSignerFromMetaData = ({
     ];
   } else {
     Object.entries(xpubDetails).forEach(([key, xpubDetail]) => {
-      const { xpub, xpriv, derivationPath } = xpubDetail;
+      let { xpub, xpriv, derivationPath } = xpubDetail;
       signerXpubs[key] = signerXpubs[key] || [];
+      if ([SignerType.JADE, SignerType.SEEDSIGNER].includes(signerType))
+        xpub = WalletUtilities.getXpubFromExtendedKey(xpub, network);
       signerXpubs[key].push({ xpub, xpriv, derivationPath: derivationPath.replaceAll('h', "'") });
     });
   }
@@ -588,4 +590,37 @@ export const xpubToTpub = (xpub: string): string => {
     console.error('Error details:', err);
     throw new Error('Invalid extended public key! Please check your input.');
   }
+};
+
+export const createXpubDetails = (data) => {
+  const xpubDetails: XpubDetailsType = {};
+  const {
+    [DerivationPurpose.BIP84]: singleSig,
+    [DerivationPurpose.BIP48]: multisig,
+    [DerivationPurpose.BIP86]: taproot,
+  } = data;
+  const masterFingerprint = Object.values(data).find((item: any) => item.mfp)?.mfp;
+  if (singleSig) {
+    xpubDetails[XpubTypes.P2WPKH] = {
+      xpub: singleSig?.xPub,
+      derivationPath: singleSig?.derivationPath,
+    };
+  }
+  if (multisig) {
+    xpubDetails[XpubTypes.P2WSH] = {
+      xpub: multisig?.xPub,
+      derivationPath: multisig?.derivationPath,
+    };
+  }
+  if (taproot) {
+    xpubDetails[XpubTypes.P2TR] = { xpub: taproot?.xPub, derivationPath: taproot?.derivationPath };
+  }
+
+  const xpub = multisig ? multisig.xPub : singleSig ? singleSig.xPub : taproot.xPub;
+  const derivationPath = multisig
+    ? multisig.derivationPath
+    : singleSig
+    ? singleSig.derivationPath
+    : taproot.derivationPath;
+  return { xpub, derivationPath, masterFingerprint, xpubDetails };
 };

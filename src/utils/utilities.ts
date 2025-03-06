@@ -1,5 +1,5 @@
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import moment from 'moment';
 import idx from 'idx';
 
@@ -613,6 +613,7 @@ export const sanitizeFileName = (fileName: string) => {
   const sanitized = fileName.trim().replace(/[^a-zA-Z0-9]/g, '-');
   return sanitized.replace(/^-+|-+$/g, '').length === 0 ? 'untitled' : sanitized;
 };
+
 export function formatDateTime(timestamp) {
   const dateObj = new Date(timestamp);
 
@@ -646,3 +647,9 @@ export function formatRemainingTime(milliseconds) {
   if (hours >= 1) return `${hours} Hour${hours > 1 ? 's' : ''}`;
   return `${minutes} Min${minutes > 1 ? 's' : ''}`;
 }
+
+
+export const manipulateIosProdProductId = (productId: string) => {
+  if (Platform.OS === 'ios' && !config.isDevMode()) return productId.replace('.', '_'); // Replace "." with "_"
+  return productId;
+};

@@ -25,7 +25,9 @@ beforeAll(async () => {
 
 describe('Client', () => {
   it('Client can test connection', async () => {
-    assert.ok(!(await ElectrumClient.testConnection('testnet.qtornado.com', false, 51002)));
+    assert.ok(
+      !(await ElectrumClient.testConnection('testnet.qtornado.com', false, 51002)).connected
+    );
     // assert.ok(await ElectrumClient.testConnection('electrumx-core.1209k.com', false, 50002));
   });
 

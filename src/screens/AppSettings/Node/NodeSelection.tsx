@@ -33,7 +33,7 @@ import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 
-const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL }) => {
+const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL, connectionError }) => {
   return (
     <Box>
       <AddNode
@@ -43,6 +43,7 @@ const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL }) =>
         setHost={setHost}
         setPort={setPort}
         setUseSSL={setUseSSL}
+        connectionError={connectionError}
       />
     </Box>
   );
@@ -81,6 +82,7 @@ const NodeSelection = () => {
   const [host, setHost] = useState('');
   const [port, setPort] = useState('');
   const [useSSL, setUseSSL] = useState(true);
+  const [connectionError, setConnectionError] = useState('');
   const isDarkMode = colorMode === 'dark';
 
   const tabsData = [{ label: settings.publicServer }, { label: settings.privateElectrum }];
@@ -106,7 +108,7 @@ const NodeSelection = () => {
     }
 
     const nodeToSave = { ...nodeDetail };
-    const { saved } = await Node.save(nodeToSave, nodeList);
+    const { saved, connectionError: nodeConnectionError } = await Node.save(nodeToSave, nodeList);
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
@@ -118,6 +120,22 @@ const NodeSelection = () => {
         onConnectToNode(newNode);
       }
     } else {
+      if (nodeConnectionError) {
+        let errorMessage = '';
+        if (nodeConnectionError && typeof nodeConnectionError === 'object') {
+          if (nodeConnectionError.err) {
+            errorMessage = nodeConnectionError.err;
+          } else if (nodeConnectionError.message) {
+            errorMessage = nodeConnectionError.message;
+          } else {
+            errorMessage = nodeConnectionError.toString();
+          }
+        } else {
+          errorMessage = nodeConnectionError.toString();
+        }
+        setConnectionError(errorMessage);
+      }
+
       showToast(`Failed to save, unable to connect to: ${nodeToSave.host} `, <ToastErrorIcon />);
     }
     setSaveLoading(false);
@@ -214,7 +232,10 @@ const NodeSelection = () => {
           width="95%"
           tabs={tabsData}
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={(tab) => {
+            setConnectionError('');
+            setActiveTab(tab);
+          }}
         />
       </Box>
 
@@ -233,6 +254,7 @@ const NodeSelection = () => {
               host={host}
               port={port}
               useSSL={useSSL}
+              connectionError={connectionError}
             />
           )}
         </ScrollView>

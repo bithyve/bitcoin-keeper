@@ -1415,7 +1415,9 @@
     "subscriptionTierL3": "Tier and Inheritance Key at",
     "notSupportedText": "If a particular signer is not supported, it will be indicated.",
     "inheritanceKey": "Inheritance Key",
-    "designateAsInheritanceKey": "Designate a key as the Inheritance Key"
+    "designateAsInheritanceKey": "Designate a key as the Inheritance Key",
+    "keyAddedTitle": "Key added successfully.",
+    "keyAddedSubTitle": "Key has been added successfully. You can continue adding other keys or click Finish to add the device."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
