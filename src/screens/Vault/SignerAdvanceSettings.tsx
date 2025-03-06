@@ -495,7 +495,7 @@ function SignerAdvanceSettings({ route }: any) {
       try {
         setOTBLoading(true);
         const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
-          vaultKey.xfp,
+          vaultKey?.xfp,
           Number(otp)
         );
         setOTBLoading(false);
