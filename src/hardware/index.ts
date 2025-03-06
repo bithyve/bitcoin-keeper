@@ -79,7 +79,7 @@ export const generateSignerFromMetaData = ({
     Object.entries(xpubDetails).forEach(([key, xpubDetail]) => {
       let { xpub, xpriv, derivationPath } = xpubDetail;
       signerXpubs[key] = signerXpubs[key] || [];
-      if (signerType === SignerType.JADE)
+      if ([SignerType.JADE, SignerType.SEEDSIGNER].includes(signerType))
         xpub = WalletUtilities.getXpubFromExtendedKey(xpub, network);
       signerXpubs[key].push({ xpub, xpriv, derivationPath: derivationPath.replaceAll('h', "'") });
     });

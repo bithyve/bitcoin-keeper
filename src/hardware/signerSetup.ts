@@ -7,7 +7,7 @@ import {
   generateSeedWordsKey,
 } from 'src/services/wallets/factories/VaultFactory';
 import { extractKeyFromDescriptor, generateSignerFromMetaData } from './index';
-import { getSeedSignerDetails } from './seedsigner';
+import { extractSeedSignerExport } from './seedsigner';
 import HWError from './HWErrorState';
 import { getSpecterDetails } from './specter';
 import { getKeystoneDetails } from './keystone';
@@ -39,20 +39,18 @@ const setupPassport = (qrData, isMultisig) => {
 };
 
 const setupSeedSigner = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-    getSeedSignerDetails(qrData);
-  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const { signer: seedSigner, key } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.SEEDSIGNER,
-      storageType: SignerStorage.COLD,
-      isMultisig,
-    });
-    return { signer: seedSigner, key };
-  }
-  throw new HWError(HWErrorType.INVALID_SIG);
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = extractSeedSignerExport(qrData);
+
+  const { signer: seedSigner, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    signerType: SignerType.SEEDSIGNER,
+    storageType: SignerStorage.COLD,
+    isMultisig,
+    xpubDetails,
+  });
+  return { signer: seedSigner, key };
 };
 
 const setupSpecter = (qrData, isMultisig) => {
