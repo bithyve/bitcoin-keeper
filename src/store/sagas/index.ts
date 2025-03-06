@@ -70,6 +70,7 @@ import {
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import {
+  fetchDelayedPolicyUpdateWatcher,
   fetchSignedDelayedTransactionWatcher,
   setupKeeperAppWatcher,
   setupKeeperVaultRecoveryAppWatcher,
@@ -144,6 +145,7 @@ const rootSaga = function* () {
     sendPhaseThreeWatcher,
     corssTransferWatcher,
     fetchSignedDelayedTransactionWatcher,
+    fetchDelayedPolicyUpdateWatcher,
     calculateSendMaxFeeWatcher,
     calculateCustomFeeWatcher,
 

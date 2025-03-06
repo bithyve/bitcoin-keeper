@@ -13,10 +13,12 @@ import {
   XpubTypes,
 } from 'src/services/wallets/enums';
 import {
+  DelayedPolicyUpdate,
   InheritanceConfiguration,
   InheritanceKeyInfo,
   InheritancePolicy,
   SignerException,
+  SignerPolicy,
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
 import {
@@ -161,6 +163,7 @@ import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
+import { updateDelayedPolicyUpdate } from '../reducers/storage';
 
 export interface NewVaultDetails {
   name?: string;
@@ -407,7 +410,7 @@ function* addNewWallet(
     case WalletType.DEFAULT:
       const defaultWallet: Wallet = yield call(generateWallet, {
         type: WalletType.DEFAULT,
-        instanceNum: instanceNum, // zero-indexed
+        instanceNum, // zero-indexed
         walletName: walletName || 'Default Wallet',
         walletDescription: walletDescription || '',
         derivationConfig,
@@ -1277,48 +1280,59 @@ export function* updateSignerPolicyWorker({
   payload: {
     signer: Signer;
     signingKey: VaultSigner;
-    updates: { restrictions?: SignerRestriction; exceptions?: SignerException };
+    updates: {
+      restrictions: SignerRestriction;
+      exceptions: SignerException;
+      signingDelay: number;
+    };
     verificationToken: number;
   };
 }) {
-  const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
-  const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
+  const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
 
   const { signer, signingKey, updates, verificationToken } = payload;
   try {
-    const { updated } = yield call(
+    const signerId =
+      signingKey?.xfp ||
+      WalletUtilities.getFingerprintFromExtendedKey(
+        signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+        config.NETWORK
+      );
+
+    const {
+      updated,
+      delayedPolicyUpdate,
+    }: { updated: boolean; delayedPolicyUpdate: DelayedPolicyUpdate } = yield call(
       SigningServer.updatePolicy,
-      signingKey.xfp,
+      signerId,
       verificationToken,
-      updates
+      updates,
+      fcmToken
     );
-    if (!updated) {
-      Alert.alert('Failed to update signer policy, try again.');
-      throw new Error('Failed to update the policy');
-    }
 
-    const { signers } = activeVault;
-    for (const current of signers) {
-      if (current.xfp === signingKey.xfp) {
-        const updatedSignerPolicy = {
-          ...signer.signerPolicy,
-          restrictions: updates.restrictions,
-          exceptions: updates.exceptions,
-        };
-        yield put(setSignerPolicyError('success'));
-
-        const signerKeyUID = getKeyUID(signer);
-        yield call(
-          dbManager.updateObjectByQuery,
-          RealmSchema.Signer,
-          (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
-          {
-            signerPolicy: updatedSignerPolicy,
-          }
-        );
-        break;
+    if (delayedPolicyUpdate) {
+      yield put(updateDelayedPolicyUpdate(delayedPolicyUpdate));
+      Alert.alert(`Policy will take effect after ${delayedPolicyUpdate.delayUntil} ms`);
+    } else {
+      if (!updated) {
+        Alert.alert('Failed to update signer policy, try again.');
+        throw new Error('Failed to update the policy');
       }
+
+      const updatedSignerPolicy = {
+        ...signer.signerPolicy,
+        ...updates,
+      };
+      dbManager.updateObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          signerPolicy: updatedSignerPolicy,
+        }
+      );
     }
+    yield put(setSignerPolicyError('success'));
   } catch (err) {
     yield put(setSignerPolicyError('failure'));
   }

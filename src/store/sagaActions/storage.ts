@@ -6,6 +6,7 @@ export const INCREASE_PIN_FAIL_ATTEMTS = 'INCREASE_PIN_FAIL_ATTEMTS';
 export const RESET_PIN_FAIL_ATTEMTS = 'RESET_PIN_FAIL_ATTEMTS';
 export const KEY_FETCHED = 'KEY_FETCHED';
 export const FETCH_SIGNED_DELAYED_TRANSACTION = 'FETCH_SIGNED_DELAYED_TRANSACTION';
+export const FETCH_DELAYED_POLICY_UPDATE = 'FETCH_DELAYED_POLICY_UPDATE';
 
 export const setupKeeperApp = (fcmToken: string = '', appName: string = '') => ({
   type: SETUP_KEEPER_APP,
@@ -57,4 +58,8 @@ export const keyFetched = (key) => ({
 
 export const fetchSignedDelayedTransaction = () => ({
   type: FETCH_SIGNED_DELAYED_TRANSACTION,
+});
+
+export const fetchDelayedPolicyUpdate = () => ({
+  type: FETCH_DELAYED_POLICY_UPDATE,
 });
