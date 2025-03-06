@@ -11,7 +11,7 @@ import { getSeedSignerDetails } from './seedsigner';
 import HWError from './HWErrorState';
 import { getSpecterDetails } from './specter';
 import { getKeystoneDetails } from './keystone';
-import { getJadeDetails } from './jade';
+import { extractJadeExport } from './jade';
 import { getPassportDetails } from './passport';
 import config from 'src/utils/service-utilities/config';
 import { extractColdCardExport, getColdcardDetailsFromChannel } from './coldcard';
@@ -89,21 +89,18 @@ const setupKeystone = (qrData, isMultisig) => {
   throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const setupJade = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-    getJadeDetails(qrData);
-  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const { signer: jade, key } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.JADE,
-      storageType: SignerStorage.COLD,
-      isMultisig,
-    });
-    return { signer: jade, key };
-  }
-  throw new HWError(HWErrorType.INVALID_SIG);
+const setupJade = (qrData) => {
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = extractJadeExport(qrData);
+  const { signer: jade, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    isMultisig: xpubDetails.hasOwnProperty(XpubTypes.P2WSH),
+    signerType: SignerType.JADE,
+    storageType: SignerStorage.COLD,
+    xpubDetails,
+  });
+  return { signer: jade, key };
 };
 
 const setupKeeperSigner = (qrData) => {

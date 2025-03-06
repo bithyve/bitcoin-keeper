@@ -1069,10 +1069,10 @@ function HardwareModalMap({
     );
   };
 
-  const navigateToAddQrBasedSigner = () => {
+  const navigateToAddQrBasedSigner = () =>
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'ScanQR',
+        name: isHealthcheck || isCanaryAddition || isExternalKey ? 'ScanQR' : 'AddMultipleXpub',
         params: {
           title: `${
             isHealthcheck
@@ -1086,9 +1086,7 @@ function HardwareModalMap({
           subtitle: isExternalKey
             ? 'Please scan a QR or use alternate methods listed below'
             : 'Please scan until all the QR data has been retrieved',
-          onQrScan: (data) => {
-            isHealthcheck ? onQRScanHealthCheck(data, signer) : onQRScan(data);
-          },
+          onQrScan: (data) => (isHealthcheck ? onQRScanHealthCheck(data, signer) : onQRScan(data)),
           setup: true,
           type,
           mode,
@@ -1097,7 +1095,6 @@ function HardwareModalMap({
         },
       })
     );
-  };
 
   const navigateToFileBasedSigner = (type) => {
     navigation.dispatch(
@@ -1351,7 +1348,7 @@ function HardwareModalMap({
           hw = setupKeystone(qrData, isMultisig);
           break;
         case SignerType.JADE:
-          hw = setupJade(qrData, isMultisig);
+          hw = setupJade(qrData);
           break;
         case SignerType.COLDCARD:
           hw = setupColdcard(qrData, isMultisig);
