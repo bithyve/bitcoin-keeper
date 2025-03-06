@@ -25,7 +25,7 @@ const ServerKeySuccessScreen = ({ route }) => {
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common } = translations;
   const navigation = useNavigation();
-  const { addedSigner, vaultKey, vaultId } = route.params || {};
+  const { addedSigner, vaultKey, vaultId, setupData } = route.params || {};
 
   const [backupKeyModal, setBackupKeyModal] = useState(false);
   const [otp, setOtp] = useState('');
@@ -38,6 +38,7 @@ const ServerKeySuccessScreen = ({ route }) => {
       setBackupKeyModal(true);
     }
   }, [addedSigner]);
+
   useEffect(() => {
     if (!showOTPModal) {
       setOtp('');
@@ -112,7 +113,7 @@ const ServerKeySuccessScreen = ({ route }) => {
       try {
         setOTBLoading(true);
         const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
-          vaultKey?.xfp,
+          setupData,
           Number(otp)
         );
         setOTBLoading(false);
@@ -121,7 +122,7 @@ const ServerKeySuccessScreen = ({ route }) => {
           vaultId,
           seed: mnemonic,
           derivationPath,
-          signer,
+          signer: addedSigner,
           isFromAssistedKey: true,
           isSS: true,
         });
