@@ -78,7 +78,7 @@ function ChoosePolicyNew({ navigation, route }) {
   }, [route.params]);
   const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
 
-  const MAINNET_INHERITANCE_TIMELOCK_DURATIONS = [
+  const MAINNET_TIMELOCK_DURATIONS = [
     { label: OFF, value: 0 },
     { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 },
     { label: DAY_3, value: 3 * 24 * 60 * 60 * 1000 },
@@ -91,7 +91,7 @@ function ChoosePolicyNew({ navigation, route }) {
     { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
   ];
 
-  const TESTNET_INHERITANCE_TIMELOCK_DURATIONS = [
+  const TESTNET_TIMELOCK_DURATIONS = [
     { label: OFF, value: 0 },
     { label: DAY_1, value: 30 * 60 * 1000 }, // 30 minutes
     { label: DAY_3, value: 45 * 60 * 1000 }, // 45 minutes
@@ -104,15 +104,13 @@ function ChoosePolicyNew({ navigation, route }) {
     { label: MONTHS_12, value: 24 * 60 * 60 * 1000 }, //  24 hours
   ];
 
-  const INHERITANCE_TIMELOCK_DURATIONS = isMainNet
-    ? MAINNET_INHERITANCE_TIMELOCK_DURATIONS
-    : TESTNET_INHERITANCE_TIMELOCK_DURATIONS;
+  const TIMELOCK_DURATIONS = isMainNet ? MAINNET_TIMELOCK_DURATIONS : TESTNET_TIMELOCK_DURATIONS;
 
   useEffect(() => {
     // TODO: remap and fix the label for timelimit and signing delay
     if (signer && signer.signerPolicy) {
       setSpendingLimit(`${signer.signerPolicy?.restrictions?.maxTransactionAmount}`);
-      const matchedTimeLimit = INHERITANCE_TIMELOCK_DURATIONS.find(
+      const matchedTimeLimit = TIMELOCK_DURATIONS.find(
         (option) => option.value === signer.signerPolicy?.restrictions?.timeWindow
       );
       setTimeLimit(
@@ -121,7 +119,7 @@ function ChoosePolicyNew({ navigation, route }) {
           value: signer.signerPolicy?.restrictions?.timeWindow,
         }
       );
-      const matchedSigningDelay = INHERITANCE_TIMELOCK_DURATIONS.find(
+      const matchedSigningDelay = TIMELOCK_DURATIONS.find(
         (option) => option.value === signer.signerPolicy?.signingDelay
       );
       setSigningDelay(

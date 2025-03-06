@@ -28,7 +28,7 @@ const SpendingLimit = ({ route }) => {
 
   const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
 
-  const MAINNET_INHERITANCE_TIMELOCK_DURATIONS = [
+  const MAINNET_TIMELOCK_DURATIONS = [
     { label: OFF, value: 0 },
     { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 },
     { label: WEEK_1, value: 7 * 24 * 60 * 60 * 1000 },
@@ -39,7 +39,7 @@ const SpendingLimit = ({ route }) => {
     { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
   ];
 
-  const TESTNET_INHERITANCE_TIMELOCK_DURATIONS = [
+  const TESTNET_TIMELOCK_DURATIONS = [
     { label: OFF, value: 0 },
     { label: DAY_1, value: 30 * 60 * 1000 }, // 30 minutes
     { label: WEEK_1, value: 90 * 60 * 1000 }, //  1.5 hour
@@ -50,12 +50,10 @@ const SpendingLimit = ({ route }) => {
     { label: MONTHS_12, value: 24 * 60 * 60 * 1000 }, //  24 hours
   ];
 
-  const INHERITANCE_TIMELOCK_DURATIONS = isMainNet
-    ? MAINNET_INHERITANCE_TIMELOCK_DURATIONS
-    : TESTNET_INHERITANCE_TIMELOCK_DURATIONS;
+  const TIMELOCK_DURATIONS = isMainNet ? MAINNET_TIMELOCK_DURATIONS : TESTNET_TIMELOCK_DURATIONS;
 
-  const DEFAULT_INHERITANCE_TIMELOCK = INHERITANCE_TIMELOCK_DURATIONS[2];
-  const [selectedOption, setSelectedOption] = useState(totalTime || DEFAULT_INHERITANCE_TIMELOCK);
+  const DEFAULT_TIMELOCK = TIMELOCK_DURATIONS[2];
+  const [selectedOption, setSelectedOption] = useState(totalTime || DEFAULT_TIMELOCK);
 
   const handleConfirm = () => {
     navigation.navigate('ChoosePolicyNew', {
@@ -87,7 +85,7 @@ const SpendingLimit = ({ route }) => {
               onChangeText={handleInputChange}
             />
             <OptionDropdown
-              options={INHERITANCE_TIMELOCK_DURATIONS}
+              options={TIMELOCK_DURATIONS}
               selectedOption={selectedOption}
               onOptionSelect={(option) => setSelectedOption(option)}
             />
