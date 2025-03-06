@@ -477,6 +477,11 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const id = WalletUtilities.getFingerprintFromExtendedKey(
+    signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+    WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+  );
+
   function SigningServerOTPModal() {
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
@@ -495,7 +500,7 @@ function SignerAdvanceSettings({ route }: any) {
       try {
         setOTBLoading(true);
         const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
-          vaultKey?.xfp,
+          vaultKey?.xfp || id,
           Number(otp)
         );
         setOTBLoading(false);
