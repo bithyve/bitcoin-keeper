@@ -49,7 +49,7 @@ export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 export const ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT = '1.2.7';
 export const ARCHIVE_ENABLED_VERSION = '1.2.7';
 export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.6';
-export const SIGNER_POLICY_MIGRATION_VERSION = '2.0.3';
+export const SIGNER_POLICY_MIGRATION_VERSION = '2.1.0';
 
 export function* applyUpgradeSequence({
   previousVersion,
