@@ -56,7 +56,11 @@ export interface DelayedTransaction {
 export interface DelayedPolicyUpdate {
   policyId: string;
   signerId: string;
-  proposedPolicy: SignerPolicy;
+  policyUpdates: {
+    restrictions: SignerRestriction;
+    exceptions: SignerException;
+    signingDelay: number;
+  };
   verificationToken: string;
   timestamp: number;
   delayUntil: number;

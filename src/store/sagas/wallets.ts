@@ -163,7 +163,7 @@ import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
-import { setDelayedPolicyUpdate } from '../reducers/storage';
+import { updateDelayedPolicyUpdate } from '../reducers/storage';
 
 export interface NewVaultDetails {
   name?: string;
@@ -1280,7 +1280,11 @@ export function* updateSignerPolicyWorker({
   payload: {
     signer: Signer;
     signingKey: VaultSigner;
-    updates: SignerPolicy;
+    updates: {
+      restrictions: SignerRestriction;
+      exceptions: SignerException;
+      signingDelay: number;
+    };
     verificationToken: number;
   };
 }) {
@@ -1307,8 +1311,8 @@ export function* updateSignerPolicyWorker({
     );
 
     if (delayedPolicyUpdate) {
-      yield put(setDelayedPolicyUpdate(delayedPolicyUpdate));
-      Alert.alert(`Policy will take effect in ${delayedPolicyUpdate.delayUntil}`);
+      yield put(updateDelayedPolicyUpdate(delayedPolicyUpdate));
+      Alert.alert(`Policy will take effect after ${delayedPolicyUpdate.delayUntil} ms`);
     } else {
       if (!updated) {
         Alert.alert('Failed to update signer policy, try again.');

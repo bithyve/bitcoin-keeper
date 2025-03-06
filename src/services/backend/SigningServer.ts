@@ -227,7 +227,11 @@ export default class SigningServer {
   static updatePolicy = async (
     id: string,
     verificationToken: number,
-    updates: SignerPolicy,
+    updates: {
+      restrictions: SignerRestriction;
+      exceptions: SignerException;
+      signingDelay: number;
+    },
     FCM?: string
   ): Promise<{
     updated: boolean;

@@ -7,7 +7,7 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { WalletType } from 'src/services/wallets/enums';
+import { SignerType, WalletType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -16,6 +16,7 @@ import config from 'src/utils/service-utilities/config';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { DelayedPolicyUpdate, DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import { createWatcher } from '../utilities';
 import {
   FETCH_DELAYED_POLICY_UPDATE,
@@ -24,7 +25,7 @@ import {
   SETUP_KEEPER_APP_VAULT_RECOVERY,
 } from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
-import { setAppId, updateDelayedPolicyUpdate, updateDelayedTransaction } from '../reducers/storage';
+import { deleteDelayedPolicyUpdate, setAppId, updateDelayedTransaction } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 
@@ -210,6 +211,16 @@ export const fetchSignedDelayedTransactionWatcher = createWatcher(
 );
 
 function* fetchDelayedPolicyUpdateWorker() {
+  const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+  let serverKeySigner: Signer;
+  for (const signer of signers) {
+    if (signer.type === SignerType.POLICY_SERVER) {
+      serverKeySigner = signer;
+      break;
+    }
+  }
+  if (!serverKeySigner) return;
+
   const delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate } = yield select(
     (state) => state.storage.delayedPolicyUpdate
   );
@@ -229,7 +240,21 @@ function* fetchDelayedPolicyUpdateWorker() {
           );
 
           if (delayedPolicy.isApplied) {
-            yield put(updateDelayedPolicyUpdate(delayedPolicy));
+            // TODO: generate notification to intimate the user
+            const updatedSignerPolicy = {
+              ...serverKeySigner.signerPolicy,
+              ...delayedPolicy.policyUpdates,
+            };
+            yield call(
+              dbManager.updateObjectByPrimaryId,
+              RealmSchema.Signer,
+              'masterFingerprint',
+              serverKeySigner.masterFingerprint,
+              {
+                signerPolicy: updatedSignerPolicy,
+              }
+            );
+            yield put(deleteDelayedPolicyUpdate(delayedPolicy.policyId));
           }
         }
       }

@@ -1,7 +1,7 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { VisibilityType } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { SignerPolicy } from 'src/models/interfaces/AssistedKeys';
+import { SignerException, SignerRestriction } from 'src/models/interfaces/AssistedKeys';
 import { NewWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -118,7 +118,11 @@ export const incrementAddressIndex = (
 export const updateSignerPolicy = (
   signer: Signer,
   signingKey: VaultSigner,
-  updates: SignerPolicy,
+  updates: {
+    restrictions: SignerRestriction;
+    exceptions: SignerException;
+    signingDelay: number;
+  },
   verificationToken
 ) => ({
   type: UPDATE_SIGNER_POLICY,
