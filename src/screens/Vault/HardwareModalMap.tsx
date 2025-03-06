@@ -1069,10 +1069,14 @@ function HardwareModalMap({
     );
   };
 
-  const navigateToAddQrBasedSigner = () =>
+  const navigateToAddQrBasedSigner = () => {
+    let routeName = 'ScanQR';
+    if (!isHealthcheck && !isCanaryAddition && !isExternalKey)
+      if (type === SignerType.JADE) routeName = 'AddMultipleXpub';
+
     navigation.dispatch(
       CommonActions.navigate({
-        name: isHealthcheck || isCanaryAddition || isExternalKey ? 'ScanQR' : 'AddMultipleXpub',
+        name: routeName,
         params: {
           title: `${
             isHealthcheck
@@ -1095,6 +1099,7 @@ function HardwareModalMap({
         },
       })
     );
+  };
 
   const navigateToFileBasedSigner = (type) => {
     navigation.dispatch(
