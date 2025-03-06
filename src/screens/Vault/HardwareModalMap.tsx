@@ -1072,8 +1072,8 @@ function HardwareModalMap({
   const navigateToAddQrBasedSigner = () => {
     let routeName = 'ScanQR';
     if (!isHealthcheck && !isCanaryAddition && !isExternalKey)
-      if ([SignerType.JADE, SignerType.SEEDSIGNER].includes(type)) routeName = 'AddMultipleXpub';
-
+      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.PASSPORT].includes(type))
+        routeName = 'AddMultipleXpub';
     navigation.dispatch(
       CommonActions.navigate({
         name: routeName,

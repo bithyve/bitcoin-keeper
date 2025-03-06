@@ -1,6 +1,5 @@
 import { Psbt } from 'bitcoinjs-lib';
-import { DerivationPurpose, XpubTypes } from 'src/services/wallets/enums';
-import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
+import { DerivationPurpose } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 
 export const getSeedSignerDetails = (qrData) => {
@@ -30,39 +29,6 @@ export const updateInputsForSeedSigner = ({ serializedPSBT, signedSerializedPSBT
     signedPsbt.updateInput(index, unsignedInputs[index]);
   });
   return { signedPsbt: signedPsbt.toBase64() };
-};
-
-export const extractSeedSignerExport = (data) => {
-  const xpubDetails: XpubDetailsType = {};
-  const {
-    [DerivationPurpose.BIP84]: singleSig,
-    [DerivationPurpose.BIP48]: multisig,
-    [DerivationPurpose.BIP86]: taproot,
-  } = data;
-  const masterFingerprint = Object.values(data).find((item: any) => item.mfp)?.mfp;
-  if (singleSig) {
-    xpubDetails[XpubTypes.P2WPKH] = {
-      xpub: singleSig?.xPub,
-      derivationPath: singleSig?.derivationPath,
-    };
-  }
-  if (multisig) {
-    xpubDetails[XpubTypes.P2WSH] = {
-      xpub: multisig?.xPub,
-      derivationPath: multisig?.derivationPath,
-    };
-  }
-  if (taproot) {
-    xpubDetails[XpubTypes.P2TR] = { xpub: taproot?.xPub, derivationPath: taproot?.derivationPath };
-  }
-
-  const xpub = multisig ? multisig.xPub : taproot ? taproot.xPub : singleSig.xPub;
-  const derivationPath = multisig
-    ? multisig.derivationPath
-    : taproot
-    ? taproot.xPub
-    : singleSig.derivationPath;
-  return { xpub, derivationPath, masterFingerprint, xpubDetails };
 };
 
 export const manipulateSeedSignerData = (data: string) => {

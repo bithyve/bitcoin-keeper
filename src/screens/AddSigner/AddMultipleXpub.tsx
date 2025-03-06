@@ -17,6 +17,7 @@ import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { manipulateSeedSignerData } from 'src/hardware/seedsigner';
+import { getPassportDetails, manipulatePassportDetails } from 'src/hardware/passport';
 
 const options = [
   { label: 'Singlesig', sub: 'BIP84', purpose: DerivationPurpose.BIP84 },
@@ -51,14 +52,26 @@ export const AddMultipleXpub = () => {
   };
 
   const onScanCompleted = (data) => {
+    let passportTaproot;
     try {
       if (type === SignerType.SEEDSIGNER) data = manipulateSeedSignerData(data);
+      else if (type === SignerType.PASSPORT) {
+        data = manipulatePassportDetails(getPassportDetails(data, true));
+        passportTaproot = data?.taproot;
+        delete data?.taproot;
+      }
+
       const purpose = WalletUtilities.getPurpose(data.derivationPath);
       if (xpubs[purpose])
         showToast(
           `You have already scanned the ${options.find((tab) => tab.purpose === purpose).label} key`
         );
-      else setXpubs({ ...xpubs, [purpose]: data });
+      else
+        setXpubs({
+          ...xpubs,
+          [purpose]: data,
+          ...(passportTaproot ? { [DerivationPurpose.BIP86]: passportTaproot } : {}),
+        });
     } catch (error) {
       console.log('🚀 ~ onScanCompleted ~ error:', error);
       showToast('Please scan a valid QR', <ToastErrorIcon />);
@@ -77,7 +90,7 @@ export const AddMultipleXpub = () => {
         <Box style={styles.segmentController}>
           <SegmentedController
             options={options.filter((tab) => {
-              if (type === SignerType.JADE) {
+              if ([SignerType.JADE, SignerType.PASSPORT].includes(type)) {
                 return tab.label !== 'Taproot';
               }
               return true;

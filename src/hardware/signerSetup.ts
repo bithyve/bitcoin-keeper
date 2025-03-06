@@ -6,13 +6,11 @@ import {
   generateMobileKey,
   generateSeedWordsKey,
 } from 'src/services/wallets/factories/VaultFactory';
-import { extractKeyFromDescriptor, generateSignerFromMetaData } from './index';
-import { extractSeedSignerExport } from './seedsigner';
+import { createXpubDetails, extractKeyFromDescriptor, generateSignerFromMetaData } from './index';
 import HWError from './HWErrorState';
 import { getSpecterDetails } from './specter';
 import { getKeystoneDetails } from './keystone';
 import { extractJadeExport } from './jade';
-import { getPassportDetails } from './passport';
 import config from 'src/utils/service-utilities/config';
 import { extractColdCardExport, getColdcardDetailsFromChannel } from './coldcard';
 import { getLedgerDetailsFromChannel } from './ledger';
@@ -22,25 +20,21 @@ import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
 import { getUSBSignerDetails } from './usbSigner';
 
 const setupPassport = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-    getPassportDetails(qrData);
-  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const { signer: passport, key } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.PASSPORT,
-      storageType: SignerStorage.COLD,
-      isMultisig,
-    });
-    return { signer: passport, key };
-  }
-  throw new HWError(HWErrorType.INVALID_SIG);
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = createXpubDetails(qrData);
+  const { signer: passport, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    signerType: SignerType.PASSPORT,
+    storageType: SignerStorage.COLD,
+    isMultisig,
+    xpubDetails,
+  });
+  return { signer: passport, key };
 };
 
 const setupSeedSigner = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, xpubDetails } = extractSeedSignerExport(qrData);
-
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = createXpubDetails(qrData);
   const { signer: seedSigner, key } = generateSignerFromMetaData({
     xpub,
     derivationPath,
