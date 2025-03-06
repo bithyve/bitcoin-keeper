@@ -62,6 +62,7 @@ import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { fetchSignedDelayedTransaction } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
+import { manipulateIosProdProductId } from 'src/utils/utilities';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -216,7 +217,12 @@ function* credentialsAuthWorker({ payload }) {
               yield call(downgradeToPleb);
               yield put(setRecepitVerificationFailed(true));
             }
-          }
+          } else if (
+            response?.paymentType == 'btc_payment' &&
+            response?.level != subscription?.level
+          )
+            yield call(updateSubscriptionFromRelayData, response);
+
           const { pendingAllBackup, automaticCloudBackup } = yield select(
             (state: RootState) => state.bhr
           );
@@ -252,6 +258,22 @@ async function downgradeToPleb() {
   await Relay.updateSubscription(app.id, app.publicId, {
     productId: SubscriptionTier.L1.toLowerCase(),
   });
+}
+
+async function updateSubscriptionFromRelayData(data) {
+  const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const updatedSubscription: SubScription = {
+    receipt: data.transactionReceipt,
+    productId: manipulateIosProdProductId(data.productId),
+    name: data.plan,
+    level: data.level,
+    icon: data.icon,
+    isDesktopPurchase: true,
+  };
+  dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+    subscription: updatedSubscription,
+  });
+  store.dispatch(setSubscription(updatedSubscription.name));
 }
 
 async function updateSubscription(level: AppSubscriptionLevel) {

@@ -152,7 +152,15 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     (state) => state.sendAndReceive.customPrioritySendPhaseOne
   );
 
-  const { wallet, txnPriority, miniscriptTxElements, note, label, transferType } = payload;
+  const {
+    wallet,
+    currentBlockHeight,
+    txnPriority,
+    miniscriptTxElements,
+    note,
+    label,
+    transferType,
+  } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const customTxPrerequisites = _.cloneDeep(
     idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
@@ -172,6 +180,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     const { txid, serializedPSBTEnvelops, cachedTxid, finalOutputs, inputs } = yield call(
       WalletOperations.transferST2,
       wallet,
+      currentBlockHeight,
       txPrerequisites,
       txnPriority,
       recipients,
@@ -392,7 +401,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
 export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
 
 function* corssTransferWorker({ payload }: CrossTransferAction) {
-  const { sender, recipient, amount, miniscriptSelectedSatisfier } = payload;
+  const { sender, currentBlockHeight, recipient, amount, miniscriptSelectedSatisfier } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -425,6 +434,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     if (txPrerequisites) {
       const { txid } = yield call(
         WalletOperations.transferST2,
+        currentBlockHeight,
         sender,
         txPrerequisites,
         TxPriority.LOW,

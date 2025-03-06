@@ -100,51 +100,53 @@ const useConfigRecovery = () => {
 
   const initateRecovery = (text) => {
     setRecoveryLoading(true);
-    if (text.match(/^[XYZTUVxyztuv]pub[1-9A-HJ-NP-Za-km-z]{100,108}$/)) {
-      try {
-        const importedKey = text.trim();
-        const importedKeyDetails = WalletUtilities.getImportedKeyDetails(importedKey);
-        navigation.navigate('ImportWalletDetails', {
-          importedKey,
-          importedKeyDetails,
-          type: WalletType.IMPORTED,
-          name: 'Imported Wallet',
-          description: importedKeyDetails.watchOnly ? 'Watch Only' : 'Imported Wallet',
-        });
-        setRecoveryLoading(false);
-        return;
-      } catch (err) {
-        console.log('Failed to import watch only wallet', err);
-      }
-    }
-    try {
-      const parsedText: ParsedVauleText = parseTextforVaultConfig(text);
-      if (parsedText) {
-        const vaultSigners: VaultSigner[] = [];
-        const signers: Signer[] = [];
-        parsedText.signersDetails.forEach((config) => {
-          const { signer, key } = generateSignerFromMetaData({
-            xpub: config.xpub,
-            derivationPath: config.path,
-            masterFingerprint: config.masterFingerprint,
-            signerType: SignerType.UNKOWN_SIGNER,
-            storageType: SignerStorage.WARM,
-            isMultisig: config.isMultisig,
+    setTimeout(() => {
+      if (text.match(/^[XYZTUVxyztuv]pub[1-9A-HJ-NP-Za-km-z]{100,108}$/)) {
+        try {
+          const importedKey = text.trim();
+          const importedKeyDetails = WalletUtilities.getImportedKeyDetails(importedKey);
+          navigation.navigate('ImportWalletDetails', {
+            importedKey,
+            importedKeyDetails,
+            type: WalletType.IMPORTED,
+            name: 'Imported Wallet',
+            description: importedKeyDetails.watchOnly ? 'Watch Only' : 'Imported Wallet',
           });
-          vaultSigners.push(key);
-          signers.push(signer);
-        });
-        setSignersList(signers);
-        setVaultSignersList(vaultSigners);
-        setScheme(parsedText.scheme);
-        setMiniscriptElements(parsedText.miniscriptElements);
+          setRecoveryLoading(false);
+          return;
+        } catch (err) {
+          console.log('Failed to import watch only wallet', err);
+        }
       }
-    } catch (err) {
-      setRecoveryLoading(false);
-      recoveryError.failed = true;
-      recoveryError.message = err;
-      showToast(err.message ? err.message : err.toString(), <ToastErrorIcon />);
-    }
+      try {
+        const parsedText: ParsedVauleText = parseTextforVaultConfig(text);
+        if (parsedText) {
+          const vaultSigners: VaultSigner[] = [];
+          const signers: Signer[] = [];
+          parsedText.signersDetails.forEach((config) => {
+            const { signer, key } = generateSignerFromMetaData({
+              xpub: config.xpub,
+              derivationPath: config.path,
+              masterFingerprint: config.masterFingerprint,
+              signerType: SignerType.UNKOWN_SIGNER,
+              storageType: SignerStorage.WARM,
+              isMultisig: config.isMultisig,
+            });
+            vaultSigners.push(key);
+            signers.push(signer);
+          });
+          setSignersList(signers);
+          setVaultSignersList(vaultSigners);
+          setScheme(parsedText.scheme);
+          setMiniscriptElements(parsedText.miniscriptElements);
+        }
+      } catch (err) {
+        setRecoveryLoading(false);
+        recoveryError.failed = true;
+        recoveryError.message = err;
+        showToast(err.message ? err.message : err.toString(), <ToastErrorIcon />);
+      }
+    }, 100);
   };
 
   return { recoveryLoading, recoveryError, initateRecovery };
