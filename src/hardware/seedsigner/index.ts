@@ -19,7 +19,7 @@ export const getSeedSignerDetails = (qrData) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, masterFingerprint: xfp, forMultiSig, forSingleSig };
+  return { xpub, derivationPath, masterFingerprint: xfp?.toUpperCase(), forMultiSig, forSingleSig };
 };
 
 export const updateInputsForSeedSigner = ({ serializedPSBT, signedSerializedPSBT }) => {
