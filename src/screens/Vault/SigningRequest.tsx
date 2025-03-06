@@ -8,6 +8,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import SigningRequestCard from './components/SigningRequestCard';
 import { formatDateTime, formatRemainingTime } from 'src/utils/utilities';
+import Text from 'src/components/KeeperText';
 
 function SigningRequest() {
   const delayedTransactions = useAppSelector((state) => state.storage.delayedTransactions) || {};
@@ -33,17 +34,21 @@ function SigningRequest() {
       <WalletHeader title="Signing Requests" />
       <ScrollView contentContainerStyle={styles.container}>
         <Box gap={hp(20)}>
-          {signingRequests.map((request) => (
-            <SigningRequestCard
-              key={request.id}
-              title={request.title}
-              dateTime={request.dateTime}
-              amount={request.amount}
-              timeRemaining={request.timeRemaining}
-              // buttonText={request.buttonText}
-              // onCancel={() => {}}
-            />
-          ))}
+          {signingRequests.length > 0 ? (
+            signingRequests.map((request) => (
+              <SigningRequestCard
+                key={request.id}
+                title={request.title}
+                dateTime={request.dateTime}
+                amount={request.amount}
+                timeRemaining={request.timeRemaining}
+                // buttonText={request.buttonText}
+                // onCancel={() => {}}
+              />
+            ))
+          ) : (
+            <Text style={styles.noRequestsText}>There are no signing requests.</Text>
+          )}
         </Box>
       </ScrollView>
     </ScreenWrapper>
@@ -63,5 +68,11 @@ const styles = StyleSheet.create({
   CVVInputsView: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  noRequestsText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: 'gray',
   },
 });
