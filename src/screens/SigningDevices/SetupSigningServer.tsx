@@ -45,8 +45,9 @@ function SetupSigningServer({ route }: { route }) {
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
   const [backupKeyModal, setBackupKeyModal] = useState(false);
-  // const { addSignerFlow = false } = route.params;
-  const addSignerFlow = false;
+  const { addSignerFlow } = route.params;
+  console.log('addSignerFlow');
+  console.log(addSignerFlow);
 
   const registerSigningServer = async () => {
     try {
@@ -232,7 +233,7 @@ function SetupSigningServer({ route }: { route }) {
     <ScreenWrapper>
       <View style={styles.Container}>
         <Box>
-          <WalletHeader title="Set up 2FA for signer" />
+          <WalletHeader title="Set up 2FA for Server Key" />
         </Box>
         <Box>
           {validationKey === '' ? (
@@ -248,7 +249,11 @@ function SetupSigningServer({ route }: { route }) {
             >
               <Box alignItems="center" alignSelf="center" width={wp(250)}>
                 <KeeperQRCode
-                  qrData={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', validationKey)}
+                  qrData={authenticator.keyuri(
+                    'bitcoinkeeper.app',
+                    'Bitcoin Keeper',
+                    validationKey
+                  )}
                   logoBackgroundColor="transparent"
                   size={wp(200)}
                   showLogo

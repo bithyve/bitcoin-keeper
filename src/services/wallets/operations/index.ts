@@ -1345,6 +1345,7 @@ export default class WalletOperations {
             value: input.value,
           },
           tapInternalKey: WalletUtilities.toXOnly(publicKey),
+          sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
         });
       } else {
         let path;
@@ -1380,6 +1381,7 @@ export default class WalletOperations {
               script: p2wpkh.output,
               value: input.value,
             },
+            sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
           });
         } else if (derivationPurpose === DerivationPurpose.BIP49) {
           const p2sh = bitcoinJS.payments.p2sh({
@@ -1395,6 +1397,7 @@ export default class WalletOperations {
               value: input.value,
             },
             redeemScript: p2wpkh.output,
+            sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
           });
         }
       }
@@ -1455,7 +1458,7 @@ export default class WalletOperations {
             value: input.value,
           },
           witnessScript: p2wsh.redeem.output,
-          sequence: hasTimelock ? 4294967294 : null, // to enable nLockTime the value should be less than 4294967295
+          sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
         });
       } else if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
         PSBT.addInput({
@@ -1468,7 +1471,7 @@ export default class WalletOperations {
           },
           redeemScript: p2wsh.output,
           witnessScript: p2wsh.redeem.output,
-          sequence: hasTimelock ? 4294967294 : null, // to enable nLockTime the value should be less than 4294967295
+          sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
         });
       }
     }
@@ -1531,6 +1534,7 @@ export default class WalletOperations {
 
   static createTransaction = async (
     wallet: Wallet | Vault,
+    currentBlockHeight: number,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: string,
     customTxPrerequisites?: TransactionPrerequisite,
@@ -1643,12 +1647,20 @@ export default class WalletOperations {
       }
 
       // set locktime
+      if (!currentBlockHeight) {
+        throw new Error('Missing current block height');
+      }
+
+      let nLocktime = currentBlockHeight - 1;
+
+      // ensure that nLocktime is at least the CLTV locktime if CLTV used
       if (wallet.entityKind === EntityKind.VAULT && miniscriptSelectedSatisfier) {
         const { selectedScriptWitness } = miniscriptSelectedSatisfier;
-        if (selectedScriptWitness.nLockTime) {
-          PSBT.setLocktime(selectedScriptWitness.nLockTime);
+        if (selectedScriptWitness.nLockTime && nLocktime < selectedScriptWitness.nLockTime) {
+          nLocktime = selectedScriptWitness.nLockTime;
         }
       }
+      PSBT.setLocktime(nLocktime);
 
       return {
         PSBT,
@@ -2034,6 +2046,7 @@ export default class WalletOperations {
 
   static transferST2 = async (
     wallet: Wallet | Vault,
+    currentBlockHeight: number,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
     recipients: {
@@ -2064,6 +2077,7 @@ export default class WalletOperations {
     const { PSBT, inputs, outputs, change, miniscriptSelectedSatisfier } =
       await WalletOperations.createTransaction(
         wallet,
+        currentBlockHeight,
         txPrerequisites,
         txnPriority,
         customTxPrerequisites,

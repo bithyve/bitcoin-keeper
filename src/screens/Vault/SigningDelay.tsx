@@ -18,7 +18,7 @@ const SigningDelay = ({ route }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common } = translations;
-  const { totalDelay } = route.params;
+  const { totalDelay, addSignerFlow } = route.params;
 
   const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
 
@@ -50,6 +50,7 @@ const SigningDelay = ({ route }) => {
   const handleDelay = () => {
     navigation.navigate('ChoosePolicyNew', {
       delayTime: selectedOption,
+      addSignerFlow,
     });
   };
 
