@@ -194,6 +194,7 @@ export type AppStackParams = {
   ContactDetails: undefined;
   ShareQR: undefined;
   PurchaseWithChannel: undefined;
+  AddMultipleXpub: undefined;
 };
 
 // Usage:

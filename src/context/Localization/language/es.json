@@ -1410,7 +1410,9 @@
     "diamondHands": "Diamond Hands",
     "advanced": "Advanced",
     "autoBackup": "Automatic Cloud Backup",
-    "autoBackupDesc": "Backup your Keeper app to cloud automatically"
+    "autoBackupDesc": "Backup your Keeper app to cloud automatically",
+    "keyAddedTitle": "Key added successfully.",
+    "keyAddedSubTitle": "Key has been added successfully. You can continue adding other keys or click Finish to add the device."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",

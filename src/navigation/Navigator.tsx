@@ -160,6 +160,7 @@ import SigningDelay from 'src/screens/Vault/SigningDelay';
 import ServerKeySuccessScreen from 'src/screens/Vault/ServerKeySuccessScreen';
 import SigningRequest from 'src/screens/Vault/SigningRequest';
 import PurchaseWithChannel from 'src/screens/QRScreens/PurchaseWithChannel';
+import { AddMultipleXpub } from 'src/screens/AddSigner/AddMultipleXpub';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -271,7 +272,6 @@ function AppStack() {
           name="AdditionalSignerDetailsTemplate"
           component={AdditionalSignerDetailsTemplate}
         />
-
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="HardwareWallet" component={HardwareWallet} />
         <Stack.Screen name="SpendingLimit" component={SpendingLimit} />
@@ -351,6 +351,7 @@ function AppStack() {
         <Stack.Screen name="ContactDetails" component={ContactDetails} />
         <Stack.Screen name="ShareQR" component={ShareQR} />
         <Stack.Screen name="PurchaseWithChannel" component={PurchaseWithChannel} />
+        <Stack.Screen name="AddMultipleXpub" component={AddMultipleXpub} />
       </Stack.Navigator>
     </RealmProvider>
   );
