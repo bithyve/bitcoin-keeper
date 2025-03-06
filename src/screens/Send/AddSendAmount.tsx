@@ -122,7 +122,6 @@ function AddSendAmount({ route }) {
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const { averageTxFees } = useAppSelector((state) => state.network);
-  const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
 
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -327,41 +326,7 @@ function AddSendAmount({ route }) {
     }
   };
 
-  useEffect(() => {
-    // should bind with a refresher in case the auto fetch for block-height fails
-    if (sender.entityKind === EntityKind.VAULT) {
-      if (sender.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-        WalletUtilities.fetchCurrentBlockHeight()
-          .then(({ currentBlockHeight }) => {
-            setCurrentBlockHeight(currentBlockHeight);
-          })
-          .catch((err) => showToast(err));
-      }
-    }
-  }, []);
-
   const navigateToNext = async () => {
-    if (sender.entityKind === EntityKind.VAULT) {
-      if (sender.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-        let currentSyncedBlockHeight = currentBlockHeight;
-        if (!currentSyncedBlockHeight) {
-          try {
-            currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
-              .currentBlockHeight;
-          } catch (err) {
-            console.log('Failed to re-fetch current block height: ' + err);
-          }
-          if (!currentSyncedBlockHeight) {
-            showToast(
-              'Failed to fetch current chain data, please check your connection and try again',
-              <ToastErrorIcon />
-            );
-            return;
-          }
-        }
-      }
-    }
-
     const amountInSats = isSendingMax
       ? satsEnabled
         ? maxAmountToSend
@@ -395,7 +360,6 @@ function AddSendAmount({ route }) {
         addresses: recipients.map((recipient) => recipient.address),
         amounts: recipients.map((recipient) => recipient.amount),
         transferType,
-        currentBlockHeight,
         note,
         selectedUTXOs,
         parentScreen,
