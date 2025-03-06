@@ -168,6 +168,7 @@ export interface SendPhaseTwoAction extends Action {
   type: typeof SEND_PHASE_TWO;
   payload: {
     wallet: Wallet | Vault;
+    currentBlockHeight: number;
     txnPriority: TxPriority;
     transferType: TransferType;
     miniscriptTxElements?: {
@@ -181,6 +182,7 @@ export interface SendPhaseTwoAction extends Action {
 
 export const sendPhaseTwo = (payload: {
   wallet: Wallet | Vault;
+  currentBlockHeight: number;
   txnPriority: TxPriority;
   transferType: TransferType;
   miniscriptTxElements?: {
@@ -227,6 +229,7 @@ export interface CrossTransferAction extends Action {
   type: typeof CROSS_TRANSFER;
   payload: {
     sender: Wallet | Vault;
+    currentBlockHeight: number;
     recipient: Wallet | Vault;
     amount: number;
     miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
@@ -235,6 +238,7 @@ export interface CrossTransferAction extends Action {
 
 export const crossTransfer = (payload: {
   sender: Wallet | Vault;
+  currentBlockHeight: number;
   recipient: Wallet | Vault;
   amount: number;
   miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;

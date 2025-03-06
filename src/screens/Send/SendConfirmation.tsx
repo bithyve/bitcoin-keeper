@@ -60,6 +60,7 @@ import { SentryErrorBoundary } from 'src/services/sentry';
 import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import WalletHeader from 'src/components/WalletHeader';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -84,7 +85,6 @@ export interface SendConfirmationRouteParams {
   parentScreen: string;
   transactionPriority: TxPriority;
   customFeePerByte: number;
-  currentBlockHeight: number;
   miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
 }
 
@@ -115,7 +115,6 @@ function SendConfirmation({ route }) {
     label = [], // TODO: Need to refactor or delete
     selectedUTXOs,
     parentScreen,
-    currentBlockHeight,
     transactionPriority: initialTransactionPriority,
     customFeePerByte: initialCustomFeePerByte,
     miniscriptSelectedSatisfier,
@@ -329,22 +328,34 @@ function SendConfirmation({ route }) {
           }
         }
 
-        setTimeout(() => {
-          dispatch(sendPhaseTwoReset());
-          dispatch(
-            sendPhaseTwo({
-              wallet: sender,
-              txnPriority: transactionPriority,
-              miniscriptTxElements: {
-                selectedPhase: miniscriptSelectedSatisfier?.selectedPhase.id,
-                selectedPaths: miniscriptSelectedSatisfier?.selectedPaths.map((path) => path.id),
-              },
-              note,
-              label,
-              transferType,
-            })
+        WalletUtilities.fetchCurrentBlockHeight()
+          .then(({ currentBlockHeight }) => {
+            setTimeout(() => {
+              dispatch(sendPhaseTwoReset());
+              dispatch(
+                sendPhaseTwo({
+                  wallet: sender,
+                  currentBlockHeight,
+                  txnPriority: transactionPriority,
+                  miniscriptTxElements: {
+                    selectedPhase: miniscriptSelectedSatisfier?.selectedPhase.id,
+                    selectedPaths: miniscriptSelectedSatisfier?.selectedPaths.map(
+                      (path) => path.id
+                    ),
+                  },
+                  note,
+                  label,
+                  transferType,
+                })
+              );
+            }, 200);
+          })
+          .catch(() =>
+            showToast(
+              'Failed to fetch current block height. Please check your internet connection and retry.',
+              <ToastErrorIcon />
+            )
           );
-        }, 200);
       }
     }
   }, [inProgress]);
