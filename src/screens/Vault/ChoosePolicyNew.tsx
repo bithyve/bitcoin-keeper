@@ -3,6 +3,7 @@ import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
+  DelayedPolicyUpdate,
   SignerException,
   SignerPolicy,
   SignerRestriction,
@@ -32,13 +33,15 @@ import { setSignerPolicyError } from 'src/store/reducers/wallets';
 import WalletHeader from 'src/components/WalletHeader';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import DelayModalIcon from 'src/assets/images/delay-configuration-icon.svg';
+import DelaycompleteIcon from 'src/assets/images/delay-configuration-complete-icon.svg';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { fetchDelayedPolicyUpdate } from 'src/store/sagaActions/storage';
-import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
 import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
+import { formatRemainingTime } from 'src/utils/utilities';
 import {
   MONTHS_3,
   MONTHS_6,
@@ -51,6 +54,7 @@ import {
   DAY_5,
   OFF,
 } from './constants';
+import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -67,6 +71,9 @@ function ChoosePolicyNew({ navigation, route }) {
   const [timeLimit, setTimeLimit] = useState(null);
   const [signingDelay, setSigningDelay] = useState(null);
   const [signer, setSigner] = useState(route?.params?.signer);
+  const [delayModal, setDelayModal] = useState(false);
+  const [configureSuccessModal, setConfigureSuccessModal] = useState(false);
+  const [policyDelayedUntil, setPolicyDelayedUntil] = useState(null);
 
   useEffect(() => {
     if (maxTransaction !== undefined) {
@@ -110,7 +117,6 @@ function ChoosePolicyNew({ navigation, route }) {
     : TESTNET_SERVER_POLICY_DURATIONS;
 
   useEffect(() => {
-    // TODO: remap and fix the label for timelimit and signing delay
     if (signer && signer.signerPolicy) {
       setSpendingLimit(`${signer.signerPolicy?.restrictions?.maxTransactionAmount}`);
       const matchedTimeLimit = SERVER_POLICY_DURATIONS.find(
@@ -124,22 +130,6 @@ function ChoosePolicyNew({ navigation, route }) {
     }
   }, [signer]);
 
-  // const existingRestrictions = idx(currentSigner, (_) => _.signerPolicy.restrictions);
-  // const existingExceptions = idx(currentSigner, (_) => _.signerPolicy.exceptions);
-
-  // const existingMaxTransactionRestriction = idx(
-  //   existingRestrictions,
-  //   (_) => _.maxTransactionAmount
-  // );
-  // const existingMaxTransactionException = idx(existingExceptions, (_) => _.transactionAmount);
-
-  // const [maxTransaction, setMaxTransaction] = useState(
-  //   existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '10000000'
-  // );
-  // const [minTransaction, setMinTransaction] = useState(
-  //   existingMaxTransactionException ? `${existingMaxTransactionException}` : '1000000'
-  // );
-  // const { activeVault } = useVault({ vaultId });
   const dispatch = useDispatch();
   const policyError = useAppSelector((state) => state.wallet?.signerPolicyError);
   const delayedPolicyUpdate = useAppSelector((state) => state.storage.delayedPolicyUpdate);
@@ -152,6 +142,15 @@ function ChoosePolicyNew({ navigation, route }) {
       dispatch(fetchDelayedPolicyUpdate());
     }
   }, []);
+
+  useEffect(() => {
+    if (delayedPolicyUpdate && Object.keys(delayedPolicyUpdate).length > 0) {
+      const [delayedPolicy] = Object.values(delayedPolicyUpdate) as DelayedPolicyUpdate[];
+
+      const cronBuffer = 30 * 60 * 1000; // 30 minutes additional buffer(cron runs every 30 minutes)
+      setPolicyDelayedUntil(delayedPolicy.delayUntil + cronBuffer);
+    }
+  }, [delayedPolicyUpdate]);
 
   const parseAmount = (amountString: string): number => Number(amountString.replace(/,/g, ''));
 
@@ -216,19 +215,28 @@ function ChoosePolicyNew({ navigation, route }) {
     if (validationModal) {
       if (policyError !== 'failure' && policyError !== 'idle') {
         setIsLoading(false);
-        dispatch(setSignerPolicyError('idle'));
-        showToast('Policy updated successfully', <TickIcon />, IToastCategory.SIGNING_DEVICE);
-        showValidationModal(false);
 
-        setTimeout(() => {
-          navigation.goBack();
-        }, 100);
+        if (delayedPolicyUpdate && Object.keys(delayedPolicyUpdate).length > 0) {
+          // less restrictive policy update - delayed
+          setTimeout(() => {
+            setDelayModal(true);
+            dispatch(setSignerPolicyError('idle'));
+            showValidationModal(false);
+          }, 100);
+        } else {
+          // more restrictive policy update - immediate
+          setTimeout(() => {
+            setConfigureSuccessModal(true);
+            dispatch(setSignerPolicyError('idle'));
+            showValidationModal(false);
+          }, 100);
+        }
       } else {
         setIsLoading(false);
         dispatch(setSignerPolicyError('idle'));
         showValidationModal(false);
         // resetFields();
-        showToast('2FA token is either invalid or has expired');
+        showToast('Something went wrong. Please try again');
       }
     }
   }, [policyError]);
@@ -299,6 +307,50 @@ function ChoosePolicyNew({ navigation, route }) {
     );
   }, [otp]);
 
+  const showDelayModal = useCallback(() => {
+    return (
+      <Box style={styles.delayModalContainer}>
+        <DelayModalIcon />
+        <Box
+          style={styles.timeContainer}
+          backgroundColor={
+            isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.learMoreTextcolor`
+          }
+        >
+          <Text fontSize={13}>{common.RemainingTime}:</Text>
+          <Text fontSize={13}>{formatRemainingTime(policyDelayedUntil - Date.now())}</Text>
+        </Box>
+        <Box style={styles.buttonContainer}>
+          <Buttons
+            primaryCallback={() => {
+              setDelayModal(false);
+            }}
+            fullWidth
+            primaryText={common.continue}
+          />
+        </Box>
+      </Box>
+    );
+  }, [policyDelayedUntil]);
+  const showConfirmationModal = useCallback(() => {
+    return (
+      <Box style={styles.delayModalContainer}>
+        <Box style={styles.iconContainer}>
+          <DelaycompleteIcon />
+        </Box>
+
+        <Box style={styles.buttonContainer}>
+          <Buttons
+            primaryCallback={() => {
+              setConfigureSuccessModal(false);
+            }}
+            fullWidth
+            primaryText={common.finish}
+          />
+        </Box>
+      </Box>
+    );
+  }, []);
   // const resetFields = () => {
   //   setMaxTransaction(
   //     existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '10000000'
@@ -314,9 +366,9 @@ function ChoosePolicyNew({ navigation, route }) {
       <ActivityIndicatorView visible={isLoading} />
       <WalletHeader
         title={signingServer.choosePolicy}
-        rightComponent={
-          <TouchableOpacity>{isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}</TouchableOpacity>
-        }
+        // rightComponent={
+        //   <TouchableOpacity>{isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}</TouchableOpacity>
+        // }
       />
       <Text style={styles.desc}>{signingServer.choosePolicySubTitle}</Text>
       <Box style={styles.fieldContainer}>
@@ -331,7 +383,20 @@ function ChoosePolicyNew({ navigation, route }) {
       </Box>
 
       <Box style={styles.btnWrapper}>
-        <Buttons primaryText={common.confirm} primaryCallback={() => onConfirm()} fullWidth />
+        {delayedPolicyUpdate && Object.keys(delayedPolicyUpdate).length > 0 ? (
+          <Box
+            style={styles.timeContainerBtn}
+            backgroundColor={
+              isDarkMode ? `${colorMode}.textInputBackground` : `${colorMode}.learMoreTextcolor`
+            }
+            borderColor={isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.brownColor`}
+          >
+            <Text fontSize={13}>{common.RemainingTime}:</Text>
+            <Text fontSize={13}>{formatRemainingTime(policyDelayedUntil - Date.now())}</Text>
+          </Box>
+        ) : (
+          <Buttons primaryText={common.confirm} primaryCallback={() => onConfirm()} fullWidth />
+        )}
       </Box>
       <KeeperModal
         visible={validationModal}
@@ -345,6 +410,30 @@ function ChoosePolicyNew({ navigation, route }) {
         textColor={`${colorMode}.modalHeaderTitle`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={otpContent}
+      />
+      <KeeperModal
+        visible={delayModal}
+        close={() => {
+          setDelayModal(false);
+        }}
+        title={common.configurationSettingDelay}
+        subTitle={common.configurationSettingDelaySub}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={showDelayModal}
+      />
+      <KeeperModal
+        visible={configureSuccessModal}
+        close={() => {
+          setConfigureSuccessModal(false);
+        }}
+        title={common.configurationSettingDelay}
+        subTitle={common.configurationSettingSub}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={showConfirmationModal}
       />
     </ScreenWrapper>
   );
@@ -371,6 +460,39 @@ const styles = StyleSheet.create({
   CVVInputsView: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  delayModalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  iconContainer: {
+    marginVertical: hp(12),
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: wp(15),
+    paddingVertical: hp(21),
+    borderRadius: 10,
+    marginTop: hp(20),
+    marginBottom: hp(15),
+  },
+  buttonContainer: {
+    marginTop: hp(15),
+  },
+  timeContainerBtn: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: wp(15),
+    paddingVertical: hp(21),
+    borderRadius: 10,
+    borderWidth: 1,
   },
 });
 

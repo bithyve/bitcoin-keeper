@@ -109,6 +109,13 @@
     "comingSoon": "Coming Soon",
     "reinstate": "Reinstate",
     "of": "of",
+    "configurationSettingDelay": "Server Policy Updated",
+    "configurationSettingDelaySub": "The changes will be applied automatically after a security delay",
+    "configurationSettingSub": "Your new policy was updated successfully",
+    "ConfigurationSettingSub2": "If needed, you can adjust the settings anytime to match your preferences",
+    "RemainingTime": "Remaining Time",
+    "finish": "Finish",
+
     "collaborative": "Collaborative",
     "VAULT": "Vault",
     "CANARY": "Canary",

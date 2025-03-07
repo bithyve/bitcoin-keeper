@@ -10,7 +10,7 @@ import { capitalizeEachWord } from 'src/utils/utilities';
 import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import useUaiStack, { uaiPriorityMap } from 'src/hooks/useUaiStack';
 import XIcon from 'src/assets/images/x.svg';
-import { uaisSeen } from 'src/store/sagaActions/uai';
+import { uaiActioned, uaisSeen } from 'src/store/sagaActions/uai';
 import { useDispatch } from 'react-redux';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { useQuery } from '@realm/react';
@@ -18,6 +18,12 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getUaiContent } from 'src/screens/Home/Notifications/NotificationsCenter';
 import { setRefreshUai } from 'src/store/reducers/uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
+import { useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { SignerType } from 'src/services/wallets/enums';
+import useSignerMap from 'src/hooks/useSignerMap';
+import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -61,6 +67,10 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
 
   const [localLatestUnseenUai, setLocalLatestUnseenUai] = useState(null);
 
+  const { signerMap } = useSignerMap();
+  const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
+  const { showToast } = useToastMessage();
+
   // Update local state when memo updates
   useEffect(() => {
     setLocalLatestUnseenUai(latestUnseenUai);
@@ -91,6 +101,38 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
         ticketId: parseInt(localLatestUnseenUai?.entityId),
         ticketStatus: localLatestUnseenUai?.uaiDetails.heading,
       }),
+    [uaiType.SIGNING_DELAY]: () => {
+      const delayedTxid = localLatestUnseenUai?.entityId;
+      const snapshot: cachedTxSnapshot = snapshots[delayedTxid]; // cachedTxid is same as delayedTxid
+      dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
+      if (snapshot) {
+        dispatch(setStateFromSnapshot(snapshot.state));
+        navigtaion.dispatch(
+          CommonActions.navigate('SendConfirmation', {
+            ...snapshot.routeParams,
+            addresses: snapshot.routeParams.addresses,
+            amounts: snapshot.routeParams.amounts,
+            internalRecipients: snapshot.routeParams.internalRecipients,
+          })
+        );
+      } else {
+        showToast('Pending transaction not found');
+      }
+    },
+    [uaiType.POLICY_DELAY]: () => {
+      dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
+      navigtaion.dispatch(
+        CommonActions.navigate({
+          name: 'ChoosePolicyNew',
+          params: {
+            isUpdate: true,
+            signer: Object.values(signerMap).find(
+              (signer) => signer.type === SignerType.POLICY_SERVER
+            ),
+          },
+        })
+      );
+    },
   };
 
   return (

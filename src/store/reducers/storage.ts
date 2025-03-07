@@ -142,8 +142,7 @@ const storageSlice = createSlice({
     },
     updateDelayedPolicyUpdate: (state, action: PayloadAction<DelayedPolicyUpdate>) => {
       state.delayedPolicyUpdate = {
-        ...(state.delayedPolicyUpdate || {}),
-        [action.payload.policyId]: action.payload,
+        [action.payload.policyId]: action.payload, // contains a single policy update at a time, can be updated to handle multiple policy updates
       };
     },
     deleteDelayedPolicyUpdate: (state, action: PayloadAction<string>) => {
