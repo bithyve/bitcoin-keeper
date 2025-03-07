@@ -749,7 +749,7 @@ const styles = StyleSheet.create({
   },
   walletVaultInfoContainer: {
     paddingHorizontal: 15,
-    paddingVertical: 20,
+    paddingVertical: 25,
     marginVertical: 20,
     borderRadius: 10,
   },
@@ -758,6 +758,11 @@ const styles = StyleSheet.create({
     gap: 5,
     justifyContent: 'flex-end',
     marginBottom: hp(3),
+    width: '70%',
+    position: 'absolute',
+    top: hp(20),
+    right: wp(13),
+    flexWrap: 'wrap',
   },
   walletVaultInfoWrapper: {
     flexDirection: 'row',
