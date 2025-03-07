@@ -274,6 +274,48 @@ function SignTransactionScreen() {
     }
   }, [sendFailedMessage, broadcasting]);
 
+  useEffect(() => {
+    let serverKey: VaultSigner;
+    let serverKeySigner: Signer;
+    for (const key of vaultKeys) {
+      const signer: Signer = signerMap[getKeyUID(key)];
+      if (signer.type === SignerType.POLICY_SERVER) {
+        serverKey = key;
+        serverKeySigner = signer;
+      }
+    }
+
+    if (serverKey && serverKeySigner) {
+      // Server Key is one of the signers
+      const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
+        (envelop) => envelop.xfp === serverKey.xfp
+      )[0];
+
+      const delayedTxid = hash256(serializedPSBTEnvelop.serializedPSBT);
+      const delayedTx: DelayedTransaction = delayedTransactions[delayedTxid];
+
+      if (delayedTx && delayedTx.signedPSBT) {
+        // has a delayed transaction which is already signed by the server key
+        dispatch(
+          updatePSBTEnvelops({
+            signedSerializedPSBT: delayedTx.signedPSBT,
+            xfp: serverKey.xfp,
+          })
+        );
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: serverKeySigner.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SIGNING,
+            },
+          ])
+        );
+
+        dispatch(deleteDelayedTransaction(delayedTxid));
+      }
+    }
+  }, []);
+
   const onSuccess = () => {
     signTransaction({ xfp: activeXfp });
   };
@@ -587,25 +629,7 @@ function SignTransactionScreen() {
           const delayedTxid = hash256(serializedPSBTEnvelop.serializedPSBT);
           const delayedTx: DelayedTransaction = delayedTransactions[delayedTxid];
           if (delayedTx) {
-            if (delayedTx.signedPSBT) {
-              dispatch(
-                updatePSBTEnvelops({
-                  signedSerializedPSBT: delayedTx.signedPSBT,
-                  xfp: vaultKey.xfp,
-                })
-              );
-              dispatch(
-                healthCheckStatusUpdate([
-                  {
-                    signerId: signer.masterFingerprint,
-                    status: hcStatusType.HEALTH_CHECK_SIGNING,
-                  },
-                ])
-              );
-
-              dispatch(deleteDelayedTransaction(delayedTxid));
-              return;
-            } else {
+            if (!delayedTx.signedPSBT) {
               showToast('Transaction already submitted for signing');
               return;
             }
