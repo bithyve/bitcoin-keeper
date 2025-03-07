@@ -84,6 +84,7 @@ const SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.CANARAY_WALLET,
   uaiType.ZENDESK_TICKET,
   uaiType.SIGNING_DELAY,
+  uaiType.POLICY_DELAY,
 ];
 
 const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
@@ -303,6 +304,19 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
                   showToast('Cached transaction not found');
                 }
               },
+            },
+          },
+        };
+      }
+      case uaiType.POLICY_DELAY: {
+        return {
+          heading: content.heading,
+          body: content.body,
+          icon: content.icon,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {},
             },
           },
         };
@@ -595,6 +609,12 @@ export const getUaiContent = (type: uaiType, details?: any) => {
       return {
         heading: 'Server Key Signed Transaction',
         body: 'The Server Key signed your requested transactions.',
+        icon: <ServerTransNotificaiton />,
+      };
+    case uaiType.POLICY_DELAY:
+      return {
+        heading: 'Server Key Policy Updated',
+        body: 'The Server Key has activated the requested policy.',
         icon: <ServerTransNotificaiton />,
       };
 

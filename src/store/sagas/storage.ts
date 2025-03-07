@@ -248,7 +248,6 @@ function* fetchDelayedPolicyUpdateWorker() {
           );
 
           if (delayedPolicy.isApplied) {
-            // TODO: generate notification to intimate the user
             const updatedSignerPolicy = {
               ...serverKeySigner.signerPolicy,
               ...delayedPolicy.policyUpdates,
@@ -262,6 +261,14 @@ function* fetchDelayedPolicyUpdateWorker() {
                 signerPolicy: updatedSignerPolicy,
               }
             );
+
+            yield put(
+              addToUaiStack({
+                uaiType: uaiType.POLICY_DELAY,
+                entityId: delayedPolicy.policyId,
+              })
+            );
+
             yield put(deleteDelayedPolicyUpdate(delayedPolicy.policyId));
           }
         }

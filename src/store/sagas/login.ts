@@ -205,6 +205,7 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.DEFAULT,
               uaiType.ZENDESK_TICKET,
               uaiType.SIGNING_DELAY,
+              uaiType.POLICY_DELAY,
             ])
           );
 
