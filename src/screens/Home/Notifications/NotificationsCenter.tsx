@@ -608,7 +608,7 @@ export const getUaiContent = (type: uaiType, details?: any) => {
     case uaiType.SIGNING_DELAY:
       return {
         heading: 'Server Key Signed Transaction',
-        body: 'The Server Key signed your requested transactions.',
+        body: 'The Server Key signed your requested transaction.',
         icon: <ServerTransNotificaiton />,
       };
     case uaiType.POLICY_DELAY:
