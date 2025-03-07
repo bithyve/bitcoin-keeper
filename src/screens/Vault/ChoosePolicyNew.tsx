@@ -215,18 +215,20 @@ function ChoosePolicyNew({ navigation, route }) {
     if (validationModal) {
       if (policyError !== 'failure' && policyError !== 'idle') {
         setIsLoading(false);
-        dispatch(setSignerPolicyError('idle'));
-        showValidationModal(false);
 
         if (delayedPolicyUpdate && Object.keys(delayedPolicyUpdate).length > 0) {
           // less restrictive policy update - delayed
           setTimeout(() => {
             setDelayModal(true);
+            dispatch(setSignerPolicyError('idle'));
+            showValidationModal(false);
           }, 100);
         } else {
           // more restrictive policy update - immediate
           setTimeout(() => {
             setConfigureSuccessModal(true);
+            dispatch(setSignerPolicyError('idle'));
+            showValidationModal(false);
           }, 100);
         }
       } else {
@@ -234,10 +236,10 @@ function ChoosePolicyNew({ navigation, route }) {
         dispatch(setSignerPolicyError('idle'));
         showValidationModal(false);
         // resetFields();
-        showToast('2FA token is either invalid or has expired');
+        showToast('Something went wrong. Please try again');
       }
     }
-  }, [policyError, delayedPolicyUpdate]);
+  }, [policyError]);
 
   const otpContent = useCallback(() => {
     const onPressNumber = (text) => {
