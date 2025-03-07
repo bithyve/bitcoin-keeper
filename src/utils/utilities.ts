@@ -645,7 +645,7 @@ export function formatRemainingTime(milliseconds) {
   if (weeks >= 1) return `${weeks} Week${weeks > 1 ? 's' : ''}`;
   if (days >= 1) return `${days} Day${days > 1 ? 's' : ''}`;
   if (hours >= 1) return `${hours} Hour${hours > 1 ? 's' : ''}`;
-  return `${minutes} Minutes${minutes > 1 ? 's' : ''}`;
+  return `${minutes} Minute${minutes > 1 ? 's' : ''}`;
 }
 
 export const manipulateIosProdProductId = (productId: string) => {
