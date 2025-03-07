@@ -79,7 +79,7 @@ function ChoosePolicyNew({ navigation, route }) {
   }, [route.params]);
   const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
 
-  const MAINNET_TIMELOCK_DURATIONS = [
+  const MAINNET_SERVER_POLICY_DURATIONS = [
     { label: OFF, value: 0 },
     { label: DAY_1, value: 1 * 24 * 60 * 60 * 1000 },
     { label: DAY_3, value: 3 * 24 * 60 * 60 * 1000 },
@@ -92,30 +92,32 @@ function ChoosePolicyNew({ navigation, route }) {
     { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 },
   ];
 
-  const TESTNET_TIMELOCK_DURATIONS = [
+  const TESTNET_SERVER_POLICY_DURATIONS = [
     { label: OFF, value: 0 },
-    { label: DAY_1, value: 30 * 60 * 1000 }, // 30 minutes
-    { label: DAY_3, value: 45 * 60 * 1000 }, // 45 minutes
-    { label: DAY_5, value: 60 * 60 * 1000 }, // 1 hours
-    { label: WEEK_1, value: 90 * 60 * 1000 }, //  1.5 hour
-    { label: WEEKS_2, value: 2 * 60 * 60 * 1000 }, //  2 hours
-    { label: MONTH_1, value: 6 * 60 * 60 * 1000 }, //  6 hours
-    { label: MONTHS_3, value: 12 * 60 * 60 * 1000 }, //  12 hours
-    { label: MONTHS_6, value: 18 * 60 * 60 * 1000 }, //  18 hours
-    { label: MONTHS_12, value: 24 * 60 * 60 * 1000 }, //  24 hours
+    { label: DAY_1, value: 5 * 60 * 1000 }, // 5 minutes
+    { label: DAY_3, value: 10 * 60 * 1000 }, // 10 minutes
+    { label: DAY_5, value: 15 * 60 * 1000 }, // 15 minutes
+    { label: WEEK_1, value: 30 * 60 * 1000 }, // 30 minutes
+    { label: WEEKS_2, value: 1 * 60 * 1000 }, //  1 hour
+    { label: MONTH_1, value: 2 * 60 * 1000 }, //  2 hours
+    { label: MONTHS_3, value: 3 * 60 * 60 * 1000 }, //  3 hours
+    { label: MONTHS_6, value: 4 * 60 * 60 * 1000 }, //  4 hours
+    { label: MONTHS_12, value: 5 * 60 * 60 * 1000 }, //  5 hours
   ];
 
-  const TIMELOCK_DURATIONS = isMainNet ? MAINNET_TIMELOCK_DURATIONS : TESTNET_TIMELOCK_DURATIONS;
+  const SERVER_POLICY_DURATIONS = isMainNet
+    ? MAINNET_SERVER_POLICY_DURATIONS
+    : TESTNET_SERVER_POLICY_DURATIONS;
 
   useEffect(() => {
     // TODO: remap and fix the label for timelimit and signing delay
     if (signer && signer.signerPolicy) {
       setSpendingLimit(`${signer.signerPolicy?.restrictions?.maxTransactionAmount}`);
-      const matchedTimeLimit = TIMELOCK_DURATIONS.find(
+      const matchedTimeLimit = SERVER_POLICY_DURATIONS.find(
         (option) => option.value === signer.signerPolicy?.restrictions?.timeWindow
       );
       setTimeLimit(matchedTimeLimit);
-      const matchedSigningDelay = TIMELOCK_DURATIONS.find(
+      const matchedSigningDelay = SERVER_POLICY_DURATIONS.find(
         (option) => option.value === signer.signerPolicy?.signingDelay
       );
       setSigningDelay(matchedSigningDelay);
@@ -146,7 +148,7 @@ function ChoosePolicyNew({ navigation, route }) {
 
   useEffect(() => {
     // check for delayed policy updates
-    if (Object.keys(delayedPolicyUpdate).length > 0) {
+    if (delayedPolicyUpdate && Object.keys(delayedPolicyUpdate).length > 0) {
       dispatch(fetchDelayedPolicyUpdate());
     }
   }, []);
@@ -179,7 +181,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const onConfirm = () => {
     if (signer) {
       // case: policy update
-      if (Object.keys(delayedPolicyUpdate).length > 0) {
+      if (delayedPolicyUpdate && Object.keys(delayedPolicyUpdate).length > 0) {
         showToast('Please wait for the previous policy update to complete');
         return;
       }
@@ -217,7 +219,10 @@ function ChoosePolicyNew({ navigation, route }) {
         dispatch(setSignerPolicyError('idle'));
         showToast('Policy updated successfully', <TickIcon />, IToastCategory.SIGNING_DEVICE);
         showValidationModal(false);
-        navigation.goBack();
+
+        setTimeout(() => {
+          navigation.goBack();
+        }, 100);
       } else {
         setIsLoading(false);
         dispatch(setSignerPolicyError('idle'));

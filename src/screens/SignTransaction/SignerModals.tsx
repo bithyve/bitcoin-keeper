@@ -530,7 +530,7 @@ function OtpContent({ signTransaction }) {
               signTransaction({ signingServerOTP: otp });
             }}
             fullWidth
-            primaryText="proceed"
+            primaryText="Proceed"
           />
         </Box>
       </Box>

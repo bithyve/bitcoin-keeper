@@ -675,7 +675,7 @@ function SignerAdvanceSettings({ route }: any) {
     isPolicyServer && (
       <OptionCard
         key="signingRequests"
-        title="Signing requests"
+        title="Signing Requests"
         description="See your pending signing requests"
         callback={navigateToSigningRequests}
       />
@@ -691,7 +691,7 @@ function SignerAdvanceSettings({ route }: any) {
     <OptionCard
       key="additionalInfo"
       title="Additional Info"
-      description="Associate contact or Edit description"
+      description="Associate contact or edit description"
       callback={navigateToAdditionalDetails}
     />,
     isMobileKey && (
@@ -754,7 +754,7 @@ function SignerAdvanceSettings({ route }: any) {
     isPolicyServer && showOneTimeBackup && (
       <OptionCard
         key="backupServerKey"
-        title="Back up Server Key"
+        title="Back Up Server Key"
         description={
           disableOneTimeBackup ? 'Server key backed up' : 'Save a backup of the Server Key'
         }
