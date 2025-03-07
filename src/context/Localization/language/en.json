@@ -125,7 +125,7 @@
     "coSigner": "cosigner",
     "added": "Added",
     "configurationSettingDelay": "Server Policy Updated",
-    "configurationSettingDelaySub": "The changes will be applied automatically after the a security delay",
+    "configurationSettingDelaySub": "The changes will be applied automatically after a security delay",
     "collaborativeWallet": "Collaborative Wallet",
     "confirmPassCode": "Confirm Passcode",
     "confirm2FACodeTitle": "Confirm 2FA Code",
