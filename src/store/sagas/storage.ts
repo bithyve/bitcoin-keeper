@@ -17,6 +17,7 @@ import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { DelayedPolicyUpdate, DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
 import { Signer } from 'src/services/wallets/interfaces/vault';
+import { uaiType } from 'src/models/interfaces/Uai';
 import { createWatcher } from '../utilities';
 import {
   FETCH_DELAYED_POLICY_UPDATE,
@@ -28,6 +29,7 @@ import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wa
 import { deleteDelayedPolicyUpdate, setAppId, updateDelayedTransaction } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
+import { addToUaiStack } from '../sagaActions/uai';
 
 export const defaultTransferPolicyThreshold = null;
 export const maxTransferPolicyThreshold = 1e11;
@@ -195,6 +197,12 @@ function* fetchSignedDelayedTransactionWorker() {
           );
 
           if (delayedTransaction.signedPSBT) {
+            yield put(
+              addToUaiStack({
+                uaiType: uaiType.SIGNING_DELAY,
+                entityId: delayedTransaction.txid,
+              })
+            );
             yield put(updateDelayedTransaction(delayedTransaction));
           }
         }
