@@ -5,26 +5,29 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { NetworkType, SignerStorage, SignerType } from 'src/services/wallets/enums';
+import {
+  DerivationPurpose,
+  NetworkType,
+  SignerStorage,
+  SignerType,
+} from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-
 import KeeperHeader from 'src/components/KeeperHeader';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useEffect, useState } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { generateSignerFromMetaData } from 'src/hardware';
+import { createXpubDetails, generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
-import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import config from 'src/utils/service-utilities/config';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
-import { setSigningDevices } from 'src/store/reducers/bhr';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import * as PORTAL from 'src/hardware/portal';
 import { PORTAL_ERRORS } from 'src/hardware/portal';
@@ -38,6 +41,8 @@ import {
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import KeeperTextInput from 'src/components/KeeperTextInput';
+import { SegmentedController } from 'src/components/SegmentController';
+import { options, SuccessContainer } from '../AddSigner/AddMultipleXpub';
 
 const isTestNet = config.NETWORK_TYPE === NetworkType.TESTNET;
 
@@ -67,12 +72,15 @@ function SetupPortal({ route }) {
   const [cvc, setCvc] = React.useState('');
   const [confirmCVC, setConfirmCVC] = React.useState('');
   const [portalStatus, setPortalStatus] = useState(null);
+  const [isAddSignerMode, setIsAddSignerMode] = useState(false);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const isManualRegister = mode === InteracationMode.VAULT_REGISTER;
   const isAddressVerification = mode === InteracationMode.ADDRESS_VERIFICATION;
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [xpubs, setXpubs] = useState({});
 
   let vaultDescriptor = '';
   let vault = null;
@@ -104,7 +112,7 @@ function SetupPortal({ route }) {
           case InteracationMode.ADDRESS_VERIFICATION:
             return verifyAddressPortal();
           default:
-            addPortal();
+            setIsAddSignerMode(true);
         }
       } else if (!(await DeviceInfo.isEmulator())) {
         showToast('NFC not supported on this device', <ToastErrorIcon />);
@@ -131,11 +139,11 @@ function SetupPortal({ route }) {
         }
       });
     } catch (error) {
+      if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
       showToast(
         error.message ? error.message : 'Something went wrong. Please try again',
         <ToastErrorIcon />
       );
-      if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
       return false;
     }
   };
@@ -146,7 +154,7 @@ function SetupPortal({ route }) {
         // call register then check the value of it
         await PORTAL.startReading();
         await checkAndUnlock(cvc, setPortalStatus);
-        const res = await PORTAL.getXpub({ accountNumber, isMultisig: true });
+        const res = await PORTAL.getXpub({ accountNumber, purpose: DerivationPurpose.BIP48 });
         if (res) {
           dispatch(
             healthCheckStatusUpdate([
@@ -180,11 +188,11 @@ function SetupPortal({ route }) {
       await PORTAL.registerVault(updatedDescriptor);
       return true;
     } catch (error) {
+      if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
       showToast(
         error.message ? error.message : 'Something went wrong. Please try again',
         <ToastErrorIcon />
       );
-      if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
 
       return false;
     }
@@ -198,63 +206,62 @@ function SetupPortal({ route }) {
     }
   };
 
-  const getPortalDetails = async () => {
+  const getPortalDetails = async (purpose) => {
     await PORTAL.startReading();
     await checkAndUnlock(cvc, setPortalStatus);
-    const descriptor = await PORTAL.getXpub({ accountNumber, isMultisig });
-    const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub, isMultisig);
+    const descriptor = await PORTAL.getXpub({ accountNumber, purpose });
+    const signer = PORTAL.getPortalDetailsFromDescriptor(descriptor.xpub);
     return signer;
   };
 
-  const addPortal = React.useCallback(async () => {
-    try {
-      const portalDetails = await withNfcModal(async () => getPortalDetails());
-      const { xpub, derivationPath, masterFingerprint, xpubDetails } = portalDetails;
-      let portalSigner: Signer;
-      const { signer } = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        masterFingerprint,
-        signerType: SignerType.PORTAL,
-        storageType: SignerStorage.COLD,
-        isMultisig,
-        xpubDetails,
-        isAmf: false,
-      });
-      portalSigner = signer;
-      if (mode === InteracationMode.RECOVERY) {
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal health check verified!`);
-        dispatch(setSigningDevices(portalSigner));
-        navigation.dispatch(
-          CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+  const addPortal = React.useCallback(
+    async (purpose) => {
+      try {
+        const portalDetails = await withNfcModal(async () => getPortalDetails(purpose));
+        setXpubs((xpubs) => {
+          return { ...xpubs, [purpose]: portalDetails };
+        });
+      } catch (error) {
+        showToast(
+          error.message ? error.message : 'Something went wrong. Please try again',
+          <ToastErrorIcon />
         );
-      } else {
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal added successfully!`);
-        dispatch(addSigningDevice([portalSigner]));
-        const navigationState = addSignerFlow
-          ? {
-              name: 'Home',
-              params: {
-                selectedOption: 'Keys',
-                addedSigner: portalSigner,
-                addSignerFlow,
-                showModal: true,
-              },
-            }
-          : {
-              name: 'AddSigningDevice',
-              merge: true,
-              params: { addedSigner: portalSigner, addSignerFlow, showModal: true },
-            };
-        navigation.dispatch(CommonActions.navigate(navigationState));
       }
-    } catch (error) {
-      showToast(
-        error.message ? error.message : 'Something went wrong. Please try again',
-        <ToastErrorIcon />
-      );
-    }
-  }, [cvc]);
+    },
+    [cvc]
+  );
+
+  const createPortalSigner = () => {
+    const { xpub, derivationPath, masterFingerprint, xpubDetails } = createXpubDetails(xpubs);
+    const { signer: portalSigner } = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      masterFingerprint,
+      signerType: SignerType.PORTAL,
+      storageType: SignerStorage.COLD,
+      isMultisig,
+      xpubDetails,
+      isAmf: false,
+    });
+    if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal added successfully!`);
+    dispatch(addSigningDevice([portalSigner]));
+    const navigationState = addSignerFlow
+      ? {
+          name: 'Home',
+          params: {
+            selectedOption: 'Keys',
+            addedSigner: portalSigner,
+            addSignerFlow,
+            showModal: true,
+          },
+        }
+      : {
+          name: 'AddSigningDevice',
+          merge: true,
+          params: { addedSigner: portalSigner, addSignerFlow, showModal: true },
+        };
+    navigation.dispatch(CommonActions.navigate(navigationState));
+  };
 
   const signWithPortal = React.useCallback(async () => {
     try {
@@ -301,7 +308,7 @@ function SetupPortal({ route }) {
         showToast(PORTAL_ERRORS.CVC_MISMATCH, <ToastErrorIcon />);
         return;
       }
-      const portalDetails = await withNfcModal(async () => {
+      await withNfcModal(async () => {
         await PORTAL.startReading();
         try {
           // Throws error if portal is partially initialized already.
@@ -316,40 +323,11 @@ function SetupPortal({ route }) {
           }
         }
 
-        const portalDetails = await getPortalDetails();
         setPortalStatus(null);
-        return portalDetails;
+        if (addSignerFlow) setIsAddSignerMode(true);
+        setCvc('');
+        setConfirmCVC('');
       });
-      const { xpub, derivationPath, masterFingerprint, xpubDetails } = portalDetails;
-
-      const { signer: portalSigner, key: vaultKey } = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        masterFingerprint,
-        signerType: SignerType.PORTAL,
-        storageType: SignerStorage.COLD,
-        isMultisig,
-        xpubDetails,
-        isAmf: false,
-      });
-      if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal added successfully!`);
-      dispatch(addSigningDevice([portalSigner]));
-      const navigationState = addSignerFlow
-        ? {
-            name: 'Home',
-            params: {
-              selectedOption: 'Keys',
-              addedSigner: portalSigner,
-              addSignerFlow,
-              showModal: true,
-            },
-          }
-        : {
-            name: 'AddSigningDevice',
-            merge: true,
-            params: { addedSigner: portalSigner, addSignerFlow, showModal: true },
-          };
-      navigation.dispatch(CommonActions.navigate(navigationState));
     } catch (error) {
       showToast(
         error.message ? error.message : 'Something went wrong. Please try again',
@@ -360,15 +338,35 @@ function SetupPortal({ route }) {
 
   const wipePortal = async () => {
     try {
-      const portalDetails = await withNfcModal(async () => {
+      await withNfcModal(async () => {
         await PORTAL.startReading();
         await PORTAL.wipePortal();
         return true;
       });
-      console.log('🚀 ~ portalDetails ~ portalDetails:', portalDetails);
     } catch (error) {
       console.log('🚀 ~ wipePortal ~ error:', error);
     }
+  };
+
+  const renderContent = () => {
+    const data = xpubs[options[selectedIndex].purpose];
+    return data ? (
+      <SuccessContainer type={options[selectedIndex].label} />
+    ) : (
+      <Box style={styles.contentContainer}>
+        <Text
+          style={styles.contentText}
+        >{`Proceed with scanning portal for fetching ${options[selectedIndex].label} xpub details`}</Text>
+        <Buttons
+          fullWidth
+          primaryText="Scan"
+          primaryCallback={() => {
+            console.log(options[selectedIndex].purpose);
+            addPortal(options[selectedIndex].purpose);
+          }}
+        />
+      </Box>
+    );
   };
 
   return (
@@ -400,60 +398,81 @@ function SetupPortal({ route }) {
         mode={mode}
         signerXfp={signer?.masterFingerprint}
       >
-        <ScrollView>
-          {!portalStatus && (
-            <Box style={styles.inputWrapper}>
+        {isAddSignerMode && !portalStatus ? (
+          <>
+            <ScrollView>
               <PasswordField
                 label={'Password'}
                 placeholder="********"
                 value={cvc}
                 onChangeText={setCvc}
               />
-              <Box marginTop={5} marginBottom={9}>
-                <Buttons
-                  primaryText={(() => {
-                    switch (mode) {
-                      case InteracationMode.SIGN_TRANSACTION:
-                        return 'Sign';
-                      case InteracationMode.VAULT_REGISTER:
-                        return 'Register';
-                      case InteracationMode.HEALTH_CHECK:
-                        return 'Verify';
-                      default:
-                        return 'Proceed';
-                    }
-                  })()}
-                  primaryCallback={continueWithPortal}
-                  secondaryText={isTestNet ? ' Wipe' : null}
-                  secondaryCallback={wipePortal}
+              <SegmentedController
+                options={options}
+                selectedIndex={selectedIndex}
+                setSelectedIndex={setSelectedIndex}
+              />
+              <Box marginTop={hp(30)}>{renderContent()}</Box>
+            </ScrollView>
+            {Object.values(xpubs).some((value) => value !== null) && (
+              <Buttons fullWidth primaryText="Finish" primaryCallback={createPortalSigner} />
+            )}
+            <Buttons secondaryText={isTestNet ? ' Wipe' : null} secondaryCallback={wipePortal} />
+          </>
+        ) : (
+          <ScrollView>
+            {!portalStatus && (
+              <Box style={styles.inputWrapper}>
+                <PasswordField
+                  label={'Password'}
+                  placeholder="********"
+                  value={cvc}
+                  onChangeText={setCvc}
                 />
+                <Box marginTop={5} marginBottom={9}>
+                  <Buttons
+                    primaryText={(() => {
+                      switch (mode) {
+                        case InteracationMode.SIGN_TRANSACTION:
+                          return 'Sign';
+                        case InteracationMode.VAULT_REGISTER:
+                          return 'Register';
+                        case InteracationMode.HEALTH_CHECK:
+                          return 'Verify';
+                        default:
+                          return 'Proceed';
+                      }
+                    })()}
+                    primaryCallback={continueWithPortal}
+                  />
+                </Box>
               </Box>
-            </Box>
-          )}
+            )}
 
-          {portalStatus && !portalStatus?.initialized && (
-            <Box style={styles.inputWrapper}>
-              <PasswordField
-                label={'New password(optional)'}
-                placeholder="********"
-                value={cvc}
-                onChangeText={setCvc}
-              />
-              <PasswordField
-                label={'Confirm password'}
-                placeholder="********"
-                value={confirmCVC}
-                onChangeText={setConfirmCVC}
-              />
-              <Box marginTop={5} marginBottom={9}>
-                <Buttons
-                  primaryText={'Initialize Portal'}
-                  primaryCallback={validateAndInitializePortal}
+            {portalStatus && !portalStatus?.initialized && (
+              <Box style={styles.inputWrapper}>
+                <PasswordField
+                  label={'New password(optional)'}
+                  placeholder="********"
+                  value={cvc}
+                  onChangeText={setCvc}
                 />
+                <PasswordField
+                  label={'Confirm password'}
+                  placeholder="********"
+                  value={confirmCVC}
+                  onChangeText={setConfirmCVC}
+                />
+                <Box marginTop={5} marginBottom={9}>
+                  <Buttons
+                    primaryText={'Initialize Portal'}
+                    primaryCallback={validateAndInitializePortal}
+                  />
+                </Box>
               </Box>
-            </Box>
-          )}
-        </ScrollView>
+            )}
+          </ScrollView>
+        )}
       </MockWrapper>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>
@@ -531,4 +550,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     flexDirection: 'row',
   },
+  contentContainer: { alignItems: 'center', gap: hp(20) },
+  contentText: { textAlign: 'center', maxWidth: '80%' },
 });
