@@ -320,7 +320,6 @@ function ChoosePolicyNew({ navigation, route }) {
           <Text fontSize={13}>{common.RemainingTime}:</Text>
           <Text fontSize={13}>{formatRemainingTime(policyDelayedUntil - Date.now())}</Text>
         </Box>
-        <Text>{common.configurationSettingDelaySub2}</Text>
         <Box style={styles.buttonContainer}>
           <Buttons
             primaryCallback={() => {
@@ -340,7 +339,6 @@ function ChoosePolicyNew({ navigation, route }) {
           <DelaycompleteIcon />
         </Box>
 
-        <Text>{common.ConfigurationSettingSub2}</Text>
         <Box style={styles.buttonContainer}>
           <Buttons
             primaryCallback={() => {
@@ -368,9 +366,9 @@ function ChoosePolicyNew({ navigation, route }) {
       <ActivityIndicatorView visible={isLoading} />
       <WalletHeader
         title={signingServer.choosePolicy}
-        rightComponent={
-          <TouchableOpacity>{isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}</TouchableOpacity>
-        }
+        // rightComponent={
+        //   <TouchableOpacity>{isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}</TouchableOpacity>
+        // }
       />
       <Text style={styles.desc}>{signingServer.choosePolicySubTitle}</Text>
       <Box style={styles.fieldContainer}>
@@ -430,7 +428,7 @@ function ChoosePolicyNew({ navigation, route }) {
         close={() => {
           setConfigureSuccessModal(false);
         }}
-        title={common.configurationSetting}
+        title={common.configurationSettingDelay}
         subTitle={common.configurationSettingSub}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalHeaderTitle`}

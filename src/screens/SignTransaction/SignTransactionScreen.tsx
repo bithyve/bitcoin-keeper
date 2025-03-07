@@ -287,9 +287,13 @@ function SignTransactionScreen() {
 
     if (serverKey && serverKeySigner) {
       // Server Key is one of the signers
-      const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
+      const serializedPSBTEnvelop = serializedPSBTEnvelops.find(
         (envelop) => envelop.xfp === serverKey.xfp
-      )[0];
+      );
+
+      if (!serializedPSBTEnvelop) {
+        return;
+      }
 
       const delayedTxid = hash256(serializedPSBTEnvelop.serializedPSBT);
       const delayedTx: DelayedTransaction = delayedTransactions[delayedTxid];

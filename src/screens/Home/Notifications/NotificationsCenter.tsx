@@ -19,7 +19,7 @@ import useVault from 'src/hooks/useVault';
 import ServerTransNotificaiton from 'src/assets/images/server-transaction-notification-icon.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
-import { EntityKind } from 'src/services/wallets/enums';
+import { EntityKind, SignerType } from 'src/services/wallets/enums';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
@@ -42,6 +42,7 @@ import uai from 'src/store/reducers/uai';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import UAIView from '../components/HeaderDetails/components/UAIView';
+import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 
 type CardProps = {
   totalLength: number;
@@ -291,7 +292,9 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
               cta: () => {
                 const delayedTxid = uai.entityId;
                 const snapshot: cachedTxSnapshot = snapshots[delayedTxid]; // cachedTxid is same as delayedTxid
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
                 if (snapshot) {
+                  dispatch(setStateFromSnapshot(snapshot.state));
                   navigtaion.dispatch(
                     CommonActions.navigate('SendConfirmation', {
                       ...snapshot.routeParams,
@@ -301,7 +304,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
                     })
                   );
                 } else {
-                  showToast('Cached transaction not found');
+                  showToast('Pending transaction not found');
                 }
               },
             },
@@ -316,7 +319,20 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
           btnConfig: {
             primary: {
               text: 'View',
-              cta: () => {},
+              cta: () => {
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+                navigtaion.dispatch(
+                  CommonActions.navigate({
+                    name: 'ChoosePolicyNew',
+                    params: {
+                      isUpdate: true,
+                      signer: Object.values(signerMap).find(
+                        (signer) => signer.type === SignerType.POLICY_SERVER
+                      ),
+                    },
+                  })
+                );
+              },
             },
           },
         };
@@ -608,13 +624,13 @@ export const getUaiContent = (type: uaiType, details?: any) => {
     case uaiType.SIGNING_DELAY:
       return {
         heading: 'Server Key Signed Transaction',
-        body: 'The Server Key signed your requested transaction.',
+        body: 'The Server Key signed your requested transaction',
         icon: <ServerTransNotificaiton />,
       };
     case uaiType.POLICY_DELAY:
       return {
         heading: 'Server Key Policy Updated',
-        body: 'The Server Key has activated the requested policy.',
+        body: 'The Server Key has activated the requested policy',
         icon: <ServerTransNotificaiton />,
       };
 
