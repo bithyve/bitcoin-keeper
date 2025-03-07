@@ -26,6 +26,8 @@ import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wa
 import { setAppId, updateDelayedTransaction } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
+import { addToUaiStack } from '../sagaActions/uai';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 export const defaultTransferPolicyThreshold = null;
 export const maxTransferPolicyThreshold = 1e11;
@@ -193,6 +195,11 @@ function* fetchSignedDelayedTransactionWorker() {
           );
 
           if (delayedTransaction.signedPSBT) {
+            yield put(
+              addToUaiStack({
+                uaiType: uaiType.SIGNING_DELAY,
+              })
+            );
             yield put(updateDelayedTransaction(delayedTransaction));
           }
         }

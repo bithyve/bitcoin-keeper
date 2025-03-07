@@ -203,6 +203,7 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.FEE_INISGHT,
               uaiType.DEFAULT,
               uaiType.ZENDESK_TICKET,
+              uaiType.SIGNING_DELAY,
             ])
           );
 

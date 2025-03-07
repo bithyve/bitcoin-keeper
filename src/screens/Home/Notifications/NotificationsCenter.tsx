@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useVault from 'src/hooks/useVault';
+import ServerTransNotificaiton from 'src/assets/images/server-transaction-notification-icon.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
 import { EntityKind } from 'src/services/wallets/enums';
@@ -80,6 +81,7 @@ let SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
   uaiType.CANARAY_WALLET,
   uaiType.ZENDESK_TICKET,
+  uaiType.SIGNING_DELAY,
 ];
 
 const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
@@ -269,6 +271,21 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
                   ticketId: parseInt(uai.entityId),
                   ticketStatus: uai.uaiDetails.heading,
                 });
+              },
+            },
+          },
+        };
+      }
+      case uaiType.SIGNING_DELAY: {
+        return {
+          heading: content.heading,
+          body: content.body,
+          icon: content.icon,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                navigtaion.navigate('SignTransactionScreen');
               },
             },
           },
@@ -564,6 +581,12 @@ export const getUaiContent = (type: uaiType, details?: any) => {
         heading: 'Technical Support',
         body: details?.body || 'Support ticket update',
         icon: <TechSupportIcon />,
+      };
+    case uaiType.SIGNING_DELAY:
+      return {
+        heading: 'Server Key Signed Transaction',
+        body: 'The Server Key signed your requested transactions.',
+        icon: <ServerTransNotificaiton />,
       };
 
     default:
