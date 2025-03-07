@@ -1312,7 +1312,6 @@ export function* updateSignerPolicyWorker({
 
     if (delayedPolicyUpdate) {
       yield put(updateDelayedPolicyUpdate(delayedPolicyUpdate));
-      Alert.alert(`Policy will take effect after ${delayedPolicyUpdate.delayUntil} ms`);
     } else {
       if (!updated) {
         Alert.alert('Failed to update signer policy, try again.');
