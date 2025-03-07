@@ -32,7 +32,6 @@ const ServerKeyPolicyCard = (props: Props) => {
       addSignerFlow: props.addSignerFlow,
     });
   };
-
   return (
     <Box backgroundColor={`${colorMode}.textInputBackground`} style={styles.container}>
       <Text color={`${colorMode}.modalSubtitleBlack`} style={styles.title} medium>
@@ -48,23 +47,21 @@ const ServerKeyPolicyCard = (props: Props) => {
           }
           style={styles.inputContainer}
         >
-          <Box style={styles.alignCenter}>
-            <Text>
-              {props.maxTransaction && props.maxTransaction !== 'null'
-                ? numberWithCommas(props.maxTransaction)
-                : 'Off'}
-            </Text>{' '}
-            {props.maxTransaction && props.maxTransaction !== 'null' ? (
+          {props.maxTransaction &&
+          props.maxTransaction !== 'null' &&
+          props.maxTransaction !== '0' &&
+          props.timelimit &&
+          props?.timelimit?.value !== 0 ? (
+            <Box style={styles.alignCenter}>
               <Text>
-                sats{' '}
-                {props.timelimit && props?.timelimit?.value !== 0
-                  ? '/' + ' ' + props.timelimit?.label
-                  : ''}
+                {numberWithCommas(props.maxTransaction)} sats / {props.timelimit?.label}
               </Text>
-            ) : (
-              ''
-            )}
-          </Box>
+            </Box>
+          ) : (
+            <Box style={styles.alignCenter}>
+              <Text>Off</Text>
+            </Box>
+          )}
           <EditIcon />
         </Box>
       </TouchableOpacity>
