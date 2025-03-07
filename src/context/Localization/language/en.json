@@ -124,7 +124,7 @@
     "signerFingerPrint": "Signer Fingerprint",
     "coSigner": "cosigner",
     "added": "Added",
-    "configurationSettingDelay": "Policy Updated",
+    "configurationSettingDelay": "Server Policy Updated",
     "configurationSettingDelaySub": "The changes will be applied automatically after the a security delay",
     "collaborativeWallet": "Collaborative Wallet",
     "confirmPassCode": "Confirm Passcode",
