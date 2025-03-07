@@ -1,5 +1,5 @@
 import { Box, ScrollView } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
@@ -18,23 +18,19 @@ function formatTxId(txid) {
 
 function SigningRequest() {
   const delayedTransactions = useAppSelector((state) => state.storage.delayedTransactions) || {};
-  const [signingRequests, setSigningRequests] = useState([]);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const requests = [];
-    for (const txid in delayedTransactions) {
-      const delayedTx: DelayedTransaction = delayedTransactions[txid];
-
-      requests.push({
+  const signingRequests = useMemo(() => {
+    return Object.keys(delayedTransactions).map((txid) => {
+      const delayedTx = delayedTransactions[txid];
+      return {
         id: txid,
         title: formatTxId(txid),
         dateTime: formatDateTime(delayedTx.timestamp),
         amount: delayedTx.outgoing,
         timeRemaining: formatRemainingTime(delayedTx.delayUntil - Date.now()),
-      });
-    }
-    setSigningRequests(requests);
+      };
+    });
   }, [delayedTransactions]);
 
   useEffect(() => {
