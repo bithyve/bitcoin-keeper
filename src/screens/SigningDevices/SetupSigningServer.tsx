@@ -6,7 +6,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
-import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
@@ -15,7 +14,6 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
-import SigningServerIllustration from 'src/assets/images/backup-server-illustration.svg';
 
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -29,8 +27,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import WalletHeader from 'src/components/WalletHeader';
-import Colors from 'src/theme/Colors';
-import { setShowBackupModal } from 'src/store/reducers/signer';
 
 function SetupSigningServer({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -44,10 +40,7 @@ function SetupSigningServer({ route }: { route }) {
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
-  const [backupKeyModal, setBackupKeyModal] = useState(false);
   const { addSignerFlow } = route.params;
-  console.log('addSignerFlow');
-  console.log(addSignerFlow);
 
   const registerSigningServer = async () => {
     try {
@@ -67,7 +60,6 @@ function SetupSigningServer({ route }: { route }) {
       if (valid) {
         setIsSetupValidated(valid);
         showValidationModal(false);
-        setBackupKeyModal(true);
       } else {
         showValidationModal(false);
         showToast('Invalid OTP. Please try again!');
@@ -96,8 +88,8 @@ function SetupSigningServer({ route }: { route }) {
     dispatch(addSigningDevice([signingServerKey]));
     const navigationState = addSignerFlow
       ? {
-          name: 'Home',
-          params: { selectedOption: 'Keys', addedSigner: signingServerKey },
+          name: 'ServerKeySuccessScreen',
+          params: { addedSigner: signingServerKey, setupData: setupData.id },
         }
       : {
           name: 'AddSigningDevice',
@@ -182,52 +174,6 @@ function SetupSigningServer({ route }: { route }) {
       </Box>
     );
   }, [otp]);
-  const BackupModalContent = useCallback(() => {
-    return (
-      <Box style={styles.modalContainer}>
-        <SigningServerIllustration />
-        <Box>
-          <Text fontSize={12} semiBold style={styles.modalTitle}>
-            {signingServer.attention}:
-          </Text>
-          <Text fontSize={12} style={styles.modalTitle}>
-            {signingServer.attentionSubTitle}
-          </Text>
-        </Box>
-        <Buttons primaryCallback={() => {}} fullWidth primaryText="Backup Now" />
-        <Box style={styles.modalButtonContainer}>
-          <Buttons
-            primaryCallback={() => {
-              setBackupKeyModal(false);
-              dispatch(setShowBackupModal(true));
-              navigation.navigate('ServerKeySuccessScreen');
-            }}
-            primaryText={common.Later}
-            primaryBackgroundColor="transparent"
-            primaryTextColor={
-              isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.brownColor`
-            }
-            primaryBorderColor={isDarkMode ? Colors.separator : Colors.BrownBorder}
-            width={wp(150)}
-          />
-          <Buttons
-            primaryCallback={() => {
-              setBackupKeyModal(false);
-              dispatch(setShowBackupModal(false));
-              navigation.navigate('ServerKeySuccessScreen');
-            }}
-            primaryText={common.Never}
-            primaryBackgroundColor="transparent"
-            primaryTextColor={
-              isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.brownColor`
-            }
-            primaryBorderColor={isDarkMode ? Colors.separator : Colors.BrownBorder}
-            width={wp(150)}
-          />
-        </Box>
-      </Box>
-    );
-  }, []);
 
   return (
     <ScreenWrapper>
@@ -288,24 +234,12 @@ function SetupSigningServer({ route }: { route }) {
           close={() => {
             showValidationModal(false);
           }}
-          title="Confirm 2FA Code"
-          subTitle="Confirm the currrent 2FA code from your authenticator app"
+          title={common.confirm2FACodeTitle}
+          subTitle={common.confirm2FACodeSubtitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalHeaderTitle`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={otpContent}
-        />
-        <KeeperModal
-          visible={backupKeyModal}
-          close={() => {
-            setBackupKeyModal(false);
-          }}
-          title={signingServer.BackUpModalTitle}
-          subTitle={signingServer.BackUpModalSubTitle}
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
-          subTitleColor={`${colorMode}.modalSubtitleBlack`}
-          Content={BackupModalContent}
         />
       </View>
     </ScreenWrapper>
@@ -356,13 +290,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
   },
-  modalTitle: {
-    marginBottom: 10,
-  },
-  modalButtonContainer: {
-    flexDirection: 'row',
-    gap: 10,
-  },
+
   CVVInputsView: {
     justifyContent: 'center',
     alignItems: 'center',

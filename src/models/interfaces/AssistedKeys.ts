@@ -53,6 +53,21 @@ export interface DelayedTransaction {
   signedPSBT?: string;
 }
 
+export interface DelayedPolicyUpdate {
+  policyId: string;
+  signerId: string;
+  policyUpdates: {
+    restrictions: SignerRestriction;
+    exceptions: SignerException;
+    signingDelay: number;
+  };
+  verificationToken: string;
+  timestamp: number;
+  delayUntil: number;
+  FCM?: string;
+  isApplied?: boolean;
+}
+
 export enum CosignersMapUpdateAction {
   ADD = 'ADD',
   REMOVE = 'REMOVE',

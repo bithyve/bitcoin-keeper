@@ -25,6 +25,10 @@ import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/models/interfaces
 import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import { captureError } from 'src/services/sentry';
 import { hash256 } from 'src/utils/service-utilities/encryption';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { getKeyUID } from 'src/utils/utilities';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config from 'src/utils/service-utilities/config';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
@@ -35,8 +39,6 @@ import { deleteVaultImageWorker, updateAppImageWorker, updateVaultImageWorker } 
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { addWhirlpoolWalletsWorker } from './wallets';
-import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { getKeyUID } from 'src/utils/utilities';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -47,6 +49,7 @@ export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 export const ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT = '1.2.7';
 export const ARCHIVE_ENABLED_VERSION = '1.2.7';
 export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.6';
+export const SIGNER_POLICY_MIGRATION_VERSION = '2.1.0';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -83,6 +86,10 @@ export function* applyUpgradeSequence({
 
   if (semver.lt(previousVersion, HEALTH_CHECK_TIMELINE_MIGRATION_VERSION)) {
     yield call(healthCheckTimelineMigration);
+  }
+
+  if (semver.lt(previousVersion, SIGNER_POLICY_MIGRATION_VERSION)) {
+    yield call(migrateServerKeyPolicy);
   }
 
   yield put(setAppVersion(newVersion));
@@ -488,5 +495,43 @@ function* cleanupArchivedVaults() {
     }
   } catch (err) {
     console.log('Error in cleanupArchivedVaults:', err);
+  }
+}
+
+function* migrateServerKeyPolicy() {
+  // migrates old server key policy to new time-based spending limit policy
+  try {
+    const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+
+    for (const signer of signers) {
+      if (signer.type === SignerType.POLICY_SERVER && signer.signerPolicy) {
+        const oldPolicy = signer.signerPolicy;
+        if (!oldPolicy) {
+          throw new Error('Migration aborted: policy missing for Server Key instance');
+        }
+
+        const id = WalletUtilities.getFingerprintFromExtendedKey(
+          signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+          config.NETWORK
+        );
+
+        const { newPolicy } = yield call(SigningServer.migrateSignerPolicy, id, oldPolicy);
+        if (!newPolicy) {
+          throw new Error('Migration failed: policy not updated on the server');
+        }
+
+        dbManager.updateObjectByPrimaryId(
+          RealmSchema.Signer,
+          'masterFingerprint',
+          signer.masterFingerprint,
+          {
+            signerPolicy: newPolicy,
+          }
+        );
+        break;
+      }
+    }
+  } catch (err) {
+    console.log('Migrate Server Key policy err:', err);
   }
 }

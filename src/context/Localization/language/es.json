@@ -109,6 +109,15 @@
     "comingSoon": "Coming Soon",
     "reinstate": "Reinstate",
     "of": "of",
+    "configurationSettingDelay": "Configuration Setting Delay",
+    "configurationSettingDelaySub": "The changes will be applied automatically after the specified time",
+    "configurationSettingDelaySub2": "This helps maintain stability and consistency. Modify the delay settings as required",
+    "configurationSetting": "Configuration Setting ",
+    "configurationSettingSub": "Your settings have been applied successfully",
+    "ConfigurationSettingSub2": "If needed, you can adjust the settings anytime to match your preferences",
+    "RemainingTime": "Remaining Time",
+    "finish": "Finish",
+
     "collaborative": "Collaborative",
     "VAULT": "Vault",
     "CANARY": "Canary",
@@ -127,6 +136,8 @@
     "added": "Added",
     "collaborativeWallet": "Collaborative Wallet",
     "confirmPassCode": "Confirm Passcode",
+    "confirm2FACodeTitle": "Confirm 2FA Code",
+    "confirm2FACodeSubtitle": "Confirm the currrent 2FA code from your authenticator app",
     "backupNow": "Backup Now",
     "dontShowAgain": "Don’t show me this message again",
     "for": "For",
@@ -958,7 +969,7 @@
   },
   "signingServer": {
     "choosePolicy": "Choose Server Key Policy",
-    "choosePolicySubTitle": "Here you can configure your Server Key with a spending policy. You can also change it later,but note that updating it will enforce a delay.",
+    "choosePolicySubTitle": "Choose a spending policy for your Server Key. You can change it later, but note that updating it may enforce a security delay.",
     "maxNoCheckAmt": "Max no-check amount",
     "maxNoCheckAmtSubTitle": "The signer will sign a transaction of this amount or lower, even without a 2FA verification code",
     "maxAllowedAmt": "Max allowed amount",
@@ -1339,7 +1350,7 @@
     "confirmPasscodeToDeleteKey": "Confirm passcode to delete key",
     "thisStepTakesTime": "This step will take a few seconds.",
     "forgot2FA": "Forgot 2FA",
-    "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again",
+    "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove the Server Key and add a different key or use the Server Key backup",
     "noKeyAvailable": "No key available",
     "pleaseAddKey": "Please add an external key to proceed forward",
     "keyReceived": "Key Received",
@@ -1410,7 +1421,9 @@
     "diamondHands": "Diamond Hands",
     "advanced": "Advanced",
     "autoBackup": "Automatic Cloud Backup",
-    "autoBackupDesc": "Backup your Keeper app to cloud automatically"
+    "autoBackupDesc": "Backup your Keeper app to cloud automatically",
+    "keyAddedTitle": "Key added successfully.",
+    "keyAddedSubTitle": "Key has been added successfully. You can continue adding other keys or click Finish to add the device."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
