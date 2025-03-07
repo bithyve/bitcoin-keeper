@@ -299,6 +299,8 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
                       internalRecipients: snapshot.routeParams.internalRecipients,
                     })
                   );
+                } else {
+                  showToast('Cached transaction not found');
                 }
               },
             },
