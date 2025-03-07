@@ -353,9 +353,9 @@ function SetupPortal({ route }) {
     return data ? (
       <SuccessContainer type={options[selectedIndex].label} />
     ) : (
-      <Box style={{ alignItems: 'center', gap: hp(20) }}>
+      <Box style={styles.contentContainer}>
         <Text
-          style={{ textAlign: 'center', maxWidth: '80%' }}
+          style={styles.contentText}
         >{`Proceed with scanning portal for fetching ${options[selectedIndex].label} xpub details`}</Text>
         <Buttons
           fullWidth
@@ -550,4 +550,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     flexDirection: 'row',
   },
+  contentContainer: { alignItems: 'center', gap: hp(20) },
+  contentText: { textAlign: 'center', maxWidth: '80%' },
 });
