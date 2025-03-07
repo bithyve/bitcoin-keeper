@@ -19,7 +19,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { manipulateSeedSignerData } from 'src/hardware/seedsigner';
 import { getPassportDetails, manipulatePassportDetails } from 'src/hardware/passport';
 
-const options = [
+export const options = [
   { label: 'Singlesig', sub: 'BIP84', purpose: DerivationPurpose.BIP84 },
   { label: 'Multisig', sub: 'BIP48', purpose: DerivationPurpose.BIP48 },
   { label: 'Taproot', sub: 'BIP86', purpose: DerivationPurpose.BIP86 },
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   successSubTitle: { fontSize: 14, textAlign: 'center', maxWidth: '90%' },
 });
 
-const SuccessContainer = ({ type }) => {
+export const SuccessContainer = ({ type }) => {
   const { colorMode } = useColorMode();
   const { signer } = useContext(LocalizationContext).translations;
 
