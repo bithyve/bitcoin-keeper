@@ -1,33 +1,47 @@
 import { Box, ScrollView } from 'native-base';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
-import SigningRequestCard from './components/SigningRequestCard';
 import { formatDateTime, formatRemainingTime } from 'src/utils/utilities';
 import Text from 'src/components/KeeperText';
+import { useDispatch } from 'react-redux';
+import { fetchSignedDelayedTransaction } from 'src/store/sagaActions/storage';
+import SigningRequestCard from './components/SigningRequestCard';
+
+function formatTxId(txid) {
+  return txid.length > 15 ? `${txid.substring(0, 15)}...` : txid;
+}
 
 function SigningRequest() {
   const delayedTransactions = useAppSelector((state) => state.storage.delayedTransactions) || {};
-  const signingRequests = [];
-  function formatTxId(txid) {
-    return txid.length > 15 ? txid.substring(0, 15) + '...' : txid;
-  }
+  const [signingRequests, setSigningRequests] = useState([]);
+  const dispatch = useDispatch();
 
-  for (const txid in delayedTransactions) {
-    const delayedTx: DelayedTransaction = delayedTransactions[txid];
+  useEffect(() => {
+    const requests = [];
+    for (const txid in delayedTransactions) {
+      const delayedTx: DelayedTransaction = delayedTransactions[txid];
 
-    signingRequests.push({
-      id: txid,
-      title: formatTxId(txid),
-      dateTime: formatDateTime(delayedTx.timestamp),
-      amount: delayedTx.outgoing,
-      timeRemaining: formatRemainingTime(delayedTx.delayUntil - Date.now()),
-    });
-  }
+      requests.push({
+        id: txid,
+        title: formatTxId(txid),
+        dateTime: formatDateTime(delayedTx.timestamp),
+        amount: delayedTx.outgoing,
+        timeRemaining: formatRemainingTime(delayedTx.delayUntil - Date.now()),
+      });
+    }
+    setSigningRequests(requests);
+  }, [delayedTransactions]);
+
+  useEffect(() => {
+    if (delayedTransactions && Object.keys(delayedTransactions).length > 0) {
+      dispatch(fetchSignedDelayedTransaction());
+    }
+  }, []);
 
   return (
     <ScreenWrapper>
