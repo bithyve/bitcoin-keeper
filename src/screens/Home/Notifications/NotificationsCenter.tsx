@@ -38,6 +38,7 @@ import HealthCheckIcon from 'src/assets/images/health_check_reminder.svg';
 import TechSupportIcon from 'src/assets/images/tech_support_received.svg';
 import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
+import RecevieIcon from 'src/assets/images/receive-green.svg';
 import uai from 'src/store/reducers/uai';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
@@ -86,6 +87,7 @@ const SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.ZENDESK_TICKET,
   uaiType.SIGNING_DELAY,
   uaiType.POLICY_DELAY,
+  uaiType.INCOMING_TRANSACTION,
 ];
 
 const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
@@ -332,6 +334,38 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
                     },
                   })
                 );
+              },
+            },
+          },
+        };
+      }
+      case uaiType.INCOMING_TRANSACTION: {
+        return {
+          heading: content.heading,
+          body: content.body,
+          icon: content.icon,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+
+                const navigationState = {
+                  index: 1,
+                  routes: [
+                    { name: 'Home' },
+                    {
+                      name:
+                        uai.entityId.split('_')[0] === 'VAULT' ? 'VaultDetails' : 'WalletDetails',
+                      params: {
+                        vaultId: uai.entityId.split('_')[1],
+                        walletId: uai.entityId.split('_')[1],
+                        viewTransaction: uai.entityId.split('_')[2],
+                      },
+                    },
+                  ],
+                };
+                navigtaion.dispatch(CommonActions.reset(navigationState));
               },
             },
           },
@@ -632,6 +666,12 @@ export const getUaiContent = (type: uaiType, details?: any) => {
         heading: 'Server Key Policy Updated',
         body: 'The Server Key has activated the requested policy',
         icon: <ServerTransNotificaiton />,
+      };
+    case uaiType.INCOMING_TRANSACTION:
+      return {
+        heading: 'New Transaction Received',
+        body: 'Click to view the transaction details',
+        icon: <RecevieIcon />,
       };
 
     default:

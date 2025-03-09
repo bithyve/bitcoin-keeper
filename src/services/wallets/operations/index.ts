@@ -602,7 +602,17 @@ export default class WalletOperations {
         currentRecheckInternal = wallet.specs.nextFreeChangeAddressIndex + gapLimit;
 
         // sync utxos & balances
-        const utxosByAddress = await ElectrumClient.syncUTXOByAddress(addresses, network);
+        const utxosByAddress = await ElectrumClient.syncUTXOByAddress(
+          addresses.concat(
+            !hardRefresh && !walletHasNewUpdates
+              ? [
+                  ...confirmedUTXOs.map((utxo) => utxo.address),
+                  ...unconfirmedUTXOs.map((utxo) => utxo.address),
+                ]
+              : []
+          ),
+          network
+        );
 
         for (const address in utxosByAddress) {
           const utxos = utxosByAddress[address];
@@ -666,6 +676,39 @@ export default class WalletOperations {
         }
 
         if (!hardRefresh) {
+          for (const address in utxosByAddress) {
+            const addressUTXOs = utxosByAddress[address];
+            // Remove UTXOs that are no longer present in the addressUTXOs
+            for (const utxo of wallet.specs.confirmedUTXOs) {
+              if (
+                utxo.address === address &&
+                !addressUTXOs.some(
+                  (addressUTXO) => addressUTXO.txId === utxo.txId && addressUTXO.vout === utxo.vout
+                )
+              ) {
+                confirmedUTXOs = confirmedUTXOs.filter(
+                  (confirmedUTXO) =>
+                    !(confirmedUTXO.txId === utxo.txId && confirmedUTXO.vout === utxo.vout)
+                );
+                balances.confirmed -= utxo.value;
+              }
+            }
+
+            for (const utxo of wallet.specs.unconfirmedUTXOs) {
+              if (
+                utxo.address === address &&
+                !addressUTXOs.some(
+                  (addressUTXO) => addressUTXO.txId === utxo.txId && addressUTXO.vout === utxo.vout
+                )
+              ) {
+                unconfirmedUTXOs = unconfirmedUTXOs.filter(
+                  (unconfirmedUTXO) =>
+                    !(unconfirmedUTXO.txId === utxo.txId && unconfirmedUTXO.vout === utxo.vout)
+                );
+                balances.unconfirmed -= utxo.value;
+              }
+            }
+          }
           addresses = addresses.filter(
             (address) =>
               newUTXOs.some((utxo) => utxo.address === address) ||

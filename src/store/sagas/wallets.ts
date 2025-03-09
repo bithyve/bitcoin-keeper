@@ -137,7 +137,7 @@ import {
   FETCH_COLLABORATIVE_CHANNEL,
   updateCollaborativeChannel,
 } from '../sagaActions/vaults';
-import { uaiChecks } from '../sagaActions/uai';
+import { addToUaiStack, uaiChecks } from '../sagaActions/uai';
 import {
   deleteAppImageEntityWorker,
   deleteVaultImageWorker,
@@ -1064,7 +1064,7 @@ function* refreshWalletsWorker({
 }: {
   payload: {
     wallets: (Wallet | Vault)[];
-    options: { hardRefresh?: boolean };
+    options: { hardRefresh?: boolean; addNotifications?: boolean };
   };
 }) {
   const { wallets, options } = payload;
@@ -1110,6 +1110,23 @@ function* refreshWalletsWorker({
         yield fork(bulkUpdateLabelsWorker, {
           payload: { labelChanges, UTXO: utxo, wallet: synchedWallet as any },
         });
+
+        if (options.addNotifications) {
+          if (synchedWallet.type !== VaultType.CANARY) {
+            if (!Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
+              yield put(
+                addToUaiStack({
+                  uaiType: uaiType.INCOMING_TRANSACTION,
+                  entityId: synchedWallet.entityKind + '_' + synchedWallet.id + '_' + utxo.txId,
+                  uaiDetails: {
+                    heading: 'New Transaction Received',
+                    body: 'Click to view the transaction details',
+                  },
+                })
+              );
+            }
+          }
+        }
       }
 
       if (synchedWallet.entityKind === EntityKind.VAULT) {
@@ -1159,7 +1176,7 @@ function* refreshWalletsWorker({
 
 export const refreshWalletsWatcher = createWatcher(refreshWalletsWorker, REFRESH_WALLETS);
 
-function* autoWalletsSyncWorker({
+export function* autoWalletsSyncWorker({
   payload,
 }: {
   payload: { syncAll?: boolean; hardRefresh?: boolean };
@@ -1172,6 +1189,7 @@ function* autoWalletsSyncWorker({
   for (const wallet of [...wallets, ...vault]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
       if (!wallet.isUsable) continue;
+      if (wallet.entityKind === EntityKind.VAULT && (wallet as Vault).archived) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
   }
@@ -1182,6 +1200,7 @@ function* autoWalletsSyncWorker({
         wallets: walletsToSync,
         options: {
           hardRefresh,
+          addNotifications: true,
         },
       },
     });

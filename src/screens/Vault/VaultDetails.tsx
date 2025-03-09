@@ -244,6 +244,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     hardRefresh: autoHardRefresh = false,
     vaultId = '',
     transactionToast = false,
+    viewTransaction = null,
   } = route.params || {};
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -293,6 +294,18 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const isDarkMode = colorMode === 'dark';
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(vault);
+
+  useEffect(() => {
+    if (viewTransaction) {
+      const transaction = transactions.find((tx) => tx.txid === viewTransaction);
+      if (transaction) {
+        navigation.navigate('TransactionDetails', { transaction, wallet: vault });
+
+        // Remove viewTransaction from route params
+        navigation.setParams({ viewTransaction: null });
+      }
+    }
+  }, [viewTransaction, transactions, navigation, vault]);
 
   useEffect(() => {
     if (

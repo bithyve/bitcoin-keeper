@@ -77,6 +77,7 @@ function WalletDetails({ route }: ScreenProps) {
     hardRefresh: autoHardRefresh = false,
     walletId,
     transactionToast = false,
+    viewTransaction = null,
   } = route.params || {};
   const [syncingCompleted, setSyncingCompleted] = useState(false);
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
@@ -151,6 +152,18 @@ function WalletDetails({ route }: ScreenProps) {
       setSyncingCompleted(false);
     }
   }, [syncing]);
+
+  useEffect(() => {
+    if (viewTransaction) {
+      const transaction = wallet?.specs?.transactions.find((tx) => tx.txid === viewTransaction);
+      if (transaction) {
+        navigation.navigate('TransactionDetails', { transaction, wallet });
+
+        // Remove viewTransaction from route params
+        navigation.setParams({ viewTransaction: null });
+      }
+    }
+  }, [viewTransaction, wallet, navigation]);
 
   const pullDownRefresh = (hardRefresh) => {
     setPullRefresh(true);
