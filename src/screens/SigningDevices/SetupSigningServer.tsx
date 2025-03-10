@@ -140,6 +140,7 @@ function SetupSigningServer({ route }: { route }) {
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
             testID="otpClipboardButton"

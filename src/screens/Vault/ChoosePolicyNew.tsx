@@ -273,6 +273,7 @@ function ChoosePolicyNew({ navigation, route }) {
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
           >
