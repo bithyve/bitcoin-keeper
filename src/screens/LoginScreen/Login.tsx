@@ -37,6 +37,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import {
   increasePinFailAttempts,
   resetPinFailAttempts,
+  setAutoUpdateEnabledBeforeDowngrade,
   setPlebDueToOffline,
 } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -74,6 +75,7 @@ function LoginScreen({ navigation, route }) {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
   const isOnPleb = useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L1;
+  const { automaticCloudBackup } = useAppSelector((state) => state.bhr);
 
   const [canLogin, setCanLogin] = useState(false);
   const {
@@ -409,6 +411,7 @@ function LoginScreen({ navigation, route }) {
     // disable assisted server backup for pleb
     dispatch(setAutomaticCloudBackup(false));
     dispatch(setPlebDueToOffline(true));
+    dispatch(setAutoUpdateEnabledBeforeDowngrade(automaticCloudBackup));
     navigation.replace('App');
   }
 

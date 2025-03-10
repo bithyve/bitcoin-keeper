@@ -47,6 +47,7 @@ import {
 import {
   resetPinFailAttempts,
   setAppVersion,
+  setAutoUpdateEnabledBeforeDowngrade,
   setPinHash,
   setPinResetCreds,
   setPlebDueToOffline,
@@ -161,7 +162,9 @@ function* credentialsAuthWorker({ payload }) {
       }
 
       const previousVersion = yield select((state) => state.storage.appVersion);
-      const { plebDueToOffline } = yield select((state) => state.storage);
+      const { plebDueToOffline, wasAutoUpdateEnabledBeforeDowngrade } = yield select(
+        (state) => state.storage
+      );
       const newVersion = DeviceInfo.getVersion();
       const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
       const lastElement = versionCollection[versionCollection.length - 1];
@@ -221,7 +224,11 @@ function* credentialsAuthWorker({ payload }) {
               yield put(setRecepitVerificationFailed(true));
             }
           } else if (plebDueToOffline && response?.level != subscription?.level) {
-            yield call(updateSubscriptionFromRelayData, response);
+            yield call(
+              updateSubscriptionFromRelayData,
+              response,
+              wasAutoUpdateEnabledBeforeDowngrade
+            );
           }
 
           const { pendingAllBackup, automaticCloudBackup } = yield select(
@@ -261,7 +268,7 @@ async function downgradeToPleb() {
   });
 }
 
-async function updateSubscriptionFromRelayData(data) {
+async function updateSubscriptionFromRelayData(data, wasAutoUpdateEnabledBeforeDowngrade) {
   const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const isBtcPayment = data?.paymentType == 'btc_payment';
   let updatedSubscription: SubScription;
@@ -285,7 +292,9 @@ async function updateSubscriptionFromRelayData(data) {
     subscription: updatedSubscription,
   });
   store.dispatch(setSubscription(updatedSubscription.name));
+  store.dispatch(setAutomaticCloudBackup(wasAutoUpdateEnabledBeforeDowngrade));
   store.dispatch(setPlebDueToOffline(false));
+  store.dispatch(setAutoUpdateEnabledBeforeDowngrade(false));
 }
 
 async function updateSubscription(level: AppSubscriptionLevel) {

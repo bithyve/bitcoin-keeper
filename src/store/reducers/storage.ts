@@ -39,6 +39,7 @@ const initialState: {
   delayedTransactions: { [txid: string]: DelayedTransaction };
   delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate }; // contains a single policy update at a time
   plebDueToOffline: boolean; // app downgraded to pleb due to internet issue
+  wasAutoUpdateEnabledBeforeDowngrade: boolean;
 } = {
   appId: '',
   resetCred: {
@@ -75,6 +76,7 @@ const initialState: {
   delayedTransactions: {},
   delayedPolicyUpdate: {},
   plebDueToOffline: false,
+  wasAutoUpdateEnabledBeforeDowngrade: false,
 };
 
 const storageSlice = createSlice({
@@ -156,6 +158,9 @@ const storageSlice = createSlice({
     setPlebDueToOffline: (state, action: PayloadAction<boolean>) => {
       state.plebDueToOffline = action.payload;
     },
+    setAutoUpdateEnabledBeforeDowngrade: (state, action: PayloadAction<boolean>) => {
+      state.wasAutoUpdateEnabledBeforeDowngrade = action.payload;
+    },
   },
 });
 
@@ -177,6 +182,7 @@ export const {
   updateDelayedPolicyUpdate,
   deleteDelayedPolicyUpdate,
   setPlebDueToOffline,
+  setAutoUpdateEnabledBeforeDowngrade,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;
