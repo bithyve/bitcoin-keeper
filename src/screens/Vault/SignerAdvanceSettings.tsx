@@ -516,6 +516,7 @@ function SignerAdvanceSettings({ route }: any) {
       } catch (err) {
         setOTBLoading(false);
         showToast(`${err}`);
+        setOtp('');
       }
       setShowOTPModal(false);
     };
@@ -534,6 +535,7 @@ function SignerAdvanceSettings({ route }: any) {
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
           >
@@ -1057,7 +1059,10 @@ function SignerAdvanceSettings({ route }: any) {
       />
       <KeeperModal
         visible={showOTPModal}
-        close={() => setShowOTPModal(false)}
+        close={() => {
+          setShowOTPModal(false);
+          setOtp('');
+        }}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={common.confirm2FACodeTitle}
         subTitle={common.confirm2FACodeSubtitle}

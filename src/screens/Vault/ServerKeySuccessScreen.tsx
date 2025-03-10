@@ -129,6 +129,7 @@ const ServerKeySuccessScreen = ({ route }) => {
       } catch (err) {
         setOTBLoading(false);
         showToast(`${err}`);
+        setOtp('');
       }
       setShowOTPModal(false);
     };
@@ -147,6 +148,7 @@ const ServerKeySuccessScreen = ({ route }) => {
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
           >
@@ -223,7 +225,10 @@ const ServerKeySuccessScreen = ({ route }) => {
       />
       <KeeperModal
         visible={showOTPModal}
-        close={() => setShowOTPModal(false)}
+        close={() => {
+          setShowOTPModal(false);
+          setOtp('');
+        }}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={common.confirm2FACodeTitle}
         subTitle={common.confirm2FACodeSubtitle}
