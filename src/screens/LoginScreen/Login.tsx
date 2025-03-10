@@ -34,7 +34,11 @@ import {
   setRecepitVerificationError,
 } from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { increasePinFailAttempts, resetPinFailAttempts } from 'src/store/reducers/storage';
+import {
+  increasePinFailAttempts,
+  resetPinFailAttempts,
+  setPlebDueToOffline,
+} from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
@@ -404,6 +408,7 @@ function LoginScreen({ navigation, route }) {
     dispatch(setOfflineStatus(true));
     // disable assisted server backup for pleb
     dispatch(setAutomaticCloudBackup(false));
+    dispatch(setPlebDueToOffline(true));
     navigation.replace('App');
   }
 

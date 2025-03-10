@@ -49,6 +49,7 @@ import {
   setAppVersion,
   setPinHash,
   setPinResetCreds,
+  setPlebDueToOffline,
 } from '../reducers/storage';
 
 import { RootState, store } from '../store';
@@ -160,6 +161,7 @@ function* credentialsAuthWorker({ payload }) {
       }
 
       const previousVersion = yield select((state) => state.storage.appVersion);
+      const { plebDueToOffline } = yield select((state) => state.storage);
       const newVersion = DeviceInfo.getVersion();
       const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
       const lastElement = versionCollection[versionCollection.length - 1];
@@ -218,10 +220,7 @@ function* credentialsAuthWorker({ payload }) {
               yield call(downgradeToPleb);
               yield put(setRecepitVerificationFailed(true));
             }
-          } else if (
-            response?.paymentType == 'btc_payment' &&
-            response?.level != subscription?.level
-          ) {
+          } else if (plebDueToOffline && response?.level != subscription?.level) {
             yield call(updateSubscriptionFromRelayData, response);
           }
 
@@ -264,18 +263,29 @@ async function downgradeToPleb() {
 
 async function updateSubscriptionFromRelayData(data) {
   const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-  const updatedSubscription: SubScription = {
-    receipt: data.transactionReceipt,
-    productId: manipulateIosProdProductId(data.productId),
-    name: data.plan,
-    level: data.level,
-    icon: data.icon,
-    isDesktopPurchase: true,
-  };
+  const isBtcPayment = data?.paymentType == 'btc_payment';
+  let updatedSubscription: SubScription;
+  if (isBtcPayment) {
+    updatedSubscription = {
+      receipt: data.transactionReceipt,
+      productId: manipulateIosProdProductId(data.productId),
+      name: data.plan,
+      level: data.level,
+      icon: data.icon,
+      isDesktopPurchase: true,
+    };
+  } else {
+    delete data.subscription.paymentType;
+    updatedSubscription = {
+      ...data.subscription,
+      isDesktopPurchase: false,
+    };
+  }
   dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
     subscription: updatedSubscription,
   });
   store.dispatch(setSubscription(updatedSubscription.name));
+  store.dispatch(setPlebDueToOffline(false));
 }
 
 async function updateSubscription(level: AppSubscriptionLevel) {
