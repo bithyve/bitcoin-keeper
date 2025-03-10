@@ -34,7 +34,12 @@ import {
   setRecepitVerificationError,
 } from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { increasePinFailAttempts, resetPinFailAttempts } from 'src/store/reducers/storage';
+import {
+  increasePinFailAttempts,
+  resetPinFailAttempts,
+  setAutoUpdateEnabledBeforeDowngrade,
+  setPlebDueToOffline,
+} from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
@@ -70,6 +75,7 @@ function LoginScreen({ navigation, route }) {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
   const isOnPleb = useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L1;
+  const { automaticCloudBackup } = useAppSelector((state) => state.bhr);
 
   const [canLogin, setCanLogin] = useState(false);
   const {
@@ -404,6 +410,8 @@ function LoginScreen({ navigation, route }) {
     dispatch(setOfflineStatus(true));
     // disable assisted server backup for pleb
     dispatch(setAutomaticCloudBackup(false));
+    dispatch(setPlebDueToOffline(true));
+    dispatch(setAutoUpdateEnabledBeforeDowngrade(automaticCloudBackup));
     navigation.replace('App');
   }
 
