@@ -60,13 +60,16 @@ function SetupSigningServer({ route }: { route }) {
       if (valid) {
         setIsSetupValidated(valid);
         showValidationModal(false);
+        setOtp('');
       } else {
         showValidationModal(false);
         showToast('Invalid OTP. Please try again!');
+        setOtp('');
       }
     } catch (err) {
       showValidationModal(false);
       showToast(`${err.message}`);
+      setOtp('');
     }
   };
 
@@ -233,6 +236,7 @@ function SetupSigningServer({ route }: { route }) {
           visible={validationModal}
           close={() => {
             showValidationModal(false);
+            setOtp('');
           }}
           title={common.confirm2FACodeTitle}
           subTitle={common.confirm2FACodeSubtitle}
