@@ -133,6 +133,28 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
         })
       );
     },
+    [uaiType.INCOMING_TRANSACTION]: () => {
+      dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
+
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'Home' },
+          {
+            name:
+              localLatestUnseenUai.entityId.split('_')[0] === 'VAULT'
+                ? 'VaultDetails'
+                : 'WalletDetails',
+            params: {
+              vaultId: localLatestUnseenUai.entityId.split('_')[1],
+              walletId: localLatestUnseenUai.entityId.split('_')[1],
+              viewTransaction: localLatestUnseenUai.entityId.split('_')[2],
+            },
+          },
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
+    },
   };
 
   return (

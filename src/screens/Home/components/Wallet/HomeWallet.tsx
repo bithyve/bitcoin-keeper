@@ -24,7 +24,7 @@ import CollaborativeWalletIcon from 'src/assets/images/collaborative_vault_white
 import { useAppSelector } from 'src/store/hooks';
 import { resetCollaborativeSession } from 'src/store/reducers/vaults';
 import { useDispatch } from 'react-redux';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { autoSyncWallets, refreshWallets } from 'src/store/sagaActions/wallets';
 import { RefreshControl } from 'react-native';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -73,7 +73,7 @@ const HomeWallet = () => {
   const pullDownRefresh = () => {
     setPullRefresh(true);
 
-    dispatch(refreshWallets(allWallets, { hardRefresh: false }));
+    dispatch(autoSyncWallets(false, false));
     setPullRefresh(false);
   };
 

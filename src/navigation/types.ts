@@ -48,6 +48,7 @@ export type AppStackParams = {
     hardRefresh?: boolean;
     walletId: string;
     transactionToast?: boolean;
+    viewTransaction?: string;
   };
   VaultDetails: {
     vaultId: string;

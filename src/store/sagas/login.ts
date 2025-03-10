@@ -1,4 +1,4 @@
-import { call, put, select } from 'redux-saga/effects';
+import { call, delay, put, race, select } from 'redux-saga/effects';
 import {
   cryptoRandom,
   decrypt,
@@ -63,6 +63,8 @@ import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
+import { autoSyncWallets, refreshWallets } from '../sagaActions/wallets';
+import { autoWalletsSyncWorker } from './wallets';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -183,7 +185,6 @@ function* credentialsAuthWorker({ payload }) {
           );
           yield put(connectToNode());
           const response = yield call(Relay.verifyReceipt, id, publicId);
-          yield put(credsAuthenticated(true));
           yield put(credsAuthenticatedError(''));
           yield put(setKey(key));
 
@@ -194,6 +195,15 @@ function* credentialsAuthWorker({ payload }) {
           yield put(getMessages());
           yield put(fetchSignedDelayedTransaction());
           yield put(fetchDelayedPolicyUpdate());
+          yield race({
+            sync: call(autoWalletsSyncWorker, {
+              payload: {
+                syncAll: false,
+                hardRefresh: false,
+              },
+            }),
+            timeout: delay(15000),
+          });
 
           yield put(
             uaiChecks([
@@ -237,6 +247,7 @@ function* credentialsAuthWorker({ payload }) {
           yield put(credsAuthenticatedError(error));
           console.log(error);
         }
+        yield put(credsAuthenticated(true));
       } else yield put(credsAuthenticated(true));
     } else yield put(credsAuthenticated(true));
   } catch (err) {
