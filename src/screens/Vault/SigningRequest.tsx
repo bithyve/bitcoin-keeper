@@ -21,14 +21,19 @@ function SigningRequest() {
   const dispatch = useDispatch();
 
   const signingRequests = useMemo(() => {
+    const cronBuffer = 10 * 60 * 1000; // 10 minutes additional buffer(cron runs every 10 minutes)
+
     return Object.keys(delayedTransactions).map((txid) => {
-      const delayedTx = delayedTransactions[txid];
+      const delayedTx: DelayedTransaction = delayedTransactions[txid];
+      const timeReamining = delayedTx.signedPSBT
+        ? 0
+        : delayedTx.delayUntil + cronBuffer - Date.now();
       return {
         id: txid,
         title: formatTxId(txid),
         dateTime: formatDateTime(delayedTx.timestamp),
         amount: delayedTx.outgoing,
-        timeRemaining: formatRemainingTime(delayedTx.delayUntil - Date.now()),
+        timeRemaining: formatRemainingTime(timeReamining),
       };
     });
   }, [delayedTransactions]);
