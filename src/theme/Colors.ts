@@ -198,5 +198,6 @@ const Colors = {
   FlameOrange: 'rgba(221, 89, 64, 1)',
   modalSubtitleBlack: 'rgba(4, 21, 19, 1)',
   BrownBorder: 'rgba(145, 120, 92, 0.2))',
+  LightGraycolor: 'rgba(230, 230, 223, 1)',
 };
 export default Colors;

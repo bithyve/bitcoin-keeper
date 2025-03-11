@@ -1,41 +1,36 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, ScrollView, Text, useColorMode } from 'native-base';
 import { Share, StyleSheet } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import IconShare from 'src/assets/images/upload-black.svg';
+import IconShare from 'src/assets/images/copy-icon.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { captureError } from 'src/services/sentry';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import KeeperQRCode from 'src/components/KeeperQRCode';
-import DisplayQR from '../QRScreens/DisplayQR';
-import TabBar from 'src/components/TabBar';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import OptionCTA from 'src/components/OptionCTA';
-import GenerateSingleVaultFilePDF from 'src/utils/GenerateSingleVaultFilePDF';
 import useVault from 'src/hooks/useVault';
 import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
-import DownloadPDF from 'src/assets/images/download-pdf-white.svg';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import { sanitizeFileName } from 'src/utils/utilities';
+import WalletHeader from 'src/components/WalletHeader';
+import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
+import DisplayQR from '../QRScreens/DisplayQR';
 
 const ConfigQR = ({ isMiniscriptVault, descriptorString, activeTab }) => {
   return isMiniscriptVault ? (
     <Box style={styles.IKConfigContainer}>
-      {activeTab === 0 ? (
-        <KeeperQRCode size={windowWidth * 0.7} ecl="L" qrData={descriptorString} />
+      {!activeTab ? (
+        <KeeperQRCode size={windowWidth * 0.8} ecl="L" qrData={descriptorString} />
       ) : (
         <DisplayQR
           qrContents={Buffer.from(descriptorString, 'ascii').toString('hex')}
           toBytes
           type="hex"
+          size={windowWidth * 0.8}
         />
       )}
     </Box>
   ) : (
-    <KeeperQRCode size={windowWidth * 0.7} ecl="L" qrData={descriptorString} />
+    <KeeperQRCode size={windowWidth * 0.8} ecl="L" qrData={descriptorString} />
   );
 };
 
@@ -47,29 +42,11 @@ function GenerateVaultDescriptor() {
     isMiniscriptVault: boolean;
   };
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(false);
   const { activeVault: vault } = useVault({ includeArchived: true, vaultId });
   const vaultDescriptorString = generateOutputDescriptors(vault);
-  const [fingerPrint, setFingerPrint] = useState(null);
-
-  useEffect(() => {
-    if (vault) {
-      const vaultData = { name: vault.presentationData.name, file: vaultDescriptorString };
-      setFingerPrint(vaultData);
-    }
-  }, []);
-
-  const tabsData = [
-    {
-      label: vaultText.staticQR,
-    },
-    {
-      label: vaultText.animatedQR,
-    },
-  ];
 
   const onShare = async () => {
     try {
@@ -81,28 +58,25 @@ function GenerateVaultDescriptor() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title="Wallet Configuration File"
-        subtitle="The wallet configuration file is used to restore the wallet on other devices."
-      />
-      <Box height={hp(15)} />
+      <WalletHeader title={vaultText.WalletConfiguration} />
+      <Text style={[styles.desc, { marginBottom: isMiniscriptVault ? hp(0) : hp(20) }]}>
+        {vaultText.WalletConfigurationDesc}
+      </Text>
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        {isMiniscriptVault && (
+          <Box style={styles.tabBarContainer}>
+            <MonthlyYearlySwitch
+              title2={vaultText.animatedQR}
+              title1={vaultText.staticQR}
+              value={activeTab}
+              onValueChange={() => setActiveTab(!activeTab)}
+            />
+          </Box>
+        )}
         <Box style={styles.container}>
-          {isMiniscriptVault && (
-            <Box style={styles.tabBarContainer}>
-              <TabBar
-                radius={7}
-                width="95%"
-                tabs={tabsData}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-              />
-            </Box>
-          )}
-
           <ConfigQR
             isMiniscriptVault={isMiniscriptVault}
             descriptorString={vaultDescriptorString}
@@ -117,34 +91,11 @@ function GenerateVaultDescriptor() {
               <Box style={styles.textWrapper}>
                 <Text noOfLines={2}>{vaultDescriptorString}</Text>
               </Box>
-              <Box style={styles.iconShare} backgroundColor={`${colorMode}.accent`}>
+              <Box style={styles.iconShare} backgroundColor={`${colorMode}.LightGraycolor`}>
                 <IconShare style={styles.iconShare} />
               </Box>
             </Box>
           </TouchableOpacity>
-          <Box style={styles.optionsContainer}>
-            <ShareWithNfc
-              data={vaultDescriptorString}
-              fileName={`${sanitizeFileName(vault.presentationData.name)}.txt`}
-            />
-            <OptionCTA
-              icon={
-                <CircleIconWrapper
-                  width={wp(38)}
-                  backgroundColor={`${colorMode}.pantoneGreen`}
-                  icon={<DownloadPDF />}
-                />
-              }
-              title={vaultText.exportPDF}
-              callback={() => {
-                GenerateSingleVaultFilePDF(fingerPrint).then((res) => {
-                  if (res) {
-                    navigation.navigate('PreviewPDF', { source: res });
-                  }
-                });
-              }}
-            />
-          </Box>
         </Box>
       </ScrollView>
     </ScreenWrapper>
@@ -168,7 +119,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     flexDirection: 'row',
     height: 75,
-    width: '91%',
+    width: windowWidth * 0.87,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
@@ -193,10 +144,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  optionsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: wp(20),
+  desc: {
+    marginTop: hp(15),
+    fontSize: 15,
+    width: '100%',
+    lineHeight: 24,
   },
 });

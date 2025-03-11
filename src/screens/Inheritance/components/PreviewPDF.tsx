@@ -7,6 +7,8 @@ import Share from 'react-native-share';
 import DownloadIcon from 'src/assets/images/download.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Text from 'src/components/KeeperText';
+import WalletHeader from 'src/components/WalletHeader';
+import { hp } from 'src/constants/responsive';
 
 function PreviewPDF({ route }: any) {
   const { colorMode } = useColorMode();
@@ -30,17 +32,22 @@ function PreviewPDF({ route }: any) {
   };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <TouchableOpacity
-        onPress={() => DownloadPDF()}
-        style={{ alignSelf: 'flex-end', marginBottom: 5 }}
-      >
-        <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.yellowButtonBackground`}>
-          <DownloadIcon />
-          <Text style={styles.downloadBtnText} color={`${colorMode}.yellowButtonTextColor`}>
-            &nbsp;&nbsp;Download
-          </Text>
-        </Box>
-      </TouchableOpacity>
+      <WalletHeader
+        rightComponent={
+          <TouchableOpacity
+            onPress={() => DownloadPDF()}
+            style={{ alignSelf: 'flex-end', marginBottom: 5 }}
+          >
+            <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.accent`}>
+              <DownloadIcon />
+              <Text style={styles.downloadBtnText} color={`${colorMode}.yellowButtonTextColor`}>
+                &nbsp;&nbsp;Download
+              </Text>
+            </Box>
+          </TouchableOpacity>
+        }
+      />
+
       <Box style={styles.container}>
         <Pdf trustAllCerts={false} source={{ uri: source }} style={styles.pdf} />
       </Box>
@@ -49,6 +56,7 @@ function PreviewPDF({ route }: any) {
 }
 const styles = StyleSheet.create({
   container: {
+    marginTop: hp(20),
     flex: 1,
     alignItems: 'center',
   },
