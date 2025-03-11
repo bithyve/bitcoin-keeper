@@ -53,7 +53,7 @@ const healthCheckReminderMinutes = (lastHealthCheck: Date) => {
   return differenceInMinutes;
 };
 
-function* addToUaiStackWorker({ payload }) {
+export function* addToUaiStackWorker({ payload }) {
   const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
     id: uuidv4(),
@@ -71,7 +71,7 @@ function* addToUaiStackWorker({ payload }) {
   }
 }
 
-function* uaiActionedWorker({ payload }) {
+export function* uaiActionedWorker({ payload }) {
   try {
     const { uaiId, action, entityId, uaiType } = payload;
     // Handle action based on entityId

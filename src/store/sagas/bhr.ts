@@ -87,6 +87,7 @@ import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { addSigningDeviceWorker } from './wallets';
 import { getKeyUID } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
+import { addToUaiStackWorker, uaiActionedWorker } from './uai';
 
 export function* updateAppImageWorker({
   payload,
@@ -159,7 +160,7 @@ export function* updateAppImageWorker({
   } catch (err) {
     console.log({ err });
     console.error('App image update failed', err);
-    yield put(setPendingAllBackup(true));
+    yield call(setServerBackupFailed);
     return { updated: true, error: '' };
   }
 }
@@ -223,7 +224,7 @@ export function* updateVaultImageWorker({
     return response;
   } catch (err) {
     captureError(err);
-    yield put(setPendingAllBackup(true));
+    yield call(setServerBackupFailed);
     return { updated: true, error: '' };
   }
 }
@@ -921,6 +922,8 @@ export const deleteAppImageEntityWatcher = createWatcher(
 
 function* backupAllSignersAndVaultsWorker() {
   yield put(setBackupAllLoading(true));
+  yield put(setBackupAllSuccess(false));
+  yield put(setBackupAllFailure(false));
   try {
     const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
       dbManager.getObjectByIndex,
@@ -1018,7 +1021,7 @@ export function* checkBackupCondition() {
   if (!automaticCloudBackup) return true;
   const netInfo = yield call(NetInfo.fetch);
   if (!netInfo.isConnected) {
-    yield put(setPendingAllBackup(true));
+    yield call(setServerBackupFailed);
     return true;
   }
   if (pendingAllBackup) {
@@ -1026,4 +1029,30 @@ export function* checkBackupCondition() {
     return true;
   }
   return false;
+}
+
+export function* setServerBackupFailed() {
+  console.log('Called setServerBackupFailed');
+  const uaiCollection = dbManager.getObjectByField(
+    RealmSchema.UAI,
+    uaiType.SERVER_BACKUP_FAILURE,
+    'uaiType'
+  );
+  for (const uai of uaiCollection) {
+    if (uai.uaiType === uaiType.SERVER_BACKUP_FAILURE) {
+      yield call(uaiActionedWorker, {
+        payload: { uaiId: uai.id, action: false },
+      });
+    }
+  }
+  yield call(addToUaiStackWorker, {
+    payload: {
+      uaiType: uaiType.SERVER_BACKUP_FAILURE,
+      uaiDetails: {
+        heading: 'Assisted Server Backup Has Failed',
+        body: "Retry backup to Keeper's servers",
+      },
+    },
+  });
+  yield put(setPendingAllBackup(true));
 }
