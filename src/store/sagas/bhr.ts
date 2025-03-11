@@ -999,6 +999,7 @@ function* backupAllSignersAndVaultsWorker() {
     return true;
   } catch (error) {
     yield put(setBackupAllFailure(true));
+    yield call(setServerBackupFailed);
     console.log('🚀 ~ function*backupAllSignersAndVaultsWorker ~ error:', error);
     return false;
   } finally {
@@ -1032,7 +1033,6 @@ export function* checkBackupCondition() {
 }
 
 export function* setServerBackupFailed() {
-  console.log('Called setServerBackupFailed');
   const uaiCollection = dbManager.getObjectByField(
     RealmSchema.UAI,
     uaiType.SERVER_BACKUP_FAILURE,
