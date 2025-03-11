@@ -63,6 +63,7 @@ function WalletConfiguration({
   };
 
   const shareWithNFC = async () => {
+    setWalletConfigModal(false);
     try {
       if (isIos || useNdef) {
         if (!isIos) {
