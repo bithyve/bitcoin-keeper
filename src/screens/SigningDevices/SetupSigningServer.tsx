@@ -92,7 +92,7 @@ function SetupSigningServer({ route }: { route }) {
     const navigationState = addSignerFlow
       ? {
           name: 'ServerKeySuccessScreen',
-          params: { addedSigner: signingServerKey, setupData: setupData.id },
+          params: { addedSigner: signingServerKey, setupData },
         }
       : {
           name: 'AddSigningDevice',
