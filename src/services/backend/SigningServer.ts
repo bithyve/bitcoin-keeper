@@ -195,6 +195,30 @@ export default class SigningServer {
     };
   };
 
+  static updateBackupSetting = async (
+    id: string,
+    verifierDigest: string,
+    disable: boolean
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/updateBackupSetting`, {
+        HEXA_ID,
+        id,
+        verifierDigest,
+        disable,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    return { updated };
+  };
+
   static fetchBackup = async (
     id: string,
     verificationToken: number
