@@ -26,12 +26,12 @@ const HardwareWallet = () => {
       <Box>
         <WalletHeader title={wallet.hardwareShopWallet} />
       </Box>
-      <MonthlyYearlySwitch
+      {/* <MonthlyYearlySwitch
         title2="Resellers"
         title1="Devices"
         value={isToggled}
         onValueChange={() => setIsToggled(!isToggled)}
-      />
+      /> */}
       {isOnL1 && (
         <Box style={styles.plancontainer}>
           <Buttons
