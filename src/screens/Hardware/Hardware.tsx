@@ -26,7 +26,7 @@ const HardwareWallet = () => {
       <Box>
         <WalletHeader title={wallet.hardwareShopWallet} />
       </Box>
-      <MonthlyYearlySwitch
+      {/* <MonthlyYearlySwitch
         title2="Resellers"
         title1="Devices"
         value={isToggled}
@@ -47,7 +47,7 @@ const HardwareWallet = () => {
             }}
           />
         </Box>
-      )}
+      )} */}
       <ScrollView showsVerticalScrollIndicator={false}>
         {!isToggled ? <HardwareDevices /> : <HardwareReseller />}
       </ScrollView>
