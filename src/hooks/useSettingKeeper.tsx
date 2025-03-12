@@ -96,7 +96,6 @@ export const useSettingKeeper = () => {
   useEffect(() => {
     if (backupAllFailure && isFocused) {
       dispatch(setBackupAllFailure(false));
-      showToast('Automatic Cloud Backup failed. Please try again later.', <ToastErrorIcon />);
     }
   }, [backupAllFailure]);
   const toggleAutomaticBackupMode = async () => {

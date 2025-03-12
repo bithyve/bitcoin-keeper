@@ -38,11 +38,13 @@ import HealthCheckIcon from 'src/assets/images/health_check_reminder.svg';
 import TechSupportIcon from 'src/assets/images/tech_support_received.svg';
 import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
+import CloudBackupIcon from 'src/assets/images/cloud-backup-icon.svg';
 import RecevieIcon from 'src/assets/images/incoming-tx-notification.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import UAIView from '../components/HeaderDetails/components/UAIView';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
+import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 
 type CardProps = {
   totalLength: number;
@@ -87,6 +89,7 @@ const SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.SIGNING_DELAY,
   uaiType.POLICY_DELAY,
   uaiType.INCOMING_TRANSACTION,
+  uaiType.SERVER_BACKUP_FAILURE,
 ];
 
 const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
@@ -109,6 +112,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
   const [showSelectVault, setShowSelectVault] = useState(false);
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
+  const { backupAllLoading } = useAppSelector((state) => state.bhr);
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     const backupHistory = useQuery(RealmSchema.BackupHistory);
@@ -370,6 +374,22 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
           },
         };
       }
+      case uaiType.SERVER_BACKUP_FAILURE: {
+        return {
+          heading: content.heading,
+          body: content.body,
+          icon: content.icon,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+                dispatch(backupAllSignersAndVaults());
+              },
+            },
+          },
+        };
+      }
 
       default:
         return null;
@@ -465,7 +485,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
           setShowSelectVault(false);
         }}
       />
-      <ActivityIndicatorView visible={modalActionLoader} showLoader />
+      <ActivityIndicatorView visible={modalActionLoader || backupAllLoading} showLoader />
     </>
   );
 });
@@ -671,6 +691,12 @@ export const getUaiContent = (type: uaiType, details?: any) => {
         heading: 'New Transaction Received',
         body: 'Click to view the transaction details',
         icon: <RecevieIcon />,
+      };
+    case uaiType.SERVER_BACKUP_FAILURE:
+      return {
+        heading: details?.heading,
+        body: details?.body,
+        icon: <CloudBackupIcon />,
       };
 
     default:
