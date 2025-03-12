@@ -13,7 +13,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Passwordlock from 'src/assets/images/passwordlock.svg';
-
+import BiometricIcon from 'src/assets/images/biometric-icon.svg';
 import { changeLoginMethod, storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
 import KeeperModal from 'src/components/KeeperModal';
 import { setIsInitialLogin } from 'src/store/reducers/login';
@@ -51,19 +51,13 @@ export default function CreatePin(props) {
   const isConfirmComplete = confirmPin.length === 4;
   const isPinMatch = isConfirmComplete && createPin === confirmPin;
   const [enableBiometric, setEnableBiometric] = useState(false);
-  const [sensorAvailable, setSensorAvailable] = useState(false);
-  const [sensorType, setSensorType] = useState(null);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
-
   const RNBiometrics = new ReactNativeBiometrics();
-
-  console.log('hasCreds', hasCreds);
 
   useEffect(() => {
     if (hasCreds) {
-      props.navigation.replace('OnBoardingSlides');
-      // setEnableBiometric(true);
+      setEnableBiometric(true);
     }
   }, [hasCreds]);
 
@@ -143,26 +137,16 @@ export default function CreatePin(props) {
       </Box>
     );
   }
-  useEffect(() => {
-    init();
-  }, []);
-  const init = async () => {
-    try {
-      const { available, biometryType } = await RNBiometrics.isSensorAvailable();
-      if (available) {
-        setSensorAvailable(available);
-        const type =
-          biometryType === 'TouchID'
-            ? 'Touch ID'
-            : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
-        setSensorType(type);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  function BiometricContent() {
+    return (
+      <Box>
+        <Box style={styles.passImg}>
+          <BiometricIcon />
+        </Box>
+      </Box>
+    );
+  }
+
   const onChangeLoginMethod = async () => {
     try {
       const { available } = await RNBiometrics.isSensorAvailable();
@@ -172,26 +156,45 @@ export default function CreatePin(props) {
           if (keysExist) {
             await RNBiometrics.deleteKeys();
           }
+
           const { success } = await RNBiometrics.simplePrompt({
             promptMessage: 'Confirm your identity',
           });
+
           if (success) {
             const { publicKey } = await RNBiometrics.createKeys();
             dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
+            props.navigation.replace('OnBoardingSlides');
+          } else {
+            showToast(
+              'Biometric authentication failed.\nPlease try again or use PIN.',
+              <ToastErrorIcon />
+            );
+            setTimeout(() => {
+              props.navigation.replace('OnBoardingSlides');
+            }, 2000);
           }
         } else {
           dispatch(changeLoginMethod(LoginMethod.PIN));
         }
       } else {
-        setSensorAvailable(false);
         showToast(
-          'Biometrics not enabled.\nPlease go to setting and enable it',
+          'Biometrics not enabled.\nPlease go to settings and enable it.',
           <ToastErrorIcon />
         );
+        setTimeout(() => {
+          props.navigation.replace('OnBoardingSlides');
+        }, 2000);
       }
     } catch (error) {
       console.log(error);
-      setSensorAvailable(false);
+      showToast(
+        'An error occurred with biometrics.\nPlease use an alternative method.',
+        <ToastErrorIcon />
+      );
+      setTimeout(() => {
+        props.navigation.replace('OnBoardingSlides');
+      }, 2000);
     }
   };
 
@@ -289,8 +292,10 @@ export default function CreatePin(props) {
           onChangeLoginMethod();
         }}
         secondaryCallback={() => {
+          props.navigation.replace('OnBoardingSlides');
           setEnableBiometric(false);
         }}
+        Content={BiometricContent}
       />
     </Box>
   );

@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
-  ImageBackground,
   BackHandler,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -17,7 +16,6 @@ import Illustration1 from 'src/assets/images/create-wallet-illustration.svg';
 import Illustration2 from 'src/assets/images/manage-keys-illustration.svg';
 import Illustration8 from 'src/assets/images/inheritance-illustration.svg';
 import Skip from 'src/assets/images/skip.svg';
-import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
@@ -66,7 +64,6 @@ function OnBoardingSlides({ navigation }) {
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryGreenBackground`}>
-      {/* <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}> */}
       <SafeAreaView style={styles.safeAreaViewWrapper}>
         <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 5 : 2} height={10}>
           {currentPosition !== 2 && (
@@ -153,7 +150,6 @@ function OnBoardingSlides({ navigation }) {
           </Box>
         </Box>
       </SafeAreaView>
-      {/* </ImageBackground> */}
     </Box>
   );
 }
