@@ -126,7 +126,7 @@ function WalletConfiguration({
     },
     {
       id: 2,
-      label: `${isIos ? 'Airdrop / ' : ''}File \nExport`,
+      label: `${isIos ? 'Airdrop / ' : ''}File Export`,
       icon: <AirDropIcon />,
       onPress: () => {
         shareWithAirdrop();
