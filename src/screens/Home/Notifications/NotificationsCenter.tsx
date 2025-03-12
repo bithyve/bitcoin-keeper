@@ -46,7 +46,6 @@ import UAIView from '../components/HeaderDetails/components/UAIView';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 import { setBackupAllFailure, setBackupAllSuccess } from 'src/store/reducers/bhr';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 
 type CardProps = {
   totalLength: number;
@@ -533,20 +532,6 @@ function NotificationsCenter() {
       }
     }
   }, [uaiStack]);
-
-  useEffect(() => {
-    if (backupAllFailure && isFocused) {
-      dispatch(setBackupAllFailure(false));
-      showToast('Automatic Cloud Backup failed again. Please try again later.', <ToastErrorIcon />);
-    }
-  }, [backupAllFailure]);
-
-  useEffect(() => {
-    if (backupAllSuccess && isFocused) {
-      dispatch(setBackupAllSuccess(false));
-      showToast('Automatic Cloud Backup completed successfully', <TickIcon />);
-    }
-  }, [backupAllSuccess]);
 
   const renderNotificationCard = ({ uai, index }: { uai: UAI; index: number }) => {
     return (
