@@ -921,9 +921,9 @@ export const deleteAppImageEntityWatcher = createWatcher(
 );
 
 function* backupAllSignersAndVaultsWorker() {
-  yield put(setBackupAllLoading(true));
   yield put(setBackupAllSuccess(false));
   yield put(setBackupAllFailure(false));
+  yield put(setBackupAllLoading(true));
   try {
     const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
       dbManager.getObjectByIndex,
