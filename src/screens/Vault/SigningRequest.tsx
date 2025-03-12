@@ -1,5 +1,5 @@
-import { Box, ScrollView } from 'native-base';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Box, ScrollView, useColorMode } from 'native-base';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
@@ -11,14 +11,29 @@ import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
 import { fetchSignedDelayedTransaction } from 'src/store/sagaActions/storage';
 import SigningRequestCard from './components/SigningRequestCard';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Clipboard from '@react-native-community/clipboard';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import Buttons from 'src/components/Buttons';
+import useToastMessage from 'src/hooks/useToastMessage';
+import SigningServer from 'src/services/backend/SigningServer';
 
 function formatTxId(txid) {
   return txid.length > 15 ? `${txid.substring(0, 15)}...` : txid;
 }
 
 function SigningRequest() {
+  const { colorMode } = useColorMode();
   const delayedTransactions = useAppSelector((state) => state.storage.delayedTransactions) || {};
   const dispatch = useDispatch();
+  const [validationModal, showValidationModal] = useState(false);
+  const [otp, setOtp] = useState('');
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
+  const { showToast } = useToastMessage();
 
   const signingRequests = useMemo(() => {
     const cronBuffer = 10 * 60 * 1000; // 10 minutes additional buffer(cron runs every 10 minutes)
@@ -43,6 +58,93 @@ function SigningRequest() {
       dispatch(fetchSignedDelayedTransaction());
     }
   }, []);
+  const validateSetup = async () => {
+    const verificationToken = Number(otp);
+    try {
+      // const { valid } = await SigningServer.validate(setupData.id, verificationToken);
+      const valid = true;
+      if (valid) {
+        // setIsSetupValidated(valid);
+        showValidationModal(false);
+        setOtp('');
+      } else {
+        showValidationModal(false);
+        showToast('Invalid OTP. Please try again!');
+        setOtp('');
+      }
+    } catch (err) {
+      showValidationModal(false);
+      showToast(`${err.message}`);
+      setOtp('');
+    }
+  };
+
+  const otpContent = useCallback(() => {
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text === 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = () => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box style={styles.otpContainer}>
+        <Box>
+          <TouchableOpacity
+            onPress={async () => {
+              const clipBoardData = await Clipboard.getString();
+              if (clipBoardData.match(/^\d{6}$/)) {
+                setOtp(clipBoardData);
+              } else {
+                showToast('Invalid OTP');
+                setOtp('');
+              }
+            }}
+            testID="otpClipboardButton"
+          >
+            <CVVInputsView
+              passCode={otp}
+              passcodeFlag={false}
+              backgroundColor
+              textColor
+              height={hp(46)}
+              width={hp(46)}
+              marginTop={hp(0)}
+              marginBottom={hp(40)}
+              inputGap={2}
+              customStyle={styles.CVVInputsView}
+            />
+          </TouchableOpacity>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={`${colorMode}.primaryText`}
+        />
+        <Box mt={10} alignSelf="flex-end">
+          <Box>
+            <Buttons
+              primaryCallback={() => {
+                validateSetup();
+              }}
+              fullWidth
+              primaryText="Confirm"
+            />
+          </Box>
+        </Box>
+      </Box>
+    );
+  }, [otp]);
 
   return (
     <ScreenWrapper>
@@ -57,8 +159,9 @@ function SigningRequest() {
                 dateTime={request.dateTime}
                 amount={request.amount}
                 timeRemaining={request.timeRemaining}
-                // buttonText={request.buttonText}
-                // onCancel={() => {}}
+                onCancel={() => {
+                  showValidationModal(true);
+                }}
               />
             ))
           ) : (
@@ -66,6 +169,19 @@ function SigningRequest() {
           )}
         </Box>
       </ScrollView>
+      <KeeperModal
+        visible={validationModal}
+        close={() => {
+          showValidationModal(false);
+          setOtp('');
+        }}
+        title={common.confirm2FACodeTitle}
+        subTitle={common.confirm2FACodeSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={otpContent}
+      />
     </ScreenWrapper>
   );
 }
