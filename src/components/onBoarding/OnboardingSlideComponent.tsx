@@ -13,10 +13,11 @@ function OnboardingSlideComponent(props) {
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
         <Text
-          fontSize={20}
+          fontSize={24}
           color={`${colorMode}.primaryBackground`}
           textAlign="center"
           letterSpacing={0.2}
+          semiBold
         >
           {props.title}
         </Text>
