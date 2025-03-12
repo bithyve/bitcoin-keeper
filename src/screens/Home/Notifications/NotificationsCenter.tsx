@@ -12,7 +12,7 @@ import FeeInsightsContent from 'src/screens/FeeInsights/FeeInsightsContent';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import { uaiActioned, uaisSeen } from 'src/store/sagaActions/uai';
 import { useDispatch } from 'react-redux';
-import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useVault from 'src/hooks/useVault';
@@ -45,7 +45,6 @@ import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import UAIView from '../components/HeaderDetails/components/UAIView';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
-import { setBackupAllFailure, setBackupAllSuccess } from 'src/store/reducers/bhr';
 
 type CardProps = {
   totalLength: number;
@@ -496,9 +495,6 @@ function NotificationsCenter() {
   const { uaiStack, isLoading } = useUaiStack();
   const { wallets: allWallets } = useWallets({ getAll: true });
   const dispatch = useDispatch();
-  const { showToast } = useToastMessage();
-  const { backupAllFailure, backupAllSuccess } = useAppSelector((state) => state.bhr);
-  const isFocused = useIsFocused();
 
   const { unseenNotifications, seenNotifications } = useMemo(
     () => ({
