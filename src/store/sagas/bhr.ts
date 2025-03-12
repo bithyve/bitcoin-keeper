@@ -1010,11 +1010,11 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
 
 export function* checkBackupCondition() {
   const { pendingAllBackup, automaticCloudBackup } = yield select((state: RootState) => state.bhr);
-  const { subscription }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  if (automaticCloudBackup && subscription.level === AppSubscriptionLevel.L1) {
-    yield put(setAutomaticCloudBackup(false));
-    return true;
-  }
+  // const { subscription }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  // if (automaticCloudBackup && subscription.level === AppSubscriptionLevel.L1) {
+  //   yield put(setAutomaticCloudBackup(false));
+  //   return true;
+  // }
   if (!automaticCloudBackup) return true;
   const netInfo = yield call(NetInfo.fetch);
   if (!netInfo.isConnected) {

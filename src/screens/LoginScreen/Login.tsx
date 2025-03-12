@@ -403,7 +403,7 @@ function LoginScreen({ navigation, route }) {
     dispatch(setSubscription(updatedSubscription.name));
     dispatch(setOfflineStatus(true));
     // disable assisted server backup for pleb
-    dispatch(setAutomaticCloudBackup(false));
+    // dispatch(setAutomaticCloudBackup(false));
     navigation.replace('App');
   }
 
