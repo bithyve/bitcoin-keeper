@@ -15,7 +15,6 @@ import { MiniscriptTypes, VaultType, VisibilityType } from 'src/services/wallets
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { getKeyUID, trimCWDefaultName } from 'src/utils/utilities';
-import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import {
   EMERGENCY_KEY_IDENTIFIER,
@@ -23,15 +22,19 @@ import {
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
-import SettingCard from '../Home/components/Settings/Component/SettingCard';
 import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
+import LearnMoreIconDark from 'src/assets/images/info-Dark-icon.svg';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import SettingCard from '../Home/components/Settings/Component/SettingCard';
+import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
+import WalletConfiguration from './components/WalletConfiguration';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   const { vaultId } = route.params;
   const { allVaults, activeVault: vault } = useVault({ includeArchived: true, vaultId });
@@ -50,6 +53,7 @@ function VaultSettings({ route }) {
 
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
   const [needHelpModal, setNeedHelpModal] = useState(false);
+  const [walletConfigModal, setWalletConfigModal] = useState(false);
 
   const updateWalletVisibility = () => {
     try {
@@ -95,6 +99,19 @@ function VaultSettings({ route }) {
       </Box>
     );
   }
+  function WalletConfigModal() {
+    return (
+      <Box>
+        <WalletConfiguration
+          vaultId={vaultId}
+          isMiniscriptVault={isMiniscriptVault}
+          navigation={navigation}
+          vault={vault}
+          setWalletConfigModal={setWalletConfigModal}
+        />
+      </Box>
+    );
+  }
 
   const actions = [
     {
@@ -109,13 +126,7 @@ function VaultSettings({ route }) {
       description: vaultText.vaultConfigurationFileDesc,
       icon: null,
       isDiamond: false,
-      onPress: () =>
-        navigation.dispatch(
-          CommonActions.navigate('GenerateVaultDescriptor', {
-            vaultId,
-            isMiniscriptVault,
-          })
-        ),
+      onPress: () => setWalletConfigModal(true),
     },
     !isCanaryWalletType &&
       hasArchivedVaults && {
@@ -203,8 +214,8 @@ function VaultSettings({ route }) {
               isCollaborativeWallet ? vaultText.collabSettingsTitle : vaultText.vaultSettingsTitle
             }
             rightComponent={
-              <Pressable onPress={() => setNeedHelpModal(true)}>
-                <LearnMoreIcon />
+              <Pressable style={styles.learnMoreIcon} onPress={() => setNeedHelpModal(true)}>
+                {isDarkMode ? <LearnMoreIconDark /> : <LearnMoreIcon />}
               </Pressable>
             }
           />
@@ -264,6 +275,16 @@ function VaultSettings({ route }) {
         }}
         buttonCallback={() => setNeedHelpModal(false)}
       />
+      <KeeperModal
+        visible={walletConfigModal}
+        close={() => setWalletConfigModal(false)}
+        title={vaultText.exportWallet}
+        subTitle={vaultText.exportWalletDesc}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={WalletConfigModal}
+      />
     </ScreenWrapper>
   );
 }
@@ -284,6 +305,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignSelf: 'center',
     marginBottom: 40,
+  },
+  learnMoreIcon: {
+    marginRight: wp(10),
   },
 });
 export default VaultSettings;

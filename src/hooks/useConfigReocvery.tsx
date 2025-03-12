@@ -54,7 +54,11 @@ const useConfigRecovery = () => {
         dispatch(
           addSigningDevice(signersList, () => {
             const vaultInfo: NewVaultInfo = {
-              vaultType: miniscriptElements ? VaultType.MINISCRIPT : VaultType.DEFAULT,
+              vaultType: miniscriptElements
+                ? VaultType.MINISCRIPT
+                : scheme.n === 1
+                ? VaultType.SINGE_SIG
+                : VaultType.DEFAULT,
               vaultScheme: scheme,
               vaultSigners: vaultSignersList,
               vaultDetails: {

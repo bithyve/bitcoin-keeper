@@ -31,7 +31,7 @@ const HardwareWallet = () => {
         title1="Devices"
         value={isToggled}
         onValueChange={() => setIsToggled(!isToggled)}
-      />
+      /> */}
       {isOnL1 && (
         <Box style={styles.plancontainer}>
           <Buttons
