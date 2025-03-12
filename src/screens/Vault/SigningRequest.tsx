@@ -74,9 +74,9 @@ function SigningRequest() {
       );
 
       if (canceled) {
-        showToast('Signing Request has been cancelled');
+        showToast('Signing request has been cancelled');
         dispatch(deleteDelayedTransaction(txid));
-      } else showToast('Failed to cancel the Signing Request');
+      } else showToast('Failed to cancel the signing request');
 
       showValidationModal(false);
       setOtp('');
