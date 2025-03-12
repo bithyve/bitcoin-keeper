@@ -32,6 +32,9 @@ export const SignerPolicy: ObjectSchema = {
     signingDelay: {
       type: 'int?',
     },
+    backupDisabled: {
+      type: 'bool?',
+    },
   },
 };
 

@@ -222,6 +222,7 @@ function ChoosePolicyNew({ navigation, route }) {
             setDelayModal(true);
             dispatch(setSignerPolicyError('idle'));
             showValidationModal(false);
+            setOtp('');
           }, 100);
         } else {
           // more restrictive policy update - immediate
@@ -229,14 +230,17 @@ function ChoosePolicyNew({ navigation, route }) {
             setConfigureSuccessModal(true);
             dispatch(setSignerPolicyError('idle'));
             showValidationModal(false);
+            setOtp('');
           }, 100);
         }
       } else {
-        setIsLoading(false);
-        dispatch(setSignerPolicyError('idle'));
-        showValidationModal(false);
-        // resetFields();
-        showToast('Something went wrong. Please try again');
+        setTimeout(() => {
+          setIsLoading(false);
+          dispatch(setSignerPolicyError('idle'));
+          showValidationModal(false);
+          setOtp('');
+          showToast('Something went wrong. Please try again');
+        }, 100);
       }
     }
   }, [policyError]);
@@ -269,6 +273,7 @@ function ChoosePolicyNew({ navigation, route }) {
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
           >
@@ -402,6 +407,7 @@ function ChoosePolicyNew({ navigation, route }) {
         visible={validationModal}
         close={() => {
           showValidationModal(false);
+          setOtp('');
           // resetFields();
         }}
         title={common.confirm2FACodeTitle}

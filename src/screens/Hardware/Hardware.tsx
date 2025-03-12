@@ -47,7 +47,7 @@ const HardwareWallet = () => {
             }}
           />
         </Box>
-      )}
+      )} */}
       <ScrollView showsVerticalScrollIndicator={false}>
         {!isToggled ? <HardwareDevices /> : <HardwareReseller />}
       </ScrollView>

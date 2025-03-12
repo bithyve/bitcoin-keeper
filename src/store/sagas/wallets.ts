@@ -1168,7 +1168,14 @@ function* refreshWalletsWorker({
           'Network error: please check your network/ node connection and try again'
         )
       );
-    } else captureError(err);
+    } else {
+      yield put(
+        setElectrumNotConnectedErr(
+          'Wallet sync failed: ' + (err.message ? err.message : err.toString())
+        )
+      );
+      captureError(err);
+    }
   } finally {
     yield put(setSyncing({ wallets, isSyncing: false }));
   }
