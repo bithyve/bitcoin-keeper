@@ -10,7 +10,6 @@ import { formatDateTime, formatRemainingTime } from 'src/utils/utilities';
 import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
 import { fetchSignedDelayedTransaction } from 'src/store/sagaActions/storage';
-import SigningRequestCard from './components/SigningRequestCard';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -20,6 +19,8 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Buttons from 'src/components/Buttons';
 import useToastMessage from 'src/hooks/useToastMessage';
 import SigningServer from 'src/services/backend/SigningServer';
+import { deleteDelayedTransaction } from 'src/store/reducers/storage';
+import SigningRequestCard from './components/SigningRequestCard';
 
 function formatTxId(txid) {
   return txid.length > 15 ? `${txid.substring(0, 15)}...` : txid;
@@ -31,6 +32,7 @@ function SigningRequest() {
   const dispatch = useDispatch();
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
+  const [requestToCancel, setRequestToCancel] = useState('');
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { showToast } = useToastMessage();
@@ -58,20 +60,26 @@ function SigningRequest() {
       dispatch(fetchSignedDelayedTransaction());
     }
   }, []);
-  const validateSetup = async () => {
-    const verificationToken = Number(otp);
+
+  const cancelRequest = async () => {
     try {
-      // const { valid } = await SigningServer.validate(setupData.id, verificationToken);
-      const valid = true;
-      if (valid) {
-        // setIsSetupValidated(valid);
-        showValidationModal(false);
-        setOtp('');
-      } else {
-        showValidationModal(false);
-        showToast('Invalid OTP. Please try again!');
-        setOtp('');
-      }
+      const txid = requestToCancel;
+      const { signerId } = delayedTransactions[txid] as DelayedTransaction;
+      const verificationToken = otp;
+
+      const { canceled } = await SigningServer.cancelDelayedTransaction(
+        signerId,
+        txid,
+        verificationToken
+      );
+
+      if (canceled) {
+        showToast('Signing Request has been cancelled');
+        dispatch(deleteDelayedTransaction(txid));
+      } else showToast('Failed to cancel the Signing Request');
+
+      showValidationModal(false);
+      setOtp('');
     } catch (err) {
       showValidationModal(false);
       showToast(`${err.message}`);
@@ -135,7 +143,11 @@ function SigningRequest() {
           <Box>
             <Buttons
               primaryCallback={() => {
-                validateSetup();
+                if (requestToCancel) {
+                  cancelRequest();
+                } else {
+                  showToast('Please select a Signing Request');
+                }
               }}
               fullWidth
               primaryText="Confirm"
@@ -144,7 +156,7 @@ function SigningRequest() {
         </Box>
       </Box>
     );
-  }, [otp]);
+  }, [otp, requestToCancel, delayedTransactions]);
 
   return (
     <ScreenWrapper>
@@ -155,12 +167,14 @@ function SigningRequest() {
             signingRequests.map((request) => (
               <SigningRequestCard
                 key={request.id}
+                requestId={request.id}
                 title={request.title}
                 dateTime={request.dateTime}
                 amount={request.amount}
                 timeRemaining={request.timeRemaining}
-                onCancel={() => {
+                onCancel={(reqId) => {
                   showValidationModal(true);
+                  setRequestToCancel(reqId);
                 }}
               />
             ))

@@ -10,7 +10,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BtcSignIcon from 'src/assets/images/btc-sign.svg';
 import BtcDarkIcon from 'src/assets/images/btc-sign-white.svg';
 
-function SigningRequestCard({ title, dateTime, amount, timeRemaining, onCancel }) {
+function SigningRequestCard({ requestId, title, dateTime, amount, timeRemaining, onCancel }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common } = translations;
@@ -66,7 +66,9 @@ function SigningRequestCard({ title, dateTime, amount, timeRemaining, onCancel }
           primaryFontWeight="medium"
           fullWidth
           primaryBackgroundColor={`${colorMode}.brownColor`}
-          primaryCallback={onCancel}
+          primaryCallback={() => {
+            onCancel(requestId);
+          }}
         />
       </Box>
     </Box>
