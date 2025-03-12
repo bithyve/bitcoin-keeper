@@ -926,6 +926,20 @@ function* backupAllSignersAndVaultsWorker() {
   yield put(setBackupAllFailure(false));
   yield put(setBackupAllLoading(true));
   try {
+    // clear backup failure notification
+    const uaiCollection = dbManager.getObjectByField(
+      RealmSchema.UAI,
+      uaiType.SERVER_BACKUP_FAILURE,
+      'uaiType'
+    );
+    for (const uai of uaiCollection) {
+      if (uai.uaiType === uaiType.SERVER_BACKUP_FAILURE) {
+        yield call(uaiActionedWorker, {
+          payload: { uaiId: uai.id, action: false },
+        });
+      }
+    }
+
     const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
       dbManager.getObjectByIndex,
       RealmSchema.KeeperApp
