@@ -305,7 +305,7 @@ async function updateSubscriptionFromRelayData(data, wasAutoUpdateEnabledBeforeD
     subscription: updatedSubscription,
   });
   store.dispatch(setSubscription(updatedSubscription.name));
-  store.dispatch(setAutomaticCloudBackup(wasAutoUpdateEnabledBeforeDowngrade));
+  // store.dispatch(setAutomaticCloudBackup(wasAutoUpdateEnabledBeforeDowngrade));
   store.dispatch(setPlebDueToOffline(false));
   store.dispatch(setAutoUpdateEnabledBeforeDowngrade(false));
 }
