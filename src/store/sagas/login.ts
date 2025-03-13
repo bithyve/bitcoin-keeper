@@ -275,7 +275,7 @@ async function downgradeToPleb() {
     subscription: updatedSubscription,
   });
   store.dispatch(setSubscription(updatedSubscription.name));
-  // store.dispatch(setAutomaticCloudBackup(false));
+  store.dispatch(setAutomaticCloudBackup(false));
   await Relay.updateSubscription(app.id, app.publicId, {
     productId: SubscriptionTier.L1.toLowerCase(),
   });
@@ -305,7 +305,7 @@ async function updateSubscriptionFromRelayData(data, wasAutoUpdateEnabledBeforeD
     subscription: updatedSubscription,
   });
   store.dispatch(setSubscription(updatedSubscription.name));
-  // store.dispatch(setAutomaticCloudBackup(wasAutoUpdateEnabledBeforeDowngrade));
+  store.dispatch(setAutomaticCloudBackup(wasAutoUpdateEnabledBeforeDowngrade));
   store.dispatch(setPlebDueToOffline(false));
   store.dispatch(setAutoUpdateEnabledBeforeDowngrade(false));
 }

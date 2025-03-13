@@ -178,10 +178,16 @@ export const useSettingKeeper = () => {
       description: settings.assistedServerBackupSubtitle,
       icon: <CloudBackupIcon width={14} height={14} />,
       onPress: () => {},
-      rightIcon: <Switch onValueChange={() => {}} value={automaticCloudBackup} />,
-      onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
+      rightIcon: isOnL2Above ? (
+        <Switch onValueChange={() => {}} value={automaticCloudBackup} />
+      ) : (
+        <UpgradeIcon width={64} height={20} />
+      ),
+      onRightPress: isOnL2Above
+        ? toggleDebounce(() => toggleAutomaticBackupMode())
+        : () => navigation.navigate('ChoosePlan'),
       isDiamond: false,
-      isHodler: false,
+      isHodler: true,
     },
   ];
 

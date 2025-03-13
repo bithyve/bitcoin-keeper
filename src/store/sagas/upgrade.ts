@@ -39,6 +39,7 @@ import { deleteVaultImageWorker, updateAppImageWorker, updateVaultImageWorker } 
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { addWhirlpoolWalletsWorker } from './wallets';
+import { setPendingAllBackup } from '../reducers/bhr';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -90,6 +91,7 @@ export function* applyUpgradeSequence({
 
   if (semver.lt(previousVersion, SIGNER_POLICY_MIGRATION_VERSION)) {
     yield call(migrateServerKeyPolicy);
+    yield put(setPendingAllBackup(true));
   }
 
   yield put(setAppVersion(newVersion));
