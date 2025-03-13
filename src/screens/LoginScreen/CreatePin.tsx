@@ -279,7 +279,7 @@ export default function CreatePin(props) {
         close={() => {
           setEnableBiometric(false);
         }}
-        title="Enable Biometric"
+        title="Enable Biometric Authentication"
         subTitle="Use fingerprint or face recognition for quick and secure access."
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalHeaderTitle`}
