@@ -55,13 +55,6 @@ export const securityTips = [
       'This ensures that the signed transaction has the intended recipient and the address was not swapped',
   },
   {
-    title: 'Logging in to your Keeper app',
-    subTitle: 'Shake your device or take a screenshot to send feedback.',
-    assert: <LoadingAnimation />,
-    message:
-      'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.',
-  },
-  {
     title: 'Confirming your subscription',
     subTitle: 'Unlock inheritance planning at the Diamond Hands tier.',
     assert: <LoadingAnimation />,
