@@ -49,6 +49,7 @@ import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
+import { getAppImage } from 'src/store/sagaActions/bhr';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -409,7 +410,7 @@ function LoginScreen({ navigation, route }) {
     dispatch(setSubscription(updatedSubscription.name));
     dispatch(setOfflineStatus(true));
     // disable assisted server backup for pleb
-    // dispatch(setAutomaticCloudBackup(false));
+    dispatch(setAutomaticCloudBackup(false));
     dispatch(setPlebDueToOffline(true));
     dispatch(setAutoUpdateEnabledBeforeDowngrade(automaticCloudBackup));
     navigation.replace('App');
