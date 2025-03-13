@@ -44,13 +44,22 @@ export function* addLabelsWorker({
       };
       tags.push(tag);
     });
-    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const { id, primarySeed }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
     yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
     yield put(resetState());
     try {
       const backupResponse = yield call(checkBackupCondition);
-      if (!backupResponse) yield call(Relay.modifyLabels, id, tags, []);
-      else yield delay(100);
+      if (!backupResponse) {
+        const encryptionKey = generateEncryptionKey(primarySeed);
+        const tagsToBackup = tags.map((tag) => ({
+          id: hash256(hash256(encryptionKey + tag.id)),
+          content: encrypt(encryptionKey, JSON.stringify(tag)),
+        }));
+        yield call(Relay.modifyLabels, id, tagsToBackup, []);
+      } else yield delay(100);
     } catch (error) {
       console.log('🚀 ~ addLabelsWorker error:', error);
       yield put(setPendingAllBackup(true));
@@ -156,8 +165,7 @@ export function* bulkUpdateUTXOLabelsWorker({
     yield put(resetState());
     try {
       const backupResponse = yield call(checkBackupCondition);
-      if (!backupResponse)
-      {
+      if (!backupResponse) {
         const encryptionKey = generateEncryptionKey(primarySeed);
         const tagsToBackup = addedTags.map((tag) => ({
           id: hash256(hash256(encryptionKey + tag.id)),
@@ -170,8 +178,7 @@ export function* bulkUpdateUTXOLabelsWorker({
           addedTags.length ? tagsToBackup : [],
           deletedTagIds.length ? tagsToDelete : []
         );
-      }
-      else yield delay(100);
+      } else yield delay(100);
     } catch (error) {
       console.log('🚀 ~ bulkUpdateUTXOLabelsWorker error:', error);
       yield put(setPendingAllBackup(true));
