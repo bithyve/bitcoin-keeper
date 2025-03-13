@@ -269,7 +269,9 @@ function ChoosePlan() {
       return {
         currency: offer.pricingPhases.pricingPhaseList[0].priceCurrencyCode,
         offerToken: offer.offerToken,
-        trailPeriod: `${moment.duration(trailPlan[0].billingPeriod).asMonths()} months free`,
+        trailPeriod: `${moment.duration(trailPlan[0].billingPeriod).asMonths()} month${
+          moment.duration(trailPlan[0].billingPeriod).asMonths() > 1 ? 's' : ''
+        } free`,
         price: paidPlan[0].formattedPrice,
       };
     }
