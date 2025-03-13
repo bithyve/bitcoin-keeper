@@ -141,7 +141,10 @@ export function* bulkUpdateUTXOLabelsWorker({
   try {
     yield put(setSyncingUTXOs(true));
     const { addedTags, deletedTagIds } = payload;
-    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const { id, primarySeed }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
     if (addedTags) {
       yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
     }
@@ -154,12 +157,20 @@ export function* bulkUpdateUTXOLabelsWorker({
     try {
       const backupResponse = yield call(checkBackupCondition);
       if (!backupResponse)
+      {
+        const encryptionKey = generateEncryptionKey(primarySeed);
+        const tagsToBackup = addedTags.map((tag) => ({
+          id: hash256(hash256(encryptionKey + tag.id)),
+          content: encrypt(encryptionKey, JSON.stringify(tag)),
+        }));
+        const tagsToDelete = deletedTagIds.map((tag) => hash256(tag));
         yield call(
           Relay.modifyLabels,
           id,
-          addedTags.length ? addedTags : [],
-          deletedTagIds.length ? deletedTagIds : []
+          addedTags.length ? tagsToBackup : [],
+          deletedTagIds.length ? tagsToDelete : []
         );
+      }
       else yield delay(100);
     } catch (error) {
       console.log('🚀 ~ bulkUpdateUTXOLabelsWorker error:', error);
