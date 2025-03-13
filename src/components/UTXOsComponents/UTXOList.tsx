@@ -24,9 +24,10 @@ export function UTXOLabel(props: {
   labels: Array<{ name: string; isSystem: boolean }>;
   center?: boolean;
   addMoreBtn?: boolean;
+  isSelecting?: boolean;
 }) {
   const { colorMode } = useColorMode();
-  const { labels, center, addMoreBtn } = props;
+  const { labels, center, addMoreBtn, isSelecting = false } = props;
   const [extraLabelCount, setExtraLabelCount] = useState(0);
   const [extraLabelMap, setExtraLabelMap] = useState(new Map());
 
@@ -55,7 +56,7 @@ export function UTXOLabel(props: {
         alignSelf: center ? 'center' : 'flex-start',
       }}
     >
-      <Box style={styles.labelList}>
+      <Box style={[styles.labelList, isSelecting ? {} : { overflow: 'hidden', maxHeight: 28 }]}>
         {labels
           .sort((a, b) => (a.isSystem < b.isSystem ? 1 : a.isSystem > b.isSystem ? -1 : 0))
           .map((item, index) => (
@@ -69,7 +70,7 @@ export function UTXOLabel(props: {
             />
           ))}
       </Box>
-      {extraLabelCount > 0 && (
+      {extraLabelCount > 0 && !isSelecting && (
         <Box
           style={[styles.utxoExtraLabel]}
           color={`${colorMode}.labelText`}
@@ -175,7 +176,7 @@ function UTXOElement({
               </Box>
             </Box>
           ) : null}
-          <Box style={{ width: allowSelection ? '46%' : '55%' }}>
+          <Box style={{ width: '55%' }}>
             <Box style={styles.rowCenter}>
               <Box style={{ width: '100%' }}>
                 <Text
@@ -211,7 +212,7 @@ function UTXOElement({
               </Box>
             ) : (
               <Box marginTop={hp(8)}>
-                <UTXOLabel labels={labels} />
+                <UTXOLabel labels={labels} isSelecting={allowSelection} />
               </Box>
             )}
           </Box>
@@ -374,8 +375,6 @@ const styles = StyleSheet.create({
   labelList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    overflow: 'hidden',
-    maxHeight: 28,
     marginLeft: 3,
     marginTop: hp(5),
   },

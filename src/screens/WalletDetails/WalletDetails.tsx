@@ -72,7 +72,13 @@ function WalletDetails({ route }: ScreenProps) {
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletTranslations } = translations;
-  const { autoRefresh = false, walletId, transactionToast = false } = route.params || {};
+  const {
+    autoRefresh = false,
+    hardRefresh: autoHardRefresh = false,
+    walletId,
+    transactionToast = false,
+    viewTransaction = null,
+  } = route.params || {};
   const [syncingCompleted, setSyncingCompleted] = useState(false);
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
@@ -124,7 +130,7 @@ function WalletDetails({ route }: ScreenProps) {
   }, []);
 
   useEffect(() => {
-    if (autoRefresh) pullDownRefresh();
+    if (autoRefresh) pullDownRefresh(autoHardRefresh);
   }, [autoRefresh]);
 
   useEffect(() => {
@@ -147,9 +153,21 @@ function WalletDetails({ route }: ScreenProps) {
     }
   }, [syncing]);
 
-  const pullDownRefresh = () => {
+  useEffect(() => {
+    if (viewTransaction) {
+      const transaction = wallet?.specs?.transactions.find((tx) => tx.txid === viewTransaction);
+      if (transaction) {
+        navigation.navigate('TransactionDetails', { transaction, wallet });
+
+        // Remove viewTransaction from route params
+        navigation.setParams({ viewTransaction: null });
+      }
+    }
+  }, [viewTransaction, wallet, navigation]);
+
+  const pullDownRefresh = (hardRefresh) => {
     setPullRefresh(true);
-    dispatch(refreshWallets([wallet], { hardRefresh: true }));
+    dispatch(refreshWallets([wallet], { hardRefresh }));
     setPullRefresh(false);
   };
 

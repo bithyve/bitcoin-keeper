@@ -43,11 +43,18 @@ export type AppStackParams = {
   AddSendAmount: undefined;
   SendConfirmation: undefined;
   PSBTSendConfirmation: undefined;
-  WalletDetails: { autoRefresh?: boolean; walletId: string; transactionToast?: boolean };
+  WalletDetails: {
+    autoRefresh?: boolean;
+    hardRefresh?: boolean;
+    walletId: string;
+    transactionToast?: boolean;
+    viewTransaction?: string;
+  };
   VaultDetails: {
     vaultId: string;
     vaultTransferSuccessful: boolean;
     autoRefresh: boolean;
+    hardRefresh?: boolean;
     transactionToast?: boolean;
   };
   UTXOManagement:
@@ -116,7 +123,6 @@ export type AppStackParams = {
   EnterSeedScreen: undefined;
   UnlockTapsigner: undefined;
   ChangeTapsignerPin: undefined;
-  UTXOSelection: { sender: Wallet | Vault; amount: string; address: string };
   VaultConfigurationCreation: undefined;
   ScanQRFileRecovery: undefined;
   VaultSetup: {
@@ -173,7 +179,9 @@ export type AppStackParams = {
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
   AddReserveKey: undefined;
+  AddEmergencyKey: undefined;
   ResetInheritanceKey: undefined;
+  ResetEmergencyKey: undefined;
   KeeperConcierge: undefined;
   TechnicalSupport: {
     newTicketId: string;
@@ -186,6 +194,8 @@ export type AppStackParams = {
   ImportContactFile: undefined;
   ContactDetails: undefined;
   ShareQR: undefined;
+  PurchaseWithChannel: undefined;
+  AddMultipleXpub: undefined;
 };
 
 // Usage:

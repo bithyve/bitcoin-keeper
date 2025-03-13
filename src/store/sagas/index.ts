@@ -69,7 +69,12 @@ import {
 } from './send_and_receive';
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
-import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
+import {
+  fetchDelayedPolicyUpdateWatcher,
+  fetchSignedDelayedTransactionWatcher,
+  setupKeeperAppWatcher,
+  setupKeeperVaultRecoveryAppWatcher,
+} from './storage';
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
 import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
@@ -139,6 +144,8 @@ const rootSaga = function* () {
     sendPhaseTwoWatcher,
     sendPhaseThreeWatcher,
     corssTransferWatcher,
+    fetchSignedDelayedTransactionWatcher,
+    fetchDelayedPolicyUpdateWatcher,
     calculateSendMaxFeeWatcher,
     calculateCustomFeeWatcher,
 

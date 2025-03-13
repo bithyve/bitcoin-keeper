@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Box, Pressable, useColorMode, HStack } from 'native-base';
@@ -43,6 +43,9 @@ import { MANAGEWALLETS } from 'src/navigation/contants';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import MiniscriptPathSelector, {
+  MiniscriptPathSelectorRef,
+} from 'src/components/MiniscriptPathSelector';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -136,6 +139,8 @@ function ManageWallets() {
   const dispatch = useDispatch();
   const [selectedWallet, setSelectedWallet] = useState(null);
   const { showToast } = useToastMessage();
+  const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
+
   useEffect(() => {
     calculateBalanceAfterVisblityChange();
   }, [wallets]);
@@ -262,12 +267,20 @@ function ManageWallets() {
             testID="manageWallets_moveFunds"
             onPress={() => {
               setShowDeleteVaultBalanceAlert(false);
-              navigation.dispatch(
-                CommonActions.navigate('Send', {
-                  sender: selectedWallet,
-                  parentScreen: MANAGEWALLETS,
-                })
-              );
+              if (selectedWallet.type === VaultType.MINISCRIPT) {
+                try {
+                  selectVaultSpendingPaths();
+                } catch (err) {
+                  showToast(err, <ToastErrorIcon />);
+                }
+              } else {
+                navigation.dispatch(
+                  CommonActions.navigate('Send', {
+                    sender: selectedWallet,
+                    parentScreen: MANAGEWALLETS,
+                  })
+                );
+              }
             }}
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
@@ -287,6 +300,22 @@ function ManageWallets() {
       </Box>
     );
   }
+
+  const selectVaultSpendingPaths = async () => {
+    if (miniscriptPathSelectorRef.current) {
+      await miniscriptPathSelectorRef.current.selectVaultSpendingPaths();
+    }
+  };
+
+  const handlePathSelected = (miniscriptSelectedSatisfier) => {
+    navigation.dispatch(
+      CommonActions.navigate('Send', {
+        sender: selectedWallet,
+        parentScreen: MANAGEWALLETS,
+        miniscriptSelectedSatisfier,
+      })
+    );
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -426,6 +455,15 @@ function ManageWallets() {
           />
         )}
       />
+      {selectedWallet && (
+        <MiniscriptPathSelector
+          ref={miniscriptPathSelectorRef}
+          vault={selectedWallet}
+          onPathSelected={handlePathSelected}
+          onError={(err) => showToast(err, <ToastErrorIcon />)}
+          onCancel={() => {}}
+        />
+      )}
     </ScreenWrapper>
   );
 }

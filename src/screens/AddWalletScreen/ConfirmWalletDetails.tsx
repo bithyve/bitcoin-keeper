@@ -108,9 +108,18 @@ function ConfirmWalletDetails({ route }) {
 
   const { signers } = useSigners();
 
-  const inheritanceSigner = route.params.reservedKey
-    ? signers.find((s) => getKeyUID(s) === getKeyUID(route.params.reservedKey))
-    : undefined;
+  // TODO: Update to be an array
+  const inheritanceSigners = route.params.reservedKeys
+    ? route.params.reservedKeys.map((reserveKey) =>
+        signers.find((s) => getKeyUID(s) === getKeyUID(reserveKey.key))
+      )
+    : [];
+
+  const emergencySigners = route.params.emergencyKeys
+    ? route.params.emergencyKeys.map((emergencyKey) =>
+        signers.find((s) => getKeyUID(s) === getKeyUID(emergencyKey.key))
+      )
+    : [];
 
   const createNewHotWallet = useCallback(() => {
     // Note: only caters to new wallets(imported wallets currently have a different flow)
@@ -243,11 +252,6 @@ function ConfirmWalletDetails({ route }) {
     return (
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
-          <Box style={styles.pillsContainer}>
-            {tags?.map(({ tag, color }) => {
-              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
-            })}
-          </Box>
           <Box style={styles.walletVaultInfoWrapper}>
             <Box style={styles.iconWrapper}>
               <HexagonIcon
@@ -268,6 +272,15 @@ function ConfirmWalletDetails({ route }) {
               </Text>
             </Box>
           </Box>
+          <Box style={styles.pillsContainer}>
+            {tags?.map(({ tag, color }) => {
+              return (
+                <>
+                  <CardPill key={tag} heading={tag} backgroundColor={color} />
+                </>
+              );
+            })}
+          </Box>
         </Box>
       </Box>
     );
@@ -282,7 +295,7 @@ function ConfirmWalletDetails({ route }) {
     return (
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
-          <Box style={styles.pillsContainer}>
+          <Box style={styles.singleSigpills}>
             {tags?.map(({ tag, color }) => {
               return <CardPill key={tag} heading={tag} backgroundColor={color} />;
             })}
@@ -320,32 +333,17 @@ function ConfirmWalletDetails({ route }) {
         { name: 'Home' },
         {
           name: 'VaultDetails',
-          params: { vaultId: generatedVaultId, vaultTransferSuccessful: true },
+          params: {
+            vaultId: generatedVaultId,
+            vaultTransferSuccessful: true,
+            autoRefresh: true,
+            hardRefresh: true,
+          },
         },
       ],
     };
     navigation.dispatch(CommonActions.reset(navigationState));
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      if (relayVaultUpdate && newVault) {
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-        setVaultCreatedModalVisible(true);
-      } else if (relayVaultUpdate) {
-        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
-
-      if (relayVaultError) {
-        showToast(realyVaultErrorMessage, <ToastErrorIcon />);
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
-    }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
-  );
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -397,12 +395,17 @@ function ConfirmWalletDetails({ route }) {
         <Box flexDirection={'row'}>
           <Text fontSize={14} medium style={{ flex: 1 }}>
             Your wallet key
-            {route.params.selectedSigners.length > 1 || route.params.isAddInheritanceKey ? 's' : ''}
+            {route.params.selectedSigners.length > 1 || vaultType === VaultType.MINISCRIPT
+              ? 's'
+              : ''}
           </Text>
           <Pressable
             style={styles.editKeysContainer}
             onPress={() => {
               if (route.params.isAddInheritanceKey) {
+                navigation.goBack();
+              }
+              if (route.params.isAddEmercencyKey) {
                 navigation.goBack();
               }
               navigation.goBack();
@@ -437,7 +440,7 @@ function ConfirmWalletDetails({ route }) {
                 />
               );
             })}
-            {inheritanceSigner && (
+            {inheritanceSigners.map((inheritanceSigner) => (
               <SignerCard
                 key={getKeyUID(inheritanceSigner)}
                 name={getSignerNameFromType(
@@ -454,7 +457,21 @@ function ConfirmWalletDetails({ route }) {
                 colorMode={colorMode}
                 badgeText="Inheritance Key"
               />
-            )}
+            ))}
+            {emergencySigners.map((emergencySigner) => (
+              <SignerCard
+                key={getKeyUID(emergencySigner)}
+                name={getSignerNameFromType(emergencySigner.type, emergencySigner.isMock, false)}
+                description={getSignerDescription(emergencySigner)}
+                icon={SDIcons(emergencySigner.type).Icon}
+                image={emergencySigner?.extraData?.thumbnailPath}
+                showSelection={false}
+                isFullText
+                colorVarient="green"
+                colorMode={colorMode}
+                badgeText="Emergency Key"
+              />
+            ))}
           </Box>
         </ScrollView>
       </ScrollView>
@@ -484,11 +501,14 @@ function ConfirmWalletDetails({ route }) {
         setGeneratedVaultId={setGeneratedVaultId}
         setCreating={setCreating}
         vaultType={vaultType}
-        inheritanceKey={route.params.reservedKey ?? null}
-        isAddInheritanceKey={route.params.isAddInheritanceKey}
+        inheritanceKeys={route.params.reservedKeys ?? []}
+        emergencyKeys={route.params.emergencyKeys ?? []}
         currentBlockHeight={route.params.currentBlockHeight}
-        selectedDuration={route.params.selectedDuration}
-        miniscriptTypes={route.params.isAddInheritanceKey ? [MiniscriptTypes.INHERITANCE] : []}
+        miniscriptTypes={[
+          ...(route.params.isAddInheritanceKey ? [MiniscriptTypes.INHERITANCE] : []),
+          ...(route.params.isAddEmergencyKey ? [MiniscriptTypes.EMERGENCY] : []),
+        ]}
+        setVaultCreatedModalVisible={setVaultCreatedModalVisible}
       />
       <KeeperModal
         visible={showDescriptionModal}
@@ -574,7 +594,7 @@ function ConfirmWalletDetails({ route }) {
         close={() => {}}
         visible={vaultCreatedModalVisible}
         title={'Wallet Created Successfully'}
-        subTitle="Your new wallet was created successfully and is ready to use."
+        subTitle="Your new wallet was created successfully and is ready to use"
         Content={
           vaultType === VaultType.SINGE_SIG
             ? () => SingleSigWallet(newVault)
@@ -593,7 +613,7 @@ function ConfirmWalletDetails({ route }) {
       <WalletVaultCreationModal
         visible={walletCreatedModal}
         title="Wallet Created Successfully!"
-        subTitle="Your new wallet was created successfully and is ready to use."
+        subTitle="Your new wallet was created successfully and is ready to use"
         buttonText="View Wallet"
         descriptionMessage="Make sure to securely store your Recovery Key as back up for your wallet"
         buttonCallback={() => {
@@ -733,15 +753,28 @@ const styles = StyleSheet.create({
   },
   walletVaultInfoContainer: {
     paddingHorizontal: 15,
-    paddingVertical: 20,
+    paddingVertical: 15,
     marginVertical: 20,
     borderRadius: 10,
+    gap: 20,
   },
   pillsContainer: {
     flexDirection: 'row',
     gap: 5,
+    marginBottom: hp(3),
+    width: '100%',
+    flexWrap: 'wrap',
+  },
+  singleSigpills: {
+    flexDirection: 'row',
+    gap: 5,
     justifyContent: 'flex-end',
     marginBottom: hp(3),
+    width: '100%',
+    position: 'absolute',
+    top: hp(20),
+    right: wp(13),
+    flexWrap: 'wrap',
   },
   walletVaultInfoWrapper: {
     flexDirection: 'row',

@@ -1,4 +1,4 @@
-import { call, put, select } from 'redux-saga/effects';
+import { call, delay, put, race, select } from 'redux-saga/effects';
 import {
   cryptoRandom,
   decrypt,
@@ -18,6 +18,9 @@ import { uaiType } from 'src/models/interfaces/Uai';
 import * as SecureStore from 'src/storage/secure-store';
 
 import dbManager from 'src/storage/realm/dbManager';
+import SubScription from 'src/models/interfaces/Subscription';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { manipulateIosProdProductId } from 'src/utils/utilities';
 import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
@@ -44,8 +47,10 @@ import {
 import {
   resetPinFailAttempts,
   setAppVersion,
+  setAutoUpdateEnabledBeforeDowngrade,
   setPinHash,
   setPinResetCreds,
+  setPlebDueToOffline,
 } from '../reducers/storage';
 
 import { RootState, store } from '../store';
@@ -58,8 +63,10 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
-import SubScription from 'src/models/interfaces/Subscription';
-import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
+import { setAutomaticCloudBackup } from '../reducers/bhr';
+import { autoSyncWallets, refreshWallets } from '../sagaActions/wallets';
+import { autoWalletsSyncWorker } from './wallets';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -153,10 +160,13 @@ function* credentialsAuthWorker({ payload }) {
       const { success, error } = yield call(dbManager.initializeRealm, uint8array);
 
       if (!success) {
-        throw Error('Failed to load the database:' + error);
+        throw Error(`Failed to load the database:${error}`);
       }
 
       const previousVersion = yield select((state) => state.storage.appVersion);
+      const { plebDueToOffline, wasAutoUpdateEnabledBeforeDowngrade } = yield select(
+        (state) => state.storage
+      );
       const newVersion = DeviceInfo.getVersion();
       const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
       const lastElement = versionCollection[versionCollection.length - 1];
@@ -180,7 +190,6 @@ function* credentialsAuthWorker({ payload }) {
           );
           yield put(connectToNode());
           const response = yield call(Relay.verifyReceipt, id, publicId);
-          yield put(credsAuthenticated(true));
           yield put(credsAuthenticatedError(''));
           yield put(setKey(key));
 
@@ -189,6 +198,17 @@ function* credentialsAuthWorker({ payload }) {
 
           yield put(fetchExchangeRates());
           yield put(getMessages());
+          yield put(fetchSignedDelayedTransaction());
+          yield put(fetchDelayedPolicyUpdate());
+          yield race({
+            sync: call(autoWalletsSyncWorker, {
+              payload: {
+                syncAll: false,
+                hardRefresh: false,
+              },
+            }),
+            timeout: delay(15000),
+          });
 
           yield put(
             uaiChecks([
@@ -199,6 +219,8 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.FEE_INISGHT,
               uaiType.DEFAULT,
               uaiType.ZENDESK_TICKET,
+              uaiType.SIGNING_DELAY,
+              uaiType.POLICY_DELAY,
             ])
           );
 
@@ -213,7 +235,14 @@ function* credentialsAuthWorker({ payload }) {
               yield call(downgradeToPleb);
               yield put(setRecepitVerificationFailed(true));
             }
+          } else if (plebDueToOffline && response?.level != subscription?.level) {
+            yield call(
+              updateSubscriptionFromRelayData,
+              response,
+              wasAutoUpdateEnabledBeforeDowngrade
+            );
           }
+
           const { pendingAllBackup, automaticCloudBackup } = yield select(
             (state: RootState) => state.bhr
           );
@@ -224,6 +253,7 @@ function* credentialsAuthWorker({ payload }) {
           yield put(credsAuthenticatedError(error));
           console.log(error);
         }
+        yield put(credsAuthenticated(true));
       } else yield put(credsAuthenticated(true));
     } else yield put(credsAuthenticated(true));
   } catch (err) {
@@ -245,9 +275,39 @@ async function downgradeToPleb() {
     subscription: updatedSubscription,
   });
   store.dispatch(setSubscription(updatedSubscription.name));
+  store.dispatch(setAutomaticCloudBackup(false));
   await Relay.updateSubscription(app.id, app.publicId, {
     productId: SubscriptionTier.L1.toLowerCase(),
   });
+}
+
+async function updateSubscriptionFromRelayData(data, wasAutoUpdateEnabledBeforeDowngrade) {
+  const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const isBtcPayment = data?.paymentType == 'btc_payment';
+  let updatedSubscription: SubScription;
+  if (isBtcPayment) {
+    updatedSubscription = {
+      receipt: data.transactionReceipt,
+      productId: manipulateIosProdProductId(data.productId),
+      name: data.plan,
+      level: data.level,
+      icon: data.icon,
+      isDesktopPurchase: true,
+    };
+  } else {
+    delete data.subscription.paymentType;
+    updatedSubscription = {
+      ...data.subscription,
+      isDesktopPurchase: false,
+    };
+  }
+  dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+    subscription: updatedSubscription,
+  });
+  store.dispatch(setSubscription(updatedSubscription.name));
+  store.dispatch(setAutomaticCloudBackup(wasAutoUpdateEnabledBeforeDowngrade));
+  store.dispatch(setPlebDueToOffline(false));
+  store.dispatch(setAutoUpdateEnabledBeforeDowngrade(false));
 }
 
 async function updateSubscription(level: AppSubscriptionLevel) {
@@ -282,7 +342,7 @@ async function updateSubscription(level: AppSubscriptionLevel) {
     receipt: '',
     productId: selectedSubscription.productId,
     name: selectedSubscription.name,
-    level: level,
+    level,
     icon: selectedSubscription.icon,
   };
 

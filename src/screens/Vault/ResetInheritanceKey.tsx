@@ -10,7 +10,6 @@ import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
-import moment from 'moment';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useDispatch } from 'react-redux';
@@ -18,32 +17,31 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import { useAppSelector } from 'src/store/hooks';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
-import OptionDropdown from 'src/components/OptionDropdown';
+import OptionPicker from 'src/components/OptionPicker';
 import { getSignerDescription } from 'src/hardware';
 import IKSInfocard from './components/IKSInfoCard';
 import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
-import { MONTHS_12, MONTHS_18, MONTHS_24 } from './constants';
-
-const DEFAULT_INHERITANCE_TIMELOCK = { label: MONTHS_12, value: 12 * 30 * 24 * 60 * 60 * 1000 };
-const INHERITANCE_TIMELOCK_DURATIONS = [
-  DEFAULT_INHERITANCE_TIMELOCK,
-  { label: MONTHS_18, value: 18 * 30 * 24 * 60 * 60 * 1000 },
-  { label: MONTHS_24, value: 24 * 30 * 24 * 60 * 60 * 1000 },
-];
+import { INHERITANCE_TIMELOCK_DURATIONS } from './AddReserveKey';
+import {
+  getKeyTimelock,
+  getVaultEnhancedSigners,
+  INHERITANCE_KEY_IDENTIFIER,
+} from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
 function ResetInheritanceKey({ route }) {
-  const { signerId, vault }: { signerId: string; vault: Vault } = route.params;
+  const { vault }: { signerIds: string[]; vault: Vault } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const signer: Signer = signerMap[signerId];
-  const inheritanceSigner = vault.signers.find((signer) => getKeyUID(signer) === signerId);
-  const otherSigners = vault.signers.filter((signer) => getKeyUID(signer) !== signerId);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, any>>({});
+  const { inheritanceSigners, emergencySigners, otherSigners } = getVaultEnhancedSigners(vault);
+  const hasEmergencyKeys = emergencySigners.length > 0;
+  const signers: Signer[] = inheritanceSigners.map(
+    (emergencySigner) => signerMap[getKeyUID(emergencySigner)]
+  );
   const { vault: vaultText, common } = translations;
   const { showToast } = useToastMessage();
   const [generatedVaultId, setGeneratedVaultId] = useState('');
@@ -51,7 +49,7 @@ function ResetInheritanceKey({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreating, setCreating] = useState(false);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
-  const [currentTimeUntilActivation, setCurrentTimeUntilActivation] = useState('');
+  const [activationTimes, setActivationTimes] = useState<Record<string, string>>({});
 
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
@@ -60,10 +58,17 @@ function ResetInheritanceKey({ route }) {
   const dispatch = useDispatch();
 
   const handleResetInheritanceKey = async () => {
-    if (!selectedOption) {
-      showToast('Please select activation time', <ToastErrorIcon />);
+    const hasAllSelections = inheritanceSigners
+      .map((signer) => getKeyUID(signer))
+      .every((id) => selectedOptions[id]);
+    if (!hasAllSelections) {
+      showToast(
+        'Please select activation time' +
+          (inheritanceSigners.length === 1 ? '' : ' for all inheritance keys'),
+        <ToastErrorIcon />
+      );
       setCreating(false);
-      return;
+      return false;
     }
     let currentSyncedBlockHeight = currentBlockHeight;
     if (!currentSyncedBlockHeight) {
@@ -79,13 +84,13 @@ function ResetInheritanceKey({ route }) {
           <ToastErrorIcon />
         );
         setCreating(false);
-        return;
+        return false;
       }
     }
+    return true;
   };
 
   useEffect(() => {
-    // should bind with a refresher in case the auto fetch for block-height fails
     WalletUtilities.fetchCurrentBlockHeight()
       .then(({ currentBlockHeight }) => {
         setCurrentBlockHeight(currentBlockHeight);
@@ -94,118 +99,126 @@ function ResetInheritanceKey({ route }) {
   }, []);
 
   useEffect(() => {
-    if (route.params?.selectedOption) {
-      setSelectedOption(route.params.selectedOption);
-    }
-  }, [route.params]);
-
-  useEffect(() => {
     try {
       if (!currentBlockHeight) {
-        setCurrentTimeUntilActivation('Loading time until activation...');
+        setActivationTimes((prev) => {
+          const newTimes = {};
+          inheritanceSigners.forEach((signer) => {
+            newTimes[getKeyUID(signer)] = 'Loading time until activation...';
+          });
+          return newTimes;
+        });
         return;
       }
-      const blocksUntilActivation =
-        vault.scheme.miniscriptScheme.miniscriptElements.timelocks[0] - currentBlockHeight;
-      if (blocksUntilActivation > 0) {
-        const seconds = blocksUntilActivation * 10 * 60;
-        const days = Math.floor(seconds / (24 * 60 * 60));
-        const months = Math.floor(days / 30);
 
+      signers.forEach((signer) => {
+        const blocksUntilActivation =
+          getKeyTimelock(
+            Object.entries(vault.scheme.miniscriptScheme.keyInfoMap)
+              .find(
+                ([identifier, descriptor]) =>
+                  identifier.startsWith(INHERITANCE_KEY_IDENTIFIER) &&
+                  descriptor.substring(1, 9) === signer.masterFingerprint
+              )[0]
+              .split('<')[0],
+            vault.scheme.miniscriptScheme.miniscriptElements
+          ) - currentBlockHeight;
         let timeString = '';
-        if (months > 0) {
-          timeString = `${months} month${months > 1 ? 's' : ''}`;
-        } else if (days > 0) {
-          timeString = `${days} day${days > 1 ? 's' : ''}`;
+
+        if (blocksUntilActivation > 0) {
+          const seconds = blocksUntilActivation * 10 * 60;
+          const days = Math.floor(seconds / (24 * 60 * 60));
+          const months = Math.floor(days / 30);
+
+          if (months > 0) {
+            timeString = `${months} month${months > 1 ? 's' : ''}`;
+          } else if (days > 0) {
+            timeString = `${days} day${days > 1 ? 's' : ''}`;
+          } else {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            timeString = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${
+              minutes > 1 ? 's' : ''
+            }`;
+          }
         } else {
-          const hours = Math.floor(seconds / 3600);
-          const minutes = Math.floor((seconds % 3600) / 60);
-          timeString = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${
-            minutes > 1 ? 's' : ''
-          }`;
+          timeString = vaultText.IKAlreadyActive;
         }
 
-        setCurrentTimeUntilActivation(`Activates in ${timeString}`);
-      } else {
-        setCurrentTimeUntilActivation(vaultText.IKAlreadyActive);
-      }
-    } catch {
-      showToast(
-        'Failed to check current activation time for Inheritance Key',
-        null,
-        IToastCategory.DEFAULT,
-        3000,
-        true
-      );
+        setActivationTimes((prev) => ({
+          ...prev,
+          [getKeyUID(signer)]: timeString.includes('active')
+            ? timeString
+            : `Activates in ${timeString}`,
+        }));
+      });
+    } catch (e) {
+      showToast(e.toString(), null, IToastCategory.DEFAULT, 3000, true);
     }
   }, [currentBlockHeight, vault]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (relayVaultUpdate && newVault) {
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-        const navigationState = {
-          index: 1,
-          routes: [
-            { name: 'Home' },
-            {
-              name: 'VaultDetails',
-              params: { vaultId: generatedVaultId, vaultTransferSuccessful: true },
-            },
-          ],
-        };
-        navigation.dispatch(CommonActions.reset(navigationState));
-      } else if (relayVaultUpdate) {
-        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
-
-      if (relayVaultError) {
-        showToast(realyVaultErrorMessage, <ToastErrorIcon />);
-        dispatch(resetRealyVaultState());
-        setCreating(false);
-      }
-    }, [relayVaultUpdate, relayVaultError, newVault, navigation, dispatch])
-  );
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={vaultText.resetIKTitle} subtitle={vaultText.resetIKDesc} />
+      <KeeperHeader
+        title={vaultText.resetIKTitle + (inheritanceSigners.length > 1 ? 's' : '')}
+        subtitle={vaultText.resetIKDesc + (inheritanceSigners.length > 1 ? 's' : '')}
+      />
       <Box style={styles.container}>
-        <Box style={styles.contentContainer}>
-          <IKSInfocard
-            name={signer?.signerName}
-            description={getSignerDescription(signer)}
-            Icon={SDIcons(signer?.type)?.Icon}
-            duration={currentTimeUntilActivation}
-          />
-          <Box style={styles.dropdownContainer}>
-            <Box>
-              <Text color={`${colorMode}.primaryText`} fontSize={15}>
-                {vaultText.chooseNewActivationTimeTitle}
-              </Text>
-              <Text color={`${colorMode}.secondaryText`} fontSize={12}>
-                {vaultText.chooseNewActivationTimeDesc}
-              </Text>
-            </Box>
-            <OptionDropdown
-              label={vaultText.selectActivationTime}
-              options={INHERITANCE_TIMELOCK_DURATIONS}
-              selectedOption={selectedOption}
-              onOptionSelect={(option) => setSelectedOption(option)}
+        {signers.map((signer) => (
+          <Box key={getKeyUID(signer)} style={styles.contentContainer}>
+            <IKSInfocard
+              name={signer?.signerName}
+              description={getSignerDescription(signer)}
+              Icon={SDIcons(signer?.type)?.Icon}
+              duration={activationTimes[getKeyUID(signer)]}
             />
+            <Box style={styles.dropdownContainer}>
+              <Box>
+                <Text color={`${colorMode}.primaryText`} fontSize={15}>
+                  {vaultText.chooseNewActivationTimeTitle}
+                </Text>
+                <Text color={`${colorMode}.secondaryText`} fontSize={12}>
+                  {vaultText.chooseNewActivationTimeDesc}
+                </Text>
+              </Box>
+              <OptionPicker
+                label={vaultText.selectActivationTime}
+                options={INHERITANCE_TIMELOCK_DURATIONS}
+                selectedOption={selectedOptions[getKeyUID(signer)]}
+                onOptionSelect={(option) =>
+                  setSelectedOptions((prev) => ({
+                    ...prev,
+                    [getKeyUID(signer)]: option,
+                  }))
+                }
+              />
+            </Box>
           </Box>
-        </Box>
+        ))}
         <Box>
           <Buttons
             primaryLoading={vaultCreating}
-            primaryText={vaultText.revaultNow}
+            primaryText={hasEmergencyKeys ? common.continue : vaultText.revaultNow}
             fullWidth
-            primaryCallback={() => {
-              setCreating(true);
-              handleResetInheritanceKey();
+            primaryCallback={async () => {
+              let isValid = await handleResetInheritanceKey();
+              if (!isValid) return;
+              if (hasEmergencyKeys) {
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'ResetEmergencyKey',
+                    params: {
+                      inheritanceKeys: inheritanceSigners.map((signer) => ({
+                        key: signer,
+                        duration: selectedOptions[getKeyUID(signer)]?.label,
+                      })),
+                      vault,
+                    },
+                  })
+                );
+              } else {
+                setCreating(true);
+              }
             }}
           />
         </Box>
@@ -220,10 +233,11 @@ function ResetInheritanceKey({ route }) {
         setGeneratedVaultId={setGeneratedVaultId}
         setCreating={setCreating}
         vaultType={vault.type}
-        inheritanceKey={inheritanceSigner}
-        isAddInheritanceKey={true}
+        inheritanceKeys={inheritanceSigners.map((signer) => ({
+          key: signer,
+          duration: selectedOptions[getKeyUID(signer)]?.label,
+        }))}
         currentBlockHeight={currentBlockHeight}
-        selectedDuration={selectedOption?.label}
         miniscriptTypes={vault.scheme.miniscriptScheme.usedMiniscriptTypes}
       />
     </ScreenWrapper>

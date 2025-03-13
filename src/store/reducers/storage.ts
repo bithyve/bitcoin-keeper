@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { DelayedPolicyUpdate, DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 
 interface InheritanceToolVisitedHistoryType {
   BUY_NEW_HARDWARE_SIGNER: number;
@@ -35,6 +36,10 @@ const initialState: {
   recoveryAppCreated: boolean;
   inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
   dontShowConceirgeOnboarding: boolean;
+  delayedTransactions: { [txid: string]: DelayedTransaction };
+  delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate }; // contains a single policy update at a time
+  plebDueToOffline: boolean; // app downgraded to pleb due to internet issue
+  wasAutoUpdateEnabledBeforeDowngrade: boolean;
 } = {
   appId: '',
   resetCred: {
@@ -68,6 +73,10 @@ const initialState: {
     ADDITIONAL_SIGNER_DETAILS: null,
   },
   dontShowConceirgeOnboarding: false,
+  delayedTransactions: {},
+  delayedPolicyUpdate: {},
+  plebDueToOffline: false,
+  wasAutoUpdateEnabledBeforeDowngrade: false,
 };
 
 const storageSlice = createSlice({
@@ -124,6 +133,33 @@ const storageSlice = createSlice({
     setDontShowConceirgeOnboarding: (state) => {
       state.dontShowConceirgeOnboarding = true;
     },
+    updateDelayedTransaction: (state, action: PayloadAction<DelayedTransaction>) => {
+      state.delayedTransactions = {
+        ...(state.delayedTransactions || {}),
+        [action.payload.txid]: action.payload,
+      };
+    },
+    deleteDelayedTransaction: (state, action: PayloadAction<string>) => {
+      if (state.delayedTransactions && state.delayedTransactions[action.payload]) {
+        delete state.delayedTransactions[action.payload];
+      }
+    },
+    updateDelayedPolicyUpdate: (state, action: PayloadAction<DelayedPolicyUpdate>) => {
+      state.delayedPolicyUpdate = {
+        [action.payload.policyId]: action.payload, // contains a single policy update at a time, can be updated to handle multiple policy updates
+      };
+    },
+    deleteDelayedPolicyUpdate: (state, action: PayloadAction<string>) => {
+      if (state.delayedPolicyUpdate && state.delayedPolicyUpdate[action.payload]) {
+        delete state.delayedPolicyUpdate[action.payload];
+      }
+    },
+    setPlebDueToOffline: (state, action: PayloadAction<boolean>) => {
+      state.plebDueToOffline = action.payload;
+    },
+    setAutoUpdateEnabledBeforeDowngrade: (state, action: PayloadAction<boolean>) => {
+      state.wasAutoUpdateEnabledBeforeDowngrade = action.payload;
+    },
   },
 });
 
@@ -140,6 +176,12 @@ export const {
   setRecoveryCreatedApp,
   updateLastVisitedTimestamp,
   setDontShowConceirgeOnboarding,
+  updateDelayedTransaction,
+  deleteDelayedTransaction,
+  updateDelayedPolicyUpdate,
+  deleteDelayedPolicyUpdate,
+  setPlebDueToOffline,
+  setAutoUpdateEnabledBeforeDowngrade,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

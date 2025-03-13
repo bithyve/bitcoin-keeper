@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import WalletLine from 'src/assets/images/walletCardLines.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
@@ -49,8 +49,8 @@ const WalletCard: React.FC<WalletCardProps> = ({
   return (
     <LinearGradient
       colors={backgroundColor}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
+      start={{ x: 0.2, y: 0 }}
+      end={{ x: 0.9, y: 1 }}
       style={[styles.cardContainer]}
     >
       <Box style={styles.topLeftContainer}>
@@ -95,7 +95,7 @@ export default WalletCard;
 const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'column',
-    width: '100%',
+    width: windowWidth * 0.88,
     height: wp(180),
     padding: wp(20),
     borderRadius: 15,
@@ -143,9 +143,13 @@ const styles = StyleSheet.create({
   },
   pillsContainer: {
     flexDirection: 'row',
+    position: 'absolute',
+    top: 20,
+    right: wp(13),
     gap: 5,
     justifyContent: 'flex-end',
     flexWrap: 'wrap',
+    width: '80%',
   },
   secondCard: {
     maxWidth: wp(80),

@@ -3,6 +3,8 @@ import config from 'src/utils/service-utilities/config';
 import { asymmetricDecrypt, generateRSAKeypair } from 'src/utils/service-utilities/encryption';
 import {
   CosignersMapUpdate,
+  DelayedPolicyUpdate,
+  DelayedTransaction,
   SignerException,
   SignerPolicy,
   SignerRestriction,
@@ -193,6 +195,30 @@ export default class SigningServer {
     };
   };
 
+  static updateBackupSetting = async (
+    id: string,
+    verifierDigest: string,
+    disable: boolean
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/updateBackupSetting`, {
+        HEXA_ID,
+        id,
+        verifierDigest,
+        disable,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    return { updated };
+  };
+
   static fetchBackup = async (
     id: string,
     verificationToken: number
@@ -226,11 +252,14 @@ export default class SigningServer {
     id: string,
     verificationToken: number,
     updates: {
-      restrictions?: SignerRestriction;
-      exceptions?: SignerException;
-    }
+      restrictions: SignerRestriction;
+      exceptions: SignerException;
+      signingDelay: number;
+    },
+    FCM?: string
   ): Promise<{
     updated: boolean;
+    delayedPolicyUpdate: DelayedPolicyUpdate;
   }> => {
     let res: AxiosResponse;
     try {
@@ -239,16 +268,18 @@ export default class SigningServer {
         id,
         verificationToken,
         updates,
+        FCM,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
 
-    const { updated } = res.data;
-    if (!updated) throw new Error('Signer setup failed');
+    const { updated, delayedPolicyUpdate } = res.data;
+
     return {
       updated,
+      delayedPolicyUpdate,
     };
   };
 
@@ -289,9 +320,12 @@ export default class SigningServer {
         value: number;
       };
     }>,
-    outgoing: number
+    outgoing: number,
+    FCM?: string
   ): Promise<{
     signedPSBT: string;
+    delayed: boolean;
+    delayedTransaction: DelayedTransaction;
   }> => {
     let res: AxiosResponse;
 
@@ -303,15 +337,95 @@ export default class SigningServer {
         serializedPSBT,
         childIndexArray,
         outgoing,
+        FCM,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
 
-    const { signedPSBT } = res.data;
+    const { signedPSBT, delayed, delayedTransaction } = res.data;
     return {
       signedPSBT,
+      delayed,
+      delayedTransaction,
+    };
+  };
+
+  static fetchSignedDelayedTransaction = async (
+    txid: string,
+    verificationToken: string
+  ): Promise<{
+    delayedTransaction: DelayedTransaction;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchSignedDelayedTransaction`, {
+        HEXA_ID,
+        txid,
+        verificationToken,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { delayedTransaction } = res.data;
+
+    return {
+      delayedTransaction,
+    };
+  };
+
+  static cancelDelayedTransaction = async (
+    signerId: string,
+    txid: string,
+    verificationToken: string
+  ): Promise<{
+    canceled: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/cancelDelayedTransaction`, {
+        HEXA_ID,
+        signerId,
+        txid,
+        verificationToken,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { canceled } = res.data;
+
+    return {
+      canceled,
+    };
+  };
+
+  static fetchDelayedPolicyUpdate = async (
+    policyId: string,
+    verificationToken: string
+  ): Promise<{
+    delayedPolicy: DelayedPolicyUpdate;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchDelayedPolicyUpdate`, {
+        HEXA_ID,
+        policyId,
+        verificationToken,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { delayedPolicy } = res.data;
+
+    return {
+      delayedPolicy,
     };
   };
 
@@ -337,6 +451,28 @@ export default class SigningServer {
     return {
       isSignerAvailable,
     };
+  };
+
+  static migrateSignerPolicy = async (
+    id: string,
+    oldPolicy: SignerPolicy
+  ): Promise<{
+    newPolicy: SignerPolicy;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/migrateSignerPolicy`, {
+        HEXA_ID,
+        id,
+        oldPolicy,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { newPolicy } = res.data;
+    return { newPolicy };
   };
 
   static migrateSignersV2ToV3 = async (

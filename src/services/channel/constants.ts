@@ -11,6 +11,7 @@ export const EMIT_MODES = {
   SIGN_TX: 'SIGN_TX',
   HEALTH_CHECK: 'HEALTH_CHECK',
   VERIFY_ADDRESS: 'VERIFY_ADDRESS',
+  PURCHASE_SUBS: 'PURCHASE_SUBS',
 };
 
 // whirlpool events

@@ -1,5 +1,6 @@
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { DerivationPurpose } from 'src/services/wallets/enums';
+import { DerivationPurpose, XpubTypes } from 'src/services/wallets/enums';
+import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 
 export const getJadeDetails = (qrData) => {
   const { derivationPath, xPub: xpub, mfp } = qrData;

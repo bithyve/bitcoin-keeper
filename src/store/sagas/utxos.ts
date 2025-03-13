@@ -14,6 +14,7 @@ import { ADD_LABELS, BULK_UPDATE_LABELS, BULK_UPDATE_UTXO_LABELS } from '../saga
 import { resetState, setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
 import { setPendingAllBackup } from '../reducers/bhr';
 import { checkBackupCondition } from './bhr';
+import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
 
 export function* addLabelsWorker({
   payload,
@@ -43,13 +44,22 @@ export function* addLabelsWorker({
       };
       tags.push(tag);
     });
-    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const { id, primarySeed }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
     yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
     yield put(resetState());
     try {
       const backupResponse = yield call(checkBackupCondition);
-      if (!backupResponse) yield call(Relay.modifyLabels, id, tags, []);
-      else yield delay(100);
+      if (!backupResponse) {
+        const encryptionKey = generateEncryptionKey(primarySeed);
+        const tagsToBackup = tags.map((tag) => ({
+          id: hash256(hash256(encryptionKey + tag.id)),
+          content: encrypt(encryptionKey, JSON.stringify(tag)),
+        }));
+        yield call(Relay.modifyLabels, id, tagsToBackup, []);
+      } else yield delay(100);
     } catch (error) {
       console.log('🚀 ~ addLabelsWorker error:', error);
       yield put(setPendingAllBackup(true));
@@ -97,7 +107,10 @@ export function* bulkUpdateLabelsWorker({
     if (labelChanges.deleted) {
       deletedTagIds = labelChanges.deleted.map((label) => `${idSuffix}${label.name}`);
     }
-    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const { primarySeed, id }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
     yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
     for (const element of deletedTagIds) {
       yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
@@ -105,14 +118,20 @@ export function* bulkUpdateLabelsWorker({
     }
     try {
       const backupResponse = yield call(checkBackupCondition);
-      if (!backupResponse)
+      if (!backupResponse) {
+        const encryptionKey = generateEncryptionKey(primarySeed);
+        const tagsToBackup = addedTags.map((tag) => ({
+          id: hash256(hash256(encryptionKey + tag.id)),
+          content: encrypt(encryptionKey, JSON.stringify(tag)),
+        }));
+        const tagsToDelete = deletedTagIds.map((tag) => hash256(tag));
         yield fork(
           Relay.modifyLabels,
           id,
-          addedTags.length ? addedTags : [],
-          deletedTagIds.length ? deletedTagIds : []
+          tagsToBackup.length ? tagsToBackup : [],
+          tagsToDelete.length ? tagsToDelete : []
         );
-      else yield delay(100);
+      } else yield delay(100);
     } catch (error) {
       yield put(setPendingAllBackup(true));
     }
@@ -131,7 +150,10 @@ export function* bulkUpdateUTXOLabelsWorker({
   try {
     yield put(setSyncingUTXOs(true));
     const { addedTags, deletedTagIds } = payload;
-    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const { id, primarySeed }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
     if (addedTags) {
       yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
     }
@@ -143,14 +165,20 @@ export function* bulkUpdateUTXOLabelsWorker({
     yield put(resetState());
     try {
       const backupResponse = yield call(checkBackupCondition);
-      if (!backupResponse)
+      if (!backupResponse) {
+        const encryptionKey = generateEncryptionKey(primarySeed);
+        const tagsToBackup = addedTags.map((tag) => ({
+          id: hash256(hash256(encryptionKey + tag.id)),
+          content: encrypt(encryptionKey, JSON.stringify(tag)),
+        }));
+        const tagsToDelete = deletedTagIds.map((tag) => hash256(tag));
         yield call(
           Relay.modifyLabels,
           id,
-          addedTags.length ? addedTags : [],
-          deletedTagIds.length ? deletedTagIds : []
+          addedTags.length ? tagsToBackup : [],
+          deletedTagIds.length ? tagsToDelete : []
         );
-      else yield delay(100);
+      } else yield delay(100);
     } catch (error) {
       console.log('🚀 ~ bulkUpdateUTXOLabelsWorker error:', error);
       yield put(setPendingAllBackup(true));

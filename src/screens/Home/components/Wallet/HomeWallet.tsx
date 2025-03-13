@@ -15,7 +15,7 @@ import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import ImportWalletIcon from 'src/assets/images/import.svg';
@@ -24,6 +24,11 @@ import CollaborativeWalletIcon from 'src/assets/images/collaborative_vault_white
 import { useAppSelector } from 'src/store/hooks';
 import { resetCollaborativeSession } from 'src/store/reducers/vaults';
 import { useDispatch } from 'react-redux';
+import { autoSyncWallets, refreshWallets } from 'src/store/sagaActions/wallets';
+import { RefreshControl } from 'react-native';
+import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -40,6 +45,11 @@ const HomeWallet = () => {
   const dispatch = useDispatch();
   const [showAddWalletModal, setShowAddWalletModal] = useState(false);
   const [collabSessionExistsModalVisible, setCollabSessionExistsModalVisible] = useState(false);
+  const [pullRefresh, setPullRefresh] = useState(false);
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const syncing =
+    ELECTRUM_CLIENT.isClientConnected &&
+    Object.values(walletSyncing).some((isSyncing) => isSyncing);
 
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
@@ -59,6 +69,13 @@ const HomeWallet = () => {
         navigation.navigate('SetupCollaborativeWallet');
       }, 500); // delaying navigation by 0.5 second to ensure collaborative session reset
     }
+  };
+
+  const pullDownRefresh = () => {
+    setPullRefresh(true);
+
+    dispatch(autoSyncWallets(false, false));
+    setPullRefresh(false);
   };
 
   const CREATE_WALLET_OPTIONS = [
@@ -123,6 +140,7 @@ const HomeWallet = () => {
 
   return (
     <Box style={styles.walletContainer}>
+      <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
         backgroundColor={`${colorMode}.DashedButtonCta`}
         hexagonBackgroundColor={Colors.pantoneGreen}
@@ -136,6 +154,7 @@ const HomeWallet = () => {
       <FlatList
         data={allWallets}
         renderItem={renderWalletCard}
+        refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         keyExtractor={(item, index) => `${item.id || index}`}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
@@ -187,9 +206,11 @@ const OptionItem = ({ option, colorMode }) => {
         backgroundColor={`${colorMode}.boxSecondaryBackground`}
         borderColor={`${colorMode}.separator`}
       >
-        <Box style={styles.optionIconCtr} backgroundColor={`${colorMode}.pantoneGreen`}>
-          {option.icon}
-        </Box>
+        <CircleIconWrapper
+          width={wp(40)}
+          icon={option.icon}
+          backgroundColor={`${colorMode}.pantoneGreen`}
+        />
         <Box>
           <Text
             color={`${colorMode}.secondaryText`}
@@ -221,13 +242,6 @@ const styles = StyleSheet.create({
   optionTitle: {
     marginBottom: hp(5),
   },
-  optionIconCtr: {
-    height: hp(39),
-    width: wp(39),
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 100,
-  },
   optionCTR: {
     flexDirection: 'row',
     paddingHorizontal: wp(15),
@@ -236,5 +250,8 @@ const styles = StyleSheet.create({
     gap: wp(16),
     borderRadius: 12,
     borderWidth: 1,
+  },
+  customStyle: {
+    marginBottom: hp(10),
   },
 });

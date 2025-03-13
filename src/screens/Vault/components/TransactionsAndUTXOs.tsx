@@ -31,10 +31,6 @@ function TransactionsAndUTXOs({
     setPullRefresh(false);
   };
 
-  useEffect(() => {
-    if (autoRefresh) syncVault();
-  }, [autoRefresh]);
-
   const navigation = useNavigation();
   const renderTransactionElement = ({ item }) => (
     <TransactionElement

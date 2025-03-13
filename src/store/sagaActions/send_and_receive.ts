@@ -3,7 +3,7 @@ import { UTXO } from 'src/services/wallets/interfaces';
 import { Action } from 'redux';
 import { Recipient } from 'src/models/interfaces/Recipient';
 import { TxPriority } from 'src/services/wallets/enums';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { TransferType } from 'src/models/enums/TransferType';
 import { Satoshis } from 'src/models/types/UnitAliases';
@@ -127,6 +127,7 @@ export interface SendPhaseOneAction extends Action {
       amount: number;
     }[];
     selectedUTXOs?: UTXO[];
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   };
 }
 
@@ -137,6 +138,7 @@ export const sendPhaseOne = (payload: {
     amount: number;
   }[];
   selectedUTXOs?: UTXO[];
+  miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
 }): SendPhaseOneAction => ({
   type: SEND_PHASE_ONE,
   payload,
@@ -166,6 +168,7 @@ export interface SendPhaseTwoAction extends Action {
   type: typeof SEND_PHASE_TWO;
   payload: {
     wallet: Wallet | Vault;
+    currentBlockHeight: number;
     txnPriority: TxPriority;
     transferType: TransferType;
     miniscriptTxElements?: {
@@ -179,6 +182,7 @@ export interface SendPhaseTwoAction extends Action {
 
 export const sendPhaseTwo = (payload: {
   wallet: Wallet | Vault;
+  currentBlockHeight: number;
   txnPriority: TxPriority;
   transferType: TransferType;
   miniscriptTxElements?: {
@@ -225,15 +229,19 @@ export interface CrossTransferAction extends Action {
   type: typeof CROSS_TRANSFER;
   payload: {
     sender: Wallet | Vault;
+    currentBlockHeight: number;
     recipient: Wallet | Vault;
     amount: number;
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   };
 }
 
 export const crossTransfer = (payload: {
   sender: Wallet | Vault;
+  currentBlockHeight: number;
   recipient: Wallet | Vault;
   amount: number;
+  miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
 }): CrossTransferAction => ({
   type: CROSS_TRANSFER,
   payload,
@@ -272,6 +280,7 @@ export interface CalculateSendMaxFeeAction extends Action {
     wallet: Wallet | Vault;
     selectedUTXOs?: UTXO[];
     feePerByte?: number;
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   };
 }
 
@@ -283,6 +292,7 @@ export const calculateSendMaxFee = (payload: {
   wallet: Wallet | Vault;
   selectedUTXOs?: UTXO[];
   feePerByte?: number;
+  miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
 }): CalculateSendMaxFeeAction => ({
   type: CALCULATE_SEND_MAX_FEE,
   payload,
@@ -303,6 +313,7 @@ export interface CalculateCustomFeeAction extends Action {
     feePerByte: string;
     customEstimatedBlocks: string;
     selectedUTXOs?: UTXO[];
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   };
 }
 
@@ -315,6 +326,7 @@ export const calculateCustomFee = (payload: {
   feePerByte: string;
   customEstimatedBlocks: string;
   selectedUTXOs?: UTXO[];
+  miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
 }): CalculateCustomFeeAction => ({
   type: CALCULATE_CUSTOM_FEE,
   payload,
