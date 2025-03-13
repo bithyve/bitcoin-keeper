@@ -22,12 +22,14 @@ function DisplayQR({
   type,
   shouldRotate,
   signerType,
+  size = windowWidth * 0.7,
 }: {
   qrContents: any;
   toBytes?: boolean;
   type?: BufferEncoding;
   shouldRotate?: boolean;
   signerType?: string;
+  size: number;
 }) {
   const isColdCard = signerType === SignerType.COLDCARD;
   const { colorMode } = useColorMode();
@@ -65,7 +67,7 @@ function DisplayQR({
     <>
       {(qrData?.length || coldCardQrData?.length) && (
         <VStack alignItems="center">
-          <KeeperQRCode qrData={qrData} size={windowWidth * 0.7} ecl="L" />
+          <KeeperQRCode qrData={qrData} size={size} ecl="L" />
           <Slider
             marginTop={5}
             marginBottom={2}

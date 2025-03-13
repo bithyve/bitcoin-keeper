@@ -13,10 +13,12 @@ import {
   XpubTypes,
 } from 'src/services/wallets/enums';
 import {
+  DelayedPolicyUpdate,
   InheritanceConfiguration,
   InheritanceKeyInfo,
   InheritancePolicy,
   SignerException,
+  SignerPolicy,
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
 import {
@@ -135,7 +137,7 @@ import {
   FETCH_COLLABORATIVE_CHANNEL,
   updateCollaborativeChannel,
 } from '../sagaActions/vaults';
-import { uaiChecks } from '../sagaActions/uai';
+import { addToUaiStack, uaiChecks } from '../sagaActions/uai';
 import {
   deleteAppImageEntityWorker,
   deleteVaultImageWorker,
@@ -161,6 +163,7 @@ import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
+import { updateDelayedPolicyUpdate } from '../reducers/storage';
 
 export interface NewVaultDetails {
   name?: string;
@@ -407,7 +410,7 @@ function* addNewWallet(
     case WalletType.DEFAULT:
       const defaultWallet: Wallet = yield call(generateWallet, {
         type: WalletType.DEFAULT,
-        instanceNum: instanceNum, // zero-indexed
+        instanceNum, // zero-indexed
         walletName: walletName || 'Default Wallet',
         walletDescription: walletDescription || '',
         derivationConfig,
@@ -551,8 +554,11 @@ export function* addNewVaultWorker({
 
       if (isMigrated) {
         const oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
+        const isWalletEmpty =
+          oldVault.specs.balances.confirmed === 0 && oldVault.specs.balances.unconfirmed === 0;
         const updatedParams = {
-          archived: true,
+          archived: isWalletEmpty,
+          isMigrating: !isWalletEmpty,
           archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
         };
         const archivedVaultresponse = yield call(updateVaultImageWorker, {
@@ -1036,13 +1042,14 @@ function* syncWalletsWorker({
     };
   };
 }) {
-  const { wallets } = payload;
+  const { wallets, options } = payload;
   const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
 
   const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
     WalletOperations.syncWalletsViaElectrumClient,
     wallets,
-    network
+    network,
+    options.hardRefresh
   );
 
   return {
@@ -1057,7 +1064,7 @@ function* refreshWalletsWorker({
 }: {
   payload: {
     wallets: (Wallet | Vault)[];
-    options: { hardRefresh?: boolean };
+    options: { hardRefresh?: boolean; addNotifications?: boolean };
   };
 }) {
   const { wallets, options } = payload;
@@ -1082,20 +1089,13 @@ function* refreshWalletsWorker({
     }
     for (const synchedWalletWithUTXOs of synchedWallets) {
       const { synchedWallet } = synchedWalletWithUTXOs;
-      // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+      if (!synchedWallet.specs.hasNewUpdates && !options.hardRefresh) continue; // no new updates found
 
       for (const utxo of synchedWalletWithUTXOs.newUTXOs) {
         const labelChanges = {
           added: [],
           deleted: [],
         };
-
-        if (Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
-          labelChanges.added.push({
-            name: 'Change',
-            isSystem: false,
-          });
-        }
 
         const utxoLabels = labels ? labels.filter((label) => label.ref === utxo.address) : [];
         if (utxoLabels.length > 0) {
@@ -1110,6 +1110,23 @@ function* refreshWalletsWorker({
         yield fork(bulkUpdateLabelsWorker, {
           payload: { labelChanges, UTXO: utxo, wallet: synchedWallet as any },
         });
+
+        if (options.addNotifications) {
+          if (synchedWallet.type !== VaultType.CANARY) {
+            if (!Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
+              yield put(
+                addToUaiStack({
+                  uaiType: uaiType.INCOMING_TRANSACTION,
+                  entityId: synchedWallet.entityKind + '_' + synchedWallet.id + '_' + utxo.txId,
+                  uaiDetails: {
+                    heading: 'New Transaction Received',
+                    body: 'Click to view the transaction details',
+                  },
+                })
+              );
+            }
+          }
+        }
       }
 
       if (synchedWallet.entityKind === EntityKind.VAULT) {
@@ -1151,7 +1168,14 @@ function* refreshWalletsWorker({
           'Network error: please check your network/ node connection and try again'
         )
       );
-    } else captureError(err);
+    } else {
+      yield put(
+        setElectrumNotConnectedErr(
+          'Wallet sync failed: ' + (err.message ? err.message : err.toString())
+        )
+      );
+      captureError(err);
+    }
   } finally {
     yield put(setSyncing({ wallets, isSyncing: false }));
   }
@@ -1159,7 +1183,7 @@ function* refreshWalletsWorker({
 
 export const refreshWalletsWatcher = createWatcher(refreshWalletsWorker, REFRESH_WALLETS);
 
-function* autoWalletsSyncWorker({
+export function* autoWalletsSyncWorker({
   payload,
 }: {
   payload: { syncAll?: boolean; hardRefresh?: boolean };
@@ -1172,6 +1196,7 @@ function* autoWalletsSyncWorker({
   for (const wallet of [...wallets, ...vault]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
       if (!wallet.isUsable) continue;
+      if (wallet.entityKind === EntityKind.VAULT && (wallet as Vault).archived) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
   }
@@ -1182,6 +1207,7 @@ function* autoWalletsSyncWorker({
         wallets: walletsToSync,
         options: {
           hardRefresh,
+          addNotifications: true,
         },
       },
     });
@@ -1280,48 +1306,58 @@ export function* updateSignerPolicyWorker({
   payload: {
     signer: Signer;
     signingKey: VaultSigner;
-    updates: { restrictions?: SignerRestriction; exceptions?: SignerException };
+    updates: {
+      restrictions: SignerRestriction;
+      exceptions: SignerException;
+      signingDelay: number;
+    };
     verificationToken: number;
   };
 }) {
-  const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
-  const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
+  const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
 
   const { signer, signingKey, updates, verificationToken } = payload;
   try {
-    const { updated } = yield call(
+    const signerId =
+      signingKey?.xfp ||
+      WalletUtilities.getFingerprintFromExtendedKey(
+        signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+        config.NETWORK
+      );
+
+    const {
+      updated,
+      delayedPolicyUpdate,
+    }: { updated: boolean; delayedPolicyUpdate: DelayedPolicyUpdate } = yield call(
       SigningServer.updatePolicy,
-      signingKey.xfp,
+      signerId,
       verificationToken,
-      updates
+      updates,
+      fcmToken
     );
-    if (!updated) {
-      Alert.alert('Failed to update signer policy, try again.');
-      throw new Error('Failed to update the policy');
-    }
 
-    const { signers } = activeVault;
-    for (const current of signers) {
-      if (current.xfp === signingKey.xfp) {
-        const updatedSignerPolicy = {
-          ...signer.signerPolicy,
-          restrictions: updates.restrictions,
-          exceptions: updates.exceptions,
-        };
-        yield put(setSignerPolicyError('success'));
-
-        const signerKeyUID = getKeyUID(signer);
-        yield call(
-          dbManager.updateObjectByQuery,
-          RealmSchema.Signer,
-          (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
-          {
-            signerPolicy: updatedSignerPolicy,
-          }
-        );
-        break;
+    if (delayedPolicyUpdate) {
+      yield put(updateDelayedPolicyUpdate(delayedPolicyUpdate));
+    } else {
+      if (!updated) {
+        Alert.alert('Failed to update signer policy, try again.');
+        throw new Error('Failed to update the policy');
       }
+
+      const updatedSignerPolicy = {
+        ...signer.signerPolicy,
+        ...updates,
+      };
+      dbManager.updateObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          signerPolicy: updatedSignerPolicy,
+        }
+      );
     }
+    yield put(setSignerPolicyError('success'));
   } catch (err) {
     yield put(setSignerPolicyError('failure'));
   }
@@ -1634,6 +1670,7 @@ function* reinstateVaultWorker({ payload }) {
     const vault: Vault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON();
     const updatedParams = {
       archived: false,
+      isMigrating: false,
       archivedId: null,
       presentationData: {
         ...vault.presentationData,

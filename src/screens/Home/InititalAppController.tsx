@@ -289,12 +289,12 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     InteractionManager.runAfterInteractions(() => {
       if (electrumClientConnectionStatus.success) {
         if (electrumErrorVisible) setElectrumErrorVisible(false);
-      } else if (electrumClientConnectionStatus.failed) {
+      } else if (electrumClientConnectionStatus.failed && !electrumErrorVisible) {
         showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
         setElectrumErrorVisible(true);
       }
     });
-  }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
+  }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.failed]);
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {

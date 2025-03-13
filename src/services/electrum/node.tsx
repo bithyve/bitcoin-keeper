@@ -9,13 +9,14 @@ import { predefinedMainnetNodes, predefinedTestnetNodes } from './predefinedNode
 export default class Node {
   public static async save(nodeDetail: NodeDetail, nodeList: NodeDetail[]) {
     if (!nodeDetail.host || !nodeDetail.port) {
-      return { saved: false };
+      return { saved: false, connectionError: 'Missing node host URL or port' };
     }
 
     // test connection before saving
-    const isConnectable = await ElectrumClient.testConnection(nodeDetail);
+    const { connected: isConnectable, error: connectionError } =
+      await ElectrumClient.testConnection(nodeDetail);
     if (!isConnectable) {
-      return { saved: false };
+      return { saved: false, connectionError };
     }
 
     const node = { ...nodeDetail };

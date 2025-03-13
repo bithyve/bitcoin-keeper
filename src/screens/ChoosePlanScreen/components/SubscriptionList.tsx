@@ -23,7 +23,16 @@ const SubscriptionList: React.FC<{
   primaryCallback?: any;
   isMonthly: boolean;
   getButtonText?: any;
-}> = ({ plans, currentPosition, onChange, primaryCallback, isMonthly, getButtonText }) => {
+  listFooterCta?: React.ReactNode;
+}> = ({
+  plans,
+  currentPosition,
+  onChange,
+  primaryCallback,
+  isMonthly,
+  getButtonText,
+  listFooterCta,
+}) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { planData } = useSettingKeeper();
@@ -167,6 +176,7 @@ const SubscriptionList: React.FC<{
           </TouchableOpacity>
         );
       })}
+      {listFooterCta}
     </ScrollView>
   );
 };

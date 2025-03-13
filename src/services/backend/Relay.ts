@@ -238,12 +238,7 @@ export default class Relay {
     return res.data || res.json;
   };
 
-  public static verifyReceipt = async (
-    id: string,
-    appID: string
-  ): Promise<{
-    created: boolean;
-  }> => {
+  public static verifyReceipt = async (id: string, appID: string): Promise<any> => {
     let res;
     try {
       res = await RestClient.post(`${RELAY}verifyReceipt`, {
@@ -429,19 +424,6 @@ export default class Relay {
       captureError(err);
       if (err?.code == 'ERR_NETWORK') throw new Error('Network Error');
       throw new Error('Failed get App Image');
-    }
-  };
-
-  public static vaultCheck = async (vaultId): Promise<any> => {
-    try {
-      const res = await RestClient.post(`${RELAY}vaultCheck`, {
-        vaultId,
-      });
-      const data = res.data || res.json;
-      return data;
-    } catch (err) {
-      captureError(err);
-      throw new Error('VaultCheckAPI Failed');
     }
   };
 
@@ -688,6 +670,22 @@ export default class Relay {
       console.log('🚀 ~ Relay ~ getRemoteKey= ~ error:', error);
     }
   };
+  public static fetchHardwareReferralLinks = async (appId: string): Promise<any> => {
+    try {
+      const response = await RestClient.get(`${RELAY}getHardwareReferralLinks?appId=${appId}`);
+
+      const data = (response as AxiosResponse).data || (response as any).json;
+
+      if (data) {
+        return data;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      captureError(error);
+      throw error;
+    }
+  };
 
   public static sendSingleNotification = async (data) => {
     try {
@@ -759,6 +757,31 @@ export default class Relay {
     } catch (err) {
       captureError(err);
       throw new Error('Failed to update app backup. Check your internet connection and try again.');
+    }
+  };
+
+  public static checkEligibilityForBtcPay = async (body): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}eligibleForBtcPay`, body);
+      const data = res?.data;
+      return data;
+    } catch (err) {
+      captureError(err);
+      if (err?.code == 'ERR_NETWORK') throw new Error('Network Error');
+      throw new Error('Error while create BTCPay Order');
+    }
+  };
+
+  public static restoreBtcPurchase = async (appId): Promise<any> => {
+    try {
+      const res = await RestClient.get(`${RELAY}restoreBtcPurchase?appId=${appId}`);
+      const data = res?.data;
+      return data;
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ restoreBtcPurchase= ~ err:', err);
+      captureError(err);
+      if (err?.code == 'ERR_NETWORK') throw new Error('Network Error');
+      throw new Error(err.message);
     }
   };
 }

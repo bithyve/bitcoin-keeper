@@ -47,6 +47,7 @@ import {
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
+  setAutomaticCloudBackup,
   setBackupAllFailure,
   setBackupAllLoading,
   setBackupAllSuccess,
@@ -214,7 +215,6 @@ export function* updateVaultImageWorker({
       appID: id,
       vaultShellId: vault.shellId,
       vaultId: vault.id,
-      scheme: vault.scheme,
       signersData,
       vault: vaultEncrypted,
       subscription: subscriptionStrings,
@@ -550,7 +550,15 @@ function* recoverApp(
 
   // Labels Restore
   if (labels) {
-    yield call(dbManager.createObjectBulk, RealmSchema.Tags, labels);
+    const restoredLabels = [];
+    for (const label of labels) {
+      try {
+        restoredLabels.push(JSON.parse(decrypt(encryptionKey, label.content)));
+      } catch {
+        console.log('Failed to restore label');
+      }
+    }
+    yield call(dbManager.createObjectBulk, RealmSchema.Tags, restoredLabels);
   }
 
   // seed confirm for recovery
@@ -961,7 +969,6 @@ function* backupAllSignersAndVaultsWorker() {
       vaultObject[vault.id] = {
         vaultShellId: vault.shellId,
         vaultId: vault.id,
-        scheme: vault.scheme,
         signersData,
         vault: vaultEncrypted,
       };
@@ -979,6 +986,10 @@ function* backupAllSignersAndVaultsWorker() {
     }
 
     const labels = yield call(dbManager.getCollection, RealmSchema.Tags);
+    const tagsToBackup = labels.map((tag) => ({
+      id: hash256(hash256(encryptionKey + tag.id)),
+      content: encrypt(encryptionKey, JSON.stringify(tag)),
+    }));
 
     yield call(Relay.backupAllSignersAndVaults, {
       appId: id,
@@ -990,7 +1001,7 @@ function* backupAllSignersAndVaultsWorker() {
       subscription: JSON.stringify(subscription),
       version,
       nodes: nodesToUpdate,
-      labels,
+      labels: tagsToBackup,
     });
     yield put(setBackupAllSuccess(true));
     yield put(setPendingAllBackup(false));
@@ -1011,6 +1022,11 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
 
 export function* checkBackupCondition() {
   const { pendingAllBackup, automaticCloudBackup } = yield select((state: RootState) => state.bhr);
+  const { subscription }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  if (automaticCloudBackup && subscription.level === AppSubscriptionLevel.L1 && !pendingAllBackup) {
+    yield put(setAutomaticCloudBackup(false));
+    return true;
+  }
   if (!automaticCloudBackup) return true;
   const netInfo = yield call(NetInfo.fetch);
   if (!netInfo.isConnected) {

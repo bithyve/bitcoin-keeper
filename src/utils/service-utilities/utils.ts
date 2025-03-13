@@ -9,11 +9,11 @@ import {
 } from '../../services/wallets/interfaces/vault';
 import { Wallet } from '../../services/wallets/interfaces/wallet';
 import WalletOperations from '../../services/wallets/operations';
-import { generateInheritanceVaultElements } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from './config';
 import { generateMiniscriptScheme } from 'src/services/wallets/factories/VaultFactory';
 import { isOdd } from '../utilities';
+import { generateEnhancedVaultElements } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 
 const crypto = require('crypto');
 
@@ -396,21 +396,26 @@ export const parseTextforVaultConfig = (secret: string) => {
     return parsedResponse;
   }
   if (secret.includes('after(')) {
-    const { signers, inheritanceKey, timelock, importedKeyUsageCounts } =
-      parseInheritanceKeyMiniscript(secret);
+    const { signers, inheritanceKeys, emergencyKeys, importedKeyUsageCounts } =
+      parseEnhancedVaultMiniscript(secret);
     const multiMatch = secret.match(/thresh\((\d+),/);
     const m = multiMatch ? parseInt(multiMatch[1]) : 1;
 
-    const miniscriptElements = generateInheritanceVaultElements(
+    const miniscriptElements = generateEnhancedVaultElements(
       signers,
-      inheritanceKey,
-      { m, n: signers.length },
-      [timelock]
+      inheritanceKeys,
+      emergencyKeys,
+      { m, n: signers.length }
     );
 
     const miniscriptScheme = generateMiniscriptScheme(
       miniscriptElements,
-      [MiniscriptTypes.INHERITANCE],
+      inheritanceKeys.length || emergencyKeys.length
+        ? [
+            ...(inheritanceKeys.length ? [MiniscriptTypes.INHERITANCE] : []),
+            ...(emergencyKeys.length ? [MiniscriptTypes.EMERGENCY] : []),
+          ]
+        : [],
       null,
       importedKeyUsageCounts
     );
@@ -431,12 +436,22 @@ export const parseTextforVaultConfig = (secret: string) => {
     }
 
     const parsedResponse: ParsedVauleText = {
-      signersDetails: [...signers, inheritanceKey].filter(Boolean).map((key) => ({
-        xpub: key.xpub,
-        masterFingerprint: key.masterFingerprint,
-        path: key.derivationPath,
-        isMultisig: true,
-      })),
+      signersDetails: [
+        ...signers,
+        ...inheritanceKeys.map((ik) => ik.signer),
+        ...emergencyKeys
+          .filter(
+            (ek) => !signers.map((s) => s.masterFingerprint).includes(ek.signer.masterFingerprint)
+          )
+          .map((ek) => ek.signer),
+      ]
+        .filter(Boolean)
+        .map((key) => ({
+          xpub: key.xpub,
+          masterFingerprint: key.masterFingerprint,
+          path: key.derivationPath,
+          isMultisig: true,
+        })),
       isMultisig: true,
       scheme: {
         m,
@@ -451,10 +466,65 @@ export const parseTextforVaultConfig = (secret: string) => {
   throw Error('Data provided does not match supported formats');
 };
 
-function parseInheritanceKeyMiniscript(miniscript: string): {
+function extractStagesWithAfter(script: string): { stage: string; afterValue: number }[] {
+  const stagePattern = /and_v\((.*?),after\((\d+)\)\)/g;
+  const matches = [...script.matchAll(stagePattern)];
+
+  return matches.map((match) => ({
+    stage: match[1].trim(),
+    afterValue: parseInt(match[2], 10),
+  }));
+}
+
+function categorizeKeys(
+  stages: { stage: string; afterValue: number }[],
+  uniqueKeys: VaultSigner[],
+  regularKeysFingerprints: string[],
+  isOnlyInheritanceKeys: boolean
+) {
+  const keyRegex = /\[([A-F0-9]{8})[^\]]*\]/g;
+  const emergencyPattern = /v:pkh\(\[([A-F0-9]{8})[^\]]*\]/g;
+
+  let inheritanceKeys: { signer: VaultSigner; timelock: number }[] = [];
+  let emergencyKeys: { signer: VaultSigner; timelock: number }[] = [];
+
+  const processedInheritanceKeys = new Set<string>();
+
+  stages.forEach(({ stage, afterValue }) => {
+    const stageKeys = [...stage.matchAll(keyRegex)].map((match) => match[1]);
+    const emergencyKeysInStage = [...stage.matchAll(emergencyPattern)].map((match) => match[1]);
+
+    stageKeys.forEach((fingerprint) => {
+      const isEmergency = emergencyKeysInStage.includes(fingerprint);
+      const isRegular = regularKeysFingerprints.some((fp) => fp === fingerprint);
+      const isAlreadyProcessed = processedInheritanceKeys.has(fingerprint);
+
+      if (isEmergency) {
+        const signer = uniqueKeys.find((key) => key.masterFingerprint === fingerprint);
+        if (signer) {
+          if (isOnlyInheritanceKeys) {
+            inheritanceKeys.push({ signer, timelock: afterValue });
+          } else {
+            emergencyKeys.push({ signer, timelock: afterValue });
+          }
+        }
+      } else if (!isRegular && !isAlreadyProcessed) {
+        const signer = uniqueKeys.find((key) => key.masterFingerprint === fingerprint);
+        if (signer) {
+          inheritanceKeys.push({ signer, timelock: afterValue });
+          processedInheritanceKeys.add(fingerprint);
+        }
+      }
+    });
+  });
+
+  return { inheritanceKeys, emergencyKeys };
+}
+
+function parseEnhancedVaultMiniscript(miniscript: string): {
   signers: VaultSigner[];
-  inheritanceKey: VaultSigner | null;
-  timelock: number | null;
+  inheritanceKeys: { signer: VaultSigner; timelock: number }[];
+  emergencyKeys: { signer: VaultSigner; timelock: number }[];
   importedKeyUsageCounts: Record<string, number>;
 } {
   // Remove wsh() wrapper and checksum
@@ -477,7 +547,7 @@ function parseInheritanceKeyMiniscript(miniscript: string): {
   }));
 
   // Create unique signers list (without duplicates)
-  const uniqueKeys = Array.from(
+  const uniqueKeys: VaultSigner[] = Array.from(
     new Map(
       keyOccurrences.map((key) => [
         key.xpub,
@@ -491,40 +561,50 @@ function parseInheritanceKeyMiniscript(miniscript: string): {
     ).values()
   );
 
-  let inheritanceKey: VaultSigner | null = null;
+  const stages = extractStagesWithAfter(innerScript);
+  // Extract all key expressions from the entire innerScript
+  const allKeyMatches = [...innerScript.matchAll(keyRegex)];
 
-  // Check if script contains thresh( for multi-key format
-  if (innerScript.includes('thresh(')) {
-    const fingerprintCounts = new Map<string, number>();
-    matches.forEach((match) => {
-      const fingerprint = match[1];
-      fingerprintCounts.set(fingerprint, (fingerprintCounts.get(fingerprint) || 0) + 1);
-    });
+  // Extract all key expressions from the stages
+  const stageKeyMatches = stages.flatMap((stage) => [...stage.stage.matchAll(keyRegex)]);
 
-    const inheritanceKeyFingerprint = Array.from(fingerprintCounts.entries()).find(
-      ([_, count]) => count === 1
-    )?.[0];
-    inheritanceKey =
-      uniqueKeys.find((key) => key.masterFingerprint === inheritanceKeyFingerprint) || null;
-  } else {
-    // For simple inheritance format, find key inside and_v(...after())
-    const andAfterMatch = innerScript.match(/and_v\(v:pkh\(\[([A-F0-9]{8})[^\]]*\][^)]*\),after/);
-    if (andAfterMatch) {
-      const inheritanceKeyFingerprint = andAfterMatch[1];
-      inheritanceKey =
-        uniqueKeys.find((key) => key.masterFingerprint === inheritanceKeyFingerprint) || null;
-    }
-  }
+  // Create a map to count occurrences of each key in the entire innerScript
+  const allKeyCounts = new Map<string, number>();
+  allKeyMatches.forEach((match) => {
+    const key = match[0];
+    allKeyCounts.set(key, (allKeyCounts.get(key) || 0) + 1);
+  });
 
-  const signers = uniqueKeys.filter(
-    (key) => key.masterFingerprint !== inheritanceKey?.masterFingerprint
+  // Create a map to count occurrences of each key in the stages
+  const stageKeyCounts = new Map<string, number>();
+  stageKeyMatches.forEach((match) => {
+    const key = match[0];
+    stageKeyCounts.set(key, (stageKeyCounts.get(key) || 0) + 1);
+  });
+
+  // Identify regular keys (keys that appear more in the entire innerScript than in the stages)
+  const regularKeys = Array.from(allKeyCounts.entries())
+    .filter(([key, count]) => count > (stageKeyCounts.get(key) || 0))
+    .map(([key]) => key);
+
+  const fingerprintRegex = /\[([A-Fa-f0-9]{8})/; // Adjusted regex
+
+  const regularFingerprints = regularKeys
+    .map((key) => {
+      const match = key.match(fingerprintRegex);
+      return match ? match[1] : null;
+    })
+    .filter((fingerprint) => fingerprint !== null);
+
+  const { inheritanceKeys, emergencyKeys } = categorizeKeys(
+    stages,
+    uniqueKeys,
+    regularFingerprints,
+    uniqueKeys.length === keyOccurrences.length
   );
 
-  // Extract timelock value
-  const afterMatch = innerScript.match(/after\((\d+)\)/);
-  const timelock = afterMatch ? parseInt(afterMatch[1]) : null;
-
   // Derive importedKeyUsageCounts from occurrences
+
   const importedKeyUsageCounts: Record<string, number> = {};
   keyOccurrences.forEach((occurrence) => {
     const match = occurrence.pathRestriction.match(/<(\d+);/);
@@ -554,9 +634,9 @@ function parseInheritanceKeyMiniscript(miniscript: string): {
   });
 
   return {
-    signers,
-    inheritanceKey,
-    timelock,
+    signers: uniqueKeys.filter((key) => regularFingerprints.includes(key.masterFingerprint)),
+    inheritanceKeys,
+    emergencyKeys,
     importedKeyUsageCounts,
   };
 }

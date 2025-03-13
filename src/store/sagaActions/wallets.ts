@@ -119,8 +119,9 @@ export const updateSignerPolicy = (
   signer: Signer,
   signingKey: VaultSigner,
   updates: {
-    restrictions?: SignerRestriction;
-    exceptions?: SignerException;
+    restrictions: SignerRestriction;
+    exceptions: SignerException;
+    signingDelay: number;
   },
   verificationToken
 ) => ({

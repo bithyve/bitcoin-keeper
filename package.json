@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
     "ios": "react-native run-ios",
@@ -39,7 +39,7 @@
     "@shipt/segmented-arc-for-react-native": "1.2.1",
     "@testing-library/react-native": "11.0.0",
     "assert": "2.0.0",
-    "axios": "1.6.8",
+    "axios": "1.8.2",
     "base-64": "1.0.0",
     "base58check": "2.0.0",
     "bip21": "2.0.3",

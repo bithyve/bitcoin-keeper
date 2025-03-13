@@ -6,8 +6,7 @@ import {
   Network,
   MnemonicWords,
 } from 'libportal-react-native';
-import { XpubTypes } from 'src/services/wallets/enums';
-import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
+import { DerivationPurpose } from 'src/services/wallets/enums';
 import { Platform } from 'react-native';
 import { isTestnet } from 'src/constants/Bitcoin';
 
@@ -170,17 +169,12 @@ export const isReading = () => {
 
 export const getPortalDetailsFromDescriptor = (descriptor: string) => {
   const regex = /\[([0-9a-fA-F]+)\/([0-9'\/]+)\]([xtyz][A-Za-z0-9]+)/;
-  //  /^\[(\w+\/(?:\d+'?\/)*\d+')\](tpub[a-zA-Z0-9]+)$/; // single sig
   const match = descriptor.match(regex);
   if (match) {
-    const xpubDetails: XpubDetailsType = {};
-    // Multisig
     const mfp = match[1].toUpperCase();
     const derivationPath = 'm/' + match[2];
-    const xpub = match[3];
-    xpubDetails[XpubTypes.P2WSH] = { xpub, derivationPath };
-
-    return { xpub, derivationPath, masterFingerprint: mfp?.toUpperCase(), xpubDetails };
+    const xPub = match[3];
+    return { xPub, derivationPath, mfp };
   } else {
     throw new Error('Invalid descriptor format');
   }
@@ -194,14 +188,27 @@ export const signPSBT = (psbt: string) => {
   return sdk.signPsbt(psbt);
 };
 
-export const getXpub = ({ accountNumber, isMultisig = true }) => {
-  const derivationPath = isMultisig
-    ? isTestnet()
-      ? `m/48h/1h/${accountNumber}h/2h`
-      : `m/48h/0h/${accountNumber}h/2h`
-    : isTestnet()
-    ? `m/84h/1h/${accountNumber}h`
-    : `m/84h/0h/${accountNumber}h`;
+export const xPubTypes = {
+  singleSig: DerivationPurpose.BIP84,
+  multisig: DerivationPurpose.BIP48,
+  taproot: DerivationPurpose.BIP86,
+};
+
+export const getXpub = ({ accountNumber, purpose }) => {
+  let derivationPath;
+  switch (purpose) {
+    case DerivationPurpose.BIP84:
+      derivationPath = isTestnet() ? `m/84h/1h/${accountNumber}h` : `m/84h/0h/${accountNumber}h`;
+      break;
+    case DerivationPurpose.BIP48:
+      derivationPath = isTestnet()
+        ? `m/48h/1h/${accountNumber}h/2h`
+        : `m/48h/0h/${accountNumber}h/2h`;
+      break;
+    case DerivationPurpose.BIP86:
+      derivationPath = isTestnet() ? `m/86h/1h/${accountNumber}h` : `m/86h/0h/${accountNumber}h`;
+      break;
+  }
   return sdk.getXpub(derivationPath);
 };
 

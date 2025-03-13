@@ -11,15 +11,15 @@ import { TransferType } from 'src/models/enums/TransferType';
 import FeeInsightsContent from 'src/screens/FeeInsights/FeeInsightsContent';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import { uaiActioned, uaisSeen } from 'src/store/sagaActions/uai';
-import UAIView from '../components/HeaderDetails/components/UAIView';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useVault from 'src/hooks/useVault';
+import ServerTransNotificaiton from 'src/assets/images/server-transaction-notification-icon.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
-import { EntityKind } from 'src/services/wallets/enums';
+import { EntityKind, SignerType } from 'src/services/wallets/enums';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
@@ -38,7 +38,11 @@ import HealthCheckIcon from 'src/assets/images/health_check_reminder.svg';
 import TechSupportIcon from 'src/assets/images/tech_support_received.svg';
 import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
-import uai from 'src/store/reducers/uai';
+import RecevieIcon from 'src/assets/images/incoming-tx-notification.svg';
+import { useAppSelector } from 'src/store/hooks';
+import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
+import UAIView from '../components/HeaderDetails/components/UAIView';
+import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 
 type CardProps = {
   totalLength: number;
@@ -72,7 +76,7 @@ interface uaiDefinationInterface {
   };
 }
 
-let SUPPORTED_NOTOFOCATION_TYPES = [
+const SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.SECURE_VAULT,
   uaiType.VAULT_TRANSFER,
   uaiType.SIGNING_DEVICES_HEALTH_CHECK,
@@ -80,6 +84,9 @@ let SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
   uaiType.CANARAY_WALLET,
   uaiType.ZENDESK_TICKET,
+  uaiType.SIGNING_DELAY,
+  uaiType.POLICY_DELAY,
+  uaiType.INCOMING_TRANSACTION,
 ];
 
 const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
@@ -101,6 +108,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
   const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
   const [showSelectVault, setShowSelectVault] = useState(false);
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
+  const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     const backupHistory = useQuery(RealmSchema.BackupHistory);
@@ -274,6 +282,94 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
           },
         };
       }
+      case uaiType.SIGNING_DELAY: {
+        return {
+          heading: content.heading,
+          body: content.body,
+          icon: content.icon,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                const delayedTxid = uai.entityId;
+                const snapshot: cachedTxSnapshot = snapshots[delayedTxid]; // cachedTxid is same as delayedTxid
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+                if (snapshot) {
+                  dispatch(setStateFromSnapshot(snapshot.state));
+                  navigtaion.dispatch(
+                    CommonActions.navigate('SendConfirmation', {
+                      ...snapshot.routeParams,
+                      addresses: snapshot.routeParams.addresses,
+                      amounts: snapshot.routeParams.amounts,
+                      internalRecipients: snapshot.routeParams.internalRecipients,
+                    })
+                  );
+                } else {
+                  showToast('Pending transaction not found');
+                }
+              },
+            },
+          },
+        };
+      }
+      case uaiType.POLICY_DELAY: {
+        return {
+          heading: content.heading,
+          body: content.body,
+          icon: content.icon,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+                navigtaion.dispatch(
+                  CommonActions.navigate({
+                    name: 'ChoosePolicyNew',
+                    params: {
+                      isUpdate: true,
+                      signer: Object.values(signerMap).find(
+                        (signer) => signer.type === SignerType.POLICY_SERVER
+                      ),
+                    },
+                  })
+                );
+              },
+            },
+          },
+        };
+      }
+      case uaiType.INCOMING_TRANSACTION: {
+        return {
+          heading: content.heading,
+          body: content.body,
+          icon: content.icon,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+
+                const navigationState = {
+                  index: 1,
+                  routes: [
+                    { name: 'Home' },
+                    {
+                      name:
+                        uai.entityId.split('_')[0] === 'VAULT' ? 'VaultDetails' : 'WalletDetails',
+                      params: {
+                        vaultId: uai.entityId.split('_')[1],
+                        walletId: uai.entityId.split('_')[1],
+                        viewTransaction: uai.entityId.split('_')[2],
+                      },
+                    },
+                  ],
+                };
+                navigtaion.dispatch(CommonActions.reset(navigationState));
+              },
+            },
+          },
+        };
+      }
 
       default:
         return null;
@@ -343,7 +439,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
         textColor={`${colorMode}.modalHeaderTitle`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonText={'Done'}
+        buttonText="Done"
         buttonCallback={() => {
           setInsightModal(false);
           dispatch(uaiActioned({ uaiId: uai.id, action: false }));
@@ -374,7 +470,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
   );
 });
 
-const NotificationsCenter = () => {
+function NotificationsCenter() {
   const { colorMode } = useColorMode();
   const { uaiStack, isLoading } = useUaiStack();
   const { wallets: allWallets } = useWallets({ getAll: true });
@@ -426,74 +522,67 @@ const NotificationsCenter = () => {
   };
 
   return (
-    <>
-      <ScreenWrapper paddingHorizontal={0}>
-        <Box
-          backgroundColor={`${colorMode}.primaryBackground`}
-          style={{
-            paddingHorizontal: 20,
-            paddingTop: hp(15),
-            paddingBottom: hp(5),
-          }}
-        >
-          <WalletHeader title="Notifications" />
-        </Box>
-        <Box
-          style={styles.notificationsContainer}
-          height={'93%'}
-          backgroundColor={`${colorMode}.seashellWhite`}
-        >
-          {isLoading ? (
-            <Box height={'100%'} justifyContent="center" alignItems="center">
-              <ActivityIndicator
-                testID="activityIndicator"
-                size="large"
-                animating
-                color="#00836A"
-              />
-            </Box>
-          ) : (
-            <Box height={'95%'}>
-              <SectionList
-                sections={[
-                  {
-                    title: 'New',
-                    data: unseenNotifications,
-                    show: unseenNotifications.length > 0,
-                  },
-                  {
-                    title: 'Seen',
-                    data: seenNotifications,
-                    show: seenNotifications.length > 0,
-                  },
-                ].filter((section) => section.show)}
-                renderItem={({ item, index }) => renderNotificationCard({ uai: item, index })}
-                renderSectionHeader={({ section: { title } }) => (
-                  <Box style={styles.listHeader} backgroundColor={`${colorMode}.seashellWhite`}>
-                    <Text fontSize={16} semiBold>
-                      {title}
-                    </Text>
-                    <Box
-                      style={{ borderBottomWidth: 1, marginTop: hp(8) }}
-                      borderColor={`${colorMode}.MintWhisper`}
-                    />
-                  </Box>
-                )}
-                keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
-              />
-              {seenNotifications.length == 0 && unseenNotifications.length == 0 && (
-                <Box height={'95%'} marginLeft={wp(15)}>
-                  <Text fontSize={14}>You have no new notifications</Text>
+    <ScreenWrapper paddingHorizontal={0}>
+      <Box
+        backgroundColor={`${colorMode}.primaryBackground`}
+        style={{
+          paddingHorizontal: 20,
+          paddingTop: hp(15),
+          paddingBottom: hp(5),
+        }}
+      >
+        <WalletHeader title="Notifications" />
+      </Box>
+      <Box
+        style={styles.notificationsContainer}
+        height="93%"
+        backgroundColor={`${colorMode}.seashellWhite`}
+      >
+        {isLoading ? (
+          <Box height="100%" justifyContent="center" alignItems="center">
+            <ActivityIndicator testID="activityIndicator" size="large" animating color="#00836A" />
+          </Box>
+        ) : (
+          <Box height="95%">
+            <SectionList
+              sections={[
+                {
+                  title: 'New',
+                  data: unseenNotifications,
+                  show: unseenNotifications.length > 0,
+                },
+                {
+                  title: 'Seen',
+                  data: seenNotifications,
+                  show: seenNotifications.length > 0,
+                },
+              ].filter((section) => section.show)}
+              renderItem={({ item, index }) => renderNotificationCard({ uai: item, index })}
+              renderSectionHeader={({ section: { title } }) => (
+                <Box style={styles.listHeader} backgroundColor={`${colorMode}.seashellWhite`}>
+                  <Text fontSize={16} semiBold>
+                    {title}
+                  </Text>
+                  <Box
+                    style={{ borderBottomWidth: 1, marginTop: hp(8) }}
+                    borderColor={`${colorMode}.MintWhisper`}
+                  />
                 </Box>
               )}
-            </Box>
-          )}
-        </Box>
-      </ScreenWrapper>
-    </>
+              keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
+            />
+            {seenNotifications.length == 0 && unseenNotifications.length == 0 && (
+              <Box height="95%" marginLeft={wp(15)}>
+                <Text fontSize={14}>You have no new notifications</Text>
+              </Box>
+            )}
+          </Box>
+        )}
+      </Box>
+    </ScreenWrapper>
   );
-};
+}
 
 export default SentryErrorBoundary(NotificationsCenter);
 
@@ -564,6 +653,24 @@ export const getUaiContent = (type: uaiType, details?: any) => {
         heading: 'Technical Support',
         body: details?.body || 'Support ticket update',
         icon: <TechSupportIcon />,
+      };
+    case uaiType.SIGNING_DELAY:
+      return {
+        heading: 'Server Key Signed Transaction',
+        body: 'The Server Key signed your requested transaction',
+        icon: <ServerTransNotificaiton />,
+      };
+    case uaiType.POLICY_DELAY:
+      return {
+        heading: 'Server Key Policy Updated',
+        body: 'The Server Key has activated the requested policy',
+        icon: <ServerTransNotificaiton />,
+      };
+    case uaiType.INCOMING_TRANSACTION:
+      return {
+        heading: 'New Transaction Received',
+        body: 'Click to view the transaction details',
+        icon: <RecevieIcon />,
       };
 
     default:

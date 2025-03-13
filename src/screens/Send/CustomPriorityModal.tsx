@@ -30,6 +30,7 @@ function CustomPriorityModal(props) {
     sender,
     selectedUTXOs,
     existingCustomPriorityFee,
+    miniscriptSelectedSatisfier,
   } = props;
   const { bottom } = useSafeAreaInsets();
   const [customPriorityFee, setCustomPriorityFee] = useState(
@@ -90,6 +91,7 @@ function CustomPriorityModal(props) {
         feePerByte: customPriorityFee,
         customEstimatedBlocks: customEstBlocks,
         selectedUTXOs,
+        miniscriptSelectedSatisfier,
       })
     );
   };

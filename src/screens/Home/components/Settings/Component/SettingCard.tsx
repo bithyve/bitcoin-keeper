@@ -82,18 +82,20 @@ const SettingCard: React.FC<SettingCardProps> = ({
               >
                 <Box style={styles.Container}>
                   <Box style={styles.document}>
-                    <Box style={styles.icon}>
-                      {item.showDot ? <Box style={styles.redDot} /> : null}
-                      <CircleIconWrapper
-                        width={wp(25)}
-                        icon={item.icon}
-                        backgroundColor={
-                          applyDiamondCheck
-                            ? `${colorMode}.pantoneGreen`
-                            : `${colorMode}.disabledDiamond`
-                        }
-                      />
-                    </Box>
+                    {item?.icon && (
+                      <Box style={styles.icon}>
+                        {item.showDot ? <Box style={styles.redDot} /> : null}
+                        <CircleIconWrapper
+                          width={wp(25)}
+                          icon={item.icon}
+                          backgroundColor={
+                            applyDiamondCheck
+                              ? `${colorMode}.pantoneGreen`
+                              : `${colorMode}.disabledDiamond`
+                          }
+                        />
+                      </Box>
+                    )}
                     <Box style={styles.textContainer}>
                       <Text
                         color={applyDiamondCheck ? titleColor : `${colorMode}.disabledDiamond`}
@@ -121,17 +123,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                         onPress={item.onRightPress}
                         testID={`btn_right_${item.title}`}
                       >
-                        <Box>
-                          {(item?.isDiamond && isDiamondHands) || (item?.isHodler && isHodler) ? (
-                            isDarkMode ? (
-                              <WhiteRightArrowIcon />
-                            ) : (
-                              <RightArrowIcon />
-                            )
-                          ) : (
-                            item.rightIcon
-                          )}
-                        </Box>
+                        <Box>{item.rightIcon}</Box>
                       </TouchableOpacity>
                     ) : (
                       <Box>{isDarkMode ? <WhiteRightArrowIcon /> : <RightArrowIcon />}</Box>
@@ -196,7 +188,6 @@ const styles = StyleSheet.create({
     marginRight: wp(6),
   },
   rightIcon: {
-    width: 40,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },

@@ -26,6 +26,7 @@ import SDCategoryCard from './components/SDCategoryCard';
 import { SignerCategory, SignerType, VaultType } from 'src/services/wallets/enums';
 import { SDIcons } from './SigningDeviceIcons';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import DashedCta from 'src/components/DashedCta';
 
 function SignerCategoryList() {
   const route = useRoute();
@@ -157,6 +158,16 @@ function SignerCategoryList() {
                 snippet={item.snippet}
               />
             ))}
+            <DashedCta
+              backgroundColor={`${colorMode}.DashedButtonCta`}
+              borderColor={`${colorMode}.dashedButtonBorderColor`}
+              textColor={`${colorMode}.greenWhiteText`}
+              name={signer.purchaseWallet}
+              cardStyles={styles.cardStyles}
+              callback={() => {
+                navigation.navigate('HardwareWallet');
+              }}
+            />
           </Box>
         </ScrollView>
       </Box>
@@ -220,6 +231,9 @@ const styles = StyleSheet.create({
   },
   alignCenter: {
     alignSelf: 'center',
+  },
+  cardStyles: {
+    minHeight: hp(60),
   },
 });
 export default SignerCategoryList;

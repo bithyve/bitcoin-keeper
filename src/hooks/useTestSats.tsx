@@ -9,8 +9,9 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
-import OptionCard from 'src/components/OptionCard';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
+import SettingCard from 'src/screens/Home/components/Settings/Component/SettingCard';
+import { useColorMode } from 'native-base';
 
 const useTestSats = ({ wallet }) => {
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
@@ -20,6 +21,7 @@ const useTestSats = ({ wallet }) => {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const navigation = useNavigation();
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     setAppLoading(false);
@@ -53,15 +55,24 @@ const useTestSats = ({ wallet }) => {
   }, []);
 
   return config.NETWORK_TYPE === NetworkType.TESTNET ? (
-    <OptionCard
-      title="Recieve Test Sats"
-      description={`Receive test sats in your ${
-        wallet.entityKind === EntityKind.VAULT ? 'vault' : 'wallet'
-      }`}
-      callback={() => {
-        setAppLoading(true);
-        dispatch(testSatsRecieve(wallet));
-      }}
+    <SettingCard
+      subtitleColor={`${colorMode}.balanceText`}
+      backgroundColor={`${colorMode}.textInputBackground`}
+      borderColor={`${colorMode}.separator`}
+      items={[
+        {
+          title: 'Receive Test Sats',
+          description: `Receive test sats in your ${
+            wallet.entityKind === EntityKind.VAULT ? 'vault' : 'wallet'
+          }`,
+          icon: null,
+          isDiamond: false,
+          onPress: () => {
+            setAppLoading(true);
+            dispatch(testSatsRecieve(wallet));
+          },
+        },
+      ]}
     />
   ) : null;
 };

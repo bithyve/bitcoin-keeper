@@ -21,6 +21,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import SignerImportIcon from 'src/assets/images/signer_import.svg';
 import { InteracationMode } from './HardwareModalMap';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function WrappedImportIcon() {
   return (
@@ -77,6 +78,8 @@ function VaultConfigurationCreation() {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
+      {recoveryLoading && <ActivityIndicatorView visible={recoveryLoading} />}
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled

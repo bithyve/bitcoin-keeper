@@ -91,6 +91,7 @@ export enum MiniscriptTypes {
   ASSISTED = 'ASSISTED',
   TIMELOCKED = 'TIMELOCKED',
   INHERITANCE = 'INHERITANCE',
+  EMERGENCY = 'EMERGENCY',
 }
 
 export enum VaultMigrationType {

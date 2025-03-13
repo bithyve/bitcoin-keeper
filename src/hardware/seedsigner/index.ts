@@ -18,7 +18,7 @@ export const getSeedSignerDetails = (qrData) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, masterFingerprint: xfp, forMultiSig, forSingleSig };
+  return { xpub, derivationPath, masterFingerprint: xfp?.toUpperCase(), forMultiSig, forSingleSig };
 };
 
 export const updateInputsForSeedSigner = ({ serializedPSBT, signedSerializedPSBT }) => {
@@ -29,4 +29,15 @@ export const updateInputsForSeedSigner = ({ serializedPSBT, signedSerializedPSBT
     signedPsbt.updateInput(index, unsignedInputs[index]);
   });
   return { signedPsbt: signedPsbt.toBase64() };
+};
+
+export const manipulateSeedSignerData = (data: string) => {
+  const match = data.match(/\[([a-f0-9]+)\/(.+?)\](\w+)/);
+  if (!match) return null;
+  const [, mfp, derivationPath, xPub] = match;
+  return {
+    mfp,
+    derivationPath: 'm/' + derivationPath,
+    xPub,
+  };
 };

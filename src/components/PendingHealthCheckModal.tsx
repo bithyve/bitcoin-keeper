@@ -8,13 +8,12 @@ import config, {
   PENDING_HEALTH_CHECK_TIME_DEV,
   PENDING_HEALTH_CHECK_TIME_PROD,
 } from 'src/utils/service-utilities/config';
-import { SignerType, EntityKind, NetworkType } from 'src/services/wallets/enums';
+import { EntityKind } from 'src/services/wallets/enums';
 import { wp, hp } from 'src/constants/responsive';
 import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { getKeyUID } from 'src/utils/utilities';
-import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 
 const PendingHealthCheckModal = ({
   selectedItem,
@@ -38,12 +37,13 @@ const PendingHealthCheckModal = ({
   let keys = keysList;
 
   if (selectedItem && selectedItem.entityKind === EntityKind.VAULT) {
-    keys = keys.filter(
-      (key) =>
-        key.masterFingerprint !==
-        selectedItem?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints[
-          INHERITANCE_KEY1_IDENTIFIER
-        ]
+    keys = keys.filter((key) =>
+      Object.entries(
+        selectedItem?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints || {}
+      )
+        .filter(([identifier]) => identifier.startsWith('K'))
+        .map(([_, fingerprint]) => fingerprint)
+        .includes(key.masterFingerprint)
     );
   }
 

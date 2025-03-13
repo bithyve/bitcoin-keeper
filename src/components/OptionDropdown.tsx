@@ -1,10 +1,13 @@
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import TickIcon from 'src/assets/images/icon_check.svg';
+import TickDarkIcon from 'src/assets/images/white_icon_check.svg';
+
+import KeeperModal from './KeeperModal';
 
 type Option = {
   label: string;
@@ -20,6 +23,7 @@ type Props = {
 
 function OptionDropdown({ label, options, selectedOption, onOptionSelect }: Props) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const [isOpen, setIsOpen] = useState(false);
   const [internalSelectedOption, setInternalSelectedOption] = useState<Option | null>(
     selectedOption
@@ -40,6 +44,31 @@ function OptionDropdown({ label, options, selectedOption, onOptionSelect }: Prop
       setInternalSelectedOption(selectedOption);
     }
   }, [selectedOption]);
+  const renderOptions = () => (
+    <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={false}>
+      {options.map((option, index) => (
+        <TouchableOpacity key={option.value.toString()} onPress={() => handleOptionSelect(option)}>
+          <Box style={styles.optionContainer}>
+            <Text
+              color={
+                internalSelectedOption?.value === option.value
+                  ? `${colorMode}.greenText`
+                  : `${colorMode}.GreyText`
+              }
+              style={styles.optionText}
+            >
+              {`${option.label}`}
+            </Text>
+            {internalSelectedOption?.value === option.value &&
+              (isDarkMode ? <TickDarkIcon /> : <TickIcon />)}
+          </Box>
+          {index !== options.length - 1 && (
+            <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.separator} />
+          )}
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  );
 
   return (
     <Box>
@@ -76,36 +105,13 @@ function OptionDropdown({ label, options, selectedOption, onOptionSelect }: Prop
           </Box>
         </Box>
       </Pressable>
-      {isOpen && (
-        <Box
-          backgroundColor={`${colorMode}.boxSecondaryBackground`}
-          style={styles.optionsContainer}
-        >
-          {options.map((option, index) => (
-            <TouchableOpacity
-              key={option.value.toString()}
-              onPress={() => handleOptionSelect(option)}
-            >
-              <Box style={styles.optionContainer}>
-                <Text
-                  color={
-                    internalSelectedOption?.value === option.value
-                      ? `${colorMode}.greenText`
-                      : `${colorMode}.GreyText`
-                  }
-                  style={styles.optionText}
-                >
-                  {`${option.label}`}
-                </Text>
-                {internalSelectedOption?.value === option.value && <TickIcon />}
-              </Box>
-              {index !== options.length - 1 && (
-                <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.separator} />
-              )}
-            </TouchableOpacity>
-          ))}
-        </Box>
-      )}
+
+      <KeeperModal
+        visible={isOpen}
+        close={() => setIsOpen(false)}
+        showCloseIcon={false}
+        Content={() => renderOptions()}
+      />
     </Box>
   );
 }
@@ -143,27 +149,17 @@ const styles = StyleSheet.create({
   icArrow: {
     alignSelf: 'center',
   },
-  optionsContainer: {
-    paddingTop: hp(10),
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    gap: hp(10),
-    zIndex: 999,
-    marginTop: hp(5),
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-  },
+
   optionContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: hp(10),
-    paddingBottom: hp(15),
-    paddingHorizontal: wp(20),
   },
+
   separator: {
     height: 1,
     alignSelf: 'center',
-    width: '90%',
+    width: '100%',
+    marginVertical: hp(20),
   },
 });

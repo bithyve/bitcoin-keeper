@@ -104,7 +104,7 @@ export default class ElectrumClient {
 
       const ver = await Promise.race([
         new Promise((resolve) => {
-          timeoutId = setTimeout(() => resolve('timeout'), 4000);
+          timeoutId = setTimeout(() => resolve('timeout'), 20000);
         }),
         ELECTRUM_CLIENT.electrumClient.initElectrum({
           client: 'btc-k',
@@ -309,6 +309,9 @@ export default class ElectrumClient {
     txids: any[];
     txidToAddress: { [tx_hash: string]: string };
   }> {
+    if (addresses.length === 0) {
+      return { historyByAddress: {}, txids: [], txidToAddress: {} };
+    }
     ElectrumClient.checkConnection();
 
     const historyByAddress = {};
@@ -360,6 +363,9 @@ export default class ElectrumClient {
     batchsize: number = 40,
     includeHex: boolean = false
   ): Promise<{ [txid: string]: ElectrumTransaction }> {
+    if (txids.length === 0) {
+      return {};
+    }
     ElectrumClient.checkConnection();
 
     const res = {};
@@ -423,10 +429,11 @@ export default class ElectrumClient {
     }; // mute
     let timeoutId = null;
 
+    let conncetionError = null;
     try {
       const ver = await Promise.race([
         new Promise((resolve) => {
-          timeoutId = setTimeout(() => resolve('timeout'), 4000);
+          timeoutId = setTimeout(() => resolve('timeout'), 20000);
         }),
         client.initElectrum({
           client: 'btc-k',
@@ -435,15 +442,16 @@ export default class ElectrumClient {
       ]);
       if (ver === 'timeout') throw new Error('Connection time-out');
 
-      if (ver && ver[0]) return true;
+      if (ver && ver[0]) return { connected: true, error: conncetionError };
       else throw new Error('failed to connect');
     } catch (err) {
       console.log({ err });
+      conncetionError = err;
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
       client.close();
     }
 
-    return false;
+    return { connected: false, error: conncetionError };
   }
 }

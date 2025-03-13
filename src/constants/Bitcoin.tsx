@@ -53,7 +53,9 @@ export const getAmt = (
     return getAmount(amountInSats, satsEnabled);
   }
   if (exchangeRates && exchangeRates[currencyCode]) {
-    return ((exchangeRates[currencyCode].last / SATOSHIS_IN_BTC) * amountInSats).toFixed(2);
+    return numberWithCommas(
+      ((exchangeRates[currencyCode].last / SATOSHIS_IN_BTC) * amountInSats).toFixed(2)
+    );
   }
   return numberWithCommas(amountInSats);
 };
@@ -74,9 +76,11 @@ export const getConvertedAmt = (
     }
     if (exchangeRates && exchangeRates[currencyCode]) {
       if (satsEnabled) {
-        return ((amount / SATOSHIS_IN_BTC) * exchangeRates[currencyCode].last).toFixed(2);
+        return numberWithCommas(
+          ((amount / SATOSHIS_IN_BTC) * exchangeRates[currencyCode].last).toFixed(2)
+        );
       }
-      return (exchangeRates[currencyCode].last * amount).toFixed(2);
+      return numberWithCommas((exchangeRates[currencyCode].last * amount).toFixed(2));
     }
     return numberWithCommas(amount);
   }

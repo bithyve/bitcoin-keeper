@@ -1,10 +1,11 @@
-import { Box, Text, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import useBalance from 'src/hooks/useBalance';
 import BTC from 'src/assets/images/btc.svg';
 import { StyleSheet } from 'react-native';
 import { useAppSelector } from 'src/store/hooks';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import Text from 'src/components/KeeperText';
 
 interface AmountDetailsProps {
   title?: string;
@@ -55,8 +56,7 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
       {amount && (
         <Box style={styles.amtTitleWrapper}>
           <Box style={styles.currencyIcon}>
-            {!isCurrentCurrencyFiat &&
-              getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
+            {!getSatUnit() && getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
             &nbsp;
             <Text
               color={amountColor || `${colorMode}.secondaryText`}
@@ -67,7 +67,7 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
             </Text>
             <Text
               color={unitColor || `${colorMode}.secondaryText`}
-              fontSize={unitFontSize || 12}
+              fontSize={unitFontSize || 14}
               fontWeight={unitFontWeight}
             >
               {isCurrentCurrencyFiat ? '' : customUnit ?? getSatUnit()}

@@ -45,7 +45,6 @@ platform :android do
         "android.injected.signing.key.password" => key_password,
       }
     )
-    upload_to_slack({file_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]})
   end
 
   desc "Push a new live build to Slack and internal track on Play Store"
@@ -87,19 +86,9 @@ platform :android do
         "android.injected.signing.key.password" => key_password,
       }
     )
-    upload_to_slack({file_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]})
   end
 end
 
-desc "Upload the APK to Slack channel"
-private_lane :upload_to_slack do |options|
-  file_path = options[:file_path].to_s
-  file_name = file_path.gsub(/\/.*\//,"")
-  access_token = ENV["SLACK_ACCESS_TOKEN"]
-  channel_name = "dev-ops"
-  sh "echo Uploading " + file_name + " to Slack"
-  sh "curl --limit-rate 2048K https://slack.com/api/files.upload -F token=\"" + access_token + "\" -F channels=\"" + channel_name + "\" -F title=\"" + file_name + "\" -F filename=\"" + file_name + "\" -F file=@" + file_path
-end
 
 after_all do |lane|
   versionCode = android_get_version_code()

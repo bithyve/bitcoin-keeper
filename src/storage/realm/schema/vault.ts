@@ -19,6 +19,7 @@ export const SignerPolicy: ObjectSchema = {
       properties: {
         none: 'bool',
         maxTransactionAmount: 'int?',
+        timeWindow: 'int?',
       },
     },
     exceptions: {
@@ -27,6 +28,12 @@ export const SignerPolicy: ObjectSchema = {
         none: 'bool',
         transactionAmount: 'int?',
       },
+    },
+    signingDelay: {
+      type: 'int?',
+    },
+    backupDisabled: {
+      type: 'bool?',
     },
   },
 };
@@ -271,6 +278,7 @@ export const VaultSchema: ObjectSchema = {
     specs: RealmSchema.VaultSpecs,
     archived: 'bool',
     archivedId: 'string?',
+    isMigrating: 'bool?',
     scriptType: 'string',
   },
   primaryKey: 'id',

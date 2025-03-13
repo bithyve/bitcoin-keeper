@@ -3,7 +3,7 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
-import React, { useEffect } from 'react';
+import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/services/wallets/enums';
 import { Alert, Dimensions, ScrollView, StyleSheet } from 'react-native';
@@ -21,15 +21,12 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import WalletCopiableData from 'src/components/WalletCopiableData';
-import useToastMessage from 'src/hooks/useToastMessage';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getKeyUID, isHexadecimal } from 'src/utils/utilities';
 import { hp, windowWidth } from 'src/constants/responsive';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
-import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 const { width } = Dimensions.get('window');
 
@@ -67,24 +64,6 @@ function SignWithQR() {
   const { signer } = isRemoteKey
     ? { signer: signerMap[getKeyUID(vaultKey)] }
     : useSignerFromKey(vaultKey);
-  const [details, setDetails] = React.useState('');
-  const { showToast } = useToastMessage();
-
-  useEffect(() => {
-    if (!details) {
-      setTimeout(() => {
-        try {
-          const keyDescriptor = fetchKeyExpression(signer);
-          setDetails(keyDescriptor);
-        } catch (error) {
-          showToast(
-            "We're sorry, but we have trouble retrieving the key information",
-            <ToastErrorIcon />
-          );
-        }
-      }, 200);
-    }
-  }, []);
 
   const signTransaction = (signedSerializedPSBT) => {
     try {

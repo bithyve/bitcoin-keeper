@@ -236,7 +236,7 @@ function TransactionDetails({ route }) {
               </TouchableOpacity>
               <InfoCard
                 title={transactions.confirmations}
-                describtion={transaction.confirmations > 3 ? '3+' : transaction.confirmations}
+                describtion={transaction.confirmations > 6 ? '6+' : transaction.confirmations}
                 showIcon={false}
                 letterSpacing={2.4}
               />

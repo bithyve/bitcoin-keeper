@@ -5,10 +5,12 @@ import { reduxStorage } from 'src/storage';
 
 interface SignerState {
   lastUsedOptions: Record<string, KeyGenerationMode>;
+  showBackupModal: boolean;
 }
 
 const initialState: SignerState = {
   lastUsedOptions: {},
+  showBackupModal: false,
 };
 
 const signerSlice = createSlice({
@@ -21,10 +23,13 @@ const signerSlice = createSlice({
     ) {
       state.lastUsedOptions[action.payload.signerType] = action.payload.option;
     },
+    setShowBackupModal(state, action: PayloadAction<boolean>) {
+      state.showBackupModal = action.payload;
+    },
   },
 });
 
-export const { setLastUsedOption } = signerSlice.actions;
+export const { setLastUsedOption, setShowBackupModal } = signerSlice.actions;
 
 const signerPersistConfig = {
   key: 'signer',

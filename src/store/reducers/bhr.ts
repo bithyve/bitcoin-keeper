@@ -102,7 +102,7 @@ const initialState: {
 
   pendingAllBackup: false,
 
-  automaticCloudBackup: true,
+  automaticCloudBackup: false,
 };
 
 const bhrSlice = createSlice({

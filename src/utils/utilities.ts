@@ -1,5 +1,5 @@
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import moment from 'moment';
 import idx from 'idx';
 
@@ -304,7 +304,13 @@ export const timeFromTimeStamp = (timestamp: string): string => {
 export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
   try {
     const psbt = bitcoin.Psbt.fromBase64(base64Str);
-    const vBytes = estimateVByteFromPSBT(base64Str);
+    let vBytes = null;
+    try {
+      vBytes = estimateVByteFromPSBT(base64Str);
+    } catch {
+      // TODO: Need to support for Miniscript
+      console.log('Failed to estimate transaction size');
+    }
     const signersList = [];
     let signerMatched = false;
 
@@ -376,7 +382,10 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
 
     // Calculate transaction fees
     const fees = totalInput - totalOutput;
-    const feeRate = (fees / vBytes).toFixed(2);
+    let feeRate = null;
+    if (vBytes) {
+      feeRate = (fees / vBytes).toFixed(2);
+    }
     return {
       senderAddresses: inputs,
       receiverAddresses: outputs,
@@ -603,4 +612,43 @@ export function interpolateBBQR(input) {
 export const sanitizeFileName = (fileName: string) => {
   const sanitized = fileName.trim().replace(/[^a-zA-Z0-9]/g, '-');
   return sanitized.replace(/^-+|-+$/g, '').length === 0 ? 'untitled' : sanitized;
+};
+
+export function formatDateTime(timestamp) {
+  const dateObj = new Date(timestamp);
+
+  const formattedDate = dateObj.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit',
+  });
+
+  const formattedTime = dateObj.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  return `${formattedDate} . ${formattedTime}`;
+}
+
+export function formatRemainingTime(milliseconds) {
+  if (milliseconds <= 0) return '0s';
+
+  const minutes = Math.floor(milliseconds / (1000 * 60));
+  const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+  const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+
+  if (months >= 1) return `${months} Month${months > 1 ? 's' : ''}`;
+  if (weeks >= 1) return `${weeks} Week${weeks > 1 ? 's' : ''}`;
+  if (days >= 1) return `${days} Day${days > 1 ? 's' : ''}`;
+  if (hours >= 1) return `${hours} Hour${hours > 1 ? 's' : ''}`;
+  return `${minutes} Minute${minutes > 1 ? 's' : ''}`;
+}
+
+export const manipulateIosProdProductId = (productId: string) => {
+  if (Platform.OS === 'ios' && !config.isDevMode()) return productId.replace('.', '_'); // Replace "." with "_"
+  return productId;
 };

@@ -37,9 +37,9 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useNavigation, CommonActions, StackActions } from '@react-navigation/native';
 import { TransferType } from 'src/models/enums/TransferType';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/services/wallets/operations';
@@ -59,6 +59,12 @@ import ScannerIconDark from 'src/assets/images/scanner-icon-white.svg';
 import useWallets from 'src/hooks/useWallets';
 import useVault from 'src/hooks/useVault';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import IconSettings from 'src/assets/images/settings.svg';
+import IconGreySettings from 'src/assets/images/settings_grey.svg';
+import { TouchableOpacity } from 'react-native';
+import KeeperModal from 'src/components/KeeperModal';
+import { NumberInput } from '../AddWalletScreen/AddNewWallet';
+import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -75,18 +81,35 @@ function SendScreen({ route }) {
     parentScreen,
     isSendMax,
     internalRecipientWallet,
+    internalRecipients = [],
+    recipients: finalRecipients = [],
+    totalRecipients = 1,
+    currentRecipientIdx = 1,
+    note: txNote = '',
+    miniscriptSelectedSatisfier = null,
   } = route.params as {
     sender: Wallet | Vault;
     selectedUTXOs?: UTXO[];
     parentScreen?: string;
     isSendMax?: boolean;
     internalRecipientWallet?: Wallet | Vault;
+    internalRecipients: (Wallet | Vault)[];
+    recipients?: Array<{
+      address: string;
+      amount: number;
+      name?: string;
+    }>;
+    totalRecipients: number;
+    currentRecipientIdx: number;
+    note: string;
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   };
+
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState(txNote);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(null);
   const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
   const network = WalletUtilities.getNetworkByType(sender.networkType);
@@ -104,6 +127,8 @@ function SendScreen({ route }) {
   const availableBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
   const totalUtxosAmount = selectedUTXOs?.reduce((sum, utxo) => sum + utxo.value, 0);
+  const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false);
+  const [localTotalRecipients, setLocalTotalRecipients] = useState(totalRecipients);
 
   const visibleWallets = useMemo(
     () =>
@@ -129,6 +154,22 @@ function SendScreen({ route }) {
         navigation.goBack();
       }
     }
+    if (sender.entityKind === EntityKind.VAULT) {
+      if ((sender as Vault).isMigrating) {
+        const newVault = vaults
+          .reverse()
+          .find(
+            (vault) =>
+              vault.id !== sender.id &&
+              !vault.archived &&
+              vault.archivedId === (sender as Vault).archivedId
+          );
+        if (newVault) {
+          showToast('Automatically selected the recipient wallet to complete the migration.');
+          handleSelectWallet(newVault);
+        }
+      }
+    }
   }, [sender]);
 
   useEffect(() => {
@@ -150,7 +191,7 @@ function SendScreen({ route }) {
   }, [visibleWallets]);
 
   useEffect(() => {
-    handleSelectWallet(internalRecipientWallet);
+    if (internalRecipientWallet) handleSelectWallet(internalRecipientWallet);
   }, [internalRecipientWallet]);
 
   const handleSelectWallet = (wallet) => {
@@ -168,10 +209,17 @@ function SendScreen({ route }) {
       return;
     }
 
+    if (finalRecipients.some((recipient) => recipient.address === address)) {
+      showToast('Cannot select the same recipient address more than once');
+      return;
+    }
+
+    internalRecipients[currentRecipientIdx - 1] = recipient;
+
     navigation.dispatch(
-      CommonActions.navigate('AddSendAmount', {
+      StackActions.push('AddSendAmount', {
         sender,
-        recipient,
+        internalRecipients,
         address,
         amount,
         note,
@@ -180,6 +228,10 @@ function SendScreen({ route }) {
         totalUtxosAmount,
         parentScreen,
         isSendMax,
+        recipients: finalRecipients,
+        totalRecipients: localTotalRecipients,
+        currentRecipientIdx,
+        miniscriptSelectedSatisfier,
       })
     );
   };
@@ -344,6 +396,14 @@ function SendScreen({ route }) {
     }
   };
 
+  const updateTotalRecipients = (newValue: number) => {
+    setLocalTotalRecipients(newValue);
+    navigation.setParams({
+      ...route.params,
+      totalRecipients: newValue,
+    });
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -374,6 +434,15 @@ function SendScreen({ route }) {
               variation={!isDarkMode ? 'dark' : 'light'}
             />
           }
+          rightComponent={
+            currentRecipientIdx === 1 && (
+              <TouchableOpacity onPress={() => setShowAdvancedSettingsModal(true)}>
+                {colorMode === 'light' ? <IconGreySettings /> : <IconSettings />}
+              </TouchableOpacity>
+            )
+          }
+          rightComponentPadding={wp(10)}
+          rightComponentBottomPadding={hp(5)}
         />
         <ScrollView
           style={styles.scrollViewWrapper}
@@ -402,19 +471,22 @@ function SendScreen({ route }) {
                   </Pressable>
                 }
               />
-              <KeeperTextInput
-                testID="input_receive_address"
-                placeholder="Add a note (Optional)"
-                inpuBackgroundColor={`${colorMode}.textInputBackground`}
-                inpuBorderColor={`${colorMode}.dullGreyBorder`}
-                height={50}
-                value={note}
-                onChangeText={(text: string) => {
-                  setNote(text);
-                }}
-                blurOnSubmit={true}
-                paddingLeft={5}
-              />
+              {finalRecipients.length === 0 && (
+                <KeeperTextInput
+                  testID="input_receive_address"
+                  placeholder="Add a note (Optional)"
+                  inpuBackgroundColor={`${colorMode}.textInputBackground`}
+                  inpuBorderColor={`${colorMode}.dullGreyBorder`}
+                  height={50}
+                  value={note}
+                  onChangeText={(text: string) => {
+                    setNote(text);
+                  }}
+                  blurOnSubmit={true}
+                  paddingLeft={5}
+                />
+              )}
+
               <Box style={styles.sendToWalletContainer}>
                 <Pressable onPress={handleSelectWalletPress} disabled={isSendToWalletDisabled}>
                   <Box
@@ -477,6 +549,35 @@ function SendScreen({ route }) {
           fullWidth
         />
       </Box>
+
+      <KeeperModal
+        visible={showAdvancedSettingsModal}
+        title="Advanced Options"
+        close={() => setShowAdvancedSettingsModal(false)}
+        buttonText={common.done}
+        buttonCallback={() => {
+          setShowAdvancedSettingsModal(false);
+        }}
+        secondaryButtonText={common.cancel}
+        Content={() => (
+          <Box>
+            <Text>Number of recipients (for transaction batching):</Text>
+            <NumberInput
+              value={localTotalRecipients}
+              onDecrease={() => {
+                if (localTotalRecipients > 1) {
+                  updateTotalRecipients(localTotalRecipients - 1);
+                }
+              }}
+              onIncrease={() => {
+                if (localTotalRecipients < 50) {
+                  updateTotalRecipients(localTotalRecipients + 1);
+                }
+              }}
+            />
+          </Box>
+        )}
+      />
 
       <PendingHealthCheckModal
         selectedItem={selectedWallet}

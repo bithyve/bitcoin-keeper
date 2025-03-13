@@ -27,6 +27,8 @@ function Buttons({
   borderRadius = 10,
   primaryFontWeight = 'bold',
   disableNoOverlay = false,
+  primaryBorderColor = null,
+  border = 1,
 }) {
   const { colorMode } = useColorMode();
 
@@ -65,6 +67,8 @@ function Buttons({
             flexDirection: 'row',
             gap: 8,
             borderRadius: borderRadius,
+            borderWidth: border,
+            borderColor: primaryBorderColor || 'transparent',
           },
         ]}
         backgroundColor={primaryBackgroundColor || `${colorMode}.greenButtonBackground`}

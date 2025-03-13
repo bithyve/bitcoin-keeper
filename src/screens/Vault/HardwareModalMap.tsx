@@ -298,7 +298,7 @@ const getSignerContent = (
         type: SignerType.MOBILE_KEY,
         Illustration: <MobileKeyIllustration />,
         Instructions: [
-          'Make sure that this wallet’s Recovery Key is backed-up properly to secure this key.',
+          "Make sure that this wallet's Recovery Key is backed-up properly to secure this key.",
         ],
         title: isHealthcheck ? 'Verify Recovery Key' : 'Set up a Mobile Key',
         subTitle: 'Your passcode or biometrics act as your key for signing transactions',
@@ -395,8 +395,10 @@ const getSignerContent = (
     case SignerType.POLICY_SERVER:
       const subtitle =
         keyGenerationMode !== KeyGenerationMode.RECOVER
-          ? 'The Signing Server will hold one of the keys of the Vault'
-          : 'Recover an existing Signing Server using other signers from the Vault';
+          ? isHealthcheck
+            ? 'Health check your Server Key with your 2FA authentication.'
+            : `The Server Key is a key stored securely on Keeper's servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.`
+          : 'Recover an existing Server Key using other signers from the Vault';
       return {
         type: SignerType.POLICY_SERVER,
         Illustration: <SigningServerIllustration />,
@@ -405,13 +407,13 @@ const getSignerContent = (
           : keyGenerationMode !== KeyGenerationMode.RECOVER
           ? [
               '2FA Authenticator will have to be set up to use this option',
-              'On providing a correct OTP from the authenticator app, the Signing Server will sign the transaction.',
+              'On providing a correct OTP from the authenticator app, the Server Key will sign the transaction.',
             ]
           : [
-              'At least 2 signers are required in order to identify and recover an existing Signing Server',
-              'OTP from the authenticator is also required along with the two signers to initiate Signing Server recovery.',
+              'At least 2 signers are required in order to identify and recover an existing Server Key.',
+              'OTP from the authenticator is also required along with the two signers to initiate Server Key recovery.',
             ],
-        title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
+        title: isHealthcheck ? 'Verify Server Key' : 'Set up the Server Key',
         subTitle: subtitle,
         options: isHealthcheck
           ? []
@@ -620,7 +622,7 @@ const getSignerContent = (
         Illustration: <OtherSDSetup />,
         Instructions: [
           'Provide the Signer details either by entering them or scanning',
-          'The hardened part of the derivation path of the xpub has to be denoted with a “h” or “”. Please do not use any other character',
+          `The hardened part of the derivation path of the xpub has to be denoted with a "h" or "'". Please do not use any other character`,
         ],
         title: isHealthcheck ? 'Verify Signer' : 'Setting up Signer',
         subTitle: 'Get your Signer ready before proceeding',
@@ -712,7 +714,7 @@ function SignerContent({
       <Box style={{ alignSelf: 'center', marginRight: 35 }}>{Illustration}</Box>
       <Box marginTop="4">
         {mode === InteracationMode.HEALTH_CHECK && (
-          <Instruction text="Health Check is initiated if a signer is not used for the last 180 days" />
+          <Instruction text="Keeper will automatically remind you to perform a health check on a key that has not been used in the last 180 days." />
         )}
         {Instructions?.map((instruction) => (
           <Instruction text={instruction} key={instruction} />
@@ -1070,9 +1072,13 @@ function HardwareModalMap({
   };
 
   const navigateToAddQrBasedSigner = () => {
+    let routeName = 'ScanQR';
+    if (!isHealthcheck && !isCanaryAddition && !isExternalKey)
+      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.PASSPORT].includes(type))
+        routeName = 'AddMultipleXpub';
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'ScanQR',
+        name: routeName,
         params: {
           title: `${
             isHealthcheck
@@ -1086,9 +1092,7 @@ function HardwareModalMap({
           subtitle: isExternalKey
             ? 'Please scan a QR or use alternate methods listed below'
             : 'Please scan until all the QR data has been retrieved',
-          onQrScan: (data) => {
-            isHealthcheck ? onQRScanHealthCheck(data, signer) : onQRScan(data);
-          },
+          onQrScan: (data) => (isHealthcheck ? onQRScanHealthCheck(data, signer) : onQRScan(data)),
           setup: true,
           type,
           mode,
@@ -1351,7 +1355,7 @@ function HardwareModalMap({
           hw = setupKeystone(qrData, isMultisig);
           break;
         case SignerType.JADE:
-          hw = setupJade(qrData, isMultisig);
+          hw = setupJade(qrData);
           break;
         case SignerType.COLDCARD:
           hw = setupColdcard(qrData, isMultisig);
@@ -1649,13 +1653,14 @@ function HardwareModalMap({
           signerPolicy: response.policy,
         });
         if (mapped) {
-          showToast('Signing Server verified successfully', <TickIcon />);
+          showToast('Server key verified successfully', <TickIcon />);
         } else {
           showToast('Something Went Wrong!', <ToastErrorIcon />);
         }
       }
     } catch (err) {
       setInProgress(false);
+      setOtp('');
       showToast(`${err}`, <ToastErrorIcon />);
     }
   };
@@ -1694,6 +1699,7 @@ function HardwareModalMap({
       }
     } catch (err) {
       setInProgress(false);
+      setOtp('');
       showToast(`${err}`, <ToastErrorIcon />);
     }
   };
@@ -1729,46 +1735,23 @@ function HardwareModalMap({
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
           >
-            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+            <CVVInputsView
+              passCode={otp}
+              passcodeFlag={false}
+              backgroundColor
+              textColor
+              height={hp(46)}
+              width={hp(46)}
+              marginTop={hp(0)}
+              marginBottom={hp(20)}
+              inputGap={2}
+              customStyle={styles.CVVInputsView}
+            />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
-            {vaultTranslation.cvvSigningServerInfo}
-          </Text>
-          <Box mt={10} alignSelf="flex-end" mr={2}>
-            <Box>
-              <Buttons
-                primaryCallback={() => {
-                  if (mode === InteracationMode.HEALTH_CHECK) {
-                    checkSigningServerHealth();
-                    setSigningServerHealthCheckOTPModal(false);
-                  } else if (
-                    mode === InteracationMode.VAULT_ADDITION &&
-                    keyGenerationMode === KeyGenerationMode.RECOVER
-                  ) {
-                    recoverSigningServer(otp);
-                    setSigningServerRecoverOTPModal(false);
-                  } else {
-                    if (mode === InteracationMode.IDENTIFICATION) {
-                      findSigningServer(otp);
-                    } else {
-                      verifySigningServer(otp);
-                    }
-                  }
-                }}
-                primaryText={common.confirm}
-                secondaryText={
-                  mode === InteracationMode.HEALTH_CHECK && signerTranslation.forgot2FA
-                }
-                secondaryCallback={() => {
-                  setSigningServerHealthCheckOTPModal(false);
-                  showToast(signerTranslation.forgot2FANote, null, IToastCategory.DEFAULT, 5000);
-                }}
-              />
-            </Box>
-          </Box>
         </Box>
         <KeyPadView
           onPressNumber={onPressNumber}
@@ -1776,6 +1759,36 @@ function HardwareModalMap({
           keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
+        <Box mt={10} alignSelf="flex-end" mr={2}>
+          <Box>
+            <Buttons
+              primaryCallback={() => {
+                if (mode === InteracationMode.HEALTH_CHECK) {
+                  checkSigningServerHealth();
+                  setSigningServerHealthCheckOTPModal(false);
+                } else if (
+                  mode === InteracationMode.VAULT_ADDITION &&
+                  keyGenerationMode === KeyGenerationMode.RECOVER
+                ) {
+                  recoverSigningServer(otp);
+                  setSigningServerRecoverOTPModal(false);
+                } else {
+                  if (mode === InteracationMode.IDENTIFICATION) {
+                    findSigningServer(otp);
+                  } else {
+                    verifySigningServer(otp);
+                  }
+                }
+              }}
+              primaryText={common.confirm}
+              secondaryText={mode === InteracationMode.HEALTH_CHECK && signerTranslation.forgot2FA}
+              secondaryCallback={() => {
+                setSigningServerHealthCheckOTPModal(false);
+                showToast(signerTranslation.forgot2FANote, null, IToastCategory.DEFAULT, 5000);
+              }}
+            />
+          </Box>
+        </Box>
       </Box>
     );
   }
@@ -2069,20 +2082,35 @@ function HardwareModalMap({
     }
   };
 
-  const Content = useCallback(
-    () => (
+  const Content = useCallback(() => {
+    if (signerType === SignerType.POLICY_SERVER) {
+      return (
+        <Box style={styles.modalContainer}>
+          {Illustration}
+          {isHealthcheck ? (
+            <Instruction text="Keeper will automatically remind you to perform a health check on a key that has not been used in the last 180 days." />
+          ) : (
+            <Text>
+              This adds an extra layer of flexibility and security to your Bitcoin holdings while
+              keeping you in control.
+            </Text>
+          )}
+        </Box>
+      );
+    }
+
+    return (
       <SignerContent
         Illustration={Illustration}
-        Instructions={Instructions}
         mode={mode}
         options={options}
+        Instructions={Instructions}
         keyGenerationMode={keyGenerationMode}
         sepInstruction={sepInstruction}
         onSelect={onSelect}
       />
-    ),
-    [keyGenerationMode, options]
-  );
+    );
+  }, [signerType, keyGenerationMode, options]); // Add dependencies as required
 
   const buttonCallback = () => {
     close();
@@ -2151,7 +2179,15 @@ function HardwareModalMap({
         close={close}
         title={title}
         subTitle={subTitle}
-        buttonText={signerType === SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
+        buttonText={
+          signerType === SignerType.SEED_WORDS
+            ? 'Next'
+            : signerType === SignerType.POLICY_SERVER
+            ? isHealthcheck
+              ? 'Start Health Check'
+              : 'Start the Setup'
+            : 'Proceed'
+        }
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={buttonCallback}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -2160,11 +2196,7 @@ function HardwareModalMap({
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={Content}
         secondaryButtonText={
-          isHealthcheck
-            ? 'Skip'
-            : type === SignerType.INHERITANCEKEY || type === SignerType.POLICY_SERVER
-            ? 'Cancel'
-            : null
+          isHealthcheck ? 'Skip' : type === SignerType.INHERITANCEKEY ? 'Cancel' : null
         }
         secondaryCallback={
           isHealthcheck
@@ -2242,21 +2274,23 @@ function HardwareModalMap({
         close={() => {
           if (type === SignerType.POLICY_SERVER && mode === InteracationMode.HEALTH_CHECK) {
             setSigningServerHealthCheckOTPModal(false);
+            setOtp('');
           } else {
             setSigningServerRecoverOTPModal(false);
+            setOtp('');
           }
           close();
         }}
         title={
           signingServerHealthCheckOTPModal
-            ? 'Confirm OTP to perform health check'
+            ? common.confirm2FACodeTitle
             : keyGenerationMode !== KeyGenerationMode.RECOVER
             ? 'Confirm OTP to setup 2FA'
-            : 'Confirm OTP to recover Signing Server'
+            : 'Confirm OTP to recover Server Key'
         }
         subTitle={
           signingServerHealthCheckOTPModal
-            ? 'To check health of the signer'
+            ? common.confirm2FACodeSubtitle
             : keyGenerationMode !== KeyGenerationMode.RECOVER
             ? 'To complete setting up the signer'
             : 'To complete recovery of the signer'
@@ -2290,6 +2324,7 @@ function HardwareModalMap({
         }}
         Content={BackupModalContent}
       />
+
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </>
   );
@@ -2303,7 +2338,7 @@ const styles = StyleSheet.create({
   cvvInputInfoText: {
     fontSize: 14,
     width: '100%',
-    marginTop: 2,
+    marginVertical: 2,
   },
   infoText: {
     padding: 3,
@@ -2323,6 +2358,16 @@ const styles = StyleSheet.create({
     gap: wp(11),
     flexDirection: 'row',
     flexWrap: 'wrap',
+  },
+  modalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 25,
+  },
+  CVVInputsView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 export default HardwareModalMap;

@@ -3,7 +3,7 @@ import config from 'src/utils/service-utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import HWError from '../HWErrorState';
 
-const getPassportDetails = (qrData) => {
+const getPassportDetails = (qrData, returnTaproot = false) => {
   let parsedData = typeof qrData === 'string' ? JSON.parse(qrData) : qrData;
   try {
     const { p2wsh, p2wsh_deriv: derivationPath, xfp } = parsedData;
@@ -22,11 +22,29 @@ const getPassportDetails = (qrData) => {
       masterFingerprint: parsedData.xfp,
       forMultiSig: false,
       forSingleSig: true,
+      ...(returnTaproot
+        ? {
+            taproot: {
+              xPub: parsedData?.bip86?.xpub,
+              derivationPath: parsedData?.bip86?.deriv,
+              mfp: parsedData?.bip86?.xfp,
+            },
+          }
+        : {}),
     };
   } catch (_) {
     console.log('Not exported for singlesig!');
     throw new HWError(HWErrorType.INCORRECT_HW);
   }
+};
+
+export const manipulatePassportDetails = (data) => {
+  return {
+    mfp: data.masterFingerprint,
+    derivationPath: data.derivationPath,
+    xPub: data.xpub,
+    taproot: data?.taproot,
+  };
 };
 
 export { getPassportDetails };

@@ -6,7 +6,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
-import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
@@ -15,6 +14,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
+
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
@@ -26,22 +26,25 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import WalletCopiableData from 'src/components/WalletCopiableData';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SetupSigningServer({ route }: { route }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation } = translations;
+  const { vault: vaultTranslation, signingServer, common } = translations;
   const [validationModal, showValidationModal] = useState(false);
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
-  const { policy, addSignerFlow = false } = route.params;
+  const { addSignerFlow } = route.params;
 
   const registerSigningServer = async () => {
     try {
+      const { policy } = route.params;
       const { setupData } = await SigningServer.register(policy);
       setSetupData(setupData);
       setValidationKey(setupData.verification.verifier);
@@ -54,14 +57,19 @@ function SetupSigningServer({ route }: { route }) {
     const verificationToken = Number(otp);
     try {
       const { valid } = await SigningServer.validate(setupData.id, verificationToken);
-      if (valid) setIsSetupValidated(valid);
-      else {
+      if (valid) {
+        setIsSetupValidated(valid);
+        showValidationModal(false);
+        setOtp('');
+      } else {
         showValidationModal(false);
         showToast('Invalid OTP. Please try again!');
+        setOtp('');
       }
     } catch (err) {
       showValidationModal(false);
       showToast(`${err.message}`);
+      setOtp('');
     }
   };
 
@@ -83,8 +91,8 @@ function SetupSigningServer({ route }: { route }) {
     dispatch(addSigningDevice([signingServerKey]));
     const navigationState = addSignerFlow
       ? {
-          name: 'Home',
-          params: { selectedOption: 'Keys', addedSigner: signingServerKey },
+          name: 'ServerKeySuccessScreen',
+          params: { addedSigner: signingServerKey, setupData },
         }
       : {
           name: 'AddSigningDevice',
@@ -132,79 +140,77 @@ function SetupSigningServer({ route }: { route }) {
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
             testID="otpClipboardButton"
           >
-            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+            <CVVInputsView
+              passCode={otp}
+              passcodeFlag={false}
+              backgroundColor
+              textColor
+              height={hp(46)}
+              width={hp(46)}
+              marginTop={hp(0)}
+              marginBottom={hp(40)}
+              inputGap={2}
+              customStyle={styles.CVVInputsView}
+            />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
-            {vaultTranslation.cvvSigningServerInfo}
-          </Text>
-          <Box mt={10} alignSelf="flex-end" mr={2}>
-            <Box>
-              <CustomGreenButton onPress={validateSetup} value="Confirm" />
-            </Box>
-          </Box>
         </Box>
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
           keyColor={`${colorMode}.primaryText`}
-          ClearIcon={<DeleteIcon />}
         />
+        <Box mt={10} alignSelf="flex-end">
+          <Box>
+            <Buttons
+              primaryCallback={() => {
+                validateSetup();
+              }}
+              fullWidth
+              primaryText="Confirm"
+            />
+          </Box>
+        </Box>
       </Box>
     );
   }, [otp]);
 
   return (
-    <ScreenWrapper backgroundcolor={`${colorMode}.secondaryBackground`}>
-      <View style={styles.Container} background={`${colorMode}.secondaryBackground`}>
+    <ScreenWrapper>
+      <View style={styles.Container}>
         <Box>
-          <KeeperHeader title="Set up 2FA for signer" subtitle="Scan on any 2FA auth app" />
+          <WalletHeader title="Set up 2FA for Server Key" />
         </Box>
-        <Box marginTop={hp(50)} alignItems="center" alignSelf="center">
+        <Box>
           {validationKey === '' ? (
-            <Box height={hp(250)} justifyContent="center">
+            <Box height={hp(200)} justifyContent="center">
               <ActivityIndicator animating size="small" />
             </Box>
           ) : (
-            <Box alignItems="center" alignSelf="center" width="100%">
-              <Box
-                alignItems="center"
-                alignSelf="center"
-                width={wp(200)}
-                style={{
-                  marginTop: hp(30),
-                }}
-              >
+            <Box
+              style={styles.qrContainer}
+              backgroundColor={
+                isDarkMode ? `${colorMode}.modalWhiteBackground` : `${colorMode}.ChampagneBliss`
+              }
+            >
+              <Box alignItems="center" alignSelf="center" width={wp(250)}>
                 <KeeperQRCode
-                  qrData={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', validationKey)}
+                  qrData={authenticator.keyuri(
+                    'bitcoinkeeper.app',
+                    'Bitcoin Keeper',
+                    validationKey
+                  )}
                   logoBackgroundColor="transparent"
                   size={wp(200)}
                   showLogo
                 />
-                <Box
-                  background={`${colorMode}.QrCode`}
-                  height={6}
-                  width={wp(220)}
-                  justifyContent="center"
-                >
-                  <Text
-                    textAlign="center"
-                    color={`${colorMode}.recieverAddress`}
-                    bold
-                    fontSize={12}
-                    letterSpacing={1.08}
-                    width={wp(220)}
-                    numberOfLines={1}
-                  >
-                    2FA signer
-                  </Text>
-                </Box>
               </Box>
-              <Box flex={1}>
-                <WalletCopiableData data={validationKey} dataType="2fa"></WalletCopiableData>
+              <Box>
+                <WalletCopiableData data={validationKey} dataType="2fa" width="95%" />
               </Box>
             </Box>
           )}
@@ -223,21 +229,21 @@ function SetupSigningServer({ route }: { route }) {
             primaryCallback={() => {
               showValidationModal(true);
             }}
+            fullWidth
             primaryText="Next"
-            secondaryText="Cancel"
-            secondaryCallback={() => {
-              navigation.goBack();
-            }}
           />
         </Box>
         <KeeperModal
           visible={validationModal}
           close={() => {
             showValidationModal(false);
+            setOtp('');
           }}
-          title="Confirm OTP to setup 2FA"
-          subTitle="To complete setting up the signer"
+          title={common.confirm2FACodeTitle}
+          subTitle={common.confirm2FACodeSubtitle}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalHeaderTitle`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={otpContent}
         />
       </View>
@@ -264,12 +270,6 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     padding: 20,
   },
-  cvvInputInfoText: {
-    fontSize: 13,
-    letterSpacing: 0.65,
-    width: '100%',
-    marginTop: 2,
-  },
   otpContainer: {
     width: '100%',
   },
@@ -279,6 +279,26 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     marginBottom: hp(10),
+  },
+  qrContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: wp(15),
+    paddingHorizontal: wp(20),
+    paddingTop: hp(30),
+    paddingBottom: hp(10),
+    marginTop: hp(15),
+  },
+  modalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+
+  CVVInputsView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 export default SetupSigningServer;

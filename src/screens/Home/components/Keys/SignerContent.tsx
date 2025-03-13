@@ -1,7 +1,7 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
-import { hp, wp } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import SDCategoryCard from 'src/screens/Vault/components/SDCategoryCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
@@ -11,6 +11,7 @@ import HardwareSignerWhite from 'src/assets/images/SignerWhiteHardware.svg';
 import MobileKeyBlack from 'src/assets/images/signerSoftwareBlack.svg';
 import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import { CommonActions } from '@react-navigation/native';
+import DashedCta from 'src/components/DashedCta';
 
 const SignerContent = ({ navigation, handleModalClose }) => {
   const { colorMode } = useColorMode();
@@ -88,6 +89,17 @@ const SignerContent = ({ navigation, handleModalClose }) => {
             onPress={() => handlePress(category)}
           />
         ))}
+        <DashedCta
+          backgroundColor={`${colorMode}.DashedButtonCta`}
+          borderColor={`${colorMode}.dashedButtonBorderColor`}
+          textColor={`${colorMode}.greenWhiteText`}
+          name={signer.purchaseWallet}
+          cardStyles={styles.cardStyles}
+          callback={() => {
+            navigation.navigate('HardwareWallet');
+            handleModalClose();
+          }}
+        />
       </ScrollView>
     </Box>
   );
@@ -99,6 +111,9 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     gap: hp(10),
+  },
+  cardStyles: {
+    minHeight: hp(56),
   },
 });
 
