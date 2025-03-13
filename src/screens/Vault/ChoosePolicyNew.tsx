@@ -55,6 +55,7 @@ import {
   OFF,
 } from './constants';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -239,7 +240,9 @@ function ChoosePolicyNew({ navigation, route }) {
           dispatch(setSignerPolicyError('idle'));
           showValidationModal(false);
           setOtp('');
-          showToast('Something went wrong. Please try again');
+          if (policyError !== 'idle') {
+            showToast('2FA verification failed, please try again', <ToastErrorIcon />);
+          }
         }, 100);
       }
     }

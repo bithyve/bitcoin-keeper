@@ -377,6 +377,33 @@ export default class SigningServer {
     };
   };
 
+  static cancelDelayedTransaction = async (
+    signerId: string,
+    txid: string,
+    verificationToken: string
+  ): Promise<{
+    canceled: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/cancelDelayedTransaction`, {
+        HEXA_ID,
+        signerId,
+        txid,
+        verificationToken,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { canceled } = res.data;
+
+    return {
+      canceled,
+    };
+  };
+
   static fetchDelayedPolicyUpdate = async (
     policyId: string,
     verificationToken: string
