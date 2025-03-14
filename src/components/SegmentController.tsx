@@ -47,7 +47,7 @@ export const SegmentedController = ({
       <Animated.View
         style={[
           styles.selectedBackground,
-          { backgroundColor: Colors.SeaweedGreen },
+          { backgroundColor: Colors.primaryGreen },
           { width: (containerWidth - 2 * CONTAINER_PADDING) / length },
           { transform: [{ translateX }] },
         ]}

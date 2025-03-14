@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: Colors.Seashell,
     marginBottom: hp(30),
-    color: Colors.Graphite,
+    color: Colors.secondaryDarkGrey,
   },
   saveButtonContainer: {
     width: '100%',

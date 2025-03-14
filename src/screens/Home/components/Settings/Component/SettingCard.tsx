@@ -51,7 +51,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
       {header && (
         <Box>
           <Text
-            color={isDarkMode ? `${colorMode}.headerWhite` : `${colorMode}.brownColor`}
+            color={isDarkMode ? `${colorMode}.headerWhite` : `${colorMode}.primaryBrown`}
             fontSize={14}
             semiBold
             style={styles.header}

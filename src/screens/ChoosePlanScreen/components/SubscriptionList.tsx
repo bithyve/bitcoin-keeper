@@ -87,8 +87,8 @@ const SubscriptionList: React.FC<{
             </Text>
 
             {!isPleb && matchedPlan?.monthlyPlanDetails?.trailPeriod && (
-              <Box backgroundColor={`${colorMode}.brownColor`} style={styles.trialContainer}>
-                <Text fontSize={10} color={Colors.ChampagneBliss}>
+              <Box backgroundColor={`${colorMode}.primaryBrown`} style={styles.trialContainer}>
+                <Text fontSize={10} color={Colors.brightCream}>
                   {Trail}
                 </Text>
               </Box>
@@ -148,13 +148,13 @@ const SubscriptionList: React.FC<{
                   />
                 </Box>
               </View>
-              <Box style={styles.divider} backgroundColor={`${colorMode}.brownColor`}>
+              <Box style={styles.divider} backgroundColor={`${colorMode}.primaryBrown`}>
                 {' '}
               </Box>
               {isExpanded && (
                 <>
                   <PlanDetailsCards plansData={plans} currentPosition={currentPosition} />
-                  <Box style={styles.divider} backgroundColor={`${colorMode}.brownColor`}>
+                  <Box style={styles.divider} backgroundColor={`${colorMode}.primaryBrown`}>
                     {' '}
                   </Box>
                 </>

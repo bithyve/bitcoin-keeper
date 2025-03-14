@@ -159,7 +159,7 @@ function SignerCategoryList() {
               />
             ))}
             <DashedCta
-              backgroundColor={`${colorMode}.DashedButtonCta`}
+              backgroundColor={`${colorMode}.dullGreen`}
               borderColor={`${colorMode}.dashedButtonBorderColor`}
               textColor={`${colorMode}.greenWhiteText`}
               name={signer.purchaseWallet}

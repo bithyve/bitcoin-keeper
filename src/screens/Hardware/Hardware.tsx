@@ -40,7 +40,7 @@ const HardwareWallet = () => {
             primaryText={common.upgrade}
             paddingVertical={wp(12)}
             borderRadius={5}
-            primaryBackgroundColor={`${colorMode}.brownColor`}
+            primaryBackgroundColor={`${colorMode}.primaryBrown`}
             LeftIcon={UpgradeIcon}
             primaryCallback={() => {
               navigation.navigate('ChoosePlan');

@@ -48,7 +48,7 @@ function AdditionalDetails({ route }: ScreenProps) {
               },
             ]}
             placeholder="Add a Description (Optional)"
-            placeholderTextColor={Colors.Graphite}
+            placeholderTextColor={Colors.secondaryDarkGrey}
             value={description}
             maxLength={20}
             onSubmitEditing={() => {

@@ -24,7 +24,7 @@ export const BrownButton = (props: BrownButtonProps) => {
       <Text
         style={[styles.text, props.customTextStyle]}
         bold
-        color={props.customTextColor ?? `${colorMode}.brownColor`}
+        color={props.customTextColor ?? `${colorMode}.primaryBrown`}
       >
         {props.title}
       </Text>
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     paddingVertical: 17,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Colors.brownColor,
+    borderColor: Colors.primaryBrown,
   },
   text: {
     fontSize: 14,

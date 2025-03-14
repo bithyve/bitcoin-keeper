@@ -142,7 +142,7 @@ const HomeWallet = () => {
     <Box style={styles.walletContainer}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
-        backgroundColor={`${colorMode}.DashedButtonCta`}
+        backgroundColor={`${colorMode}.dullGreen`}
         hexagonBackgroundColor={Colors.pantoneGreen}
         textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"

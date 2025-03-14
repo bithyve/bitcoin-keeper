@@ -71,7 +71,7 @@ function AdditionalDetails({ route }: ScreenProps) {
             onChangeText={(text) => setDescription(text)}
             style={styles.descriptionEdit}
             placeholder="Add a description (Optional)" // TODO: Use translations
-            placeholderTextColor={Colors.Graphite}
+            placeholderTextColor={Colors.secondaryDarkGrey}
             value={description}
             maxLength={20}
             onSubmitEditing={handleDescriptionUpdate}

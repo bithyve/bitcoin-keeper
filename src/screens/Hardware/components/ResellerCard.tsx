@@ -47,7 +47,7 @@ const ResellerCard = (props: Props) => {
           </Box>
           <Text
             fontSize={13}
-            color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.primaryText`}
+            color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.primaryText`}
             style={styles.subTitle}
           >
             {props.subTitle}
@@ -71,7 +71,7 @@ const ResellerCard = (props: Props) => {
               style={[props.unSubscribeText ? styles.subText : {}]}
               semiBold
               fontSize={12}
-              color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.coalGreen`}
+              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.coalGreen`}
             >
               {props.unSubscribeText}
             </Text>
@@ -80,7 +80,7 @@ const ResellerCard = (props: Props) => {
           <Text
             semiBold
             fontSize={12}
-            color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.brownColor`}
+            color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.primaryBrown`}
             style={[props.subscribeText ? styles.subText : {}]}
           >
             {props.subscribeText}

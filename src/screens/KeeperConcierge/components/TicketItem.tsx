@@ -52,7 +52,7 @@ const TicketItem = ({ ticket, handlePress }) => {
               )}
               headingColor={Colors.White}
               height={20}
-              backgroundColor={isSolved ? Colors.SeaweedGreen : Colors.TagLight7}
+              backgroundColor={isSolved ? Colors.primaryGreen : Colors.TagLight7}
             />
           </Box>
         </HStack>

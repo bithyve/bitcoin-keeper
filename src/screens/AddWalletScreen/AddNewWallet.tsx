@@ -197,10 +197,8 @@ function AddNewWallet({ navigation, route }) {
       <Box style={styles.footer}>
         <DashedCta
           textPosition="left"
-          backgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.DashedButtonCta`}
-          hexagonBackgroundColor={
-            isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.DashedButtonCta`
-          }
+          backgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
+          hexagonBackgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
           textColor={isDarkMode ? Colors.White : `${colorMode}.pantoneGreen`}
           name="Enhanced Security Options"
           description="Secure your funds and future—your way"

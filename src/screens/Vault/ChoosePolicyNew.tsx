@@ -322,7 +322,7 @@ function ChoosePolicyNew({ navigation, route }) {
         <Box
           style={styles.timeContainer}
           backgroundColor={
-            isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.learMoreTextcolor`
+            isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.secondaryCreamWhite`
           }
         >
           <Text fontSize={13}>{common.RemainingTime}:</Text>
@@ -395,9 +395,11 @@ function ChoosePolicyNew({ navigation, route }) {
           <Box
             style={styles.timeContainerBtn}
             backgroundColor={
-              isDarkMode ? `${colorMode}.textInputBackground` : `${colorMode}.learMoreTextcolor`
+              isDarkMode ? `${colorMode}.textInputBackground` : `${colorMode}.secondaryCreamWhite`
             }
-            borderColor={isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.brownColor`}
+            borderColor={
+              isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.primaryBrown`
+            }
           >
             <Text fontSize={13}>{common.RemainingTime}:</Text>
             <Text fontSize={13}>{formatRemainingTime(policyDelayedUntil - Date.now())}</Text>

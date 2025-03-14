@@ -124,7 +124,7 @@ function ServerKeySuccessScreen({ route }) {
             primaryText={common.Later}
             primaryBackgroundColor="transparent"
             primaryTextColor={
-              isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.brownColor`
+              isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.primaryBrown`
             }
             primaryBorderColor={isDarkMode ? Colors.separator : Colors.BrownBorder}
             width={wp(150)}
@@ -134,7 +134,7 @@ function ServerKeySuccessScreen({ route }) {
             primaryText={common.Never}
             primaryBackgroundColor="transparent"
             primaryTextColor={
-              isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.brownColor`
+              isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.primaryBrown`
             }
             primaryBorderColor={isDarkMode ? Colors.separator : Colors.BrownBorder}
             width={wp(150)}

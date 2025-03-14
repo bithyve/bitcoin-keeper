@@ -53,7 +53,7 @@ const CountdownTimer = ({ initialTime, onTimerEnd = null }) => {
       <Box style={styles.svgContainer}>
         <Svg width={200} height={200}>
           <Circle
-            stroke={Colors.LightCrimson}
+            stroke={Colors.redAlert}
             fill="none"
             cx={center}
             cy={center}
@@ -61,7 +61,7 @@ const CountdownTimer = ({ initialTime, onTimerEnd = null }) => {
             strokeWidth="3"
           />
           <Circle
-            stroke={Colors.MediumGrey}
+            stroke={Colors.secondaryLightGrey}
             fill="none"
             cx={center}
             cy={center}
