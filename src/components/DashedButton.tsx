@@ -36,7 +36,7 @@ function DashedButton({
         <HexagonIcon
           width={iconWidth}
           height={iconHeight}
-          backgroundColor={Colors.White}
+          backgroundColor={Colors.headerWhite}
           icon={icon}
         />
         <Box style={styles.TextContainer}>
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: Colors.White,
+    borderColor: Colors.headerWhite,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,

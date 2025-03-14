@@ -73,8 +73,8 @@ function KeeperTextInput({
         backgroundColor={`${colorMode}.textInputBackground`}
         _input={
           colorMode === 'dark' && {
-            selectionColor: Colors.SecondaryWhite,
-            cursorColor: Colors.SecondaryWhite,
+            selectionColor: Colors.bodyText,
+            cursorColor: Colors.bodyText,
           }
         }
         {...props}

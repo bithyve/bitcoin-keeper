@@ -75,7 +75,7 @@ function WalletInfoCard({
             amount={amount}
             hideAmounts={!isShowAmount}
             fontSize={24}
-            color={colorMode === 'light' ? Colors.White : Colors.SecondaryWhite}
+            color={colorMode === 'light' ? Colors.headerWhite : Colors.bodyText}
             variation="light"
           />
         </TouchableOpacity>

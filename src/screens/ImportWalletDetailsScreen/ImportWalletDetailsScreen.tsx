@@ -56,8 +56,8 @@ function ImportWalletDetailsScreen({ route }) {
                 onChangeText={(text) => setWalletName(text)}
                 _input={
                   colorMode === 'dark' && {
-                    selectionColor: Colors.SecondaryWhite,
-                    cursorColor: Colors.SecondaryWhite,
+                    selectionColor: Colors.bodyText,
+                    cursorColor: Colors.bodyText,
                   }
                 }
               />
@@ -72,8 +72,8 @@ function ImportWalletDetailsScreen({ route }) {
                 onChangeText={(text) => setWalletDescription(text)}
                 _input={
                   colorMode === 'dark' && {
-                    selectionColor: Colors.SecondaryWhite,
-                    cursorColor: Colors.SecondaryWhite,
+                    selectionColor: Colors.bodyText,
+                    cursorColor: Colors.bodyText,
                   }
                 }
               />

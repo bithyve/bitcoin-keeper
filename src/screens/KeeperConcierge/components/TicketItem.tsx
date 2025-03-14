@@ -50,7 +50,7 @@ const TicketItem = ({ ticket, handlePress }) => {
               heading={capitalizeEachWord(
                 isSolved ? ConciergeTicketStatus.SOLVED : ConciergeTicketStatus.OPEN
               )}
-              headingColor={Colors.White}
+              headingColor={Colors.headerWhite}
               height={20}
               backgroundColor={isSolved ? Colors.primaryGreen : Colors.TagLight7}
             />

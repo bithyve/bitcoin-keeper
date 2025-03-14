@@ -208,7 +208,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           {colorMode === 'light' ? <IconGreySettings /> : <IconSettings />}
           <Text
             style={styles.settingIconText}
-            color={colorMode === 'light' ? Colors.secondaryLightGrey : Colors.SecondaryWhite}
+            color={colorMode === 'light' ? Colors.secondaryLightGrey : Colors.bodyText}
             semiBold
           >
             Server Settings

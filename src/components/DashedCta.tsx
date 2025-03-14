@@ -50,7 +50,7 @@ function DashedCta({
   const defaultBackgroundColor = `${colorMode}.DashedCtaBackground`;
   const defaultTextColor = `${colorMode}.dashedButtonContent`;
   const defaultBorderColor = borderColor ? borderColor : `${colorMode}.pantoneGreen`;
-  const defaultHexagonBackgroundColor = Colors.White;
+  const defaultHexagonBackgroundColor = Colors.headerWhite;
 
   return (
     <TouchableOpacity onPress={() => callback(name)}>

@@ -195,7 +195,7 @@ export const getCurrencyImageByRegion = (
   const styles = {} as any;
   switch (type) {
     case 'light':
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
       break;
     case 'green':
       styles.color = Colors.GenericViridian;
@@ -204,7 +204,7 @@ export const getCurrencyImageByRegion = (
       styles.color = Colors.RichGreen;
       break;
     case 'grey':
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
       styles.opacity = 0.7;
       break;
     case 'slateGreen':
@@ -214,7 +214,7 @@ export const getCurrencyImageByRegion = (
       styles.color = Colors.RichBlack;
       break;
     default:
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
   }
   if (currentCurrency !== CurrencyKind.BITCOIN) {
     const currency = FiatCurrencies.find((c) => c.code === currencyCode);
@@ -231,7 +231,7 @@ export const getFiatIcon = (currencyCode: string, type: 'light' | 'green' | 'dar
   const styles = {} as any;
   switch (type) {
     case 'light':
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
       break;
     case 'green':
       styles.color = Colors.GenericViridian;
@@ -240,11 +240,11 @@ export const getFiatIcon = (currencyCode: string, type: 'light' | 'green' | 'dar
       styles.color = Colors.RichGreen;
       break;
     case 'grey':
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
       styles.opacity = 0.7;
       break;
     default:
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
   }
   if (currency) {
     return <CurrencyIcon styles={styles} symbol={currency.symbol} />;

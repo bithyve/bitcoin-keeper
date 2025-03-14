@@ -108,8 +108,8 @@ function FogotPassword(props) {
             secureTextEntry
             _input={
               colorMode === 'dark' && {
-                selectionColor: Colors.SecondaryWhite,
-                cursorColor: Colors.SecondaryWhite,
+                selectionColor: Colors.bodyText,
+                cursorColor: Colors.bodyText,
               }
             }
           />
@@ -134,8 +134,8 @@ function FogotPassword(props) {
             value={passwordText}
             _input={
               colorMode === 'dark' && {
-                selectionColor: Colors.SecondaryWhite,
-                cursorColor: Colors.SecondaryWhite,
+                selectionColor: Colors.bodyText,
+                cursorColor: Colors.bodyText,
               }
             }
           />

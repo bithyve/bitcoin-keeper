@@ -68,7 +68,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
               color={
                 selectedOption === option.name
                   ? isDarkMode
-                    ? Colors.White
+                    ? Colors.headerWhite
                     : `${colorMode}.pantoneGreen`
                   : `${colorMode}.placeHolderTextColor`
               }

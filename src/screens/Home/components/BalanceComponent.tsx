@@ -46,7 +46,7 @@ function BalanceComponent({ balance, isShowAmount, setIsShowAmount }) {
           amount={balance}
           hideAmounts={!isShowAmount}
           fontSize={19}
-          color={Colors.SecondaryWhite}
+          color={Colors.bodyText}
           variation="light"
         />
       </TouchableOpacity>

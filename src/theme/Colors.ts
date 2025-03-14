@@ -280,8 +280,6 @@ const Colors = {
   LabelDark3: 'rgba(222, 177, 131, 1)',
 
   // ExtraColors
-  White: 'rgba(255,255,255,1)',
-  SecondaryWhite: 'rgba(231, 231, 231,1)',
   LightYellow: 'rgba(242,237,230,1)',
   LightWhite: 'rgba(247,242,236,1)',
   mintGreen: 'rgba(124, 194, 178, 1)',
