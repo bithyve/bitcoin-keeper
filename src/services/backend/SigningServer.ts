@@ -310,7 +310,6 @@ export default class SigningServer {
 
   static signPSBT = async (
     id: string,
-    verificationToken: number,
     serializedPSBT: string,
     childIndexArray: Array<{
       subPath: number[];
@@ -320,7 +319,9 @@ export default class SigningServer {
         value: number;
       };
     }>,
-    outgoing: number,
+    verificationToken: number,
+    changeAddress?: string,
+    outgoing?: number,
     FCM?: string
   ): Promise<{
     signedPSBT: string;
@@ -333,9 +334,10 @@ export default class SigningServer {
       res = await RestClient.post(`${SIGNING_SERVER}v3/signTransaction`, {
         HEXA_ID,
         id,
-        verificationToken,
         serializedPSBT,
         childIndexArray,
+        verificationToken,
+        changeAddress,
         outgoing,
         FCM,
       });

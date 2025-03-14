@@ -17,6 +17,7 @@ import idx from 'idx';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import { getKeyUID } from 'src/utils/utilities';
+import { isTestnet } from 'src/constants/Bitcoin';
 import ecc from './taproot-utils/noble_ecc';
 import {
   AverageTxFees,
@@ -58,7 +59,6 @@ import WalletUtilities from './utils';
 import { generateScriptWitnesses, generateBitcoinScript } from './miniscript/miniscript';
 import { Phase, Path } from './miniscript/policy-generator';
 import { coinselect } from './coinselectFixed';
-import { isTestnet } from 'src/constants/Bitcoin';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -2002,7 +2002,7 @@ export default class WalletOperations {
           });
         }
 
-        signingPayload.push({ payloadTarget, childIndexArray, outgoing });
+        signingPayload.push({ payloadTarget, childIndexArray, outgoing, change });
       } else {
         signingPayload.push({
           payloadTarget,
