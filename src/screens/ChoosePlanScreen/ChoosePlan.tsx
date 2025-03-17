@@ -528,6 +528,7 @@ function ChoosePlan() {
     if (!currentItem) return { text: 'Get Started', disabled: false };
 
     const isPleb = currentItem.productIds.includes('pleb');
+    const isKeeperBlack = currentItem.productIds[0].includes('keeper_black');
     const isSubscribed =
       (!isPleb &&
         currentItem.productIds.includes(subscription.productId.toLowerCase()) &&
@@ -535,7 +536,11 @@ function ChoosePlan() {
       (isPleb && subscription.productId.toLowerCase() === 'pleb');
 
     return {
-      text: isSubscribed ? 'Current Plan' : 'Get Started',
+      text: isSubscribed
+        ? 'Current Plan'
+        : isKeeperBlack
+        ? 'Know more about Keeper Black'
+        : 'Get Started',
       disabled: isSubscribed,
     };
   };
@@ -606,7 +611,10 @@ function ChoosePlan() {
             currentPosition={currentPosition}
             onChange={(item) => setCurrentPosition(item)}
             primaryCallback={() => {
-              if (!isOnL1 && appSubscription.isDesktopPurchase) {
+              if (items[currentPosition].name === 'Keeper Black') {
+                Linking.openURL(`http://127.0.0.1:5501/KeeperBlack.html?appId=${id}`);
+                return;
+              } else if (!isOnL1 && appSubscription.isDesktopPurchase) {
                 Alert.alert('', 'You already have an active BTC based subscription.');
                 return;
               }

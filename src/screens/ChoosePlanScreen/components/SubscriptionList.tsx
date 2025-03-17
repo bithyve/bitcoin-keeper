@@ -51,7 +51,6 @@ const SubscriptionList: React.FC<{
   const toggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
-
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
       {planData.map((plan, index) => {
@@ -60,6 +59,7 @@ const SubscriptionList: React.FC<{
 
         const matchedPlan = plans.find((p) => p.name.toLowerCase() === plan.title.toLowerCase());
         const isPleb = plan.title.toLowerCase() === 'pleb';
+        const isKeeperBlack = plan.title === 'Keeper Black';
 
         const planDetails = isPleb
           ? 'Free'
@@ -160,7 +160,7 @@ const SubscriptionList: React.FC<{
                 </>
               )}
 
-              {priceDisplay}
+              {!isKeeperBlack && priceDisplay}
 
               {isExpanded && (
                 <Box style={styles.btmCTR}>

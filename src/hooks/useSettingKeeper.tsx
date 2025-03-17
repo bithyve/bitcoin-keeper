@@ -143,6 +143,16 @@ export const useSettingKeeper = () => {
       subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
       subDescription: 'Unlock to protect significant amount of bitcoin and inheritance planning',
     },
+    {
+      plan: SubscriptionTier.L4.toUpperCase(),
+      title: 'Keeper Black',
+      subtitle: 'Expert',
+      description: 'For Expert Users',
+      icon: <DiamondIcon width={30} height={30} />,
+      sublightIcon: <DiamondGreenSub width={24} height={24} />,
+      subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
+      subDescription: 'Unlocks new possibilities with Keeper Black.',
+    },
   ];
 
   const BackAndRecovery = [
