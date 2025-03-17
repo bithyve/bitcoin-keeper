@@ -55,6 +55,9 @@ import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import usePlan from './usePlan';
+import KeeperModal from 'src/components/KeeperModal';
+import { wp } from 'src/constants/responsive';
+import Buttons from 'src/components/Buttons';
 
 export const useSettingKeeper = () => {
   const dispatch = useAppDispatch();
@@ -67,6 +70,7 @@ export const useSettingKeeper = () => {
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
   const [hiddenKeyPass, setHiddenKeyPass] = useState(false);
+  const [showDeleteBackup, setShowDeleteBackup] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { vault, wallet, inheritancePlanning, settings, common, signer } = translations;
   const { typeBasedIndicator } = useIndicatorHook({
@@ -124,7 +128,7 @@ export const useSettingKeeper = () => {
   }, [backupAllFailure]);
   const toggleAutomaticBackupMode = async () => {
     if (!automaticCloudBackup) dispatch(backupAllSignersAndVaults());
-    else dispatch(deleteBackup());
+    else setShowDeleteBackup(true);
   };
 
   const toggleDebounce = (callback, delay = 300) => {
@@ -369,6 +373,34 @@ export const useSettingKeeper = () => {
     },
   ];
 
+  const DeleteBackupModal = (
+    <KeeperModal
+      visible={showDeleteBackup}
+      closeOnOverlayClick={false}
+      close={() => setShowDeleteBackup(false)}
+      title={settings.assistedServerBackup}
+      subTitleWidth={wp(240)}
+      subTitle={settings.assistedServerDeleteBackupSubtitle}
+      modalBackground={`${colorMode}.modalWhiteBackground`}
+      textColor={`${colorMode}.modalHeaderTitle`}
+      subTitleColor={`${colorMode}.modalSubtitleBlack`}
+      Content={() => (
+        <Buttons
+          primaryText={settings.assistedServerDeleteBackupModalCTA}
+          primaryCallback={() => {
+            setShowDeleteBackup(false);
+            dispatch(deleteBackup());
+          }}
+          secondaryCallback={() => {
+            setShowDeleteBackup(false);
+            dispatch(setAutomaticCloudBackup(false));
+          }}
+          secondaryText={settings.assistedServerDeleteBackupModalSecondaryCTA}
+        />
+      )}
+    />
+  );
+
   return {
     BackAndRecovery,
     General,
@@ -381,5 +413,6 @@ export const useSettingKeeper = () => {
     planData,
     hiddenKeyPass,
     setHiddenKeyPass,
+    DeleteBackupModal,
   };
 };
