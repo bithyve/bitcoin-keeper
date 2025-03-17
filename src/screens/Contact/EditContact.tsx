@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: hp(47),
-    borderColor: Colors.SilverMist,
+    borderColor: Colors.secondaryLightGrey,
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 10,

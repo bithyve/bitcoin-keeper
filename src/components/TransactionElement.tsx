@@ -46,7 +46,7 @@ function TransactionElement({
           styles.container,
           isCached && [
             styles.cachedContainer,
-            { backgroundColor: colorMode === 'light' ? Colors.brightCream : Colors.SeashellDark },
+            { backgroundColor: colorMode === 'light' ? Colors.brightCream : Colors.TertiaryBlack },
           ],
         ]}
         borderBottomColor={`${colorMode}.border`}

@@ -38,7 +38,7 @@ const HelpCard: React.FC<HelpCardProps> = ({
     ? {}
     : {
         distance: 9,
-        startColor: Colors.lightGrey,
+        startColor: Colors.secondaryCreamWhite,
         offset: [0, 4],
         radius: hp(10),
       };

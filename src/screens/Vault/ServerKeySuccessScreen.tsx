@@ -126,7 +126,7 @@ function ServerKeySuccessScreen({ route }) {
             primaryTextColor={
               isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.primaryBrown`
             }
-            primaryBorderColor={isDarkMode ? Colors.separator : Colors.BrownBorder}
+            primaryBorderColor={isDarkMode ? Colors.separator : Colors.DullBrown}
             width={wp(150)}
           />
           <Buttons
@@ -136,7 +136,7 @@ function ServerKeySuccessScreen({ route }) {
             primaryTextColor={
               isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.primaryBrown`
             }
-            primaryBorderColor={isDarkMode ? Colors.separator : Colors.BrownBorder}
+            primaryBorderColor={isDarkMode ? Colors.separator : Colors.DullBrown}
             width={wp(150)}
           />
         </Box>

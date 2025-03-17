@@ -1105,7 +1105,7 @@ const styles = StyleSheet.create({
   },
   signerCard: {
     borderWidth: 1,
-    borderColor: Colors.SilverMist,
+    borderColor: Colors.secondaryLightGrey,
     height: 125,
     width: wp(105),
     paddingTop: 5,

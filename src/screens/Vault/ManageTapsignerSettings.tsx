@@ -117,7 +117,7 @@ function ManageTapsignerSettings({ route }: any) {
           <HexagonIcon
             width={wp(43)}
             height={hp(38)}
-            backgroundColor={colorMode === 'light' ? Colors.primaryGreen : Colors.NewBadgeGreenDark}
+            backgroundColor={colorMode === 'light' ? Colors.primaryGreen : Colors.GreenishGrey}
             icon={<TAPSIGNERICONLIGHT />}
           />
           <Box marginLeft={wp(12)}>

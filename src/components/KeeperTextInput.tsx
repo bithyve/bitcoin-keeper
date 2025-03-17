@@ -40,8 +40,8 @@ function KeeperTextInput({
         ref={inputRef}
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor || `${colorMode}.placeHolderTextColor`}
-        borderColor={isError ? Colors.CarmineRed : 'transparent'}
-        color={isError ? Colors.CarmineRed : `${colorMode}.primaryText`}
+        borderColor={isError ? Colors.redAlert : 'transparent'}
+        color={isError ? Colors.redAlert : `${colorMode}.primaryText`}
         value={value}
         onChangeText={onChangeText}
         style={styles.inputField}

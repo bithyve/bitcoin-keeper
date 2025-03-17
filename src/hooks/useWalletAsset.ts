@@ -36,10 +36,10 @@ const useWalletAsset = () => {
       return wallet.type === VaultType.MINISCRIPT
         ? [Colors.primaryBrown, Colors.LabelLight1]
         : wallet.type === VaultType.SINGE_SIG
-        ? [Colors.DeepTeal, Colors.DesaturatedTealGreen]
+        ? [Colors.DeepTeal, Colors.TagDark1]
         : [Colors.ashGreen, Colors.GreenishGrey];
     } else {
-      return [Colors.primaryGreen, Colors.lightGreenCard];
+      return [Colors.primaryGreen, Colors.TagLight6];
     }
   };
 
@@ -53,7 +53,7 @@ const useWalletAsset = () => {
     Colors.toastBg,
     Colors.Aquamarine,
     Colors.mintGreen,
-    Colors.LightMossGreen,
+    Colors.TagLight7,
   ];
 
   const getWalletTags = (wallet: Wallet | Vault) => {

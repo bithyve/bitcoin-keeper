@@ -135,7 +135,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                 <View
                   style={{
                     height: 1,
-                    backgroundColor: isDarkMode ? 'transparent' : Colors.horizontaldivider,
+                    backgroundColor: isDarkMode ? 'transparent' : Colors.secondaryCreamWhite,
                     marginVertical: 20,
                   }}
                 />

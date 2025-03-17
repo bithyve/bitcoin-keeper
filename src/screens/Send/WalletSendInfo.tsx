@@ -32,7 +32,7 @@ function WalletSendInfo({
       <Box style={styles.wrapper}>
         <Box w="15%">
           <TouchableOpacity>
-            <HexagonIcon width={44} height={38} backgroundColor={Colors.RussetBrown} icon={icon} />
+            <HexagonIcon width={44} height={38} backgroundColor={Colors.primaryBrown} icon={icon} />
           </TouchableOpacity>
         </Box>
         <Box style={styles.walletSendInfoWrapper}>

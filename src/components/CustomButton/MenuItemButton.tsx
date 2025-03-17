@@ -15,7 +15,7 @@ function MenuItemButton(props) {
     >
       <Box
         style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]}
-        backgroundColor={`${colorMode}.MintWhisper`}
+        backgroundColor={`${colorMode}.pantoneGreenLight`}
         borderColor={`${colorMode}.primaryGreenBackground`}
       >
         <Box>{props.icon}</Box>

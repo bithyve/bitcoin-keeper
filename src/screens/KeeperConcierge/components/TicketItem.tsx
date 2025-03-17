@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(16),
     marginLeft: wp(10),
     alignSelf: 'center',
-    backgroundColor: Colors.AlertRed,
+    backgroundColor: Colors.redAlert,
   },
 });
 

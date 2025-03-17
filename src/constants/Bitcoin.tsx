@@ -198,7 +198,7 @@ export const getCurrencyImageByRegion = (
       styles.color = Colors.headerWhite;
       break;
     case 'green':
-      styles.color = Colors.GenericViridian;
+      styles.color = Colors.TagLight2;
       break;
     case 'dark':
       styles.color = Colors.TagDark3;
@@ -234,7 +234,7 @@ export const getFiatIcon = (currencyCode: string, type: 'light' | 'green' | 'dar
       styles.color = Colors.headerWhite;
       break;
     case 'green':
-      styles.color = Colors.GenericViridian;
+      styles.color = Colors.TagLight2;
       break;
     case 'dark':
       styles.color = Colors.TagDark3;

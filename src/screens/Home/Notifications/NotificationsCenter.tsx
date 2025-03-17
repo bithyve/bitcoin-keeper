@@ -565,7 +565,7 @@ function NotificationsCenter() {
                   </Text>
                   <Box
                     style={{ borderBottomWidth: 1, marginTop: hp(8) }}
-                    borderColor={`${colorMode}.MintWhisper`}
+                    borderColor={`${colorMode}.pantoneGreenLight`}
                   />
                 </Box>
               )}

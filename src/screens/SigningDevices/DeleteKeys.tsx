@@ -181,7 +181,7 @@ function DeleteKeys({ route }) {
           <HexagonIcon
             width={49}
             height={44}
-            backgroundColor={colorMode === 'dark' ? Colors.DullGreen : Colors.primaryGreen}
+            backgroundColor={colorMode === 'dark' ? Colors.TagLight2 : Colors.primaryGreen}
             icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
           />
         }
