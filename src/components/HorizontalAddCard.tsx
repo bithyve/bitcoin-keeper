@@ -57,7 +57,7 @@ function HorizontalAddCard({
           <HexagonIcon
             width={iconWidth}
             height={iconHeight}
-            backgroundColor={Colors.pantoneGreen}
+            backgroundColor={Colors.primaryGreen}
             icon={icon}
           />
         </Box>

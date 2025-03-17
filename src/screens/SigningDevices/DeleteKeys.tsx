@@ -124,7 +124,7 @@ function DeleteKeys({ route }) {
           <HexagonIcon
             width={43}
             height={38}
-            backgroundColor={Colors.pantoneGreen}
+            backgroundColor={Colors.primaryGreen}
             icon={SDIcons(deletedSigner?.type, true).Icon}
           />
           <Box>
@@ -181,7 +181,7 @@ function DeleteKeys({ route }) {
           <HexagonIcon
             width={49}
             height={44}
-            backgroundColor={colorMode === 'dark' ? Colors.DullGreen : Colors.pantoneGreen}
+            backgroundColor={colorMode === 'dark' ? Colors.DullGreen : Colors.primaryGreen}
             icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
           />
         }
@@ -301,7 +301,7 @@ function DeleteKeys({ route }) {
                 <HexagonIcon
                   width={43}
                   height={38}
-                  backgroundColor={Colors.pantoneGreen}
+                  backgroundColor={Colors.primaryGreen}
                   icon={SDIcons(signerToDelete.type, true).Icon}
                 />
                 <Box>

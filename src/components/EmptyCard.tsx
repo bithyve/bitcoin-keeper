@@ -41,7 +41,7 @@ function EmptyCard({
           <HexagonIcon
             width={iconWidth}
             height={iconHeight}
-            backgroundColor={Colors.pantoneGreen}
+            backgroundColor={Colors.primaryGreen}
             icon={<AddCardIcon />}
           />
           <Text color={`${colorMode}.SlateGrey`} style={styles.nameStyle}>

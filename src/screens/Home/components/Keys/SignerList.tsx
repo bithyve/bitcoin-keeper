@@ -156,7 +156,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
           {renderAssistedKeysShell()}
           <DashedCta
             backgroundColor={`${colorMode}.dullGreen`}
-            hexagonBackgroundColor={Colors.pantoneGreen}
+            hexagonBackgroundColor={Colors.primaryGreen}
             textColor={`${colorMode}.greenWhiteText`}
             name={signer.addKey}
             callback={handleModalOpen}

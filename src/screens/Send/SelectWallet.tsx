@@ -79,7 +79,7 @@ function WalletItem({
           <HexagonIcon
             width={42}
             height={36}
-            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
+            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
             icon={getWalletIcon(wallet)}
           />
           <Text style={styles.walletName} color={`${colorMode}.primaryText`}>

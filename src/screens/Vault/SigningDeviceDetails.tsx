@@ -749,7 +749,7 @@ function SigningDeviceDetails({ route }) {
                         width={38}
                         height={34}
                         backgroundColor={
-                          colorMode === 'dark' ? Colors.DullGreenDark : Colors.pantoneGreen
+                          colorMode === 'dark' ? Colors.DullGreenDark : Colors.primaryGreen
                         }
                         icon={getWalletIcon(vault)}
                       />

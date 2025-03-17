@@ -348,7 +348,7 @@ function SetupAssistedVault() {
       <KeeperHeader
         icon={
           <HexagonIcon
-            backgroundColor={Colors.pantoneGreen}
+            backgroundColor={Colors.primaryGreen}
             width={wp(43)}
             height={hp(38)}
             icon={<AssistedVaultIcon width={wp(23)} height={hp(27)} />}

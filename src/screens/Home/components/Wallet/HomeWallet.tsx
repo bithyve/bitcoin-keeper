@@ -143,7 +143,7 @@ const HomeWallet = () => {
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
         backgroundColor={`${colorMode}.dullGreen`}
-        hexagonBackgroundColor={Colors.pantoneGreen}
+        hexagonBackgroundColor={Colors.primaryGreen}
         textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"
         callback={() => setShowAddWalletModal(true)}

@@ -73,7 +73,7 @@ function ListItem({
     //   </TouchableOpacity>
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
       <Box style={styles.textContainer}>
-        <HexagonIcon width={44} height={38} backgroundColor={Colors.pantoneGreen} icon={icon} />
+        <HexagonIcon width={44} height={38} backgroundColor={Colors.primaryGreen} icon={icon} />
         <Box>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
             {title}

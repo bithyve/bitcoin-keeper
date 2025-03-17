@@ -444,7 +444,7 @@ function SignerAdvanceSettings({ route }: any) {
     return (
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
         <Box style={styles.iconContainer}>
-          <HexagonIcon width={44} height={38} backgroundColor={Colors.pantoneGreen} icon={icon} />
+          <HexagonIcon width={44} height={38} backgroundColor={Colors.primaryGreen} icon={icon} />
         </Box>
         <Box style={styles.titlesContainer}>
           <Text style={styles.titleText}>{title}</Text>
@@ -1322,7 +1322,7 @@ const styles = StyleSheet.create({
     marginLeft: wp(15),
   },
   titleText: {
-    color: Colors.pantoneGreen,
+    color: Colors.primaryGreen,
     fontSize: 14,
     fontWeight: '500',
   },

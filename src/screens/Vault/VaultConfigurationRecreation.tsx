@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     height: wp(35),
     marginLeft: -7,
     borderRadius: 20,
-    backgroundColor: Colors.pantoneGreen,
+    backgroundColor: Colors.primaryGreen,
     justifyContent: 'center',
     alignItems: 'center',
   },
