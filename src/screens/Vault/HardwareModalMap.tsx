@@ -1660,6 +1660,7 @@ function HardwareModalMap({
       }
     } catch (err) {
       setInProgress(false);
+      setOtp('');
       showToast(`${err}`, <ToastErrorIcon />);
     }
   };
@@ -1698,6 +1699,7 @@ function HardwareModalMap({
       }
     } catch (err) {
       setInProgress(false);
+      setOtp('');
       showToast(`${err}`, <ToastErrorIcon />);
     }
   };
@@ -1733,6 +1735,7 @@ function HardwareModalMap({
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
           >

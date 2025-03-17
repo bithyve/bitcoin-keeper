@@ -131,6 +131,7 @@ const Colors = {
   GraphiteLight: 'rgba(165, 165, 165, 1)',
   SeaShellBeige: 'rgba(242, 237, 230, 1)',
   SeaweedGreen: 'rgba(45, 103, 89, 1)',
+  lightGreenCard: 'rgba(67, 182, 136, 1)',
   SeaweedGreenTranslucent: 'rgba(45, 103, 89, 0.05)',
   LightCrimson: 'rgba(229, 69, 69, 1)',
   CoralRed: 'rgba(248, 107, 80, 1)',
@@ -177,6 +178,7 @@ const Colors = {
   CyanGreen: 'rgba(9, 44, 39, 1)',
   coalGreen: 'rgba(36, 49, 46, 1)',
   DesaturatedTealGreen: 'rgba(80, 139, 130, 1)',
+  DeepTeal: 'rgba(19, 80, 88, 1)',
   mintGreen: 'rgba(124, 194, 178, 1)',
   LightMossGreen: 'rgba(192, 223, 161, 1)',
   PaleCyan: 'rgba(91, 191, 168, 1)',
@@ -196,5 +198,6 @@ const Colors = {
   FlameOrange: 'rgba(221, 89, 64, 1)',
   modalSubtitleBlack: 'rgba(4, 21, 19, 1)',
   BrownBorder: 'rgba(145, 120, 92, 0.2))',
+  LightGraycolor: 'rgba(230, 230, 223, 1)',
 };
 export default Colors;

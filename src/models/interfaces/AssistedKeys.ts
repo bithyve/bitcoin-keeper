@@ -38,6 +38,7 @@ export interface SignerPolicy {
   restrictions: SignerRestriction;
   exceptions: SignerException;
   signingDelay?: number; // delay in milliseconds
+  backupDisabled?: boolean;
 }
 
 export interface DelayedTransaction {

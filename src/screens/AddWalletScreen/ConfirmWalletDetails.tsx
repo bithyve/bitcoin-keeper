@@ -252,11 +252,6 @@ function ConfirmWalletDetails({ route }) {
     return (
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
-          <Box style={styles.pillsContainer}>
-            {tags?.map(({ tag, color }) => {
-              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
-            })}
-          </Box>
           <Box style={styles.walletVaultInfoWrapper}>
             <Box style={styles.iconWrapper}>
               <HexagonIcon
@@ -277,6 +272,15 @@ function ConfirmWalletDetails({ route }) {
               </Text>
             </Box>
           </Box>
+          <Box style={styles.pillsContainer}>
+            {tags?.map(({ tag, color }) => {
+              return (
+                <>
+                  <CardPill key={tag} heading={tag} backgroundColor={color} />
+                </>
+              );
+            })}
+          </Box>
         </Box>
       </Box>
     );
@@ -291,7 +295,7 @@ function ConfirmWalletDetails({ route }) {
     return (
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
-          <Box style={styles.pillsContainer}>
+          <Box style={styles.singleSigpills}>
             {tags?.map(({ tag, color }) => {
               return <CardPill key={tag} heading={tag} backgroundColor={color} />;
             })}
@@ -590,7 +594,7 @@ function ConfirmWalletDetails({ route }) {
         close={() => {}}
         visible={vaultCreatedModalVisible}
         title={'Wallet Created Successfully'}
-        subTitle="Your new wallet was created successfully and is ready to use."
+        subTitle="Your new wallet was created successfully and is ready to use"
         Content={
           vaultType === VaultType.SINGE_SIG
             ? () => SingleSigWallet(newVault)
@@ -609,7 +613,7 @@ function ConfirmWalletDetails({ route }) {
       <WalletVaultCreationModal
         visible={walletCreatedModal}
         title="Wallet Created Successfully!"
-        subTitle="Your new wallet was created successfully and is ready to use."
+        subTitle="Your new wallet was created successfully and is ready to use"
         buttonText="View Wallet"
         descriptionMessage="Make sure to securely store your Recovery Key as back up for your wallet"
         buttonCallback={() => {
@@ -749,16 +753,24 @@ const styles = StyleSheet.create({
   },
   walletVaultInfoContainer: {
     paddingHorizontal: 15,
-    paddingVertical: 25,
+    paddingVertical: 15,
     marginVertical: 20,
     borderRadius: 10,
+    gap: 20,
   },
   pillsContainer: {
     flexDirection: 'row',
     gap: 5,
+    marginBottom: hp(3),
+    width: '100%',
+    flexWrap: 'wrap',
+  },
+  singleSigpills: {
+    flexDirection: 'row',
+    gap: 5,
     justifyContent: 'flex-end',
     marginBottom: hp(3),
-    width: '70%',
+    width: '100%',
     position: 'absolute',
     top: hp(20),
     right: wp(13),

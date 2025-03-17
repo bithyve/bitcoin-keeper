@@ -92,7 +92,7 @@ function SetupSigningServer({ route }: { route }) {
     const navigationState = addSignerFlow
       ? {
           name: 'ServerKeySuccessScreen',
-          params: { addedSigner: signingServerKey, setupData: setupData.id },
+          params: { addedSigner: signingServerKey, setupData },
         }
       : {
           name: 'AddSigningDevice',
@@ -140,6 +140,7 @@ function SetupSigningServer({ route }: { route }) {
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
             testID="otpClipboardButton"

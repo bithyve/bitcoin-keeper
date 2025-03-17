@@ -49,6 +49,7 @@ import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
+import { getAppImage } from 'src/store/sagaActions/bhr';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();

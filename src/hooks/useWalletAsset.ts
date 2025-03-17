@@ -33,11 +33,13 @@ const useWalletAsset = () => {
 
   const getWalletCardGradient = (wallet: Wallet | Vault) => {
     if (wallet?.entityKind === EntityKind.VAULT) {
-      return wallet.type === VaultType.COLLABORATIVE
+      return wallet.type === VaultType.MINISCRIPT
         ? [Colors.brownColor, Colors.LabelLight1]
+        : wallet.type === VaultType.SINGE_SIG
+        ? [Colors.DeepTeal, Colors.DesaturatedTealGreen]
         : [Colors.coalGreen, Colors.GreenishGrey];
     } else {
-      return [Colors.SeaweedGreen, Colors.DesaturatedTealGreen];
+      return [Colors.SeaweedGreen, Colors.lightGreenCard];
     }
   };
 

@@ -49,8 +49,8 @@ const WalletCard: React.FC<WalletCardProps> = ({
   return (
     <LinearGradient
       colors={backgroundColor}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
+      start={{ x: 0.2, y: 0 }}
+      end={{ x: 0.9, y: 1 }}
       style={[styles.cardContainer]}
     >
       <Box style={styles.topLeftContainer}>

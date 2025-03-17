@@ -8,13 +8,13 @@ import {
 } from 'react-native-responsive-screen';
 import Text from 'src/components/KeeperText';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Passwordlock from 'src/assets/images/passwordlock.svg';
-
-import { storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
+import BiometricIcon from 'src/assets/images/biometric-icon.svg';
+import { changeLoginMethod, storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
 import KeeperModal from 'src/components/KeeperModal';
 import { setIsInitialLogin } from 'src/store/reducers/login';
 import { throttle } from 'src/utils/utilities';
@@ -22,6 +22,9 @@ import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setEnableAnalyticsLogin } from 'src/store/reducers/settings';
 import config from 'src/utils/service-utilities/config';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 enum PasscodeStages {
   CREATE = 'CREATE',
@@ -40,16 +43,21 @@ export default function CreatePin(props) {
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const { translations } = useContext(LocalizationContext);
   const { login, common } = translations;
+  const { showToast } = useToastMessage();
 
   const createPin = pinState.value.slice(0, 4);
   const confirmPin = pinState.value.slice(4, 8);
   const isCreateComplete = createPin.length === 4;
   const isConfirmComplete = confirmPin.length === 4;
   const isPinMatch = isConfirmComplete && createPin === confirmPin;
+  const [enableBiometric, setEnableBiometric] = useState(false);
+
+  const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  const RNBiometrics = new ReactNativeBiometrics();
 
   useEffect(() => {
     if (hasCreds) {
-      props.navigation.replace('OnBoardingSlides');
+      setEnableBiometric(true);
     }
   }, [hasCreds]);
 
@@ -129,6 +137,66 @@ export default function CreatePin(props) {
       </Box>
     );
   }
+  function BiometricContent() {
+    return (
+      <Box>
+        <Box style={styles.passImg}>
+          <BiometricIcon />
+        </Box>
+      </Box>
+    );
+  }
+
+  const onChangeLoginMethod = async () => {
+    try {
+      const { available } = await RNBiometrics.isSensorAvailable();
+      if (available) {
+        if (loginMethod === LoginMethod.PIN) {
+          const { keysExist } = await RNBiometrics.biometricKeysExist();
+          if (keysExist) {
+            await RNBiometrics.deleteKeys();
+          }
+
+          const { success } = await RNBiometrics.simplePrompt({
+            promptMessage: 'Confirm your identity',
+          });
+
+          if (success) {
+            const { publicKey } = await RNBiometrics.createKeys();
+            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
+            props.navigation.replace('OnBoardingSlides');
+          } else {
+            showToast(
+              'Biometric authentication failed.\nPlease try again or use PIN.',
+              <ToastErrorIcon />
+            );
+            setTimeout(() => {
+              props.navigation.replace('OnBoardingSlides');
+            }, 2000);
+          }
+        } else {
+          dispatch(changeLoginMethod(LoginMethod.PIN));
+        }
+      } else {
+        showToast(
+          'Biometrics not enabled.\nPlease go to settings and enable it.',
+          <ToastErrorIcon />
+        );
+        setTimeout(() => {
+          props.navigation.replace('OnBoardingSlides');
+        }, 2000);
+      }
+    } catch (error) {
+      console.log(error);
+      showToast(
+        'An error occurred with biometrics.\nPlease use an alternative method.',
+        <ToastErrorIcon />
+      );
+      setTimeout(() => {
+        props.navigation.replace('OnBoardingSlides');
+      }, 2000);
+    }
+  };
 
   return (
     <Box
@@ -193,9 +261,9 @@ export default function CreatePin(props) {
         close={() => {}}
         title="Remember your passcode"
         subTitle="Storing the devices securely is an important responsibility. Please ensure their safety and accessibility. Losing them may lead to permanent loss of your bitcoin."
-        modalBackground={`${colorMode}.primaryBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.modalGreenTitle`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         buttonText="Continue"
         secondaryButtonText="Back"
@@ -205,6 +273,29 @@ export default function CreatePin(props) {
         }}
         Content={CreatePassModalContent}
         subTitleWidth={wp(80)}
+      />
+      <KeeperModal
+        visible={enableBiometric}
+        close={() => {
+          setEnableBiometric(false);
+        }}
+        title="Enable Biometric Authentication"
+        subTitle="Use fingerprint or face recognition for quick and secure access."
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalHeaderTitle`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        showCloseIcon={false}
+        buttonText="Continue"
+        secondaryButtonText="Cancel"
+        buttonCallback={() => {
+          setEnableBiometric(false);
+          onChangeLoginMethod();
+        }}
+        secondaryCallback={() => {
+          props.navigation.replace('OnBoardingSlides');
+          setEnableBiometric(false);
+        }}
+        Content={BiometricContent}
       />
     </Box>
   );

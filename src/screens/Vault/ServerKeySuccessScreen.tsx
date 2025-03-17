@@ -18,14 +18,34 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { SignerPolicy, SingerVerification } from 'src/models/interfaces/AssistedKeys';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import { RealmSchema } from 'src/storage/realm/enum';
+import dbManager from 'src/storage/realm/dbManager';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 
-const ServerKeySuccessScreen = ({ route }) => {
+function ServerKeySuccessScreen({ route }) {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common } = translations;
   const navigation = useNavigation();
-  const { addedSigner, vaultKey, vaultId, setupData } = route.params || {};
+  const { vaultKey, vaultId } = route.params || {};
+  const {
+    setupData,
+    addedSigner,
+  }: {
+    setupData: {
+      id: string;
+      isBIP85: boolean;
+      bhXpub: any;
+      masterFingerprint: any;
+      derivationPath: string;
+      verification: SingerVerification;
+    };
+    addedSigner: Signer;
+  } = route.params || {};
 
   const [backupKeyModal, setBackupKeyModal] = useState(false);
   const [otp, setOtp] = useState('');
@@ -44,6 +64,37 @@ const ServerKeySuccessScreen = ({ route }) => {
       setOtp('');
     }
   }, [showOTPModal]);
+
+  const handleNeverCallback = useCallback(async () => {
+    setBackupKeyModal(false);
+    const disable = true;
+    const verifierDigest = hash256(setupData.verification.verifier);
+
+    try {
+      const { updated } = await SigningServer.updateBackupSetting(
+        setupData.id,
+        verifierDigest,
+        disable
+      );
+
+      if (updated) {
+        const updatedSignerPolicy: SignerPolicy = {
+          ...addedSigner.signerPolicy,
+          backupDisabled: disable,
+        };
+        dbManager.updateObjectByPrimaryId(
+          RealmSchema.Signer,
+          'masterFingerprint',
+          addedSigner.masterFingerprint,
+          {
+            signerPolicy: updatedSignerPolicy,
+          }
+        );
+      } else throw new Error('Failed to update backup setting');
+    } catch (err) {
+      showToast(err.message ? err.message : err.toString(), <ToastErrorIcon />);
+    }
+  }, [setupData, addedSigner]);
 
   const BackupModalContent = useCallback(() => {
     return (
@@ -79,9 +130,7 @@ const ServerKeySuccessScreen = ({ route }) => {
             width={wp(150)}
           />
           <Buttons
-            primaryCallback={() => {
-              setBackupKeyModal(false);
-            }}
+            primaryCallback={handleNeverCallback}
             primaryText={common.Never}
             primaryBackgroundColor="transparent"
             primaryTextColor={
@@ -113,7 +162,7 @@ const ServerKeySuccessScreen = ({ route }) => {
       try {
         setOTBLoading(true);
         const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
-          setupData,
+          setupData.id,
           Number(otp)
         );
         setOTBLoading(false);
@@ -129,6 +178,7 @@ const ServerKeySuccessScreen = ({ route }) => {
       } catch (err) {
         setOTBLoading(false);
         showToast(`${err}`);
+        setOtp('');
       }
       setShowOTPModal(false);
     };
@@ -147,6 +197,7 @@ const ServerKeySuccessScreen = ({ route }) => {
                 setOtp(clipBoardData);
               } else {
                 showToast('Invalid OTP');
+                setOtp('');
               }
             }}
           >
@@ -201,7 +252,7 @@ const ServerKeySuccessScreen = ({ route }) => {
         primaryCallback={() => {
           const navigationState = {
             name: 'Home',
-            params: { selectedOption: 'Keys', addedSigner: addedSigner },
+            params: { selectedOption: 'Keys', addedSigner },
           };
 
           navigation.dispatch(CommonActions.navigate(navigationState));
@@ -223,7 +274,10 @@ const ServerKeySuccessScreen = ({ route }) => {
       />
       <KeeperModal
         visible={showOTPModal}
-        close={() => setShowOTPModal(false)}
+        close={() => {
+          setShowOTPModal(false);
+          setOtp('');
+        }}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={common.confirm2FACodeTitle}
         subTitle={common.confirm2FACodeSubtitle}
@@ -233,7 +287,7 @@ const ServerKeySuccessScreen = ({ route }) => {
       />
     </ScreenWrapper>
   );
-};
+}
 
 export default ServerKeySuccessScreen;
 

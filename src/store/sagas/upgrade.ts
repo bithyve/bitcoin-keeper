@@ -24,7 +24,7 @@ import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
 import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import { captureError } from 'src/services/sentry';
-import { hash256 } from 'src/utils/service-utilities/encryption';
+import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -39,6 +39,7 @@ import { deleteVaultImageWorker, updateAppImageWorker, updateVaultImageWorker } 
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { addWhirlpoolWalletsWorker } from './wallets';
+import { setPendingAllBackup } from '../reducers/bhr';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -90,6 +91,7 @@ export function* applyUpgradeSequence({
 
   if (semver.lt(previousVersion, SIGNER_POLICY_MIGRATION_VERSION)) {
     yield call(migrateServerKeyPolicy);
+    yield put(setPendingAllBackup(true));
   }
 
   yield put(setAppVersion(newVersion));
@@ -173,8 +175,21 @@ function* migrateLablesWorker() {
       }
     });
     if (tags.length) {
-      const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-      const updated = yield call(Relay.modifyLabels, id, tags.length ? tags : [], []);
+      const { id, primarySeed }: KeeperApp = yield call(
+        dbManager.getObjectByIndex,
+        RealmSchema.KeeperApp
+      );
+      const encryptionKey = generateEncryptionKey(primarySeed);
+      const tagsToBackup = tags.map((tag) => ({
+        id: hash256(hash256(encryptionKey + tag.id)),
+        content: encrypt(encryptionKey, JSON.stringify(tag)),
+      }));
+      const updated = yield call(
+        Relay.modifyLabels,
+        id,
+        tagsToBackup.length ? tagsToBackup : [],
+        []
+      );
       if (updated) {
         const labelsmigrated = yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
         console.log('Labels migrated: ', labelsmigrated);
