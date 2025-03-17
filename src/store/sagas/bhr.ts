@@ -54,6 +54,8 @@ import {
   setBackupLoading,
   setBackupType,
   setBackupWarning,
+  setDeleteBackupFailure,
+  setDeleteBackupSuccess,
   setEncPassword,
   setInvalidPassword,
   setIsCloudBsmsBackupRequired,
@@ -66,6 +68,7 @@ import {
   BACKUP_BSMS_ON_CLOUD,
   BSMS_CLOUD_HEALTH_CHECK,
   DELETE_APP_IMAGE_ENTITY,
+  DELETE_BACKUP,
   GET_APP_IMAGE,
   HEALTH_CHECK_STATUS_UPDATE,
   RECOVER_BACKUP,
@@ -1019,6 +1022,28 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
   backupAllSignersAndVaultsWorker,
   BACKUP_ALL_SIGNERS_AND_VAULTS
 );
+
+function* deleteBackupWorker() {
+  yield put(setBackupAllLoading(true));
+  try {
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
+    yield call(Relay.deleteBackup, {
+      appId: id,
+    });
+    yield put(setDeleteBackupSuccess(true));
+    yield put(setPendingAllBackup(false));
+    return true;
+  } catch (error) {
+    yield put(setDeleteBackupFailure(true));
+    console.log('🚀 ~ deleteBackupWorker ~ error:', error);
+    return false;
+  } finally {
+    yield put(setBackupAllLoading(false));
+  }
+}
+
+export const deleteBackupWatcher = createWatcher(deleteBackupWorker, DELETE_BACKUP);
 
 export function* checkBackupCondition() {
   const { pendingAllBackup, automaticCloudBackup } = yield select((state: RootState) => state.bhr);

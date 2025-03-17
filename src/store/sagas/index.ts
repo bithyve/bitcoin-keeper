@@ -55,6 +55,7 @@ import {
   bsmsCloudHealthCheckWatcher,
   healthCheckSatutsUpdateWatcher,
   backupAllSignersAndVaultsWatcher,
+  deleteBackupWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -171,6 +172,7 @@ const rootSaga = function* () {
     bsmsCloudHealthCheckWatcher,
     deleteAppImageEntityWatcher,
     backupAllSignersAndVaultsWatcher,
+    deleteBackupWatcher,
     // upgrade
     updateVersionHistoryWatcher,
     migrateLablesWatcher,

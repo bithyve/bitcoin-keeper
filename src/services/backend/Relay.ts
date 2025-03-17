@@ -784,4 +784,26 @@ export default class Relay {
       throw new Error(err.message);
     }
   };
+
+  public static deleteBackup = async (
+    body
+  ): Promise<{
+    status?: number;
+    data?: {
+      updated: boolean;
+    };
+    err?: string;
+    message?: string;
+  }> => {
+    try {
+      const res = await RestClient.post(`${RELAY}deleteBackup`, body);
+      const data = res.data || res.json;
+      return data;
+    } catch (err) {
+      captureError(err);
+      throw new Error(
+        'Failed to delete assisted server backup. Check your internet connection and try again.'
+      );
+    }
+  };
 }

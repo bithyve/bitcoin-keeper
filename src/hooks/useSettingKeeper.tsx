@@ -40,12 +40,14 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useColorMode } from 'native-base';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
+import { backupAllSignersAndVaults, deleteBackup } from 'src/store/sagaActions/bhr';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import {
   setBackupAllFailure,
   setBackupAllSuccess,
   setAutomaticCloudBackup,
+  setDeleteBackupSuccess,
+  setDeleteBackupFailure,
 } from 'src/store/reducers/bhr';
 import useToastMessage from './useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -71,9 +73,13 @@ export const useSettingKeeper = () => {
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
   const { id }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const { backupAllFailure, backupAllSuccess, automaticCloudBackup } = useAppSelector(
-    (state) => state.bhr
-  );
+  const {
+    backupAllFailure,
+    backupAllSuccess,
+    automaticCloudBackup,
+    deleteBackupSuccess,
+    deleteBackupFailure,
+  } = useAppSelector((state) => state.bhr);
 
   useEffect(() => {
     if (colorMode === 'dark') {
@@ -94,14 +100,31 @@ export const useSettingKeeper = () => {
   }, [backupAllSuccess]);
 
   useEffect(() => {
+    if (deleteBackupSuccess && isFocused) {
+      dispatch(setDeleteBackupSuccess(false));
+      dispatch(setAutomaticCloudBackup(false));
+    }
+  }, [deleteBackupSuccess]);
+
+  useEffect(() => {
+    if (deleteBackupFailure && isFocused) {
+      dispatch(setDeleteBackupFailure(false));
+      showToast(
+        'Unable to delete backup from Assisted Server, Please try again later.',
+        <ToastErrorIcon />
+      );
+    }
+  }, [deleteBackupFailure]);
+
+  useEffect(() => {
     if (backupAllFailure && isFocused) {
       dispatch(setBackupAllFailure(false));
-      showToast('Automatic Cloud Backup failed. Please try again later.', <ToastErrorIcon />);
+      showToast('Assisted Server Backup failed. Please try again later.', <ToastErrorIcon />);
     }
   }, [backupAllFailure]);
   const toggleAutomaticBackupMode = async () => {
     if (!automaticCloudBackup) dispatch(backupAllSignersAndVaults());
-    else dispatch(setAutomaticCloudBackup(false));
+    else dispatch(deleteBackup());
   };
 
   const toggleDebounce = (callback, delay = 300) => {
