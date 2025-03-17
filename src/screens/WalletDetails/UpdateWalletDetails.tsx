@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   },
   transferText: {
     width: '100%',
-    color: Colors.Feldgrau,
+    color: Colors.GreenishGrey,
     marginHorizontal: 20,
     fontSize: 12,
     marginTop: hp(22),
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   langScrollViewWrapper: {
     borderWidth: 1,
-    borderColor: Colors.Platinum,
+    borderColor: Colors.bodyText,
     borderRadius: 10,
     margin: 15,
     width: '90%',

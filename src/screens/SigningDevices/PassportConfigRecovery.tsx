@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   separator: {
     width: '100%',
     height: 2,
-    backgroundColor: Colors.WhiteCoffee,
+    backgroundColor: Colors.secondaryCreamWhite,
     marginBottom: 10,
   },
   optionsWrapper: {

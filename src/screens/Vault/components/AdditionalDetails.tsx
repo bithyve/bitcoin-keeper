@@ -43,8 +43,8 @@ function AdditionalDetails({ route }: ScreenProps) {
               styles.descriptionEdit,
               {
                 borderColor: Colors.SilverMist,
-                backgroundColor: colorMode === 'dark' ? Colors.SeashellDark : Colors.Seashell,
-                color: colorMode === 'dark' ? Colors.GraniteGrayDark : Colors.GraniteGray,
+                backgroundColor: colorMode === 'dark' ? Colors.SeashellDark : Colors.brightCream,
+                color: colorMode === 'dark' ? Colors.GraniteGrayDark : Colors.ashGreen,
               },
             ]}
             placeholder="Add a Description (Optional)"

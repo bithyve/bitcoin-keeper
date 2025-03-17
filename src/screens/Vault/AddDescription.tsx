@@ -44,7 +44,7 @@ function AddDescription({ route }) {
           <TextInput
             placeholder="Add Description"
             style={styles.textInput}
-            placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
+            placeholderTextColor={Colors.GreenishGrey} // TODO: change to colorMode and use native base component
           />
         </Box>
 

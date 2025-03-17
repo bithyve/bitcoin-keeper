@@ -58,7 +58,7 @@ function Content({ signer, descRef }: { signer: Signer; descRef }) {
         onChangeText={updateDescription}
         style={styles.descriptionEdit}
         placeholder="Add Description"
-        placeholderTextColor={Colors.RichBlack}
+        placeholderTextColor={Colors.SecondaryBlack}
         defaultValue={signer.signerDescription}
         maxLength={20}
       />

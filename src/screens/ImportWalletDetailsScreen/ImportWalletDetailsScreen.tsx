@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 5,
     borderRadius: 5,
-    backgroundColor: Colors.GrayX11,
+    backgroundColor: Colors.darkGrey,
     marginEnd: 5,
   },
   textInputWrapper: {

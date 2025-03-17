@@ -537,7 +537,7 @@ const getStyles = (clock) =>
     circularborder: {
       borderRadius: 50,
       borderWidth: 1,
-      borderColor: Colors.Black,
+      borderColor: Colors.PrimaryBlack,
       borderStyle: 'dotted',
       justifyContent: 'center',
       alignItems: 'center',
@@ -547,7 +547,7 @@ const getStyles = (clock) =>
     },
     whirlpoolLoaderSolidBorder: {
       borderWidth: 1,
-      borderColor: Colors.Black,
+      borderColor: Colors.PrimaryBlack,
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 50,
@@ -568,7 +568,7 @@ const getStyles = (clock) =>
     animatedCircularborder: {
       borderRadius: 50,
       borderWidth: 1,
-      borderColor: Colors.Black,
+      borderColor: Colors.PrimaryBlack,
       borderStyle: 'dotted',
       justifyContent: 'center',
       alignItems: 'center',

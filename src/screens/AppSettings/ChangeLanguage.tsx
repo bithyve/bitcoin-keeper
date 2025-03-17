@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   },
   scrollViewWrapper: {
     borderBottomWidth: 1,
-    borderBottomColor: Colors.Platinum,
+    borderBottomColor: Colors.bodyText,
     borderRadius: 10,
     margin: 15,
     paddingHorizontal: 5,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   },
   langScrollViewWrapper: {
     borderWidth: 1,
-    borderColor: Colors.Platinum,
+    borderColor: Colors.bodyText,
     borderRadius: 10,
     paddingHorizontal: 5,
     margin: 15,
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.Platinum,
+    borderBottomColor: Colors.bodyText,
   },
   symbolText: {
     fontSize: 13,
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: wp('13%'),
     borderBottomWidth: 1,
-    borderBottomColor: Colors.Platinum,
+    borderBottomColor: Colors.bodyText,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.Platinum,
+    borderBottomColor: Colors.bodyText,
   },
   flagStyle: {
     fontSize: 13,
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: wp('13%'),
     borderBottomWidth: 1,
-    borderBottomColor: Colors.Platinum,
+    borderBottomColor: Colors.bodyText,
   },
   countryCodeWrapper2: {
     fontSize: 13,

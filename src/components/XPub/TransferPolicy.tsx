@@ -124,7 +124,7 @@ function TransferPolicy({
   };
 
   const inputContainerStyles = {
-    shadowColor: colorMode === 'light' ? Colors.Black : Colors.headerWhite,
+    shadowColor: colorMode === 'light' ? Colors.PrimaryBlack : Colors.headerWhite,
     shadowOffset: {
       width: 0,
       height: 2,

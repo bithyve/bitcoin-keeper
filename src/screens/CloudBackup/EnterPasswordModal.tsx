@@ -20,7 +20,7 @@ function Content({ descRef }: { descRef }) {
         style={styles.descriptionEdit}
         placeholder="Enter Password"
         secureTextEntry
-        placeholderTextColor={Colors.RichBlack}
+        placeholderTextColor={Colors.SecondaryBlack}
         defaultValue={''}
         maxLength={20}
       />

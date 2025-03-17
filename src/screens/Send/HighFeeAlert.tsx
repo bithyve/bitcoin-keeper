@@ -38,7 +38,7 @@ function HighFeeAlert({
           hideAmounts={false}
           fontSize={16}
           bold
-          color={colorMode === 'light' ? Colors.RichBlack : Colors.headerWhite}
+          color={colorMode === 'light' ? Colors.SecondaryBlack : Colors.headerWhite}
           variation={colorMode === 'light' ? 'dark' : 'light'}
         />
       </Box>
@@ -52,7 +52,7 @@ function HighFeeAlert({
           hideAmounts={false}
           fontSize={16}
           bold
-          color={colorMode === 'light' ? Colors.RichBlack : Colors.headerWhite}
+          color={colorMode === 'light' ? Colors.SecondaryBlack : Colors.headerWhite}
           variation={colorMode === 'light' ? 'dark' : 'light'}
         />
       </Box>
