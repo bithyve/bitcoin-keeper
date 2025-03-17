@@ -321,7 +321,6 @@ export default class SigningServer {
     }>,
     verificationToken: number,
     changeAddress?: string,
-    outgoing?: number,
     FCM?: string
   ): Promise<{
     signedPSBT: string;
@@ -338,7 +337,6 @@ export default class SigningServer {
         childIndexArray,
         verificationToken,
         changeAddress,
-        outgoing,
         FCM,
       });
     } catch (err) {

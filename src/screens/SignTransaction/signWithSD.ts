@@ -107,7 +107,6 @@ export const signTransactionWithSigningServer = async ({
   try {
     showOTPModal(false);
     const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
-    const outgoing = idx(signingPayload, (_) => _[0].outgoing);
     const change = idx(signingPayload, (_) => _[0].change);
 
     if (!childIndexArray) throw new Error('Invalid signing payload');
@@ -120,7 +119,6 @@ export const signTransactionWithSigningServer = async ({
       childIndexArray,
       verificationToken,
       change,
-      outgoing,
       fcmToken
     );
 
