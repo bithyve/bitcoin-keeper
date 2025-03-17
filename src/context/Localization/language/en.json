@@ -858,6 +858,8 @@
     "mobileKeyNotAllowedMessage": "Mobile keys cannot be used for cold wallets. Please use hot wallet option.",
     "missingXpubTitle": "Missing xPub from Key",
     "missingXpubMessage": "The key selected is missing the xPub necessary for the selected vault type. Please import the xPub if you'd like to use this device in your new vault.",
+    "externalKeySinglesigTitle": "Cannot use External Key",
+    "externalKeySinglesigMessage": "External Key cannot be used for single-key wallets. Please choose a different key.",
     "insufficientTotalKeysTitle": "Is Not Allowed For This Configuration",
     "insufficientTotalKeysMessage": "can only be used in a multi-signature vault which has at least 2 required keys and 3 total keys.",
     "assistedKeysQuorumTitle": "Assisted Key Limit Exceeded",

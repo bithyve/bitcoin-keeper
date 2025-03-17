@@ -217,6 +217,8 @@ const isSignerValidForScheme = (
   ) {
     if (signer.type === SignerType.MY_KEEPER) {
       return { isValid: false, code: KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED };
+    } else if (signer.type === SignerType.KEEPER && !isMultisig) {
+      return { isValid: false, code: KeyValidationErrorCode.EXTERNAL_KEY_SINGLESIG };
     }
     return { isValid: false, code: KeyValidationErrorCode.MISSING_XPUB };
   }
@@ -652,6 +654,10 @@ function Signers({
         case KeyValidationErrorCode.MISSING_XPUB:
           title = vaultText.missingXpubTitle;
           message = vaultText.missingXpubMessage;
+          break;
+        case KeyValidationErrorCode.EXTERNAL_KEY_SINGLESIG:
+          title = vaultText.externalKeySinglesigTitle;
+          message = vaultText.externalKeySinglesigMessage;
           break;
         case KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS:
         case KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS:
