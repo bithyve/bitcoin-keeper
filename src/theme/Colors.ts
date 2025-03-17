@@ -120,5 +120,7 @@ const Colors = {
   SoftJadeTint: 'rgba(45, 103, 89, 0.09)',
   FlameOrange: 'rgba(221, 89, 64, 1)',
   LightGraycolor: 'rgba(230, 230, 223, 1)',
+  SeaweedGreenTranslucent: 'rgba(45, 103, 89, 0.05)',
+  GraphiteTranslucent: 'rgba(135, 135, 135, 0.05)',
 };
 export default Colors;
