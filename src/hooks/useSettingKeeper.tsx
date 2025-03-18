@@ -123,9 +123,10 @@ export const useSettingKeeper = () => {
   useEffect(() => {
     if (backupAllFailure && isFocused) {
       dispatch(setBackupAllFailure(false));
-      showToast('Assisted Server Backup failed. Please try again later.', <ToastErrorIcon />);
+      showToast('Assisted server backup failed. Please try again later.', <ToastErrorIcon />);
     }
   }, [backupAllFailure]);
+
   const toggleAutomaticBackupMode = async () => {
     if (!automaticCloudBackup) dispatch(backupAllSignersAndVaults());
     else setShowDeleteBackup(true);

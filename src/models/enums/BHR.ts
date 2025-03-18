@@ -1,5 +1,3 @@
-import { SignerType } from 'src/services/wallets/enums';
-
 export const enum BackupType {
   SEED = 'SEED',
 }
@@ -25,3 +23,5 @@ export const enum CloudBackupAction {
   CLOUD_BACKUP_HEALTH = 'CLOUD_BACKUP_HEALTH',
   CLOUD_BACKUP_HEALTH_FAILED = 'CLOUD_BACKUP_HEALTH_FAILED',
 }
+
+export type homeToastMessageType = { message: string | null; isError: boolean };

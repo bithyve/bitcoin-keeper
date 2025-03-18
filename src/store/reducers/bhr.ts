@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BackupType } from 'src/models/enums/BHR';
+import { BackupType, homeToastMessageType } from 'src/models/enums/BHR';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
@@ -59,6 +59,7 @@ const initialState: {
 
   deleteBackupSuccess: boolean;
   deleteBackupFailure: boolean;
+  homeToastMessage: homeToastMessageType;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -109,6 +110,8 @@ const initialState: {
 
   deleteBackupSuccess: false,
   deleteBackupFailure: false,
+
+  homeToastMessage: { message: null, isError: false },
 };
 
 const bhrSlice = createSlice({
@@ -289,12 +292,14 @@ const bhrSlice = createSlice({
     setAutomaticCloudBackup: (state, action: PayloadAction<boolean>) => {
       state.automaticCloudBackup = action.payload;
     },
-
     setDeleteBackupSuccess: (state, action: PayloadAction<boolean>) => {
       state.deleteBackupSuccess = action.payload;
     },
     setDeleteBackupFailure: (state, action: PayloadAction<boolean>) => {
       state.deleteBackupFailure = action.payload;
+    },
+    setHomeToastMessage: (state, action: PayloadAction<homeToastMessageType>) => {
+      state.homeToastMessage = action.payload;
     },
   },
 });
@@ -355,6 +360,8 @@ export const {
 
   setDeleteBackupSuccess,
   setDeleteBackupFailure,
+
+  setHomeToastMessage,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -396,6 +403,8 @@ const bhrPersistConfig = {
 
     'deleteBackupSuccess',
     'deleteBackupFailure',
+
+    'homeToastMessage',
   ],
 };
 

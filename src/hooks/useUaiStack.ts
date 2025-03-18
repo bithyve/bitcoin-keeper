@@ -13,6 +13,7 @@ export const uaiPriorityMap: UAIPriorityMap = {
   [uaiType.SIGN_TRANSACTION]: 100,
   [uaiType.CANARAY_WALLET]: 100,
   [uaiType.ZENDESK_TICKET]: 100,
+  [uaiType.SERVER_BACKUP_FAILURE]: 90,
   [uaiType.SIGNING_DEVICES_HEALTH_CHECK]: 90,
   [uaiType.RECOVERY_PHRASE_HEALTH_CHECK]: 90,
   [uaiType.VAULT_TRANSFER]: 80,

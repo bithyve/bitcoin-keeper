@@ -12,8 +12,7 @@ import { createWatcher } from '../utilities';
 
 import { ADD_LABELS, BULK_UPDATE_LABELS } from '../sagaActions/utxos';
 import { resetState, setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
-import { setPendingAllBackup } from '../reducers/bhr';
-import { checkBackupCondition } from './bhr';
+import { checkBackupCondition, setServerBackupFailed } from './bhr';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
 
 export function* addLabelsWorker({
@@ -62,7 +61,7 @@ export function* addLabelsWorker({
       } else yield delay(100);
     } catch (error) {
       console.log('🚀 ~ addLabelsWorker error:', error);
-      yield put(setPendingAllBackup(true));
+      yield call(setServerBackupFailed);
     }
   } catch (e) {
     yield put(setSyncingUTXOError(e));
@@ -133,7 +132,7 @@ export function* bulkUpdateLabelsWorker({
         );
       } else yield delay(100);
     } catch (error) {
-      yield put(setPendingAllBackup(true));
+      yield call(setServerBackupFailed);
     }
   } catch (e) {
     yield put(setSyncingUTXOError(e));
