@@ -106,7 +106,7 @@ function UTXOManagement({ route }: ScreenProps) {
     if (!walletSyncing[wallet.id]) {
       dispatch(refreshWallets([wallet], { hardRefresh: false }));
     }
-  }, [wallet]);
+  }, []);
 
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs
