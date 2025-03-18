@@ -47,7 +47,6 @@ export function* fetchNotificationsWorker() {
   const appId = yield select((state: RootState) => state.storage.appId);
   const { notifications } = yield call(Relay.fetchNotifications, appId);
   yield call(notificationsFetched, notifications);
-  // yield call( setupNotificationListWorker )
   yield put(fetchNotificationStarted(false));
 }
 

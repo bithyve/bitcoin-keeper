@@ -584,31 +584,6 @@ function* recoverApp(
   }
 }
 
-function* recoverBackupWorker({
-  payload,
-}: {
-  payload: {
-    password: string;
-    encData: string;
-  };
-}) {
-  try {
-    const { password, encData } = payload;
-    const dec = decrypt(password, encData);
-    console.log(dec);
-    const obj = JSON.parse(dec);
-    if (obj.seed) {
-      yield put(getAppImage(obj.seed));
-      yield put(setInvalidPassword(false));
-    } else {
-      yield put(setInvalidPassword(true));
-    }
-  } catch (error) {
-    yield put(setInvalidPassword(true));
-    console.log(error);
-  }
-}
-
 function* healthCheckSatutsUpdateWorker({
   payload,
 }: {
@@ -902,7 +877,6 @@ export const seedBackeupConfirmedWatcher = createWatcher(
   SEED_BACKEDUP_CONFIRMED
 );
 
-export const recoverBackupWatcher = createWatcher(recoverBackupWorker, RECOVER_BACKUP);
 export const healthCheckSignerWatcher = createWatcher(
   healthCheckSignerWorker,
   UPADTE_HEALTH_CHECK_SIGNER

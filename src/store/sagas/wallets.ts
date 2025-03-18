@@ -1406,7 +1406,7 @@ function* refillMobileKeyWorker({ payload }) {
       } else {
         yield put(setKeyHealthCheckLoading(false));
         yield put(
-          setKeyHealthCheckError('Key seems to be currupted, please deleta and re-add it.')
+          setKeyHealthCheckError('Key seems to be corrupted, please delete and re-add it.')
         );
       }
     } else {

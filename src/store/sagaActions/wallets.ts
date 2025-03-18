@@ -17,6 +17,8 @@ export const UPDATE_VAULT_DETAILS = 'UPDATE_VAULT_DETAILS';
 export const UPDATE_SIGNER_DETAILS = 'UPDATE_SIGNER_DETAILS';
 export const UPDATE_KEY_DETAILS = 'UPDATE_KEY_DETAILS';
 export const GENERATE_NEW_ADDRESS = 'GENERATE_NEW_ADDRESS';
+export const TESTCOINS_RECEIVED = 'TESTCOINS_RECEIVED';
+export const WALLETS_SYNCHED = 'WALLETS_SYNCHED';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -86,10 +88,6 @@ export const updateWalletProperty = (payload: { walletId: string; key: string; v
   type: UPDATE_WALLET_PROPERTY,
   payload,
 });
-
-// types and action creators (saga): dispatched by saga workers
-export const TESTCOINS_RECEIVED = 'TESTCOINS_RECEIVED';
-export const WALLETS_SYNCHED = 'WALLETS_SYNCHED';
 
 export const testcoinsReceived = () => ({
   type: TESTCOINS_RECEIVED,

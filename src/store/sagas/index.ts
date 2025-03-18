@@ -34,14 +34,12 @@ import {
   credentialsAuthWatcher,
   resetPinCredWatcher,
   generateSeedHashWatcher,
-  switchAppStatusWatcher,
 } from './login';
 import {
   backupWarningWatcher,
   deleteAppImageEntityWatcher,
   getAppImageWatcher,
   healthCheckSignerWatcher,
-  recoverBackupWatcher,
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
@@ -70,7 +68,7 @@ import {
   setupKeeperVaultRecoveryAppWatcher,
 } from './storage';
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
-import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
+import { addLabelsWatcher, bulkUpdateLabelWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
 import {
   loadConciergeUserWatcher,
@@ -86,7 +84,6 @@ const rootSaga = function* () {
     generateSeedHashWatcher,
     changeLoginMethodWatcher,
     credentialStorageWatcher,
-    switchAppStatusWatcher,
     resetPinCredWatcher,
     setupKeeperAppWatcher,
 
@@ -150,7 +147,6 @@ const rootSaga = function* () {
     getAppImageWatcher,
     seedBackedUpWatcher,
     seedBackeupConfirmedWatcher,
-    recoverBackupWatcher,
     healthCheckSignerWatcher,
     healthCheckSatutsUpdateWatcher,
     backupWarningWatcher,
@@ -166,7 +162,6 @@ const rootSaga = function* () {
     // utxos
     addLabelsWatcher,
     bulkUpdateLabelWatcher,
-    bulkUpdateUTXOLabelWatcher,
     // concierge
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
