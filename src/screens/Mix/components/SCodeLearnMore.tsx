@@ -12,20 +12,20 @@ function SCodeContent() {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.container}>
-      <Text style={styles.titleText} italic color={`${colorMode}.modalGreenContent`}>
+      <Text style={styles.titleText} italic color={`${colorMode}.headerWhite`}>
         SCODES
       </Text>
-      <Text style={styles.paraText} color={`${colorMode}.modalGreenContent`}>
+      <Text style={styles.paraText} color={`${colorMode}.headerWhite`}>
         SCODES are discount codes periodically released by Samurai on their social media platforms.
         Keep an eye out for them and use them to get attractive discounts on your whirlpool fees.
       </Text>
       <Box style={styles.iconWrapper}>
         <ScodeIllustration />
       </Box>
-      <Text style={styles.titleText} color={`${colorMode}.modalGreenContent`}>
+      <Text style={styles.titleText} color={`${colorMode}.headerWhite`}>
         Priority
       </Text>
-      <Text style={styles.paraText} italic color={`${colorMode}.modalGreenContent`}>
+      <Text style={styles.paraText} italic color={`${colorMode}.headerWhite`}>
         As in any bitcoin sending transaction, Priority determines how fast your transaction gets
         confirmed on the bitcoin blockchain.
       </Text>
@@ -45,7 +45,7 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
       subTitle=""
       DarkCloseIcon
       modalBackground={`${colorMode}.modalGreenBackground`}
-      textColor={`${colorMode}.modalGreenContent`}
+      textColor={`${colorMode}.headerWhite`}
       Content={SCodeContent}
       learnMore
       learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`)}

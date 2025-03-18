@@ -166,7 +166,7 @@ function VaultConfigurationCreation() {
         }}
         title="Import a wallet:"
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         Content={ImportVaultContent}
         DarkCloseIcon
         buttonText={common.Okay}

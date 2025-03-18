@@ -90,10 +90,10 @@ function VaultSettings({ route }) {
         <Box style={styles.illustration}>
           <VaultSetupIcon />
         </Box>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
           {vaultText.keeperSupportSigningDevice}
         </Text>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
           {vaultText.additionalOptionForSignDevice}
         </Text>
       </Box>
@@ -251,7 +251,7 @@ function VaultSettings({ route }) {
         title={vaultText.keeperVault}
         subTitle={vaultText.vaultLearnMoreSubtitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon

@@ -38,16 +38,16 @@ function LetterOfAttorney() {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.letterOfAttorneyTitle}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.letterOfAttorneyDescp}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.letterOfAttorneyP1}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.letterOfAttorneyP2}
         </Text>
         <Box style={styles.circleStyle}>
@@ -66,10 +66,10 @@ function LetterOfAttorney() {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.modalGreenContent`}>
+          <Text bold color={`${colorMode}.headerWhite`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.modalGreenContent`}>
+          <Text color={`${colorMode}.headerWhite`}>
             {inheritancePlanning.letterOfAttorneyNotes}
           </Text>
         </Box>

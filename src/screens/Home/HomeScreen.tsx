@@ -62,7 +62,7 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<WalletIcon />}
-              backgroundColor={`${colorMode}.modalGreenContent`}
+              backgroundColor={`${colorMode}.headerWhite`}
             />
           ),
         };
@@ -77,7 +77,7 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<KeysIcon />}
-              backgroundColor={`${colorMode}.modalGreenContent`}
+              backgroundColor={`${colorMode}.headerWhite`}
             />
           ),
         };
@@ -98,7 +98,7 @@ function NewHomeScreen({ route }) {
                   style={{ marginRight: wp(1), marginBottom: hp(1) }}
                 />
               }
-              backgroundColor={`${colorMode}.modalGreenContent`}
+              backgroundColor={`${colorMode}.headerWhite`}
             />
           ),
         };
@@ -113,7 +113,7 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<SettingIcon />}
-              backgroundColor={`${colorMode}.modalGreenContent`}
+              backgroundColor={`${colorMode}.headerWhite`}
             />
           ),
         };

@@ -24,13 +24,13 @@ function AdditionalSignerDetailsTemplate({}) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.additionalKeysTitle}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.additionalKeysMainDescp}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.additionalKeysMainP1}
         </Text>
 
@@ -53,10 +53,10 @@ function AdditionalSignerDetailsTemplate({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.modalGreenContent`}>
+          <Text bold color={`${colorMode}.headerWhite`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.modalGreenContent`}>
+          <Text color={`${colorMode}.headerWhite`}>
             {inheritancePlanning.additionalKeysCtaNotes}
           </Text>
         </Box>

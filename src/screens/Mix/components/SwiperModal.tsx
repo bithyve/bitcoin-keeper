@@ -17,10 +17,10 @@ function SwiperModalContent({ contentTitle, contentSubTitle }) {
   return (
     <Box>
       <Box>
-        <Text bold italic style={styles.modalTitle} color={`${colorMode}.modalGreenContent`}>
+        <Text bold italic style={styles.modalTitle} color={`${colorMode}.headerWhite`}>
           {contentTitle}
         </Text>
-        <Text style={styles.modalSubTitle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.modalSubTitle} color={`${colorMode}.headerWhite`}>
           {contentSubTitle}
         </Text>
       </Box>
@@ -79,7 +79,7 @@ function List() {
         </TouchableOpacity>
       ) : null}
       <Box style={styles.headerContainer}>
-        <Text style={styles.title} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.title} color={`${colorMode}.headerWhite`}>
           Some Definitions:
         </Text>
       </Box>
@@ -142,7 +142,7 @@ function SwiperModal({ enable }) {
       }}
       title=""
       modalBackground={`${colorMode}.modalGreenBackground`}
-      textColor={`${colorMode}.modalGreenContent`}
+      textColor={`${colorMode}.headerWhite`}
       Content={() => <List />}
       showCloseIcon={false}
     />

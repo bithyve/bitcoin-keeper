@@ -91,13 +91,13 @@ function AddCoSignerContent() {
   const { vault: vaultText } = translations;
   return (
     <Box style={styles.contentContainer}>
-      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
+      <Text color={`${colorMode}.headerWhite`} style={styles.addCoSigner}>
         {vaultText.collabModalDescription1}
       </Text>
       <Box style={styles.bitcoinIllustration}>
         <BitcoinIllustration />
       </Box>
-      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
+      <Text color={`${colorMode}.headerWhite`} style={styles.addCoSigner}>
         {vaultText.collabModalDescription2}
       </Text>
     </Box>
@@ -163,7 +163,7 @@ function CollaborativeModals({
           title={vaultText.collaborativeVaultTitle}
           subTitle={vaultText.collaborativeVaultSubtitle}
           modalBackground={`${colorMode}.modalGreenBackground`}
-          textColor={`${colorMode}.modalGreenContent`}
+          textColor={`${colorMode}.headerWhite`}
           Content={AddCoSignerContent}
           buttonText={common.Okay}
           secondaryButtonText={common.needHelp}

@@ -49,16 +49,16 @@ function WalletConfigurationFiles() {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.walletConfigFilesTitle}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.walletConfigFilesDescpMain}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.walletConfigFilesParagraph1}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.walletConfigFilesParagraph2}
         </Text>
         <Box style={styles.circleStyle}>
@@ -84,10 +84,10 @@ function WalletConfigurationFiles() {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.modalGreenContent`}>
+          <Text bold color={`${colorMode}.headerWhite`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.modalGreenContent`}>
+          <Text color={`${colorMode}.headerWhite`}>
             {inheritancePlanning.walletConfigFilesNote}
           </Text>
         </Box>

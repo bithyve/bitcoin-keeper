@@ -112,7 +112,7 @@ const SigningDeviceList = () => {
         <Box style={styles.alignCenter}>
           <SigningDevicesIllustration />
         </Box>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
         </Text>
       </Box>
@@ -240,7 +240,7 @@ const SigningDeviceList = () => {
         title={signer.signers}
         subTitle={signer.signerDescription}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}

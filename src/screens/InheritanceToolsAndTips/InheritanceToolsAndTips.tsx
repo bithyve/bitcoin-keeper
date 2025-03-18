@@ -61,7 +61,7 @@ function InheritanceToolsAndTips({ navigation }) {
         <Box style={styles.BTCModalIcon}>
           <BTCModalIcon />
         </Box>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.inhertianceModalDesc}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.inhertianceModalDesc}>
           {inheritanceTranslation.learnMoreDescription}
         </Text>
       </Box>
@@ -98,7 +98,7 @@ function InheritanceToolsAndTips({ navigation }) {
         subTitle={inheritanceTranslation.learnMoreSubTitle}
         subTitleWidth={wp(295)}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         Content={InheritanceModalContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}

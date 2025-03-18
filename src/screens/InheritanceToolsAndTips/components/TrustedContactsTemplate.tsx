@@ -22,20 +22,20 @@ function TrustedContactTemplates({}) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.trustedContactsTemplateTitle}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.trustedContactsTemplateDescp}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.trustedContactsP1}
         </Text>
 
         <Box style={styles.circleStyle}>
           <TrustedContactIcon />
         </Box>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {' '}
           {inheritancePlanning.trustedContactsRef}
         </Text>
@@ -55,12 +55,10 @@ function TrustedContactTemplates({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.modalGreenContent`}>
+          <Text bold color={`${colorMode}.headerWhite`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.modalGreenContent`}>
-            {inheritancePlanning.trustedContactsNotes}
-          </Text>
+          <Text color={`${colorMode}.headerWhite`}>{inheritancePlanning.trustedContactsNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

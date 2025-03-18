@@ -192,10 +192,10 @@ function ConfirmWalletDetails({ route }) {
             <PrivacyIcon />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootTitleText}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
               {wallet.tapRootPrivacy}
             </Text>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootDescText}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
               {wallet.tapRootPrivacyDesc}
             </Text>
           </Box>
@@ -205,10 +205,10 @@ function ConfirmWalletDetails({ route }) {
             <EfficiencyIcon />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootTitleText}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
               {wallet.tapRootEfficiency}
             </Text>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootDescText}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
               {wallet.tapRootEfficiencyDesc}
             </Text>
           </Box>
@@ -218,10 +218,10 @@ function ConfirmWalletDetails({ route }) {
             <SaclingIcon />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootTitleText}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
               {wallet.tapRootScalable}
             </Text>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootDescText}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
               {wallet.tapRootScalableDesc}
             </Text>
           </Box>
@@ -231,10 +231,10 @@ function ConfirmWalletDetails({ route }) {
             <SecurityIcon />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootTitleText}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
               {wallet.tapRootSecurity}
             </Text>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootDescText}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
               {wallet.tapRootSecurityDesc}
             </Text>
           </Box>
@@ -643,7 +643,7 @@ function ConfirmWalletDetails({ route }) {
         title={wallet.tapRootBenefits}
         subTitle={''}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         Content={TapRootContent}
         showCloseIcon={true}
         DarkCloseIcon

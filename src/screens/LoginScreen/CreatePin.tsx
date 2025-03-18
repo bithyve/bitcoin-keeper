@@ -210,20 +210,20 @@ export default function CreatePin(props) {
         <Box style={styles.wrapper}>
           <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} medium color={`${colorMode}.choosePlanHome`}>
+              <Text style={styles.welcomeText} medium color={`${colorMode}.headerWhite`}>
                 {login.welcome}
               </Text>
             </Box>
             <Box style={styles.passCodeWrapper}>
               <Box style={styles.createPasscodeWrapper}>
-                <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
+                <Text color={`${colorMode}.headerWhite`} style={styles.labelText}>
                   {login.Createpasscode}
                 </Text>
                 <PinDotView passCode={createPin} />
               </Box>
               {isCreateComplete && (
                 <Box style={styles.confirmPasscodeWrapper}>
-                  <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
+                  <Text color={`${colorMode}.headerWhite`} style={styles.labelText}>
                     {login.Confirmyourpasscode}
                   </Text>
                   <Box>

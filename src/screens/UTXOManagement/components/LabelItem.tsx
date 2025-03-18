@@ -62,7 +62,7 @@ function LabelItem({
       >
         <Text
           style={styles.labelText}
-          color={`${colorMode}.labelText`}
+          color={`${colorMode}.headerWhite`}
           testID={`text_${item.name}`}
         >
           {item.name}

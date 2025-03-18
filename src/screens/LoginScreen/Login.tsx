@@ -431,12 +431,12 @@ function LoginScreen({ navigation, route }) {
         <Box flex={1}>
           <Box>
             <Box style={styles.testnetIndicatorWrapper}>{isTestnet() && <TestnetIndicator />}</Box>
-            <Text color={`${colorMode}.choosePlanHome`} fontSize={25} style={styles.welcomeText}>
+            <Text color={`${colorMode}.headerWhite`} fontSize={25} style={styles.welcomeText}>
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
               <Box style={styles.passcodeWrapper}>
-                <Text fontSize={14} color={`${colorMode}.choosePlanHome`}>
+                <Text fontSize={14} color={`${colorMode}.headerWhite`}>
                   {login.enter_your}
                   {login.passcode}
                 </Text>

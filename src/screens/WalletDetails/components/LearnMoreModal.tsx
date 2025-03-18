@@ -40,7 +40,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       title="Pull Down to Refresh"
       subTitle="If you want to check the latest status of a transaction, simply pull down the transaction list and it will fetch the latest status and wallet balance."
       modalBackground={`${colorMode}.modalGreenBackground`}
-      textColor={`${colorMode}.modalGreenContent`}
+      textColor={`${colorMode}.headerWhite`}
       Content={LinkedWalletContent}
       DarkCloseIcon
       buttonText={common.Okay}

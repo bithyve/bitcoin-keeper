@@ -88,7 +88,7 @@ function WalletSettings({ route }) {
         <Box style={styles.illustration}>
           <WalletInfoIllustration />
         </Box>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
           {walletTranslation.learnMoreDesc}
         </Text>
       </Box>
@@ -264,7 +264,7 @@ function WalletSettings({ route }) {
         title={walletTranslation.learnMoreTitle}
         subTitle={walletTranslation.learnMoreSubTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon

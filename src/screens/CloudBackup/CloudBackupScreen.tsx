@@ -64,10 +64,10 @@ function CloudBackupScreen() {
   function modalContent() {
     return (
       <Box>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.backupModalDesc}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.backupModalDesc}>
           {strings.cloudBackupModalSubitle}
         </Text>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.backupModalDesc}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.backupModalDesc}>
           {strings.cloudBackupModalDesc}
         </Text>
         <Box style={styles.illustration}>
@@ -170,7 +170,7 @@ function CloudBackupScreen() {
         }}
         title={strings.cloudBackupModalTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.whiteButtonText`}

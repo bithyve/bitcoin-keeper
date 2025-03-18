@@ -241,9 +241,9 @@ function ManageSigners({ route }: ScreenProps) {
         visible={showLearnMoreModal}
         title={signerTranslation.ManageKeys}
         subTitle={signerTranslation.manageKeysModalSubtitle}
-        subTitleColor={`${colorMode}.modalGreenContent`}
+        subTitleColor={`${colorMode}.headerWhite`}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
         buttonTextColor={`${colorMode}.whiteButtonText`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
@@ -269,7 +269,7 @@ function ManageSigners({ route }: ScreenProps) {
             <Box style={styles.illustrationContainer}>
               <HardwareIllustration />
             </Box>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
               {signerTranslation.manageKeysModalDesc}
             </Text>
           </Box>

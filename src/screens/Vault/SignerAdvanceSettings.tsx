@@ -921,7 +921,7 @@ function SignerAdvanceSettings({ route }: any) {
     return (
       <Box>
         <Center>{assert}</Center>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.contentDescription}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.contentDescription}>
           {description}
         </Text>
       </Box>
@@ -1084,7 +1084,7 @@ function SignerAdvanceSettings({ route }: any) {
         title={!signer.isBIP85 ? title : `${title} +`}
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         Content={SignerContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon

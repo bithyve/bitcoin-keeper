@@ -21,7 +21,7 @@ function KeeperQRCode({
   const { colorMode } = useColorMode();
 
   return (
-    <Box style={styles.qrWrapper} borderColor={`${colorMode}.qrBorderColor`}>
+    <Box style={styles.qrWrapper} borderColor={`${colorMode}.headerWhite`}>
       {qrData && (
         <QRCode
           value={qrData}

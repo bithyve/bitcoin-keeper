@@ -19,7 +19,7 @@ function PremixContent() {
       </Box>
       <Box style={styles.paraViewWrapper}>
         <Box style={styles.dotWrapper}>
-          <DotView height={1.5} width={1.5} color={`${colorMode}.modalGreenContent`} />
+          <DotView height={1.5} width={1.5} color={`${colorMode}.headerWhite`} />
         </Box>
         <Box style={styles.textWrapper}>
           <Text style={styles.paraText}>Once Tx0 is created, it goes into a Premix Wallet.</Text>
@@ -27,7 +27,7 @@ function PremixContent() {
       </Box>
       <Box style={styles.paraViewWrapper}>
         <Box style={styles.dotWrapper}>
-          <DotView height={1.5} width={1.5} color={`${colorMode}.modalGreenContent`} />
+          <DotView height={1.5} width={1.5} color={`${colorMode}.headerWhite`} />
         </Box>
         <Box style={styles.textWrapper}>
           <Text style={styles.paraText}>
@@ -37,7 +37,7 @@ function PremixContent() {
       </Box>
       <Box style={styles.paraViewWrapper}>
         <Box style={styles.dotWrapper}>
-          <DotView height={1.5} width={1.5} color={`${colorMode}.modalGreenContent`} />
+          <DotView height={1.5} width={1.5} color={`${colorMode}.headerWhite`} />
         </Box>
         <Box style={styles.textWrapper}>
           <Text style={styles.paraText}>
@@ -59,7 +59,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       title="Setting up Premix"
       subTitle="You are about to start your first mix. In the next few steps, you’ll be guided to create your Tx0. Tx0 gets created based on the pool you select ahead."
       modalBackground={`${colorMode}.modalGreenBackground`}
-      textColor={`${colorMode}.modalGreenContent`}
+      textColor={`${colorMode}.headerWhite`}
       Content={PremixContent}
       DarkCloseIcon
       learnMore

@@ -20,13 +20,13 @@ function PersonalCloudBackup({}) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView>
-        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.personalCloudTitle}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.personalCloudParagph1}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.personalCloudParagph2}
         </Text>
         <Box style={styles.circleStyle}>

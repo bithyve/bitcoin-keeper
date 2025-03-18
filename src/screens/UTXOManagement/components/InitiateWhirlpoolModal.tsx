@@ -33,7 +33,7 @@ function InitiateWhirlpoolModal({ visible, closeModal }: modalParams) {
       title="Whirlpool"
       subTitle="Dissociate your Personal Identifyable Information (PII) from your bitcoin."
       modalBackground={`${colorMode}.modalGreenBackground`}
-      textColor={`${colorMode}.modalGreenContent`}
+      textColor={`${colorMode}.headerWhite`}
       Content={InitiateContent}
       DarkCloseIcon
       learnMore

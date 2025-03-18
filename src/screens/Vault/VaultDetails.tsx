@@ -558,7 +558,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             : vaultTranslation.vaultLearnMoreSubtitle
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         Content={VaultContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}

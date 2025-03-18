@@ -67,23 +67,15 @@ function SetupInheritance({ route }) {
         <Box style={styles.modalTopContainer}>
           <Icon />
           <Box style={{ marginLeft: wp(15) }}>
-            <Text
-              color={`${colorMode}.modalGreenContent`}
-              numberOfLines={2}
-              style={styles.modalTitle}
-            >
+            <Text color={`${colorMode}.headerWhite`} numberOfLines={2} style={styles.modalTitle}>
               {title}
             </Text>
-            <Text
-              color={`${colorMode}.modalGreenContent`}
-              numberOfLines={2}
-              style={styles.modalSubtitle}
-            >
+            <Text color={`${colorMode}.headerWhite`} numberOfLines={2} style={styles.modalSubtitle}>
               {subTitle}
             </Text>
           </Box>
         </Box>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
           {description}
         </Text>
       </Box>
@@ -169,7 +161,7 @@ function SetupInheritance({ route }) {
         title={vaultTranslation.Inheritance}
         subTitle={inheritence.secureBequeathBitcoin}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        textColor={`${colorMode}.headerWhite`}
         buttonText="Proceed"
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}

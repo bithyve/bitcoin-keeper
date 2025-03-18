@@ -13,31 +13,31 @@ function MixContent() {
   const { colorMode } = useColorMode();
   return (
     <View style={styles.container}>
-      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>
+      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.headerWhite`}>
         Pool
       </Text>
-      <Text style={styles.paraText} color={`${colorMode}.modalGreenContent`}>
+      <Text style={styles.paraText} color={`${colorMode}.headerWhite`}>
         The denonination of the pool you have selected for this mix.
       </Text>
-      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>
+      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.headerWhite`}>
         Anonset
       </Text>
-      <Text style={styles.paraText} color={`${colorMode}.modalGreenContent`}>
+      <Text style={styles.paraText} color={`${colorMode}.headerWhite`}>
         This is a measure of how well hidden you are
       </Text>
       <Box style={styles.iconWrapper}>
         <SomeDefinationIcon />
       </Box>
-      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>
+      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.headerWhite`}>
         Pool Fee
       </Text>
-      <Text style={styles.paraText} color={`${colorMode}.modalGreenContent`}>
+      <Text style={styles.paraText} color={`${colorMode}.headerWhite`}>
         The fixed fee required to enter the pool
       </Text>
-      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>
+      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.headerWhite`}>
         Premix Outputs
       </Text>
-      <Text style={styles.paraText} color={`${colorMode}.modalGreenContent`}>
+      <Text style={styles.paraText} color={`${colorMode}.headerWhite`}>
         Number of UTXOs that come out of the Premix
       </Text>
     </View>
@@ -54,7 +54,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       title="Some Definitions:"
       subTitle=""
       modalBackground={`${colorMode}.modalGreenBackground`}
-      textColor={`${colorMode}.modalGreenContent`}
+      textColor={`${colorMode}.headerWhite`}
       Content={MixContent}
       DarkCloseIcon
       learnMore
