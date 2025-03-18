@@ -18,7 +18,7 @@ const UpgradePill = () => {
         <Box
           style={styles.statusContainer}
           backgroundColor={`${colorMode}.appStatusButtonBackground`}
-          borderColor={`${colorMode}.greyBorderTranslucent`}
+          borderColor={`${colorMode}.greyBorder`}
         >
           <HStack style={styles.contentContainer}>
             <Text color={`${colorMode}.appStatusTextColor`} style={styles.textStyle}>

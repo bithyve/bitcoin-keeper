@@ -77,7 +77,7 @@ function SendSuccessfulContent({
           unitFontSize={14}
           unitColor={`${colorMode}.modalUnitColor`}
         />
-        <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.receiptBorder`} />
+        <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.secondaryGrey`} />
         <AmountDetails
           title={walletTranslations.total}
           titleFontSize={15}

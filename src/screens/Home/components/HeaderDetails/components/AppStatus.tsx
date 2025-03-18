@@ -16,7 +16,7 @@ const AppStatus = ({ setShowModal }) => {
         <Box
           style={styles.statusContainer}
           backgroundColor={`${colorMode}.appStatusButtonBackground`}
-          borderColor={`${colorMode}.greyBorderTranslucent`}
+          borderColor={`${colorMode}.greyBorder`}
         >
           <HStack style={styles.contentContainer}>
             <DotIcon />

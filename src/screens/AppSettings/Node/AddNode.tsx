@@ -47,7 +47,7 @@ const AddNode = ({
                 autoCorrect={false}
                 autoComplete="off"
                 onChangeText={(text) => setHost(text.toLowerCase())}
-                inpuBorderColor={`${colorMode}.receiptBorder`}
+                inpuBorderColor={`${colorMode}.secondaryGrey`}
                 inpuBackgroundColor={`${colorMode}.boxSecondaryBackground`}
               />
             </Box>
@@ -60,7 +60,7 @@ const AddNode = ({
                 autoCorrect={false}
                 autoComplete="off"
                 onChangeText={(text) => setPort(text)}
-                inpuBorderColor={`${colorMode}.receiptBorder`}
+                inpuBorderColor={`${colorMode}.secondaryGrey`}
                 inpuBackgroundColor={`${colorMode}.boxSecondaryBackground`}
               />
             </Box>
