@@ -1023,13 +1023,13 @@ function* backupAllSignersAndVaultsWorker() {
     });
     yield put(setBackupAllSuccess(true));
     yield put(setPendingAllBackup(false));
-    yield call(showToast, 'Automatic Cloud Backup completed successfully', false);
+    yield call(showToast, 'Assisted server backup completed successfully', false);
     return true;
   } catch (error) {
     yield put(setBackupAllFailure(true));
     yield call(setServerBackupFailed);
     console.log('🚀 ~ function*backupAllSignersAndVaultsWorker ~ error:', error);
-    yield call(showToast, 'Automatic Cloud Backup failed again. Please try again later.', true);
+    yield call(showToast, 'Assisted server backup failed again. Please try again later.', true);
     return false;
   } finally {
     yield put(setBackupAllLoading(false));
