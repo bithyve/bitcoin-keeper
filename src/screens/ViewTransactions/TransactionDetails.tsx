@@ -63,7 +63,7 @@ function TransactionDetails({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { transactions, common } = translations;
   const { transaction, wallet }: { transaction: Transaction; wallet: Wallet } = route.params;
-  const { labels } = useLabelsNew({ txid: transaction.txid, wallet });
+  const { labels } = useLabelsNew({ txid: transaction.txid });
   const [visible, setVisible] = React.useState(false);
   const close = () => setVisible(false);
   const noteRef = useRef();

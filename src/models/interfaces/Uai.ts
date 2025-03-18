@@ -11,13 +11,6 @@ export interface UAI {
   seenAt?: Date;
 }
 
-export enum IKSType {
-  IKS_SETUP = 'IKS_SETUP',
-  IKS_REQUEST = 'IKS_REQUEST',
-  ONE_TIME_BACKUP = 'ONE_TIME_BACKUP',
-  SIGN_TRANSACTION = 'SIGN_TRANSACTION',
-}
-
 export enum uaiType {
   // Locally Generated
   VAULT_TRANSFER = 'VAULT_TRANSFER',
@@ -31,9 +24,6 @@ export enum uaiType {
   INCOMING_TRANSACTION = 'INCOMING_TRANSACTION',
 
   // Notifcation UAIs
-  IKS_REQUEST = IKSType.IKS_REQUEST,
-  ONE_TIME_BACKUP = IKSType.ONE_TIME_BACKUP,
-  SIGN_TRANSACTION = IKSType.SIGN_TRANSACTION,
   ZENDESK_TICKET = 'ZENDESK_TICKET',
 
   // No UAI support yet for these types

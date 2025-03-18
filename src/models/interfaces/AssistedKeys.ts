@@ -119,13 +119,3 @@ export interface InheritanceKeyRequest {
     isApproved: boolean;
   };
 }
-
-export enum IKSCosignersMapUpdateAction {
-  ADD = 'ADD',
-  REMOVE = 'REMOVE',
-}
-export interface IKSCosignersMapUpdate {
-  cosignersId: string;
-  inheritanceKeyId: string;
-  action: IKSCosignersMapUpdateAction;
-}

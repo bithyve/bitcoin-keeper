@@ -17,7 +17,7 @@ import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
-  const { labels } = useLabelsNew({ address, utxos: utxo ? [utxo] : [], wallet });
+  const { labels } = useLabelsNew({ address, utxos: utxo ? [utxo] : [] });
   const { syncingUTXOs, apiError } = useAppSelector((state) => state.utxos);
   const { showToast } = useToastMessage();
   const processDispatched = useRef(false);

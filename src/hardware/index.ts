@@ -40,7 +40,6 @@ export const UNVERIFYING_SIGNERS = [
   SignerType.POLICY_SERVER,
   SignerType.SEED_WORDS,
   SignerType.TAPSIGNER,
-  SignerType.INHERITANCEKEY,
 ];
 export const generateSignerFromMetaData = ({
   xpub,
@@ -191,9 +190,6 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.UNKOWN_SIGNER:
       name = 'Unknown Signer';
       break;
-    case SignerType.INHERITANCEKEY:
-      name = 'Inheritance Key';
-      break;
     case SignerType.PORTAL:
       name = 'Portal';
       break;
@@ -332,8 +328,6 @@ export const getDeviceStatus = (
       }
     case SignerType.POLICY_SERVER:
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
-    case SignerType.INHERITANCEKEY:
-      return getInheritanceKeyStatus(type, isOnL1, isOnL2, scheme, addSignerFlow, existingSigners);
     case SignerType.PORTAL:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
@@ -374,39 +368,6 @@ const getPolicyServerStatus = (
     };
   } else {
     return { disabled: false, message: '' };
-  }
-};
-
-const getInheritanceKeyStatus = (
-  type: SignerType,
-  isOnL1: boolean,
-  isOnL2: boolean,
-  scheme: VaultScheme,
-  addSignerFlow: boolean,
-  existingSigners
-) => {
-  if (addSignerFlow) {
-    return {
-      disabled: true,
-      message:
-        isOnL1 || isOnL2
-          ? 'Upgrade to Diamond Hands to use the key'
-          : 'The key is already added to your Manage Keys section',
-    };
-  } else if (isOnL1 || isOnL2) {
-    return {
-      disabled: true,
-      message: `Please upgrade to ${SubscriptionTier.L3} to add an ${getSignerNameFromType(type)}`,
-    };
-  } else if (existingSigners.find((s) => s.type === SignerType.INHERITANCEKEY)) {
-    return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
-  } else if (type === SignerType.INHERITANCEKEY && (scheme.n < 3 || scheme.m < 2)) {
-    return {
-      disabled: true,
-      message: 'Please create a vault with a minimum of 3 signers and 2 required signers',
-    };
-  } else {
-    return { message: '', disabled: false };
   }
 };
 
@@ -459,9 +420,6 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     }
     case SignerType.OTHER_SD: {
       return 'Varies with different signer';
-    }
-    case SignerType.INHERITANCEKEY: {
-      return '';
     }
     case SignerType.PORTAL: {
       return 'Mobile-specific signer from TwentyTwo';

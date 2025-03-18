@@ -350,7 +350,6 @@ const handleSignerSelect = (
 function Footer({
   amfSigners,
   invalidSS,
-  invalidIKS,
   invalidMessage,
   areSignersValid,
   relayVaultUpdateLoading,
@@ -394,7 +393,7 @@ function Footer({
         </Box>
       );
     }
-    if (invalidSS || invalidIKS) {
+    if (invalidSS) {
       const message = invalidMessage;
       notes.push(
         <Box style={styles.noteContainer} key={message}>
@@ -1281,7 +1280,7 @@ function AddSigningDevice() {
   const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
   const [addedKey, setAddedKey] = useState(null);
 
-  const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
+  const { areSignersValid, amfSigners, invalidSS, invalidMessage } = useSignerIntel({
     scheme,
     vaultKeys,
     selectedSigners,
@@ -1546,7 +1545,6 @@ function AddSigningDevice() {
         <Footer
           amfSigners={amfSigners}
           invalidSS={invalidSS}
-          invalidIKS={invalidIKS}
           invalidMessage={invalidMessage}
           areSignersValid={areSignersValid || hotWalletSelected}
           relayVaultUpdateLoading={relayVaultUpdateLoading}

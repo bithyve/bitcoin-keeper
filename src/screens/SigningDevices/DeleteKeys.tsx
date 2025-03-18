@@ -203,9 +203,7 @@ function DeleteKeys({ route }) {
             showsVerticalScrollIndicator={false}
           >
             {hiddenSigners.map((signer) => {
-              const showDelete =
-                signer.type !== SignerType.INHERITANCEKEY &&
-                signer.type !== SignerType.POLICY_SERVER;
+              const showDelete = signer.type !== SignerType.POLICY_SERVER;
 
               return (
                 <KeyCard
