@@ -57,6 +57,8 @@ const initialState: {
 
   automaticCloudBackup: boolean;
 
+  deleteBackupSuccess: boolean;
+  deleteBackupFailure: boolean;
   homeToastMessage: homeToastMessageType;
 } = {
   backupMethod: null,
@@ -105,6 +107,9 @@ const initialState: {
   pendingAllBackup: false,
 
   automaticCloudBackup: false,
+
+  deleteBackupSuccess: false,
+  deleteBackupFailure: false,
 
   homeToastMessage: { message: null, isError: false },
 };
@@ -287,6 +292,12 @@ const bhrSlice = createSlice({
     setAutomaticCloudBackup: (state, action: PayloadAction<boolean>) => {
       state.automaticCloudBackup = action.payload;
     },
+    setDeleteBackupSuccess: (state, action: PayloadAction<boolean>) => {
+      state.deleteBackupSuccess = action.payload;
+    },
+    setDeleteBackupFailure: (state, action: PayloadAction<boolean>) => {
+      state.deleteBackupFailure = action.payload;
+    },
     setHomeToastMessage: (state, action: PayloadAction<homeToastMessageType>) => {
       state.homeToastMessage = action.payload;
     },
@@ -346,6 +357,10 @@ export const {
   setPendingAllBackup,
 
   setAutomaticCloudBackup,
+
+  setDeleteBackupSuccess,
+  setDeleteBackupFailure,
+
   setHomeToastMessage,
 } = bhrSlice.actions;
 
@@ -385,6 +400,10 @@ const bhrPersistConfig = {
     'backupAllLoading',
     'backupAllFailure',
     'backupAllSuccess',
+
+    'deleteBackupSuccess',
+    'deleteBackupFailure',
+
     'homeToastMessage',
   ],
 };
