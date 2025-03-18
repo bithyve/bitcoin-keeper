@@ -29,23 +29,18 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
+import { VaultType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
 import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import {
-  refreshWallets,
-  updateSignerDetails,
-  addNewWhirlpoolWallets,
-} from '../sagaActions/wallets';
+import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
   appImagerecoveryRetry,
   setAppImageError,
-  setAppImageRecoverd,
   setAppRecoveryLoading,
   setAutomaticCloudBackup,
   setBackupAllFailure,
@@ -56,7 +51,6 @@ import {
   setBackupWarning,
   setEncPassword,
   setHomeToastMessage,
-  setInvalidPassword,
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
   setPendingAllBackup,
@@ -69,14 +63,12 @@ import {
   DELETE_APP_IMAGE_ENTITY,
   GET_APP_IMAGE,
   HEALTH_CHECK_STATUS_UPDATE,
-  RECOVER_BACKUP,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
   SET_BACKUP_WARNING,
   UPADTE_HEALTH_CHECK_SIGNER,
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
-  getAppImage,
   healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned } from '../sagaActions/uai';
@@ -348,10 +340,7 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, subscription, UTXOinfos, vaultImage, labels, allVaultImages } = yield call(
-      Relay.getAppImage,
-      appID
-    );
+    const { appImage, subscription, labels, allVaultImages } = yield call(Relay.getAppImage, appID);
 
     // applying the restore upgrade sequence if required
     const previousVersion = appImage.version;
@@ -361,8 +350,6 @@ function* getAppImageWorker({ payload }) {
         previousVersion,
         newVersion,
         appImage,
-        vaultImage,
-        encryptionKey,
       });
     }
     if (appImage && subscription) {
@@ -383,7 +370,6 @@ function* getAppImageWorker({ payload }) {
         plebSubscription,
         appImage,
         allVaultImages,
-        UTXOinfos,
         labels,
         previousVersion
       );
@@ -407,7 +393,6 @@ function* recoverApp(
   subscription,
   appImage,
   allVaultImages,
-  UTXOinfos,
   labels,
   previousVersion
 ) {
@@ -446,9 +431,6 @@ function* recoverApp(
       try {
         const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
         yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-        if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
-          yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
-        }
         yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
       } catch (err) {
         console.log('Error recovering a wallet: ', err);
@@ -544,10 +526,6 @@ function* recoverApp(
     }
   }
 
-  // UTXOinfo restore
-  if (UTXOinfos) {
-    yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOinfos);
-  }
   yield put(setAppId(appID));
 
   // Labels Restore
@@ -597,31 +575,6 @@ function* recoverApp(
         continue;
       }
     }
-  }
-}
-
-function* recoverBackupWorker({
-  payload,
-}: {
-  payload: {
-    password: string;
-    encData: string;
-  };
-}) {
-  try {
-    const { password, encData } = payload;
-    const dec = decrypt(password, encData);
-    console.log(dec);
-    const obj = JSON.parse(dec);
-    if (obj.seed) {
-      yield put(getAppImage(obj.seed));
-      yield put(setInvalidPassword(false));
-    } else {
-      yield put(setInvalidPassword(true));
-    }
-  } catch (error) {
-    yield put(setInvalidPassword(true));
-    console.log(error);
   }
 }
 
@@ -918,7 +871,6 @@ export const seedBackeupConfirmedWatcher = createWatcher(
   SEED_BACKEDUP_CONFIRMED
 );
 
-export const recoverBackupWatcher = createWatcher(recoverBackupWorker, RECOVER_BACKUP);
 export const healthCheckSignerWatcher = createWatcher(
   healthCheckSignerWorker,
   UPADTE_HEALTH_CHECK_SIGNER

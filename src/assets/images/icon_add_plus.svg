@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 29 29">
-  <g id="icon_add_new" data-name="icon_add new" transform="translate(-55 -385)">
-    <circle id="Ellipse_1947" data-name="Ellipse 1947" cx="14.5" cy="14.5" r="14.5" transform="translate(55 385)" fill="#fac48b"/>
-    <path id="add" d="M12.97,8.476a.993.993,0,0,1,1,.985l.02,2.589,2.589.02a.993.993,0,0,1-.016,1.986l-2.558-.02.02,2.558a.993.993,0,0,1-1.986.016l-.02-2.589L9.431,14a.993.993,0,0,1,.016-1.986l2.558.02-.02-2.558A.993.993,0,0,1,12.97,8.476Z" transform="translate(56.554 386.524)" fill="#453228" fill-rule="evenodd"/>
-  </g>
-</svg>

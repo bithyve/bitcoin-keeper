@@ -36,15 +36,6 @@ import useWalletAsset from 'src/hooks/useWalletAsset';
 import FeatureCard from 'src/components/FeatureCard';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 
-export const allowedSendTypes = [
-  WalletType.DEFAULT,
-  WalletType.IMPORTED,
-  WalletType.POST_MIX,
-  WalletType.BAD_BANK,
-];
-export const allowedRecieveTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
-
-export const allowedMixTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
   const { walletSyncing } = useAppSelector((state) => state.wallet);
@@ -94,7 +85,6 @@ function WalletDetails({ route }: ScreenProps) {
   const walletType = idx(wallet, (_) => _.type) || 'DEFAULT';
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
-  const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
   const walletKind =
@@ -223,7 +213,6 @@ function WalletDetails({ route }: ScreenProps) {
             navigation.navigate('UTXOManagement', {
               data: wallet,
               routeName: 'Wallet',
-              accountType: WalletType.DEFAULT,
             })
           }
           icon={<CoinsIcon />}
