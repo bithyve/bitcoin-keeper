@@ -123,7 +123,6 @@ export const useSettingKeeper = () => {
   useEffect(() => {
     if (backupAllFailure && isFocused) {
       dispatch(setBackupAllFailure(false));
-      showToast('Assisted server backup failed. Please try again later.', <ToastErrorIcon />);
     }
   }, [backupAllFailure]);
 
