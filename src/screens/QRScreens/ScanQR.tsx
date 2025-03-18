@@ -167,12 +167,12 @@ function ScanQR() {
             }}
             title="Add a co-signer"
             subTitle=""
-            modalBackground={`${colorMode}.modalGreenBackground`}
+            modalBackground={`${colorMode}.pantoneGreen`}
             textColor={`${colorMode}.headerWhite`}
             Content={learnMoreContent}
             buttonText={common.Okay}
             secondaryButtonText={common.needHelp}
-            buttonTextColor={`${colorMode}.whiteButtonText`}
+            buttonTextColor={`${colorMode}.pantoneGreen`}
             buttonBackground={`${colorMode}.whiteButtonBackground`}
             secButtonTextColor={`${colorMode}.whiteSecButtonText`}
             secondaryIcon={<ConciergeNeedHelp />}

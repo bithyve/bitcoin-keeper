@@ -91,7 +91,7 @@ function DescriptionModal({
     <KeeperModal
       visible={visible}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       close={close}
       title="Add Description"

@@ -163,7 +163,7 @@ function WalletSettings({ route }) {
         subTitle={walletTranslation.editTransPolicySubTitle}
         subTitleWidth={wp(220)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         showCurrencyTypeSwitch={true}
@@ -191,7 +191,7 @@ function WalletSettings({ route }) {
         closeOnOverlayClick
         subTitle={walletTranslation?.confirmPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
@@ -242,7 +242,7 @@ function WalletSettings({ route }) {
         subTitleWidth={wp(240)}
         subTitle={walletTranslation.xpubModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <ShowXPub
@@ -263,14 +263,14 @@ function WalletSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={walletTranslation.learnMoreTitle}
         subTitle={walletTranslation.learnMoreSubTitle}
-        modalBackground={`${colorMode}.modalGreenBackground`}
+        modalBackground={`${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonTextColor={`${colorMode}.textGreen`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}

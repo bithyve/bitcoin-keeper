@@ -824,7 +824,7 @@ function SigningDeviceDetails({ route }) {
                 showToast('Device health check skipped!');
                 setSkipHealthCheckModalVisible(false);
               }}
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={HealthCheckSkipContent}
             />
@@ -834,14 +834,14 @@ function SigningDeviceDetails({ route }) {
               close={() => setDetailModal(false)}
               title={!signer.isBIP85 ? title : `${title} +`}
               subTitle={subTitle}
-              modalBackground={`${colorMode}.modalGreenBackground`}
+              modalBackground={`${colorMode}.pantoneGreen`}
               textColor={`${colorMode}.headerWhite`}
               Content={SignerContent}
               subTitleWidth={wp(280)}
               DarkCloseIcon
               buttonText={common.Okay}
               secondaryButtonText={common.needHelp}
-              buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+              buttonTextColor={`${colorMode}.textGreen`}
               buttonBackground={`${colorMode}.modalWhiteButton`}
               secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
               secondaryIcon={<ConciergeNeedHelp />}
@@ -880,7 +880,7 @@ function SigningDeviceDetails({ route }) {
               secondaryButtonText={common.back}
               secondaryCallback={() => setShowMobileKeyModal(false)}
               buttonTextColor={`${colorMode}.buttonText`}
-              buttonBackground={`${colorMode}.greenButtonBackground`}
+              buttonBackground={`${colorMode}.pantoneGreen`}
               Content={MobileKeyModalContent}
             />
             <KeeperModal
@@ -891,7 +891,7 @@ function SigningDeviceDetails({ route }) {
               subTitleWidth={wp(240)}
               subTitle={signerTranslations.RKBackupPassSubTitle}
               modalBackground={`${colorMode}.modalWhiteBackground`}
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => (
                 <PasscodeVerifyModal
@@ -942,14 +942,14 @@ function SigningDeviceDetails({ route }) {
         <Box
           safeAreaBottom
           style={styles.footerWrapper}
-          backgroundColor={`${colorMode}.footerBackground`}
+          backgroundColor={`${colorMode}.primaryBackground`}
         >
           <KeeperFooter
             marginX={footerItems.length === 2 ? wp(20) : !vaultKey ? 0 : wp(5)}
             wrappedScreen={false}
             items={footerItems}
             fontSize={12}
-            backgroundColor={`${colorMode}.footerBackground`}
+            backgroundColor={`${colorMode}.primaryBackground`}
           />
         </Box>
       </Box>

@@ -178,13 +178,13 @@ function SignerCategoryList() {
         }}
         title={signer.signers}
         subTitle={signer.signerDescription}
-        modalBackground={`${colorMode}.modalGreenBackground`}
+        modalBackground={`${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonTextColor={`${colorMode}.pantoneGreen`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}

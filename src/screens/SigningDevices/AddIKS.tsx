@@ -110,7 +110,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
         buttonText="Proceed"
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={setupInheritanceKey}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         Content={Content}
       />
     </>

@@ -85,7 +85,7 @@ const AssignSignerTypeCard = ({
           type
         )}?`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText="Continue"
         secondaryButtonText="Cancel"

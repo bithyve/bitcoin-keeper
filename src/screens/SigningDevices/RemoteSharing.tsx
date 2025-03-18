@@ -126,7 +126,7 @@ function RemoteSharing({ route }: ScreenProps) {
           showsVerticalScrollIndicator={false}
         >
           <Box style={styles.descriptionContainer}>
-            <Text style={styles.title} medium color={`${colorMode}.headerText`}>
+            <Text style={styles.title} medium color={`${colorMode}.textGreen`}>
               {RemoteShareText[mode].title}
             </Text>
             <Text style={styles.description}>{RemoteShareText[mode].desc}</Text>

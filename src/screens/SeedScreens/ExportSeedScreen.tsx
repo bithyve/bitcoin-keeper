@@ -306,7 +306,7 @@ function ExportSeedScreen({ route, navigation }) {
           }
           title={BackupWallet.backupSuccessTitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonText={common.done}
           buttonCallback={
@@ -332,7 +332,7 @@ function ExportSeedScreen({ route, navigation }) {
           title={BackupWallet.recoveryPhrase}
           subTitleWidth={wp(260)}
           subTitle={BackupWallet.recoveryPhraseSubTitle}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonText={common.done}
           buttonCallback={() => setShowQRVisible(false)}

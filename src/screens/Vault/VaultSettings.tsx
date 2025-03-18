@@ -235,7 +235,7 @@ function VaultSettings({ route }) {
         subTitleWidth={wp(240)}
         subTitle={vaultText.vaultEditSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         Content={() => (
@@ -250,14 +250,14 @@ function VaultSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={vaultText.keeperVault}
         subTitle={vaultText.vaultLearnMoreSubtitle}
-        modalBackground={`${colorMode}.modalGreenBackground`}
+        modalBackground={`${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonTextColor={`${colorMode}.textGreen`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
@@ -281,7 +281,7 @@ function VaultSettings({ route }) {
         title={vaultText.exportWallet}
         subTitle={vaultText.exportWalletDesc}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={WalletConfigModal}
       />

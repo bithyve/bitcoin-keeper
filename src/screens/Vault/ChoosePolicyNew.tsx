@@ -418,7 +418,7 @@ function ChoosePolicyNew({ navigation, route }) {
         title={common.confirm2FACodeTitle}
         subTitle={common.confirm2FACodeSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={otpContent}
       />
@@ -430,7 +430,7 @@ function ChoosePolicyNew({ navigation, route }) {
         title={common.configurationSettingDelay}
         subTitle={common.configurationSettingDelaySub}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={showDelayModal}
       />
@@ -442,7 +442,7 @@ function ChoosePolicyNew({ navigation, route }) {
         title={common.configurationSettingDelay}
         subTitle={common.configurationSettingSub}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={showConfirmationModal}
       />

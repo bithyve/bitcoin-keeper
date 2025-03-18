@@ -184,7 +184,7 @@ function ManageTapsignerSettings({ route }: any) {
         title={signerTranslations.TapsignerBackupDetails}
         subTitle={signerTranslations.TapsignerBackupDetailsSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={StatusModalContent}
       />

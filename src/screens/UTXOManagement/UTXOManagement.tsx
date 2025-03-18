@@ -327,7 +327,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
         subTitle="The mix may take some time to complete. Please do not close the app or navigate away."
         subTitleColor="#5F6965"
         modalBackground="#F7F2EC"
-        buttonBackground={`${colorMode}.gradientStart`}
+        buttonBackground={`${colorMode}.primaryGreen`}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
         Content={() => (

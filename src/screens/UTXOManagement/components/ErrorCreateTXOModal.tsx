@@ -26,7 +26,7 @@ function ErrorCreateTxoModal({ visible, closeModal }: modalParams) {
       Content={InitiateContent}
       showCloseIcon
       buttonText="Try Again"
-      buttonBackground={`${colorMode}.gradientStart`}
+      buttonBackground={`${colorMode}.primaryGreen`}
       buttonTextColor="#FAFAFA"
       buttonCallback={() => closeModal()}
     />

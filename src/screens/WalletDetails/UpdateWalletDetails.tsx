@@ -222,7 +222,7 @@ function UpdateWalletDetails({ route }) {
           title={walletTranslation.changePathOfDefaultWallet}
           subTitle={walletTranslation.changePathOfDefaultWalletSubTitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={WaringsContent}
         />

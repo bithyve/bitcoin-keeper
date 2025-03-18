@@ -108,7 +108,7 @@ function OnBoardingSlides({ navigation }) {
             <Box
               style={styles.seeFAQWrapper}
               backgroundColor={`${colorMode}.modalGreenLearnMore`}
-              borderColor={`${colorMode}.modalBackground`}
+              borderColor={`${colorMode}.modalWhiteBackground`}
             >
               <Text color={`${colorMode}.white`} bold style={styles.seeFAQText}>
                 {common.seeFAQs}

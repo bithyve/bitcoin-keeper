@@ -162,12 +162,12 @@ function CollaborativeModals({
           DarkCloseIcon
           title={vaultText.collaborativeVaultTitle}
           subTitle={vaultText.collaborativeVaultSubtitle}
-          modalBackground={`${colorMode}.modalGreenBackground`}
+          modalBackground={`${colorMode}.pantoneGreen`}
           textColor={`${colorMode}.headerWhite`}
           Content={AddCoSignerContent}
           buttonText={common.Okay}
           secondaryButtonText={common.needHelp}
-          buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+          buttonTextColor={`${colorMode}.textGreen`}
           buttonBackground={`${colorMode}.modalWhiteButton`}
           secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
           secondaryIcon={<ConciergeNeedHelp />}
@@ -195,7 +195,7 @@ function CollaborativeModals({
           title={vaultText.addContactModalTitle}
           subTitle={vaultText.addContactModalSubtitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonTextColor={`${colorMode}.buttonText`}
           Content={() => <AddKeyContent addKeyOptions={addKeyOptions} />}
@@ -208,7 +208,7 @@ function CollaborativeModals({
           close={() => setNfcModal?.(false)}
           DarkCloseIcon={colorMode === 'dark'}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonTextColor={`${colorMode}.buttonText`}
           Content={() => <NFCModalContent onTryAnotherMethod={handleTryAnotherMethod} />}

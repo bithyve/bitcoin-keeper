@@ -32,14 +32,14 @@ function InitiateWhirlpoolModal({ visible, closeModal }: modalParams) {
       close={() => closeModal()}
       title="Whirlpool"
       subTitle="Dissociate your Personal Identifyable Information (PII) from your bitcoin."
-      modalBackground={`${colorMode}.modalGreenBackground`}
+      modalBackground={`${colorMode}.pantoneGreen`}
       textColor={`${colorMode}.headerWhite`}
       Content={InitiateContent}
       DarkCloseIcon
       learnMore
       learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`)}
       buttonText="Proceed"
-      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+      buttonTextColor={`${colorMode}.textGreen`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />

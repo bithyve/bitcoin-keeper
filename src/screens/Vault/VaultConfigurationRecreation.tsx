@@ -165,13 +165,13 @@ function VaultConfigurationCreation() {
           setShowModal(false);
         }}
         title="Import a wallet:"
-        modalBackground={`${colorMode}.modalGreenBackground`}
+        modalBackground={`${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={ImportVaultContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonTextColor={`${colorMode}.pantoneGreen`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}

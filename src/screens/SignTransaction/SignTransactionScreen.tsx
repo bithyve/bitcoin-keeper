@@ -902,7 +902,7 @@ function SignTransactionScreen() {
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <SendSuccessfulContent
@@ -930,7 +930,7 @@ function SignTransactionScreen() {
         title="Enter Passcode"
         subTitle="Confirm passcode to sign with mobile key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal

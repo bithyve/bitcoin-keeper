@@ -58,14 +58,14 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       }}
       title="Setting up Premix"
       subTitle="You are about to start your first mix. In the next few steps, you’ll be guided to create your Tx0. Tx0 gets created based on the pool you select ahead."
-      modalBackground={`${colorMode}.modalGreenBackground`}
+      modalBackground={`${colorMode}.pantoneGreen`}
       textColor={`${colorMode}.headerWhite`}
       Content={PremixContent}
       DarkCloseIcon
       learnMore
       learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`)}
       buttonText="Proceed"
-      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+      buttonTextColor={`${colorMode}.textGreen`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />

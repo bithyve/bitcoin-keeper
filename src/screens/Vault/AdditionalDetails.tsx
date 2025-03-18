@@ -101,7 +101,7 @@ function AdditionalDetails({ route }: ScreenProps) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalWhiteContent`}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
         secondaryCallback={() => setEditContactModal(false)}
         buttonCallback={() => {
           setEditContactModal(false);

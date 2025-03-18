@@ -557,12 +557,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             ? vaultTranslation.canaryLearnMoreSubtitle
             : vaultTranslation.vaultLearnMoreSubtitle
         }
-        modalBackground={`${colorMode}.modalGreenBackground`}
+        modalBackground={`${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={VaultContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonTextColor={`${colorMode}.pantoneGreen`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
