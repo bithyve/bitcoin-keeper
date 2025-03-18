@@ -1,11 +1,7 @@
 import HexaToastMessages from 'src/components/ToastMessages';
 import React, { useRef, useEffect } from 'react';
-import { Box, useToast, Toast } from 'native-base';
-import Text from 'src/components/KeeperText';
-import { wp } from 'src/constants/responsive';
-import { Pressable, TouchableOpacity } from 'react-native';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import TickIcon from 'src/assets/images/icon_tick.svg';
+import { useToast } from 'native-base';
+import { Pressable } from 'react-native';
 
 // use this enum to categorize and replace toasts that are in the same category
 export enum IToastCategory {
@@ -66,16 +62,5 @@ const useToastMessage = () => {
   return { showToast };
 };
 
-export const showToast = (title, error) => {
-  const image = error ? <ToastErrorIcon /> : <TickIcon />;
-  Toast.show({
-    render: () => (
-      <Pressable>
-        <HexaToastMessages Image={image} error={error} ToastBody={title} />
-      </Pressable>
-    ),
-    duration: 3000,
-  });
-};
 
 export default useToastMessage;

@@ -55,6 +55,7 @@ import {
   setBackupType,
   setBackupWarning,
   setEncPassword,
+  setHomeToastMessage,
   setInvalidPassword,
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
@@ -88,7 +89,6 @@ import { addSigningDeviceWorker } from './wallets';
 import { getKeyUID } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
-import { showToast } from 'src/hooks/useToastMessage';
 
 export function* updateAppImageWorker({
   payload,
@@ -1023,13 +1023,23 @@ function* backupAllSignersAndVaultsWorker() {
     });
     yield put(setBackupAllSuccess(true));
     yield put(setPendingAllBackup(false));
-    yield call(showToast, 'Assisted server backup completed successfully', false);
+    yield put(
+      setHomeToastMessage({
+        message: 'Assisted server backup completed successfully',
+        isError: false,
+      })
+    );
     return true;
   } catch (error) {
     yield put(setBackupAllFailure(true));
     yield call(setServerBackupFailed);
     console.log('🚀 ~ function*backupAllSignersAndVaultsWorker ~ error:', error);
-    yield call(showToast, 'Assisted server backup failed again. Please try again later.', true);
+    yield put(
+      setHomeToastMessage({
+        message: 'Assisted server backup failed. Please try again later.',
+        isError: true,
+      })
+    );
     return false;
   } finally {
     yield put(setBackupAllLoading(false));
