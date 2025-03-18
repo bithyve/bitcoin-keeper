@@ -66,7 +66,6 @@ export type AppStackParams = {
         vaultId?: string;
       };
   WalletSettings: undefined;
-  InheritanceToolsAndTips: undefined;
   DiscountCodes: undefined;
   BackupWallet: undefined;
   SigningDeviceDetails: undefined;
@@ -80,12 +79,10 @@ export type AppStackParams = {
   SignWithColdCard: undefined;
   ChoosePolicyNew: undefined;
   SigningServer: undefined;
-  AddDescription: undefined;
   AllTransactions: undefined;
   TransactionDetails: undefined;
   TransactionHistory: undefined;
   TransactionAdvancedDetails: undefined;
-  TimelockScreen: undefined;
   SignerAdvanceSettings: undefined;
   ScanQR: undefined;
   ShowPSBT: undefined;
@@ -95,7 +92,6 @@ export type AppStackParams = {
   NodeSelection: undefined;
   ScanNode: undefined;
   PrivacyAndDisplay: undefined;
-  NetworkSetting: undefined;
   ConnectChannel: undefined;
   RegisterWithChannel: undefined;
   SetupOtherSDScreen: undefined;
@@ -116,7 +112,6 @@ export type AppStackParams = {
   UnlockTapsigner: undefined;
   ChangeTapsignerPin: undefined;
   VaultConfigurationCreation: undefined;
-  ScanQRFileRecovery: undefined;
   VaultSetup: {
     isRecreation: Boolean;
     scheme: VaultScheme;
@@ -124,7 +119,6 @@ export type AppStackParams = {
     isTimeLock?: boolean;
     isAddInheritanceKeyFromParams?: boolean;
   };
-  SigningDeviceConfigRecovery: undefined;
   AssignSignerType: undefined;
   AddWallet: undefined;
   AddNewWallet: undefined;
@@ -157,15 +151,10 @@ export type AppStackParams = {
   ConfirmWalletDetails: undefined;
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;
-  EnterWalletPath: undefined;
   DeleteKeys: undefined;
   HandleFile: undefined;
-  AssistedWalletTimeline: {
-    parentScreen: string;
-  };
   AssociateContact: undefined;
   AddContact: undefined;
-  ContactProfile: undefined;
   EditContact: undefined;
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
