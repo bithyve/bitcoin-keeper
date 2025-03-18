@@ -105,6 +105,7 @@ function* credentialsStorageWorker({ payload }) {
         uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
         uaiType.DEFAULT,
         uaiType.ZENDESK_TICKET,
+        uaiType.SERVER_BACKUP_FAILURE,
       ])
     );
 
