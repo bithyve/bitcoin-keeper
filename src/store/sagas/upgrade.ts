@@ -9,7 +9,7 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
-import { LabelRefType, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
+import { LabelRefType, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import {
@@ -20,8 +20,7 @@ import {
 } from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
+import { CosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
 import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import { captureError } from 'src/services/sentry';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
@@ -229,20 +228,6 @@ function* migrateAssistedKeys() {
         );
 
         if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(SS)');
-      } else if (signerType === SignerType.INHERITANCEKEY) {
-        const cosignersMapUpdates: IKSCosignersMapUpdate[] = yield call(
-          generateCosignerMapUpdates,
-          signerMap,
-          signers,
-          signer
-        );
-        const { migrationSuccessful } = yield call(
-          InheritanceKeyServer.migrateSignersV2ToV3,
-          activeVault.shellId,
-          cosignersMapUpdates
-        );
-
-        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(IKS)');
       }
     }
   } catch (error) {
@@ -264,10 +249,7 @@ function* assistedKeysCosignersEnrichment() {
       // identical logic to VaultFactory's updateCosignersMapForAssistedKeys, different API calls(enrichment) tho
       for (const key of keys) {
         const assistedKeyType = signerMap[getKeyUID(key)]?.type;
-        if (
-          assistedKeyType === SignerType.POLICY_SERVER ||
-          assistedKeyType === SignerType.INHERITANCEKEY
-        ) {
+        if (assistedKeyType === SignerType.POLICY_SERVER) {
           // creates maps per signer type
           const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, keys, key);
 
@@ -281,16 +263,6 @@ function* assistedKeysCosignersEnrichment() {
 
             if (!updated) {
               console.log('Failed to migrate/enrich cosigners-map for SS Assisted Keys');
-            }
-          } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
-            const { updated } = yield call(
-              InheritanceKeyServer.enrichCosignersToSignerMapIKS,
-              key.xfp,
-              cosignersMapUpdates as IKSCosignersMapUpdate[]
-            );
-
-            if (!updated) {
-              console.log('Failed to migrate/enrich cosigners-map for IKS Assisted Keys');
             }
           }
         }

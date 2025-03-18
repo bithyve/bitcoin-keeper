@@ -17,12 +17,7 @@ export type AppStackParams = {
   AppVersionHistory: undefined;
   TorSettings: undefined;
   ManageWallets: undefined;
-  SetupInheritance: undefined;
   PreviewPDF: undefined;
-  InheritanceStatus: undefined;
-  InheritanceSetupInfo: undefined;
-  IKSAddEmailPhone: undefined;
-  EnterOTPEmailConfirmation: undefined;
   Send: undefined;
   SelectWallet: undefined;
   UTXOLabeling: undefined;

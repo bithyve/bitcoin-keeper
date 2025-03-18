@@ -27,12 +27,7 @@ import ShowPSBT from 'src/screens/QRScreens/ShowPSBT';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/SigningDevices/SetupColdCard';
-import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
-import PreviewPDF from 'src/screens/Inheritance/components/PreviewPDF';
-import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
-import InheritanceSetupInfo from 'src/screens/Inheritance/InheritanceSetupInfo';
-import IKSAddEmailPhone from 'src/screens/Inheritance/IKSAddEmailPhone';
-import EnterOTPEmailConfirmation from 'src/screens/Inheritance/EnterOTPEmailConfirmation';
+import PreviewPDF from 'src/screens/InheritanceToolsAndTips/PreviewPDF';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
@@ -209,12 +204,7 @@ function AppStack() {
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="ManageWallets" component={ManageWallets} />
-        <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="PreviewPDF" component={PreviewPDF} />
-        <Stack.Screen name="InheritanceStatus" component={InheritanceStatus} />
-        <Stack.Screen name="InheritanceSetupInfo" component={InheritanceSetupInfo} />
-        <Stack.Screen name="IKSAddEmailPhone" component={IKSAddEmailPhone} />
-        <Stack.Screen name="EnterOTPEmailConfirmation" component={EnterOTPEmailConfirmation} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="SelectWallet" component={SelectWalletScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />

@@ -14,9 +14,6 @@ import {
 } from 'src/services/wallets/enums';
 import {
   DelayedPolicyUpdate,
-  InheritanceConfiguration,
-  InheritanceKeyInfo,
-  InheritancePolicy,
   SignerException,
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
@@ -70,7 +67,6 @@ import ElectrumClient, {
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
 import _ from 'lodash';
 import { SyncedWallet } from 'src/services/wallets/interfaces';
@@ -324,16 +320,6 @@ export function* addNewVaultWorker({
       isNewVault = true;
     }
 
-    if (isNewVault || isMigrated) {
-      // update IKS, if inheritance key has been added(new Vault) or needs an update(vault migration)
-      const [ikVaultKey] = vault.signers.filter(
-        (vaultKey) => signerMap[getKeyUID(vaultKey)]?.type === SignerType.INHERITANCEKEY
-      );
-      if (ikVaultKey) {
-        const ikSigner: Signer = signerMap[getKeyUID(ikVaultKey)];
-        yield call(finaliseIKSetupWorker, { payload: { ikSigner, ikVaultKey, vault } });
-      }
-    }
     yield put(setRelayVaultUpdateLoading(true));
     const newVaultResponse = yield call(updateVaultImageWorker, { payload: { vault } });
     if (newVaultResponse.updated) {
@@ -699,126 +685,6 @@ export const finaliseVaultMigrationWatcher = createWatcher(
   finaliseVaultMigrationWorker,
   FINALISE_VAULT_MIGRATION
 );
-
-function* finaliseIKSetupWorker({
-  payload,
-}: {
-  payload: { ikSigner: Signer; ikVaultKey: VaultSigner; vault: Vault };
-}) {
-  // finalise the IK setup
-  const { ikSigner, ikVaultKey, vault } = payload; // vault here is the new vault
-  const backupBSMSForIKS = yield select((state: RootState) => state.vault.backupBSMSForIKS);
-  let updatedInheritanceKeyInfo: InheritanceKeyInfo = null;
-
-  if (ikSigner.inheritanceKeyInfo) {
-    // case I: updating config for this new vault which already had IKS as one of its signers
-    // case II: updating config for the first time for a recovered IKS(doesn't belong to a vault yet on this device)
-    let existingConfiguration: InheritanceConfiguration = idx(
-      // thresholds are constructed using an already existing configuration for IKS
-      ikSigner,
-      (_) => _.inheritanceKeyInfo.configurations[0]
-    );
-
-    const newIKSConfiguration: InheritanceConfiguration = yield call(
-      InheritanceKeyServer.generateInheritanceConfiguration,
-      vault,
-      backupBSMSForIKS
-    );
-
-    let isRecoveredInheritanceKey = false;
-    if (!existingConfiguration) {
-      // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
-      const restoredIKSConfigLength = idx(
-        ikSigner,
-        (_) => _.inheritanceKeyInfo.configurations.length
-      ); // will be undefined if this is not a restored IKS(which is an error case)
-      if (restoredIKSConfigLength === 0) {
-        // case II: recovered IKS synching for the first time
-        isRecoveredInheritanceKey = true;
-        existingConfiguration = newIKSConfiguration; // as two signer fingerprints(at least) are required to fetch IKS, the new config will indeed contain a registered threshold number of signer fingerprints to pass validation on the backend and therefore can be taken as the existing configuration
-      } else throw new Error('Failed to find the existing configuration for IKS');
-    }
-
-    const { updated } = yield call(
-      InheritanceKeyServer.updateInheritanceConfig,
-      ikVaultKey.xfp,
-      existingConfiguration,
-      newIKSConfiguration
-    );
-
-    if (updated) {
-      updatedInheritanceKeyInfo = {
-        ...ikSigner.inheritanceKeyInfo,
-        configurations: [...ikSigner.inheritanceKeyInfo.configurations, newIKSConfiguration],
-      };
-    } else throw new Error('Failed to update the inheritance key configuration');
-
-    if (isRecoveredInheritanceKey) {
-      // update inheritance key w/ the FCM token of heir's device
-      const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
-
-      if (fcmToken) {
-        const existingPolicy = idx(ikSigner, (_) => _.inheritanceKeyInfo.policy) || {};
-        const existingTargets =
-          idx(existingPolicy, (_) => (_ as InheritancePolicy).notification.targets) || [];
-        const updatedPolicy: InheritancePolicy = {
-          ...existingPolicy,
-          notification: {
-            targets: [...existingTargets, fcmToken],
-          },
-        };
-
-        const { updated } = yield call(
-          InheritanceKeyServer.updateInheritancePolicy,
-          ikVaultKey.xfp,
-          updatedPolicy,
-          existingConfiguration
-        );
-        if (updated) updatedInheritanceKeyInfo.policy = updatedPolicy;
-        else console.log('Failed to update the inheritance key policy w/ FCM of the heir');
-      }
-    }
-  } else {
-    // case: setting up a vault w/ IKS for the first time
-    const config: InheritanceConfiguration = yield call(
-      InheritanceKeyServer.generateInheritanceConfiguration,
-      vault,
-      backupBSMSForIKS
-    );
-
-    const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
-    const policy: InheritancePolicy = {
-      notification: { targets: [fcmToken] },
-    };
-
-    const { setupSuccessful } = yield call(
-      InheritanceKeyServer.finalizeIKSetup,
-      ikVaultKey.xfp,
-      config,
-      policy
-    );
-
-    if (setupSuccessful) {
-      updatedInheritanceKeyInfo = {
-        configurations: [config],
-        policy,
-      };
-    } else throw new Error('Failed to finalise the inheritance key setup');
-  }
-
-  if (updatedInheritanceKeyInfo) {
-    // send updates to realm
-    const signerKeyUID = getKeyUID(ikSigner);
-    yield call(
-      dbManager.updateObjectByQuery,
-      RealmSchema.Signer,
-      (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
-      {
-        inheritanceKeyInfo: updatedInheritanceKeyInfo,
-      }
-    );
-  }
-}
 
 function* syncWalletsWorker({
   payload,

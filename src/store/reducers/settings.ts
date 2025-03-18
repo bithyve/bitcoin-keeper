@@ -66,9 +66,6 @@ const settingsSlice = createSlice({
     setTorEnabled: (state, action: PayloadAction<boolean>) => {
       state.torEnbled = action.payload;
     },
-    setInheritance: (state, action: PayloadAction<boolean>) => {
-      state.inheritanceModal = action.payload;
-    },
     setSatsEnabled: (state, action: PayloadAction<boolean>) => {
       state.satsEnabled = action.payload;
     },
@@ -87,9 +84,6 @@ const settingsSlice = createSlice({
     setOTBStatusSS: (state, action: PayloadAction<boolean>) => {
       state.oneTimeBackupStatus.signingServer = action.payload;
     },
-    setOTBStatusIKS: (state, action: PayloadAction<boolean>) => {
-      state.oneTimeBackupStatus.inheritanceKey = action.payload;
-    },
     setBackupModal: (state, action: PayloadAction<boolean>) => {
       state.backupModal = action.payload;
     },
@@ -106,14 +100,12 @@ export const {
   setCurrencyCode,
   setLanguage,
   setTorEnabled,
-  setInheritance,
   setSatsEnabled,
   setKeySecurityTipsPath,
   setLetterToAttornyPath,
   setEnableAnalyticsLogin,
   // setRecoveryInstructionPath,
   setOTBStatusSS,
-  setOTBStatusIKS,
   setBackupModal,
   setSubscription,
 } = settingsSlice.actions;

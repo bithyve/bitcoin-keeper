@@ -12,7 +12,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, ScrollView, useColorMode, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import {
   KeyGenerationMode,
@@ -63,7 +63,7 @@ import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails, getKeystoneDetailsFromFile } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
-import { generateKey, hash512 } from 'src/utils/service-utilities/encryption';
+import { hash512 } from 'src/utils/service-utilities/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
@@ -78,17 +78,11 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import SigningServer from 'src/services/backend/SigningServer';
 import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import {
-  setInheritanceKeyExistingEmailCount,
-  setInheritanceRequestId,
-} from 'src/store/reducers/storage';
 import Instruction from 'src/components/Instruction';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
-import InhertanceKeyIcon from 'src/assets/images/inheritance-key-illustration.svg';
 import Import from 'src/assets/images/import.svg';
 import USBIcon from 'src/assets/images/usb_white.svg';
 import NfcComms from 'src/assets/images/nfc_comms.svg';
@@ -114,7 +108,6 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import NFC from 'src/services/nfc';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import idx from 'idx';
 import { setLastUsedOption } from 'src/store/reducers/signer';
 import BackupModalContent from '../AppSettings/BackupModal';
 import SetupSignerOptions from 'src/components/SetupSignerOptions';
@@ -627,38 +620,6 @@ const getSignerContent = (
         title: isHealthcheck ? 'Verify Signer' : 'Setting up Signer',
         subTitle: 'Get your Signer ready before proceeding',
         options: [],
-      };
-
-    case SignerType.INHERITANCEKEY:
-      return {
-        type: SignerType.INHERITANCEKEY,
-        Illustration: <InhertanceKeyIcon />,
-        title: isHealthcheck ? 'Verify Inheritance Key' : 'Setting up an Inheritance Key',
-        subTitle: isHealthcheck
-          ? ''
-          : 'This step will add an additional, mandatory key to your m-of-n vault',
-
-        Instructions: isHealthcheck
-          ? ['A request to the inheritance key will be made to checks its health']
-          : [
-              'This Key would only get activated after the other two Keys have signed',
-              'On activation the Key would send emails to your email id for 30 days for you to decline using it',
-            ],
-        options: isHealthcheck
-          ? []
-          : [
-              {
-                title: 'Configure a New Key',
-                icon: <RecoverImage />,
-                callback: () => {},
-                name: KeyGenerationMode.NEW,
-              },
-              {
-                title: 'Recover Existing Key',
-                icon: <RecoverImage />,
-                name: KeyGenerationMode.RECOVER,
-              },
-            ],
       };
 
     default:
@@ -1867,160 +1828,6 @@ function HardwareModalMap({
     }
   };
 
-  const checkIKSHealth = async () => {
-    try {
-      setInProgress(true);
-      const signerXfp = WalletUtilities.getFingerprintFromExtendedKey(
-        signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-      );
-      const { isIKSAvailable } = await InheritanceKeyServer.checkIKSHealth(signerXfp);
-      if (isIKSAvailable) {
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
-            },
-          ])
-        );
-        close();
-        showToast('Health check done successfully', <TickIcon />);
-      } else {
-        close();
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_FAILED,
-            },
-          ])
-        );
-        showToast('Error in Health check', <ToastErrorIcon />);
-      }
-      setInProgress(false);
-    } catch (err) {
-      setInProgress(false);
-      close();
-      showToast('Error in Health check', <ToastErrorIcon />);
-    }
-  };
-
-  const { inheritanceRequestId } = useAppSelector((state) => state.storage);
-  const requestInheritanceKeyRecovery = async () => {
-    try {
-      if (vaultSigners.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(
-        signerMap,
-        vaultSigners,
-        SignerType.INHERITANCEKEY
-      );
-      const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
-
-      let requestId = inheritanceRequestId;
-      let isNewRequest = false;
-      if (!requestId) {
-        requestId = `request-${generateKey(14)}`;
-        isNewRequest = true;
-      }
-      const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
-        requestId,
-        cosignersMapIds[0],
-        thresholdDescriptors
-      );
-      if (requestStatus && isNewRequest) dispatch(setInheritanceRequestId(requestId));
-
-      // process request based on status
-      if (requestStatus.isDeclined) {
-        showToast('Inheritance request has been declined', <ToastErrorIcon />);
-        // dispatch(setInheritanceRequestId('')); // clear existing request
-      } else if (!requestStatus.isApproved) {
-        showToast(
-          `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
-          <TickIcon />
-        );
-      } else if (requestStatus.isApproved && setupInfo) {
-        const { signer: inheritanceKey } = generateSignerFromMetaData({
-          xpub: setupInfo.inheritanceXpub,
-          derivationPath: setupInfo.derivationPath,
-          masterFingerprint: setupInfo.masterFingerprint,
-          signerType: SignerType.INHERITANCEKEY,
-          storageType: SignerStorage.WARM,
-          isMultisig: true,
-          inheritanceKeyInfo: {
-            // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
-            configurations: [], // setupInfo.configurations,
-            policy: setupInfo.policy,
-          },
-          xfp: setupInfo.id,
-          isBIP85: setupInfo.isBIP85,
-        });
-
-        // Recovery flow via BSMS is disabled for now. TODO: once backup via BSMS is enabled, we can enable recovery via BSMS as well
-        // if (setupInfo.configurations[0].bsms) {
-        //   initateRecovery(setupInfo.configurations[0].bsms);
-        // } else {
-        //   // showToast('Cannot recreate vault as BSMS was not present', <ToastErrorIcon />);
-        // }
-        dispatch(addSigningDevice([inheritanceKey]));
-        dispatch(setInheritanceRequestId('')); // clear approved request
-
-        const registeredEmails = idx(setupInfo.policy, (_) => _.alert.emails) || [];
-        dispatch(setInheritanceKeyExistingEmailCount(registeredEmails.length));
-
-        showToast(
-          `${inheritanceKey.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
-        navigation.goBack();
-      }
-    } catch (err) {
-      showToast(`${err}`, <ToastErrorIcon />);
-    }
-  };
-
-  const setupInheritanceKey = async () => {
-    try {
-      close();
-      setInProgress(true);
-      const { setupData } = await InheritanceKeyServer.initializeIKSetup();
-      const { id, isBIP85, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
-      const { signer: inheritanceKey } = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        masterFingerprint,
-        signerType: SignerType.INHERITANCEKEY,
-        storageType: SignerStorage.WARM,
-        xfp: id,
-        isBIP85,
-        isMultisig: true,
-      });
-      setInProgress(false);
-      dispatch(addSigningDevice([inheritanceKey]));
-      showToast(
-        `${inheritanceKey.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
-    } catch (err) {
-      console.log({ err });
-      showToast('Failed to add inheritance key', <TickIcon />);
-    }
-  };
-
-  const handleInheritanceKey = () => {
-    if (mode === InteracationMode.HEALTH_CHECK) {
-      checkIKSHealth();
-    } else {
-      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
-        requestInheritanceKeyRecovery();
-      } else {
-        setupInheritanceKey();
-      }
-    }
-  };
-
   const handleSigningServerKey = () => {
     if (mode === InteracationMode.HEALTH_CHECK) {
       setSigningServerHealthCheckOTPModal(true);
@@ -2067,7 +1874,6 @@ function HardwareModalMap({
   const onSelect = (option) => {
     switch (signerType) {
       case SignerType.POLICY_SERVER:
-      case SignerType.INHERITANCEKEY:
       case SignerType.KEEPER:
       case SignerType.SEED_WORDS:
       case SignerType.COLDCARD:
@@ -2163,8 +1969,6 @@ function HardwareModalMap({
         return navigateToAddQrBasedSigner();
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
-      case SignerType.INHERITANCEKEY:
-        return handleInheritanceKey();
       case SignerType.PORTAL:
         return navigateToPortalSetup();
       default:
@@ -2195,15 +1999,9 @@ function HardwareModalMap({
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={Content}
-        secondaryButtonText={
-          isHealthcheck ? 'Skip' : type === SignerType.INHERITANCEKEY ? 'Cancel' : null
-        }
+        secondaryButtonText={isHealthcheck ? 'Skip' : null}
         secondaryCallback={
-          isHealthcheck
-            ? skipHealthCheckCallBack
-            : type === SignerType.INHERITANCEKEY || type === SignerType.POLICY_SERVER
-            ? close
-            : null
+          isHealthcheck ? skipHealthCheckCallBack : type === SignerType.POLICY_SERVER ? close : null
         }
         loading={inProgress}
       />

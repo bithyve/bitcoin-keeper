@@ -84,14 +84,6 @@ const SigningDeviceCard = ({
           borderColor={`${colorMode}.dullGreyBorder`}
           style={[styles.container]}
         >
-          {isOnL1L2 && type === SignerType.INHERITANCEKEY && (
-            <Box style={styles.upgradeButtonContainer}>
-              <UpgradeSubscription
-                type={SubscriptionTier.L3}
-                customStyles={styles.upgradeButtonCustomStyles}
-              />
-            </Box>
-          )}
           {isOnL1 && type === SignerType.POLICY_SERVER && (
             <Box style={styles.upgradeButtonContainer}>
               <UpgradeSubscription
