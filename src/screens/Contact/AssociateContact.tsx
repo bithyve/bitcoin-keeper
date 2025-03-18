@@ -192,7 +192,7 @@ function AssociateContact({ route }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
           buttonTextColor={`${colorMode}.buttonText`}
-          buttonBackground={`${colorMode}.greenButtonBackground`}
+          buttonBackground={`${colorMode}.pantoneGreen`}
           buttonText={common.continue}
           buttonCallback={onAddAssociateContact}
           Content={() => (

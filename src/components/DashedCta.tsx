@@ -48,7 +48,7 @@ function DashedCta({
   const isDarkMode = colorMode === 'dark';
 
   const defaultBackgroundColor = `${colorMode}.DashedCtaBackground`;
-  const defaultTextColor = `${colorMode}.dashedButtonContent`;
+  const defaultTextColor = `${colorMode}.buttonText`;
   const defaultBorderColor = borderColor ? borderColor : `${colorMode}.pantoneGreen`;
   const defaultHexagonBackgroundColor = Colors.headerWhite;
 

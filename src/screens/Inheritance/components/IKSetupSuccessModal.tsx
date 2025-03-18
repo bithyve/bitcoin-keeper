@@ -30,7 +30,7 @@ function IKSetupSuccessModal({ visible, closeModal }: modalParams) {
       title="Inheritance Support Setup Successful"
       subTitle="You have visited all sections of the Inheritance Support feature"
       modalBackground="#F7F2EC"
-      buttonBackground={`${colorMode}.gradientStart`}
+      buttonBackground={`${colorMode}.primaryGreen`}
       buttonText="View Inhetitance"
       buttonTextColor="#FAFAFA"
       buttonCallback={() => closeModal()}

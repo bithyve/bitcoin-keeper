@@ -20,7 +20,7 @@ function MenuItemButton(props) {
       >
         <Box>{props.icon}</Box>
         <Box>
-          <Text semiBold color={`${colorMode}.headerText`} style={styles.addAmountText}>
+          <Text semiBold color={`${colorMode}.textGreen`} style={styles.addAmountText}>
             {props.title}
           </Text>
           <Text color={`${colorMode}.secondaryText`} style={styles.addAmountSubTitleText}>

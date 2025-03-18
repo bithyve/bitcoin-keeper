@@ -40,7 +40,7 @@ function ShowXPub({
             <ActivityIndicator />
           )}
           <Box
-            backgroundColor={`${colorMode}.QrCode`}
+            backgroundColor={`${colorMode}.secondaryCreamWhite`}
             alignItems="center"
             justifyContent="center"
             padding={1}

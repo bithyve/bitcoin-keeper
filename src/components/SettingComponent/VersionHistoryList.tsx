@@ -48,7 +48,7 @@ function VersionHistoryList() {
               my={2}
               ml={5}
             >
-              <Text color={`${colorMode}.headerText`} letterSpacing={1} fontSize={14}>
+              <Text color={`${colorMode}.textGreen`} letterSpacing={1} fontSize={14}>
                 {item.title}
               </Text>
               <Text color={`${colorMode}.GreyText`} letterSpacing={1} fontSize={12}>

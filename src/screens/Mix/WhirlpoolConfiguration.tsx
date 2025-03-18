@@ -295,7 +295,7 @@ export default function WhirlpoolConfiguration({ route }) {
           title="Change Priority"
           subTitle="Select a priority for your transaction"
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonCallback={closeFeeSelectionModal}
           closeOnOverlayClick={false}

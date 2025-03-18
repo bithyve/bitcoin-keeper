@@ -82,7 +82,7 @@ function LetterOfAttorney() {
         subTitleWidth={wp(240)}
         subTitle="To back up the app recovery key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal

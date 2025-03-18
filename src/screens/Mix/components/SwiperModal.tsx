@@ -119,7 +119,7 @@ function List() {
             testID={`${currentPosition === 0 ? 'next' : 'proceed'}`}
           >
             <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
-              <Text style={styles.ctaText} color={`${colorMode}.modalWhiteButtonText`} bold>
+              <Text style={styles.ctaText} color={`${colorMode}.textGreen`} bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
             </Box>
@@ -141,7 +141,7 @@ function SwiperModal({ enable }) {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
       title=""
-      modalBackground={`${colorMode}.modalGreenBackground`}
+      modalBackground={`${colorMode}.pantoneGreen`}
       textColor={`${colorMode}.headerWhite`}
       Content={() => <List />}
       showCloseIcon={false}

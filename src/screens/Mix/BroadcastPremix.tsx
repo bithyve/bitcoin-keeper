@@ -363,7 +363,7 @@ export default function BroadcastPremix({ route, navigation }) {
         subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool."
         subTitleColor="#5F6965"
         modalBackground="#F7F2EC"
-        buttonBackground={`${colorMode}.gradientStart`}
+        buttonBackground={`${colorMode}.primaryGreen`}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
         Content={() => (

@@ -41,16 +41,12 @@ function DashedButton({
         />
         <Box style={styles.TextContainer}>
           {name && (
-            <Text semiBold color={`${colorMode}.dashedButtonContent`}>
+            <Text semiBold color={`${colorMode}.buttonText`}>
               {name}
             </Text>
           )}
           {description && (
-            <Text
-              style={styles.descriptionText}
-              fontSize={12}
-              color={`${colorMode}.dashedButtonContent`}
-            >
+            <Text style={styles.descriptionText} fontSize={12} color={`${colorMode}.buttonText`}>
               {description}
             </Text>
           )}

@@ -78,7 +78,7 @@ function ChangeLanguage() {
                 style={styles.symbolText}
                 semiBold={currency.code === item.code}
                 color={
-                  currency.code === item.code ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                  currency.code === item.code ? `${colorMode}.textGreen` : `${colorMode}.GreyText`
                 }
               >
                 {item.symbol}
@@ -89,7 +89,7 @@ function ChangeLanguage() {
                 style={styles.codeText}
                 semiBold={currency.code === item.code}
                 color={
-                  currency.code === item.code ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                  currency.code === item.code ? `${colorMode}.textGreen` : `${colorMode}.GreyText`
                 }
               >
                 {item.code}
@@ -130,7 +130,7 @@ function ChangeLanguage() {
                 semiBold={selectedLanguage.country_code === item.country_code}
                 color={
                   selectedLanguage.country_code === item.country_code
-                    ? `${colorMode}.headerText`
+                    ? `${colorMode}.textGreen`
                     : `${colorMode}.GreyText`
                 }
               >
@@ -143,7 +143,7 @@ function ChangeLanguage() {
                 semiBold={selectedLanguage.country_code === item.country_code}
                 color={
                   selectedLanguage.country_code === item.country_code
-                    ? `${colorMode}.headerText`
+                    ? `${colorMode}.textGreen`
                     : `${colorMode}.GreyText`
                 }
               >
@@ -233,7 +233,7 @@ function ChangeLanguage() {
             setShowCurrency(false);
           }}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           showCloseIcon={false}
           buttonText={null}
           buttonCallback={() => {}}
@@ -263,7 +263,7 @@ function ChangeLanguage() {
             setShowLanguages(false);
           }}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           showCloseIcon={false}
           buttonText={null}
           buttonCallback={() => {}}

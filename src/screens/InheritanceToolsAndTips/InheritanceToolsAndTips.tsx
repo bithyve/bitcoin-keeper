@@ -97,12 +97,12 @@ function InheritanceToolsAndTips({ navigation }) {
         title={inheritanceTranslation.learnMoreTitle}
         subTitle={inheritanceTranslation.learnMoreSubTitle}
         subTitleWidth={wp(295)}
-        modalBackground={`${colorMode}.modalGreenBackground`}
+        modalBackground={`${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={InheritanceModalContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.whiteButtonText`}
+        buttonTextColor={`${colorMode}.pantoneGreen`}
         buttonBackground={`${colorMode}.whiteButtonBackground`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}

@@ -18,7 +18,7 @@ const PlanDetailsCards = ({ plansData, currentPosition }) => {
                 <Box style={styles.iconContainer}>
                   {isDarkMode ? <PlanCheckMarkWhite /> : <PlanCheckMark />}
                 </Box>
-                <Text fontSize={13} color={`${colorMode}.subPlansubtitle`}>
+                <Text fontSize={13} color={`${colorMode}.modalWhiteContent`}>
                   {`${benifit}`}
                 </Text>
               </Box>

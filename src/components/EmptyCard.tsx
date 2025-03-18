@@ -44,7 +44,7 @@ function EmptyCard({
             backgroundColor={Colors.primaryGreen}
             icon={<AddCardIcon />}
           />
-          <Text color={`${colorMode}.SlateGrey`} style={styles.nameStyle}>
+          <Text color={`${colorMode}.secondarySubtitle`} style={styles.nameStyle}>
             {name}
           </Text>
           {loading ? <ActivityIndicator /> : null}

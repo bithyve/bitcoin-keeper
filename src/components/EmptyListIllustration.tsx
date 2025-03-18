@@ -32,7 +32,7 @@ export function EmptyListIllustration({ listType }: { listType: 'keys' | 'nodes'
       <Text color={`${colorMode}.textGreenGrey`} style={styles.emptyListTitle} medium>
         {titleText}
       </Text>
-      <Text color={`${colorMode}.SlateGrey`} style={styles.emptyListSubtitle}>
+      <Text color={`${colorMode}.secondarySubtitle`} style={styles.emptyListSubtitle}>
         {subtitleText}
       </Text>
       <Icon style={styles.emptyListIcon} />

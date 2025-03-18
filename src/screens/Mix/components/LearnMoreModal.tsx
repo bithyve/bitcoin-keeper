@@ -53,14 +53,14 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       }}
       title="Some Definitions:"
       subTitle=""
-      modalBackground={`${colorMode}.modalGreenBackground`}
+      modalBackground={`${colorMode}.pantoneGreen`}
       textColor={`${colorMode}.headerWhite`}
       Content={MixContent}
       DarkCloseIcon
       learnMore
       learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`)}
       buttonText="Proceed"
-      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+      buttonTextColor={`${colorMode}.textGreen`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />

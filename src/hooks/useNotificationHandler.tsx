@@ -75,7 +75,7 @@ const NotificationHandler = () => {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={'Inheritance Key request'}
         subTitle={foregroundNotifcation?.notification?.title}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonText={'Decline'}
@@ -93,7 +93,7 @@ const NotificationHandler = () => {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={foregroundNotifcation?.notification?.title}
         subTitle={foregroundNotifcation?.notification?.body}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonText={'Ok'}

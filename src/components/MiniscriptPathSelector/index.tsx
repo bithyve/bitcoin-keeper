@@ -279,7 +279,7 @@ export const MiniscriptPathSelector = forwardRef<
                 : ''
             }`}
             modalBackground={`${colorMode}.modalWhiteBackground`}
-            textColor={`${colorMode}.modalHeaderTitle`}
+            textColor={`${colorMode}.textGreen`}
             subTitleColor={`${colorMode}.modalSubtitleBlack`}
             Content={() => (
               <Box style={{ gap: wp(15), marginBottom: hp(10) }}>
@@ -329,7 +329,7 @@ export const MiniscriptPathSelector = forwardRef<
               title="Select Signing Path"
               subTitle={`\nSelect how you would like to sign.`}
               modalBackground={`${colorMode}.modalWhiteBackground`}
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => (
                 <Box style={{ gap: wp(15), marginBottom: hp(10) }}>

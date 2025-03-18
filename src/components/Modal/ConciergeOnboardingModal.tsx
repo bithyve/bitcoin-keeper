@@ -39,8 +39,8 @@ function ConciergeOnboardingModal({ visible }) {
       buttonText={common.confirm}
       buttonCallback={handleContinue}
       buttonBackground={`${colorMode}.modalWhiteButton`}
-      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-      modalBackground={`${colorMode}.modalGreenBackground`}
+      buttonTextColor={`${colorMode}.textGreen`}
+      modalBackground={`${colorMode}.pantoneGreen`}
       textColor={`${colorMode}.headerWhite`}
       Content={() => (
         <Box>

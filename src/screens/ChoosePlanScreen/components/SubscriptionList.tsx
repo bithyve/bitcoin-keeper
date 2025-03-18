@@ -77,10 +77,10 @@ const SubscriptionList: React.FC<{
 
         const priceDisplay = (
           <Box style={styles.priceContainer}>
-            <Text color={`${colorMode}.noteTextClosed`} style={styles.price}>
+            <Text color={`${colorMode}.greenWhiteText`} style={styles.price}>
               {planDetails}{' '}
               {!isPleb && matchedPlan?.monthlyPlanDetails?.price && (
-                <Text fontSize={12} color={`${colorMode}.noteTextClosed`}>
+                <Text fontSize={12} color={`${colorMode}.greenWhiteText`}>
                   {isMonthly ? 'month' : 'yearly'}
                 </Text>
               )}
@@ -123,7 +123,7 @@ const SubscriptionList: React.FC<{
                         ({plan.subtitle})
                       </Text>
                     </Box>
-                    <Text color={`${colorMode}.subPlansubtitle`} style={styles.description}>
+                    <Text color={`${colorMode}.modalWhiteContent`} style={styles.description}>
                       {plan.subDescription}
                     </Text>
                   </Box>

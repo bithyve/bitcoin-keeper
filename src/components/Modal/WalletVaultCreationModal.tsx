@@ -100,7 +100,7 @@ function WalletVaultCreationModal(props) {
         props.buttonCallback();
       }}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       subTitleWidth={wp(280)}
       showCloseIcon={false}

@@ -19,7 +19,7 @@ function HealthCheckModal(props) {
     SignerName = 'SignerName',
     SignerIcon = '',
     modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
-    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
+    buttonBackground = [`${colorMode}.primaryGreen`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
     buttonTextColor = 'white',
     buttonCallback = props.closeHealthCheck || null,
@@ -92,7 +92,7 @@ function HealthCheckModal(props) {
           />
           <Box alignSelf="flex-end" flexDirection="row" backgroundColor="transparent">
             <TouchableOpacity onPress={onPress} testID={`btn_${buttonText}`}>
-              <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
+              <Box style={styles.cta} backgroundColor={`${colorMode}.pantoneGreen`}>
                 <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                   {buttonText}
                 </Text>

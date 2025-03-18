@@ -41,7 +41,12 @@ function SingleAccount({ title, Icon, gradient, bold = false, onPress, index }) 
     <Box style={{ flexDirection: 'row' }}>
       <Pressable style={{ alignItems: 'center' }} onPress={onPress}>
         <GradientIcon Icon={Icon} height={hp(45)} gradient={gradient} />
-        <Text numberOfLines={2} bold={bold} color={`${colorMode}.GreyText`} style={styles.accountText}>
+        <Text
+          numberOfLines={2}
+          bold={bold}
+          color={`${colorMode}.GreyText`}
+          style={styles.accountText}
+        >
           {title}
         </Text>
       </Pressable>
@@ -70,7 +75,7 @@ export function AccountSelectionTab({
             bold={account.type === selectedAccount}
             gradient={
               account.type === selectedAccount
-                ? ['light.gradientStart', 'light.gradientEnd']
+                ? ['light.primaryGreen', 'light.gradientEnd']
                 : ['#BFBFBF', '#BFBFBF']
             }
             onPress={() => {

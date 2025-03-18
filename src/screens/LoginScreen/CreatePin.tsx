@@ -262,7 +262,7 @@ export default function CreatePin(props) {
         title="Remember your passcode"
         subTitle="Storing the devices securely is an important responsibility. Please ensure their safety and accessibility. Losing them may lead to permanent loss of your bitcoin."
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         buttonText="Continue"
@@ -282,7 +282,7 @@ export default function CreatePin(props) {
         title="Enable Biometric Authentication"
         subTitle="Use fingerprint or face recognition for quick and secure access."
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         buttonText="Continue"

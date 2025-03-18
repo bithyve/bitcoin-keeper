@@ -160,10 +160,10 @@ function SetupInheritance({ route }) {
         }}
         title={vaultTranslation.Inheritance}
         subTitle={inheritence.secureBequeathBitcoin}
-        modalBackground={`${colorMode}.modalGreenBackground`}
+        modalBackground={`${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         buttonText="Proceed"
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonTextColor={`${colorMode}.textGreen`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}

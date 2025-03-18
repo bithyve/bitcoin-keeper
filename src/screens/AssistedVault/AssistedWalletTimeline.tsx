@@ -92,7 +92,7 @@ function AssistedWalletTimeline({
                 testID={`btn_createWallet`}
               >
                 <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
-                  <Text style={styles.ctaText} color={`${colorMode}.modalWhiteButtonText`} bold>
+                  <Text style={styles.ctaText} color={`${colorMode}.textGreen`} bold>
                     Create Wallet
                   </Text>
                 </Box>

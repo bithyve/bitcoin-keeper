@@ -308,7 +308,7 @@ export default function PoolSelection({ route, navigation }) {
         subTitle="Determins the pool you want to mix your sats in. Bigger the pool, lesser the Doxxic"
         subTitleColor="#5F6965"
         modalBackground="#F7F2EC"
-        buttonBackground={`${colorMode}.gradientStart`}
+        buttonBackground={`${colorMode}.primaryGreen`}
         buttonText=""
         buttonTextColor="#FAFAFA"
         buttonCallback={closePoolSelectionModal}

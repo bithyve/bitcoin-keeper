@@ -150,7 +150,7 @@ function KeeperModal(props: ModalProps) {
           <Box
             backgroundColor={
               modalBackground === 'primaryBackground'
-                ? `${colorMode}.modalBackground`
+                ? `${colorMode}.modalWhiteBackground`
                 : modalBackground
             }
             style={styles.container}
@@ -236,7 +236,7 @@ function KeeperModal(props: ModalProps) {
                       primaryCallback={buttonCallback}
                       primaryBackgroundColor={
                         buttonBackground == 'greenButtonBackground'
-                          ? `${colorMode}.greenButtonBackground`
+                          ? `${colorMode}.pantoneGreen`
                           : buttonBackground
                       }
                       primaryTextColor={
@@ -249,7 +249,7 @@ function KeeperModal(props: ModalProps) {
                       SecondaryIcon={secondaryIcon}
                       secondaryTextColor={
                         secButtonTextColor == 'headerText'
-                          ? `${colorMode}.headerText`
+                          ? `${colorMode}.textGreen`
                           : secButtonTextColor
                       }
                       fullWidth={!secondaryButtonText}

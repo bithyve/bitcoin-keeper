@@ -284,7 +284,7 @@ function ManageWallets() {
             }}
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-              <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
+              <Box style={styles.createBtn} backgroundColor={`${colorMode}.pantoneGreen`}>
                 <Text
                   numberOfLines={1}
                   style={styles.btnText}
@@ -405,7 +405,7 @@ function ManageWallets() {
         subTitle={isWallet ? settings.DeleteWalletModalSubTitle : settings.DeleteVaultModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={DeleteVaultBalanceAlertModalContent}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(240)}
@@ -421,7 +421,7 @@ function ManageWallets() {
         subTitleWidth={wp(240)}
         subTitle="Confirm passcode to unhide wallets"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
@@ -443,7 +443,7 @@ function ManageWallets() {
         subTitleWidth={wp(240)}
         subTitle={'Confirm passcode to delete the vault'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal

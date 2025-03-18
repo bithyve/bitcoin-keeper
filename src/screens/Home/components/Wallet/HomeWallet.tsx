@@ -164,7 +164,7 @@ const HomeWallet = () => {
         title="Add a New Wallet"
         subTitle="Create a new wallet or import existing one"
         close={() => setShowAddWalletModal(false)}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon
         Content={() => (

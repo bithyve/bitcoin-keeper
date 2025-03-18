@@ -436,7 +436,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
         }}
         showCloseIcon={false}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonText="Done"
