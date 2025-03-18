@@ -11,7 +11,6 @@ interface UAIPriorityMap {
 
 export const uaiPriorityMap: UAIPriorityMap = {
   [uaiType.SIGN_TRANSACTION]: 100,
-  [uaiType.IKS_REQUEST]: 100,
   [uaiType.CANARAY_WALLET]: 100,
   [uaiType.ZENDESK_TICKET]: 100,
   [uaiType.SIGNING_DEVICES_HEALTH_CHECK]: 90,

@@ -1,8 +1,5 @@
 import { call, put, select } from 'redux-saga/effects';
 import Relay from 'src/services/backend/Relay';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { IKSType, UAI, uaiType } from 'src/models/interfaces/Uai';
 import { RootState } from '../store';
 import {
   notificationsFetched,
@@ -19,8 +16,6 @@ import {
   UPDATE_MESSAGES_STATUS,
 } from '../sagaActions/notifications';
 import { createWatcher } from '../utilities';
-import { addToUaiStack } from '../sagaActions/uai';
-import { setRefreshUai } from '../reducers/uai';
 
 function* updateFCMTokensWorker({ payload }) {
   try {
@@ -47,7 +42,6 @@ export function* fetchNotificationsWorker() {
   const appId = yield select((state: RootState) => state.storage.appId);
   const { notifications } = yield call(Relay.fetchNotifications, appId);
   yield call(notificationsFetched, notifications);
-  // yield call( setupNotificationListWorker )
   yield put(fetchNotificationStarted(false));
 }
 
@@ -55,34 +49,6 @@ export const fetchNotificationsWatcher = createWatcher(
   fetchNotificationsWorker,
   FETCH_NOTIFICATIONS
 );
-
-export function* notficationsToUAI(messages) {
-  for (const message of messages) {
-    if (message.additionalInfo !== null && typeof message.additionalInfo === 'object') {
-      const { reqId, type } = message.additionalInfo;
-      const { info, title } = message;
-
-      console.log(reqId, type, info, title);
-      if (
-        reqId !== null &&
-        [IKSType.IKS_REQUEST, IKSType.SIGN_TRANSACTION, IKSType.ONE_TIME_BACKUP].includes(type)
-      ) {
-        const uais = dbManager.getObjectByField(RealmSchema.UAI, reqId, 'entityId');
-
-        if (!uais.length) {
-          yield put(
-            addToUaiStack({
-              uaiType: type,
-              entityId: reqId,
-              uaiDetails: { heading: title, body: info },
-            })
-          );
-        }
-        yield put(setRefreshUai());
-      }
-    }
-  }
-}
 
 export function* getMessageWorker() {
   yield put(fetchNotificationStarted(true));
@@ -97,7 +63,6 @@ export function* getMessageWorker() {
       ({ notificationId }) => !storedMessages.find((f) => f.notificationId === notificationId)
     )
   );
-  yield call(notficationsToUAI, newMessageArray);
   yield put(messageFetched(newMessageArray));
   yield put(storeMessagesTimeStamp());
   yield put(fetchNotificationStarted(false));

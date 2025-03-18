@@ -23,7 +23,6 @@ import {
   FETCH_DELAYED_POLICY_UPDATE,
   FETCH_SIGNED_DELAYED_TRANSACTION,
   SETUP_KEEPER_APP,
-  SETUP_KEEPER_APP_VAULT_RECOVERY,
 } from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
 import { deleteDelayedPolicyUpdate, setAppId, updateDelayedTransaction } from '../reducers/storage';
@@ -113,69 +112,6 @@ export function* setupKeeperAppWorker({ payload }) {
 }
 
 export const setupKeeperAppWatcher = createWatcher(setupKeeperAppWorker, SETUP_KEEPER_APP);
-
-function* setupKeeperVaultRecoveryAppWorker({ payload }) {
-  try {
-    const { appName, subscription } = payload;
-    const primaryMnemonic = bip39.generateMnemonic();
-    const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-
-    const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
-    const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
-
-    const entropy = yield call(
-      BIP85.bip39MnemonicToEntropy,
-      config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
-      primaryMnemonic
-    );
-    const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-
-    const app: KeeperApp = {
-      id: appID,
-      publicId,
-      appName,
-      primaryMnemonic,
-      primarySeed: primarySeed.toString('hex'),
-      imageEncryptionKey,
-      backup: {},
-      subscription: {
-        productId: subscription.productId,
-        name: subscription.name,
-        level: subscription.level,
-        icon: 'assets/ic_pleb.svg',
-      },
-      version: DeviceInfo.getVersion(),
-      networkType: config.NETWORK_TYPE,
-      enableAnalytics: false,
-    };
-    yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-
-    // create default wallet
-    const defaultWallet: NewWalletInfo = {
-      walletType: WalletType.DEFAULT,
-      walletDetails: {
-        name: 'Mobile Wallet',
-        description: '',
-        transferPolicy: {
-          id: uuidv4(),
-          threshold: defaultTransferPolicyThreshold,
-        },
-        instanceNum: 0,
-      },
-    };
-    yield call(addNewWalletsWorker, { payload: [defaultWallet] });
-
-    yield put(setAppId(appID));
-    yield put(resetRealyWalletState());
-  } catch (error) {
-    console.log({ error });
-  }
-}
-
-export const setupKeeperVaultRecoveryAppWatcher = createWatcher(
-  setupKeeperVaultRecoveryAppWorker,
-  SETUP_KEEPER_APP_VAULT_RECOVERY
-);
 
 function* fetchSignedDelayedTransactionWorker() {
   const delayedTransactions: { [txid: string]: DelayedTransaction } = yield select(

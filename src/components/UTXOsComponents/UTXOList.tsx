@@ -1,18 +1,15 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useMemo, useState } from 'react';
-import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { hp, wp, windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/services/wallets/interfaces';
 import Selected from 'src/assets/images/selected.svg';
-import { WalletType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
@@ -115,15 +112,12 @@ function UTXOElement({
   colorMode,
   labels,
   currentWallet,
-  selectedAccount,
-  initateWhirlpoolMix,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   const allowSelection = enableSelection;
-  const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
-  const { labels: txNoteLabels } = useLabelsNew({ txid: item.txId, wallet: currentWallet });
+  const { labels: txNoteLabels } = useLabelsNew({ txid: item.txId });
   const hasTransactionNote = txNoteLabels && txNoteLabels[item.txId]?.[0]?.name;
 
   return (
@@ -136,15 +130,6 @@ function UTXOElement({
             if (selectedUTXOMap[utxoId]) {
               delete mapToUpdate[utxoId];
             } else {
-              if (
-                (selectedAccount === WalletType.PRE_MIX ||
-                  selectedAccount === WalletType.POST_MIX) &&
-                Object.keys(selectedUTXOMap).length >= 1 &&
-                initateWhirlpoolMix
-              ) {
-                showToast(walletTranslation.utxoAllowedTime);
-                return;
-              }
               mapToUpdate[utxoId] = true;
             }
             setSelectedUTXOMap(mapToUpdate);
@@ -253,14 +238,12 @@ function UTXOList({
   setSelectedUTXOMap,
   currentWallet,
   emptyIcon,
-  selectedAccount,
-  initateWhirlpoolMix,
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
-  const { labels } = useLabelsNew({ utxos: utxoState, wallet: currentWallet });
+  const { labels } = useLabelsNew({ utxos: utxoState });
   const dispatch = useDispatch();
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
@@ -295,8 +278,6 @@ function UTXOList({
           navigation={navigation}
           colorMode={colorMode}
           currentWallet={currentWallet}
-          selectedAccount={selectedAccount}
-          initateWhirlpoolMix={initateWhirlpoolMix}
         />
       )}
       keyExtractor={(item: UTXO) => `${item.txId}${item.vout}${item.confirmed}`}

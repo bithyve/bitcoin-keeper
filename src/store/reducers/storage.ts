@@ -118,15 +118,6 @@ const storageSlice = createSlice({
       }
       state.inheritanceToolVisitedHistory[option] = Date.now();
     },
-    setInheritanceRequestId: (state, action: PayloadAction<string>) => {
-      state.inheritanceRequestId = action.payload;
-    },
-    setInheritanceOTBRequestId: (state, action: PayloadAction<string>) => {
-      state.inheritanceOTBRequestId = action.payload;
-    },
-    setInheritanceKeyExistingEmailCount: (state, action: PayloadAction<any>) => {
-      state.inheritanceKeyExistingEmailCount = action.payload;
-    },
     setRecoveryCreatedApp: (state, action: PayloadAction<boolean>) => {
       state.recoveryAppCreated = action.payload;
     },
@@ -170,9 +161,6 @@ export const {
   resetPinFailAttempts,
   setPinHash,
   setAppVersion,
-  setInheritanceRequestId,
-  setInheritanceOTBRequestId,
-  setInheritanceKeyExistingEmailCount,
   setRecoveryCreatedApp,
   updateLastVisitedTimestamp,
   setDontShowConceirgeOnboarding,

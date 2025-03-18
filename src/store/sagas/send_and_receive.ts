@@ -4,12 +4,10 @@ import { call, fork, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
-import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import WalletOperations from 'src/services/wallets/operations';
-import WalletUtilities from 'src/services/wallets/operations/utils';
 import _ from 'lodash';
 import idx from 'idx';
-import { TransferType } from 'src/models/enums/TransferType';
 import ElectrumClient, {
   ELECTRUM_CLIENT,
   ELECTRUM_NOT_CONNECTED_ERR,
@@ -23,8 +21,6 @@ import {
   sendPhaseThreeExecuted,
   sendPhaseTwoExecuted,
   setSendMaxFee,
-  crossTransferExecuted,
-  crossTransferFailed,
   sendPhaseTwoStarted,
   customFeeCalculated,
 } from '../reducers/send_and_receive';
@@ -32,10 +28,8 @@ import { setAverageTxFee, setExchangeRates, setOneDayInsight } from '../reducers
 import {
   CALCULATE_CUSTOM_FEE,
   CALCULATE_SEND_MAX_FEE,
-  CROSS_TRANSFER,
   CalculateCustomFeeAction,
   CalculateSendMaxFeeAction,
-  CrossTransferAction,
   FETCH_EXCHANGE_RATES,
   FETCH_FEE_RATES,
   ONE_DAY_INSIGHT,
@@ -399,65 +393,6 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
 }
 
 export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
-
-function* corssTransferWorker({ payload }: CrossTransferAction) {
-  const { sender, currentBlockHeight, recipient, amount, miniscriptSelectedSatisfier } = payload;
-  const averageTxFees: AverageTxFeesByNetwork = yield select(
-    (state) => state.network.averageTxFees
-  );
-  if (!averageTxFees) {
-    yield put(
-      feeIntelMissing({
-        intelMissing: true,
-      })
-    );
-    return;
-  }
-
-  const averageTxFeeByNetwork = averageTxFees[sender.networkType];
-  try {
-    const recipients = [
-      {
-        address: yield call(WalletOperations.getNextFreeAddress, recipient),
-        amount,
-      },
-    ];
-    const { txRecipients, txPrerequisites } = yield call(
-      WalletOperations.transferST1,
-      sender,
-      recipients,
-      averageTxFeeByNetwork,
-      null,
-      miniscriptSelectedSatisfier
-    );
-
-    if (txPrerequisites) {
-      const { txid } = yield call(
-        WalletOperations.transferST2,
-        currentBlockHeight,
-        sender,
-        txPrerequisites,
-        TxPriority.LOW,
-        txRecipients
-      );
-
-      if (txid) {
-        yield call(dbManager.updateObjectById, RealmSchema.Wallet, sender.id, {
-          specs: sender.specs,
-        });
-        yield put(crossTransferExecuted());
-      } else {
-        yield put(crossTransferFailed());
-        throw new Error('Failed to execute cross transfer; txid missing');
-      }
-    } else throw new Error('Failed to generate txPrerequisites for cross transfer');
-  } catch (err) {
-    yield put(crossTransferFailed());
-    console.log({ err });
-  }
-}
-
-export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRANSFER);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const { recipients, wallet, selectedUTXOs, miniscriptSelectedSatisfier } = payload;

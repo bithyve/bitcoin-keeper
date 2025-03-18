@@ -91,7 +91,6 @@ export interface HealthCheckDetails {
 export interface Signer {
   // Represents a h/w or s/w wallet(Signer)
   // Rel: Signer hosts multiple VaultSigners(key), diff derivation paths
-  // Note: Assisted Keys(IKS and SS) can only have one key(VaultSigner) per Signer
   id: string;
   type: SignerType;
   storageType: SignerStorage;
@@ -106,7 +105,6 @@ export interface Signer {
   bip85Config?: BIP85Config;
   isBIP85?: boolean; // Assisted Keys+ identifier
   signerPolicy?: SignerPolicy; // Signing Server's Signer Policy
-  inheritanceKeyInfo?: InheritanceKeyInfo; // IKS config and policy
   hidden: boolean;
   extraData?: SignerExtraData;
   archived?: boolean;

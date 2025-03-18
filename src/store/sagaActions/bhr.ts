@@ -5,7 +5,6 @@ export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';
 export const GET_APP_IMAGE = 'GET_APP_IMAGE';
 export const SEED_BACKEDUP = 'SEED_BACKEDUP';
 export const SEED_BACKEDUP_CONFIRMED = 'SEED_BACKEDUP_CONFIRMED';
-export const RECOVER_BACKUP = 'RECOVER_BACKUP';
 export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
 export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
@@ -70,14 +69,6 @@ export const seedBackedConfirmed = (confirmed: boolean) => ({
   type: SEED_BACKEDUP_CONFIRMED,
   payload: {
     confirmed,
-  },
-});
-
-export const recoverBackup = (password: string, encData: string) => ({
-  type: RECOVER_BACKUP,
-  payload: {
-    password,
-    encData,
   },
 });
 

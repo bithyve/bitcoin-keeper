@@ -18,7 +18,6 @@ const initialState: {
   appImageError: string;
   appImagerecoveryRetry: boolean;
   downloadingBackup: boolean;
-  recoverBackupFailed: boolean;
   invalidPassword: boolean;
   backupWarning: boolean;
   signingDevices: VaultSigner[];
@@ -73,7 +72,6 @@ const initialState: {
 
   appImagerecoveryRetry: false,
   downloadingBackup: false,
-  recoverBackupFailed: false,
   invalidPassword: false,
   backupWarning: false,
   signingDevices: [],
@@ -92,6 +90,8 @@ const initialState: {
   relaySignersUpdate: false,
   relaySignerUpdateError: false,
   realySignersUpdateErrorMessage: null,
+  realySignersAdded: false,
+
   isCloudBsmsBackupRequired: false,
   lastBsmsBackup: null,
   encPassword: '',
@@ -145,9 +145,6 @@ const bhrSlice = createSlice({
     },
     setDownloadingBackup: (state, action: PayloadAction<boolean>) => {
       state.downloadingBackup = action.payload;
-    },
-    setRecoverBackupFailed: (state, action: PayloadAction<boolean>) => {
-      state.recoverBackupFailed = action.payload;
     },
     setInvalidPassword: (state, action: PayloadAction<boolean>) => {
       state.invalidPassword = action.payload;
@@ -312,7 +309,6 @@ export const {
   setAppImageError,
   appImagerecoveryRetry,
   setDownloadingBackup,
-  setRecoverBackupFailed,
   setInvalidPassword,
   setBackupWarning,
 
@@ -373,7 +369,6 @@ const bhrPersistConfig = {
     'appRecoveryLoading',
     'appImageRecoverd',
     'appImagerecoveryRetry',
-    'recoverBackupFailed',
     'invalidPassword',
     'backupWarning',
 

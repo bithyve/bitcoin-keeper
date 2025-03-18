@@ -35,7 +35,7 @@ function TransactionElement({
   index?: number;
   isCached: boolean;
 }) {
-  const { labels } = useLabelsNew({ txid: transaction.txid, wallet });
+  const { labels } = useLabelsNew({ txid: transaction.txid });
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date)?.format('DD MMM YY  .  HH:mm A');
 
