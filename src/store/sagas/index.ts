@@ -5,7 +5,6 @@ import {
   addSigningDeviceWatcher,
   deleteSigningDeviceWatcher,
   autoWalletsSyncWatcher,
-  addressIndexIncrementWatcher,
   finaliseVaultMigrationWatcher,
   migrateVaultWatcher,
   refreshWalletsWatcher,
@@ -105,7 +104,6 @@ const rootSaga = function* () {
     // wallet
     addNewWalletsWatcher,
     autoWalletsSyncWatcher,
-    addressIndexIncrementWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,
     updateWalletSettingsWatcher,
