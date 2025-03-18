@@ -246,7 +246,7 @@ function ManageSigners({ route }: ScreenProps) {
         textColor={`${colorMode}.headerWhite`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
         buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        buttonBackground={`${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
         secondaryIcon={<ConciergeNeedHelp />}

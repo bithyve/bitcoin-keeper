@@ -134,7 +134,7 @@ function AssociateContact({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={vaultText.associateContact} titleColor={`${colorMode}.pitchBlackText`} />
+      <KeeperHeader title={vaultText.associateContact} titleColor={`${colorMode}.black`} />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
           <Box

@@ -70,7 +70,7 @@ function SetupSeedWordSigner({ route }) {
   );
 
   return (
-    <Box flex={1} padding={5} background={`${colorMode}.secondaryBackground`}>
+    <Box flex={1} padding={5} background={`${colorMode}.textInputBackground`}>
       <StatusBarComponent padding={30} />
       <KeeperHeader title="Seed Key" subtitle={seedText.SeedDesc} />
 

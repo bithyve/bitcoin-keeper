@@ -29,7 +29,7 @@ const SDCategoryCard: React.FC<SDCategoryCardProps> = ({
     <Pressable onPress={onPress}>
       <Box
         style={styles.card}
-        backgroundColor={`${colorMode}.secondaryBackground`}
+        backgroundColor={`${colorMode}.textInputBackground`}
         borderColor={`${colorMode}.dullGreyBorder`}
       >
         <Box style={styles.iconContainer}>{Icon}</Box>

@@ -23,7 +23,7 @@ function SignerCard({
   return (
     <Pressable
       backgroundColor={isSelected ? `${colorMode}.SeaweedGreen` : `${colorMode}.seashellWhite`}
-      borderColor={`${colorMode}.TransactionIconBackColor`}
+      borderColor={`${colorMode}.appStatusTextColor`}
       style={styles.walletContainer}
       onPress={() => onCardSelect(walletName)}
     >

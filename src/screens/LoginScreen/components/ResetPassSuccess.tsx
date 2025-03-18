@@ -12,10 +12,10 @@ function ResetPassSuccess(props) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
-  function onPressProceed() { }
+  function onPressProceed() {}
 
   return (
-    <Box backgroundColor={`${colorMode}.secondaryBackground`} padding={10} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.textInputBackground`} padding={10} borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           backgroundColor={`${colorMode}.lightAccent`}

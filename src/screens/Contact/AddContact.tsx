@@ -93,7 +93,7 @@ function AddContact({ route }) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Add Contact"
-        titleColor={`${colorMode}.pitchBlackText`}
+        titleColor={`${colorMode}.black`}
         rightComponent={
           showContactButton && <ContactButton signer={signer} isWalletFlow={isWalletFlow} />
         }

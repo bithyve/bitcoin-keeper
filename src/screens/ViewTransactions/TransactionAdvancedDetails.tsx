@@ -35,7 +35,7 @@ function TabBar({ tabs, activeTab, setActiveTab }) {
           <Box
             style={styles.tabBar}
             backgroundColor={
-              activeTab === index ? `${colorMode}.pantoneGreen` : `${colorMode}.secondaryBackground`
+              activeTab === index ? `${colorMode}.pantoneGreen` : `${colorMode}.textInputBackground`
             }
             borderLeftRadius={index === 0 ? 14 : 0}
             borderBottomLeftRadius={index === 0 ? 14 : 0}
@@ -182,7 +182,7 @@ function TransactionAdvancedDetails({ route }) {
           </Box>
         )}
       </Box>
-      <Box style={styles.bottomSection} backgroundColor={`${colorMode}.secondaryBackground`}>
+      <Box style={styles.bottomSection} backgroundColor={`${colorMode}.textInputBackground`}>
         <Box style={styles.tabBarWrapper}>
           <TabBar tabs={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
         </Box>

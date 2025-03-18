@@ -71,7 +71,7 @@ function WalletItem({
     <Pressable onPress={handlePress}>
       <Box
         style={styles.walletItemContainer}
-        backgroundColor={`${colorMode}.secondaryBackground`}
+        backgroundColor={`${colorMode}.textInputBackground`}
         borderColor={borderColor}
         borderWidth={isSelected ? 2 : 1}
       >

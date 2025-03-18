@@ -9,7 +9,7 @@ const ReceiptWrapper = ({ children, itemContainerStyle = {} }) => {
 
   return (
     <Box
-      backgroundColor={`${colorMode}.receiptBackground`}
+      backgroundColor={`${colorMode}.textInputBackground`}
       borderColor={`${colorMode}.receiptBorder`}
       style={styles.container}
     >

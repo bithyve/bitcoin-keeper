@@ -14,7 +14,7 @@ function SuccessModal(props) {
     close,
     title = 'Title',
     subTitle = 'Subtitle',
-    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
+    modalBackground = [`${colorMode}.textInputBackground`, `${colorMode}.textInputBackground`],
     buttonBackground = [`${colorMode}.primaryGreen`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
     buttonTextColor = `${colorMode}.white`,

@@ -109,7 +109,9 @@ function ChoosePlanCarouselItem({
         </Box>
       )}
       <HStack
-        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.choosePlanCard`}
+        backgroundColor={
+          isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.boxSecondaryBackground`
+        }
         style={[styles.wrapperView, { width: wp(itemWidth) }]}
         borderColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.solidGreyBorder`}
       >
@@ -133,13 +135,13 @@ function ChoosePlanCarouselItem({
           <Text
             fontSize={15}
             bold={true}
-            color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.choosePlanInactiveText`}
+            color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.modalGreenTitle`}
           >
             {item.name}
           </Text>
           <Text
             fontSize={15}
-            color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.choosePlanInactiveText`}
+            color={isSelected ? `${colorMode}.buttonText` : `${colorMode}.modalGreenTitle`}
             mb={1.5}
           >
             {`(${item.subTitle})`}

@@ -111,7 +111,7 @@ function ManageTapsignerSettings({ route }: any) {
         <Box
           padding={hp(20)}
           borderRadius={7}
-          backgroundColor={`${colorMode}.secondaryBackground`}
+          backgroundColor={`${colorMode}.textInputBackground`}
           flexDirection="row"
         >
           <HexagonIcon

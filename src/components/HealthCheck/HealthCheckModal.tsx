@@ -18,7 +18,7 @@ function HealthCheckModal(props) {
     placeHolderName = '',
     SignerName = 'SignerName',
     SignerIcon = '',
-    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
+    modalBackground = [`${colorMode}.textInputBackground`, `${colorMode}.textInputBackground`],
     buttonBackground = [`${colorMode}.primaryGreen`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
     buttonTextColor = 'white',

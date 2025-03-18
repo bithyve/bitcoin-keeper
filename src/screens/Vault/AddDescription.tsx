@@ -15,7 +15,7 @@ function AddDescription({ route }) {
   const navigation = useNavigation();
 
   return (
-    <Box style={[styles.Container, { backgroundColor: `${colorMode}.secondaryBackground` }]}>
+    <Box style={[styles.Container, { backgroundColor: `${colorMode}.textInputBackground` }]}>
       <StatusBarComponent padding={50} />
       <Box marginX={3}>
         <Box width={wp(200)}>

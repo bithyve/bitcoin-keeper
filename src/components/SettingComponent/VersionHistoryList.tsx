@@ -23,7 +23,7 @@ function VersionHistoryList() {
             position="absolute"
             left={-3}
             top={0}
-            backgroundColor={`${colorMode}.secondaryBackground`}
+            backgroundColor={`${colorMode}.textInputBackground`}
             padding={1}
             borderRadius={15}
           >
