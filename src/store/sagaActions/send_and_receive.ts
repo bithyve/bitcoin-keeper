@@ -21,7 +21,6 @@ export const ONE_DAY_INSIGHT = 'ONE_DAY_INSIGHT';
 export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE';
 export const EXCHANGE_RATE_CALCULATED = 'EXCHANGE_RATE_CALCULATED';
 export const SEND_PHASE_ONE = 'SEND_PHASE_ONE';
-export const CROSS_TRANSFER = 'CROSS_TRANSFER';
 export const RESET_SEND_PHASE_ONE = 'RESET_SEND_PHASE_ONE';
 export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
 export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
@@ -225,27 +224,6 @@ export const sendPhaseThree = (payload: {
   payload,
 });
 
-export interface CrossTransferAction extends Action {
-  type: typeof CROSS_TRANSFER;
-  payload: {
-    sender: Wallet | Vault;
-    currentBlockHeight: number;
-    recipient: Wallet | Vault;
-    amount: number;
-    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
-  };
-}
-
-export const crossTransfer = (payload: {
-  sender: Wallet | Vault;
-  currentBlockHeight: number;
-  recipient: Wallet | Vault;
-  amount: number;
-  miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
-}): CrossTransferAction => ({
-  type: CROSS_TRANSFER,
-  payload,
-});
 export interface SendingFailureAction extends Action {
   type: typeof SENDING_FAILED;
 }

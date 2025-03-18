@@ -18,12 +18,10 @@ import {
   InheritanceKeyInfo,
   InheritancePolicy,
   SignerException,
-  SignerPolicy,
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
 import {
   MiniscriptElements,
-  MiniscriptScheme,
   Signer,
   Vault,
   VaultPresentationData,
@@ -68,7 +66,6 @@ import {
   encrypt,
   generateEncryptionKey,
   generateKey,
-  hash256,
   hash512,
 } from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -104,13 +101,9 @@ import {
   TEST_SATS_RECIEVE,
   UPDATE_SIGNER_POLICY,
   UPDATE_WALLET_DETAILS,
-  UPDATE_WALLET_SETTINGS,
   refreshWallets,
-  walletSettingsUpdateFailed,
-  walletSettingsUpdated,
   UPDATE_SIGNER_DETAILS,
   UPDATE_WALLET_PROPERTY,
-  UPDATE_WALLET_PATH_PURPOSE_DETAILS,
   UPDATE_KEY_DETAILS,
   UPDATE_VAULT_DETAILS,
   GENERATE_NEW_ADDRESS,
@@ -1016,44 +1009,6 @@ export function* autoWalletsSyncWorker({
 
 export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_SYNC_WALLETS);
 
-function* updateWalletSettingsWorker({
-  payload,
-}: {
-  payload: {
-    wallet: Wallet | Vault;
-    settings: {
-      walletName?: string;
-      walletDescription?: string;
-      visibility?: VisibilityType;
-    };
-  };
-}) {
-  const { wallet, settings } = payload;
-  const { walletName, walletDescription, visibility } = settings;
-
-  try {
-    if (walletName) wallet.presentationData.name = walletName;
-    if (walletDescription) wallet.presentationData.description = walletDescription;
-    if (visibility) wallet.presentationData.visibility = visibility;
-
-    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-      presentationData: wallet.presentationData,
-    });
-    yield put(walletSettingsUpdated());
-  } catch (error) {
-    yield put(
-      walletSettingsUpdateFailed({
-        error,
-      })
-    );
-  }
-}
-
-export const updateWalletSettingsWatcher = createWatcher(
-  updateWalletSettingsWorker,
-  UPDATE_WALLET_SETTINGS
-);
-
 export function* updateSignerPolicyWorker({
   payload,
 }: {
@@ -1227,53 +1182,6 @@ function* updateVaultDetailsWorker({ payload }) {
 export const updateVaultDetailsWatcher = createWatcher(
   updateVaultDetailsWorker,
   UPDATE_VAULT_DETAILS
-);
-
-function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
-  const {
-    wallet,
-    details,
-  }: {
-    wallet: Wallet;
-    details: {
-      path: string;
-      purpose: string;
-    };
-  } = payload;
-  try {
-    const derivationDetails: WalletDerivationDetails = {
-      ...wallet.derivationDetails,
-      xDerivationPath: details.path,
-    };
-    const specs = generateWalletSpecsFromMnemonic(
-      derivationDetails.mnemonic,
-      WalletUtilities.getNetworkByType(wallet.networkType),
-      derivationDetails.xDerivationPath
-    ); // recreate the specs
-    wallet.derivationDetails = derivationDetails;
-    wallet.specs = specs;
-
-    yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
-    if (response.updated) {
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-        derivationDetails,
-        specs,
-      });
-      yield put(relayWalletUpdateSuccess());
-    } else {
-      const errorMsg = response.error?.message
-        ? response.error.message.toString()
-        : response.error.toString();
-      yield put(relayWalletUpdateFail(errorMsg));
-    }
-  } catch (err) {
-    yield put(relayWalletUpdateFail('Something went wrong!'));
-  }
-}
-export const updateWalletPathAndPuposeDetailWatcher = createWatcher(
-  updateWalletPathAndPuposeDetailsWorker,
-  UPDATE_WALLET_PATH_PURPOSE_DETAILS
 );
 
 export function* updateSignerDetailsWorker({ payload }) {

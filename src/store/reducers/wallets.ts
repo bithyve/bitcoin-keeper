@@ -15,12 +15,10 @@ export type WalletsState = {
 
   isUpdatingWalletSettings: boolean;
   hasWalletSettingsUpdateSucceeded: boolean;
-  haswalletSettingsUpdateFailed: boolean;
 
   testCoinsReceived: boolean;
   testCoinsFailed: boolean;
 
-  resetTwoFALoader: boolean;
   introModal: boolean;
   cosignerModal: boolean;
   err: string;
@@ -38,12 +36,10 @@ const initialState: WalletsState = {
 
   isUpdatingWalletSettings: false,
   hasWalletSettingsUpdateSucceeded: false,
-  haswalletSettingsUpdateFailed: false,
 
   testCoinsReceived: false,
   testCoinsFailed: false,
 
-  resetTwoFALoader: false,
   introModal: true,
   cosignerModal: true,
 
