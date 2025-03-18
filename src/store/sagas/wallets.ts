@@ -33,7 +33,6 @@ import {
   Wallet,
   WalletImportDetails,
   WalletPresentationData,
-  WalletDerivationDetails,
 } from 'src/services/wallets/interfaces/wallet';
 import { call, delay, fork, put, select } from 'redux-saga/effects';
 import {
@@ -55,11 +54,7 @@ import config from 'src/utils/service-utilities/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/services/wallets/factories/VaultFactory';
-import {
-  generateWallet,
-  generateWalletSpecsFromMnemonic,
-  getCosignerDetails,
-} from 'src/services/wallets/factories/WalletFactory';
+import { generateWallet, getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
   decrypt,

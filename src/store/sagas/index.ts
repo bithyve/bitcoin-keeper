@@ -65,7 +65,6 @@ import {
   fetchDelayedPolicyUpdateWatcher,
   fetchSignedDelayedTransactionWatcher,
   setupKeeperAppWatcher,
-  setupKeeperVaultRecoveryAppWatcher,
 } from './storage';
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
 import { addLabelsWatcher, bulkUpdateLabelWatcher } from './utxos';
@@ -150,7 +149,6 @@ const rootSaga = function* () {
     healthCheckSignerWatcher,
     healthCheckSatutsUpdateWatcher,
     backupWarningWatcher,
-    setupKeeperVaultRecoveryAppWatcher,
     backupBsmsOnCloudWatcher,
     bsmsCloudHealthCheckWatcher,
     deleteAppImageEntityWatcher,

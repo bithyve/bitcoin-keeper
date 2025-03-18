@@ -4,12 +4,10 @@ import { call, fork, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
-import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import WalletOperations from 'src/services/wallets/operations';
-import WalletUtilities from 'src/services/wallets/operations/utils';
 import _ from 'lodash';
 import idx from 'idx';
-import { TransferType } from 'src/models/enums/TransferType';
 import ElectrumClient, {
   ELECTRUM_CLIENT,
   ELECTRUM_NOT_CONNECTED_ERR,

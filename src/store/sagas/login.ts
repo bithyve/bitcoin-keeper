@@ -28,7 +28,6 @@ import {
   GENERATE_SEED_HASH,
   RESET_PIN,
   STORE_CREDS,
-  SWITCH_APP_STATUS,
 } from '../sagaActions/login';
 import {
   credsAuthenticated,
@@ -39,9 +38,6 @@ import {
   setupLoading,
   setRecepitVerificationError,
   setRecepitVerificationFailed,
-  setOfflineStatus,
-  setStatusLoading,
-  setStatusMessage,
   credsAuthenticatedError,
 } from '../reducers/login';
 import {
@@ -65,7 +61,6 @@ import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
-import { autoSyncWallets, refreshWallets } from '../sagaActions/wallets';
 import { autoWalletsSyncWorker } from './wallets';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {

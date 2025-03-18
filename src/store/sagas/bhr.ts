@@ -50,7 +50,6 @@ import {
   setBackupType,
   setBackupWarning,
   setEncPassword,
-  setInvalidPassword,
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
   setPendingAllBackup,
@@ -63,14 +62,12 @@ import {
   DELETE_APP_IMAGE_ENTITY,
   GET_APP_IMAGE,
   HEALTH_CHECK_STATUS_UPDATE,
-  RECOVER_BACKUP,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
   SET_BACKUP_WARNING,
   UPADTE_HEALTH_CHECK_SIGNER,
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
-  getAppImage,
   healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned } from '../sagaActions/uai';
@@ -341,10 +338,7 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, subscription, vaultImage, labels, allVaultImages } = yield call(
-      Relay.getAppImage,
-      appID
-    );
+    const { appImage, subscription, labels, allVaultImages } = yield call(Relay.getAppImage, appID);
 
     // applying the restore upgrade sequence if required
     const previousVersion = appImage.version;
@@ -354,8 +348,6 @@ function* getAppImageWorker({ payload }) {
         previousVersion,
         newVersion,
         appImage,
-        vaultImage,
-        encryptionKey,
       });
     }
     if (appImage && subscription) {
