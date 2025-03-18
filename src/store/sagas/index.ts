@@ -17,8 +17,6 @@ import {
   updateSignerDetails,
   updateKeyDetails,
   updateWalletsPropertyWatcher,
-  addWhirlpoolWalletsWatcher,
-  addWhirlpoolWalletsLocalWatcher,
   updateWalletPathAndPuposeDetailWatcher,
   updateVaultDetailsWatcher,
   deleteVaultyWatcher,
@@ -106,8 +104,6 @@ const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
-    addWhirlpoolWalletsWatcher,
-    addWhirlpoolWalletsLocalWatcher,
     autoWalletsSyncWatcher,
     addressIndexIncrementWatcher,
     refreshWalletsWatcher,

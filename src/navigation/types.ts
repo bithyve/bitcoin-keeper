@@ -105,9 +105,6 @@ export type AppStackParams = {
   RegisterWithChannel: undefined;
   SetupOtherSDScreen: undefined;
   SignWithChannel: undefined;
-  PoolSelection: undefined;
-  BroadcastPremix: undefined;
-  WhirlpoolConfiguration: undefined;
   CosignerDetails: { signer: Signer };
   AdditionalDetails: { signer: Signer };
   KeyHistory: undefined;
@@ -133,7 +130,6 @@ export type AppStackParams = {
     isAddInheritanceKeyFromParams?: boolean;
   };
   SigningDeviceConfigRecovery: undefined;
-  MixProgress: undefined;
   AssignSignerType: undefined;
   AddWallet: undefined;
   AddNewWallet: undefined;

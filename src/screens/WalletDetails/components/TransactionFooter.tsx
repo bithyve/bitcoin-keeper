@@ -6,7 +6,6 @@ import RecieveIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
 import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
 
 import idx from 'idx';
-import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 import { useColorMode } from 'native-base';
 import FooterActions from 'src/components/FooterActions';
 
@@ -20,14 +19,12 @@ function TransactionFooter({ currentWallet }) {
       Icon: colorMode === 'light' ? SendIcon : SendIconWhite,
       text: 'Send',
       onPress: () => navigation.dispatch(CommonActions.navigate('Send', { sender: currentWallet })),
-      hideItems: !allowedSendTypes.includes(currentWallet.type),
     },
     {
       Icon: colorMode === 'light' ? RecieveIcon : RecieveIconWhite,
       text: 'Receive',
       onPress: () =>
         navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet })),
-      hideItems: !allowedRecieveTypes.includes(currentWallet.type),
     },
   ];
 

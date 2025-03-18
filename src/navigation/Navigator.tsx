@@ -1,10 +1,5 @@
-import {
-  CommonActions,
-  DefaultTheme,
-  NavigationContainer,
-  useNavigation,
-} from '@react-navigation/native';
-import React, { useContext, useRef, useState } from 'react';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { getRoutingInstrumentation } from 'src/services/sentry';
 import AddDescription from 'src/screens/Vault/AddDescription';
@@ -65,12 +60,8 @@ import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
-import PoolSelection from 'src/screens/Mix/PoolSelection';
-import BroadcastPremix from 'src/screens/Mix/BroadcastPremix';
-import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
 import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
 import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
-import MixProgress from 'src/screens/Mix/MixProgress';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
 import UpdateWalletDetails from 'src/screens/WalletDetails/UpdateWalletDetails';
@@ -303,9 +294,6 @@ function AppStack() {
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
         <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
-        <Stack.Screen name="PoolSelection" component={PoolSelection} />
-        <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
-        <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
         <Stack.Screen name="AdditionalDetails" component={AdditionalDetails} />
         <Stack.Screen name="KeyHistory" component={KeyHistory} />
@@ -318,11 +306,6 @@ function AppStack() {
         <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
         <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
         <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
-        <Stack.Screen
-          name="MixProgress"
-          component={MixProgress}
-          options={{ gestureEnabled: false }}
-        />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="AddNewWallet" component={AddNewWallet} />
         <Stack.Screen name="SettingApp" component={SettingsApp} />

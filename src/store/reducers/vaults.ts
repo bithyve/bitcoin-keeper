@@ -40,7 +40,6 @@ export type VaultState = {
   error: string;
   introModal: boolean;
   sdIntroModal: boolean;
-  whirlpoolIntro: boolean;
   tempShellId: string;
   backupBSMSForIKS: boolean;
   keyHeathCheckSuccess: boolean;
@@ -70,7 +69,6 @@ const initialState: VaultState = {
   error: null,
   introModal: true,
   sdIntroModal: true,
-  whirlpoolIntro: true,
   tempShellId: null,
   backupBSMSForIKS: false,
   keyHeathCheckSuccess: false,
@@ -115,9 +113,6 @@ const vaultSlice = createSlice({
     },
     setSdIntroModal: (state, action: PayloadAction<boolean>) => {
       state.sdIntroModal = action.payload;
-    },
-    setWhirlpoolIntro: (state, action: PayloadAction<boolean>) => {
-      state.whirlpoolIntro = action.payload;
     },
     vaultMigrationCompleted: (state, action: PayloadAction<VaultMigrationCompletionPayload>) => {
       const { isMigratingNewVault, hasMigrationSucceeded, hasMigrationFailed, error } =
@@ -194,7 +189,6 @@ export const {
   vaultMigrationCompleted,
   setIntroModal,
   setSdIntroModal,
-  setWhirlpoolIntro,
   resetVaultMigration,
   setTempShellId,
   setBackupBSMSForIKS,
@@ -217,7 +211,6 @@ const vaultPersistConfig = {
     'intrimVault',
     'introModal',
     'sdIntroModal',
-    'whirlpoolIntro',
     'tempShellId',
     'backupBSMSForIKS',
     'keyHeathCheckSuccess',

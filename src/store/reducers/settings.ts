@@ -13,7 +13,6 @@ const initialState: {
   torEnbled: boolean;
   inheritanceModal: boolean;
   satsEnabled: boolean;
-  whirlpoolSwiperModal: boolean;
   keySecurityTips: string;
   letterToAttorny: string;
   enableAnalyticsLogin: boolean;
@@ -33,7 +32,6 @@ const initialState: {
   torEnbled: false,
   inheritanceModal: true,
   satsEnabled: true,
-  whirlpoolSwiperModal: true,
   keySecurityTips: '',
   letterToAttorny: '',
   enableAnalyticsLogin: true,
@@ -74,9 +72,6 @@ const settingsSlice = createSlice({
     setSatsEnabled: (state, action: PayloadAction<boolean>) => {
       state.satsEnabled = action.payload;
     },
-    setWhirlpoolSwiperModal: (state, action: PayloadAction<boolean>) => {
-      state.whirlpoolSwiperModal = action.payload;
-    },
     setKeySecurityTipsPath: (state, action: PayloadAction<string>) => {
       state.keySecurityTips = action.payload;
     },
@@ -113,7 +108,6 @@ export const {
   setTorEnabled,
   setInheritance,
   setSatsEnabled,
-  setWhirlpoolSwiperModal,
   setKeySecurityTipsPath,
   setLetterToAttornyPath,
   setEnableAnalyticsLogin,

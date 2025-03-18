@@ -29,23 +29,18 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
+import { VaultType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
 import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import {
-  refreshWallets,
-  updateSignerDetails,
-  addNewWhirlpoolWallets,
-} from '../sagaActions/wallets';
+import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
   appImagerecoveryRetry,
   setAppImageError,
-  setAppImageRecoverd,
   setAppRecoveryLoading,
   setAutomaticCloudBackup,
   setBackupAllFailure,
@@ -346,7 +341,7 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, subscription, UTXOinfos, vaultImage, labels, allVaultImages } = yield call(
+    const { appImage, subscription, vaultImage, labels, allVaultImages } = yield call(
       Relay.getAppImage,
       appID
     );
@@ -381,7 +376,6 @@ function* getAppImageWorker({ payload }) {
         plebSubscription,
         appImage,
         allVaultImages,
-        UTXOinfos,
         labels,
         previousVersion
       );
@@ -405,7 +399,6 @@ function* recoverApp(
   subscription,
   appImage,
   allVaultImages,
-  UTXOinfos,
   labels,
   previousVersion
 ) {
@@ -444,9 +437,6 @@ function* recoverApp(
       try {
         const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
         yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-        if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
-          yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
-        }
         yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
       } catch (err) {
         console.log('Error recovering a wallet: ', err);
@@ -542,10 +532,6 @@ function* recoverApp(
     }
   }
 
-  // UTXOinfo restore
-  if (UTXOinfos) {
-    yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOinfos);
-  }
   yield put(setAppId(appID));
 
   // Labels Restore
