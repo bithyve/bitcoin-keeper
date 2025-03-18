@@ -65,7 +65,7 @@ function SigningRequestCard({ requestId, title, dateTime, amount, timeRemaining,
           primaryText={common.cancel}
           primaryFontWeight="medium"
           fullWidth
-          primaryBackgroundColor={`${colorMode}.primaryBrown`}
+          primaryBackgroundColor={`${colorMode}.BrownNeedHelp`}
           primaryCallback={() => {
             onCancel(requestId);
           }}

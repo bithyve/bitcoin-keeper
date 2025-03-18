@@ -199,7 +199,7 @@ function QRScanner({
           )}
         </Box>
         <Box style={[styles.uploadButton, { top: windowWidth * 0.7 - 25 }]}>
-          <UploadImage backgroundColor={`${colorMode}.primaryBrown`} onPress={handleChooseImage} />
+          <UploadImage backgroundColor={`${colorMode}.BrownNeedHelp`} onPress={handleChooseImage} />
         </Box>
       </VStack>
 

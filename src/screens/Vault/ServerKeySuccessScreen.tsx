@@ -123,7 +123,7 @@ function ServerKeySuccessScreen({ route }) {
             }}
             primaryText={common.Later}
             primaryBackgroundColor="transparent"
-            primaryTextColor={isDarkMode ? `${colorMode}.textGreen` : `${colorMode}.primaryBrown`}
+            primaryTextColor={isDarkMode ? `${colorMode}.textGreen` : `${colorMode}.BrownNeedHelp`}
             primaryBorderColor={isDarkMode ? Colors.separator : Colors.DullBrown}
             width={wp(150)}
           />
@@ -131,7 +131,7 @@ function ServerKeySuccessScreen({ route }) {
             primaryCallback={handleNeverCallback}
             primaryText={common.Never}
             primaryBackgroundColor="transparent"
-            primaryTextColor={isDarkMode ? `${colorMode}.textGreen` : `${colorMode}.primaryBrown`}
+            primaryTextColor={isDarkMode ? `${colorMode}.textGreen` : `${colorMode}.BrownNeedHelp`}
             primaryBorderColor={isDarkMode ? Colors.separator : Colors.DullBrown}
             width={wp(150)}
           />

@@ -24,7 +24,7 @@ export const BrownButton = (props: BrownButtonProps) => {
       <Text
         style={[styles.text, props.customTextStyle]}
         bold
-        color={props.customTextColor ?? `${colorMode}.primaryBrown`}
+        color={props.customTextColor ?? `${colorMode}.BrownNeedHelp`}
       >
         {props.title}
       </Text>

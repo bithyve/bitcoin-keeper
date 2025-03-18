@@ -103,7 +103,7 @@ const DeviceCard = (props: Props) => {
             <Text
               semiBold
               fontSize={11}
-              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.primaryBrown`}
+              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.BrownNeedHelp`}
               style={styles.subText}
             >
               {props.subscribeText}

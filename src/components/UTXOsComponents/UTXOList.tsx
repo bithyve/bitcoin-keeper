@@ -71,7 +71,7 @@ export function UTXOLabel(props: {
         <Box
           style={[styles.utxoExtraLabel]}
           color={`${colorMode}.headerWhite`}
-          backgroundColor={`${colorMode}.primaryBrown`}
+          backgroundColor={`${colorMode}.BrownNeedHelp`}
         >
           <Text
             style={styles.labelText}

@@ -398,7 +398,7 @@ function ChoosePolicyNew({ navigation, route }) {
               isDarkMode ? `${colorMode}.textInputBackground` : `${colorMode}.secondaryCreamWhite`
             }
             borderColor={
-              isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.primaryBrown`
+              isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.BrownNeedHelp`
             }
           >
             <Text fontSize={13}>{common.RemainingTime}:</Text>

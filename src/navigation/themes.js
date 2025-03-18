@@ -162,17 +162,30 @@ export const customTheme = extendTheme({
       SlateGreen: Colors.SlateGreen,
 
       textWallet: Colors.TagDark5,
+
       indicator: Colors.OutrageousOrange,
+
       sendMax: Colors.JackoBean,
+
       walletTypePillBack: Colors.Bisque,
+
       pillPlaceholderBack: Colors.LightKhaki,
+
       error: Colors.CongoPink,
+
       LightGreenish: Colors.TagDark9,
+
       fadedblue: Colors.FadeBlue,
+
       lightSeashell: Colors.lightSeashell,
+
       BrownNeedHelp: Colors.primaryBrown,
+
+      borderBrown: Colors.primaryBrown,
+      brownBackground: Colors.primaryBrown,
+
       RecoveryBorderColor: Colors.RussetBrownLight,
-      primaryBrown: Colors.primaryBrown,
+
       LightBrown: Colors.LightBrown,
       SignleSigCardPillBackColor: Colors.PaleTurquoise,
       dropdownSeparator: Colors.Taupe,
@@ -189,22 +202,18 @@ export const customTheme = extendTheme({
       appStatusButtonBackground: Colors.WarmBeigeTranslucent,
       labelColor2: Colors.LabelLight2,
       boxBackground: Colors.BoxGolden,
-      borderBrown: Colors.primaryBrown,
       separator: Colors.separator,
       FlameOrange: Colors.FlameOrange,
       newBadgeGreen: Colors.NewBadgeGreen,
       errorToastBackground: Colors.ErrorToast,
 
       receiptBorder: Colors.secondaryLightGrey,
-      brownBackground: Colors.primaryBrown,
 
       solidGreyBorder: Colors.greyBorder,
       menuCardTitleColor: Colors.secondaryDarkGrey,
       newDashedButtonBackground: Colors.SoftTealOverlay,
 
       LightGraycolor: Colors.LightGraycolor,
-      darkBrownCircle: Colors.primaryBrown,
-      lightBrownCircle: Colors.RussetBrownLight,
 
       termsText: Colors.termsGrey,
       graphiteTranslucentBG: Colors.GraphiteTranslucent,
@@ -283,6 +292,18 @@ export const customTheme = extendTheme({
       alertRedLight: Colors.redAlert,
 
       SlateGreen: Colors.SlateGreen,
+      textWallet: Colors.TagDark5,
+      indicator: Colors.OutrageousOrange,
+      sendMax: Colors.JackoBean,
+      error: Colors.CongoPink,
+      darkBorderGreen: Colors.TagDark9,
+      fadedblue: Colors.FadeBlue,
+      lightSeashell: Colors.lightSeashell,
+
+      coffeeBackground: Colors.primaryBrown,
+      BrownNeedHelp: Colors.primaryBrown,
+
+      RecoveryBorderColor: Colors.RussetBrownLight,
 
       buttonText: Colors.bodyText,
       disabledDiamond: Colors.secondaryLightGrey,
@@ -290,7 +311,6 @@ export const customTheme = extendTheme({
       modalWhiteBackground: Colors.ModalBlack,
       modalGreenTitle: Colors.bodyText,
 
-      coffeeBackground: Colors.primaryBrown,
       btcLabelBack: Colors.PeriwinkleDark,
       FlameOrange: Colors.FlameOrange,
       primaryText: Colors.bodyText,
@@ -306,22 +326,12 @@ export const customTheme = extendTheme({
       Border: Colors.bodyText,
 
       textColor2: Colors.secondaryLightGrey,
-      textWallet: Colors.TagDark5,
-      indicator: Colors.OutrageousOrange,
-      sendMax: Colors.JackoBean,
       inActiveMsg: Colors.secondaryLightGrey,
       walletTypePillBack: Colors.LabelDark1,
       pillPlaceholderBack: Colors.LabelDark1,
-      error: Colors.CongoPink,
       backgroundbitSaga: Colors.secondaryLightGrey,
-      darkBorderGreen: Colors.TagDark9,
       fadedGray: Colors.bodyText,
-      fadedblue: Colors.FadeBlue,
       seashellWhiteText: Colors.bodyText,
-      lightSeashell: Colors.lightSeashell,
-      BrownNeedHelp: Colors.primaryBrown,
-      RecoveryBorderColor: Colors.RussetBrownLight,
-      primaryBrown: Colors.primaryBrown,
       LightGraycolor: Colors.LightGraycolor,
       LightBrown: Colors.LightBrown,
       SignleSigCardPillBackColor: Colors.Turquoise,
@@ -357,8 +367,6 @@ export const customTheme = extendTheme({
       whiteSecButtonText: Colors.SoftGray,
       DarkGreyText: Colors.RichBlackDark,
       whiteCircle: Colors.bodyText,
-      darkBrownCircle: Colors.primaryBrown,
-      lightBrownCircle: Colors.RussetBrownLight,
       sliderUnfilled: Colors.CharcoalGreen,
       dullGreen: Colors.DeepCharcoalGreen,
       graphiteTranslucentBG: Colors.GraphiteTranslucent,
