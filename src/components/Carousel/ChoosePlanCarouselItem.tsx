@@ -119,9 +119,7 @@ function ChoosePlanCarouselItem({
         <Box>
           <Box
             backgroundColor={
-              isSelected
-                ? `${colorMode}.choosePlanIconBackSelected`
-                : `${colorMode}.choosePlanIconBack`
+              isSelected ? `${colorMode}.hexagonIconBackColor` : `${colorMode}.choosePlanIconBack`
             }
             style={styles.circle}
           >

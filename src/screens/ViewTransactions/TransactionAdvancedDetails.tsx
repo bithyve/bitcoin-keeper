@@ -77,11 +77,7 @@ function Address({ address, activeTab, colorMode }) {
       )}
       {typeof address === 'string' ? (
         <Box width={'90%'}>
-          <Text
-            ellipsizeMode="middle"
-            numberOfLines={1}
-            color={`${colorMode}.transactionDeatilAddress`}
-          >
+          <Text ellipsizeMode="middle" numberOfLines={1} color={`${colorMode}.GreyText`}>
             {address}
           </Text>
         </Box>
@@ -91,15 +87,11 @@ function Address({ address, activeTab, colorMode }) {
             ellipsizeMode="middle"
             numberOfLines={1}
             maxWidth={'50%'}
-            color={`${colorMode}.transactionDeatilAddress`}
+            color={`${colorMode}.GreyText`}
           >
             {address.address}
           </Text>
-          <Text
-            ellipsizeMode="middle"
-            numberOfLines={1}
-            color={`${colorMode}.transactionDeatilAddress`}
-          >
+          <Text ellipsizeMode="middle" numberOfLines={1} color={`${colorMode}.GreyText`}>
             {!isCurrentCurrencyFiat &&
               getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
             {` ${getBalance(address.amount)} `}
@@ -159,14 +151,10 @@ function TransactionAdvancedDetails({ route }) {
                 <IconSend />
               )}
               <Box style={styles.transView}>
-                <Text
-                  color={`${colorMode}.transactionDeatilAddress`}
-                  numberOfLines={1}
-                  style={styles.transIDText}
-                >
+                <Text color={`${colorMode}.GreyText`} numberOfLines={1} style={styles.transIDText}>
                   {transaction.txid}
                 </Text>
-                <Text style={styles.transDateText} color={`${colorMode}.transactionDeatilAddress`}>
+                <Text style={styles.transDateText} color={`${colorMode}.GreyText`}>
                   {moment(transaction?.date).format('DD MMM YY  •  HH:mm A')}
                 </Text>
               </Box>

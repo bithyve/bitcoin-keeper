@@ -116,10 +116,10 @@ const SubscriptionList: React.FC<{
                   {isDarkMode ? plan.subDarkIcon : plan.sublightIcon}
                   <Box style={styles.textContainer}>
                     <Box style={styles.titleBox}>
-                      <Text color={`${colorMode}.textGreenGrey`} style={styles.title}>
+                      <Text color={`${colorMode}.GreyText`} style={styles.title}>
                         {plan.title}
                       </Text>
-                      <Text color={`${colorMode}.textGreenGrey`} style={styles.level}>
+                      <Text color={`${colorMode}.GreyText`} style={styles.level}>
                         ({plan.subtitle})
                       </Text>
                     </Box>

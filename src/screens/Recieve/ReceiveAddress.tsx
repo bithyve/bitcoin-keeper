@@ -41,7 +41,7 @@ function ReceiveAddress({ address }: Props) {
       borderColor={`${colorMode}.greyBorder`}
     >
       <Box style={styles.textContainer}>
-        <Text color={`${colorMode}.textGreenGrey`} style={styles.value}>
+        <Text color={`${colorMode}.GreyText`} style={styles.value}>
           {address}
         </Text>
       </Box>

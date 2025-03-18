@@ -16,7 +16,7 @@ function SkipHealthCheck(props) {
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           margin={5}
-          backgroundColor={`${colorMode}.lightAccent`}
+          backgroundColor={`${colorMode}.accent`}
           borderRadius={32}
           h={8}
           width={8}

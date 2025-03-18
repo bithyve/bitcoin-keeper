@@ -6,7 +6,7 @@ import Close from 'src/assets/images/modal_close.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
-function Transactions({ transactions, addTransaction = () => { } }) {
+function Transactions({ transactions, addTransaction = () => {} }) {
   const { colorMode } = useColorMode();
   const renderTranscation = ({ item }: { item; index }) => {
     const { address, amount } = item;
@@ -31,7 +31,7 @@ function Transactions({ transactions, addTransaction = () => { } }) {
               mt="1"
               numberOfLines={1}
               letterSpacing={1.12}
-              color={`${colorMode}.sendCardHeading`}
+              color={`${colorMode}.hexagonIconBackColor`}
               width={wp(100)}
             >
               {address}

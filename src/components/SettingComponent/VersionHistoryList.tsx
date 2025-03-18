@@ -27,9 +27,9 @@ function VersionHistoryList() {
             padding={1}
             borderRadius={15}
           >
-            <DotView height={2} width={2} color={`${colorMode}.lightAccent`} />
+            <DotView height={2} width={2} color={`${colorMode}.accent`} />
           </Box>
-          <Box borderLeftColor={`${colorMode}.lightAccent`} borderLeftWidth={1} width="100%">
+          <Box borderLeftColor={`${colorMode}.accent`} borderLeftWidth={1} width="100%">
             <Text
               color={`${colorMode}.GreyText`}
               fontSize={10}

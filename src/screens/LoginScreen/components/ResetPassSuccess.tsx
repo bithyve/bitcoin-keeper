@@ -18,7 +18,7 @@ function ResetPassSuccess(props) {
     <Box backgroundColor={`${colorMode}.textInputBackground`} padding={10} borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          backgroundColor={`${colorMode}.lightAccent`}
+          backgroundColor={`${colorMode}.accent`}
           borderRadius={32}
           h={8}
           width={8}

@@ -59,7 +59,7 @@ const SigningDelay = ({ route }) => {
         <Text color={`${colorMode}.modalWhiteContent`} medium style={styles.title}>
           {signingServer.signigDelaySubTitle}
         </Text>
-        <Text color={`${colorMode}.policySubtitle`} style={styles.subtitleText}>
+        <Text color={`${colorMode}.GreyText`} style={styles.subtitleText}>
           {signingServer.serverSigningDelaySubTitle}
         </Text>
         <Box style={styles.fieldWrapper}>

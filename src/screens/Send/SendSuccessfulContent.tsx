@@ -60,7 +60,7 @@ function SendSuccessfulContent({
         <AmountDetails
           title={walletTranslations.totalAmount}
           titleFontSize={15}
-          titleColor={`${colorMode}.textGreenGrey`}
+          titleColor={`${colorMode}.GreyText`}
           amount={amounts.reduce((sum, amount) => sum + amount, 0)}
           amountFontSize={15}
           amountColor={`${colorMode}.primaryText`}
@@ -70,7 +70,7 @@ function SendSuccessfulContent({
         <AmountDetails
           title={walletTranslations.networkFee}
           titleFontSize={15}
-          titleColor={`${colorMode}.textGreenGrey`}
+          titleColor={`${colorMode}.GreyText`}
           amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
           amountFontSize={15}
           amountColor={`${colorMode}.primaryText`}
