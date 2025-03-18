@@ -318,7 +318,7 @@ function PrivacyAndDisplay({ route }) {
                       style={styles.settingsCTA}
                       backgroundColor={`${colorMode}.coffeeBackground`}
                     >
-                      <Text style={styles.settingsCTAText} bold color={`${colorMode}.whiteText`}>
+                      <Text style={styles.settingsCTAText} bold color={`${colorMode}.textColor`}>
                         Enable {sensorType}
                       </Text>
                     </Box>

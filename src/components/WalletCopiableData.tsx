@@ -46,7 +46,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
       </Box>
       <Pressable
         testID={`btn_copyToClipboard${data}`}
-        backgroundColor={`${colorMode}.whiteText`}
+        backgroundColor={`${colorMode}.textColor`}
         style={styles.iconContainer}
         onPress={() => {
           Clipboard.setString(data);
