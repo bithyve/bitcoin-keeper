@@ -131,9 +131,6 @@ function SendConfirmation({ route }) {
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
 
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
-  const { isSuccessful: crossTransferSuccess } = useAppSelector(
-    (state) => state.sendAndReceive.crossTransfer
-  );
   const [customFeePerByte, setCustomFeePerByte] = useState(initialCustomFeePerByte ?? 0);
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item?.id === walletId);
@@ -302,14 +299,6 @@ function SendConfirmation({ route }) {
   const onProceed = () => {
     setProgress(true);
   };
-
-  // useEffect(
-  //   () => () => {
-  //     dispatch(sendPhaseTwoReset());
-  //     dispatch(crossTransferReset());
-  //   },
-  //   []
-  // );
 
   useEffect(() => {
     if (isCachedTransaction) {
@@ -546,15 +535,6 @@ function SendConfirmation({ route }) {
       showToast(`Failed to send transaction: ${failedSendPhaseTwoErrorMessage}`);
     }
   }, [sendPhaseTwoFailed]);
-
-  useEffect(() => {
-    if (crossTransferSuccess) {
-      setVisibleModal(true);
-      if (uaiSetActionFalse) {
-        uaiSetActionFalse();
-      }
-    }
-  }, [crossTransferSuccess]);
 
   const toogleFeesInsightModal = () => {
     if (highFeeAlertVisible) {

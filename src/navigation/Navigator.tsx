@@ -1,18 +1,11 @@
-import {
-  CommonActions,
-  DefaultTheme,
-  NavigationContainer,
-  useNavigation,
-} from '@react-navigation/native';
-import React, { useContext, useRef, useState } from 'react';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { getRoutingInstrumentation } from 'src/services/sentry';
-import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
 import ArchivedVault from 'src/screens/Vault/ArchivedVault';
-import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
@@ -32,12 +25,7 @@ import ShowPSBT from 'src/screens/QRScreens/ShowPSBT';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/SigningDevices/SetupColdCard';
-import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
-import PreviewPDF from 'src/screens/Inheritance/components/PreviewPDF';
-import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
-import InheritanceSetupInfo from 'src/screens/Inheritance/InheritanceSetupInfo';
-import IKSAddEmailPhone from 'src/screens/Inheritance/IKSAddEmailPhone';
-import EnterOTPEmailConfirmation from 'src/screens/Inheritance/EnterOTPEmailConfirmation';
+import PreviewPDF from 'src/screens/InheritanceToolsAndTips/PreviewPDF';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
@@ -46,7 +34,6 @@ import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SignerCategoryList from 'src/screens/Vault/SignerCategoryList';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
-import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import ManageWallets from 'src/screens/AppSettings/ManageWallets';
 import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
@@ -63,14 +50,8 @@ import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
-import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
-import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
-import PoolSelection from 'src/screens/Mix/PoolSelection';
-import BroadcastPremix from 'src/screens/Mix/BroadcastPremix';
-import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
 import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
 import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
-import MixProgress from 'src/screens/Mix/MixProgress';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
 import UpdateWalletDetails from 'src/screens/WalletDetails/UpdateWalletDetails';
@@ -87,15 +68,12 @@ import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 import ChangeTapsignerPin from 'src/screens/SigningDevices/ChangeTapsignerPin';
 import PrivacyAndDisplay from 'src/screens/AppSettings/PrivacyAndDisplay';
-import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
 import AddNewWallet from 'src/screens/AddWalletScreen/AddNewWallet';
 import ConfirmWalletDetails from 'src/screens/AddWalletScreen/ConfirmWalletDetails';
 import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
-import WalletPathScreen from 'src/screens/EnterWalletDetailScreen/WalletPathScreen';
-import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/InheritanceToolsAndTips';
 import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
 import BuyBitcoinScreen from 'src/screens/BuyBitcoin/BuyBitcoinScreen';
 import CloudBackupScreen from 'src/screens/CloudBackup/CloudBackupScreen';
@@ -121,12 +99,9 @@ import ZendeskOnboardingModal from 'src/components/Modal/ConciergeOnboardingModa
 import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRecovery';
 import { useAppSelector } from 'src/store/hooks';
 import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
-import AssistedWalletTimeline from 'src/screens/AssistedVault/AssistedWalletTimeline';
-import SetupAssistedVault from 'src/screens/SigningDevices/SetupAssistedVault';
 import SignerSelectionListScreen from 'src/screens/Recieve/SignerSelectionListScreen';
 import AssociateContact from 'src/screens/Contact/AssociateContact';
 import AddContact from 'src/screens/Contact/AddContact';
-import ContactProfile from 'src/screens/Contact/ContactProfile';
 import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
@@ -218,12 +193,7 @@ function AppStack() {
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="ManageWallets" component={ManageWallets} />
-        <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="PreviewPDF" component={PreviewPDF} />
-        <Stack.Screen name="InheritanceStatus" component={InheritanceStatus} />
-        <Stack.Screen name="InheritanceSetupInfo" component={InheritanceSetupInfo} />
-        <Stack.Screen name="IKSAddEmailPhone" component={IKSAddEmailPhone} />
-        <Stack.Screen name="EnterOTPEmailConfirmation" component={EnterOTPEmailConfirmation} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="SelectWallet" component={SelectWalletScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
@@ -232,7 +202,6 @@ function AppStack() {
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="ConfirmWalletDetails" component={ConfirmWalletDetails} />
-        <Stack.Screen name="EnterWalletPath" component={WalletPathScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
@@ -246,13 +215,11 @@ function AppStack() {
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="UTXOManagement" component={UTXOManagement} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
-        <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
-        <Stack.Screen name="InheritanceToolsAndTips" component={InheritanceToolsAndTips} />
         <Stack.Screen name="DiscountCodes" component={DiscountCodes} />
         <Stack.Screen name="CanaryWallets" component={CanaryWallets} />
         <Stack.Screen name="AssistedKeys" component={AssistedKeys} />
@@ -283,12 +250,10 @@ function AppStack() {
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
         <Stack.Screen name="ChoosePolicyNew" component={ChoosePolicyNew} />
-        <Stack.Screen name="AddDescription" component={AddDescription} />
         <Stack.Screen name="AllTransactions" component={AllTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TransactionHistory" component={TransactionHistory} />
         <Stack.Screen name="TransactionAdvancedDetails" component={TransactionAdvancedDetails} />
-        <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
         <Stack.Screen name="ScanQR" component={ScanQR} />
         <Stack.Screen name="ShowPSBT" component={ShowPSBT} />
@@ -298,14 +263,10 @@ function AppStack() {
         <Stack.Screen name="NodeSelection" component={NodeSelection} />
         <Stack.Screen name="ScanNode" component={ScanNode} />
         <Stack.Screen name="PrivacyAndDisplay" component={PrivacyAndDisplay} />
-        <Stack.Screen name="NetworkSetting" component={NetworkSetting} />
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
         <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
-        <Stack.Screen name="PoolSelection" component={PoolSelection} />
-        <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
-        <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
         <Stack.Screen name="AdditionalDetails" component={AdditionalDetails} />
         <Stack.Screen name="KeyHistory" component={KeyHistory} />
@@ -316,13 +277,6 @@ function AppStack() {
         <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
         <Stack.Screen name="ChangeTapsignerPin" component={ChangeTapsignerPin} />
         <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
-        <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
-        <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
-        <Stack.Screen
-          name="MixProgress"
-          component={MixProgress}
-          options={{ gestureEnabled: false }}
-        />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="AddNewWallet" component={AddNewWallet} />
         <Stack.Screen name="SettingApp" component={SettingsApp} />
@@ -332,11 +286,8 @@ function AppStack() {
         <Stack.Screen name="CloudBackup" component={CloudBackupScreen} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
-        <Stack.Screen name="AssistedWalletTimeline" component={AssistedWalletTimeline} />
-        <Stack.Screen name="SetupAssistedVault" component={SetupAssistedVault} />
         <Stack.Screen name="AssociateContact" component={AssociateContact} />
         <Stack.Screen name="AddContact" component={AddContact} />
-        <Stack.Screen name="ContactProfile" component={ContactProfile} />
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
         <Stack.Screen name="AddReserveKey" component={AddReserveKey} />

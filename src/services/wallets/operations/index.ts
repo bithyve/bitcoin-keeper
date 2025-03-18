@@ -1839,7 +1839,6 @@ export default class WalletOperations {
       SignerType.BITBOX02,
       SignerType.KEEPER,
       SignerType.POLICY_SERVER,
-      SignerType.INHERITANCEKEY,
     ];
     if (miniscriptSelectedSatisfier && keysOnlyInSelectedPathSigners.includes(signer.type)) {
       const subPaths = inputs.reduce((acc, input) => {
@@ -1885,11 +1884,7 @@ export default class WalletOperations {
           );
         });
 
-        if (
-          signer.type === SignerType.BITBOX02 ||
-          signer.type === SignerType.POLICY_SERVER ||
-          signer.type === SignerType.INHERITANCEKEY
-        ) {
+        if (signer.type === SignerType.BITBOX02 || signer.type === SignerType.POLICY_SERVER) {
           input.bip32Derivation = newBip32Derivation;
         } else {
           input.unknownKeyVals = [
@@ -1917,8 +1912,7 @@ export default class WalletOperations {
       signer.type === SignerType.TREZOR ||
       signer.type === SignerType.BITBOX02 ||
       signer.type === SignerType.KEEPER || // for external key since it can be of any signer type
-      signer.type === SignerType.POLICY_SERVER ||
-      signer.type === SignerType.INHERITANCEKEY
+      signer.type === SignerType.POLICY_SERVER
     ) {
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
@@ -1989,7 +1983,7 @@ export default class WalletOperations {
         });
       }
 
-      if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+      if (signer.type === SignerType.POLICY_SERVER) {
         const childIndexArray = [];
         for (let index = 0; index < inputs.length; index++) {
           childIndexArray.push({

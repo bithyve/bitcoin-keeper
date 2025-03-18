@@ -9,14 +9,8 @@ import {
   hash256,
 } from 'src/utils/service-utilities/encryption';
 import config from 'src/utils/service-utilities/config';
-import {
-  CosignersMapUpdate,
-  CosignersMapUpdateAction,
-  IKSCosignersMapUpdate,
-  IKSCosignersMapUpdateAction,
-} from 'src/models/interfaces/AssistedKeys';
+import { CosignersMapUpdate, CosignersMapUpdateAction } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
 import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import {
@@ -307,7 +301,7 @@ export const generateCosignerMapUpdates = (
   signerMap: { [key: string]: Signer },
   keys: VaultSigner[],
   assistedKey: VaultSigner
-): IKSCosignersMapUpdate[] | CosignersMapUpdate[] => {
+): CosignersMapUpdate[] => {
   const assistedKeyType = signerMap[getKeyUID(assistedKey)].type;
   const cosignersMapIds = generateCosignerMapIds(signerMap, keys, assistedKeyType);
 
@@ -322,27 +316,13 @@ export const generateCosignerMapUpdates = (
     }
 
     return cosignersMapUpdates;
-  } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
-    const cosignersMapUpdates: IKSCosignersMapUpdate[] = [];
-    for (const id of cosignersMapIds) {
-      cosignersMapUpdates.push({
-        cosignersId: id,
-        inheritanceKeyId: assistedKey.xfp,
-        action: IKSCosignersMapUpdateAction.ADD,
-      });
-    }
-
-    return cosignersMapUpdates;
   } else throw new Error('Non-supported signer type');
 };
 
 const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap) => {
   for (const key of keys) {
     const assistedKeyType = signerMap[getKeyUID(key)]?.type;
-    if (
-      assistedKeyType === SignerType.POLICY_SERVER ||
-      assistedKeyType === SignerType.INHERITANCEKEY
-    ) {
+    if (assistedKeyType === SignerType.POLICY_SERVER) {
       // creates maps per signer type
       const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, keys, key);
 
@@ -353,12 +333,6 @@ const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap)
           cosignersMapUpdates as CosignersMapUpdate[]
         );
         if (!updated) throw new Error('Failed to update cosigners-map for SS Assisted Keys');
-      } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
-        const { updated } = await InheritanceKeyServer.updateCosignersToSignerMapIKS(
-          key.xfp,
-          cosignersMapUpdates as IKSCosignersMapUpdate[]
-        );
-        if (!updated) throw new Error('Failed to update cosigners-map for IKS Assisted Keys');
       }
     }
   }

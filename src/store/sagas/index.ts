@@ -5,7 +5,6 @@ import {
   addSigningDeviceWatcher,
   deleteSigningDeviceWatcher,
   autoWalletsSyncWatcher,
-  addressIndexIncrementWatcher,
   finaliseVaultMigrationWatcher,
   migrateVaultWatcher,
   refreshWalletsWatcher,
@@ -13,13 +12,9 @@ import {
   testcoinsWatcher,
   updateSignerPolicyWatcher,
   updateWalletDetailWatcher,
-  updateWalletSettingsWatcher,
   updateSignerDetails,
   updateKeyDetails,
   updateWalletsPropertyWatcher,
-  addWhirlpoolWalletsWatcher,
-  addWhirlpoolWalletsLocalWatcher,
-  updateWalletPathAndPuposeDetailWatcher,
   updateVaultDetailsWatcher,
   deleteVaultyWatcher,
   reinstateVaultWatcher,
@@ -39,14 +34,12 @@ import {
   credentialsAuthWatcher,
   resetPinCredWatcher,
   generateSeedHashWatcher,
-  switchAppStatusWatcher,
 } from './login';
 import {
   backupWarningWatcher,
   deleteAppImageEntityWatcher,
   getAppImageWatcher,
   healthCheckSignerWatcher,
-  recoverBackupWatcher,
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
@@ -59,7 +52,6 @@ import {
 import {
   calculateCustomFeeWatcher,
   calculateSendMaxFeeWatcher,
-  corssTransferWatcher,
   fetchExchangeRatesWatcher,
   fetchFeeRatesWatcher,
   fetchOneDayInsightWatcher,
@@ -73,10 +65,9 @@ import {
   fetchDelayedPolicyUpdateWatcher,
   fetchSignedDelayedTransactionWatcher,
   setupKeeperAppWatcher,
-  setupKeeperVaultRecoveryAppWatcher,
 } from './storage';
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
-import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
+import { addLabelsWatcher, bulkUpdateLabelWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
 import {
   loadConciergeUserWatcher,
@@ -92,7 +83,6 @@ const rootSaga = function* () {
     generateSeedHashWatcher,
     changeLoginMethodWatcher,
     credentialStorageWatcher,
-    switchAppStatusWatcher,
     resetPinCredWatcher,
     setupKeeperAppWatcher,
 
@@ -106,13 +96,9 @@ const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
-    addWhirlpoolWalletsWatcher,
-    addWhirlpoolWalletsLocalWatcher,
     autoWalletsSyncWatcher,
-    addressIndexIncrementWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,
-    updateWalletSettingsWatcher,
     updateSignerPolicyWatcher,
     testcoinsWatcher,
     updateWalletDetailWatcher,
@@ -143,7 +129,6 @@ const rootSaga = function* () {
     sendPhaseOneWatcher,
     sendPhaseTwoWatcher,
     sendPhaseThreeWatcher,
-    corssTransferWatcher,
     fetchSignedDelayedTransactionWatcher,
     fetchDelayedPolicyUpdateWatcher,
     calculateSendMaxFeeWatcher,
@@ -161,12 +146,9 @@ const rootSaga = function* () {
     getAppImageWatcher,
     seedBackedUpWatcher,
     seedBackeupConfirmedWatcher,
-    recoverBackupWatcher,
     healthCheckSignerWatcher,
     healthCheckSatutsUpdateWatcher,
     backupWarningWatcher,
-    setupKeeperVaultRecoveryAppWatcher,
-    updateWalletPathAndPuposeDetailWatcher,
     backupBsmsOnCloudWatcher,
     bsmsCloudHealthCheckWatcher,
     deleteAppImageEntityWatcher,
@@ -178,7 +160,6 @@ const rootSaga = function* () {
     // utxos
     addLabelsWatcher,
     bulkUpdateLabelWatcher,
-    bulkUpdateUTXOLabelWatcher,
     // concierge
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,

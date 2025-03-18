@@ -8,7 +8,6 @@ import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
 import { isSignerAMF, getPsbtForHwi } from 'src/hardware';
 import { EntityKind, XpubTypes } from 'src/services/wallets/enums';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import SigningServer from 'src/services/backend/SigningServer';
 import { isTestnet } from 'src/constants/Bitcoin';
 import * as PORTAL from 'src/hardware/portal';
@@ -129,32 +128,6 @@ export const signTransactionWithSigningServer = async ({
     captureError(error);
     showToast(`${error.message}`);
     return { signedSerializedPSBT: null };
-  }
-};
-
-export const signTransactionWithInheritanceKey = async ({
-  signingPayload,
-  serializedPSBT,
-  xfp,
-  requestId,
-  inheritanceConfiguration,
-  showToast,
-}) => {
-  try {
-    const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
-    if (!childIndexArray) throw new Error('Invalid signing payload');
-
-    const { requestStatus, signedPSBT } = await InheritanceKeyServer.signPSBT(
-      xfp,
-      requestId,
-      serializedPSBT,
-      childIndexArray,
-      inheritanceConfiguration
-    );
-    return { requestStatus, signedSerializedPSBT: signedPSBT };
-  } catch (error) {
-    captureError(error);
-    showToast(`${error.message}`);
   }
 };
 

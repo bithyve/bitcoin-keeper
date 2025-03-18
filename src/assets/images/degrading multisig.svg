@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24.98" height="20.382" viewBox="0 0 24.98 20.382">
-  <g id="degrading_multisig" data-name="degrading multisig" transform="translate(-43 -438.998)">
-    <path id="daily_wallet" data-name="daily wallet" d="M19.933,19H2.215A2.2,2.2,0,0,1,0,16.832V2.313A2.193,2.193,0,0,1,2.182.141L15.127,0h.04a3.286,3.286,0,0,1,3.316,3.247l.032.054v.141h1.429A2.2,2.2,0,0,1,22.16,5.614V14.4l-.012-.933v3.366A2.2,2.2,0,0,1,19.933,19ZM2.856,2.173a.642.642,0,0,0-.641.641v.641H16.058a1.283,1.283,0,0,0-1.282-1.282Z" transform="translate(43 438.998)" fill="#2d6759"/>
-    <g id="time_folder_1" data-name="time folder 1" transform="translate(43.99 435.4)">
-      <path id="Path_119629" data-name="Path 119629" d="M8.61,15.8a212935.6,212935.6,0,1,1-.02-.02Zm7.71-3.34v2.8h2.33v2H15.31a1,1,0,0,1-1-1V12.45h2Z" fill="#fdf7f0" fill-rule="evenodd"/>
-    </g>
-    <path id="Path_119630" data-name="Path 119630" d="M8.61,15.8a212935.6,212935.6,0,1,1-.02-.02Z" transform="translate(43.99 435.4)" fill="none" stroke="#2d6759" stroke-width="2" fill-rule="evenodd"/>
-  </g>
-</svg>

@@ -31,7 +31,6 @@ import {
   XpubTypes,
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
-import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 import ecc from './taproot-utils/noble_ecc';
 import { generateBitcoinScript } from './miniscript/miniscript';
 
@@ -81,7 +80,7 @@ export default class WalletUtilities {
   }
 
   static getMasterFingerprintForWallet(wallet: Wallet) {
-    return whirlPoolWalletTypes.includes(wallet.type) ? wallet.depositWalletId : wallet.id;
+    return wallet.id;
   }
 
   static getFingerprintFromExtendedKey = (

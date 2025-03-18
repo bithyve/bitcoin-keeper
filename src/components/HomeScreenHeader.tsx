@@ -104,8 +104,9 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
     [uaiType.SIGNING_DELAY]: () => {
       const delayedTxid = localLatestUnseenUai?.entityId;
       const snapshot: cachedTxSnapshot = snapshots[delayedTxid]; // cachedTxid is same as delayedTxid
-      dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
+      dispatch(uaisSeen({ uaiIds: [localLatestUnseenUai.id] }));
       if (snapshot) {
+        dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
         dispatch(setStateFromSnapshot(snapshot.state));
         navigtaion.dispatch(
           CommonActions.navigate('SendConfirmation', {

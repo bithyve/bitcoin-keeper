@@ -26,7 +26,7 @@ import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
+import { setOTBStatusSS } from 'src/store/reducers/settings';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
@@ -48,7 +48,6 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey = false,
     derivationPath,
     isInheritancePlaning = false,
-    isIKS = false,
     isSS = false,
     parentScreen,
     oldPasscode,
@@ -63,7 +62,6 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey: boolean;
     derivationPath: string;
     isInheritancePlaning?: boolean;
-    isIKS?: boolean;
     isSS?: boolean;
     parentScreen?: string;
     oldPasscode?: string;
@@ -276,9 +274,7 @@ function ExportSeedScreen({ route, navigation }) {
                     showToast(seedTranslation.keeperVerified, <TickIcon />);
                   }
                 } else if (isFromAssistedKey) {
-                  if (isIKS) {
-                    dispatch(setOTBStatusIKS(true));
-                  } else if (isSS) {
+                  if (isSS) {
                     dispatch(setOTBStatusSS(true));
                   }
                   showToast(BackupWallet.OTBSuccessMessage, <TickIcon />);

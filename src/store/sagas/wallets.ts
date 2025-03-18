@@ -14,16 +14,11 @@ import {
 } from 'src/services/wallets/enums';
 import {
   DelayedPolicyUpdate,
-  InheritanceConfiguration,
-  InheritanceKeyInfo,
-  InheritancePolicy,
   SignerException,
-  SignerPolicy,
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
 import {
   MiniscriptElements,
-  MiniscriptScheme,
   Signer,
   Vault,
   VaultPresentationData,
@@ -35,8 +30,6 @@ import {
   Wallet,
   WalletImportDetails,
   WalletPresentationData,
-  WhirlpoolConfig,
-  WalletDerivationDetails,
 } from 'src/services/wallets/interfaces/wallet';
 import { call, delay, fork, put, select } from 'redux-saga/effects';
 import {
@@ -44,8 +37,6 @@ import {
   setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
-  walletGenerationFailed,
-  setWhirlpoolCreated,
   setSignerPolicyError,
 } from 'src/store/reducers/wallets';
 
@@ -60,18 +51,13 @@ import config from 'src/utils/service-utilities/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/services/wallets/factories/VaultFactory';
-import {
-  generateWallet,
-  generateWalletSpecsFromMnemonic,
-  getCosignerDetails,
-} from 'src/services/wallets/factories/WalletFactory';
+import { generateWallet, getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
   decrypt,
   encrypt,
   generateEncryptionKey,
   generateKey,
-  hash256,
   hash512,
 } from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -81,7 +67,6 @@ import ElectrumClient, {
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
 import _ from 'lodash';
 import { SyncedWallet } from 'src/services/wallets/interfaces';
@@ -107,16 +92,9 @@ import {
   TEST_SATS_RECIEVE,
   UPDATE_SIGNER_POLICY,
   UPDATE_WALLET_DETAILS,
-  UPDATE_WALLET_SETTINGS,
   refreshWallets,
-  walletSettingsUpdateFailed,
-  walletSettingsUpdated,
   UPDATE_SIGNER_DETAILS,
   UPDATE_WALLET_PROPERTY,
-  ADD_WHIRLPOOL_WALLETS,
-  ADD_WHIRLPOOL_WALLETS_LOCAL,
-  UPDATE_WALLET_PATH_PURPOSE_DETAILS,
-  INCREMENT_ADDRESS_INDEX,
   UPDATE_KEY_DETAILS,
   UPDATE_VAULT_DETAILS,
   GENERATE_NEW_ADDRESS,
@@ -189,200 +167,6 @@ export interface NewWalletInfo {
   walletDetails?: NewWalletDetails;
   importDetails?: WalletImportDetails;
 }
-
-export function* addWhirlpoolWalletsLocalWorker({
-  payload,
-}: {
-  payload: {
-    depositWallet: Wallet;
-  };
-}) {
-  try {
-    const { depositWallet } = payload;
-    const { instanceNum } = depositWallet.derivationDetails;
-
-    const preMixWalletInfo: NewWalletInfo = {
-      walletType: WalletType.PRE_MIX,
-      walletDetails: {
-        parentMnemonic: depositWallet.derivationDetails.mnemonic,
-        instanceNum,
-        derivationConfig: {
-          purpose: DerivationPurpose.BIP84,
-          path: WalletUtilities.getDerivationPath(
-            EntityKind.WALLET,
-            config.NETWORK_TYPE,
-            2147483645
-          ),
-        },
-      },
-    };
-    const postMixWalletInfo: NewWalletInfo = {
-      walletType: WalletType.POST_MIX,
-      walletDetails: {
-        parentMnemonic: depositWallet.derivationDetails.mnemonic,
-        instanceNum,
-        derivationConfig: {
-          purpose: DerivationPurpose.BIP84,
-          path: WalletUtilities.getDerivationPath(
-            EntityKind.WALLET,
-            config.NETWORK_TYPE,
-            2147483646
-          ),
-        },
-      },
-    };
-    const badBankWalletInfo: NewWalletInfo = {
-      walletType: WalletType.BAD_BANK,
-      walletDetails: {
-        parentMnemonic: depositWallet.derivationDetails.mnemonic,
-        instanceNum,
-        derivationConfig: {
-          purpose: DerivationPurpose.BIP84,
-          path: WalletUtilities.getDerivationPath(
-            EntityKind.WALLET,
-            config.NETWORK_TYPE,
-            2147483644
-          ),
-        },
-      },
-    };
-
-    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const newWalletsInfo: NewWalletInfo[] = [
-      preMixWalletInfo,
-      postMixWalletInfo,
-      badBankWalletInfo,
-    ];
-
-    const wallets = [];
-    for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
-      const wallet: Wallet = yield call(
-        addNewWallet,
-        walletType,
-        walletDetails,
-        app,
-        importDetails
-      );
-      wallets.push(wallet);
-    }
-  } catch (err) {
-    console.log('Error in Whirlpool Wallets generations:', err);
-  }
-}
-
-export const addWhirlpoolWalletsLocalWatcher = createWatcher(
-  addWhirlpoolWalletsLocalWorker,
-  ADD_WHIRLPOOL_WALLETS_LOCAL
-);
-
-export function* addWhirlpoolWalletsWorker({
-  payload,
-}: {
-  payload: {
-    depositWallet: Wallet;
-  };
-}) {
-  try {
-    const { depositWallet } = payload;
-    const { instanceNum } = depositWallet.derivationDetails;
-
-    const preMixWalletInfo: NewWalletInfo = {
-      walletType: WalletType.PRE_MIX,
-      walletDetails: {
-        parentMnemonic: depositWallet.derivationDetails.mnemonic,
-        instanceNum,
-        derivationConfig: {
-          purpose: DerivationPurpose.BIP84,
-          path: WalletUtilities.getDerivationPath(
-            EntityKind.WALLET,
-            config.NETWORK_TYPE,
-            2147483645
-          ),
-        },
-      },
-    };
-    const postMixWalletInfo: NewWalletInfo = {
-      walletType: WalletType.POST_MIX,
-      walletDetails: {
-        parentMnemonic: depositWallet.derivationDetails.mnemonic,
-        instanceNum,
-        derivationConfig: {
-          purpose: DerivationPurpose.BIP84,
-          path: WalletUtilities.getDerivationPath(
-            EntityKind.WALLET,
-            config.NETWORK_TYPE,
-            2147483646
-          ),
-        },
-      },
-    };
-    const badBankWalletInfo: NewWalletInfo = {
-      walletType: WalletType.BAD_BANK,
-      walletDetails: {
-        parentMnemonic: depositWallet.derivationDetails.mnemonic,
-        instanceNum,
-        derivationConfig: {
-          purpose: DerivationPurpose.BIP84,
-          path: WalletUtilities.getDerivationPath(
-            EntityKind.WALLET,
-            config.NETWORK_TYPE,
-            2147483644
-          ),
-        },
-      },
-    };
-
-    const whirlpoolConfig: WhirlpoolConfig = {
-      whirlpoolWalletDetails: [
-        {
-          walletId: hash256(`${depositWallet.id}${WalletType.PRE_MIX}`),
-          walletType: WalletType.PRE_MIX,
-        },
-        {
-          walletId: hash256(`${depositWallet.id}${WalletType.POST_MIX}`),
-          walletType: WalletType.POST_MIX,
-        },
-        {
-          walletId: hash256(`${depositWallet.id}${WalletType.BAD_BANK}`),
-          walletType: WalletType.BAD_BANK,
-        },
-      ],
-    };
-
-    // update whirlpool config in parent walletId
-    yield call(updateWalletsPropertyWorker, {
-      payload: { walletId: depositWallet.id, key: 'whirlpoolConfig', value: whirlpoolConfig },
-    });
-
-    // create premix,postmix,badbank wallets
-    const newWalletsInfo: NewWalletInfo[] = [
-      preMixWalletInfo,
-      postMixWalletInfo,
-      badBankWalletInfo,
-    ];
-    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const wallets = [];
-    for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
-      const wallet: Wallet = yield call(
-        addNewWallet,
-        walletType,
-        walletDetails,
-        app,
-        importDetails
-      );
-      wallets.push(wallet);
-    }
-    yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
-    yield put(setWhirlpoolCreated(true));
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const addWhirlpoolWalletsWatcher = createWatcher(
-  addWhirlpoolWalletsWorker,
-  ADD_WHIRLPOOL_WALLETS
-);
 
 function* addNewWallet(
   walletType: WalletType,
@@ -536,16 +320,6 @@ export function* addNewVaultWorker({
       isNewVault = true;
     }
 
-    if (isNewVault || isMigrated) {
-      // update IKS, if inheritance key has been added(new Vault) or needs an update(vault migration)
-      const [ikVaultKey] = vault.signers.filter(
-        (vaultKey) => signerMap[getKeyUID(vaultKey)]?.type === SignerType.INHERITANCEKEY
-      );
-      if (ikVaultKey) {
-        const ikSigner: Signer = signerMap[getKeyUID(ikVaultKey)];
-        yield call(finaliseIKSetupWorker, { payload: { ikSigner, ikVaultKey, vault } });
-      }
-    }
     yield put(setRelayVaultUpdateLoading(true));
     const newVaultResponse = yield call(updateVaultImageWorker, { payload: { vault } });
     if (newVaultResponse.updated) {
@@ -912,126 +686,6 @@ export const finaliseVaultMigrationWatcher = createWatcher(
   FINALISE_VAULT_MIGRATION
 );
 
-function* finaliseIKSetupWorker({
-  payload,
-}: {
-  payload: { ikSigner: Signer; ikVaultKey: VaultSigner; vault: Vault };
-}) {
-  // finalise the IK setup
-  const { ikSigner, ikVaultKey, vault } = payload; // vault here is the new vault
-  const backupBSMSForIKS = yield select((state: RootState) => state.vault.backupBSMSForIKS);
-  let updatedInheritanceKeyInfo: InheritanceKeyInfo = null;
-
-  if (ikSigner.inheritanceKeyInfo) {
-    // case I: updating config for this new vault which already had IKS as one of its signers
-    // case II: updating config for the first time for a recovered IKS(doesn't belong to a vault yet on this device)
-    let existingConfiguration: InheritanceConfiguration = idx(
-      // thresholds are constructed using an already existing configuration for IKS
-      ikSigner,
-      (_) => _.inheritanceKeyInfo.configurations[0]
-    );
-
-    const newIKSConfiguration: InheritanceConfiguration = yield call(
-      InheritanceKeyServer.generateInheritanceConfiguration,
-      vault,
-      backupBSMSForIKS
-    );
-
-    let isRecoveredInheritanceKey = false;
-    if (!existingConfiguration) {
-      // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
-      const restoredIKSConfigLength = idx(
-        ikSigner,
-        (_) => _.inheritanceKeyInfo.configurations.length
-      ); // will be undefined if this is not a restored IKS(which is an error case)
-      if (restoredIKSConfigLength === 0) {
-        // case II: recovered IKS synching for the first time
-        isRecoveredInheritanceKey = true;
-        existingConfiguration = newIKSConfiguration; // as two signer fingerprints(at least) are required to fetch IKS, the new config will indeed contain a registered threshold number of signer fingerprints to pass validation on the backend and therefore can be taken as the existing configuration
-      } else throw new Error('Failed to find the existing configuration for IKS');
-    }
-
-    const { updated } = yield call(
-      InheritanceKeyServer.updateInheritanceConfig,
-      ikVaultKey.xfp,
-      existingConfiguration,
-      newIKSConfiguration
-    );
-
-    if (updated) {
-      updatedInheritanceKeyInfo = {
-        ...ikSigner.inheritanceKeyInfo,
-        configurations: [...ikSigner.inheritanceKeyInfo.configurations, newIKSConfiguration],
-      };
-    } else throw new Error('Failed to update the inheritance key configuration');
-
-    if (isRecoveredInheritanceKey) {
-      // update inheritance key w/ the FCM token of heir's device
-      const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
-
-      if (fcmToken) {
-        const existingPolicy = idx(ikSigner, (_) => _.inheritanceKeyInfo.policy) || {};
-        const existingTargets =
-          idx(existingPolicy, (_) => (_ as InheritancePolicy).notification.targets) || [];
-        const updatedPolicy: InheritancePolicy = {
-          ...existingPolicy,
-          notification: {
-            targets: [...existingTargets, fcmToken],
-          },
-        };
-
-        const { updated } = yield call(
-          InheritanceKeyServer.updateInheritancePolicy,
-          ikVaultKey.xfp,
-          updatedPolicy,
-          existingConfiguration
-        );
-        if (updated) updatedInheritanceKeyInfo.policy = updatedPolicy;
-        else console.log('Failed to update the inheritance key policy w/ FCM of the heir');
-      }
-    }
-  } else {
-    // case: setting up a vault w/ IKS for the first time
-    const config: InheritanceConfiguration = yield call(
-      InheritanceKeyServer.generateInheritanceConfiguration,
-      vault,
-      backupBSMSForIKS
-    );
-
-    const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
-    const policy: InheritancePolicy = {
-      notification: { targets: [fcmToken] },
-    };
-
-    const { setupSuccessful } = yield call(
-      InheritanceKeyServer.finalizeIKSetup,
-      ikVaultKey.xfp,
-      config,
-      policy
-    );
-
-    if (setupSuccessful) {
-      updatedInheritanceKeyInfo = {
-        configurations: [config],
-        policy,
-      };
-    } else throw new Error('Failed to finalise the inheritance key setup');
-  }
-
-  if (updatedInheritanceKeyInfo) {
-    // send updates to realm
-    const signerKeyUID = getKeyUID(ikSigner);
-    yield call(
-      dbManager.updateObjectByQuery,
-      RealmSchema.Signer,
-      (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
-      {
-        inheritanceKeyInfo: updatedInheritanceKeyInfo,
-      }
-    );
-  }
-}
-
 function* syncWalletsWorker({
   payload,
 }: {
@@ -1216,90 +870,6 @@ export function* autoWalletsSyncWorker({
 
 export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_SYNC_WALLETS);
 
-function* addressIndexIncrementWorker({
-  payload,
-}: {
-  payload: {
-    wallet: Wallet | Vault;
-    options: {
-      external?: { incrementBy: number };
-      internal?: { incrementBy: number };
-    };
-  };
-}) {
-  // increments the address index(external/internal chain)
-  // usage: resolves the address reuse issues(during whirlpool) due to a slight delay in fetching updates from Fulcrum
-  const { wallet } = payload;
-  const { external, internal } = payload.options;
-
-  if (external) {
-    wallet.specs.nextFreeAddressIndex += external.incrementBy;
-    wallet.specs.receivingAddress = WalletOperations.getNextFreeExternalAddress({
-      entity: wallet.entityKind,
-      isMultiSig: (wallet as Vault).isMultiSig,
-      specs: wallet.specs,
-      networkType: wallet.networkType,
-      scheme: (wallet as Vault).scheme,
-      derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
-    }).receivingAddress;
-  }
-
-  if (internal) wallet.specs.nextFreeChangeAddressIndex += internal.incrementBy;
-
-  if (wallet.entityKind === EntityKind.VAULT) {
-    yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
-      specs: wallet.specs,
-    });
-  } else {
-    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-      specs: wallet.specs,
-    });
-  }
-}
-
-export const addressIndexIncrementWatcher = createWatcher(
-  addressIndexIncrementWorker,
-  INCREMENT_ADDRESS_INDEX
-);
-
-function* updateWalletSettingsWorker({
-  payload,
-}: {
-  payload: {
-    wallet: Wallet | Vault;
-    settings: {
-      walletName?: string;
-      walletDescription?: string;
-      visibility?: VisibilityType;
-    };
-  };
-}) {
-  const { wallet, settings } = payload;
-  const { walletName, walletDescription, visibility } = settings;
-
-  try {
-    if (walletName) wallet.presentationData.name = walletName;
-    if (walletDescription) wallet.presentationData.description = walletDescription;
-    if (visibility) wallet.presentationData.visibility = visibility;
-
-    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-      presentationData: wallet.presentationData,
-    });
-    yield put(walletSettingsUpdated());
-  } catch (error) {
-    yield put(
-      walletSettingsUpdateFailed({
-        error,
-      })
-    );
-  }
-}
-
-export const updateWalletSettingsWatcher = createWatcher(
-  updateWalletSettingsWorker,
-  UPDATE_WALLET_SETTINGS
-);
-
 export function* updateSignerPolicyWorker({
   payload,
 }: {
@@ -1473,53 +1043,6 @@ function* updateVaultDetailsWorker({ payload }) {
 export const updateVaultDetailsWatcher = createWatcher(
   updateVaultDetailsWorker,
   UPDATE_VAULT_DETAILS
-);
-
-function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
-  const {
-    wallet,
-    details,
-  }: {
-    wallet: Wallet;
-    details: {
-      path: string;
-      purpose: string;
-    };
-  } = payload;
-  try {
-    const derivationDetails: WalletDerivationDetails = {
-      ...wallet.derivationDetails,
-      xDerivationPath: details.path,
-    };
-    const specs = generateWalletSpecsFromMnemonic(
-      derivationDetails.mnemonic,
-      WalletUtilities.getNetworkByType(wallet.networkType),
-      derivationDetails.xDerivationPath
-    ); // recreate the specs
-    wallet.derivationDetails = derivationDetails;
-    wallet.specs = specs;
-
-    yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
-    if (response.updated) {
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-        derivationDetails,
-        specs,
-      });
-      yield put(relayWalletUpdateSuccess());
-    } else {
-      const errorMsg = response.error?.message
-        ? response.error.message.toString()
-        : response.error.toString();
-      yield put(relayWalletUpdateFail(errorMsg));
-    }
-  } catch (err) {
-    yield put(relayWalletUpdateFail('Something went wrong!'));
-  }
-}
-export const updateWalletPathAndPuposeDetailWatcher = createWatcher(
-  updateWalletPathAndPuposeDetailsWorker,
-  UPDATE_WALLET_PATH_PURPOSE_DETAILS
 );
 
 export function* updateSignerDetailsWorker({ payload }) {
@@ -1744,7 +1267,7 @@ function* refillMobileKeyWorker({ payload }) {
       } else {
         yield put(setKeyHealthCheckLoading(false));
         yield put(
-          setKeyHealthCheckError('Key seems to be currupted, please deleta and re-add it.')
+          setKeyHealthCheckError('Key seems to be corrupted, please delete and re-add it.')
         );
       }
     } else {

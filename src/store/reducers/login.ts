@@ -10,8 +10,6 @@ export const initialState: {
   hasCreds: boolean;
   isAuthenticated: boolean;
   authenticationFailed: boolean;
-  walletSetupCompleted: boolean;
-  walletSetupFailed: boolean;
   isInitialLogin: boolean;
   reLogin: boolean;
   loading: {
@@ -22,7 +20,6 @@ export const initialState: {
   credsChanged: string;
   credsAuthenticatedError: string;
   pinChangedFailed: boolean;
-  initializeRecoveryCompleted: boolean;
   key: string | null;
   appCreationError: boolean;
   recepitVerificationError: boolean;
@@ -45,8 +42,6 @@ export const initialState: {
   hasCreds: false,
   isAuthenticated: false,
   authenticationFailed: false,
-  walletSetupCompleted: false,
-  walletSetupFailed: false,
   isInitialLogin: false,
   reLogin: false,
   loading: {
@@ -57,7 +52,6 @@ export const initialState: {
   credsChanged: '',
   credsAuthenticatedError: '',
   pinChangedFailed: false,
-  initializeRecoveryCompleted: false,
   key: null,
   appCreationError: false,
   recepitVerificationError: false,

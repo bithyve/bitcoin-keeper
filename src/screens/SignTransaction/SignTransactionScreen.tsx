@@ -1,13 +1,7 @@
 import { FlatList, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import {
-  MultisigScriptType,
-  SignerType,
-  TxPriority,
-  VaultType,
-  NetworkType,
-} from 'src/services/wallets/enums';
+import { MultisigScriptType, SignerType, VaultType, NetworkType } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
@@ -21,16 +15,10 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/vaults';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import SuccessLightIllustration from 'src/assets/images/upgrade-illustration.svg';
-import SuccessDarkIllustration from 'src/assets/images/upgrade-dark-illustration.svg';
 import ShareGreen from 'src/assets/images/share-arrow-green.svg';
 import ShareWhite from 'src/assets/images/share-arrow-white.svg';
 import idx from 'idx';
-import {
-  sendPhaseThreeReset,
-  updatePSBTEnvelops,
-  setInheritanceSigningRequestId,
-} from 'src/store/reducers/send_and_receive';
+import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -40,7 +28,6 @@ import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
-import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -48,9 +35,8 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
-import { DelayedTransaction, InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
-import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
-import TickIcon from 'src/assets/images/tick_icon.svg';
+import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import {
@@ -67,12 +53,10 @@ import { SentryErrorBoundary } from 'src/services/sentry';
 import { deleteDelayedTransaction, updateDelayedTransaction } from 'src/store/reducers/storage';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
-import { formatDuration } from '../Vault/HardwareModalMap';
 import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
   signTransactionWithColdCard,
-  signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
   signTransactionWithPortal,
   signTransactionWithSeedWords,
@@ -151,10 +135,6 @@ function SignTransactionScreen() {
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const [isIKSClicked, setIsIKSClicked] = useState(false);
-  const [isIKSDeclined, setIsIKSDeclined] = useState(false);
-  const [isIKSApproved, setIsIKSApproved] = useState(false);
-  const [IKSSignTime, setIKSSignTime] = useState(0);
   const [portalModal, setPortalModal] = useState(false);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
@@ -186,43 +166,6 @@ function SignTransactionScreen() {
 
   const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
-  const [approveOnce, setApproveOnce] = useState(true);
-
-  useEffect(() => {
-    if (snapshotOptions && snapshotOptions.requestStatusIKS) {
-      const { approvesIn, isDeclined, isApproved, syncedAt } = snapshotOptions.requestStatusIKS;
-      if (isApproved) {
-        setIsIKSApproved(true);
-      } else if (isDeclined) {
-        setIsIKSDeclined(true);
-      } else {
-        setIsIKSClicked(true);
-        if (approvesIn && syncedAt) {
-          const interval = setInterval(() => {
-            const timeLeft = approvesIn - (Date.now() - syncedAt);
-            setIKSSignTime(timeLeft);
-            if (timeLeft < 0) {
-              let iksKey;
-              for (let i = 0; i < vaultKeys.length; i++) {
-                const key = vaultKeys[i];
-                if (signerMap[getKeyUID(key)].type === SignerType.INHERITANCEKEY) {
-                  iksKey = key;
-                  break;
-                }
-              }
-              if (iksKey && approveOnce) {
-                callbackForSigners(iksKey, signerMap[getKeyUID(iksKey)]);
-                setApproveOnce(false);
-              }
-              clearInterval(interval);
-            }
-          }, 1000);
-
-          return () => clearInterval(interval);
-        }
-      }
-    }
-  }, [snapshotOptions]);
 
   useEffect(() => {
     if (sendAndReceive.sendPhaseThree.txid) {
@@ -352,7 +295,6 @@ function SignTransactionScreen() {
 
   const { withModal, nfcVisible: TSNfcVisible, closeNfc: closeTSNfc } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
-  const { inheritanceSigningRequestId } = useAppSelector((state) => state.sendAndReceive);
 
   useEffect(() => {
     if (nfcVisible == false && isReading()) stopReading();
@@ -363,14 +305,12 @@ function SignTransactionScreen() {
       xfp,
       signingServerOTP,
       seedBasedSingerMnemonic,
-      inheritanceConfiguration,
       tapsignerCVC,
       portalCVC,
     }: {
       xfp?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
-      inheritanceConfiguration?: InheritanceConfiguration;
       tapsignerCVC?: string;
       portalCVC?: string;
     } = {}) => {
@@ -464,45 +404,6 @@ function SignTransactionScreen() {
               ])
             );
           }
-        } else if (SignerType.INHERITANCEKEY === signerType) {
-          let requestId = inheritanceSigningRequestId;
-          let isNewRequest = false;
-
-          if (!requestId) {
-            requestId = `request-${generateKey(14)}`;
-            isNewRequest = true;
-          }
-
-          const { requestStatus, signedSerializedPSBT } = await signTransactionWithInheritanceKey({
-            signingPayload,
-            serializedPSBT,
-            xfp,
-            requestId,
-            inheritanceConfiguration,
-            showToast,
-          });
-
-          if (requestStatus) {
-            setIsIKSClicked(true);
-            setSnapshotOptions({ requestStatusIKS: { ...requestStatus, syncedAt: Date.now() } });
-            if (isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
-          }
-
-          // process request based on status
-          if (requestStatus.isDeclined) {
-            setIsIKSDeclined(true);
-            showToast('Inheritance Key Signing request has been declined', <ToastErrorIcon />);
-            // dispatch(setInheritanceSigningRequestId('')); // clear existing request
-          } else if (!requestStatus.isApproved) {
-            showToast(
-              `Request would approve in ${formatDuration(
-                requestStatus.approvesIn
-              )} if not rejected`,
-              <TickIcon />
-            );
-          } else if (requestStatus.isApproved && signedSerializedPSBT) {
-            dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          } else showToast('Unknown request status, please try again');
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -558,7 +459,7 @@ function SignTransactionScreen() {
         }
       }
     },
-    [activeXfp, serializedPSBTEnvelops, inheritanceSigningRequestId, delayedTransactions]
+    [activeXfp, serializedPSBTEnvelops, delayedTransactions]
   );
 
   const onFileSign = (signedSerializedPSBT: string) => {
@@ -641,25 +542,6 @@ function SignTransactionScreen() {
 
           showOTPModal(true);
         } else showOTPModal(true);
-        break;
-      case SignerType.INHERITANCEKEY:
-        if (signer.inheritanceKeyInfo) {
-          let configurationForVault: InheritanceConfiguration;
-          for (const config of signer.inheritanceKeyInfo.configurations) {
-            if (config.id === defaultVault.id) {
-              configurationForVault = config;
-              break;
-            }
-          }
-          if (!configurationForVault) {
-            showToast(`Missing wallet configuration for ${defaultVault.id}`);
-            return;
-          }
-          signTransaction({
-            xfp: vaultKey.xfp,
-            inheritanceConfiguration: configurationForVault,
-          });
-        } else showToast('Inheritance key info missing');
         break;
       case SignerType.SEED_WORDS:
         navigation.dispatch(
@@ -801,9 +683,6 @@ function SignTransactionScreen() {
             return (
               <Box style={styles.signerListContainer}>
                 <SignerList
-                  isIKSClicked={isIKSClicked}
-                  isIKSDeclined={isIKSDeclined}
-                  IKSSignTime={IKSSignTime}
                   vaultKey={item}
                   callback={() => callbackForSigners(item, signerMap[getKeyUID(item)])}
                   envelops={serializedPSBTEnvelops}

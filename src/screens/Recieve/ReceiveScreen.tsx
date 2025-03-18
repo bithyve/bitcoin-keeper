@@ -99,7 +99,7 @@ function ReceiveScreen({ route }: { route }) {
 
   const { showToast } = useToastMessage();
 
-  const { labels: addressLabels } = useLabelsNew({ address: receivingAddress, wallet });
+  const { labels: addressLabels } = useLabelsNew({ address: receivingAddress });
   const labels = addressLabels ? addressLabels[receivingAddress] || [] : [];
 
   const { satsEnabled }: { satsEnabled: boolean } = useAppSelector((state) => state.settings);

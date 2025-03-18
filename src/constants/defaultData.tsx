@@ -4,14 +4,6 @@ import InheritanceToolsIllustartion from 'src/components/SVGComponents/Inheritan
 import { cryptoRandom } from 'src/utils/service-utilities/encryption';
 
 export const securityTips = [
-  // {
-  //   title: 'Introducing Whirlpool',
-  //   subTitle:
-  //     'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones.',
-  //   assert: <WhirlpoolLoader />,
-  //   message:
-  //     'For increased privacy and security, remix sats a few times, then transfer them to the vault.',
-  // },
   {
     title: 'Connecting to a bitcoin node',
     subTitle: 'Interact with the bitcoin network more privately and securely.',
@@ -53,13 +45,6 @@ export const securityTips = [
     assert: <LoadingAnimation />,
     message:
       'This ensures that the signed transaction has the intended recipient and the address was not swapped',
-  },
-  {
-    title: 'Logging in to your Keeper app',
-    subTitle: 'Shake your device or take a screenshot to send feedback.',
-    assert: <LoadingAnimation />,
-    message:
-      'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.',
   },
   {
     title: 'Confirming your subscription',
