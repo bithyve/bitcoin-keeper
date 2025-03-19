@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-  <g id="icon_vault" transform="translate(-30 -118)">
-    <circle id="Ellipse_1947" data-name="Ellipse 1947" cx="24" cy="24" r="24" transform="translate(30 118)" fill="#725436"/>
-    <path id="Shield" d="M23.019,5.83,13.95,2.072a.872.872,0,0,0-.692,0L4.189,5.83a.9.9,0,0,0-.549.823v4.4a16.1,16.1,0,0,0,9.594,14.725.958.958,0,0,0,.358.072.913.913,0,0,0,.358-.072,16.084,16.084,0,0,0,9.594-14.725v-4.4A.824.824,0,0,0,23.019,5.83Z" transform="translate(40.36 128)" fill="#fff"/>
-  </g>
-</svg>

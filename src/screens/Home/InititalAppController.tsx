@@ -4,7 +4,6 @@ import {
   RKInteractionMode,
   SignerStorage,
   SignerType,
-  WalletType,
   XpubTypes,
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -12,7 +11,6 @@ import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reduc
 import {
   findChangeFromReceiverAddresses,
   findVaultFromSenderAddress,
-  urlParamsToObj,
 } from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -44,7 +42,6 @@ import messaging from '@react-native-firebase/messaging';
 import { notificationType } from 'src/models/enums/Notifications';
 import { CHANGE_INDEX_THRESHOLD, SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
-import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(

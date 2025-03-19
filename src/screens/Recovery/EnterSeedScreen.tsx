@@ -52,9 +52,7 @@ function EnterSeedScreen({ route, navigation }) {
     step = 1,
     selectedNumberOfWordsFromParams,
   } = route.params || {};
-  const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { appRecoveryLoading, appImageError } = useAppSelector((state) => state.bhr);
 
   const { appId } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
@@ -112,7 +110,7 @@ function EnterSeedScreen({ route, navigation }) {
         setShowNetworkModal(true);
       } else openInvalidSeedsModal();
     }
-  }, [appRecoveryLoading, appImageError, appImageRecoverd]);
+  }, [appRecoveryLoading, appImageError]);
 
   const generateSeedWordsArray = useCallback(() => {
     const seedArray = [];

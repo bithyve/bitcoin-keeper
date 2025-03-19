@@ -14,7 +14,7 @@ import React from 'react';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
@@ -94,30 +94,6 @@ function UnlockTapsigner() {
 export default UnlockTapsigner;
 
 const styles = StyleSheet.create({
-  header: {
-    flex: 1,
-    paddingHorizontal: '5%',
-    marginBottom: windowHeight > 850 ? 0 : '25%',
-  },
-  input: {
-    margin: '5%',
-    paddingHorizontal: 15,
-    width: wp(305),
-    height: 50,
-    borderRadius: 10,
-    letterSpacing: 5,
-    justifyContent: 'center',
-  },
-  inputContainer: {
-    alignItems: 'flex-end',
-  },
-  heading: {
-    margin: '5%',
-    padding: 5,
-    width: windowWidth * 0.8,
-    fontSize: 13,
-    letterSpacing: 0.65,
-  },
   btnContainer: {
     marginHorizontal: 15,
   },

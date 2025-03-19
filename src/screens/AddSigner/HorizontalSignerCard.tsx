@@ -26,7 +26,6 @@ type HorizontalSignerCardProps = {
 
 function HorizontalSignerCard({
   name,
-  subtitle = '',
   description = '',
   icon,
   colorVarient = 'brown',
@@ -124,12 +123,6 @@ const styles = StyleSheet.create({
   walletSubtTitle: {
     fontSize: 12,
     letterSpacing: 0.11,
-  },
-  circle: {
-    width: 20,
-    height: 20,
-    borderRadius: 20 / 2,
-    borderWidth: 1,
   },
   selectionIcon: {
     alignSelf: 'flex-end',

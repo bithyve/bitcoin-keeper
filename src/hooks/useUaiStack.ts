@@ -10,7 +10,6 @@ interface UAIPriorityMap {
 }
 
 export const uaiPriorityMap: UAIPriorityMap = {
-  [uaiType.SIGN_TRANSACTION]: 100,
   [uaiType.CANARAY_WALLET]: 100,
   [uaiType.ZENDESK_TICKET]: 100,
   [uaiType.SERVER_BACKUP_FAILURE]: 90,

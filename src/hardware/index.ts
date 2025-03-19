@@ -10,7 +10,6 @@ import {
 import {
   DerivationPurpose,
   EntityKind,
-  NetworkType,
   SignerStorage,
   SignerType,
   XpubTypes,

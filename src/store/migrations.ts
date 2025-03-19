@@ -24,7 +24,6 @@ const migrations = {
       ...state.settings,
       oneTimeBackupStatus: {
         signingServer: false,
-        inheritanceKey: false,
       },
     },
   }),

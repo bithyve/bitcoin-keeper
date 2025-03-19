@@ -1,6 +1,6 @@
 import { Box, useColorMode } from 'native-base';
 import React, { memo, useContext, useEffect, useState, useMemo } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, SectionList } from 'react-native';
+import { ActivityIndicator, StyleSheet, SectionList } from 'react-native';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Instruction from 'src/components/Instruction';
 import KeeperModal from 'src/components/KeeperModal';
@@ -42,7 +42,7 @@ import CloudBackupIcon from 'src/assets/images/cloud-backup-icon.svg';
 import RecevieIcon from 'src/assets/images/incoming-tx-notification.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
-import UAIView from '../components/HeaderDetails/components/UAIView';
+import UAIView from '../components/UAIView';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 
@@ -409,7 +409,6 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
           title={uaiConfig.heading}
           subTitle={uaiConfig.body}
           icon={uaiConfig.icon}
-          primaryCallbackText={uaiConfig.btnConfig.primary.text}
           primaryCallback={uaiConfig.btnConfig.primary.cta}
         />
       </Box>

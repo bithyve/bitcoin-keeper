@@ -29,7 +29,6 @@ const useSignerIntel = ({
   const { signerMap } = useSignerMap();
   const { plan } = usePlan();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
 
   const amfSigners = [];
   for (const signerIdentifier of selectedSigners.keys()) {

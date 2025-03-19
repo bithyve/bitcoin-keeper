@@ -1,4 +1,4 @@
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import WalletOperations from 'src/services/wallets/operations';
 import { captureError } from 'src/services/sentry';
 import config from 'src/utils/service-utilities/config';

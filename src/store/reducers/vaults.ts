@@ -40,7 +40,6 @@ export type VaultState = {
   error: string;
   introModal: boolean;
   sdIntroModal: boolean;
-  tempShellId: string;
   keyHeathCheckSuccess: boolean;
   keyHeathCheckError: string;
   keyHeathCheckLoading: boolean;
@@ -68,7 +67,6 @@ const initialState: VaultState = {
   error: null,
   introModal: true,
   sdIntroModal: true,
-  tempShellId: null,
   keyHeathCheckSuccess: false,
   keyHeathCheckError: null,
   keyHeathCheckLoading: false,
@@ -127,9 +125,6 @@ const vaultSlice = createSlice({
       state.hasNewVaultGenerationFailed = false;
       state.error = null;
     },
-    setTempShellId: (state, action: PayloadAction<string>) => {
-      state.tempShellId = action.payload;
-    },
     setKeyHealthCheckSuccess: (state, action: PayloadAction<boolean>) => {
       state.keyHeathCheckLoading = false;
       state.keyHeathCheckSuccess = action.payload;
@@ -185,7 +180,6 @@ export const {
   setIntroModal,
   setSdIntroModal,
   resetVaultMigration,
-  setTempShellId,
   resetVaultFlags,
   setKeyHealthCheckSuccess,
   setKeyHealthCheckError,
@@ -205,7 +199,6 @@ const vaultPersistConfig = {
     'intrimVault',
     'introModal',
     'sdIntroModal',
-    'tempShellId',
     'keyHeathCheckSuccess',
     'keyHeathCheckError',
     'keyHeathCheckLoading',
