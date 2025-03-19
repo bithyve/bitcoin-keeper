@@ -118,7 +118,7 @@ function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
         <Box
           style={styles.inputLabeWrapper}
           backgroundColor={`${colorMode}.seashellWhite`}
-          borderColor={`${colorMode}.borderBrown`}
+          borderColor={colorMode === 'dark' ? `${colorMode}.BrownNeedHelp` : `${colorMode}.border`}
         >
           <Box style={styles.inputLabelBox}>
             <Input

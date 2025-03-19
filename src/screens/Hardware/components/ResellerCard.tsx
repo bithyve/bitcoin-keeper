@@ -71,7 +71,7 @@ const ResellerCard = (props: Props) => {
               style={[props.unSubscribeText ? styles.subText : {}]}
               semiBold
               fontSize={12}
-              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.coalGreen`}
+              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.secondaryText`}
             >
               {props.unSubscribeText}
             </Text>

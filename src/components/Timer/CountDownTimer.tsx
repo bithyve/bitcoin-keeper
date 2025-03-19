@@ -75,7 +75,7 @@ const CountdownTimer = ({ initialTime, onTimerEnd = null }) => {
           <Circle cx={smallCircleX} cy={smallCircleY} r={6} fill={Colors.CoralRed} />
         </Svg>
         <Box style={styles.textView}>
-          <Text semiBold color={`${colorMode}.alertRedLight`} style={styles.timerText}>
+          <Text semiBold color={`${colorMode}.alertRed`} style={styles.timerText}>
             {timeLeft > 0 ? formatTime(timeLeft) : 'Time-Out'}
           </Text>
         </Box>

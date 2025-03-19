@@ -20,12 +20,7 @@ const BTCAmountPill = () => {
   return (
     <Box style={styles.pillContainer} backgroundColor={`${colorMode}.btcLabelBack`}>
       <BTCIcon isDarkMode={isDarkMode} />
-      <Text
-        bold
-        color={`${colorMode}.btcPillText`}
-        style={styles.heading}
-        testID="text_Transaction"
-      >
+      <Text bold color={`${colorMode}.pillText`} style={styles.heading} testID="text_Transaction">
         {` = ${currencyCodeExchangeRate.symbol} ${formatNumber(
           currencyCodeExchangeRate.buy.toFixed(0)
         )}`}

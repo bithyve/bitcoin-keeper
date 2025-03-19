@@ -220,7 +220,7 @@ function UTXOElement({
               hideAmounts={false}
               amount={item.value}
               fontSize={18}
-              color={`${colorMode}.textDarkGreen`}
+              color={`${colorMode}.textBlack`}
               variation={colorMode === 'light' ? 'dark' : 'light'}
             />
           </Box>

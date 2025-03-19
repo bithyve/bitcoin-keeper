@@ -21,7 +21,7 @@ function MessagePreview({ title, description, link }: MessagePreviewProps) {
       <Box style={styles.previewBox} borderColor={`${colorMode}.greyBorder`}>
         <Text style={styles.messagePreviewTitle}>{title}</Text>
         <Text style={styles.messagePreviewDescription}>{description}</Text>
-        <Box style={styles.linkContainer} backgroundColor={`${colorMode}.linkPreviewBackground`}>
+        <Box style={styles.linkContainer} backgroundColor={`${colorMode}.seedCard`}>
           <Box style={styles.linkIconContainer}>
             <KeeperIcon />
           </Box>

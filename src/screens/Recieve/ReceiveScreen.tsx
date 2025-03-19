@@ -374,7 +374,7 @@ function ReceiveScreen({ route }: { route }) {
         <Box
           style={styles.receiveDataContainer}
           backgroundColor={`${colorMode}.seashellWhite`}
-          borderColor={`${colorMode}.greyBorder`}
+          borderColor={`${colorMode}.dullGreyBorder`}
         >
           <AddressUsageBadge used={addressUsed} />
           <TouchableOpacity onPress={() => setLabelsModalVisible(true)} testID="btn_add_labels">

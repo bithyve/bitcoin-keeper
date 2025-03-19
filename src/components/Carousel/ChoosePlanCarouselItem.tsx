@@ -119,7 +119,7 @@ function ChoosePlanCarouselItem({
         <Box>
           <Box
             backgroundColor={
-              isSelected ? `${colorMode}.hexagonIconBackColor` : `${colorMode}.choosePlanIconBack`
+              isSelected ? `${colorMode}.hexagonIconBackColor` : `${colorMode}.secondaryText`
             }
             style={styles.circle}
           >

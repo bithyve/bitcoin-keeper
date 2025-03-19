@@ -93,7 +93,6 @@ const Colors = {
   LightBrown: 'rgba(145, 120, 93, 0.08)',
   SlateGreen: 'rgba(165, 180, 174, 1)',
   LightKhaki: 'rgba(217,209,169,1)',
-  PaleKhaki: 'rgba(95,106,103,0.5)',
   PaleTurquoise: 'rgba(184,214,207,1)',
   Turquoise: 'rgba(177, 208, 201, 1)',
   DarkSage: 'rgba(111,124,119,1)',

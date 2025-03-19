@@ -38,7 +38,7 @@ function ReceiveAddress({ address }: Props) {
       }}
       backgroundColor={`${colorMode}.seashellWhite`}
       style={styles.container}
-      borderColor={`${colorMode}.greyBorder`}
+      borderColor={`${colorMode}.dullGreyBorder`}
     >
       <Box style={styles.textContainer}>
         <Text color={`${colorMode}.GreyText`} style={styles.value}>

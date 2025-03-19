@@ -699,7 +699,9 @@ function SigningDeviceDetails({ route }) {
           subtitle={getSignerDescription(signer)}
           icon={
             <CircleIconWrapper
-              backgroundColor={`${colorMode}.whiteCircle`}
+              backgroundColor={
+                colorMode === 'dark' ? `${colorMode}.primaryText` : `${colorMode}.thirdBackground`
+              }
               icon={SDColoredIcons(signer.type, colorMode === 'light', 26, 26).Icon}
               image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
             />

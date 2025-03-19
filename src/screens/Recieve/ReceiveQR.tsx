@@ -16,8 +16,8 @@ function ReceiveQR({ qrValue, qrSize }: Props) {
     <Box
       testID="view_recieveAddressQR"
       style={styles.qrWrapper}
-      background={`${colorMode}.receiveQrBackground`}
-      borderColor={`${colorMode}.receiveQrBackground`}
+      background={`${colorMode}.fadedGray`}
+      borderColor={`${colorMode}.fadedGray`}
     >
       {/* Passing 'address' is needed since passing empty string will throw error in QRCode component */}
       <KeeperQRCode
