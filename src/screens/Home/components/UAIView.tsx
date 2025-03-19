@@ -3,9 +3,8 @@ import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
-import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 
-function UAIView({ title, subTitle, icon, primaryCallbackText, primaryCallback }) {
+function UAIView({ title, subTitle, icon, primaryCallback }) {
   const { colorMode } = useColorMode();
 
   return (
