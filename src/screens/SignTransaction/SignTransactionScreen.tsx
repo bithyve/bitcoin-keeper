@@ -519,18 +519,8 @@ function SignTransactionScreen() {
           const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
             (envelop) => envelop.xfp === vaultKey.xfp
           )[0];
-          const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
 
-          // case: old policy w/ exception - auto sign
-          if (
-            !signer.signerPolicy.exceptions.none &&
-            outgoing <= signer.signerPolicy.exceptions.transactionAmount
-          ) {
-            showToast('Auto-signing, send amount smaller than max no-check amount');
-            signTransaction({ xfp: vaultKey.xfp }); // case: OTP not required
-            return;
-          }
-          // case: new policy - delayed signing
+          // check existing signing request
           const delayedTxid = hash256(serializedPSBTEnvelop.serializedPSBT);
           const delayedTx: DelayedTransaction = delayedTransactions[delayedTxid];
           if (delayedTx) {
