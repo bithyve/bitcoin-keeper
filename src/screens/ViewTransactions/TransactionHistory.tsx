@@ -2,7 +2,6 @@ import { FlatList, RefreshControl, StatusBar, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useMemo, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -15,7 +14,6 @@ import { useDispatch } from 'react-redux';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import WalletHeader from 'src/components/WalletHeader';
-import Text from 'src/components/KeeperText';
 
 function TransactionHistory({ route }) {
   const { colorMode } = useColorMode();

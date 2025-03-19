@@ -11,16 +11,10 @@ const initialState: {
   currencyCode: string;
   language: string;
   torEnbled: boolean;
-  inheritanceModal: boolean;
   satsEnabled: boolean;
-  whirlpoolSwiperModal: boolean;
-  keySecurityTips: string;
-  letterToAttorny: string;
   enableAnalyticsLogin: boolean;
-  recoveryInstruction: string;
   oneTimeBackupStatus: {
     signingServer: boolean;
-    inheritanceKey: boolean;
   };
   backupModal: boolean;
   subscription: string;
@@ -31,16 +25,10 @@ const initialState: {
   currencyCode: 'USD',
   language: 'en',
   torEnbled: false,
-  inheritanceModal: true,
   satsEnabled: true,
-  whirlpoolSwiperModal: true,
-  keySecurityTips: '',
-  letterToAttorny: '',
   enableAnalyticsLogin: true,
-  recoveryInstruction: '',
   oneTimeBackupStatus: {
     signingServer: false,
-    inheritanceKey: false,
   },
   backupModal: true,
   subscription: SubscriptionTier.L1,
@@ -68,32 +56,14 @@ const settingsSlice = createSlice({
     setTorEnabled: (state, action: PayloadAction<boolean>) => {
       state.torEnbled = action.payload;
     },
-    setInheritance: (state, action: PayloadAction<boolean>) => {
-      state.inheritanceModal = action.payload;
-    },
     setSatsEnabled: (state, action: PayloadAction<boolean>) => {
       state.satsEnabled = action.payload;
-    },
-    setWhirlpoolSwiperModal: (state, action: PayloadAction<boolean>) => {
-      state.whirlpoolSwiperModal = action.payload;
-    },
-    setKeySecurityTipsPath: (state, action: PayloadAction<string>) => {
-      state.keySecurityTips = action.payload;
-    },
-    setLetterToAttornyPath: (state, action: PayloadAction<string>) => {
-      state.letterToAttorny = action.payload;
     },
     setEnableAnalyticsLogin: (state, action: PayloadAction<boolean>) => {
       state.enableAnalyticsLogin = action.payload;
     },
-    // setRecoveryInstructionPath: (state, action: PayloadAction<string>) => {
-    //   state.recoveryInstruction = action.payload;
-    // },
     setOTBStatusSS: (state, action: PayloadAction<boolean>) => {
       state.oneTimeBackupStatus.signingServer = action.payload;
-    },
-    setOTBStatusIKS: (state, action: PayloadAction<boolean>) => {
-      state.oneTimeBackupStatus.inheritanceKey = action.payload;
     },
     setBackupModal: (state, action: PayloadAction<boolean>) => {
       state.backupModal = action.payload;
@@ -111,15 +81,9 @@ export const {
   setCurrencyCode,
   setLanguage,
   setTorEnabled,
-  setInheritance,
   setSatsEnabled,
-  setWhirlpoolSwiperModal,
-  setKeySecurityTipsPath,
-  setLetterToAttornyPath,
   setEnableAnalyticsLogin,
-  // setRecoveryInstructionPath,
   setOTBStatusSS,
-  setOTBStatusIKS,
   setBackupModal,
   setSubscription,
 } = settingsSlice.actions;

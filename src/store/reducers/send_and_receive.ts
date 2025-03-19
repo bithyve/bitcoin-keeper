@@ -91,14 +91,9 @@ export interface SendAndReceiveState {
     isSuccessful: boolean;
     txid: string | null;
   };
-  crossTransfer: {
-    hasFailed: boolean;
-    isSuccessful: boolean;
-  };
   sendMaxFee: number;
   feeIntelMissing: boolean;
   transactionFeeInfo: TransactionFeeInfo;
-  inheritanceSigningRequestId: string;
 }
 
 const initialState: SendAndReceiveState = {
@@ -133,10 +128,6 @@ const initialState: SendAndReceiveState = {
     isSuccessful: false,
     txid: null,
   },
-  crossTransfer: {
-    hasFailed: false,
-    isSuccessful: false,
-  },
   sendMaxFee: 0,
   feeIntelMissing: false,
   transactionFeeInfo: {
@@ -157,7 +148,6 @@ const initialState: SendAndReceiveState = {
       estimatedBlocksBeforeConfirmation: 0,
     },
   },
-  inheritanceSigningRequestId: '',
 };
 
 const sendAndReceiveSlice = createSlice({
@@ -274,13 +264,6 @@ const sendAndReceiveSlice = createSlice({
       };
     },
 
-    crossTransferFailed: (state) => {
-      state.crossTransfer.hasFailed = true;
-    },
-    crossTransferExecuted: (state) => {
-      state.crossTransfer.isSuccessful = true;
-    },
-
     sendPhasesReset: (state) => {
       state = initialState;
       return state;
@@ -323,18 +306,12 @@ const sendAndReceiveSlice = createSlice({
     sendPhaseThreeReset: (state) => {
       state.sendPhaseThree = initialState.sendPhaseThree;
     },
-    crossTransferReset: (state) => {
-      state.crossTransfer = initialState.crossTransfer;
-    },
     sendPhaseTwoStarted: (state) => {
       state.sendPhaseTwo = { ...state.sendPhaseTwo, inProgress: true };
     },
     setStateFromSnapshot: (state, action: PayloadAction<SendAndReceiveState>) => {
       state = action.payload;
       return state;
-    },
-    setInheritanceSigningRequestId: (state, action: PayloadAction<string>) => {
-      state.inheritanceSigningRequestId = action.payload;
     },
   },
 });
@@ -345,9 +322,6 @@ export const {
   customFeeCalculated,
   sendPhaseTwoExecuted,
   sendPhaseThreeExecuted,
-  crossTransferExecuted,
-  crossTransferFailed,
-  crossTransferReset,
   sendPhasesReset,
   sendPhaseOneReset,
   customPrioritySendPhaseOneReset,
@@ -357,6 +331,5 @@ export const {
   updatePSBTEnvelops,
   sendPhaseTwoStarted,
   setStateFromSnapshot,
-  setInheritanceSigningRequestId,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

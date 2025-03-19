@@ -21,7 +21,7 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { createXpubDetails, generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import config from 'src/utils/service-utilities/config';
 import { Signer } from 'src/services/wallets/interfaces/vault';
@@ -530,25 +530,9 @@ const styles = StyleSheet.create({
     letterSpacing: 5,
     justifyContent: 'center',
   },
-  inputContainer: {
-    alignItems: 'flex-end',
-  },
-  heading: {
-    margin: '5%',
-    padding: 5,
-    width: windowWidth * 0.8,
-    fontSize: 13,
-    letterSpacing: 0.65,
-  },
-
   inputWrapper: {
     marginHorizontal: 15,
     marginTop: 6,
-  },
-  btnContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    flexDirection: 'row',
   },
   contentContainer: { alignItems: 'center', gap: hp(20) },
   contentText: { textAlign: 'center', maxWidth: '80%' },

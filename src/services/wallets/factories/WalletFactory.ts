@@ -1,7 +1,6 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
-import { hash256 } from 'src/utils/service-utilities/encryption';
 import config from 'src/utils/service-utilities/config';
 import {
   EntityKind,
@@ -26,8 +25,6 @@ import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
 import { XpubDetailsType } from '../interfaces/vault';
-
-export const whirlPoolWalletTypes = [WalletType.PRE_MIX, WalletType.POST_MIX, WalletType.BAD_BANK];
 
 export const generateWalletSpecsFromMnemonic = (
   mnemonic: string,
@@ -130,7 +127,6 @@ export const generateWallet = async ({
   const network = WalletUtilities.getNetworkByType(networkType);
 
   let bip85Config: BIP85Config;
-  let depositWalletId: string;
   let id: string;
   let derivationDetails: WalletDerivationDetails;
   let specs: WalletSpecs;
@@ -167,21 +163,6 @@ export const generateWallet = async ({
 
       id = WalletUtilities.getFingerprintFromExtendedKey(specs.xpriv || specs.xpub, config.NETWORK); // case: extended key imported wallets have xfp as their id
     }
-  } else if (whirlPoolWalletTypes.includes(type)) {
-    // case: adding whirlpool wallet
-    const mnemonic = parentMnemonic;
-    depositWalletId = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic); // case: whirlpool wallets have master-fingerprints as their deposit id
-    id = hash256(`${depositWalletId}${type}`);
-
-    derivationDetails = {
-      instanceNum,
-      mnemonic,
-      bip85Config,
-      xDerivationPath: derivationConfig
-        ? derivationConfig.path
-        : WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType),
-    };
-    specs = generateWalletSpecsFromMnemonic(mnemonic, network, derivationDetails.xDerivationPath);
   } else {
     // case: adding new wallet
     if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
@@ -235,7 +216,6 @@ export const generateWallet = async ({
     specs,
     scriptType,
     transferPolicy,
-    depositWalletId,
   };
   wallet.specs.receivingAddress = WalletOperations.getNextFreeAddress(wallet);
   return wallet;

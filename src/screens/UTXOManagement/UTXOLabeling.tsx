@@ -37,7 +37,7 @@ function UTXOLabeling() {
   const {
     params: { utxo, wallet },
   } = useRoute() as { params: { utxo: UTXO; wallet: any } };
-  const { labels: txNoteLabels } = useLabelsNew({ txid: utxo.txId, wallet });
+  const { labels: txNoteLabels } = useLabelsNew({ txid: utxo.txId });
 
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);

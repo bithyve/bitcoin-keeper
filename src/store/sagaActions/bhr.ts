@@ -5,7 +5,6 @@ export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';
 export const GET_APP_IMAGE = 'GET_APP_IMAGE';
 export const SEED_BACKEDUP = 'SEED_BACKEDUP';
 export const SEED_BACKEDUP_CONFIRMED = 'SEED_BACKEDUP_CONFIRMED';
-export const RECOVER_BACKUP = 'RECOVER_BACKUP';
 export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
 export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
@@ -15,6 +14,7 @@ export const DELETE_APP_IMAGE_ENTITY = 'DELETE_APP_IMAGE_ENTITY';
 export const HEALTH_CHECK_STATUS_UPDATE = 'HEALTH_CHECK_STATUS_UPDATE';
 export const BACKUP_ALL_SIGNERS_AND_VAULTS = 'BACKUP_ALL_SIGNERS_AND_VAULTS';
 export const SET_AUTOMATIC_CLOUD_BACKUP = 'SET_AUTOMATIC_CLOUD_BACKUP';
+export const DELETE_BACKUP = 'DELETE_BACKUP';
 
 export const updateAppImage = ({ wallets, signers }) => ({
   type: UPDATE_APP_IMAGE,
@@ -72,14 +72,6 @@ export const seedBackedConfirmed = (confirmed: boolean) => ({
   },
 });
 
-export const recoverBackup = (password: string, encData: string) => ({
-  type: RECOVER_BACKUP,
-  payload: {
-    password,
-    encData,
-  },
-});
-
 // HealthChecks
 
 export const healthCheckSigner = (signers: Signer[]) => ({
@@ -114,4 +106,8 @@ export const backupAllSignersAndVaults = () => ({
 export const setAutomaticCloudBackup = (payload) => ({
   type: SET_AUTOMATIC_CLOUD_BACKUP,
   payload,
+});
+
+export const deleteBackup = () => ({
+  type: DELETE_BACKUP,
 });

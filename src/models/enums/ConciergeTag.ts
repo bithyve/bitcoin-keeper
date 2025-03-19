@@ -4,7 +4,6 @@ export enum ConciergeTag {
   VAULT = 'vault',
   COLLABORATIVE_Wallet = 'collaborative-wallet',
   INHERITANCE = 'inheritance',
-  WHIRLPOOL = 'whirlpool',
   SUBSCRIPTION = 'subscription',
   BACKUP = 'backup',
   NODE = 'node',

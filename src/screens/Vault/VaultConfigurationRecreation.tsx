@@ -14,12 +14,9 @@ import DocumentPicker, { types } from 'react-native-document-picker';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
-import { useDispatch } from 'react-redux';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import QRScanner from 'src/components/QRScanner';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import SignerImportIcon from 'src/assets/images/signer_import.svg';
-import { InteracationMode } from './HardwareModalMap';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 

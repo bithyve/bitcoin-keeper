@@ -741,18 +741,6 @@ function SignerAdvanceSettings({ route }: any) {
         callback={handleCanaryWallet}
       />
     ),
-    // isPolicyServer && showBackupModal && (
-    //   <OptionCard
-    //     key="backupServerKey"
-    //     title="Back up Server Key"
-    //     description={
-    //       disableOneTimeBackup ? BackupWallet.viewBackupHistory : 'Save a backup of the Server Key'
-    //     }
-    //     callback={() => {
-    //       disableOneTimeBackup ? navigation.goBack() : handleBackupModal();
-    //     }}
-    //   />
-    // ),
     isPolicyServer && showOneTimeBackup && (
       <OptionCard
         key="backupServerKey"

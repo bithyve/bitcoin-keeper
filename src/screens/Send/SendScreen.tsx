@@ -24,13 +24,7 @@ import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import RemoveIcon from 'src/assets/images/remove-green-icon.svg';
 import RemoveIconDark from 'src/assets/images/remove-white-icon.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import {
-  EntityKind,
-  NetworkType,
-  PaymentInfoKind,
-  VaultType,
-  VisibilityType,
-} from 'src/services/wallets/enums';
+import { EntityKind, PaymentInfoKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -64,7 +58,6 @@ import IconGreySettings from 'src/assets/images/settings_grey.svg';
 import { TouchableOpacity } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { NumberInput } from '../AddWalletScreen/AddNewWallet';
-import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();

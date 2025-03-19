@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="17.155" height="16.002" viewBox="0 0 17.155 16.002">
-  <g id="icon_wallet" transform="translate(-89.577 -760.5)">
-    <g id="wallet" transform="translate(90.077 761)">
-      <path id="Shape" d="M14.54,3.216A3.216,3.216,0,0,0,11.324,0H3.216A3.216,3.216,0,0,0,0,3.216v9.616A2.193,2.193,0,0,0,2.2,15H14.686a1.457,1.457,0,0,0,1.469-1.447V4.825A1.731,1.731,0,0,0,14.54,3.216Z" transform="translate(0 0)" fill="none" stroke="#89aea7" stroke-width="1"/>
-    </g>
-    <path id="Path" d="M1.588,3.19A1.615,1.615,0,1,1,2.2,3.066a1.595,1.595,0,0,1-.613.123Z" transform="translate(100.115 768.412)" fill="#89aea7"/>
-  </g>
-</svg>

@@ -203,9 +203,7 @@ function DeleteKeys({ route }) {
             showsVerticalScrollIndicator={false}
           >
             {hiddenSigners.map((signer) => {
-              const showDelete =
-                signer.type !== SignerType.INHERITANCEKEY &&
-                signer.type !== SignerType.POLICY_SERVER;
+              const showDelete = signer.type !== SignerType.POLICY_SERVER;
 
               return (
                 <KeyCard
@@ -329,16 +327,6 @@ function DeleteKeys({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  signerContainer: {
-    width: windowWidth * 0.85,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    padding: 10,
-    marginBottom: 20,
-    alignSelf: 'center',
   },
   warningText: {
     fontSize: 13,

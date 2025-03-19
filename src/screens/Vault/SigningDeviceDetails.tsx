@@ -240,16 +240,6 @@ const getSignerContent = (type: SignerType) => {
           '\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions',
         FAQ: 'https://help.blockstream.com/hc/en-us/categories/900000061906-Blockstream-Jade',
       };
-    case SignerType.INHERITANCEKEY:
-      return {
-        title: 'Inheritance Key',
-        subTitle:
-          'An additional key setup with special conditions to help transfer bitcoin to the beneficiary.',
-        assert: <InhertanceKeyIcon />,
-        description:
-          '\u2022 Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
-        FAQ: `${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`,
-      };
     case SignerType.SPECTER:
       return {
         title: 'Specter DIY',

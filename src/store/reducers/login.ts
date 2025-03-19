@@ -10,8 +10,6 @@ export const initialState: {
   hasCreds: boolean;
   isAuthenticated: boolean;
   authenticationFailed: boolean;
-  walletSetupCompleted: boolean;
-  walletSetupFailed: boolean;
   isInitialLogin: boolean;
   reLogin: boolean;
   loading: {
@@ -22,17 +20,11 @@ export const initialState: {
   credsChanged: string;
   credsAuthenticatedError: string;
   pinChangedFailed: boolean;
-  initializeRecoveryCompleted: boolean;
   key: string | null;
   appCreationError: boolean;
   recepitVerificationError: boolean;
   recepitVerificationFailed: boolean;
   isOffline: boolean;
-  isLoading: boolean;
-  statusMessage: {
-    message: string;
-    status: boolean;
-  };
   electrumClientConnectionStatus: {
     inProgress: boolean;
     success: boolean;
@@ -45,8 +37,6 @@ export const initialState: {
   hasCreds: false,
   isAuthenticated: false,
   authenticationFailed: false,
-  walletSetupCompleted: false,
-  walletSetupFailed: false,
   isInitialLogin: false,
   reLogin: false,
   loading: {
@@ -57,17 +47,11 @@ export const initialState: {
   credsChanged: '',
   credsAuthenticatedError: '',
   pinChangedFailed: false,
-  initializeRecoveryCompleted: false,
   key: null,
   appCreationError: false,
   recepitVerificationError: false,
   recepitVerificationFailed: false,
   isOffline: false,
-  isLoading: false,
-  statusMessage: {
-    message: '',
-    status: false,
-  },
   electrumClientConnectionStatus: {
     inProgress: false,
     success: false,
@@ -163,13 +147,6 @@ const loginSlice = createSlice({
     setOfflineStatus: (state, action: PayloadAction<boolean>) => {
       state.isOffline = action.payload;
     },
-    setStatusLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
-    setStatusMessage: (state, action: PayloadAction<{ message: string; status: boolean }>) => {
-      state.statusMessage.message = action.payload.message;
-      state.statusMessage.status = action.payload.status;
-    },
   },
 });
 
@@ -186,8 +163,6 @@ export const {
   setRecepitVerificationError,
   setRecepitVerificationFailed,
   setOfflineStatus,
-  setStatusLoading,
-  setStatusMessage,
   electrumClientConnectionInitiated,
   electrumClientConnectionExecuted,
   setElectrumNotConnectedErr,
