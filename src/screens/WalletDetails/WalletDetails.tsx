@@ -258,54 +258,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  walletHeaderWrapper: {
-    marginTop: -10,
-    marginHorizontal: wp(15),
-    flexDirection: 'row',
-    width: '100%',
-  },
-  walletIconWrapper: {
-    width: '15%',
-    marginRight: 7,
-  },
-  walletNameWrapper: {
-    width: '85%',
-  },
-  walletNameText: {
-    fontSize: 20,
-  },
-  walletDescText: {
-    fontSize: 14,
-  },
-  walletIconView: {
-    height: 40,
-    width: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  balanceWrapper: {
-    flexDirection: 'row',
-    paddingLeft: '3%',
-    marginTop: 20,
-    marginBottom: 10,
-    justifyContent: 'space-between',
-  },
   transactionsContainer: {
     paddingHorizontal: wp(22),
     marginTop: hp(5),
     paddingTop: hp(24),
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-  },
-  unconfirmBalanceView: {
-    width: '50%',
-    flexDirection: 'row',
-    gap: 5,
-  },
-  availableBalanceView: {
-    width: '50%',
-    alignItems: 'flex-end',
   },
   transTitleWrapper: {
     paddingTop: 5,
