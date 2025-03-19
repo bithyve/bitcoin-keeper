@@ -479,7 +479,6 @@ const styles = StyleSheet.create({
     marginTop: hp(30),
     flex: 1,
   },
-
   optionIconCtr: {
     height: hp(35),
     width: wp(35),
@@ -532,10 +531,6 @@ const styles = StyleSheet.create({
     padding: wp(10),
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalFooter: {
-    padding: wp(15),
-    paddingTop: 0,
   },
   enhancedVaultsCustomStyles: {
     padding: 15,
