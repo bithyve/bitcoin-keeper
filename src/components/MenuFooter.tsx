@@ -18,14 +18,12 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import Text from './KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import Colors from 'src/theme/Colors';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const navigation = useNavigation();
   const { wallet } = translations;
 
   const menuOptions = [

@@ -10,7 +10,6 @@ import { cryptoRandom } from 'src/utils/service-utilities/encryption';
 import KeeperTextInput from '../KeeperTextInput';
 
 function HealthCheckComponent(props) {
-  const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const { common } = translations;
