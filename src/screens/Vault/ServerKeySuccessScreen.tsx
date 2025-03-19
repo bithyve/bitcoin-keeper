@@ -123,20 +123,16 @@ function ServerKeySuccessScreen({ route }) {
             }}
             primaryText={common.Later}
             primaryBackgroundColor="transparent"
-            primaryTextColor={
-              isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.brownColor`
-            }
-            primaryBorderColor={isDarkMode ? Colors.separator : Colors.BrownBorder}
+            primaryTextColor={isDarkMode ? `${colorMode}.textGreen` : `${colorMode}.BrownNeedHelp`}
+            primaryBorderColor={isDarkMode ? Colors.separator : Colors.DullBrown}
             width={wp(150)}
           />
           <Buttons
             primaryCallback={handleNeverCallback}
             primaryText={common.Never}
             primaryBackgroundColor="transparent"
-            primaryTextColor={
-              isDarkMode ? `${colorMode}.modalHeaderTitle` : `${colorMode}.brownColor`
-            }
-            primaryBorderColor={isDarkMode ? Colors.separator : Colors.BrownBorder}
+            primaryTextColor={isDarkMode ? `${colorMode}.textGreen` : `${colorMode}.BrownNeedHelp`}
+            primaryBorderColor={isDarkMode ? Colors.separator : Colors.DullBrown}
             width={wp(150)}
           />
         </Box>
@@ -268,7 +264,7 @@ function ServerKeySuccessScreen({ route }) {
         title={signingServer.BackUpModalTitle}
         subTitle={signingServer.BackUpModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={BackupModalContent}
       />
@@ -281,7 +277,7 @@ function ServerKeySuccessScreen({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={common.confirm2FACodeTitle}
         subTitle={common.confirm2FACodeSubtitle}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={SigningServerOTPModal}
       />

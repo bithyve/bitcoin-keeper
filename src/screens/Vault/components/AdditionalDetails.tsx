@@ -42,13 +42,13 @@ function AdditionalDetails({ route }: ScreenProps) {
             style={[
               styles.descriptionEdit,
               {
-                borderColor: Colors.SilverMist,
-                backgroundColor: colorMode === 'dark' ? Colors.SeashellDark : Colors.Seashell,
-                color: colorMode === 'dark' ? Colors.GraniteGrayDark : Colors.GraniteGray,
+                borderColor: Colors.secondaryLightGrey,
+                backgroundColor: colorMode === 'dark' ? Colors.TertiaryBlack : Colors.brightCream,
+                color: colorMode === 'dark' ? Colors.secondaryDarkGrey : Colors.ashGreen,
               },
             ]}
             placeholder="Add a Description (Optional)"
-            placeholderTextColor={Colors.Graphite}
+            placeholderTextColor={Colors.secondaryDarkGrey}
             value={description}
             maxLength={20}
             onSubmitEditing={() => {

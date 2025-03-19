@@ -93,7 +93,7 @@ function AddContact({ route }) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Add Contact"
-        titleColor={`${colorMode}.pitchBlackText`}
+        titleColor={`${colorMode}.black`}
         rightComponent={
           showContactButton && <ContactButton signer={signer} isWalletFlow={isWalletFlow} />
         }
@@ -171,11 +171,11 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: hp(47),
-    borderColor: Colors.SilverMist,
+    borderColor: Colors.secondaryLightGrey,
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 10,
-    backgroundColor: Colors.Seashell,
+    backgroundColor: Colors.brightCream,
     marginBottom: hp(30),
   },
   saveButtonContainer: {

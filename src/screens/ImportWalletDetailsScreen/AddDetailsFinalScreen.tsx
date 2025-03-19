@@ -149,7 +149,7 @@ function AddDetailsFinalScreen({ route }) {
                 placeholder={importWallet.derivationPath}
                 style={styles.textInput}
                 backgroundColor={`${colorMode}.seashellWhite`}
-                placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
+                placeholderTextColor={Colors.GreenishGrey} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 autoCorrect={false}
@@ -157,8 +157,8 @@ function AddDetailsFinalScreen({ route }) {
                 editable={false}
                 _input={
                   colorMode === 'dark' && {
-                    selectionColor: Colors.SecondaryWhite,
-                    cursorColor: Colors.SecondaryWhite,
+                    selectionColor: Colors.bodyText,
+                    cursorColor: Colors.bodyText,
                   }
                 }
               />
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 5,
     borderRadius: 5,
-    backgroundColor: Colors.GrayX11,
+    backgroundColor: Colors.darkGrey,
     marginEnd: 5,
   },
   textInputWrapper: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   transferText: {
     width: '100%',
-    color: Colors.Feldgrau,
+    color: Colors.GreenishGrey,
     marginHorizontal: 20,
     fontSize: 12,
     marginTop: hp(22),
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   },
   langScrollViewWrapper: {
     borderWidth: 1,
-    borderColor: Colors.Platinum,
+    borderColor: Colors.bodyText,
     borderRadius: 10,
     marginVertical: 15,
     width: '100%',

@@ -413,7 +413,7 @@ function SendScreen({ route }) {
             <HexagonIcon
               width={44}
               height={38}
-              backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
+              backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
               icon={getWalletIcon(sender)}
             />
           }
@@ -516,7 +516,7 @@ function SendScreen({ route }) {
                             height={26}
                             icon={getSmallWalletIcon(selectedWallet)}
                             backgroundColor={
-                              isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen
+                              isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen
                             }
                           />
                         </Box>

@@ -45,14 +45,16 @@ const DeviceCard = (props: Props) => {
 
             <Box style={styles.rowContainer}>
               <Text
-                color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.GreenishGrey`}
+                color={
+                  isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.GreenishGrey`
+                }
               >
                 {props.madeText}{' '}
               </Text>
               <Box style={styles.flagContainer}>
                 <Text
                   color={
-                    isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.GreenishGrey`
+                    isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.GreenishGrey`
                   }
                 >
                   {props.country}
@@ -70,7 +72,7 @@ const DeviceCard = (props: Props) => {
             <Text
               medium
               fontSize={12}
-              color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.GreenishGrey`}
+              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.GreenishGrey`}
               style={styles.title}
             >
               {props.title2Sub}
@@ -101,7 +103,7 @@ const DeviceCard = (props: Props) => {
             <Text
               semiBold
               fontSize={11}
-              color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.brownColor`}
+              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.BrownNeedHelp`}
               style={styles.subText}
             >
               {props.subscribeText}

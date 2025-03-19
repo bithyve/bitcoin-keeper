@@ -51,7 +51,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
       {header && (
         <Box>
           <Text
-            color={isDarkMode ? `${colorMode}.headerWhite` : `${colorMode}.brownColor`}
+            color={isDarkMode ? `${colorMode}.headerWhite` : `${colorMode}.BrownNeedHelp`}
             fontSize={14}
             semiBold
             style={styles.header}
@@ -91,14 +91,14 @@ const SettingCard: React.FC<SettingCardProps> = ({
                           backgroundColor={
                             applyDiamondCheck
                               ? `${colorMode}.pantoneGreen`
-                              : `${colorMode}.disabledDiamond`
+                              : `${colorMode}.greyBorder`
                           }
                         />
                       </Box>
                     )}
                     <Box style={styles.textContainer}>
                       <Text
-                        color={applyDiamondCheck ? titleColor : `${colorMode}.disabledDiamond`}
+                        color={applyDiamondCheck ? titleColor : `${colorMode}.greyBorder`}
                         fontSize={14}
                         medium
                         style={styles.title}
@@ -110,7 +110,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                           style={styles.content}
                           fontSize={12}
                           numberOfLines={2}
-                          color={applyDiamondCheck ? subtitleColor : `${colorMode}.disabledDiamond`}
+                          color={applyDiamondCheck ? subtitleColor : `${colorMode}.greyBorder`}
                         >
                           {item.description}
                         </Text>
@@ -135,7 +135,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                 <View
                   style={{
                     height: 1,
-                    backgroundColor: isDarkMode ? 'transparent' : Colors.horizontaldivider,
+                    backgroundColor: isDarkMode ? 'transparent' : Colors.secondaryCreamWhite,
                     marginVertical: 20,
                   }}
                 />

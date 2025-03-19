@@ -237,7 +237,7 @@ function SetupSigningServer({ route }: { route }) {
           title={common.confirm2FACodeTitle}
           subTitle={common.confirm2FACodeSubtitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={otpContent}
         />

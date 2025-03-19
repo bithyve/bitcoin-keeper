@@ -36,21 +36,17 @@ function DashedButton({
         <HexagonIcon
           width={iconWidth}
           height={iconHeight}
-          backgroundColor={Colors.White}
+          backgroundColor={Colors.headerWhite}
           icon={icon}
         />
         <Box style={styles.TextContainer}>
           {name && (
-            <Text semiBold color={`${colorMode}.dashedButtonContent`}>
+            <Text semiBold color={`${colorMode}.buttonText`}>
               {name}
             </Text>
           )}
           {description && (
-            <Text
-              style={styles.descriptionText}
-              fontSize={12}
-              color={`${colorMode}.dashedButtonContent`}
-            >
+            <Text style={styles.descriptionText} fontSize={12} color={`${colorMode}.buttonText`}>
               {description}
             </Text>
           )}
@@ -68,7 +64,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: Colors.White,
+    borderColor: Colors.headerWhite,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,

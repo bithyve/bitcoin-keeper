@@ -63,7 +63,7 @@ function PriorityItem({
     <Pressable onPress={handlePress}>
       <Box
         style={[styles.priorityItemContainer, satvByte ? {} : { height: hp(48) }]}
-        backgroundColor={`${colorMode}.secondaryBackground`}
+        backgroundColor={`${colorMode}.textInputBackground`}
         borderColor={borderColor}
         borderWidth={isSelected ? 2 : 1}
       >

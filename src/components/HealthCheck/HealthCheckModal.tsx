@@ -18,8 +18,8 @@ function HealthCheckModal(props) {
     placeHolderName = '',
     SignerName = 'SignerName',
     SignerIcon = '',
-    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
-    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
+    modalBackground = [`${colorMode}.textInputBackground`, `${colorMode}.textInputBackground`],
+    buttonBackground = [`${colorMode}.primaryGreen`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
     buttonTextColor = 'white',
     buttonCallback = props.closeHealthCheck || null,
@@ -85,14 +85,14 @@ function HealthCheckModal(props) {
             }}
             _input={
               colorMode === 'dark' && {
-                selectionColor: Colors.SecondaryWhite,
-                cursorColor: Colors.SecondaryWhite,
+                selectionColor: Colors.bodyText,
+                cursorColor: Colors.bodyText,
               }
             }
           />
           <Box alignSelf="flex-end" flexDirection="row" backgroundColor="transparent">
             <TouchableOpacity onPress={onPress} testID={`btn_${buttonText}`}>
-              <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
+              <Box style={styles.cta} backgroundColor={`${colorMode}.pantoneGreen`}>
                 <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                   {buttonText}
                 </Text>

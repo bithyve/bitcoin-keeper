@@ -135,8 +135,8 @@ function VaultConfigurationCreation() {
                   multiline
                   _input={
                     colorMode === 'dark' && {
-                      selectionColor: Colors.SecondaryWhite,
-                      cursorColor: Colors.SecondaryWhite,
+                      selectionColor: Colors.bodyText,
+                      cursorColor: Colors.bodyText,
                     }
                   }
                 />
@@ -162,14 +162,14 @@ function VaultConfigurationCreation() {
           setShowModal(false);
         }}
         title="Import a wallet:"
-        modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        modalBackground={`${colorMode}.pantoneGreen`}
+        textColor={`${colorMode}.headerWhite`}
         Content={ImportVaultContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.whiteButtonText`}
-        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        buttonTextColor={`${colorMode}.pantoneGreen`}
+        buttonBackground={`${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   separator: {
     width: '100%',
     height: 2,
-    backgroundColor: Colors.WhiteCoffee,
+    backgroundColor: Colors.secondaryCreamWhite,
     marginBottom: 10,
   },
   optionsWrapper: {
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     height: wp(35),
     marginLeft: -7,
     borderRadius: 20,
-    backgroundColor: Colors.pantoneGreen,
+    backgroundColor: Colors.primaryGreen,
     justifyContent: 'center',
     alignItems: 'center',
   },

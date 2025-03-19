@@ -48,12 +48,12 @@ const TransactionPriorityDetails = ({
       <Box style={styles.priorityWrapper}>
         <Box style={styles.mainContainer}>
           <Box style={styles.leftContainer}>
-            <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
+            <Text style={styles.transLabelText} color={`${colorMode}.GreyText`}>
               {capitalizeFirstLetter(transactionPriority)}
             </Text>
           </Box>
           <Box style={styles.rightContainer}>
-            <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
+            <Text style={styles.transLabelText} color={`${colorMode}.GreyText`}>
               {estimationSign}
               &nbsp;
               {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation *
@@ -64,7 +64,7 @@ const TransactionPriorityDetails = ({
         </Box>
         <Box style={styles.mainContainer}>
           <Box style={styles.leftContainer}>
-            <Text style={styles.transLabelText} color={`${colorMode}.textGreenGrey`}>
+            <Text style={styles.transLabelText} color={`${colorMode}.GreyText`}>
               {walletTransactions.fees}
             </Text>
           </Box>
@@ -72,11 +72,11 @@ const TransactionPriorityDetails = ({
             <Box style={styles.transSatsFeeWrapper}>
               {!getSatUnit() && getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
               &nbsp;
-              <Text color={`${colorMode}.textGreenGrey`} style={styles.transSatsFeeText}>
+              <Text color={`${colorMode}.GreyText`} style={styles.transSatsFeeText}>
                 {`${getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)} `}
               </Text>
               {
-                <Text color={`${colorMode}.textGreenGrey`} style={styles.satsText}>
+                <Text color={`${colorMode}.GreyText`} style={styles.satsText}>
                   {getSatUnit()}
                   {isCurrentCurrencyFiat && currencyCode}
                 </Text>

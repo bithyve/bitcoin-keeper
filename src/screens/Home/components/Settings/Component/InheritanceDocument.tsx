@@ -52,13 +52,13 @@ const InheritanceDocument: React.FC<InheritanceDocumentProps> = ({
               width={wp(25)}
               icon={icon}
               backgroundColor={
-                isDiamondHands ? `${colorMode}.pantoneGreen` : `${colorMode}.disabledDiamond`
+                isDiamondHands ? `${colorMode}.pantoneGreen` : `${colorMode}.greyBorder`
               }
             />
           </Box>
           <Box>
             <Text
-              color={isDiamondHands ? titleColor : `${colorMode}.disabledDiamond`}
+              color={isDiamondHands ? titleColor : `${colorMode}.greyBorder`}
               fontSize={14}
               medium
               style={styles.title}
@@ -68,7 +68,7 @@ const InheritanceDocument: React.FC<InheritanceDocumentProps> = ({
             {description && (
               <Text
                 fontSize={12}
-                color={isDiamondHands ? subtitleColor : `${colorMode}.disabledDiamond`}
+                color={isDiamondHands ? subtitleColor : `${colorMode}.greyBorder`}
               >
                 {description}
               </Text>

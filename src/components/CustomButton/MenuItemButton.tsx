@@ -15,12 +15,12 @@ function MenuItemButton(props) {
     >
       <Box
         style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]}
-        backgroundColor={`${colorMode}.MintWhisper`}
+        backgroundColor={`${colorMode}.pantoneGreenLight`}
         borderColor={`${colorMode}.primaryGreenBackground`}
       >
         <Box>{props.icon}</Box>
         <Box>
-          <Text semiBold color={`${colorMode}.headerText`} style={styles.addAmountText}>
+          <Text semiBold color={`${colorMode}.textGreen`} style={styles.addAmountText}>
             {props.title}
           </Text>
           <Text color={`${colorMode}.secondaryText`} style={styles.addAmountSubTitleText}>

@@ -153,11 +153,11 @@ function BackupHealthCheckList({ isUaiFlow }) {
         title={BackupWallet.healthCheckSuccessTitle}
         subTitle={BackupWallet.healthCheckSuccessSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={BackupWallet.home}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
         buttonCallback={() => {
           navigtaion.navigate('Home');
         }}

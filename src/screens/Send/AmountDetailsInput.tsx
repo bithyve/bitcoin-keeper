@@ -130,7 +130,7 @@ const AmountDetailsInput = ({
       <Box style={styles.amountDetailsContainer}>
         <Box style={styles.amountDetailsWrapper}>
           <Box style={styles.amtDetailsTitleWrapper}>
-            <Text style={styles.amountText} color={`${colorMode}.pitchBlackText`}>
+            <Text style={styles.amountText} color={`${colorMode}.black`}>
               {getDisplayAmount()}
             </Text>
             <Text style={styles.amountText} color={`${colorMode}.greenText`}>
@@ -176,7 +176,7 @@ const AmountDetailsInput = ({
       <Pressable style={styles.switchButtonWrapper} onPress={handleSwitch}>
         <Box
           style={styles.switchButton}
-          backgroundColor={`${colorMode}.secondaryBackground`}
+          backgroundColor={`${colorMode}.textInputBackground`}
           borderColor={`${colorMode}.dullGreyBorder`}
         >
           {isDarkMode ? <SwitchArrowsWhite /> : <SwitchArrowGreen />}

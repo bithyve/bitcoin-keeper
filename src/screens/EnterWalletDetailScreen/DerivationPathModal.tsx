@@ -75,7 +75,7 @@ function DerivationPathModalContent({
             backgroundColor={`${colorMode}.seashellWhite`}
             onPress={onDropDownClick}
           >
-            <Text fontSize={12} bold color={`${colorMode}.headerText`}>
+            <Text fontSize={12} bold color={`${colorMode}.textGreen`}>
               {purpose
                 ? purposeList.find((item) => item.value === purpose).label
                 : 'Choose Wallet Purpose'}
@@ -112,7 +112,7 @@ function DerivationPathModalContent({
                       style={styles.purposeText}
                       semiBold={purpose === item.value}
                       color={
-                        purpose === item.value ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                        purpose === item.value ? `${colorMode}.textGreen` : `${colorMode}.GreyText`
                       }
                     >
                       {item.label}

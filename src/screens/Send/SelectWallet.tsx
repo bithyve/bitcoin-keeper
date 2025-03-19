@@ -71,7 +71,7 @@ function WalletItem({
     <Pressable onPress={handlePress}>
       <Box
         style={styles.walletItemContainer}
-        backgroundColor={`${colorMode}.secondaryBackground`}
+        backgroundColor={`${colorMode}.textInputBackground`}
         borderColor={borderColor}
         borderWidth={isSelected ? 2 : 1}
       >
@@ -79,7 +79,7 @@ function WalletItem({
           <HexagonIcon
             width={42}
             height={36}
-            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
+            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
             icon={getWalletIcon(wallet)}
           />
           <Text style={styles.walletName} color={`${colorMode}.primaryText`}>

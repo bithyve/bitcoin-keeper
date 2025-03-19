@@ -118,7 +118,7 @@ function SignerCategoryList() {
         <Box style={styles.alignCenter}>
           <SigningDevicesIllustration />
         </Box>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
         </Text>
       </View>
@@ -157,7 +157,7 @@ function SignerCategoryList() {
               />
             ))}
             <DashedCta
-              backgroundColor={`${colorMode}.DashedButtonCta`}
+              backgroundColor={`${colorMode}.dullGreen`}
               borderColor={`${colorMode}.dashedButtonBorderColor`}
               textColor={`${colorMode}.greenWhiteText`}
               name={signer.purchaseWallet}
@@ -176,14 +176,14 @@ function SignerCategoryList() {
         }}
         title={signer.signers}
         subTitle={signer.signerDescription}
-        modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        modalBackground={`${colorMode}.pantoneGreen`}
+        textColor={`${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.whiteButtonText`}
-        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        buttonTextColor={`${colorMode}.pantoneGreen`}
+        buttonBackground={`${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

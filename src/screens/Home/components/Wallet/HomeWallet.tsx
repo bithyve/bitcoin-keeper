@@ -142,8 +142,8 @@ const HomeWallet = () => {
     <Box style={styles.walletContainer}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
-        backgroundColor={`${colorMode}.DashedButtonCta`}
-        hexagonBackgroundColor={Colors.pantoneGreen}
+        backgroundColor={`${colorMode}.dullGreen`}
+        hexagonBackgroundColor={Colors.primaryGreen}
         textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"
         callback={() => setShowAddWalletModal(true)}
@@ -164,7 +164,7 @@ const HomeWallet = () => {
         title="Add a New Wallet"
         subTitle="Create a new wallet or import existing one"
         close={() => setShowAddWalletModal(false)}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon
         Content={() => (

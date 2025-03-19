@@ -98,7 +98,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
           {isDefaultType && (
             <Box style={styles.subtitleContainer}>
               <Text
-                color={subTitleColor || `${colorMode}.textGreenGrey`}
+                color={subTitleColor || `${colorMode}.GreyText`}
                 fontSize={subTitleFontSize || 14}
                 fontWeight={subTitleFontWeight}
                 style={{ flex: -1, marginRight: wp(15) }}
@@ -111,7 +111,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
                     {!getSatUnit() &&
                       getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
                     <Text
-                      color={amountColor || `${colorMode}.textGreenGrey`}
+                      color={amountColor || `${colorMode}.GreyText`}
                       fontSize={amountFontSize || 15}
                       fontWeight={amountFontWeight}
                     >
@@ -119,7 +119,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
                     </Text>
 
                     <Text
-                      color={unitColor || `${colorMode}.textGreenGrey`}
+                      color={unitColor || `${colorMode}.GreyText`}
                       fontSize={unitFontSize || 14}
                       fontWeight={unitFontWeight}
                     >

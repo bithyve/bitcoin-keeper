@@ -63,7 +63,7 @@ function FogotPassword(props) {
     <Box backgroundColor={`${colorMode}.primaryBackground`} padding={5}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          backgroundColor={`${colorMode}.lightAccent`}
+          backgroundColor={`${colorMode}.accent`}
           borderRadius={32}
           h={8}
           width={8}
@@ -108,8 +108,8 @@ function FogotPassword(props) {
             secureTextEntry
             _input={
               colorMode === 'dark' && {
-                selectionColor: Colors.SecondaryWhite,
-                cursorColor: Colors.SecondaryWhite,
+                selectionColor: Colors.bodyText,
+                cursorColor: Colors.bodyText,
               }
             }
           />
@@ -134,8 +134,8 @@ function FogotPassword(props) {
             value={passwordText}
             _input={
               colorMode === 'dark' && {
-                selectionColor: Colors.SecondaryWhite,
-                cursorColor: Colors.SecondaryWhite,
+                selectionColor: Colors.bodyText,
+                cursorColor: Colors.bodyText,
               }
             }
           />

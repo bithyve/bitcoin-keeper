@@ -431,12 +431,12 @@ function LoginScreen({ navigation, route }) {
         <Box flex={1}>
           <Box>
             <Box style={styles.testnetIndicatorWrapper}>{isTestnet() && <TestnetIndicator />}</Box>
-            <Text color={`${colorMode}.choosePlanHome`} fontSize={25} style={styles.welcomeText}>
+            <Text color={`${colorMode}.headerWhite`} fontSize={25} style={styles.welcomeText}>
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
               <Box style={styles.passcodeWrapper}>
-                <Text fontSize={14} color={`${colorMode}.choosePlanHome`}>
+                <Text fontSize={14} color={`${colorMode}.headerWhite`}>
                   {login.enter_your}
                   {login.passcode}
                 </Text>
@@ -512,9 +512,9 @@ function LoginScreen({ navigation, route }) {
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
@@ -531,7 +531,7 @@ function LoginScreen({ navigation, route }) {
         subTitle="Please check your internet connection and try again. If you continue offline, some features may not be available."
         Content={NoInternetModalContent}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         subTitleWidth={wp(230)}
         showCloseIcon={false}

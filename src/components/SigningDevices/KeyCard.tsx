@@ -30,7 +30,7 @@ function KeyCard({
             <HexagonIcon
               width={40}
               height={40}
-              backgroundColor={Colors.pantoneGreen}
+              backgroundColor={Colors.primaryGreen}
               icon={icon.element}
             />
             <Text medium style={styles.nameText} color={`${colorMode}.primaryText`}>

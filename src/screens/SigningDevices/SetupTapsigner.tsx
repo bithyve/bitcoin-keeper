@@ -379,13 +379,13 @@ function SetupTapsigner({ route }) {
         <Box
           padding={hp(20)}
           borderRadius={7}
-          backgroundColor={`${colorMode}.secondaryBackground`}
+          backgroundColor={`${colorMode}.textInputBackground`}
           flexDirection="row"
         >
           <HexagonIcon
             width={wp(43)}
             height={hp(38)}
-            backgroundColor={colorMode === 'light' ? Colors.pantoneGreen : Colors.NewBadgeGreenDark}
+            backgroundColor={colorMode === 'light' ? Colors.primaryGreen : Colors.GreenishGrey}
             icon={<TAPSIGNERICONLIGHT />}
           />
           <Box marginLeft={wp(12)}>
@@ -526,7 +526,7 @@ function SetupTapsigner({ route }) {
         title={signerTranslations.TapsignerSetupStatus}
         subTitle={signerTranslations.TapsignerSetupStatusSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={StatusModalContent}
       />

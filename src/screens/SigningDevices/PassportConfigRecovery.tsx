@@ -76,8 +76,8 @@ function PassportConfigRecovery() {
                   multiline
                   _input={
                     colorMode === 'dark' && {
-                      selectionColor: Colors.SecondaryWhite,
-                      cursorColor: Colors.SecondaryWhite,
+                      selectionColor: Colors.bodyText,
+                      cursorColor: Colors.bodyText,
                     }
                   }
                 />
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   separator: {
     width: '100%',
     height: 2,
-    backgroundColor: Colors.WhiteCoffee,
+    backgroundColor: Colors.secondaryCreamWhite,
     marginBottom: 10,
   },
   optionsWrapper: {
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     height: wp(35),
     marginLeft: -7,
     borderRadius: 20,
-    backgroundColor: Colors.pantoneGreen,
+    backgroundColor: Colors.primaryGreen,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -317,7 +317,7 @@ function Navigator() {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
-      background: colorMode === 'light' ? Colors.LightYellow : Colors.PrimaryBlack,
+      background: colorMode === 'light' ? Colors.secondaryCreamWhite : Colors.PrimaryBlack,
     },
   };
 

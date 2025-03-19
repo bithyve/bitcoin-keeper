@@ -55,7 +55,7 @@ const StackedCirclesList: React.FC<StackedCirclesListProps> = ({
           borderColor={`${colorMode}.dullGreyBorder`}
           style={[styles.itemContainer, { width: width, height: height }]}
         >
-          <Text medium style={styles.countText} color={`${colorMode}.modalGreenContent`}>
+          <Text medium style={styles.countText} color={`${colorMode}.headerWhite`}>
             +{totalItems - maxVisible}
           </Text>
         </Box>

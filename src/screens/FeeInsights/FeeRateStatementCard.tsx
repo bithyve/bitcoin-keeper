@@ -63,7 +63,7 @@ const FeerateStatement = (props: Props) => {
             {shortFeeStatement.includes('higher than usual') ||
             shortFeeStatement.includes('lower than usual') ? (
               <>
-                <Text style={styles.highAlertSatsFee} color={`${colorMode}.feeInfoTitleColor`}>
+                <Text style={styles.highAlertSatsFee} color={`${colorMode}.modalWhiteContent`}>
                   {`Fees are `}
                 </Text>
                 <Box style={styles.arrowWrapper}>
@@ -78,7 +78,7 @@ const FeerateStatement = (props: Props) => {
               </>
             ) : (
               <>
-                <Text style={styles.highAlertSatsFee} color={`${colorMode}.feeInfoTitleColor`}>
+                <Text style={styles.highAlertSatsFee} color={`${colorMode}.modalWhiteContent`}>
                   {shortFeeStatement}
                 </Text>
 

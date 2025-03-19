@@ -45,16 +45,20 @@ function SigningDeviceChecklist({ status, date }: { status: string; date: Date }
         <Box style={styles.timeLineWrapper}>
           <Box
             zIndex={99}
-            backgroundColor={`${colorMode}.lightBrownCircle`}
+            backgroundColor={`${colorMode}.RecoveryBorderColor`}
             width={30}
             height={30}
             borderRadius={50}
             alignItems={'center'}
             justifyContent={'center'}
           >
-            <DotView height={3.5} width={3.5} color={`${colorMode}.darkBrownCircle`} />
+            <DotView height={3.5} width={3.5} color={`${colorMode}.BrownNeedHelp`} />
           </Box>
-          <Box py={7} borderLeftColor={`${colorMode}.lightBrownCircle`} borderLeftWidth={2}></Box>
+          <Box
+            py={7}
+            borderLeftColor={`${colorMode}.RecoveryBorderColor`}
+            borderLeftWidth={2}
+          ></Box>
         </Box>
       </Box>
       <Box style={styles.contentWrapper}>

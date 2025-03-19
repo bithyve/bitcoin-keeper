@@ -444,7 +444,7 @@ function SignerAdvanceSettings({ route }: any) {
     return (
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
         <Box style={styles.iconContainer}>
-          <HexagonIcon width={44} height={38} backgroundColor={Colors.pantoneGreen} icon={icon} />
+          <HexagonIcon width={44} height={38} backgroundColor={Colors.primaryGreen} icon={icon} />
         </Box>
         <Box style={styles.titlesContainer}>
           <Text style={styles.titleText}>{title}</Text>
@@ -909,7 +909,7 @@ function SignerAdvanceSettings({ route }: any) {
     return (
       <Box>
         <Center>{assert}</Center>
-        <Text color={`${colorMode}.modalGreenContent`} style={styles.contentDescription}>
+        <Text color={`${colorMode}.headerWhite`} style={styles.contentDescription}>
           {description}
         </Text>
       </Box>
@@ -950,7 +950,7 @@ function SignerAdvanceSettings({ route }: any) {
             <Box key={card.key}>
               {card}
               {index < displayedCards.length - 1 && (
-                <View style={styles.divider} backgroundColor={`${colorMode}.textColor3`} />
+                <View style={styles.divider} backgroundColor={`${colorMode}.secondaryText`} />
               )}
             </Box>
           ))}
@@ -963,7 +963,7 @@ function SignerAdvanceSettings({ route }: any) {
         title="Changing Signer Type"
         subTitle="Are you sure you want to change the signer type?"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText="Continue"
         secondaryButtonText="Cancel"
@@ -977,7 +977,7 @@ function SignerAdvanceSettings({ route }: any) {
         title={signingServer.BackUpModalTitle}
         subTitle={signingServer.BackUpModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={BackupModalContent}
       />
@@ -992,12 +992,12 @@ function SignerAdvanceSettings({ route }: any) {
         secButtonTextColor={`${colorMode}.greenText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
         }}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
       />
@@ -1011,7 +1011,7 @@ function SignerAdvanceSettings({ route }: any) {
           actionAfterPasscode === 'hideKey' ? 'To hide the key' : 'To view Mobile Key seed words'
         }
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
@@ -1031,7 +1031,7 @@ function SignerAdvanceSettings({ route }: any) {
         title={`${signerTranslation.backingUp} ${signer.signerName}`}
         subTitle={`${signerTranslation.writeBackupSeed} ${signer.signerName}. ${signerTranslation.doItPrivately}`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() =>
           backupModalContent({
@@ -1054,7 +1054,7 @@ function SignerAdvanceSettings({ route }: any) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={common.confirm2FACodeTitle}
         subTitle={common.confirm2FACodeSubtitle}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={SigningServerOTPModal}
       />
@@ -1071,14 +1071,14 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setDetailModal(false)}
         title={!signer.isBIP85 ? title : `${title} +`}
         subTitle={subTitle}
-        modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        modalBackground={`${colorMode}.pantoneGreen`}
+        textColor={`${colorMode}.headerWhite`}
         Content={SignerContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonTextColor={`${colorMode}.textGreen`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
@@ -1265,7 +1265,7 @@ const styles = StyleSheet.create({
   },
   signerCard: {
     borderWidth: 1,
-    borderColor: Colors.SilverMist,
+    borderColor: Colors.secondaryLightGrey,
     height: 120,
     width: wp(105),
     paddingTop: 5,
@@ -1310,7 +1310,7 @@ const styles = StyleSheet.create({
     marginLeft: wp(15),
   },
   titleText: {
-    color: Colors.pantoneGreen,
+    color: Colors.primaryGreen,
     fontSize: 14,
     fontWeight: '500',
   },

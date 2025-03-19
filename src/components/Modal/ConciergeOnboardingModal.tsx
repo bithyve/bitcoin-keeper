@@ -39,15 +39,15 @@ function ConciergeOnboardingModal({ visible }) {
       buttonText={common.confirm}
       buttonCallback={handleContinue}
       buttonBackground={`${colorMode}.modalWhiteButton`}
-      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-      modalBackground={`${colorMode}.modalGreenBackground`}
-      textColor={`${colorMode}.modalGreenContent`}
+      buttonTextColor={`${colorMode}.textGreen`}
+      modalBackground={`${colorMode}.pantoneGreen`}
+      textColor={`${colorMode}.headerWhite`}
       Content={() => (
         <Box>
           <Box style={styles.illustrationContainer}>
             {isDarkMode ? <QueryIllustrationDark /> : <QueryIllustrationLight />}
           </Box>
-          <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
+          <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
             {concierge.conciergeModalDesc}
           </Text>
         </Box>

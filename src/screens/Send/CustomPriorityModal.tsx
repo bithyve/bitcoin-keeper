@@ -157,7 +157,7 @@ function CustomPriorityModal(props) {
               </Text>
             </Box>
             <Box my={3} flexDirection="row" justifyContent="space-between" mx={1}>
-              <Text fontSize={12} color={`${colorMode}.SlateGrey`}>
+              <Text fontSize={12} color={`${colorMode}.secondarySubtitle`}>
                 {customEstBlocks ? `${estimationSign} ${customEstBlocks * 10} mins` : ''}
               </Text>
             </Box>
