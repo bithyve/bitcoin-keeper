@@ -1163,7 +1163,10 @@
     "publicServerNote": "It’s recommended to use your own Electrum server to protect your privacy",
     "connectToServer": "Connect to Server",
     "assistedServerBackup": "Assisted Server Backup",
-    "assistedServerBackupSubtitle": "Securely back up encrypted data on Keeper server"
+    "assistedServerBackupSubtitle": "Securely back up encrypted data on Keeper server",
+    "assistedServerDeleteBackupSubtitle": "Do you also want to delete the existing assisted server backup?",
+    "assistedServerDeleteBackupModalCTA": "Delete",
+    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",

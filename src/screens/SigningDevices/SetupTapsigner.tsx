@@ -552,9 +552,6 @@ const styles = StyleSheet.create({
     letterSpacing: 5,
     justifyContent: 'center',
   },
-  inputContainer: {
-    alignItems: 'flex-end',
-  },
   heading: {
     margin: '5%',
     padding: 5,

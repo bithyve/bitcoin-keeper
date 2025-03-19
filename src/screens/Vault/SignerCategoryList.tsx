@@ -14,8 +14,6 @@ import HardwareSignerBlack from 'src/assets/images/hardware-signer-black.svg';
 import HardwareSignerWhite from 'src/assets/images/hardware-signer-white.svg';
 import MobileKeyBlack from 'src/assets/images/mobile_key.svg';
 import MobileKeyWhite from 'src/assets/images/mobile_key_light.svg';
-import AssistedSignerBlack from 'src/assets/images/assisted-signer-black.svg';
-import AssistedSignerWhite from 'src/assets/images/assisted-signer-white.svg';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';

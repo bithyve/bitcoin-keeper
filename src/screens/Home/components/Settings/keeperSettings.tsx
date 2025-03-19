@@ -43,6 +43,7 @@ const KeeperSettings = ({ route }) => {
     planData,
     hiddenKeyPass,
     setHiddenKeyPass,
+    DeleteBackupModal,
   } = useSettingKeeper();
 
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
@@ -162,6 +163,7 @@ const KeeperSettings = ({ route }) => {
         confirmPass={confirmPass}
         setConfirmPass={setConfirmPass}
       />
+      {DeleteBackupModal}
       <ActivityIndicatorView visible={backupAllLoading} showLoader />
       <KeeperModal
         visible={hiddenKeyPass}

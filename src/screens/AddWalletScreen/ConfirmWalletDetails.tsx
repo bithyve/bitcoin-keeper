@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useContext, useEffect, useRef } from 'react';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
@@ -20,7 +20,7 @@ import SecurityIcon from 'src/assets/images/security.svg';
 
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { resetRealyVaultState, resetRealyWalletState } from 'src/store/reducers/bhr';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
@@ -142,10 +142,6 @@ function ConfirmWalletDetails({ route }) {
     };
     dispatch(addNewWallets([newWallet]));
   }, [walletName, descriptionInputRef, path, purpose, transferPolicy]);
-
-  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
-    (state) => state.bhr
-  );
 
   useEffect(() => {
     if (relayWalletUpdate) {
@@ -677,22 +673,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginRight: wp(10),
   },
-  amountWrapper: {
-    marginHorizontal: 10,
-    marginTop: hp(30),
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 10,
-    padding: 10,
-    gap: 10,
-    justifyContent: 'space-between',
-  },
-  balanceCrossesText: {
-    fontSize: 12,
-    letterSpacing: 0.12,
-    marginTop: hp(10),
-    marginHorizontal: 12,
-  },
   fieldsContainer: {
     marginTop: hp(30),
     marginBottom: hp(50),
@@ -784,11 +764,6 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 14,
-  },
-  descText: {
-    fontSize: 14,
-    width: wp(300),
-    marginBottom: hp(18),
   },
 });
 

@@ -98,7 +98,7 @@ function StartNewModalContent() {
 function NewKeeperApp({ navigation }: { navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
-  const { appImageRecoverd, appRecreated, appImageError } = useAppSelector((state) => state.bhr);
+  const { appRecreated, appImageError } = useAppSelector((state) => state.bhr);
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
@@ -133,7 +133,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
     if (appImageError && isFocused) {
       showToast('Failed to get app image');
     }
-  }, [appImageRecoverd, appImageError]);
+  }, [appImageError]);
 
   useEffect(() => {
     if (appRecreated) {

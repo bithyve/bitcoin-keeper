@@ -510,10 +510,6 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },
-  container: {
-    flex: 1,
-    position: 'relative',
-  },
   topSection: {
     height: '25%',
     paddingHorizontal: 20,
@@ -534,40 +530,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  addCard: {
-    height: 125,
-    width: windowWidth / 3 - windowWidth * 0.05,
-    margin: 3,
-  },
-  warningText: {
-    fontSize: 13,
-    padding: 1,
-    letterSpacing: 0.65,
-  },
   modalContent: {
     marginBottom: hp(10),
   },
   illustrationContainer: {
     marginBottom: hp(30),
   },
-  timerWrapper: {
-    width: '100%',
-    borderRadius: 10,
-    marginBottom: hp(30),
-    marginTop: hp(5),
-    justifyContent: 'center',
-    alignItems: 'center',
-    color: 'white',
-    fontSize: 13,
-    letterSpacing: 0.65,
-    gap: 30,
-  },
   modalDesc: {
     width: '95%',
-  },
-  settingsButton: {
-    paddingHorizontal: 22,
-    paddingVertical: 22,
   },
   signerCard: {
     width: windowWidth * 0.43,

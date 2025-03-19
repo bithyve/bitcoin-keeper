@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { hp, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import { getArchivedVaults } from 'src/utils/service-utilities/utils';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -14,13 +14,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { MiniscriptTypes, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { getKeyUID, trimCWDefaultName } from 'src/utils/utilities';
-import { Vault } from 'src/services/wallets/interfaces/vault';
-import {
-  EMERGENCY_KEY_IDENTIFIER,
-  getVaultEnhancedSigners,
-  INHERITANCE_KEY_IDENTIFIER,
-} from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import { trimCWDefaultName } from 'src/utils/utilities';
+import { getVaultEnhancedSigners } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
 import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
 import LearnMoreIconDark from 'src/assets/images/info-Dark-icon.svg';

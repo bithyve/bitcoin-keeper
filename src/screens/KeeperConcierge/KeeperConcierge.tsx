@@ -5,14 +5,8 @@ import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
 import ContentWrapper from '../../components/ContentWrapper';
 import HelpCard from './components/HelpCard';
-import AILight from 'src/assets/images/ai-light.svg';
-import AIDark from 'src/assets/images/ai-dark.svg';
 import SendLight from 'src/assets/images/send-light.svg';
 import SendDark from 'src/assets/images/send-dark.svg';
-import AIOutlineLight from 'src/assets/images/ai-outline-light.svg';
-import AIOutlineDark from 'src/assets/images/ai-outline-dark.svg';
-import KBOutlineLight from 'src/assets/images/kb-outline-light.svg';
-import KBOutlineDark from 'src/assets/images/kb-outline-dark.svg';
 import TechnicalSupportLight from 'src/assets/images/technical-support-light.svg';
 import TechnicalSupportDark from 'src/assets/images/technical-support-dark.svg';
 import AdvisorDisabledLight from 'src/assets/images/calendar-disabled-light.svg';
@@ -31,8 +25,6 @@ import { setConciergeUserFailed, setConciergeUserSuccess } from 'src/store/reduc
 import usePlan from 'src/hooks/usePlan';
 import { useAppSelector } from 'src/store/hooks';
 import { showOnboarding } from 'src/store/reducers/concierge';
-import KbCtaLight from 'src/assets/images/kb-cta-light.svg';
-import KbCtaDark from 'src/assets/images/kb-cta-dark.svg';
 
 const KeeperConcierge = () => {
   const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);

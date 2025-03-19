@@ -2,7 +2,6 @@ import { Pressable, StyleSheet } from 'react-native';
 import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
@@ -16,19 +15,16 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import useWallets from 'src/hooks/useWallets';
-import { DerivationPurpose, WalletType } from 'src/services/wallets/enums';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Colors from 'src/theme/Colors';
-import WalletUtilities from 'src/services/wallets/operations/utils';
 import LearnMoreModal from './components/LearnMoreModal';
 import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import BTCAmountPill from 'src/components/BTCAmountPill';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import WalletHeader from 'src/components/WalletHeader';
 import WalletCard from '../Home/components/Wallet/WalletCard';
@@ -72,48 +68,14 @@ function WalletDetails({ route }: ScreenProps) {
   } = route.params || {};
   const [syncingCompleted, setSyncingCompleted] = useState(false);
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
-  const {
-    presentationData: { name, description } = { name: '', description: '' },
-    specs: { balances: { confirmed, unconfirmed } } = {
-      balances: { confirmed: 0, unconfirmed: 0 },
-    },
-  } = wallet;
 
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(wallet);
 
-  const walletType = idx(wallet, (_) => _.type) || 'DEFAULT';
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
-  const walletKind =
-    walletType === WalletType.DEFAULT
-      ? 'Hot Wallet'
-      : walletType === WalletType.IMPORTED && wallet.specs && !wallet.specs.xpriv
-      ? 'Watch Only'
-      : walletType === WalletType.IMPORTED
-      ? 'Imported Wallet'
-      : undefined;
-  let isTaprootWallet = false;
-  const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
-  if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86) {
-    isTaprootWallet = true;
-  }
-
-  const disableBuy = false;
-  const cardProps = {
-    circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
-    pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
-    cardPillText: disableBuy ? common.comingSoon : '',
-    customCardPill: !disableBuy && <BTCAmountPill />,
-    cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
-  };
-
-  useEffect(() => {
-    if (!syncing) {
-    }
-  }, []);
 
   useEffect(() => {
     dispatch(sendPhaseOneReset());
@@ -296,54 +258,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  walletHeaderWrapper: {
-    marginTop: -10,
-    marginHorizontal: wp(15),
-    flexDirection: 'row',
-    width: '100%',
-  },
-  walletIconWrapper: {
-    width: '15%',
-    marginRight: 7,
-  },
-  walletNameWrapper: {
-    width: '85%',
-  },
-  walletNameText: {
-    fontSize: 20,
-  },
-  walletDescText: {
-    fontSize: 14,
-  },
-  walletIconView: {
-    height: 40,
-    width: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  balanceWrapper: {
-    flexDirection: 'row',
-    paddingLeft: '3%',
-    marginTop: 20,
-    marginBottom: 10,
-    justifyContent: 'space-between',
-  },
   transactionsContainer: {
     paddingHorizontal: wp(22),
     marginTop: hp(5),
     paddingTop: hp(24),
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-  },
-  unconfirmBalanceView: {
-    width: '50%',
-    flexDirection: 'row',
-    gap: 5,
-  },
-  availableBalanceView: {
-    width: '50%',
-    alignItems: 'flex-end',
   },
   transTitleWrapper: {
     paddingTop: 5,

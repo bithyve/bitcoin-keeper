@@ -11,15 +11,10 @@ const initialState: {
   currencyCode: string;
   language: string;
   torEnbled: boolean;
-  inheritanceModal: boolean;
   satsEnabled: boolean;
-  keySecurityTips: string;
-  letterToAttorny: string;
   enableAnalyticsLogin: boolean;
-  recoveryInstruction: string;
   oneTimeBackupStatus: {
     signingServer: boolean;
-    inheritanceKey: boolean;
   };
   backupModal: boolean;
   subscription: string;
@@ -30,15 +25,10 @@ const initialState: {
   currencyCode: 'USD',
   language: 'en',
   torEnbled: false,
-  inheritanceModal: true,
   satsEnabled: true,
-  keySecurityTips: '',
-  letterToAttorny: '',
   enableAnalyticsLogin: true,
-  recoveryInstruction: '',
   oneTimeBackupStatus: {
     signingServer: false,
-    inheritanceKey: false,
   },
   backupModal: true,
   subscription: SubscriptionTier.L1,
@@ -69,18 +59,9 @@ const settingsSlice = createSlice({
     setSatsEnabled: (state, action: PayloadAction<boolean>) => {
       state.satsEnabled = action.payload;
     },
-    setKeySecurityTipsPath: (state, action: PayloadAction<string>) => {
-      state.keySecurityTips = action.payload;
-    },
-    setLetterToAttornyPath: (state, action: PayloadAction<string>) => {
-      state.letterToAttorny = action.payload;
-    },
     setEnableAnalyticsLogin: (state, action: PayloadAction<boolean>) => {
       state.enableAnalyticsLogin = action.payload;
     },
-    // setRecoveryInstructionPath: (state, action: PayloadAction<string>) => {
-    //   state.recoveryInstruction = action.payload;
-    // },
     setOTBStatusSS: (state, action: PayloadAction<boolean>) => {
       state.oneTimeBackupStatus.signingServer = action.payload;
     },
@@ -101,10 +82,7 @@ export const {
   setLanguage,
   setTorEnabled,
   setSatsEnabled,
-  setKeySecurityTipsPath,
-  setLetterToAttornyPath,
   setEnableAnalyticsLogin,
-  // setRecoveryInstructionPath,
   setOTBStatusSS,
   setBackupModal,
   setSubscription,

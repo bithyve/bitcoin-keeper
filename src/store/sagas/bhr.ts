@@ -49,7 +49,10 @@ import {
   setBackupLoading,
   setBackupType,
   setBackupWarning,
+  setDeleteBackupFailure,
+  setDeleteBackupSuccess,
   setEncPassword,
+  setHomeToastMessage,
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
   setPendingAllBackup,
@@ -60,6 +63,7 @@ import {
   BACKUP_BSMS_ON_CLOUD,
   BSMS_CLOUD_HEALTH_CHECK,
   DELETE_APP_IMAGE_ENTITY,
+  DELETE_BACKUP,
   GET_APP_IMAGE,
   HEALTH_CHECK_STATUS_UPDATE,
   SEED_BACKEDUP,
@@ -79,6 +83,7 @@ import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { addSigningDeviceWorker } from './wallets';
 import { getKeyUID } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
+import { addToUaiStackWorker, uaiActionedWorker } from './uai';
 
 export function* updateAppImageWorker({
   payload,
@@ -151,7 +156,7 @@ export function* updateAppImageWorker({
   } catch (err) {
     console.log({ err });
     console.error('App image update failed', err);
-    yield put(setPendingAllBackup(true));
+    yield call(setServerBackupFailed);
     return { updated: true, error: '' };
   }
 }
@@ -215,7 +220,7 @@ export function* updateVaultImageWorker({
     return response;
   } catch (err) {
     captureError(err);
-    yield put(setPendingAllBackup(true));
+    yield call(setServerBackupFailed);
     return { updated: true, error: '' };
   }
 }
@@ -880,8 +885,24 @@ export const deleteAppImageEntityWatcher = createWatcher(
 );
 
 function* backupAllSignersAndVaultsWorker() {
+  yield put(setBackupAllSuccess(false));
+  yield put(setBackupAllFailure(false));
   yield put(setBackupAllLoading(true));
   try {
+    // clear backup failure notification
+    const uaiCollection = dbManager.getObjectByField(
+      RealmSchema.UAI,
+      uaiType.SERVER_BACKUP_FAILURE,
+      'uaiType'
+    );
+    for (const uai of uaiCollection) {
+      if (uai.uaiType === uaiType.SERVER_BACKUP_FAILURE) {
+        yield call(uaiActionedWorker, {
+          payload: { uaiId: uai.id, action: false },
+        });
+      }
+    }
+
     const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
       dbManager.getObjectByIndex,
       RealmSchema.KeeperApp
@@ -957,10 +978,23 @@ function* backupAllSignersAndVaultsWorker() {
     });
     yield put(setBackupAllSuccess(true));
     yield put(setPendingAllBackup(false));
+    yield put(
+      setHomeToastMessage({
+        message: 'Assisted server backup completed successfully',
+        isError: false,
+      })
+    );
     return true;
   } catch (error) {
     yield put(setBackupAllFailure(true));
+    yield call(setServerBackupFailed);
     console.log('🚀 ~ function*backupAllSignersAndVaultsWorker ~ error:', error);
+    yield put(
+      setHomeToastMessage({
+        message: 'Assisted server backup failed. Please try again later.',
+        isError: true,
+      })
+    );
     return false;
   } finally {
     yield put(setBackupAllLoading(false));
@@ -972,6 +1006,28 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
   BACKUP_ALL_SIGNERS_AND_VAULTS
 );
 
+function* deleteBackupWorker() {
+  yield put(setBackupAllLoading(true));
+  try {
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
+    yield call(Relay.deleteBackup, {
+      appId: id,
+    });
+    yield put(setDeleteBackupSuccess(true));
+    yield put(setPendingAllBackup(false));
+    return true;
+  } catch (error) {
+    yield put(setDeleteBackupFailure(true));
+    console.log('🚀 ~ deleteBackupWorker ~ error:', error);
+    return false;
+  } finally {
+    yield put(setBackupAllLoading(false));
+  }
+}
+
+export const deleteBackupWatcher = createWatcher(deleteBackupWorker, DELETE_BACKUP);
+
 export function* checkBackupCondition() {
   const { pendingAllBackup, automaticCloudBackup } = yield select((state: RootState) => state.bhr);
   const { subscription }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
@@ -982,7 +1038,7 @@ export function* checkBackupCondition() {
   if (!automaticCloudBackup) return true;
   const netInfo = yield call(NetInfo.fetch);
   if (!netInfo.isConnected) {
-    yield put(setPendingAllBackup(true));
+    yield call(setServerBackupFailed);
     return true;
   }
   if (pendingAllBackup) {
@@ -990,4 +1046,29 @@ export function* checkBackupCondition() {
     return true;
   }
   return false;
+}
+
+export function* setServerBackupFailed() {
+  const uaiCollection = dbManager.getObjectByField(
+    RealmSchema.UAI,
+    uaiType.SERVER_BACKUP_FAILURE,
+    'uaiType'
+  );
+  for (const uai of uaiCollection) {
+    if (uai.uaiType === uaiType.SERVER_BACKUP_FAILURE) {
+      yield call(uaiActionedWorker, {
+        payload: { uaiId: uai.id, action: false },
+      });
+    }
+  }
+  yield call(addToUaiStackWorker, {
+    payload: {
+      uaiType: uaiType.SERVER_BACKUP_FAILURE,
+      uaiDetails: {
+        heading: 'Assisted Server Backup Has Failed',
+        body: "Retry backup to Keeper's servers",
+      },
+    },
+  });
+  yield put(setPendingAllBackup(true));
 }

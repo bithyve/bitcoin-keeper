@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, Input, View, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -8,7 +8,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useNavigation } from '@react-navigation/native';
 import Buttons from 'src/components/Buttons';
-import { maxTransferPolicyThreshold } from 'src/store/sagas/storage';
 
 function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
