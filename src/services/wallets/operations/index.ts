@@ -8,7 +8,6 @@
 
 import * as bitcoinJS from 'bitcoinjs-lib';
 
-import ECPairFactory from 'ecpair';
 import config from 'src/utils/service-utilities/config';
 import { parseInt } from 'lodash';
 import ElectrumClient from 'src/services/electrum/client';
@@ -56,16 +55,11 @@ import {
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 import { generateScriptWitnesses, generateBitcoinScript } from './miniscript/miniscript';
-import { Phase, Path } from './miniscript/policy-generator';
+import { Phase } from './miniscript/policy-generator';
 import { coinselect } from './coinselectFixed';
 import { isTestnet } from 'src/constants/Bitcoin';
 
 bitcoinJS.initEccLib(ecc);
-const ECPair = ECPairFactory(ecc);
-const TESTNET_FEE_CUTOFF = 10;
-
-const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
-  ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
 const testnetFeeSurcharge = (wallet: Wallet | Vault) =>
   /* !! TESTNET ONLY !!
@@ -207,7 +201,7 @@ const updateOutputsForFeeCalculation = (outputs, network) => {
   return outputs;
 };
 
-function utxpArraysAreEqual(arr1: InputUTXOs[], arr2: InputUTXOs[]): boolean {
+function utxoArraysAreEqual(arr1: InputUTXOs[], arr2: InputUTXOs[]): boolean {
   if (arr1.length !== arr2.length) return false;
 
   // Sort both arrays by txId and vout
@@ -740,8 +734,8 @@ export default class WalletOperations {
         walletHasNewUpdates =
           hasNewUpdates ||
           newUTXOs.length !== 0 ||
-          !utxpArraysAreEqual(wallet.specs.unconfirmedUTXOs, unconfirmedUTXOs) ||
-          !utxpArraysAreEqual(wallet.specs.confirmedUTXOs, confirmedUTXOs)
+          !utxoArraysAreEqual(wallet.specs.unconfirmedUTXOs, unconfirmedUTXOs) ||
+          !utxoArraysAreEqual(wallet.specs.confirmedUTXOs, confirmedUTXOs)
             ? true
             : walletHasNewUpdates;
 

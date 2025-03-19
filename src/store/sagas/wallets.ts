@@ -303,8 +303,7 @@ export function* addNewVaultWorker({
         }
       }
 
-      const tempShellId = yield select((state: RootState) => state.vault.tempShellId);
-      const vaultShellId = tempShellId || generateKey(12);
+      const vaultShellId = generateKey(12);
 
       const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {

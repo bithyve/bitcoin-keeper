@@ -20,7 +20,6 @@ export type WalletsState = {
   testCoinsFailed: boolean;
 
   introModal: boolean;
-  cosignerModal: boolean;
   err: string;
   walletSyncing: {};
   signerPolicyError?: string;
@@ -41,7 +40,6 @@ const initialState: WalletsState = {
   testCoinsFailed: false,
 
   introModal: true,
-  cosignerModal: true,
 
   err: '',
   walletSyncing: {},
@@ -70,9 +68,6 @@ const walletSlice = createSlice({
     },
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
-    },
-    setCosginerModal: (state, action: PayloadAction<boolean>) => {
-      state.cosignerModal = action.payload;
     },
     walletGenerationFailed: (state, action: PayloadAction<string>) => {
       state.hasNewWalletsGenerationFailed = true;
@@ -120,7 +115,6 @@ export const {
   setTestCoinsReceived,
   setTestCoinsFailed,
   setIntroModal,
-  setCosginerModal,
   walletGenerationFailed,
   newWalletCreated,
   resetWalletStateFlags,

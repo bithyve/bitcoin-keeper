@@ -1,4 +1,4 @@
-import { InheritanceKeyInfo, SignerPolicy } from 'src/models/interfaces/AssistedKeys';
+import { SignerPolicy } from 'src/models/interfaces/AssistedKeys';
 import { BIP85Config, Balances, Transaction, UTXO } from '.';
 import {
   EntityKind,
