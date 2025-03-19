@@ -78,11 +78,6 @@ function WalletDetails({ route }: ScreenProps) {
   const [pullRefresh, setPullRefresh] = useState(false);
 
   useEffect(() => {
-    if (!syncing) {
-    }
-  }, []);
-
-  useEffect(() => {
     dispatch(sendPhaseOneReset());
   }, []);
 
