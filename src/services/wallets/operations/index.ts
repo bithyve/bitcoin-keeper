@@ -2002,7 +2002,7 @@ export default class WalletOperations {
           });
         }
 
-        signingPayload.push({ payloadTarget, childIndexArray, outgoing, change });
+        signingPayload.push({ payloadTarget, childIndexArray, change });
       } else {
         signingPayload.push({
           payloadTarget,
