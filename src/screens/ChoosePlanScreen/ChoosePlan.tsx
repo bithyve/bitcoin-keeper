@@ -108,7 +108,6 @@ function ChoosePlan() {
   }, []);
 
   useEffect(() => {
-    // To calculate same index as in ChoosePlanCarousel
     setCurrentPosition(initialPosition !== 0 ? initialPosition : subscription.level - 1);
   }, []);
 
