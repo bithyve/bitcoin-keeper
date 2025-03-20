@@ -12,6 +12,7 @@ import SigningServer from 'src/services/backend/SigningServer';
 import { isTestnet } from 'src/constants/Bitcoin';
 import * as PORTAL from 'src/hardware/portal';
 import { getInputsFromPSBT } from 'src/utils/utilities';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { checkAndUnlock } from '../SigningDevices/SetupPortal';
 
 export const signTransactionWithTapsigner = async ({
@@ -96,6 +97,7 @@ export const signTransactionWithMobileKey = async ({
 
 export const signTransactionWithSigningServer = async ({
   xfp,
+  vault,
   signingPayload,
   signingServerOTP,
   serializedPSBT,
@@ -107,17 +109,21 @@ export const signTransactionWithSigningServer = async ({
     showOTPModal(false);
     const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
     const change = idx(signingPayload, (_) => _[0].change);
+    const changeIndex = idx(signingPayload, (_) => _[0].changeIndex);
 
     if (!childIndexArray) throw new Error('Invalid signing payload');
     if (!signingServerOTP) throw new Error('Verification token is missing');
+
     const verificationToken = Number(signingServerOTP);
+    const descriptor = generateOutputDescriptors(vault);
 
     const { signedPSBT, delayed, delayedTransaction } = await SigningServer.signPSBT(
       xfp,
       serializedPSBT,
       childIndexArray,
       verificationToken,
-      change,
+      { address: change, index: changeIndex },
+      descriptor,
       fcmToken
     );
 

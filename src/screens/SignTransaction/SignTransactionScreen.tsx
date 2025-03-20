@@ -380,6 +380,7 @@ function SignTransactionScreen() {
           const { signedSerializedPSBT, delayed, delayedTransaction } =
             await signTransactionWithSigningServer({
               xfp,
+              vault: defaultVault,
               signingPayload,
               signingServerOTP,
               serializedPSBT,
@@ -459,7 +460,7 @@ function SignTransactionScreen() {
         }
       }
     },
-    [activeXfp, serializedPSBTEnvelops, delayedTransactions]
+    [activeXfp, serializedPSBTEnvelops, delayedTransactions, defaultVault]
   );
 
   const onFileSign = (signedSerializedPSBT: string) => {
