@@ -15,6 +15,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
 const SubscriptionList: React.FC<{
   plans: any[];
@@ -51,7 +52,6 @@ const SubscriptionList: React.FC<{
   const toggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
-
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
       {planData.map((plan, index) => {
@@ -60,6 +60,7 @@ const SubscriptionList: React.FC<{
 
         const matchedPlan = plans.find((p) => p.name.toLowerCase() === plan.title.toLowerCase());
         const isPleb = plan.title.toLowerCase() === 'pleb';
+        const isKeeperPrivate = plan.title === SubscriptionTier.L4;
 
         const planDetails = isPleb
           ? 'Free'
@@ -148,9 +149,9 @@ const SubscriptionList: React.FC<{
                   />
                 </Box>
               </View>
-              <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
-                {' '}
-              </Box>
+              {isKeeperPrivate && !isExpanded ? null : (
+                <Box style={styles.divider} backgroundColor={`${colorMode}.brownColor`}></Box>
+              )}
               {isExpanded && (
                 <>
                   <PlanDetailsCards plansData={plans} currentPosition={currentPosition} />
@@ -160,7 +161,7 @@ const SubscriptionList: React.FC<{
                 </>
               )}
 
-              {priceDisplay}
+              {!isKeeperPrivate && priceDisplay}
 
               {isExpanded && (
                 <Box style={styles.btmCTR}>

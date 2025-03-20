@@ -26,10 +26,12 @@ const usePlan = () => {
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
   const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
   const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
+  const isOnL4 = plan === SubscriptionTier.L4.toUpperCase();
 
-  const isOnL2Above = isOnL2 || isOnL3;
+  const isOnL2Above = isOnL2 || isOnL3 || isOnL4;
+  const isOnL3Above = isOnL3 || isOnL4;
 
-  return { plan, isOnL1, isOnL2, isOnL3, isOnL2Above };
+  return { plan, isOnL1, isOnL2, isOnL3, isOnL2Above, isOnL4, isOnL3Above };
 };
 
 export default usePlan;

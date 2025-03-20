@@ -535,4 +535,17 @@ export default class Relay {
       );
     }
   };
+
+  public static redeemKeeperPrivate = async (body): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}redeemKeeperPrivate`, body);
+      const data = res?.data;
+      return data;
+    } catch (err) {
+      console.log('🚀 redeemKeeperPrivate err:', err);
+      captureError(err);
+      if (err?.code == 'ERR_NETWORK') throw new Error('Network Error');
+      throw new Error(err.message);
+    }
+  };
 }
