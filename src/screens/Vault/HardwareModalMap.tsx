@@ -316,7 +316,7 @@ const getSignerContent = (
           ? 'Verify Keystone'
           : isCanaryAddition
           ? 'Setting up for Canary'
-          : 'Setting up Keystone',
+          : 'Add your Keystone',
         subTitle: 'Get your Keystone ready before proceeding',
         options: [
           {
@@ -324,7 +324,7 @@ const getSignerContent = (
             icon: (
               <CircleIconWrapper
                 icon={<QRComms />}
-                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                backgroundColor={`${colorMode}.pantoneGreen`}
                 width={35}
               />
             ),
@@ -335,7 +335,7 @@ const getSignerContent = (
             icon: (
               <CircleIconWrapper
                 icon={<Import />}
-                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                backgroundColor={`${colorMode}.pantoneGreen`}
                 width={35}
               />
             ),
@@ -360,7 +360,7 @@ const getSignerContent = (
           ? 'Verify Passport'
           : isCanaryAddition
           ? 'Setting up for Canary'
-          : 'Setting up Passport',
+          : 'Add your Passport',
         subTitle: 'Get your Foundation Passport ready before proceeding',
         options: [
           {
@@ -368,7 +368,7 @@ const getSignerContent = (
             icon: (
               <CircleIconWrapper
                 icon={<QRComms />}
-                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                backgroundColor={`${colorMode}.pantoneGreen`}
                 width={35}
               />
             ),
@@ -379,7 +379,7 @@ const getSignerContent = (
             icon: (
               <CircleIconWrapper
                 icon={<Import />}
-                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                backgroundColor={`${colorMode}.pantoneGreen`}
                 width={35}
               />
             ),
@@ -568,7 +568,7 @@ const getSignerContent = (
               icon: (
                 <CircleIconWrapper
                   icon={<Import />}
-                  backgroundColor={`${colorMode}.BrownNeedHelp`}
+                  backgroundColor={`${colorMode}.pantoneGreen`}
                   width={35}
                 />
               ),
@@ -580,7 +580,7 @@ const getSignerContent = (
               icon: (
                 <CircleIconWrapper
                   icon={<RecoverImage />}
-                  backgroundColor={`${colorMode}.BrownNeedHelp`}
+                  backgroundColor={`${colorMode}.pantoneGreen`}
                   width={35}
                 />
               ),
@@ -594,7 +594,10 @@ const getSignerContent = (
       return {
         type: SignerType.TAPSIGNER,
         Illustration: <TapsignerSetupImage />,
-        Instructions: ['You will need the PIN (given at the back of the TAPSIGNER).'],
+        Instructions: [
+          'TAPSIGNER communicates with the app over NFC',
+          'You will need to enter the latest PIN once you proceed.',
+        ],
         title: isHealthcheck ? 'Verify TAPSIGNER' : tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
         options: [],
@@ -695,36 +698,38 @@ function SignerContent({
           </Text>
         </Box>
       )}
-      <View
-        style={{
-          marginVertical: hp(14),
-          gap: 2,
-          flexDirection: 'row',
-        }}
-      >
-        <Box style={styles.setupOptionsContainer}>
-          {options &&
-            options.map((option) => (
-              <SetupSignerOptions
-                disabled={option.disabled}
-                key={option.name}
-                isSelected={keyGenerationMode === option.name}
-                name={option.title}
-                icon={option.icon}
-                onCardSelect={() => {
-                  onSelect(option);
-                }}
-                customStyle={{
-                  width: '48%',
-                  paddingTop: hp(14),
-                  paddingBottom: hp(9),
-                  paddingLeft: wp(12),
-                  paddingRight: wp(14),
-                }}
-              />
-            ))}
-        </Box>
-      </View>
+      {options && options.length > 0 && (
+        <View
+          style={{
+            marginVertical: hp(14),
+            gap: 2,
+            flexDirection: 'row',
+          }}
+        >
+          <Box style={styles.setupOptionsContainer}>
+            {options &&
+              options.map((option) => (
+                <SetupSignerOptions
+                  disabled={option.disabled}
+                  key={option.name}
+                  isSelected={keyGenerationMode === option.name}
+                  name={option.title}
+                  icon={option.icon}
+                  onCardSelect={() => {
+                    onSelect(option);
+                  }}
+                  customStyle={{
+                    width: '48%',
+                    paddingTop: hp(14),
+                    paddingBottom: hp(9),
+                    paddingLeft: wp(12),
+                    paddingRight: wp(14),
+                  }}
+                />
+              ))}
+          </Box>
+        </View>
+      )}
     </View>
   );
 }
@@ -1907,7 +1912,13 @@ function HardwareModalMap({
         </Box>
       );
     }
-    if (signerType === SignerType.COLDCARD) {
+    if (
+      signerType === SignerType.COLDCARD ||
+      signerType === SignerType.JADE ||
+      signerType === SignerType.KEYSTONE ||
+      signerType === SignerType.PASSPORT ||
+      signerType === SignerType.SEED_WORDS
+    ) {
       return (
         <Box style={styles.modalContainer}>
           <SignerNewContent
@@ -1918,17 +1929,7 @@ function HardwareModalMap({
         </Box>
       );
     }
-    if (signerType === SignerType.JADE) {
-      return (
-        <Box style={styles.modalContainer}>
-          <SignerNewContent
-            options={options}
-            onSelect={onSelect}
-            keyGenerationMode={keyGenerationMode}
-          />
-        </Box>
-      );
-    }
+
     return (
       <SignerContent
         Illustration={Illustration}
@@ -1966,7 +1967,12 @@ function HardwareModalMap({
         );
       }
     }
-    if (signerType === SignerType.JADE) {
+    if (
+      signerType === SignerType.JADE ||
+      signerType === SignerType.KEYSTONE ||
+      signerType === SignerType.PASSPORT ||
+      signerType === SignerType.SEED_WORDS
+    ) {
       return (
         <Box style={styles.modalContainer}>
           {Illustration}
@@ -2092,21 +2098,44 @@ function HardwareModalMap({
       },
     },
     [SignerType.JADE]: {
-      [KeyGenerationMode.NFC]: {
-        setupTitle: 'Setting up NFC',
+      [KeyGenerationMode.QR]: {
+        setupTitle: 'Setting up QR ',
         setupSubTitle: 'Get Your Jade Ready and powered up before proceeding',
       },
-      [KeyGenerationMode.QR]: {
-        setupTitle: 'Setting up Vai a QR ',
+
+      [KeyGenerationMode.USB]: {
+        setupTitle: 'Setting up USB ',
         setupSubTitle: 'Get Your Jade Ready and powered up before proceeding',
+      },
+    },
+    [SignerType.KEYSTONE]: {
+      [KeyGenerationMode.QR]: {
+        setupTitle: 'Setting up QR ',
+        setupSubTitle: 'Get your Keystone ready before proceeding',
       },
       [KeyGenerationMode.FILE]: {
         setupTitle: 'Setting up File',
-        setupSubTitle: 'Get Your Jade Ready and powered up before proceeding',
+        setupSubTitle: 'Get your Keystone ready before proceeding',
       },
-      [KeyGenerationMode.USB]: {
-        setupTitle: 'Setting up Via a USB ',
-        setupSubTitle: 'Get Your Jade Ready and powered up before proceeding',
+    },
+    [SignerType.PASSPORT]: {
+      [KeyGenerationMode.QR]: {
+        setupTitle: 'Setting up QR ',
+        setupSubTitle: 'Get your Foundation Passport ready before proceeding',
+      },
+      [KeyGenerationMode.FILE]: {
+        setupTitle: 'Setting up File',
+        setupSubTitle: 'Get your Foundation Passport ready before proceeding',
+      },
+    },
+    [SignerType.SEED_WORDS]: {
+      [KeyGenerationMode.IMPORT]: {
+        setupTitle: 'Import a Seed Key',
+        setupSubTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+      },
+      [KeyGenerationMode.CREATE]: {
+        setupTitle: 'Create a Seed Key',
+        setupSubTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
       },
     },
   };
@@ -2139,10 +2168,12 @@ function HardwareModalMap({
         title={title}
         subTitle={subTitle}
         buttonText={
-          signerType === SignerType.COLDCARD || signerType === SignerType.JADE
+          signerType === SignerType.COLDCARD ||
+          signerType === SignerType.JADE ||
+          signerType === SignerType.KEYSTONE ||
+          signerType === SignerType.PASSPORT ||
+          signerType === SignerType.SEED_WORDS
             ? null
-            : signerType === SignerType.SEED_WORDS
-            ? 'Next'
             : signerType === SignerType.POLICY_SERVER
             ? isHealthcheck
               ? 'Start Health Check'

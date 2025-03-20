@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet, ViewStyle } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 type SignerOptionCardProps = {
   name: string;
@@ -38,21 +39,16 @@ function SignerOptionCard({
   };
 
   return (
-    <Pressable
-      style={cardStyle}
-      backgroundColor={cardBackgroundColor}
-      onPress={handlePress}
-      testID={`btn_${name}`}
-      disabled={disabled}
-      borderColor={cardBorderColor}
-    >
-      {icon}
-      <Box style={styles.textContainer}>
-        <Text style={styles.name} color={`${colorMode}.modalWhiteContent`} medium>
-          {name}
-        </Text>
+    <TouchableOpacity onPress={handlePress} testID={`btn_${name}`} disabled={disabled}>
+      <Box style={cardStyle} backgroundColor={cardBackgroundColor} borderColor={cardBorderColor}>
+        {icon}
+        <Box style={styles.textContainer}>
+          <Text style={styles.name} color={`${colorMode}.modalWhiteContent`} medium>
+            {name}
+          </Text>
+        </Box>
       </Box>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
@@ -72,8 +68,8 @@ const styles = StyleSheet.create({
   },
 
   textContainer: {
-    marginTop: hp(10),
-    marginLeft: wp(2.5),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   name: {
     textAlign: 'left',
