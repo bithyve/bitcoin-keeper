@@ -149,9 +149,9 @@ const SubscriptionList: React.FC<{
                   />
                 </Box>
               </View>
-              <Box style={styles.divider} backgroundColor={`${colorMode}.brownColor`}>
-                {' '}
-              </Box>
+              {isKeeperPrivate && !isExpanded ? null : (
+                <Box style={styles.divider} backgroundColor={`${colorMode}.brownColor`}></Box>
+              )}
               {isExpanded && (
                 <>
                   <PlanDetailsCards plansData={plans} currentPosition={currentPosition} />
