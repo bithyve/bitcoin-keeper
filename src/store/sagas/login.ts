@@ -230,7 +230,7 @@ function* credentialsAuthWorker({ payload }) {
           if (!response.isValid) {
             if (
               (subscription.level > 1 &&
-                ['Hodler', 'Diamond Hands', 'Keeper Black'].includes(subscription.name)) ||
+                ['Hodler', 'Diamond Hands', 'Keeper Private'].includes(subscription.name)) ||
               subscription.level !== response.level
             ) {
               yield call(downgradeToPleb);
@@ -296,7 +296,7 @@ async function updateSubscriptionFromRelayData(data, wasAutoUpdateEnabledBeforeD
       isDesktopPurchase: true,
     };
   } else {
-    delete data.subscription.paymentType;
+    if (data.subscription?.paymentType) delete data.subscription?.paymentType;
     updatedSubscription = {
       ...data.subscription,
       isDesktopPurchase: false,

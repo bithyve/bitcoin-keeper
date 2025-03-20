@@ -48,7 +48,7 @@ import SubscriptionList from './components/SubscriptionList';
 import usePlan from 'src/hooks/usePlan';
 import { setSubscription } from 'src/store/reducers/settings';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
-import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BrownButton } from 'src/components/BrownButton';
 import config from 'src/utils/service-utilities/config';
 import { manipulateIosProdProductId } from 'src/utils/utilities';
@@ -528,7 +528,7 @@ function ChoosePlan() {
     if (!currentItem) return { text: 'Get Started', disabled: false };
 
     const isPleb = currentItem.productIds.includes('pleb');
-    const isKeeperBlack = currentItem.productIds[0].includes('keeper_black');
+    const isKeeperPrivate = currentItem.productIds[0].includes('keeper_black');
     const isSubscribed =
       (!isPleb &&
         currentItem.productIds.includes(subscription.productId.toLowerCase()) &&
@@ -538,8 +538,8 @@ function ChoosePlan() {
     return {
       text: isSubscribed
         ? 'Current Plan'
-        : isKeeperBlack
-        ? 'Know more about Keeper Black'
+        : isKeeperPrivate
+        ? 'Know more about Keeper Private'
         : 'Get Started',
       disabled: isSubscribed,
     };
@@ -611,7 +611,7 @@ function ChoosePlan() {
             currentPosition={currentPosition}
             onChange={(item) => setCurrentPosition(item)}
             primaryCallback={() => {
-              if (items[currentPosition].name === 'Keeper Black') {
+              if (items[currentPosition].name === SubscriptionTier.L4) {
                 Linking.openURL(`http://127.0.0.1:5501/KeeperBlack.html?appId=${id}`);
                 return;
               } else if (!isOnL1 && appSubscription.isDesktopPurchase) {

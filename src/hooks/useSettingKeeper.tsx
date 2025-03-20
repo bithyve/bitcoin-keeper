@@ -145,13 +145,13 @@ export const useSettingKeeper = () => {
     },
     {
       plan: SubscriptionTier.L4.toUpperCase(),
-      title: 'Keeper Black',
+      title: SubscriptionTier.L4,
       subtitle: 'Expert',
       description: 'For Expert Users',
       icon: <DiamondIcon width={30} height={30} />,
       sublightIcon: <DiamondGreenSub width={24} height={24} />,
       subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
-      subDescription: 'Unlocks new possibilities with Keeper Black.',
+      subDescription: 'Unlocks new possibilities with Keeper Private.', // ! to update
     },
   ];
 
