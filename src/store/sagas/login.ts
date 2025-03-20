@@ -52,7 +52,6 @@ import {
 import { RootState, store } from '../store';
 import { createWatcher } from '../utilities';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
-import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod, setSubscription } from '../reducers/settings';
 import { backupAllSignersAndVaults, setWarning } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
@@ -112,7 +111,6 @@ function* credentialsStorageWorker({ payload }) {
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
       version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
-      releaseNote: '',
       date: new Date().toString(),
       title: 'Initially installed',
     });
@@ -173,7 +171,6 @@ function* credentialsAuthWorker({ payload }) {
       } else if (currentVersionCode !== lastVersionCode[1]) {
         yield call(dbManager.createObject, RealmSchema.VersionHistory, {
           version: `${newVersion}(${currentVersionCode})`,
-          releaseNote: '',
           date: new Date().toString(),
           title: `Upgraded from ${lastVersionCode[1]} to ${currentVersionCode}`,
         });
@@ -193,7 +190,6 @@ function* credentialsAuthWorker({ payload }) {
           yield put(setWarning(history));
 
           yield put(fetchExchangeRates());
-          yield put(getMessages());
           yield put(fetchSignedDelayedTransaction());
           yield put(fetchDelayedPolicyUpdate());
           yield race({

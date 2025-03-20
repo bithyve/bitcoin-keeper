@@ -1,18 +1,5 @@
-import { notificationTag, notificationType } from '../enums/Notifications';
-
-export interface INotification {
-  notificationType: notificationType;
-  title: string;
-  body: string;
-  data: any;
-  tag: notificationTag;
-  status?: string;
-  date?: Date;
-} // corresponds to the notification schema
-
 export enum VerificationType {
   TWO_FA = 'TWO_FA',
-  SECRET_PHRASE = 'SECRET_PHRASE',
 }
 
 export interface SingerVerification {

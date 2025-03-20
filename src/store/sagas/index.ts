@@ -60,7 +60,7 @@ import {
   sendPhaseThreeWatcher,
   sendPhaseTwoWatcher,
 } from './send_and_receive';
-import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
+import { updateFCMTokensWatcher } from './notifications';
 
 import {
   fetchDelayedPolicyUpdateWatcher,
@@ -93,7 +93,6 @@ const rootSaga = function* () {
 
     // notification
     updateFCMTokensWatcher,
-    getMessageWatcher,
 
     // wallet
     addNewWalletsWatcher,

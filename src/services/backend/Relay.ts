@@ -3,7 +3,6 @@ import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { AxiosResponse } from 'axios';
 import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
-import { INotification } from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
 
@@ -17,18 +16,6 @@ interface SignerChange {
 }
 
 export default class Relay {
-  public static fetchReleaseNotes = async (version: string): Promise<any> => {
-    let res;
-    try {
-      res = await RestClient.get(`${RELAY}releasesNotes?version=${version}`);
-      const data = res.data || res.json;
-      return data;
-    } catch (err) {
-      if (err.response) console.log(err.response.data.err);
-      if (err.code) console.log(err.code);
-    }
-  };
-
   public static updateFCMTokens = async (
     appId: string,
     FCMs: string[]
@@ -51,32 +38,6 @@ export default class Relay {
       console.log('err', err);
       throw new Error('Failed to update FCM token');
     }
-  };
-
-  public static fetchNotifications = async (
-    appID: string
-  ): Promise<{
-    notifications: INotification[];
-    DHInfos: [{ address: string; publicKey: string }];
-  }> => {
-    let res;
-    try {
-      res = await RestClient.post(`${RELAY}fetchNotifications`, {
-        appID,
-      });
-    } catch (err) {
-      console.log({
-        err,
-      });
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { notifications, DHInfos } = res.data || res.json;
-    return {
-      notifications,
-      DHInfos,
-    };
   };
 
   public static fetchFeeAndExchangeRates = async (): Promise<{
@@ -102,31 +63,6 @@ export default class Relay {
     } catch (err) {
       throw new Error('Failed fetch fee and exchange rates');
     }
-  };
-
-  public static getMessages = async (
-    appID: string,
-    timeStamp: Date
-  ): Promise<{
-    messages: [];
-  }> => {
-    let res;
-    try {
-      res = await RestClient.post(`${RELAY}getMessages`, {
-        appID,
-        timeStamp,
-      });
-    } catch (err) {
-      console.log({
-        err,
-      });
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-    const { messages } = res.data || res.json;
-    return {
-      messages,
-    };
   };
 
   public static updateSubscription = async (
@@ -185,32 +121,6 @@ export default class Relay {
       if (err.code) throw new Error(err.code);
     }
     return res.data || res.json;
-  };
-
-  public static updateMessageStatus = async (
-    appId: string,
-    data: []
-  ): Promise<{
-    updated: boolean;
-  }> => {
-    try {
-      let res;
-      try {
-        res = await RestClient.post(`${RELAY}updateMessages`, {
-          appId,
-          data,
-        });
-      } catch (err) {
-        if (err.response) throw new Error(err.response.data.err);
-        if (err.code) throw new Error(err.code);
-      }
-      const { updated } = res.data || res.json;
-      return {
-        updated,
-      };
-    } catch (err) {
-      throw new Error('Failed to fetch GetBittr Details');
-    }
   };
 
   public static fetchAppImage = async (
