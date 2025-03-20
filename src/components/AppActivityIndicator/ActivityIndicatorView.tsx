@@ -23,6 +23,8 @@ function ActivityIndicatorView({
       </Modal>
     );
   }
+
+  return null;
 }
 
 export default ActivityIndicatorView;
