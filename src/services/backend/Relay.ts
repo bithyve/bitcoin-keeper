@@ -123,30 +123,6 @@ export default class Relay {
     return res.data || res.json;
   };
 
-  public static fetchAppImage = async (
-    appId: string
-  ): Promise<{
-    appImage: any;
-  }> => {
-    try {
-      let res;
-      try {
-        res = await RestClient.post(`${RELAY}v2/fetchappImage`, {
-          appId,
-        });
-      } catch (err) {
-        if (err.response) throw new Error(err.response.data.err);
-        if (err.code) throw new Error(err.code);
-      }
-      const { appImage } = res.data || res.json;
-      return {
-        appImage,
-      };
-    } catch (err) {
-      throw new Error('Failed to fetch App Image');
-    }
-  };
-
   public static updateAppImage = async (
     appImage
   ): Promise<{

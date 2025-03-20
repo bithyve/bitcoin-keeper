@@ -302,51 +302,6 @@ async function updateSubscriptionFromRelayData(data, wasAutoUpdateEnabledBeforeD
   store.dispatch(setAutoUpdateEnabledBeforeDowngrade(false));
 }
 
-async function updateSubscription(level: AppSubscriptionLevel) {
-  const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-
-  const subscriptionDetails = {
-    [AppSubscriptionLevel.L1]: {
-      productId: SubscriptionTier.L1,
-      name: SubscriptionTier.L1,
-      icon: 'assets/ic_pleb.svg',
-    },
-    [AppSubscriptionLevel.L2]: {
-      productId: SubscriptionTier.L2,
-      name: SubscriptionTier.L2,
-      icon: 'assets/ic_hodler.svg',
-    },
-    [AppSubscriptionLevel.L3]: {
-      productId: SubscriptionTier.L3,
-      name: SubscriptionTier.L3,
-      icon: 'assets/ic_diamond.svg',
-    },
-  };
-
-  const selectedSubscription = subscriptionDetails[level];
-
-  if (!selectedSubscription) {
-    console.error('Invalid subscription level:', level);
-    return;
-  }
-
-  const updatedSubscription: SubScription = {
-    receipt: '',
-    productId: selectedSubscription.productId,
-    name: selectedSubscription.name,
-    level,
-    icon: selectedSubscription.icon,
-  };
-
-  await dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-    subscription: updatedSubscription,
-  });
-
-  await Relay.updateSubscription(app.id, app.publicId, {
-    productId: selectedSubscription.productId.toLowerCase(),
-  });
-}
-
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
 
 function* changeAuthCredWorker({ payload }) {
