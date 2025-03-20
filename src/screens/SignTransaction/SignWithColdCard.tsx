@@ -40,7 +40,7 @@ function Card({ title, message, buttonText, buttonCallBack }) {
           borderRadius: 10,
           height: hp(80),
         }}
-        backgroundColor={`${colorMode}.secondaryBackground`}
+        backgroundColor={`${colorMode}.textInputBackground`}
       >
         <Box>
           <Text color={`${colorMode}.black`} fontSize={14} style={{ marginBottom: hp(5) }}>

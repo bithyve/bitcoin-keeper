@@ -42,7 +42,7 @@ function Dropdown({ label, options, selectedOption, onOptionSelect }: Props) {
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.dropdownContainer}>
           <Text
             medium
-            color={isOpen ? `${colorMode}.greenTextDisabled` : `${colorMode}.greenText`}
+            color={isOpen ? `${colorMode}.SlateGreen` : `${colorMode}.greenText`}
             style={styles.labelText}
           >
             {internalSelectedOption || label}

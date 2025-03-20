@@ -24,7 +24,7 @@ function CustomYellowButton(props: Props) {
     >
       <Box
         style={styles.buttonContent}
-        backgroundColor={props.backgroundColor || `${colorMode}.yellowButtonBackground`}
+        backgroundColor={props.backgroundColor || `${colorMode}.accent`}
       >
         <Text bold={props.boldTitle} color={props.titleColor} style={styles.btnText}>
           {props.value}

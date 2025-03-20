@@ -197,11 +197,9 @@ function AddNewWallet({ navigation, route }) {
       <Box style={styles.footer}>
         <DashedCta
           textPosition="left"
-          backgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.DashedButtonCta`}
-          hexagonBackgroundColor={
-            isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.DashedButtonCta`
-          }
-          textColor={isDarkMode ? Colors.White : `${colorMode}.pantoneGreen`}
+          backgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
+          hexagonBackgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
+          textColor={isDarkMode ? Colors.headerWhite : `${colorMode}.pantoneGreen`}
           name="Enhanced Security Options"
           description="Secure your funds and future—your way"
           callback={() => setShowEnhancedOptionsModal(true)}
@@ -247,7 +245,7 @@ function AddNewWallet({ navigation, route }) {
         close={() => setCustomConfigModalVisible(false)}
         title="Create a custom wallet"
         subTitle="Select the total number of keys"
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={common.confirm}
         buttonCallback={() => {
@@ -362,7 +360,7 @@ const EnhancedSecurityModal = ({
       close={() => {
         onClose();
       }}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       title="Enhanced Security Options"
       subTitle="You'll be prompted to configure your enhanced options after you select your normal wallet keys"
@@ -400,7 +398,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.noteTextClosed`
+                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     Inheritance Key
@@ -440,7 +438,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.noteTextClosed`
+                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     Emergency Key

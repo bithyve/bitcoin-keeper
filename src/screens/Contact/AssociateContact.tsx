@@ -134,7 +134,7 @@ function AssociateContact({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={vaultText.associateContact} titleColor={`${colorMode}.pitchBlackText`} />
+      <KeeperHeader title={vaultText.associateContact} titleColor={`${colorMode}.black`} />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
           <Box
@@ -192,7 +192,7 @@ function AssociateContact({ route }) {
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
           buttonTextColor={`${colorMode}.buttonText`}
-          buttonBackground={`${colorMode}.greenButtonBackground`}
+          buttonBackground={`${colorMode}.pantoneGreen`}
           buttonText={common.continue}
           buttonCallback={onAddAssociateContact}
           Content={() => (

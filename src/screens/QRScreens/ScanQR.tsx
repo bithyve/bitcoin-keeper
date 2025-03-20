@@ -133,8 +133,8 @@ function ScanQR() {
                       }}
                       _input={
                         colorMode === 'dark' && {
-                          selectionColor: Colors.SecondaryWhite,
-                          cursorColor: Colors.SecondaryWhite,
+                          selectionColor: Colors.bodyText,
+                          cursorColor: Colors.bodyText,
                         }
                       }
                     />
@@ -167,13 +167,13 @@ function ScanQR() {
             }}
             title="Add a co-signer"
             subTitle=""
-            modalBackground={`${colorMode}.modalGreenBackground`}
-            textColor={`${colorMode}.modalGreenContent`}
+            modalBackground={`${colorMode}.pantoneGreen`}
+            textColor={`${colorMode}.headerWhite`}
             Content={learnMoreContent}
             buttonText={common.Okay}
             secondaryButtonText={common.needHelp}
-            buttonTextColor={`${colorMode}.whiteButtonText`}
-            buttonBackground={`${colorMode}.whiteButtonBackground`}
+            buttonTextColor={`${colorMode}.pantoneGreen`}
+            buttonBackground={`${colorMode}.whiteSecButtonText`}
             secButtonTextColor={`${colorMode}.whiteSecButtonText`}
             secondaryIcon={<ConciergeNeedHelp />}
             buttonCallback={() => {

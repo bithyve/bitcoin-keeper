@@ -59,7 +59,7 @@ const RadioButton: React.FC<Props> = ({
       disabled={ignoresTouch}
       onPress={onpress}
     >
-      <Box style={{ ...styles.createBtn }} backgroundColor={`${colorMode}.greenButtonBackground`}>
+      <Box style={{ ...styles.createBtn }} backgroundColor={`${colorMode}.pantoneGreen`}>
         {isChecked && <View style={innerCircleStyle} />}
       </Box>
     </TouchableOpacity>

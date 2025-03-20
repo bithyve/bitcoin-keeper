@@ -34,7 +34,7 @@ const TicketNote = ({ note, closed = false }) => {
   return (
     <Box style={styles.noteContainer}>
       {isDarkMode ? <ReachOutArrowDark /> : <ReachOutArrowLight />}
-      <Text color={closed ? `${colorMode}.noteTextClosed` : `${colorMode}.noteText`}>{note}</Text>
+      <Text color={closed ? `${colorMode}.greenWhiteText` : `${colorMode}.noteText`}>{note}</Text>
     </Box>
   );
 };

@@ -22,7 +22,7 @@ function Switch({ value, onValueChange, loading, testID }: Props) {
   const isDarkMode = colorMode === 'dark';
 
   const backgroundColor = value
-    ? `${colorMode}.greenButtonBackground`
+    ? `${colorMode}.pantoneGreen`
     : isDarkMode
     ? `#383838`
     : `${colorMode}.textColor2`;

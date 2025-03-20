@@ -23,19 +23,19 @@ function RecoveryPhraseTemplate({}) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.recoveryPhraseTitleTemplate}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.recoveryPhraseDescpMain}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.recoveryPhraseP1}
         </Text>
         <Box style={styles.circleStyle}>
           <RecoveryPhraseIcon />
         </Box>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.recoveryPhraseP2}
         </Text>
         <Box mt={5}>
@@ -53,12 +53,10 @@ function RecoveryPhraseTemplate({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.modalGreenContent`}>
+          <Text bold color={`${colorMode}.headerWhite`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.modalGreenContent`}>
-            {inheritancePlanning.recoveryPhraseNotes}
-          </Text>
+          <Text color={`${colorMode}.headerWhite`}>{inheritancePlanning.recoveryPhraseNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

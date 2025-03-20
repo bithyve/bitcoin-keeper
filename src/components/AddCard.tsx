@@ -48,7 +48,7 @@ function AddCard({
           <HexagonIcon
             width={iconWidth}
             height={iconHeight}
-            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
+            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
             icon={icon}
           />
           <Text semiBold color={nameColor} style={styles.nameStyle}>

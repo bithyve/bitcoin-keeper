@@ -128,7 +128,7 @@ function TransactionDetails({ route }) {
             ) : (
               <Text
                 style={styles.descText}
-                color={`${colorMode}.transactionDeatilInfo`}
+                color={`${colorMode}.greenishGreyText`}
                 width="85%"
                 numberOfLines={numberOfLines}
               >
@@ -180,14 +180,10 @@ function TransactionDetails({ route }) {
               <IconSend />
             )}
             <Box style={styles.transView}>
-              <Text
-                color={`${colorMode}.transactionDeatilAddress`}
-                numberOfLines={1}
-                style={styles.transIDText}
-              >
+              <Text color={`${colorMode}.GreyText`} numberOfLines={1} style={styles.transIDText}>
                 {transaction.txid}
               </Text>
-              <Text style={styles.transDateText} color={`${colorMode}.transactionDeatilAddress`}>
+              <Text style={styles.transDateText} color={`${colorMode}.GreyText`}>
                 {moment(transaction?.date).format('DD MMM YY  •  HH:mm A')}
               </Text>
             </Box>
@@ -282,7 +278,7 @@ function TransactionDetails({ route }) {
           <KeeperModal
             visible={visible}
             modalBackground={`${colorMode}.modalWhiteBackground`}
-            textColor={`${colorMode}.modalHeaderTitle`}
+            textColor={`${colorMode}.textGreen`}
             subTitleColor={`${colorMode}.modalSubtitleBlack`}
             close={close}
             title={common.addNote}

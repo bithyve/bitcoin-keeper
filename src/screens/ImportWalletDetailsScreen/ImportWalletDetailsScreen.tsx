@@ -55,8 +55,8 @@ function ImportWalletDetailsScreen({ route }) {
                 onChangeText={(text) => setWalletName(text)}
                 _input={
                   colorMode === 'dark' && {
-                    selectionColor: Colors.SecondaryWhite,
-                    cursorColor: Colors.SecondaryWhite,
+                    selectionColor: Colors.bodyText,
+                    cursorColor: Colors.bodyText,
                   }
                 }
               />
@@ -71,8 +71,8 @@ function ImportWalletDetailsScreen({ route }) {
                 onChangeText={(text) => setWalletDescription(text)}
                 _input={
                   colorMode === 'dark' && {
-                    selectionColor: Colors.SecondaryWhite,
-                    cursorColor: Colors.SecondaryWhite,
+                    selectionColor: Colors.bodyText,
+                    cursorColor: Colors.bodyText,
                   }
                 }
               />
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 5,
     borderRadius: 5,
-    backgroundColor: Colors.GrayX11,
+    backgroundColor: Colors.darkGrey,
     marginEnd: 5,
   },
   textInputWrapper: {

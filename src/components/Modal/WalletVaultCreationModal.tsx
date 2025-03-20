@@ -43,7 +43,7 @@ function WalletCreatedModalContent(props) {
             <HexagonIcon
               width={44}
               height={38}
-              backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
+              backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
               icon={getWalletIcon(props.walletType)}
             />
           </Box>
@@ -100,7 +100,7 @@ function WalletVaultCreationModal(props) {
         props.buttonCallback();
       }}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       subTitleWidth={wp(280)}
       showCloseIcon={false}

@@ -71,7 +71,7 @@ function Buttons({
             borderColor: primaryBorderColor || 'transparent',
           },
         ]}
-        backgroundColor={primaryBackgroundColor || `${colorMode}.greenButtonBackground`}
+        backgroundColor={primaryBackgroundColor || `${colorMode}.pantoneGreen`}
       >
         {primaryLoading ? (
           <ActivityIndicator

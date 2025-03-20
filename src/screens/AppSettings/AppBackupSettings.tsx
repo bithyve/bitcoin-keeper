@@ -158,7 +158,7 @@ function AppBackupSettings() {
         subTitleWidth={wp(240)}
         subTitle={settings.confirmPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal

@@ -48,7 +48,7 @@ function ArchivedVault({ navigation, route }) {
           <HexagonIcon
             width={58}
             height={50}
-            backgroundColor={Colors.pantoneGreen}
+            backgroundColor={Colors.primaryGreen}
             icon={<VaultIcon />}
           />
         }

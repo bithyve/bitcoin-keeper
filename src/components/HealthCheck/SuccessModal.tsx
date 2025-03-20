@@ -14,8 +14,8 @@ function SuccessModal(props) {
     close,
     title = 'Title',
     subTitle = 'Subtitle',
-    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
-    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
+    modalBackground = [`${colorMode}.textInputBackground`, `${colorMode}.textInputBackground`],
+    buttonBackground = [`${colorMode}.primaryGreen`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
     buttonTextColor = `${colorMode}.white`,
     buttonCallback = props.close || null,
@@ -77,7 +77,7 @@ function SuccessModal(props) {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={buttonPressed} testID={`btn_${buttonText}`}>
-                <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
+                <Box style={styles.cta} backgroundColor={`${colorMode}.pantoneGreen`}>
                   <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                     {buttonText}
                   </Text>

@@ -94,7 +94,7 @@ const ServerItem = ({
               <ConnectIconWhite />
             )}
             <Text
-              color={`${colorMode}.noteTextClosed`}
+              color={`${colorMode}.greenWhiteText`}
               style={[styles.actionText, { paddingTop: isConnected ? 0 : 1 }]}
             >
               {isConnected ? common.disconnect : common.connect}

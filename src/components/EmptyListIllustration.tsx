@@ -29,10 +29,10 @@ export function EmptyListIllustration({ listType }: { listType: 'keys' | 'nodes'
       : NoServersDarkIcon;
   return (
     <Box style={styles.emptyListContainer}>
-      <Text color={`${colorMode}.textGreenGrey`} style={styles.emptyListTitle} medium>
+      <Text color={`${colorMode}.GreyText`} style={styles.emptyListTitle} medium>
         {titleText}
       </Text>
-      <Text color={`${colorMode}.SlateGrey`} style={styles.emptyListSubtitle}>
+      <Text color={`${colorMode}.secondarySubtitle`} style={styles.emptyListSubtitle}>
         {subtitleText}
       </Text>
       <Icon style={styles.emptyListIcon} />

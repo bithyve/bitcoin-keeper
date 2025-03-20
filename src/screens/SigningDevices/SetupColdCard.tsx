@@ -217,7 +217,7 @@ function SetupColdCard({ route }) {
         <WalletHeader title={getTitle(mode)} />
         <Box flex={1} marginTop={hp(30)}>
           <Box backgroundColor={`${colorMode}.boxSecondaryBackground`} style={styles.container}>
-            <Text fontSize={14} color={`${colorMode}.textColor3`}>
+            <Text fontSize={14} color={`${colorMode}.secondaryText`}>
               {instructions}
             </Text>
             <Box style={styles.illustration}>
@@ -231,7 +231,7 @@ function SetupColdCard({ route }) {
                 <ColdCardIllustration />
               )}
             </Box>
-            <Text fontSize={14} color={`${colorMode}.textColor3`}>
+            <Text fontSize={14} color={`${colorMode}.secondaryText`}>
               {instructions2}
             </Text>
           </Box>

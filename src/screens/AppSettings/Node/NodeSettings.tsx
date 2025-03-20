@@ -182,7 +182,7 @@ function NodeSettings() {
         subTitle={common.disconnectingFromServerText}
         buttonText={common.disconnect}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={async () => {

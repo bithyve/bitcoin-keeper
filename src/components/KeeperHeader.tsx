@@ -101,7 +101,7 @@ function HeaderInfo({
         {title && (
           <Text
             style={styles.addWalletText}
-            color={titleColor || `${colorMode}.headerText`}
+            color={titleColor || `${colorMode}.textGreen`}
             testID="text_header_title"
             medium={mediumTitle}
           >
@@ -183,7 +183,7 @@ function KeeperHeader({
         <Text
           style={styles.simpleTitleText}
           medium
-          color={titleColor || `${colorMode}.headerText`}
+          color={titleColor || `${colorMode}.textGreen`}
           testID="text_header_title"
         >
           {title}

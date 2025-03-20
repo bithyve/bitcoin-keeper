@@ -42,7 +42,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
   isShowAmount,
   setIsShowAmount,
 }) => {
-  const defaultHexagonBackgroundColor = Colors.White;
+  const defaultHexagonBackgroundColor = Colors.headerWhite;
   const { getWalletIcon } = useWalletAsset();
   const WalletIcon = getWalletIcon(wallet);
 
@@ -71,10 +71,10 @@ const WalletCard: React.FC<WalletCardProps> = ({
 
       <Box style={styles.bottomContainer}>
         <Box style={styles.bottomLeft}>
-          <Text color={Colors.White} style={styles.description}>
+          <Text color={Colors.headerWhite} style={styles.description}>
             {description}
           </Text>
-          <Text medium color={Colors.White} style={styles.title}>
+          <Text medium color={Colors.headerWhite} style={styles.title}>
             {title}
           </Text>
         </Box>

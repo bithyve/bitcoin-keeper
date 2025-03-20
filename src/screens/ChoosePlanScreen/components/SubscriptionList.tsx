@@ -77,18 +77,18 @@ const SubscriptionList: React.FC<{
 
         const priceDisplay = (
           <Box style={styles.priceContainer}>
-            <Text color={`${colorMode}.noteTextClosed`} style={styles.price}>
+            <Text color={`${colorMode}.greenWhiteText`} style={styles.price}>
               {planDetails}{' '}
               {!isPleb && matchedPlan?.monthlyPlanDetails?.price && (
-                <Text fontSize={12} color={`${colorMode}.noteTextClosed`}>
+                <Text fontSize={12} color={`${colorMode}.greenWhiteText`}>
                   {isMonthly ? 'month' : 'yearly'}
                 </Text>
               )}
             </Text>
 
             {!isPleb && matchedPlan?.monthlyPlanDetails?.trailPeriod && (
-              <Box backgroundColor={`${colorMode}.brownColor`} style={styles.trialContainer}>
-                <Text fontSize={10} color={Colors.ChampagneBliss}>
+              <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.trialContainer}>
+                <Text fontSize={10} color={Colors.brightCream}>
                   {Trail}
                 </Text>
               </Box>
@@ -106,7 +106,7 @@ const SubscriptionList: React.FC<{
           >
             <Box
               key={index}
-              borderColor={isActive ? `${colorMode}.darkBorderGreen` : 'transparent'}
+              borderColor={isActive ? `${colorMode}.dashedButtonBorderColor` : 'transparent'}
               borderWidth={isActive ? 2 : 0}
               backgroundColor={`${colorMode}.textInputBackground`}
               style={styles.card}
@@ -116,14 +116,14 @@ const SubscriptionList: React.FC<{
                   {isDarkMode ? plan.subDarkIcon : plan.sublightIcon}
                   <Box style={styles.textContainer}>
                     <Box style={styles.titleBox}>
-                      <Text color={`${colorMode}.textGreenGrey`} style={styles.title}>
+                      <Text color={`${colorMode}.GreyText`} style={styles.title}>
                         {plan.title}
                       </Text>
-                      <Text color={`${colorMode}.textGreenGrey`} style={styles.level}>
+                      <Text color={`${colorMode}.GreyText`} style={styles.level}>
                         ({plan.subtitle})
                       </Text>
                     </Box>
-                    <Text color={`${colorMode}.subPlansubtitle`} style={styles.description}>
+                    <Text color={`${colorMode}.modalWhiteContent`} style={styles.description}>
                       {plan.subDescription}
                     </Text>
                   </Box>
@@ -148,13 +148,13 @@ const SubscriptionList: React.FC<{
                   />
                 </Box>
               </View>
-              <Box style={styles.divider} backgroundColor={`${colorMode}.brownColor`}>
+              <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
                 {' '}
               </Box>
               {isExpanded && (
                 <>
                   <PlanDetailsCards plansData={plans} currentPosition={currentPosition} />
-                  <Box style={styles.divider} backgroundColor={`${colorMode}.brownColor`}>
+                  <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
                     {' '}
                   </Box>
                 </>

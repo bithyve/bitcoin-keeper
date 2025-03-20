@@ -53,7 +53,7 @@ function CVVInputsView({
     backgroundColor
       ? isDarkMode
         ? Colors.SecondaryBackgroundDark
-        : Colors.ChampagneBliss
+        : Colors.brightCream
       : 'rgba(253,247,240, 0.2)';
 
   const getTextColor = () => (textColor ? `${colorMode}.textBlack` : `${colorMode}.white`);

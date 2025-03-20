@@ -901,7 +901,7 @@ function SignerModals({
               }}
               title="Get your Ledger Ready"
               subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Ledger.`}
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               Content={() => <LedgerContent />}
               buttonText="Proceed"
               buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
@@ -918,8 +918,8 @@ function SignerModals({
               }}
               title="Enter your password"
               subTitle=""
-              textColor={`${colorMode}.modalHeaderTitle`}
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
+              textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => (
                 <PasswordEnter
@@ -940,7 +940,7 @@ function SignerModals({
               }}
               title={common.confirm2FACodeTitle}
               subTitle={common.confirm2FACodeSubtitle}
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => <OtpContent signTransaction={signTransaction} />}
             />
@@ -956,7 +956,7 @@ function SignerModals({
               }}
               title="Keep Passport Ready"
               subTitle="Get your Foundation Passport ready before proceeding"
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               Content={() => (
                 <PassportContent
                   isMultisig={isMultisig}
@@ -1012,7 +1012,7 @@ function SignerModals({
               }}
               title="Keep SeedSigner Ready"
               subTitle="Get your SeedSigner ready before proceeding"
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               Content={() => <SeedSignerContent isMultisig={isMultisig} />}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
@@ -1029,7 +1029,7 @@ function SignerModals({
               }}
               title="Keep Specter Ready"
               subTitle="Get your Specter ready before proceeding"
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               Content={() => <SpecterContent isMultisig={isMultisig} />}
               buttonText={'Start Signing'}
               secondaryButtonText={
@@ -1055,7 +1055,7 @@ function SignerModals({
               }}
               title="Keep Keystone Ready"
               subTitle="Get your Keystone ready before proceeding"
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               Content={() => (
                 <KeystoneContent
                   isMultisig={isMultisig}
@@ -1111,7 +1111,7 @@ function SignerModals({
               }}
               title="Keep Jade Ready"
               subTitle="Get your Jade ready before proceeding"
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               Content={() => (
                 <JadeContent
                   isMultisig={isMultisig}
@@ -1164,7 +1164,7 @@ function SignerModals({
               }}
               title="Keep Trezor Ready"
               subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Trezor.`}
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               Content={() => <TrezorContent />}
               buttonText="Proceed"
               buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
@@ -1181,7 +1181,7 @@ function SignerModals({
               }}
               title="Keep BitBox02 Ready"
               subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with BitBox02.`}
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => <BitBox02Content />}
               buttonText="Proceed"
@@ -1199,7 +1199,7 @@ function SignerModals({
               }}
               title="Keep the Signer Ready"
               subTitle="Get your Signer ready before proceeding"
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => <OtherSDContent />}
               buttonText="Proceed"
@@ -1217,7 +1217,7 @@ function SignerModals({
               }}
               title="Get your Device Ready"
               subTitle={`Get your ${getSignerNameFromType(signer.type)} ready before proceeding`}
-              textColor={`${colorMode}.modalHeaderTitle`}
+              textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => (
                 <KeeperContent masterFingerPrint={signer && signer.masterFingerprint} />

@@ -540,7 +540,7 @@ function AddSendAmount({ route }) {
           <HexagonIcon
             width={44}
             height={38}
-            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
+            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
             icon={getWalletIcon(sender)}
           />
         }

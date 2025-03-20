@@ -66,7 +66,7 @@ function UTXOLabeling() {
       <Box style={styles.infoCardContainer} borderBottomColor={`${colorMode}.separator`}>
         <Box style={[showIcon && { flexDirection: 'row', width: '100%', alignItems: 'center' }]}>
           <Box width={showIcon ? '90%' : '100%'}>
-            <Text color={`${colorMode}.headerText`} style={styles.titleText} numberOfLines={1}>
+            <Text color={`${colorMode}.textGreen`} style={styles.titleText} numberOfLines={1}>
               {title}
             </Text>
             {Content ? (
@@ -219,7 +219,7 @@ function UTXOLabeling() {
       <KeeperModal
         visible={txNoteModalVisible}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         close={() => setTxNoteModalVisible(false)}
         title={common.addNote}

@@ -46,7 +46,7 @@ const DiscountModal = ({ card }) => {
               ASDF - GHJK - 8974 - UWMB
             </Text>
 
-            <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
+            <Box backgroundColor={`${colorMode}.textColor`} style={styles.copyIconWrapper}>
               <CopyIcon />
             </Box>
           </Box>

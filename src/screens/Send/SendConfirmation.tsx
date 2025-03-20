@@ -664,7 +664,7 @@ function SendConfirmation({ route }) {
         subTitle={walletTranslations.transactionBroadcasted}
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <SendSuccessfulContent
@@ -691,7 +691,7 @@ function SendConfirmation({ route }) {
         subTitleWidth={wp(240)}
         subTitle=""
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
@@ -742,10 +742,10 @@ function SendConfirmation({ route }) {
         subTitleWidth={wp(240)}
         subTitle={topText}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
         secButtonTextColor={`${colorMode}.greenText`}
         buttonText={common.proceed}
         secondaryButtonText={common.cancel}
@@ -798,10 +798,10 @@ function SendConfirmation({ route }) {
         close={toogleFeesInsightModal}
         showCloseIcon={false}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
         buttonText={common.proceed}
         buttonCallback={toogleFeesInsightModal}
         Content={() => <FeeInsights />}
@@ -815,9 +815,9 @@ function SendConfirmation({ route }) {
         title={walletTranslations.discardTnxTitle}
         subTitle={walletTranslations.discardTnxSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
         buttonText="Discard"
         buttonCallback={discardCachedTransaction}
         buttonTextColor={`${colorMode}.buttonText`}

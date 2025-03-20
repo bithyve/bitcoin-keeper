@@ -59,7 +59,7 @@ export function FooterActions({
                   <item.Icon size={24} />
                 </Box>
                 <Text
-                  color={Colors.White}
+                  color={Colors.headerWhite}
                   style={[
                     styles.footerText,
                     { maxWidth: (windowWidth * 0.9) / footerItemsToRender.length },

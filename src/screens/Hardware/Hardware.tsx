@@ -40,14 +40,14 @@ const HardwareWallet = () => {
             primaryText={common.upgrade}
             paddingVertical={wp(12)}
             borderRadius={5}
-            primaryBackgroundColor={`${colorMode}.brownColor`}
+            primaryBackgroundColor={`${colorMode}.BrownNeedHelp`}
             LeftIcon={UpgradeIcon}
             primaryCallback={() => {
               navigation.navigate('ChoosePlan');
             }}
           />
         </Box>
-      )} */}
+      )}
       <ScrollView showsVerticalScrollIndicator={false}>
         {!isToggled ? <HardwareDevices /> : <HardwareReseller />}
       </ScrollView>

@@ -23,13 +23,13 @@ function VersionHistoryList() {
             position="absolute"
             left={-3}
             top={0}
-            backgroundColor={`${colorMode}.secondaryBackground`}
+            backgroundColor={`${colorMode}.textInputBackground`}
             padding={1}
             borderRadius={15}
           >
-            <DotView height={2} width={2} color={`${colorMode}.lightAccent`} />
+            <DotView height={2} width={2} color={`${colorMode}.accent`} />
           </Box>
-          <Box borderLeftColor={`${colorMode}.lightAccent`} borderLeftWidth={1} width="100%">
+          <Box borderLeftColor={`${colorMode}.accent`} borderLeftWidth={1} width="100%">
             <Text
               color={`${colorMode}.GreyText`}
               fontSize={10}
@@ -48,7 +48,7 @@ function VersionHistoryList() {
               my={2}
               ml={5}
             >
-              <Text color={`${colorMode}.headerText`} letterSpacing={1} fontSize={14}>
+              <Text color={`${colorMode}.textGreen`} letterSpacing={1} fontSize={14}>
                 {item.title}
               </Text>
               <Text color={`${colorMode}.GreyText`} letterSpacing={1} fontSize={12}>

@@ -78,7 +78,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
         >
           <Text
             medium
-            color={isOpen ? `${colorMode}.greenTextDisabled` : `${colorMode}.greenText`}
+            color={isOpen ? `${colorMode}.SlateGreen` : `${colorMode}.greenText`}
             style={styles.labelText}
           >
             {selectedOption ? `${selectedOption.label}` : label}

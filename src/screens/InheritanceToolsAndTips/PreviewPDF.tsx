@@ -40,7 +40,7 @@ function PreviewPDF({ route }: any) {
           >
             <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.accent`}>
               <DownloadIcon />
-              <Text style={styles.downloadBtnText} color={`${colorMode}.yellowButtonTextColor`}>
+              <Text style={styles.downloadBtnText} color={`${colorMode}.learnMoreBorder`}>
                 &nbsp;&nbsp;Download
               </Text>
             </Box>

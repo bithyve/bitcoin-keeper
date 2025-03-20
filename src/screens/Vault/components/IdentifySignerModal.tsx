@@ -45,7 +45,7 @@ function IdentifySignerModal({ visible, close, signer, secondaryCallback, vaultI
     <KeeperModal
       visible={visible}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       close={close}
       title="Assign device type"

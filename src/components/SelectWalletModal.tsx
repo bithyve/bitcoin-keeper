@@ -42,7 +42,7 @@ const WalletList = React.memo(
               <HexagonIcon
                 width={38}
                 height={33}
-                backgroundColor={Colors.pantoneGreen}
+                backgroundColor={Colors.primaryGreen}
                 icon={getWalletIcon(data)}
               />
             }

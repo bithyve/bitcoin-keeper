@@ -25,7 +25,7 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
     <Box style={styles.fieldWrapper}>
       {title && <Text style={styles.titleText}>{title}</Text>}
       {subTitle && (
-        <Text color={`${colorMode}.policySubtitle`} style={styles.subTitleText}>
+        <Text color={`${colorMode}.GreyText`} style={styles.subTitleText}>
           {subTitle}
         </Text>
       )}

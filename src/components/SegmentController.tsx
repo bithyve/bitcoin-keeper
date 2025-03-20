@@ -47,18 +47,18 @@ export const SegmentedController = ({
       <Animated.View
         style={[
           styles.selectedBackground,
-          { backgroundColor: Colors.SeaweedGreen },
+          { backgroundColor: Colors.primaryGreen },
           { width: (containerWidth - 2 * CONTAINER_PADDING) / length },
           { transform: [{ translateX }] },
         ]}
       />
       {options.map((option, index) => (
         <Pressable key={index} onPress={() => handlePress(index)} style={styles.option}>
-          <Text style={[styles.label, selectedIndex === index && { color: Colors.White }]}>
+          <Text style={[styles.label, selectedIndex === index && { color: Colors.headerWhite }]}>
             {option.label}
           </Text>
           <Text
-            style={[styles.subLabel, selectedIndex === index && { color: Colors.SecondaryWhite }]}
+            style={[styles.subLabel, selectedIndex === index && { color: Colors.bodyText }]}
             color={`${colorMode}.secondaryText`}
           >
             ({option.sub})

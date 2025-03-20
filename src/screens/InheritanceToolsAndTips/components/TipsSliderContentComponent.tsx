@@ -15,17 +15,17 @@ function OnboardingSlideComponent(props) {
           width={'80%'}
           fontSize={20}
           mb={hp(15)}
-          color={`${colorMode}.modalGreenContent`}
+          color={`${colorMode}.headerWhite`}
           letterSpacing={0.2}
         >
           {props.title}
         </Text>
         <Box width={'90%'}>
-          <Text color={`${colorMode}.modalGreenContent`}>{props.paragraph}</Text>
+          <Text color={`${colorMode}.headerWhite`}>{props.paragraph}</Text>
         </Box>
         <Box style={styles.icon}>{props.icon}</Box>
         <Box width={'90%'}>
-          <Text color={`${colorMode}.modalGreenContent`}>{props.paragraph2}</Text>
+          <Text color={`${colorMode}.headerWhite`}>{props.paragraph2}</Text>
         </Box>
       </Box>
     </ScrollView>

@@ -70,12 +70,12 @@ export function UTXOLabel(props: {
       {extraLabelCount > 0 && !isSelecting && (
         <Box
           style={[styles.utxoExtraLabel]}
-          color={`${colorMode}.labelText`}
-          backgroundColor={`${colorMode}.brownColor`}
+          color={`${colorMode}.headerWhite`}
+          backgroundColor={`${colorMode}.BrownNeedHelp`}
         >
           <Text
             style={styles.labelText}
-            color={`${colorMode}.labelText`}
+            color={`${colorMode}.headerWhite`}
             testID="text_extraLabelCount"
           >
             +{extraLabelCount}
@@ -85,12 +85,12 @@ export function UTXOLabel(props: {
       {addMoreBtn && (
         <Box
           style={[styles.addBtnLabel]}
-          color={`${colorMode}.labelText`}
+          color={`${colorMode}.headerWhite`}
           backgroundColor={`${colorMode}.pantoneGreen`}
         >
           <Text
             style={[styles.labelText, { fontSize: 16 }]}
-            color={`${colorMode}.labelText`}
+            color={`${colorMode}.headerWhite`}
             testID="text_extraLabelCount"
             bold
           >
@@ -220,7 +220,7 @@ function UTXOElement({
               hideAmounts={false}
               amount={item.value}
               fontSize={18}
-              color={`${colorMode}.textDarkGreen`}
+              color={`${colorMode}.textBlack`}
               variation={colorMode === 'light' ? 'dark' : 'light'}
             />
           </Box>

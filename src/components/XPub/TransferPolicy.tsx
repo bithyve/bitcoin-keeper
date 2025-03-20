@@ -124,7 +124,7 @@ function TransferPolicy({
   };
 
   const inputContainerStyles = {
-    shadowColor: colorMode === 'light' ? Colors.Black : Colors.White,
+    shadowColor: colorMode === 'light' ? Colors.PrimaryBlack : Colors.headerWhite,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -161,8 +161,8 @@ function TransferPolicy({
                 color={policyText ? `${colorMode}.greenText` : `${colorMode}.placeHolderTextColor`}
                 _input={
                   colorMode === 'dark' && {
-                    selectionColor: Colors.SecondaryWhite,
-                    cursorColor: Colors.SecondaryWhite,
+                    selectionColor: Colors.bodyText,
+                    cursorColor: Colors.bodyText,
                   }
                 }
               >

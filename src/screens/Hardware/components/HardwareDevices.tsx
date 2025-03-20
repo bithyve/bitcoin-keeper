@@ -126,7 +126,7 @@ const HardwareDevices = () => {
         close={() => setIsOpen(false)}
         showCloseIcon
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => <TrezorDevices getSellerLink={getSellerLink} wallet={wallet} />}
       />
@@ -137,7 +137,7 @@ const HardwareDevices = () => {
         close={() => setCoinkiteOpen(false)}
         showCloseIcon
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => <CoinkiteDevices getSellerLink={getSellerLink} wallet={wallet} />}
       />

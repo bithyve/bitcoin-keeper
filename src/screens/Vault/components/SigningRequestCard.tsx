@@ -49,7 +49,7 @@ function SigningRequestCard({ requestId, title, dateTime, amount, timeRemaining,
         )}
       </Box>
 
-      <View style={styles.divider} backgroundColor={`${colorMode}.textColor3`} />
+      <View style={styles.divider} backgroundColor={`${colorMode}.secondaryText`} />
 
       <Box style={styles.header}>
         <Text medium>{signingServer.timeUntilSigning}:</Text>
@@ -65,7 +65,7 @@ function SigningRequestCard({ requestId, title, dateTime, amount, timeRemaining,
           primaryText={common.cancel}
           primaryFontWeight="medium"
           fullWidth
-          primaryBackgroundColor={`${colorMode}.brownColor`}
+          primaryBackgroundColor={`${colorMode}.BrownNeedHelp`}
           primaryCallback={() => {
             onCancel(requestId);
           }}

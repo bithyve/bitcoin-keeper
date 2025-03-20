@@ -124,7 +124,7 @@ function DeleteKeys({ route }) {
           <HexagonIcon
             width={43}
             height={38}
-            backgroundColor={Colors.pantoneGreen}
+            backgroundColor={Colors.primaryGreen}
             icon={SDIcons(deletedSigner?.type, true).Icon}
           />
           <Box>
@@ -181,7 +181,7 @@ function DeleteKeys({ route }) {
           <HexagonIcon
             width={49}
             height={44}
-            backgroundColor={colorMode === 'dark' ? Colors.DullGreen : Colors.pantoneGreen}
+            backgroundColor={colorMode === 'dark' ? Colors.TagLight2 : Colors.primaryGreen}
             icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
           />
         }
@@ -243,13 +243,13 @@ function DeleteKeys({ route }) {
         secondaryCallback={() => setHideWarning(false)}
         secButtonTextColor={`${colorMode}.greenText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('ManageWallets'));
         }}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         Content={() => <Content vaultsUsed={vaultsUsed} colorMode={colorMode} />}
       />
       <KeeperModal
@@ -259,7 +259,7 @@ function DeleteKeys({ route }) {
         title={signerText.deletingKey}
         subTitle={signerText.keyWillBeDeleted}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={DeleteLoadingContent}
       />
@@ -270,10 +270,10 @@ function DeleteKeys({ route }) {
         showCloseIcon={false}
         title={signerText.keyDeletedSuccessfully}
         subTitle={signerText.keyDeletedSuccessMessage}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonText={signerText.continue}
         buttonCallback={() => {
@@ -290,7 +290,7 @@ function DeleteKeys({ route }) {
         subTitleWidth={wp(240)}
         subTitle={signerText.confirmPasscodeToDeleteKey}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <Box>
@@ -299,7 +299,7 @@ function DeleteKeys({ route }) {
                 <HexagonIcon
                   width={43}
                   height={38}
-                  backgroundColor={Colors.pantoneGreen}
+                  backgroundColor={Colors.primaryGreen}
                   icon={SDIcons(signerToDelete.type, true).Icon}
                 />
                 <Box>

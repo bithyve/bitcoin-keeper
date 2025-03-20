@@ -350,7 +350,7 @@ const CreateTicket = ({ navigation, route }) => {
                 ) : (
                   <CheckBoxOutlineInActive width={wp(18)} height={wp(18)} />
                 )}
-                <Text fontSize={14} semiBold color={`${colorMode}.whiteButtonText`}>
+                <Text fontSize={14} semiBold color={`${colorMode}.pantoneGreen`}>
                   {allKeysTrue ? 'Unselect All' : 'Select All'}
                 </Text>
               </Pressable>

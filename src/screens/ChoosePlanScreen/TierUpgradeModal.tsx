@@ -88,11 +88,11 @@ function TierUpgradeModal({
       title={content?.title}
       subTitle={content?.subTitle}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       buttonText={common.Okay}
       buttonTextColor={`${colorMode}.buttonText`}
-      buttonBackground={`${colorMode}.greenButtonBackground`}
+      buttonBackground={`${colorMode}.pantoneGreen`}
       buttonCallback={onPress}
       Content={() => <Content isUpgrade={content.isUpgrade} />}
       closeOnOverlayClick={closeOnOverlayClick}
