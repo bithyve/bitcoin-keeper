@@ -42,6 +42,7 @@ import messaging from '@react-native-firebase/messaging';
 import { notificationType } from 'src/models/enums/Notifications';
 import { CHANGE_INDEX_THRESHOLD, SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
+import { setSubscription } from 'src/store/reducers/settings';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -226,6 +227,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           response?.message ?? 'Something went wrong, Please try again.',
           <ToastErrorIcon />
         );
+        return;
       }
       const subscription = {
         productId: response.data.productId,
@@ -237,6 +239,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       dbManager.updateObjectById(RealmSchema.KeeperApp, getAppData().appId, {
         subscription,
       });
+      dispatch(setSubscription(subscription.name));
       showToast(`You are successfully upgraded to ${subscription.name} tier.`, <TickIcon />);
     } catch (error) {
       console.log('🚀 ~ handleKeeperPrivate ~ error:', error);

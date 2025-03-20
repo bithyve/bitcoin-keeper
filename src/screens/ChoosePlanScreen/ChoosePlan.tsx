@@ -613,7 +613,7 @@ function ChoosePlan() {
             onChange={(item) => setCurrentPosition(item)}
             primaryCallback={() => {
               if (items[currentPosition].name === SubscriptionTier.L4) {
-                Linking.openURL(`http://127.0.0.1:5501/KeeperBlack.html?appId=${id}`);
+                Linking.openURL(`http://127.0.0.1:5501/KeeperBlack.html?appId=${id}`); // ! update this url
                 return;
               } else if (!isOnL1 && appSubscription.isDesktopPurchase) {
                 Alert.alert('', 'You already have an active BTC based subscription.');
