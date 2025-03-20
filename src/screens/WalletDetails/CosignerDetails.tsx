@@ -12,7 +12,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import idx from 'idx';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { captureError } from 'src/services/sentry';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { useNavigation } from '@react-navigation/native';

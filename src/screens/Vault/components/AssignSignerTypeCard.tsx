@@ -50,7 +50,7 @@ const AssignSignerTypeCard = ({
         testID={`btn_identify_${type}`}
       >
         <Box
-          backgroundColor={`${colorMode}.secondaryBackground`}
+          backgroundColor={`${colorMode}.textInputBackground`}
           borderTopRadius={first ? 10 : 0}
           borderBottomRadius={last ? 10 : 0}
           borderWidth={isDarkMode ? 1 : 0}
@@ -85,7 +85,7 @@ const AssignSignerTypeCard = ({
           type
         )}?`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText="Continue"
         secondaryButtonText="Cancel"

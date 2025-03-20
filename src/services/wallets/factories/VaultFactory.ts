@@ -9,14 +9,8 @@ import {
   hash256,
 } from 'src/utils/service-utilities/encryption';
 import config from 'src/utils/service-utilities/config';
-import {
-  CosignersMapUpdate,
-  CosignersMapUpdateAction,
-  IKSCosignersMapUpdate,
-  IKSCosignersMapUpdateAction,
-} from 'src/models/interfaces/AssistedKeys';
+import { CosignersMapUpdate, CosignersMapUpdateAction } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
 import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import {
@@ -47,6 +41,7 @@ import { generateMiniscriptPolicy } from '../operations/miniscript/policy-genera
 
 const crypto = require('crypto');
 
+// *TODO: Remove this and update the generateVaultId function
 const STANDARD_VAULT_SCHEME = [
   { m: 1, n: 1 },
   { m: 2, n: 3 },
@@ -250,34 +245,6 @@ export const generateSeedWordsKey = (
   };
 };
 
-export const generateMockExtendedKey = (
-  entity: EntityKind,
-  networkType = NetworkType.TESTNET
-): {
-  xpriv: string;
-  xpub: string;
-  derivationPath: string;
-  masterFingerprint: string;
-} => {
-  const randomBytes = crypto.randomBytes(16);
-  const mockMnemonic = bip39.entropyToMnemonic(randomBytes.toString('hex'));
-  const seed = bip39.mnemonicToSeedSync(mockMnemonic);
-  const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
-  const randomWalletNumber = Math.floor(cryptoRandom() * 10e5);
-  const xDerivationPath = WalletUtilities.getDerivationPath(
-    entity,
-    networkType,
-    randomWalletNumber
-  );
-  const network = WalletUtilities.getNetworkByType(networkType);
-  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
-    seed.toString('hex'),
-    network,
-    xDerivationPath
-  );
-  return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
-};
-
 export const generateCosignerMapIds = (
   signerMap: { [key: string]: Signer },
   keys: VaultSigner[],
@@ -307,7 +274,7 @@ export const generateCosignerMapUpdates = (
   signerMap: { [key: string]: Signer },
   keys: VaultSigner[],
   assistedKey: VaultSigner
-): IKSCosignersMapUpdate[] | CosignersMapUpdate[] => {
+): CosignersMapUpdate[] => {
   const assistedKeyType = signerMap[getKeyUID(assistedKey)].type;
   const cosignersMapIds = generateCosignerMapIds(signerMap, keys, assistedKeyType);
 
@@ -322,27 +289,13 @@ export const generateCosignerMapUpdates = (
     }
 
     return cosignersMapUpdates;
-  } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
-    const cosignersMapUpdates: IKSCosignersMapUpdate[] = [];
-    for (const id of cosignersMapIds) {
-      cosignersMapUpdates.push({
-        cosignersId: id,
-        inheritanceKeyId: assistedKey.xfp,
-        action: IKSCosignersMapUpdateAction.ADD,
-      });
-    }
-
-    return cosignersMapUpdates;
   } else throw new Error('Non-supported signer type');
 };
 
 const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap) => {
   for (const key of keys) {
     const assistedKeyType = signerMap[getKeyUID(key)]?.type;
-    if (
-      assistedKeyType === SignerType.POLICY_SERVER ||
-      assistedKeyType === SignerType.INHERITANCEKEY
-    ) {
+    if (assistedKeyType === SignerType.POLICY_SERVER) {
       // creates maps per signer type
       const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, keys, key);
 
@@ -353,12 +306,6 @@ const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap)
           cosignersMapUpdates as CosignersMapUpdate[]
         );
         if (!updated) throw new Error('Failed to update cosigners-map for SS Assisted Keys');
-      } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
-        const { updated } = await InheritanceKeyServer.updateCosignersToSignerMapIKS(
-          key.xfp,
-          cosignersMapUpdates as IKSCosignersMapUpdate[]
-        );
-        if (!updated) throw new Error('Failed to update cosigners-map for IKS Assisted Keys');
       }
     }
   }
@@ -407,19 +354,6 @@ export const generateMockExtendedKeyForSigner = (
     xDerivationPath
   );
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
-};
-
-export const generateKeyFromXpub = (
-  xpub: string,
-  network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
-) => {
-  const child = WalletUtilities.generateChildFromExtendedKey(
-    xpub,
-    network,
-    config.VAC_CHILD_INDEX,
-    true
-  );
-  return generateEncryptionKey(child);
 };
 
 export const generateMiniscriptScheme = (

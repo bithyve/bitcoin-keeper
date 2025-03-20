@@ -28,6 +28,7 @@ import { autoSyncWallets, refreshWallets } from 'src/store/sagaActions/wallets';
 import { RefreshControl } from 'react-native';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -141,8 +142,8 @@ const HomeWallet = () => {
     <Box style={styles.walletContainer}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
-        backgroundColor={`${colorMode}.DashedButtonCta`}
-        hexagonBackgroundColor={Colors.pantoneGreen}
+        backgroundColor={`${colorMode}.dullGreen`}
+        hexagonBackgroundColor={Colors.primaryGreen}
         textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"
         callback={() => setShowAddWalletModal(true)}
@@ -163,7 +164,7 @@ const HomeWallet = () => {
         title="Add a New Wallet"
         subTitle="Create a new wallet or import existing one"
         close={() => setShowAddWalletModal(false)}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon
         Content={() => (
@@ -205,9 +206,11 @@ const OptionItem = ({ option, colorMode }) => {
         backgroundColor={`${colorMode}.boxSecondaryBackground`}
         borderColor={`${colorMode}.separator`}
       >
-        <Box style={styles.optionIconCtr} backgroundColor={`${colorMode}.pantoneGreen`}>
-          {option.icon}
-        </Box>
+        <CircleIconWrapper
+          width={wp(40)}
+          icon={option.icon}
+          backgroundColor={`${colorMode}.pantoneGreen`}
+        />
         <Box>
           <Text
             color={`${colorMode}.secondaryText`}
@@ -238,13 +241,6 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     marginBottom: hp(5),
-  },
-  optionIconCtr: {
-    height: hp(39),
-    width: wp(39),
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 100,
   },
   optionCTR: {
     flexDirection: 'row',

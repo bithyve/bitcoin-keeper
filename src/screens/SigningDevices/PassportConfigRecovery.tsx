@@ -7,13 +7,11 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ImportIcon from 'src/assets/images/import.svg';
-import { RNCamera } from 'react-native-camera';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import OptionCard from 'src/components/OptionCard';
 import RNFS from 'react-native-fs';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import Colors from 'src/theme/Colors';
-import UploadImage from 'src/components/UploadImage';
 import QRScanner from 'src/components/QRScanner';
 
 function WrappedImportIcon() {
@@ -78,8 +76,8 @@ function PassportConfigRecovery() {
                   multiline
                   _input={
                     colorMode === 'dark' && {
-                      selectionColor: Colors.SecondaryWhite,
-                      cursorColor: Colors.SecondaryWhite,
+                      selectionColor: Colors.bodyText,
+                      cursorColor: Colors.bodyText,
                     }
                   }
                 />
@@ -111,9 +109,6 @@ function PassportConfigRecovery() {
 export default PassportConfigRecovery;
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-  },
   inputWrapper: {
     flexDirection: 'column',
     marginVertical: hp(20),
@@ -132,25 +127,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     height: hp(60),
   },
-
-  tileContainer: {
-    position: 'absolute',
-    bottom: -50,
-    width: '100%',
-  },
-  tileWrapper: {
-    marginBottom: 15,
-  },
-  noteWrapper: {
-    width: '100%',
-    bottom: 0,
-    position: 'absolute',
-    paddingHorizontal: 20,
-  },
   separator: {
     width: '100%',
     height: 2,
-    backgroundColor: Colors.WhiteCoffee,
+    backgroundColor: Colors.secondaryCreamWhite,
     marginBottom: 10,
   },
   optionsWrapper: {
@@ -163,37 +143,15 @@ const styles = StyleSheet.create({
 
     marginTop: hp(20),
   },
-  qrStatus: {
-    position: 'absolute',
-    top: hp(255),
-    left: wp(90),
-    zIndex: 999,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   scrollViewWrapper: {
     flex: 1,
-  },
-  desc: {
-    color: 'white',
-    fontSize: 13,
-    letterSpacing: 0.65,
-    padding: 5,
-    marginBottom: hp(5),
-  },
-  descLast: {
-    color: 'white',
-    fontSize: 13,
-    letterSpacing: 0.65,
-    padding: 5,
-    marginTop: hp(60),
   },
   iconWrapper: {
     width: wp(35),
     height: wp(35),
     marginLeft: -7,
     borderRadius: 20,
-    backgroundColor: Colors.pantoneGreen,
+    backgroundColor: Colors.primaryGreen,
     justifyContent: 'center',
     alignItems: 'center',
   },

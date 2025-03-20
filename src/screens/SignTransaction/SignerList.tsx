@@ -8,7 +8,6 @@ import React, { useEffect, useState } from 'react';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
-import { SignerType } from 'src/services/wallets/enums';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getPersistedDocument } from 'src/services/documents';
@@ -20,66 +19,26 @@ function SignerList({
   callback,
   envelops,
   signerMap,
-  isIKSClicked,
-  isIKSDeclined,
-  IKSSignTime,
 }: {
   vaultKey: VaultSigner;
   callback: any;
   envelops: SerializedPSBTEnvelop[];
   signerMap: { [key: string]: Signer };
-  isIKSClicked?: boolean;
-  isIKSDeclined?: boolean;
-  IKSSignTime?: number;
 }) {
   const { colorMode } = useColorMode();
   const hasSignerSigned = !!envelops.filter(
     (envelop) => envelop.xfp === vaultKey.xfp && envelop.isSigned
   ).length;
   const signer = signerMap[getKeyUID(vaultKey)];
-  const isIKS = signer.type === SignerType.INHERITANCEKEY;
   const [showIcon, setShowIcon] = useState(null);
-
-  const formatDuration = (durationInMilliseconds) => {
-    const millisecondsInSecond = 1000;
-    const millisecondsInMinute = millisecondsInSecond * 60;
-    const millisecondsInHour = millisecondsInMinute * 60;
-    const millisecondsInDay = millisecondsInHour * 24;
-    const millisecondsInMonth = millisecondsInDay * 30;
-
-    if (durationInMilliseconds >= millisecondsInMonth) {
-      const months = Math.floor(durationInMilliseconds / millisecondsInMonth);
-      return `${months} month${months > 1 ? 's' : ''}`;
-    } else if (durationInMilliseconds >= millisecondsInDay) {
-      const days = Math.floor(durationInMilliseconds / millisecondsInDay);
-      return `${days} day${days > 1 ? 's' : ''}`;
-    } else if (durationInMilliseconds >= millisecondsInHour) {
-      const hours = Math.floor(durationInMilliseconds / millisecondsInHour);
-      const remainingMinutes = Math.floor(
-        (durationInMilliseconds % millisecondsInHour) / millisecondsInMinute
-      );
-      return `${hours} hour${hours > 1 ? 's' : ''} ${
-        remainingMinutes > 0 ? remainingMinutes + ' min' : ''
-      }`;
-    } else if (durationInMilliseconds >= millisecondsInMinute) {
-      const minutes = Math.ceil(durationInMilliseconds / millisecondsInMinute);
-      return `${minutes} min`;
-    } else {
-      return '1 min';
-    }
-  };
 
   useEffect(() => {
     if (hasSignerSigned) {
       setShowIcon('check');
-    } else if (isIKS) {
-      if (isIKSDeclined) setShowIcon('cross');
-      else if (isIKSClicked) setShowIcon('time');
-      else setShowIcon('next');
     } else {
       setShowIcon('next');
     }
-  }, [hasSignerSigned, isIKS, isIKSClicked, isIKSDeclined]);
+  }, [hasSignerSigned]);
 
   return (
     <TouchableOpacity testID={`btn_transactionSigner`} onPress={callback}>
@@ -119,11 +78,6 @@ function SignerList({
                 {showIcon === 'cross' && <ToastErrorIcon />}
                 {showIcon === 'time' && <TimeIcon width={15} height={15} />}
                 {showIcon === 'next' && <Next />}
-                {isIKS && !isIKSDeclined && !hasSignerSigned && isIKSClicked && (
-                  <Text style={{ fontSize: 13 - formatDuration(IKSSignTime).length * 0.5 }}>
-                    {formatDuration(IKSSignTime)}
-                  </Text>
-                )}
               </Box>
             </Box>
           </HStack>

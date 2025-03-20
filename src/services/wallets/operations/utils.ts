@@ -31,7 +31,6 @@ import {
   XpubTypes,
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
-import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 import ecc from './taproot-utils/noble_ecc';
 import { generateBitcoinScript } from './miniscript/miniscript';
 
@@ -81,7 +80,7 @@ export default class WalletUtilities {
   }
 
   static getMasterFingerprintForWallet(wallet: Wallet) {
-    return whirlPoolWalletTypes.includes(wallet.type) ? wallet.depositWalletId : wallet.id;
+    return wallet.id;
   }
 
   static getFingerprintFromExtendedKey = (
@@ -654,15 +653,6 @@ export default class WalletUtilities {
     };
   };
 
-  static getP2SH = (keyPair: BIP32Interface, network: bitcoinJS.Network): bitcoinJS.Payment =>
-    bitcoinJS.payments.p2sh({
-      redeem: bitcoinJS.payments.p2wpkh({
-        pubkey: keyPair.publicKey,
-        network,
-      }),
-      network,
-    });
-
   static generateExtendedKey = (
     mnemonic: string,
     privateKey: boolean,
@@ -713,22 +703,6 @@ export default class WalletUtilities {
   static getPublicExtendedKeyFromPriv = (extendedKey: string): string => {
     const xKey = bip32.fromBase58(extendedKey, config.NETWORK);
     return xKey.neutered().toBase58();
-  };
-
-  static getNetworkFromXpub = (xpub: string) => {
-    if (xpub) {
-      return xpub.startsWith('xpub') || xpub.startsWith('ypub') || xpub.startsWith('zpub')
-        ? NetworkType.MAINNET
-        : NetworkType.TESTNET;
-    }
-  };
-
-  static generateYpub = (xpub: string, network: bitcoinJS.Network): string => {
-    // generates ypub corresponding to supplied xpub || upub corresponding to tpub
-    let data = bs58check.decode(xpub);
-    const versionBytes = bitcoinJS.networks.bitcoin === network ? '049d7cb2' : '044a5262';
-    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
-    return bs58check.encode(data);
   };
 
   static getXprivFromExtendedKey = (extendedKey: string, network: bitcoinJS.Network) => {
@@ -1126,34 +1100,6 @@ export default class WalletUtilities {
       default:
         throw new Error(`Purpose:${purpose} not supported`);
     }
-  };
-
-  static getPubkeyHashFromScript = (address: string, script: Buffer) => {
-    if (address.startsWith('tb1') || address.startsWith('bc1')) {
-      return script.slice(2);
-    }
-    if (address.startsWith('m') || address.startsWith('n') || address.startsWith('1')) {
-      return script.slice(3, 23);
-    }
-    if (address.startsWith('2') || address.startsWith('3')) {
-      return script.slice(2, 22);
-    }
-  };
-
-  static signBitcoinMessage = (message: string, privateKey: string, network: bitcoinJS.Network) => {
-    const keyPair = ECPair.fromWIF(privateKey, network);
-    const signature = bitcoinMessage.sign(message, keyPair.privateKey, keyPair.compressed);
-    return signature.toString('base64');
-  };
-
-  static getWalletFromAddress = (wallets: (Wallet | Vault)[], address: string) => {
-    for (const wallet of wallets) {
-      const externalAddresses = idx(wallet, (_) => _.specs.addresses.external);
-      if (externalAddresses && Object.values(externalAddresses).includes(address)) {
-        return wallet;
-      }
-    }
-    return null;
   };
 
   static getScriptTypeFromDerivationPath = (derivationPath: string): XpubTypes => {

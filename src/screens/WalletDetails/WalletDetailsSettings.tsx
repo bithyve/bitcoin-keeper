@@ -74,7 +74,7 @@ function WalletDetailsSettings({ route }) {
           showCloseIcon={false}
           modalBackground={`${colorMode}.primaryBackground`}
           title={walletTranslation.XPubTitle}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           subTitle={walletTranslation.walletXPubSubTitle}
           subTitleWidth={wp(300)}
@@ -98,7 +98,7 @@ function WalletDetailsSettings({ route }) {
           subTitleWidth={wp(240)}
           subTitle="This will reflect on the home screen"
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           showCloseIcon={false}
           Content={() => (

@@ -9,7 +9,7 @@ const PlanDetailsCards = ({ plansData, currentPosition }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   return (
-    <Flex style={styles.container} backgroundColor={`${colorMode}.secondaryBackground`}>
+    <Flex style={styles.container} backgroundColor={`${colorMode}.textInputBackground`}>
       <Box>
         {plansData?.[currentPosition]?.benifits.map(
           (benifit) =>
@@ -18,7 +18,7 @@ const PlanDetailsCards = ({ plansData, currentPosition }) => {
                 <Box style={styles.iconContainer}>
                   {isDarkMode ? <PlanCheckMarkWhite /> : <PlanCheckMark />}
                 </Box>
-                <Text fontSize={13} color={`${colorMode}.subPlansubtitle`}>
+                <Text fontSize={13} color={`${colorMode}.modalWhiteContent`}>
                   {`${benifit}`}
                 </Text>
               </Box>

@@ -8,7 +8,6 @@
 
 import * as bitcoinJS from 'bitcoinjs-lib';
 
-import ECPairFactory from 'ecpair';
 import config from 'src/utils/service-utilities/config';
 import { parseInt } from 'lodash';
 import ElectrumClient from 'src/services/electrum/client';
@@ -56,16 +55,11 @@ import {
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 import { generateScriptWitnesses, generateBitcoinScript } from './miniscript/miniscript';
-import { Phase, Path } from './miniscript/policy-generator';
+import { Phase } from './miniscript/policy-generator';
 import { coinselect } from './coinselectFixed';
 import { isTestnet } from 'src/constants/Bitcoin';
 
 bitcoinJS.initEccLib(ecc);
-const ECPair = ECPairFactory(ecc);
-const TESTNET_FEE_CUTOFF = 10;
-
-const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
-  ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
 const testnetFeeSurcharge = (wallet: Wallet | Vault) =>
   /* !! TESTNET ONLY !!
@@ -207,7 +201,7 @@ const updateOutputsForFeeCalculation = (outputs, network) => {
   return outputs;
 };
 
-function utxpArraysAreEqual(arr1: InputUTXOs[], arr2: InputUTXOs[]): boolean {
+function utxoArraysAreEqual(arr1: InputUTXOs[], arr2: InputUTXOs[]): boolean {
   if (arr1.length !== arr2.length) return false;
 
   // Sort both arrays by txId and vout
@@ -740,8 +734,8 @@ export default class WalletOperations {
         walletHasNewUpdates =
           hasNewUpdates ||
           newUTXOs.length !== 0 ||
-          !utxpArraysAreEqual(wallet.specs.unconfirmedUTXOs, unconfirmedUTXOs) ||
-          !utxpArraysAreEqual(wallet.specs.confirmedUTXOs, confirmedUTXOs)
+          !utxoArraysAreEqual(wallet.specs.unconfirmedUTXOs, unconfirmedUTXOs) ||
+          !utxoArraysAreEqual(wallet.specs.confirmedUTXOs, confirmedUTXOs)
             ? true
             : walletHasNewUpdates;
 
@@ -1839,7 +1833,6 @@ export default class WalletOperations {
       SignerType.BITBOX02,
       SignerType.KEEPER,
       SignerType.POLICY_SERVER,
-      SignerType.INHERITANCEKEY,
     ];
     if (miniscriptSelectedSatisfier && keysOnlyInSelectedPathSigners.includes(signer.type)) {
       const subPaths = inputs.reduce((acc, input) => {
@@ -1885,11 +1878,7 @@ export default class WalletOperations {
           );
         });
 
-        if (
-          signer.type === SignerType.BITBOX02 ||
-          signer.type === SignerType.POLICY_SERVER ||
-          signer.type === SignerType.INHERITANCEKEY
-        ) {
+        if (signer.type === SignerType.BITBOX02 || signer.type === SignerType.POLICY_SERVER) {
           input.bip32Derivation = newBip32Derivation;
         } else {
           input.unknownKeyVals = [
@@ -1917,8 +1906,7 @@ export default class WalletOperations {
       signer.type === SignerType.TREZOR ||
       signer.type === SignerType.BITBOX02 ||
       signer.type === SignerType.KEEPER || // for external key since it can be of any signer type
-      signer.type === SignerType.POLICY_SERVER ||
-      signer.type === SignerType.INHERITANCEKEY
+      signer.type === SignerType.POLICY_SERVER
     ) {
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
@@ -1989,7 +1977,7 @@ export default class WalletOperations {
         });
       }
 
-      if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+      if (signer.type === SignerType.POLICY_SERVER) {
         const childIndexArray = [];
         for (let index = 0; index < inputs.length; index++) {
           childIndexArray.push({

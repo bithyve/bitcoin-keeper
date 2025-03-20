@@ -12,7 +12,6 @@ import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
-import { globalStyles } from 'src/constants/globalStyles';
 import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -26,7 +25,7 @@ import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
+import { setOTBStatusSS } from 'src/store/reducers/settings';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
@@ -48,7 +47,6 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey = false,
     derivationPath,
     isInheritancePlaning = false,
-    isIKS = false,
     isSS = false,
     parentScreen,
     oldPasscode,
@@ -63,7 +61,6 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey: boolean;
     derivationPath: string;
     isInheritancePlaning?: boolean;
-    isIKS?: boolean;
     isSS?: boolean;
     parentScreen?: string;
     oldPasscode?: string;
@@ -186,7 +183,7 @@ function ExportSeedScreen({ route, navigation }) {
                     <Text
                       color={`${colorMode}.primaryText`}
                       numberOfLines={2}
-                      style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
+                      style={{ fontSize: 14, letterSpacing: 1.12, alignItems: 'center' }}
                     >
                       {common.showAsQR}
                     </Text>
@@ -276,9 +273,7 @@ function ExportSeedScreen({ route, navigation }) {
                     showToast(seedTranslation.keeperVerified, <TickIcon />);
                   }
                 } else if (isFromAssistedKey) {
-                  if (isIKS) {
-                    dispatch(setOTBStatusIKS(true));
-                  } else if (isSS) {
+                  if (isSS) {
                     dispatch(setOTBStatusSS(true));
                   }
                   showToast(BackupWallet.OTBSuccessMessage, <TickIcon />);
@@ -306,7 +301,7 @@ function ExportSeedScreen({ route, navigation }) {
           }
           title={BackupWallet.backupSuccessTitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonText={common.done}
           buttonCallback={
@@ -332,7 +327,7 @@ function ExportSeedScreen({ route, navigation }) {
           title={BackupWallet.recoveryPhrase}
           subTitleWidth={wp(260)}
           subTitle={BackupWallet.recoveryPhraseSubTitle}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonText={common.done}
           buttonCallback={() => setShowQRVisible(false)}

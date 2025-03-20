@@ -98,7 +98,7 @@ function StartNewModalContent() {
 function NewKeeperApp({ navigation }: { navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
-  const { appImageRecoverd, appRecreated, appImageError } = useAppSelector((state) => state.bhr);
+  const { appRecreated, appImageError } = useAppSelector((state) => state.bhr);
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
@@ -133,7 +133,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
     if (appImageError && isFocused) {
       showToast('Failed to get app image');
     }
-  }, [appImageRecoverd, appImageError]);
+  }, [appImageError]);
 
   useEffect(() => {
     if (appRecreated) {
@@ -208,7 +208,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           {colorMode === 'light' ? <IconGreySettings /> : <IconSettings />}
           <Text
             style={styles.settingIconText}
-            color={colorMode === 'light' ? Colors.MediumGrey : Colors.SecondaryWhite}
+            color={colorMode === 'light' ? Colors.secondaryLightGrey : Colors.bodyText}
             semiBold
           >
             Server Settings
@@ -230,7 +230,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={styles.contentContainer}>
         <Box>
           <Box style={styles.headingContainer}>
-            <Text color={`${colorMode}.headerText`} fontSize={18}>
+            <Text color={`${colorMode}.textGreen`} fontSize={18}>
               {login.welcomeToBitcoinKeeper}
             </Text>
             <Text fontSize={14} color={`${colorMode}.secondaryText`}>
@@ -275,13 +275,13 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Pressable>
         </Box>
         <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
-          <Text color={`${colorMode}.headerText`} medium fontSize={14}>
+          <Text color={`${colorMode}.textGreen`} medium fontSize={14}>
             {login.Note}
           </Text>
           <Text fontSize={12} color={`${colorMode}.GreenishGrey`}>
             {login.Agreement}
             <Text
-              color={`${colorMode}.headerText`}
+              color={`${colorMode}.textGreen`}
               italic
               bold
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/terms-of-service/`)}
@@ -291,7 +291,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             </Text>
             {'and our'}
             <Text
-              color={`${colorMode}.headerText`}
+              color={`${colorMode}.textGreen`}
               italic
               bold
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/privacy-policy/`)}
@@ -362,7 +362,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setIntroModalVisible(false);
         }}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(300)}
       />

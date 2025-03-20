@@ -201,7 +201,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(10),
     justifyContent: 'space-between',
   },
-
   contentContainer: {
     gap: hp(7),
   },

@@ -24,7 +24,7 @@ function CurrencyInfo({
   fontSize,
   satsFontSize = fontSize,
   bold,
-  color = Colors.White,
+  color = Colors.headerWhite,
   balanceMaxWidth,
   variation = 'grey',
 }: ICurrencyInfo) {

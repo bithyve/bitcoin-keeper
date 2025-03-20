@@ -12,7 +12,7 @@ function BackupModalContent() {
       <Box style={styles.passImg}>
         <SeedwordsIllustration />
       </Box>
-      <Text color={`${colorMode}.headerText`} medium style={styles.modalHeading}>
+      <Text color={`${colorMode}.textGreen`} medium style={styles.modalHeading}>
         Beware
       </Text>
       <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>

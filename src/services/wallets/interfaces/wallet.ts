@@ -39,14 +39,6 @@ export interface TransferPolicy {
   threshold: number;
 }
 
-export interface WhirlpoolWalletDetails {
-  walletId: string; // wallet id for the premix|postmix|badbank
-  walletType: WalletType;
-}
-export interface WhirlpoolConfig {
-  whirlpoolWalletDetails: WhirlpoolWalletDetails[]; // deatils for whirlpool wallets
-}
-
 export interface AddressCache {
   external: {}; // maps index to external address
   internal: {}; // maps index to internal address
@@ -85,9 +77,7 @@ export interface Wallet {
   specs: WalletSpecs;
   scriptType: ScriptTypes;
   transferPolicy?: TransferPolicy;
-  whirlpoolConfig?: WhirlpoolConfig;
   receivingAddress?: string;
-  depositWalletId?: string; // this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
 }
 
 export interface TriggerPolicy {

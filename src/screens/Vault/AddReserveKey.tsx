@@ -290,8 +290,8 @@ function AddReserveKey({ route }) {
         secondaryCallback={viewVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonBackground={`${colorMode}.greenButtonBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}

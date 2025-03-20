@@ -4,16 +4,15 @@ import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { getColdcardDetails, getConfigDetails } from 'src/hardware/coldcard';
 
 import { Box, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
@@ -218,7 +217,7 @@ function SetupColdCard({ route }) {
         <WalletHeader title={getTitle(mode)} />
         <Box flex={1} marginTop={hp(30)}>
           <Box backgroundColor={`${colorMode}.boxSecondaryBackground`} style={styles.container}>
-            <Text fontSize={14} color={`${colorMode}.textColor3`}>
+            <Text fontSize={14} color={`${colorMode}.secondaryText`}>
               {instructions}
             </Text>
             <Box style={styles.illustration}>
@@ -232,7 +231,7 @@ function SetupColdCard({ route }) {
                 <ColdCardIllustration />
               )}
             </Box>
-            <Text fontSize={14} color={`${colorMode}.textColor3`}>
+            <Text fontSize={14} color={`${colorMode}.secondaryText`}>
               {instructions2}
             </Text>
           </Box>

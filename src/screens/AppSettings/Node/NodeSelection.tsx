@@ -265,7 +265,7 @@ const NodeSelection = () => {
           ) : (
             <Buttons
               secondaryText={settings.scanQRTitle}
-              secondaryTextColor={`${colorMode}.noteTextClosed`}
+              secondaryTextColor={`${colorMode}.greenWhiteText`}
               secondaryCallback={() =>
                 navigation.dispatch(
                   CommonActions.navigate({

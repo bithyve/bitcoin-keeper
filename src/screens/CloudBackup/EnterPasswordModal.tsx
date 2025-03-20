@@ -20,7 +20,7 @@ function Content({ descRef }: { descRef }) {
         style={styles.descriptionEdit}
         placeholder="Enter Password"
         secureTextEntry
-        placeholderTextColor={Colors.RichBlack}
+        placeholderTextColor={Colors.SecondaryBlack}
         defaultValue={''}
         maxLength={20}
       />
@@ -48,7 +48,7 @@ function EnterPasswordModal({
     <KeeperModal
       visible={visible}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       close={close}
       title="Enter PDF File Password"

@@ -1,11 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BackupType } from 'src/models/enums/BHR';
+import { BackupType, homeToastMessageType } from 'src/models/enums/BHR';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { seedWordItem } from 'src/screens/Recovery/constants';
-import { getKeyUID } from 'src/utils/utilities';
 
 const initialState: {
   backupMethod: BackupType | null;
@@ -14,15 +13,10 @@ const initialState: {
   seedConfirmed: boolean;
   loading: boolean;
   appRecoveryLoading: boolean;
-  appImageRecoverd: boolean;
   appImageError: string;
   appImagerecoveryRetry: boolean;
-  downloadingBackup: boolean;
-  recoverBackupFailed: boolean;
-  invalidPassword: boolean;
   backupWarning: boolean;
   signingDevices: VaultSigner[];
-  vaultMetaData: Object;
 
   relayWalletUpdateLoading: boolean;
   relayWalletUpdate: boolean;
@@ -39,8 +33,6 @@ const initialState: {
   relayVaultUpdate: boolean;
   relayVaultError: boolean;
   realyVaultErrorMessage: string;
-  vaultRecoveryDetails: Object;
-  relayVaultReoveryShellId: string;
   isCloudBsmsBackupRequired: boolean;
   lastBsmsBackup?: number;
   encPassword?: string;
@@ -57,6 +49,10 @@ const initialState: {
   pendingAllBackup: boolean;
 
   automaticCloudBackup: boolean;
+
+  deleteBackupSuccess: boolean;
+  deleteBackupFailure: boolean;
+  homeToastMessage: homeToastMessageType;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -65,17 +61,11 @@ const initialState: {
   loading: false,
 
   appRecoveryLoading: false,
-  appImageRecoverd: false,
   appImageError: '',
 
   appImagerecoveryRetry: false,
-  downloadingBackup: false,
-  recoverBackupFailed: false,
-  invalidPassword: false,
   backupWarning: false,
   signingDevices: [],
-  vaultMetaData: {},
-  vaultRecoveryDetails: {},
   relayWalletUpdateLoading: false,
   relayWalletUpdate: false,
   relayWalletError: false,
@@ -84,11 +74,12 @@ const initialState: {
   relayVaultUpdate: false,
   relayVaultError: false,
   realyVaultErrorMessage: null,
-  relayVaultReoveryShellId: null,
   relaySignersUpdateLoading: false,
   relaySignersUpdate: false,
   relaySignerUpdateError: false,
   realySignersUpdateErrorMessage: null,
+  realySignersAdded: false,
+
   isCloudBsmsBackupRequired: false,
   lastBsmsBackup: null,
   encPassword: '',
@@ -103,6 +94,11 @@ const initialState: {
   pendingAllBackup: false,
 
   automaticCloudBackup: false,
+
+  deleteBackupSuccess: false,
+  deleteBackupFailure: false,
+
+  homeToastMessage: { message: null, isError: false },
 };
 
 const bhrSlice = createSlice({
@@ -122,12 +118,6 @@ const bhrSlice = createSlice({
       state.backupError = action.payload.error;
       state.isBackupError = action.payload.isError;
     },
-    setVaultRecoveryDetails: (state, action: PayloadAction<Object>) => {
-      state.vaultRecoveryDetails = action.payload;
-    },
-    setAppImageRecoverd: (state, action: PayloadAction<boolean>) => {
-      state.appImageRecoverd = action.payload;
-    },
     setAppRecoveryLoading: (state, action: PayloadAction<boolean>) => {
       state.appRecoveryLoading = action.payload;
     },
@@ -137,31 +127,11 @@ const bhrSlice = createSlice({
     appImagerecoveryRetry: (state) => {
       state.appImagerecoveryRetry = !state.appImagerecoveryRetry;
     },
-    setDownloadingBackup: (state, action: PayloadAction<boolean>) => {
-      state.downloadingBackup = action.payload;
-    },
-    setRecoverBackupFailed: (state, action: PayloadAction<boolean>) => {
-      state.recoverBackupFailed = action.payload;
-    },
-    setInvalidPassword: (state, action: PayloadAction<boolean>) => {
-      state.invalidPassword = action.payload;
-    },
     setBackupWarning: (state, action: PayloadAction<boolean>) => {
       state.backupWarning = action.payload;
     },
     setSigningDevices: (state, action: PayloadAction<any>) => {
       state.signingDevices = _.uniqBy([...state.signingDevices, action.payload], 'signerId');
-    },
-    removeSigningDeviceBhr: (state, action: PayloadAction<VaultSigner>) => {
-      const signerToRemove = action.payload;
-      if (signerToRemove) {
-        state.signingDevices = state.signingDevices.filter(
-          (signer) => getKeyUID(signer) !== getKeyUID(signerToRemove)
-        );
-      }
-    },
-    setVaultMetaData: (state, action: PayloadAction<any>) => {
-      state.vaultMetaData = action.payload;
     },
     setRelayWalletUpdateLoading: (state, action: PayloadAction<boolean>) => {
       state.relayWalletUpdateLoading = action.payload;
@@ -228,9 +198,6 @@ const bhrSlice = createSlice({
       state.relayVaultUpdateLoading = false;
       state.realyVaultErrorMessage = null;
     },
-    setRelayVaultRecoveryShellId: (state, action: PayloadAction<string>) => {
-      state.relayVaultReoveryShellId = action.payload;
-    },
     setIsCloudBsmsBackupRequired: (state, action: PayloadAction<boolean>) => {
       state.isCloudBsmsBackupRequired = action.payload;
     },
@@ -286,6 +253,15 @@ const bhrSlice = createSlice({
     setAutomaticCloudBackup: (state, action: PayloadAction<boolean>) => {
       state.automaticCloudBackup = action.payload;
     },
+    setDeleteBackupSuccess: (state, action: PayloadAction<boolean>) => {
+      state.deleteBackupSuccess = action.payload;
+    },
+    setDeleteBackupFailure: (state, action: PayloadAction<boolean>) => {
+      state.deleteBackupFailure = action.payload;
+    },
+    setHomeToastMessage: (state, action: PayloadAction<homeToastMessageType>) => {
+      state.homeToastMessage = action.payload;
+    },
   },
 });
 
@@ -295,17 +271,11 @@ export const {
   setBackupError,
   setBackupLoading,
   setAppRecoveryLoading,
-  setAppImageRecoverd,
   setAppImageError,
   appImagerecoveryRetry,
-  setDownloadingBackup,
-  setRecoverBackupFailed,
-  setInvalidPassword,
   setBackupWarning,
 
-  removeSigningDeviceBhr,
   setSigningDevices,
-  setVaultMetaData,
 
   setRelayWalletUpdateLoading,
   relayWalletUpdateSuccess,
@@ -322,8 +292,6 @@ export const {
   relayVaultUpdateFail,
   resetRealyVaultState,
 
-  setRelayVaultRecoveryShellId,
-  setVaultRecoveryDetails,
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
   setEncPassword,
@@ -343,6 +311,11 @@ export const {
   setPendingAllBackup,
 
   setAutomaticCloudBackup,
+
+  setDeleteBackupSuccess,
+  setDeleteBackupFailure,
+
+  setHomeToastMessage,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -355,10 +328,7 @@ const bhrPersistConfig = {
     'loading',
     'appImageError',
     'appRecoveryLoading',
-    'appImageRecoverd',
     'appImagerecoveryRetry',
-    'recoverBackupFailed',
-    'invalidPassword',
     'backupWarning',
 
     'relayWalletUpdateLoading',
@@ -382,6 +352,11 @@ const bhrPersistConfig = {
     'backupAllLoading',
     'backupAllFailure',
     'backupAllSuccess',
+
+    'deleteBackupSuccess',
+    'deleteBackupFailure',
+
+    'homeToastMessage',
   ],
 };
 

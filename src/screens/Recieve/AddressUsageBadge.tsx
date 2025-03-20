@@ -30,7 +30,7 @@ function AddressUsageBadge({ used }: Props) {
         {isDarkMode ? <DotWhite /> : used ? <DotCream /> : <DotGreen />}
 
         <Text
-          color={used ? `${colorMode}.textWhite` : `${colorMode}.textGreen`}
+          color={used ? `${colorMode}.seashellWhiteText` : `${colorMode}.textGreen`}
           style={styles.addressTypeText}
         >
           {used ? walletTranslation.UsedAddress : walletTranslation.NewAddress}

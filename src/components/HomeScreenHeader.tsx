@@ -24,6 +24,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SignerType } from 'src/services/wallets/enums';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
+import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -104,8 +105,9 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
     [uaiType.SIGNING_DELAY]: () => {
       const delayedTxid = localLatestUnseenUai?.entityId;
       const snapshot: cachedTxSnapshot = snapshots[delayedTxid]; // cachedTxid is same as delayedTxid
-      dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
+      dispatch(uaisSeen({ uaiIds: [localLatestUnseenUai.id] }));
       if (snapshot) {
+        dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
         dispatch(setStateFromSnapshot(snapshot.state));
         navigtaion.dispatch(
           CommonActions.navigate('SendConfirmation', {
@@ -155,6 +157,10 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
       };
       navigation.dispatch(CommonActions.reset(navigationState));
     },
+    [uaiType.SERVER_BACKUP_FAILURE]: () => {
+      dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
+      dispatch(backupAllSignersAndVaults());
+    },
   };
 
   return (
@@ -166,7 +172,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
             <Text
               testID="text_home_current_plan"
               style={styles.headerText}
-              color={`${colorMode}.choosePlanHome`}
+              color={`${colorMode}.headerWhite`}
               medium
             >
               {capitalizeEachWord(title === wallet.more ? common.keeperSettings : title)}

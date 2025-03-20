@@ -99,7 +99,7 @@ function ReceiveScreen({ route }: { route }) {
 
   const { showToast } = useToastMessage();
 
-  const { labels: addressLabels } = useLabelsNew({ address: receivingAddress, wallet });
+  const { labels: addressLabels } = useLabelsNew({ address: receivingAddress });
   const labels = addressLabels ? addressLabels[receivingAddress] || [] : [];
 
   const { satsEnabled }: { satsEnabled: boolean } = useAppSelector((state) => state.settings);
@@ -374,7 +374,7 @@ function ReceiveScreen({ route }: { route }) {
         <Box
           style={styles.receiveDataContainer}
           backgroundColor={`${colorMode}.seashellWhite`}
-          borderColor={`${colorMode}.greyBorder`}
+          borderColor={`${colorMode}.dullGreyBorder`}
         >
           <AddressUsageBadge used={addressUsed} />
           <TouchableOpacity onPress={() => setLabelsModalVisible(true)} testID="btn_add_labels">
@@ -495,7 +495,7 @@ function ReceiveScreen({ route }: { route }) {
         title={home.RequestSpecificAmount}
         subTitle={home.amountdesc}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={AddAmountContent}
       />

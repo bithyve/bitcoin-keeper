@@ -31,7 +31,7 @@ const HardwareWallet = () => {
         title1="Devices"
         value={isToggled}
         onValueChange={() => setIsToggled(!isToggled)}
-      />
+      /> */}
       {isOnL1 && (
         <Box style={styles.plancontainer}>
           <Buttons
@@ -40,14 +40,14 @@ const HardwareWallet = () => {
             primaryText={common.upgrade}
             paddingVertical={wp(12)}
             borderRadius={5}
-            primaryBackgroundColor={`${colorMode}.brownColor`}
+            primaryBackgroundColor={`${colorMode}.BrownNeedHelp`}
             LeftIcon={UpgradeIcon}
             primaryCallback={() => {
               navigation.navigate('ChoosePlan');
             }}
           />
         </Box>
-      )} */}
+      )}
       <ScrollView showsVerticalScrollIndicator={false}>
         {!isToggled ? <HardwareDevices /> : <HardwareReseller />}
       </ScrollView>

@@ -10,10 +10,10 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BtcSignIcon from 'src/assets/images/btc-sign.svg';
 import BtcDarkIcon from 'src/assets/images/btc-sign-white.svg';
 
-function SigningRequestCard({ title, dateTime, amount, timeRemaining }) {
+function SigningRequestCard({ requestId, title, dateTime, amount, timeRemaining, onCancel }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { signingServer } = translations;
+  const { signingServer, common } = translations;
 
   const isDarkMode = colorMode === 'dark';
 
@@ -49,7 +49,7 @@ function SigningRequestCard({ title, dateTime, amount, timeRemaining }) {
         )}
       </Box>
 
-      <View style={styles.divider} backgroundColor={`${colorMode}.textColor3`} />
+      <View style={styles.divider} backgroundColor={`${colorMode}.secondaryText`} />
 
       <Box style={styles.header}>
         <Text medium>{signingServer.timeUntilSigning}:</Text>
@@ -60,15 +60,17 @@ function SigningRequestCard({ title, dateTime, amount, timeRemaining }) {
         )}
       </Box>
 
-      {/* <Box style={styles.btnContainer}>
+      <Box style={styles.btnContainer}>
         <Buttons
-          primaryText={buttonText}
+          primaryText={common.cancel}
           primaryFontWeight="medium"
           fullWidth
-          primaryBackgroundColor={`${colorMode}.brownColor`}
-          primaryCallback={onCancel}
+          primaryBackgroundColor={`${colorMode}.BrownNeedHelp`}
+          primaryCallback={() => {
+            onCancel(requestId);
+          }}
         />
-      </Box> */}
+      </Box>
     </Box>
   );
 }

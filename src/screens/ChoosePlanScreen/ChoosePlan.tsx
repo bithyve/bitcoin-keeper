@@ -108,7 +108,6 @@ function ChoosePlan() {
   }, []);
 
   useEffect(() => {
-    // To calculate same index as in ChoosePlanCarousel
     setCurrentPosition(initialPosition !== 0 ? initialPosition : subscription.level - 1);
   }, []);
 
@@ -269,7 +268,9 @@ function ChoosePlan() {
       return {
         currency: offer.pricingPhases.pricingPhaseList[0].priceCurrencyCode,
         offerToken: offer.offerToken,
-        trailPeriod: `${moment.duration(trailPlan[0].billingPeriod).asMonths()} months free`,
+        trailPeriod: `${moment.duration(trailPlan[0].billingPeriod).asMonths()} month${
+          moment.duration(trailPlan[0].billingPeriod).asMonths() > 1 ? 's' : ''
+        } free`,
         price: paidPlan[0].formattedPrice,
       };
     }
@@ -291,7 +292,7 @@ function ChoosePlan() {
     }
   }
 
-  async function processSubscription(subscription: SubScriptionPlan, level: number) {
+  async function processSubscription(subscription: SubScriptionPlan) {
     try {
       if (subscription.productType === 'free') {
         setRequesting(true);
@@ -573,7 +574,7 @@ function ChoosePlan() {
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         buttonText={null}
@@ -587,7 +588,7 @@ function ChoosePlan() {
         title="Subscribe with Promo code"
         subTitle={`Please enter the code to redeem discount`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         buttonText={null}
@@ -618,7 +619,7 @@ function ChoosePlan() {
                 Alert.alert('', 'You already have an active BTC based subscription.');
                 return;
               }
-              processSubscription(items[currentPosition], currentPosition);
+              processSubscription(items[currentPosition]);
             }}
             isMonthly={isMonthly}
             getButtonText={getButtonState}

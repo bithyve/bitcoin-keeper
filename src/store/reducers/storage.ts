@@ -33,7 +33,6 @@ const initialState: {
   inheritanceRequestId: string;
   inheritanceOTBRequestId: string;
   inheritanceKeyExistingEmailCount: number;
-  recoveryAppCreated: boolean;
   inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
   dontShowConceirgeOnboarding: boolean;
   delayedTransactions: { [txid: string]: DelayedTransaction };
@@ -53,7 +52,6 @@ const initialState: {
   inheritanceRequestId: '',
   inheritanceOTBRequestId: '',
   inheritanceKeyExistingEmailCount: 0,
-  recoveryAppCreated: null,
   inheritanceToolVisitedHistory: {
     BUY_NEW_HARDWARE_SIGNER: null,
     CANARY_WALLETS: null,
@@ -107,7 +105,6 @@ const storageSlice = createSlice({
     setAppVersion: (state, action: PayloadAction<string>) => {
       state.appVersion = action.payload;
     },
-
     updateLastVisitedTimestamp: (
       state,
       action: PayloadAction<{ option: keyof InheritanceToolVisitedHistoryType }>
@@ -117,18 +114,6 @@ const storageSlice = createSlice({
         state.inheritanceToolVisitedHistory = initialState.inheritanceToolVisitedHistory;
       }
       state.inheritanceToolVisitedHistory[option] = Date.now();
-    },
-    setInheritanceRequestId: (state, action: PayloadAction<string>) => {
-      state.inheritanceRequestId = action.payload;
-    },
-    setInheritanceOTBRequestId: (state, action: PayloadAction<string>) => {
-      state.inheritanceOTBRequestId = action.payload;
-    },
-    setInheritanceKeyExistingEmailCount: (state, action: PayloadAction<any>) => {
-      state.inheritanceKeyExistingEmailCount = action.payload;
-    },
-    setRecoveryCreatedApp: (state, action: PayloadAction<boolean>) => {
-      state.recoveryAppCreated = action.payload;
     },
     setDontShowConceirgeOnboarding: (state) => {
       state.dontShowConceirgeOnboarding = true;
@@ -170,10 +155,6 @@ export const {
   resetPinFailAttempts,
   setPinHash,
   setAppVersion,
-  setInheritanceRequestId,
-  setInheritanceOTBRequestId,
-  setInheritanceKeyExistingEmailCount,
-  setRecoveryCreatedApp,
   updateLastVisitedTimestamp,
   setDontShowConceirgeOnboarding,
   updateDelayedTransaction,

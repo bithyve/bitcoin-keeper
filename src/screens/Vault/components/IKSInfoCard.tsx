@@ -31,7 +31,7 @@ const IKSInfocard: React.FC<IKSInfocardProps> = ({ name, description, Icon, dura
         <HexagonIcon
           width={44}
           height={38}
-          backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
+          backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
           icon={Icon}
         />
       </Box>

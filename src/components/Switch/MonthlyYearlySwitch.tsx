@@ -48,14 +48,14 @@ type Props = {
   title2: string;
 };
 
-const containerBackgroundColorLight = [Colors.ChampagneBliss];
+const containerBackgroundColorLight = [Colors.brightCream];
 const containerBackgroundColorDark = [Colors.SecondaryBlack];
 
 function Element(props) {
   const { colorMode } = useColorMode();
-  const btnActiveBack = Colors.SeaweedGreen;
-  const textColor = colorMode === 'dark' ? Colors.Warmbeige : Colors.SeaweedGreen;
-  const textActiveColor = colorMode === 'light' ? Colors.Warmbeige : Colors.Warmbeige;
+  const btnActiveBack = Colors.primaryGreen;
+  const textColor = colorMode === 'dark' ? Colors.primaryCream : Colors.primaryGreen;
+  const textActiveColor = colorMode === 'light' ? Colors.primaryCream : Colors.primaryCream;
   const styles = getStyles(btnActiveBack);
   return (
     <Box style={props.isActive ? styles.containerBtnActive : styles.containerBtn}>

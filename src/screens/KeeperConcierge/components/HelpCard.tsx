@@ -38,7 +38,7 @@ const HelpCard: React.FC<HelpCardProps> = ({
     ? {}
     : {
         distance: 9,
-        startColor: Colors.lightGrey,
+        startColor: Colors.secondaryCreamWhite,
         offset: [0, 4],
         radius: hp(10),
       };
@@ -48,7 +48,7 @@ const HelpCard: React.FC<HelpCardProps> = ({
       <Box
         style={[styles.container, disabled && styles.disabledContainer]}
         borderColor={`${colorMode}.dullGreyBorder`}
-        backgroundColor={`${colorMode}.secondaryBackground`}
+        backgroundColor={`${colorMode}.textInputBackground`}
       >
         <Box style={styles.contentContainer}>
           <Box style={styles.leftContainer}>{LeftComponent && LeftComponent}</Box>

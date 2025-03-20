@@ -35,7 +35,7 @@ function TransactionElement({
   index?: number;
   isCached: boolean;
 }) {
-  const { labels } = useLabelsNew({ txid: transaction.txid, wallet });
+  const { labels } = useLabelsNew({ txid: transaction.txid });
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date)?.format('DD MMM YY  .  HH:mm A');
 
@@ -46,7 +46,7 @@ function TransactionElement({
           styles.container,
           isCached && [
             styles.cachedContainer,
-            { backgroundColor: colorMode === 'light' ? Colors.Seashell : Colors.SeashellDark },
+            { backgroundColor: colorMode === 'light' ? Colors.brightCream : Colors.TertiaryBlack },
           ],
         ]}
         borderBottomColor={`${colorMode}.border`}

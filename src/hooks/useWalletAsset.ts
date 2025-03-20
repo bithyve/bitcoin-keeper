@@ -33,11 +33,13 @@ const useWalletAsset = () => {
 
   const getWalletCardGradient = (wallet: Wallet | Vault) => {
     if (wallet?.entityKind === EntityKind.VAULT) {
-      return wallet.type === VaultType.COLLABORATIVE
-        ? [Colors.brownColor, Colors.LabelLight1]
-        : [Colors.coalGreen, Colors.GreenishGrey];
+      return wallet.type === VaultType.MINISCRIPT
+        ? [Colors.primaryBrown, Colors.LabelLight1]
+        : wallet.type === VaultType.SINGE_SIG
+        ? [Colors.DeepTeal, Colors.TagDark1]
+        : [Colors.ashGreen, Colors.GreenishGrey];
     } else {
-      return [Colors.SeaweedGreen, Colors.DesaturatedTealGreen];
+      return [Colors.primaryGreen, Colors.TagLight6];
     }
   };
 
@@ -48,10 +50,10 @@ const useWalletAsset = () => {
 
   const TAG_COLORS = [
     Colors.LabelLight3,
-    Colors.DesertSand,
+    Colors.toastBg,
     Colors.Aquamarine,
     Colors.mintGreen,
-    Colors.LightMossGreen,
+    Colors.TagLight7,
   ];
 
   const getWalletTags = (wallet: Wallet | Vault) => {

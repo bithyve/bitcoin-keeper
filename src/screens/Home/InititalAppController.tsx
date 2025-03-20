@@ -4,7 +4,6 @@ import {
   RKInteractionMode,
   SignerStorage,
   SignerType,
-  WalletType,
   XpubTypes,
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -12,7 +11,6 @@ import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reduc
 import {
   findChangeFromReceiverAddresses,
   findVaultFromSenderAddress,
-  urlParamsToObj,
 } from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';

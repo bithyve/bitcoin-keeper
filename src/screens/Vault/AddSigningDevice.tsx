@@ -217,6 +217,8 @@ const isSignerValidForScheme = (
   ) {
     if (signer.type === SignerType.MY_KEEPER) {
       return { isValid: false, code: KeyValidationErrorCode.MOBILE_KEY_NOT_ALLOWED };
+    } else if (signer.type === SignerType.KEEPER && !isMultisig) {
+      return { isValid: false, code: KeyValidationErrorCode.EXTERNAL_KEY_SINGLESIG };
     }
     return { isValid: false, code: KeyValidationErrorCode.MISSING_XPUB };
   }
@@ -348,7 +350,6 @@ const handleSignerSelect = (
 function Footer({
   amfSigners,
   invalidSS,
-  invalidIKS,
   invalidMessage,
   areSignersValid,
   relayVaultUpdateLoading,
@@ -392,7 +393,7 @@ function Footer({
         </Box>
       );
     }
-    if (invalidSS || invalidIKS) {
+    if (invalidSS) {
       const message = invalidMessage;
       notes.push(
         <Box style={styles.noteContainer} key={message}>
@@ -652,6 +653,10 @@ function Signers({
         case KeyValidationErrorCode.MISSING_XPUB:
           title = vaultText.missingXpubTitle;
           message = vaultText.missingXpubMessage;
+          break;
+        case KeyValidationErrorCode.EXTERNAL_KEY_SINGLESIG:
+          title = vaultText.externalKeySinglesigTitle;
+          message = vaultText.externalKeySinglesigMessage;
           break;
         case KeyValidationErrorCode.INSUFFICIENT_TOTAL_KEYS:
         case KeyValidationErrorCode.INSUFFICIENT_REQUIRED_KEYS:
@@ -1170,8 +1175,8 @@ function Signers({
             subTitle={modalContent.subtitle || ''}
             modalBackground={`${colorMode}.modalWhiteBackground`}
             buttonTextColor={`${colorMode}.buttonText`}
-            buttonBackground={`${colorMode}.greenButtonBackground`}
-            textColor={`${colorMode}.modalHeaderTitle`}
+            buttonBackground={`${colorMode}.pantoneGreen`}
+            textColor={`${colorMode}.textGreen`}
             subTitleColor={`${colorMode}.modalSubtitleBlack`}
             subTitleWidth={wp(280)}
             showCloseIcon={true}
@@ -1275,7 +1280,7 @@ function AddSigningDevice() {
   const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
   const [addedKey, setAddedKey] = useState(null);
 
-  const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
+  const { areSignersValid, amfSigners, invalidSS, invalidMessage } = useSignerIntel({
     scheme,
     vaultKeys,
     selectedSigners,
@@ -1540,7 +1545,6 @@ function AddSigningDevice() {
         <Footer
           amfSigners={amfSigners}
           invalidSS={invalidSS}
-          invalidIKS={invalidIKS}
           invalidMessage={invalidMessage}
           areSignersValid={areSignersValid || hotWalletSelected}
           relayVaultUpdateLoading={relayVaultUpdateLoading}
@@ -1594,8 +1598,8 @@ function AddSigningDevice() {
           secondaryCallback={viewVault}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           buttonTextColor={`${colorMode}.buttonText`}
-          buttonBackground={`${colorMode}.greenButtonBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          buttonBackground={`${colorMode}.pantoneGreen`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           subTitleWidth={wp(280)}
           showCloseIcon={false}

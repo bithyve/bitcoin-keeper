@@ -41,13 +41,13 @@ const ResellerCard = (props: Props) => {
           </Text>
           <Box style={styles.locationContainer}>
             {isDarkMode ? <LocationIconDark /> : <LocationIcon />}
-            <Text fontSize={13} color={`${colorMode}.locationgrey`}>
+            <Text fontSize={13} color={`${colorMode}.secondaryDarkGrey`}>
               {props.location}
             </Text>
           </Box>
           <Text
             fontSize={13}
-            color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.primaryText`}
+            color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.primaryText`}
             style={styles.subTitle}
           >
             {props.subTitle}
@@ -71,7 +71,7 @@ const ResellerCard = (props: Props) => {
               style={[props.unSubscribeText ? styles.subText : {}]}
               semiBold
               fontSize={12}
-              color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.coalGreen`}
+              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.secondaryText`}
             >
               {props.unSubscribeText}
             </Text>
@@ -80,7 +80,7 @@ const ResellerCard = (props: Props) => {
           <Text
             semiBold
             fontSize={12}
-            color={isDarkMode ? `${colorMode}.learMoreTextcolor` : `${colorMode}.brownColor`}
+            color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.BrownNeedHelp`}
             style={[props.subscribeText ? styles.subText : {}]}
           >
             {props.subscribeText}

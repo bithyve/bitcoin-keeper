@@ -193,9 +193,6 @@ const styles = StyleSheet.create({
   walletDescription: {
     fontSize: 14,
   },
-  feeText: {
-    fontSize: 16,
-  },
   circle: {
     width: 20,
     height: 20,

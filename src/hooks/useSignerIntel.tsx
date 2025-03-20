@@ -29,7 +29,6 @@ const useSignerIntel = ({
   const { signerMap } = useSignerMap();
   const { plan } = usePlan();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
 
   const amfSigners = [];
   for (const signerIdentifier of selectedSigners.keys()) {
@@ -37,13 +36,11 @@ const useSignerIntel = ({
     if (isSignerAMF(signer)) amfSigners.push(signer.type);
   }
 
-  let invalidIKS = false;
   let invalidSS = false;
   let invalidMessage = '';
 
   vaultKeys.forEach((key) => {
     if (key) {
-      const isIKS = signerMap[getKeyUID(key)].type === SignerType.INHERITANCEKEY;
       const isSS = signerMap[getKeyUID(key)].type === SignerType.POLICY_SERVER;
       const signerName = getSignerNameFromType(signerMap[getKeyUID(key)].type);
       if (isSS) {
@@ -52,15 +49,6 @@ const useSignerIntel = ({
           invalidMessage = `${signerName} is allowed from ${SubscriptionTier.L2} Please upgrade your plan or remove them`;
         } else if (scheme.m < 2 || scheme.n < 3) {
           invalidSS = true;
-          invalidMessage = `You need at least 3 signers and 2 required signers to use ${signerName}. Please add more signers`;
-        }
-      }
-      if (isIKS) {
-        if (!isOnL3) {
-          invalidIKS = true;
-          invalidMessage = `${signerName} is allowed from ${SubscriptionTier.L3} Please upgrade your plan or remove them`;
-        } else if (scheme.m < 2 || scheme.n < 3) {
-          invalidIKS = true;
           invalidMessage = `You need at least 3 signers and 2 required signers to use ${signerName}. Please add more signers`;
         }
       }
@@ -83,7 +71,6 @@ const useSignerIntel = ({
         vaultKeys.every((signer) => !signer) ||
         maxKeys !== vaultKeys.length ||
         areSignersSame({ existingKeys, vaultKeys }) ||
-        invalidIKS ||
         invalidSS
       );
   }
@@ -91,7 +78,6 @@ const useSignerIntel = ({
     areSignersValid,
     amfSigners,
     invalidSS,
-    invalidIKS,
     invalidMessage,
   };
 };

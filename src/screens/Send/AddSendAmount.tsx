@@ -30,9 +30,6 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { Satoshis } from 'src/models/types/UnitAliases';
-import WalletSmallIcon from 'src/assets/images/daily-wallet-small.svg';
-import VaultSmallIcon from 'src/assets/images/vault-icon-small.svg';
-import CollaborativeSmallIcon from 'src/assets/images/collaborative-icon-small.svg';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
@@ -42,13 +39,7 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
-import {
-  EntityKind,
-  MultisigScriptType,
-  NetworkType,
-  TxPriority,
-  VaultType,
-} from 'src/services/wallets/enums';
+import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
 import idx from 'idx';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -59,12 +50,10 @@ import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
 import ReceiptIcon from 'src/assets/images/receipt.svg';
 import ReceiptIconDark from 'src/assets/images/receipt-white.svg';
-import WalletUtilities from 'src/services/wallets/operations/utils';
 import AmountDetailsInput from './AmountDetailsInput';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
 import PriorityModal from './PriorityModal';
-import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 
 const capitalizeFirstLetter = (string) => {
   if (!string) return '';
@@ -551,7 +540,7 @@ function AddSendAmount({ route }) {
           <HexagonIcon
             width={44}
             height={38}
-            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.pantoneGreen}
+            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
             icon={getWalletIcon(sender)}
           />
         }

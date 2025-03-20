@@ -10,7 +10,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import KeysIcon from 'src/assets/images/homeGreenKeyIcon.svg';
 import ConciergeIcon from 'src/assets/images/faq-green.svg';
 import SettingIcon from 'src/assets/images/settingsGreenIcon.svg';
-import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import { resetRealyWalletState, setHomeToastMessage } from 'src/store/reducers/bhr';
 import InititalAppController from './InititalAppController';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { SentryErrorBoundary } from 'src/services/sentry';
@@ -24,6 +24,7 @@ import ManageKeys from './components/Keys/ManageKeys';
 import KeeperSettings from './components/Settings/keeperSettings';
 import { useNavigation } from '@react-navigation/native';
 import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -32,9 +33,8 @@ function NewHomeScreen({ route }) {
   const { addedSigner, selectedOption: selectedOptionFromRoute } = route.params || {};
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
-  const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage, homeToastMessage } =
+    useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { home: homeTranslation, wallet } = translations;
@@ -62,7 +62,7 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<WalletIcon />}
-              backgroundColor={`${colorMode}.modalGreenContent`}
+              backgroundColor={`${colorMode}.headerWhite`}
             />
           ),
         };
@@ -77,7 +77,7 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<KeysIcon />}
-              backgroundColor={`${colorMode}.modalGreenContent`}
+              backgroundColor={`${colorMode}.headerWhite`}
             />
           ),
         };
@@ -98,7 +98,7 @@ function NewHomeScreen({ route }) {
                   style={{ marginRight: wp(1), marginBottom: hp(1) }}
                 />
               }
-              backgroundColor={`${colorMode}.modalGreenContent`}
+              backgroundColor={`${colorMode}.headerWhite`}
             />
           ),
         };
@@ -113,7 +113,7 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<SettingIcon />}
-              backgroundColor={`${colorMode}.modalGreenContent`}
+              backgroundColor={`${colorMode}.headerWhite`}
             />
           ),
         };
@@ -133,6 +133,16 @@ function NewHomeScreen({ route }) {
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
+
+  useEffect(() => {
+    if (homeToastMessage?.message) {
+      showToast(
+        homeToastMessage.message,
+        homeToastMessage?.isError ? <ToastErrorIcon /> : <TickIcon />
+      );
+      dispatch(setHomeToastMessage({ message: null, isError: false }));
+    }
+  }, [homeToastMessage]);
 
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.container}>

@@ -148,7 +148,7 @@ export const SuccessContainer = ({ type }) => {
   return (
     <Box alignItems={'center'}>
       <SuccessIllustration />
-      <Text color={`${colorMode}.noteTextClosed`} semiBold style={styles.successTitle}>
+      <Text color={`${colorMode}.greenWhiteText`} semiBold style={styles.successTitle}>
         {`${type} ${signer.keyAddedTitle}`}
       </Text>
       <Text style={styles.successSubTitle}>{`${type} ${signer.keyAddedSubTitle}`}</Text>

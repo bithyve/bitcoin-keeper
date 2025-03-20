@@ -43,7 +43,7 @@ const ServerKeyPolicyCard = (props: Props) => {
       <TouchableOpacity onPress={handleSpendingLimit}>
         <Box
           backgroundColor={
-            isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.learMoreTextcolor`
+            isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.secondaryCreamWhite`
           }
           style={styles.inputContainer}
         >
@@ -75,7 +75,7 @@ const ServerKeyPolicyCard = (props: Props) => {
       <TouchableOpacity onPress={handleDelay}>
         <Box
           backgroundColor={
-            isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.learMoreTextcolor`
+            isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.secondaryCreamWhite`
           }
           style={styles.inputContainer}
         >

@@ -1,8 +1,6 @@
-import Scale from 'src/components/Scale';
 import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
-import BTC from 'src/assets/images/btc_white.svg';
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
 import Colors from 'src/theme/Colors';
@@ -122,37 +120,6 @@ export const getCustomConvertedAmt = (
   return null;
 };
 
-export const NetworkAmount = (
-  amountInSats: number,
-  exchangeRates,
-  currencyCode,
-  currentCurrency,
-  textStyles = [{}],
-  scale = 1
-) => {
-  const { colorMode } = useColorMode();
-  let text: string;
-  if (isTestnet()) {
-    text = `${amountInSats}`;
-  } else {
-    text = (amountInSats / SATOSHIS_IN_BTC).toFixed(4);
-  }
-  text = getAmt(amountInSats, exchangeRates, currencyCode, currentCurrency);
-  return (
-    <HStack alignItems="center">
-      {!isTestnet() ? (
-        <Scale scale={scale}>
-          {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
-        </Scale>
-      ) : null}
-      <Text color={`${colorMode}.white`} style={textStyles}>
-        {text}
-        <Text style={{ fontSize: 12 }}> {getUnit(currentCurrency)}</Text>
-      </Text>
-    </HStack>
-  );
-};
-
 export const getUnit = (currentCurrency, satsEnabled = false) => {
   const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
   // disable sats mode
@@ -168,6 +135,7 @@ export const isTestnet = () => {
   }
   return false;
 };
+
 export function CurrencyIcon({ symbol, styles = {} }) {
   return (
     <Box style={{ alignItems: 'center' }}>
@@ -195,26 +163,26 @@ export const getCurrencyImageByRegion = (
   const styles = {} as any;
   switch (type) {
     case 'light':
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
       break;
     case 'green':
-      styles.color = Colors.GenericViridian;
+      styles.color = Colors.TagLight2;
       break;
     case 'dark':
-      styles.color = Colors.RichGreen;
+      styles.color = Colors.TagDark3;
       break;
     case 'grey':
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
       styles.opacity = 0.7;
       break;
     case 'slateGreen':
       styles.color = Colors.SlateGreen;
       break;
     case 'richBlack':
-      styles.color = Colors.RichBlack;
+      styles.color = Colors.SecondaryBlack;
       break;
     default:
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
   }
   if (currentCurrency !== CurrencyKind.BITCOIN) {
     const currency = FiatCurrencies.find((c) => c.code === currencyCode);
@@ -231,20 +199,20 @@ export const getFiatIcon = (currencyCode: string, type: 'light' | 'green' | 'dar
   const styles = {} as any;
   switch (type) {
     case 'light':
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
       break;
     case 'green':
-      styles.color = Colors.GenericViridian;
+      styles.color = Colors.TagLight2;
       break;
     case 'dark':
-      styles.color = Colors.RichGreen;
+      styles.color = Colors.TagDark3;
       break;
     case 'grey':
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
       styles.opacity = 0.7;
       break;
     default:
-      styles.color = Colors.White;
+      styles.color = Colors.headerWhite;
   }
   if (currency) {
     return <CurrencyIcon styles={styles} symbol={currency.symbol} />;

@@ -60,7 +60,7 @@ function NfcPrompt({ visible, close, ctaText }: { visible: boolean; close; ctaTe
       <View style={[styles.wrapper]}>
         <View style={{ flex: 1 }} />
         <Animated.View style={[styles.prompt, promptAnimStyle]}>
-          <View style={styles.center} backgroundColor={`${colorMode}.secondaryBackground`}>
+          <View style={styles.center} backgroundColor={`${colorMode}.textInputBackground`}>
             <NFCSVG />
             <Text color={`${colorMode}.greenText`} style={{ textAlign: 'center' }}>
               Please hold until the scanning is complete...

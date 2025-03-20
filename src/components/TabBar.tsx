@@ -9,7 +9,7 @@ function TabBar({ tabs, activeTab, setActiveTab, width = '100%', radius = 15 }) 
   return (
     <Box
       style={styles.tabBarContainer}
-      borderColor={`${colorMode}.receiptBorder`}
+      borderColor={`${colorMode}.secondaryGrey`}
       width={width}
       borderRadius={radius}
     >

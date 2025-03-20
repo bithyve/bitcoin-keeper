@@ -27,7 +27,7 @@ function CustomGreenButton(props: Props) {
           props?.fullWidth && styles.fullWidth,
           props.disabled && styles.disabledBtnOpacity,
         ]}
-        backgroundColor={`${colorMode}.greenButtonBackground`}
+        backgroundColor={`${colorMode}.pantoneGreen`}
       >
         <Text color={`${colorMode}.buttonText`} fontSize={13} bold letterSpacing={0.78}>
           {props.value}

@@ -16,7 +16,7 @@ function UnknownSignerInfo({ signer }: Props) {
 
   return (
     <Box
-      backgroundColor={`${colorMode}.secondaryBackground`}
+      backgroundColor={`${colorMode}.textInputBackground`}
       borderColor={`${colorMode}.dullGreyBorder`}
       style={styles.container}
     >

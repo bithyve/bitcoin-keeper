@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';

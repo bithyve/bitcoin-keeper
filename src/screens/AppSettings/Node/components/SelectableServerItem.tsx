@@ -21,7 +21,7 @@ const SelectableServerItem = ({ item, onSelect, currentlySelectedNode }) => {
           isSelected
             ? `${colorMode}.pantoneGreen`
             : isDarkMode
-            ? `${colorMode}.receiptBorder`
+            ? `${colorMode}.secondaryGrey`
             : null
         }
         borderWidth={isDarkMode && !isSelected ? 1 : isSelected ? 2 : 0}

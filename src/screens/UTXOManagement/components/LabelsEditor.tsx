@@ -17,7 +17,7 @@ import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
-  const { labels } = useLabelsNew({ address, utxos: utxo ? [utxo] : [], wallet });
+  const { labels } = useLabelsNew({ address, utxos: utxo ? [utxo] : [] });
   const { syncingUTXOs, apiError } = useAppSelector((state) => state.utxos);
   const { showToast } = useToastMessage();
   const processDispatched = useRef(false);
@@ -118,7 +118,7 @@ function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
         <Box
           style={styles.inputLabeWrapper}
           backgroundColor={`${colorMode}.seashellWhite`}
-          borderColor={`${colorMode}.borderBrown`}
+          borderColor={colorMode === 'dark' ? `${colorMode}.BrownNeedHelp` : `${colorMode}.border`}
         >
           <Box style={styles.inputLabelBox}>
             <Input
@@ -135,8 +135,8 @@ function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
               backgroundColor={`${colorMode}.seashellWhite`}
               _input={
                 colorMode === 'dark' && {
-                  selectionColor: Colors.SecondaryWhite,
-                  cursorColor: Colors.SecondaryWhite,
+                  selectionColor: Colors.bodyText,
+                  cursorColor: Colors.bodyText,
                 }
               }
             />

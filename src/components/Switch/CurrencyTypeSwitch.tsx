@@ -43,7 +43,7 @@ function CurrencyTypeSwitch() {
 
   return (
     <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()} testID="btn_currencyToggle">
-      <Box style={styles.container} backgroundColor={`${colorMode}.greenButtonBackground`}>
+      <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
         <Box
           borderRadius={10}
           justifyContent="space-between"

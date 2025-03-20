@@ -213,12 +213,12 @@ function ManageSigners({ route }: ScreenProps) {
         subTitle={signerTranslation.keyReceiveMessage}
         close={() => setTimerModal(false)}
         visible={timerModal}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.buttonText`}
-        buttonBackground={`${colorMode}.modalGreenButton`}
-        secButtonTextColor={`${colorMode}.modalGreenButton`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
+        secButtonTextColor={`${colorMode}.pantoneGreen`}
         buttonText={signerTranslation.addKey}
         secondaryButtonText={signerTranslation.reject}
         buttonCallback={acceptRemoteKey}
@@ -241,12 +241,12 @@ function ManageSigners({ route }: ScreenProps) {
         visible={showLearnMoreModal}
         title={signerTranslation.ManageKeys}
         subTitle={signerTranslation.manageKeysModalSubtitle}
-        subTitleColor={`${colorMode}.modalGreenContent`}
-        modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
+        subTitleColor={`${colorMode}.headerWhite`}
+        modalBackground={`${colorMode}.pantoneGreen`}
+        textColor={`${colorMode}.headerWhite`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
-        buttonTextColor={`${colorMode}.whiteButtonText`}
-        buttonBackground={`${colorMode}.whiteButtonBackground`}
+        buttonTextColor={`${colorMode}.pantoneGreen`}
+        buttonBackground={`${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
         secondaryIcon={<ConciergeNeedHelp />}
@@ -269,7 +269,7 @@ function ManageSigners({ route }: ScreenProps) {
             <Box style={styles.illustrationContainer}>
               <HardwareIllustration />
             </Box>
-            <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
               {signerTranslation.manageKeysModalDesc}
             </Text>
           </Box>
@@ -283,7 +283,7 @@ function ManageSigners({ route }: ScreenProps) {
         subTitleWidth={wp(240)}
         subTitle={settings.EnterPasscodeSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.modalHeaderTitle`}
+        textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
@@ -510,10 +510,6 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },
-  container: {
-    flex: 1,
-    position: 'relative',
-  },
   topSection: {
     height: '25%',
     paddingHorizontal: 20,
@@ -534,40 +530,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  addCard: {
-    height: 125,
-    width: windowWidth / 3 - windowWidth * 0.05,
-    margin: 3,
-  },
-  warningText: {
-    fontSize: 13,
-    padding: 1,
-    letterSpacing: 0.65,
-  },
   modalContent: {
     marginBottom: hp(10),
   },
   illustrationContainer: {
     marginBottom: hp(30),
   },
-  timerWrapper: {
-    width: '100%',
-    borderRadius: 10,
-    marginBottom: hp(30),
-    marginTop: hp(5),
-    justifyContent: 'center',
-    alignItems: 'center',
-    color: 'white',
-    fontSize: 13,
-    letterSpacing: 0.65,
-    gap: 30,
-  },
   modalDesc: {
     width: '95%',
-  },
-  settingsButton: {
-    paddingHorizontal: 22,
-    paddingVertical: 22,
   },
   signerCard: {
     width: windowWidth * 0.43,

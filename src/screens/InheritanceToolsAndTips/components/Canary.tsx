@@ -20,20 +20,20 @@ function CanaryWallets({ navigation }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView>
-        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.canaryWallet}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.canaryWalletDesp}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.canaryWalletDescp1}
         </Text>
 
         <Box style={styles.circleStyle}>
           <CanaryIcon />
         </Box>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.canaryWalletDescp2}
         </Text>
         <Box mt={5}>
@@ -57,12 +57,10 @@ function CanaryWallets({ navigation }) {
           />
         </Box>
         <Box style={styles.leftTextStyle}>
-          <Text bold color={`${colorMode}.modalGreenContent`}>
+          <Text bold color={`${colorMode}.headerWhite`}>
             {`${common.note}:`}
           </Text>
-          <Text color={`${colorMode}.modalGreenContent`}>
-            {inheritancePlanning.canaryWalletDescp3}
-          </Text>
+          <Text color={`${colorMode}.headerWhite`}>{inheritancePlanning.canaryWalletDescp3}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

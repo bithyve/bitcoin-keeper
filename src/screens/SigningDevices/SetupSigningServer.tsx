@@ -1,21 +1,16 @@
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { Box, useColorMode, View } from 'native-base';
-import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
-import CopyIcon from 'src/assets/images/icon_copy.svg';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
 
-import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
 import { useDispatch } from 'react-redux';
@@ -35,7 +30,7 @@ function SetupSigningServer({ route }: { route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation, signingServer, common } = translations;
+  const { common } = translations;
   const [validationModal, showValidationModal] = useState(false);
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
@@ -242,7 +237,7 @@ function SetupSigningServer({ route }: { route }) {
           title={common.confirm2FACodeTitle}
           subTitle={common.confirm2FACodeSubtitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={otpContent}
         />
@@ -264,12 +259,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 0.2,
   },
-  textBox: {
-    width: '80%',
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-    padding: 20,
-  },
   otpContainer: {
     width: '100%',
   },
@@ -289,13 +278,6 @@ const styles = StyleSheet.create({
     paddingBottom: hp(10),
     marginTop: hp(15),
   },
-  modalContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-
   CVVInputsView: {
     justifyContent: 'center',
     alignItems: 'center',

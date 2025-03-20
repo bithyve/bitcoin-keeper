@@ -16,7 +16,7 @@ function AssistedKeysContentSlider(props) {
           semiBold
           width={'80%'}
           fontSize={20}
-          color={`${colorMode}.modalGreenContent`}
+          color={`${colorMode}.headerWhite`}
           letterSpacing={0.2}
         >
           {props.title}
@@ -25,19 +25,19 @@ function AssistedKeysContentSlider(props) {
           width={'80%'}
           fontSize={14}
           mb={hp(15)}
-          color={`${colorMode}.modalGreenContent`}
+          color={`${colorMode}.headerWhite`}
           letterSpacing={0.2}
         >
           {props.description}
         </Text>
         <Box width={'87%'}>
-          <Text fontSize={14} color={`${colorMode}.modalGreenContent`}>
+          <Text fontSize={14} color={`${colorMode}.headerWhite`}>
             {props.paragraph}
           </Text>
         </Box>
         <Box style={styles.icon}>{props.icon}</Box>
         <Box width={'87%'}>
-          <Text color={`${colorMode}.modalGreenContent`}>{props.paragraph2}</Text>
+          <Text color={`${colorMode}.headerWhite`}>{props.paragraph2}</Text>
         </Box>
         <Box width={'90%'} marginTop={hp(30)} marginBottom={hp(5)} mt={hp(15)}>
           <DashedButton
@@ -48,10 +48,10 @@ function AssistedKeysContentSlider(props) {
           />
         </Box>
         <Box width={'90%'} mt={hp(15)}>
-          <Text bold color={`${colorMode}.modalGreenContent`}>
+          <Text bold color={`${colorMode}.headerWhite`}>
             Note:{' '}
           </Text>
-          <Text color={`${colorMode}.modalGreenContent`}>{props.note}</Text>
+          <Text color={`${colorMode}.headerWhite`}>{props.note}</Text>
         </Box>
       </Box>
     </ScrollView>

@@ -16,7 +16,6 @@ import { RKInteractionMode } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { encrypt, getKeyAndHash } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
-import usePlan from 'src/hooks/usePlan';
 import { getKeyUID } from 'src/utils/utilities';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
@@ -126,7 +125,7 @@ function RemoteSharing({ route }: ScreenProps) {
           showsVerticalScrollIndicator={false}
         >
           <Box style={styles.descriptionContainer}>
-            <Text style={styles.title} medium color={`${colorMode}.headerText`}>
+            <Text style={styles.title} medium color={`${colorMode}.textGreen`}>
               {RemoteShareText[mode].title}
             </Text>
             <Text style={styles.description}>{RemoteShareText[mode].desc}</Text>

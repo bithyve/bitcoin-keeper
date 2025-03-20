@@ -1,6 +1,4 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import persistReducer from 'redux-persist/es/persistReducer';
-import { reduxStorage } from 'src/storage';
 
 export type conciergeUser = {
   id: string;
@@ -51,7 +49,6 @@ const conciergeSlice = createSlice({
     setConciergTags: (state, action: PayloadAction<string[]>) => {
       state.tags = action.payload;
     },
-
     loadConciergeTickets: (state, action: PayloadAction<any[]>) => {
       state.tickets = action.payload;
     },

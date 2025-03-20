@@ -52,9 +52,7 @@ function EnterSeedScreen({ route, navigation }) {
     step = 1,
     selectedNumberOfWordsFromParams,
   } = route.params || {};
-  const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { appRecoveryLoading, appImageError } = useAppSelector((state) => state.bhr);
 
   const { appId } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
@@ -112,7 +110,7 @@ function EnterSeedScreen({ route, navigation }) {
         setShowNetworkModal(true);
       } else openInvalidSeedsModal();
     }
-  }, [appRecoveryLoading, appImageError, appImageRecoverd]);
+  }, [appRecoveryLoading, appImageError]);
 
   const generateSeedWordsArray = useCallback(() => {
     const seedArray = [];
@@ -481,8 +479,8 @@ function EnterSeedScreen({ route, navigation }) {
             testID={`input_seedWord${getPlaceholder(index)}`}
             _input={
               colorMode === 'dark' && {
-                selectionColor: Colors.SecondaryWhite,
-                cursorColor: Colors.SecondaryWhite,
+                selectionColor: Colors.bodyText,
+                cursorColor: Colors.bodyText,
               }
             }
           />
@@ -637,7 +635,7 @@ function EnterSeedScreen({ route, navigation }) {
           buttonText="Retry"
           buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={closeInvalidSeedsModal}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           Content={InValidSeedsScreen}
         />
         <KeeperModal
@@ -646,10 +644,10 @@ function EnterSeedScreen({ route, navigation }) {
           subTitle="All your wallets and data about your vault has been recovered"
           buttonText="Continue"
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonTextColor={`${colorMode}.buttonText`}
-          buttonBackground={`${colorMode}.greenButtonBackground`}
+          buttonBackground={`${colorMode}.pantoneGreen`}
           Content={RecoverySuccessModalContent}
           close={() => {
             setRecoverySuccessModal(false);
@@ -668,7 +666,7 @@ function EnterSeedScreen({ route, navigation }) {
           title="Something went wrong"
           subTitle="Please check your internet connection and try again."
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           subTitleWidth={wp(230)}
           showCloseIcon={false}
