@@ -54,9 +54,6 @@ function VersionHistoryList() {
               <Text color={`${colorMode}.GreyText`} letterSpacing={1} fontSize={12}>
                 {item.version}
               </Text>
-              {/* <Text color={`${colorMode}.GreyText`} letterSpacing={1} fontSize={12}>
-                {item.releaseNote}
-              </Text> */}
             </Box>
           </Box>
         </Box>

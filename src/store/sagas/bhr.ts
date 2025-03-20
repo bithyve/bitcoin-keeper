@@ -556,7 +556,6 @@ function* recoverApp(
   // create/add restored object for version
   yield call(dbManager.createObject, RealmSchema.VersionHistory, {
     version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
-    releaseNote: '',
     date: new Date().toString(),
     title: 'Restored version',
   });

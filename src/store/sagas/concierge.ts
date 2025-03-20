@@ -31,7 +31,7 @@ function* loadConciergeUserWorker() {
       dbManager.getObjectByIndex,
       RealmSchema.KeeperApp
     );
-    const { fcmToken } = yield select((state: RootState) => state.notifications);
+    const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
     let userExternalId = yield call(hash256, primaryMnemonic);
     userExternalId = userExternalId.toString().substring(0, 24);
     yield put(setConciergeLoading(true));
@@ -113,4 +113,3 @@ export const scheduleOnboardingCallWatcher = createWatcher(
   scheduleOnboardingCallWorker,
   SCHEDULE_ONBOARDING_CALL
 );
-

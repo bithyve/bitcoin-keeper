@@ -11,10 +11,7 @@ import HWError from './HWErrorState';
 import { getSpecterDetails } from './specter';
 import { getKeystoneDetails } from './keystone';
 import config from 'src/utils/service-utilities/config';
-import { extractColdCardExport, getColdcardDetailsFromChannel } from './coldcard';
-import { getLedgerDetailsFromChannel } from './ledger';
-import { getTrezorDetails } from './trezor';
-import { getBitbox02Details } from './bitbox';
+import { extractColdCardExport } from './coldcard';
 import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
 import { getUSBSignerDetails } from './usbSigner';
 

@@ -108,7 +108,6 @@ function ChoosePlan() {
   }, []);
 
   useEffect(() => {
-    // To calculate same index as in ChoosePlanCarousel
     setCurrentPosition(initialPosition !== 0 ? initialPosition : subscription.level - 1);
   }, []);
 
@@ -293,7 +292,7 @@ function ChoosePlan() {
     }
   }
 
-  async function processSubscription(subscription: SubScriptionPlan, level: number) {
+  async function processSubscription(subscription: SubScriptionPlan) {
     try {
       if (subscription.productType === 'free') {
         setRequesting(true);
@@ -612,7 +611,7 @@ function ChoosePlan() {
                 Alert.alert('', 'You already have an active BTC based subscription.');
                 return;
               }
-              processSubscription(items[currentPosition], currentPosition);
+              processSubscription(items[currentPosition]);
             }}
             isMonthly={isMonthly}
             getButtonText={getButtonState}

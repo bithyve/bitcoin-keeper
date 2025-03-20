@@ -107,31 +107,11 @@ function* updateVersionHistoryWorker({
     if (response.updated) {
       yield call(dbManager.createObject, RealmSchema.VersionHistory, {
         version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
-        releaseNote: '',
         date: new Date().toString(),
         title: `Upgraded from ${previousVersion} to ${newVersion}`,
       });
       messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion));
       messaging().subscribeToTopic(getReleaseTopic(newVersion));
-
-      const res = yield call(Relay.fetchReleaseNotes, newVersion);
-
-      let notes = '';
-      if (res.release) {
-        if (Platform.OS === 'ios') notes = res.release.releaseNotes.ios;
-        else notes = res.release.releaseNotes.android;
-      }
-      yield call(
-        dbManager.updateObjectById,
-        RealmSchema.VersionHistory,
-        `${newVersion}(${DeviceInfo.getBuildNumber()})`,
-        {
-          version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
-          releaseNote: notes,
-          date: new Date().toString(),
-          title: `Upgraded from ${previousVersion} to ${newVersion}`,
-        }
-      );
     }
   } catch (error) {
     console.log({ error });

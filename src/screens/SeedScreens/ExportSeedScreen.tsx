@@ -12,7 +12,6 @@ import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
-import { globalStyles } from 'src/constants/globalStyles';
 import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -184,7 +183,7 @@ function ExportSeedScreen({ route, navigation }) {
                     <Text
                       color={`${colorMode}.primaryText`}
                       numberOfLines={2}
-                      style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
+                      style={{ fontSize: 14, letterSpacing: 1.12, alignItems: 'center' }}
                     >
                       {common.showAsQR}
                     </Text>

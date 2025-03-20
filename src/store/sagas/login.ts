@@ -52,7 +52,6 @@ import {
 import { RootState, store } from '../store';
 import { createWatcher } from '../utilities';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
-import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod, setSubscription } from '../reducers/settings';
 import { backupAllSignersAndVaults, setWarning } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
@@ -112,7 +111,6 @@ function* credentialsStorageWorker({ payload }) {
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
       version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
-      releaseNote: '',
       date: new Date().toString(),
       title: 'Initially installed',
     });
@@ -173,7 +171,6 @@ function* credentialsAuthWorker({ payload }) {
       } else if (currentVersionCode !== lastVersionCode[1]) {
         yield call(dbManager.createObject, RealmSchema.VersionHistory, {
           version: `${newVersion}(${currentVersionCode})`,
-          releaseNote: '',
           date: new Date().toString(),
           title: `Upgraded from ${lastVersionCode[1]} to ${currentVersionCode}`,
         });
@@ -193,7 +190,6 @@ function* credentialsAuthWorker({ payload }) {
           yield put(setWarning(history));
 
           yield put(fetchExchangeRates());
-          yield put(getMessages());
           yield put(fetchSignedDelayedTransaction());
           yield put(fetchDelayedPolicyUpdate());
           yield race({
@@ -304,51 +300,6 @@ async function updateSubscriptionFromRelayData(data, wasAutoUpdateEnabledBeforeD
   store.dispatch(setAutomaticCloudBackup(wasAutoUpdateEnabledBeforeDowngrade));
   store.dispatch(setPlebDueToOffline(false));
   store.dispatch(setAutoUpdateEnabledBeforeDowngrade(false));
-}
-
-async function updateSubscription(level: AppSubscriptionLevel) {
-  const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-
-  const subscriptionDetails = {
-    [AppSubscriptionLevel.L1]: {
-      productId: SubscriptionTier.L1,
-      name: SubscriptionTier.L1,
-      icon: 'assets/ic_pleb.svg',
-    },
-    [AppSubscriptionLevel.L2]: {
-      productId: SubscriptionTier.L2,
-      name: SubscriptionTier.L2,
-      icon: 'assets/ic_hodler.svg',
-    },
-    [AppSubscriptionLevel.L3]: {
-      productId: SubscriptionTier.L3,
-      name: SubscriptionTier.L3,
-      icon: 'assets/ic_diamond.svg',
-    },
-  };
-
-  const selectedSubscription = subscriptionDetails[level];
-
-  if (!selectedSubscription) {
-    console.error('Invalid subscription level:', level);
-    return;
-  }
-
-  const updatedSubscription: SubScription = {
-    receipt: '',
-    productId: selectedSubscription.productId,
-    name: selectedSubscription.name,
-    level,
-    icon: selectedSubscription.icon,
-  };
-
-  await dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-    subscription: updatedSubscription,
-  });
-
-  await Relay.updateSubscription(app.id, app.publicId, {
-    productId: selectedSubscription.productId.toLowerCase(),
-  });
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
