@@ -17,7 +17,6 @@ import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
 
-import KeeperHeader from 'src/components/KeeperHeader';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -53,6 +52,7 @@ import NFCIcon from 'src/assets/images/nfc_lines.svg';
 import NFCIconWhite from 'src/assets/images/nfc_lines_white.svg';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -433,7 +433,7 @@ function SetupTapsigner({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={(() => {
           switch (mode) {
             case InteracationMode.HEALTH_CHECK:
@@ -446,7 +446,7 @@ function SetupTapsigner({ route }) {
               return signerTranslations.SettingUpTapsigner;
           }
         })()}
-        subtitle={signerTranslations.EnterTapsignerPinSubtitle}
+        subTitle={signerTranslations.EnterTapsignerPinSubtitle}
       />
       <MockWrapper
         signerType={SignerType.TAPSIGNER}

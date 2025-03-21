@@ -5,12 +5,12 @@ import { Box, Input, useColorMode } from 'native-base';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { exportFile, importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import WalletHeader from 'src/components/WalletHeader';
 
 const HandleFileScreen = ({ route, navigation }) => {
   const {
@@ -52,7 +52,7 @@ const HandleFileScreen = ({ route, navigation }) => {
         }}
       >
         <View style={styles.wrapper}>
-          <KeeperHeader title={title} subtitle={subTitle} />
+          <WalletHeader title={title} subTitle={subTitle} />
           <Box marginTop={hp(35)}>
             {fileData && (
               <Box style={styles.tileWrapper}>

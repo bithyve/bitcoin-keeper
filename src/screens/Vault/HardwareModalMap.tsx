@@ -2044,8 +2044,6 @@ function HardwareModalMap({
         return null;
     }
   };
-  console.log('keyGenerationMode', keyGenerationMode);
-  console.log('signerType', signerType);
 
   function SignerNewContent({
     options,

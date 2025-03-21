@@ -1,7 +1,6 @@
-import { ActivityIndicator, StyleSheet, AppState, AppStateStatus } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -43,6 +42,7 @@ import { VaultType } from 'src/services/wallets/enums';
 import WalletOperations from 'src/services/wallets/operations';
 import { getKeyUID } from 'src/utils/utilities';
 import BackgroundTimer from 'react-native-background-timer';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
@@ -338,7 +338,7 @@ function ConnectChannel() {
         mode={mode}
         signerXfp={signer?.masterFingerprint}
       >
-        <KeeperHeader title={newTitle ?? title} subtitle={newSubtitle ?? subtitle} />
+        <WalletHeader title={newTitle ?? title} subTitle={newSubtitle ?? subtitle} />
         <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
           <ScanAndInstruct
             onBarCodeRead={onBarCodeRead}

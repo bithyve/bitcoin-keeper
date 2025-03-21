@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, useColorMode } from 'native-base';
 import { wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
@@ -27,6 +26,7 @@ import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { getJadeDetails } from 'src/hardware/jade';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SetupOtherSDScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -251,9 +251,9 @@ function SetupOtherSDScreen({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={`${mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'} other signer`}
-        subtitle="Manually provide the signer details"
+        subTitle="Manually provide the signer details"
       />
       <Box style={styles.flex}>
         <KeeperTextInput
@@ -318,6 +318,7 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
     marginHorizontal: '2.5%',
+    marginTop: '5%',
   },
   input: {
     margin: '5%',

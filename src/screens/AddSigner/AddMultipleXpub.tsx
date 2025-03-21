@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import MockWrapper from '../Vault/MockWrapper';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import QRScanner from 'src/components/QRScanner';
 import { useRoute } from '@react-navigation/native';
@@ -18,6 +17,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { manipulateSeedSignerData } from 'src/hardware/seedsigner';
 import { getPassportDetails, manipulatePassportDetails } from 'src/hardware/passport';
+import WalletHeader from 'src/components/WalletHeader';
 
 export const options = [
   { label: 'Singlesig', sub: 'BIP84', purpose: DerivationPurpose.BIP84 },
@@ -86,7 +86,7 @@ export const AddMultipleXpub = () => {
         addSignerFlow={addSignerFlow}
         mode={mode}
       >
-        <KeeperHeader title={title} subtitle={subtitle} />
+        <WalletHeader title={title} subTitle={subtitle} />
         <Box style={styles.segmentController}>
           <SegmentedController
             options={options.filter((tab) => {
@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
   flex1: {
     flex: 1,
   },
+
   successTitle: { marginTop: hp(20), marginBottom: hp(12), fontSize: 16 },
   successSubTitle: { fontSize: 14, textAlign: 'center', maxWidth: '90%' },
 });

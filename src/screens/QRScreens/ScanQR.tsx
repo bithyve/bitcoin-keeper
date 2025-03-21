@@ -2,7 +2,6 @@ import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Box, Input, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/services/qr';
@@ -23,6 +22,7 @@ import NFCOption from '../NFCChannel/NFCOption';
 import Note from 'src/components/Note/Note';
 import { SignerType } from 'src/services/wallets/enums';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import WalletHeader from 'src/components/WalletHeader';
 
 const decoder = new URRegistryDecoder();
 
@@ -41,7 +41,6 @@ function ScanQR() {
     signer,
     disableMockFlow = false,
     addSignerFlow = false,
-    learnMore = false,
     learnMoreContent = {},
     isPSBT = false,
     importOptions = true,
@@ -81,22 +80,13 @@ function ScanQR() {
           signerXfp={signer?.masterFingerprint}
           mode={mode}
         >
-          <KeeperHeader
-            title={title}
-            subtitle={subtitle}
-            subTitleWidth={windowWidth * 0.7}
-            learnMore={learnMore}
-            learnMorePressed={() => {
-              setVisibleModal(true);
-            }}
-            learnTextColor={`${colorMode}.buttonText`}
-          />
+          <WalletHeader title={title} subTitle={subtitle} />
           <Box style={styles.container}>
             <ScrollView
               automaticallyAdjustKeyboardInsets={true}
               contentContainerStyle={{
                 alignItems: 'center',
-                paddingTop: hp(30),
+                paddingTop: hp(10),
               }}
               style={styles.flex1}
               showsVerticalScrollIndicator={false}

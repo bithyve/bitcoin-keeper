@@ -42,7 +42,13 @@ import ChangeKeyDark from 'src/assets/images/change-key-white.svg';
 import EmptyStateLight from 'src/assets/images/empty-activity-illustration-light.svg';
 import EmptyStateDark from 'src/assets/images/empty-activity-illustration-dark.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { EntityKind, SignerType, VaultType, VisibilityType } from 'src/services/wallets/enums';
+import {
+  EntityKind,
+  SignerType,
+  VaultType,
+  VisibilityType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
@@ -76,6 +82,7 @@ import { captureError } from 'src/services/sentry';
 import {
   findChangeFromReceiverAddresses,
   findVaultFromSenderAddress,
+  getKeyExpression,
 } from 'src/utils/service-utilities/utils';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
@@ -85,6 +92,7 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SDColoredIcons } from './SigningDeviceIcons';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import ShareKeyModalContent from './components/ShareKeyModalContent';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -276,6 +284,8 @@ function SigningDeviceDetails({ route }) {
   const { signerMap } = useSignerMap();
   const signer: Signer = currentSigner || signerMap[getKeyUID(vaultKey)];
   const [detailModal, setDetailModal] = useState(false);
+  const [details, setDetails] = useState('');
+
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(isUaiFlow);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
@@ -295,6 +305,7 @@ function SigningDeviceDetails({ route }) {
   const [showMobileKeyModal, setShowMobileKeyModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+  const [shareKeyModal, setShareKeyModal] = useState(false);
   const isDarkMode = colorMode === 'dark';
   const data = useQuery(RealmSchema.BackupHistory);
   const signerVaults: Vault[] = [];
@@ -327,6 +338,46 @@ function SigningDeviceDetails({ route }) {
   if (!signer) {
     return null;
   }
+  const fetchKeyExpression = (signer: Signer) => {
+    for (const type of [XpubTypes.P2WSH]) {
+      if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
+        const keyDescriptor = getKeyExpression(
+          signer.masterFingerprint,
+          idx(signer, (_) => _.signerXpubs[type][0].derivationPath.replaceAll('h', "'")),
+          idx(signer, (_) => _.signerXpubs[type][0].xpub),
+          false
+        );
+        return keyDescriptor;
+      }
+    }
+
+    throw new Error('Missing key details.');
+  };
+
+  useEffect(() => {
+    if (!details) {
+      setTimeout(() => {
+        try {
+          const keyDescriptor = fetchKeyExpression(signer);
+          setDetails(keyDescriptor);
+          console.log('keyDescriptor', keyDescriptor);
+        } catch (error) {
+          if (error && error.message === 'Missing key details.') {
+            showToast(
+              'Missing key details of multi-key type, please add key details from Add Device',
+              <ToastErrorIcon />
+            );
+          } else {
+            showToast(
+              "We're sorry, but we have trouble retrieving the key information",
+              <ToastErrorIcon />
+            );
+          }
+          navigation.goBack();
+        }
+      }, 200);
+    }
+  }, []);
 
   const { title, subTitle, assert, description } = getSignerContent(signer?.type);
   function SignerContent() {
@@ -353,6 +404,27 @@ function SigningDeviceDetails({ route }) {
       </Box>
     );
   }
+  const navigateToCosignerDetails = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'CosignerDetails',
+        params: { signer },
+      })
+    );
+  };
+  function ShareKeyModalData() {
+    return (
+      <Box>
+        <ShareKeyModalContent
+          navigation={navigation}
+          signer={signer}
+          navigateToCosignerDetails={navigateToCosignerDetails}
+          setShareKeyModal={setShareKeyModal}
+          data={details}
+        />
+      </Box>
+    );
+  }
 
   function MobileKeyModalContent() {
     return (
@@ -365,14 +437,6 @@ function SigningDeviceDetails({ route }) {
     );
   }
 
-  const navigateToCosignerDetails = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'CosignerDetails',
-        params: { signer },
-      })
-    );
-  };
   const navigateToScanPSBT = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -537,7 +601,9 @@ function SigningDeviceDetails({ route }) {
     signer?.type !== SignerType.POLICY_SERVER && {
       text: 'Share Key',
       Icon: () => <FooterIcon Icon={isDarkMode ? KeyDetailsDark : KeyDetailsLight} />,
-      onPress: navigateToCosignerDetails,
+      onPress: () => {
+        setShareKeyModal(true);
+      },
     },
     signer?.type !== SignerType.KEEPER &&
       signer?.type !== SignerType.POLICY_SERVER &&
@@ -898,6 +964,17 @@ function SigningDeviceDetails({ route }) {
                 />
               )}
             />
+            <KeeperModal
+              visible={shareKeyModal}
+              close={() => setShareKeyModal(false)}
+              title={'Share Key Details'}
+              subTitle={'Choose how you would like to share your key'}
+              modalBackground={`${colorMode}.modalWhiteBackground`}
+              textColor={`${colorMode}.textGreen`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
+              Content={ShareKeyModalData}
+            />
+
             <KeeperModal
               visible={backupModalVisible}
               close={() => setBackupModalVisible(false)}
