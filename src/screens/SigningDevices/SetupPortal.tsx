@@ -114,8 +114,10 @@ function SetupPortal({ route }) {
           default:
             setIsAddSignerMode(true);
         }
-      } else if (!(await DeviceInfo.isEmulator())) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />);
+      } else {
+        if (mode === InteracationMode.VAULT_ADDITION) setIsAddSignerMode(true);
+        if (!(await DeviceInfo.isEmulator()))
+          showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
   };
@@ -361,7 +363,6 @@ function SetupPortal({ route }) {
           fullWidth
           primaryText="Scan"
           primaryCallback={() => {
-            console.log(options[selectedIndex].purpose);
             addPortal(options[selectedIndex].purpose);
           }}
         />
