@@ -1166,7 +1166,8 @@
     "assistedServerBackupSubtitle": "Securely back up encrypted data on Keeper server",
     "assistedServerDeleteBackupSubtitle": "Do you also want to delete the existing assisted server backup?",
     "assistedServerDeleteBackupModalCTA": "Delete",
-    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable"
+    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable",
+    "torConnectionString": "connected via "
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",

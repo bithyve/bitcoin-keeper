@@ -64,6 +64,7 @@ export function TorContextProvider({ children }: any) {
       openOrbotApp,
       setOrbotTorStatus,
       checkTorConnection,
+      globalTorStatus,
     }),
     [torStatus, orbotTorStatus, inAppTor, orbotTorStatus]
   );
