@@ -310,7 +310,6 @@ export default class SigningServer {
 
   static signPSBT = async (
     id: string,
-    verificationToken: number,
     serializedPSBT: string,
     childIndexArray: Array<{
       subPath: number[];
@@ -320,7 +319,9 @@ export default class SigningServer {
         value: number;
       };
     }>,
-    outgoing: number,
+    verificationToken: number,
+    change: { address: string; index: number },
+    descriptor: string,
     FCM?: string
   ): Promise<{
     signedPSBT: string;
@@ -328,15 +329,15 @@ export default class SigningServer {
     delayedTransaction: DelayedTransaction;
   }> => {
     let res: AxiosResponse;
-
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/signTransaction`, {
         HEXA_ID,
         id,
-        verificationToken,
         serializedPSBT,
         childIndexArray,
-        outgoing,
+        verificationToken,
+        change,
+        descriptor,
         FCM,
       });
     } catch (err) {

@@ -16,6 +16,7 @@ import idx from 'idx';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import { getKeyUID } from 'src/utils/utilities';
+import { isTestnet } from 'src/constants/Bitcoin';
 import ecc from './taproot-utils/noble_ecc';
 import {
   AverageTxFees,
@@ -57,7 +58,6 @@ import WalletUtilities from './utils';
 import { generateScriptWitnesses, generateBitcoinScript } from './miniscript/miniscript';
 import { Phase } from './miniscript/policy-generator';
 import { coinselect } from './coinselectFixed';
-import { isTestnet } from 'src/constants/Bitcoin';
 
 bitcoinJS.initEccLib(ecc);
 
@@ -1598,7 +1598,7 @@ export default class WalletOperations {
     PSBT: bitcoinJS.Psbt;
     inputs: InputUTXOs[];
     outputs: OutputUTXOs[];
-    change: string;
+    change: { address: string; index: number };
     miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   }> => {
     try {
@@ -1648,18 +1648,14 @@ export default class WalletOperations {
         );
       }
 
+      const changeIndex = wallet.specs.nextFreeChangeAddressIndex;
       const {
         outputs: outputsWithChange,
         changeAddress,
         changeMultisig,
-      } = WalletUtilities.generateChange(
-        wallet,
-        outputs,
-        wallet.specs.nextFreeChangeAddressIndex,
-        network
-      );
+      } = WalletUtilities.generateChange(wallet, outputs, changeIndex, network);
 
-      const change = changeAddress || changeMultisig?.address;
+      const change = { address: changeAddress || changeMultisig?.address, index: changeIndex };
       outputsWithChange.sort((out1, out2) => {
         if (out1.address < out2.address) return -1;
         if (out1.address > out2.address) return 1;
@@ -1810,9 +1806,8 @@ export default class WalletOperations {
     inputs: InputUTXOs[],
     PSBT: bitcoinJS.Psbt,
     vaultKey: VaultSigner,
-    outgoing: number,
     outputs: OutputUTXOs[],
-    change: string,
+    change: { address: string; index: number },
     signerMap?: { [key: string]: Signer },
     miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier
   ):
@@ -1990,14 +1985,19 @@ export default class WalletOperations {
           });
         }
 
-        signingPayload.push({ payloadTarget, childIndexArray, outgoing });
+        signingPayload.push({
+          payloadTarget,
+          childIndexArray,
+          change: change.address,
+          changeIndex: change.index,
+        });
       } else {
         signingPayload.push({
           payloadTarget,
           inputsToSign,
           inputs,
           outputs,
-          change,
+          change: change.address,
         });
       }
     } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
@@ -2134,10 +2134,6 @@ export default class WalletOperations {
       // case: vault(single/multi-sig)
       const { signers: vaultKeys } = wallet as Vault;
       const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = [];
-      let outgoing = 0;
-      recipients.forEach((recipient) => {
-        outgoing += recipient.amount;
-      });
 
       for (const vaultKey of vaultKeys) {
         // generate signing payload
@@ -2170,7 +2166,6 @@ export default class WalletOperations {
           inputs,
           PSBT,
           vaultKey,
-          outgoing,
           outputs,
           change,
           signerMap,

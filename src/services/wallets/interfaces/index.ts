@@ -168,6 +168,7 @@ export interface SigningPayload {
   inputs?: InputUTXOs[];
   outputs?: OutputUTXOs[];
   change?: string;
+  changeIndex?: number;
   inputsToSign?: Array<{
     digest: string;
     subPath: string;
@@ -184,7 +185,6 @@ export interface SigningPayload {
       value: number;
     };
   }>;
-  outgoing?: number;
 }
 
 export interface SerializedPSBTEnvelop {
