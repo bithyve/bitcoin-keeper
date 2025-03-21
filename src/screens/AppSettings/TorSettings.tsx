@@ -20,8 +20,15 @@ import { hp, wp } from 'src/constants/responsive';
 
 function TorSettings() {
   const { colorMode } = useColorMode();
-  const { torStatus, setTorStatus, orbotTorStatus, inAppTor, openOrbotApp, checkTorConnection } =
-    useContext(TorContext);
+  const {
+    torStatus,
+    setTorStatus,
+    orbotTorStatus,
+    inAppTor,
+    openOrbotApp,
+    checkTorConnection,
+    globalTorStatus,
+  } = useContext(TorContext);
   const { translations } = useContext(LocalizationContext);
   const { settings, common } = translations;
   const dispatch = useDispatch();
@@ -86,6 +93,14 @@ function TorSettings() {
     setTorStatus(TorStatus.CHECK_STATUS);
   };
 
+  const getTorConnectionType = React.useMemo(() => {
+    return inAppTor === TorStatus.CONNECTED
+      ? `${settings.torConnectionString}in-app Tor`
+      : globalTorStatus === TorStatus.CONNECTED
+      ? `${settings.torConnectionString}connected via external Tor`
+      : '';
+  }, [inAppTor, globalTorStatus]);
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={settings.torSettingTitle} subtitle={settings.torHeaderSubTitle} />
@@ -106,6 +121,12 @@ function TorSettings() {
             </Text>
           </Pressable>
         </Box>
+        {torStatus === TorStatus.CONNECTED && (
+          <Box>
+            <Text>{getTorConnectionType}</Text>
+          </Box>
+        )}
+
         <OptionCard
           title={settings.torViaOrbot}
           description={settings.torViaOrbotSubTitle}
