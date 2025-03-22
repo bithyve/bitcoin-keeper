@@ -107,11 +107,9 @@ export const signTransactionWithSigningServer = async ({
 }) => {
   try {
     showOTPModal(false);
-    const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
     const change = idx(signingPayload, (_) => _[0].change);
     const changeIndex = idx(signingPayload, (_) => _[0].changeIndex);
 
-    if (!childIndexArray) throw new Error('Invalid signing payload');
     if (!signingServerOTP) throw new Error('Verification token is missing');
 
     const verificationToken = Number(signingServerOTP);
@@ -120,7 +118,6 @@ export const signTransactionWithSigningServer = async ({
     const { signedPSBT, delayed, delayedTransaction } = await SigningServer.signPSBT(
       xfp,
       serializedPSBT,
-      childIndexArray,
       verificationToken,
       { address: change, index: changeIndex },
       descriptor,

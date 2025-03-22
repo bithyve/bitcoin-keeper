@@ -1973,21 +1973,8 @@ export default class WalletOperations {
       }
 
       if (signer.type === SignerType.POLICY_SERVER) {
-        const childIndexArray = [];
-        for (let index = 0; index < inputs.length; index++) {
-          childIndexArray.push({
-            subPath: inputsToSign[index].subPath.substring(1).split('/').map(Number),
-            inputIdentifier: {
-              txId: inputs[index].txId,
-              vout: inputs[index].vout,
-              value: inputs[index].value,
-            },
-          });
-        }
-
         signingPayload.push({
           payloadTarget,
-          childIndexArray,
           change: change.address,
           changeIndex: change.index,
         });

@@ -311,14 +311,6 @@ export default class SigningServer {
   static signPSBT = async (
     id: string,
     serializedPSBT: string,
-    childIndexArray: Array<{
-      subPath: number[];
-      inputIdentifier: {
-        txId: string;
-        vout: number;
-        value: number;
-      };
-    }>,
     verificationToken: number,
     change: { address: string; index: number },
     descriptor: string,
@@ -334,7 +326,6 @@ export default class SigningServer {
         HEXA_ID,
         id,
         serializedPSBT,
-        childIndexArray,
         verificationToken,
         change,
         descriptor,

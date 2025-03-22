@@ -177,14 +177,6 @@ export interface SigningPayload {
     publicKey: string;
     signature?: string;
   }>;
-  childIndexArray?: Array<{
-    subPath: number[];
-    inputIdentifier: {
-      txId: string;
-      vout: number;
-      value: number;
-    };
-  }>;
 }
 
 export interface SerializedPSBTEnvelop {

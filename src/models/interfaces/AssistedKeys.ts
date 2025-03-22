@@ -32,7 +32,6 @@ export interface DelayedTransaction {
   txid: string;
   serializedPSBT: string;
   signerId: string;
-  childIndexArray: any[];
   outgoing: number;
   verificationToken: string;
   timestamp: number;
