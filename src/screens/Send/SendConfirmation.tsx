@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/constants/responsive';
 import Share from 'react-native-share';
@@ -34,7 +34,9 @@ import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
-
+import Clipboard from '@react-native-community/clipboard';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ShareGreen from 'src/assets/images/share-arrow-green.svg';
@@ -47,6 +49,13 @@ import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/ca
 import config from 'src/utils/service-utilities/config';
 import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { SentryErrorBoundary } from 'src/services/sentry';
+import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
+import { credsAuthenticated } from 'src/store/reducers/login';
+import WalletHeader from 'src/components/WalletHeader';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { deleteDelayedTransaction } from 'src/store/reducers/storage';
+import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import ReceiptWrapper from './ReceiptWrapper';
 import TransferCard from './TransferCard';
 import TransactionPriorityDetails from './TransactionPriorityDetails';
@@ -56,11 +65,7 @@ import AmountDetails from './AmountDetails';
 import SendSuccessfulContent from './SendSuccessfulContent';
 import PriorityModal from './PriorityModal';
 import CustomPriorityModal from './CustomPriorityModal';
-import { SentryErrorBoundary } from 'src/services/sentry';
-import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
-import { credsAuthenticated } from 'src/store/reducers/login';
-import WalletHeader from 'src/components/WalletHeader';
-import WalletUtilities from 'src/services/wallets/operations/utils';
+import SigningServer from '../../services/backend/SigningServer';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -175,6 +180,7 @@ function SendConfirmation({ route }) {
     cachedTxPriority,
   } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
   const cachedTxn = useAppSelector((state) => state.cachedTxn);
+  const delayedTransactions = useAppSelector((state) => state.storage.delayedTransactions) || {};
   const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
   const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
@@ -187,6 +193,8 @@ function SendConfirmation({ route }) {
   const [topText, setTopText] = useState('');
   const [isFeeHigh, setIsFeeHigh] = useState(false);
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
+  const [validationModal, showValidationModal] = useState(false);
+  const [otp, setOtp] = useState('');
 
   const [amounts, setAmounts] = useState(
     isCachedTransaction
@@ -383,7 +391,7 @@ function SendConfirmation({ route }) {
     return true;
   };
 
-  const discardCachedTransaction = () => {
+  const dropSnapshot = () => {
     dispatch(dropTransactionSnapshot({ cachedTxid }));
     navigation.dispatch(
       CommonActions.reset({
@@ -394,6 +402,46 @@ function SendConfirmation({ route }) {
         ],
       })
     );
+  };
+
+  const cancelSigningRequestAndDiscardCache = async () => {
+    const verificationToken = otp;
+    const delayedTx: DelayedTransaction = delayedTransactions[cachedTxid];
+
+    const { canceled } = await SigningServer.cancelDelayedTransaction(
+      delayedTx.signerId,
+      cachedTxid,
+      verificationToken
+    );
+
+    if (canceled) {
+      dispatch(deleteDelayedTransaction(cachedTxid));
+      showValidationModal(false);
+      showToast('Associated Server Key signing request has been cancelled');
+
+      dropSnapshot();
+    } else {
+      setOtp('');
+      showValidationModal(false);
+      showToast('Failed to cancel the associated Server Key signing request. Please try again!');
+    }
+  };
+
+  const discardCachedTransaction = async () => {
+    const delayedTx = delayedTransactions[cachedTxid];
+    if (delayedTx) {
+      const { signedPSBT } = delayedTx;
+      if (signedPSBT) {
+        // case: delayed transaction is already signed
+        dispatch(deleteDelayedTransaction(cachedTxid));
+        dropSnapshot();
+      } else {
+        // case: delayed transaction under process, initiate cancellation
+        showValidationModal(true);
+      }
+    } else {
+      dropSnapshot();
+    }
   };
 
   useEffect(() => {
@@ -561,6 +609,71 @@ function SendConfirmation({ route }) {
       </Box>
     );
   };
+
+  const otpContent = useCallback(() => {
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text === 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = () => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box style={styles.otpContainer}>
+        <Box>
+          <TouchableOpacity
+            onPress={async () => {
+              const clipBoardData = await Clipboard.getString();
+              if (clipBoardData.match(/^\d{6}$/)) {
+                setOtp(clipBoardData);
+              } else {
+                showToast('Invalid OTP');
+                setOtp('');
+              }
+            }}
+            testID="otpClipboardButton"
+          >
+            <CVVInputsView
+              passCode={otp}
+              passcodeFlag={false}
+              backgroundColor
+              textColor
+              height={hp(46)}
+              width={hp(46)}
+              marginTop={hp(0)}
+              marginBottom={hp(40)}
+              inputGap={2}
+              customStyle={styles.CVVInputsView}
+            />
+          </TouchableOpacity>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={`${colorMode}.primaryText`}
+        />
+        <Box mt={10} alignSelf="flex-end">
+          <Box>
+            <Buttons
+              primaryCallback={cancelSigningRequestAndDiscardCache}
+              fullWidth
+              primaryText="Confirm"
+            />
+          </Box>
+        </Box>
+      </Box>
+    );
+  }, [otp, delayedTransactions]);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -829,6 +942,19 @@ function SendConfirmation({ route }) {
         Content={discardUTXOModalContent}
         subTitleWidth={wp(280)}
       />
+      <KeeperModal
+        visible={validationModal}
+        close={() => {
+          showValidationModal(false);
+          setOtp('');
+        }}
+        title={common.confirm2FACodeTitle}
+        subTitle={common.confirm2FACodeSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={otpContent}
+      />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
           visible={visibleCustomPriorityModal}
@@ -1007,5 +1133,12 @@ const styles = StyleSheet.create({
     gap: wp(16),
     borderRadius: 12,
     borderWidth: 1,
+  },
+  otpContainer: {
+    width: '100%',
+  },
+  CVVInputsView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
