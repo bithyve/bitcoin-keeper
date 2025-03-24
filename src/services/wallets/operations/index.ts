@@ -1824,11 +1824,7 @@ export default class WalletOperations {
     const payloadTarget = signer.type;
     let isSigned = false;
 
-    const keysOnlyInSelectedPathSigners = [
-      SignerType.BITBOX02,
-      SignerType.KEEPER,
-      SignerType.POLICY_SERVER,
-    ];
+    const keysOnlyInSelectedPathSigners = [SignerType.BITBOX02, SignerType.KEEPER];
     if (miniscriptSelectedSatisfier && keysOnlyInSelectedPathSigners.includes(signer.type)) {
       const subPaths = inputs.reduce((acc, input) => {
         const { subPaths: inputSubPaths } = WalletUtilities.addressToMultiSig(
@@ -1873,7 +1869,7 @@ export default class WalletOperations {
           );
         });
 
-        if (signer.type === SignerType.BITBOX02 || signer.type === SignerType.POLICY_SERVER) {
+        if (signer.type === SignerType.BITBOX02) {
           input.bip32Derivation = newBip32Derivation;
         } else {
           input.unknownKeyVals = [
@@ -1973,21 +1969,8 @@ export default class WalletOperations {
       }
 
       if (signer.type === SignerType.POLICY_SERVER) {
-        const childIndexArray = [];
-        for (let index = 0; index < inputs.length; index++) {
-          childIndexArray.push({
-            subPath: inputsToSign[index].subPath.substring(1).split('/').map(Number),
-            inputIdentifier: {
-              txId: inputs[index].txId,
-              vout: inputs[index].vout,
-              value: inputs[index].value,
-            },
-          });
-        }
-
         signingPayload.push({
           payloadTarget,
-          childIndexArray,
           change: change.address,
           changeIndex: change.index,
         });
