@@ -123,7 +123,9 @@ function RemoteSharing({ route }: ScreenProps) {
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          {!isPSBTSharing && <RemoteShareIllustration style={styles.illustration} />}
+          {!isPSBTSharing && (
+            <RemoteShareIllustration style={styles.illustration} width={130} height={130} />
+          )}
 
           <Box style={styles.messagePreview}>
             <MessagePreview
@@ -139,6 +141,7 @@ function RemoteSharing({ route }: ScreenProps) {
             primaryCallback={handleShare}
             width={windowWidth * 0.82}
             primaryLoading={primaryLoading}
+            paddingVertical={hp(12)}
           />
           <Buttons
             secondaryText="Cancel"
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
   },
   messagePreview: {
     width: '100%',
-    marginTop: hp(20),
+    marginTop: hp(10),
     marginBottom: hp(34),
   },
 });

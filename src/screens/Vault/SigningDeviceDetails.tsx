@@ -362,7 +362,6 @@ function SigningDeviceDetails({ route }) {
         try {
           const keyDescriptor = fetchKeyExpression(signer);
           setDetails(keyDescriptor);
-          console.log('keyDescriptor', keyDescriptor);
         } catch (error) {
           if (error && error.message === 'Missing key details.') {
             showToast(
