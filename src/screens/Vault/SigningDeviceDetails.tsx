@@ -93,6 +93,7 @@ import { SDColoredIcons } from './SigningDeviceIcons';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import ShareKeyModalContent from './components/ShareKeyModalContent';
+import STModalContent from './components/STModalContent';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -306,6 +307,7 @@ function SigningDeviceDetails({ route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [shareKeyModal, setShareKeyModal] = useState(false);
+  const [stModal, setStModal] = useState(false);
   const isDarkMode = colorMode === 'dark';
   const data = useQuery(RealmSchema.BackupHistory);
   const signerVaults: Vault[] = [];
@@ -412,6 +414,25 @@ function SigningDeviceDetails({ route }) {
       })
     );
   };
+  const navigateToScanPSBT = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ScanQR',
+        params: {
+          title: 'Scan Transaction',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          onQrScan: signPSBT,
+          setup: true,
+          type: SignerType.KEEPER,
+          isHealthcheck: true,
+          signer,
+          disableMockFlow: true,
+          isPSBT: true,
+          importOptions: false,
+        },
+      })
+    );
+  };
   function ShareKeyModalData() {
     return (
       <Box>
@@ -421,6 +442,18 @@ function SigningDeviceDetails({ route }) {
           navigateToCosignerDetails={navigateToCosignerDetails}
           setShareKeyModal={setShareKeyModal}
           data={details}
+        />
+      </Box>
+    );
+  }
+
+  function StModalContent() {
+    return (
+      <Box>
+        <STModalContent
+          navigateToScanPSBT={navigateToScanPSBT}
+          setData={signPSBT}
+          setStModal={setStModal}
         />
       </Box>
     );
@@ -436,25 +469,6 @@ function SigningDeviceDetails({ route }) {
       </Box>
     );
   }
-
-  const navigateToScanPSBT = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'ScanQR',
-        params: {
-          title: 'Scan Transaction',
-          subtitle: 'Please scan until all the QR data has been retrieved',
-          onQrScan: signPSBT,
-          setup: true,
-          type: SignerType.KEEPER,
-          isHealthcheck: true,
-          signer,
-          disableMockFlow: true,
-          isPSBT: true,
-        },
-      })
-    );
-  };
 
   const navigateToAssignSigner = () => {
     dispatch(resetSignersUpdateState());
@@ -610,7 +624,10 @@ function SigningDeviceDetails({ route }) {
       signer?.type !== SignerType.UNKOWN_SIGNER && {
         text: 'Sign Transaction',
         Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
-        onPress: navigateToScanPSBT,
+        // onPress: navigateToScanPSBT,
+        onPress: () => {
+          setStModal(true);
+        },
       },
     signer?.type === SignerType.UNKOWN_SIGNER && {
       text: 'Set Device Type',
@@ -973,6 +990,16 @@ function SigningDeviceDetails({ route }) {
               textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={ShareKeyModalData}
+            />
+            <KeeperModal
+              visible={stModal}
+              close={() => setStModal(false)}
+              title={'Scan Transaction'}
+              subTitle={'Scan and verify transaction details securely'}
+              modalBackground={`${colorMode}.modalWhiteBackground`}
+              textColor={`${colorMode}.textGreen`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
+              Content={StModalContent}
             />
 
             <KeeperModal

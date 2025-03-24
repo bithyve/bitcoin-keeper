@@ -29,7 +29,7 @@ const ColdCardUSBInstruction = () => {
         {steps.map((step, index) => (
           <Box key={index} style={styles.stepContainer}>
             <Box style={styles.circle} backgroundColor={`${colorMode}.pantoneGreen`}>
-              <Text bold fontSize={11} color={`${colorMode}.white`}>
+              <Text bold fontSize={11} color={`${colorMode}.buttonText`}>
                 {index + 1}
               </Text>
             </Box>
@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
     top: 20,
     width: 1,
     height: 40,
-    backgroundColor: 'black',
   },
   link: {
     textDecorationLine: 'underline',

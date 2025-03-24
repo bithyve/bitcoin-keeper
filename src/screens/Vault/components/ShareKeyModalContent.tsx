@@ -113,7 +113,7 @@ function ShareKeyModalContent({
       },
     },
     {
-      id: 3,
+      id: 2,
       label: 'Show QR',
       icon: <QR_Icon />,
       onPress: () => {

@@ -1067,6 +1067,7 @@ function HardwareModalMap({
           mode,
           signer,
           addSignerFlow,
+          importOptions: false,
         },
       })
     );
@@ -2142,8 +2143,6 @@ function HardwareModalMap({
     title: 'Setup',
     subTitle: 'Configure your signer',
   };
-  console.log('setupTitle', setupTitle);
-  console.log('setupSubTitle', setupSubTitle);
 
   return (
     <>
