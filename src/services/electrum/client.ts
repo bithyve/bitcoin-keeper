@@ -384,13 +384,16 @@ export default class ElectrumClient {
           // large response error, would need to handle it over a single call
         }
 
-        res[txdata.param] = txdata.result;
-        if (res[txdata.param] && !includeHex) delete res[txdata.param].hex;
+        // Only include transactions which returned with data in the result, note that this means the result object may not contain entries for all txids passed
+        if (txdata.result) {
+          res[txdata.param] = txdata.result;
+          if (res[txdata.param] && !includeHex) delete res[txdata.param].hex;
 
-        // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
-        for (const vout of res[txdata.param]?.vout || []) {
-          if (vout?.scriptPubKey?.address) {
-            vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
+          // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
+          for (const vout of res[txdata.param]?.vout || []) {
+            if (vout?.scriptPubKey?.address) {
+              vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
+            }
           }
         }
       }
