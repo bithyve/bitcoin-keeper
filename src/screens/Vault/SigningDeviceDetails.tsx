@@ -994,7 +994,7 @@ function SigningDeviceDetails({ route }) {
               visible={stModal}
               close={() => setStModal(false)}
               title={'Scan Transaction'}
-              subTitle={'Scan and verify transaction details securely'}
+              subTitle={'Scan and verify transaction details'}
               modalBackground={`${colorMode}.modalWhiteBackground`}
               textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}

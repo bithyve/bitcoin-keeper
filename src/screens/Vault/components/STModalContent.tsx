@@ -116,7 +116,7 @@ function STModalContent({ navigateToScanPSBT, setData, setStModal }) {
   const walletOptions = [
     {
       id: 1,
-      label: 'Show QR',
+      label: 'Scan QR',
       icon: <QR_Icon />,
       onPress: () => {
         navigateToScanPSBT();
