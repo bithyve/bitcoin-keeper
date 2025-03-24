@@ -387,7 +387,7 @@ export default class WalletOperations {
     transactions = transactions.filter(
       (tx) =>
         txids.includes(tx.txid) ||
-        [...tx.senderAddresses, ...tx.recipientAddresses].some(
+        [...(tx?.senderAddresses || []), ...(tx?.recipientAddresses || [])].some(
           (address) => !addresses.includes(address)
         )
     );

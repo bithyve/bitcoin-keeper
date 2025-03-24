@@ -843,10 +843,10 @@ export function* autoWalletsSyncWorker({
 }) {
   const { syncAll, hardRefresh } = payload;
   const wallets: Wallet[] = yield call(dbManager.getObjectByIndex, RealmSchema.Wallet, null, true);
-  const vault: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
+  const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
 
   const walletsToSync: (Wallet | Vault)[] = [];
-  for (const wallet of [...wallets, ...vault]) {
+  for (const wallet of [...wallets, ...vaults]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
       if (!wallet.isUsable) continue;
       if (wallet.entityKind === EntityKind.VAULT && (wallet as Vault).archived) continue;
