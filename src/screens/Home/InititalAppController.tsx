@@ -224,7 +224,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       const response = await Relay.redeemKeeperPrivate({ appId: getAppData().appId, redeemCode });
       if (!response.status) {
         showToast(
-          response?.message ?? 'Something went wrong, Please try again.',
+          response?.message ?? 'Something went wrong, please try again.',
           <ToastErrorIcon />
         );
         return;

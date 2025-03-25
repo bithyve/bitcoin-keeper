@@ -173,8 +173,8 @@ export const useSettingKeeper = () => {
     {
       plan: SubscriptionTier.L4.toUpperCase(),
       title: SubscriptionTier.L4,
-      subtitle: 'Expert',
-      description: 'For Expert Users',
+      subtitle: 'Private',
+      description: 'For Private Clients',
       icon: <DiamondIcon width={30} height={30} />,
       sublightIcon: <DiamondGreenSub width={24} height={24} />,
       subDarkIcon: <DiamondWhiteSub width={24} height={24} />,

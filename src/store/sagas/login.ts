@@ -222,7 +222,9 @@ function* credentialsAuthWorker({ payload }) {
           if (!response.isValid) {
             if (
               (subscription.level > 1 &&
-                ['Hodler', 'Diamond Hands', 'Keeper Private'].includes(subscription.name)) ||
+                [SubscriptionTier.L2, SubscriptionTier.L3, SubscriptionTier.L4].includes(
+                  subscription?.name as SubscriptionTier
+                )) ||
               subscription.level !== response.level
             ) {
               yield call(downgradeToPleb);
