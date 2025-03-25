@@ -1099,9 +1099,7 @@ function HardwareModalMap({
               ? 'Add'
               : 'Setting up'
           } ${getSignerNameFromType(type)}`,
-          subtitle: isExternalKey
-            ? 'Please scan a QR or use alternate methods listed below'
-            : 'Please scan until all the QR data has been retrieved',
+          subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: (data) => (isHealthcheck ? onQRScanHealthCheck(data, signer) : onQRScan(data)),
           setup: true,
           type,
