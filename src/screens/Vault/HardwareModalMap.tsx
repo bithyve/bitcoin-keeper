@@ -1987,7 +1987,7 @@ function HardwareModalMap({
   }, [signerType, keyGenerationMode, options]);
 
   const setupContent = useCallback(() => {
-    if (signerType === SignerType.COLDCARD) {
+    if (signerType === SignerType.COLDCARD || signerType === SignerType.JADE) {
       if (keyGenerationMode === KeyGenerationMode.USB) {
         return (
           <Box>
@@ -2011,7 +2011,6 @@ function HardwareModalMap({
       }
     }
     if (
-      signerType === SignerType.JADE ||
       signerType === SignerType.KEYSTONE ||
       signerType === SignerType.PASSPORT ||
       signerType === SignerType.SEED_WORDS ||

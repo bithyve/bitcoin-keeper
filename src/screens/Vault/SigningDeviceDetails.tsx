@@ -438,6 +438,8 @@ function SigningDeviceDetails({ route }) {
         <ShareKeyModalContent
           navigation={navigation}
           signer={signer}
+          vaultId={activeVault.id}
+          vaultKey={vaultKey}
           navigateToCosignerDetails={navigateToCosignerDetails}
           setShareKeyModal={setShareKeyModal}
           data={details}
