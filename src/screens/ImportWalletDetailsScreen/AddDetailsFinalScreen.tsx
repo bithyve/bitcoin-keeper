@@ -13,7 +13,7 @@ import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, WalletType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
@@ -56,8 +56,7 @@ function AddDetailsFinalScreen({ route }) {
   const [purpose, setPurpose] = useState(importedKeyDetails?.purpose || DerivationPurpose.BIP84);
   const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
   const [path, setPath] = useState(
-    route.params?.path ||
-      WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+    route.params?.path || WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose)
   );
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
@@ -66,12 +65,7 @@ function AddDetailsFinalScreen({ route }) {
   const { colorMode } = useColorMode();
 
   useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(
-      EntityKind.WALLET,
-      config.NETWORK_TYPE,
-      0,
-      purpose
-    );
+    const path = WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose);
     setPath(path);
   }, [purpose]);
 

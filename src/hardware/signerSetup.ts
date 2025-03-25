@@ -148,13 +148,13 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
     xpriv: multiSigXpriv,
     derivationPath: multiSigPath,
     masterFingerprint,
-  } = await generateMobileKey(primaryMnemonic, networkType);
+  } = await generateMobileKey(primaryMnemonic, networkType, true);
   // fetched single-sig mobile key
   const {
     xpub: singleSigXpub,
     xpriv: singleSigXpriv,
     derivationPath: singleSigPath,
-  } = await generateMobileKey(primaryMnemonic, networkType, EntityKind.WALLET);
+  } = await generateMobileKey(primaryMnemonic, networkType, false);
 
   const xpubDetails: XpubDetailsType = {};
   xpubDetails[XpubTypes.P2WPKH] = {
@@ -188,12 +188,12 @@ const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
     xpub: multiSigXpub,
     derivationPath: multiSigPath,
     masterFingerprint,
-  } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
+  } = generateSeedWordsKey(mnemonic, networkType, true);
   // fetched single-sig seed words based key
   const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
     mnemonic,
     networkType,
-    EntityKind.WALLET
+    false
   );
 
   const xpubDetails: XpubDetailsType = {};

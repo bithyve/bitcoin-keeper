@@ -128,21 +128,13 @@ function SetupTapsigner({ route }) {
           xpriv: multiSigXpriv,
           derivationPath: multiSigPath,
           masterFingerprint,
-        } = generateMockExtendedKeyForSigner(
-          EntityKind.VAULT,
-          SignerType.TAPSIGNER,
-          config.NETWORK_TYPE
-        );
+        } = generateMockExtendedKeyForSigner(true, SignerType.TAPSIGNER, config.NETWORK_TYPE);
         // fetched single-sig key
         const {
           xpub: singleSigXpub,
           xpriv: singleSigXpriv,
           derivationPath: singleSigPath,
-        } = generateMockExtendedKeyForSigner(
-          EntityKind.WALLET,
-          SignerType.TAPSIGNER,
-          config.NETWORK_TYPE
-        );
+        } = generateMockExtendedKeyForSigner(false, SignerType.TAPSIGNER, config.NETWORK_TYPE);
 
         const xpubDetails: XpubDetailsType = {};
 

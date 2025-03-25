@@ -33,7 +33,6 @@ import {
   UTXO,
 } from '../interfaces';
 import {
-  BIP48ScriptTypes,
   DerivationPurpose,
   EntityKind,
   MiniscriptTypes,
@@ -256,23 +255,13 @@ export default class WalletOperations {
         entityKind === EntityKind.VAULT
           ? (wallet as Vault).signers[0].xpub
           : (specs as WalletSpecs).xpub;
-      const derivationPath = (wallet as Wallet)?.derivationDetails?.xDerivationPath;
-
-      let purpose;
-      if (entityKind === EntityKind.WALLET) purpose = WalletUtilities.getPurpose(derivationPath);
-      else if (entityKind === EntityKind.VAULT)
-        purpose = WalletUtilities.getPurpose((wallet as Vault).signers[0].derivationPath);
-
-      if (!purpose || purpose === DerivationPurpose.BIP48) {
-        throw Error(`Error deriving address. Unsupported derivation.`);
-      }
 
       receivingAddress = WalletUtilities.getSingleKeyAddressByIndex(
         xpub,
         isInternal,
         index,
         network,
-        purpose
+        WalletUtilities.getSingleKeyDerivationPurpose(wallet)
       );
     }
 
@@ -1377,14 +1366,12 @@ export default class WalletOperations {
     PSBT: bitcoinJS.Psbt,
     wallet: Wallet | Vault,
     input: InputUTXOs,
-    network: bitcoinJS.networks.Network,
-    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier,
-    derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
+    network: bitcoinJS.networks.Network
   ) => {
     const { isMultiSig } = wallet as Vault;
     if (!isMultiSig) {
       const { publicKey, subPath } = WalletUtilities.addressToPublicKey(input.address, wallet);
+      const derivationPurpose = WalletUtilities.getSingleKeyDerivationPurpose(wallet);
 
       if (derivationPurpose === DerivationPurpose.BIP86) {
         const p2tr = bitcoinJS.payments.p2tr({
@@ -1478,7 +1465,6 @@ export default class WalletOperations {
       } else if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
         const { miniscriptScheme } = (wallet as Vault).scheme;
         if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
-        if (!miniscriptSelectedSatisfier) throw new Error('Miniscript satisfier missing');
 
         const { keyInfoMap } = miniscriptScheme;
 
@@ -1499,7 +1485,7 @@ export default class WalletOperations {
         }
       }
 
-      if (scriptType === BIP48ScriptTypes.NATIVE_SEGWIT) {
+      if ((wallet as Vault).scriptType === ScriptTypes.P2WSH) {
         PSBT.addInput({
           hash: input.txId,
           index: input.vout,
@@ -1511,7 +1497,7 @@ export default class WalletOperations {
           witnessScript: p2wsh.redeem.output,
           sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
         });
-      } else if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
+      } else if ((wallet as Vault).scriptType === ScriptTypes['P2SH-P2WSH']) {
         PSBT.addInput({
           hash: input.txId,
           index: input.vout,
@@ -1617,34 +1603,8 @@ export default class WalletOperations {
         network,
       });
 
-      let derivationPurpose;
-      if (wallet.entityKind === EntityKind.WALLET) {
-        derivationPurpose = WalletUtilities.getPurpose(
-          (wallet as Wallet).derivationDetails.xDerivationPath
-        );
-      }
-
-      let miniscriptSelectedSatisfier: MiniscriptTxSelectedSatisfier;
-      if (wallet.entityKind === EntityKind.VAULT) {
-        const { miniscriptScheme } = (wallet as Vault).scheme;
-        if (miniscriptScheme) {
-          miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
-            // note: for Timelocked vault the selectedScriptWitness(which defaults to first) remains irrelevant and the witness script selection happens during input finalisation
-            miniscriptScheme,
-            miniscriptTxElements
-          );
-        }
-      }
-
       for (const input of inputs) {
-        this.addInputToPSBT(
-          PSBT,
-          wallet,
-          input,
-          network,
-          miniscriptSelectedSatisfier,
-          derivationPurpose
-        );
+        this.addInputToPSBT(PSBT, wallet, input, network);
       }
 
       const changeIndex = wallet.specs.nextFreeChangeAddressIndex;
@@ -1665,6 +1625,7 @@ export default class WalletOperations {
         if (
           wallet.entityKind === EntityKind.VAULT &&
           (wallet as Vault).isMultiSig &&
+          changeMultisig &&
           output.address === changeMultisig?.address
         ) {
           // case: change output for multisig Vault
@@ -1674,9 +1635,10 @@ export default class WalletOperations {
         } else if (
           wallet.entityKind === EntityKind.VAULT &&
           !(wallet as Vault).isMultiSig &&
+          changeAddress &&
           output.address === changeAddress
         ) {
-          // case: change output for single-sig Vault(p2wpkh)
+          // case: change output for single-sig Vault
           const { publicKey, subPath } = WalletUtilities.addressToPublicKey(changeAddress, wallet);
           const signer = (wallet as Vault).signers[0];
           const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
@@ -1700,13 +1662,26 @@ export default class WalletOperations {
 
       let nLocktime = currentBlockHeight - 1;
 
-      // ensure that nLocktime is at least the CLTV locktime if CLTV used
-      if (wallet.entityKind === EntityKind.VAULT && miniscriptSelectedSatisfier) {
-        const { selectedScriptWitness } = miniscriptSelectedSatisfier;
-        if (selectedScriptWitness.nLockTime && nLocktime < selectedScriptWitness.nLockTime) {
-          nLocktime = selectedScriptWitness.nLockTime;
+      let miniscriptSelectedSatisfier: MiniscriptTxSelectedSatisfier;
+      if (wallet.entityKind === EntityKind.VAULT) {
+        const { miniscriptScheme } = (wallet as Vault).scheme;
+        if (miniscriptScheme) {
+          miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
+            // note: for Timelocked vault the selectedScriptWitness(which defaults to first) remains irrelevant and the witness script selection happens during input finalisation
+            miniscriptScheme,
+            miniscriptTxElements
+          );
+
+          // ensure that nLocktime is at least the CLTV locktime if CLTV used
+          if (miniscriptSelectedSatisfier) {
+            const { selectedScriptWitness } = miniscriptSelectedSatisfier;
+            if (selectedScriptWitness.nLockTime && nLocktime < selectedScriptWitness.nLockTime) {
+              nLocktime = selectedScriptWitness.nLockTime;
+            }
+          }
         }
       }
+
       PSBT.setLocktime(nLocktime);
 
       return {
@@ -1721,7 +1696,7 @@ export default class WalletOperations {
     }
   };
 
-  static signTransaction = (
+  static signHotWalletTransaction = (
     wallet: Wallet,
     inputs: any,
     PSBT: bitcoinJS.Psbt
@@ -1733,7 +1708,7 @@ export default class WalletOperations {
 
       for (const input of inputs) {
         let { keyPair } = WalletUtilities.addressToKeyPair(input.address, wallet);
-        const purpose = WalletUtilities.getPurpose(wallet.derivationDetails.xDerivationPath);
+        const purpose = WalletUtilities.getSingleKeyDerivationPurpose(wallet);
 
         if (purpose === DerivationPurpose.BIP86) {
           // create a tweaked signer to sign P2TR tweaked key
@@ -1762,7 +1737,7 @@ export default class WalletOperations {
   ): { signedSerializedPSBT: string } => {
     try {
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
-      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
+      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network });
 
       let vin = 0;
       for (const { bip32Derivation } of PSBT.data.inputs) {
@@ -2162,7 +2137,11 @@ export default class WalletOperations {
       };
     } else {
       // case: wallet(single-sig)
-      const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
+      const { signedPSBT } = WalletOperations.signHotWalletTransaction(
+        wallet as Wallet,
+        inputs,
+        PSBT
+      );
 
       // validating signatures; contributes significantly to the transaction time(enable only if necessary)
       // const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs(validator);

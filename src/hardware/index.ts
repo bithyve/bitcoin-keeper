@@ -249,13 +249,13 @@ export const getMockSigner = (signerType: SignerType) => {
       xpriv: multiSigXpriv,
       derivationPath: multiSigPath,
       masterFingerprint,
-    } = generateMockExtendedKeyForSigner(EntityKind.VAULT, signerType, networkType);
+    } = generateMockExtendedKeyForSigner(true, signerType, networkType);
     // fetched single-sig key
     const {
       xpub: singleSigXpub,
       xpriv: singleSigXpriv,
       derivationPath: singleSigPath,
-    } = generateMockExtendedKeyForSigner(EntityKind.WALLET, signerType, networkType);
+    } = generateMockExtendedKeyForSigner(false, signerType, networkType);
 
     const xpubDetails: XpubDetailsType = {};
 

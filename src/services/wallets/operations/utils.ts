@@ -92,14 +92,14 @@ export default class WalletUtilities {
   };
 
   static getDerivationPath = (
-    entity: EntityKind,
+    isMultisig: boolean,
     type: NetworkType,
     accountNumber: number = 0,
     purpose: DerivationPurpose = DerivationPurpose.BIP84,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT // TODO: No call to the function passes scriptType, should consider to remove
   ): string => {
     const isTestnet = type === NetworkType.TESTNET ? 1 : 0;
-    if (entity === EntityKind.VAULT) {
+    if (isMultisig) {
       const scriptNum = scriptType === BIP48ScriptTypes.NATIVE_SEGWIT ? 2 : 1;
       return `m/${DerivationPurpose.BIP48}'/${isTestnet}'/${accountNumber}'/${scriptNum}'`;
     }
@@ -128,6 +128,25 @@ export default class WalletUtilities {
         throw new Error(`Unsupported derivation type, purpose: ${purpose}`);
     }
   };
+
+  public static getSingleKeyDerivationPurpose(wallet: Wallet | Vault) {
+    let purpose;
+    if (wallet.entityKind === EntityKind.WALLET)
+      purpose = WalletUtilities.getPurpose((wallet as Wallet)?.derivationDetails?.xDerivationPath);
+    else if (wallet.entityKind === EntityKind.VAULT) {
+      if ((wallet as Vault).isMultiSig || (wallet as Vault).signers.length !== 1) {
+        throw Error(
+          `Error getting single key wallet purpose. Expected single key but received multisig.`
+        );
+      }
+      purpose = WalletUtilities.getPurpose((wallet as Vault).signers[0].derivationPath);
+    }
+
+    if (!purpose || purpose === DerivationPurpose.BIP48) {
+      throw Error(`Error getting single key wallet purpose. Unsupported derivation.`);
+    }
+    return purpose;
+  }
 
   static getVersionBytesFromPurpose = (
     purpose: DerivationPurpose,
@@ -833,7 +852,7 @@ export default class WalletUtilities {
     wallet: Vault,
     childIndex: number,
     internal: boolean,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT // TODO: No call to the function passes scriptType, should consider to remove
   ): {
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment;
@@ -977,7 +996,6 @@ export default class WalletUtilities {
         changeAddress: string;
         changeMultisig?: any;
       } => {
-    const changeAddress: string = '';
     let changeMultisig: {
       p2wsh: bitcoinJS.payments.Payment;
       p2sh: bitcoinJS.payments.Payment;
@@ -1004,18 +1022,9 @@ export default class WalletUtilities {
         let xpub = null;
         if (wallet.entityKind === EntityKind.VAULT) {
           xpub = (wallet as Vault).specs.xpubs[0];
-        } // 1-of-1 multisig
-        else xpub = (wallet as Wallet).specs.xpub;
+        } else xpub = (wallet as Wallet).specs.xpub;
 
-        let purpose;
-        if (wallet.entityKind === EntityKind.WALLET) {
-          purpose = WalletUtilities.getPurpose(
-            (wallet as Wallet).derivationDetails.xDerivationPath
-          );
-        } else if (wallet.entityKind === EntityKind.VAULT) {
-          if (wallet.scriptType === ScriptTypes.P2WPKH) purpose = DerivationPurpose.BIP84;
-          else if (wallet.scriptType === ScriptTypes.P2WSH) purpose = DerivationPurpose.BIP48;
-        }
+        let purpose = WalletUtilities.getSingleKeyDerivationPurpose(wallet);
 
         output.address = WalletUtilities.getSingleKeyAddressByIndex(
           xpub,
@@ -1029,9 +1038,7 @@ export default class WalletUtilities {
     }
 
     // case: no change
-    if ((wallet as Vault).isMultiSig) {
-      return { outputs, changeMultisig };
-    } else return { outputs, changeAddress };
+    return { outputs, changeAddress: '' };
   };
 
   static generateXpubFromMetaData = (cryptoAccount: CryptoAccount) => {
@@ -1066,6 +1073,7 @@ export default class WalletUtilities {
     return null;
   };
 
+  // TODO: This is not correct for taproot multisig, as for P2TR multisig BIP48 should be used
   static getDerivationForScriptType = (scriptType: ScriptTypes, account = 0) => {
     const testnet = isTestnet();
     const networkType = testnet ? 1 : 0;

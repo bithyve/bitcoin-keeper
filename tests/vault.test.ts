@@ -77,7 +77,8 @@ describe('Vault: Single-sig(1-of-1)', () => {
 
     const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
       primaryMnemonic,
-      networkType
+      networkType,
+      true
     );
     const { key: key1 } = generateSignerFromMetaData({
       xpub,
@@ -221,7 +222,8 @@ describe('Vault: Multi-sig(2-of-3)', () => {
     const networkType = NetworkType.TESTNET;
     const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
       primaryMnemonic,
-      networkType
+      networkType,
+      true
     );
 
     const { key: key2, signer: signer2 } = generateSignerFromMetaData({
@@ -271,7 +273,7 @@ describe('Vault: Multi-sig(2-of-3)', () => {
 
     // configure 3rd singer: signing server
     seedwords = 'crisp sausage hunt resource green meat rude volume what bamboo flash extra';
-    const seedwordSignerConfig = generateSeedWordsKey(seedwords, networkType);
+    const seedwordSignerConfig = generateSeedWordsKey(seedwords, networkType, true);
     const { key: key4, signer: signer4 } = generateSignerFromMetaData({
       xpub: seedwordSignerConfig.xpub,
       derivationPath: seedwordSignerConfig.derivationPath,

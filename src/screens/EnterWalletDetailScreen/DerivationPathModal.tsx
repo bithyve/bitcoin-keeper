@@ -33,12 +33,7 @@ function DerivationPathModalContent({
   const [path, setPath] = useState(initialPath);
 
   useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(
-      EntityKind.WALLET,
-      config.NETWORK_TYPE,
-      0,
-      purpose
-    );
+    const path = WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose);
     setPath(path);
   }, [purpose]);
 

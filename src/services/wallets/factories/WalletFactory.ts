@@ -177,7 +177,7 @@ export const generateWallet = async ({
       bip85Config,
       xDerivationPath: derivationConfig
         ? derivationConfig.path
-        : WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType),
+        : WalletUtilities.getDerivationPath(false, networkType),
     };
     id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic);
     const idWithDerivation = id + derivationDetails.xDerivationPath;
@@ -221,12 +221,9 @@ export const generateWallet = async ({
   return wallet;
 };
 
-export const generateExtendedKeysForCosigner = (
-  mnemonic: string,
-  entityKind: EntityKind = EntityKind.VAULT
-) => {
+export const generateExtendedKeysForCosigner = (mnemonic: string, isMultisig: boolean) => {
   const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-  const xDerivationPath = WalletUtilities.getDerivationPath(entityKind, config.NETWORK_TYPE);
+  const xDerivationPath = WalletUtilities.getDerivationPath(isMultisig, config.NETWORK_TYPE);
 
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
@@ -246,10 +243,7 @@ export const getCosignerDetails = async (
   const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
   const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
 
-  const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(
-    mnemonic,
-    singleSig ? EntityKind.WALLET : EntityKind.VAULT
-  );
+  const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(mnemonic, !singleSig);
 
   const xpubDetails: XpubDetailsType = {};
   if (singleSig) {
