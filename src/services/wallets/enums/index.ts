@@ -3,7 +3,7 @@ export enum DerivationPurpose {
   BIP48 = 48, // P2WSH & P2SH-P2WSH: native and wrapped segwit, multi-sig
   BIP49 = 49, // P2SH-P2WPKH: wrapped segwit, single-sg
   BIP84 = 84, // P2WPKH: native segwit, single-sig
-  BIP86 = 86, // P2TR: taproot
+  BIP86 = 86, // P2TR: taproot, single-sig
 }
 
 export enum BIP48ScriptTypes {

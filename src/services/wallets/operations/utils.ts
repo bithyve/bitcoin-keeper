@@ -151,10 +151,10 @@ export default class WalletUtilities {
 
   static toXOnly = (pubKey) => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
 
-  static deriveAddressFromKeyPair = (
+  static deriveSingleKeyAddressFromKeyPair = (
     keyPair: ECPairInterface | BIP32Interface,
     network: bitcoinJS.Network,
-    purpose: DerivationPurpose = DerivationPurpose.BIP84
+    purpose: DerivationPurpose
   ): string => {
     if (purpose === DerivationPurpose.BIP86) {
       return bitcoinJS.payments.p2tr({
@@ -626,7 +626,7 @@ export default class WalletUtilities {
     return { publicKey, subPath: [chainIndex, childIndex] };
   };
 
-  static getAddressByIndex = (
+  static getSingleKeyAddressByIndex = (
     xpub: string,
     internal: boolean,
     index: number,
@@ -635,7 +635,7 @@ export default class WalletUtilities {
   ): string => {
     const node = bip32.fromBase58(xpub, network);
     const keyPair = node.derive(internal ? 1 : 0).derive(index);
-    return WalletUtilities.deriveAddressFromKeyPair(keyPair, network, purpose);
+    return WalletUtilities.deriveSingleKeyAddressFromKeyPair(keyPair, network, purpose);
   };
 
   static getAddressAndPubByIndex = (
@@ -648,7 +648,7 @@ export default class WalletUtilities {
     const node = bip32.fromBase58(xpub, network);
     const keyPair = node.derive(internal ? 1 : 0).derive(index);
     return {
-      address: WalletUtilities.deriveAddressFromKeyPair(keyPair, network, purpose),
+      address: WalletUtilities.deriveSingleKeyAddressFromKeyPair(keyPair, network, purpose),
       pub: keyPair.publicKey.toString('hex'),
     };
   };
@@ -1017,7 +1017,7 @@ export default class WalletUtilities {
           else if (wallet.scriptType === ScriptTypes.P2WSH) purpose = DerivationPurpose.BIP48;
         }
 
-        output.address = WalletUtilities.getAddressByIndex(
+        output.address = WalletUtilities.getSingleKeyAddressByIndex(
           xpub,
           true,
           nextFreeChangeAddressIndex,
