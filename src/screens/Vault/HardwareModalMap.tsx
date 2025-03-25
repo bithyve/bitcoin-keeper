@@ -9,6 +9,7 @@ import {
   Alert,
   Clipboard,
   Linking,
+  Platform,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
@@ -113,6 +114,10 @@ import BackupModalContent from '../AppSettings/BackupModal';
 import SetupSignerOptions from 'src/components/SetupSignerOptions';
 import SignerOptionCard from './components/signerOptionCard';
 import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
+import useNfcModal from 'src/hooks/useNfcModal';
+import nfcManager, { NfcTech } from 'react-native-nfc-manager';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import idx from 'idx';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -152,7 +157,9 @@ const getSignerContent = (
           'Or instead, use the Keeper Desktop app to connect to the Coldcard via USB',
         ],
         title: isHealthcheck ? 'Verify Coldcard' : coldcard.SetupTitle,
-        subTitle: `${coldcard.SetupDescription}`,
+        subTitle: isHealthcheck
+          ? 'Choose how to verify your Coldcard to Keeper'
+          : `${coldcard.SetupDescription}`,
         options: [
           {
             title: 'NFC',
@@ -228,7 +235,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Add your Jade',
-        subTitle: 'Get your Jade ready and powered up before proceeding',
+        subTitle: 'Choose how to add your Jade to Keeper',
         options: [
           {
             title: 'QR',
@@ -264,8 +271,42 @@ const getSignerContent = (
           : isCanaryAddition
           ? externalKey.setupCanaryTitle
           : `${common.importing} ${getSignerNameFromType(type)}`,
-        subTitle: isHealthcheck ? '' : externalKey.modalSubtitle,
-        options: [],
+        subTitle: isHealthcheck ? '' : 'Choose how to add your External Key to Keeper',
+        options: [
+          {
+            title: 'NFC',
+            icon: (
+              <CircleIconWrapper
+                icon={<NfcComms />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={38}
+              />
+            ),
+            name: KeyGenerationMode.NFC,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={38}
+              />
+            ),
+            name: KeyGenerationMode.FILE,
+          },
+          {
+            title: 'Scan QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={38}
+              />
+            ),
+            name: KeyGenerationMode.QR,
+          },
+        ],
       };
     case SignerType.MY_KEEPER:
       return {
@@ -317,7 +358,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Add your Keystone',
-        subTitle: 'Get your Keystone ready before proceeding',
+        subTitle: 'Choose how to add your External Key to Keeper',
         options: [
           {
             title: 'QR',
@@ -960,7 +1001,7 @@ function HardwareModalMap({
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { common, settings } = translations;
+  const { common, settings, externalKey } = translations;
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
@@ -1918,7 +1959,8 @@ function HardwareModalMap({
       signerType === SignerType.JADE ||
       signerType === SignerType.KEYSTONE ||
       signerType === SignerType.PASSPORT ||
-      signerType === SignerType.SEED_WORDS
+      signerType === SignerType.SEED_WORDS ||
+      signerType === SignerType.KEEPER
     ) {
       return (
         <Box style={styles.modalContainer}>
@@ -1972,7 +2014,8 @@ function HardwareModalMap({
       signerType === SignerType.JADE ||
       signerType === SignerType.KEYSTONE ||
       signerType === SignerType.PASSPORT ||
-      signerType === SignerType.SEED_WORDS
+      signerType === SignerType.SEED_WORDS ||
+      signerType === SignerType.KEEPER
     ) {
       return (
         <Box style={styles.modalContainer}>
@@ -1987,6 +2030,72 @@ function HardwareModalMap({
     }
     return <Box>{Illustration}</Box>;
   }, [signerType, keyGenerationMode]);
+  const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
+
+  const readFromNFC = async () => {
+    try {
+      await withNfcModal(async () => {
+        const records = await NFC.read([NfcTech.Ndef]);
+        try {
+          const cosigner = records[0].data;
+          isHealthcheck ? onQRScanHealthCheck(cosigner, signer) : onQRScan(cosigner);
+        } catch (err) {
+          captureError(err);
+          showToast('Please scan a valid co-signer tag', <ToastErrorIcon />);
+        }
+      });
+    } catch (err) {
+      if (err.toString() === 'Error') {
+        console.log('NFC interaction cancelled');
+        return;
+      }
+      captureError(err);
+      showToast('Something went wrong.', <ToastErrorIcon />);
+    }
+  };
+
+  const { session } = useContext(HCESessionContext);
+  const isAndroid = Platform.OS === 'android';
+
+  useEffect(() => {
+    if (isAndroid) {
+      if (nfcVisible) {
+        NFC.startTagSession({ session, content: '', writable: true });
+      } else {
+        NFC.stopTagSession(session);
+      }
+    }
+    return () => {
+      nfcManager.cancelTechnologyRequest();
+    };
+  }, [nfcVisible]);
+
+  useEffect(() => {
+    const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
+      try {
+        // content written from iOS to android
+        const data = idx(session, (_) => _.application.content.content);
+        if (!data) {
+          showToast('Please scan a valid co-signer', <ToastErrorIcon />);
+          return;
+        }
+        isHealthcheck ? onQRScanHealthCheck(data, signer) : onQRScan(data);
+      } catch (err) {
+        captureError(err);
+        showToast('Something went wrong.', <ToastErrorIcon />);
+      } finally {
+        closeNfc();
+      }
+    });
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      closeNfc();
+    });
+    return () => {
+      unsubConnect();
+      unsubDisconnect();
+      NFC.stopTagSession(session);
+    };
+  }, [session]);
   const buttonCallback = () => {
     close();
     setOpenSetup(false);
@@ -2036,6 +2145,12 @@ function HardwareModalMap({
         }
         return navigateToAddQrBasedSigner();
       case SignerType.KEEPER:
+        if (keyGenerationMode === KeyGenerationMode.FILE) {
+          return navigateToFileBasedSigner(type);
+        }
+        if (keyGenerationMode === KeyGenerationMode.NFC) {
+          return readFromNFC();
+        }
         return navigateToAddQrBasedSigner();
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
@@ -2081,19 +2196,19 @@ function HardwareModalMap({
     [SignerType.COLDCARD]: {
       [KeyGenerationMode.NFC]: {
         setupTitle: 'Setting up NFC',
-        setupSubTitle: 'Choose how to add your Coldcard to Keeper',
+        setupSubTitle: 'Get Your Coldcard Ready and powered up before proceeding',
       },
       [KeyGenerationMode.QR]: {
         setupTitle: 'Setting up QR Scan',
-        setupSubTitle: 'Choose how to add your Coldcard to Keeper',
+        setupSubTitle: 'Get Your Coldcard Ready and powered up before proceeding',
       },
       [KeyGenerationMode.FILE]: {
         setupTitle: 'Setting up File',
-        setupSubTitle: 'Choose how to add your Coldcard to Keeper',
+        setupSubTitle: 'Get Your Coldcard Ready and powered up before proceeding',
       },
       [KeyGenerationMode.USB]: {
         setupTitle: 'Setting up USB ',
-        setupSubTitle: 'Choose how to add your Coldcard to Keeper',
+        setupSubTitle: 'Get Your Coldcard Ready and powered up before proceeding',
       },
     },
     [SignerType.JADE]: {
@@ -2137,6 +2252,20 @@ function HardwareModalMap({
         setupSubTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
       },
     },
+    [SignerType.KEEPER]: {
+      [KeyGenerationMode.NFC]: {
+        setupTitle: 'Setting up NFC',
+        setupSubTitle: externalKey.modalSubtitle,
+      },
+      [KeyGenerationMode.QR]: {
+        setupTitle: 'Setting up QR Scan',
+        setupSubTitle: externalKey.modalSubtitle,
+      },
+      [KeyGenerationMode.FILE]: {
+        setupTitle: 'Setting up File',
+        setupSubTitle: externalKey.modalSubtitle,
+      },
+    },
   };
   // Select content dynamically
   const { setupTitle, setupSubTitle } = modalContentConfig[signerType]?.[keyGenerationMode] || {
@@ -2151,7 +2280,7 @@ function HardwareModalMap({
         close={() => setOpenSetup(false)}
         title={setupTitle}
         subTitle={setupSubTitle}
-        subTitleWidth={wp(300)}
+        subTitleWidth={wp(250)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

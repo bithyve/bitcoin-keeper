@@ -10,13 +10,13 @@ const ReceiptWrapper = ({ children, itemContainerStyle = {} }) => {
   return (
     <Box
       backgroundColor={`${colorMode}.textInputBackground`}
-      borderColor={`${colorMode}.secondaryGrey`}
+      borderColor={`${colorMode}.dullGreyBorder`}
       style={styles.container}
     >
       {React.Children.map(children, (child, index) => (
         <Box
           style={[styles.item, index === 0 && styles.firstItem, itemContainerStyle]}
-          borderColor={`${colorMode}.secondaryGrey`}
+          borderColor={`${colorMode}.dullGreyBorder`}
           borderBottomWidth={index !== itemCount - 1 ? 1 : 0}
           key={index}
         >
