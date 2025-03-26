@@ -1,6 +1,5 @@
 import { call, delay, put, race, select } from 'redux-saga/effects';
 import {
-  cryptoRandom,
   decrypt,
   encrypt,
   generateEncryptionKey,
@@ -25,7 +24,6 @@ import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
   CREDS_AUTH,
-  GENERATE_SEED_HASH,
   RESET_PIN,
   STORE_CREDS,
 } from '../sagaActions/login';
@@ -45,7 +43,6 @@ import {
   setAppVersion,
   setAutoUpdateEnabledBeforeDowngrade,
   setPinHash,
-  setPinResetCreds,
   setPlebDueToOffline,
 } from '../reducers/storage';
 
@@ -217,7 +214,7 @@ function* credentialsAuthWorker({ payload }) {
           );
 
           yield put(resetSyncing());
-          yield call(generateSeedHash);
+          yield put(resetPinFailAttempts());
           yield put(setRecepitVerificationFailed(!response.isValid));
           if (!response.isValid) {
             if (
@@ -355,24 +352,6 @@ function* resetPinWorker({ payload }) {
   }
 }
 export const resetPinCredWatcher = createWatcher(resetPinWorker, RESET_PIN);
-
-function* generateSeedHash() {
-  try {
-    const { primaryMnemonic }: KeeperApp = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.KeeperApp
-    );
-    const words = primaryMnemonic.split(' ');
-    const random = Math.floor(cryptoRandom() * words.length);
-    const hash = yield call(hash512, words[random]);
-    yield put(setPinResetCreds({ hash, index: random }));
-    yield put(resetPinFailAttempts());
-  } catch (error) {
-    console.log('generateSeedHash error', error);
-  }
-}
-
-export const generateSeedHashWatcher = createWatcher(generateSeedHash, GENERATE_SEED_HASH);
 
 function* changeLoginMethodWorker({
   payload,

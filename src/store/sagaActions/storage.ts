@@ -1,6 +1,5 @@
 export const SETUP_KEEPER_APP = 'SETUP_KEEPER_APP';
 export const SET_APP_ID = 'SET_APP_ID';
-export const SET_PIN_RESET_CREDS = 'SET_PIN_RESET_CREDS';
 export const INCREASE_PIN_FAIL_ATTEMTS = 'INCREASE_PIN_FAIL_ATTEMTS';
 export const RESET_PIN_FAIL_ATTEMTS = 'RESET_PIN_FAIL_ATTEMTS';
 export const FETCH_SIGNED_DELAYED_TRANSACTION = 'FETCH_SIGNED_DELAYED_TRANSACTION';
@@ -18,14 +17,6 @@ export const setAppId = (appId?: string) => ({
   type: SET_APP_ID,
   payload: {
     appId,
-  },
-});
-
-export const setPinResetCreds = (hash: string, index: number) => ({
-  type: SET_PIN_RESET_CREDS,
-  payload: {
-    hash,
-    index,
   },
 });
 

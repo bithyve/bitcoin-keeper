@@ -33,7 +33,6 @@ import {
   credentialStorageWatcher,
   credentialsAuthWatcher,
   resetPinCredWatcher,
-  generateSeedHashWatcher,
 } from './login';
 import {
   backupWarningWatcher,
@@ -81,7 +80,6 @@ const rootSaga = function* () {
     // login
     credentialsAuthWatcher,
     changeAuthCredWatcher,
-    generateSeedHashWatcher,
     changeLoginMethodWatcher,
     credentialStorageWatcher,
     resetPinCredWatcher,
