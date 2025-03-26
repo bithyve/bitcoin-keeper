@@ -84,35 +84,36 @@ function SignWithChannel() {
 
   const dispatch = useDispatch();
   const navgation = useNavigation();
+const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
-  let miniscriptPolicy = null;
-  if (activeVault?.type === VaultType.MINISCRIPT) {
-    miniscriptPolicy = generateOutputDescriptors(activeVault);
-  }
-  const walletName = activeVault?.presentationData.name;
-  let hmac = null;
-  const currentHmac = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId)?.hmac;
-  if (currentHmac) {
-    hmac = currentHmac;
-  }
+let miniscriptPolicy = null;
+if (activeVault?.type === VaultType.MINISCRIPT) {
+  miniscriptPolicy = generateOutputDescriptors(activeVault);
+}
+const walletName = activeVault?.presentationData.name;
+let hmac = null;
+const currentHmac = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId)?.hmac;
+if (currentHmac) {
+  hmac = currentHmac;
+}
 
-  const onBarCodeRead = async (data) => {
-    decryptionKey.current = data;
-    const sha = crypto.createHash('sha256');
-    sha.update(data);
-    const room = sha.digest().toString('hex');
-    const psbt = await getPsbtForHwi(serializedPSBT, activeVault);
-    const requestBody = {
-      action: EMIT_MODES.SIGN_TX,
-      signerType,
-      psbt,
-      miniscriptPolicy,
-      walletName,
-      hmac,
-    };
-    const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
+const onBarCodeRead = async (data) => {
+  decryptionKey.current = data;
+  const sha = crypto.createHash('sha256');
+  sha.update(data);
+  const room = sha.digest().toString('hex');
+  const psbt = await getPsbtForHwi(serializedPSBT, activeVault);
+  const requestBody = {
+    action: EMIT_MODES.SIGN_TX,
+    signerType,
+    psbt,
+    miniscriptPolicy,
+    walletName,
+    hmac,
   };
+  const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
+  channel.emit(JOIN_CHANNEL, { room, network: bitcoinNetworkType, requestData });
+};
 
   useEffect(() => {
     const startBackgroundListener = () => {

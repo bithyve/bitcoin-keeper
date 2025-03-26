@@ -102,10 +102,6 @@ class Configuration {
     ? config.SIGNING_SERVER_RSA_PUBKEY.trim()
     : DEFAULT_CONFIG.SIGNING_SERVER_RSA_PUBKEY;
 
-  public NETWORK: bitcoinJS.Network;
-
-  public NETWORK_TYPE: NetworkType;
-
   public ENVIRONMENT: string;
 
   public CHANNEL_URL: string = config.CHANNEL_URL?.trim()
@@ -129,24 +125,12 @@ class Configuration {
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()
       ? config.ENVIRONMENT.trim()
       : DEFAULT_CONFIG.ENVIRONMENT;
-    this.NETWORK =
-      this.ENVIRONMENT === APP_STAGE.PRODUCTION
-        ? bitcoinJS.networks.bitcoin
-        : bitcoinJS.networks.testnet;
-    this.NETWORK_TYPE =
-      this.ENVIRONMENT === APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
 
     this.RENEWAL_WINDOW =
       this.ENVIRONMENT === APP_STAGE.PRODUCTION
         ? 30.44 * 3 * 24 * 60 * 60 * 1000 // 3 months
         : 3 * 60 * 60 * 1000; // 20 mins  || 3 hours
   }
-
-  public setNetwork = (network: NetworkType) => {
-    const isTestnet = network === NetworkType.TESTNET;
-    this.NETWORK_TYPE = network;
-    this.NETWORK = isTestnet ? bitcoinJS.networks.testnet : bitcoinJS.networks.bitcoin;
-  };
 
   public isDevMode = () => {
     return this.ENVIRONMENT === APP_STAGE.DEVELOPMENT;

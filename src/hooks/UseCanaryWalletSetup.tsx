@@ -11,8 +11,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { addNewVault } from 'src/store/sagaActions/vaults';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
-import config from 'src/utils/service-utilities/config';
 import useToastMessage from './useToastMessage';
+import { store } from 'src/store/store';
 
 type Params = {
   setLoader?: Function;
@@ -22,13 +22,14 @@ const CANARY_SCHEME = { m: 1, n: 1 };
 
 const getSingleSigSignerKey = (signer) => {
   try {
+    const { bitcoinNetworkType } = store.getState().settings;
     const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
     const ssVaultKey: VaultSigner = {
       ...singleSigSigner,
       masterFingerprint: signer.masterFingerprint,
       xfp: WalletUtilities.getFingerprintFromExtendedKey(
         singleSigSigner.xpub,
-        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+        WalletUtilities.getNetworkByType(bitcoinNetworkType)
       ),
     };
 

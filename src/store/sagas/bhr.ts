@@ -399,6 +399,7 @@ function* recoverApp(
   labels,
   previousVersion
 ) {
+  const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
   const entropy = yield call(
     BIP85.bip39MnemonicToEntropy,
     config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
@@ -423,7 +424,7 @@ function* recoverApp(
       method: BackupType.SEED,
     },
     version: DeviceInfo.getVersion(),
-    networkType: config.NETWORK_TYPE,
+    networkType: bitcoinNetworkType,
   };
 
   yield call(dbManager.createObject, RealmSchema.KeeperApp, app);

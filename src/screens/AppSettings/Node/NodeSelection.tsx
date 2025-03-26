@@ -29,9 +29,9 @@ import SelectableServerItem from './components/SelectableServerItem';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
+import { useAppSelector } from 'src/store/hooks';
 
 const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL, connectionError }) => {
   return (
@@ -50,8 +50,9 @@ const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL, conn
 };
 
 const PublicServer = ({ currentlySelectedNode, handleSelectNode }) => {
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const predefinedNodes =
-    config.NETWORK_TYPE === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
+    bitcoinNetworkType === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
   return (
     <Box style={styles.nodeListContainer}>
       {predefinedNodes.map((node) => (

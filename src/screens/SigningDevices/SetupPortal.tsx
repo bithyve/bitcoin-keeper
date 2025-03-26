@@ -23,7 +23,6 @@ import { useDispatch } from 'react-redux';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import config from 'src/utils/service-utilities/config';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
@@ -43,8 +42,7 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { SegmentedController } from 'src/components/SegmentController';
 import { options, SuccessContainer } from '../AddSigner/AddMultipleXpub';
-
-const isTestNet = config.NETWORK_TYPE === NetworkType.TESTNET;
+import { useAppSelector } from 'src/store/hooks';
 
 function SetupPortal({ route }) {
   const {
@@ -81,6 +79,7 @@ function SetupPortal({ route }) {
   const isAddressVerification = mode === InteracationMode.ADDRESS_VERIFICATION;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [xpubs, setXpubs] = useState({});
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   let vaultDescriptor = '';
   let vault = null;
@@ -316,7 +315,7 @@ function SetupPortal({ route }) {
           // Throws error if portal is partially initialized already.
           await PORTAL.initializePortal(
             MnemonicWords[0],
-            isTestNet ? Network.Testnet : Network.Bitcoin,
+            bitcoinNetworkType === NetworkType.TESTNET ? Network.Testnet : Network.Bitcoin,
             cvc.trim().length ? cvc : null
           );
         } catch (error) {
@@ -418,7 +417,10 @@ function SetupPortal({ route }) {
             {Object.values(xpubs).some((value) => value !== null) && (
               <Buttons fullWidth primaryText="Finish" primaryCallback={createPortalSigner} />
             )}
-            <Buttons secondaryText={isTestNet ? ' Wipe' : null} secondaryCallback={wipePortal} />
+            <Buttons
+              secondaryText={bitcoinNetworkType === NetworkType.TESTNET ? ' Wipe' : null}
+              secondaryCallback={wipePortal}
+            />
           </>
         ) : (
           <ScrollView>

@@ -2,12 +2,13 @@ import ElectrumClient from 'src/services/electrum/client';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import config from 'src/utils/service-utilities/config';
 import { NetworkType } from '../wallets/enums';
 import { predefinedMainnetNodes, predefinedTestnetNodes } from './predefinedNodes';
+import { store } from 'src/store/store';
 
 export default class Node {
   public static async save(nodeDetail: NodeDetail, nodeList: NodeDetail[]) {
+    const { bitcoinNetworkType } = store.getState().settings;
     if (!nodeDetail.host || !nodeDetail.port) {
       return { saved: false, connectionError: 'Missing node host URL or port' };
     }
@@ -22,7 +23,7 @@ export default class Node {
     const node = { ...nodeDetail };
 
     const predefinedNodes =
-      config.NETWORK_TYPE === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
+      bitcoinNetworkType === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
 
     const allNodes = this.getAllNodes();
 

@@ -1,14 +1,13 @@
-import config from 'src/utils/service-utilities/config';
 import ElectrumCli from 'electrum-client';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { NodeDetail } from 'src/services/wallets/interfaces';
-import { NetworkType } from 'src/services/wallets/enums';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
 import { cryptoRandom } from '../../utils/service-utilities/encryption';
 import ecc from '../wallets/operations/taproot-utils/noble_ecc';
+import { store } from 'src/store/store';
 
 bitcoinJS.initEccLib(ecc);
 
@@ -255,10 +254,11 @@ export default class ElectrumClient {
 
   public static async syncUTXOByAddress(
     addresses: string[],
-    network: bitcoinJS.Network = config.NETWORK,
+    network: bitcoinJS.Network,
     batchsize: number = 150
   ): Promise<{ [address: string]: ElectrumUTXO[] }> {
     ElectrumClient.checkConnection();
+    if (!network) network = store.getState().settings.bitcoinNetwork;
     const res = {};
     const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
     for (let itr = 0; itr < chunks.length; itr += 1) {
@@ -302,7 +302,7 @@ export default class ElectrumClient {
 
   public static async syncHistoryByAddress(
     addresses: string[],
-    network: bitcoinJS.Network = config.NETWORK,
+    network: bitcoinJS.Network,
     batchsize: number = 150
   ): Promise<{
     historyByAddress: {};
@@ -312,6 +312,7 @@ export default class ElectrumClient {
     if (addresses.length === 0) {
       return { historyByAddress: {}, txids: [], txidToAddress: {} };
     }
+    if (!network) network = store.getState().settings.bitcoinNetwork;
     ElectrumClient.checkConnection();
 
     const historyByAddress = {};

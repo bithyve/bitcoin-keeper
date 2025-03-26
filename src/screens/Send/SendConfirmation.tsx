@@ -44,7 +44,6 @@ import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/con
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
-import config from 'src/utils/service-utilities/config';
 import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ReceiptWrapper from './ReceiptWrapper';
@@ -187,6 +186,7 @@ function SendConfirmation({ route }) {
   const [topText, setTopText] = useState('');
   const [isFeeHigh, setIsFeeHigh] = useState(false);
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const [amounts, setAmounts] = useState(
     isCachedTransaction
@@ -508,7 +508,7 @@ function SendConfirmation({ route }) {
 
   const handleShare = async () => {
     const url = `https://mempool.space${
-      config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      bitcoinNetworkType === NetworkType.TESTNET ? '/testnet' : ''
     }/tx/${walletSendSuccessful}`;
 
     try {
@@ -719,7 +719,7 @@ function SendConfirmation({ route }) {
           <PriorityModal
             selectedPriority={transactionPriority}
             setSelectedPriority={setTransactionPriority}
-            averageTxFees={averageTxFees[config.NETWORK_TYPE]}
+            averageTxFees={averageTxFees[bitcoinNetworkType]}
             txFeeInfo={txFeeInfo}
             customFeePerByte={customFeePerByte}
             onOpenCustomPriorityModal={() => {

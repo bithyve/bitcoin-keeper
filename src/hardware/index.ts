@@ -58,10 +58,11 @@ export const generateSignerFromMetaData = ({
   inheritanceKeyInfo = null,
   isAmf = false,
 }): { signer: Signer; key: VaultSigner } => {
+  const { bitcoinNetworkType } = store.getState().settings;
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
-  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+  const network = WalletUtilities.getNetworkByType(bitcoinNetworkType);
   if (
-    networkType !== config.NETWORK_TYPE &&
+    networkType !== bitcoinNetworkType &&
     signerType !== SignerType.KEYSTONE &&
     signerType !== SignerType.JADE
   ) {
@@ -243,9 +244,8 @@ export const getSignerSigTypeInfo = (key: VaultSigner, signer: Signer) => {
 };
 
 export const getMockSigner = (signerType: SignerType) => {
-  const { bitcoinNetworkType } = store.getState().settings;
-  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT && bitcoinNetworkType === NetworkType.TESTNET) {
-    const networkType = config.NETWORK_TYPE;
+  const { bitcoinNetworkType: networkType } = store.getState().settings;
+  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT && networkType === NetworkType.TESTNET) {
     // fetched multi-sig key
     const {
       xpub: multiSigXpub,
@@ -470,8 +470,9 @@ export const extractKeyFromDescriptor = (data) => {
 
 export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
   try {
+    const { bitcoinNetworkType } = store.getState().settings;
     const psbt = bitcoinJS.Psbt.fromBase64(serializedPSBT, {
-      network: WalletUtilities.getNetworkByType(config.NETWORK_TYPE),
+      network: WalletUtilities.getNetworkByType(bitcoinNetworkType),
     });
     const txids = psbt.txInputs.map((input) => {
       const item = reverse(input.hash).toString('hex');

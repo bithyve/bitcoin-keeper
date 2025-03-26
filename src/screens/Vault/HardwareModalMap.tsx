@@ -959,7 +959,7 @@ function HardwareModalMap({
   const [inProgress, setInProgress] = useState(false);
 
   const { mapUnknownSigner } = useUnkownSigners();
-  const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  const { loginMethod, bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { signers } = useSigners();
   const myAppKeys = signers.filter(
     (signer) => signer.type === SignerType.MY_KEEPER && !signer.archived
@@ -1118,7 +1118,7 @@ function HardwareModalMap({
         setInProgress(true);
         const signerXfp = WalletUtilities.getFingerprintFromExtendedKey(
           signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+          WalletUtilities.getNetworkByType(bitcoinNetworkType)
         );
         const { isSignerAvailable } = await SigningServer.checkSignerHealth(signerXfp, Number(otp));
         if (isSignerAvailable) {
@@ -1601,7 +1601,7 @@ function HardwareModalMap({
       if (vaultSigners.length <= 1) {
         throw new Error('Add two other devices first to do a health check');
       }
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+      const network = WalletUtilities.getNetworkByType(bitcoinNetworkType);
       const ids = vaultSigners.map((signer) =>
         WalletUtilities.getFingerprintFromExtendedKey(signer.xpub, network)
       );

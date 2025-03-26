@@ -8,7 +8,6 @@ import {
   generateKey,
   hash256,
 } from 'src/utils/service-utilities/encryption';
-import config from 'src/utils/service-utilities/config';
 import { CosignersMapUpdate, CosignersMapUpdateAction } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
 import idx from 'idx';

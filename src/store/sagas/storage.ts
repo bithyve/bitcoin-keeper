@@ -29,12 +29,14 @@ import { deleteDelayedPolicyUpdate, setAppId, updateDelayedTransaction } from '.
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
+import { RootState } from '../store';
 
 export const defaultTransferPolicyThreshold = null;
 export const maxTransferPolicyThreshold = 1e11;
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;
     let primaryMnemonic;
     let primarySeed;
@@ -78,7 +80,7 @@ export function* setupKeeperAppWorker({ payload }) {
         },
         backup: {},
         version: DeviceInfo.getVersion(),
-        networkType: config.NETWORK_TYPE,
+        networkType: bitcoinNetworkType,
         enableAnalytics: false,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);

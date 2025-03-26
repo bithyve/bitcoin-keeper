@@ -14,7 +14,6 @@ import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
 import { parseInt } from 'lodash';
@@ -38,6 +37,7 @@ function AddDetailsFinalScreen({ route }) {
 
   const { translations } = useContext(LocalizationContext);
   const { home, importWallet } = translations;
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const [arrow, setArrow] = useState(false);
 
   const { importedKey, importedKeyDetails } = route.params;
@@ -57,7 +57,7 @@ function AddDetailsFinalScreen({ route }) {
   const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
   const [path, setPath] = useState(
     route.params?.path ||
-      WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+      WalletUtilities.getDerivationPath(EntityKind.WALLET, bitcoinNetworkType, 0, purpose)
   );
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
@@ -68,7 +68,7 @@ function AddDetailsFinalScreen({ route }) {
   useEffect(() => {
     const path = WalletUtilities.getDerivationPath(
       EntityKind.WALLET,
-      config.NETWORK_TYPE,
+      bitcoinNetworkType,
       0,
       purpose
     );

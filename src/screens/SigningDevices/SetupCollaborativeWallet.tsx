@@ -31,7 +31,6 @@ import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducer
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useVault from 'src/hooks/useVault';
@@ -195,6 +194,7 @@ function SetupCollaborativeWallet() {
   const { collaborativeSession } = useAppSelector((state) => state.vault);
   const isAndroid = Platform.OS === 'android';
   const { session } = useContext(HCESessionContext);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const refreshCollaborativeChannel = (self: Signer) => {
     dispatch(fetchCollaborativeChannel(self));
@@ -529,7 +529,7 @@ function SetupCollaborativeWallet() {
               masterFingerprint: signer.masterFingerprint,
               xfp: WalletUtilities.getFingerprintFromExtendedKey(
                 msXpub.xpub,
-                WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+                WalletUtilities.getNetworkByType(bitcoinNetworkType)
               ),
             };
             setMyKey(appKey);

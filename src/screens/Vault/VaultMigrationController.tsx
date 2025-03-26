@@ -34,7 +34,6 @@ import {
   generateVaultId,
 } from 'src/services/wallets/factories/VaultFactory';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
-import config from 'src/utils/service-utilities/config';
 import {
   MONTHS_12,
   MONTHS_3,
@@ -107,6 +106,7 @@ function VaultMigrationController({
   const [newVault, setNewVault] = useState(null);
   const [checkAddressModalVisible, setCheckAddressModalVisible] = useState(false);
   const { vaultSigners } = useSigners(activeVault?.id);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const DEVICES_WITH_SCREEN = [
     SignerType.BITBOX02,
@@ -381,7 +381,7 @@ function VaultMigrationController({
 
     if (inheritanceSigners?.length) {
       for (const { key, duration } of inheritanceSigners) {
-        const timelock = getTimelockDuration(duration, config.NETWORK_TYPE);
+        const timelock = getTimelockDuration(duration, bitcoinNetworkType);
         if (!timelock) {
           showToast('Failed to determine inheritance timelock duration', <ToastErrorIcon />);
           return;
@@ -395,7 +395,7 @@ function VaultMigrationController({
 
     if (emergencySigners?.length) {
       for (const { key, duration } of emergencySigners) {
-        const timelock = getTimelockDuration(duration, config.NETWORK_TYPE);
+        const timelock = getTimelockDuration(duration, bitcoinNetworkType);
         if (!timelock) {
           showToast('Failed to determine emergency timelock duration', <ToastErrorIcon />);
           return;

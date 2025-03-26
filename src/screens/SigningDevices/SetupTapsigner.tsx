@@ -32,7 +32,6 @@ import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
-import config from 'src/utils/service-utilities/config';
 import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
@@ -53,6 +52,7 @@ import NFCIcon from 'src/assets/images/nfc_lines.svg';
 import NFCIconWhite from 'src/assets/images/nfc_lines_white.svg';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useAppSelector } from 'src/store/hooks';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -83,6 +83,7 @@ function SetupTapsigner({ route }) {
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [tapsignerDerivationPath, setTapsignerDerivationPath] = useState(null);
   const [tapsignerBackupsCount, setTapsignerBackupsCount] = useState(null);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -131,7 +132,7 @@ function SetupTapsigner({ route }) {
         } = generateMockExtendedKeyForSigner(
           EntityKind.VAULT,
           SignerType.TAPSIGNER,
-          config.NETWORK_TYPE
+          bitcoinNetworkType
         );
         // fetched single-sig key
         const {
@@ -141,7 +142,7 @@ function SetupTapsigner({ route }) {
         } = generateMockExtendedKeyForSigner(
           EntityKind.WALLET,
           SignerType.TAPSIGNER,
-          config.NETWORK_TYPE
+          bitcoinNetworkType
         );
 
         const xpubDetails: XpubDetailsType = {};

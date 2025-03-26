@@ -1,4 +1,4 @@
-import { call, put } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import semver from 'semver';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -27,7 +27,6 @@ import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utili
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
@@ -38,6 +37,7 @@ import { deleteVaultImageWorker, updateAppImageWorker, updateVaultImageWorker } 
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { setPendingAllBackup } from '../reducers/bhr';
+import { RootState } from '../store';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -432,6 +432,7 @@ function* cleanupArchivedVaults() {
 function* migrateServerKeyPolicy() {
   // migrates old server key policy to new time-based spending limit policy
   try {
+    const { bitcoinNetwork } = yield select((state: RootState) => state.settings);
     const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
 
     for (const signer of signers) {
@@ -443,7 +444,7 @@ function* migrateServerKeyPolicy() {
 
         const id = WalletUtilities.getFingerprintFromExtendedKey(
           signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-          config.NETWORK
+          bitcoinNetwork
         );
 
         const { newPolicy } = yield call(SigningServer.migrateSignerPolicy, id, oldPolicy);

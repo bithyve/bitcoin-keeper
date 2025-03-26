@@ -21,7 +21,6 @@ import { useDispatch } from 'react-redux';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
-import config from 'src/utils/service-utilities/config';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import { getInputsFromPSBT, getInputsToSignFromPSBT } from 'src/utils/utilities';
@@ -29,6 +28,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { useAppSelector } from 'src/store/hooks';
 
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
@@ -58,6 +58,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const textRef = useRef(null);
   const { signerMap } = useSignerMap();
@@ -147,7 +148,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         const { signedSerializedPSBT } = await signTransactionWithSeedWords({
           isRemoteKey: true,
           signingPayload: {},
-          defaultVault: { signers: [signer], networkType: config.NETWORK_TYPE }, // replicating vault details in case of RK
+          defaultVault: { signers: [signer], networkType: bitcoinNetworkType }, // replicating vault details in case of RK
           seedBasedSingerMnemonic,
           serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
           xfp: {},

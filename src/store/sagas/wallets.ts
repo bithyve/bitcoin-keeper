@@ -190,6 +190,7 @@ function* addNewWallet(
     true
   ) || [];
 
+  const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
   switch (walletType) {
     case WalletType.DEFAULT:
       const defaultWallet: Wallet = yield call(generateWallet, {
@@ -199,7 +200,7 @@ function* addNewWallet(
         walletDescription: walletDescription || '',
         derivationConfig,
         primaryMnemonic,
-        networkType: config.NETWORK_TYPE,
+        networkType: bitcoinNetworkType,
         transferPolicy,
         wallets,
       });
@@ -212,7 +213,7 @@ function* addNewWallet(
         walletName: walletName || 'Imported Wallet',
         walletDescription: walletDescription || '',
         importDetails,
-        networkType: config.NETWORK_TYPE,
+        networkType: bitcoinNetworkType,
         transferPolicy,
         wallets,
       });
@@ -282,6 +283,7 @@ export function* addNewVaultWorker({
   };
 }) {
   try {
+    const { bitcoinNetworkType: networkType } = yield select((state: RootState) => state.settings);
     const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
     let { vault } = payload;
     const signerMap = {};
@@ -304,8 +306,6 @@ export function* addNewVaultWorker({
       }
 
       const vaultShellId = generateKey(12);
-
-      const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {
         type: vaultType,
         vaultName: vaultDetails.name,
@@ -597,6 +597,7 @@ function* migrateVaultWorker({
   payload: { newVaultData: NewVaultInfo; vaultShellId: string };
 }) {
   try {
+    const { bitcoinNetworkType: networkType } = yield select((state: RootState) => state.settings);
     const {
       vaultType = VaultType.DEFAULT,
       vaultScheme,
@@ -610,8 +611,6 @@ function* migrateVaultWorker({
         throw new Error('Vault schema(n) and signers mismatch');
       }
     }
-
-    const networkType = config.NETWORK_TYPE;
 
     const signerMap = {};
     const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
@@ -884,6 +883,7 @@ export function* updateSignerPolicyWorker({
   };
 }) {
   const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
+  const { bitcoinNetwork } = yield select((state: RootState) => state.settings);
 
   const { signer, signingKey, updates, verificationToken } = payload;
   try {
@@ -891,7 +891,7 @@ export function* updateSignerPolicyWorker({
       signingKey?.xfp ||
       WalletUtilities.getFingerprintFromExtendedKey(
         signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-        config.NETWORK
+        bitcoinNetwork
       );
 
     const {

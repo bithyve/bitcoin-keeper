@@ -43,6 +43,7 @@ import { VaultType } from 'src/services/wallets/enums';
 import WalletOperations from 'src/services/wallets/operations';
 import { getKeyUID } from 'src/utils/utilities';
 import BackgroundTimer from 'react-native-background-timer';
+import { useAppSelector } from 'src/store/hooks';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
@@ -98,6 +99,7 @@ function ConnectChannel() {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { mapUnknownSigner } = useUnkownSigners();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -165,7 +167,7 @@ function ConnectChannel() {
       const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
       channel.emit(JOIN_CHANNEL, {
         room,
-        network: config.NETWORK_TYPE,
+        network: bitcoinNetworkType,
         requestData,
       });
       if (mode === InteracationMode.ADDRESS_VERIFICATION) {
