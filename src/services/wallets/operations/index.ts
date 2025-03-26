@@ -246,10 +246,12 @@ export default class WalletOperations {
       // case: single-sig vault/wallet
 
       // Safety checks
-      if (entityKind === EntityKind.VAULT && (wallet as Vault).signers.length !== 1) {
-        throw Error(`Error deriving address. Single-key vault cannot have more than 1 key`);
-      } else if ((wallet as Vault).signers[0].xpub !== (specs as VaultSpecs).xpubs[0])
-        throw Error(`Error deriving address. Single-key vault signer xpub mismatch`);
+      if (entityKind === EntityKind.VAULT) {
+        if ((wallet as Vault).signers.length !== 1) {
+          throw Error(`Error deriving address. Single-key vault cannot have more than 1 key`);
+        } else if ((wallet as Vault).signers[0].xpub !== (specs as VaultSpecs).xpubs[0])
+          throw Error(`Error deriving address. Single-key vault signer xpub mismatch`);
+      }
 
       const xpub =
         entityKind === EntityKind.VAULT
@@ -2225,34 +2227,35 @@ export default class WalletOperations {
             nSequence?: number;
           };
 
+          // TODO: Commented code below seems unnecessary, should verify and remove
           // Check for timelock using miniscript types
-          const hasTimelock =
-            (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
-              MiniscriptTypes.TIMELOCKED
-            ) ||
-            (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
-              MiniscriptTypes.INHERITANCE
-            ) ||
-            (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
-              MiniscriptTypes.EMERGENCY
-            );
+          // const hasTimelock =
+          //   (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+          //     MiniscriptTypes.TIMELOCKED
+          //   ) ||
+          //   (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+          //     MiniscriptTypes.INHERITANCE
+          //   ) ||
+          //   (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+          //     MiniscriptTypes.EMERGENCY
+          //   );
 
-          if (!hasTimelock) {
-            // scriptwitness selection for TIMELOCKED/INHERITANCE/EMERGENCY vault is done using the available partial signatures(simplifies UX)
-            const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
-              miniscriptScheme,
-              miniscriptTxElements
-            );
-            selectedScriptWitness = miniscriptSelectedSatisfier.selectedScriptWitness;
-          }
+          // if (!hasTimelock) {
+          //   // scriptwitness selection for TIMELOCKED/INHERITANCE/EMERGENCY vault is done using the available partial signatures(simplifies UX)
+          //   const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
+          //     miniscriptScheme,
+          //     miniscriptTxElements
+          //   );
+          //   selectedScriptWitness = miniscriptSelectedSatisfier.selectedScriptWitness;
+          // }
 
           for (let index = 0; index < combinedPSBT.txInputs.length; index++) {
             combinedPSBT.finalizeInput(
               index,
               WalletUtilities.getFinalScriptsForMyCustomScript(
+                miniscriptScheme.keyInfoMap,
                 scriptWitnesses,
-                selectedScriptWitness,
-                miniscriptScheme.keyInfoMap
+                selectedScriptWitness
               )
             );
           }

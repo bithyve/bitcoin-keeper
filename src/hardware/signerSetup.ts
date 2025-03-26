@@ -1,4 +1,4 @@
-import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import { crossInteractionHandler } from 'src/utils/utilities';
 import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';

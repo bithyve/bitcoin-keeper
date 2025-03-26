@@ -177,7 +177,7 @@ export const generateWallet = async ({
       bip85Config,
       xDerivationPath: derivationConfig
         ? derivationConfig.path
-        : WalletUtilities.getDerivationPath(false, networkType),
+        : WalletUtilities.getDerivationPath(false, networkType, 0),
     };
     id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic);
     const idWithDerivation = id + derivationDetails.xDerivationPath;

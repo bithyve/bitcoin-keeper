@@ -2,7 +2,6 @@
 
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import bitcoinMessage from 'bitcoinjs-message';
 import varuint from 'varuint-bitcoin';
 import { PsbtInput } from 'bip174/src/lib/interfaces';
 
@@ -12,7 +11,6 @@ import ECPairFactory, { ECPairInterface } from 'ecpair';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
-import idx from 'idx';
 import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import RestClient from 'src/services/rest/RestClient';
@@ -39,25 +37,6 @@ const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletUtilities {
-  static networkType = (scannedStr: string): NetworkType => {
-    scannedStr = scannedStr.replace('BITCOIN', 'bitcoin');
-    let address = scannedStr;
-    if (scannedStr.slice(0, 8) === 'bitcoin:') {
-      address = bip21.decode(scannedStr).address;
-    }
-    try {
-      bitcoinJS.address.toOutputScript(address, bitcoinJS.networks.bitcoin);
-      return NetworkType.MAINNET;
-    } catch (err) {
-      try {
-        bitcoinJS.address.toOutputScript(address, bitcoinJS.networks.testnet);
-        return NetworkType.TESTNET;
-      } catch (err) {
-        return null;
-      }
-    }
-  };
-
   static getNetworkByType = (type: NetworkType) => {
     if (type === NetworkType.TESTNET) return bitcoinJS.networks.testnet;
     return bitcoinJS.networks.bitcoin;
@@ -312,6 +291,7 @@ export default class WalletUtilities {
   };
 
   static getFinalScriptsForMyCustomScript(
+    keysInfoMap: { [uniqueIdentifier: string]: string },
     scriptWitnesses: {
       asm: string;
       nLockTime?: number;
@@ -321,8 +301,7 @@ export default class WalletUtilities {
       asm: string;
       nLockTime?: number;
       nSequence?: number;
-    },
-    keysInfoMap: { [uniqueIdentifier: string]: string }
+    }
   ): any {
     const finalScriptsFunc = (
       inputIndex: number,
@@ -586,7 +565,7 @@ export default class WalletUtilities {
       }
 
       const { internal, childIndex } = multisigConfig;
-      const { script, subPaths, signerPubkeyMap } = this.generateCustomScript(
+      const { script, subPaths, signerPubkeyMap } = WalletUtilities.generateCustomScript(
         multisigConfig.miniscriptScheme,
         internal,
         childIndex,
