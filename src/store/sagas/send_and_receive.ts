@@ -177,7 +177,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       currentBlockHeight,
       txPrerequisites,
       txnPriority,
-      recipients,
       customTxPrerequisites,
       signerMap,
       miniscriptTxElements

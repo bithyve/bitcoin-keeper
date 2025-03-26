@@ -2052,10 +2052,6 @@ export default class WalletOperations {
     currentBlockHeight: number,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
-    recipients: {
-      address: string;
-      amount: number;
-    }[],
     customTxPrerequisites?: TransactionPrerequisite,
     signerMap?: { [key: string]: Signer },
     miniscriptTxElements?: {
@@ -2236,10 +2232,13 @@ export default class WalletOperations {
             ) ||
             (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
               MiniscriptTypes.INHERITANCE
+            ) ||
+            (wallet as Vault).scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+              MiniscriptTypes.EMERGENCY
             );
 
           if (!hasTimelock) {
-            // scriptwitness selection for TIMELOCKED/INHERITANCE vault is done using the available partial signatures(simplifies UX)
+            // scriptwitness selection for TIMELOCKED/INHERITANCE/EMERGENCY vault is done using the available partial signatures(simplifies UX)
             const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
               miniscriptScheme,
               miniscriptTxElements
