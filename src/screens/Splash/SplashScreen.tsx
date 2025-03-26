@@ -17,9 +17,14 @@ import KeeperLogo from 'src/assets/images/logo.svg';
 import TeamBithyve from 'src/assets/images/fromBithyve.svg';
 import Tagline from 'src/assets/images/tagline.svg';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
+import { useDispatch } from 'react-redux';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
+import { setBitcoinNetwork } from 'src/store/reducers/settings';
+import { NetworkType } from 'src/services/wallets/enums';
 
 function SplashScreen({ navigation }) {
-  const { torEnbled, themeMode } = useAppSelector((state) => state.settings);
+  const { torEnbled, themeMode, bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const dispatch = useDispatch();
   const { toggleColorMode, colorMode } = useColorMode();
 
   const animate = () => {
@@ -29,6 +34,15 @@ function SplashScreen({ navigation }) {
       }
     });
   };
+
+  useEffect(() => {
+    if (!bitcoinNetworkType)
+      dispatch(
+        setBitcoinNetwork(
+          config.ENVIRONMENT === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET
+        )
+      );
+  }, []);
 
   useEffect(() => {
     animate();

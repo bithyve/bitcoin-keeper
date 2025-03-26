@@ -3,6 +3,8 @@ import CurrencyKind from 'src/models/enums/CurrencyKind';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import ThemeMode from 'src/models/enums/ThemeMode';
+import { NetworkType } from 'src/services/wallets/enums';
+import * as bitcoinJS from 'bitcoinjs-lib';
 
 const initialState: {
   loginMethod: LoginMethod;
@@ -18,6 +20,8 @@ const initialState: {
   };
   backupModal: boolean;
   subscription: string;
+  bitcoinNetwork: bitcoinJS.Network;
+  bitcoinNetworkType: NetworkType;
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -32,6 +36,8 @@ const initialState: {
   },
   backupModal: true,
   subscription: SubscriptionTier.L1,
+  bitcoinNetwork: null,
+  bitcoinNetworkType: null,
 };
 
 const settingsSlice = createSlice({
@@ -71,6 +77,13 @@ const settingsSlice = createSlice({
     setSubscription(state, action: PayloadAction<string>) {
       state.subscription = action.payload;
     },
+    setBitcoinNetwork(state, action: PayloadAction<NetworkType>) {
+      state.bitcoinNetworkType = action.payload;
+      state.bitcoinNetwork =
+        action.payload === NetworkType.MAINNET
+          ? bitcoinJS.networks.bitcoin
+          : bitcoinJS.networks.testnet;
+    },
   },
 });
 
@@ -86,6 +99,7 @@ export const {
   setOTBStatusSS,
   setBackupModal,
   setSubscription,
+  setBitcoinNetwork,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
