@@ -32,6 +32,7 @@ function ShareKeyModalContent({
   xfp = '',
   isSignedPSBT = false,
   data,
+  navigateToQrSigning,
 }) {
   const { colorMode } = useColorMode();
   const [visible, setVisible] = useState(false);
@@ -117,8 +118,13 @@ function ShareKeyModalContent({
       label: 'Show QR',
       icon: <QR_Icon />,
       onPress: () => {
-        navigateToCosignerDetails();
         setShareKeyModal(false);
+
+        if (navigateToQrSigning && typeof navigateToQrSigning === 'function') {
+          navigateToQrSigning(vaultKey);
+        } else if (navigateToCosignerDetails && typeof navigateToCosignerDetails === 'function') {
+          navigateToCosignerDetails();
+        }
       },
     },
     {
