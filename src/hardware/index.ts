@@ -10,6 +10,7 @@ import {
 import {
   DerivationPurpose,
   EntityKind,
+  NetworkType,
   SignerStorage,
   SignerType,
   XpubTypes,
@@ -29,6 +30,7 @@ import { captureError } from 'src/services/sentry';
 const base58check = require('base58check');
 import HWError from './HWErrorState';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { store } from 'src/store/store';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -241,7 +243,8 @@ export const getSignerSigTypeInfo = (key: VaultSigner, signer: Signer) => {
 };
 
 export const getMockSigner = (signerType: SignerType) => {
-  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+  const { bitcoinNetworkType } = store.getState().settings;
+  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT && bitcoinNetworkType === NetworkType.TESTNET) {
     const networkType = config.NETWORK_TYPE;
     // fetched multi-sig key
     const {
