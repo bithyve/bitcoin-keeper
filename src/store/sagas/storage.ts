@@ -7,7 +7,7 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { SignerType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, SignerType, WalletType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -93,6 +93,15 @@ export function* setupKeeperAppWorker({ payload }) {
             threshold: 0,
           },
           instanceNum: 0,
+          derivationConfig: {
+            path: WalletUtilities.getDerivationPath(
+              false,
+              config.NETWORK_TYPE,
+              0,
+              DerivationPurpose.BIP84
+            ),
+            purpose: DerivationPurpose.BIP84,
+          },
         },
       };
 

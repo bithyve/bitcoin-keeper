@@ -157,11 +157,7 @@ export const signTransactionWithSeedWords = async ({
       : defaultVault.signers.filter((signer) => signer.xfp === xfp);
     const networkType = config.NETWORK_TYPE;
     // we need this to generate xpriv that's not stored
-    const { xpub, xpriv } = generateSeedWordsKey(
-      seedBasedSingerMnemonic,
-      networkType,
-      isMultisig ? EntityKind.VAULT : EntityKind.WALLET
-    );
+    const { xpub, xpriv } = generateSeedWordsKey(seedBasedSingerMnemonic, networkType, isMultisig);
 
     const signerXpub = isRemoteKey ? signer.signerXpubs[XpubTypes.P2WSH][0].xpub : signer.xpub;
 

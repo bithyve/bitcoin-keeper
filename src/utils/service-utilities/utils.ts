@@ -121,6 +121,7 @@ export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => 
       return des;
     }
   }
+  throw Error('Unsupported wallet type');
 };
 
 export const generateOutputDescriptors = (

@@ -23,7 +23,6 @@ export interface OutputUTXOs {
 }
 
 export interface AverageTxFeeElements {
-  averageTxFee: number;
   feePerByte: number;
   estimatedBlocks: number;
 }

@@ -20,7 +20,7 @@ import { HWErrorType } from 'src/models/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { numberToOrdinal } from 'src/utils/utilities';
+import { getKeyUID, numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
@@ -84,6 +84,7 @@ export const generateSignerFromMetaData = ({
   }
 
   const signer: Signer = {
+    id: '', // temporarily empty
     type: signerType,
     storageType,
     isMock,
@@ -99,10 +100,10 @@ export const generateSignerFromMetaData = ({
     masterFingerprint: masterFingerprint.toUpperCase(),
     isBIP85,
     signerPolicy,
-    inheritanceKeyInfo,
     signerXpubs,
     hidden: false,
   };
+  signer.id = getKeyUID(signer);
 
   const key: VaultSigner = {
     xfp: xfp || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
@@ -249,13 +250,13 @@ export const getMockSigner = (signerType: SignerType) => {
       xpriv: multiSigXpriv,
       derivationPath: multiSigPath,
       masterFingerprint,
-    } = generateMockExtendedKeyForSigner(EntityKind.VAULT, signerType, networkType);
+    } = generateMockExtendedKeyForSigner(true, signerType, networkType);
     // fetched single-sig key
     const {
       xpub: singleSigXpub,
       xpriv: singleSigXpriv,
       derivationPath: singleSigPath,
-    } = generateMockExtendedKeyForSigner(EntityKind.WALLET, signerType, networkType);
+    } = generateMockExtendedKeyForSigner(false, signerType, networkType);
 
     const xpubDetails: XpubDetailsType = {};
 

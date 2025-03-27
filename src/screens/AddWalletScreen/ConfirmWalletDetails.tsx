@@ -83,12 +83,15 @@ function ConfirmWalletDetails({ route }) {
     useAppSelector((state) => state.bhr);
   const { hasNewWalletsGenerationFailed, err } = useAppSelector((state) => state.wallet);
   const [visibleModal, setVisibleModal] = useState(false);
+
+  // TODO: purpose and path only used for hot wallet creation for now, should update when adding support for Taproot for vaults
   const [purpose, setPurpose] = useState(DerivationPurpose.BIP84);
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
-      : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+      : WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose)
   );
+
   const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
 
   const descriptionInputRef = useRef(activeVault ? activeVault.presentationData.description : '');

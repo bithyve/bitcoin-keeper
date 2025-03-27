@@ -93,6 +93,9 @@ export const storeBiometricPubKey = async (pubKey: string) => {
 export const verifyBiometricAuth = async (signature: string, payload: string) => {
   try {
     const keychain = await Keychain.getGenericPassword();
+    if (!keychain) {
+      throw Error('Failed to get keychain');
+    }
     const credentials = JSON.parse(keychain.password);
     const publicKeyBuffer = Buffer.from(credentials.pubKey, 'base64');
     const key = new NodeRSA();
@@ -109,7 +112,6 @@ export const verifyBiometricAuth = async (signature: string, payload: string) =>
       success: false,
     };
   } catch (error) {
-    console.log(error);
     return {
       success: false,
     };

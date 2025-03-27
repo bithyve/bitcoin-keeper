@@ -32,11 +32,8 @@ import {
   changeLoginMethodWatcher,
   credentialStorageWatcher,
   credentialsAuthWatcher,
-  resetPinCredWatcher,
-  generateSeedHashWatcher,
 } from './login';
 import {
-  backupWarningWatcher,
   deleteAppImageEntityWatcher,
   getAppImageWatcher,
   healthCheckSignerWatcher,
@@ -81,10 +78,8 @@ const rootSaga = function* () {
     // login
     credentialsAuthWatcher,
     changeAuthCredWatcher,
-    generateSeedHashWatcher,
     changeLoginMethodWatcher,
     credentialStorageWatcher,
-    resetPinCredWatcher,
     setupKeeperAppWatcher,
 
     // network
@@ -148,7 +143,6 @@ const rootSaga = function* () {
     seedBackeupConfirmedWatcher,
     healthCheckSignerWatcher,
     healthCheckSatutsUpdateWatcher,
-    backupWarningWatcher,
     backupBsmsOnCloudWatcher,
     bsmsCloudHealthCheckWatcher,
     deleteAppImageEntityWatcher,

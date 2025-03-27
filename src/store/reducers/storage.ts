@@ -22,10 +22,6 @@ interface InheritanceToolVisitedHistoryType {
 
 const initialState: {
   appId: string;
-  resetCred: {
-    hash: string;
-    index: number;
-  };
   failedAttempts: number;
   lastLoginFailedAt: number;
   pinHash: string;
@@ -41,10 +37,6 @@ const initialState: {
   wasAutoUpdateEnabledBeforeDowngrade: boolean;
 } = {
   appId: '',
-  resetCred: {
-    hash: '',
-    index: null,
-  },
   failedAttempts: 0,
   lastLoginFailedAt: null,
   pinHash: '',
@@ -88,16 +80,6 @@ const storageSlice = createSlice({
     increasePinFailAttempts: (state) => {
       state.failedAttempts += 1;
       state.lastLoginFailedAt = Date.now();
-    },
-    setPinResetCreds: (state, action: PayloadAction<{ hash: string; index: number }>) => {
-      state.resetCred = {
-        hash: action.payload.hash,
-        index: action.payload.index,
-      };
-    },
-    resetPinFailAttempts: (state) => {
-      state.failedAttempts = 0;
-      state.lastLoginFailedAt = null;
     },
     setPinHash: (state, action: PayloadAction<string>) => {
       state.pinHash = action.payload;
@@ -151,8 +133,6 @@ const storageSlice = createSlice({
 export const {
   setAppId,
   increasePinFailAttempts,
-  setPinResetCreds,
-  resetPinFailAttempts,
   setPinHash,
   setAppVersion,
   updateLastVisitedTimestamp,
