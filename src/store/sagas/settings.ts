@@ -5,9 +5,13 @@ import { CHANGE_BITCOIN_NETWORK } from '../sagaActions/settings';
 import Node from 'src/services/electrum/node';
 
 function* changeBitcoinNetworkWorker({ payload }) {
+  let activeNode;
   try {
     const { network } = payload;
-    const activeNode = Node.getAllNodes().find((node) => node.isConnected);
+    try {
+      activeNode = Node.getAllNodes().find((node) => node.isConnected);
+    } catch (error) {}
+
     yield put(setBitcoinNetwork(network));
     if (activeNode) {
       yield call(Node.disconnect, activeNode);
