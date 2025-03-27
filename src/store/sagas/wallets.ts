@@ -379,7 +379,7 @@ export function* addSigningDeviceWorker({
   callback,
 }: {
   payload: { signers: Signer[] };
-  callback: () => void;
+  callback?: () => void;
 }) {
   if (!signers.length) return;
   for (let i = 0; i < signers.length; i++) {

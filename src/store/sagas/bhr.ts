@@ -29,7 +29,7 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { VaultType } from 'src/services/wallets/enums';
+import { DerivationPurpose, EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
@@ -77,10 +77,11 @@ import { setAppId } from '../reducers/storage';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
-import { addSigningDeviceWorker } from './wallets';
+import { addNewWalletsWorker, addSigningDeviceWorker, NewWalletInfo } from './wallets';
 import { getKeyUID } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
+import { v4 as uuidv4 } from 'uuid';
 
 export function* updateAppImageWorker({
   payload,
@@ -380,6 +381,32 @@ function* getAppImageWorker({ payload }) {
     }
 
     const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
+
+    if (!appImage.wallets.length && !allVaultImages.length) {
+      // recreate first wallet
+      const defaultWallet: NewWalletInfo = {
+        walletType: WalletType.DEFAULT,
+        walletDetails: {
+          name: 'Mobile Wallet',
+          description: '',
+          derivationConfig: {
+            path: WalletUtilities.getDerivationPath(
+              EntityKind.WALLET,
+              config.NETWORK_TYPE,
+              0,
+              DerivationPurpose.BIP84
+            ),
+            purpose: DerivationPurpose.BIP84,
+          },
+          transferPolicy: {
+            id: uuidv4(),
+            threshold: 0,
+          },
+          instanceNum: 0,
+        },
+      };
+      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
+    }
     yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
   } catch (err) {
     yield put(setAppImageError(err.message));
