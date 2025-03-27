@@ -315,30 +315,37 @@ export default class WalletOperations {
     const recipientAddresses = [];
 
     for (const input of inputs) {
-      const inputAddress = input.addresses[0];
-      if (
-        externalAddresses[inputAddress] !== undefined ||
-        internalAddresses[inputAddress] !== undefined
-      ) {
-        amount -= input.value;
-      }
+      if (input) {
+        if (input.addresses && input.addresses.length > 0) {
+          const inputAddress = input.addresses[0];
+          if (
+            externalAddresses[inputAddress] !== undefined ||
+            internalAddresses[inputAddress] !== undefined
+          ) {
+            amount -= input.value;
+          }
 
-      senderAddresses.push(inputAddress);
-      fee += input.value;
+          senderAddresses.push(inputAddress);
+        }
+
+        fee += input.value;
+      }
     }
 
     for (const output of outputs) {
-      if (!output.scriptPubKey.addresses) continue; // OP_RETURN w/ no value(tx0)
+      if (!output?.scriptPubKey?.addresses) continue; // OP_RETURN w/ no value(tx0)
 
-      const outputAddress = output.scriptPubKey.addresses[0];
-      if (
-        externalAddresses[outputAddress] !== undefined ||
-        internalAddresses[outputAddress] !== undefined
-      ) {
-        amount += output.value;
+      if (output?.scriptPubKey?.addresses.length > 0) {
+        const outputAddress = output.scriptPubKey.addresses[0];
+        if (
+          externalAddresses[outputAddress] !== undefined ||
+          internalAddresses[outputAddress] !== undefined
+        ) {
+          amount += output.value;
+        }
+        recipientAddresses.push(outputAddress);
       }
 
-      recipientAddresses.push(outputAddress);
       fee -= output.value;
     }
 
@@ -491,6 +498,20 @@ export default class WalletOperations {
       const newUTXOs = [];
       let confirmedUTXOs: InputUTXOs[] = [];
       let unconfirmedUTXOs: InputUTXOs[] = [];
+
+      // Safety inits before calls
+      if (!wallet.specs.transactions) {
+        wallet.specs.transactions = [];
+      }
+      if (!wallet.specs.unconfirmedUTXOs) {
+        wallet.specs.unconfirmedUTXOs = [];
+      }
+      if (!wallet.specs.confirmedUTXOs) {
+        wallet.specs.confirmedUTXOs = [];
+      }
+      if (!wallet.specs.balances) {
+        wallet.specs.balances = balances;
+      }
 
       if (!hardRefresh) {
         unconfirmedUTXOs = [...wallet.specs.unconfirmedUTXOs];
