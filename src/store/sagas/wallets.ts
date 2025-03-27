@@ -843,8 +843,9 @@ export function* autoWalletsSyncWorker({
   const { syncAll, hardRefresh } = payload;
   const wallets: Wallet[] = yield call(dbManager.getObjectByIndex, RealmSchema.Wallet, null, true);
   const vault: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
+  const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
 
-  const walletsToSync: (Wallet | Vault)[] = [];
+  let walletsToSync: (Wallet | Vault)[] = [];
   for (const wallet of [...wallets, ...vault]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
       if (!wallet.isUsable) continue;
@@ -852,6 +853,7 @@ export function* autoWalletsSyncWorker({
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
   }
+  walletsToSync = walletsToSync.filter((wallet) => wallet.networkType === bitcoinNetworkType);
 
   if (walletsToSync.length) {
     yield call(refreshWalletsWorker, {
