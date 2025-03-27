@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { SignerType } from 'src/services/wallets/enums';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import { SDIcons } from '../SigningDeviceIcons';
 import RightArrow from 'src/assets/images/icon_arrow.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 import { useDispatch } from 'react-redux';
@@ -12,6 +11,14 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import KeeperModal from 'src/components/KeeperModal';
 import { getSignerNameFromType } from 'src/hardware';
 import ChangeSignerIllustration from 'src/assets/images/changeSignerIllustration.svg';
+import Clipboard from '@react-native-community/clipboard';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import Buttons from 'src/components/Buttons';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { translations } from 'src/context/Localization/LocContext';
+import SigningServer from 'src/services/backend/SigningServer';
+import { SDIcons } from '../SigningDeviceIcons';
 
 type AssignSignerTypeCardProps = {
   type: SignerType;
@@ -23,23 +30,132 @@ type AssignSignerTypeCardProps = {
   signer?: Signer;
 };
 
-const AssignSignerTypeCard = ({
+function AssignSignerTypeCard({
   type,
   disabled,
   first = false,
   last = false,
   signer,
-}: AssignSignerTypeCardProps) => {
+  vault,
+}: AssignSignerTypeCardProps) {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [validationModal, showValidationModal] = useState(false);
+  const [otp, setOtp] = useState('');
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+  const { common } = translations;
 
-  const changeSignerType = () => {
-    setShowConfirm(false);
+  const updateSignerType = () => {
     dispatch(updateSignerDetails(signer, 'type', type));
     dispatch(updateSignerDetails(signer, 'signerName', getSignerNameFromType(type, signer.isMock)));
   };
+
+  const changeSignerType = () => {
+    setShowConfirm(false);
+    if (type === SignerType.POLICY_SERVER) {
+      showValidationModal(true);
+    } else {
+      updateSignerType();
+    }
+  };
+
+  const validateServerKey = async () => {
+    const verificationToken = Number(otp);
+    let signerId;
+    for (const { masterFingerprint, xfp } of vault.signers) {
+      if (masterFingerprint === signer.masterFingerprint) {
+        signerId = xfp;
+        break;
+      }
+    }
+
+    if (!signerId) {
+      showToast('Unable to find server key instance id');
+      return;
+    }
+
+    try {
+      const { valid, id, masterFingerprint, policy } = await SigningServer.fetchSignerSetup(
+        signerId,
+        verificationToken
+      );
+      if (valid) {
+        if (id === signerId && masterFingerprint === signer.masterFingerprint) {
+          dispatch(updateSignerDetails(signer, 'signerPolicy', policy));
+          dispatch(updateSignerDetails(signer, 'isExternal', true));
+          updateSignerType();
+        } else throw new Error('Server Key mismatch');
+      } else throw new Error('Server Key validation failed');
+    } catch (err) {
+      showToast(err?.message || 'Server Key validation failed');
+    }
+
+    setOtp('');
+    showValidationModal(false);
+  };
+
+  const otpContent = useCallback(() => {
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text === 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = () => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box style={styles.otpContainer}>
+        <Box>
+          <TouchableOpacity
+            onPress={async () => {
+              const clipBoardData = await Clipboard.getString();
+              if (clipBoardData.match(/^\d{6}$/)) {
+                setOtp(clipBoardData);
+              } else {
+                showToast('Invalid OTP');
+                setOtp('');
+              }
+            }}
+            testID="otpClipboardButton"
+          >
+            <CVVInputsView
+              passCode={otp}
+              passcodeFlag={false}
+              backgroundColor
+              textColor
+              height={hp(46)}
+              width={hp(46)}
+              marginTop={hp(0)}
+              marginBottom={hp(40)}
+              inputGap={2}
+              customStyle={styles.CVVInputsView}
+            />
+          </TouchableOpacity>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={`${colorMode}.primaryText`}
+        />
+        <Box mt={10} alignSelf="flex-end">
+          <Box>
+            <Buttons primaryCallback={validateServerKey} fullWidth primaryText="Confirm" />
+          </Box>
+        </Box>
+      </Box>
+    );
+  }, [otp]);
 
   return (
     <>
@@ -97,9 +213,23 @@ const AssignSignerTypeCard = ({
           </Box>
         )}
       />
+
+      <KeeperModal
+        visible={validationModal}
+        close={() => {
+          showValidationModal(false);
+          setOtp('');
+        }}
+        title={common.confirm2FACodeTitle}
+        subTitle={common.confirm2FACodeSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={otpContent}
+      />
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   walletMapContainer: {
@@ -143,6 +273,13 @@ const styles = StyleSheet.create({
   illustrationContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  otpContainer: {
+    width: '100%',
+  },
+  CVVInputsView: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
