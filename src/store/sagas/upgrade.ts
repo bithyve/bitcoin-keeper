@@ -254,7 +254,9 @@ function* assistedKeysCosignersEnrichment() {
 
 function* migrateStructureforSignersInAppImage() {
   try {
-    const response = yield call(updateAppImageWorker, { payload: {} });
+    const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const signers = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const response = yield call(updateAppImageWorker, { payload: { wallets, signers } });
     if (response.updated) {
       console.log('Updated the Signers in app image');
     } else {

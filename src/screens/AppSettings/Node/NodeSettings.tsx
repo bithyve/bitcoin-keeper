@@ -69,7 +69,7 @@ function NodeSettings() {
     if (status) {
       const updatedNodes = Node.getAllNodes();
       setNodeList(updatedNodes);
-      dispatch(updateAppImage({ wallets: null, signers: null }));
+      dispatch(updateAppImage({ wallets: null, signers: null, updateNodes: true }));
     }
   };
 

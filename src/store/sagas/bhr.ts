@@ -1,7 +1,7 @@
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
-import config, { APP_STAGE } from 'src/utils/service-utilities/config';
+import config from 'src/utils/service-utilities/config';
 import {
   decrypt,
   encrypt,
@@ -89,50 +89,37 @@ export function* updateAppImageWorker({
   payload: {
     wallets?: Wallet[];
     signers?: Signer[];
+    updateNodes?: boolean;
   };
 }) {
-  const { wallets, signers } = payload;
+  const { wallets, signers, updateNodes } = payload;
   const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
-  const walletObject = {};
-  const signersObjects = {};
+  const walletsObject = {};
+  const signersObject = {};
+  const nodesList = [];
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (wallets) {
     for (const wallet of wallets) {
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
-      walletObject[wallet.id] = encrytedWallet;
+      walletsObject[wallet.id] = encrytedWallet;
     }
   } else if (signers) {
     for (const signer of signers) {
       const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
-      signersObjects[getKeyUID(signer)] = encrytedSigner;
+      signersObject[getKeyUID(signer)] = encrytedSigner;
     }
-  } else {
-    // update all wallets and signers
-    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
-    for (const index in wallets) {
-      const wallet = wallets[index];
-      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
-      walletObject[wallet.id] = encrytedWallet;
-    }
-    const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    for (const index in signers) {
-      const signer = signers[index];
-      const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
-      signersObjects[getKeyUID(signer)] = encrytedSigner;
-    }
-  }
-
-  const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-  const nodesToUpdate = [];
-  if (nodes && nodes.length > 0) {
-    for (const index in nodes) {
-      const node = nodes[index];
-      node.isConnected = false;
-      const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
-      nodesToUpdate.push(encrytedNode);
+  } else if (updateNodes) {
+    const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    if (nodes && nodes.length > 0) {
+      for (const index in nodes) {
+        const node = nodes[index];
+        node.isConnected = false;
+        const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
+        nodesList.push(encrytedNode);
+      }
     }
   }
 
@@ -143,12 +130,12 @@ export function* updateAppImageWorker({
     const response = yield call(Relay.updateAppImage, {
       appId: id,
       publicId,
-      walletObject,
-      signersObjects,
+      walletsObject,
+      signersObject,
       networkType,
       subscription: JSON.stringify(subscription),
       version,
-      nodes: nodesToUpdate,
+      nodes: nodesList,
     });
     return response;
   } catch (err) {
