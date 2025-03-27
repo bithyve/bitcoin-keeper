@@ -75,6 +75,7 @@ import {
   addTicketStatusUAIWatcher,
   scheduleOnboardingCallWatcher,
 } from './concierge';
+import { changeBitcoinNetworkWatcher } from './settings';
 
 const rootSaga = function* () {
   const sagas = [
@@ -165,6 +166,8 @@ const rootSaga = function* () {
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
     scheduleOnboardingCallWatcher,
+    // settings
+    changeBitcoinNetworkWatcher,
   ];
 
   yield all(

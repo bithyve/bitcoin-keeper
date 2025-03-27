@@ -47,7 +47,12 @@ export function* connectToNodeWorker() {
       yield put(setInitialNodesSaved(true));
     }
 
-    const nodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    const nodes = (yield call(dbManager.getCollection, RealmSchema.NodeConnect)).filter((node) =>
+      bitcoinNetworkType === NetworkType.TESTNET
+        ? node.host.includes('testnet')
+        : !node.host.includes('testnet')
+    );
+
     ElectrumClient.setActivePeer(nodes);
     const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
     if (connected) {

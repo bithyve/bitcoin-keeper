@@ -19,8 +19,8 @@ import Tagline from 'src/assets/images/tagline.svg';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
-import { setBitcoinNetwork } from 'src/store/reducers/settings';
 import { NetworkType } from 'src/services/wallets/enums';
+import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
 
 function SplashScreen({ navigation }) {
   const { torEnbled, themeMode, bitcoinNetworkType } = useAppSelector((state) => state.settings);
@@ -38,7 +38,7 @@ function SplashScreen({ navigation }) {
   useEffect(() => {
     if (!bitcoinNetworkType)
       dispatch(
-        setBitcoinNetwork(
+        changeBitcoinNetwork(
           config.ENVIRONMENT === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET
         )
       );
