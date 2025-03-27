@@ -15,7 +15,6 @@ const initialState: {
   appRecoveryLoading: boolean;
   appImageError: string;
   appImagerecoveryRetry: boolean;
-  backupWarning: boolean;
   signingDevices: VaultSigner[];
 
   relayWalletUpdateLoading: boolean;
@@ -64,7 +63,6 @@ const initialState: {
   appImageError: '',
 
   appImagerecoveryRetry: false,
-  backupWarning: false,
   signingDevices: [],
   relayWalletUpdateLoading: false,
   relayWalletUpdate: false,
@@ -126,9 +124,6 @@ const bhrSlice = createSlice({
     },
     appImagerecoveryRetry: (state) => {
       state.appImagerecoveryRetry = !state.appImagerecoveryRetry;
-    },
-    setBackupWarning: (state, action: PayloadAction<boolean>) => {
-      state.backupWarning = action.payload;
     },
     setSigningDevices: (state, action: PayloadAction<any>) => {
       state.signingDevices = _.uniqBy([...state.signingDevices, action.payload], 'signerId');
@@ -273,7 +268,6 @@ export const {
   setAppRecoveryLoading,
   setAppImageError,
   appImagerecoveryRetry,
-  setBackupWarning,
 
   setSigningDevices,
 
@@ -329,7 +323,6 @@ const bhrPersistConfig = {
     'appImageError',
     'appRecoveryLoading',
     'appImagerecoveryRetry',
-    'backupWarning',
 
     'relayWalletUpdateLoading',
     'relayWalletUpdate',

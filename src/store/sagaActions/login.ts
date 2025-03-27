@@ -4,7 +4,6 @@ export const STORE_CREDS = 'STORE_CREDS';
 export const CREDS_AUTH = 'CREDS_AUTH';
 
 export const CHANGE_AUTH_CRED = 'CHANGE_AUTH_CRED';
-export const RESET_PIN = 'RESET_PIN';
 export const SET_LOGIN_METHOD = 'SET_LOGIN_METHOD';
 export const CHANGE_LOGIN_METHOD = 'CHANGE_LOGIN_METHOD';
 export const SWITCH_CREDS_CHANGED = 'SWITCH_CREDS_CHANGED';
@@ -47,13 +46,6 @@ export const changeAuthCred = (oldPasscode, newPasscode) => ({
   type: CHANGE_AUTH_CRED,
   payload: {
     oldPasscode,
-    newPasscode,
-  },
-});
-
-export const resetPin = (newPasscode) => ({
-  type: RESET_PIN,
-  payload: {
     newPasscode,
   },
 });

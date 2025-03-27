@@ -24,7 +24,6 @@ import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
   CREDS_AUTH,
-  RESET_PIN,
   STORE_CREDS,
 } from '../sagaActions/login';
 import {
@@ -39,7 +38,6 @@ import {
   credsAuthenticatedError,
 } from '../reducers/login';
 import {
-  resetPinFailAttempts,
   setAppVersion,
   setAutoUpdateEnabledBeforeDowngrade,
   setPinHash,
@@ -50,7 +48,7 @@ import { RootState, store } from '../store';
 import { createWatcher } from '../utilities';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { setLoginMethod, setSubscription } from '../reducers/settings';
-import { backupAllSignersAndVaults, setWarning } from '../sagaActions/bhr';
+import { backupAllSignersAndVaults } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
@@ -87,10 +85,15 @@ function* credentialsStorageWorker({ payload }) {
     yield call(dbManager.initializeRealm, uint8array);
 
     // setup the application
-    // yield put(setupKeeperApp());
     yield put(setPinHash(hash));
     yield put(setCredStored());
     yield put(setAppVersion(DeviceInfo.getVersion()));
+
+    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+      version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+      date: new Date().toString(),
+      title: 'Initially installed',
+    });
 
     yield put(fetchExchangeRates());
     yield put(
@@ -106,11 +109,6 @@ function* credentialsStorageWorker({ payload }) {
     );
 
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
-    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-      version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
-      date: new Date().toString(),
-      title: 'Initially installed',
-    });
 
     yield put(connectToNode());
   } catch (error) {
@@ -151,7 +149,7 @@ function* credentialsAuthWorker({ payload }) {
       const { success, error } = yield call(dbManager.initializeRealm, uint8array);
 
       if (!success) {
-        throw Error(`Failed to load the database:${error}`);
+        throw Error(`Failed to load the database: ${error}`);
       }
 
       const previousVersion = yield select((state) => state.storage.appVersion);
@@ -181,10 +179,6 @@ function* credentialsAuthWorker({ payload }) {
           yield put(connectToNode());
           const response = yield call(Relay.verifyReceipt, id, publicId);
           yield put(credsAuthenticatedError(''));
-          yield put(setKey(key));
-
-          const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
-          yield put(setWarning(history));
 
           yield put(fetchExchangeRates());
           yield put(fetchSignedDelayedTransaction());
@@ -214,7 +208,6 @@ function* credentialsAuthWorker({ payload }) {
           );
 
           yield put(resetSyncing());
-          yield put(resetPinFailAttempts());
           yield put(setRecepitVerificationFailed(!response.isValid));
           if (!response.isValid) {
             if (
@@ -238,12 +231,11 @@ function* credentialsAuthWorker({ payload }) {
           if (pendingAllBackup && automaticCloudBackup) yield put(backupAllSignersAndVaults());
         } catch (error) {
           yield put(setRecepitVerificationError(true));
-          // yield put(credsAuthenticated(false));
           yield put(credsAuthenticatedError(error));
           console.log(error);
         }
         yield put(credsAuthenticated(true));
-      } else yield put(credsAuthenticated(true));
+      } else yield put(credsAuthenticated(true)); // TODO: Should remove and throw an error if not needed in any scenario
     } else yield put(credsAuthenticated(true));
   } catch (err) {
     yield put(credsAuthenticatedError(err));
@@ -312,10 +304,8 @@ function* changeAuthCredWorker({ payload }) {
     if (!(yield call(SecureStore.store, newHash, newEncryptedKey))) {
       return;
     }
-    const removedOldKey = yield call(SecureStore.remove, hash);
+    yield call(SecureStore.remove, hash);
     yield put(credsChanged('changed'));
-
-    // todo
   } catch (err) {
     console.log({
       err,
@@ -325,33 +315,6 @@ function* changeAuthCredWorker({ payload }) {
   }
 }
 export const changeAuthCredWatcher = createWatcher(changeAuthCredWorker, CHANGE_AUTH_CRED);
-
-function* resetPinWorker({ payload }) {
-  const { newPasscode } = payload;
-  try {
-    const hash = yield select((state: RootState) => state.storage.pinHash);
-    const encryptedKey = yield call(SecureStore.fetch, hash);
-    const key = yield call(decrypt, hash, encryptedKey);
-
-    // setup new pin
-    const newHash = yield call(hash512, newPasscode);
-    const newencryptedKey = yield call(encrypt, newHash, key);
-
-    // store the AES key against the hash
-    if (!(yield call(SecureStore.store, newHash, newencryptedKey))) {
-      throw new Error('Unable to access secure store');
-    }
-    yield put(credsChanged('changed'));
-    yield put(setPinHash(newHash));
-  } catch (err) {
-    console.log({
-      err,
-    });
-    yield put(pinChangedFailed(true));
-    yield put(credsChanged('not-changed'));
-  }
-}
-export const resetPinCredWatcher = createWatcher(resetPinWorker, RESET_PIN);
 
 function* changeLoginMethodWorker({
   payload,
@@ -369,9 +332,7 @@ function* changeLoginMethodWorker({
       yield put(setLoginMethod(method));
     }
   } catch (err) {
-    console.log({
-      err,
-    });
+    console.log('Failed to change login method');
   }
 }
 

@@ -81,10 +81,6 @@ const storageSlice = createSlice({
       state.failedAttempts += 1;
       state.lastLoginFailedAt = Date.now();
     },
-    resetPinFailAttempts: (state) => {
-      state.failedAttempts = 0;
-      state.lastLoginFailedAt = null;
-    },
     setPinHash: (state, action: PayloadAction<string>) => {
       state.pinHash = action.payload;
     },
@@ -137,7 +133,6 @@ const storageSlice = createSlice({
 export const {
   setAppId,
   increasePinFailAttempts,
-  resetPinFailAttempts,
   setPinHash,
   setAppVersion,
   updateLastVisitedTimestamp,

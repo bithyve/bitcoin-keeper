@@ -27,7 +27,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import semver from 'semver';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
+import { BackupAction, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
 import { VaultType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -48,7 +48,6 @@ import {
   setBackupAllSuccess,
   setBackupLoading,
   setBackupType,
-  setBackupWarning,
   setDeleteBackupFailure,
   setDeleteBackupSuccess,
   setEncPassword,
@@ -68,7 +67,6 @@ import {
   HEALTH_CHECK_STATUS_UPDATE,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
-  SET_BACKUP_WARNING,
   UPADTE_HEALTH_CHECK_SIGNER,
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
@@ -76,7 +74,6 @@ import {
 } from '../sagaActions/bhr';
 import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
-import { applyRestoreSequence } from './restoreUpgrade';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
@@ -349,11 +346,15 @@ function* getAppImageWorker({ payload }) {
     const previousVersion = appImage.version;
     const newVersion = DeviceInfo.getVersion();
     if (semver.lt(previousVersion, newVersion)) {
-      yield call(applyRestoreSequence, {
-        previousVersion,
-        newVersion,
-        appImage,
-      });
+      console.log(`applying restore upgarde sequence - from: ${previousVersion} to ${newVersion}`);
+      try {
+        yield call(Relay.updateAppImage, {
+          appId: appImage.appId,
+          version: newVersion,
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
     if (appImage && subscription) {
       // always set recovered app plan to pleb
@@ -651,34 +652,6 @@ function* healthCheckSignerWorker({
   }
 }
 
-function* isBackedUP({
-  payload,
-}: {
-  payload: {
-    history: BackupHistory;
-  };
-}) {
-  const { history } = payload;
-  const lastRecord = history[history.length - 1];
-
-  if (lastRecord) {
-    const currentDate = new Date();
-    const lastBackup = new Date(history[history.length - 1].date);
-    const devWarning = currentDate.getTime() - lastBackup.getTime() > 30;
-    const ProductionWarning =
-      (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30;
-    const selectedWarning =
-      config.ENVIRONMENT === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
-
-    if (selectedWarning && lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED) {
-      // UAI update here
-
-      yield put(setBackupWarning(true));
-    }
-  }
-  yield put(setBackupWarning(false));
-}
-
 function* backupBsmsOnCloudWorker({
   payload,
 }: {
@@ -865,8 +838,6 @@ export const updateVaultImageWatcher = createWatcher(updateVaultImageWorker, UPD
 
 export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
-
-export const backupWarningWatcher = createWatcher(isBackedUP, SET_BACKUP_WARNING);
 
 export const seedBackeupConfirmedWatcher = createWatcher(
   seedBackeupConfirmedWorked,

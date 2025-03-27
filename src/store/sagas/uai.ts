@@ -46,13 +46,6 @@ const healthCheckReminderHours = (lastHealthCheck: Date) => {
   return differenceInHours;
 };
 
-const healthCheckReminderMinutes = (lastHealthCheck: Date) => {
-  const today = new Date();
-  const differenceInTime = today.getTime() - lastHealthCheck.getTime();
-  const differenceInMinutes = Math.round(differenceInTime / (1000 * 60));
-  return differenceInMinutes;
-};
-
 export function* addToUaiStackWorker({ payload }) {
   const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
