@@ -38,11 +38,17 @@ import ReceiveAddress from '../Recieve/ReceiveAddress';
 import ReceiveQR from '../Recieve/ReceiveQR';
 import QRScanner from 'src/components/QRScanner';
 import { getUSBSignerDetails } from 'src/hardware/usbSigner';
-import { VaultType } from 'src/services/wallets/enums';
+import { SignerType, VaultType } from 'src/services/wallets/enums';
 import WalletOperations from 'src/services/wallets/operations';
 import { getKeyUID } from 'src/utils/utilities';
 import BackgroundTimer from 'react-native-background-timer';
 import WalletHeader from 'src/components/WalletHeader';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import KeeperModal from 'src/components/KeeperModal';
+import Instruction from 'src/components/Instruction';
+import ColdCardUSBInstruction from '../Vault/components/ColdCardUSBInstruction';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
@@ -90,13 +96,18 @@ function ConnectChannel() {
     vaultId,
     accountNumber = null,
     receiveAddressIndex = null,
+    Illustration,
+    Instructions,
   } = route.params as any;
 
   const [channel] = useState(io(config.CHANNEL_URL));
+  const isDarkMode = colorMode === 'dark';
+  const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
+
   const decryptionKey = useRef();
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, bitbox, trezor, ledger } = translations;
   const { mapUnknownSigner } = useUnkownSigners();
 
   const dispatch = useDispatch();
@@ -106,6 +117,7 @@ function ConnectChannel() {
   const [newTitle, setNewTitle] = useState<string | null>(null);
   const [newSubtitle, setNewSubtitle] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<string | null>(null);
+  const [infoModal, setInfoModal] = useState(false);
 
   let descriptorString = null;
   let miniscriptPolicy = null;
@@ -329,6 +341,15 @@ function ConnectChannel() {
       appStateSubscription?.remove();
     };
   }, []);
+  const modalSubtitle = {
+    [SignerType.BITBOX02]: bitbox.SetupDescription,
+    [SignerType.TREZOR]: trezor.SetupDescription,
+    [SignerType.LEDGER]: ledger.SetupDescription,
+    [SignerType.COLDCARD]: 'Get Your Coldcard Ready and powered up before proceeding',
+    [SignerType.JADE]: 'Get Your Jade Ready and powered up before proceeding',
+  };
+
+  const subtitleModal = modalSubtitle[signerType] || 'Get your device ready before proceeding';
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -338,7 +359,17 @@ function ConnectChannel() {
         mode={mode}
         signerXfp={signer?.masterFingerprint}
       >
-        <WalletHeader title={newTitle ?? title} subTitle={newSubtitle ?? subtitle} />
+        <WalletHeader
+          title={newTitle ?? title}
+          subTitle={newSubtitle ?? subtitle}
+          rightComponent={
+            !isHealthCheck ? (
+              <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
+                {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+              </TouchableOpacity>
+            ) : null
+          }
+        />
         <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
           <ScanAndInstruct
             onBarCodeRead={onBarCodeRead}
@@ -356,6 +387,30 @@ function ConnectChannel() {
           />
         </Box>
       </MockWrapper>
+      <KeeperModal
+        visible={infoModal}
+        close={() => {
+          setInfoModal(false);
+        }}
+        title={title}
+        subTitle={subtitleModal}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box style={styles.content}>
+            <Box style={styles.illustration}>{Illustration}</Box>
+
+            {signerType === SignerType.JADE || signerType === SignerType.COLDCARD ? (
+              <ColdCardUSBInstruction />
+            ) : (
+              Instructions?.map((instruction) => (
+                <Instruction text={instruction} key={instruction} />
+              ))
+            )}
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -391,5 +446,16 @@ const styles = StyleSheet.create({
   },
   addressContainer: {
     marginHorizontal: wp(20),
+  },
+  illustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(20),
+  },
+  content: {
+    gap: hp(10),
+  },
+  infoIcon: {
+    marginRight: wp(10),
   },
 });

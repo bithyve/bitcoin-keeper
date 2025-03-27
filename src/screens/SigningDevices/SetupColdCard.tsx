@@ -5,7 +5,7 @@ import { getColdcardDetails, getConfigDetails } from 'src/hardware/coldcard';
 
 import { Box, useColorMode } from 'native-base';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React from 'react';
+import React, { useState } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -35,6 +35,11 @@ import { hp, wp } from 'src/constants/responsive';
 import ColdCardIllustration from 'src/assets/images/ColdCardSetup.svg';
 import HealthCheckIllustration from 'src/assets/images/health-check-illustration.svg';
 import HealthCheckIllustrationDark from 'src/assets/images/health-check-illustration-dark.svg';
+import Instruction from 'src/components/Instruction';
+import KeeperModal from 'src/components/KeeperModal';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
+import InfoIcon from 'src/assets/images/info_icon.svg';
 
 const getTitle = (mode) => {
   switch (mode) {
@@ -56,11 +61,16 @@ function SetupColdCard({ route }) {
     signer,
     isMultisig,
     addSignerFlow = false,
+    Illustration,
+    Instructions,
   }: {
     mode: InteracationMode;
     signer: Signer;
     isMultisig: boolean;
     addSignerFlow?: boolean;
+    Illustration?: any;
+    Instructions?: any;
+    isHealthcheck?: boolean;
   } = route.params;
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
@@ -69,6 +79,8 @@ function SetupColdCard({ route }) {
   const { start } = useAsync();
   const isConfigRecovery = mode === InteracationMode.CONFIG_RECOVERY;
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
+  const isDarkMode = colorMode === 'dark';
+  const [infoModal, setInfoModal] = useState(false);
 
   const startNfcRead = () => {
     NfcManager.isSupported().then((supported) => {
@@ -214,7 +226,16 @@ function SetupColdCard({ route }) {
         signerXfp={signer?.masterFingerprint}
         mode={mode}
       >
-        <WalletHeader title={getTitle(mode)} />
+        <WalletHeader
+          title={getTitle(mode)}
+          rightComponent={
+            InteracationMode.VAULT_ADDITION ? (
+              <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
+                {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+              </TouchableOpacity>
+            ) : null
+          }
+        />
         <Box flex={1} marginTop={hp(30)}>
           <Box backgroundColor={`${colorMode}.boxSecondaryBackground`} style={styles.container}>
             <Text fontSize={14} color={`${colorMode}.secondaryText`}>
@@ -244,6 +265,26 @@ function SetupColdCard({ route }) {
         />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </MockWrapper>
+      <KeeperModal
+        visible={infoModal}
+        close={() => {
+          setInfoModal(false);
+        }}
+        title={getTitle(mode)}
+        subTitle={`Get your Coldcard ready before proceeding.`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <Box style={styles.illustrations}>{Illustration}</Box>
+
+            {Instructions?.map((instruction) => (
+              <Instruction text={instruction} key={instruction} />
+            ))}
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -258,6 +299,14 @@ const styles = StyleSheet.create({
   illustration: {
     alignSelf: 'center',
     marginVertical: hp(40),
+  },
+  infoIcon: {
+    marginRight: wp(10),
+  },
+  illustrations: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(20),
   },
 });
 

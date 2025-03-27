@@ -53,6 +53,9 @@ import NFCIconWhite from 'src/assets/images/nfc_lines_white.svg';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import Instruction from 'src/components/Instruction';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -62,6 +65,7 @@ function SetupTapsigner({ route }) {
   const { signer: signerTranslations, common } = translations;
   const card = useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
+
   const {
     mode,
     signer,
@@ -70,6 +74,8 @@ function SetupTapsigner({ route }) {
     signTransaction,
     addSignerFlow = false,
     isRemoteKey = false,
+    Illustration,
+    Instructions,
   }: {
     mode: InteracationMode;
     signer: Signer;
@@ -78,11 +84,16 @@ function SetupTapsigner({ route }) {
     signTransaction?: (options: { tapsignerCVC?: string }) => {};
     addSignerFlow?: boolean;
     isRemoteKey?: boolean;
+    Illustration?: any;
+    Instructions?: any;
   } = route.params;
   const { mapUnknownSigner } = useUnkownSigners();
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [tapsignerDerivationPath, setTapsignerDerivationPath] = useState(null);
   const [tapsignerBackupsCount, setTapsignerBackupsCount] = useState(null);
+  const isDarkMode = colorMode === 'dark';
+  const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
+  const [infoModal, setInfoModal] = useState(false);
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -447,6 +458,13 @@ function SetupTapsigner({ route }) {
           }
         })()}
         subTitle={signerTranslations.EnterTapsignerPinSubtitle}
+        rightComponent={
+          !isHealthCheck ? (
+            <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
+              {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+            </TouchableOpacity>
+          ) : null
+        }
       />
       <MockWrapper
         signerType={SignerType.TAPSIGNER}
@@ -530,6 +548,26 @@ function SetupTapsigner({ route }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={StatusModalContent}
       />
+      <KeeperModal
+        visible={infoModal}
+        close={() => {
+          setInfoModal(false);
+        }}
+        title={signerTranslations.SettingUpTapsigner}
+        subTitle={`Get your TAPSIGNER ready before proceeding.`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <Box style={styles.illustration}>{Illustration}</Box>
+
+            {Instructions?.map((instruction) => (
+              <Instruction text={instruction} key={instruction} />
+            ))}
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -599,5 +637,13 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginLeft: wp(10),
     marginTop: wp(15),
+  },
+  infoIcon: {
+    marginRight: wp(10),
+  },
+  illustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(20),
   },
 });

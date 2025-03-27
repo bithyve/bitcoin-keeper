@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, useColorMode } from 'native-base';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { useDispatch } from 'react-redux';
@@ -27,16 +27,30 @@ import { getJadeDetails } from 'src/hardware/jade';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import WalletHeader from 'src/components/WalletHeader';
+import KeeperModal from 'src/components/KeeperModal';
+import Instruction from 'src/components/Instruction';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
+import InfoIcon from 'src/assets/images/info_icon.svg';
 
 function SetupOtherSDScreen({ route }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const [xpub, setXpub] = useState('');
   const [derivationPath, setDerivationPath] = useState('');
   const [masterFingerprint, setMasterFingerprint] = useState('');
+  const [infoModal, setInfoModal] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const { mode, signer: hcSigner, isMultisig, addSignerFlow = false } = route.params;
+  const {
+    mode,
+    signer: hcSigner,
+    isMultisig,
+    addSignerFlow = false,
+    Illustration,
+    Instructions,
+  } = route.params;
 
   const validateAndAddSigner = async () => {
     try {
@@ -254,6 +268,13 @@ function SetupOtherSDScreen({ route }) {
       <WalletHeader
         title={`${mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'} other signer`}
         subTitle="Manually provide the signer details"
+        rightComponent={
+          InteracationMode.VAULT_ADDITION ? (
+            <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
+              {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+            </TouchableOpacity>
+          ) : null
+        }
       />
       <Box style={styles.flex}>
         <KeeperTextInput
@@ -308,6 +329,26 @@ function SetupOtherSDScreen({ route }) {
         primaryCallback={validateAndAddSigner}
         primaryDisable={!xpub.length || !derivationPath.length || masterFingerprint.length !== 8}
       />
+      <KeeperModal
+        visible={infoModal}
+        close={() => {
+          setInfoModal(false);
+        }}
+        title={'Setting up Signer'}
+        subTitle={`Get your Signer ready before proceeding.`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <Box style={styles.illustrations}>{Illustration}</Box>
+
+            {Instructions?.map((instruction) => (
+              <Instruction text={instruction} key={instruction} />
+            ))}
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -328,5 +369,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#f0e7dd',
     letterSpacing: 1,
+  },
+  infoIcon: {
+    marginRight: wp(10),
+  },
+  illustrations: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(20),
   },
 });

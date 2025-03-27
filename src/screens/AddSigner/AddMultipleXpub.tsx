@@ -6,7 +6,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import QRScanner from 'src/components/QRScanner';
 import { useRoute } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { SegmentedController } from '../../components/SegmentController';
 import Text from 'src/components/KeeperText';
 import { DerivationPurpose, SignerType } from 'src/services/wallets/enums';
@@ -18,6 +18,12 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { manipulateSeedSignerData } from 'src/hardware/seedsigner';
 import { getPassportDetails, manipulatePassportDetails } from 'src/hardware/passport';
 import WalletHeader from 'src/components/WalletHeader';
+import KeeperModal from 'src/components/KeeperModal';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import Instruction from 'src/components/Instruction';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export const options = [
   { label: 'Singlesig', sub: 'BIP84', purpose: DerivationPurpose.BIP84 },
@@ -39,8 +45,13 @@ export const AddMultipleXpub = () => {
     mode,
     disableMockFlow = false,
     addSignerFlow = false,
+    Illustration,
+    Instructions,
   } = route.params as any;
   const { showToast } = useToastMessage();
+  const isDarkMode = colorMode === 'dark';
+  const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
+  const [infoModal, setInfoModal] = useState(false);
 
   const renderContent = () => {
     const data = xpubs[options[selectedIndex].purpose];
@@ -77,7 +88,13 @@ export const AddMultipleXpub = () => {
       showToast('Please scan a valid QR', <ToastErrorIcon />);
     }
   };
+  const modalSubtitle = {
+    [SignerType.PASSPORT]: 'Get Your Foundation Passport ready before proceeding',
+    [SignerType.SEEDSIGNER]: 'Get Your SeedSigner ready before proceeding',
+    [SignerType.JADE]: 'Get Your Jade ready and powered up before proceeding',
+  };
 
+  const subtitleModal = modalSubtitle[type] || 'Get your device ready before proceeding';
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -86,7 +103,17 @@ export const AddMultipleXpub = () => {
         addSignerFlow={addSignerFlow}
         mode={mode}
       >
-        <WalletHeader title={title} subTitle={subtitle} />
+        <WalletHeader
+          title={title}
+          subTitle={subtitle}
+          rightComponent={
+            !isHealthCheck ? (
+              <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
+                {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+              </TouchableOpacity>
+            ) : null
+          }
+        />
         <Box style={styles.segmentController}>
           <SegmentedController
             options={options.filter((tab) => {
@@ -119,6 +146,26 @@ export const AddMultipleXpub = () => {
           )}
         </Box>
       </MockWrapper>
+      <KeeperModal
+        visible={infoModal}
+        close={() => {
+          setInfoModal(false);
+        }}
+        title={title}
+        subTitle={subtitleModal}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <Box style={styles.illustration}>{Illustration}</Box>
+
+            {Instructions?.map((instruction) => (
+              <Instruction text={instruction} key={instruction} />
+            ))}
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 };
@@ -136,6 +183,14 @@ const styles = StyleSheet.create({
   },
   flex1: {
     flex: 1,
+  },
+  infoIcon: {
+    marginRight: wp(10),
+  },
+  illustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(20),
   },
 
   successTitle: { marginTop: hp(20), marginBottom: hp(12), fontSize: 16 },

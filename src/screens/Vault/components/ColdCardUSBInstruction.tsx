@@ -25,6 +25,9 @@ const ColdCardUSBInstruction = () => {
 
   return (
     <Box backgroundColor={`${colorMode}.dullGrey`}>
+      <Text medium style={{ marginBottom: 20 }}>
+        Follow this step:
+      </Text>
       <VStack space={4}>
         {steps.map((step, index) => (
           <Box key={index} style={styles.stepContainer}>

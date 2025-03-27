@@ -1050,7 +1050,15 @@ function HardwareModalMap({
     navigation.dispatch(
       CommonActions.navigate({
         name: 'TapsignerAction',
-        params: { mode, signer, isMultisig, accountNumber, addSignerFlow },
+        params: {
+          mode,
+          signer,
+          isMultisig,
+          accountNumber,
+          addSignerFlow,
+          Illustration,
+          Instructions,
+        },
       })
     );
   };
@@ -1059,7 +1067,16 @@ function HardwareModalMap({
     navigation.dispatch(
       CommonActions.navigate({
         name: 'SetupPortal',
-        params: { mode, signer, isMultisig, accountNumber, addSignerFlow },
+        params: {
+          mode,
+          signer,
+          isMultisig,
+          accountNumber,
+          addSignerFlow,
+          Illustration,
+          Instructions,
+          isHealthcheck,
+        },
       })
     );
   };
@@ -1076,7 +1093,14 @@ function HardwareModalMap({
     navigation.dispatch(
       CommonActions.navigate({
         name: 'AddColdCard',
-        params: { mode, signer, isMultisig, addSignerFlow },
+        params: {
+          mode,
+          signer,
+          isMultisig,
+          addSignerFlow,
+          Illustration,
+          Instructions,
+        },
       })
     );
   };
@@ -1107,6 +1131,8 @@ function HardwareModalMap({
           signer,
           addSignerFlow,
           importOptions: false,
+          Illustration,
+          Instructions,
         },
       })
     );
@@ -1126,6 +1152,9 @@ function HardwareModalMap({
           addSignerFlow,
           ctaText: 'Proceed',
           onFileExtract,
+          isHealthcheck,
+          Illustration,
+          Instructions,
         },
       })
     );
@@ -1227,6 +1256,9 @@ function HardwareModalMap({
           isMultisig,
           addSignerFlow,
           accountNumber,
+          Illustration,
+          Instructions,
+          subTitle,
         },
       })
     );
@@ -1240,6 +1272,8 @@ function HardwareModalMap({
           mode,
           isMultisig,
           addSignerFlow,
+          Illustration,
+          Instructions,
         },
       })
     );
@@ -1989,9 +2023,6 @@ function HardwareModalMap({
       if (keyGenerationMode === KeyGenerationMode.USB) {
         return (
           <Box>
-            <Text medium style={{ marginBottom: 20 }}>
-              Follow this step:
-            </Text>
             <ColdCardUSBInstruction />
           </Box>
         );
