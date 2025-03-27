@@ -26,9 +26,12 @@ import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import ElectrumClient from 'src/services/electrum/client';
 import { captureError } from 'src/services/sentry';
-const base58check = require('base58check');
-import HWError from './HWErrorState';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+
+import * as b58 from 'bs58check';
+import HWError from './HWErrorState';
+
+const base58check = require('base58check');
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -77,8 +80,9 @@ export const generateSignerFromMetaData = ({
     Object.entries(xpubDetails).forEach(([key, xpubDetail]) => {
       let { xpub, xpriv, derivationPath } = xpubDetail;
       signerXpubs[key] = signerXpubs[key] || [];
-      if ([SignerType.JADE, SignerType.SEEDSIGNER].includes(signerType))
+      if ([SignerType.JADE, SignerType.SEEDSIGNER].includes(signerType)) {
         xpub = WalletUtilities.getXpubFromExtendedKey(xpub, network);
+      }
       signerXpubs[key].push({ xpub, xpriv, derivationPath: derivationPath.replaceAll('h', "'") });
     });
   }
@@ -359,7 +363,9 @@ const getPolicyServerStatus = (
         type
       )}`,
     };
-  } else if (existingSigners.find((s) => s.type === SignerType.POLICY_SERVER)) {
+  } else if (
+    existingSigners.find((s: Signer) => s.type === SignerType.POLICY_SERVER && !s.isExternal)
+  ) {
     return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
   } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
     return {
@@ -398,7 +404,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Use Mobile Key as signer';
     }
     case SignerType.KEEPER: {
-      return `From a friend or advisor's Keeper app`;
+      return "From a friend or advisor's Keeper app";
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot key on this app';
@@ -498,8 +504,6 @@ export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
     return { serializedPSBT };
   }
 };
-
-import * as b58 from 'bs58check';
 
 const prefixes = new Map([
   ['xpub', '0488b21e'],

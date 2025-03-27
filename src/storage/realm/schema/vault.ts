@@ -162,6 +162,7 @@ export const SignerSchema: ObjectSchema = {
     hidden: { type: 'bool', default: false },
     extraData: '{}?',
     archived: { type: 'bool', default: false },
+    isExternal: 'bool?',
   },
 };
 
