@@ -47,17 +47,15 @@ function AssignSignerTypeCard({
   const { showToast } = useToastMessage();
   const { common } = translations;
 
-  const updateSignerType = () => {
-    dispatch(updateSignerDetails(signer, 'type', type));
-    dispatch(updateSignerDetails(signer, 'signerName', getSignerNameFromType(type, signer.isMock)));
-  };
-
   const changeSignerType = () => {
     setShowConfirm(false);
     if (type === SignerType.POLICY_SERVER) {
       showValidationModal(true);
     } else {
-      updateSignerType();
+      dispatch(updateSignerDetails(signer, 'type', type));
+      dispatch(
+        updateSignerDetails(signer, 'signerName', getSignerNameFromType(type, signer.isMock))
+      );
     }
   };
 
@@ -83,9 +81,10 @@ function AssignSignerTypeCard({
       );
       if (valid) {
         if (id === signerId && masterFingerprint === signer.masterFingerprint) {
-          dispatch(updateSignerDetails(signer, 'signerPolicy', policy));
+          dispatch(updateSignerDetails(signer, 'type', type));
           dispatch(updateSignerDetails(signer, 'isExternal', true));
-          updateSignerType();
+          dispatch(updateSignerDetails(signer, 'signerPolicy', policy));
+          dispatch(updateSignerDetails(signer, 'signerName', 'External Server Key'));
         } else throw new Error('Server Key mismatch');
       } else throw new Error('Server Key validation failed');
     } catch (err) {
