@@ -1249,7 +1249,7 @@ function AddSigningDevice() {
   const { vault: vaultTranslation } = translations;
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
 
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   // filter out archived & hidden signers
   const activeSigners = signers.filter((signer) => !signer.archived && !signer.hidden);
   const { signerMap } = useSignerMap();

@@ -496,7 +496,7 @@ function SetupCollaborativeWallet() {
     }
   };
 
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const myAppKeys = signers.filter(
     (signer) => !signer.hidden && signer.type === SignerType.MY_KEEPER
   );

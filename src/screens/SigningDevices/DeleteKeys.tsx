@@ -42,7 +42,7 @@ function DeleteKeys({ route }) {
   const { signer: signerText } = translations;
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const hiddenSigners = signers.filter(
     (signer) => signer.signerName !== RECOVERY_KEY_SIGNER_NAME && signer.hidden && !signer.archived
   );

@@ -59,7 +59,7 @@ function ManageSigners({ route }: ScreenProps) {
   const { activeVault } = useVault({ vaultId });
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const {
     realySignersUpdateErrorMessage,
     relaySignersUpdate,

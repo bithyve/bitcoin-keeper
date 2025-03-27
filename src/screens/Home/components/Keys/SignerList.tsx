@@ -24,7 +24,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const SignerList = ({ navigation, handleModalOpen }) => {
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { signer } = translations;
