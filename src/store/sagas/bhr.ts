@@ -29,7 +29,7 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { VaultType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
@@ -388,6 +388,15 @@ function* getAppImageWorker({ payload }) {
         walletDetails: {
           name: 'Mobile Wallet',
           description: '',
+          derivationConfig: {
+            path: WalletUtilities.getDerivationPath(
+              EntityKind.WALLET,
+              config.NETWORK_TYPE,
+              0,
+              DerivationPurpose.BIP84
+            ),
+            purpose: DerivationPurpose.BIP84,
+          },
           transferPolicy: {
             id: uuidv4(),
             threshold: 0,
