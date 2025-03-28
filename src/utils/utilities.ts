@@ -3,8 +3,7 @@ import { Alert, Platform } from 'react-native';
 import moment from 'moment';
 import idx from 'idx';
 
-import { TxPriority, VaultType, WalletType, XpubTypes } from 'src/services/wallets/enums';
-import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { VaultType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -13,6 +12,7 @@ import { isTestnet } from 'src/constants/Bitcoin';
 import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 import BIP32Factory from 'bip32';
 import { detectFileType, splitQRs } from 'src/services/qr/bbqr/split';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -542,7 +542,28 @@ export const getKeyUID = (signer: Signer | VaultSigner | null): string => {
   if (!signer) {
     return '';
   }
-  return signer.masterFingerprint + (getAccountFromSigner(signer) ?? '');
+
+  let chainIdentifier = null;
+  if ((signer as VaultSigner)?.derivationPath) {
+    chainIdentifier =
+      parseInt((signer as VaultSigner)?.derivationPath.replace(/[']/g, '').split('/')[2]) == 0
+        ? 'M'
+        : 'T';
+  } else {
+    const xpubs = Object.values((signer as Signer)?.signerXpubs).length
+      ? Object.values((signer as Signer)?.signerXpubs)
+      : Object.values(getJSONFromRealmObject(signer).signerXpubs);
+    for (const xPubObject of xpubs) {
+      if (xPubObject[0]?.derivationPath) {
+        chainIdentifier =
+          parseInt(xPubObject[0]?.derivationPath?.replace(/[']/g, '').split('/')[2]) == 0
+            ? 'M'
+            : 'T';
+        break;
+      }
+    }
+  }
+  return signer.masterFingerprint + (getAccountFromSigner(signer) ?? '') + (chainIdentifier ?? '');
 };
 
 export const checkSignerAccountsMatch = (signer: Signer): boolean => {

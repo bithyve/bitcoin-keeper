@@ -86,6 +86,19 @@ export const generateSignerFromMetaData = ({
     });
   }
 
+  let finalNetworkType = networkType;
+  if ([SignerType.JADE, SignerType.KEYSTONE].includes(signerType)) {
+    for (const xPubObject of Object.values(signerXpubs)) {
+      if (xPubObject[0]?.derivationPath) {
+        const { derivationPath } = xPubObject[0];
+        finalNetworkType =
+          parseInt(derivationPath.replace(/[']/g, '').split('/')[2]) == 0
+            ? NetworkType.MAINNET
+            : NetworkType.TESTNET;
+      } else continue;
+    }
+  }
+
   const signer: Signer = {
     type: signerType,
     storageType,
@@ -105,6 +118,7 @@ export const generateSignerFromMetaData = ({
     inheritanceKeyInfo,
     signerXpubs,
     hidden: false,
+    networkType: finalNetworkType,
   };
 
   const key: VaultSigner = {

@@ -108,6 +108,7 @@ export interface Signer {
   hidden: boolean;
   extraData?: SignerExtraData;
   archived?: boolean;
+  networkType: NetworkType; // testnet/mainnet
 }
 
 export type RegisteredVaultInfo = {

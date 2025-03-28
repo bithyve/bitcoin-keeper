@@ -1,5 +1,5 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { MiniscriptTypes, SignerType, VaultType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import { InheritanceKeyInfo } from 'src/models/interfaces/AssistedKeys';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';
@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { getJSONFromRealmObject } from './utils';
 import { RealmSchema } from './enum';
 import { getKeyUID } from 'src/utils/utilities';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -366,5 +367,14 @@ export const runRealmMigrations = ({
   if (oldRealm.schemaVersion < 89) {
     const newSubs = newRealm.objects(RealmSchema.StoreSubscription) as any;
     newSubs['isDesktopPurchase'] = false;
+  }
+  if (oldRealm.schemaVersion < 91) {
+    const newSigners = newRealm.objects(RealmSchema.Signer) as Signer[];
+
+    for (const objectIndex in newSigners) {
+      newSigners[objectIndex].networkType =
+        config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
+      //should ba based on xpub or derivative path
+    }
   }
 };
