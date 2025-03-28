@@ -413,7 +413,7 @@ function* getAppImageWorker({ payload }) {
         console.log(err);
       }
     }
-    yield put(autoSyncWallets(true, true));
+    yield put(autoSyncWallets(true, true, false));
   } catch (err) {
     yield put(setAppImageError(err.message));
   } finally {
@@ -606,6 +606,7 @@ function* recoverApp(
 
   yield put(setSeedConfirmed(true));
   yield put(setBackupType(BackupType.SEED));
+  yield put(uaiActioned({ uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK, action: true }));
 
   // create/add restored object for version
   yield call(dbManager.createObject, RealmSchema.VersionHistory, {

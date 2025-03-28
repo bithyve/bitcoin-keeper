@@ -839,9 +839,9 @@ export const refreshWalletsWatcher = createWatcher(refreshWalletsWorker, REFRESH
 export function* autoWalletsSyncWorker({
   payload,
 }: {
-  payload: { syncAll?: boolean; hardRefresh?: boolean };
+  payload: { syncAll?: boolean; hardRefresh?: boolean; addNotifications?: boolean };
 }) {
-  const { syncAll, hardRefresh } = payload;
+  const { syncAll, hardRefresh, addNotifications } = payload;
   const wallets: Wallet[] = yield call(dbManager.getObjectByIndex, RealmSchema.Wallet, null, true);
   const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
 
@@ -860,7 +860,7 @@ export function* autoWalletsSyncWorker({
         wallets: walletsToSync,
         options: {
           hardRefresh,
-          addNotifications: true,
+          addNotifications,
         },
       },
     });
