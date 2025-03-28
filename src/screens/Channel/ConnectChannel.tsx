@@ -403,6 +403,7 @@ function ConnectChannel() {
 
             {signerType === SignerType.JADE ||
             signerType === SignerType.COLDCARD ||
+            signerType === SignerType.BITBOX02 ||
             signerType === SignerType.LEDGER ||
             signerType === SignerType.TREZOR ? (
               <ColdCardUSBInstruction />
