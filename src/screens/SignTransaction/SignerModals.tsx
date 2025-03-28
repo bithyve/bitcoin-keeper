@@ -48,7 +48,6 @@ import SignerOptionCard from '../Vault/components/signerOptionCard';
 import ColdCardUSBInstruction from '../Vault/components/ColdCardUSBInstruction';
 import ShareKeyModalContent from '../Vault/components/ShareKeyModalContent';
 import MagicLinkIcon from 'src/assets/images/magic-link-icon.svg';
-import RegisterSignerContent from '../Vault/components/RegisterSignerContent';
 import useVault from 'src/hooks/useVault';
 import RegisterMultisig from './component/RegisterMultisig';
 
@@ -429,15 +428,15 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
       return {
         supportedSigningOptions: [
           {
-            title: 'NFC',
+            title: 'QR',
             icon: (
               <CircleIconWrapper
-                icon={<NfcComms />}
+                icon={<QRComms />}
                 backgroundColor={`${colorMode}.pantoneGreen`}
                 width={35}
               />
             ),
-            name: SigningMode.NFC,
+            name: SigningMode.QR,
           },
           {
             title: 'File',
@@ -449,6 +448,17 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
               />
             ),
             name: SigningMode.FILE,
+          },
+          {
+            title: 'NFC',
+            icon: (
+              <CircleIconWrapper
+                icon={<NfcComms />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={35}
+              />
+            ),
+            name: SigningMode.NFC,
           },
           {
             title: 'USB',
@@ -461,17 +471,11 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             ),
             name: SigningMode.USB,
           },
-          {
-            title: 'QR',
-            icon: (
-              <CircleIconWrapper
-                icon={<QRComms />}
-                backgroundColor={`${colorMode}.pantoneGreen`}
-                width={35}
-              />
-            ),
-            name: SigningMode.QR,
-          },
+        ],
+      };
+    case SignerType.KEEPER:
+      return {
+        supportedSigningOptions: [
           {
             title: 'Magic Link',
             icon: (
@@ -483,21 +487,16 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             ),
             name: 'MAGIC_LINK',
           },
-        ],
-      };
-    case SignerType.KEEPER:
-      return {
-        supportedSigningOptions: [
           {
-            title: 'NFC',
+            title: 'QR',
             icon: (
               <CircleIconWrapper
-                icon={<NfcComms />}
+                icon={<QRComms />}
                 backgroundColor={`${colorMode}.pantoneGreen`}
                 width={35}
               />
             ),
-            name: SigningMode.NFC,
+            name: SigningMode.QR,
           },
           {
             title: 'File',
@@ -511,26 +510,15 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             name: SigningMode.FILE,
           },
           {
-            title: 'QR',
+            title: 'NFC',
             icon: (
               <CircleIconWrapper
-                icon={<QRComms />}
+                icon={<NfcComms />}
                 backgroundColor={`${colorMode}.pantoneGreen`}
                 width={35}
               />
             ),
-            name: SigningMode.QR,
-          },
-          {
-            title: 'Magic Link',
-            icon: (
-              <CircleIconWrapper
-                icon={<MagicLinkIcon />}
-                backgroundColor={`${colorMode}.pantoneGreen`}
-                width={35}
-              />
-            ),
-            name: 'MAGIC_LINK',
+            name: SigningMode.NFC,
           },
         ],
       };
@@ -560,17 +548,6 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             ),
             name: SigningMode.FILE,
           },
-          {
-            title: 'Magic Link',
-            icon: (
-              <CircleIconWrapper
-                icon={<MagicLinkIcon />}
-                backgroundColor={`${colorMode}.pantoneGreen`}
-                width={35}
-              />
-            ),
-            name: 'MAGIC_LINK',
-          },
         ],
       };
     case SignerType.JADE:
@@ -597,17 +574,6 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
               />
             ),
             name: SigningMode.USB,
-          },
-          {
-            title: 'Magic Link',
-            icon: (
-              <CircleIconWrapper
-                icon={<MagicLinkIcon />}
-                backgroundColor={`${colorMode}.pantoneGreen`}
-                width={35}
-              />
-            ),
-            name: 'MAGIC_LINK',
           },
         ],
       };
@@ -826,8 +792,7 @@ function SignerModals({
                           setColdCardModal(false);
                         }
                       } else {
-                        setColdCardModal(false);
-                        setJadeModal(false);
+                        setKeeperModal(false);
                         navigation.navigate('RemoteSharing', {
                           psbt: serializedPSBTEnvelop,
                           mode: RKInteractionMode.SHARE_PSBT,
