@@ -3,7 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -19,7 +19,7 @@ import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SeedSignerSetup from 'src/assets/images/seedsigner-setup-horizontal.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import { SignerType, SigningMode } from 'src/services/wallets/enums';
+import { RKInteractionMode, SignerType, SigningMode } from 'src/services/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/utils/service-utilities/encryption';
@@ -47,6 +47,10 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import SignerOptionCard from '../Vault/components/signerOptionCard';
 import ColdCardUSBInstruction from '../Vault/components/ColdCardUSBInstruction';
 import ShareKeyModalContent from '../Vault/components/ShareKeyModalContent';
+import MagicLinkIcon from 'src/assets/images/magic-link-icon.svg';
+import RegisterSignerContent from '../Vault/components/RegisterSignerContent';
+import useVault from 'src/hooks/useVault';
+import RegisterMultisig from './component/RegisterMultisig';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -468,6 +472,17 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             ),
             name: SigningMode.QR,
           },
+          {
+            title: 'Magic Link',
+            icon: (
+              <CircleIconWrapper
+                icon={<MagicLinkIcon />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={35}
+              />
+            ),
+            name: 'MAGIC_LINK',
+          },
         ],
       };
     case SignerType.KEEPER:
@@ -506,6 +521,17 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             ),
             name: SigningMode.QR,
           },
+          {
+            title: 'Magic Link',
+            icon: (
+              <CircleIconWrapper
+                icon={<MagicLinkIcon />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={35}
+              />
+            ),
+            name: 'MAGIC_LINK',
+          },
         ],
       };
     case SignerType.KEYSTONE:
@@ -534,6 +560,17 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             ),
             name: SigningMode.FILE,
           },
+          {
+            title: 'Magic Link',
+            icon: (
+              <CircleIconWrapper
+                icon={<MagicLinkIcon />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={35}
+              />
+            ),
+            name: 'MAGIC_LINK',
+          },
         ],
       };
     case SignerType.JADE:
@@ -560,6 +597,17 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
               />
             ),
             name: SigningMode.USB,
+          },
+          {
+            title: 'Magic Link',
+            icon: (
+              <CircleIconWrapper
+                icon={<MagicLinkIcon />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={35}
+              />
+            ),
+            name: 'MAGIC_LINK',
           },
         ],
       };
@@ -673,6 +721,10 @@ function SignerModals({
   const [keystoneContentModal, setKeystoneContentModal] = useState(false);
   const [jadeModalContent, setJadeModalContent] = useState(false);
   const [keeperModalContent, setKeeperModalContent] = useState(false);
+  const [seedSignerModalContent, setSeedSignerModalContent] = useState(false);
+  const [otherModalContent, setOtherModalContent] = useState(false);
+  const [keeperContentModal, setKeeperContentModal] = useState(false);
+  const [registerSignerModal, setRegisterSignerModal] = useState(false);
 
   const navigateToQrSigning = (vaultKey: VaultSigner) => {
     setPassportModal(false);
@@ -711,14 +763,15 @@ function SignerModals({
       })
     );
   };
-  const [QRModalVisible, setQRModalVisible] = useState(false);
-  const [activeSigner, setActiveSigner] = useState(null);
-  const [activeVaultKey, setActiveVaultKey] = useState(null);
+  const [registeredSigner, setRegisteredSigner] = useState(null);
+  const [registeredVaultKey, setRegisteredVaultKey] = useState(null);
+  const [registerActiveVault, setRegisterActiveVault] = useState(null);
 
-  const openQRModal = (signer, vaultKey) => {
-    setActiveSigner(signer);
-    setActiveVaultKey(vaultKey);
-    setQRModalVisible(true);
+  const openRegisterModal = (signer, vaultKey, activeVault) => {
+    setRegisteredSigner(signer);
+    setRegisteredVaultKey(vaultKey);
+    setRegisterSignerModal(true);
+    setRegisterActiveVault(activeVault);
   };
 
   return (
@@ -730,6 +783,7 @@ function SignerModals({
         const [signingMode, setSigningMode] = useState<SigningMode>(
           supportedSigningOptions[0]?.name || null
         );
+        const { activeVault } = useVault({ vaultId, includeArchived: false });
 
         const info = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId);
         function OptionModalContent({
@@ -753,21 +807,33 @@ function SignerModals({
                     icon={option.icon}
                     onCardSelect={() => {
                       onSelect(option.name);
-                      if (signer.type === SignerType.PASSPORT) {
-                        setPassportContentModal(true);
-                        setPassportModal(false);
-                      } else if (signer.type === SignerType.KEYSTONE) {
-                        setKeystoneContentModal(true);
-                        setKeystoneModal(false);
-                      } else if (signer.type === SignerType.JADE) {
-                        setJadeModalContent(true);
-                        setJadeModal(false);
-                      } else if (signer.type === SignerType.KEEPER) {
-                        setKeeperModalContent(true);
-                        setKeeperModal(false);
+
+                      if (option.name !== 'MAGIC_LINK') {
+                        if (signer.type === SignerType.PASSPORT) {
+                          setPassportContentModal(true);
+                          setPassportModal(false);
+                        } else if (signer.type === SignerType.KEYSTONE) {
+                          setKeystoneContentModal(true);
+                          setKeystoneModal(false);
+                        } else if (signer.type === SignerType.JADE) {
+                          setJadeModalContent(true);
+                          setJadeModal(false);
+                        } else if (signer.type === SignerType.KEEPER) {
+                          setKeeperModalContent(true);
+                          setKeeperModal(false);
+                        } else {
+                          setColdCardContentModal(true);
+                          setColdCardModal(false);
+                        }
                       } else {
-                        setColdCardContentModal(true);
                         setColdCardModal(false);
+                        setJadeModal(false);
+                        navigation.navigate('RemoteSharing', {
+                          psbt: serializedPSBTEnvelop,
+                          mode: RKInteractionMode.SHARE_PSBT,
+                          signer: registeredSigner,
+                          xfp: registeredVaultKey?.xfp,
+                        });
                       }
                     }}
                   />
@@ -824,7 +890,7 @@ function SignerModals({
             } else if (signingMode === SigningMode.USB) {
               navigateToChannelSigning(vaultKey, SignerType.COLDCARD);
             } else if (signingMode === SigningMode.QR) {
-              openQRModal(signer, vaultKey);
+              navigateToQrSigning(vaultKey);
             } else {
               navigation.dispatch(
                 CommonActions.navigate('SignWithColdCard', {
@@ -877,9 +943,7 @@ function SignerModals({
                 }
                 secondaryCallback={() => {
                   setColdCardContentModal(false);
-                  navigation.dispatch(
-                    CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
-                  );
+                  openRegisterModal(signer, vaultKey, activeVault);
                 }}
               />
             </>
@@ -978,9 +1042,7 @@ function SignerModals({
                 }
                 secondaryCallback={() => {
                   setPassportContentModal(false);
-                  navigation.dispatch(
-                    CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
-                  );
+                  openRegisterModal(signer, vaultKey, activeVault);
                 }}
                 buttonCallback={() => {
                   setPassportContentModal(false);
@@ -1002,7 +1064,7 @@ function SignerModals({
                     );
                     return;
                   }
-                  openQRModal(signer, vaultKey);
+                  navigateToQrSigning(vaultKey);
                 }}
               />
             </>
@@ -1012,19 +1074,43 @@ function SignerModals({
           return (
             <>
               <KeeperModal
-                key={vaultKey.xfp}
                 visible={currentSigner && seedSignerModal}
-                close={() => {
-                  setSeedSignerModal(false);
-                }}
+                close={() => setSeedSignerModal(false)}
                 title="Keep SeedSigner Ready"
-                subTitle="Get your SeedSigner ready before proceeding"
+                subTitle="Choose one of the following options"
+                modalBackground={`${colorMode}.modalWhiteBackground`}
                 textColor={`${colorMode}.textGreen`}
+                subTitleColor={`${colorMode}.modalSubtitleBlack`}
+                Content={() => (
+                  <ShareKeyModalContent
+                    navigation={navigation}
+                    signer={signer}
+                    vaultId={vaultId}
+                    vaultKey={vaultKey}
+                    setShareKeyModal={setSeedSignerModal}
+                    openmodal={setSeedSignerModalContent}
+                    data={serializedPSBTEnvelop}
+                    isPSBTSharing
+                    xfp={vaultKey?.xfp}
+                  />
+                )}
+              />
+              <KeeperModal
+                key={vaultKey.xfp}
+                visible={seedSignerModalContent}
+                close={() => {
+                  setSeedSignerModalContent(false);
+                }}
+                title={'Signing with QR '}
+                subTitle="Get your SeedSigner ready before proceeding"
+                modalBackground={`${colorMode}.modalWhiteBackground`}
+                textColor={`${colorMode}.textGreen`}
+                subTitleColor={`${colorMode}.modalSubtitleBlack`}
                 Content={() => <SeedSignerContent isMultisig={isMultisig} />}
                 buttonText="Proceed"
                 buttonCallback={() => {
-                  openQRModal(signer, vaultKey);
-                  setSeedSignerModal(false);
+                  navigateToQrSigning(vaultKey);
+                  setSeedSignerModalContent(false);
                 }}
               />
             </>
@@ -1032,28 +1118,28 @@ function SignerModals({
         }
         if (signer.type === SignerType.SPECTER) {
           return (
-            <KeeperModal
-              key={vaultKey.xfp}
-              visible={currentSigner && specterModal}
-              close={() => {
-                setSpecterModal(false);
-              }}
-              title="Keep Specter Ready"
-              subTitle="Get your Specter ready before proceeding"
-              textColor={`${colorMode}.textGreen`}
-              Content={() => <SpecterContent isMultisig={isMultisig} />}
-              buttonText={'Start Signing'}
-              secondaryButtonText={
-                isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
-              }
-              secondaryCallback={() => {
-                setKeeperModal(false);
-                navigation.dispatch(
-                  CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
-                );
-              }}
-              buttonCallback={() => navigateToQrSigning(vaultKey)}
-            />
+            <>
+              <KeeperModal
+                key={vaultKey.xfp}
+                visible={currentSigner && specterModal}
+                close={() => {
+                  setSpecterModal(false);
+                }}
+                title="Keep Specter Ready"
+                subTitle="Get your Specter ready before proceeding"
+                textColor={`${colorMode}.textGreen`}
+                Content={() => <SpecterContent isMultisig={isMultisig} />}
+                buttonText={'Start Signing'}
+                secondaryButtonText={
+                  isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+                }
+                secondaryCallback={() => {
+                  setSpecterModal(false);
+                  openRegisterModal(signer, vaultKey, activeVault);
+                }}
+                buttonCallback={() => navigateToQrSigning(vaultKey)}
+              />
+            </>
           );
         }
         if (signer.type === SignerType.KEYSTONE) {
@@ -1093,9 +1179,7 @@ function SignerModals({
                 }
                 secondaryCallback={() => {
                   setKeystoneContentModal(false);
-                  navigation.dispatch(
-                    CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
-                  );
+                  openRegisterModal(signer, vaultKey, activeVault);
                 }}
                 buttonCallback={() => {
                   setKeystoneContentModal(false);
@@ -1117,7 +1201,7 @@ function SignerModals({
                     );
                     return;
                   }
-                  openQRModal(signer, vaultKey);
+                  navigateToQrSigning(vaultKey);
                 }}
               />
             </>
@@ -1160,27 +1244,14 @@ function SignerModals({
                 }
                 secondaryCallback={() => {
                   setJadeModalContent(false);
-                  // TODO: For now Jade only supports registration via USB for Miniscript
-                  if (isMiniscript) {
-                    navigation.dispatch(
-                      CommonActions.navigate('RegisterWithChannel', {
-                        vaultKey,
-                        vaultId,
-                        signerType: signer.type,
-                      })
-                    );
-                  } else {
-                    navigation.dispatch(
-                      CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
-                    );
-                  }
+                  openRegisterModal(signer, vaultKey, activeVault);
                 }}
                 buttonCallback={() => {
                   setJadeModalContent(false);
                   if (signingMode === SigningMode.USB) {
                     navigateToChannelSigning(vaultKey, SignerType.JADE);
                   } else {
-                    openQRModal(signer, vaultKey);
+                    navigateToQrSigning(vaultKey);
                   }
                 }}
               />
@@ -1226,10 +1297,34 @@ function SignerModals({
           return (
             <>
               <KeeperModal
-                key={vaultKey.xfp}
                 visible={currentSigner && otherSDModal}
                 close={() => {
                   setOtherSDModal(false);
+                }}
+                title="Keep the Signer Ready"
+                subTitle="Choose one of the following options"
+                modalBackground={`${colorMode}.modalWhiteBackground`}
+                textColor={`${colorMode}.textGreen`}
+                subTitleColor={`${colorMode}.modalSubtitleBlack`}
+                Content={() => (
+                  <ShareKeyModalContent
+                    navigation={navigation}
+                    signer={signer}
+                    vaultId={vaultId}
+                    vaultKey={vaultKey}
+                    setShareKeyModal={setOtherSDModal}
+                    openmodal={setOtherModalContent}
+                    data={serializedPSBTEnvelop}
+                    isPSBTSharing
+                    xfp={vaultKey?.xfp}
+                  />
+                )}
+              />
+              <KeeperModal
+                key={vaultKey.xfp}
+                visible={otherModalContent}
+                close={() => {
+                  setOtherModalContent(false);
                 }}
                 title="Keep the Signer Ready"
                 subTitle="Get your Signer ready before proceeding"
@@ -1239,7 +1334,7 @@ function SignerModals({
                 buttonText="Proceed"
                 buttonCallback={() => {
                   setOtherSDModal(false);
-                  openQRModal(signer, vaultKey);
+                  navigateToQrSigning(vaultKey);
                 }}
               />
             </>
@@ -1249,10 +1344,34 @@ function SignerModals({
           return (
             <>
               <KeeperModal
-                key={vaultKey.xfp}
                 visible={currentSigner && keeperModal}
                 close={() => {
                   setKeeperModal(false);
+                }}
+                title="Get your Device Ready"
+                subTitle="Choose one of the following options"
+                modalBackground={`${colorMode}.modalWhiteBackground`}
+                textColor={`${colorMode}.textGreen`}
+                subTitleColor={`${colorMode}.modalSubtitleBlack`}
+                Content={() => (
+                  <ShareKeyModalContent
+                    navigation={navigation}
+                    signer={signer}
+                    vaultId={vaultId}
+                    vaultKey={vaultKey}
+                    setShareKeyModal={setKeeperModal}
+                    openmodal={setKeeperContentModal}
+                    data={serializedPSBTEnvelop}
+                    isPSBTSharing
+                    xfp={vaultKey?.xfp}
+                  />
+                )}
+              />
+              <KeeperModal
+                key={vaultKey.xfp}
+                visible={keeperContentModal}
+                close={() => {
+                  setKeeperContentModal(false);
                 }}
                 title="Get your Device Ready"
                 subTitle={`Get your ${getSignerNameFromType(signer.type)} ready before proceeding`}
@@ -1264,7 +1383,7 @@ function SignerModals({
                 buttonText="Proceed"
                 buttonCallback={() => {
                   setKeeperModal(false);
-                  openQRModal(signer, vaultKey);
+                  navigateToQrSigning(vaultKey);
                 }}
               />
             </>
@@ -1290,7 +1409,7 @@ function SignerModals({
               );
               return;
             } else if (signingMode === SigningMode.QR) {
-              openQRModal(signer, vaultKey);
+              navigateToQrSigning(vaultKey);
             } else {
               navigation.dispatch(
                 CommonActions.navigate('SignWithColdCard', {
@@ -1342,10 +1461,8 @@ function SignerModals({
                   isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
                 }
                 secondaryCallback={() => {
-                  setKeystoneContentModal(false);
-                  navigation.dispatch(
-                    CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId })
-                  );
+                  setKeeperModalContent(false);
+                  openRegisterModal(signer, vaultKey, activeVault);
                 }}
               />
             </>
@@ -1395,23 +1512,28 @@ function SignerModals({
 
         return null;
       })}
-      {activeSigner && activeVaultKey && (
+      {registerSignerModal && registeredSigner && (
         <KeeperModal
-          visible={QRModalVisible}
-          close={() => setQRModalVisible(false)}
-          title="Scan your QR"
-          subTitle="Choose one of the following options"
+          visible={registerSignerModal}
+          close={() => setRegisterSignerModal(false)}
+          title="Register multisig"
+          subTitle="Register your active vault"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.textGreen`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={() => (
-            <ShareKeyModalContent
-              navigation={navigation}
-              signer={activeSigner}
+            <RegisterMultisig
+              isUSBAvailable={
+                registeredSigner.type === SignerType.COLDCARD ||
+                (registeredSigner.type === SignerType.JADE && isMiniscript)
+              }
+              signer={registeredSigner}
               vaultId={vaultId}
-              vaultKey={activeVaultKey}
-              navigateToQrSigning={navigateToQrSigning}
-              setShareKeyModal={setQRModalVisible}
-              data={serializedPSBTEnvelop}
-              isPSBTSharing
-              xfp={activeVaultKey?.xfp}
+              vaultKey={registeredVaultKey}
+              setRegisterSignerModal={setRegisterSignerModal}
+              activeVault={registerActiveVault}
+              navigation={navigation}
+              CommonActions={CommonActions}
             />
           )}
         />
