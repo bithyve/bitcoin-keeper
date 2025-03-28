@@ -39,8 +39,6 @@ function RegisterMultisig({
   const { showToast } = useToastMessage();
   const { session } = useContext(HCESessionContext);
 
-  console.log('signer', signer);
-
   const isIos = Platform.OS === 'ios';
   const isAndroid = Platform.OS === 'android';
 
@@ -92,8 +90,6 @@ function RegisterMultisig({
   };
 
   const shareWithAirdrop = async () => {
-    console.log('Airdrop function triggered');
-
     const shareFileName =
       fileName ||
       (isPSBTSharing
@@ -101,7 +97,6 @@ function RegisterMultisig({
         : `cosigner-${signer?.masterFingerprint}.txt`);
 
     try {
-      console.log('Attempting to export file:', shareFileName);
       await exportFile(
         walletConfig,
         shareFileName,
@@ -112,7 +107,6 @@ function RegisterMultisig({
         'utf8',
         false
       );
-      console.log('File export successful');
     } catch (err) {
       console.error('Airdrop function error:', err);
       captureError(err);
