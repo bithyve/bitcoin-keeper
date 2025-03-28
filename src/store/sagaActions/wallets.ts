@@ -41,11 +41,16 @@ export const getTestcoins = (testWallet: Wallet) => ({
 
 // This is called once per login to automatically sync balances and
 // transactions of all shells
-export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => ({
+export const autoSyncWallets = (
+  syncAll?: boolean,
+  hardRefresh?: boolean,
+  addNotifications?: boolean
+) => ({
   type: AUTO_SYNC_WALLETS,
   payload: {
     syncAll,
     hardRefresh,
+    addNotifications,
   },
 });
 

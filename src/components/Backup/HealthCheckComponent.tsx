@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, Input, useColorMode } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { Box, useColorMode } from 'native-base';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { BackupType } from 'src/models/enums/BHR';
 import { StyleSheet } from 'react-native';

@@ -237,7 +237,10 @@ export default class ElectrumClient {
     ELECTRUM_CLIENT = ELECTRUM_CLIENT_DEFAULTS;
 
     // set active node
-    let activeNode = currentPeerToUse || nodes.filter((node) => node.isConnected)[0];
+    let activeNode =
+      currentPeerToUse ||
+      nodes.find((node) => node.isConnected) ||
+      (nodes.length > 0 ? nodes[0] : null);
     ELECTRUM_CLIENT.activePeer = activeNode;
 
     if (nodes) {

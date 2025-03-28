@@ -520,8 +520,8 @@ export default class WalletOperations {
       }
 
       let purpose;
-      if (wallet.entityKind === EntityKind.WALLET) {
-        purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+      if (wallet.entityKind === EntityKind.WALLET || !(wallet as Vault).isMultiSig) {
+        purpose = WalletUtilities.getSingleKeyDerivationPurpose(wallet);
       }
 
       let walletHasNewUpdates = false;

@@ -188,6 +188,7 @@ function* credentialsAuthWorker({ payload }) {
               payload: {
                 syncAll: false,
                 hardRefresh: false,
+                addNotifications: true,
               },
             }),
             timeout: delay(15000),

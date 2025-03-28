@@ -30,9 +30,6 @@ import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
 
-export const defaultTransferPolicyThreshold = null;
-export const maxTransferPolicyThreshold = 1e11;
-
 export function* setupKeeperAppWorker({ payload }) {
   try {
     const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;

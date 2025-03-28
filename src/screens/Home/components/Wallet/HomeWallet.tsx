@@ -74,7 +74,7 @@ const HomeWallet = () => {
   const pullDownRefresh = () => {
     setPullRefresh(true);
 
-    dispatch(autoSyncWallets(false, false));
+    dispatch(autoSyncWallets(false, false, true));
     setPullRefresh(false);
   };
 
