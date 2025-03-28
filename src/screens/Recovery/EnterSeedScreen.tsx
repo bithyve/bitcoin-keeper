@@ -104,7 +104,6 @@ function EnterSeedScreen({ route, navigation }) {
 
   useEffect(() => {
     if (appImageError) {
-      console.log(appImageError);
       if (appImageError === 'Network Error') {
         dispatch(setAppImageError(''));
         setRecoveryLoading(false);
