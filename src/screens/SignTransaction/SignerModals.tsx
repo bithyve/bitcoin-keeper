@@ -239,7 +239,9 @@ function TapsignerContent() {
 function PortalContent() {
   return (
     <>
-      <PortalIllustration />
+      <Box style={styles.portalIllustration}>
+        <PortalIllustration />
+      </Box>
       <Instruction text="Portal communicates with the app over NFC" />
       <Instruction text="You will need the CVC/ Pin, if you have set one." />
     </>
@@ -667,7 +669,6 @@ function SignerModals({
   const [keystoneContentModal, setKeystoneContentModal] = useState(false);
   const [jadeModalContent, setJadeModalContent] = useState(false);
   const [keeperModalContent, setKeeperModalContent] = useState(false);
-  const [seedSignerModalContent, setSeedSignerModalContent] = useState(false);
   const [otherModalContent, setOtherModalContent] = useState(false);
   const [keeperContentModal, setKeeperContentModal] = useState(false);
   const [registerSignerModal, setRegisterSignerModal] = useState(false);
@@ -884,7 +885,9 @@ function SignerModals({
                 buttonText={'Start Signing'}
                 buttonCallback={navigateToSignWithColdCard}
                 secondaryButtonText={
-                  isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+                  signingMode !== SigningMode.USB && isMultisig && !isRemoteKey && !info?.registered
+                    ? 'Register multisig'
+                    : null
                 }
                 secondaryCallback={() => {
                   setColdCardContentModal(false);
@@ -1020,34 +1023,10 @@ function SignerModals({
           return (
             <>
               <KeeperModal
+                key={vaultKey.xfp}
                 visible={currentSigner && seedSignerModal}
                 close={() => setSeedSignerModal(false)}
-                title="Keep SeedSigner Ready"
-                subTitle="Choose one of the following options"
-                modalBackground={`${colorMode}.modalWhiteBackground`}
-                textColor={`${colorMode}.textGreen`}
-                subTitleColor={`${colorMode}.modalSubtitleBlack`}
-                Content={() => (
-                  <ShareKeyModalContent
-                    navigation={navigation}
-                    signer={signer}
-                    vaultId={vaultId}
-                    vaultKey={vaultKey}
-                    setShareKeyModal={setSeedSignerModal}
-                    openmodal={setSeedSignerModalContent}
-                    data={serializedPSBTEnvelop}
-                    isPSBTSharing
-                    xfp={vaultKey?.xfp}
-                  />
-                )}
-              />
-              <KeeperModal
-                key={vaultKey.xfp}
-                visible={seedSignerModalContent}
-                close={() => {
-                  setSeedSignerModalContent(false);
-                }}
-                title={'Signing with QR '}
+                title={'Keep SeedSigner Ready'}
                 subTitle="Get your SeedSigner ready before proceeding"
                 modalBackground={`${colorMode}.modalWhiteBackground`}
                 textColor={`${colorMode}.textGreen`}
@@ -1056,7 +1035,7 @@ function SignerModals({
                 buttonText="Proceed"
                 buttonCallback={() => {
                   navigateToQrSigning(vaultKey);
-                  setSeedSignerModalContent(false);
+                  setSeedSignerModal(false);
                 }}
               />
             </>
@@ -1142,6 +1121,7 @@ function SignerModals({
                           fileData: serializedPSBTEnvelop.serializedPSBT,
                           fileType: 'PSBT',
                           signerType: signer.type,
+                          signingMode,
                         },
                       })
                     );
@@ -1186,7 +1166,9 @@ function SignerModals({
                 Content={() => <JadeContent signingMode={signingMode} isMultisig={isMultisig} />}
                 buttonText={'Start Signing'}
                 secondaryButtonText={
-                  isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
+                  signingMode !== SigningMode.USB && isMultisig && !isRemoteKey && !info?.registered
+                    ? 'Register multisig'
+                    : null
                 }
                 secondaryCallback={() => {
                   setJadeModalContent(false);
@@ -1438,6 +1420,9 @@ function SignerModals({
               title="Keep your Portal ready"
               subTitle="Keep your Portal ready before proceeding"
               buttonText="Proceed"
+              modalBackground={`${colorMode}.modalWhiteBackground`}
+              textColor={`${colorMode}.textGreen`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
               buttonCallback={navigateToSignWithPortal}
               secondaryButtonText={
                 isMultisig && !isRemoteKey && !info?.registered ? 'Register multisig' : null
@@ -1519,5 +1504,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: wp(10),
+  },
+  portalIllustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(10),
   },
 });
