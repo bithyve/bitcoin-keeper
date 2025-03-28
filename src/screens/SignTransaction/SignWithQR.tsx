@@ -137,6 +137,7 @@ function SignWithQR() {
           type: signer.type,
           isPSBT: true,
           importOptions: false,
+          isSingning: true,
         },
       })
     );

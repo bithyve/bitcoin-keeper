@@ -162,17 +162,17 @@ const getSignerContent = (
           : `${coldcard.SetupDescription}`,
         options: [
           {
-            title: 'NFC',
+            title: 'Scan QR',
             icon: (
               <CircleIconWrapper
-                icon={<NfcComms />}
+                icon={<QRComms />}
                 backgroundColor={`${colorMode}.pantoneGreen`}
                 width={38}
               />
             ),
-            name: KeyGenerationMode.NFC,
-            disabled: !isNfcSupported,
+            name: KeyGenerationMode.QR,
           },
+
           {
             title: 'File',
             icon: (
@@ -196,15 +196,16 @@ const getSignerContent = (
             name: KeyGenerationMode.USB,
           },
           {
-            title: 'Scan QR',
+            title: 'NFC',
             icon: (
               <CircleIconWrapper
-                icon={<QRComms />}
+                icon={<NfcComms />}
                 backgroundColor={`${colorMode}.pantoneGreen`}
                 width={38}
               />
             ),
-            name: KeyGenerationMode.QR,
+            name: KeyGenerationMode.NFC,
+            disabled: !isNfcSupported,
           },
         ],
       };
@@ -274,16 +275,17 @@ const getSignerContent = (
         subTitle: isHealthcheck ? '' : 'Choose how to add your External Key to Keeper',
         options: [
           {
-            title: 'NFC',
+            title: 'Scan QR',
             icon: (
               <CircleIconWrapper
-                icon={<NfcComms />}
+                icon={<QRComms />}
                 backgroundColor={`${colorMode}.pantoneGreen`}
                 width={38}
               />
             ),
-            name: KeyGenerationMode.NFC,
+            name: KeyGenerationMode.QR,
           },
+
           {
             title: 'File',
             icon: (
@@ -296,15 +298,15 @@ const getSignerContent = (
             name: KeyGenerationMode.FILE,
           },
           {
-            title: 'Scan QR',
+            title: 'NFC',
             icon: (
               <CircleIconWrapper
-                icon={<QRComms />}
+                icon={<NfcComms />}
                 backgroundColor={`${colorMode}.pantoneGreen`}
                 width={38}
               />
             ),
-            name: KeyGenerationMode.QR,
+            name: KeyGenerationMode.NFC,
           },
         ],
       };
@@ -1991,7 +1993,7 @@ function HardwareModalMap({
       signerType === SignerType.JADE ||
       signerType === SignerType.KEYSTONE ||
       signerType === SignerType.PASSPORT ||
-      signerType === SignerType.SEED_WORDS ||
+      (signerType === SignerType.SEED_WORDS && !isHealthcheck) ||
       signerType === SignerType.KEEPER
     ) {
       return (
@@ -2337,7 +2339,7 @@ function HardwareModalMap({
           signerType === SignerType.JADE ||
           signerType === SignerType.KEYSTONE ||
           signerType === SignerType.PASSPORT ||
-          signerType === SignerType.SEED_WORDS
+          (signerType === SignerType.SEED_WORDS && !isHealthcheck)
             ? null
             : signerType === SignerType.POLICY_SERVER
             ? isHealthcheck

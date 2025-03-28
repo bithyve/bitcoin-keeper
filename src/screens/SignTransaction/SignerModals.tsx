@@ -428,17 +428,7 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
             ),
             name: SigningMode.FILE,
           },
-          {
-            title: 'NFC',
-            icon: (
-              <CircleIconWrapper
-                icon={<NfcComms />}
-                backgroundColor={`${colorMode}.pantoneGreen`}
-                width={35}
-              />
-            ),
-            name: SigningMode.NFC,
-          },
+
           {
             title: 'USB',
             icon: (
@@ -449,6 +439,17 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
               />
             ),
             name: SigningMode.USB,
+          },
+          {
+            title: 'NFC',
+            icon: (
+              <CircleIconWrapper
+                icon={<NfcComms />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={35}
+              />
+            ),
+            name: SigningMode.NFC,
           },
         ],
       };

@@ -241,6 +241,7 @@ function SendScreen({ route }) {
             subtitle: 'Please scan until all the QR data has been retrieved',
             onQrScan,
             importOptions: false,
+            isSingning: true,
           },
         })
       );

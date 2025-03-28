@@ -52,6 +52,7 @@ function ScanQR() {
     showNote = false,
     Illustration,
     Instructions,
+    isSingning = false,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -102,7 +103,7 @@ function ScanQR() {
             title={title}
             subTitle={subtitle}
             rightComponent={
-              !isHealthCheck ? (
+              !isHealthCheck && !isSingning ? (
                 <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
                   {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
                 </TouchableOpacity>
