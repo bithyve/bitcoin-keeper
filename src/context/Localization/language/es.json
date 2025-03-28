@@ -930,7 +930,7 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Setting up TAPSIGNER",
+    "SetupTitle": "Add your TAPSIGNER",
     "SetupDescription": "Get your TAPSIGNER ready before proceeding"
   },
   "coldcard": {
@@ -944,16 +944,16 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Setting up Ledger",
+    "SetupTitle": "Add your Ledger",
     "SetupDescription": "Connect the Ledger to your computer and open the Bitcoin Keeper desktop app",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
   "bitbox": {
-    "SetupTitle": "Setting up BitBox02",
+    "SetupTitle": "Add your BitBox02",
     "SetupDescription": "Connect the BitBox02 to your computer and open the Bitcoin Keeper desktop app"
   },
   "trezor": {
-    "SetupTitle": "Setting up Trezor",
+    "SetupTitle": "Add your Trezor",
     "SetupDescription": "Connect the Trezor to your computer and open the Bitcoin Keeper desktop app"
   },
   "signingServer": {

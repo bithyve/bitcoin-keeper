@@ -395,7 +395,7 @@ function SetupPortal({ route }) {
             case InteracationMode.VAULT_REGISTER:
               return 'Register Vault with Portal';
             default:
-              return 'Setting up Portal';
+              return 'Add your Portal';
           }
         })()}
         subTitle={
@@ -499,7 +499,7 @@ function SetupPortal({ route }) {
         close={() => {
           setInfoModal(false);
         }}
-        title={'Setting up Portal'}
+        title={'Add your Portal'}
         subTitle={`Get your device ready before proceeding.`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}

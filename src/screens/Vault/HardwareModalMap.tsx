@@ -532,7 +532,7 @@ const getSignerContent = (
           ? 'Verify SeedSigner'
           : isCanaryAddition
           ? 'Setting up for Canary'
-          : 'Setting up SeedSigner',
+          : 'Add your SeedSigner',
         subTitle: 'Get your SeedSigner ready and powered before proceeding',
         options: [],
       };
@@ -554,7 +554,7 @@ const getSignerContent = (
           ? 'Verify Specter'
           : isCanaryAddition
           ? 'Setting up for Canary'
-          : 'Setting up Specter DIY',
+          : 'Add your Specter DIY',
         subTitle: 'Get your device ready and powered before proceeding',
         options: [],
       };
@@ -602,7 +602,7 @@ const getSignerContent = (
           'Make sure you secure the 12-word phrase in a safe place.',
           'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
-        title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
+        title: isHealthcheck ? 'Verify Seed Key' : 'Add a Seed Key',
         subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
         options: !isHealthcheck &&
           !isIdentification && [
@@ -653,7 +653,7 @@ const getSignerContent = (
           'The Portal device requires continuous power from the mobile device via NFC to function. ',
           'Place the Portal device on a flat surface, then position the mobile device so that its NFC aligns with the Portal.',
         ],
-        title: 'Setting up Portal',
+        title: 'Add your Portal',
         subTitle: 'Please keep your device ready before proceeding',
         options: [],
       };
@@ -665,7 +665,7 @@ const getSignerContent = (
           'Provide the Signer details either by entering them or scanning',
           `The hardened part of the derivation path of the xpub has to be denoted with a "h" or "'". Please do not use any other character`,
         ],
-        title: isHealthcheck ? 'Verify Signer' : 'Setting up Signer',
+        title: isHealthcheck ? 'Verify Signer' : 'Add Signer',
         subTitle: 'Get your Signer ready before proceeding',
         options: [],
       };
@@ -2236,50 +2236,50 @@ function HardwareModalMap({
   const modalContentConfig = {
     [SignerType.COLDCARD]: {
       [KeyGenerationMode.NFC]: {
-        setupTitle: 'Setting up NFC',
+        setupTitle: 'Use Coldcard with NFC',
         setupSubTitle: 'Get Your Coldcard Ready and powered up before proceeding',
       },
       [KeyGenerationMode.QR]: {
-        setupTitle: 'Setting up QR Scan',
+        setupTitle: 'Use Coldcard with QR',
         setupSubTitle: 'Get Your Coldcard Ready and powered up before proceeding',
       },
       [KeyGenerationMode.FILE]: {
-        setupTitle: 'Setting up File',
+        setupTitle: 'Use Coldcard with file',
         setupSubTitle: 'Get Your Coldcard Ready and powered up before proceeding',
       },
       [KeyGenerationMode.USB]: {
-        setupTitle: 'Setting up USB ',
+        setupTitle: 'Use Coldcard via USB ',
         setupSubTitle: 'Get Your Coldcard Ready and powered up before proceeding',
       },
     },
     [SignerType.JADE]: {
       [KeyGenerationMode.QR]: {
-        setupTitle: 'Setting up QR ',
+        setupTitle: 'Use Jade with QR',
         setupSubTitle: 'Get Your Jade Ready and powered up before proceeding',
       },
 
       [KeyGenerationMode.USB]: {
-        setupTitle: 'Setting up USB ',
+        setupTitle: 'Use Jade via USB',
         setupSubTitle: 'Get Your Jade Ready and powered up before proceeding',
       },
     },
     [SignerType.KEYSTONE]: {
       [KeyGenerationMode.QR]: {
-        setupTitle: 'Setting up QR ',
+        setupTitle: 'Use Keystone with QR',
         setupSubTitle: 'Get your Keystone ready before proceeding',
       },
       [KeyGenerationMode.FILE]: {
-        setupTitle: 'Setting up File',
+        setupTitle: 'Use Keystone with file',
         setupSubTitle: 'Get your Keystone ready before proceeding',
       },
     },
     [SignerType.PASSPORT]: {
       [KeyGenerationMode.QR]: {
-        setupTitle: 'Setting up QR ',
+        setupTitle: 'Use Passport with QR',
         setupSubTitle: 'Get your Foundation Passport ready before proceeding',
       },
       [KeyGenerationMode.FILE]: {
-        setupTitle: 'Setting up File',
+        setupTitle: 'Use Passport with file',
         setupSubTitle: 'Get your Foundation Passport ready before proceeding',
       },
     },
@@ -2295,15 +2295,15 @@ function HardwareModalMap({
     },
     [SignerType.KEEPER]: {
       [KeyGenerationMode.NFC]: {
-        setupTitle: 'Setting up NFC',
+        setupTitle: 'Add with NFC',
         setupSubTitle: externalKey.modalSubtitle,
       },
       [KeyGenerationMode.QR]: {
-        setupTitle: 'Setting up QR Scan',
+        setupTitle: 'Add with QR',
         setupSubTitle: externalKey.modalSubtitle,
       },
       [KeyGenerationMode.FILE]: {
-        setupTitle: 'Setting up File',
+        setupTitle: 'Add with file',
         setupSubTitle: externalKey.modalSubtitle,
       },
     },

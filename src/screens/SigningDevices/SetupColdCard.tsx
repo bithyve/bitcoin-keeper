@@ -46,7 +46,7 @@ const getTitle = (mode) => {
     case InteracationMode.CONFIG_RECOVERY:
       return 'Recover Using Configuration';
     case InteracationMode.VAULT_ADDITION:
-      return 'Setting up Coldcard';
+      return 'Add your Coldcard';
     case InteracationMode.HEALTH_CHECK || InteracationMode.IDENTIFICATION:
       return 'Health Check Coldcard';
   }

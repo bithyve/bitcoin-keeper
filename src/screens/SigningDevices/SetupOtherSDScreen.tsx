@@ -334,7 +334,7 @@ function SetupOtherSDScreen({ route }) {
         close={() => {
           setInfoModal(false);
         }}
-        title={'Setting up Signer'}
+        title={'Add Signer'}
         subTitle={`Get your Signer ready before proceeding.`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
