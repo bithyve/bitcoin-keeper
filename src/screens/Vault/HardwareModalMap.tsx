@@ -360,7 +360,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Add your Keystone',
-        subTitle: 'Choose how to add your External Key to Keeper',
+        subTitle: 'Choose how to add your Keystone to Keeper',
         options: [
           {
             title: 'QR',
@@ -404,7 +404,7 @@ const getSignerContent = (
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Add your Passport',
-        subTitle: 'Get your Foundation Passport ready before proceeding',
+        subTitle: 'Choose how to add your Foundation Passport to Keeper',
         options: [
           {
             title: 'QR',
