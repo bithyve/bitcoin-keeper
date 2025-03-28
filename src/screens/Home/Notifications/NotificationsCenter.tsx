@@ -80,7 +80,6 @@ interface uaiDefinationInterface {
 
 const SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.SECURE_VAULT,
-  uaiType.VAULT_TRANSFER,
   uaiType.SIGNING_DEVICES_HEALTH_CHECK,
   uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
   uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
@@ -145,47 +144,6 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
                 },
               },
             },
-          },
-        };
-      case uaiType.VAULT_TRANSFER:
-        return {
-          heading: content.heading,
-          body: content.body,
-          icon: content.icon,
-          btnConfig: {
-            primary: {
-              text: 'Continue',
-              cta: () => {
-                activeVault ? setShowModal(true) : showToast('No vaults found', <ToastErrorIcon />);
-              },
-            },
-          },
-          modalDetails: {
-            heading: notification.vaultTransferHeading,
-            subTitle: notification.vaultTransferSubTitle.replace(
-              '$wallet',
-              wallet.presentationData.name
-            ),
-            body: notification.vaultTransferBody,
-            sender: wallet,
-            recipient: activeVault,
-            btnConfig: {
-              primary: {
-                text: 'Proceed',
-                cta: () => {
-                  if (pendingHealthCheckCount >= activeVault.scheme.m) {
-                    setShowModal(false);
-                    setShowHealthCheckModal(true);
-                  } else {
-                    setShowModal(false);
-                    activeVault
-                      ? setShowSelectVault(true)
-                      : showToast('No vaults found', <ToastErrorIcon />);
-                  }
-                },
-              },
-            },
-            hideHiddenVaults: true,
           },
         };
       case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
@@ -651,13 +609,6 @@ export const getUaiContent = (type: uaiType, details?: any) => {
         heading: 'Fee Insights',
         body: details?.body || 'Check your fee insights',
         icon: <FeeInsightsIcon />,
-      };
-
-    case uaiType.VAULT_TRANSFER:
-      return {
-        heading: 'Transfer to Vault',
-        body: details?.body || 'Transfer your sats to vault',
-        icon: <TransferToVaultIcon />,
       };
 
     case uaiType.CANARAY_WALLET:

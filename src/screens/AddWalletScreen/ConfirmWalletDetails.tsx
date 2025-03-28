@@ -131,10 +131,6 @@ function ConfirmWalletDetails({ route }) {
           path,
           purpose,
         },
-        transferPolicy: {
-          id: uuidv4(),
-          threshold: 0,
-        },
         instanceNum: route.params.hotWalletInstanceNum,
       },
     };

@@ -26,7 +26,6 @@ import {
   VaultSigner,
 } from 'src/services/wallets/interfaces/vault';
 import {
-  TransferPolicy,
   Wallet,
   WalletImportDetails,
   WalletPresentationData,
@@ -157,9 +156,7 @@ export interface NewWalletDetails {
   name?: string;
   description?: string;
   derivationConfig?: DerivationConfig;
-  transferPolicy?: TransferPolicy;
   instanceNum?: number;
-  parentMnemonic?: string;
 }
 
 export interface NewWalletInfo {
@@ -179,9 +176,7 @@ function* addNewWallet(
     name: walletName,
     description: walletDescription,
     derivationConfig,
-    transferPolicy,
     instanceNum,
-    parentMnemonic,
   } = walletDetails;
   const wallets: Wallet[] = yield call(
     dbManager.getObjectByIndex,
@@ -200,7 +195,6 @@ function* addNewWallet(
         derivationConfig,
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
-        transferPolicy,
         wallets,
       });
       return defaultWallet;
@@ -213,7 +207,6 @@ function* addNewWallet(
         walletDescription: walletDescription || '',
         importDetails,
         networkType: config.NETWORK_TYPE,
-        transferPolicy,
         wallets,
       });
       return importedWallet;
@@ -812,7 +805,6 @@ function* refreshWalletsWorker({
       }
     });
 
-    yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
     yield put(setNetBalance(netBalance));
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {

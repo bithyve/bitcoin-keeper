@@ -85,10 +85,6 @@ export function* setupKeeperAppWorker({ payload }) {
         walletDetails: {
           name: 'Mobile Wallet',
           description: '',
-          transferPolicy: {
-            id: uuidv4(),
-            threshold: 0,
-          },
           instanceNum: 0,
           derivationConfig: {
             path: WalletUtilities.getDerivationPath(

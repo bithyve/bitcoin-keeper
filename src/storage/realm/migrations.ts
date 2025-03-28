@@ -1,6 +1,5 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { MiniscriptTypes, SignerType, VaultType } from 'src/services/wallets/enums';
-import { InheritanceKeyInfo } from 'src/models/interfaces/AssistedKeys';
+import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';
 import _ from 'lodash';
@@ -66,7 +65,6 @@ export const runRealmMigrations = ({
             isMock: signer.isMock,
             storageType: signer.storageType,
             signerPolicy: signer.signerPolicy,
-            inheritanceKeyInfo: signer.inheritanceKeyInfo,
             hidden: false,
             signerXpubs,
           };

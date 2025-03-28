@@ -1010,97 +1010,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingBottom: hp(30),
   },
-  sendSuccessfullNote: {
-    marginTop: hp(5),
-  },
-  TransferCardPreTitle: {
-    marginLeft: wp(5),
-    fontSize: 14,
-    letterSpacing: 0.14,
-  },
-  transferCardTitle: {
-    fontSize: 11,
-    letterSpacing: 0.14,
-  },
-  transferCardSubtitle: {
-    fontSize: 14,
-    letterSpacing: 0.72,
-  },
-  transferCardContainer: {
-    alignItems: 'center',
-    borderRadius: 10,
-
-    paddingHorizontal: 10,
-    paddingVertical: 15,
-    minHeight: hp(70),
-  },
-  preTitleContainer: {
-    width: '100%',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginLeft: 10,
-  },
-  transferText: {
-    fontWeight: 500,
-    fontSize: 12,
-    marginBottom: 5,
-    marginLeft: 3,
-    marginTop: 15,
-  },
-  cardTransferPreTitle: {
-    marginLeft: wp(5),
-    fontSize: 14,
-    letterSpacing: 0.14,
-  },
-  subTitleContainer: {
-    justifyContent: 'center',
-    width: '100%',
-    marginTop: 10,
-    marginLeft: 10,
-  },
-  sendingPriorityText: {
-    fontSize: 15,
-    letterSpacing: 0.15,
-    marginBottom: hp(5),
-  },
-  satsStyle: {
-    height: hp(500),
-  },
-  dollarsStyle: {},
-  marginBottom: {
-    marginBottom: hp(20),
-  },
-  externalKeyModal: {
-    width: '100%',
-  },
-  signingInfoWrapper: {
-    alignItems: 'center',
-    alignSelf: 'center',
-    width: '85%',
-  },
-  signingInfoContainer: {
-    alignSelf: 'center',
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderRadius: 10,
-    paddingVertical: hp(20),
-    paddingHorizontal: wp(18),
-    marginTop: hp(5),
-    marginBottom: hp(20),
-  },
-  infoText: {
-    width: '68%',
-    fontSize: 14,
-  },
-  arrowIcon: {
-    marginRight: wp(10),
-  },
-  signingInfoText: {
-    marginTop: hp(5),
-    paddingHorizontal: wp(25),
-  },
   imgCtr: {
     alignItems: 'center',
     paddingVertical: 20,
@@ -1114,25 +1023,6 @@ const styles = StyleSheet.create({
     gap: 5,
     paddingVertical: hp(10),
     paddingHorizontal: wp(15),
-  },
-  optionTitle: {
-    marginBottom: hp(5),
-  },
-  optionIconCtr: {
-    height: hp(39),
-    width: wp(39),
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 100,
-  },
-  optionCTR: {
-    flexDirection: 'row',
-    paddingHorizontal: wp(15),
-    paddingVertical: hp(22),
-    alignItems: 'center',
-    gap: wp(16),
-    borderRadius: 12,
-    borderWidth: 1,
   },
   otpContainer: {
     width: '100%',

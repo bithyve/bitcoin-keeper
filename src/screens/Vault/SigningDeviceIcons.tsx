@@ -48,8 +48,6 @@ import BITBOXLOGO from 'src/assets/images/bitbox_logo.svg';
 import BITBOXLOGOWHITE from 'src/assets/images/bitbox_logo_white.svg';
 import OTHERSDICON from 'src/assets/images/other.svg';
 import OTHERSDICONLIGHT from 'src/assets/images/other_light.svg';
-import INHERITANCEKEYLIGHT from 'src/assets/images/inheritance_key_light.svg';
-import INHERITANCEKEYDARK from 'src/assets/images/inheritance_key_dark.svg';
 import COLDCARDGREENLIGHT from 'src/assets/images/coldcard-green-light.svg';
 import COLDCARDGREENDARK from 'src/assets/images/coldcard-green-dark.svg';
 import JADEGREENLIGHT from 'src/assets/images/jade-green-light.svg';
@@ -66,8 +64,6 @@ import SPECTERGREENLIGHT from 'src/assets/images/specter-green-light.svg';
 import SPECTERGREENDARK from 'src/assets/images/specter-green-dark.svg';
 import TAPSIGNERGREENLIGHT from 'src/assets/images/tapsigner-green-light.svg';
 import TAPSIGNERGREENDARK from 'src/assets/images/tapsigner-green-dark.svg';
-import INHERITANCEKEYGREENLIGHT from 'src/assets/images/inheritance-key-green-light.svg';
-import INHERITANCEKEYGREENDARK from 'src/assets/images/inheritance-key-green-dark.svg';
 import SERVERGREENLIGHT from 'src/assets/images/server-green-light.svg';
 import SERVERGREENDARK from 'src/assets/images/server-green-dark.svg';
 import MOBILEKEYGREENLIGHT from 'src/assets/images/mobile-key-green-light.svg';
@@ -236,22 +232,6 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
         ),
         type: SignerStorage.WARM,
       };
-    case SignerType.INHERITANCEKEY:
-      return {
-        Icon: getColouredIcon(
-          <INHERITANCEKEYLIGHT />,
-          <INHERITANCEKEYDARK />,
-          light,
-          width,
-          height
-        ),
-        Logo: (
-          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
-            Inheritance Key +
-          </Text>
-        ),
-        type: SignerStorage.WARM,
-      };
     default:
       return {
         Icon: null,
@@ -376,17 +356,6 @@ export const SDColoredIcons = (type: SignerType, light = true, width = 20, heigh
         Icon: getColouredIcon(
           <SEEDWORDSGREENLIGHT />,
           <SEEDWORDSGREENDARK />,
-          light,
-          width,
-          height
-        ),
-        type: SignerStorage.WARM,
-      };
-    case SignerType.INHERITANCEKEY:
-      return {
-        Icon: getColouredIcon(
-          <INHERITANCEKEYGREENLIGHT />,
-          <INHERITANCEKEYGREENDARK />,
           light,
           width,
           height

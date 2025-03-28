@@ -11,7 +11,6 @@ import useWallets from 'src/hooks/useWallets';
 import { Pressable, StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useTestSats from 'src/hooks/useTestSats';
 import idx from 'idx';
 import dbManager from 'src/storage/realm/dbManager';
@@ -33,12 +32,11 @@ import WalletInfoIllustration from 'src/assets/images/walletInfoIllustration.svg
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
-  const { wallet: walletRoute, editPolicy = false } = route.params || {};
+  const { wallet: walletRoute } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const [loadingState, setLoadingState] = useState(false);
 
   const { wallets } = useWallets();
@@ -73,13 +71,6 @@ function WalletSettings({ route }) {
       captureError(error);
       showToast(walletTranslation.somethingWentWrong);
     }
-  };
-
-  const handleTransferPolicy = async () => {
-    setLoadingState(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setTransferPolicyVisible(true);
-    setLoadingState(false);
   };
 
   function modalContent() {
@@ -120,14 +111,6 @@ function WalletSettings({ route }) {
         setConfirmPassVisible(true);
       },
     },
-
-    !isImported && {
-      title: walletTranslation.TransferPolicy,
-      description: walletTranslation.TransferPolicyDesc,
-      icon: null,
-      isDiamond: false,
-      onPress: handleTransferPolicy,
-    },
   ].filter(Boolean);
 
   return (
@@ -153,33 +136,6 @@ function WalletSettings({ route }) {
         {TestSatsComponent}
       </Box>
       <ActivityIndicatorView visible={loadingState} showLoader />
-
-      <KeeperModal
-        visible={transferPolicyVisible}
-        close={() => {
-          setTransferPolicyVisible(false);
-        }}
-        title={walletTranslation.editTransPolicy}
-        subTitle={walletTranslation.editTransPolicySubTitle}
-        subTitleWidth={wp(220)}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.textGreen`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        showCloseIcon={false}
-        showCurrencyTypeSwitch={true}
-        Content={() => (
-          <TransferPolicy
-            wallet={wallet}
-            close={() => {
-              showToast(walletTranslation.TransPolicyChange, <TickIcon />);
-              setTransferPolicyVisible(false);
-            }}
-            secondaryBtnPress={() => {
-              setTransferPolicyVisible(false);
-            }}
-          />
-        )}
-      />
 
       <KeeperModal
         visible={confirmPassVisible}

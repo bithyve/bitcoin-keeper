@@ -112,7 +112,7 @@ function ManageWallets() {
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
 
-  const { wallets } = useWallets({ getAll: true }); // contains all wallets(hidden/unhidden) except for whirlpool wallets
+  const { wallets } = useWallets({ getAll: true });
 
   const { allVaults } = useVault({ includeArchived: false });
   const allWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter((item) => item !== null);

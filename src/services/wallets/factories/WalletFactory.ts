@@ -12,7 +12,6 @@ import {
   XpubTypes,
 } from '../enums';
 import {
-  TransferPolicy,
   Wallet,
   WalletDerivationDetails,
   WalletImportDetails,
@@ -108,8 +107,6 @@ export const generateWallet = async ({
   primaryMnemonic,
   importDetails,
   networkType,
-  transferPolicy,
-  parentMnemonic,
   wallets,
 }: {
   type: WalletType;
@@ -120,8 +117,6 @@ export const generateWallet = async ({
   primaryMnemonic?: string;
   importDetails?: WalletImportDetails;
   networkType: NetworkType;
-  transferPolicy?: TransferPolicy;
-  parentMnemonic?: string;
   wallets: Wallet[];
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
@@ -200,7 +195,6 @@ export const generateWallet = async ({
     presentationData,
     specs,
     scriptType,
-    transferPolicy,
   };
   wallet.specs.receivingAddress = WalletOperations.getNextFreeAddress(wallet);
   return wallet;

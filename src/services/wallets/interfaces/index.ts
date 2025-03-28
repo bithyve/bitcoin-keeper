@@ -107,11 +107,6 @@ export interface TransactionRecipients {
   }[];
 }
 
-export interface TransactionToAddressMapping {
-  txid: string;
-  addresses: string[];
-}
-
 export interface Transaction {
   txid: string;
   address?: string;

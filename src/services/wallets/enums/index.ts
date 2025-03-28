@@ -51,16 +51,9 @@ export enum NetworkType {
   MAINNET = 'MAINNET',
 }
 
-export enum NodeType {
-  ONCHAIN = 'ONCHAIN',
-  LIGHTNING = 'LIGHTNING',
-}
-
 export enum VisibilityType {
   DEFAULT = 'DEFAULT',
-  // DURESS = 'DURESS',
   HIDDEN = 'HIDDEN',
-  // ARCHIVED = 'ARCHIVED',
 }
 
 export enum EntityKind {
@@ -71,9 +64,9 @@ export enum EntityKind {
 export enum WalletType {
   DEFAULT = 'DEFAULT',
   IMPORTED = 'IMPORTED',
-  PRE_MIX = 'PRE_MIX',
-  POST_MIX = 'POST_MIX',
-  BAD_BANK = 'BAD_BANK',
+  PRE_MIX = 'PRE_MIX', // DEPRECATED
+  POST_MIX = 'POST_MIX', // DEPRECATED
+  BAD_BANK = 'BAD_BANK', // DEPRECATED
 }
 
 export enum VaultType {
@@ -94,12 +87,6 @@ export enum MiniscriptTypes {
   EMERGENCY = 'EMERGENCY',
 }
 
-export enum VaultMigrationType {
-  UPGRADE = 'UPGRADE',
-  DOWNGRADE = 'DOWNGRADE',
-  CHANGE = 'CHANGE',
-}
-
 export enum SignerType {
   TAPSIGNER = 'TAPSIGNER',
   KEEPER = 'KEEPER',
@@ -116,7 +103,7 @@ export enum SignerType {
   SEEDSIGNER = 'SEEDSIGNER',
   BITBOX02 = 'BITBOX02',
   OTHER_SD = 'OTHER_SD',
-  INHERITANCEKEY = 'INHERITANCEKEY',
+  INHERITANCEKEY = 'INHERITANCEKEY', // DEPRECATED
   UNKOWN_SIGNER = 'UNKNOWN_SIGNER',
   SPECTER = 'SPECTER',
   ADVISOR_KEY = 'ADVISOR_KEY',
