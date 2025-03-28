@@ -132,6 +132,7 @@ export const customTheme = extendTheme({
       dropdownSeparator: Colors.Taupe,
       lightSkin: Colors.LightSkin,
       greyBorder: Colors.SilverMistTranslucent,
+      secondaryLightGrey: Colors.secondaryLightGrey,
       secondaryGrey: Colors.secondaryLightGrey,
       placeHolderTextColor: Colors.secondaryDarkGrey,
       menuCardTitleColor: Colors.secondaryDarkGrey,
@@ -204,6 +205,8 @@ export const customTheme = extendTheme({
       RecoveryBorderColor: Colors.RussetBrownLight,
       dropdownSeparator: Colors.Taupe,
       textColor2: Colors.secondaryLightGrey,
+      secondaryLightGrey: Colors.secondaryLightGrey,
+
       inActiveMsg: Colors.secondaryLightGrey,
       backgroundbitSaga: Colors.secondaryLightGrey,
       greyBorder: Colors.secondaryLightGrey,
