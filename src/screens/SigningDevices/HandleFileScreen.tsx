@@ -29,6 +29,7 @@ const HandleFileScreen = ({ route, navigation }) => {
     isHealthcheck,
     Illustration,
     Instructions,
+    signingMode,
   } = route.params;
   const [inputText, setInputText] = useState('');
 
@@ -73,7 +74,7 @@ const HandleFileScreen = ({ route, navigation }) => {
             title={title}
             subTitle={subTitle}
             rightComponent={
-              !isHealthcheck ? (
+              !isHealthcheck && !signingMode ? (
                 <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
                   {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
                 </TouchableOpacity>

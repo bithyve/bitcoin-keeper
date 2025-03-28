@@ -181,14 +181,7 @@ function JadeContent({
 function TrezorContent() {
   return (
     <Box alignItems="center">
-      <TrezorSetup />
-      <Box marginTop={2}>
-        <Text style={styles.instructionsText}>
-          {
-            '\u2022 After downloading the desktop app, connect the Trezor to your computer and follow the instructions on the Keeper desktop app'
-          }
-        </Text>
-      </Box>
+      <ColdCardUSBInstruction />
     </Box>
   );
 }
@@ -196,14 +189,7 @@ function TrezorContent() {
 function BitBox02Content() {
   return (
     <Box alignItems="center">
-      <BitoxImage />
-      <Box marginTop={2}>
-        <Text style={styles.instructionsText}>
-          {
-            '\u2022 After downloading the desktop app, connect the BitBox02 to your computer and follow the instructions on the Keeper desktop app'
-          }
-        </Text>
-      </Box>
+      <ColdCardUSBInstruction />
     </Box>
   );
 }
@@ -211,14 +197,7 @@ function BitBox02Content() {
 function LedgerContent() {
   return (
     <Box alignItems="center">
-      <LedgerImage />
-      <Box marginTop={2}>
-        <Text style={styles.instructionsText}>
-          {
-            '\u2022 After downloading the desktop app, connect the Ledger to your computer and follow the instructions on the Keeper desktop app'
-          }
-        </Text>
-      </Box>
+      <ColdCardUSBInstruction />
     </Box>
   );
 }
@@ -923,8 +902,9 @@ function SignerModals({
                 setLedgerModal(false);
               }}
               title="Get your Ledger Ready"
-              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Ledger.`}
+              subTitle={`Connect the Legger to your computer and open the Bitcoin Keeper desktop app`}
               textColor={`${colorMode}.textGreen`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => <LedgerContent />}
               buttonText="Proceed"
               buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
@@ -1232,8 +1212,9 @@ function SignerModals({
                 setTrezorModal(false);
               }}
               title="Keep Trezor Ready"
-              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Trezor.`}
+              subTitle={`Connect the Trezor to your computer and open the Bitcoin Keeper desktop app`}
               textColor={`${colorMode}.textGreen`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => <TrezorContent />}
               buttonText="Proceed"
               buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
@@ -1249,7 +1230,7 @@ function SignerModals({
                 setBitbox02Modal(false);
               }}
               title="Keep BitBox02 Ready"
-              subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with BitBox02.`}
+              subTitle={`Keep your BitBox02 connected to the computer before proceeding.`}
               textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => <BitBox02Content />}
@@ -1369,6 +1350,7 @@ function SignerModals({
                     fileData: serializedPSBTEnvelop.serializedPSBT,
                     fileType: 'PSBT',
                     signerType: signer.type,
+                    signingMode,
                   },
                 })
               );
