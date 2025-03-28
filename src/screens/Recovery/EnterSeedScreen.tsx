@@ -52,7 +52,7 @@ function EnterSeedScreen({ route, navigation }) {
     step = 1,
     selectedNumberOfWordsFromParams,
   } = route.params || {};
-  const { appRecoveryLoading, appImageError } = useAppSelector((state) => state.bhr);
+  const { appImageError } = useAppSelector((state) => state.bhr);
 
   const { appId } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
@@ -104,13 +104,14 @@ function EnterSeedScreen({ route, navigation }) {
 
   useEffect(() => {
     if (appImageError) {
+      console.log(appImageError);
       if (appImageError === 'Network Error') {
         dispatch(setAppImageError(''));
         setRecoveryLoading(false);
         setShowNetworkModal(true);
       } else openInvalidSeedsModal();
     }
-  }, [appRecoveryLoading, appImageError]);
+  }, [appImageError]);
 
   const generateSeedWordsArray = useCallback(() => {
     const seedArray = [];
@@ -275,7 +276,6 @@ function EnterSeedScreen({ route, navigation }) {
       setRecoveryLoading(true);
       try {
         const seedWord = seedWords.map((word) => word.name).join(' ');
-        setRecoveryLoading(true);
         dispatch(getAppImage(seedWord));
       } catch (err) {
         console.error('getAppImage error:', err);
