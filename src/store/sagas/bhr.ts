@@ -702,6 +702,9 @@ function* backupBsmsOnCloudWorker({
   if (password || password === '') yield put(setEncPassword(password));
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
+    const { encPassword } = yield select((state: RootState) => state.bhr);
+    if (!password && !encPassword)
+      throw Error('Personal cloud backup failed, no password provided');
     const bsmsToBackup = [];
     const vaultsCollection = yield call(dbManager.getCollection, RealmSchema.Vault);
     const vaults = vaultsCollection.filter((vault) => vault.archived === false);
@@ -723,7 +726,6 @@ function* backupBsmsOnCloudWorker({
         });
       }
     });
-    const { encPassword } = yield select((state: RootState) => state.bhr);
 
     if (Platform.OS === 'android') {
       yield put(setBackupLoading(true));
@@ -734,7 +736,7 @@ function* backupBsmsOnCloudWorker({
           const response = yield call(
             CloudBackupModule.backupBsms,
             JSON.stringify(bsmsToBackup),
-            password || encPassword || ''
+            password || encPassword
           );
           if (response.status) {
             yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
@@ -774,7 +776,7 @@ function* backupBsmsOnCloudWorker({
       const response = yield call(
         CloudBackupModule.backupBsms,
         JSON.stringify(bsmsToBackup),
-        password || encPassword || ''
+        password || encPassword
       );
       if (response.status) {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
