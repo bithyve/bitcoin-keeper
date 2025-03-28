@@ -374,7 +374,7 @@ export const runRealmMigrations = ({
     for (const objectIndex in newSigners) {
       newSigners[objectIndex].networkType =
         config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
-      //should ba based on xpub or derivative path
+      newSigners[objectIndex].id = getKeyUID(newSigners[objectIndex]);
     }
   }
 };
