@@ -401,7 +401,10 @@ function ConnectChannel() {
           <Box style={styles.content}>
             <Box style={styles.illustration}>{Illustration}</Box>
 
-            {signerType === SignerType.JADE || signerType === SignerType.COLDCARD ? (
+            {signerType === SignerType.JADE ||
+            signerType === SignerType.COLDCARD ||
+            signerType === SignerType.LEDGER ||
+            signerType === SignerType.TREZOR ? (
               <ColdCardUSBInstruction />
             ) : (
               Instructions?.map((instruction) => (
