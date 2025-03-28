@@ -5,7 +5,6 @@ import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
 import {
   DerivationPurpose,
-  EntityKind,
   MiniscriptTypes,
   VaultType,
   WalletType,
@@ -23,7 +22,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 import { v4 as uuidv4 } from 'uuid';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
@@ -76,9 +74,6 @@ function ConfirmWalletDetails({ route }) {
   const isHotWallet = route.params?.isHotWallet;
   const [walletCreatedModal, setWalletCreatedModal] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
-  const [transferPolicy, setTransferPolicy] = useState(
-    defaultTransferPolicyThreshold?.toString() || ''
-  );
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { hasNewWalletsGenerationFailed, err } = useAppSelector((state) => state.wallet);
@@ -138,13 +133,13 @@ function ConfirmWalletDetails({ route }) {
         },
         transferPolicy: {
           id: uuidv4(),
-          threshold: transferPolicy ? parseInt(transferPolicy) : 0,
+          threshold: 0,
         },
         instanceNum: route.params.hotWalletInstanceNum,
       },
     };
     dispatch(addNewWallets([newWallet]));
-  }, [walletName, descriptionInputRef, path, purpose, transferPolicy]);
+  }, [walletName, descriptionInputRef, path, purpose]);
 
   useEffect(() => {
     if (relayWalletUpdate) {
