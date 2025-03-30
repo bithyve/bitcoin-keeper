@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, Share } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, ScrollView, useColorMode, VStack } from 'native-base';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import Text from 'src/components/KeeperText';
 import RemoteShareIllustration from 'src/assets/images/remote-share-illustration.svg';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -17,15 +15,16 @@ import Relay from 'src/services/backend/Relay';
 import { encrypt, getKeyAndHash } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { getKeyUID } from 'src/utils/utilities';
+import WalletHeader from 'src/components/WalletHeader';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
 const RemoteShareText = {
   [RKInteractionMode.SHARE_REMOTE_KEY]: {
-    title: 'Remote Key Sharing',
+    title: 'Magic Link Sharing',
     desc: 'Please share the key using this link with your contact using a secure and private communication medium.',
     cta: 'Share Key',
-    msgTitle: 'Remote Key Sharing',
+    msgTitle: 'Magic Link Sharing',
     msgDesc:
       "Hey, I'm sharing a bitcoin key with you. Please click the link to accept it on the Bitcoin Keeper app and keep it safe.",
   },
@@ -118,20 +117,15 @@ function RemoteSharing({ route }: ScreenProps) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader />
+      <WalletHeader title={RemoteShareText[mode].title} subTitle={RemoteShareText[mode].desc} />
       <VStack style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          <Box style={styles.descriptionContainer}>
-            <Text style={styles.title} medium color={`${colorMode}.textGreen`}>
-              {RemoteShareText[mode].title}
-            </Text>
-            <Text style={styles.description}>{RemoteShareText[mode].desc}</Text>
-          </Box>
-
-          {!isPSBTSharing && <RemoteShareIllustration style={styles.illustration} />}
+          {!isPSBTSharing && (
+            <RemoteShareIllustration style={styles.illustration} width={130} height={130} />
+          )}
 
           <Box style={styles.messagePreview}>
             <MessagePreview
@@ -147,6 +141,7 @@ function RemoteSharing({ route }: ScreenProps) {
             primaryCallback={handleShare}
             width={windowWidth * 0.82}
             primaryLoading={primaryLoading}
+            paddingVertical={hp(12)}
           />
           <Buttons
             secondaryText="Cancel"
@@ -172,15 +167,10 @@ const styles = StyleSheet.create({
   contentContainer: {
     alignItems: 'center',
   },
-  descriptionContainer: {
-    alignItems: 'center',
-    gap: 10,
-    marginVertical: 20,
-  },
+
   CTAContainer: {
     alignItems: 'center',
-    gap: 20,
-    paddingVertical: hp(10),
+    gap: 15,
   },
   title: {
     fontSize: 20,
@@ -191,12 +181,12 @@ const styles = StyleSheet.create({
     width: wp(300),
   },
   illustration: {
-    marginTop: hp(5),
+    marginTop: hp(20),
     marginRight: wp(15),
   },
   messagePreview: {
     width: '100%',
-    marginTop: hp(32),
+    marginTop: hp(10),
     marginBottom: hp(34),
   },
 });

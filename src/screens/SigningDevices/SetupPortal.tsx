@@ -1,4 +1,4 @@
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -13,7 +13,6 @@ import {
 } from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useEffect, useState } from 'react';
@@ -43,6 +42,11 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { SegmentedController } from 'src/components/SegmentController';
 import { options, SuccessContainer } from '../AddSigner/AddMultipleXpub';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import WalletHeader from 'src/components/WalletHeader';
+import KeeperModal from 'src/components/KeeperModal';
+import Instruction from 'src/components/Instruction';
 
 const isTestNet = config.NETWORK_TYPE === NetworkType.TESTNET;
 
@@ -57,6 +61,9 @@ function SetupPortal({ route }) {
     vaultId,
     isRemoteKey,
     receiveAddressIndex,
+    Illustration,
+    Instructions,
+    isHealthcheck,
   }: {
     mode: InteracationMode;
     signer: Signer;
@@ -67,8 +74,12 @@ function SetupPortal({ route }) {
     vaultId?: string;
     isRemoteKey?: boolean;
     receiveAddressIndex?: number;
+    Illustration?: any;
+    Instructions?: any;
+    isHealthcheck?: boolean;
   } = route.params;
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const [cvc, setCvc] = React.useState('');
   const [confirmCVC, setConfirmCVC] = React.useState('');
   const [portalStatus, setPortalStatus] = useState(null);
@@ -81,6 +92,7 @@ function SetupPortal({ route }) {
   const isAddressVerification = mode === InteracationMode.ADDRESS_VERIFICATION;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [xpubs, setXpubs] = useState({});
+  const [infoModal, setInfoModal] = useState(false);
 
   let vaultDescriptor = '';
   let vault = null;
@@ -372,7 +384,7 @@ function SetupPortal({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={(() => {
           switch (mode) {
             case InteracationMode.HEALTH_CHECK:
@@ -384,13 +396,20 @@ function SetupPortal({ route }) {
             case InteracationMode.VAULT_REGISTER:
               return 'Register Vault with Portal';
             default:
-              return 'Setting up Portal';
+              return 'Add your Portal';
           }
         })()}
-        subtitle={
+        subTitle={
           portalStatus?.initialized == false
             ? 'Initialize portal with 12 words seed'
             : 'Enter your device password'
+        }
+        rightComponent={
+          InteracationMode.VAULT_ADDITION ? (
+            <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
+              {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+            </TouchableOpacity>
+          ) : null
         }
       />
       <MockWrapper
@@ -476,6 +495,26 @@ function SetupPortal({ route }) {
         )}
       </MockWrapper>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
+      <KeeperModal
+        visible={infoModal}
+        close={() => {
+          setInfoModal(false);
+        }}
+        title={'Add your Portal'}
+        subTitle={`Get your device ready before proceeding.`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <Box style={styles.illustrations}>{Illustration}</Box>
+
+            {Instructions?.map((instruction) => (
+              <Instruction text={instruction} key={instruction} />
+            ))}
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -534,6 +573,14 @@ const styles = StyleSheet.create({
   inputWrapper: {
     marginHorizontal: 15,
     marginTop: 6,
+  },
+  infoIcon: {
+    marginRight: wp(10),
+  },
+  illustrations: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(20),
   },
   contentContainer: { alignItems: 'center', gap: hp(20) },
   contentText: { textAlign: 'center', maxWidth: '80%' },

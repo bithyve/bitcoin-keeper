@@ -203,14 +203,14 @@ export enum KeyGenerationMode {
   IMPORT = 'IMPORT',
   CREATE = 'CREATE',
   NFC = 'NFC',
-  FILE = 'FILE',
+  FILE = 'File',
   QR = 'QR',
   USB = 'USB',
 }
 
 export enum SigningMode {
   NFC = 'NFC',
-  FILE = 'FILE',
+  FILE = 'File',
   QR = 'QR',
   USB = 'USB',
 }

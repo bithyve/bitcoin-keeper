@@ -91,14 +91,14 @@ const SettingCard: React.FC<SettingCardProps> = ({
                           backgroundColor={
                             applyDiamondCheck
                               ? `${colorMode}.pantoneGreen`
-                              : `${colorMode}.greyBorder`
+                              : `${colorMode}.secondaryLightGrey`
                           }
                         />
                       </Box>
                     )}
                     <Box style={styles.textContainer}>
                       <Text
-                        color={applyDiamondCheck ? titleColor : `${colorMode}.greyBorder`}
+                        color={applyDiamondCheck ? titleColor : `${colorMode}.secondaryLightGrey`}
                         fontSize={14}
                         medium
                         style={styles.title}
@@ -110,7 +110,9 @@ const SettingCard: React.FC<SettingCardProps> = ({
                           style={styles.content}
                           fontSize={12}
                           numberOfLines={2}
-                          color={applyDiamondCheck ? subtitleColor : `${colorMode}.greyBorder`}
+                          color={
+                            applyDiamondCheck ? subtitleColor : `${colorMode}.secondaryLightGrey`
+                          }
                         >
                           {item.description}
                         </Text>
