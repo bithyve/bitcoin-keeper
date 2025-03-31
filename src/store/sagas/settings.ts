@@ -3,6 +3,7 @@ import { createWatcher } from '../utilities';
 import { setBitcoinNetwork } from '../reducers/settings';
 import { CHANGE_BITCOIN_NETWORK } from '../sagaActions/settings';
 import Node from 'src/services/electrum/node';
+import { fetchFeeRates } from '../sagaActions/send_and_receive';
 
 function* changeBitcoinNetworkWorker({ payload }) {
   let activeNode;
@@ -13,6 +14,7 @@ function* changeBitcoinNetworkWorker({ payload }) {
     } catch (error) {}
 
     yield put(setBitcoinNetwork(network));
+    yield put(fetchFeeRates());
     if (activeNode) {
       yield call(Node.disconnect, activeNode);
     }
