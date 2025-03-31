@@ -24,7 +24,6 @@ import {
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
-import { TransferType } from 'src/models/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useBalance from 'src/hooks/useBalance';
 import useWallets from 'src/hooks/useWallets';
@@ -50,7 +49,6 @@ import config from 'src/utils/service-utilities/config';
 import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { SentryErrorBoundary } from 'src/services/sentry';
-import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import WalletHeader from 'src/components/WalletHeader';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -67,19 +65,12 @@ import PriorityModal from './PriorityModal';
 import CustomPriorityModal from './CustomPriorityModal';
 import SigningServer from '../../services/backend/SigningServer';
 
-const vaultTransfers = [TransferType.WALLET_TO_VAULT];
-const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
-const internalTransfers = [TransferType.VAULT_TO_VAULT];
-
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
   internalRecipients: (Wallet | Vault)[];
   addresses: string[];
   amounts: number[];
   walletId: string;
-  uiMetaData: any;
-  transferType: TransferType;
-  uaiSetActionFalse: any;
   note: string;
   label: {
     name: string;
@@ -114,8 +105,6 @@ function SendConfirmation({ route }) {
     addresses,
     amounts: originalAmounts,
     walletId,
-    transferType,
-    uaiSetActionFalse,
     note,
     label = [], // TODO: Need to refactor or delete
     selectedUTXOs,
@@ -150,10 +139,6 @@ function SendConfirmation({ route }) {
 
   const isDarkMode = colorMode === 'dark';
   const [visibleModal, setVisibleModal] = useState(false);
-  const [externalKeySelectionModal, setExternalKeySelectionModal] = useState(false);
-  const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
-  const [title, setTitle] = useState('Sending to address');
-  const [subTitle, setSubTitle] = useState('Review the transaction setup');
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
@@ -161,7 +146,6 @@ function SendConfirmation({ route }) {
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
-  const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
 
   const isMoveAllFunds =
@@ -264,24 +248,9 @@ function SendConfirmation({ route }) {
   }, [navigation, isCachedTransaction]);
 
   useEffect(() => {
-    if (vaultTransfers.includes(transferType)) {
-      setTitle('Sending to vault');
-    } else if (walletTransfers.includes(transferType)) {
-      setTitle('Sending to wallet');
-    } else if (internalTransfers.includes(transferType)) {
-      setTitle('Transfer Funds to the new vault');
-      setSubTitle('On-chain transaction incurs fees');
-    }
-  }, []);
-
-  useEffect(() => {
     let hasHighFee = false;
     const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
     if (selectedFee > amounts.reduce((sum, amount) => sum + amount, 0) / 10) hasHighFee = true; // if fee is greater than 10% of the total amount being sent
-
-    setFeePercentage(
-      Math.trunc((selectedFee / amounts.reduce((sum, amount) => sum + amount, 0)) * 100)
-    );
 
     if (hasHighFee) {
       setIsFeeHigh(true);
@@ -342,7 +311,6 @@ function SendConfirmation({ route }) {
                   },
                   note,
                   label,
-                  transferType,
                 })
               );
             }, 200);
@@ -490,40 +458,22 @@ function SendConfirmation({ route }) {
 
   const viewDetails = () => {
     setVisibleModal(false);
-    if (vaultTransfers.includes(transferType) && internalRecipients.length > 0) {
-      const navigationState = {
-        index: 1,
-        routes: [
-          { name: 'Home' },
-          {
-            name: 'VaultDetails',
-            params: {
-              transactionToast: true,
-              autoRefresh: true,
-              vaultId: internalRecipients[0].id,
-            },
+    const navigationState = {
+      index: 1,
+      routes: [
+        { name: 'Home' },
+        {
+          name: 'WalletDetails',
+          params: {
+            autoRefresh: true,
+            hardRefresh: false,
+            walletId: sender?.id,
+            transactionToast: true,
           },
-        ],
-      };
-      navigation.dispatch(CommonActions.reset(navigationState));
-    } else {
-      const navigationState = {
-        index: 1,
-        routes: [
-          { name: 'Home' },
-          {
-            name: 'WalletDetails',
-            params: {
-              autoRefresh: true,
-              hardRefresh: false,
-              walletId: sender?.id,
-              transactionToast: true,
-            },
-          },
-        ],
-      };
-      navigation.dispatch(CommonActions.reset(navigationState));
-    }
+        },
+      ],
+    };
+    navigation.dispatch(CommonActions.reset(navigationState));
   };
 
   const viewManageWallets = () => {

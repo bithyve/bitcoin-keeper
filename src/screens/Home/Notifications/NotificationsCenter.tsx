@@ -1,33 +1,23 @@
 import { Box, useColorMode } from 'native-base';
-import React, { memo, useContext, useEffect, useState, useMemo } from 'react';
+import React, { memo, useEffect, useState, useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, SectionList } from 'react-native';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Instruction from 'src/components/Instruction';
 import KeeperModal from 'src/components/KeeperModal';
-import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
-import SelectWalletModal from 'src/components/SelectWalletModal';
 import useUaiStack from 'src/hooks/useUaiStack';
-import { TransferType } from 'src/models/enums/TransferType';
 import FeeInsightsContent from 'src/screens/FeeInsights/FeeInsightsContent';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import { uaiActioned, uaisSeen } from 'src/store/sagaActions/uai';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
-import useVault from 'src/hooks/useVault';
 import ServerTransNotificaiton from 'src/assets/images/server-transaction-notification-icon.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
-import useSigners from 'src/hooks/useSigners';
-import { EntityKind, SignerType } from 'src/services/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { hp, wp } from 'src/constants/responsive';
-import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { Vault } from 'src/services/wallets/interfaces/vault';
-import useWallets from 'src/hooks/useWallets';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import Text from 'src/components/KeeperText';
@@ -47,10 +37,7 @@ import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 
 type CardProps = {
-  totalLength: number;
-  index: number;
   uai: any;
-  wallet: Wallet | Vault | null;
 };
 interface uaiDefinationInterface {
   heading: string;
@@ -91,31 +78,19 @@ const SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.SERVER_BACKUP_FAILURE,
 ];
 
-const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
+const Card = memo(({ uai }: CardProps) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
   const { showToast } = useToastMessage();
   const [showModal, setShowModal] = useState(false);
-  const [modalActionLoader, setmodalActionLoader] = useState(false);
   const [insightModal, setInsightModal] = useState(false);
-  const { translations } = useContext(LocalizationContext);
-  const { notification } = translations;
-  const { activeVault } = useVault({ getFirst: true });
   const { signerMap } = useSignerMap();
-  const { signers: vaultKeys } = activeVault || { signers: [] };
-  const { vaultSigners: keys } = useSigners(
-    activeVault?.entityKind === EntityKind.VAULT ? activeVault?.id : ''
-  );
-  const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
-  const [showSelectVault, setShowSelectVault] = useState(false);
-  const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     const backupHistory = useQuery(RealmSchema.BackupHistory);
-    const { activeVault } = useVault({ getFirst: true });
     const content = getUaiContent(uai.uaiType, uai.uaiDetails);
 
     switch (uai.uaiType) {
@@ -382,29 +357,6 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
         showCloseIcon={false}
         Content={() => <Instruction text={uaiConfig?.modalDetails?.body} />}
       />
-      <PendingHealthCheckModal
-        selectedItem={activeVault}
-        vaultKeys={vaultKeys}
-        signerMap={signerMap}
-        keys={keys}
-        showHealthCheckModal={showHealthCheckModal}
-        setShowHealthCheckModal={setShowHealthCheckModal}
-        pendingHealthCheckCount={pendingHealthCheckCount}
-        setPendingHealthCheckCount={setPendingHealthCheckCount}
-        primaryButtonCallback={() => {
-          setShowHealthCheckModal(false);
-          if (activeVault) {
-            navigtaion.navigate('Send', {
-              sender: wallet,
-              selectedUTXOs: [],
-              isSendMax: true,
-              internalRecipientWallet: activeVault,
-            });
-          } else {
-            showToast('No vaults found', <ToastErrorIcon />);
-          }
-        }}
-      />
       <KeeperModal
         visible={insightModal}
         close={() => {
@@ -423,26 +375,7 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
         }}
         Content={() => <FeeInsightsContent />}
       />
-      <SelectWalletModal
-        showModal={showSelectVault}
-        setShowModal={setShowSelectVault}
-        onlyVaults={true}
-        onlyWallets={false}
-        hideHiddenVaults={uaiConfig?.modalDetails?.hideHiddenVaults}
-        buttonCallback={(vault) => {
-          navigtaion.navigate('AddSendAmount', {
-            sender: wallet,
-            recipient: vault,
-            transferType: TransferType.WALLET_TO_VAULT,
-            isSendMax: true,
-          });
-          setShowSelectVault(false);
-        }}
-        secondaryCallback={() => {
-          setShowSelectVault(false);
-        }}
-      />
-      <ActivityIndicatorView visible={modalActionLoader || backupAllLoading} showLoader />
+      <ActivityIndicatorView visible={backupAllLoading} showLoader />
     </>
   );
 });
@@ -450,7 +383,6 @@ const Card = memo(({ uai, index, totalLength, wallet }: CardProps) => {
 function NotificationsCenter() {
   const { colorMode } = useColorMode();
   const { uaiStack, isLoading } = useUaiStack();
-  const { wallets: allWallets } = useWallets({ getAll: true });
   const dispatch = useDispatch();
 
   const { unseenNotifications, seenNotifications } = useMemo(
@@ -486,16 +418,8 @@ function NotificationsCenter() {
     }
   }, [uaiStack]);
 
-  const renderNotificationCard = ({ uai, index }: { uai: UAI; index: number }) => {
-    return (
-      <Card
-        uai={uai}
-        key={uai.id}
-        index={index}
-        totalLength={uaiStack.length - 1}
-        wallet={allWallets.find((wallet) => wallet.id === uai.entityId)}
-      />
-    );
+  const renderNotificationCard = ({ uai }: { uai: UAI }) => {
+    return <Card uai={uai} key={uai.id} />;
   };
 
   return (
@@ -534,7 +458,7 @@ function NotificationsCenter() {
                   show: seenNotifications.length > 0,
                 },
               ].filter((section) => section.show)}
-              renderItem={({ item, index }) => renderNotificationCard({ uai: item, index })}
+              renderItem={({ item }) => renderNotificationCard({ uai: item })}
               renderSectionHeader={({ section: { title } }) => (
                 <Box style={styles.listHeader} backgroundColor={`${colorMode}.seashellWhite`}>
                   <Text fontSize={16} semiBold>

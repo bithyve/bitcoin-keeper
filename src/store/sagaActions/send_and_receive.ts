@@ -4,7 +4,6 @@ import { Action } from 'redux';
 import { TxPriority } from 'src/services/wallets/enums';
 import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { TransferType } from 'src/models/enums/TransferType';
 
 export const FETCH_EXCHANGE_RATES = 'FETCH_EXCHANGE_RATES';
 export const FETCH_FEE_RATES = 'FETCH_FEE_RATES';
@@ -75,7 +74,6 @@ export interface SendPhaseTwoAction extends Action {
     wallet: Wallet | Vault;
     currentBlockHeight: number;
     txnPriority: TxPriority;
-    transferType: TransferType;
     miniscriptTxElements?: {
       selectedPhase: number;
       selectedPaths: number[];
@@ -89,7 +87,6 @@ export const sendPhaseTwo = (payload: {
   wallet: Wallet | Vault;
   currentBlockHeight: number;
   txnPriority: TxPriority;
-  transferType: TransferType;
   miniscriptTxElements?: {
     selectedPhase: number;
     selectedPaths: number[];

@@ -146,15 +146,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     (state) => state.sendAndReceive.customPrioritySendPhaseOne
   );
 
-  const {
-    wallet,
-    currentBlockHeight,
-    txnPriority,
-    miniscriptTxElements,
-    note,
-    label,
-    transferType,
-  } = payload;
+  const { wallet, currentBlockHeight, txnPriority, miniscriptTxElements, note, label } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const customTxPrerequisites = _.cloneDeep(
     idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
