@@ -78,7 +78,7 @@ export function* bulkUpdateLabelsWorker({
       added: { isSystem: boolean; name: string }[];
       deleted: { isSystem: boolean; name: string }[];
     };
-    UTXO?: UTXO;
+    UTXO?: { txId: string; vout: number };
     txId?: string;
     address?: string;
     wallet: Wallet;

@@ -72,10 +72,6 @@ export interface SendConfirmationRouteParams {
   amounts: number[];
   walletId: string;
   note: string;
-  label: {
-    name: string;
-    isSystem: boolean;
-  }[];
   selectedUTXOs: UTXO[];
   date: Date;
   parentScreen: string;
@@ -106,7 +102,6 @@ function SendConfirmation({ route }) {
     amounts: originalAmounts,
     walletId,
     note,
-    label = [], // TODO: Need to refactor or delete
     selectedUTXOs,
     parentScreen,
     transactionPriority: initialTransactionPriority,
@@ -310,7 +305,6 @@ function SendConfirmation({ route }) {
                     ),
                   },
                   note,
-                  label,
                 })
               );
             }, 200);
@@ -428,7 +422,6 @@ function SendConfirmation({ route }) {
         CommonActions.navigate('SignTransactionScreen', {
           isMoveAllFunds,
           note,
-          label,
           vaultId: sender?.id,
           sender,
           sendConfirmationRouteParams: route.params,

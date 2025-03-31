@@ -56,7 +56,6 @@ export interface WalletSpecs {
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
   transactions: Transaction[]; // transactions belonging to this wallet
-  txNote: { [txId: string]: string }; // transaction note
   hasNewUpdates: boolean; // spec vars have a new update?
   lastSynched: number; // wallet's last sync timestamp
 }

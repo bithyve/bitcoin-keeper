@@ -132,7 +132,6 @@ export const WalletSpecsSchema: ObjectSchema = {
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,
     transactions: `${RealmSchema.Transaction}[]`,
-    txNote: '{}',
     hasNewUpdates: 'bool',
     lastSynched: 'int',
   },
