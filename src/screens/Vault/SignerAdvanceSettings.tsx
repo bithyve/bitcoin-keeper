@@ -75,6 +75,7 @@ import Buttons from 'src/components/Buttons';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { vaultAlreadyExists } from './VaultMigrationController';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import RegisterSignerContent from './components/RegisterSignerContent';
 
 const { width } = Dimensions.get('screen');
 
@@ -145,6 +146,7 @@ function SignerAdvanceSettings({ route }: any) {
     null | 'hideKey' | 'mobileKeySeed'
   >(null);
   const [detailModal, setDetailModal] = useState(false);
+  const [registerSignerModal, setRegisterSignerModal] = useState(false);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
@@ -264,37 +266,38 @@ function SignerAdvanceSettings({ route }: any) {
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
 
+  const navigateRegisterWithQR = () => {
+    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+  };
+  const navigateRegisterWithChannel = () => {
+    navigation.dispatch(
+      CommonActions.navigate('RegisterWithChannel', {
+        vaultKey,
+        vaultId,
+        signerType: signer.type,
+      })
+    );
+  };
+
   const registerSigner = async () => {
     switch (signer.type) {
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
-        navigation.dispatch(
-          CommonActions.navigate('RegisterWithChannel', {
-            vaultKey,
-            vaultId,
-            signerType: signer.type,
-          })
-        );
+        navigateRegisterWithChannel();
         break;
       case SignerType.KEYSTONE:
       case SignerType.PASSPORT:
       case SignerType.SPECTER:
       case SignerType.OTHER_SD:
       case SignerType.COLDCARD:
-        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+        setRegisterSignerModal(true);
         break;
       case SignerType.JADE:
         // For now, Jade only supports registration via USB for Miniscript
         if (activeVault.scheme.miniscriptScheme) {
-          navigation.dispatch(
-            CommonActions.navigate('RegisterWithChannel', {
-              vaultKey,
-              vaultId,
-              signerType: signer.type,
-            })
-          );
+          navigation.dispatch();
         } else {
-          navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+          setRegisterSignerModal(true);
         }
         break;
       case SignerType.PORTAL:
@@ -958,6 +961,29 @@ function SignerAdvanceSettings({ route }: any) {
         </Box>
       </ScrollView>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
+
+      <KeeperModal
+        visible={registerSignerModal}
+        close={() => setRegisterSignerModal(false)}
+        title="Manual Registration"
+        subTitle="Register your active vault"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <RegisterSignerContent
+            isUSBAvailable={signer.type == SignerType.COLDCARD || signer.type == SignerType.JADE}
+            signer={signer}
+            vaultId={vaultId}
+            vaultKey={vaultKey}
+            setRegisterSignerModal={setRegisterSignerModal}
+            activeVault={activeVault}
+            navigateRegisterWithQR={navigateRegisterWithQR}
+            navigateRegisterWithChannel={navigateRegisterWithChannel}
+          />
+        )}
+      />
+
       <KeeperModal
         visible={waningModal}
         close={() => setWarning(false)}

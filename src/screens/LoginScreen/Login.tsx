@@ -36,14 +36,11 @@ import {
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import {
   increasePinFailAttempts,
-  resetPinFailAttempts,
   setAutoUpdateEnabledBeforeDowngrade,
   setPlebDueToOffline,
 } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
-import FogotPassword from './components/FogotPassword';
-import ResetPassSuccess from './components/ResetPassSuccess';
 import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
 import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
@@ -61,8 +58,6 @@ function LoginScreen({ navigation, route }) {
   const [loginError, setLoginError] = useState(false);
   const [loginModal, setLoginModal] = useState(false);
   const [errMessage, setErrMessage] = useState('');
-  const [forgotVisible, setForgotVisible] = useState(false);
-  const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const { loginMethod } = useAppSelector((state) => state.settings);
   const torEnbled = false;
@@ -287,25 +282,6 @@ function LoginScreen({ navigation, route }) {
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
-  const onPinChange = () => {
-    setLoginError(false);
-    setErrMessage('');
-    setAttempts(0);
-    setIncorrectPassword(false);
-    dispatch(resetPinFailAttempts());
-    setResetPassSuccessVisible(true);
-  };
-
-  const toggleTor = () => {
-    if (torStatus === TorStatus.OFF || torStatus === TorStatus.ERROR) {
-      RestClient.setUseTor(true);
-      dispatch(setTorEnabled(true));
-    } else {
-      RestClient.setUseTor(false);
-      dispatch(setTorEnabled(false));
-    }
-  };
-
   const modelAsset = useMemo(() => {
     if (torEnbled) {
       return <TorAsset />;
@@ -470,39 +446,6 @@ function LoginScreen({ navigation, route }) {
               fullWidth
             />
           </Box>
-        </Box>
-        {/* forgot modal */}
-        {forgotVisible && (
-          <ModalContainer
-            visible={forgotVisible}
-            closeBottomSheet={() => {
-              setForgotVisible(false);
-            }}
-          >
-            <FogotPassword
-              type="seed"
-              closeBottomSheet={() => setForgotVisible(false)}
-              onVerify={() => {
-                setForgotVisible(false);
-                navigation.navigate('ResetPin', {
-                  onPinChange,
-                });
-              }}
-            />
-          </ModalContainer>
-        )}
-        {/* reset password success modal */}
-        <Box>
-          <ModalWrapper
-            visible={resetPassSuccessVisible}
-            onSwipeComplete={() => setResetPassSuccessVisible(false)}
-          >
-            <ResetPassSuccess
-              closeBottomSheet={() => {
-                setResetPassSuccessVisible(false);
-              }}
-            />
-          </ModalWrapper>
         </Box>
       </Box>
       <KeeperModal

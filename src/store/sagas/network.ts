@@ -57,10 +57,10 @@ export function* connectToNodeWorker() {
     const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
     if (connected) {
       yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
-      yield put(fetchFeeRates());
     } else {
       yield put(electrumClientConnectionExecuted({ successful: connected, error }));
     }
+    yield put(fetchFeeRates());
   } catch (err) {
     captureError(err);
   }

@@ -1,7 +1,7 @@
 import { Dimensions, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { Box, Image, Text, useColorMode } from 'native-base';
+import { Box, Text, useColorMode } from 'native-base';
 import Next from 'src/assets/images/icon_arrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -12,17 +12,23 @@ import moment from 'moment';
 import useSigners from 'src/hooks/useSigners';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import KeeperModal from 'src/components/KeeperModal';
+import RegisterMultisig from '../SignTransaction/component/RegisterMultisig';
+import { SignerType, VaultType } from 'src/services/wallets/enums';
+import useVault from 'src/hooks/useVault';
 
 const { width } = Dimensions.get('screen');
 
 function SignerSelectionListScreen() {
   const { params } = useRoute();
   const { colorMode } = useColorMode();
-  const { vaultId, signersMFP, title, description, callback } = params as {
+  const navigation = useNavigation();
+  const { vaultId, signersMFP, title, description, callback, vaultKeydata } = params as {
     vaultId: string;
     signersMFP: string[];
     title: string;
     description: string;
+    vaultKeydata: any;
     callback: (signer, signerName) => void;
   };
 
@@ -30,6 +36,24 @@ function SignerSelectionListScreen() {
   const [availableSigners] = useState(
     vaultSigners.filter((signer) => signersMFP?.includes(signer.masterFingerprint))
   );
+
+  const [registerSignerModal, setRegisterSignerModal] = useState(false);
+  const [selectedSigner, setSelectedSigner] = useState(null);
+
+  const vaultKey = vaultKeydata?.find(
+    (item) => item?.masterFingerprint === selectedSigner?.masterFingerprint
+  );
+
+  const { activeVault } = useVault({ vaultId, includeArchived: false });
+
+  const handleSignerPress = (signer) => {
+    if (signer.type === SignerType.PORTAL) {
+      callback(signer, getSignerNameFromType(signer.type));
+    } else {
+      setSelectedSigner(signer);
+      setRegisterSignerModal(true);
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -40,11 +64,32 @@ function SignerSelectionListScreen() {
         data={availableSigners}
         keyExtractor={(item) => getKeyUID(item)}
         renderItem={({ item }) => (
-          <SignerCard
-            onPress={(signer, signerName) => {
-              callback(signer, signerName);
-            }}
-            signer={item}
+          <SignerCard onPress={() => handleSignerPress(item)} signer={item} />
+        )}
+      />
+
+      <KeeperModal
+        visible={registerSignerModal}
+        close={() => setRegisterSignerModal(false)}
+        title="Register multisig"
+        subTitle="Register your active vault"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <RegisterMultisig
+            isUSBAvailable={
+              selectedSigner?.type === SignerType.COLDCARD ||
+              (selectedSigner?.type === SignerType.JADE &&
+                activeVault.type === VaultType.MINISCRIPT)
+            }
+            signer={selectedSigner || {}}
+            vaultId={vaultId}
+            vaultKey={vaultKey}
+            setRegisterSignerModal={setRegisterSignerModal}
+            activeVault={activeVault}
+            navigation={navigation}
+            CommonActions={CommonActions}
           />
         )}
       />
@@ -65,23 +110,16 @@ const styles = StyleSheet.create({
     marginRight: 20,
     alignSelf: 'center',
   },
-  associatedContactImage: {
-    width: '70%',
-    height: '70%',
-    borderRadius: 100,
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
 });
 
 const SignerCard = ({ onPress, signer }) => {
   const { colorMode } = useColorMode();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, false);
+
   return (
-    <TouchableOpacity testID={`btn_transactionSigner`} onPress={() => onPress(signer, signerName)}>
+    <TouchableOpacity testID={`btn_transactionSigner`} onPress={onPress}>
       <Box margin={5}>
         <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
-          {/* TODO: Move to a component as it is the same as in SignerList.tsx */}
           <Box flexDirection="row">
             <View style={styles.inheritenceView}>
               <Box
@@ -103,9 +141,7 @@ const SignerCard = ({ onPress, signer }) => {
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
               >
-                {`${getSignerNameFromType(signer.type, signer.isMock, false)} (${
-                  signer.masterFingerprint
-                })`}
+                {`${signerName} (${signer.masterFingerprint})`}
               </Text>
               {signer.signerDescription ? (
                 <Text
@@ -113,7 +149,6 @@ const SignerCard = ({ onPress, signer }) => {
                   color={`${colorMode}.greenText`}
                   fontSize={12}
                   letterSpacing={0.6}
-                  fontStyle={null}
                   maxWidth={width * 0.6}
                 >
                   {signer.signerDescription}

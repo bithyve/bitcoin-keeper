@@ -19,7 +19,6 @@ import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import RegisterWithQR from 'src/screens/QRScreens/RegisterWithQR';
-import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import ScanQR from 'src/screens/QRScreens/ScanQR';
 import ShowPSBT from 'src/screens/QRScreens/ShowPSBT';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
@@ -145,7 +144,6 @@ function LoginStack() {
       <Stack.Screen options={{ gestureEnabled: false }} name="Splash" component={SplashScreen} />
       <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
       <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
-      <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
       <Stack.Screen name="NodeSettings" component={NodeSettings} />
       <Stack.Screen name="NodeSelection" component={NodeSelection} />
       <Stack.Screen name="ScanNode" component={ScanNode} />

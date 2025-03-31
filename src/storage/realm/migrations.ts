@@ -1,6 +1,5 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { MiniscriptTypes, NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
-import { InheritanceKeyInfo } from 'src/models/interfaces/AssistedKeys';
+import { MiniscriptTypes, NetworkType, VaultType } from 'src/services/wallets/enums';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';
 import _ from 'lodash';
@@ -67,7 +66,6 @@ export const runRealmMigrations = ({
             isMock: signer.isMock,
             storageType: signer.storageType,
             signerPolicy: signer.signerPolicy,
-            inheritanceKeyInfo: signer.inheritanceKeyInfo,
             hidden: false,
             signerXpubs,
           };
@@ -368,7 +366,7 @@ export const runRealmMigrations = ({
     const newSubs = newRealm.objects(RealmSchema.StoreSubscription) as any;
     newSubs['isDesktopPurchase'] = false;
   }
-  if (oldRealm.schemaVersion < 91) {
+  if (oldRealm.schemaVersion < 93) {
     const newSigners = newRealm.objects(RealmSchema.Signer) as Signer[];
 
     for (const objectIndex in newSigners) {

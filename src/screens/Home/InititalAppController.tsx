@@ -50,8 +50,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { isInitialLogin } = useAppSelector((state) => state.login);
-  const { enableAnalyticsLogin } = useAppSelector((state) => state.settings);
-  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const appData = useQuery(RealmSchema.KeeperApp);
   const { allVaults } = useVault({ includeArchived: false });
 
@@ -219,11 +217,11 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     if (inProgress) {
       return;
     }
-    if (enableAnalyticsLogin && config.isDevMode()) {
+    if (config.isDevMode()) {
       await start(() => initializeSentry());
     }
     dbManager.updateObjectById(RealmSchema.KeeperApp, getAppData().appId, {
-      enableAnalytics: enableAnalyticsLogin,
+      enableAnalytics: config.isDevMode(),
     });
   };
 

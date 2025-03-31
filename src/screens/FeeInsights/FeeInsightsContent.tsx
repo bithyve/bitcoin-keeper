@@ -6,8 +6,7 @@ import Text from 'src/components/KeeperText';
 import FeeDataStats from './FeeDataStats';
 import Relay from 'src/services/backend/Relay';
 import { useColorMode } from 'native-base';
-import { calculateAverageBlockTime, generateFeeInsightStatement } from 'src/utils/feeInisghtUtil';
-import Fonts from 'src/constants/Fonts';
+import { generateFeeInsightStatement } from 'src/utils/feeInisghtUtil';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
 import FeeInsightCard from './FeeInsightCard';
 import FeeDataSource from './FeeDataSource';
@@ -22,7 +21,6 @@ const FeeInsightsContent = () => {
     weekComparisonText: '',
     oneWeekAgoFee: '',
   });
-  const [blockTime, setBlockTime] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { colorMode } = useColorMode();
 
@@ -33,9 +31,7 @@ const FeeInsightsContent = () => {
   useEffect(() => {
     if (oneWeekFeeRate.length > 0) {
       const resultFeeInsight = generateFeeInsightStatement(oneWeekFeeRate);
-      const resultBlockTime = calculateAverageBlockTime(oneDayFeeRate);
       setFeeInsightStatement(resultFeeInsight);
-      setBlockTime(resultBlockTime);
       setIsLoading(false);
     }
   }, [oneWeekFeeRate]);
@@ -110,18 +106,10 @@ const styles = StyleSheet.create({
     fontSize: 19,
     letterSpacing: 1,
   },
-  statementWrapper: {
-    fontSize: 13,
-    letterSpacing: 1,
-    marginTop: 10,
-  },
   loaderContainer: {
     flex: 1,
     alignContent: 'center',
     justifyContent: 'center',
-  },
-  highlightFee: {
-    fontFamily: Fonts.InterBold,
   },
   cardWrapper: {
     flexDirection: 'row',

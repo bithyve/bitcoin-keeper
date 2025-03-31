@@ -2,7 +2,6 @@ import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Box, Input, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/services/qr';
@@ -23,6 +22,12 @@ import NFCOption from '../NFCChannel/NFCOption';
 import Note from 'src/components/Note/Note';
 import { SignerType } from 'src/services/wallets/enums';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import WalletHeader from 'src/components/WalletHeader';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import Instruction from 'src/components/Instruction';
 
 const decoder = new URRegistryDecoder();
 
@@ -41,11 +46,13 @@ function ScanQR() {
     signer,
     disableMockFlow = false,
     addSignerFlow = false,
-    learnMore = false,
     learnMoreContent = {},
     isPSBT = false,
     importOptions = true,
     showNote = false,
+    Illustration,
+    Instructions,
+    isSingning = false,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -55,6 +62,9 @@ function ScanQR() {
   const [inputText, setInputText] = useState('');
 
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
+  const isDarkMode = colorMode === 'dark';
+  const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
+  const [infoModal, setInfoModal] = useState(false);
 
   const onTextSubmit = (data) => {
     if (!data.startsWith('UR') && !data.startsWith('ur')) {
@@ -70,6 +80,14 @@ function ScanQR() {
       }
     }
   };
+  const modalSubtitle = {
+    [SignerType.COLDCARD]: 'Get Your Coldcard ready and powered up before proceeding',
+    [SignerType.KEYSTONE]: 'Get Your Keystone ready before proceeding',
+    [SignerType.SPECTER]: 'Get Your device ready and powered up before proceeding',
+    [SignerType.KEEPER]: 'Keep the other Keeper App ready ',
+  };
+
+  const subtitleModal = modalSubtitle[type] || 'Get your device ready before proceeding';
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} testID={`scanQr`}>
@@ -81,22 +99,23 @@ function ScanQR() {
           signerXfp={signer?.masterFingerprint}
           mode={mode}
         >
-          <KeeperHeader
+          <WalletHeader
             title={title}
-            subtitle={subtitle}
-            subTitleWidth={windowWidth * 0.7}
-            learnMore={learnMore}
-            learnMorePressed={() => {
-              setVisibleModal(true);
-            }}
-            learnTextColor={`${colorMode}.buttonText`}
+            subTitle={subtitle}
+            rightComponent={
+              !isHealthCheck && !isSingning ? (
+                <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
+                  {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+                </TouchableOpacity>
+              ) : null
+            }
           />
           <Box style={styles.container}>
             <ScrollView
               automaticallyAdjustKeyboardInsets={true}
               contentContainerStyle={{
                 alignItems: 'center',
-                paddingTop: hp(30),
+                paddingTop: hp(10),
               }}
               style={styles.flex1}
               showsVerticalScrollIndicator={false}
@@ -193,6 +212,26 @@ function ScanQR() {
             }}
             learnMoreButtonText={common.needMoreHelp}
           />
+          <KeeperModal
+            visible={infoModal}
+            close={() => {
+              setInfoModal(false);
+            }}
+            title={title}
+            subTitle={subtitleModal}
+            modalBackground={`${colorMode}.modalWhiteBackground`}
+            textColor={`${colorMode}.textGreen`}
+            subTitleColor={`${colorMode}.modalSubtitleBlack`}
+            Content={() => (
+              <Box>
+                <Box style={styles.illustration}>{Illustration}</Box>
+
+                {Instructions?.map((instruction) => (
+                  <Instruction text={instruction} key={instruction} />
+                ))}
+              </Box>
+            )}
+          />
         </MockWrapper>
       </ScreenWrapper>
     </TouchableWithoutFeedback>
@@ -243,5 +282,13 @@ const styles = StyleSheet.create({
   },
   noteWrapper: {
     paddingHorizontal: wp(15),
+  },
+  infoIcon: {
+    marginRight: wp(10),
+  },
+  illustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(20),
   },
 });

@@ -2,7 +2,6 @@ import { call, put, select } from 'redux-saga/effects';
 import semver from 'semver';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { Platform } from 'react-native';
 import Relay from 'src/services/backend/Relay';
 import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
@@ -255,7 +254,9 @@ function* assistedKeysCosignersEnrichment() {
 
 function* migrateStructureforSignersInAppImage() {
   try {
-    const response = yield call(updateAppImageWorker, { payload: {} });
+    const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const signers = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const response = yield call(updateAppImageWorker, { payload: { wallets, signers } });
     if (response.updated) {
       console.log('Updated the Signers in app image');
     } else {
@@ -283,7 +284,12 @@ function* updateAppKeysToEnableSigning() {
   try {
     const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
     const signers = yield call(dbManager.getCollection, RealmSchema.Signer);
-    const keeperSigners = signers.filter((signer) => signer.type === SignerType.KEEPER);
+    const keeperSigners = signers.filter(
+      (signer) =>
+        signer.type === SignerType.KEEPER ||
+        signer.type === SignerType.MOBILE_KEY ||
+        signer.type === SignerType.MY_KEEPER
+    );
     const { appKeyWalletMap, myAppKeySigners } = mapAppKeysToWallets(wallets, keeperSigners);
     const extendedKeyMap = generateExtendedKeysForSigners(myAppKeySigners, appKeyWalletMap);
     updateVaultSigners(extendedKeyMap, signers);
@@ -318,7 +324,7 @@ function generateExtendedKeysForSigners(signers, appKeyWalletMap) {
   const extendedKeyMap = {};
   signers.forEach((signer) => {
     const { mnemonic } = appKeyWalletMap[signer.masterFingerprint].derivationDetails;
-    const { extendedKeys } = generateExtendedKeysForCosigner(mnemonic);
+    const { extendedKeys } = generateExtendedKeysForCosigner(mnemonic, true);
     extendedKeyMap[signer.masterFingerprint] = extendedKeys;
   });
 

@@ -15,6 +15,7 @@ type Props = {
   contrastScreen?: boolean;
   data?: any;
   rightComponent?: any;
+  subTitle?: string;
 };
 
 const WalletHeader: React.FC<Props> = ({
@@ -24,6 +25,7 @@ const WalletHeader: React.FC<Props> = ({
   titleColor,
   contrastScreen = false,
   rightComponent,
+  subTitle,
 }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -45,6 +47,11 @@ const WalletHeader: React.FC<Props> = ({
     },
     title: {
       fontSize: 18,
+    },
+    subTitle: {
+      fontSize: 14,
+      marginTop: 10,
+      width: '90%',
     },
 
     settingBtn: {
@@ -75,6 +82,11 @@ const WalletHeader: React.FC<Props> = ({
 
         {rightComponent && <Box>{rightComponent}</Box>}
       </Box>
+      {subTitle && (
+        <Text color={titleColor} style={styles.subTitle}>
+          {subTitle}
+        </Text>
+      )}
     </Box>
   );
 };

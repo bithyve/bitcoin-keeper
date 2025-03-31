@@ -1250,8 +1250,14 @@ function AddSigningDevice() {
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
 
   const { signers } = useSigners('', false);
-  // filter out archived & hidden signers
-  const activeSigners = signers.filter((signer) => !signer.archived && !signer.hidden);
+  // filter out archived and hidden signers, along w/ external server keys
+  const activeSigners = signers.filter(
+    (signer) =>
+      !signer.archived &&
+      !signer.hidden &&
+      !(signer.isExternal && signer.type === SignerType.POLICY_SERVER)
+  );
+
   const { signerMap } = useSignerMap();
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);

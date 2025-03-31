@@ -5,9 +5,8 @@ import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind, SignerType, VaultType } from 'src/services/wallets/enums';
+import { SignerType, VaultType } from 'src/services/wallets/enums';
 import { BackupHistory } from 'src/models/enums/BHR';
 import {
   createUaiMap,
@@ -44,13 +43,6 @@ const healthCheckReminderHours = (lastHealthCheck: Date) => {
   const differenceInTime = today.getTime() - lastHealthCheck.getTime();
   const differenceInHours = Math.round(differenceInTime / (1000 * 3600));
   return differenceInHours;
-};
-
-const healthCheckReminderMinutes = (lastHealthCheck: Date) => {
-  const today = new Date();
-  const differenceInTime = today.getTime() - lastHealthCheck.getTime();
-  const differenceInMinutes = Math.round(differenceInTime / (1000 * 60));
-  return differenceInMinutes;
 };
 
 export function* addToUaiStackWorker({ payload }) {
@@ -145,39 +137,6 @@ function* uaiChecksWorker({ payload }) {
       }
       if (vault && secureVaultUai) {
         yield put(uaiActioned({ uaiId: secureVaultUai.id, action: true }));
-      }
-    }
-    if (checkForTypes.includes(uaiType.VAULT_TRANSFER)) {
-      const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
-      const uaiCollectionVaultTransfer: UAI[] = dbManager.getObjectByField(
-        RealmSchema.UAI,
-        uaiType.VAULT_TRANSFER,
-        'uaiType'
-      );
-      for (const wallet of wallets) {
-        const uai = uaiCollectionVaultTransfer.find((uai) => uai.entityId === wallet.id);
-        if (
-          wallet.entityKind === EntityKind.WALLET &&
-          wallet?.transferPolicy?.threshold > 0 &&
-          wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed >=
-            Number(wallet?.transferPolicy?.threshold)
-        ) {
-          if (!uai) {
-            yield put(
-              addToUaiStack({
-                uaiType: uaiType.VAULT_TRANSFER,
-                entityId: wallet.id,
-                uaiDetails: {
-                  body: `Transfer fund to vault from ${wallet.presentationData.name}`,
-                },
-              })
-            );
-          }
-        } else {
-          if (uai) {
-            yield put(uaiActioned({ entityId: uai.entityId, action: true }));
-          }
-        }
       }
     }
     if (checkForTypes.includes(uaiType.SIGNING_DEVICES_HEALTH_CHECK)) {

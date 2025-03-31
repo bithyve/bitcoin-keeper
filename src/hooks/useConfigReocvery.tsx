@@ -21,6 +21,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from './useToastMessage';
 import useVault from './useVault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import { Alert } from 'react-native';
 
 const useConfigRecovery = () => {
   const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
@@ -45,9 +46,10 @@ const useConfigRecovery = () => {
     if (scheme && signersList?.length >= 1 && vaultSignersList?.length >= 1) {
       const generatedVaultId = generateVaultId(vaultSignersList, scheme);
       if (allVaults.find((vault) => vault.id === generatedVaultId)) {
+        Alert.alert('A vault already exists with similar configuration!');
         dispatch(resetRealyVaultState());
         setRecoveryLoading(false);
-        showToast('A vault already exists with similar configuration!');
+        navigation.goBack();
         return;
       }
       try {
@@ -73,8 +75,10 @@ const useConfigRecovery = () => {
         );
       } catch (err) {
         captureError(err);
+        Alert.alert(err);
+        setRecoveryLoading(false);
+        navigation.goBack();
       }
-      setRecoveryLoading(false);
     }
   }, [scheme, signersList]);
 

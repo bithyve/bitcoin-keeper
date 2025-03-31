@@ -85,7 +85,6 @@
     "continuePleb": "Continue as Pleb",
     "unconfirmed": "Unconfirmed",
     "availableBalance": "Available Balance",
-    "transferPolicySet": "Transfer Policy is set at",
     "recentTransactions": "Recent Transactions",
     "viewAll": "View All",
     "addNewWalletOrImport": "Add a new wallet or import one",
@@ -405,8 +404,6 @@
     "Startstackingsats": "Start stacking sats",
     "SinglesigWallet": "Single-sig Wallet",
     "subscribeTextHardware": "Subscribe for discounts on select hardware devices",
-    "TransferPolicy": "Transfer Policy",
-    "TransferPolicyDesc": "Trigger transfer from hot wallet to vault",
     "Foryourdaytodayspends": "For your day to day spends",
     "MultisigWallet": "Multi-sig Wallet",
     "hardwareShopWallet": "Shop for Hardware Wallets",
@@ -477,7 +474,7 @@
     "WalletDetails": "Wallet Details",
     "walletDetailsSubTitle": "Name, details and transfer policy",
     "EditWalletDeatils": "Edit wallet name and description",
-    "changeWalletDetails": "Wallet Name & Description",
+    "changeWalletDetails": "Check and update your wallet details",
     "TransferSuccessful": "Transfer Successful!",
     "initiatetransfer": "Are you sure you want to initiate transfer to",
     "XPubTitle": "Wallet xPub",
@@ -930,30 +927,30 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Setting up TAPSIGNER",
+    "SetupTitle": "Add your TAPSIGNER",
     "SetupDescription": "Get your TAPSIGNER ready before proceeding"
   },
   "coldcard": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Setting up Coldcard",
-    "SetupDescription": "Get your Coldcard ready before proceeding"
+    "SetupTitle": "Add your Coldcard",
+    "SetupDescription": "Choose how to add your Coldcard to Keeper"
   },
   "ledger": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Setting up Ledger",
+    "SetupTitle": "Add your Ledger",
     "SetupDescription": "Connect the Ledger to your computer and open the Bitcoin Keeper desktop app",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
   "bitbox": {
-    "SetupTitle": "Setting up BitBox02",
+    "SetupTitle": "Add your BitBox02",
     "SetupDescription": "Connect the BitBox02 to your computer and open the Bitcoin Keeper desktop app"
   },
   "trezor": {
-    "SetupTitle": "Setting up Trezor",
+    "SetupTitle": "Add your Trezor",
     "SetupDescription": "Connect the Trezor to your computer and open the Bitcoin Keeper desktop app"
   },
   "signingServer": {

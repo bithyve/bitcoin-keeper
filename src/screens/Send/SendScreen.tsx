@@ -58,6 +58,7 @@ import IconGreySettings from 'src/assets/images/settings_grey.svg';
 import { TouchableOpacity } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { NumberInput } from '../AddWalletScreen/AddNewWallet';
+import STModalContent from '../Vault/components/STModalContent';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -103,6 +104,7 @@ function SendScreen({ route }) {
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
   const [note, setNote] = useState(txNote);
+  const [scanModal, setScanModal] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(null);
   const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
   const network = WalletUtilities.getNetworkByType(sender.networkType);
@@ -238,6 +240,8 @@ function SendScreen({ route }) {
             title: 'Scan Address',
             subtitle: 'Please scan until all the QR data has been retrieved',
             onQrScan,
+            importOptions: false,
+            isSingning: true,
           },
         })
       );
@@ -457,7 +461,7 @@ function SendScreen({ route }) {
                 paddingLeft={5}
                 isDisabled={selectedWallet}
                 InputRightComponent={
-                  <Pressable onPress={handleScannerPress}>
+                  <Pressable onPress={() => setScanModal(true)}>
                     <Box style={styles.scannerContainer}>
                       {isDarkMode ? <ScannerIconDark /> : <ScannerIcon />}
                     </Box>
@@ -585,6 +589,22 @@ function SendScreen({ route }) {
           setShowHealthCheckModal(false);
           handleProceed(true);
         }}
+      />
+      <KeeperModal
+        visible={scanModal}
+        close={() => setScanModal(false)}
+        title="Scan Address"
+        subTitle="Please scan until all the QR data has been retrieved"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <STModalContent
+            navigateToScanPSBT={handleScannerPress}
+            setData={onQrScan}
+            setStModal={setScanModal}
+          />
+        )}
       />
     </ScreenWrapper>
   );

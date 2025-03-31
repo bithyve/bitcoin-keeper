@@ -108,11 +108,9 @@ export const signTransactionWithSigningServer = async ({
 }) => {
   try {
     showOTPModal(false);
-    const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
     const change = idx(signingPayload, (_) => _[0].change);
     const changeIndex = idx(signingPayload, (_) => _[0].changeIndex);
 
-    if (!childIndexArray) throw new Error('Invalid signing payload');
     if (!signingServerOTP) throw new Error('Verification token is missing');
 
     const verificationToken = Number(signingServerOTP);
@@ -121,7 +119,6 @@ export const signTransactionWithSigningServer = async ({
     const { signedPSBT, delayed, delayedTransaction } = await SigningServer.signPSBT(
       xfp,
       serializedPSBT,
-      childIndexArray,
       verificationToken,
       { address: change, index: changeIndex },
       descriptor,
@@ -162,11 +159,7 @@ export const signTransactionWithSeedWords = async ({
       ? [defaultVault.signers[0]]
       : defaultVault.signers.filter((signer) => signer.xfp === xfp);
     // we need this to generate xpriv that's not stored
-    const { xpub, xpriv } = generateSeedWordsKey(
-      seedBasedSingerMnemonic,
-      networkType,
-      isMultisig ? EntityKind.VAULT : EntityKind.WALLET
-    );
+    const { xpub, xpriv } = generateSeedWordsKey(seedBasedSingerMnemonic, networkType, isMultisig);
 
     const signerXpub = isRemoteKey ? signer.signerXpubs[XpubTypes.P2WSH][0].xpub : signer.xpub;
 

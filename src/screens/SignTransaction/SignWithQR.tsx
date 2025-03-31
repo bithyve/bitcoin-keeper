@@ -23,8 +23,6 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getKeyUID, isHexadecimal } from 'src/utils/utilities';
-import { hp, windowWidth } from 'src/constants/responsive';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import KeeperQRCode from 'src/components/KeeperQRCode';
@@ -138,6 +136,8 @@ function SignWithQR() {
           onQrScan: signTransaction,
           type: signer.type,
           isPSBT: true,
+          importOptions: false,
+          isSingning: true,
         },
       })
     );
@@ -166,17 +166,6 @@ function SignWithQR() {
           <Box style={styles.fingerprint}>
             <WalletCopiableData data={serializedPSBT} dataType="psbt" />
           </Box>
-          <Box style={styles.optionsContainer}>
-            {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) || true ? (
-              <ShareWithNfc
-                data={serializedPSBT}
-                isPSBTSharing
-                signer={signer}
-                remoteShare
-                xfp={vaultKey.xfp}
-              />
-            ) : null}
-          </Box>
         </ScrollView>
       </Box>
       <Box style={styles.bottom}>
@@ -200,20 +189,11 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingTop: '10%',
     flexGrow: 1,
-    justifyContent: 'center',
   },
   bottom: {
-    marginTop: '5%',
+    marginVertical: '3%',
   },
   fingerprint: {
     alignItems: 'center',
-  },
-  optionsContainer: {
-    alignSelf: 'center',
-    paddingHorizontal: '5%',
-    marginTop: hp(10),
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: windowWidth * 0.8,
   },
 });

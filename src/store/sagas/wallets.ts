@@ -26,7 +26,6 @@ import {
   VaultSigner,
 } from 'src/services/wallets/interfaces/vault';
 import {
-  TransferPolicy,
   Wallet,
   WalletImportDetails,
   WalletPresentationData,
@@ -157,9 +156,7 @@ export interface NewWalletDetails {
   name?: string;
   description?: string;
   derivationConfig?: DerivationConfig;
-  transferPolicy?: TransferPolicy;
   instanceNum?: number;
-  parentMnemonic?: string;
 }
 
 export interface NewWalletInfo {
@@ -179,9 +176,7 @@ function* addNewWallet(
     name: walletName,
     description: walletDescription,
     derivationConfig,
-    transferPolicy,
     instanceNum,
-    parentMnemonic,
   } = walletDetails;
   const wallets: Wallet[] = yield call(
     dbManager.getObjectByIndex,
@@ -201,7 +196,6 @@ function* addNewWallet(
         derivationConfig,
         primaryMnemonic,
         networkType: bitcoinNetworkType,
-        transferPolicy,
         wallets,
       });
       return defaultWallet;
@@ -214,7 +208,6 @@ function* addNewWallet(
         walletDescription: walletDescription || '',
         importDetails,
         networkType: bitcoinNetworkType,
-        transferPolicy,
         wallets,
       });
       return importedWallet;
@@ -379,7 +372,7 @@ export function* addSigningDeviceWorker({
   callback,
 }: {
   payload: { signers: Signer[] };
-  callback: () => void;
+  callback?: () => void;
 }) {
   if (!signers.length) return;
   for (let i = 0; i < signers.length; i++) {
@@ -811,7 +804,6 @@ function* refreshWalletsWorker({
       }
     });
 
-    yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
     yield put(setNetBalance(netBalance));
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
@@ -838,15 +830,15 @@ export const refreshWalletsWatcher = createWatcher(refreshWalletsWorker, REFRESH
 export function* autoWalletsSyncWorker({
   payload,
 }: {
-  payload: { syncAll?: boolean; hardRefresh?: boolean };
+  payload: { syncAll?: boolean; hardRefresh?: boolean; addNotifications?: boolean };
 }) {
-  const { syncAll, hardRefresh } = payload;
+  const { syncAll, hardRefresh, addNotifications } = payload;
   const wallets: Wallet[] = yield call(dbManager.getObjectByIndex, RealmSchema.Wallet, null, true);
-  const vault: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
+  const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
   const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
 
   let walletsToSync: (Wallet | Vault)[] = [];
-  for (const wallet of [...wallets, ...vault]) {
+  for (const wallet of [...wallets, ...vaults]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
       if (!wallet.isUsable) continue;
       if (wallet.entityKind === EntityKind.VAULT && (wallet as Vault).archived) continue;
@@ -861,7 +853,7 @@ export function* autoWalletsSyncWorker({
         wallets: walletsToSync,
         options: {
           hardRefresh,
-          addNotifications: true,
+          addNotifications,
         },
       },
     });

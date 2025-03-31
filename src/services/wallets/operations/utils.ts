@@ -2,7 +2,6 @@
 
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import bitcoinMessage from 'bitcoinjs-message';
 import varuint from 'varuint-bitcoin';
 import { PsbtInput } from 'bip174/src/lib/interfaces';
 
@@ -12,7 +11,6 @@ import ECPairFactory, { ECPairInterface } from 'ecpair';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
-import idx from 'idx';
 import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import RestClient from 'src/services/rest/RestClient';
@@ -40,25 +38,6 @@ const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletUtilities {
-  static networkType = (scannedStr: string): NetworkType => {
-    scannedStr = scannedStr.replace('BITCOIN', 'bitcoin');
-    let address = scannedStr;
-    if (scannedStr.slice(0, 8) === 'bitcoin:') {
-      address = bip21.decode(scannedStr).address;
-    }
-    try {
-      bitcoinJS.address.toOutputScript(address, bitcoinJS.networks.bitcoin);
-      return NetworkType.MAINNET;
-    } catch (err) {
-      try {
-        bitcoinJS.address.toOutputScript(address, bitcoinJS.networks.testnet);
-        return NetworkType.TESTNET;
-      } catch (err) {
-        return null;
-      }
-    }
-  };
-
   static getNetworkByType = (type: NetworkType) => {
     if (type === NetworkType.TESTNET) return bitcoinJS.networks.testnet;
     return bitcoinJS.networks.bitcoin;
@@ -93,14 +72,14 @@ export default class WalletUtilities {
   };
 
   static getDerivationPath = (
-    entity: EntityKind,
+    isMultisig: boolean,
     type: NetworkType,
     accountNumber: number = 0,
     purpose: DerivationPurpose = DerivationPurpose.BIP84,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT // TODO: No call to the function passes scriptType, should consider to remove
   ): string => {
     const isTestnet = type === NetworkType.TESTNET ? 1 : 0;
-    if (entity === EntityKind.VAULT) {
+    if (isMultisig) {
       const scriptNum = scriptType === BIP48ScriptTypes.NATIVE_SEGWIT ? 2 : 1;
       return `m/${DerivationPurpose.BIP48}'/${isTestnet}'/${accountNumber}'/${scriptNum}'`;
     }
@@ -130,6 +109,25 @@ export default class WalletUtilities {
     }
   };
 
+  public static getSingleKeyDerivationPurpose(wallet: Wallet | Vault) {
+    let purpose;
+    if (wallet.entityKind === EntityKind.WALLET)
+      purpose = WalletUtilities.getPurpose((wallet as Wallet)?.derivationDetails?.xDerivationPath);
+    else if (wallet.entityKind === EntityKind.VAULT) {
+      if ((wallet as Vault).isMultiSig || (wallet as Vault).signers.length !== 1) {
+        throw Error(
+          `Error getting single key wallet purpose. Expected single key but received multisig.`
+        );
+      }
+      purpose = WalletUtilities.getPurpose((wallet as Vault).signers[0].derivationPath);
+    }
+
+    if (!purpose || purpose === DerivationPurpose.BIP48) {
+      throw Error(`Error getting single key wallet purpose. Unsupported derivation.`);
+    }
+    return purpose;
+  }
+
   static getVersionBytesFromPurpose = (
     purpose: DerivationPurpose,
     network: bitcoinJS.networks.Network
@@ -152,10 +150,10 @@ export default class WalletUtilities {
 
   static toXOnly = (pubKey) => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
 
-  static deriveAddressFromKeyPair = (
+  static deriveSingleKeyAddressFromKeyPair = (
     keyPair: ECPairInterface | BIP32Interface,
     network: bitcoinJS.Network,
-    purpose: DerivationPurpose = DerivationPurpose.BIP84
+    purpose: DerivationPurpose
   ): string => {
     if (purpose === DerivationPurpose.BIP86) {
       return bitcoinJS.payments.p2tr({
@@ -295,6 +293,7 @@ export default class WalletUtilities {
   };
 
   static getFinalScriptsForMyCustomScript(
+    keysInfoMap: { [uniqueIdentifier: string]: string },
     scriptWitnesses: {
       asm: string;
       nLockTime?: number;
@@ -304,8 +303,7 @@ export default class WalletUtilities {
       asm: string;
       nLockTime?: number;
       nSequence?: number;
-    },
-    keysInfoMap: { [uniqueIdentifier: string]: string }
+    }
   ): any {
     const finalScriptsFunc = (
       inputIndex: number,
@@ -569,7 +567,7 @@ export default class WalletUtilities {
       }
 
       const { internal, childIndex } = multisigConfig;
-      const { script, subPaths, signerPubkeyMap } = this.generateCustomScript(
+      const { script, subPaths, signerPubkeyMap } = WalletUtilities.generateCustomScript(
         multisigConfig.miniscriptScheme,
         internal,
         childIndex,
@@ -628,7 +626,7 @@ export default class WalletUtilities {
     return { publicKey, subPath: [chainIndex, childIndex] };
   };
 
-  static getAddressByIndex = (
+  static getSingleKeyAddressByIndex = (
     xpub: string,
     internal: boolean,
     index: number,
@@ -637,7 +635,7 @@ export default class WalletUtilities {
   ): string => {
     const node = bip32.fromBase58(xpub, network);
     const keyPair = node.derive(internal ? 1 : 0).derive(index);
-    return WalletUtilities.deriveAddressFromKeyPair(keyPair, network, purpose);
+    return WalletUtilities.deriveSingleKeyAddressFromKeyPair(keyPair, network, purpose);
   };
 
   static getAddressAndPubByIndex = (
@@ -650,7 +648,7 @@ export default class WalletUtilities {
     const node = bip32.fromBase58(xpub, network);
     const keyPair = node.derive(internal ? 1 : 0).derive(index);
     return {
-      address: WalletUtilities.deriveAddressFromKeyPair(keyPair, network, purpose),
+      address: WalletUtilities.deriveSingleKeyAddressFromKeyPair(keyPair, network, purpose),
       pub: keyPair.publicKey.toString('hex'),
     };
   };
@@ -836,7 +834,7 @@ export default class WalletUtilities {
     wallet: Vault,
     childIndex: number,
     internal: boolean,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT // TODO: No call to the function passes scriptType, should consider to remove
   ): {
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment;
@@ -980,7 +978,6 @@ export default class WalletUtilities {
         changeAddress: string;
         changeMultisig?: any;
       } => {
-    const changeAddress: string = '';
     let changeMultisig: {
       p2wsh: bitcoinJS.payments.Payment;
       p2sh: bitcoinJS.payments.Payment;
@@ -1007,20 +1004,11 @@ export default class WalletUtilities {
         let xpub = null;
         if (wallet.entityKind === EntityKind.VAULT) {
           xpub = (wallet as Vault).specs.xpubs[0];
-        } // 1-of-1 multisig
-        else xpub = (wallet as Wallet).specs.xpub;
+        } else xpub = (wallet as Wallet).specs.xpub;
 
-        let purpose;
-        if (wallet.entityKind === EntityKind.WALLET) {
-          purpose = WalletUtilities.getPurpose(
-            (wallet as Wallet).derivationDetails.xDerivationPath
-          );
-        } else if (wallet.entityKind === EntityKind.VAULT) {
-          if (wallet.scriptType === ScriptTypes.P2WPKH) purpose = DerivationPurpose.BIP84;
-          else if (wallet.scriptType === ScriptTypes.P2WSH) purpose = DerivationPurpose.BIP48;
-        }
+        let purpose = WalletUtilities.getSingleKeyDerivationPurpose(wallet);
 
-        output.address = WalletUtilities.getAddressByIndex(
+        output.address = WalletUtilities.getSingleKeyAddressByIndex(
           xpub,
           true,
           nextFreeChangeAddressIndex,
@@ -1032,9 +1020,7 @@ export default class WalletUtilities {
     }
 
     // case: no change
-    if ((wallet as Vault).isMultiSig) {
-      return { outputs, changeMultisig };
-    } else return { outputs, changeAddress };
+    return { outputs, changeAddress: '' };
   };
 
   static generateXpubFromMetaData = (cryptoAccount: CryptoAccount) => {
@@ -1069,6 +1055,7 @@ export default class WalletUtilities {
     return null;
   };
 
+  // TODO: This is not correct for taproot multisig, as for P2TR multisig BIP48 should be used
   static getDerivationForScriptType = (scriptType: ScriptTypes, account = 0) => {
     const testnet = isTestnet();
     const networkType = testnet ? 1 : 0;
@@ -1145,113 +1132,106 @@ export default class WalletUtilities {
     input: string
   ): { importedKeyType: ImportedKeyType; watchOnly: Boolean; purpose: DerivationPurpose } => {
     try {
-      // case: mnemonic
-      bip39.mnemonicToEntropy(input);
-      return { importedKeyType: ImportedKeyType.MNEMONIC, watchOnly: false, purpose: null };
-    } catch (err) {
-      try {
-        const { bitcoinNetwork } = store.getState().settings;
-        // case: extended keys
-        bs58check.decode(input);
+      const { bitcoinNetwork } = store.getState().settings;
+      // case: extended keys
+      bs58check.decode(input);
 
-        // attempt to create an extended key from the input
-        if (bitcoinNetwork === bitcoinJS.networks.bitcoin) {
-          // extended public keys (mainnet)
-          if (input.startsWith(ImportedKeyType.XPUB)) {
-            return {
-              importedKeyType: ImportedKeyType.XPUB,
-              watchOnly: true,
-              purpose: DerivationPurpose.BIP44,
-            };
-          }
-          if (input.startsWith(ImportedKeyType.YPUB)) {
-            return {
-              importedKeyType: ImportedKeyType.YPUB,
-              watchOnly: true,
-              purpose: DerivationPurpose.BIP49,
-            };
-          }
-          if (input.startsWith(ImportedKeyType.ZPUB)) {
-            return {
-              importedKeyType: ImportedKeyType.ZPUB,
-              watchOnly: true,
-              purpose: DerivationPurpose.BIP84,
-            };
-          }
-
-          // extended private keys (mainnet)
-          if (input.startsWith(ImportedKeyType.XPRV)) {
-            return {
-              importedKeyType: ImportedKeyType.XPRV,
-              watchOnly: false,
-              purpose: DerivationPurpose.BIP44,
-            };
-          }
-          if (input.startsWith(ImportedKeyType.YPRV)) {
-            return {
-              importedKeyType: ImportedKeyType.YPRV,
-              watchOnly: false,
-              purpose: DerivationPurpose.BIP49,
-            };
-          }
-          if (input.startsWith(ImportedKeyType.ZPRV)) {
-            return {
-              importedKeyType: ImportedKeyType.ZPRV,
-              watchOnly: false,
-              purpose: DerivationPurpose.BIP84,
-            };
-          }
-        } else {
-          // extended public keys (testnet)
-          if (input.startsWith(ImportedKeyType.TPUB)) {
-            return {
-              importedKeyType: ImportedKeyType.TPUB,
-              watchOnly: true,
-              purpose: DerivationPurpose.BIP44,
-            };
-          }
-          if (input.startsWith(ImportedKeyType.UPUB)) {
-            return {
-              importedKeyType: ImportedKeyType.UPUB,
-              watchOnly: true,
-              purpose: DerivationPurpose.BIP49,
-            };
-          }
-          if (input.startsWith(ImportedKeyType.VPUB)) {
-            return {
-              importedKeyType: ImportedKeyType.VPUB,
-              watchOnly: true,
-              purpose: DerivationPurpose.BIP84,
-            };
-          }
-
-          // extended private keys (testnet)
-          if (input.startsWith(ImportedKeyType.TPRV)) {
-            return {
-              importedKeyType: ImportedKeyType.TPRV,
-              watchOnly: false,
-              purpose: DerivationPurpose.BIP44,
-            };
-          }
-          if (input.startsWith(ImportedKeyType.UPRV)) {
-            return {
-              importedKeyType: ImportedKeyType.UPRV,
-              watchOnly: false,
-              purpose: DerivationPurpose.BIP49,
-            };
-          }
-          if (input.startsWith(ImportedKeyType.VPRV)) {
-            return {
-              importedKeyType: ImportedKeyType.VPRV,
-              watchOnly: false,
-              purpose: DerivationPurpose.BIP84,
-            };
-          }
+      // attempt to create an extended key from the input
+      if (bitcoinNetwork === bitcoinJS.networks.bitcoin) {
+        // extended public keys (mainnet)
+        if (input.startsWith(ImportedKeyType.XPUB)) {
+          return {
+            importedKeyType: ImportedKeyType.XPUB,
+            watchOnly: true,
+            purpose: DerivationPurpose.BIP44,
+          };
         }
-      } catch (err) {
-        // if neither mnemonic nor extended key, consider it an invalid input
-        throw new Error('Invalid Import Key');
+        if (input.startsWith(ImportedKeyType.YPUB)) {
+          return {
+            importedKeyType: ImportedKeyType.YPUB,
+            watchOnly: true,
+            purpose: DerivationPurpose.BIP49,
+          };
+        }
+        if (input.startsWith(ImportedKeyType.ZPUB)) {
+          return {
+            importedKeyType: ImportedKeyType.ZPUB,
+            watchOnly: true,
+            purpose: DerivationPurpose.BIP84,
+          };
+        }
+
+        // extended private keys (mainnet)
+        if (input.startsWith(ImportedKeyType.XPRV)) {
+          return {
+            importedKeyType: ImportedKeyType.XPRV,
+            watchOnly: false,
+            purpose: DerivationPurpose.BIP44,
+          };
+        }
+        if (input.startsWith(ImportedKeyType.YPRV)) {
+          return {
+            importedKeyType: ImportedKeyType.YPRV,
+            watchOnly: false,
+            purpose: DerivationPurpose.BIP49,
+          };
+        }
+        if (input.startsWith(ImportedKeyType.ZPRV)) {
+          return {
+            importedKeyType: ImportedKeyType.ZPRV,
+            watchOnly: false,
+            purpose: DerivationPurpose.BIP84,
+          };
+        }
+      } else {
+        // extended public keys (testnet)
+        if (input.startsWith(ImportedKeyType.TPUB)) {
+          return {
+            importedKeyType: ImportedKeyType.TPUB,
+            watchOnly: true,
+            purpose: DerivationPurpose.BIP44,
+          };
+        }
+        if (input.startsWith(ImportedKeyType.UPUB)) {
+          return {
+            importedKeyType: ImportedKeyType.UPUB,
+            watchOnly: true,
+            purpose: DerivationPurpose.BIP49,
+          };
+        }
+        if (input.startsWith(ImportedKeyType.VPUB)) {
+          return {
+            importedKeyType: ImportedKeyType.VPUB,
+            watchOnly: true,
+            purpose: DerivationPurpose.BIP84,
+          };
+        }
+
+        // extended private keys (testnet)
+        if (input.startsWith(ImportedKeyType.TPRV)) {
+          return {
+            importedKeyType: ImportedKeyType.TPRV,
+            watchOnly: false,
+            purpose: DerivationPurpose.BIP44,
+          };
+        }
+        if (input.startsWith(ImportedKeyType.UPRV)) {
+          return {
+            importedKeyType: ImportedKeyType.UPRV,
+            watchOnly: false,
+            purpose: DerivationPurpose.BIP49,
+          };
+        }
+        if (input.startsWith(ImportedKeyType.VPRV)) {
+          return {
+            importedKeyType: ImportedKeyType.VPRV,
+            watchOnly: false,
+            purpose: DerivationPurpose.BIP84,
+          };
+        }
       }
+    } catch (err) {
+      throw new Error('Invalid Import Key');
     }
   };
 

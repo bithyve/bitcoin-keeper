@@ -5,12 +5,17 @@ import { Box, Input, useColorMode } from 'native-base';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { exportFile, importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import WalletHeader from 'src/components/WalletHeader';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import Instruction from 'src/components/Instruction';
+import KeeperModal from 'src/components/KeeperModal';
 
 const HandleFileScreen = ({ route, navigation }) => {
   const {
@@ -21,11 +26,17 @@ const HandleFileScreen = ({ route, navigation }) => {
     fileData = '',
     fileType = '',
     signerType,
+    isHealthcheck,
+    Illustration,
+    Instructions,
+    signingMode,
   } = route.params;
   const [inputText, setInputText] = useState('');
 
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
+  const [infoModal, setInfoModal] = useState(false);
 
   const exportCallback = () =>
     exportFile(fileData, `keeper-${Date.now()}.psbt`, (error) =>
@@ -43,6 +54,13 @@ const HandleFileScreen = ({ route, navigation }) => {
       signerType === SignerType.KEYSTONE ? 'base64' : 'utf8'
     );
   };
+  const modalSubtitle = {
+    [SignerType.COLDCARD]: 'Get Your Coldcard Ready and powered up before proceeding',
+    [SignerType.KEYSTONE]: 'Get Your Keystone Ready before proceeding',
+    [SignerType.KEEPER]: 'Keep the other Keeper App ready',
+  };
+
+  const subtitleModal = modalSubtitle[signerType] || 'Get your device ready before proceeding';
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -52,7 +70,17 @@ const HandleFileScreen = ({ route, navigation }) => {
         }}
       >
         <View style={styles.wrapper}>
-          <KeeperHeader title={title} subtitle={subTitle} />
+          <WalletHeader
+            title={title}
+            subTitle={subTitle}
+            rightComponent={
+              !isHealthcheck && !signingMode ? (
+                <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
+                  {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+                </TouchableOpacity>
+              ) : null
+            }
+          />
           <Box marginTop={hp(35)}>
             {fileData && (
               <Box style={styles.tileWrapper}>
@@ -106,6 +134,26 @@ const HandleFileScreen = ({ route, navigation }) => {
           </Box>
         </View>
       </TouchableWithoutFeedback>
+      <KeeperModal
+        visible={infoModal}
+        close={() => {
+          setInfoModal(false);
+        }}
+        title={title}
+        subTitle={subtitleModal}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <Box style={styles.illustration}>{Illustration}</Box>
+
+            {Instructions?.map((instruction) => (
+              <Instruction text={instruction} key={instruction} />
+            ))}
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 };
@@ -141,5 +189,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
     paddingHorizontal: '3%',
+  },
+  infoIcon: {
+    marginRight: wp(10),
+  },
+  illustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(20),
   },
 });

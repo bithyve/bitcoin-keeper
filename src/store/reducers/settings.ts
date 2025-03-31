@@ -14,7 +14,6 @@ const initialState: {
   language: string;
   torEnbled: boolean;
   satsEnabled: boolean;
-  enableAnalyticsLogin: boolean;
   oneTimeBackupStatus: {
     signingServer: boolean;
   };
@@ -30,7 +29,6 @@ const initialState: {
   language: 'en',
   torEnbled: false,
   satsEnabled: true,
-  enableAnalyticsLogin: true,
   oneTimeBackupStatus: {
     signingServer: false,
   },
@@ -65,9 +63,6 @@ const settingsSlice = createSlice({
     setSatsEnabled: (state, action: PayloadAction<boolean>) => {
       state.satsEnabled = action.payload;
     },
-    setEnableAnalyticsLogin: (state, action: PayloadAction<boolean>) => {
-      state.enableAnalyticsLogin = action.payload;
-    },
     setOTBStatusSS: (state, action: PayloadAction<boolean>) => {
       state.oneTimeBackupStatus.signingServer = action.payload;
     },
@@ -95,7 +90,6 @@ export const {
   setLanguage,
   setTorEnabled,
   setSatsEnabled,
-  setEnableAnalyticsLogin,
   setOTBStatusSS,
   setBackupModal,
   setSubscription,

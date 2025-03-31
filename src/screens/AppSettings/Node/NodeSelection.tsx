@@ -113,7 +113,7 @@ const NodeSelection = () => {
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
-      dispatch(updateAppImage({ wallets: null, signers: null }));
+      dispatch(updateAppImage({ wallets: null, signers: null, updateNodes: true }));
       const newNode = updatedNodeList.find(
         (node) => node.host === nodeToSave.host && node.port === nodeToSave.port
       );

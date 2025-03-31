@@ -41,7 +41,8 @@ const styles = StyleSheet.create({
   messagePreviewContainer: {
     width: '100%',
     borderRadius: 20,
-    padding: 15,
+    paddingHorizontal: wp(15),
+    paddingVertical: hp(10),
   },
   previewLabel: {
     marginLeft: wp(12),

@@ -25,6 +25,7 @@ import ServerItem from './components/ServerItem';
 import WarningNote from 'src/components/WarningNote';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
+import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -53,7 +54,8 @@ function NodeSettings() {
   const [nodeToDelete, setNodeToDelete] = useState(null);
 
   const isNodeListEmpty = nodeList.length === 0;
-  const isNoNodeConnected = nodeList.every((node) => !node.isConnected);
+  const isNoNodeConnected =
+    !ELECTRUM_CLIENT.isClientConnected && nodeList.every((node) => !node.isConnected);
 
   const nodes: NodeDetail[] = Node.getAllNodes();
 
@@ -69,7 +71,7 @@ function NodeSettings() {
     if (status) {
       const updatedNodes = Node.getAllNodes();
       setNodeList(updatedNodes);
-      dispatch(updateAppImage({ wallets: null, signers: null }));
+      dispatch(updateAppImage({ wallets: null, signers: null, updateNodes: true }));
     }
   };
 

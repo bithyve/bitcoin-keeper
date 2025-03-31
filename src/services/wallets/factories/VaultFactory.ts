@@ -8,6 +8,7 @@ import {
   generateKey,
   hash256,
 } from 'src/utils/service-utilities/encryption';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { CosignersMapUpdate, CosignersMapUpdateAction } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
 import idx from 'idx';
@@ -175,7 +176,7 @@ export const generateVault = async ({
 export const generateMobileKey = async (
   primaryMnemonic: string,
   networkType: NetworkType,
-  entityKind: EntityKind = EntityKind.VAULT
+  isMultisig: boolean
 ): Promise<{
   xpub: string;
   xpriv: string;
@@ -187,7 +188,7 @@ export const generateMobileKey = async (
 
   const DEFAULT_CHILD_PATH = 0;
   const xDerivationPath = WalletUtilities.getDerivationPath(
-    entityKind,
+    isMultisig,
     networkType,
     DEFAULT_CHILD_PATH
   );
@@ -210,7 +211,7 @@ export const generateMobileKey = async (
 export const generateSeedWordsKey = (
   mnemonic: string,
   networkType: NetworkType,
-  entity: EntityKind = EntityKind.VAULT
+  isMultisig: boolean
 ): {
   xpub: string;
   xpriv: string;
@@ -225,7 +226,7 @@ export const generateSeedWordsKey = (
 
   const DEFAULT_CHILD_PATH = 0;
   const xDerivationPath = WalletUtilities.getDerivationPath(
-    entity,
+    isMultisig,
     networkType,
     DEFAULT_CHILD_PATH
   );
@@ -335,17 +336,20 @@ export const MOCK_SD_MNEMONIC_MAP = {
 };
 
 export const generateMockExtendedKeyForSigner = (
-  entity: EntityKind,
+  isMultisig: boolean,
   signer: SignerType,
   networkType = NetworkType.TESTNET
 ) => {
+  if (config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT) {
+    throw new Error('Mock key not allowed in production app');
+  }
   const mockMnemonic = MOCK_SD_MNEMONIC_MAP[signer];
   if (!mockMnemonic) {
     throw new Error("We don't support mock flow for soft keys");
   }
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
-  const xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, 123);
+  const xDerivationPath = WalletUtilities.getDerivationPath(isMultisig, networkType, 123);
   const network = WalletUtilities.getNetworkByType(networkType);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
     seed.toString('hex'),

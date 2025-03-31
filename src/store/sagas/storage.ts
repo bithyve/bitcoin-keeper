@@ -7,7 +7,7 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { SignerType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, SignerType, WalletType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -30,9 +30,6 @@ import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
 import { RootState } from '../store';
-
-export const defaultTransferPolicyThreshold = null;
-export const maxTransferPolicyThreshold = 1e11;
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
@@ -90,11 +87,16 @@ export function* setupKeeperAppWorker({ payload }) {
         walletDetails: {
           name: 'Mobile Wallet',
           description: '',
-          transferPolicy: {
-            id: uuidv4(),
-            threshold: 0,
-          },
           instanceNum: 0,
+          derivationConfig: {
+            path: WalletUtilities.getDerivationPath(
+              false,
+              config.NETWORK_TYPE,
+              0,
+              DerivationPurpose.BIP84
+            ),
+            purpose: DerivationPurpose.BIP84,
+          },
         },
       };
 

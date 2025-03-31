@@ -298,12 +298,14 @@ function ReceiveScreen({ route }: { route }) {
     const signersMFP = vaultSigners
       .filter((signer) => SignerTypesNeedingRegistration.includes(signer.type))
       .map((signer) => signer.masterFingerprint);
+
     navigation.dispatch(
       CommonActions.navigate('SignerSelectionListScreen', {
         signersMFP,
         vaultId: wallet.id,
         title: 'Register vault on Device', //TODO: Move to translations
         description: 'Select a signer',
+        vaultKeydata: (wallet as Vault).signers,
         callback: (signer, signerName) => {
           const vaultKey = (wallet as Vault).signers.find(
             (vaultSigner) => vaultSigner.masterFingerprint === signer.masterFingerprint

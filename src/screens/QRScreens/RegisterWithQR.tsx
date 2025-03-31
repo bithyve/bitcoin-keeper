@@ -18,10 +18,8 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { UR, UREncoder } from '@ngraveio/bc-ur';
 import { getFragmentedData } from 'src/services/qr';
-import { sanitizeFileName } from 'src/utils/utilities';
 
 const { width } = Dimensions.get('window');
 
@@ -104,17 +102,7 @@ function RegisterWithQR({ route, navigation }: any) {
               />
             )}
           </Box>
-          <Box style={styles.centerBottom}>
-            <ShareWithNfc
-              data={walletConfig}
-              signer={signer}
-              vaultKey={vaultKey}
-              vaultId={vaultId}
-              fileName={`${sanitizeFileName(activeVault.presentationData.name)}.txt`}
-              useNdef
-              isUSBAvailable={signer.type == SignerType.COLDCARD || signer.type == SignerType.JADE}
-            />
-          </Box>
+          <Box style={styles.centerBottom}></Box>
         </ScrollView>
         <Buttons
           primaryText="Confirm Registration"

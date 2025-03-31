@@ -34,12 +34,7 @@ function DerivationPathModalContent({
   const [path, setPath] = useState(initialPath);
 
   useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(
-      EntityKind.WALLET,
-      bitcoinNetworkType,
-      0,
-      purpose
-    );
+    const path = WalletUtilities.getDerivationPath(false, bitcoinNetworkType, 0, purpose);
     setPath(path);
   }, [purpose]);
 
