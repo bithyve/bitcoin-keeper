@@ -17,12 +17,10 @@ import { DerivationPurpose, WalletType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
-import { parseInt } from 'lodash';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { v4 as uuidv4 } from 'uuid';
 
 const derivationPurposeToLabel = {
   [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',

@@ -80,7 +80,6 @@ import { addNewWalletsWorker, addSigningDeviceWorker, NewWalletInfo } from './wa
 import { getKeyUID } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
-import { v4 as uuidv4 } from 'uuid';
 
 export function* updateAppImageWorker({
   payload,
