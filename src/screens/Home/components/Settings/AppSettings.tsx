@@ -21,8 +21,7 @@ import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
 const SettingsApp = () => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
-  const { translations } = useContext(LocalizationContext);
-  const { settings } = translations;
+  const { settings, common } = useContext(LocalizationContext).translations;
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const [networkModeModal, setNetworkModeModal] = useState(false);
@@ -30,8 +29,8 @@ const SettingsApp = () => {
   let appSetting = [
     ...useSettingKeeper().appSetting,
     {
-      title: 'Network Mode', // ! mode to lang file
-      description: 'Selection bitcoin network mode',
+      title: settings.networkModeTitle,
+      description: settings.networkModeSubTitle,
       icon: <SettingHistoryIcon width={16.5} height={16} />, // ! update image
       onPress: () => setNetworkModeModal(true),
       isDiamond: false,
@@ -52,10 +51,9 @@ const SettingsApp = () => {
   ];
 
   const confirmNetworkMode = () => {
-    Alert.alert('Confirmation', 'Are you sure you want to change network mode?', [
-      // ! move to lang file
+    Alert.alert('', settings.networkModeChangeConfirmationTitle, [
       {
-        text: 'Cancel',
+        text: common.cancel,
         onPress: () => {
           setNetworkModeModal(false);
           setSelectedNetwork(bitcoinNetworkType);
@@ -63,7 +61,7 @@ const SettingsApp = () => {
         style: 'cancel',
       },
       {
-        text: 'OK',
+        text: common.ok,
         onPress: () => {
           setNetworkModeModal(false);
           setSelectedNetwork(selectedNetwork);
@@ -91,11 +89,9 @@ const SettingsApp = () => {
           visible={networkModeModal}
           closeOnOverlayClick={false}
           close={() => setNetworkModeModal(false)}
-          title={'Change network mode'}
+          title={settings.networkModeTitle}
           subTitleWidth={wp(240)}
-          subTitle={
-            'Choose network mode to change to, this will affect your wallets, vaults and signer' // ! move to lang file
-          }
+          subTitle={settings.networkModeModalSubTitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalHeaderTitle`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -113,7 +109,7 @@ const SettingsApp = () => {
               </Box>
               <Box marginTop={hp(20)}>
                 <Buttons
-                  primaryText="Confirm network change"
+                  primaryText={settings.networkChangePrimaryCTA}
                   fullWidth
                   primaryCallback={() => confirmNetworkMode()}
                 />

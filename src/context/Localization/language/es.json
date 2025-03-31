@@ -1163,7 +1163,13 @@
     "assistedServerBackupSubtitle": "Securely back up encrypted data on Keeper server",
     "assistedServerDeleteBackupSubtitle": "Do you also want to delete the existing assisted server backup?",
     "assistedServerDeleteBackupModalCTA": "Delete",
-    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable"
+    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable",
+    "networkModeTitle": "Network Mode",
+    "networkModeSubTitle": "Selection bitcoin network mode",
+    "networkModeChangeConfirmationTitle": "Are you sure you want to change network mode?",
+    "networkModeModalTitle": "Change network mode",
+    "networkModeModalSubTitle": "Choose network mode to change to, this will affect your wallets, vaults and signer",
+    "networkChangePrimaryCTA": "Confirm network change"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
