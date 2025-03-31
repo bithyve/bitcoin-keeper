@@ -42,7 +42,6 @@ function AddDetailsFinalScreen({ route }) {
   const [walletType, setWalletType] = useState(route.params?.type);
   const [walletName, setWalletName] = useState(route.params?.name);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
-  const [transferPolicy, setTransferPolicy] = useState(route.params?.policy);
 
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
@@ -79,10 +78,6 @@ function AddDetailsFinalScreen({ route }) {
           path,
           purpose,
         },
-        transferPolicy: {
-          id: uuidv4(),
-          threshold: transferPolicy ? parseInt(transferPolicy) : 0,
-        },
       },
       importDetails: {
         importedKey,
@@ -91,7 +86,7 @@ function AddDetailsFinalScreen({ route }) {
       },
     };
     dispatch(addNewWallets([newWallet]));
-  }, [walletName, walletDescription, transferPolicy, path]);
+  }, [walletName, walletDescription, path]);
 
   useEffect(() => {
     if (relayWalletUpdate) {

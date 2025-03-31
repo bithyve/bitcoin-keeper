@@ -386,10 +386,6 @@ function* getAppImageWorker({ payload }) {
             ),
             purpose: DerivationPurpose.BIP84,
           },
-          transferPolicy: {
-            id: uuidv4(),
-            threshold: 0,
-          },
           instanceNum: 0,
         },
       };
@@ -543,7 +539,6 @@ function* recoverApp(
                 isMock: signer.isMock,
                 storageType: signer.storageType,
                 signerPolicy: signer.signerPolicy,
-                inheritanceKeyInfo: signer.inheritanceKeyInfo,
                 hidden: false,
                 signerXpubs,
               };

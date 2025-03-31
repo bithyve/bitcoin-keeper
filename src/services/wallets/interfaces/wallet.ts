@@ -34,11 +34,6 @@ export interface WalletPresentationData {
   shell: number; // shell id
 }
 
-export interface TransferPolicy {
-  id: string;
-  threshold: number;
-}
-
 export interface AddressCache {
   external: {}; // maps index to external address
   internal: {}; // maps index to internal address
@@ -76,13 +71,5 @@ export interface Wallet {
   presentationData: WalletPresentationData;
   specs: WalletSpecs;
   scriptType: ScriptTypes;
-  transferPolicy?: TransferPolicy;
   receivingAddress?: string;
-}
-
-export interface TriggerPolicy {
-  id: string;
-  date: string;
-  specifications: {};
-  version: string;
 }

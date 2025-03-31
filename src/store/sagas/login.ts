@@ -100,7 +100,6 @@ function* credentialsStorageWorker({ payload }) {
       uaiChecks([
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
         uaiType.SECURE_VAULT,
-        uaiType.VAULT_TRANSFER,
         uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
         uaiType.DEFAULT,
         uaiType.ZENDESK_TICKET,
@@ -198,7 +197,6 @@ function* credentialsAuthWorker({ payload }) {
             uaiChecks([
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               uaiType.SECURE_VAULT,
-              uaiType.VAULT_TRANSFER,
               uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
               uaiType.FEE_INISGHT,
               uaiType.DEFAULT,

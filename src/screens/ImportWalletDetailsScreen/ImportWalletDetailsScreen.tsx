@@ -16,7 +16,6 @@ function ImportWalletDetailsScreen({ route }) {
   const { home, importWallet } = translations;
 
   const { importedKey, importedKeyDetails, type, name, description } = route.params;
-  const transferPolicy = null;
 
   const [walletName, setWalletName] = useState(name || '');
   const [walletDescription, setWalletDescription] = useState(description || '');
@@ -28,7 +27,6 @@ function ImportWalletDetailsScreen({ route }) {
       name: walletName,
       importedKey,
       importedKeyDetails,
-      policy: transferPolicy,
     });
   };
 

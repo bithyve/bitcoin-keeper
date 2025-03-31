@@ -9,7 +9,6 @@ import {
 
 import {
   DerivationPurpose,
-  EntityKind,
   SignerStorage,
   SignerType,
   XpubTypes,
@@ -56,7 +55,6 @@ export const generateSignerFromMetaData = ({
   xfp = null,
   isBIP85 = false,
   signerPolicy = null,
-  inheritanceKeyInfo = null,
   isAmf = false,
 }): { signer: Signer; key: VaultSigner } => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
