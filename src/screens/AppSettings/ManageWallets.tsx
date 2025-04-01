@@ -214,7 +214,6 @@ function ManageWallets() {
           name: wallet.presentationData.name,
           description: wallet.presentationData.description,
           visibility: visibilityType,
-          shell: wallet.presentationData.shell,
         },
       });
     } catch (error) {

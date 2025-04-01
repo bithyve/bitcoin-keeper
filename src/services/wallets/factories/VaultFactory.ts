@@ -69,8 +69,6 @@ export const generateVault = async ({
   scheme,
   signers,
   networkType,
-  vaultShellId,
-  signerMap,
 }: {
   type: VaultType;
   vaultName: string;
@@ -78,13 +76,9 @@ export const generateVault = async ({
   scheme: VaultScheme;
   signers: VaultSigner[];
   networkType: NetworkType;
-  vaultShellId?: string;
-  signerMap: { [key: string]: Signer };
 }): Promise<Vault> => {
   const id = generateVaultId(signers, scheme);
   const xpubs = signers.map((signer) => signer.xpub);
-  const shellId = vaultShellId || generateKey(12);
-  const defaultShell = 1;
 
   if (scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
     if (!scheme.miniscriptScheme) throw new Error('Input missing: miniscriptScheme');
@@ -117,7 +111,6 @@ export const generateVault = async ({
     name: vaultName,
     description: vaultDescription,
     visibility: VisibilityType.DEFAULT,
-    shell: defaultShell,
   };
 
   const specs: VaultSpecs = {
@@ -138,7 +131,6 @@ export const generateVault = async ({
 
   const vault: Vault = {
     id,
-    shellId,
     entityKind: EntityKind.VAULT,
     type,
     networkType,

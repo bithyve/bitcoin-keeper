@@ -192,7 +192,6 @@ export function* updateVaultImageWorker({
   try {
     const response = yield call(Relay.updateVaultImage, {
       appID: id,
-      vaultShellId: vault.shellId,
       vaultId: vault.id,
       signersData,
       vault: vaultEncrypted,
@@ -954,7 +953,6 @@ function* backupAllSignersAndVaultsWorker() {
         });
       }
       vaultObject[vault.id] = {
-        vaultShellId: vault.shellId,
         vaultId: vault.id,
         signersData,
         vault: vaultEncrypted,

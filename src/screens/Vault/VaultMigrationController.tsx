@@ -484,7 +484,7 @@ function VaultMigrationController({
 
       if (activeVault) {
         // case: vault migration; old -> new
-        dispatch(migrateVault(vaultInfo, activeVault.shellId));
+        dispatch(migrateVault(vaultInfo));
       } else {
         // case: new vault creation
         const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);

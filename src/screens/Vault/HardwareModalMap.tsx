@@ -926,7 +926,6 @@ function HardwareModalMap({
   skipHealthCheckCallBack,
   mode = InteracationMode.VAULT_ADDITION,
   primaryMnemonic,
-  vaultShellId,
   addSignerFlow = false,
   vaultSigners,
   vaultId,
@@ -940,7 +939,6 @@ function HardwareModalMap({
   mode?: InteracationMode;
   isMultisig: boolean;
   primaryMnemonic?: string;
-  vaultShellId?: string;
   addSignerFlow: boolean;
   vaultSigners?: VaultSigner[];
   vaultId?: string;

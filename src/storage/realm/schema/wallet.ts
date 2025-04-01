@@ -112,7 +112,6 @@ export const WalletPresentationDataSchema: ObjectSchema = {
     name: 'string',
     description: 'string',
     visibility: 'string',
-    shell: 'int',
   },
 };
 

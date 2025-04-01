@@ -37,9 +37,9 @@ export const archiveSigningDevice = (signers: Signer[]) => ({
   payload: { signers },
 });
 
-export const migrateVault = (newVaultInfo: NewVaultInfo, vaultShellId: string) => ({
+export const migrateVault = (newVaultInfo: NewVaultInfo) => ({
   type: MIGRATE_VAULT,
-  payload: { newVaultData: newVaultInfo, vaultShellId },
+  payload: { newVaultData: newVaultInfo },
 });
 
 export const finaliseVaultMigration = (payload: string) => ({

@@ -57,7 +57,6 @@ function VaultSettings({ route }) {
           name: vault.presentationData.name,
           description: vault.presentationData.description,
           visibility: VisibilityType.HIDDEN,
-          shell: vault.presentationData.shell,
         },
       });
       showToast(vaultText.vaultHiddenSuccessMessage, <TickIcon />, IToastCategory.DEFAULT, 5000);

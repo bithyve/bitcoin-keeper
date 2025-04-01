@@ -171,12 +171,10 @@ export const generateWallet = async ({
     specs = generateWalletSpecsFromMnemonic(mnemonic, network, derivationDetails.xDerivationPath);
   }
 
-  const defaultShell = 1;
   const presentationData: WalletPresentationData = {
     name: walletName,
     description: walletDescription,
     visibility: VisibilityType.DEFAULT,
-    shell: defaultShell,
   };
   const scriptType: ScriptTypes = WalletUtilities.getSingleKeyScriptTypeFromPurpose(
     WalletUtilities.getPurpose(derivationDetails.xDerivationPath)

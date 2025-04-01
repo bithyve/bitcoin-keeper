@@ -132,7 +132,6 @@ export interface Vault {
   // Represents a Vault
   // Rel: Created using multiple VaultSigners(Extended Keys)
   id: string; // vault identifier(derived from xpub)
-  shellId: string;
   entityKind: EntityKind; // Vault vs Wallet identifier
   type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet

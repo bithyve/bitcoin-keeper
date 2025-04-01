@@ -269,9 +269,6 @@ export function* addNewVaultWorker({
     let { vault } = payload;
 
     if (!vault) {
-      const signerMap = {};
-      const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-      signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
       const {
         vaultType = VaultType.DEFAULT,
         vaultScheme,
@@ -285,8 +282,6 @@ export function* addNewVaultWorker({
         }
       }
 
-      const vaultShellId = generateKey(12);
-
       const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {
         type: vaultType,
@@ -295,8 +290,6 @@ export function* addNewVaultWorker({
         scheme: vaultScheme,
         signers: vaultSigners,
         networkType,
-        vaultShellId,
-        signerMap,
       });
     }
 
@@ -572,11 +565,7 @@ export const archiveSigningDeviceWatcher = createWatcher(
   ARCHIVE_SIGINING_DEVICE
 );
 
-function* migrateVaultWorker({
-  payload,
-}: {
-  payload: { newVaultData: NewVaultInfo; vaultShellId: string };
-}) {
+function* migrateVaultWorker({ payload }: { payload: { newVaultData: NewVaultInfo } }) {
   try {
     const {
       vaultType = VaultType.DEFAULT,
@@ -584,7 +573,6 @@ function* migrateVaultWorker({
       vaultSigners,
       vaultDetails,
     } = payload.newVaultData;
-    const { vaultShellId } = payload;
 
     if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
       if (vaultScheme.n !== vaultSigners.length) {
@@ -594,10 +582,6 @@ function* migrateVaultWorker({
 
     const networkType = config.NETWORK_TYPE;
 
-    const signerMap = {};
-    const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
-
     const vault: Vault = yield call(generateVault, {
       type: vaultType,
       vaultName: vaultDetails.name,
@@ -605,8 +589,6 @@ function* migrateVaultWorker({
       scheme: vaultScheme,
       signers: vaultSigners,
       networkType,
-      vaultShellId,
-      signerMap,
     });
 
     yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
@@ -949,7 +931,6 @@ function* updateWalletDetailsWorker({ payload }) {
       name: details.name,
       description: details.description,
       visibility: wallet.presentationData.visibility,
-      shell: wallet.presentationData.shell,
     };
     wallet.presentationData = presentationData;
 
@@ -992,7 +973,6 @@ function* updateVaultDetailsWorker({ payload }) {
       name: details.name,
       description: details.description,
       visibility: vault.presentationData.visibility,
-      shell: vault.presentationData.shell,
     };
     yield put(setRelayVaultUpdateLoading(true));
     // API-TODO: based on response call the DB

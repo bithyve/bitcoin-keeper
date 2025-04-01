@@ -25,7 +25,6 @@ export interface WalletPresentationData {
   name: string; // name of the wallet
   description: string; // description of the wallet
   visibility: VisibilityType; // visibility of the wallet
-  shell: number; // shell id
 }
 
 export interface AddressCache {
