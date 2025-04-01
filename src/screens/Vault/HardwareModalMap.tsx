@@ -21,7 +21,6 @@ import {
   SignerType,
   XpubTypes,
 } from 'src/services/wallets/enums';
-import { generateCosignerMapIds } from 'src/services/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/constants/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -110,14 +109,14 @@ import NFC from 'src/services/nfc';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { setLastUsedOption } from 'src/store/reducers/signer';
-import BackupModalContent from '../AppSettings/BackupModal';
 import SetupSignerOptions from 'src/components/SetupSignerOptions';
-import SignerOptionCard from './components/signerOptionCard';
-import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
 import useNfcModal from 'src/hooks/useNfcModal';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
+import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
+import SignerOptionCard from './components/signerOptionCard';
+import BackupModalContent from '../AppSettings/BackupModal';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -435,7 +434,7 @@ const getSignerContent = (
         keyGenerationMode !== KeyGenerationMode.RECOVER
           ? isHealthcheck
             ? 'Health check your Server Key with your 2FA authentication.'
-            : `The Server Key is a key stored securely on Keeper's servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.`
+            : "The Server Key is a key stored securely on Keeper's servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup."
           : 'Recover an existing Server Key using other signers from the Vault';
       return {
         type: SignerType.POLICY_SERVER,
@@ -663,7 +662,7 @@ const getSignerContent = (
         Illustration: <OtherSDSetup />,
         Instructions: [
           'Provide the Signer details either by entering them or scanning',
-          `The hardened part of the derivation path of the xpub has to be denoted with a "h" or "'". Please do not use any other character`,
+          'The hardened part of the derivation path of the xpub has to be denoted with a "h" or "\'". Please do not use any other character',
         ],
         title: isHealthcheck ? 'Verify Signer' : 'Add Signer',
         subTitle: 'Get your Signer ready before proceeding',
@@ -1109,9 +1108,11 @@ function HardwareModalMap({
 
   const navigateToAddQrBasedSigner = () => {
     let routeName = 'ScanQR';
-    if (!isHealthcheck && !isCanaryAddition && !isExternalKey)
-      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.PASSPORT].includes(type))
+    if (!isHealthcheck && !isCanaryAddition && !isExternalKey) {
+      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.PASSPORT].includes(type)) {
         routeName = 'AddMultipleXpub';
+      }
+    }
     navigation.dispatch(
       CommonActions.navigate({
         name: routeName,
@@ -1642,41 +1643,7 @@ function HardwareModalMap({
   };
 
   const verifySigningServer = async (otp) => {
-    try {
-      setInProgress(true);
-
-      if (vaultSigners.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(
-        signerMap,
-        vaultSigners,
-        SignerType.POLICY_SERVER
-      );
-      const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
-      if (response.xpub) {
-        const { signer: signingServerKey } = generateSignerFromMetaData({
-          xpub: response.xpub,
-          derivationPath: response.derivationPath,
-          masterFingerprint: response.masterFingerprint,
-          signerType: SignerType.POLICY_SERVER,
-          storageType: SignerStorage.WARM,
-          isMultisig: true,
-          xfp: response.id,
-          isBIP85: response.isBIP85,
-          signerPolicy: response.policy,
-        });
-        setInProgress(false);
-        dispatch(setSigningDevices(signingServerKey));
-        navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
-        showToast(
-          `${signingServerKey.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
-      }
-    } catch (err) {
-      setInProgress(false);
-      showToast(`${err}`, <ToastErrorIcon />);
-    }
+    showToast('Not implemented yet', <ToastErrorIcon />);
   };
 
   const findSigningServer = async (otp) => {
@@ -1711,42 +1678,7 @@ function HardwareModalMap({
   };
 
   const recoverSigningServer = async (otp) => {
-    try {
-      setInProgress(true);
-
-      if (vaultSigners.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(
-        signerMap,
-        vaultSigners,
-        SignerType.POLICY_SERVER
-      );
-      const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
-      if (response.xpub) {
-        const { signer: signingServerKey } = generateSignerFromMetaData({
-          xpub: response.xpub,
-          derivationPath: response.derivationPath,
-          masterFingerprint: response.masterFingerprint,
-          signerType: SignerType.POLICY_SERVER,
-          storageType: SignerStorage.WARM,
-          isMultisig: true,
-          xfp: response.id,
-          isBIP85: response.isBIP85,
-          signerPolicy: response.policy,
-        });
-        setInProgress(false);
-
-        dispatch(addSigningDevice([signingServerKey]));
-        showToast(
-          `${signingServerKey.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
-      }
-    } catch (err) {
-      setInProgress(false);
-      setOtp('');
-      showToast(`${err}`, <ToastErrorIcon />);
-    }
+    showToast('Not implemented yet', <ToastErrorIcon />);
   };
 
   function SigningServerOTPModal() {
@@ -2213,7 +2145,7 @@ function HardwareModalMap({
   }) {
     return (
       <View>
-        <Box gap={2} width={'100%'}>
+        <Box gap={2} width="100%">
           {options &&
             options.map((option) => (
               <SignerOptionCard
