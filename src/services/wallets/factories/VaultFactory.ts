@@ -1,18 +1,8 @@
-/* eslint-disable no-await-in-loop */
 import * as bip39 from 'bip39';
-import * as bitcoinJS from 'bitcoinjs-lib';
-
-import {
-  cryptoRandom,
-  generateEncryptionKey,
-  generateKey,
-  hash256,
-} from 'src/utils/service-utilities/encryption';
+import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
-import { CosignersMapUpdate, CosignersMapUpdateAction } from 'src/models/interfaces/AssistedKeys';
-import SigningServer from 'src/services/backend/SigningServer';
 import idx from 'idx';
-import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
+import { getAccountFromSigner } from 'src/utils/utilities';
 import {
   EntityKind,
   MiniscriptTypes,
@@ -38,8 +28,6 @@ import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
 import { generateMiniscript } from '../operations/miniscript/miniscript';
 import { generateMiniscriptPolicy } from '../operations/miniscript/policy-generator';
-
-const crypto = require('crypto');
 
 // *TODO: Remove this and update the generateVaultId function
 const STANDARD_VAULT_SCHEME = [
@@ -166,9 +154,6 @@ export const generateVault = async ({
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
 
-  // update cosigners map(if one of the signers is an assisted key)
-  await updateCosignersMapForAssistedKeys(signers, signerMap);
-
   return vault;
 };
 
@@ -242,72 +227,6 @@ export const generateSeedWordsKey = (
     derivationPath: xDerivationPath,
     masterFingerprint,
   };
-};
-
-export const generateCosignerMapIds = (
-  signerMap: { [key: string]: Signer },
-  keys: VaultSigner[],
-  except: SignerType
-) => {
-  // generates cosigners map ids using sorted and hashed cosigner ids
-  const cosignerIds = [];
-  keys.forEach((signer) => {
-    if (signerMap[getKeyUID(signer)].type !== except) cosignerIds.push(signer.xfp);
-  });
-
-  cosignerIds.sort();
-
-  const hashedCosignerIds = cosignerIds.map((id) => hash256(id));
-
-  const cosignersMapIds = [];
-  for (let i = 0; i < hashedCosignerIds.length; i++) {
-    for (let j = i + 1; j < hashedCosignerIds.length; j++) {
-      cosignersMapIds.push(`${hashedCosignerIds[i]}-${hashedCosignerIds[j]}`);
-    }
-  }
-
-  return cosignersMapIds;
-};
-
-export const generateCosignerMapUpdates = (
-  signerMap: { [key: string]: Signer },
-  keys: VaultSigner[],
-  assistedKey: VaultSigner
-): CosignersMapUpdate[] => {
-  const assistedKeyType = signerMap[getKeyUID(assistedKey)].type;
-  const cosignersMapIds = generateCosignerMapIds(signerMap, keys, assistedKeyType);
-
-  if (assistedKeyType === SignerType.POLICY_SERVER) {
-    const cosignersMapUpdates: CosignersMapUpdate[] = [];
-    for (const id of cosignersMapIds) {
-      cosignersMapUpdates.push({
-        cosignersId: id,
-        signerId: assistedKey.xfp,
-        action: CosignersMapUpdateAction.ADD,
-      });
-    }
-
-    return cosignersMapUpdates;
-  } else throw new Error('Non-supported signer type');
-};
-
-const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap) => {
-  for (const key of keys) {
-    const assistedKeyType = signerMap[getKeyUID(key)]?.type;
-    if (assistedKeyType === SignerType.POLICY_SERVER) {
-      // creates maps per signer type
-      const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, keys, key);
-
-      // updates our backend with the cosigners map
-      if (assistedKeyType === SignerType.POLICY_SERVER) {
-        const { updated } = await SigningServer.updateCosignersToSignerMap(
-          key.xfp,
-          cosignersMapUpdates as CosignersMapUpdate[]
-        );
-        if (!updated) throw new Error('Failed to update cosigners-map for SS Assisted Keys');
-      }
-    }
-  }
 };
 
 export const MOCK_SD_MNEMONIC_MAP = {

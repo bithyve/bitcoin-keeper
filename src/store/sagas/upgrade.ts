@@ -18,8 +18,6 @@ import {
   VaultSigner,
 } from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/backend/SigningServer';
-import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
-import { CosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
 import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import { captureError } from 'src/services/sentry';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
@@ -40,7 +38,6 @@ import { setPendingAllBackup } from '../reducers/bhr';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
-export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
 export const KEY_MANAGEMENT_VERSION = '1.1.9';
 export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.6';
@@ -62,7 +59,6 @@ export function* applyUpgradeSequence({
     yield put(migrateLabelsToBip329());
   }
 
-  if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
   if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
     yield call(migrateStructureforSignersInAppImage);
     yield call(migrateStructureforVaultInAppImage);
@@ -159,45 +155,6 @@ function* migrateLablesWorker() {
 }
 
 export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_LABELS_329);
-
-function* migrateAssistedKeys() {
-  try {
-    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
-    const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
-
-    if (!activeVault) throw new Error('No active vault found');
-
-    const { signers } = activeVault;
-    const signerMap = {};
-    dbManager
-      .getCollection(RealmSchema.Signer)
-      .forEach((signer) => (signerMap[getKeyUID(signer as Signer)] = signer));
-
-    for (const signer of signers) {
-      const signerType = signerMap[getKeyUID(signer)].type;
-
-      if (signerType === SignerType.POLICY_SERVER) {
-        const cosignersMapUpdates: CosignersMapUpdate[] = yield call(
-          generateCosignerMapUpdates,
-          signerMap,
-          signers,
-          signer
-        );
-        const { migrationSuccessful } = yield call(
-          SigningServer.migrateSignersV2ToV3,
-          activeVault.shellId,
-          app.id,
-          cosignersMapUpdates
-        );
-
-        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(SS)');
-      }
-    }
-  } catch (error) {
-    console.log({ error });
-  }
-}
 
 function* migrateStructureforSignersInAppImage() {
   try {
