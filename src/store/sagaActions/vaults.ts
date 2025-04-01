@@ -16,12 +16,7 @@ export const MERGER_SIMILAR_KEYS = 'MERGER_SIMILAR_KEYS';
 export const UPDATE_COLLABORATIVE_CHANNEL = 'UPDATE_COLLABORATIVE_CHANNEL';
 export const FETCH_COLLABORATIVE_CHANNEL = 'FETCH_COLLABORATIVE_CHANNEL';
 
-export const addNewVault = (payload: {
-  newVaultInfo: NewVaultInfo;
-  payload?: Vault;
-  isMigrated?: Boolean;
-  oldVaultId?: String;
-}) => ({
+export const addNewVault = (payload: { newVaultInfo: NewVaultInfo; payload?: Vault }) => ({
   type: ADD_NEW_VAULT,
   payload,
 });

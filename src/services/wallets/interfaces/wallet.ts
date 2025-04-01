@@ -1,4 +1,3 @@
-import { DerivationConfig } from 'src/store/sagas/wallets';
 import { Balances, BIP85Config, UTXO, Transaction } from '.';
 import {
   NetworkType,
@@ -7,17 +6,12 @@ import {
   EntityKind,
   ScriptTypes,
   ImportedKeyType,
-  DerivationPurpose,
 } from '../enums';
 
 export interface WalletImportDetails {
   importedKey: string;
-  importedKeyDetails: {
-    importedKeyType: ImportedKeyType;
-    watchOnly: Boolean;
-    purpose: DerivationPurpose;
-  };
-  derivationConfig: DerivationConfig;
+  importedKeyType: ImportedKeyType;
+  derivationPath: string;
 }
 
 export interface WalletDerivationDetails {
@@ -65,7 +59,6 @@ export interface Wallet {
   entityKind: EntityKind; // Wallet vs Vault identifier
   type: WalletType; // type of wallet
   networkType: NetworkType; // testnet/mainnet
-  isUsable: boolean; // true if wallet is usable
   derivationDetails?: WalletDerivationDetails;
   presentationData: WalletPresentationData;
   specs: WalletSpecs;

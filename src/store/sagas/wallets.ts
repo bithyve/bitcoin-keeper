@@ -2,7 +2,6 @@
 
 /* eslint-disable no-case-declarations */
 import {
-  DerivationPurpose,
   EntityKind,
   MiniscriptTypes,
   MultisigScriptType,
@@ -144,15 +143,10 @@ export interface NewVaultDetails {
   description?: string;
 }
 
-export interface DerivationConfig {
-  purpose: DerivationPurpose;
-  path: string;
-}
-
 export interface NewWalletDetails {
   name?: string;
   description?: string;
-  derivationConfig?: DerivationConfig;
+  derivationPath?: string;
   instanceNum?: number;
 }
 
@@ -172,7 +166,7 @@ function* addNewWallet(
   const {
     name: walletName,
     description: walletDescription,
-    derivationConfig,
+    derivationPath,
     instanceNum,
   } = walletDetails;
   const wallets: Wallet[] = yield call(
@@ -189,7 +183,7 @@ function* addNewWallet(
         instanceNum, // zero-indexed
         walletName: walletName || 'Mobile Wallet',
         walletDescription: walletDescription || '',
-        derivationConfig,
+        derivationPath,
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
         wallets,
@@ -273,11 +267,11 @@ export function* addNewVaultWorker({
   try {
     const { newVaultInfo, isMigrated, oldVaultId } = payload;
     let { vault } = payload;
-    const signerMap = {};
-    const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
 
     if (!vault) {
+      const signerMap = {};
+      const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+      signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
       const {
         vaultType = VaultType.DEFAULT,
         vaultScheme,
@@ -834,7 +828,6 @@ export function* autoWalletsSyncWorker({
   const walletsToSync: (Wallet | Vault)[] = [];
   for (const wallet of [...wallets, ...vaults]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
-      if (!wallet.isUsable) continue;
       if (wallet.entityKind === EntityKind.VAULT && (wallet as Vault).archived) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }

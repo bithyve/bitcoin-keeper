@@ -376,15 +376,12 @@ function* getAppImageWorker({ payload }) {
         walletDetails: {
           name: 'Mobile Wallet',
           description: '',
-          derivationConfig: {
-            path: WalletUtilities.getDerivationPath(
-              false,
-              config.NETWORK_TYPE,
-              0,
-              DerivationPurpose.BIP84
-            ),
-            purpose: DerivationPurpose.BIP84,
-          },
+          derivationPath: WalletUtilities.getDerivationPath(
+            false,
+            config.NETWORK_TYPE,
+            0,
+            DerivationPurpose.BIP84
+          ),
           instanceNum: 0,
         },
       };

@@ -126,10 +126,7 @@ function ConfirmWalletDetails({ route }) {
       walletDetails: {
         name: walletName,
         description: descriptionInputRef.current,
-        derivationConfig: {
-          path,
-          purpose,
-        },
+        derivationPath: path,
         instanceNum: route.params.hotWalletInstanceNum,
       },
     };

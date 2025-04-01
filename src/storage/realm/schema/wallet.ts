@@ -144,7 +144,6 @@ export const WalletSchema: ObjectSchema = {
     entityKind: 'string',
     type: 'string',
     networkType: 'string',
-    isUsable: 'bool',
     derivationDetails: `${RealmSchema.WalletDerivationDetails}?`,
     presentationData: RealmSchema.WalletPresentationData,
     specs: RealmSchema.WalletSpecs,

@@ -223,7 +223,6 @@ export const VaultSchema: ObjectSchema = {
     entityKind: 'string',
     type: 'string',
     networkType: 'string',
-    isUsable: 'bool',
     isMultiSig: 'bool',
     scheme: `${RealmSchema.VaultScheme}`,
     signers: `${RealmSchema.VaultSigner}[]`,

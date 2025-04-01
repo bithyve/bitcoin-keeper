@@ -112,13 +112,13 @@ const useConfigRecovery = () => {
       if (text.match(/^[XYZTUVxyztuv]pub[1-9A-HJ-NP-Za-km-z]{100,108}$/)) {
         try {
           const importedKey = text.trim();
-          const importedKeyDetails = WalletUtilities.getImportedKeyDetails(importedKey);
+          const importedKeyType = WalletUtilities.getImportedKeyType(importedKey);
           navigation.navigate('ImportWalletDetails', {
             importedKey,
-            importedKeyDetails,
+            importedKeyType,
             type: WalletType.IMPORTED,
             name: 'Imported Wallet',
-            description: importedKeyDetails.watchOnly ? 'Watch Only' : 'Imported Wallet',
+            description: 'Watch Only',
           });
           setRecoveryLoading(false);
           return;

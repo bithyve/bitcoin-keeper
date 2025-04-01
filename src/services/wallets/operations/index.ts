@@ -1446,22 +1446,8 @@ export default class WalletOperations {
             },
             sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
           });
-        } else if (derivationPurpose === DerivationPurpose.BIP49) {
-          const p2sh = bitcoinJS.payments.p2sh({
-            redeem: p2wpkh,
-          });
-
-          PSBT.addInput({
-            hash: input.txId,
-            index: input.vout,
-            bip32Derivation,
-            witnessUtxo: {
-              script: p2sh.output,
-              value: input.value,
-            },
-            redeemScript: p2wpkh.output,
-            sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
-          });
+        } else {
+          throw Error('Unsupported derivation when trying to add input');
         }
       }
     } else {

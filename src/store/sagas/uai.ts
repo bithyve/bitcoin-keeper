@@ -24,6 +24,7 @@ import {
 import { createWatcher } from '../utilities';
 import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
 import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
+import { hash256 } from 'bitcoinjs-lib/src/crypto';
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
 const HEALTH_CHECK_REMINDER_TESTNET = 3; // 3hours
 const healthCheckReminderThreshold = isTestnet()
@@ -47,7 +48,7 @@ const healthCheckReminderHours = (lastHealthCheck: Date) => {
 export function* addToUaiStackWorker({ payload }) {
   const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
-    id: crypto.randomUUID(),
+    id: hash256(Buffer.from(Date.now().toString() + Math.random().toString())).toString(),
     entityId,
     uaiType,
     uaiDetails,

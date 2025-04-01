@@ -142,7 +142,6 @@ export const generateVault = async ({
     entityKind: EntityKind.VAULT,
     type,
     networkType,
-    isUsable: true,
     isMultiSig,
     scheme,
     signers,

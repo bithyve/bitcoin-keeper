@@ -1,6 +1,5 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { DerivationConfig } from 'src/store/sagas/wallets';
 import config from 'src/utils/service-utilities/config';
 import {
   EntityKind,
@@ -65,13 +64,9 @@ export const generateWalletSpecsFromExtendedKeys = (
   extendedKey: string,
   extendedKeyType: ImportedKeyType
 ) => {
-  let xpriv: string;
   let xpub: string;
 
-  if (WalletUtilities.isExtendedPrvKey(extendedKeyType)) {
-    xpriv = WalletUtilities.getXprivFromExtendedKey(extendedKey, config.NETWORK);
-    xpub = WalletUtilities.getPublicExtendedKeyFromPriv(xpriv);
-  } else if (WalletUtilities.isExtendedPubKey(extendedKeyType)) {
+  if (WalletUtilities.isExtendedPubKey(extendedKeyType)) {
     xpub = WalletUtilities.getXpubFromExtendedKey(extendedKey, config.NETWORK);
   } else {
     throw new Error('Invalid key');
@@ -79,7 +74,7 @@ export const generateWalletSpecsFromExtendedKeys = (
 
   const specs: WalletSpecs = {
     xpub,
-    xpriv,
+    xpriv: null,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
     totalExternalAddresses: 1,
@@ -102,7 +97,7 @@ export const generateWallet = async ({
   instanceNum,
   walletName,
   walletDescription,
-  derivationConfig,
+  derivationPath,
   primaryMnemonic,
   importDetails,
   networkType,
@@ -112,7 +107,7 @@ export const generateWallet = async ({
   instanceNum: number;
   walletName: string;
   walletDescription: string;
-  derivationConfig?: DerivationConfig;
+  derivationPath?: string;
   primaryMnemonic?: string;
   importDetails?: WalletImportDetails;
   networkType: NetworkType;
@@ -127,7 +122,7 @@ export const generateWallet = async ({
 
   if (type === WalletType.IMPORTED) {
     if (!importDetails) throw new Error('Import details are missing');
-    const { importedKey, importedKeyDetails, derivationConfig } = importDetails;
+    const { importedKey, importedKeyType, derivationPath } = importDetails;
 
     // case: import wallet via extended keys
 
@@ -135,28 +130,31 @@ export const generateWallet = async ({
       instanceNum, // null
       mnemonic: null, // null
       bip85Config, // null
-      xDerivationPath: derivationConfig.path,
+      xDerivationPath: derivationPath,
     };
 
-    specs = generateWalletSpecsFromExtendedKeys(importedKey, importedKeyDetails.importedKeyType);
-    id = WalletUtilities.getFingerprintFromExtendedKey(specs.xpriv || specs.xpub, config.NETWORK); // case: extended key imported wallets have xfp as their id
+    specs = generateWalletSpecsFromExtendedKeys(importedKey, importedKeyType);
+    id = WalletUtilities.getFingerprintFromExtendedKey(specs.xpub, config.NETWORK); // case: extended key imported wallets have xfp as their id
     if (wallets.find((wallet) => wallet.id === id)) {
       throw Error('Hot wallet for this mobile key already exists.');
     }
   } else {
     // case: adding new wallet
     if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
-    if (!derivationConfig) throw new Error('Wallet derivation missing');
+    if (!derivationPath) throw new Error('Wallet derivation missing');
+    if (!Number.isInteger(instanceNum) || instanceNum < 0)
+      throw new Error('Must provide valid instance number');
+
     // BIP85 derivation: primary mnemonic to bip85-child mnemonic
     bip85Config = BIP85.generateBIP85Configuration(type, instanceNum);
     const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
-
     const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
+
     derivationDetails = {
       instanceNum,
       mnemonic,
       bip85Config,
-      xDerivationPath: derivationConfig.path,
+      xDerivationPath: derivationPath,
     };
     id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic);
     const idWithDerivation = id + derivationDetails.xDerivationPath;
@@ -180,7 +178,7 @@ export const generateWallet = async ({
     visibility: VisibilityType.DEFAULT,
     shell: defaultShell,
   };
-  const scriptType: ScriptTypes = WalletUtilities.getScriptTypeFromPurpose(
+  const scriptType: ScriptTypes = WalletUtilities.getSingleKeyScriptTypeFromPurpose(
     WalletUtilities.getPurpose(derivationDetails.xDerivationPath)
   );
 
@@ -189,7 +187,6 @@ export const generateWallet = async ({
     entityKind: EntityKind.WALLET,
     type,
     networkType,
-    isUsable: true,
     derivationDetails,
     presentationData,
     specs,
