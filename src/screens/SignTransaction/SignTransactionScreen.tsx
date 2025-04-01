@@ -72,7 +72,6 @@ function SignTransactionScreen() {
 
   const {
     note,
-    label,
     vaultId,
     sendConfirmationRouteParams,
     isMoveAllFunds,
@@ -84,7 +83,6 @@ function SignTransactionScreen() {
     amounts,
   } = (route.params || {
     note: '',
-    label: [],
     vaultId: '',
     sendConfirmationRouteParams: null,
     isMoveAllFunds: false,
@@ -95,7 +93,6 @@ function SignTransactionScreen() {
     amounts: [],
   }) as {
     note: string;
-    label: { name: string; isSystem: boolean }[];
     vaultId: string;
     isMoveAllFunds: boolean;
     sender: Vault;
@@ -704,9 +701,8 @@ function SignTransactionScreen() {
                 sendPhaseThree({
                   wallet: defaultVault,
                   txnPriority: tnxDetails.transactionPriority,
-                  miniscriptTxElements,
                   note,
-                  label,
+                  miniscriptTxElements,
                 })
               );
             } else {

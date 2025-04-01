@@ -144,7 +144,6 @@ export const generateVault = async ({
       unconfirmed: 0,
     },
     transactions: [],
-    txNote: {},
     hasNewUpdates: false,
     lastSynched: 0,
   };

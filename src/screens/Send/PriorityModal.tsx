@@ -6,9 +6,7 @@ import { hp, wp } from 'src/constants/responsive';
 
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
-import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { TxPriority } from 'src/services/wallets/enums';
-import useAvailableTransactisonPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
 import BTC from 'src/assets/images/btc.svg';
@@ -153,7 +151,7 @@ function PriorityModal({
   setEstimationSign,
   txFeeInfo,
 }: PriorityModalProps) {
-  const availableTransactionPriorities = useAvailableTransactisonPriorities();
+  const availableTransactionPriorities = Object.values(TxPriority);
   const reorderedPriorities = [
     ...availableTransactionPriorities.filter((priority) => priority !== TxPriority.CUSTOM),
     ...availableTransactionPriorities.filter((priority) => priority === TxPriority.CUSTOM),

@@ -55,7 +55,6 @@ export type TransactionFeeInfo = Record<TxPriority, TransactionFeeSnapshot>;
 
 export interface SendAndReceiveState {
   sendPhaseOne: {
-    inProgress: boolean;
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
@@ -65,7 +64,6 @@ export interface SendAndReceiveState {
     } | null;
   };
   customPrioritySendPhaseOne: {
-    inProgress: boolean;
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
@@ -75,7 +73,6 @@ export interface SendAndReceiveState {
     } | null;
   };
   sendPhaseTwo: {
-    inProgress: boolean;
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
@@ -85,34 +82,29 @@ export interface SendAndReceiveState {
     txid: string | null;
   };
   sendPhaseThree: {
-    inProgress: boolean;
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
     txid: string | null;
   };
   sendMaxFee: number;
-  feeIntelMissing: boolean;
   transactionFeeInfo: TransactionFeeInfo;
 }
 
 const initialState: SendAndReceiveState = {
   sendPhaseOne: {
-    inProgress: false,
     hasFailed: false,
     failedErrorMessage: null,
     isSuccessful: false,
     outputs: null,
   },
   customPrioritySendPhaseOne: {
-    inProgress: false,
     hasFailed: false,
     failedErrorMessage: null,
     isSuccessful: false,
     outputs: null,
   },
   sendPhaseTwo: {
-    inProgress: false,
     hasFailed: false,
     failedErrorMessage: null,
     isSuccessful: false,
@@ -122,14 +114,12 @@ const initialState: SendAndReceiveState = {
     txid: null,
   },
   sendPhaseThree: {
-    inProgress: false,
     hasFailed: false,
     failedErrorMessage: null,
     isSuccessful: false,
     txid: null,
   },
   sendMaxFee: 0,
-  feeIntelMissing: false,
   transactionFeeInfo: {
     [TxPriority.LOW]: {
       amount: 0,
@@ -174,7 +164,6 @@ const sendAndReceiveSlice = createSlice({
       }
       state.sendPhaseOne = {
         ...state.sendPhaseOne,
-        inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
@@ -202,7 +191,6 @@ const sendAndReceiveSlice = createSlice({
       }
       state.customPrioritySendPhaseOne = {
         ...state.customPrioritySendPhaseOne,
-        inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
@@ -221,7 +209,6 @@ const sendAndReceiveSlice = createSlice({
       const { successful, txid, serializedPSBTEnvelops, cachedTxid, cachedTxPriority, err } =
         action.payload;
       state.sendPhaseTwo = {
-        inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
@@ -256,7 +243,6 @@ const sendAndReceiveSlice = createSlice({
     sendPhaseThreeExecuted: (state, action: PayloadAction<SendPhaseThreeExecutedPayload>) => {
       const { successful, txid, err } = action.payload;
       state.sendPhaseThree = {
-        inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
@@ -292,8 +278,6 @@ const sendAndReceiveSlice = createSlice({
         initialState.customPrioritySendPhaseOne.failedErrorMessage;
       state.customPrioritySendPhaseOne.hasFailed =
         initialState.customPrioritySendPhaseOne.hasFailed;
-      state.customPrioritySendPhaseOne.inProgress =
-        initialState.customPrioritySendPhaseOne.inProgress;
       state.customPrioritySendPhaseOne.isSuccessful =
         initialState.customPrioritySendPhaseOne.isSuccessful;
       state.sendPhaseTwo = initialState.sendPhaseTwo;
@@ -305,9 +289,6 @@ const sendAndReceiveSlice = createSlice({
     },
     sendPhaseThreeReset: (state) => {
       state.sendPhaseThree = initialState.sendPhaseThree;
-    },
-    sendPhaseTwoStarted: (state) => {
-      state.sendPhaseTwo = { ...state.sendPhaseTwo, inProgress: true };
     },
     setStateFromSnapshot: (state, action: PayloadAction<SendAndReceiveState>) => {
       state = action.payload;
@@ -329,7 +310,6 @@ export const {
   sendPhaseTwoReset,
   sendPhaseThreeReset,
   updatePSBTEnvelops,
-  sendPhaseTwoStarted,
   setStateFromSnapshot,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

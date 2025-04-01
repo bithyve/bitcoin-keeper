@@ -22,7 +22,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { v4 as uuidv4 } from 'uuid';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import WalletUtilities from 'src/services/wallets/operations/utils';

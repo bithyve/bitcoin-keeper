@@ -29,7 +29,6 @@ export interface VaultSpecs {
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
   transactions: Transaction[]; // transactions belonging to this wallet
-  txNote: { [txId: string]: string }; // transaction note
   hasNewUpdates: boolean; // spec vars have a new update?
   lastSynched: number; // vault's last sync timestamp
 }
