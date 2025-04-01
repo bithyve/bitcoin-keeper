@@ -1333,8 +1333,6 @@
     "enterPasscode": "Enter Passcode",
     "confirmPasscodeToDeleteKey": "Confirm passcode to delete key",
     "thisStepTakesTime": "This step will take a few seconds.",
-    "forgot2FA": "Forgot 2FA",
-    "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove the Server Key and add a different key or use the Server Key backup",
     "noKeyAvailable": "No key available",
     "pleaseAddKey": "Please add an external key to proceed forward",
     "keyReceived": "Key Received",

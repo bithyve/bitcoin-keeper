@@ -429,57 +429,6 @@ const getSignerContent = (
           },
         ],
       };
-    case SignerType.POLICY_SERVER:
-      const subtitle =
-        keyGenerationMode !== KeyGenerationMode.RECOVER
-          ? isHealthcheck
-            ? 'Health check your Server Key with your 2FA authentication.'
-            : "The Server Key is a key stored securely on Keeper's servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup."
-          : 'Recover an existing Server Key using other signers from the Vault';
-      return {
-        type: SignerType.POLICY_SERVER,
-        Illustration: <SigningServerIllustration />,
-        Instructions: isHealthcheck
-          ? ['A request to the signer will be made to checks its health']
-          : keyGenerationMode !== KeyGenerationMode.RECOVER
-          ? [
-              '2FA Authenticator will have to be set up to use this option',
-              'On providing a correct OTP from the authenticator app, the Server Key will sign the transaction.',
-            ]
-          : [
-              'At least 2 signers are required in order to identify and recover an existing Server Key.',
-              'OTP from the authenticator is also required along with the two signers to initiate Server Key recovery.',
-            ],
-        title: isHealthcheck ? 'Verify Server Key' : 'Set up the Server Key',
-        subTitle: subtitle,
-        options: isHealthcheck
-          ? []
-          : [
-              {
-                title: 'Configure a New Key',
-                icon: (
-                  <CircleIconWrapper
-                    icon={<RecoverImage />}
-                    backgroundColor={`${colorMode}.BrownNeedHelp`}
-                    width={35}
-                  />
-                ),
-                callback: () => {},
-                name: KeyGenerationMode.NEW,
-              },
-              {
-                title: 'Recover Existing Key',
-                icon: (
-                  <CircleIconWrapper
-                    icon={<RecoverImage />}
-                    backgroundColor={`${colorMode}.BrownNeedHelp`}
-                    width={35}
-                  />
-                ),
-                name: KeyGenerationMode.RECOVER,
-              },
-            ],
-      };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = (
         <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
@@ -1642,45 +1591,6 @@ function HardwareModalMap({
     }
   };
 
-  const verifySigningServer = async (otp) => {
-    showToast('Not implemented yet', <ToastErrorIcon />);
-  };
-
-  const findSigningServer = async (otp) => {
-    try {
-      setInProgress(true);
-      if (vaultSigners.length <= 1) {
-        throw new Error('Add two other devices first to do a health check');
-      }
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-      const ids = vaultSigners.map((signer) =>
-        WalletUtilities.getFingerprintFromExtendedKey(signer.xpub, network)
-      );
-      const response = await SigningServer.findSignerSetup(ids, otp);
-      if (response.valid) {
-        const mapped = mapUnknownSigner({
-          masterFingerprint: response.masterFingerprint,
-          type: SignerType.POLICY_SERVER,
-          isBIP85: response.isBIP85,
-          signerPolicy: response.policy,
-        });
-        if (mapped) {
-          showToast('Server key verified successfully', <TickIcon />);
-        } else {
-          showToast('Something Went Wrong!', <ToastErrorIcon />);
-        }
-      }
-    } catch (err) {
-      setInProgress(false);
-      setOtp('');
-      showToast(`${err}`, <ToastErrorIcon />);
-    }
-  };
-
-  const recoverSigningServer = async (otp) => {
-    showToast('Not implemented yet', <ToastErrorIcon />);
-  };
-
   function SigningServerOTPModal() {
     const { translations } = useContext(LocalizationContext);
     const { vault: vaultTranslation, common, signer: signerTranslation } = translations;
@@ -1743,26 +1653,11 @@ function HardwareModalMap({
                 if (mode === InteracationMode.HEALTH_CHECK) {
                   checkSigningServerHealth();
                   setSigningServerHealthCheckOTPModal(false);
-                } else if (
-                  mode === InteracationMode.VAULT_ADDITION &&
-                  keyGenerationMode === KeyGenerationMode.RECOVER
-                ) {
-                  recoverSigningServer(otp);
-                  setSigningServerRecoverOTPModal(false);
                 } else {
-                  if (mode === InteracationMode.IDENTIFICATION) {
-                    findSigningServer(otp);
-                  } else {
-                    verifySigningServer(otp);
-                  }
+                  showToast('Action not implemented yet', <ToastErrorIcon />);
                 }
               }}
               primaryText={common.confirm}
-              secondaryText={mode === InteracationMode.HEALTH_CHECK && signerTranslation.forgot2FA}
-              secondaryCallback={() => {
-                setSigningServerHealthCheckOTPModal(false);
-                showToast(signerTranslation.forgot2FANote, null, IToastCategory.DEFAULT, 5000);
-              }}
             />
           </Box>
         </Box>
@@ -1848,11 +1743,7 @@ function HardwareModalMap({
     if (mode === InteracationMode.HEALTH_CHECK) {
       setSigningServerHealthCheckOTPModal(true);
     } else {
-      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
-        setSigningServerRecoverOTPModal(true);
-      } else {
-        navigateToSigningServerSetup();
-      }
+      navigateToSigningServerSetup();
     }
   };
 
@@ -2353,7 +2244,6 @@ function HardwareModalMap({
             signingServerHealthCheckOTPModal) ||
           (type === SignerType.POLICY_SERVER &&
             mode === InteracationMode.VAULT_ADDITION &&
-            keyGenerationMode === KeyGenerationMode.RECOVER &&
             signingServerRecoverOTPModal)
         }
         close={() => {
@@ -2367,18 +2257,12 @@ function HardwareModalMap({
           close();
         }}
         title={
-          signingServerHealthCheckOTPModal
-            ? common.confirm2FACodeTitle
-            : keyGenerationMode !== KeyGenerationMode.RECOVER
-            ? 'Confirm OTP to setup 2FA'
-            : 'Confirm OTP to recover Server Key'
+          signingServerHealthCheckOTPModal ? common.confirm2FACodeTitle : 'Confirm OTP to setup 2FA'
         }
         subTitle={
           signingServerHealthCheckOTPModal
             ? common.confirm2FACodeSubtitle
-            : keyGenerationMode !== KeyGenerationMode.RECOVER
-            ? 'To complete setting up the signer'
-            : 'To complete recovery of the signer'
+            : 'To complete setting up the signer'
         }
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
