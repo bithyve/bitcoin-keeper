@@ -1,9 +1,9 @@
-import React, { useContext, useState } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { Platform, Pressable, StyleSheet, Vibration } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { wp } from 'src/constants/responsive';
-import { getArchivedVaults } from 'src/utils/service-utilities/utils';
+import { generateOutputDescriptors, getArchivedVaults } from 'src/utils/service-utilities/utils';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useTestSats from 'src/hooks/useTestSats';
@@ -26,6 +26,10 @@ import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import SettingCard from '../Home/components/Settings/Component/SettingCard';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 import WalletConfiguration from './components/WalletConfiguration';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
+import NFC from 'src/services/nfc';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import { NfcTech } from 'react-native-nfc-manager';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -49,6 +53,30 @@ function VaultSettings({ route }) {
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
   const [needHelpModal, setNeedHelpModal] = useState(false);
   const [walletConfigModal, setWalletConfigModal] = useState(false);
+  const [visible, setVisible] = React.useState(false);
+  const { session } = useContext(HCESessionContext);
+
+  const cleanUp = () => {
+    setVisible(false);
+    Vibration.cancel();
+    if (isAndroid) {
+      NFC.stopTagSession(session);
+    }
+  };
+  useEffect(() => {
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      cleanUp();
+    });
+    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {});
+    return () => {
+      cleanUp();
+      unsubRead();
+      unsubDisconnect();
+    };
+  }, [session]);
+
+  const isAndroid = Platform.OS === 'android';
+  const isIos = Platform.OS === 'ios';
 
   const updateWalletVisibility = () => {
     try {
@@ -103,10 +131,36 @@ function VaultSettings({ route }) {
           navigation={navigation}
           vault={vault}
           setWalletConfigModal={setWalletConfigModal}
+          shareWithNFC={shareWithNFC}
         />
       </Box>
     );
   }
+
+  const shareWithNFC = async () => {
+    try {
+      if (isIos) {
+        if (!isIos) {
+          setVisible(true);
+        }
+        Vibration.vibrate([700, 50, 100, 50], true);
+        const enc = NFC.encodeTextRecord(generateOutputDescriptors(vault));
+        await NFC.send([NfcTech.Ndef], enc);
+        cleanUp();
+      } else {
+        setVisible(true);
+        await NFC.startTagSession({ session, content: generateOutputDescriptors(vault) });
+        Vibration.vibrate([700, 50, 100, 50], true);
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error: Not even registered') {
+        console.log('NFC interaction cancelled.');
+        return;
+      }
+      console.log('Error ', err);
+    }
+  };
 
   const actions = [
     {
@@ -280,6 +334,7 @@ function VaultSettings({ route }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={WalletConfigModal}
       />
+      <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />
     </ScreenWrapper>
   );
 }
