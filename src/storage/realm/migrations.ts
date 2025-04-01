@@ -365,4 +365,14 @@ export const runRealmMigrations = ({
     const newSubs = newRealm.objects(RealmSchema.StoreSubscription) as any;
     newSubs['isDesktopPurchase'] = false;
   }
+
+  if (oldRealm.schemaVersion < 93) {
+    const newVaults = newRealm.objects(RealmSchema.Vault) as any;
+    const newWallets = newRealm.objects(RealmSchema.Wallet) as any;
+
+    for (const vault of newVaults) delete vault.specs.txNote;
+
+    for (const wallet of newWallets) delete wallet.specs.txNote;
+  }
+
 };
