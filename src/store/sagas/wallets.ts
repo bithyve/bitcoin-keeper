@@ -76,9 +76,6 @@ import { RootState } from '../store';
 import {
   initiateVaultMigration,
   setCollaborativeSessionSigners,
-  setKeyHealthCheckError,
-  setKeyHealthCheckLoading,
-  setKeyHealthCheckSuccess,
   updateCollaborativeSessionLastSynched,
   vaultCreated,
   vaultMigrationCompleted,
@@ -190,7 +187,7 @@ function* addNewWallet(
       const defaultWallet: Wallet = yield call(generateWallet, {
         type: WalletType.DEFAULT,
         instanceNum, // zero-indexed
-        walletName: walletName || 'Default Wallet',
+        walletName: walletName || 'Mobile Wallet',
         walletDescription: walletDescription || '',
         derivationConfig,
         primaryMnemonic,
@@ -271,17 +268,15 @@ export function* addNewVaultWorker({
     vault?: Vault;
     isMigrated?: boolean;
     oldVaultId?: string;
-    isRecreation?: boolean;
   };
 }) {
   try {
-    const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
+    const { newVaultInfo, isMigrated, oldVaultId } = payload;
     let { vault } = payload;
     const signerMap = {};
     const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
 
-    let isNewVault = false; // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
       const {
         vaultType = VaultType.DEFAULT,
@@ -309,7 +304,6 @@ export function* addNewVaultWorker({
         vaultShellId,
         signerMap,
       });
-      isNewVault = true;
     }
 
     yield put(setRelayVaultUpdateLoading(true));
@@ -1151,6 +1145,7 @@ function* updateWalletsPropertyWorker({
     yield put(relayWalletUpdateFail('Something went wrong!'));
   }
 }
+
 export const updateWalletsPropertyWatcher = createWatcher(
   updateWalletsPropertyWorker,
   UPDATE_WALLET_PROPERTY
@@ -1232,15 +1227,13 @@ export const reinstateVaultWatcher = createWatcher(reinstateVaultWorker, REINSTA
 function* refillMobileKeyWorker({ payload }) {
   const { vaultKey } = payload;
   try {
-    yield put(setKeyHealthCheckLoading(true));
     const { xpriv } = vaultKey;
     if (!xpriv) {
-      const signerMap = {};
-      const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-      signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
+      const signer: Signer = dbManager
+        .getObjectById(RealmSchema.Signer, getKeyUID(vaultKey))
+        .toJSON();
       const keeper: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
       const { primaryMnemonic } = keeper;
-      const signer = signerMap[getKeyUID(vaultKey)];
       const details = yield call(
         getCosignerDetails,
         primaryMnemonic,
@@ -1253,24 +1246,15 @@ function* refillMobileKeyWorker({ payload }) {
         yield call(updateKeyDetailsWorker, {
           payload: { signer: signer.signerXpubs[XpubTypes.P2WSH][0], key: 'xpriv', value: xpriv },
         });
-        yield put(setKeyHealthCheckLoading(false));
-        yield put(setKeyHealthCheckSuccess(true));
-      } else {
-        yield put(setKeyHealthCheckLoading(false));
-        yield put(
-          setKeyHealthCheckError('Key seems to be corrupted, please delete and re-add it.')
-        );
       }
-    } else {
-      yield put(setKeyHealthCheckLoading(false));
     }
   } catch (err) {
-    yield put(setKeyHealthCheckLoading(false));
     captureError(err);
   }
 }
 
 export const refillMobileKeyWatcher = createWatcher(refillMobileKeyWorker, REFILL_MOBILEKEY);
+
 function* refreshCanaryWalletsWorker() {
   try {
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);

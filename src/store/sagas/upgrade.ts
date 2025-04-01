@@ -227,7 +227,7 @@ function generateExtendedKeysForSigners(signers, appKeyWalletMap) {
   const extendedKeyMap = {};
   signers.forEach((signer) => {
     const { mnemonic } = appKeyWalletMap[signer.masterFingerprint].derivationDetails;
-    const { extendedKeys } = generateExtendedKeysForCosigner(mnemonic, true);
+    const { extendedKeys } = generateExtendedKeysForCosigner(mnemonic);
     extendedKeyMap[signer.masterFingerprint] = extendedKeys;
   });
 

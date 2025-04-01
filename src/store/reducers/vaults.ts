@@ -40,9 +40,6 @@ export type VaultState = {
   error: string;
   introModal: boolean;
   sdIntroModal: boolean;
-  keyHeathCheckSuccess: boolean;
-  keyHeathCheckError: string;
-  keyHeathCheckLoading: boolean;
   remoteLinkDetails: RemoteLinkDetails;
   collaborativeSession: {
     signers: { [fingerprint: string]: { keyDescriptor: string; keyAES: string } };
@@ -67,9 +64,6 @@ const initialState: VaultState = {
   error: null,
   introModal: true,
   sdIntroModal: true,
-  keyHeathCheckSuccess: false,
-  keyHeathCheckError: null,
-  keyHeathCheckLoading: false,
   remoteLinkDetails: null,
   collaborativeSession: {
     signers: {},
@@ -125,22 +119,7 @@ const vaultSlice = createSlice({
       state.hasNewVaultGenerationFailed = false;
       state.error = null;
     },
-    setKeyHealthCheckSuccess: (state, action: PayloadAction<boolean>) => {
-      state.keyHeathCheckLoading = false;
-      state.keyHeathCheckSuccess = action.payload;
-    },
-    setKeyHealthCheckError: (state, action: PayloadAction<string>) => {
-      state.keyHeathCheckLoading = false;
-      state.keyHeathCheckError = action.payload;
-    },
-    setKeyHealthCheckLoading: (state, action: PayloadAction<boolean>) => {
-      state.keyHeathCheckLoading = action.payload;
-    },
-    resetKeyHealthState: (state) => {
-      state.keyHeathCheckLoading = false;
-      state.keyHeathCheckSuccess = false;
-      state.keyHeathCheckError = null;
-    },
+
     setRemoteLinkDetails: (state, action: PayloadAction<RemoteLinkDetails>) => {
       state.remoteLinkDetails = action.payload;
     },
@@ -181,10 +160,6 @@ export const {
   setSdIntroModal,
   resetVaultMigration,
   resetVaultFlags,
-  setKeyHealthCheckSuccess,
-  setKeyHealthCheckError,
-  setKeyHealthCheckLoading,
-  resetKeyHealthState,
   setRemoteLinkDetails,
   setCollaborativeSessionSigners,
   updateCollaborativeSessionLastSynched,
@@ -199,9 +174,6 @@ const vaultPersistConfig = {
     'intrimVault',
     'introModal',
     'sdIntroModal',
-    'keyHeathCheckSuccess',
-    'keyHeathCheckError',
-    'keyHeathCheckLoading',
     'setRemoteLinkDetails',
   ],
 };

@@ -24,6 +24,7 @@ import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
 import { XpubDetailsType } from '../interfaces/vault';
+import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 
 export const generateWalletSpecsFromMnemonic = (
   mnemonic: string,
@@ -198,9 +199,9 @@ export const generateWallet = async ({
   return wallet;
 };
 
-export const generateExtendedKeysForCosigner = (mnemonic: string, isMultisig: boolean) => {
+export const generateExtendedKeysForCosigner = (mnemonic: string) => {
   const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-  const xDerivationPath = WalletUtilities.getDerivationPath(isMultisig, config.NETWORK_TYPE, 0);
+  const xDerivationPath = WalletUtilities.getDerivationPath(true, config.NETWORK_TYPE, 0);
 
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
@@ -211,31 +212,17 @@ export const generateExtendedKeysForCosigner = (mnemonic: string, isMultisig: bo
   return { extendedKeys, xDerivationPath };
 };
 
-export const getCosignerDetails = async (
-  primaryMnemonic: string,
-  instanceNum: number,
-  singleSig: boolean = false
-) => {
-  const bip85Config = BIP85.generateBIP85Configuration(WalletType.DEFAULT, instanceNum);
-  const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
-  const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
-
-  const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(mnemonic, !singleSig);
+export const getCosignerDetails = async (primaryMnemonic: string, instanceNum: number) => {
+  const mnemonic = await generateMobileKeySeeds(instanceNum, primaryMnemonic);
+  const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(mnemonic);
 
   const xpubDetails: XpubDetailsType = {};
-  if (singleSig) {
-    xpubDetails[XpubTypes.P2WPKH] = {
-      xpub: extendedKeys.xpub,
-      derivationPath: xDerivationPath,
-      xpriv: extendedKeys.xpriv,
-    };
-  } else {
-    xpubDetails[XpubTypes.P2WSH] = {
-      xpub: extendedKeys.xpub,
-      derivationPath: xDerivationPath,
-      xpriv: extendedKeys.xpriv,
-    };
-  }
+
+  xpubDetails[XpubTypes.P2WSH] = {
+    xpub: extendedKeys.xpub,
+    derivationPath: xDerivationPath,
+    xpriv: extendedKeys.xpriv,
+  };
 
   return {
     mfp: WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic),

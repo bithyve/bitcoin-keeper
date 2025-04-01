@@ -21,7 +21,6 @@ export const addNewVault = (payload: {
   payload?: Vault;
   isMigrated?: Boolean;
   oldVaultId?: String;
-  isRecreation?: Boolean;
 }) => ({
   type: ADD_NEW_VAULT,
   payload,
