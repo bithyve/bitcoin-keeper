@@ -22,6 +22,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { useAppSelector } from 'src/store/hooks';
 
 const SignerList = ({ navigation, handleModalOpen }) => {
   const { signers } = useSigners('', false);
@@ -30,6 +31,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   const { signer } = translations;
   const [showSSModal, setShowSSModal] = useState(false);
   const { level } = useSubscriptionLevel();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const list = signers.filter((signer) => !signer.hidden);
   const { typeBasedIndicator } = useIndicatorHook({
@@ -63,6 +65,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
       masterFingerprint: Date.now().toString() + signerType,
       signerXpubs: {},
       hidden: false,
+      networkType: bitcoinNetworkType,
     });
 
     let hasSigningServer = false;

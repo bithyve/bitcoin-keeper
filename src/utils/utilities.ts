@@ -3,7 +3,13 @@ import { Alert, Platform } from 'react-native';
 import moment from 'moment';
 import idx from 'idx';
 
-import { VaultType, WalletType, XpubTypes } from 'src/services/wallets/enums';
+import {
+  NetworkType,
+  SignerType,
+  VaultType,
+  WalletType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -544,7 +550,11 @@ export const getKeyUID = (signer: Signer | VaultSigner | null): string => {
   }
 
   let chainIdentifier = null;
-  if ((signer as VaultSigner)?.derivationPath) {
+
+  // for SigningServer, since xpub is not present
+  if ((signer as Signer)?.type === SignerType.POLICY_SERVER) {
+    chainIdentifier = (signer as Signer)?.networkType === NetworkType.MAINNET ? 'M' : 'T';
+  } else if ((signer as VaultSigner)?.derivationPath) {
     chainIdentifier =
       parseInt((signer as VaultSigner)?.derivationPath.replace(/[']/g, '').split('/')[2]) == 0
         ? 'M'
