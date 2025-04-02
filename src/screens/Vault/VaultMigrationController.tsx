@@ -17,7 +17,6 @@ import {
 } from 'src/services/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
-import { TransferType } from 'src/models/enums/TransferType';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
@@ -176,7 +175,6 @@ function VaultMigrationController({
                   internalRecipients: [newVault],
                   addresses: [recipients[0].address],
                   amounts: [parseInt(recipients[0].amount, 10)],
-                  transferType: TransferType.VAULT_TO_VAULT,
                   currentBlockHeight,
                   miniscriptSelectedSatisfier,
                 },

@@ -774,12 +774,14 @@ function SignerModals({
                         }
                       } else {
                         setKeeperModal(false);
-                        navigation.navigate('RemoteSharing', {
-                          psbt: serializedPSBTEnvelop,
-                          mode: RKInteractionMode.SHARE_PSBT,
-                          signer: registeredSigner,
-                          xfp: registeredVaultKey?.xfp,
-                        });
+                        navigation.dispatch(
+                          CommonActions.navigate('RemoteSharing', {
+                            psbt: serializedPSBTEnvelop.serializedPSBT,
+                            mode: RKInteractionMode.SHARE_PSBT,
+                            signer: signer,
+                            xfp: vaultKey.xfp,
+                          })
+                        );
                       }
                     }}
                   />

@@ -3,7 +3,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put, select } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
-import { v4 as uuidv4 } from 'uuid';
 
 import { isTestnet } from 'src/constants/Bitcoin';
 import { SignerType, VaultType } from 'src/services/wallets/enums';
@@ -48,7 +47,7 @@ const healthCheckReminderHours = (lastHealthCheck: Date) => {
 export function* addToUaiStackWorker({ payload }) {
   const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
-    id: uuidv4(),
+    id: hash256(Buffer.from(Date.now().toString() + Math.random().toString())).toString(),
     entityId,
     uaiType,
     uaiDetails,

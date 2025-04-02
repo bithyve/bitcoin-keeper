@@ -32,7 +32,6 @@ import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation, CommonActions, StackActions } from '@react-navigation/native';
-import { TransferType } from 'src/models/enums/TransferType';
 import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -99,7 +98,6 @@ function SendScreen({ route }) {
     miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   };
 
-  const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
@@ -168,20 +166,6 @@ function SendScreen({ route }) {
   }, [sender]);
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setShowNote(false);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setShowNote(true);
-    });
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
-
-  useEffect(() => {
     setIsSendToWalletDisabled(visibleWallets.length <= 0);
   }, [visibleWallets]);
 
@@ -193,12 +177,7 @@ function SendScreen({ route }) {
     setSelectedWallet(wallet);
   };
 
-  const navigateToNext = (
-    address: string,
-    transferType: TransferType,
-    amount?: string,
-    recipient?: Wallet | Vault
-  ) => {
+  const navigateToNext = (address: string, amount?: string, recipient?: Wallet | Vault) => {
     if (!avgFees) {
       showToast("Average transaction fees couldn't be fetched!");
       return;
@@ -218,7 +197,6 @@ function SendScreen({ route }) {
         address,
         amount,
         note,
-        transferType,
         selectedUTXOs,
         totalUtxosAmount,
         parentScreen,
@@ -325,18 +303,10 @@ function SendScreen({ route }) {
 
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
-        const type =
-          sender?.entityKind === EntityKind.VAULT
-            ? TransferType.VAULT_TO_ADDRESS
-            : TransferType.WALLET_TO_ADDRESS;
-        navigateToNext(address, type, amount ? amount.toString() : null, null);
+        navigateToNext(address, amount ? amount.toString() : null, null);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        const transferType =
-          sender?.entityKind === EntityKind.VAULT
-            ? TransferType.VAULT_TO_ADDRESS
-            : TransferType.WALLET_TO_ADDRESS;
-        navigateToNext(address, transferType, amount ? amount.toString() : null, null);
+        navigateToNext(address, amount ? amount.toString() : null, null);
         break;
       default:
         Keyboard.dismiss();
@@ -345,42 +315,14 @@ function SendScreen({ route }) {
   };
   const handleProceed = (skipHealthCheck = false) => {
     if (selectedWallet) {
-      if (selectedWallet.entityKind === EntityKind.VAULT) {
-        if (sender.entityKind === EntityKind.VAULT) {
-          navigateToNext(
-            WalletOperations.getNextFreeAddress(selectedWallet),
-            TransferType.VAULT_TO_VAULT,
-            null,
-            selectedWallet
-          );
-        } else if (sender.entityKind === EntityKind.WALLET) {
-          if (!skipHealthCheck && pendingHealthCheckCount >= selectedWallet.scheme.m) {
-            setShowHealthCheckModal(true);
-          } else {
-            navigateToNext(
-              WalletOperations.getNextFreeAddress(selectedWallet),
-              TransferType.VAULT_TO_WALLET,
-              null,
-              selectedWallet
-            );
-          }
-        }
-      } else if (selectedWallet.entityKind === EntityKind.WALLET) {
-        if (sender.entityKind === EntityKind.VAULT) {
-          navigateToNext(
-            WalletOperations.getNextFreeAddress(selectedWallet),
-            TransferType.WALLET_TO_VAULT,
-            null,
-            selectedWallet
-          );
-        } else if (sender.entityKind === EntityKind.WALLET) {
-          navigateToNext(
-            WalletOperations.getNextFreeAddress(selectedWallet),
-            TransferType.WALLET_TO_WALLET,
-            null,
-            selectedWallet
-          );
-        }
+      if (
+        selectedWallet.entityKind === EntityKind.VAULT &&
+        !skipHealthCheck &&
+        pendingHealthCheckCount >= (selectedWallet as Vault).scheme.m
+      ) {
+        setShowHealthCheckModal(true);
+      } else {
+        navigateToNext(WalletOperations.getNextFreeAddress(selectedWallet), null, selectedWallet);
       }
     } else if (paymentInfo) {
       try {

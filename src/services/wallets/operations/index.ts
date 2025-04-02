@@ -35,7 +35,6 @@ import {
 import {
   DerivationPurpose,
   EntityKind,
-  MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
   ScriptTypes,

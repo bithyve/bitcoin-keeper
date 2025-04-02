@@ -5,19 +5,10 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
-import { cryptoRandom } from '../../utils/service-utilities/encryption';
 import ecc from '../wallets/operations/taproot-utils/noble_ecc';
 import { store } from 'src/store/store';
 
 bitcoinJS.initEccLib(ecc);
-
-function shufflePeers(peers) {
-  for (let i = peers.length - 1; i > 0; i--) {
-    const j = Math.floor(cryptoRandom() * (i + 1));
-    [peers[i], peers[j]] = [peers[j], peers[i]];
-  }
-  return peers;
-}
 
 const ELECTRUM_CLIENT_CONFIG: {
   maxConnectionAttempt: number;
@@ -236,10 +227,7 @@ export default class ElectrumClient {
     ELECTRUM_CLIENT = ELECTRUM_CLIENT_DEFAULTS;
 
     // set active node
-    let activeNode =
-      currentPeerToUse ||
-      nodes.find((node) => node.isConnected) ||
-      (nodes.length > 0 ? nodes[0] : null);
+    let activeNode = currentPeerToUse || nodes.find((node) => node.isConnected);
     ELECTRUM_CLIENT.activePeer = activeNode;
 
     if (nodes) {

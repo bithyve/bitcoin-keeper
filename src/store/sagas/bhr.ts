@@ -80,7 +80,6 @@ import { addNewWalletsWorker, addSigningDeviceWorker, NewWalletInfo } from './wa
 import { getKeyUID } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
-import { v4 as uuidv4 } from 'uuid';
 
 export function* updateAppImageWorker({
   payload,
@@ -590,6 +589,20 @@ function* recoverApp(
         continue;
       }
     }
+  }
+
+  // Connect to a node
+  const savedNodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+  if (savedNodes.length > 0 && !savedNodes.find((node) => node.isConnected)) {
+    const firstNode = savedNodes[0];
+    firstNode.isConnected = true;
+
+    yield call(
+      dbManager.updateObjectById,
+      RealmSchema.NodeConnect,
+      firstNode.id.toString(),
+      firstNode
+    );
   }
 
   // seed confirm for recovery

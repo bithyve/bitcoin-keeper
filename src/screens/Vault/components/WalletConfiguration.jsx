@@ -34,12 +34,11 @@ function WalletConfiguration({
   vaultKey,
   signer,
   xfp = '',
+  shareWithNFC,
 }) {
   const { colorMode } = useColorMode();
   const vaultDescriptorString = generateOutputDescriptors(vault);
-  const { session } = useContext(HCESessionContext);
   const [fingerPrint, setFingerPrint] = useState(null);
-  const [visible, setVisible] = useState(false);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
@@ -54,39 +53,6 @@ function WalletConfiguration({
     }
   }, []);
 
-  const cleanUp = () => {
-    setVisible(false);
-    Vibration.cancel();
-    if (isAndroid && !useNdef) {
-      NFC.stopTagSession(session);
-    }
-  };
-
-  const shareWithNFC = async () => {
-    setWalletConfigModal(false);
-    try {
-      if (isIos || useNdef) {
-        if (!isIos) {
-          setVisible(true);
-        }
-        Vibration.vibrate([700, 50, 100, 50], true);
-        const enc = NFC.encodeTextRecord(vaultDescriptorString);
-        await NFC.send([NfcTech.Ndef], enc);
-        cleanUp();
-      } else {
-        setVisible(true);
-        await NFC.startTagSession({ session, content: vaultDescriptorString });
-        Vibration.vibrate([700, 50, 100, 50], true);
-      }
-    } catch (err) {
-      cleanUp();
-      if (err.toString() === 'Error: Not even registered') {
-        console.log('NFC interaction cancelled.');
-        return;
-      }
-      captureError(err);
-    }
-  };
   const fileName = `${sanitizeFileName(vault.presentationData.name)}.txt`;
   const shareWithAirdrop = async () => {
     setWalletConfigModal(false);
@@ -151,6 +117,7 @@ function WalletConfiguration({
       label: 'NFC',
       icon: <NFCIcon />,
       onPress: () => {
+        setWalletConfigModal(false);
         shareWithNFC();
       },
     },
@@ -170,7 +137,6 @@ function WalletConfiguration({
           </Box>
         </TouchableOpacity>
       ))}
-      <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />
     </Box>
   );
 }

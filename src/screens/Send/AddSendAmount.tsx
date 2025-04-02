@@ -22,7 +22,6 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation, StackActions } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { TransferType } from 'src/models/enums/TransferType';
 import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import { BtcToSats, SATOSHIS_IN_BTC, SatsToBtc } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
@@ -72,7 +71,6 @@ function AddSendAmount({ route }) {
     address,
     amount: prefillAmount,
     note,
-    transferType,
     selectedUTXOs = [],
     totalUtxosAmount,
     parentScreen,
@@ -87,7 +85,6 @@ function AddSendAmount({ route }) {
     address: string;
     amount: string;
     note?: string;
-    transferType: TransferType;
     selectedUTXOs: UTXO[];
     totalUtxosAmount: number;
     parentScreen?: string;
@@ -347,7 +344,6 @@ function AddSendAmount({ route }) {
         internalRecipients: internalRecipients,
         addresses: recipients.map((recipient) => recipient.address),
         amounts: recipients.map((recipient) => recipient.amount),
-        transferType,
         note,
         selectedUTXOs,
         parentScreen,

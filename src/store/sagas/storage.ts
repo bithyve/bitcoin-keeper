@@ -1,7 +1,6 @@
 import * as bip39 from 'bip39';
 import { call, put, select } from 'redux-saga/effects';
 import { generateEncryptionKey } from 'src/utils/service-utilities/encryption';
-import { v4 as uuidv4 } from 'uuid';
 import BIP85 from 'src/services/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
