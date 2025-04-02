@@ -114,9 +114,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
-import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
-import SignerOptionCard from './components/signerOptionCard';
-import BackupModalContent from '../AppSettings/BackupModal';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -2293,7 +2291,7 @@ function HardwareModalMap({
         }}
         Content={BackupModalContent}
       />
-
+      <NfcPrompt visible={nfcVisible} close={closeNfc} />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </>
   );

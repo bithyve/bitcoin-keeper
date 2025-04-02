@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -94,6 +94,10 @@ import IdentifySignerModal from './components/IdentifySignerModal';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import ShareKeyModalContent from './components/ShareKeyModalContent';
 import STModalContent from './components/STModalContent';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import NFC from 'src/services/nfc';
+import { NfcTech } from 'react-native-nfc-manager';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -312,6 +316,31 @@ function SigningDeviceDetails({ route }) {
   const data = useQuery(RealmSchema.BackupHistory);
   const signerVaults: Vault[] = [];
 
+  const [nfcVisible, setNfcVisible] = React.useState(false);
+  const { session } = useContext(HCESessionContext);
+
+  const cleanUp = () => {
+    setNfcVisible(false);
+    Vibration.cancel();
+    if (isAndroid) {
+      NFC.stopTagSession(session);
+    }
+  };
+  useEffect(() => {
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      cleanUp();
+    });
+    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {});
+    return () => {
+      cleanUp();
+      unsubRead();
+      unsubDisconnect();
+    };
+  }, [session]);
+
+  const isAndroid = Platform.OS === 'android';
+  const isIos = Platform.OS === 'ios';
+
   allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
     for (const key of keys) {
@@ -441,10 +470,36 @@ function SigningDeviceDetails({ route }) {
           navigateToCosignerDetails={navigateToCosignerDetails}
           setShareKeyModal={setShareKeyModal}
           data={details}
+          shareWithNFC={shareWithNFC}
         />
       </Box>
     );
   }
+
+  const shareWithNFC = async () => {
+    try {
+      if (isIos) {
+        if (!isIos) {
+          setNfcVisible(true);
+        }
+        Vibration.vibrate([700, 50, 100, 50], true);
+        const enc = NFC.encodeTextRecord(details);
+        await NFC.send([NfcTech.Ndef], enc);
+        cleanUp();
+      } else {
+        setNfcVisible(true);
+        await NFC.startTagSession({ session, content: details });
+        Vibration.vibrate([700, 50, 100, 50], true);
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error: Not even registered') {
+        console.log('NFC interaction cancelled.');
+        return;
+      }
+      console.log('Error ', err);
+    }
+  };
 
   function StModalContent() {
     return (
@@ -1046,6 +1101,7 @@ function SigningDeviceDetails({ route }) {
             fontSize={12}
             backgroundColor={`${colorMode}.primaryBackground`}
           />
+          <NfcPrompt visible={nfcVisible} close={cleanUp} ctaText="Done" />
         </Box>
       </Box>
     </Box>
