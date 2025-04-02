@@ -14,11 +14,9 @@ export interface VaultCreationPayload {
 }
 
 export interface VaultMigrationPayload {
-  isMigratingNewVault: boolean;
   intrimVault: Vault;
 }
 export interface VaultMigrationCompletionPayload {
-  isMigratingNewVault: boolean;
   hasMigrationSucceeded: boolean;
   hasMigrationFailed?: boolean;
   error?: string;
@@ -33,7 +31,6 @@ export type VaultState = {
   isGeneratingNewVault: boolean;
   hasNewVaultGenerationSucceeded: boolean;
   hasNewVaultGenerationFailed: boolean;
-  isMigratingNewVault: boolean;
   hasMigrationSucceeded: boolean;
   hasMigrationFailed: boolean;
   intrimVault: Vault;
@@ -57,7 +54,6 @@ const initialState: VaultState = {
   isGeneratingNewVault: false,
   hasNewVaultGenerationSucceeded: false,
   hasNewVaultGenerationFailed: false,
-  isMigratingNewVault: false,
   hasMigrationSucceeded: false,
   hasMigrationFailed: false,
   intrimVault: null,
@@ -87,12 +83,10 @@ const vaultSlice = createSlice({
       state.hasNewVaultGenerationSucceeded = hasNewVaultGenerationSucceeded;
     },
     initiateVaultMigration: (state, action: PayloadAction<VaultMigrationPayload>) => {
-      const { isMigratingNewVault, intrimVault } = action.payload;
-      state.isMigratingNewVault = isMigratingNewVault;
+      const { intrimVault } = action.payload;
       state.intrimVault = intrimVault;
     },
     resetVaultMigration: (state) => {
-      state.isMigratingNewVault = false;
       state.intrimVault = null;
       state.hasMigrationSucceeded = false;
       state.hasMigrationFailed = false;
@@ -105,13 +99,10 @@ const vaultSlice = createSlice({
       state.sdIntroModal = action.payload;
     },
     vaultMigrationCompleted: (state, action: PayloadAction<VaultMigrationCompletionPayload>) => {
-      const { isMigratingNewVault, hasMigrationSucceeded, hasMigrationFailed, error } =
-        action.payload;
-      state.isMigratingNewVault = isMigratingNewVault;
+      const { hasMigrationSucceeded, hasMigrationFailed, error } = action.payload;
       state.hasMigrationSucceeded = hasMigrationSucceeded;
       state.hasMigrationFailed = hasMigrationFailed;
       state.error = error;
-      state.intrimVault = null;
     },
     resetVaultFlags: (state) => {
       state.isGeneratingNewVault = false;
@@ -169,13 +160,7 @@ export const {
 const vaultPersistConfig = {
   key: 'vault',
   storage: reduxStorage,
-  blacklist: [
-    'isMigratingNewVault',
-    'intrimVault',
-    'introModal',
-    'sdIntroModal',
-    'setRemoteLinkDetails',
-  ],
+  blacklist: ['intrimVault', 'introModal', 'sdIntroModal', 'setRemoteLinkDetails'],
 };
 
 export default persistReducer(vaultPersistConfig, vaultSlice.reducer);

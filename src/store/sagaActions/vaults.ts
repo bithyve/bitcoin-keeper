@@ -7,7 +7,6 @@ export const ADD_SIGINING_DEVICE = 'ADD_SIGINING_DEVICE';
 export const DELETE_SIGINING_DEVICE = 'DELETE_SIGINING_DEVICE';
 export const ARCHIVE_SIGINING_DEVICE = 'ARCHIVE_SIGINING_DEVICE';
 export const MIGRATE_VAULT = 'MIGRATE_VAULT';
-export const FINALISE_VAULT_MIGRATION = 'FINALISE_VAULT_MIGRATION';
 export const DELETE_VAULT = 'DELETE_VAULT';
 export const REINSTATE_VAULT = 'REINSTATE_VAULT';
 export const REFILL_MOBILEKEY = 'REFILL_MOBILEKEY';
@@ -37,14 +36,9 @@ export const archiveSigningDevice = (signers: Signer[]) => ({
   payload: { signers },
 });
 
-export const migrateVault = (newVaultInfo: NewVaultInfo) => ({
+export const migrateVault = (newVaultInfo: NewVaultInfo, oldVaultId: string) => ({
   type: MIGRATE_VAULT,
-  payload: { newVaultData: newVaultInfo },
-});
-
-export const finaliseVaultMigration = (payload: string) => ({
-  type: FINALISE_VAULT_MIGRATION,
-  payload: { vaultId: payload },
+  payload: { newVaultInfo, oldVaultId },
 });
 
 export const deleteVault = (payload: string) => ({

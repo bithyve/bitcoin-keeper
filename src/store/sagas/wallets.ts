@@ -99,7 +99,6 @@ import {
   DELETE_SIGINING_DEVICE,
   ARCHIVE_SIGINING_DEVICE,
   DELETE_VAULT,
-  FINALISE_VAULT_MIGRATION,
   MERGER_SIMILAR_KEYS,
   MIGRATE_VAULT,
   REFILL_MOBILEKEY,
@@ -258,38 +257,37 @@ export function* addNewVaultWorker({
 }: {
   payload: {
     newVaultInfo?: NewVaultInfo;
-    vault?: Vault;
     isMigrated?: boolean;
     oldVaultId?: string;
   };
 }) {
   try {
     const { newVaultInfo, isMigrated, oldVaultId } = payload;
-    let { vault } = payload;
 
-    if (!vault) {
-      const {
-        vaultType = VaultType.DEFAULT,
-        vaultScheme,
-        vaultSigners,
-        vaultDetails,
-      } = newVaultInfo;
+    const { vaultType = VaultType.DEFAULT, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
 
-      if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
-        if (vaultScheme.n !== vaultSigners.length) {
-          throw new Error('Vault schema(n) and signers mismatch');
-        }
+    if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
+      if (vaultScheme.n !== vaultSigners.length) {
+        throw new Error('Vault schema(n) and signers mismatch');
       }
+    }
 
-      const networkType = config.NETWORK_TYPE;
-      vault = yield call(generateVault, {
-        type: vaultType,
-        vaultName: vaultDetails.name,
-        vaultDescription: vaultDetails.description,
-        scheme: vaultScheme,
-        signers: vaultSigners,
-        networkType,
-      });
+    const networkType = config.NETWORK_TYPE;
+    let vault = yield call(generateVault, {
+      type: vaultType,
+      vaultName: vaultDetails.name,
+      vaultDescription: vaultDetails.description,
+      scheme: vaultScheme,
+      signers: vaultSigners,
+      networkType,
+    });
+
+    if (isMigrated) {
+      const oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
+      vault = {
+        ...vault,
+        archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
+      };
     }
 
     yield put(setRelayVaultUpdateLoading(true));
@@ -317,6 +315,7 @@ export function* addNewVaultWorker({
         });
         if (archivedVaultresponse.updated) {
           yield call(dbManager.updateObjectById, RealmSchema.Vault, oldVaultId, updatedParams);
+          yield put(initiateVaultMigration({ intrimVault: vault }));
         }
       }
 
@@ -564,66 +563,21 @@ export const archiveSigningDeviceWatcher = createWatcher(
   ARCHIVE_SIGINING_DEVICE
 );
 
-function* migrateVaultWorker({ payload }: { payload: { newVaultData: NewVaultInfo } }) {
+function* migrateVaultWorker({
+  payload,
+}: {
+  payload: { newVaultInfo: NewVaultInfo; oldVaultId: string };
+}) {
   try {
-    const {
-      vaultType = VaultType.DEFAULT,
-      vaultScheme,
-      vaultSigners,
-      vaultDetails,
-    } = payload.newVaultData;
+    const { newVaultInfo, oldVaultId } = payload;
 
-    if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
-      if (vaultScheme.n !== vaultSigners.length) {
-        throw new Error('Vault schema(n) and signers mismatch');
-      }
-    }
-
-    const networkType = config.NETWORK_TYPE;
-
-    const vault: Vault = yield call(generateVault, {
-      type: vaultType,
-      vaultName: vaultDetails.name,
-      vaultDescription: vaultDetails.description,
-      scheme: vaultScheme,
-      signers: vaultSigners,
-      networkType,
-    });
-
-    yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
-  } catch (error) {
-    yield put(
-      vaultMigrationCompleted({
-        isMigratingNewVault: true,
-        hasMigrationSucceeded: false,
-        hasMigrationFailed: true,
-        error: error.toString(),
-      })
-    );
-  }
-}
-
-export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAULT);
-
-function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string } }) {
-  try {
-    const { vaultId } = payload;
-    const oldVault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON() as Vault;
-    let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
-    if (!migratedVault) {
-      return;
-    }
-    migratedVault = {
-      ...migratedVault,
-      archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
-    };
     const migrated = yield call(addNewVaultWorker, {
-      payload: { vault: migratedVault, isMigrated: true, oldVaultId: vaultId },
+      payload: { newVaultInfo, isMigrated: true, oldVaultId },
     });
-    if (migrated) {
+    let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    if (migrated && migratedVault) {
       yield put(
         vaultMigrationCompleted({
-          isMigratingNewVault: false,
           hasMigrationSucceeded: true,
           hasMigrationFailed: false,
           error: null,
@@ -633,7 +587,6 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
   } catch (error) {
     yield put(
       vaultMigrationCompleted({
-        isMigratingNewVault: true,
         hasMigrationSucceeded: false,
         hasMigrationFailed: true,
         error: error.toString(),
@@ -642,10 +595,7 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
   }
 }
 
-export const finaliseVaultMigrationWatcher = createWatcher(
-  finaliseVaultMigrationWorker,
-  FINALISE_VAULT_MIGRATION
-);
+export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAULT);
 
 function* syncWalletsWorker({
   payload,

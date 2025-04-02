@@ -13,7 +13,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
-import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/vaults';
+import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ShareGreen from 'src/assets/images/share-arrow-green.svg';
 import ShareWhite from 'src/assets/images/share-arrow-white.svg';
@@ -143,7 +143,6 @@ function SignTransactionScreen() {
     (state) => state.bhr
   );
 
-  const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const sendFailedMessage = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
@@ -189,15 +188,11 @@ function SignTransactionScreen() {
   }, [relayVaultError, realyVaultErrorMessage]);
 
   useEffect(() => {
-    if (isMigratingNewVault) {
-      if (sendSuccessful) {
-        dispatch(finaliseVaultMigration(vaultId));
-      }
-    } else if (sendSuccessful) {
+    if (sendSuccessful) {
       setBroadcasting(false);
       setVisibleModal(true);
     }
-  }, [sendSuccessful, isMigratingNewVault]);
+  }, [sendSuccessful]);
 
   useEffect(() => {
     return () => {

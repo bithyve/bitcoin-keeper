@@ -15,7 +15,7 @@ import {
   VaultScheme,
   VaultSigner,
 } from 'src/services/wallets/interfaces/vault';
-import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
+import { addNewVault, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
@@ -148,7 +148,6 @@ function VaultMigrationController({
     useCallback(() => {
       if (vaultId && temporaryVault) {
         dispatch(sendPhasesReset());
-        createNewVault();
       }
     }, [temporaryVault, vaultId])
   );
@@ -228,10 +227,6 @@ function VaultMigrationController({
         })
       );
     }
-  };
-
-  const createNewVault = () => {
-    dispatch(finaliseVaultMigration(activeVault.id));
   };
 
   useFocusEffect(
@@ -484,7 +479,7 @@ function VaultMigrationController({
 
       if (activeVault) {
         // case: vault migration; old -> new
-        dispatch(migrateVault(vaultInfo));
+        dispatch(migrateVault(vaultInfo, activeVault.id));
       } else {
         // case: new vault creation
         const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
