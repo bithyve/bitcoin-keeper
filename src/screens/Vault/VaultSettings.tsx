@@ -48,7 +48,7 @@ function VaultSettings({ route }) {
 
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
   const [needHelpModal, setNeedHelpModal] = useState(false);
-  const [walletConfigModal, setWalletConfigModal] = useState(false);
+  const [walletConfigModal, setWalletConfigModal] = useState(route?.params?.exportConfig || false);
 
   const updateWalletVisibility = () => {
     try {
