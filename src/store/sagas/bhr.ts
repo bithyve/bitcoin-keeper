@@ -703,7 +703,7 @@ function* backupBsmsOnCloudWorker({
   const { lastBsmsBackup } = yield select((state: RootState) => state.bhr);
   if (!lastBsmsBackup) return;
   const { password } = payload;
-  if (password || password === '') yield put(setEncPassword(password));
+  if (password) yield put(setEncPassword(password));
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
     const { encPassword } = yield select((state: RootState) => state.bhr);

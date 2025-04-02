@@ -55,7 +55,6 @@ import {
   decrypt,
   encrypt,
   generateEncryptionKey,
-  generateKey,
   hash512,
 } from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -982,10 +981,10 @@ function* updateVaultDetailsWorker({ payload }) {
       payload: { vault },
     });
     if (response.updated) {
-      yield put(relayVaultUpdateSuccess());
       yield call(dbManager.updateObjectById, RealmSchema.Vault, vault.id, {
         presentationData,
       });
+      yield put(relayVaultUpdateSuccess());
     } else {
       const errorMsg = response.error?.message
         ? response.error.message.toString()
