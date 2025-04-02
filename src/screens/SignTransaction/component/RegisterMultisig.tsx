@@ -9,7 +9,6 @@ import { Platform, StyleSheet, Vibration } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import NFC from 'src/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
 import { captureError } from 'src/services/sentry';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { exportFile } from 'src/services/fs';
@@ -33,6 +32,7 @@ function RegisterMultisig({
   activeVault,
   navigation,
   CommonActions,
+  shareWithNFC,
 }) {
   const { colorMode } = useColorMode();
   const [visible, setVisible] = useState(false);
@@ -61,31 +61,6 @@ function RegisterMultisig({
     Vibration.cancel();
     if (isAndroid && !useNdef) {
       NFC.stopTagSession(session);
-    }
-  };
-
-  const shareWithNFC = async () => {
-    try {
-      if (isIos || useNdef) {
-        if (!isIos) {
-          setVisible(true);
-        }
-        Vibration.vibrate([700, 50, 100, 50], true);
-        const enc = NFC.encodeTextRecord(walletConfig);
-        await NFC.send([NfcTech.Ndef], enc);
-        cleanUp();
-      } else {
-        setVisible(true);
-        await NFC.startTagSession({ session, content: walletConfig });
-        Vibration.vibrate([700, 50, 100, 50], true);
-      }
-    } catch (err) {
-      cleanUp();
-      if (err.toString() === 'Error: Not even registered') {
-        console.log('NFC interaction cancelled.');
-        return;
-      }
-      captureError(err);
     }
   };
 
@@ -128,7 +103,7 @@ function RegisterMultisig({
   const walletOptions = [
     {
       id: 1,
-      label: 'Scan QR',
+      label: 'Show QR',
       icon: <QR_Icon />,
       onPress: () => {
         setRegisterSignerModal(false);
@@ -150,7 +125,7 @@ function RegisterMultisig({
       label: 'NFC',
       icon: <NFCIcon />,
       onPress: () => {
-        shareWithNFC();
+        shareWithNFC(walletConfig);
         setRegisterSignerModal(false);
       },
     },
