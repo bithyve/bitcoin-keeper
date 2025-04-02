@@ -47,7 +47,7 @@ const healthCheckReminderHours = (lastHealthCheck: Date) => {
 export function* addToUaiStackWorker({ payload }) {
   const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
-    id: crypto.randomUUID(),
+    id: hash256(Buffer.from(Date.now().toString() + Math.random().toString())).toString(),
     entityId,
     uaiType,
     uaiDetails,
