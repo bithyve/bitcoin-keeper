@@ -732,7 +732,7 @@ function SignerModals({
         );
         const { activeVault } = useVault({ vaultId, includeArchived: false });
 
-        const info = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId);
+        const info = vaultKey.registeredVaults?.find((info) => info.vaultId === vaultId);
         function OptionModalContent({
           supportedSigningOptions,
           onSelect,

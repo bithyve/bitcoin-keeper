@@ -23,6 +23,9 @@ export const runRealmMigrations = ({
         const newVaultKeys = newVaults[objectIndex].signers;
         oldVaults[objectIndex].signers.forEach((signer, index) => {
           newVaultKeys[index].xfp = signer.signerId;
+          if (!newVaultKeys[index].registeredVaults) {
+            newVaultKeys[index].registeredVaults = [];
+          }
           newVaultKeys[index].registeredVaults.push({
             vaultId: oldVaults[objectIndex].id,
             registered: signer.registered,
@@ -374,5 +377,4 @@ export const runRealmMigrations = ({
 
     for (const wallet of newWallets) delete wallet.specs.txNote;
   }
-
 };
