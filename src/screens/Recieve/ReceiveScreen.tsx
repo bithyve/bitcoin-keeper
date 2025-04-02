@@ -178,7 +178,7 @@ function ReceiveScreen({ route }: { route }) {
         {
           return (
             signersFingerprintsToCheck.includes(signer.masterFingerprint) &&
-            signer.registeredVaults.find((info) => info.vaultId === wallet.id)?.registered !== true
+            signer.registeredVaults?.find((info) => info.vaultId === wallet.id)?.registered !== true
           );
         }
       });
