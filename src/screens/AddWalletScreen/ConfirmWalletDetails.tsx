@@ -376,7 +376,7 @@ function ConfirmWalletDetails({ route }) {
     };
     setTimeout(() => {
       navigation.dispatch(CommonActions.reset(navigationState));
-    }, 500);
+    }, 300);
   };
 
   return (
