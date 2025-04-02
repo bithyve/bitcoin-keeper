@@ -405,7 +405,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     };
   } catch (error) {
     console.log('🚀 ~ dataFromPSBT ~ error:', error);
-    throw new Error('Something went wrong');
+    throw new Error(error?.message ?? 'Something went wrong');
   }
 };
 

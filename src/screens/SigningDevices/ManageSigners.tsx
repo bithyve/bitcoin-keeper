@@ -49,6 +49,9 @@ import {
   getKeyTimelock,
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import HWError from 'src/hardware/HWErrorState';
+import { HWErrorType } from 'src/models/enums/Hardware';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -66,6 +69,7 @@ function ManageSigners({ route }: ScreenProps) {
     relaySignersUpdateLoading,
     realySignersAdded,
   } = useAppSelector((state) => state.bhr);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
@@ -81,7 +85,16 @@ function ManageSigners({ route }: ScreenProps) {
   });
 
   useEffect(() => {
-    if (remoteData?.key && !timerModal) setTimerModal(true);
+    if (remoteData?.key && !timerModal) {
+      const signerNetwork = WalletUtilities.getNetworkFromPrefix(
+        remoteData?.key.split(']')[1]?.slice(0, 4)
+      );
+      if (signerNetwork != bitcoinNetworkType) {
+        showToast(new HWError(HWErrorType.INCORRECT_NETWORK).message, <ToastErrorIcon />);
+        return;
+      }
+      setTimerModal(true);
+    }
   }, [remoteData]);
 
   useEffect(() => {
