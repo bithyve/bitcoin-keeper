@@ -86,7 +86,6 @@ import {
   UPDATE_WALLET_DETAILS,
   refreshWallets,
   UPDATE_SIGNER_DETAILS,
-  UPDATE_WALLET_PROPERTY,
   UPDATE_KEY_DETAILS,
   UPDATE_VAULT_DETAILS,
   GENERATE_NEW_ADDRESS,
@@ -988,50 +987,6 @@ function* updateKeyDetailsWorker({ payload }) {
 
 export const updateKeyDetails = createWatcher(updateKeyDetailsWorker, UPDATE_KEY_DETAILS);
 
-function* updateWalletsPropertyWorker({
-  payload,
-}: {
-  payload: {
-    walletId: string;
-    key: string;
-    value: any;
-  };
-}) {
-  const {
-    walletId,
-    key,
-    value,
-  }: {
-    walletId: string;
-    key: string;
-    value: any;
-  } = payload;
-  try {
-    const walletObjectRealm = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
-    const updatedWallet = getJSONFromRealmObject(walletObjectRealm);
-    updatedWallet[key] = value;
-    yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { wallets: [updatedWallet] } });
-    if (response.updated) {
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, walletId, { [key]: value });
-      yield put(relayWalletUpdateSuccess());
-    } else {
-      const errorMsg = response.error?.message
-        ? response.error.message.toString()
-        : response.error.toString();
-      yield put(relayWalletUpdateFail(errorMsg));
-    }
-  } catch (err) {
-    captureError(err);
-    yield put(relayWalletUpdateFail('Something went wrong!'));
-  }
-}
-
-export const updateWalletsPropertyWatcher = createWatcher(
-  updateWalletsPropertyWorker,
-  UPDATE_WALLET_PROPERTY
-);
-
 function* deleteVaultWorker({ payload }) {
   const { vaultId } = payload;
   try {
@@ -1202,7 +1157,10 @@ function* mergeSimilarKeysWorker({ payload }: { payload: { signer: Signer } }) {
             }
           );
         }
-        const { primarySeed, id } = dbManager.getCollection(RealmSchema.KeeperApp)[0];
+        const { primarySeed, id }: KeeperApp = yield call(
+          dbManager.getObjectByIndex,
+          RealmSchema.KeeperApp
+        );
         const encryptionKey = generateEncryptionKey(primarySeed);
         const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
         const updated = yield call(Relay.migrateXfp, id, [

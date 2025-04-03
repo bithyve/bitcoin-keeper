@@ -8,7 +8,6 @@ export const GET_TESTCOINS = 'GET_TESTCOINS';
 export const AUTO_SYNC_WALLETS = 'AUTO_SYNC_WALLETS';
 export const UPDATE_SIGNER_POLICY = 'UPDATE_SIGNER_POLICY';
 export const ADD_NEW_WALLETS = 'ADD_NEW_WALLETS';
-export const UPDATE_WALLET_PROPERTY = 'UPDATE_WALLET_PROPERTY';
 export const REFRESH_WALLETS = 'REFRESH_WALLETS';
 export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
@@ -71,11 +70,6 @@ export const refreshWallets = (
 
 export const addNewWallets = (payload: NewWalletInfo[]) => ({
   type: ADD_NEW_WALLETS,
-  payload,
-});
-
-export const updateWalletProperty = (payload: { walletId: string; key: string; value: any }) => ({
-  type: UPDATE_WALLET_PROPERTY,
   payload,
 });
 

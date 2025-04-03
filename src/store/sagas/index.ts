@@ -12,7 +12,6 @@ import {
   updateWalletDetailWatcher,
   updateSignerDetails,
   updateKeyDetails,
-  updateWalletsPropertyWatcher,
   updateVaultDetailsWatcher,
   deleteVaultyWatcher,
   reinstateVaultWatcher,
@@ -94,7 +93,6 @@ const rootSaga = function* () {
     updateSignerPolicyWatcher,
     testcoinsWatcher,
     updateWalletDetailWatcher,
-    updateWalletsPropertyWatcher,
     generateNewExternalAddressWatcher,
 
     // vaults
