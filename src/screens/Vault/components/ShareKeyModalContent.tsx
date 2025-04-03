@@ -18,7 +18,6 @@ import { RKInteractionMode } from 'src/services/wallets/enums';
 function ShareKeyModalContent({
   vaultId,
   navigation,
-  useNdef = false,
   isPSBTSharing = false,
   vaultKey,
   fileName,
@@ -31,6 +30,7 @@ function ShareKeyModalContent({
   navigateToQrSigning,
   openmodal,
   shareWithNFC,
+  navigateToShowPSBT,
 }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -83,6 +83,7 @@ function ShareKeyModalContent({
       onPress: () => {
         setShareKeyModal(false);
         openmodal && openmodal(true);
+        navigateToShowPSBT && navigateToShowPSBT(data);
         if (navigateToQrSigning && typeof navigateToQrSigning === 'function') {
           navigateToQrSigning(vaultKey);
         } else if (navigateToCosignerDetails && typeof navigateToCosignerDetails === 'function') {

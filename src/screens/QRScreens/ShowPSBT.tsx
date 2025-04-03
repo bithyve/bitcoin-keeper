@@ -18,25 +18,32 @@ function ShowPSBT() {
     title,
     subTitle,
     type,
-  }: { data: any; encodeToBytes: boolean; title: string; subTitle: string; type: SignerType } =
-    route.params as any;
+    isSignedPSBT = true,
+  }: {
+    data: any;
+    encodeToBytes: boolean;
+    title: string;
+    subTitle: string;
+    type: SignerType;
+    isSignedPSBT: boolean;
+  } = route.params as any;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
-      <Box style={styles.center}>
-        <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
-      </Box>
-      <Box style={styles.fingerprint}>
-        {<WalletCopiableData title="Transaction (PSBT):" data={data} dataType="psbt" />}
-      </Box>
-      {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(type) ? (
-        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Box style={styles.center}>
+          <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
+        </Box>
+        <Box style={styles.fingerprint}>
+          <WalletCopiableData title="Transaction (PSBT):" data={data} dataType="psbt" />
+        </Box>
+        {isSignedPSBT && [SignerType.KEEPER, SignerType.MY_KEEPER].includes(type) && (
           <ShareWithNfc data={data} isPSBTSharing remoteShare isSignedPSBT />
-        </ScrollView>
-      ) : null}
+        )}
+      </ScrollView>
       <Box style={styles.ctaContainer}>
         <Buttons
           primaryText="Done"
@@ -61,6 +68,11 @@ function ShowPSBT() {
 export default ShowPSBT;
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    alignItems: 'center',
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
   center: {
     alignItems: 'center',
     marginTop: '5%',
@@ -70,8 +82,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '7%',
   },
   ctaContainer: {
-    marginTop: '5%',
-    alignSelf: 'flex-end',
     paddingHorizontal: '7%',
+    paddingBottom: 20,
   },
 });
