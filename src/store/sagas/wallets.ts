@@ -31,7 +31,6 @@ import {
 } from 'src/services/wallets/interfaces/wallet';
 import { call, delay, fork, put, select } from 'redux-saga/effects';
 import {
-  setNetBalance,
   setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
@@ -82,7 +81,6 @@ import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
   REFRESH_WALLETS,
-  SYNC_WALLETS,
   TEST_SATS_RECIEVE,
   UPDATE_SIGNER_POLICY,
   UPDATE_WALLET_DETAILS,
@@ -597,33 +595,6 @@ function* migrateVaultWorker({
 
 export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAULT);
 
-function* syncWalletsWorker({
-  payload,
-}: {
-  payload: {
-    wallets: (Wallet | Vault)[];
-    options: {
-      hardRefresh?: boolean;
-    };
-  };
-}) {
-  const { wallets, options } = payload;
-  const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
-
-  const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
-    WalletOperations.syncWalletsViaElectrumClient,
-    wallets,
-    network,
-    options.hardRefresh
-  );
-
-  return {
-    synchedWallets,
-  };
-}
-
-export const syncWalletsWatcher = createWatcher(syncWalletsWorker, SYNC_WALLETS);
-
 function* refreshWalletsWorker({
   payload,
 }: {
@@ -634,18 +605,23 @@ function* refreshWalletsWorker({
 }) {
   const { wallets, options } = payload;
   try {
+    if (!wallets || wallets.length === 0) return;
+
     if (!ELECTRUM_CLIENT.isClientConnected) {
       ElectrumClient.resetCurrentPeerIndex();
       yield call(connectToNodeWorker);
     }
 
     yield put(setSyncing({ wallets, isSyncing: true }));
-    const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(syncWalletsWorker, {
-      payload: {
-        wallets,
-        options,
-      },
-    });
+
+    const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
+
+    const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
+      WalletOperations.syncWalletsViaElectrumClient,
+      wallets,
+      network,
+      options.hardRefresh
+    );
 
     let labels: { ref: string; label: string; isSystem: boolean }[];
 
@@ -707,24 +683,6 @@ function* refreshWalletsWorker({
         });
       }
     }
-
-    const existingWallets: Wallet[] = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.Wallet,
-      null,
-      true
-    );
-    // const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
-
-    let netBalance = 0;
-    existingWallets.forEach((wallet) => {
-      if (wallet.presentationData.visibility !== VisibilityType.HIDDEN) {
-        const { confirmed, unconfirmed } = wallet.specs.balances;
-        netBalance = netBalance + confirmed + unconfirmed;
-      }
-    });
-
-    yield put(setNetBalance(netBalance));
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(
@@ -964,6 +922,7 @@ export function* updateSignerDetailsWorker({ payload }) {
   } = payload;
   yield put(setRelaySignersUpdateLoading(true));
   try {
+    signer[key] = value;
     const response = yield call(updateAppImageWorker, { payload: { signers: [signer] } });
     if (response.updated) {
       const signerKeyUID = getKeyUID(signer);

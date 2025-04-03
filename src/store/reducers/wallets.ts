@@ -7,7 +7,6 @@ import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 
 export type WalletsState = {
   walletsSynched: boolean;
-  netBalance: number;
 
   isGeneratingNewWallet: boolean;
   hasNewWalletsGenerationSucceeded: boolean;
@@ -27,7 +26,6 @@ export type WalletsState = {
 
 const initialState: WalletsState = {
   walletsSynched: false,
-  netBalance: 0,
   signerPolicyError: 'idle',
   isGeneratingNewWallet: false,
   hasNewWalletsGenerationSucceeded: false,
@@ -56,9 +54,6 @@ const walletSlice = createSlice({
   reducers: {
     walletsSynched: (state, action: PayloadAction<boolean>) => {
       state.walletsSynched = action.payload;
-    },
-    setNetBalance: (state, action: PayloadAction<number>) => {
-      state.netBalance = action.payload;
     },
     setTestCoinsReceived: (state, action: PayloadAction<boolean>) => {
       state.testCoinsReceived = action.payload;
@@ -111,7 +106,6 @@ const walletSlice = createSlice({
 
 export const {
   walletsSynched,
-  setNetBalance,
   setTestCoinsReceived,
   setTestCoinsFailed,
   setIntroModal,
