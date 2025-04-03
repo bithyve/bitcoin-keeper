@@ -97,7 +97,7 @@ import STModalContent from './components/STModalContent';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import NFC from 'src/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
+import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -330,13 +330,42 @@ function SigningDeviceDetails({ route }) {
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });
+    const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
+      try {
+        const data = idx(session, (_) => _.application.content.content);
+        if (!data) {
+          showToast('Please scan a valid psbt', <ToastErrorIcon />);
+          return;
+        }
+        signPSBT(data);
+      } catch (err) {
+        captureError(err);
+        showToast('Something went wrong.', <ToastErrorIcon />);
+      } finally {
+        cleanUp();
+      }
+    });
+
     const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {});
     return () => {
       cleanUp();
       unsubRead();
       unsubDisconnect();
+      unsubConnect();
     };
   }, [session]);
+
+  useEffect(() => {
+    if (isAndroid) {
+      if (nfcVisible) {
+      } else {
+        NFC.stopTagSession(session);
+      }
+    }
+    return () => {
+      nfcManager.cancelTechnologyRequest();
+    };
+  }, [nfcVisible]);
 
   const isAndroid = Platform.OS === 'android';
   const isIos = Platform.OS === 'ios';
@@ -508,10 +537,36 @@ function SigningDeviceDetails({ route }) {
           navigateToScanPSBT={navigateToScanPSBT}
           setData={signPSBT}
           setStModal={setStModal}
+          readFromNFC={readFromNFC}
         />
       </Box>
     );
   }
+
+  const readFromNFC = async () => {
+    try {
+      if (!isIos) {
+        setNfcVisible(true);
+        NFC.startTagSession({ session, content: '', writable: true });
+      }
+      const records = await NFC.read([NfcTech.Ndef]);
+      try {
+        const psbt = records[0].data;
+        signPSBT(psbt);
+      } catch (err) {
+        captureError(err);
+        showToast('Please scan a valid psbt tag', <ToastErrorIcon />);
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error') {
+        console.log('NFC interaction cancelled');
+        return;
+      }
+      captureError(err);
+      showToast('Something went wrong.', <ToastErrorIcon />);
+    }
+  };
 
   function MobileKeyModalContent() {
     return (
