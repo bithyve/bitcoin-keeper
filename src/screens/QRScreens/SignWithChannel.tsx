@@ -91,7 +91,7 @@ function SignWithChannel() {
   }
   const walletName = activeVault?.presentationData.name;
   let hmac = null;
-  const currentHmac = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId)?.hmac;
+  const currentHmac = vaultKey.registeredVaults?.find((info) => info.vaultId === vaultId)?.hmac;
   if (currentHmac) {
     hmac = currentHmac;
   }

@@ -84,7 +84,7 @@ function SignWithColdCard({ route }: { route }) {
   const { signer } = useSignerFromKey(vaultKey);
 
   const { registered = false } =
-    vaultKey.registeredVaults.find((info) => info.vaultId === activeVault.id) || {};
+    vaultKey.registeredVaults?.find((info) => info.vaultId === activeVault.id) || {};
   const dispatch = useDispatch();
 
   const receiveFromColdCard = async () =>
