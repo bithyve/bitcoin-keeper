@@ -32,6 +32,7 @@ import Instruction from 'src/components/Instruction';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
+import OtherSignerOptionModal from './components/OtherSignerOptionModal';
 
 function SetupOtherSDScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -39,6 +40,7 @@ function SetupOtherSDScreen({ route }) {
   const [xpub, setXpub] = useState('');
   const [derivationPath, setDerivationPath] = useState('');
   const [masterFingerprint, setMasterFingerprint] = useState('');
+  const [optionModal, setOptionModal] = useState(false);
   const [infoModal, setInfoModal] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -262,6 +264,22 @@ function SetupOtherSDScreen({ route }) {
       showToast('Please pick a valid file', <ToastErrorIcon />);
     }
   };
+  const navigatetoQR = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ScanQR',
+        params: {
+          title: `Setting up ${getSignerNameFromType(SignerType.OTHER_SD)}`,
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          onQrScan,
+          setup: true,
+          type: SignerType.OTHER_SD,
+          isSingning: true,
+          importOptions: false,
+        },
+      })
+    );
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -308,19 +326,25 @@ function SetupOtherSDScreen({ route }) {
         <OptionCard
           title="Scan a QR code"
           description="Add an air-gapped device using a QR code"
+          // callback={() => {
+          //   console.log('Scan QR');
+
+          //   navigation.dispatch(
+          //     CommonActions.navigate({
+          //       name: 'ScanQR',
+          //       params: {
+          //         title: `Setting up ${getSignerNameFromType(SignerType.OTHER_SD)}`,
+          //         subtitle: 'Please scan until all the QR data has been retrieved',
+          //         onQrScan,
+          //         setup: true,
+          //         type: SignerType.OTHER_SD,
+          //         isSigning: true,
+          //       },
+          //     })
+          //   );
+          // }}
           callback={() => {
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ScanQR',
-                params: {
-                  title: `Setting up ${getSignerNameFromType(SignerType.OTHER_SD)}`,
-                  subtitle: 'Please scan until all the QR data has been retrieved',
-                  onQrScan,
-                  setup: true,
-                  type: SignerType.OTHER_SD,
-                },
-              })
-            );
+            setOptionModal(true);
           }}
         />
       </Box>
@@ -346,6 +370,27 @@ function SetupOtherSDScreen({ route }) {
             {Instructions?.map((instruction) => (
               <Instruction text={instruction} key={instruction} />
             ))}
+          </Box>
+        )}
+      />
+      <KeeperModal
+        visible={optionModal}
+        close={() => {
+          setOptionModal(false);
+        }}
+        title={'Add signer'}
+        subTitle={`Choose how you would like to add your signer`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <OtherSignerOptionModal
+              signer={SignerType.OTHER_SD}
+              setOptionModal={setOptionModal}
+              navigatetoQR={navigatetoQR}
+              setData={onQrScan}
+            />
           </Box>
         )}
       />

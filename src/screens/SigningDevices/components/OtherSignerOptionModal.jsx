@@ -15,101 +15,145 @@ import { CommonActions } from '@react-navigation/native';
 import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { captureError } from 'src/services/sentry';
-import { HCESessionContext } from 'react-native-hce';
+import { HCESession, HCESessionContext } from 'react-native-hce';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { sanitizeFileName } from 'src/utils/utilities';
 import { exportFile } from 'src/services/fs';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
+import useNfcModal from 'src/hooks/useNfcModal';
+import nfcManager from 'react-native-nfc-manager';
 
-function WalletConfiguration({
+function OtherSignerOptionModal({
   vaultId,
   isMiniscriptVault,
   navigation,
   vault,
-  setWalletConfigModal,
+  setOptionModal,
   useNdef = false,
   isPSBTSharing = false,
   vaultKey,
   signer,
   xfp = '',
-  shareWithNFC,
+  navigatetoQR,
+  setData,
 }) {
   const { colorMode } = useColorMode();
-  const vaultDescriptorString = generateOutputDescriptors(vault);
-  const [fingerPrint, setFingerPrint] = useState(null);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
+  const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
 
   const isIos = Platform.OS === 'ios';
   const isAndroid = Platform.OS === 'android';
 
-  useEffect(() => {
-    if (vault) {
-      const vaultData = { name: vault.presentationData.name, file: vaultDescriptorString };
-      setFingerPrint(vaultData);
-    }
-  }, []);
-
-  const fileName = `${sanitizeFileName(vault.presentationData.name)}.txt`;
-  const shareWithAirdrop = async () => {
-    setWalletConfigModal(false);
-
-    const shareFileName =
-      fileName ||
-      (isPSBTSharing
-        ? `${vaultId}-${vaultKey?.xfp}-${Date.now()}.psbt`
-        : `cosigner-${signer?.masterFingerprint}.txt`);
+  const selectFile = async () => {
     try {
-      await exportFile(
-        vaultDescriptorString,
-        shareFileName,
-        (error) => showToast(error.message, <ToastErrorIcon />),
-        'utf8',
-        false
-      );
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+      try {
+        const filePath = result[0].uri.split('%20').join(' ');
+        const cosigner = await RNFS.readFile(filePath);
+        setData(cosigner);
+      } catch (err) {
+        captureError(err);
+        showToast('Please pick a valid co-signer file', <ToastErrorIcon />);
+      }
     } catch (err) {
-      console.log(err);
+      if (err.toString().includes('user canceled')) {
+        // user cancelled
+        return;
+      }
       captureError(err);
+      showToast('Something went wrong.', <ToastErrorIcon />);
     }
   };
+  const readFromNFC = async () => {
+    try {
+      await withNfcModal(async () => {
+        const records = await NFC.read([NfcTech.Ndef]);
+        try {
+          const cosigner = records[0].data;
+          setData(cosigner);
+        } catch (err) {
+          captureError(err);
+          showToast('Please scan a valid co-signer tag', <ToastErrorIcon />);
+        }
+      });
+    } catch (err) {
+      if (err.toString() === 'Error') {
+        console.log('NFC interaction cancelled');
+        return;
+      }
+      captureError(err);
+      showToast('Something went wrong.', <ToastErrorIcon />);
+    }
+  };
+
+  const { session } = useContext(HCESessionContext);
+
+  useEffect(() => {
+    if (isAndroid) {
+      if (nfcVisible) {
+        NFC.startTagSession({ session, content: '', writable: true });
+      } else {
+        NFC.stopTagSession(session);
+      }
+    }
+    return () => {
+      nfcManager.cancelTechnologyRequest();
+    };
+  }, [nfcVisible]);
+
+  useEffect(() => {
+    const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
+      try {
+        // content written from iOS to android
+        const data = idx(session, (_) => _.application.content.content);
+        if (!data) {
+          showToast('Please scan a valid co-signer', <ToastErrorIcon />);
+          return;
+        }
+        setData(data);
+      } catch (err) {
+        captureError(err);
+        showToast('Something went wrong.', <ToastErrorIcon />);
+      } finally {
+        closeNfc();
+      }
+    });
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      closeNfc();
+    });
+    return () => {
+      unsubConnect();
+      unsubDisconnect();
+      NFC.stopTagSession(session);
+    };
+  }, [session]);
 
   const walletOptions = [
     {
       id: 1,
-      label: vaultText.exportPDF,
-      icon: <DownloadPDF />,
-      onPress: () => {
-        GenerateSingleVaultFilePDF(fingerPrint).then((res) => {
-          if (res) {
-            navigation.navigate('PreviewPDF', { source: res });
-            setWalletConfigModal(false);
-          }
-        });
-      },
-    },
-    {
-      id: 2,
       label: 'Scan QR',
       icon: <ShowQR />,
       onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate('GenerateVaultDescriptor', {
-            vaultId,
-            isMiniscriptVault,
-          })
-        );
-        setWalletConfigModal(false);
+        navigatetoQR();
+        setOptionModal(false);
       },
     },
+
     {
-      id: 3,
+      id: 2,
       label: `${isIos ? 'Airdrop / ' : ''}File Export`,
       icon: <AirDropIcon />,
       onPress: () => {
-        shareWithAirdrop();
+        selectFile();
+        setOptionModal(false);
       },
     },
 
@@ -118,8 +162,8 @@ function WalletConfiguration({
       label: 'NFC',
       icon: <NFCIcon />,
       onPress: () => {
-        setWalletConfigModal(false);
-        shareWithNFC();
+        setOptionModal(false);
+        readFromNFC();
       },
     },
   ];
@@ -142,7 +186,7 @@ function WalletConfiguration({
   );
 }
 
-export default WalletConfiguration;
+export default OtherSignerOptionModal;
 
 const styles = StyleSheet.create({
   container: {
