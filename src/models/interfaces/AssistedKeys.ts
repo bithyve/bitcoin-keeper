@@ -2,9 +2,24 @@ export enum VerificationType {
   TWO_FA = 'TWO_FA',
 }
 
+export enum PermittedAction {
+  UPDATE_POLICY = 'UPDATE_POLICY',
+  FETCH_BACKUP = 'FETCH_BACKUP',
+  SIGN_TRANSACTION = 'SIGN_TRANSACTION',
+  CANCEL_TRANSACTION = 'CANCEL_TRANSACTION',
+}
+
+export interface VerificationOption {
+  id: string;
+  method: VerificationType;
+  verifier?: string;
+  permittedActions: PermittedAction[];
+}
+
 export interface SingerVerification {
   method: VerificationType;
   verifier?: string;
+  secondary?: VerificationOption[]; // secondary verification options
 }
 
 export interface SignerRestriction {

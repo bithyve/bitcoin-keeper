@@ -3,6 +3,17 @@ import { XpubTypes } from 'src/services/wallets/enums';
 import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 
+export const VerificationOptionSchema: ObjectSchema = {
+  name: RealmSchema.VerificationOption,
+  embedded: true,
+  properties: {
+    id: 'string',
+    method: 'string',
+    verifier: 'string?',
+    permittedActions: 'string[]',
+  },
+};
+
 export const SignerPolicy: ObjectSchema = {
   name: RealmSchema.SignerPolicy,
   embedded: true,
@@ -12,6 +23,7 @@ export const SignerPolicy: ObjectSchema = {
       properties: {
         method: 'string',
         verifier: 'string?',
+        secondary: `${RealmSchema.VerificationOption}[]?`,
       },
     },
     restrictions: {
