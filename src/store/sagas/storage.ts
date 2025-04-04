@@ -90,7 +90,7 @@ export function* setupKeeperAppWorker({ payload }) {
           derivationConfig: {
             path: WalletUtilities.getDerivationPath(
               false,
-              config.NETWORK_TYPE,
+              bitcoinNetworkType,
               0,
               DerivationPurpose.BIP84
             ),

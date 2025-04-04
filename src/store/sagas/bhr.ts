@@ -325,6 +325,7 @@ function* getAppImageWorker({ payload }) {
     if (!bip39.validateMnemonic(primaryMnemonic)) {
       throw Error('Invalid mnemonic');
     }
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
@@ -379,7 +380,7 @@ function* getAppImageWorker({ payload }) {
           derivationConfig: {
             path: WalletUtilities.getDerivationPath(
               false,
-              config.NETWORK_TYPE,
+              bitcoinNetworkType,
               0,
               DerivationPurpose.BIP84
             ),
