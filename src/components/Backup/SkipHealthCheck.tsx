@@ -50,7 +50,7 @@ function SkipHealthCheck(props) {
         secondaryCallback={() => {
           props.closeBottomSheet();
         }}
-        primaryText="Confirm Seeds"
+        primaryText={common.confirmSeed}
         primaryCallback={props.confirmBtnPress()}
       />
     </Box>

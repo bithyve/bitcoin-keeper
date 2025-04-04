@@ -11,6 +11,8 @@
     "Goback": "Go back",
     "clear": "Clear",
     "settings": "Settings",
+    "confirmSeed": "Confirm Seeds",
+    "Invalidword": "Invalid word",
     "keeperSettings": "Keeper Settings",
     "add_new": "Add New",
     "add": "Add",
@@ -443,6 +445,7 @@
     "hardwareFoundationSubscribeText": "Get $10 off with Keeper’s special discount!",
     "hardwareUnsubscribeText": "Upgrade to Hodler/Diamond Hands tier to get 5% discount.",
     "hardwareDeviceButton": "Buy Now",
+    "RecoveryPhrase": "For the Recovery Phrase",
 
     "hardwareResellerButton": "View Store",
     "coldCardMK4": "COLDCARD™ Mk4",
