@@ -140,7 +140,7 @@ function ConnectChannel() {
         receiveAddressIndex
       );
       const vaultKey = vault.signers.find((s) => getKeyUID(s) === getKeyUID(signer));
-      const currentHmac = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId)?.hmac;
+      const currentHmac = vaultKey.registeredVaults?.find((info) => info.vaultId === vaultId)?.hmac;
       if (currentHmac) {
         hmac = currentHmac;
       }

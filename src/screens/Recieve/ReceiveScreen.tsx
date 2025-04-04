@@ -178,7 +178,7 @@ function ReceiveScreen({ route }: { route }) {
         {
           return (
             signersFingerprintsToCheck.includes(signer.masterFingerprint) &&
-            signer.registeredVaults.find((info) => info.vaultId === wallet.id)?.registered !== true
+            signer.registeredVaults?.find((info) => info.vaultId === wallet.id)?.registered !== true
           );
         }
       });
@@ -266,6 +266,7 @@ function ReceiveScreen({ route }: { route }) {
         vaultId: wallet.id,
         title: 'Verify Address on Device', //TODO: Move to translations
         description: 'Select a signer',
+        mode: InteracationMode.ADDRESS_VERIFICATION,
         callback: (signer, signerName) => {
           if (signer.type === SignerType.PORTAL) {
             navigation.dispatch(
@@ -306,6 +307,7 @@ function ReceiveScreen({ route }: { route }) {
         title: 'Register vault on Device', //TODO: Move to translations
         description: 'Select a signer',
         vaultKeydata: (wallet as Vault).signers,
+        mode: InteracationMode.VAULT_REGISTER,
         callback: (signer, signerName) => {
           const vaultKey = (wallet as Vault).signers.find(
             (vaultSigner) => vaultSigner.masterFingerprint === signer.masterFingerprint

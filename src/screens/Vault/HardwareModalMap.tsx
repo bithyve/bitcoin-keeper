@@ -119,6 +119,7 @@ import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
+import * as bitcoin from 'bitcoinjs-lib';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -1382,6 +1383,11 @@ function HardwareModalMap({
   };
 
   const onQRScan = async (qrData) => {
+    try {
+      bitcoin.Psbt.fromBase64(qrData);
+      // Prevent receiving PSBT during the sign tnx flow, as multiple handlers process PSBT and signer details via NFC on the same screen.
+      return;
+    } catch (error) {}
     let hw: { signer: Signer; key: VaultSigner };
     try {
       switch (type) {
@@ -1473,6 +1479,11 @@ function HardwareModalMap({
   };
 
   const onQRScanHealthCheck = async (qrData, signer) => {
+    try {
+      bitcoin.Psbt.fromBase64(qrData);
+      // Prevent receiving PSBT during the sign tnx flow, as multiple handlers process PSBT and signer details via NFC on the same screen.
+      return;
+    } catch (error) {}
     let healthcheckStatus: boolean;
     try {
       switch (type) {

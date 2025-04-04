@@ -450,7 +450,7 @@ function SignersList({
               return null;
             }
             const isRegistered = vaultKeys.length
-              ? item.registeredVaults.find((info) => info.vaultId === vault.id)
+              ? item.registeredVaults?.find((info) => info.vaultId === vault.id)
               : false;
 
             const showDot =
