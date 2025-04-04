@@ -35,6 +35,7 @@ const initialState: {
   delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate }; // contains a single policy update at a time
   plebDueToOffline: boolean; // app downgraded to pleb due to internet issue
   wasAutoUpdateEnabledBeforeDowngrade: boolean;
+  secondaryNetworkWalletCreated: boolean; // flag for creation of default wallet for secondary network type
 } = {
   appId: '',
   failedAttempts: 0,
@@ -67,6 +68,7 @@ const initialState: {
   delayedPolicyUpdate: {},
   plebDueToOffline: false,
   wasAutoUpdateEnabledBeforeDowngrade: false,
+  secondaryNetworkWalletCreated: false,
 };
 
 const storageSlice = createSlice({
@@ -127,6 +129,9 @@ const storageSlice = createSlice({
     setAutoUpdateEnabledBeforeDowngrade: (state, action: PayloadAction<boolean>) => {
       state.wasAutoUpdateEnabledBeforeDowngrade = action.payload;
     },
+    setSecondaryNetworkWalletCreated: (state, action: PayloadAction<boolean>) => {
+      state.secondaryNetworkWalletCreated = action.payload;
+    },
   },
 });
 
@@ -143,6 +148,7 @@ export const {
   deleteDelayedPolicyUpdate,
   setPlebDueToOffline,
   setAutoUpdateEnabledBeforeDowngrade,
+  setSecondaryNetworkWalletCreated,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

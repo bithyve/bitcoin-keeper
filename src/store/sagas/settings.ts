@@ -4,7 +4,7 @@ import { setBitcoinNetwork } from '../reducers/settings';
 import { CHANGE_BITCOIN_NETWORK } from '../sagaActions/settings';
 import Node from 'src/services/electrum/node';
 import { fetchFeeRates } from '../sagaActions/send_and_receive';
-import { NetworkType } from 'src/services/wallets/enums';
+import { DerivationPurpose, NetworkType, SignerType, WalletType } from 'src/services/wallets/enums';
 import {
   predefinedMainnetNodes,
   predefinedTestnetNodes,
@@ -13,6 +13,14 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store';
 import ElectrumClient from 'src/services/electrum/client';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
+import { Signer } from 'src/services/wallets/interfaces/vault';
+import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
+import { setupKeeperSigner } from 'src/hardware/signerSetup';
+import { addSigningDevice } from '../sagaActions/vaults';
+import { addNewWalletsWorker, NewWalletInfo } from './wallets';
+import { setSecondaryNetworkWalletCreated } from '../reducers/storage';
 
 function* changeBitcoinNetworkWorker({ payload }) {
   let activeNode;
@@ -53,8 +61,47 @@ function* changeBitcoinNetworkWorker({ payload }) {
       )
     );
     yield call(ElectrumClient.connect);
+
+    // Create default wallet and signer if not created already
+    const { secondaryNetworkWalletCreated } = yield select((state: RootState) => state.storage);
+    const needToCreateWallet =
+      config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
+        ? bitcoinNetworkType === NetworkType.MAINNET
+        : bitcoinNetworkType === NetworkType.TESTNET;
+    if (!secondaryNetworkWalletCreated && needToCreateWallet) {
+      const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+      const myAppKeys = signers.filter(
+        (signer) => signer.type === SignerType.MY_KEEPER && !signer.archived
+      );
+      const instanceNumberToSet = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
+      const { primaryMnemonic } = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      const cosigner = yield call(getCosignerDetails, primaryMnemonic, instanceNumberToSet);
+      const hw = setupKeeperSigner(cosigner);
+      if (hw) {
+        yield put(addSigningDevice([hw.signer]));
+      }
+      const defaultWallet: NewWalletInfo = {
+        walletType: WalletType.DEFAULT,
+        walletDetails: {
+          name: 'Mobile Wallet',
+          description: '',
+          instanceNum: instanceNumberToSet,
+          derivationConfig: {
+            path: WalletUtilities.getDerivationPath(
+              false,
+              bitcoinNetworkType,
+              0,
+              DerivationPurpose.BIP84
+            ),
+            purpose: DerivationPurpose.BIP84,
+          },
+        },
+      };
+      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
+      yield put(setSecondaryNetworkWalletCreated(true));
+    }
   } catch (error) {
-    console.log('🚀 ~ function*changeBitcoinNetworkWorker ~ error:', error);
+    console.log('🚀 ~changeBitcoinNetworkWorker ~ error:', error);
   }
 }
 
