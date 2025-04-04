@@ -17,15 +17,21 @@ import { NetworkType } from 'src/services/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/tick_icon.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const SettingsApp = () => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { settings, common } = useContext(LocalizationContext).translations;
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
-
+  const { showToast } = useToastMessage();
   const [networkModeModal, setNetworkModeModal] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(bitcoinNetworkType);
+  const [loading, setLoading] = useState(false);
+
   let appSetting = [
     ...useSettingKeeper().appSetting,
     {
@@ -63,9 +69,17 @@ const SettingsApp = () => {
       {
         text: common.ok,
         onPress: () => {
+          setLoading(true);
           setNetworkModeModal(false);
           setSelectedNetwork(selectedNetwork);
-          dispatch(changeBitcoinNetwork(selectedNetwork));
+          dispatch(
+            changeBitcoinNetwork(selectedNetwork, (success) => {
+              setLoading(false);
+              if (success) showToast('Bitcoin network updated successfully', <TickIcon />);
+              else
+                showToast('Failed to update Bitcoin network. Please try again', <ToastErrorIcon />);
+            })
+          );
         },
       },
     ]);
@@ -117,6 +131,7 @@ const SettingsApp = () => {
             </Box>
           )}
         />
+        <ActivityIndicatorView visible={loading} showLoader />
       </Box>
     </ScreenWrapper>
   );

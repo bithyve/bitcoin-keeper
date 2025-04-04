@@ -24,8 +24,8 @@ import { setSecondaryNetworkWalletCreated } from '../reducers/storage';
 
 function* changeBitcoinNetworkWorker({ payload }) {
   let activeNode;
+  const { network, callback } = payload;
   try {
-    const { network } = payload;
     try {
       activeNode = Node.getAllNodes().find((node) => node.isConnected);
     } catch (error) {}
@@ -99,10 +99,12 @@ function* changeBitcoinNetworkWorker({ payload }) {
       };
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
       yield put(setSecondaryNetworkWalletCreated(true));
+      if (callback) callback(true);
     }
   } catch (error) {
     console.log('🚀 ~changeBitcoinNetworkWorker ~ error:', error);
-  }
+    if (callback) callback(false);
+  } 
 }
 
 export const changeBitcoinNetworkWatcher = createWatcher(

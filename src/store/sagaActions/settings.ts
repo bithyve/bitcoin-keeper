@@ -11,7 +11,7 @@ export const setLoginMethod = (method: LoginMethod) => ({
   },
 });
 
-export const changeBitcoinNetwork = (network: NetworkType) => ({
+export const changeBitcoinNetwork = (network: NetworkType, callback = null) => ({
   type: CHANGE_BITCOIN_NETWORK,
-  payload: { network },
+  payload: { network, callback },
 });
