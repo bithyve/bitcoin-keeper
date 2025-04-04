@@ -17,7 +17,7 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { pickDocument } from 'src/services/documents';
-import { extractColdCardExport } from 'src/hardware/coldcard';
+import { extractColdCardExport, getColdcardDetails } from 'src/hardware/coldcard';
 import { getPassportDetails } from 'src/hardware/passport';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import OptionCard from 'src/components/OptionCard';
@@ -139,6 +139,11 @@ function SetupOtherSDScreen({ route }) {
       } catch (error) {
         // ignore
       }
+      try {
+        hw = extractColdCardExport(JSON.parse(qrData), isMultisig);
+      } catch (error) {
+        // ignore
+      }
 
       if (hw) {
         const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } = hw;
@@ -174,96 +179,6 @@ function SetupOtherSDScreen({ route }) {
     }
   };
 
-  const handleError = (e) => {
-    if (e instanceof HWError) {
-      showToast(e.message, <ToastErrorIcon />);
-    }
-  };
-
-  const handleFile = (file) => {
-    try {
-      let error;
-      const data = JSON.parse(file);
-      // file export from coldcard or passport(single sig)
-      try {
-        const ccDetails = extractColdCardExport(data, isMultisig);
-        const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
-        const { signer: coldcard } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          masterFingerprint,
-          isMultisig,
-          signerType: SignerType.OTHER_SD,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
-        dispatch(addSigningDevice([coldcard]));
-        const navigationState = addSignerFlow
-          ? { name: 'Home' }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
-        navigation.dispatch(CommonActions.navigate(navigationState));
-        return;
-      } catch (e) {
-        error = e;
-      }
-      if (!(error instanceof HWError) || error.type === HWErrorType.INCORRECT_HW) {
-        // file export from passport(multisig)
-        try {
-          const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-            getPassportDetails(data);
-          if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-            const { signer: passport } = generateSignerFromMetaData({
-              xpub,
-              derivationPath,
-              masterFingerprint,
-              signerType: SignerType.OTHER_SD,
-              storageType: SignerStorage.COLD,
-              isMultisig,
-            });
-            dispatch(addSigningDevice([passport]));
-            const navigationState = addSignerFlow
-              ? { name: 'Home' }
-              : { name: 'AddSigningDevice', merge: true, params: {} };
-            navigation.dispatch(CommonActions.navigate(navigationState));
-            return;
-          }
-        } catch (e) {
-          error = e;
-        }
-        if (!(error instanceof HWError) || error.type === HWErrorType.INCORRECT_HW) {
-          // file export from keystone
-          try {
-            const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-              getKeystoneDetailsFromFile(data);
-            if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-              const { signer: keystone } = generateSignerFromMetaData({
-                xpub,
-                derivationPath,
-                masterFingerprint,
-                signerType: SignerType.OTHER_SD,
-                storageType: SignerStorage.COLD,
-                isMultisig,
-              });
-              dispatch(addSigningDevice([keystone]));
-              const navigationState = addSignerFlow
-                ? { name: 'Home' }
-                : { name: 'AddSigningDevice', merge: true, params: {} };
-              navigation.dispatch(CommonActions.navigate(navigationState));
-              return;
-            }
-          } catch (e) {
-            error = e;
-          }
-        }
-      }
-      if (error) {
-        throw error;
-      }
-    } catch (e) {
-      handleError(e);
-      showToast('Please pick a valid file', <ToastErrorIcon />);
-    }
-  };
   const navigatetoQR = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -317,32 +232,8 @@ function SetupOtherSDScreen({ route }) {
           placeholderTextColor={`${colorMode}.SlateGreen`}
         />
         <OptionCard
-          title="Pick a file"
-          description="Add an air-gapped device using a file"
-          callback={() => {
-            pickDocument().then(handleFile);
-          }}
-        />
-        <OptionCard
-          title="Scan a QR code"
-          description="Add an air-gapped device using a QR code"
-          // callback={() => {
-          //   console.log('Scan QR');
-
-          //   navigation.dispatch(
-          //     CommonActions.navigate({
-          //       name: 'ScanQR',
-          //       params: {
-          //         title: `Setting up ${getSignerNameFromType(SignerType.OTHER_SD)}`,
-          //         subtitle: 'Please scan until all the QR data has been retrieved',
-          //         onQrScan,
-          //         setup: true,
-          //         type: SignerType.OTHER_SD,
-          //         isSigning: true,
-          //       },
-          //     })
-          //   );
-          // }}
+          title="Show import options"
+          description="Add an air-gapped device using a QR, NFC, or file"
           callback={() => {
             setOptionModal(true);
           }}

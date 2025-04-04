@@ -6,17 +6,13 @@ import DownloadPDF from 'src/assets/images/export-pdf-icon.svg';
 import ShowQR from 'src/assets/images/qr-scan-icon.svg';
 import AirDropIcon from 'src/assets/images/airdrop-circle-icon.svg';
 import NFCIcon from 'src/assets/images/nfc-circle-icon.svg';
-import { Platform, StyleSheet, Vibration } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import GenerateSingleVaultFilePDF from 'src/utils/GenerateSingleVaultFilePDF';
 import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { CommonActions } from '@react-navigation/native';
-import NFC from 'src/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
 import { captureError } from 'src/services/sentry';
-import { HCESessionContext } from 'react-native-hce';
-import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { sanitizeFileName } from 'src/utils/utilities';
 import { exportFile } from 'src/services/fs';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -44,7 +40,6 @@ function WalletConfiguration({
   const { vault: vaultText } = translations;
 
   const isIos = Platform.OS === 'ios';
-  const isAndroid = Platform.OS === 'android';
 
   useEffect(() => {
     if (vault) {
@@ -92,7 +87,7 @@ function WalletConfiguration({
     },
     {
       id: 2,
-      label: 'Scan QR',
+      label: 'Show QR',
       icon: <ShowQR />,
       onPress: () => {
         navigation.dispatch(
