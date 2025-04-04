@@ -1,50 +1,28 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
-import DownloadPDF from 'src/assets/images/export-pdf-icon.svg';
 import ShowQR from 'src/assets/images/qr-scan-icon.svg';
 import AirDropIcon from 'src/assets/images/airdrop-circle-icon.svg';
 import NFCIcon from 'src/assets/images/nfc-circle-icon.svg';
-import { Platform, StyleSheet, Vibration } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import GenerateSingleVaultFilePDF from 'src/utils/GenerateSingleVaultFilePDF';
-import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
-import { CommonActions } from '@react-navigation/native';
 import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { captureError } from 'src/services/sentry';
 import { HCESession, HCESessionContext } from 'react-native-hce';
-import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { sanitizeFileName } from 'src/utils/utilities';
-import { exportFile } from 'src/services/fs';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import useNfcModal from 'src/hooks/useNfcModal';
 import nfcManager from 'react-native-nfc-manager';
+import idx from 'idx';
 
-function OtherSignerOptionModal({
-  vaultId,
-  isMiniscriptVault,
-  navigation,
-  vault,
-  setOptionModal,
-  useNdef = false,
-  isPSBTSharing = false,
-  vaultKey,
-  signer,
-  xfp = '',
-  navigatetoQR,
-  setData,
-}) {
+function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
-  const { translations } = useContext(LocalizationContext);
-  const { vault: vaultText } = translations;
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
 
   const isIos = Platform.OS === 'ios';

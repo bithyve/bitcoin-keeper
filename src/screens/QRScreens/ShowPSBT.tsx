@@ -6,7 +6,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import { SignerType } from 'src/services/wallets/enums';
 import DisplayQR from './DisplayQR';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import Buttons from 'src/components/Buttons';
 
@@ -17,8 +16,6 @@ function ShowPSBT() {
     encodeToBytes,
     title,
     subTitle,
-    type,
-    isSignedPSBT = true,
   }: {
     data: any;
     encodeToBytes: boolean;
@@ -40,9 +37,6 @@ function ShowPSBT() {
         <Box style={styles.fingerprint}>
           <WalletCopiableData title="Transaction (PSBT):" data={data} dataType="psbt" />
         </Box>
-        {isSignedPSBT && [SignerType.KEEPER, SignerType.MY_KEEPER].includes(type) && (
-          <ShareWithNfc data={data} isPSBTSharing remoteShare isSignedPSBT />
-        )}
       </ScrollView>
       <Box style={styles.ctaContainer}>
         <Buttons

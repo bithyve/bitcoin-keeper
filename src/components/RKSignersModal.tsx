@@ -116,6 +116,11 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
         break;
+      case SignerType.KEEPER:
+        showToast(
+          `You cannot sign with an external key, please share transaction with the key owner`
+        );
+        break;
       case SignerType.PORTAL:
         setPortalModal(true);
         break;
