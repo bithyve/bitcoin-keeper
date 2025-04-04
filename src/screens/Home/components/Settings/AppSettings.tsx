@@ -10,7 +10,7 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import CheckBoxActive from 'src/assets/images/checkbox_active.svg';
 import CheckBoxInactive from 'src/assets/images/checkbox_inactive.svg';
-import SettingHistoryIcon from 'src/assets/images/settingHistory.svg';
+import NetworkModeIcon from 'src/assets/images/SettingNetworkMode.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import { NetworkType } from 'src/services/wallets/enums';
@@ -31,7 +31,7 @@ const SettingsApp = () => {
     {
       title: settings.networkModeTitle,
       description: settings.networkModeSubTitle,
-      icon: <SettingHistoryIcon width={16.5} height={16} />, // ! update image
+      icon: <NetworkModeIcon width={16.5} height={16} />,
       onPress: () => setNetworkModeModal(true),
       isDiamond: false,
     },
