@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState, StyleSheet } from 'react-native';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -13,7 +13,11 @@ import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
 import OptionCard from 'src/components/OptionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import IconRefresh from 'src/assets/images/icon_refresh.svg';
+import IconRefreshLight from 'src/assets/images/iconRefreshLight.svg';
+import IconRefreshDark from 'src/assets/images/iconRefreshDark.svg';
+import OrbotImage from 'src/assets/images/orbotImage.svg';
+import TorImage from 'src/assets/images/torImage.svg';
+
 import TorModalMap from './TorModalMap';
 import Instruction from 'src/components/Instruction';
 import { hp, wp } from 'src/constants/responsive';
@@ -35,6 +39,22 @@ function TorSettings() {
   const [showTorModal, setShowTorModal] = useState(false);
   const [showOrbotTorModal, setShowOrbotTorModal] = useState(false);
   const { showToast } = useToastMessage();
+  const isDarkMode = colorMode === 'dark';
+  const appState = useRef(AppState.currentState);
+
+  const handleAppStateChange = (nextAppState) => {
+    if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+      checkTorConnection();
+    }
+    appState.current = nextAppState;
+  };
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   useEffect(() => {
     checkTorConnection();
@@ -95,9 +115,9 @@ function TorSettings() {
 
   const getTorConnectionType = React.useMemo(() => {
     return inAppTor === TorStatus.CONNECTED
-      ? `${settings.torConnectionString}in-app Tor`
+      ? `in-app${settings.torConnectionString}`
       : globalTorStatus === TorStatus.CONNECTED
-      ? `${settings.torConnectionString}connected via external Tor`
+      ? `Orbot${settings.torConnectionString}`
       : '';
   }, [inAppTor, globalTorStatus]);
 
@@ -106,26 +126,29 @@ function TorSettings() {
       <KeeperHeader title={settings.torSettingTitle} subtitle={settings.torHeaderSubTitle} />
       <ScrollView contentContainerStyle={{ paddingTop: 30, alignItems: 'center' }}>
         <Box style={styles.torStatusContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Box style={styles.torStatusInfo}>
-            <Text style={styles.torStatusTitle} semiBold color={`${colorMode}.primaryText`}>
-              {settings.CurrentStatus}
-            </Text>
-            <Text style={styles.torStatusText} color={`${colorMode}.primaryText`}>
-              {getTorStatusText}
-            </Text>
-          </Box>
-          <Pressable style={styles.torStatusButton} onPress={() => checkTorConnection()}>
-            <IconRefresh />
-            <Text style={styles.checkStatusBtnTitle} semiBold color={`${colorMode}.BrownNeedHelp`}>
-              &nbsp;&nbsp;{settings.checkStatus}
-            </Text>
-          </Pressable>
+          {torStatus === TorStatus.CONNECTED || globalTorStatus === TorStatus.CONNECTED ? (
+            <Box style={styles.torConnectionTypeCtr}>
+              {globalTorStatus === TorStatus.CONNECTED ? <OrbotImage /> : <TorImage />}
+              <Text style={styles.torConnectionType} color={`${colorMode}.primaryText`}>
+                {getTorConnectionType}
+              </Text>
+            </Box>
+          ) : (
+            <>
+              <Box style={styles.torStatusInfo}>
+                <Text style={styles.torStatusTitle} semiBold color={`${colorMode}.primaryText`}>
+                  {settings.CurrentStatus}
+                </Text>
+                <Text style={styles.torStatusText} color={`${colorMode}.GreyText`}>
+                  {getTorStatusText}
+                </Text>
+              </Box>
+              <Pressable style={styles.torStatusButton} onPress={() => checkTorConnection()}>
+                {isDarkMode ? <IconRefreshDark /> : <IconRefreshLight />}
+              </Pressable>
+            </>
+          )}
         </Box>
-        {torStatus === TorStatus.CONNECTED && (
-          <Box>
-            <Text>{getTorConnectionType}</Text>
-          </Box>
-        )}
 
         <OptionCard
           title={settings.torViaOrbot}
@@ -193,19 +216,20 @@ const styles = StyleSheet.create({
     width: '95%',
     margin: 15,
     borderRadius: 10,
+    justifyContent: 'space-between',
+    height: hp(70),
+    alignItems: 'center',
   },
   torStatusInfo: {
     width: '60%',
   },
   torStatusTitle: {
-    fontSize: 10,
+    fontSize: 14,
   },
   torStatusText: {
     fontSize: 12,
   },
   torStatusButton: {
-    flexDirection: 'row',
-    width: '40%',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -215,6 +239,14 @@ const styles = StyleSheet.create({
   orbotContent: {
     alignItems: 'flex-start',
     marginBottom: hp(10),
+  },
+  torConnectionType: {
+    fontSize: 14,
+  },
+  torConnectionTypeCtr: {
+    flexDirection: 'row',
+    gap: wp(10),
+    alignItems: 'center',
   },
 });
 
