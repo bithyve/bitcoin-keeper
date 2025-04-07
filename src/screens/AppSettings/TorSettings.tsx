@@ -69,7 +69,7 @@ function TorSettings() {
   const getTorStatusText = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'Tor Disabled';
+        return 'Tor disabled';
       case TorStatus.CONNECTING:
         return 'Connecting to Tor';
       case TorStatus.CONNECTED:
