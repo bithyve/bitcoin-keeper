@@ -68,43 +68,46 @@ function* changeBitcoinNetworkWorker({ payload }) {
       config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
         ? bitcoinNetworkType === NetworkType.MAINNET
         : bitcoinNetworkType === NetworkType.TESTNET;
-      if (!secondaryNetworkWalletCreated && needToCreateWallet) {
-        const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-        const myAppKeys = signers.filter(
-          (signer) => signer.type === SignerType.MY_KEEPER && !signer.archived
-        );
-        const instanceNumberToSet = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
-        const { primaryMnemonic } = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-        const cosigner = yield call(getCosignerDetails, primaryMnemonic, instanceNumberToSet);
-        const hw = setupKeeperSigner(cosigner);
-        if (hw) {
-          yield put(addSigningDevice([hw.signer]));
-        }
-        const defaultWallet: NewWalletInfo = {
-          walletType: WalletType.DEFAULT,
-          walletDetails: {
-            name: 'Mobile Wallet',
-            description: '',
-            instanceNum: instanceNumberToSet,
-            derivationConfig: {
-              path: WalletUtilities.getDerivationPath(
-                false,
-                bitcoinNetworkType,
-                0,
-                DerivationPurpose.BIP84
-              ),
-              purpose: DerivationPurpose.BIP84,
-            },
-          },
-        };
-        yield call(addNewWalletsWorker, { payload: [defaultWallet] });
-        yield put(setSecondaryNetworkWalletCreated(true));
+    if (!secondaryNetworkWalletCreated && needToCreateWallet) {
+      const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+      const myAppKeys = signers.filter(
+        (signer) =>
+          signer.type === SignerType.MY_KEEPER &&
+          !signer.archived &&
+          signer.networkType === bitcoinNetworkType
+      );
+      const instanceNumberToSet = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
+      const { primaryMnemonic } = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      const cosigner = yield call(getCosignerDetails, primaryMnemonic, instanceNumberToSet);
+      const hw = setupKeeperSigner(cosigner);
+      if (hw) {
+        yield put(addSigningDevice([hw.signer]));
       }
+      const defaultWallet: NewWalletInfo = {
+        walletType: WalletType.DEFAULT,
+        walletDetails: {
+          name: 'Mobile Wallet',
+          description: '',
+          instanceNum: instanceNumberToSet,
+          derivationConfig: {
+            path: WalletUtilities.getDerivationPath(
+              false,
+              bitcoinNetworkType,
+              0,
+              DerivationPurpose.BIP84
+            ),
+            purpose: DerivationPurpose.BIP84,
+          },
+        },
+      };
+      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
+      yield put(setSecondaryNetworkWalletCreated(true));
+    }
     if (callback) callback(true);
   } catch (error) {
     console.log('🚀 ~changeBitcoinNetworkWorker ~ error:', error);
     if (callback) callback(false);
-  } 
+  }
 }
 
 export const changeBitcoinNetworkWatcher = createWatcher(
