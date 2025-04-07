@@ -52,6 +52,7 @@ import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import { BrownButton } from 'src/components/BrownButton';
 import config from 'src/utils/service-utilities/config';
 import { manipulateIosProdProductId } from 'src/utils/utilities';
+import ChangeIntervalIllustration from 'src/assets/images/changeInterval.svg';
 const { width } = Dimensions.get('window');
 
 const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
@@ -83,6 +84,7 @@ function ChoosePlan() {
   const [showPromocodeModal, setShowPromocodeModal] = useState(false);
   const { isOnL1 } = usePlan();
   const [enableDesktopManagement, setEnableDesktopManagement] = useState(true);
+  const [showChangeInterval, setShowChangeInterval] = useState(false);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -541,6 +543,24 @@ function ChoosePlan() {
     };
   };
 
+  const changeIntervalContent = () => {
+    return (
+      <Box>
+        <Box alignItems={'center'}>
+          <ChangeIntervalIllustration />
+        </Box>
+        <Box alignItems={'flex-end'} mt={hp(20)}>
+          <Buttons
+            primaryText={common.proceed}
+            primaryCallback={() => processSubscription(items[currentPosition])}
+            secondaryText={common.cancel}
+            secondaryCallback={() => setShowChangeInterval(false)}
+          />
+        </Box>
+      </Box>
+    );
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
@@ -591,6 +611,18 @@ function ChoosePlan() {
         Content={PromocodeModalContent}
         subTitleWidth={wp(250)}
       />
+      <KeeperModal
+        visible={showChangeInterval}
+        close={() => setShowChangeInterval(false)}
+        title={choosePlan.changeIntervalTitle}
+        subTitle={choosePlan.changeIntervalSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        showCloseIcon={false}
+        Content={changeIntervalContent}
+        subTitleWidth={width * 0.8}
+      />
       <TierUpgradeModal
         visible={showUpgradeModal}
         close={() => setShowUpgradeModal(false)}
@@ -609,6 +641,15 @@ function ChoosePlan() {
             primaryCallback={() => {
               if (!isOnL1 && appSubscription.isDesktopPurchase) {
                 Alert.alert('', 'You already have an active BTC based subscription.');
+                return;
+              }
+              // check if user moving from yearly to monthly
+              if (
+                appSubscription.level !== AppSubscriptionLevel.L1 &&
+                isMonthly &&
+                currentPosition !== 0
+              ) {
+                setShowChangeInterval(true);
                 return;
               }
               processSubscription(items[currentPosition]);
