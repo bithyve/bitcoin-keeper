@@ -62,7 +62,7 @@ function ConfirmWalletDetails({ route }) {
   const { showToast } = useToastMessage();
   const { wallets } = useWallets({ getAll: true });
   const { translations } = useContext(LocalizationContext);
-  const { wallet, choosePlan, common, importWallet } = translations;
+  const { wallet, choosePlan, common, importWallet, vault } = translations;
   const { vaultId } = route.params || {};
   const { activeVault } = useVault({ vaultId });
   const [walletName, setWalletName] = useState(
@@ -337,7 +337,7 @@ function ConfirmWalletDetails({ route }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Confirm your wallet details"
+        title={wallet.confirmWalletDetail}
         rightComponent={
           isHotWallet && (
             <Pressable
@@ -356,7 +356,7 @@ function ConfirmWalletDetails({ route }) {
       >
         <Box style={styles.fieldsContainer}>
           <Text fontSize={14} medium>
-            Your wallet name
+            {wallet.yourWalletName}
           </Text>
           <Box style={styles.inputFieldWrapper}>
             <KeeperTextInput
@@ -376,14 +376,14 @@ function ConfirmWalletDetails({ route }) {
             }}
           >
             <Box style={styles.descriptionContainer}>
-              <Text color={`${colorMode}.greenText`}>Add Description</Text>
+              <Text color={`${colorMode}.greenText`}>{importWallet.addDescription}</Text>
               <AddCircleLight />
             </Box>
           </Pressable>
         </Box>
         <Box flexDirection={'row'}>
           <Text fontSize={14} medium style={{ flex: 1 }}>
-            Your wallet key
+            {wallet.yourWalletKey}
             {route.params.selectedSigners.length > 1 || vaultType === VaultType.MINISCRIPT
               ? 's'
               : ''}
@@ -402,7 +402,7 @@ function ConfirmWalletDetails({ route }) {
           >
             <EditIcon />
             <Text color={`${colorMode}.BrownNeedHelp`} semiBold fontSize={13}>
-              Edit
+              {common.edit}
             </Text>
           </Pressable>
         </Box>
@@ -466,7 +466,7 @@ function ConfirmWalletDetails({ route }) {
       </ScrollView>
       <Box style={styles.footer}>
         <Buttons
-          primaryText={'Create your Wallet'}
+          primaryText={wallet.createYourWallet}
           primaryCallback={
             isHotWallet
               ? createNewHotWallet
@@ -502,8 +502,8 @@ function ConfirmWalletDetails({ route }) {
       <KeeperModal
         visible={showDescriptionModal}
         close={() => setShowDescriptionModal(false)}
-        title="Add Description"
-        subTitle="This will reflect on the home screen"
+        title={importWallet.addDescription}
+        subTitle={vault.vaultEditSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -514,7 +514,7 @@ function ConfirmWalletDetails({ route }) {
           return (
             <Box style={styles.descriptionInput}>
               <KeeperTextInput
-                placeholder="Add a description (Optional)"
+                placeholder={wallet.addOptionalDesc}
                 value={description}
                 onChangeText={(value) => {
                   setDescription(value);
@@ -527,12 +527,12 @@ function ConfirmWalletDetails({ route }) {
             </Box>
           );
         }}
-        buttonText="Save Changes"
+        buttonText={common.saveChanges}
         buttonCallback={() => {
           setShowDescriptionModal(false);
-          showToast('Description added successfully!', <TickIcon />);
+          showToast(wallet.descriptionAddedSuccessfully, <TickIcon />);
         }}
-        secondaryButtonText="Cancel"
+        secondaryButtonText={common.cancel}
         secondaryCallback={() => {
           descriptionInputRef.current = initialDescription.current;
           setShowDescriptionModal(false);
@@ -542,7 +542,7 @@ function ConfirmWalletDetails({ route }) {
         visible={advancedSettingsVisible}
         close={() => setAdvancedSettingsVisible(false)}
         title={importWallet.derivationPath}
-        subTitle="Change or update purpose"
+        subTitle={wallet.changeOrUpdatePurpose}
         subTitleWidth={wp(240)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
@@ -568,7 +568,7 @@ function ConfirmWalletDetails({ route }) {
         close={() => {}}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
-        title="Failed"
+        title={common.failed}
         Content={FailedModalContent}
         buttonText=""
         buttonCallback={() => {
@@ -582,14 +582,14 @@ function ConfirmWalletDetails({ route }) {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title={'Wallet Created Successfully'}
-        subTitle="Your new wallet was created successfully and is ready to use"
+        title={wallet.WalletCreated}
+        subTitle={wallet.walletCreatedSuccessfullyDesc}
         Content={
           vaultType === VaultType.SINGE_SIG
             ? () => SingleSigWallet(newVault)
             : () => VaultCreatedModalContent(newVault)
         }
-        buttonText={'View Wallet'}
+        buttonText={wallet.ViewWallet}
         buttonCallback={viewVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
@@ -601,10 +601,10 @@ function ConfirmWalletDetails({ route }) {
       />
       <WalletVaultCreationModal
         visible={walletCreatedModal}
-        title="Wallet Created Successfully!"
-        subTitle="Your new wallet was created successfully and is ready to use"
-        buttonText="View Wallet"
-        descriptionMessage="Make sure to securely store your Recovery Key as back up for your wallet"
+        title={wallet.WalletCreated}
+        subTitle={wallet.walletCreatedSuccessfullyDesc}
+        buttonText={wallet.ViewWallet}
+        descriptionMessage={wallet.recoveryKeyAsBackup}
         buttonCallback={() => {
           setWalletCreatedModal(false);
           navigation.dispatch(

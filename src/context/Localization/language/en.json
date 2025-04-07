@@ -177,7 +177,8 @@
     "StartApp": "Start App",
     "Account": "Account",
     "messagePreview": "Message Preview",
-    "TESTNET": "TESTNET"
+    "TESTNET": "TESTNET",
+    "failed": "Failed"
   },
   "noInternet": {
     "no": "No Internet",
@@ -613,7 +614,7 @@
     "CollabWalletError": "Error creating collaborative wallet",
     "Desc2of3": "2-of-3 Multi-key",
     "CollaborativeWalletCreated": "A 2 of 3 collaborative wallet will be created",
-    "WalletCreated": "Wallet Created Successfully!",
+    "WalletCreated": "Wallet Created Successfully",
     "CollaborativeWalletSubtitle": "You have successfully created a collaborative wallet with three app keys on three separate devices.",
     "CollaborativeWalletDesc": "You should ensure you have a copy of the wallet configuration file for this vault",
     "highCustom": "Network fee is more than 10% of the amount being sent. Consider using custom fee option.",
@@ -673,7 +674,27 @@
     "secureSats": "Secure your sats",
     "recievedSats": "Testnet Sats Received",
     "recievedSatsTitle": "Receive Test Sats",
-    "recieveSatsDesc": "Receive test sats in your"
+    "recieveSatsDesc": "Receive test sats in your",
+    "Singlekey": "Single-key",
+    "multikey2of3": "2 of 3 multi-key",
+    "multikey3of5": "3 of 5 multi-key",
+    "selectYourWalletType": "Select your wallet type",
+    "selectCustomSetup": "Select custom setup",
+    "enhancedSecurityOption": "Enhanced Security Options",
+    "enhancedSecurityDesc": "Secure your funds and future—your way",
+    "enhancedSecurityDesc2": "You'll be prompted to configure your enhanced options after you select your normal wallet keys",
+    "createCustomWalletTitle": "Create a custom wallet",
+    "createCustomWalletDesc": "Select the total number of keys",
+    "totalkeysForConfig": "Total Keys For Wallet Configuration",
+    "confirmWalletDetail": "Confirm your wallet details",
+    "yourWalletName": "Your wallet name",
+    "yourWalletKey": "Your wallet key",
+    "addOptionalDesc": "Add a description (Optional)",
+    "descriptionAddedSuccessfully": "Description added successfully!",
+    "changeOrUpdatePurpose": "Change or update purpose",
+    "walletCreatedSuccessfullyDesc": "Your new wallet was created successfully and is ready to use",
+    "recoveryKeyAsBackup": "Make sure to securely store your Recovery Key as back up for your wallet",
+    "createYourWallet": "Create Your Wallet"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1439,7 +1460,14 @@
     "isallowedfrom": "is allowed from",
     "upgradeOrRemove": "Please upgrade your plan or remove them",
     "RequiredSigners": "You need at least 3 signers and 2 required signers to use",
-    "addMoreSigners": "Please add more signers"
+    "addMoreSigners": "Please add more signers",
+    "xPubDefaultSubtitle": "Get your device ready before proceeding",
+    "xPubPassPortSub": "Get Your Foundation Passport ready before proceeding",
+    "xPubSeedSignerSub": "Get Your SeedSigner ready before proceeding",
+    "xPubJadeSub": "Get Your Jade ready and powered up before proceeding",
+    "emergencyKey": "Emergency Key",
+    "extraKeyAddedAfterTime": "An extra key which will be added to your wallet quorum after a certain time",
+    "keyDelayedFullControl": "A key with delayed full control to recover from extended key loss"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -1650,6 +1678,9 @@
     "vaultAlreadyExists": "A vault already exists with similar configuration!",
     "unableToDeleteAssistedServer": "Unable to delete backup from Assisted Server, Please try again later.",
     "processFailed": "Process Failed",
-    "ErrorMappingUnknownSigner": "Error mapping unknown signer to signer"
+    "ErrorMappingUnknownSigner": "Error mapping unknown signer to signer",
+    "scanValidQR": "Please scan a valid QR",
+    "singleKeyWalletMsg": "Single-key wallet cannot use Emergency Key, only Inheritance Key.",
+    "MultiKeyWalletMsg": "Multi-key wallets with a threshold of 1 cannot use Emergency Key, only Inheritance Key."
   }
 }

@@ -58,7 +58,7 @@ export function NumberInput({ value, onDecrease, onIncrease }) {
 function AddNewWallet({ navigation, route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslations, common } = translations;
+  const { vault: vaultTranslations, common, wallet, error } = translations;
   const [selectedWalletType, setSelectedWalletType] = useState('');
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
@@ -101,7 +101,7 @@ function AddNewWallet({ navigation, route }) {
   const CREATE_WALLET_OPTIONS = [
     {
       icon: <NewWalletIcon />,
-      title: 'Single-key',
+      title: wallet.Singlekey,
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 1, n: 1 });
@@ -111,7 +111,7 @@ function AddNewWallet({ navigation, route }) {
     },
     {
       icon: <ImportWalletIcon />,
-      title: '2 of 3 multi-key',
+      title: wallet.multikey2of3,
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 2, n: 3 });
@@ -121,7 +121,7 @@ function AddNewWallet({ navigation, route }) {
     },
     {
       icon: <AdvanceCustomizationIcon />,
-      title: '3 of 5 multi-key',
+      title: wallet.multikey3of5,
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 3, n: 5 });
@@ -158,7 +158,7 @@ function AddNewWallet({ navigation, route }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title="Select your wallet type" />
+      <WalletHeader title={wallet.selectYourWalletType} />
       <Box style={styles.addWalletOptionsList}>
         {CREATE_WALLET_OPTIONS.map((option, index) => (
           <OptionItem
@@ -188,7 +188,7 @@ function AddNewWallet({ navigation, route }) {
               medium
               style={{ textAlign: 'center', flex: 1 }}
             >
-              Select custom setup{' '}
+              {wallet.selectCustomSetup}{' '}
               {selectedWalletType === 'custom' ? `: ${scheme.m} of ${scheme.n}` : ''}
             </Text>
           </Box>
@@ -200,8 +200,8 @@ function AddNewWallet({ navigation, route }) {
           backgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
           hexagonBackgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
           textColor={isDarkMode ? Colors.headerWhite : `${colorMode}.pantoneGreen`}
-          name="Enhanced Security Options"
-          description="Secure your funds and future—your way"
+          name={wallet.enhancedSecurityOption}
+          description={wallet.enhancedSecurityDesc}
           callback={() => setShowEnhancedOptionsModal(true)}
           icon={<SettingIcon />}
           iconWidth={22}
@@ -210,14 +210,12 @@ function AddNewWallet({ navigation, route }) {
           titleSize={15}
         />
         <Buttons
-          primaryText="Proceed"
+          primaryText={common.proceed}
           primaryDisable={!selectedWalletType}
           primaryCallback={() => {
             if (scheme.m === 1 && emergencyKeySelected) {
               showToast(
-                scheme.n === 1
-                  ? 'Single-key wallet cannot use Emergency Key, only Inheritance Key.'
-                  : 'Multi-key wallets with a threshold of 1 cannot use Emergency Key, only Inheritance Key.',
+                scheme.n === 1 ? error.singleKeyWalletMsg : error.MultiKeyWalletMsg,
                 <ToastErrorIcon />
               );
               return;
@@ -243,8 +241,8 @@ function AddNewWallet({ navigation, route }) {
       <KeeperModal
         visible={customConfigModalVisible}
         close={() => setCustomConfigModalVisible(false)}
-        title="Create a custom wallet"
-        subTitle="Select the total number of keys"
+        title={wallet.createCustomWalletTitle}
+        subTitle={wallet.createCustomWalletDesc}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={common.confirm}
@@ -262,7 +260,7 @@ function AddNewWallet({ navigation, route }) {
                 color={`${colorMode}.primaryText`}
                 testID="text_totalKeys"
               >
-                Total Keys For Wallet Configuration
+                {wallet.totalkeysForConfig}
               </Text>
               <Text
                 style={{ fontSize: 12 }}
@@ -353,6 +351,8 @@ const EnhancedSecurityModal = ({
 
   const { plan } = usePlan();
   const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
+  const { translations } = useContext(LocalizationContext);
+  const { common, wallet, signer } = translations;
 
   return (
     <KeeperModal
@@ -362,9 +362,9 @@ const EnhancedSecurityModal = ({
       }}
       textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
-      title="Enhanced Security Options"
-      subTitle="You'll be prompted to configure your enhanced options after you select your normal wallet keys"
-      buttonText="Save Changes"
+      title={wallet.enhancedSecurityOption}
+      subTitle={wallet.enhancedSecurityDesc2}
+      buttonText={common.saveChanges}
       buttonCallback={() => {
         onClose();
         setInheritanceKeySelected(pendingInheritanceKeySelected);
@@ -401,7 +401,7 @@ const EnhancedSecurityModal = ({
                       !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
-                    Inheritance Key
+                    {signer.inheritanceKey}
                   </Text>
                   {pendingInheritanceKeySelected ? (
                     <Box style={styles.checkmark} backgroundColor={`${colorMode}.pantoneGreen`}>
@@ -420,7 +420,7 @@ const EnhancedSecurityModal = ({
                     !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
                   }
                 >
-                  An extra key which will be added to your wallet quorum after a certain time
+                  {signer.extraKeyAddedAfterTime}
                 </Text>
               </Box>
             </Pressable>
@@ -441,7 +441,7 @@ const EnhancedSecurityModal = ({
                       !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
-                    Emergency Key
+                    {signer.emergencyKey}
                   </Text>
                   {pendingEmergencyKeySelected ? (
                     <Box style={styles.checkmark} backgroundColor={`${colorMode}.pantoneGreen`}>
@@ -460,7 +460,7 @@ const EnhancedSecurityModal = ({
                     !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
                   }
                 >
-                  A key with delayed full control to recover from extended key loss
+                  {signer.keyDelayedFullControl}
                 </Text>
               </Box>
             </Pressable>
