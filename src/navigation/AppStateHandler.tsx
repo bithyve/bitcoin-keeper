@@ -31,7 +31,6 @@ const AppStateHandler = () => {
           lastBackgroundTime &&
           Date.now() - lastBackgroundTime > PASSCODE_TIMEOUT
         ) {
-          // 60 seconds
           navigation.reset({
             index: 0,
             routes: [
