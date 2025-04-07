@@ -83,6 +83,7 @@ function ChoosePlan() {
   const { isOnL1 } = usePlan();
   const [enableDesktopManagement, setEnableDesktopManagement] = useState(true);
   const [showChangeInterval, setShowChangeInterval] = useState(false);
+  const [playServiceUnavailable, setPlayServiceUnavailable] = useState(false);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -194,8 +195,15 @@ function ChoosePlan() {
         showToast(error.message);
         setIsServiceUnavailible(true);
       } else {
-        navigation.goBack();
-        showToast(error.message);
+        if (error.message.includes('Google Play Services are not available on this device')) {
+          setItems(data);
+          setLoading(false);
+          showToast(error.message);
+          setPlayServiceUnavailable(true);
+        } else {
+          showToast(error.message);
+          navigation.goBack();
+        }
       }
     }
   }
@@ -371,7 +379,12 @@ function ChoosePlan() {
   const restorePurchases = async () => {
     try {
       setRequesting(true);
-      const purchases = await getAvailablePurchases();
+      let purchases = [];
+      try {
+        purchases = await getAvailablePurchases();
+      } catch (error) {
+        console.log('🚀 ~ restorePurchases ~ error:', error);
+      }
       if (purchases.length === 0) {
         const btcPurchase = await Relay.restoreBtcPurchase(id);
         if (btcPurchase) {
@@ -446,7 +459,7 @@ function ChoosePlan() {
       (isPleb && subscription.productId.toLowerCase() === 'pleb');
 
     return {
-      text: isSubscribed ? 'Current Plan' : 'Get Started',
+      text: isSubscribed ? 'Current Plan' : playServiceUnavailable ? '' : 'Get Started',
       disabled: isSubscribed,
     };
   };
@@ -529,6 +542,7 @@ function ChoosePlan() {
       ) : (
         <Box flex={1}>
           <SubscriptionList
+            playServiceUnavailable={playServiceUnavailable}
             plans={items}
             currentPosition={currentPosition}
             onChange={(item) => setCurrentPosition(item)}
