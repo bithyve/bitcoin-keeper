@@ -1,17 +1,22 @@
 import { useEffect, useState } from 'react';
 import { AppState, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { setHasDeepLink } from 'src/store/reducers/login';
+
+const PASSCODE_TIMEOUT = 5 * 60 * 1000;
 
 const AppStateHandler = () => {
   const navigation = useNavigation();
   const [appState, setAppState] = useState(AppState.currentState);
   const [lastBackgroundTime, setLastBackgroundTime] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    let avoidLogin = false;
-    const deepLinkHandler = Linking.addEventListener('url', (event) => {
-      if (event.url) avoidLogin = true;
+    Linking.addEventListener('url', (event) => {
+      if (event.url) dispatch(setHasDeepLink(event.url));
     });
+    // cleanup is performed in initialAppController for all url events at once.
 
     const handleAppStateChange = (nextAppState) => {
       if (appState === 'active' && nextAppState.match(/inactive|background/)) {
@@ -22,10 +27,9 @@ const AppStateHandler = () => {
         const notLoginStack = state?.routes[state.index]?.name !== 'LoginStack';
 
         if (
-          !avoidLogin &&
           notLoginStack &&
           lastBackgroundTime &&
-          Date.now() - lastBackgroundTime > 1 * 1000
+          Date.now() - lastBackgroundTime > PASSCODE_TIMEOUT
         ) {
           // 60 seconds
           navigation.reset({
@@ -42,13 +46,11 @@ const AppStateHandler = () => {
         }
       }
       setAppState(nextAppState);
-      avoidLogin = false;
     };
 
     const subscription = AppState.addEventListener('change', handleAppStateChange);
     return () => {
       subscription.remove();
-      deepLinkHandler.remove();
     };
   }, [appState, lastBackgroundTime, navigation]);
 
