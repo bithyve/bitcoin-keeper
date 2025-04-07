@@ -1190,7 +1190,9 @@
     "viewSubscription": "View Subsciption",
     "noAvailablePurchaseMessage": "No purchases found",
     "currentSubscriptionMessage": "Already subscribed to",
-    "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon"
+    "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon",
+    "changeIntervalTitle": "Change Subscription Interval?",
+    "changeIntervalSubTitle": "Your yearly subscription includes the benefit of 2 free months of Bitcoin Keeper. Please note that switching to a monthly subscription would remove this benefit."
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup",
