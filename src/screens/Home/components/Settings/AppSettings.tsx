@@ -45,12 +45,12 @@ const SettingsApp = () => {
 
   const NETWORK_OPTIONS = [
     {
-      label: NetworkType.MAINNET,
+      label: NetworkType.MAINNET.charAt(0) + NetworkType.MAINNET.slice(1).toLowerCase(),
       onPress: () => setSelectedNetwork(NetworkType.MAINNET),
       id: NetworkType.MAINNET,
     },
     {
-      label: NetworkType.TESTNET,
+      label: NetworkType.TESTNET.charAt(0) + NetworkType.TESTNET.slice(1).toLowerCase(),
       onPress: () => setSelectedNetwork(NetworkType.TESTNET),
       id: NetworkType.TESTNET,
     },

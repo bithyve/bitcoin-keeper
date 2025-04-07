@@ -7,11 +7,6 @@ export enum APP_STAGE {
   PRODUCTION = 'PRODUCTION',
 }
 
-export enum BITCOIN_NETWORK {
-  TESTNET = 'TESTNET',
-  MAINNET = 'MAINNET',
-}
-
 export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/hc/en-us/';
 export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app';
 
@@ -20,7 +15,6 @@ export const PENDING_HEALTH_CHECK_TIME_PROD = 90 * 24 * 60 * 60 * 1000;
 
 // defaults to development environment
 const DEFAULT_CONFIG = {
-  BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
   RELAY: 'https://bithyve-dev-relay.el.r.appspot.com/',
   SIGNING_SERVER_TESTNET: 'https://dev-sign.bithyve.com/',
   SIGNING_SERVER_MAINNET: 'https://dev-sign.bithyve.com/',
