@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import idx from 'idx';
 import { getAccountFromSigner } from 'src/utils/utilities';

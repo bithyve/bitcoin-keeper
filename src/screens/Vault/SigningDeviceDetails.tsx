@@ -103,8 +103,6 @@ export const SignersReqVault = [
   SignerType.KEYSTONE,
 ];
 
-export const CHANGE_INDEX_THRESHOLD = 100;
-
 function EmptyActivityView({ colorMode, isDarkMode }) {
   return (
     <Box style={styles.emptyWrapper}>
@@ -555,12 +553,6 @@ function SigningDeviceDetails({ route }) {
         serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
       }
       if (activeVault && changeAddressIndex) {
-        if (
-          parseInt(changeAddressIndex) >
-          activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
-        ) {
-          throw new Error('Change index is too high.');
-        }
         receiverAddresses = findChangeFromReceiverAddresses(
           activeVault,
           receiverAddresses,
