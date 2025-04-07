@@ -40,7 +40,6 @@ import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
-import KeeperTextInput from 'src/components/KeeperTextInput';
 import TierUpgradeModal, { UPGRADE_TYPE } from './TierUpgradeModal';
 import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
@@ -64,7 +63,7 @@ function ChoosePlan() {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { choosePlan, common, signer } = translations;
+  const { choosePlan, common } = translations;
   const [currentPosition, setCurrentPosition] = useState(initialPosition);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
@@ -81,7 +80,6 @@ function ChoosePlan() {
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
-  const [showPromocodeModal, setShowPromocodeModal] = useState(false);
   const { isOnL1 } = usePlan();
   const [enableDesktopManagement, setEnableDesktopManagement] = useState(true);
   const [showChangeInterval, setShowChangeInterval] = useState(false);
@@ -434,96 +432,6 @@ function ChoosePlan() {
     );
   }
 
-  function PromocodeModalContent() {
-    const [code, setcode] = useState('');
-    const [isInvalidCode, setIsInvalidCode] = useState(false);
-    const [activeOffer, setActiveOffer] = useState(null);
-
-    const validateOnFocusLost = async () => {
-      setActiveOffer(null);
-      const plan = isMonthly
-        ? items[currentPosition].monthlyPlanDetails
-        : items[currentPosition].yearlyPlanDetails;
-
-      if (Platform.OS === 'android') {
-        const promoCode = code.trim().toLowerCase();
-        if (items[currentPosition].promoCodes || items[currentPosition].promoCodes[promoCode]) {
-          const offerId = items[currentPosition].promoCodes[promoCode];
-          const offer = plan.offers.find((offer) => {
-            return offer.offerId === offerId;
-          });
-          if (offer) {
-            let purchaseTokenAndroid = null;
-            if (appSubscription.receipt) {
-              purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
-            }
-            setActiveOffer({
-              ...offer,
-              purchaseTokenAndroid,
-            });
-          } else {
-            setIsInvalidCode(true);
-          }
-        } else {
-          setIsInvalidCode(true);
-        }
-      } else {
-        // For iOS
-        const offer = await Relay.getOffer(plan.productId, code.trim().toLowerCase());
-        if (offer && offer.signature) setActiveOffer(offer);
-      }
-    };
-
-    const onSubscribe = () => {
-      const plan = isMonthly
-        ? items[currentPosition].monthlyPlanDetails
-        : items[currentPosition].yearlyPlanDetails;
-      if (Platform.OS === 'android') {
-        setShowPromocodeModal(false);
-        requestSubscription({
-          sku: plan.productId,
-          subscriptionOffers: [{ sku: plan.productId, offerToken: activeOffer.offerToken }],
-          purchaseTokenAndroid: activeOffer.purchaseTokenAndroid,
-        });
-      } else {
-        setShowPromocodeModal(false);
-        init();
-      }
-    };
-
-    return (
-      <Box>
-        <Text>Enter Code</Text>
-        <KeeperTextInput
-          onBlur={validateOnFocusLost}
-          autoCapitalize="characters"
-          keyboardType={Platform.OS == 'android' ? 'visible-password' : "'ascii-capable'"} // To fix duplicate issue with toUpperCase()
-          placeholder="Promo Code"
-          value={code}
-          isError={isInvalidCode}
-          onChangeText={(value) => {
-            const filteredInput = value.trim().toUpperCase();
-            setcode(filteredInput);
-            setIsInvalidCode(false);
-            setActiveOffer(null);
-          }}
-          onFocus={() => setIsInvalidCode(false)}
-          testID="input_setcode"
-        />
-        <Box alignItems={'flex-end'} mt={hp(20)}>
-          <Buttons
-            primaryText="Subscribe Now"
-            primaryDisable={!activeOffer}
-            primaryCallback={onSubscribe}
-            paddingHorizontal={wp(20)}
-            secondaryText="Cancel"
-            secondaryCallback={() => setShowPromocodeModal(false)}
-          />
-        </Box>
-      </Box>
-    );
-  }
-
   const getButtonState = () => {
     if (!items || loading) return { text: '', disabled: true };
 
@@ -598,20 +506,6 @@ function ChoosePlan() {
         subTitleWidth={wp(210)}
       />
       <KeeperModal
-        visible={showPromocodeModal}
-        close={() => setShowPromocodeModal(false)}
-        title="Subscribe with Promo code"
-        subTitle={`Please enter the code to redeem discount`}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.textGreen`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        showCloseIcon={false}
-        buttonText={null}
-        buttonCallback={() => {}}
-        Content={PromocodeModalContent}
-        subTitleWidth={wp(250)}
-      />
-      <KeeperModal
         visible={showChangeInterval}
         close={() => setShowChangeInterval(false)}
         title={choosePlan.changeIntervalTitle}
@@ -672,52 +566,14 @@ function ChoosePlan() {
 }
 
 const styles = StyleSheet.create({
-  noteWrapper: {
-    flexDirection: 'column',
-    bottom: 0,
-    margin: 1,
-    width,
-    position: 'absolute',
-  },
-  restorePurchaseWrapper: {
-    marginTop: 5,
-    marginBottom: 15,
-  },
-  comingSoonText: {
-    fontSize: 10,
-    letterSpacing: 0.1,
-    marginLeft: 10,
-  },
-  benefitContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 5 / 2,
-    alignSelf: 'center',
-  },
   restorePurchase: {
     fontSize: 13,
     letterSpacing: 0.24,
     textDecorationLine: 'underline',
   },
-  ctaText: {
-    fontSize: 13,
-    letterSpacing: 1,
-  },
   infoText: {
     fontSize: 13,
     marginTop: hp(20),
-  },
-  ctaWrapper: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: hp(20),
-    width: '100%',
-    paddingHorizontal: wp(15),
   },
 });
 export default ChoosePlan;
