@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import idx from 'idx';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
 import { VaultType, XpubTypes } from 'src/services/wallets/enums';
@@ -13,6 +13,7 @@ import { addNewVault } from 'src/store/sagaActions/vaults';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import config from 'src/utils/service-utilities/config';
 import useToastMessage from './useToastMessage';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Params = {
   setLoader?: Function;
@@ -49,6 +50,8 @@ const useCanaryWalletSetup = ({ setLoader }: Params) => {
   const navigation: any = useNavigation();
   const { showToast } = useToastMessage();
   const [canaryVaultId, setCanaryVaultId] = useState('');
+  const { translations } = useContext(LocalizationContext);
+  const { wallet, error, common, home } = translations;
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -56,13 +59,13 @@ const useCanaryWalletSetup = ({ setLoader }: Params) => {
   useEffect(() => {
     if (canaryVaultId) {
       if (relayVaultUpdate) {
-        showToast('Canary wallet created successfully!');
+        showToast(wallet.canaryWalletSuccess);
         if (setLoader) setLoader(false);
         dispatch(resetRealyVaultState());
         navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
       }
       if (relayVaultError) {
-        showToast(`Canary Vault creation failed ${realyVaultErrorMessage}`);
+        showToast(`${error.canaryWalletFailed} ${realyVaultErrorMessage}`);
         dispatch(resetRealyVaultState());
         if (setLoader) setLoader(false);
       }
@@ -81,8 +84,8 @@ const useCanaryWalletSetup = ({ setLoader }: Params) => {
           vaultScheme: CANARY_SCHEME,
           vaultSigners: [ssVaultKey],
           vaultDetails: {
-            name: `Canary Wallet`,
-            description: `Canary Wallet for ${signer.signerName}`,
+            name: common.CANARY + ' ' + home.wallet,
+            description: `${wallet.canaryWalletFor} ${signer.signerName}`,
           },
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));

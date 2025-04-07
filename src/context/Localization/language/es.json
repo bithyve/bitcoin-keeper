@@ -669,7 +669,14 @@
     "more": "More",
     "learnMoreTitle": "Wallet Management",
     "learnMoreSubTitle": "Pull down the transactions list within the wallet for latest transaction statuses and wallet balances.",
-    "learnMoreDesc": "Hide the wallet for privacy or to declutter your home screen. Trigger sats transfers for easy cold storage and jot down the seedwords to backup the wallet."
+    "learnMoreDesc": "Hide the wallet for privacy or to declutter your home screen. Trigger sats transfers for easy cold storage and jot down the seedwords to backup the wallet.",
+    "canaryWalletSuccess": "Canary Wallet Created Successfully!",
+    "canaryWalletFor": "Canary Wallet for",
+    "importSuccessful": "Wallet imported successfully!",
+    "secureSats": "Secure your sats",
+    "recievedSats": "Testnet Sats Received",
+    "recievedSatsTitle": "Receive Test Sats",
+    "recieveSatsDesc": "Receive test sats in your"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1428,7 +1435,14 @@
     "halfSuccessfulText": "of the key was successfully added.",
     "AccessKeyDetails": "Access key details from Manage Keys and sign transactions from within wallets.",
     "PSBTSigned": "Signed PSBT",
-    "PSBTSignedDesc": "Please scan until all the QR data has been retrieved"
+    "PSBTSignedDesc": "Please scan until all the QR data has been retrieved",
+    "plebSubDescription": "Start your bitcoin journey with our free subscription",
+    "hodlerSubDescription": "Unlock features to easily manage bigger bitcoin stacks",
+    "diamondHandSubDescription": "Unlock to protect significant amount of bitcoin and inheritance planning",
+    "isallowedfrom": "is allowed from",
+    "upgradeOrRemove": "Please upgrade your plan or remove them",
+    "RequiredSigners": "You need at least 3 signers and 2 required signers to use",
+    "addMoreSigners": "Please add more signers"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -1633,6 +1647,12 @@
     "cameraNotAvailable": "Camera not available on device",
     "PermissionNotSatisfied": "Permission not satisfied",
     "invalidOrNoRelatedQR": "Invalid or No related QR code",
-    "cannotGetSignerPrivateKey": "Cannot get private key of signer"
+    "cannotGetSignerPrivateKey": "Cannot get private key of signer",
+    "canaryWalletFailed": "Canary Vault creation failed",
+    "importedWalletFailed": "Wallet import failed!",
+    "vaultAlreadyExists": "A vault already exists with similar configuration!",
+    "unableToDeleteAssistedServer": "Unable to delete backup from Assisted Server, Please try again later.",
+    "processFailed": "Process Failed",
+    "ErrorMappingUnknownSigner": "Error mapping unknown signer to signer"
   }
 }

@@ -19,20 +19,20 @@ const useTestSats = ({ wallet }) => {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, wallet: walletText, error } = translations;
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
 
   useEffect(() => {
     setAppLoading(false);
     if (testCoinsReceived) {
-      showToast('Testnet Sats Received', <TickIcon />);
+      showToast(walletText.recievedSats, <TickIcon />);
       setTimeout(() => {
         dispatch(setTestCoinsReceived(false));
         navigation.goBack();
       }, 3000);
     } else if (testCoinsFailed) {
-      showToast('Process Failed');
+      showToast(error.processFailed);
       dispatch(setTestCoinsFailed(false));
     }
   }, [testCoinsReceived, testCoinsFailed]);
@@ -61,8 +61,8 @@ const useTestSats = ({ wallet }) => {
       borderColor={`${colorMode}.separator`}
       items={[
         {
-          title: 'Receive Test Sats',
-          description: `Receive test sats in your ${
+          title: walletText.recievedSatsTitle,
+          description: `${walletText.recieveSatsDesc} ${
             wallet.entityKind === EntityKind.VAULT ? 'vault' : 'wallet'
           }`,
           icon: null,
