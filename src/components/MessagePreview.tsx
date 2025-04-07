@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import KeeperIcon from 'src/assets/images/keeper-icon.svg';
 import KeeperNameIcon from 'src/assets/images/keeper-name-icon.svg';
 import KeeperNameIconDark from 'src/assets/images/keeper-name-icon-dark.svg';
 import { hp, wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type MessagePreviewProps = {
   title: string;
@@ -15,9 +16,11 @@ type MessagePreviewProps = {
 
 function MessagePreview({ title, description, link }: MessagePreviewProps) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   return (
     <Box style={styles.messagePreviewContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-      <Text style={styles.previewLabel}>Message Preview</Text>
+      <Text style={styles.previewLabel}>{common.messagePreview}</Text>
       <Box style={styles.previewBox} borderColor={`${colorMode}.greyBorder`}>
         <Text style={styles.messagePreviewTitle}>{title}</Text>
         <Text style={styles.messagePreviewDescription}>{description}</Text>

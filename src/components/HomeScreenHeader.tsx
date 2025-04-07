@@ -43,7 +43,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const navigtaion = useNavigation();
   const backupHistory = useQuery(RealmSchema.BackupHistory);
   const { translations } = useContext(LocalizationContext);
-  const { wallet, common } = translations;
+  const { wallet, common, error } = translations;
   useFocusEffect(
     useCallback(() => {
       dispatch(setRefreshUai());
@@ -118,7 +118,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
           })
         );
       } else {
-        showToast('Pending transaction not found');
+        showToast(error.PendingTransactionNotFound);
       }
     },
     [uaiType.POLICY_DELAY]: () => {

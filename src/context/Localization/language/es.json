@@ -171,7 +171,13 @@
     "the": "The",
     "contact": "Contact",
     "URL": "URL",
-    "portNumber": "Port Number"
+    "portNumber": "Port Number",
+    "Authenticate": "Authenticate",
+    "usePin": "Use PIN",
+    "StartApp": "Start App",
+    "Account": "Account",
+    "messagePreview": "Message Preview",
+    "TESTNET": "TESTNET"
   },
   "noInternet": {
     "no": "No Internet",
@@ -881,7 +887,17 @@
     "yourPhoneBook": "Your Phonebook",
     "associateContactWalletSub": "Are you sure you want to associate this contact to your wallet?",
     "associateContactKeySub": "The contact you associated with the Key will be displayed here",
-    "exportPDF": "Export PDF"
+    "exportPDF": "Export PDF",
+    "useEnhancedKeys": "Use with Enhanced Keys",
+    "useEnhancedKeysDesc": "Spend using the Inheritance Key and the regular keys",
+    "useInheritanceKey": "Spend using the Inheritance Key",
+    "useOnlyRegularKeys": "Use only regular keys",
+    "useRegularKey": "Use the regular key",
+    "useTheInheritanceKey": "Use the Inheritance Key",
+    "useWithInheritanceKey": "Use with Inheritance Key",
+    "spendUsingRegularKey": "Spend using the regular key",
+    "spendOnlyRegularKey": "Spend using only the regular vault keys",
+    "Holduntilscanningiscomplete": "Please hold until the scanning is complete..."
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -1131,6 +1147,7 @@
     "currencyErrorSubTitle": "This currency currently does not exist.",
     "EnterPasscodeTitle": "Enter Passcode",
     "EnterPasscodeSubtitle": "Confirm passcode to show all hidden keys",
+    "EnterPasscodeMobile": "Confirm passcode to sign with mobile key",
     "SingerSettingsTitle": "Advanced Options",
     "SingerSettingsSubtitle": "For all keys",
     "ManageWalletsEmptyTitle": "Hide Unhide Wallets",
@@ -1166,7 +1183,10 @@
     "assistedServerBackupSubtitle": "Securely back up encrypted data on Keeper server",
     "assistedServerDeleteBackupSubtitle": "Do you also want to delete the existing assisted server backup?",
     "assistedServerDeleteBackupModalCTA": "Delete",
-    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable"
+    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable",
+    "cameraAccessoff": "Camera access is turned off",
+    "turnCameraOn": "Turn on the camera in your device settings",
+    "tapToGoSetting": "Tap to go to settings"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -1404,7 +1424,11 @@
     "inheritanceKey": "Inheritance Key",
     "designateAsInheritanceKey": "Designate a key as the Inheritance Key",
     "keyAddedTitle": "Key added successfully.",
-    "keyAddedSubTitle": "Key has been added successfully. You can continue adding other keys or click Finish to add the device."
+    "keyAddedSubTitle": "Key has been added successfully. You can continue adding other keys or click Finish to add the device.",
+    "halfSuccessfulText": "of the key was successfully added.",
+    "AccessKeyDetails": "Access key details from Manage Keys and sign transactions from within wallets.",
+    "PSBTSigned": "Signed PSBT",
+    "PSBTSignedDesc": "Please scan until all the QR data has been retrieved"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -1596,5 +1620,19 @@
     "onboardingCallTitle": "Get Started with\nKeeper Onboarding Call",
     "onboardingCallSubTitle": "  We’re excited to help you get started. During this call, we’ll walk you through setting up your wallet and securing your account. Feel free to ask any questions along the way.",
     "onboardingCallCTA": "Schedule your call"
+  },
+  "error": {
+    "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
+    "failedToFetchCurrentChain": "Failed to fetch current chain data, please check your connection and try again",
+    "noSpendingPathTimeLockActive": "No spending paths available; timelock is active",
+    "biometricAuth": "🚀 ~ biometricAuth ~ error:",
+    "seedWordAreCaseSensitive": "Seedwords are case sensitive.",
+    "pleaseEnterCorrectSeedWord": "Please enter correct seed word",
+    "PendingTransactionNotFound": "Pending transaction not found",
+    "invalidQRscanned": "Invalid QR Scanned",
+    "cameraNotAvailable": "Camera not available on device",
+    "PermissionNotSatisfied": "Permission not satisfied",
+    "invalidOrNoRelatedQR": "Invalid or No related QR code",
+    "cannotGetSignerPrivateKey": "Cannot get private key of signer"
   }
 }

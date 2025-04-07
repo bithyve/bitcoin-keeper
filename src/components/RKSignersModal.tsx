@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle, useContext } from 'react';
 import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from '../screens/SignTransaction/SignerModals';
 import { ScriptTypes, SignerType, XpubTypes } from 'src/services/wallets/enums';
@@ -29,6 +29,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
@@ -39,6 +40,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const isMultisig = true;
 
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorText, signer: signerText, settings } = translations;
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [passportModal, setPassportModal] = useState(false);
@@ -133,8 +136,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         params: {
           data: signedSerializedPSBT,
           encodeToBytes: false,
-          title: 'Signed PSBT',
-          subtitle: 'Please scan until all the QR data has been retrieved',
+          title: signerText.PSBTSigned,
+          subtitle: signerText.PSBTSignedDesc,
           type: SignerType.KEEPER,
         },
       })
@@ -173,7 +176,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
             signer.extraData.instanceNumber - 1
           );
           if (key.xpub != xpubDetails[XpubTypes.P2WSH].xpub) {
-            throw new Error('Cannot get private key of signer');
+            throw new Error(errorText.cannotGetSignerPrivateKey);
           }
           key.xpriv = xpubDetails[XpubTypes.P2WSH].xpriv;
         }
@@ -297,8 +300,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Enter Passcode"
-        subTitle={'Confirm passcode to sign with mobile key'}
+        title={settings.EnterPasscodeTitle}
+        subTitle={settings.EnterPasscodeMobile}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
