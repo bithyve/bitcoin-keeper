@@ -486,6 +486,7 @@ function SigningDeviceDetails({ route }) {
           disableMockFlow: true,
           isPSBT: true,
           importOptions: false,
+          isSingning: true,
         },
       })
     );
