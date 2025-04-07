@@ -1105,8 +1105,7 @@
     "deactivateInAppTor": "Deactivate In-app Tor",
     "inAppTorSubTitle": "Use direct Tor. No need to download a separate app. May be slow and unreliable",
     "inAppTorSubTitle2": "In app Tor is currently running, click here to deactivate",
-    "checkStatus": "CHECK STATUS",
-    "CurrentStatus": "CURRENT STATUS",
+    "CurrentStatus": "Current Status",
     "torSettingsNoteSubTitle": "Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings",
     "orbotConnection": "Orbot Connection",
     "orbotConnectionSubTitle": "To connect to Tor via Orbot, you need to have the Orbot app installed on your device.",
@@ -1163,7 +1162,8 @@
     "assistedServerBackupSubtitle": "Securely back up encrypted data on Keeper server",
     "assistedServerDeleteBackupSubtitle": "Do you also want to delete the existing assisted server backup?",
     "assistedServerDeleteBackupModalCTA": "Delete",
-    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable"
+    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable",
+    "torConnectionString": " is connected"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
