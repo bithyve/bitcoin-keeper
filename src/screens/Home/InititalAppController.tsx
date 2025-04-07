@@ -7,7 +7,11 @@ import {
   XpubTypes,
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
+import {
+  resetElectrumNotConnectedErr,
+  setHasDeepLink,
+  setIsInitialLogin,
+} from 'src/store/reducers/login';
 import {
   findChangeFromReceiverAddresses,
   findVaultFromSenderAddress,
@@ -49,7 +53,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   );
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-  const { isInitialLogin } = useAppSelector((state) => state.login);
+  const { isInitialLogin, hasDeepLink } = useAppSelector((state) => state.login);
   const appData = useQuery(RealmSchema.KeeperApp);
   const { allVaults } = useVault({ includeArchived: false });
 
@@ -257,6 +261,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       toggleSentryReports();
     }
     dispatch(setIsInitialLogin(false));
+    if (hasDeepLink) {
+      handleDeepLinkEvent({ url: hasDeepLink });
+      dispatch(setHasDeepLink(null));
+    }
   }, []);
 
   async function handleDeepLinking() {
