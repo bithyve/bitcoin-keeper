@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
 import Skip from 'src/assets/images/skip.svg';
 import { hp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const { width } = Dimensions.get('window');
 function OnboardingSlideComponent(props) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
@@ -36,7 +39,7 @@ function OnboardingSlideComponent(props) {
             testID={'btn_startApp'}
           >
             <Text fontSize={14} color={`${colorMode}.primaryBackground`} textAlign="center" bold>
-              Start App&nbsp;&nbsp;
+              {common.StartApp}&nbsp;&nbsp;
             </Text>
             <Skip />
           </TouchableOpacity>

@@ -10,7 +10,7 @@ import KeeperTextInput from '../KeeperTextInput';
 
 function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);
-  const { BackupWallet } = translations;
+  const { BackupWallet, error } = translations;
   const { common } = translations;
   const { colorMode } = useColorMode();
 
@@ -84,8 +84,8 @@ function ConfirmSeedWord(props) {
 
   const getErrorMsg = () => {
     return /[A-Z]/.test(seedWord)
-      ? 'Seedwords are case sensitive.'
-      : 'Please enter correct seed word.';
+      ? error.seedWordAreCaseSensitive
+      : error.pleaseEnterCorrectSeedWord;
   };
 
   return (
