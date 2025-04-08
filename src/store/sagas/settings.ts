@@ -14,13 +14,12 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store';
 import ElectrumClient from 'src/services/electrum/client';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { addSigningDevice } from '../sagaActions/vaults';
 import { addNewWalletsWorker, NewWalletInfo } from './wallets';
-import { setSecondaryNetworkWalletCreated } from '../reducers/storage';
+import { setDefaultWalletCreated } from '../reducers/storage';
 
 function* changeBitcoinNetworkWorker({ payload }) {
   let activeNode;
@@ -63,12 +62,8 @@ function* changeBitcoinNetworkWorker({ payload }) {
     yield call(ElectrumClient.connect);
 
     // Create default wallet and signer if not created already
-    const { secondaryNetworkWalletCreated } = yield select((state: RootState) => state.storage);
-    const needToCreateWallet =
-      config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
-        ? bitcoinNetworkType === NetworkType.MAINNET
-        : bitcoinNetworkType === NetworkType.TESTNET;
-    if (!secondaryNetworkWalletCreated && needToCreateWallet) {
+    const { defaultWalletCreated } = yield select((state: RootState) => state.storage);
+    if (!defaultWalletCreated[bitcoinNetworkType]) {
       const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
       const myAppKeys = signers.filter(
         (signer) =>
@@ -101,7 +96,7 @@ function* changeBitcoinNetworkWorker({ payload }) {
         },
       };
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
-      yield put(setSecondaryNetworkWalletCreated(true));
+      yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
     }
     if (callback) callback(true);
   } catch (error) {

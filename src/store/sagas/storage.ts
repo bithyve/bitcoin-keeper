@@ -24,7 +24,12 @@ import {
   SETUP_KEEPER_APP,
 } from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
-import { deleteDelayedPolicyUpdate, setAppId, updateDelayedTransaction } from '../reducers/storage';
+import {
+  deleteDelayedPolicyUpdate,
+  setAppId,
+  setDefaultWalletCreated,
+  updateDelayedTransaction,
+} from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
@@ -102,6 +107,7 @@ export function* setupKeeperAppWorker({ payload }) {
       const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
       yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
+      yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
       yield put(setAppId(appID));
       yield put(resetRealyWalletState());
     } else {
