@@ -12,16 +12,19 @@ type useWalletsInterface = ({ getAll, walletIds }?: { getAll?: boolean; walletId
 const useWallets: useWalletsInterface = ({ walletIds = [], getAll = false } = {}) => {
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const allWallets: Wallet[] = useQuery(RealmSchema.Wallet);
-  if (getAll) {
-    if (bitcoinNetworkType)
-      return {
-        wallets: allWallets
-          .map(getJSONFromRealmObject)
-          .filter((wallet) => wallet.networkType === bitcoinNetworkType),
-      };
 
-    return { wallets: allWallets.map(getJSONFromRealmObject) };
+  const filterByNetwork = (wallets) => {
+    if (bitcoinNetworkType)
+      return wallets
+        .map(getJSONFromRealmObject)
+        .filter((wallet) => wallet.networkType === bitcoinNetworkType);
+    else return wallets;
+  };
+
+  if (getAll) {
+    return { wallets: filterByNetwork(allWallets) };
   }
+
   const allWalletsNonHidden = allWallets.filter(
     (wallet) => wallet.presentationData.visibility == VisibilityType.DEFAULT
   );
@@ -33,10 +36,10 @@ const useWallets: useWalletsInterface = ({ walletIds = [], getAll = false } = {}
       const wallet: Wallet = useObject(RealmSchema.Wallet, id);
       if (wallet) extractedWallets.push(wallet);
     }
-    return { wallets: extractedWallets.map(getJSONFromRealmObject) };
+    return { wallets: filterByNetwork(extractedWallets) };
   }
 
-  return { wallets: allWalletsNonHidden.map(getJSONFromRealmObject) };
+  return { wallets: filterByNetwork(allWalletsNonHidden) };
 };
 
 export default useWallets;
