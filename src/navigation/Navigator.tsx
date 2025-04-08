@@ -135,6 +135,7 @@ import ServerKeySuccessScreen from 'src/screens/Vault/ServerKeySuccessScreen';
 import SigningRequest from 'src/screens/Vault/SigningRequest';
 import PurchaseWithChannel from 'src/screens/QRScreens/PurchaseWithChannel';
 import { AddMultipleXpub } from 'src/screens/AddSigner/AddMultipleXpub';
+import AppStateHandler from './AppStateHandler';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -330,6 +331,7 @@ function Navigator() {
 
   return (
     <NavigationContainer theme={defaultTheme} ref={navigation} onReady={onReady}>
+      <AppStateHandler />
       <ZendeskOnboardingModal visible={onboardingModal} />
 
       <Stack.Navigator screenOptions={{ headerShown: false }}>

@@ -274,6 +274,7 @@ function SetupCollaborativeWallet() {
               type: SignerType.KEEPER,
               showNote: true,
               onQrScan,
+              isSingning: true,
             },
           })
         );
