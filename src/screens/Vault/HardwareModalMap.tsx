@@ -44,7 +44,6 @@ import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import ExternalKeySetupImage from 'src/assets/images/illustration-external-key.svg';
 import KeeperSetupImage from 'src/assets/images/mobile-key-illustration.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
-import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
@@ -53,7 +52,7 @@ import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
+import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import {
   extractKeyFromDescriptor,
   generateSignerFromMetaData,
@@ -66,7 +65,7 @@ import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { hash512 } from 'src/utils/service-utilities/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import useToastMessage from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import ReactNativeBiometrics from 'react-native-biometrics';
@@ -114,6 +113,7 @@ import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
+import * as bitcoin from 'bitcoinjs-lib';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -952,7 +952,7 @@ function HardwareModalMap({
   const [inProgress, setInProgress] = useState(false);
 
   const { mapUnknownSigner } = useUnkownSigners();
-  const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  const { loginMethod, bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { signers } = useSigners();
   const myAppKeys = signers.filter(
     (signer) => signer.type === SignerType.MY_KEEPER && !signer.archived
@@ -1141,7 +1141,7 @@ function HardwareModalMap({
         setInProgress(true);
         const signerXfp = WalletUtilities.getFingerprintFromExtendedKey(
           signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+          WalletUtilities.getNetworkByType(bitcoinNetworkType)
         );
         const { isSignerAvailable } = await SigningServer.checkSignerHealth(signerXfp, Number(otp));
         if (isSignerAvailable) {
@@ -1325,6 +1325,11 @@ function HardwareModalMap({
   };
 
   const onQRScan = async (qrData) => {
+    try {
+      bitcoin.Psbt.fromBase64(qrData);
+      // Prevent receiving PSBT during the sign tnx flow, as multiple handlers process PSBT and signer details via NFC on the same screen.
+      return;
+    } catch (error) {}
     let hw: { signer: Signer; key: VaultSigner };
     try {
       switch (type) {
@@ -1416,6 +1421,11 @@ function HardwareModalMap({
   };
 
   const onQRScanHealthCheck = async (qrData, signer) => {
+    try {
+      bitcoin.Psbt.fromBase64(qrData);
+      // Prevent receiving PSBT during the sign tnx flow, as multiple handlers process PSBT and signer details via NFC on the same screen.
+      return;
+    } catch (error) {}
     let healthcheckStatus: boolean;
     try {
       switch (type) {

@@ -14,6 +14,7 @@ import config from './config';
 import { generateMiniscriptScheme } from 'src/services/wallets/factories/VaultFactory';
 import { isOdd } from '../utilities';
 import { generateEnhancedVaultElements } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import { store } from 'src/store/store';
 
 const crypto = require('crypto');
 
@@ -531,6 +532,7 @@ function parseEnhancedVaultMiniscript(miniscript: string): {
 } {
   // Remove wsh() wrapper and checksum
   const innerScript = miniscript.replace('wsh(', '').replace(/\)#.*$/, '');
+  const { bitcoinNetworkType } = store.getState().settings;
 
   // Extract all key expressions with derivation path and path restrictions
   const keyRegex = /\[([A-F0-9]{8})(\/[0-9h'/]+)\]([a-zA-Z0-9]+)\/<(\d+);(\d+)>\//g;
@@ -544,7 +546,7 @@ function parseEnhancedVaultMiniscript(miniscript: string): {
     pathRestriction: `<${match[4]};${match[5]}>`,
     xfp: WalletUtilities.getFingerprintFromExtendedKey(
       match[3],
-      WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+      WalletUtilities.getNetworkByType(bitcoinNetworkType)
     ),
   }));
 

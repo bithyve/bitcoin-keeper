@@ -998,7 +998,7 @@
     "Questionsfeedbackandmore": "Questions, feedback and more",
     "biometricsDesc": "Select app settings",
     "appSetting": "App Setting",
-    "appSettingDesc": "Configure your App settings",
+    "appSettingDesc": "Configure your app settings",
     "SatsMode": "Sats Mode",
     "SatsModeSubTitle": "Use Sats mode to see balance in sats",
     "Viewbalancessats": "View your balances in sats",
@@ -1103,8 +1103,7 @@
     "deactivateInAppTor": "Deactivate In-app Tor",
     "inAppTorSubTitle": "Use direct Tor. No need to download a separate app. May be slow and unreliable",
     "inAppTorSubTitle2": "In app Tor is currently running, click here to deactivate",
-    "checkStatus": "CHECK STATUS",
-    "CurrentStatus": "CURRENT STATUS",
+    "CurrentStatus": "Current Status",
     "torSettingsNoteSubTitle": "Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings",
     "orbotConnection": "Orbot Connection",
     "orbotConnectionSubTitle": "To connect to Tor via Orbot, you need to have the Orbot app installed on your device.",
@@ -1161,7 +1160,14 @@
     "assistedServerBackupSubtitle": "Securely back up encrypted data on Keeper server",
     "assistedServerDeleteBackupSubtitle": "Do you also want to delete the existing assisted server backup?",
     "assistedServerDeleteBackupModalCTA": "Delete",
-    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable"
+    "assistedServerDeleteBackupModalSecondaryCTA": "Only disable",
+    "networkModeTitle": "Network Type",
+    "networkModeSubTitle": "Select Bitcoin network type",
+    "networkModeChangeConfirmationTitle": "Are you sure you want to change the network type? (Warning: This feature is meant only for advanced users)",
+    "networkModeModalTitle": "Change network type",
+    "networkModeModalSubTitle": "Choose network type to change to, this will affect your wallets, keys, and nodes",
+    "networkChangePrimaryCTA": "Confirm network change",
+    "torConnectionString": " is connected"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -1188,7 +1194,9 @@
     "viewSubscription": "View Subsciption",
     "noAvailablePurchaseMessage": "No purchases found",
     "currentSubscriptionMessage": "Already subscribed to",
-    "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon"
+    "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon",
+    "changeIntervalTitle": "Change Subscription Interval?",
+    "changeIntervalSubTitle": "Your yearly subscription includes the benefit of 2 free months of Bitcoin Keeper. Please note that switching to a monthly subscription would remove this benefit."
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup",

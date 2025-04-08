@@ -14,7 +14,6 @@ import BtcBlack from 'src/assets/images/btc_black.svg';
 import BtcWhite from 'src/assets/images/btc_white.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
-import config from 'src/utils/service-utilities/config';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
@@ -42,7 +41,7 @@ function UTXOLabeling() {
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const exchangeRates = useExchangeRates();
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { satsEnabled, bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const [txNoteModalVisible, setTxNoteModalVisible] = useState(false);
   const [updatingTxNote, setUpdatingTxNote] = useState(false);
   const noteRef = useRef();
@@ -136,7 +135,7 @@ function UTXOLabeling() {
   const redirectToBlockExplorer = (type: 'address' | 'tx') => {
     openLink(
       `https://mempool.space${
-        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+        bitcoinNetworkType === NetworkType.TESTNET ? '/testnet' : ''
       }/${type}/${type == 'tx' ? utxo.txId : utxo.address}`
     );
   };

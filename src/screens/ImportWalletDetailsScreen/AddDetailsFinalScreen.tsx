@@ -14,7 +14,6 @@ import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import { DerivationPurpose, WalletType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
@@ -34,6 +33,7 @@ function AddDetailsFinalScreen({ route }) {
 
   const { translations } = useContext(LocalizationContext);
   const { home, importWallet } = translations;
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const [arrow, setArrow] = useState(false);
 
   const { importedKey, importedKeyType } = route.params;
@@ -49,7 +49,7 @@ function AddDetailsFinalScreen({ route }) {
   const [purpose, setPurpose] = useState(DerivationPurpose.BIP84);
   const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
   const [path, setPath] = useState(
-    route.params?.path || WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose)
+    route.params?.path || WalletUtilities.getDerivationPath(false, bitcoinNetworkType, 0, purpose)
   );
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -57,7 +57,7 @@ function AddDetailsFinalScreen({ route }) {
   const { colorMode } = useColorMode();
 
   useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose);
+    const path = WalletUtilities.getDerivationPath(false, bitcoinNetworkType, 0, purpose);
     setPath(path);
   }, [purpose]);
 

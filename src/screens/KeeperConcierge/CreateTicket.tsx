@@ -300,7 +300,7 @@ const CreateTicket = ({ navigation, route }) => {
                 variant={'unstyled'}
                 autoCompleteType={'off'}
                 placeholderTextColor={`${colorMode}.placeHolderTextColor`}
-                placeholder={' Please tell us about your question or the issue you are facing?'}
+                placeholder={'Please tell us about your question or the issue you are facing?'}
                 color={`${colorMode}.primaryText`}
                 fontSize={12}
                 h={hp(281)}

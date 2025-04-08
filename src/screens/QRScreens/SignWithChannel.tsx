@@ -84,6 +84,7 @@ function SignWithChannel() {
 
   const dispatch = useDispatch();
   const navgation = useNavigation();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   let miniscriptPolicy = null;
   if (activeVault?.type === VaultType.MINISCRIPT) {
@@ -91,7 +92,7 @@ function SignWithChannel() {
   }
   const walletName = activeVault?.presentationData.name;
   let hmac = null;
-  const currentHmac = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId)?.hmac;
+  const currentHmac = vaultKey.registeredVaults?.find((info) => info.vaultId === vaultId)?.hmac;
   if (currentHmac) {
     hmac = currentHmac;
   }
@@ -111,7 +112,7 @@ function SignWithChannel() {
       hmac,
     };
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
+    channel.emit(JOIN_CHANNEL, { room, network: bitcoinNetworkType, requestData });
   };
 
   useEffect(() => {

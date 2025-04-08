@@ -1,7 +1,6 @@
 import { call, put, select } from 'redux-saga/effects';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import {
   predefinedMainnetNodes,
@@ -21,6 +20,7 @@ import { CONNECT_TO_NODE } from '../sagaActions/network';
 
 export function* connectToNodeWorker() {
   try {
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     console.log('Connecting to node...');
     yield put(electrumClientConnectionInitiated());
 
@@ -38,7 +38,7 @@ export function* connectToNodeWorker() {
 
       if (addInitialNode) {
         const hardcodedInitialNodes =
-          config.NETWORK_TYPE === NetworkType.TESTNET
+          bitcoinNetworkType === NetworkType.TESTNET
             ? predefinedTestnetNodes
             : predefinedMainnetNodes;
         dbManager.createObjectBulk(RealmSchema.NodeConnect, hardcodedInitialNodes);
@@ -47,7 +47,10 @@ export function* connectToNodeWorker() {
       yield put(setInitialNodesSaved(true));
     }
 
-    const nodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    const nodes = (yield call(dbManager.getCollection, RealmSchema.NodeConnect)).filter(
+      (node) => node.networkType === bitcoinNetworkType
+    );
+
     ElectrumClient.setActivePeer(nodes);
     const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
     if (connected) {

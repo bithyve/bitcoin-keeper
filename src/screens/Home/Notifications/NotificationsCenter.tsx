@@ -381,13 +381,21 @@ const Card = memo(({ uai }: CardProps) => {
 });
 
 function NotificationsCenter() {
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
-  const { uaiStack, isLoading } = useUaiStack();
+  let { uaiStack, isLoading } = useUaiStack();
   const dispatch = useDispatch();
+
+  const filteredUaiStack = uaiStack.filter((uai) => {
+    if (uai.uaiType === uaiType.SIGNING_DEVICES_HEALTH_CHECK) {
+      return uai.uaiDetails.networkType === bitcoinNetworkType;
+    }
+    return true;
+  });
 
   const { unseenNotifications, seenNotifications } = useMemo(
     () => ({
-      unseenNotifications: uaiStack
+      unseenNotifications: filteredUaiStack
         .filter((uai) => !uai.seenAt)
         .filter((uai) => SUPPORTED_NOTOFOCATION_TYPES.includes(uai.uaiType))
         .sort((a, b) => {
@@ -396,7 +404,7 @@ function NotificationsCenter() {
           if (!b.createdAt) return -1;
           return b.createdAt.getTime() - a.createdAt.getTime();
         }),
-      seenNotifications: uaiStack
+      seenNotifications: filteredUaiStack
         .filter((uai) => uai.seenAt)
         .filter((uai) => SUPPORTED_NOTOFOCATION_TYPES.includes(uai.uaiType))
         .sort((a, b) => {
@@ -410,8 +418,8 @@ function NotificationsCenter() {
   );
 
   useEffect(() => {
-    if (uaiStack?.length) {
-      const unseenNotifications = uaiStack.filter((notification) => !notification.seenAt);
+    if (filteredUaiStack?.length) {
+      const unseenNotifications = filteredUaiStack.filter((notification) => !notification.seenAt);
       if (unseenNotifications.length) {
         dispatch(uaisSeen({ uaiIds: unseenNotifications.map((uai) => uai.id) }));
       }

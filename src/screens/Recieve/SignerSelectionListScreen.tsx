@@ -1,6 +1,14 @@
-import { Dimensions, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  FlatList,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  Vibration,
+  View,
+} from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, useColorMode } from 'native-base';
 import Next from 'src/assets/images/icon_arrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -16,6 +24,11 @@ import KeeperModal from 'src/components/KeeperModal';
 import RegisterMultisig from '../SignTransaction/component/RegisterMultisig';
 import { SignerType, VaultType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
+import NFC from 'src/services/nfc';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import { NfcTech } from 'react-native-nfc-manager';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
@@ -23,15 +36,15 @@ function SignerSelectionListScreen() {
   const { params } = useRoute();
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { vaultId, signersMFP, title, description, callback, vaultKeydata } = params as {
+  const { vaultId, signersMFP, title, description, callback, vaultKeydata, mode } = params as {
     vaultId: string;
     signersMFP: string[];
     title: string;
     description: string;
     vaultKeydata: any;
     callback: (signer, signerName) => void;
+    mode: InteracationMode;
   };
-
   const { vaultSigners } = useSigners(vaultId);
   const [availableSigners] = useState(
     vaultSigners.filter((signer) => signersMFP?.includes(signer.masterFingerprint))
@@ -45,13 +58,67 @@ function SignerSelectionListScreen() {
   );
 
   const { activeVault } = useVault({ vaultId, includeArchived: false });
+  const [nfcVisible, setNfcVisible] = useState(false);
+  const { session } = useContext(HCESessionContext);
+
+  const isAndroid = Platform.OS === 'android';
+  const isIos = Platform.OS === 'ios';
+
+  useEffect(() => {
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      cleanUp();
+    });
+    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {});
+    return () => {
+      cleanUp();
+      unsubRead();
+      unsubDisconnect();
+    };
+  }, [session]);
 
   const handleSignerPress = (signer) => {
     if (signer.type === SignerType.PORTAL) {
       callback(signer, getSignerNameFromType(signer.type));
     } else {
+      if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+        callback(signer, getSignerNameFromType(signer.type));
+        return;
+      }
       setSelectedSigner(signer);
       setRegisterSignerModal(true);
+    }
+  };
+
+  const cleanUp = () => {
+    setNfcVisible(false);
+    Vibration.cancel();
+    if (isAndroid) {
+      NFC.stopTagSession(session);
+    }
+  };
+
+  const shareWithNFC = async (details) => {
+    try {
+      if (isIos) {
+        if (!isIos) {
+          setNfcVisible(true);
+        }
+        Vibration.vibrate([700, 50, 100, 50], true);
+        const enc = NFC.encodeTextRecord(details);
+        await NFC.send([NfcTech.Ndef], enc);
+        cleanUp();
+      } else {
+        setNfcVisible(true);
+        await NFC.startTagSession({ session, content: details });
+        Vibration.vibrate([700, 50, 100, 50], true);
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error: Not even registered') {
+        console.log('NFC interaction cancelled.');
+        return;
+      }
+      console.log('Error ', err);
     }
   };
 
@@ -90,9 +157,11 @@ function SignerSelectionListScreen() {
             activeVault={activeVault}
             navigation={navigation}
             CommonActions={CommonActions}
+            shareWithNFC={shareWithNFC}
           />
         )}
       />
+      <NfcPrompt visible={nfcVisible} close={cleanUp} ctaText="Done" />
     </ScreenWrapper>
   );
 }

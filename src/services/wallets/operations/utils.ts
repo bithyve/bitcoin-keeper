@@ -31,6 +31,7 @@ import {
 import { OutputUTXOs } from '../interfaces';
 import ecc from './taproot-utils/noble_ecc';
 import { generateBitcoinScript } from './miniscript/miniscript';
+import { store } from 'src/store/store';
 
 bitcoinJS.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -159,6 +160,7 @@ export default class WalletUtilities {
   };
 
   static fetchCurrentBlockHeight = async () => {
+    const { bitcoinNetworkType } = store.getState().settings;
     try {
       const height = (await ElectrumClient.getBlockchainHeaders()).height;
       if (height) {
@@ -170,7 +172,7 @@ export default class WalletUtilities {
     } catch {
       try {
         const endpoint =
-          config.NETWORK_TYPE === NetworkType.MAINNET
+          bitcoinNetworkType === NetworkType.MAINNET
             ? 'https://mempool.space/api/blocks/tip/height'
             : 'https://mempool.space/testnet/api/blocks/tip/height';
 
@@ -387,7 +389,7 @@ export default class WalletUtilities {
       }
 
       // Step 3: Create final scripts
-      const network = config.NETWORK;
+      const { bitcoinNetwork: network } = store.getState().settings;
       let payment: bitcoinJS.Payment = {
         network,
         output: script,
@@ -672,7 +674,8 @@ export default class WalletUtilities {
   };
 
   static getPublicExtendedKeyFromPriv = (extendedKey: string): string => {
-    const xKey = bip32.fromBase58(extendedKey, config.NETWORK);
+    const { bitcoinNetwork } = store.getState().settings;
+    const xKey = bip32.fromBase58(extendedKey, bitcoinNetwork);
     return xKey.neutered().toBase58();
   };
 
@@ -1063,7 +1066,8 @@ export default class WalletUtilities {
   };
 
   static isExtendedPubKey = (keyType: ImportedKeyType) => {
-    if (config.NETWORK === bitcoinJS.networks.bitcoin) {
+    const { bitcoinNetwork } = store.getState().settings;
+    if (bitcoinNetwork === bitcoinJS.networks.bitcoin) {
       return [ImportedKeyType.XPUB, ImportedKeyType.YPUB, ImportedKeyType.ZPUB].includes(keyType);
     } else {
       return [ImportedKeyType.TPUB, ImportedKeyType.UPUB, ImportedKeyType.VPUB].includes(keyType);
@@ -1072,11 +1076,12 @@ export default class WalletUtilities {
 
   static getImportedKeyType = (input: string): ImportedKeyType => {
     try {
+      const { bitcoinNetwork } = store.getState().settings;
       // case: extended keys
       bs58check.decode(input);
 
       // attempt to create an extended key from the input
-      if (config.NETWORK === bitcoinJS.networks.bitcoin) {
+      if (bitcoinNetwork === bitcoinJS.networks.bitcoin) {
         // extended public keys (mainnet)
         if (input.startsWith(ImportedKeyType.XPUB)) {
           return ImportedKeyType.XPUB;
@@ -1136,13 +1141,14 @@ export default class WalletUtilities {
   };
 
   static getKeyForScheme = (isMultisig, signer, msXpub, ssXpub, amfXpub) => {
+    const { bitcoinNetworkType } = store.getState().settings;
     if (amfXpub) {
       return {
         ...amfXpub,
         masterFingerprint: signer.masterFingerprint,
         xfp: this.getFingerprintFromExtendedKey(
           amfXpub.xpub,
-          this.getNetworkByType(config.NETWORK_TYPE)
+          this.getNetworkByType(bitcoinNetworkType)
         ),
       };
     }
@@ -1152,7 +1158,7 @@ export default class WalletUtilities {
         masterFingerprint: signer.masterFingerprint,
         xfp: this.getFingerprintFromExtendedKey(
           msXpub.xpub,
-          this.getNetworkByType(config.NETWORK_TYPE)
+          this.getNetworkByType(bitcoinNetworkType)
         ),
       };
     } else {
@@ -1161,7 +1167,7 @@ export default class WalletUtilities {
         masterFingerprint: signer.masterFingerprint,
         xfp: this.getFingerprintFromExtendedKey(
           ssXpub.xpub,
-          this.getNetworkByType(config.NETWORK_TYPE)
+          this.getNetworkByType(bitcoinNetworkType)
         ),
       };
     }

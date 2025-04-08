@@ -1,11 +1,12 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, NetworkType, VaultType } from 'src/services/wallets/enums';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';
 import _ from 'lodash';
 import { getJSONFromRealmObject } from './utils';
 import { RealmSchema } from './enum';
 import { getKeyUID } from 'src/utils/utilities';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -23,6 +24,9 @@ export const runRealmMigrations = ({
         const newVaultKeys = newVaults[objectIndex].signers;
         oldVaults[objectIndex].signers.forEach((signer, index) => {
           newVaultKeys[index].xfp = signer.signerId;
+          if (!newVaultKeys[index].registeredVaults) {
+            newVaultKeys[index].registeredVaults = [];
+          }
           newVaultKeys[index].registeredVaults.push({
             vaultId: oldVaults[objectIndex].id,
             registered: signer.registered,
@@ -374,5 +378,33 @@ export const runRealmMigrations = ({
 
     for (const wallet of newWallets) delete wallet.specs.txNote;
   }
+  if (oldRealm.schemaVersion < 94) {
+    const newSigners = newRealm.objects(RealmSchema.Signer) as Signer[];
 
+    for (const objectIndex in newSigners) {
+      newSigners[objectIndex].networkType =
+        config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
+      newSigners[objectIndex].id = getKeyUID(newSigners[objectIndex]);
+    }
+  }
+
+  if (oldRealm.schemaVersion < 95) {
+    const oldUAIs = oldRealm.objects(RealmSchema.UAI) as any;
+    const newUAIs = newRealm.objects(RealmSchema.UAI) as UAI[];
+
+    for (const objectIndex in newUAIs) {
+      newUAIs[objectIndex].uaiDetails = {
+        ...oldUAIs[objectIndex].uaiDetails,
+        networkType:
+          config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET,
+      };
+    }
+  
+    const newNodes = newRealm.objects(RealmSchema.NodeConnect) as any;
+
+    for (const objectIndex in newNodes) {
+      newNodes[objectIndex].networkType =
+        config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
+    }
+  }
 };

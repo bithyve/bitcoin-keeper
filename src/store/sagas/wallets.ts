@@ -44,7 +44,6 @@ import Relay from 'src/services/backend/Relay';
 import SigningServer from 'src/services/backend/SigningServer';
 import WalletOperations from 'src/services/wallets/operations';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/services/wallets/factories/VaultFactory';
@@ -171,6 +170,7 @@ function* addNewWallet(
     true
   ) || [];
 
+  const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
   switch (walletType) {
     case WalletType.DEFAULT:
       const defaultWallet: Wallet = yield call(generateWallet, {
@@ -180,7 +180,7 @@ function* addNewWallet(
         walletDescription: walletDescription || '',
         derivationPath,
         primaryMnemonic,
-        networkType: config.NETWORK_TYPE,
+        networkType: bitcoinNetworkType,
         wallets,
       });
       return defaultWallet;
@@ -192,7 +192,7 @@ function* addNewWallet(
         walletName: walletName || 'Imported Wallet',
         walletDescription: walletDescription || '',
         importDetails,
-        networkType: config.NETWORK_TYPE,
+        networkType: bitcoinNetworkType,
         wallets,
       });
       return importedWallet;
@@ -260,6 +260,7 @@ export function* addNewVaultWorker({
 }) {
   try {
     const { newVaultInfo, isMigrated, oldVaultId } = payload;
+    const { bitcoinNetworkType: networkType } = yield select((state: RootState) => state.settings);
 
     const { vaultType = VaultType.DEFAULT, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
 
@@ -269,7 +270,6 @@ export function* addNewVaultWorker({
       }
     }
 
-    const networkType = config.NETWORK_TYPE;
     let vault = yield call(generateVault, {
       type: vaultType,
       vaultName: vaultDetails.name,
@@ -567,7 +567,6 @@ function* migrateVaultWorker({
 }) {
   try {
     const { newVaultInfo, oldVaultId } = payload;
-
     const migrated = yield call(addNewVaultWorker, {
       payload: { newVaultInfo, isMigrated: true, oldVaultId },
     });
@@ -712,14 +711,16 @@ export function* autoWalletsSyncWorker({
   const { syncAll, hardRefresh, addNotifications } = payload;
   const wallets: Wallet[] = yield call(dbManager.getObjectByIndex, RealmSchema.Wallet, null, true);
   const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
+  const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
 
-  const walletsToSync: (Wallet | Vault)[] = [];
+  let walletsToSync: (Wallet | Vault)[] = [];
   for (const wallet of [...wallets, ...vaults]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
       if (wallet.entityKind === EntityKind.VAULT && (wallet as Vault).archived) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
   }
+  walletsToSync = walletsToSync.filter((wallet) => wallet.networkType === bitcoinNetworkType);
 
   if (walletsToSync.length) {
     yield call(refreshWalletsWorker, {
@@ -751,6 +752,7 @@ export function* updateSignerPolicyWorker({
   };
 }) {
   const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
+  const { bitcoinNetwork } = yield select((state: RootState) => state.settings);
 
   const { signer, signingKey, updates, verificationToken } = payload;
   try {
@@ -758,7 +760,7 @@ export function* updateSignerPolicyWorker({
       signingKey?.xfp ||
       WalletUtilities.getFingerprintFromExtendedKey(
         signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-        config.NETWORK
+        bitcoinNetwork
       );
 
     const {

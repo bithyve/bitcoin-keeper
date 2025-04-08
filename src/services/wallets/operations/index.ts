@@ -56,6 +56,7 @@ import WalletUtilities from './utils';
 import { generateScriptWitnesses, generateBitcoinScript } from './miniscript/miniscript';
 import { Phase } from './miniscript/policy-generator';
 import { coinselect } from './coinselectFixed';
+import { store } from 'src/store/store';
 
 bitcoinJS.initEccLib(ecc);
 
@@ -859,6 +860,7 @@ export default class WalletOperations {
   };
 
   static estimateFeeRatesViaElectrum = async () => {
+    const { bitcoinNetworkType } = store.getState().settings;
     try {
       // high fee: 10 minutes
       const highFeeBlockEstimate = 1;
@@ -881,7 +883,7 @@ export default class WalletOperations {
         estimatedBlocks: lowFeeBlockEstimate,
       };
 
-      if (config.NETWORK_TYPE === NetworkType.TESTNET && low.feePerByte > 20) {
+      if (bitcoinNetworkType === NetworkType.TESTNET && low.feePerByte > 20) {
         // working around testnet fee spikes
         return WalletOperations.mockFeeRates();
       }
@@ -896,9 +898,10 @@ export default class WalletOperations {
 
   static fetchFeeRatesByPriority = async () => {
     // main: mempool.space, fallback: Electrum target block based fee estimator
+    const { bitcoinNetworkType } = store.getState().settings;
     try {
       let endpoint;
-      if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+      if (bitcoinNetworkType === NetworkType.TESTNET) {
         endpoint = 'https://mempool.space/testnet/api/v1/fees/recommended';
       } else {
         endpoint =
@@ -937,7 +940,7 @@ export default class WalletOperations {
         estimatedBlocks: lowFeeBlockEstimate,
       };
 
-      if (config.NETWORK_TYPE === NetworkType.TESTNET && low.feePerByte > 20) {
+      if (bitcoinNetworkType === NetworkType.TESTNET && low.feePerByte > 20) {
         // working around testnet fee spikes
         return WalletOperations.mockFeeRates();
       }
@@ -947,7 +950,7 @@ export default class WalletOperations {
     } catch (err) {
       console.log('Failed to fetch fee via mempool.space', { err });
       try {
-        if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+        if (bitcoinNetworkType === NetworkType.TESTNET) {
           throw new Error('Take mock fee, testnet3 fee via electrum is unstable');
         }
         return WalletOperations.estimateFeeRatesViaElectrum();
@@ -1744,8 +1747,9 @@ export default class WalletOperations {
     signer: VaultSigner
   ): { signedSerializedPSBT: string } => {
     try {
+      const { bitcoinNetwork } = store.getState().settings;
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
-      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network });
+      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: bitcoinNetwork });
 
       let vin = 0;
       for (const { bip32Derivation } of PSBT.data.inputs) {
@@ -1805,6 +1809,7 @@ export default class WalletOperations {
     const signer = signerMap[getKeyUID(vaultKey)];
     const payloadTarget = signer.type;
     let isSigned = false;
+    const { bitcoinNetwork } = store.getState().settings;
 
     const keysOnlyInSelectedPathSigners = [SignerType.BITBOX02, SignerType.KEEPER];
     if (miniscriptSelectedSatisfier && keysOnlyInSelectedPathSigners.includes(signer.type)) {
@@ -1871,7 +1876,7 @@ export default class WalletOperations {
         PSBT.toBase64(),
         vaultKey
       );
-      PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: config.NETWORK });
+      PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: bitcoinNetwork });
       isSigned = true;
     } else if (
       signer.type === SignerType.TAPSIGNER ||
@@ -2183,6 +2188,7 @@ export default class WalletOperations {
     inputs: InputUTXOs[];
   }> => {
     let inputs;
+    const { bitcoinNetwork } = store.getState().settings;
     if (txnPriority === TxPriority.CUSTOM) {
       if (!customTxPrerequisites) throw new Error('Tx-prerequisites missing for custom fee');
       inputs = customTxPrerequisites[txnPriority].inputs;
@@ -2195,7 +2201,7 @@ export default class WalletOperations {
       // construct the txHex by combining the signed PSBTs
       for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
         const { signerType, serializedPSBT, signingPayload, isMockSigner } = serializedPSBTEnvelop;
-        const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
+        const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: bitcoinNetwork });
         if (signerType === SignerType.TAPSIGNER && !isMockSigner) {
           for (const { inputsToSign } of signingPayload) {
             for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {

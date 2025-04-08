@@ -37,7 +37,6 @@ import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { UTXO } from 'src/services/wallets/interfaces';
-import config from 'src/utils/service-utilities/config';
 import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
 import idx from 'idx';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -112,7 +111,7 @@ function AddSendAmount({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { satsEnabled, bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { getConvertedBalance } = useBalance();
   const isMoveAllFunds =
     parentScreen === MANAGEWALLETS ||
@@ -242,7 +241,7 @@ function AddSendAmount({ route }) {
         feePerByte:
           transactionPriority === TxPriority.CUSTOM
             ? customFeePerByte
-            : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+            : averageTxFees[bitcoinNetworkType][transactionPriority].feePerByte,
         miniscriptSelectedSatisfier,
       })
     );
@@ -268,7 +267,7 @@ function AddSendAmount({ route }) {
           feePerByte:
             transactionPriority === TxPriority.CUSTOM
               ? customFeePerByte
-              : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+              : averageTxFees[bitcoinNetworkType][transactionPriority].feePerByte,
           miniscriptSelectedSatisfier,
         })
       );
@@ -371,7 +370,7 @@ function AddSendAmount({ route }) {
           feePerByte:
             transactionPriority === TxPriority.CUSTOM
               ? customFeePerByte
-              : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte,
+              : averageTxFees[bitcoinNetworkType][transactionPriority].feePerByte,
           miniscriptSelectedSatisfier,
         })
       );
@@ -588,13 +587,13 @@ function AddSendAmount({ route }) {
                 <Text fontSize={12} style={{ marginLeft: wp(2), marginTop: wp(3.5) }}>{` ${
                   (transactionPriority === TxPriority.CUSTOM
                     ? customEstBlocks
-                    : averageTxFees[config.NETWORK_TYPE][transactionPriority].estimatedBlocks ??
-                      0) * 10
+                    : averageTxFees[bitcoinNetworkType][transactionPriority].estimatedBlocks ?? 0) *
+                  10
                 } mins`}</Text>
                 <Text fontSize={12} style={{ marginLeft: wp(20), marginTop: wp(3.5) }}>
                   {transactionPriority === TxPriority.CUSTOM
                     ? customFeePerByte
-                    : averageTxFees[config.NETWORK_TYPE][transactionPriority].feePerByte ?? 0}{' '}
+                    : averageTxFees[bitcoinNetworkType][transactionPriority].feePerByte ?? 0}{' '}
                   sats/vbyte
                 </Text>
               </Box>
@@ -640,7 +639,7 @@ function AddSendAmount({ route }) {
           <PriorityModal
             selectedPriority={transactionPriority}
             setSelectedPriority={setTransactionPriority}
-            averageTxFees={averageTxFees[config.NETWORK_TYPE]}
+            averageTxFees={averageTxFees[bitcoinNetworkType]}
             customFeePerByte={customFeePerByte}
             onOpenCustomPriorityModal={() => {
               dispatch(customPrioritySendPhaseOneStatusReset());

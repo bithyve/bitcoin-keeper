@@ -13,7 +13,7 @@ import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { numberWithCommas } from 'src/utils/utilities';
 import { NetworkType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
+import { useAppSelector } from 'src/store/hooks';
 
 const SpendingLimit = ({ route }) => {
   const navigation = useNavigation();
@@ -24,8 +24,9 @@ const SpendingLimit = ({ route }) => {
   const [maxTransaction, setMaxTransaction] = useState(
     totalSats && totalSats !== 'null' ? numberWithCommas(totalSats) : '0'
   );
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
-  const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
+  const isMainNet = bitcoinNetworkType === NetworkType.MAINNET;
 
   const MAINNET_SERVER_POLICY_DURATIONS = [
     { label: OFF, value: 0 },
