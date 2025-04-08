@@ -27,16 +27,6 @@ export const encrypt = (key: string, data: string): string =>
 export const decrypt = (key: string, encrypted: any): string =>
   cryptoJS.AES.decrypt(encrypted, key).toString(cryptoJS.enc.Utf8);
 
-export const generateKey = (length: number): string => {
-  let result = '';
-  const characters = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'; // base-58
-  const charactersLength = characters.length;
-  for (let itr = 0; itr < length; itr++) {
-    result += characters.charAt(Math.floor(cryptoRandom() * charactersLength));
-  }
-  return result;
-};
-
 export const generateRSAKeypair = async () => {
   const keys = await RSA.generateKeys(2048);
   return {
@@ -50,12 +40,6 @@ export const generateAESKey = (length: number): string => {
     throw new Error('Invalid key length. AES supports 128, 192, or 256-bit keys.');
   }
   return randomBytes(length).toString('hex');
-};
-
-export const asymmetricEncrypt = (data: string, publicKey: string): string => {
-  const key = new NodeRSA(publicKey);
-  const encrypted = key.encrypt(data, 'base64');
-  return encrypted;
 };
 
 export const asymmetricDecrypt = (encryptedData: string, privateRSAKey: string) => {

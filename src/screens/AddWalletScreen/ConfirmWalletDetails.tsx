@@ -52,6 +52,7 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import useSigners from 'src/hooks/useSigners';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import { CTACardDotted } from 'src/components/CTACardDotted';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -126,10 +127,7 @@ function ConfirmWalletDetails({ route }) {
       walletDetails: {
         name: walletName,
         description: descriptionInputRef.current,
-        derivationConfig: {
-          path,
-          purpose,
-        },
+        derivationPath: path,
         instanceNum: route.params.hotWalletInstanceNum,
       },
     };
@@ -271,6 +269,24 @@ function ConfirmWalletDetails({ route }) {
             })}
           </Box>
         </Box>
+        <Box style={{ marginBottom: hp(10) }}>
+          <Text fontSize={13} style={{ marginBottom: hp(2) }}>
+            Make sure to backup your wallet recovery file.
+          </Text>
+          <Text fontSize={13} style={{ marginBottom: hp(2) }}>
+            You will need it to recover your wallet in case you lose access to your device.
+          </Text>
+          <Text fontSize={13} style={{ marginBottom: hp(2) }}>
+            You can also do this later from the wallet settings.
+          </Text>
+        </Box>
+        <CTACardDotted
+          title={'Backup Wallet Recovery File'}
+          subTitle={'Keep it private and secure'}
+          isActive={true}
+          onPress={viewVaultConfigFile}
+          width={'100%'}
+        />
       </Box>
     );
   }
@@ -332,6 +348,35 @@ function ConfirmWalletDetails({ route }) {
       ],
     };
     navigation.dispatch(CommonActions.reset(navigationState));
+  };
+
+  const viewVaultConfigFile = () => {
+    setVaultCreatedModalVisible(false);
+    const navigationState = {
+      index: 1,
+      routes: [
+        { name: 'Home' },
+        {
+          name: 'VaultDetails',
+          params: {
+            vaultId: generatedVaultId,
+            vaultTransferSuccessful: true,
+            autoRefresh: true,
+            hardRefresh: true,
+          },
+        },
+        {
+          name: 'VaultSettings',
+          params: {
+            vaultId: generatedVaultId,
+            exportConfig: true,
+          },
+        },
+      ],
+    };
+    setTimeout(() => {
+      navigation.dispatch(CommonActions.reset(navigationState));
+    }, 300);
   };
 
   return (

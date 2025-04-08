@@ -52,7 +52,7 @@ function VaultSettings({ route }) {
 
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
   const [needHelpModal, setNeedHelpModal] = useState(false);
-  const [walletConfigModal, setWalletConfigModal] = useState(false);
+  const [walletConfigModal, setWalletConfigModal] = useState(route?.params?.exportConfig || false);
   const [visible, setVisible] = React.useState(false);
   const { session } = useContext(HCESessionContext);
 
@@ -85,7 +85,6 @@ function VaultSettings({ route }) {
           name: vault.presentationData.name,
           description: vault.presentationData.description,
           visibility: VisibilityType.HIDDEN,
-          shell: vault.presentationData.shell,
         },
       });
       showToast(vaultText.vaultHiddenSuccessMessage, <TickIcon />, IToastCategory.DEFAULT, 5000);

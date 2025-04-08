@@ -92,15 +92,12 @@ export function* setupKeeperAppWorker({ payload }) {
           name: 'Mobile Wallet',
           description: '',
           instanceNum: 0,
-          derivationConfig: {
-            path: WalletUtilities.getDerivationPath(
-              false,
-              bitcoinNetworkType,
-              0,
-              DerivationPurpose.BIP84
-            ),
-            purpose: DerivationPurpose.BIP84,
-          },
+          derivationPath: WalletUtilities.getDerivationPath(
+            false,
+            bitcoinNetworkType,
+            0,
+            DerivationPurpose.BIP84
+          ),
         },
       };
 

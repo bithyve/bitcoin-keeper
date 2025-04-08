@@ -192,7 +192,6 @@ export function* updateVaultImageWorker({
   try {
     const response = yield call(Relay.updateVaultImage, {
       appID: id,
-      vaultShellId: vault.shellId,
       vaultId: vault.id,
       signersData,
       vault: vaultEncrypted,
@@ -377,15 +376,12 @@ function* getAppImageWorker({ payload }) {
         walletDetails: {
           name: 'Mobile Wallet',
           description: '',
-          derivationConfig: {
-            path: WalletUtilities.getDerivationPath(
-              false,
-              bitcoinNetworkType,
-              0,
-              DerivationPurpose.BIP84
-            ),
-            purpose: DerivationPurpose.BIP84,
-          },
+          derivationPath: WalletUtilities.getDerivationPath(
+            false,
+            bitcoinNetworkType,
+            0,
+            DerivationPurpose.BIP84
+          ),
           instanceNum: 0,
         },
       };
@@ -710,7 +706,7 @@ function* backupBsmsOnCloudWorker({
   const { lastBsmsBackup } = yield select((state: RootState) => state.bhr);
   if (!lastBsmsBackup) return;
   const { password } = payload;
-  if (password || password === '') yield put(setEncPassword(password));
+  if (password) yield put(setEncPassword(password));
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
     const { encPassword } = yield select((state: RootState) => state.bhr);
@@ -960,7 +956,6 @@ function* backupAllSignersAndVaultsWorker() {
         });
       }
       vaultObject[vault.id] = {
-        vaultShellId: vault.shellId,
         vaultId: vault.id,
         signersData,
         vault: vaultEncrypted,

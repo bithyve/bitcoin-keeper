@@ -54,13 +54,3 @@ export interface DelayedPolicyUpdate {
   FCM?: string;
   isApplied?: boolean;
 }
-
-export enum CosignersMapUpdateAction {
-  ADD = 'ADD',
-  REMOVE = 'REMOVE',
-}
-export interface CosignersMapUpdate {
-  cosignersId: string;
-  signerId: string;
-  action: CosignersMapUpdateAction;
-}

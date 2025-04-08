@@ -30,7 +30,6 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import InhertanceKeyIcon from 'src/assets/images/inheritance-key-illustration.svg';
 import KeyDetailsLight from 'src/assets/images/key-details-green.svg';
 import KeyDetailsDark from 'src/assets/images/key-details-white.svg';
 import HealthCheckLight from 'src/assets/images/health-check-green.svg';
@@ -65,9 +64,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import { useAppSelector } from 'src/store/hooks';
-import { resetKeyHealthState } from 'src/store/reducers/vaults';
-import TickIcon from 'src/assets/images/tick_icon.svg';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
@@ -106,8 +102,6 @@ export const SignersReqVault = [
   SignerType.PORTAL,
   SignerType.KEYSTONE,
 ];
-
-export const CHANGE_INDEX_THRESHOLD = 100;
 
 function EmptyActivityView({ colorMode, isDarkMode }) {
   return (
@@ -302,7 +296,6 @@ function SigningDeviceDetails({ route }) {
   const { primaryMnemonic, id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const { keyHeathCheckSuccess, keyHeathCheckError } = useAppSelector((state) => state.vault);
   const { entityBasedIndicator } = useIndicatorHook({ entityId: signer.masterFingerprint });
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
@@ -379,21 +372,6 @@ function SigningDeviceDetails({ route }) {
       }
     }
   });
-
-  useEffect(() => {
-    return () => {
-      dispatch(resetKeyHealthState());
-    };
-  }, []);
-
-  useEffect(() => {
-    if (keyHeathCheckError) {
-      showToast(keyHeathCheckError);
-    }
-    if (keyHeathCheckSuccess) {
-      showToast('Key restored successfully', <TickIcon />);
-    }
-  }, [keyHeathCheckSuccess, keyHeathCheckError]);
 
   if (!signer) {
     return null;
@@ -631,12 +609,6 @@ function SigningDeviceDetails({ route }) {
         serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
       }
       if (activeVault && changeAddressIndex) {
-        if (
-          parseInt(changeAddressIndex) >
-          activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
-        ) {
-          throw new Error('Change index is too high.');
-        }
         receiverAddresses = findChangeFromReceiverAddresses(
           activeVault,
           receiverAddresses,

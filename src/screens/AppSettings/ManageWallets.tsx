@@ -22,7 +22,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { captureError } from 'src/services/sentry';
 import useWallets from 'src/hooks/useWallets';
 import { useDispatch } from 'react-redux';
-import { setNetBalance } from 'src/store/reducers/wallets';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -142,10 +141,6 @@ function ManageWallets() {
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
 
   useEffect(() => {
-    calculateBalanceAfterVisblityChange();
-  }, [wallets]);
-
-  useEffect(() => {
     if (selectedWallet?.id) {
       if (relayVaultUpdate) {
         showToast('Vault deleted successfully', <TickIcon />);
@@ -158,18 +153,6 @@ function ManageWallets() {
   }, [relayVaultUpdate, relayVaultError]);
 
   const isWallet = selectedWallet?.entityKind === EntityKind.WALLET;
-
-  const calculateBalanceAfterVisblityChange = () => {
-    const nonHiddenWallets = wallets.filter(
-      (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
-    );
-    let netBalance = 0;
-    nonHiddenWallets.forEach((wallet) => {
-      const { confirmed, unconfirmed } = wallet.specs.balances;
-      netBalance = netBalance + confirmed + unconfirmed;
-    });
-    dispatch(setNetBalance(netBalance));
-  };
 
   const onProceed = () => {
     if (passwordMode === PasswordMode.DEFAULT) {
@@ -214,7 +197,6 @@ function ManageWallets() {
           name: wallet.presentationData.name,
           description: wallet.presentationData.description,
           visibility: visibilityType,
-          shell: wallet.presentationData.shell,
         },
       });
     } catch (error) {

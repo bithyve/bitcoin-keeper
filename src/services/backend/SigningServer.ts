@@ -2,7 +2,6 @@ import { AxiosResponse } from 'axios';
 import config from 'src/utils/service-utilities/config';
 import { asymmetricDecrypt, generateRSAKeypair } from 'src/utils/service-utilities/encryption';
 import {
-  CosignersMapUpdate,
   DelayedPolicyUpdate,
   DelayedTransaction,
   SignerException,
@@ -117,86 +116,6 @@ export default class SigningServer {
     };
   };
 
-  static fetchSignerSetupViaCosigners = async (
-    cosignersId: string,
-    verificationToken: number
-  ): Promise<{
-    valid: boolean;
-    id?: string;
-    isBIP85?: boolean;
-    xpub?: string;
-    masterFingerprint?: string;
-    derivationPath?: string;
-    policy?: SignerPolicy;
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RestClient.post(`${getSigningServerURL()}v3/fetchSignerSetupViaCosigners`, {
-        HEXA_ID: getHexaId(),
-        cosignersId,
-        verificationToken,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { valid } = res.data;
-    if (!valid) throw new Error('Signer validation failed');
-
-    const { id, isBIP85, xpub, masterFingerprint, derivationPath, policy } = res.data;
-
-    return {
-      valid,
-      id,
-      isBIP85,
-      xpub,
-      masterFingerprint,
-      derivationPath,
-      policy,
-    };
-  };
-
-  static findSignerSetup = async (
-    ids: string[],
-    verificationToken: number
-  ): Promise<{
-    valid: boolean;
-    id?: string;
-    isBIP85?: boolean;
-    xpub?: string;
-    masterFingerprint?: string;
-    derivationPath?: string;
-    policy?: SignerPolicy;
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RestClient.post(`${getSigningServerURL()}v3/findSignerSetup`, {
-        HEXA_ID: getHexaId(),
-        ids,
-        verificationToken,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { valid } = res.data;
-    if (!valid) throw new Error('Signer validation failed');
-
-    const { id, isBIP85, xpub, masterFingerprint, derivationPath, policy } = res.data;
-
-    return {
-      valid,
-      id,
-      isBIP85,
-      xpub,
-      masterFingerprint,
-      derivationPath,
-      policy,
-    };
-  };
-
   static updateBackupSetting = async (
     id: string,
     verifierDigest: string,
@@ -282,31 +201,6 @@ export default class SigningServer {
     return {
       updated,
       delayedPolicyUpdate,
-    };
-  };
-
-  static updateCosignersToSignerMap = async (
-    id: string,
-    cosignersMapUpdates: CosignersMapUpdate[]
-  ): Promise<{
-    updated: boolean;
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RestClient.post(`${getSigningServerURL()}v3/updateCosignersToSignerMap`, {
-        HEXA_ID: getHexaId(),
-        id,
-        cosignersMapUpdates,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { updated } = res.data;
-    if (!updated) throw new Error('Failed to update cosigners to signer map');
-    return {
-      updated,
     };
   };
 
@@ -467,41 +361,6 @@ export default class SigningServer {
 
     const { newPolicy } = res.data;
     return { newPolicy };
-  };
-
-  static migrateSignersV2ToV3 = async (
-    vaultId: string,
-    appId: string,
-    cosignersMapUpdates: CosignersMapUpdate[]
-  ): Promise<{
-    migrationSuccessful: boolean;
-    setupData: {
-      id: string;
-      isBIP85: boolean;
-      bhXpub: string;
-      masterFingerprint: string;
-      derivationPath: string;
-      verification: any;
-    };
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RestClient.post(`${getSigningServerURL()}v3/migrateSignersV2ToV3`, {
-        HEXA_ID: getHexaId(),
-        vaultId,
-        appId,
-        cosignersMapUpdates,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { migrationSuccessful, setupData } = res.data;
-    return {
-      migrationSuccessful,
-      setupData,
-    };
   };
 }
 
