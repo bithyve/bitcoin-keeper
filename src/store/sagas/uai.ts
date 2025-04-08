@@ -171,6 +171,7 @@ function* uaiChecksWorker({ payload }) {
                     body: !signer.isBIP85
                       ? `Health check for ${signer.signerName} is due`
                       : `Health check for ${signer.signerName} + is due`,
+                    networkType: signer.networkType,
                   },
                 })
               );

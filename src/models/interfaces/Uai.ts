@@ -6,6 +6,7 @@ export interface UAI {
   uaiDetails?: {
     heading?: string;
     body?: string;
+    networkType?: string;
   };
   createdAt?: Date;
   seenAt?: Date;

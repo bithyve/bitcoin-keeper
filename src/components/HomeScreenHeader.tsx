@@ -60,7 +60,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
       .filter((uai) => !uai.seenAt && uaiPriorityMap[uai.uaiType] >= 90)
       .filter((uai) => {
         if (uai.uaiType === uaiType.SIGNING_DEVICES_HEALTH_CHECK) {
-          return signerMap[uai.entityId]?.networkType === bitcoinNetworkType;
+          return uai.uaiDetails.networkType === bitcoinNetworkType;
         }
         return true;
       });

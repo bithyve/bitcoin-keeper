@@ -387,4 +387,17 @@ export const runRealmMigrations = ({
       newSigners[objectIndex].id = getKeyUID(newSigners[objectIndex]);
     }
   }
+
+  if (oldRealm.schemaVersion < 95) {
+    const oldUAIs = oldRealm.objects(RealmSchema.UAI) as any;
+    const newUAIs = newRealm.objects(RealmSchema.UAI) as UAI[];
+
+    for (const objectIndex in newUAIs) {
+      newUAIs[objectIndex].uaiDetails = {
+        ...oldUAIs[objectIndex].uaiDetails,
+        networkType:
+          config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET,
+      };
+    }
+  }
 };

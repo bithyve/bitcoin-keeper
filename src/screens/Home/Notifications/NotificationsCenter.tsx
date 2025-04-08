@@ -384,12 +384,11 @@ function NotificationsCenter() {
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
   let { uaiStack, isLoading } = useUaiStack();
-  const { signerMap } = useSignerMap();
   const dispatch = useDispatch();
 
   const filteredUaiStack = uaiStack.filter((uai) => {
     if (uai.uaiType === uaiType.SIGNING_DEVICES_HEALTH_CHECK) {
-      return signerMap[uai.entityId]?.networkType === bitcoinNetworkType;
+      return uai.uaiDetails.networkType === bitcoinNetworkType;
     }
     return true;
   });
