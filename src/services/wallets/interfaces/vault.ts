@@ -108,6 +108,7 @@ export interface Signer {
   extraData?: SignerExtraData;
   archived?: boolean;
   isExternal?: boolean;
+  networkType: NetworkType;
 }
 
 export type RegisteredVaultInfo = {

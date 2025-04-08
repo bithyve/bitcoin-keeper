@@ -1,13 +1,14 @@
 import { HWErrorType } from 'src/models/enums/Hardware';
-import config from 'src/utils/service-utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import HWError from '../HWErrorState';
+import { store } from 'src/store/store';
 
 const getPassportDetails = (qrData, returnTaproot = false) => {
   let parsedData = typeof qrData === 'string' ? JSON.parse(qrData) : qrData;
   try {
+    const { bitcoinNetworkType } = store.getState().settings;
     const { p2wsh, p2wsh_deriv: derivationPath, xfp } = parsedData;
-    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+    const network = WalletUtilities.getNetworkByType(bitcoinNetworkType);
     const xpub = WalletUtilities.getXpubFromExtendedKey(p2wsh, network);
     return { xpub, derivationPath, masterFingerprint: xfp, forMultiSig: true, forSingleSig: false };
   } catch (_) {

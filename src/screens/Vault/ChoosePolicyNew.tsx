@@ -39,7 +39,6 @@ import { Signer } from 'src/services/wallets/interfaces/vault';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { fetchDelayedPolicyUpdate } from 'src/store/sagaActions/storage';
-import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import { formatRemainingTime } from 'src/utils/utilities';
 import {
@@ -75,6 +74,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [delayModal, setDelayModal] = useState(false);
   const [configureSuccessModal, setConfigureSuccessModal] = useState(false);
   const [policyDelayedUntil, setPolicyDelayedUntil] = useState(null);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     if (maxTransaction !== undefined) {
@@ -85,7 +85,7 @@ function ChoosePolicyNew({ navigation, route }) {
       setSigningDelay(delayTime);
     }
   }, [route.params]);
-  const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
+  const isMainNet = bitcoinNetworkType === NetworkType.MAINNET;
 
   const MAINNET_SERVER_POLICY_DURATIONS = [
     { label: OFF, value: 0 },

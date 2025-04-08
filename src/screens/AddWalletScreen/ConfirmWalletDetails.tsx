@@ -25,7 +25,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import { StyleSheet } from 'react-native';
 import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 import Text from 'src/components/KeeperText';
@@ -69,6 +68,7 @@ function ConfirmWalletDetails({ route }) {
     activeVault ? activeVault.presentationData.name : route.params?.name
   );
   const { getWalletTags } = useWalletAsset();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const isHotWallet = route.params?.isHotWallet;
   const [walletCreatedModal, setWalletCreatedModal] = useState(false);
@@ -83,7 +83,7 @@ function ConfirmWalletDetails({ route }) {
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
-      : WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose)
+      : WalletUtilities.getDerivationPath(false, bitcoinNetworkType, 0, purpose)
   );
 
   const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);

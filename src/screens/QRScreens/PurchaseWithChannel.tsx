@@ -26,6 +26,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TierUpgradeModal, { UPGRADE_TYPE } from '../ChoosePlanScreen/TierUpgradeModal';
 import { useQuery } from '@realm/react';
 import { manipulateIosProdProductId } from 'src/utils/utilities';
+import { useAppSelector } from 'src/store/hooks';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -67,6 +68,7 @@ function PurchaseWithChannel() {
     subscription: currentSubscription,
     publicId,
   }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     const startBackgroundListener = () => {
@@ -148,7 +150,7 @@ function PurchaseWithChannel() {
     if (res.status) {
       requestBody['action'] = EMIT_MODES.PURCHASE_SUBS;
       const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-      channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
+      channel.emit(JOIN_CHANNEL, { room, network: bitcoinNetworkType, requestData });
     } else {
       navigation.goBack();
       showToast(res.error ?? 'Something went wrong, Please try again!.', <ToastErrorIcon />);

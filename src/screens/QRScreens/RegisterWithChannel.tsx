@@ -26,6 +26,7 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import QRScanner from 'src/components/QRScanner';
 import { VaultType } from 'src/services/wallets/enums';
 import BackgroundTimer from 'react-native-background-timer';
+import { useAppSelector } from 'src/store/hooks';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -52,6 +53,7 @@ function RegisterWithChannel() {
   const { params } = useRoute();
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { vaultKey, vaultId, signerType } = params as {
     vaultKey: VaultSigner;
     vaultId: string;
@@ -91,7 +93,7 @@ function RegisterWithChannel() {
       firstExtAdd,
     };
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
+    channel.emit(JOIN_CHANNEL, { room, network: bitcoinNetworkType, requestData });
   };
 
   useEffect(() => {

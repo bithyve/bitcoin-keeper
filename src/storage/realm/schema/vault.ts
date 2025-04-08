@@ -116,6 +116,7 @@ export const SignerSchema: ObjectSchema = {
     extraData: '{}?',
     archived: { type: 'bool', default: false },
     isExternal: 'bool?',
+    networkType: { type: 'string' },
   },
 };
 

@@ -10,10 +10,10 @@ import { createXpubDetails, extractKeyFromDescriptor, generateSignerFromMetaData
 import HWError from './HWErrorState';
 import { getSpecterDetails } from './specter';
 import { getKeystoneDetails } from './keystone';
-import config from 'src/utils/service-utilities/config';
 import { extractColdCardExport } from './coldcard';
 import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
 import { getUSBSignerDetails } from './usbSigner';
+import { store } from 'src/store/store';
 
 const setupPassport = (qrData, isMultisig) => {
   const { xpub, derivationPath, masterFingerprint, xpubDetails } = createXpubDetails(qrData);
@@ -140,7 +140,7 @@ const setupKeeperSigner = (qrData) => {
 };
 
 const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
-  const networkType = config.NETWORK_TYPE;
+  const { bitcoinNetworkType: networkType } = store.getState().settings;
 
   // fetched multi-sig mobile key
   const {
@@ -182,7 +182,7 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
 };
 
 const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
-  const networkType = config.NETWORK_TYPE;
+  const { bitcoinNetworkType: networkType } = store.getState().settings;
   // fetched multi-sig seed words based key
   const {
     xpub: multiSigXpub,

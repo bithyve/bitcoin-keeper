@@ -45,7 +45,6 @@ import {
   setTransactionSnapshot,
 } from 'src/store/reducers/cachedTxn';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
-import config from 'src/utils/service-utilities/config';
 import { isReading, stopReading } from 'src/hardware/portal';
 import { hp, wp } from 'src/constants/responsive';
 import { getKeyUID } from 'src/utils/utilities';
@@ -163,6 +162,7 @@ function SignTransactionScreen() {
 
   const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     if (sendAndReceive.sendPhaseThree.txid) {
@@ -629,7 +629,7 @@ function SignTransactionScreen() {
 
   const handleShare = async () => {
     const url = `https://mempool.space${
-      config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      bitcoinNetworkType === NetworkType.TESTNET ? '/testnet' : ''
     }/tx/${sendSuccessful}`;
 
     try {

@@ -1000,7 +1000,7 @@
     "Questionsfeedbackandmore": "Questions, feedback and more",
     "biometricsDesc": "Select app settings",
     "appSetting": "App Setting",
-    "appSettingDesc": "Configure your App settings",
+    "appSettingDesc": "Configure your app settings",
     "SatsMode": "Sats Mode",
     "SatsModeSubTitle": "Use Sats mode to see balance in sats",
     "Viewbalancessats": "View your balances in sats",
@@ -1163,6 +1163,12 @@
     "assistedServerDeleteBackupSubtitle": "Do you also want to delete the existing assisted server backup?",
     "assistedServerDeleteBackupModalCTA": "Delete",
     "assistedServerDeleteBackupModalSecondaryCTA": "Only disable",
+    "networkModeTitle": "Network Type",
+    "networkModeSubTitle": "Select Bitcoin network type",
+    "networkModeChangeConfirmationTitle": "Are you sure you want to change the network type? (Warning: This feature is meant only for advanced users)",
+    "networkModeModalTitle": "Change network type",
+    "networkModeModalSubTitle": "Choose network type to change to, this will affect your wallets, keys, and nodes",
+    "networkChangePrimaryCTA": "Confirm network change",
     "torConnectionString": " is connected"
   },
   "onboarding": {

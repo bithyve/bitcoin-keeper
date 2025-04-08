@@ -1,4 +1,3 @@
-import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
@@ -6,6 +5,7 @@ import React from 'react';
 import Colors from 'src/theme/Colors';
 import CurrencyKind from '../models/enums/CurrencyKind';
 import FiatCurrencies from './FiatCurrencies';
+import { store } from 'src/store/store';
 
 export const SATOSHIS_IN_BTC = 1e8;
 
@@ -27,8 +27,6 @@ export const SatsToBtc = (amountInSats: number) => {
 };
 
 export const getAmount = (amountInSats: number, satsEnabled = false) => {
-  // config.NETWORK_TYPE === NetworkType.MAINNET    disable sats mode
-
   if (satsEnabled === false && amountInSats !== 0) {
     if (amountInSats > 99) {
       return amountInSats / SATOSHIS_IN_BTC;
@@ -130,7 +128,8 @@ export const getUnit = (currentCurrency, satsEnabled = false) => {
 };
 
 export const isTestnet = () => {
-  if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+  const { bitcoinNetworkType } = store.getState().settings;
+  if (bitcoinNetworkType === NetworkType.TESTNET) {
     return true;
   }
   return false;

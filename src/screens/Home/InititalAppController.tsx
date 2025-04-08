@@ -166,7 +166,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     })
                   );
                 } catch (e) {
-                  showToast(e.message);
+                  showToast(e.message, <ToastErrorIcon />);
                 }
               } catch (e) {
                 console.log('🚀 ~ handleRemoteKeyDeepLink ~ e:', e);
@@ -210,7 +210,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         }
       } catch (error) {
         console.log('🚀 ~ handleRemoteKeyDeepLink ~ error:', error);
-        showToast('Something went wrong, please try again!');
+        showToast(error.message ?? 'Something went wrong, please try again!');
       }
     } else {
       showToast('Invalid Remote Key link');

@@ -72,7 +72,7 @@ import {
   healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned } from '../sagaActions/uai';
-import { setAppId } from '../reducers/storage';
+import { setAppId, setDefaultWalletCreated } from '../reducers/storage';
 import { applyUpgradeSequence, KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
@@ -325,6 +325,7 @@ function* getAppImageWorker({ payload }) {
     if (!bip39.validateMnemonic(primaryMnemonic)) {
       throw Error('Invalid mnemonic');
     }
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
@@ -379,7 +380,7 @@ function* getAppImageWorker({ payload }) {
           derivationConfig: {
             path: WalletUtilities.getDerivationPath(
               false,
-              config.NETWORK_TYPE,
+              bitcoinNetworkType,
               0,
               DerivationPurpose.BIP84
             ),
@@ -409,6 +410,7 @@ function* getAppImageWorker({ payload }) {
       }
     }
     yield put(autoSyncWallets(true, true, false));
+    yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
   } catch (err) {
     yield put(setAppImageError(err.message));
   } finally {
@@ -427,6 +429,7 @@ function* recoverApp(
   labels,
   previousVersion
 ) {
+  const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
   const entropy = yield call(
     BIP85.bip39MnemonicToEntropy,
     config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
@@ -451,7 +454,7 @@ function* recoverApp(
       method: BackupType.SEED,
     },
     version: DeviceInfo.getVersion(),
-    networkType: config.NETWORK_TYPE,
+    networkType: bitcoinNetworkType,
   };
 
   yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
