@@ -155,7 +155,7 @@ function* uaiChecksWorker({ payload }) {
           if (lastHealthCheck >= healthCheckReminderThreshold) {
             const uaiCollection: UAI[] = dbManager.getObjectByField(
               RealmSchema.UAI,
-              signer.masterFingerprint,
+              signer.id,
               'entityId'
             );
             const uaiHCforSD = uaiCollection?.filter(
@@ -165,7 +165,7 @@ function* uaiChecksWorker({ payload }) {
               yield put(
                 addToUaiStack({
                   uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-                  entityId: signer.masterFingerprint,
+                  entityId: signer.id,
                   uaiDetails: {
                     // body: `Health check for ${signer.signerName} is due`,
                     body: !signer.isBIP85

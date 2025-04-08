@@ -37,6 +37,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   circleIconWrapper,
   title,
 }) => {
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { uaiStack } = useUaiStack();
@@ -44,6 +45,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const backupHistory = useQuery(RealmSchema.BackupHistory);
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
+  const { signerMap } = useSignerMap();
   useFocusEffect(
     useCallback(() => {
       dispatch(setRefreshUai());
@@ -54,7 +56,14 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
     if (!uaiStack?.length) return null;
 
     // Filter for unseen notifications and sort by timestamp
-    const unseenUais = uaiStack.filter((uai) => !uai.seenAt && uaiPriorityMap[uai.uaiType] >= 90);
+    const unseenUais = uaiStack
+      .filter((uai) => !uai.seenAt && uaiPriorityMap[uai.uaiType] >= 90)
+      .filter((uai) => {
+        if (uai.uaiType === uaiType.SIGNING_DEVICES_HEALTH_CHECK) {
+          return signerMap[uai.entityId]?.networkType === bitcoinNetworkType;
+        }
+        return true;
+      });
     return unseenUais[0] || null;
   }, [uaiStack]);
 
@@ -68,7 +77,6 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
 
   const [localLatestUnseenUai, setLocalLatestUnseenUai] = useState(null);
 
-  const { signerMap } = useSignerMap();
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
   const { showToast } = useToastMessage();
 
