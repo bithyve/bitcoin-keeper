@@ -112,7 +112,6 @@ export const WalletPresentationDataSchema: ObjectSchema = {
     name: 'string',
     description: 'string',
     visibility: 'string',
-    shell: 'int',
   },
 };
 
@@ -144,7 +143,6 @@ export const WalletSchema: ObjectSchema = {
     entityKind: 'string',
     type: 'string',
     networkType: 'string',
-    isUsable: 'bool',
     derivationDetails: `${RealmSchema.WalletDerivationDetails}?`,
     presentationData: RealmSchema.WalletPresentationData,
     specs: RealmSchema.WalletSpecs,

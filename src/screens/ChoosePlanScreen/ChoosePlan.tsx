@@ -32,8 +32,6 @@ import Relay from 'src/services/backend/Relay';
 import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';
 import { useDispatch } from 'react-redux';
-import { uaiChecks } from 'src/store/sagaActions/uai';
-import { uaiType } from 'src/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
@@ -314,8 +312,6 @@ function ChoosePlan() {
           });
           if (response.level === AppSubscriptionLevel.L1) disptach(setAutomaticCloudBackup(false));
           disptach(setSubscription(subscription.name));
-          disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
-          // disptach(resetVaultMigration());
           setShowUpgradeModal(true);
         } else {
           Alert.alert('', response.error, [

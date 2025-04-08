@@ -113,7 +113,6 @@ export type AppStackParams = {
   ChangeTapsignerPin: undefined;
   VaultConfigurationCreation: undefined;
   VaultSetup: {
-    isRecreation: Boolean;
     scheme: VaultScheme;
     vaultId?: string;
     isTimeLock?: boolean;

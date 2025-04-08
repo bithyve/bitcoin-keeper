@@ -82,7 +82,6 @@ import Instruction from 'src/components/Instruction';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { getSpecterDetails } from 'src/hardware/specter';
-import useSignerMap from 'src/hooks/useSignerMap';
 import Import from 'src/assets/images/import.svg';
 import USBIcon from 'src/assets/images/usb_white.svg';
 import NfcComms from 'src/assets/images/nfc_comms.svg';
@@ -924,7 +923,6 @@ function HardwareModalMap({
   skipHealthCheckCallBack,
   mode = InteracationMode.VAULT_ADDITION,
   primaryMnemonic,
-  vaultShellId,
   addSignerFlow = false,
   vaultSigners,
   vaultId,
@@ -938,7 +936,6 @@ function HardwareModalMap({
   mode?: InteracationMode;
   isMultisig: boolean;
   primaryMnemonic?: string;
-  vaultShellId?: string;
   addSignerFlow: boolean;
   vaultSigners?: VaultSigner[];
   vaultId?: string;
@@ -960,7 +957,6 @@ function HardwareModalMap({
   const myAppKeys = signers.filter(
     (signer) => signer.type === SignerType.MY_KEEPER && !signer.archived
   );
-  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
 
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);

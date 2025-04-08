@@ -131,11 +131,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
                   }
                   if (activeVault && changeAddressIndex) {
-                    if (
-                      parseInt(changeAddressIndex) >
-                      activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
-                    )
-                      throw new Error('Change index is too high.');
                     receiverAddresses = findChangeFromReceiverAddresses(
                       activeVault,
                       receiverAddresses,

@@ -2,7 +2,6 @@
 
 /* eslint-disable no-case-declarations */
 import {
-  DerivationPurpose,
   EntityKind,
   MiniscriptTypes,
   MultisigScriptType,
@@ -32,7 +31,6 @@ import {
 } from 'src/services/wallets/interfaces/wallet';
 import { call, delay, fork, put, select } from 'redux-saga/effects';
 import {
-  setNetBalance,
   setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
@@ -56,7 +54,6 @@ import {
   decrypt,
   encrypt,
   generateEncryptionKey,
-  generateKey,
   hash512,
 } from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -76,9 +73,6 @@ import { RootState } from '../store';
 import {
   initiateVaultMigration,
   setCollaborativeSessionSigners,
-  setKeyHealthCheckError,
-  setKeyHealthCheckLoading,
-  setKeyHealthCheckSuccess,
   updateCollaborativeSessionLastSynched,
   vaultCreated,
   vaultMigrationCompleted,
@@ -87,13 +81,11 @@ import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
   REFRESH_WALLETS,
-  SYNC_WALLETS,
   TEST_SATS_RECIEVE,
   UPDATE_SIGNER_POLICY,
   UPDATE_WALLET_DETAILS,
   refreshWallets,
   UPDATE_SIGNER_DETAILS,
-  UPDATE_WALLET_PROPERTY,
   UPDATE_KEY_DETAILS,
   UPDATE_VAULT_DETAILS,
   GENERATE_NEW_ADDRESS,
@@ -104,7 +96,6 @@ import {
   DELETE_SIGINING_DEVICE,
   ARCHIVE_SIGINING_DEVICE,
   DELETE_VAULT,
-  FINALISE_VAULT_MIGRATION,
   MERGER_SIMILAR_KEYS,
   MIGRATE_VAULT,
   REFILL_MOBILEKEY,
@@ -147,15 +138,10 @@ export interface NewVaultDetails {
   description?: string;
 }
 
-export interface DerivationConfig {
-  purpose: DerivationPurpose;
-  path: string;
-}
-
 export interface NewWalletDetails {
   name?: string;
   description?: string;
-  derivationConfig?: DerivationConfig;
+  derivationPath?: string;
   instanceNum?: number;
 }
 
@@ -175,7 +161,7 @@ function* addNewWallet(
   const {
     name: walletName,
     description: walletDescription,
-    derivationConfig,
+    derivationPath,
     instanceNum,
   } = walletDetails;
   const wallets: Wallet[] = yield call(
@@ -190,9 +176,9 @@ function* addNewWallet(
       const defaultWallet: Wallet = yield call(generateWallet, {
         type: WalletType.DEFAULT,
         instanceNum, // zero-indexed
-        walletName: walletName || 'Default Wallet',
+        walletName: walletName || 'Mobile Wallet',
         walletDescription: walletDescription || '',
-        derivationConfig,
+        derivationPath,
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
         wallets,
@@ -268,48 +254,37 @@ export function* addNewVaultWorker({
 }: {
   payload: {
     newVaultInfo?: NewVaultInfo;
-    vault?: Vault;
     isMigrated?: boolean;
     oldVaultId?: string;
-    isRecreation?: boolean;
   };
 }) {
   try {
-    const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
-    let { vault } = payload;
-    const signerMap = {};
-    const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
+    const { newVaultInfo, isMigrated, oldVaultId } = payload;
 
-    let isNewVault = false; // When the vault is passed directly during upgrade/downgrade process
-    if (!vault) {
-      const {
-        vaultType = VaultType.DEFAULT,
-        vaultScheme,
-        vaultSigners,
-        vaultDetails,
-      } = newVaultInfo;
+    const { vaultType = VaultType.DEFAULT, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
 
-      if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
-        if (vaultScheme.n !== vaultSigners.length) {
-          throw new Error('Vault schema(n) and signers mismatch');
-        }
+    if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
+      if (vaultScheme.n !== vaultSigners.length) {
+        throw new Error('Vault schema(n) and signers mismatch');
       }
+    }
 
-      const vaultShellId = generateKey(12);
+    const networkType = config.NETWORK_TYPE;
+    let vault = yield call(generateVault, {
+      type: vaultType,
+      vaultName: vaultDetails.name,
+      vaultDescription: vaultDetails.description,
+      scheme: vaultScheme,
+      signers: vaultSigners,
+      networkType,
+    });
 
-      const networkType = config.NETWORK_TYPE;
-      vault = yield call(generateVault, {
-        type: vaultType,
-        vaultName: vaultDetails.name,
-        vaultDescription: vaultDetails.description,
-        scheme: vaultScheme,
-        signers: vaultSigners,
-        networkType,
-        vaultShellId,
-        signerMap,
-      });
-      isNewVault = true;
+    if (isMigrated) {
+      const oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
+      vault = {
+        ...vault,
+        archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
+      };
     }
 
     yield put(setRelayVaultUpdateLoading(true));
@@ -337,6 +312,7 @@ export function* addNewVaultWorker({
         });
         if (archivedVaultresponse.updated) {
           yield call(dbManager.updateObjectById, RealmSchema.Vault, oldVaultId, updatedParams);
+          yield put(initiateVaultMigration({ intrimVault: vault }));
         }
       }
 
@@ -587,74 +563,18 @@ export const archiveSigningDeviceWatcher = createWatcher(
 function* migrateVaultWorker({
   payload,
 }: {
-  payload: { newVaultData: NewVaultInfo; vaultShellId: string };
+  payload: { newVaultInfo: NewVaultInfo; oldVaultId: string };
 }) {
   try {
-    const {
-      vaultType = VaultType.DEFAULT,
-      vaultScheme,
-      vaultSigners,
-      vaultDetails,
-    } = payload.newVaultData;
-    const { vaultShellId } = payload;
+    const { newVaultInfo, oldVaultId } = payload;
 
-    if (vaultScheme.multisigScriptType !== MultisigScriptType.MINISCRIPT_MULTISIG) {
-      if (vaultScheme.n !== vaultSigners.length) {
-        throw new Error('Vault schema(n) and signers mismatch');
-      }
-    }
-
-    const networkType = config.NETWORK_TYPE;
-
-    const signerMap = {};
-    const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
-
-    const vault: Vault = yield call(generateVault, {
-      type: vaultType,
-      vaultName: vaultDetails.name,
-      vaultDescription: vaultDetails.description,
-      scheme: vaultScheme,
-      signers: vaultSigners,
-      networkType,
-      vaultShellId,
-      signerMap,
-    });
-
-    yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
-  } catch (error) {
-    yield put(
-      vaultMigrationCompleted({
-        isMigratingNewVault: true,
-        hasMigrationSucceeded: false,
-        hasMigrationFailed: true,
-        error: error.toString(),
-      })
-    );
-  }
-}
-
-export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAULT);
-
-function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string } }) {
-  try {
-    const { vaultId } = payload;
-    const oldVault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON() as Vault;
-    let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
-    if (!migratedVault) {
-      return;
-    }
-    migratedVault = {
-      ...migratedVault,
-      archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
-    };
     const migrated = yield call(addNewVaultWorker, {
-      payload: { vault: migratedVault, isMigrated: true, oldVaultId: vaultId },
+      payload: { newVaultInfo, isMigrated: true, oldVaultId },
     });
-    if (migrated) {
+    let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    if (migrated && migratedVault) {
       yield put(
         vaultMigrationCompleted({
-          isMigratingNewVault: false,
           hasMigrationSucceeded: true,
           hasMigrationFailed: false,
           error: null,
@@ -664,7 +584,6 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
   } catch (error) {
     yield put(
       vaultMigrationCompleted({
-        isMigratingNewVault: true,
         hasMigrationSucceeded: false,
         hasMigrationFailed: true,
         error: error.toString(),
@@ -673,37 +592,7 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
   }
 }
 
-export const finaliseVaultMigrationWatcher = createWatcher(
-  finaliseVaultMigrationWorker,
-  FINALISE_VAULT_MIGRATION
-);
-
-function* syncWalletsWorker({
-  payload,
-}: {
-  payload: {
-    wallets: (Wallet | Vault)[];
-    options: {
-      hardRefresh?: boolean;
-    };
-  };
-}) {
-  const { wallets, options } = payload;
-  const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
-
-  const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
-    WalletOperations.syncWalletsViaElectrumClient,
-    wallets,
-    network,
-    options.hardRefresh
-  );
-
-  return {
-    synchedWallets,
-  };
-}
-
-export const syncWalletsWatcher = createWatcher(syncWalletsWorker, SYNC_WALLETS);
+export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAULT);
 
 function* refreshWalletsWorker({
   payload,
@@ -715,18 +604,23 @@ function* refreshWalletsWorker({
 }) {
   const { wallets, options } = payload;
   try {
+    if (!wallets || wallets.length === 0) return;
+
     if (!ELECTRUM_CLIENT.isClientConnected) {
       ElectrumClient.resetCurrentPeerIndex();
       yield call(connectToNodeWorker);
     }
 
     yield put(setSyncing({ wallets, isSyncing: true }));
-    const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(syncWalletsWorker, {
-      payload: {
-        wallets,
-        options,
-      },
-    });
+
+    const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
+
+    const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
+      WalletOperations.syncWalletsViaElectrumClient,
+      wallets,
+      network,
+      options.hardRefresh
+    );
 
     let labels: { ref: string; label: string; isSystem: boolean }[];
 
@@ -788,24 +682,6 @@ function* refreshWalletsWorker({
         });
       }
     }
-
-    const existingWallets: Wallet[] = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.Wallet,
-      null,
-      true
-    );
-    // const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
-
-    let netBalance = 0;
-    existingWallets.forEach((wallet) => {
-      if (wallet.presentationData.visibility !== VisibilityType.HIDDEN) {
-        const { confirmed, unconfirmed } = wallet.specs.balances;
-        netBalance = netBalance + confirmed + unconfirmed;
-      }
-    });
-
-    yield put(setNetBalance(netBalance));
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(
@@ -840,7 +716,6 @@ export function* autoWalletsSyncWorker({
   const walletsToSync: (Wallet | Vault)[] = [];
   for (const wallet of [...wallets, ...vaults]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
-      if (!wallet.isUsable) continue;
       if (wallet.entityKind === EntityKind.VAULT && (wallet as Vault).archived) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
@@ -962,7 +837,6 @@ function* updateWalletDetailsWorker({ payload }) {
       name: details.name,
       description: details.description,
       visibility: wallet.presentationData.visibility,
-      shell: wallet.presentationData.shell,
     };
     wallet.presentationData = presentationData;
 
@@ -1005,7 +879,6 @@ function* updateVaultDetailsWorker({ payload }) {
       name: details.name,
       description: details.description,
       visibility: vault.presentationData.visibility,
-      shell: vault.presentationData.shell,
     };
     yield put(setRelayVaultUpdateLoading(true));
     // API-TODO: based on response call the DB
@@ -1015,10 +888,10 @@ function* updateVaultDetailsWorker({ payload }) {
       payload: { vault },
     });
     if (response.updated) {
-      yield put(relayVaultUpdateSuccess());
       yield call(dbManager.updateObjectById, RealmSchema.Vault, vault.id, {
         presentationData,
       });
+      yield put(relayVaultUpdateSuccess());
     } else {
       const errorMsg = response.error?.message
         ? response.error.message.toString()
@@ -1048,6 +921,7 @@ export function* updateSignerDetailsWorker({ payload }) {
   } = payload;
   yield put(setRelaySignersUpdateLoading(true));
   try {
+    signer[key] = value;
     const response = yield call(updateAppImageWorker, { payload: { signers: [signer] } });
     if (response.updated) {
       const signerKeyUID = getKeyUID(signer);
@@ -1112,49 +986,6 @@ function* updateKeyDetailsWorker({ payload }) {
 }
 
 export const updateKeyDetails = createWatcher(updateKeyDetailsWorker, UPDATE_KEY_DETAILS);
-
-function* updateWalletsPropertyWorker({
-  payload,
-}: {
-  payload: {
-    walletId: string;
-    key: string;
-    value: any;
-  };
-}) {
-  const {
-    walletId,
-    key,
-    value,
-  }: {
-    walletId: string;
-    key: string;
-    value: any;
-  } = payload;
-  try {
-    const walletObjectRealm = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
-    const updatedWallet = getJSONFromRealmObject(walletObjectRealm);
-    updatedWallet[key] = value;
-    yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { wallets: [updatedWallet] } });
-    if (response.updated) {
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, walletId, { [key]: value });
-      yield put(relayWalletUpdateSuccess());
-    } else {
-      const errorMsg = response.error?.message
-        ? response.error.message.toString()
-        : response.error.toString();
-      yield put(relayWalletUpdateFail(errorMsg));
-    }
-  } catch (err) {
-    captureError(err);
-    yield put(relayWalletUpdateFail('Something went wrong!'));
-  }
-}
-export const updateWalletsPropertyWatcher = createWatcher(
-  updateWalletsPropertyWorker,
-  UPDATE_WALLET_PROPERTY
-);
 
 function* deleteVaultWorker({ payload }) {
   const { vaultId } = payload;
@@ -1232,15 +1063,13 @@ export const reinstateVaultWatcher = createWatcher(reinstateVaultWorker, REINSTA
 function* refillMobileKeyWorker({ payload }) {
   const { vaultKey } = payload;
   try {
-    yield put(setKeyHealthCheckLoading(true));
     const { xpriv } = vaultKey;
     if (!xpriv) {
-      const signerMap = {};
-      const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-      signingDevices.forEach((signer) => (signerMap[getKeyUID(signer)] = signer));
+      const signer: Signer = dbManager
+        .getObjectById(RealmSchema.Signer, getKeyUID(vaultKey))
+        .toJSON();
       const keeper: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
       const { primaryMnemonic } = keeper;
-      const signer = signerMap[getKeyUID(vaultKey)];
       const details = yield call(
         getCosignerDetails,
         primaryMnemonic,
@@ -1253,24 +1082,15 @@ function* refillMobileKeyWorker({ payload }) {
         yield call(updateKeyDetailsWorker, {
           payload: { signer: signer.signerXpubs[XpubTypes.P2WSH][0], key: 'xpriv', value: xpriv },
         });
-        yield put(setKeyHealthCheckLoading(false));
-        yield put(setKeyHealthCheckSuccess(true));
-      } else {
-        yield put(setKeyHealthCheckLoading(false));
-        yield put(
-          setKeyHealthCheckError('Key seems to be corrupted, please delete and re-add it.')
-        );
       }
-    } else {
-      yield put(setKeyHealthCheckLoading(false));
     }
   } catch (err) {
-    yield put(setKeyHealthCheckLoading(false));
     captureError(err);
   }
 }
 
 export const refillMobileKeyWatcher = createWatcher(refillMobileKeyWorker, REFILL_MOBILEKEY);
+
 function* refreshCanaryWalletsWorker() {
   try {
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
@@ -1337,7 +1157,10 @@ function* mergeSimilarKeysWorker({ payload }: { payload: { signer: Signer } }) {
             }
           );
         }
-        const { primarySeed, id } = dbManager.getCollection(RealmSchema.KeeperApp)[0];
+        const { primarySeed, id }: KeeperApp = yield call(
+          dbManager.getObjectByIndex,
+          RealmSchema.KeeperApp
+        );
         const encryptionKey = generateEncryptionKey(primarySeed);
         const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
         const updated = yield call(Relay.migrateXfp, id, [

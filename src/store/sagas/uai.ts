@@ -24,6 +24,7 @@ import {
 import { createWatcher } from '../utilities';
 import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
 import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
+import { hash256 } from 'bitcoinjs-lib/src/crypto';
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
 const HEALTH_CHECK_REMINDER_TESTNET = 3; // 3hours
 const healthCheckReminderThreshold = isTestnet()

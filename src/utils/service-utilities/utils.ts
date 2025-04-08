@@ -239,6 +239,7 @@ export interface ParsedSignersDetails {
   path: String;
   isMultisig: Boolean;
 }
+
 export interface ParsedVauleText {
   signersDetails: ParsedSignersDetails[] | null;
   isMultisig: Boolean | null;
@@ -702,6 +703,7 @@ interface DecryptData {
   encryptedData: string;
   authTag: string;
 }
+
 export const createDecipherGcm = (data: DecryptData, password: string) => {
   const algorithm = 'aes-256-gcm';
   const key = Buffer.from(password, 'hex');
@@ -730,10 +732,6 @@ export const getArchivedVaults = (allVaults: Vault[], vault: Vault) => {
           (v.archivedId === vault.archivedId || v.id === vault.archivedId)
       );
 };
-export function generateKeyFromPassword(password, salt = 'ARzDkUmENwt1', iterations = 100) {
-  // Derive a 16-byte key from the 12-character password
-  return crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256'); // 16 bytes = 128 bits
-}
 
 export function findVaultFromSenderAddress(allVaults: Vault[], senderAddresses) {
   let activeVault = null;
@@ -771,6 +769,10 @@ export function findChangeFromReceiverAddresses(
   changeAddressIndex: number
 ) {
   if (changeAddressIndex == undefined) return receiverAddresses;
+  if (changeAddressIndex > activeVault.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT) {
+    throw new Error('Change index is too high.');
+  }
+
   const changeAddress = WalletOperations.getExternalInternalAddressAtIdx(
     activeVault,
     changeAddressIndex,
