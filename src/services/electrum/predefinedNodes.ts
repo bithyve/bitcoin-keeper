@@ -3,18 +3,18 @@ import { NetworkType } from '../wallets/enums';
 
 export const predefinedTestnetNodes: NodeDetail[] = [
   {
-    id: 333, // sequence 3-x-x; avoids collision w/ own node
-    host: 'testnet.qtornado.com',
-    port: '51002',
+    id: 335, // sequence 3-x-x; avoids collision w/ own node
+    host: 'mempool.space',
+    port: '40002',
     isConnected: true,
     useKeeperNode: false,
     useSSL: true,
     networkType: NetworkType.TESTNET,
   },
   {
-    id: 334,
-    host: 'testnet.aranguren.org',
-    port: '51002',
+    id: 336,
+    host: 'blackie.c3-soft.com',
+    port: '57010',
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,

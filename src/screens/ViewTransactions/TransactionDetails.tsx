@@ -144,7 +144,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${bitcoinNetworkType === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+      `https://mempool.space${bitcoinNetworkType === NetworkType.TESTNET ? '/testnet4' : ''}/tx/${
         transaction.txid
       }`
     );

@@ -174,7 +174,7 @@ export default class WalletUtilities {
         const endpoint =
           bitcoinNetworkType === NetworkType.MAINNET
             ? 'https://mempool.space/api/blocks/tip/height'
-            : 'https://mempool.space/testnet/api/blocks/tip/height';
+            : 'https://mempool.space/testnet4/api/blocks/tip/height';
 
         const res = await RestClient.get(endpoint);
         const currentBlockHeight = res.data;
