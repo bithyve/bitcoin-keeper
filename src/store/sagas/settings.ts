@@ -39,13 +39,7 @@ function* changeBitcoinNetworkWorker({ payload }) {
     );
 
     // Add default nodes if not exists and connect
-    if (
-      !Node.getAllNodes().filter((node) =>
-        bitcoinNetworkType === NetworkType.TESTNET
-          ? node.host.includes('testnet')
-          : !node.host.includes('testnet')
-      ).length
-    )
+    if (!Node.getAllNodes().filter((node) => node.networkType === bitcoinNetworkType).length)
       yield call(
         dbManager.createObjectBulk,
         RealmSchema.NodeConnect,
@@ -53,11 +47,7 @@ function* changeBitcoinNetworkWorker({ payload }) {
       );
 
     ElectrumClient.setActivePeer(
-      Node.getAllNodes().filter((node) =>
-        bitcoinNetworkType === NetworkType.TESTNET
-          ? node.host.includes('testnet')
-          : !node.host.includes('testnet')
-      )
+      Node.getAllNodes().filter((node) => node.networkType === bitcoinNetworkType)
     );
     yield call(ElectrumClient.connect);
 

@@ -86,10 +86,7 @@ export default class Node {
   public static getAllNodes(): NodeDetail[] {
     const { bitcoinNetworkType } = store.getState().settings;
     return (dbManager.getCollection(RealmSchema.NodeConnect) as unknown as NodeDetail[]).filter(
-      (node) =>
-        bitcoinNetworkType === NetworkType.TESTNET
-          ? node.host.includes('testnet')
-          : !node.host.includes('testnet')
+      (node) => node.networkType === bitcoinNetworkType
     );
   }
 

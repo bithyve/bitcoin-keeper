@@ -87,6 +87,7 @@ const NodeSelection = () => {
   const isDarkMode = colorMode === 'dark';
 
   const tabsData = [{ label: settings.publicServer }, { label: settings.privateElectrum }];
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const nodes: NodeDetail[] = Node.getAllNodes();
 
@@ -202,6 +203,7 @@ const NodeSelection = () => {
       useKeeperNode: false,
       isConnected: false,
       useSSL,
+      networkType: bitcoinNetworkType,
     };
     onSaveCallback(nodeDetails);
   };

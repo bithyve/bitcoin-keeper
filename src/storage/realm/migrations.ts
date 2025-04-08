@@ -399,5 +399,12 @@ export const runRealmMigrations = ({
           config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET,
       };
     }
+  
+    const newNodes = newRealm.objects(RealmSchema.NodeConnect) as any;
+
+    for (const objectIndex in newNodes) {
+      newNodes[objectIndex].networkType =
+        config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
+    }
   }
 };
