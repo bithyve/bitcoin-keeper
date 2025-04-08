@@ -60,7 +60,23 @@ export const generateSignerFromMetaData = ({
   isAmf = false,
 }): { signer: Signer; key: VaultSigner } => {
   const { bitcoinNetworkType } = store.getState().settings;
-  const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
+  // Check network type by derivation path for jade
+  if ([SignerType.JADE].includes(signerType)) {
+    Object.entries(xpubDetails).forEach(([_, xpubDetail]) => {
+      if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(xpubDetail.derivationPath))
+        throw new HWError(HWErrorType.INCORRECT_NETWORK);
+    });
+  }
+
+  let networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
+
+  if (signerType === SignerType.KEYSTONE) {
+    if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(derivationPath))
+      throw new HWError(HWErrorType.INCORRECT_NETWORK);
+    // Keystone qr gives Zpub in testnet
+    else networkType = getNetworkTypeFromDerivationPath(derivationPath);
+  }
+
   const network = WalletUtilities.getNetworkByType(bitcoinNetworkType);
   if (
     networkType !== bitcoinNetworkType &&
@@ -88,19 +104,6 @@ export const generateSignerFromMetaData = ({
     });
   }
 
-  let finalNetworkType = networkType;
-  if ([SignerType.JADE, SignerType.KEYSTONE].includes(signerType)) {
-    for (const xPubObject of Object.values(signerXpubs)) {
-      if (xPubObject[0]?.derivationPath) {
-        const { derivationPath } = xPubObject[0];
-        finalNetworkType =
-          parseInt(derivationPath.replace(/[']/g, '').split('/')[2]) == 0
-            ? NetworkType.MAINNET
-            : NetworkType.TESTNET;
-      } else continue;
-    }
-  }
-
   const signer: Signer = {
     id: '', // temporarily empty
     type: signerType,
@@ -120,7 +123,7 @@ export const generateSignerFromMetaData = ({
     signerPolicy,
     signerXpubs,
     hidden: false,
-    networkType: finalNetworkType,
+    networkType,
   };
   signer.id = getKeyUID(signer);
 
@@ -601,4 +604,10 @@ export const createXpubDetails = (data) => {
     ? singleSig.derivationPath
     : taproot.derivationPath;
   return { xpub, derivationPath, masterFingerprint, xpubDetails };
+};
+
+export const getNetworkTypeFromDerivationPath = (derivationPath: string) => {
+  return parseInt(derivationPath.replace(/[']/g, '').split('/')[2]) == 0
+    ? NetworkType.MAINNET
+    : NetworkType.TESTNET;
 };
