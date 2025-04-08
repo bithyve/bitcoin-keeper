@@ -7,7 +7,11 @@ import {
   XpubTypes,
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
+import {
+  resetElectrumNotConnectedErr,
+  setHasDeepLink,
+  setIsInitialLogin,
+} from 'src/store/reducers/login';
 import {
   findChangeFromReceiverAddresses,
   findVaultFromSenderAddress,
@@ -49,7 +53,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   );
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-  const { isInitialLogin } = useAppSelector((state) => state.login);
+  const { isInitialLogin, hasDeepLink } = useAppSelector((state) => state.login);
   const appData = useQuery(RealmSchema.KeeperApp);
   const { allVaults } = useVault({ includeArchived: false });
 
@@ -131,11 +135,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
                   }
                   if (activeVault && changeAddressIndex) {
-                    if (
-                      parseInt(changeAddressIndex) >
-                      activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
-                    )
-                      throw new Error('Change index is too high.');
                     receiverAddresses = findChangeFromReceiverAddresses(
                       activeVault,
                       receiverAddresses,
@@ -162,7 +161,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                     })
                   );
                 } catch (e) {
-                  showToast(e.message);
+                  showToast(e.message, <ToastErrorIcon />);
                 }
               } catch (e) {
                 console.log('🚀 ~ handleRemoteKeyDeepLink ~ e:', e);
@@ -206,7 +205,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         }
       } catch (error) {
         console.log('🚀 ~ handleRemoteKeyDeepLink ~ error:', error);
-        showToast('Something went wrong, please try again!');
+        showToast(error.message ?? 'Something went wrong, please try again!');
       }
     } else {
       showToast('Invalid Remote Key link');
@@ -257,6 +256,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       toggleSentryReports();
     }
     dispatch(setIsInitialLogin(false));
+    if (hasDeepLink) {
+      handleDeepLinkEvent({ url: hasDeepLink });
+      dispatch(setHasDeepLink(null));
+    }
   }, []);
 
   async function handleDeepLinking() {

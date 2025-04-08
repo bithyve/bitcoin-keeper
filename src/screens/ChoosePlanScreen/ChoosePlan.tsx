@@ -32,15 +32,12 @@ import Relay from 'src/services/backend/Relay';
 import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';
 import { useDispatch } from 'react-redux';
-import { uaiChecks } from 'src/store/sagaActions/uai';
-import { uaiType } from 'src/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
-import KeeperTextInput from 'src/components/KeeperTextInput';
 import TierUpgradeModal, { UPGRADE_TYPE } from './TierUpgradeModal';
 import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
@@ -52,6 +49,7 @@ import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import { BrownButton } from 'src/components/BrownButton';
 import config from 'src/utils/service-utilities/config';
 import { manipulateIosProdProductId } from 'src/utils/utilities';
+import ChangeIntervalIllustration from 'src/assets/images/changeInterval.svg';
 const { width } = Dimensions.get('window');
 
 const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands', 'hodler'];
@@ -63,7 +61,7 @@ function ChoosePlan() {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { choosePlan, common, signer } = translations;
+  const { choosePlan, common } = translations;
   const [currentPosition, setCurrentPosition] = useState(initialPosition);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
@@ -80,9 +78,10 @@ function ChoosePlan() {
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
-  const [showPromocodeModal, setShowPromocodeModal] = useState(false);
   const { isOnL1 } = usePlan();
   const [enableDesktopManagement, setEnableDesktopManagement] = useState(true);
+  const [showChangeInterval, setShowChangeInterval] = useState(false);
+  const [playServiceUnavailable, setPlayServiceUnavailable] = useState(false);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -194,8 +193,15 @@ function ChoosePlan() {
         showToast(error.message);
         setIsServiceUnavailible(true);
       } else {
-        navigation.goBack();
-        showToast(error.message);
+        if (error.message.includes('Google Play Services are not available on this device')) {
+          setItems(data);
+          setLoading(false);
+          showToast(error.message);
+          setPlayServiceUnavailable(true);
+        } else {
+          showToast(error.message);
+          navigation.goBack();
+        }
       }
     }
   }
@@ -314,8 +320,6 @@ function ChoosePlan() {
           });
           if (response.level === AppSubscriptionLevel.L1) disptach(setAutomaticCloudBackup(false));
           disptach(setSubscription(subscription.name));
-          disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
-          // disptach(resetVaultMigration());
           setShowUpgradeModal(true);
         } else {
           Alert.alert('', response.error, [
@@ -371,7 +375,12 @@ function ChoosePlan() {
   const restorePurchases = async () => {
     try {
       setRequesting(true);
-      const purchases = await getAvailablePurchases();
+      let purchases = [];
+      try {
+        purchases = await getAvailablePurchases();
+      } catch (error) {
+        console.log('🚀 ~ restorePurchases ~ error:', error);
+      }
       if (purchases.length === 0) {
         const btcPurchase = await Relay.restoreBtcPurchase(id);
         if (btcPurchase) {
@@ -432,96 +441,6 @@ function ChoosePlan() {
     );
   }
 
-  function PromocodeModalContent() {
-    const [code, setcode] = useState('');
-    const [isInvalidCode, setIsInvalidCode] = useState(false);
-    const [activeOffer, setActiveOffer] = useState(null);
-
-    const validateOnFocusLost = async () => {
-      setActiveOffer(null);
-      const plan = isMonthly
-        ? items[currentPosition].monthlyPlanDetails
-        : items[currentPosition].yearlyPlanDetails;
-
-      if (Platform.OS === 'android') {
-        const promoCode = code.trim().toLowerCase();
-        if (items[currentPosition].promoCodes || items[currentPosition].promoCodes[promoCode]) {
-          const offerId = items[currentPosition].promoCodes[promoCode];
-          const offer = plan.offers.find((offer) => {
-            return offer.offerId === offerId;
-          });
-          if (offer) {
-            let purchaseTokenAndroid = null;
-            if (appSubscription.receipt) {
-              purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
-            }
-            setActiveOffer({
-              ...offer,
-              purchaseTokenAndroid,
-            });
-          } else {
-            setIsInvalidCode(true);
-          }
-        } else {
-          setIsInvalidCode(true);
-        }
-      } else {
-        // For iOS
-        const offer = await Relay.getOffer(plan.productId, code.trim().toLowerCase());
-        if (offer && offer.signature) setActiveOffer(offer);
-      }
-    };
-
-    const onSubscribe = () => {
-      const plan = isMonthly
-        ? items[currentPosition].monthlyPlanDetails
-        : items[currentPosition].yearlyPlanDetails;
-      if (Platform.OS === 'android') {
-        setShowPromocodeModal(false);
-        requestSubscription({
-          sku: plan.productId,
-          subscriptionOffers: [{ sku: plan.productId, offerToken: activeOffer.offerToken }],
-          purchaseTokenAndroid: activeOffer.purchaseTokenAndroid,
-        });
-      } else {
-        setShowPromocodeModal(false);
-        init();
-      }
-    };
-
-    return (
-      <Box>
-        <Text>Enter Code</Text>
-        <KeeperTextInput
-          onBlur={validateOnFocusLost}
-          autoCapitalize="characters"
-          keyboardType={Platform.OS == 'android' ? 'visible-password' : "'ascii-capable'"} // To fix duplicate issue with toUpperCase()
-          placeholder="Promo Code"
-          value={code}
-          isError={isInvalidCode}
-          onChangeText={(value) => {
-            const filteredInput = value.trim().toUpperCase();
-            setcode(filteredInput);
-            setIsInvalidCode(false);
-            setActiveOffer(null);
-          }}
-          onFocus={() => setIsInvalidCode(false)}
-          testID="input_setcode"
-        />
-        <Box alignItems={'flex-end'} mt={hp(20)}>
-          <Buttons
-            primaryText="Subscribe Now"
-            primaryDisable={!activeOffer}
-            primaryCallback={onSubscribe}
-            paddingHorizontal={wp(20)}
-            secondaryText="Cancel"
-            secondaryCallback={() => setShowPromocodeModal(false)}
-          />
-        </Box>
-      </Box>
-    );
-  }
-
   const getButtonState = () => {
     if (!items || loading) return { text: '', disabled: true };
 
@@ -536,9 +455,27 @@ function ChoosePlan() {
       (isPleb && subscription.productId.toLowerCase() === 'pleb');
 
     return {
-      text: isSubscribed ? 'Current Plan' : 'Get Started',
+      text: isSubscribed ? 'Current Plan' : playServiceUnavailable ? '' : 'Get Started',
       disabled: isSubscribed,
     };
+  };
+
+  const changeIntervalContent = () => {
+    return (
+      <Box>
+        <Box alignItems={'center'}>
+          <ChangeIntervalIllustration />
+        </Box>
+        <Box alignItems={'flex-end'} mt={hp(20)}>
+          <Buttons
+            primaryText={common.proceed}
+            primaryCallback={() => processSubscription(items[currentPosition])}
+            secondaryText={common.cancel}
+            secondaryCallback={() => setShowChangeInterval(false)}
+          />
+        </Box>
+      </Box>
+    );
   };
 
   return (
@@ -578,18 +515,16 @@ function ChoosePlan() {
         subTitleWidth={wp(210)}
       />
       <KeeperModal
-        visible={showPromocodeModal}
-        close={() => setShowPromocodeModal(false)}
-        title="Subscribe with Promo code"
-        subTitle={`Please enter the code to redeem discount`}
+        visible={showChangeInterval}
+        close={() => setShowChangeInterval(false)}
+        title={choosePlan.changeIntervalTitle}
+        subTitle={choosePlan.changeIntervalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
-        buttonText={null}
-        buttonCallback={() => {}}
-        Content={PromocodeModalContent}
-        subTitleWidth={wp(250)}
+        Content={changeIntervalContent}
+        subTitleWidth={width * 0.8}
       />
       <TierUpgradeModal
         visible={showUpgradeModal}
@@ -603,12 +538,22 @@ function ChoosePlan() {
       ) : (
         <Box flex={1}>
           <SubscriptionList
+            playServiceUnavailable={playServiceUnavailable}
             plans={items}
             currentPosition={currentPosition}
             onChange={(item) => setCurrentPosition(item)}
             primaryCallback={() => {
               if (!isOnL1 && appSubscription.isDesktopPurchase) {
                 Alert.alert('', 'You already have an active BTC based subscription.');
+                return;
+              }
+              // check if user moving from yearly to monthly
+              if (
+                appSubscription.level !== AppSubscriptionLevel.L1 &&
+                isMonthly &&
+                currentPosition !== 0
+              ) {
+                setShowChangeInterval(true);
                 return;
               }
               processSubscription(items[currentPosition]);
@@ -631,52 +576,14 @@ function ChoosePlan() {
 }
 
 const styles = StyleSheet.create({
-  noteWrapper: {
-    flexDirection: 'column',
-    bottom: 0,
-    margin: 1,
-    width,
-    position: 'absolute',
-  },
-  restorePurchaseWrapper: {
-    marginTop: 5,
-    marginBottom: 15,
-  },
-  comingSoonText: {
-    fontSize: 10,
-    letterSpacing: 0.1,
-    marginLeft: 10,
-  },
-  benefitContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 5 / 2,
-    alignSelf: 'center',
-  },
   restorePurchase: {
     fontSize: 13,
     letterSpacing: 0.24,
     textDecorationLine: 'underline',
   },
-  ctaText: {
-    fontSize: 13,
-    letterSpacing: 1,
-  },
   infoText: {
     fontSize: 13,
     marginTop: hp(20),
-  },
-  ctaWrapper: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: hp(20),
-    width: '100%',
-    paddingHorizontal: wp(15),
   },
 });
 export default ChoosePlan;

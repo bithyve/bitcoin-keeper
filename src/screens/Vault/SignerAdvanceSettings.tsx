@@ -59,9 +59,7 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
-import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
 import Note from 'src/components/Note/Note';
 import useSigners from 'src/hooks/useSigners';
@@ -147,6 +145,7 @@ function SignerAdvanceSettings({ route }: any) {
   >(null);
   const [detailModal, setDetailModal] = useState(false);
   const [registerSignerModal, setRegisterSignerModal] = useState(false);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
@@ -198,9 +197,6 @@ function SignerAdvanceSettings({ route }: any) {
         dispatch(refillMobileKey(vaultKey));
       }
     }
-    return () => {
-      dispatch(resetKeyHealthState());
-    };
   }, []);
 
   const hideKey = () => {
@@ -412,7 +408,7 @@ function SignerAdvanceSettings({ route }: any) {
           masterFingerprint: signer.masterFingerprint,
           xfp: WalletUtilities.getFingerprintFromExtendedKey(
             singleSigSigner.xpub,
-            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+            WalletUtilities.getNetworkByType(bitcoinNetworkType)
           ),
         };
         const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
@@ -482,7 +478,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   const id = WalletUtilities.getFingerprintFromExtendedKey(
     signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-    WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+    WalletUtilities.getNetworkByType(bitcoinNetworkType)
   );
 
   function SigningServerOTPModal() {

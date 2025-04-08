@@ -2,7 +2,6 @@ import { AxiosResponse } from 'axios';
 import config from 'src/utils/service-utilities/config';
 import { asymmetricDecrypt, generateRSAKeypair } from 'src/utils/service-utilities/encryption';
 import {
-  CosignersMapUpdate,
   DelayedPolicyUpdate,
   DelayedTransaction,
   SignerException,
@@ -11,8 +10,10 @@ import {
   SingerVerification,
 } from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
+import { store } from 'src/store/store';
+import { NetworkType } from '../wallets/enums';
 
-const { HEXA_ID, SIGNING_SERVER } = config;
+const { HEXA_ID_TESTNET, HEXA_ID_MAINNET, SIGNING_SERVER_MAINNET, SIGNING_SERVER_TESTNET } = config;
 
 export default class SigningServer {
   /**
@@ -33,8 +34,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/setupSigner`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/setupSigner`, {
+        HEXA_ID: getHexaId(),
         policy,
       });
     } catch (err) {
@@ -57,8 +58,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/validateSingerSetup`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/validateSingerSetup`, {
+        HEXA_ID: getHexaId(),
         id,
         verificationToken,
       });
@@ -89,8 +90,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchSignerSetup`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/fetchSignerSetup`, {
+        HEXA_ID: getHexaId(),
         id,
         verificationToken,
       });
@@ -115,86 +116,6 @@ export default class SigningServer {
     };
   };
 
-  static fetchSignerSetupViaCosigners = async (
-    cosignersId: string,
-    verificationToken: number
-  ): Promise<{
-    valid: boolean;
-    id?: string;
-    isBIP85?: boolean;
-    xpub?: string;
-    masterFingerprint?: string;
-    derivationPath?: string;
-    policy?: SignerPolicy;
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchSignerSetupViaCosigners`, {
-        HEXA_ID,
-        cosignersId,
-        verificationToken,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { valid } = res.data;
-    if (!valid) throw new Error('Signer validation failed');
-
-    const { id, isBIP85, xpub, masterFingerprint, derivationPath, policy } = res.data;
-
-    return {
-      valid,
-      id,
-      isBIP85,
-      xpub,
-      masterFingerprint,
-      derivationPath,
-      policy,
-    };
-  };
-
-  static findSignerSetup = async (
-    ids: string[],
-    verificationToken: number
-  ): Promise<{
-    valid: boolean;
-    id?: string;
-    isBIP85?: boolean;
-    xpub?: string;
-    masterFingerprint?: string;
-    derivationPath?: string;
-    policy?: SignerPolicy;
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/findSignerSetup`, {
-        HEXA_ID,
-        ids,
-        verificationToken,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { valid } = res.data;
-    if (!valid) throw new Error('Signer validation failed');
-
-    const { id, isBIP85, xpub, masterFingerprint, derivationPath, policy } = res.data;
-
-    return {
-      valid,
-      id,
-      isBIP85,
-      xpub,
-      masterFingerprint,
-      derivationPath,
-      policy,
-    };
-  };
-
   static updateBackupSetting = async (
     id: string,
     verifierDigest: string,
@@ -204,8 +125,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/updateBackupSetting`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/updateBackupSetting`, {
+        HEXA_ID: getHexaId(),
         id,
         verifierDigest,
         disable,
@@ -230,8 +151,8 @@ export default class SigningServer {
     const { privateKey, publicKey } = await generateRSAKeypair();
 
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchBackup`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/fetchBackup`, {
+        HEXA_ID: getHexaId(),
         id,
         verificationToken,
         publicKey,
@@ -263,8 +184,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/updateSignerPolicy`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/updateSignerPolicy`, {
+        HEXA_ID: getHexaId(),
         id,
         verificationToken,
         updates,
@@ -283,31 +204,6 @@ export default class SigningServer {
     };
   };
 
-  static updateCosignersToSignerMap = async (
-    id: string,
-    cosignersMapUpdates: CosignersMapUpdate[]
-  ): Promise<{
-    updated: boolean;
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/updateCosignersToSignerMap`, {
-        HEXA_ID,
-        id,
-        cosignersMapUpdates,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { updated } = res.data;
-    if (!updated) throw new Error('Failed to update cosigners to signer map');
-    return {
-      updated,
-    };
-  };
-
   static signPSBT = async (
     id: string,
     serializedPSBT: string,
@@ -322,8 +218,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/signTransaction`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/signTransaction`, {
+        HEXA_ID: getHexaId(),
         id,
         serializedPSBT,
         verificationToken,
@@ -352,8 +248,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchSignedDelayedTransaction`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/fetchSignedDelayedTransaction`, {
+        HEXA_ID: getHexaId(),
         txid,
         verificationToken,
       });
@@ -378,8 +274,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/cancelDelayedTransaction`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/cancelDelayedTransaction`, {
+        HEXA_ID: getHexaId(),
         signerId,
         txid,
         verificationToken,
@@ -404,8 +300,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchDelayedPolicyUpdate`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/fetchDelayedPolicyUpdate`, {
+        HEXA_ID: getHexaId(),
         policyId,
         verificationToken,
       });
@@ -429,8 +325,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/checkSignerHealth`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/checkSignerHealth`, {
+        HEXA_ID: getHexaId(),
         id,
         verificationToken,
       });
@@ -453,8 +349,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/migrateSignerPolicy`, {
-        HEXA_ID,
+      res = await RestClient.post(`${getSigningServerURL()}v3/migrateSignerPolicy`, {
+        HEXA_ID: getHexaId(),
         id,
         oldPolicy,
       });
@@ -466,39 +362,16 @@ export default class SigningServer {
     const { newPolicy } = res.data;
     return { newPolicy };
   };
-
-  static migrateSignersV2ToV3 = async (
-    vaultId: string,
-    appId: string,
-    cosignersMapUpdates: CosignersMapUpdate[]
-  ): Promise<{
-    migrationSuccessful: boolean;
-    setupData: {
-      id: string;
-      isBIP85: boolean;
-      bhXpub: string;
-      masterFingerprint: string;
-      derivationPath: string;
-      verification: any;
-    };
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RestClient.post(`${SIGNING_SERVER}v3/migrateSignersV2ToV3`, {
-        HEXA_ID,
-        vaultId,
-        appId,
-        cosignersMapUpdates,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { migrationSuccessful, setupData } = res.data;
-    return {
-      migrationSuccessful,
-      setupData,
-    };
-  };
 }
+
+const getSigningServerURL = () => {
+  const { bitcoinNetworkType } = store.getState().settings;
+  return bitcoinNetworkType === NetworkType.TESTNET
+    ? SIGNING_SERVER_TESTNET
+    : SIGNING_SERVER_MAINNET;
+};
+
+const getHexaId = () => {
+  const { bitcoinNetworkType } = store.getState().settings;
+  return bitcoinNetworkType === NetworkType.TESTNET ? HEXA_ID_TESTNET : HEXA_ID_MAINNET;
+};

@@ -5,16 +5,13 @@ import {
   addSigningDeviceWatcher,
   deleteSigningDeviceWatcher,
   autoWalletsSyncWatcher,
-  finaliseVaultMigrationWatcher,
   migrateVaultWatcher,
   refreshWalletsWatcher,
-  syncWalletsWatcher,
   testcoinsWatcher,
   updateSignerPolicyWatcher,
   updateWalletDetailWatcher,
   updateSignerDetails,
   updateKeyDetails,
-  updateWalletsPropertyWatcher,
   updateVaultDetailsWatcher,
   deleteVaultyWatcher,
   reinstateVaultWatcher,
@@ -72,6 +69,7 @@ import {
   addTicketStatusUAIWatcher,
   scheduleOnboardingCallWatcher,
 } from './concierge';
+import { changeBitcoinNetworkWatcher } from './settings';
 
 const rootSaga = function* () {
   const sagas = [
@@ -93,11 +91,9 @@ const rootSaga = function* () {
     addNewWalletsWatcher,
     autoWalletsSyncWatcher,
     refreshWalletsWatcher,
-    syncWalletsWatcher,
     updateSignerPolicyWatcher,
     testcoinsWatcher,
     updateWalletDetailWatcher,
-    updateWalletsPropertyWatcher,
     generateNewExternalAddressWatcher,
 
     // vaults
@@ -105,7 +101,6 @@ const rootSaga = function* () {
     addSigningDeviceWatcher,
     deleteSigningDeviceWatcher,
     migrateVaultWatcher,
-    finaliseVaultMigrationWatcher,
     updateVaultDetailsWatcher,
     updateSignerDetails,
     updateKeyDetails,
@@ -159,6 +154,8 @@ const rootSaga = function* () {
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
     scheduleOnboardingCallWatcher,
+    // settings
+    changeBitcoinNetworkWatcher,
   ];
 
   yield all(

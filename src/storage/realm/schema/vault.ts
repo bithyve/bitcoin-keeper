@@ -128,6 +128,7 @@ export const SignerSchema: ObjectSchema = {
     extraData: '{}?',
     archived: { type: 'bool', default: false },
     isExternal: 'bool?',
+    networkType: { type: 'string' },
   },
 };
 
@@ -138,7 +139,6 @@ export const VaultPresentationDataSchema: ObjectSchema = {
     name: 'string',
     description: 'string',
     visibility: 'string',
-    shell: 'int',
   },
 };
 
@@ -231,11 +231,9 @@ export const VaultSchema: ObjectSchema = {
   name: RealmSchema.Vault,
   properties: {
     id: 'string',
-    shellId: 'string',
     entityKind: 'string',
     type: 'string',
     networkType: 'string',
-    isUsable: 'bool',
     isMultiSig: 'bool',
     scheme: `${RealmSchema.VaultScheme}`,
     signers: `${RealmSchema.VaultSigner}[]`,

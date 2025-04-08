@@ -72,7 +72,7 @@ import {
   healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned } from '../sagaActions/uai';
-import { setAppId } from '../reducers/storage';
+import { setAppId, setDefaultWalletCreated } from '../reducers/storage';
 import { applyUpgradeSequence, KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
@@ -192,7 +192,6 @@ export function* updateVaultImageWorker({
   try {
     const response = yield call(Relay.updateVaultImage, {
       appID: id,
-      vaultShellId: vault.shellId,
       vaultId: vault.id,
       signersData,
       vault: vaultEncrypted,
@@ -325,6 +324,7 @@ function* getAppImageWorker({ payload }) {
     if (!bip39.validateMnemonic(primaryMnemonic)) {
       throw Error('Invalid mnemonic');
     }
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
@@ -376,15 +376,12 @@ function* getAppImageWorker({ payload }) {
         walletDetails: {
           name: 'Mobile Wallet',
           description: '',
-          derivationConfig: {
-            path: WalletUtilities.getDerivationPath(
-              false,
-              config.NETWORK_TYPE,
-              0,
-              DerivationPurpose.BIP84
-            ),
-            purpose: DerivationPurpose.BIP84,
-          },
+          derivationPath: WalletUtilities.getDerivationPath(
+            false,
+            bitcoinNetworkType,
+            0,
+            DerivationPurpose.BIP84
+          ),
           instanceNum: 0,
         },
       };
@@ -409,6 +406,7 @@ function* getAppImageWorker({ payload }) {
       }
     }
     yield put(autoSyncWallets(true, true, false));
+    yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
   } catch (err) {
     yield put(setAppImageError(err.message));
   } finally {
@@ -427,6 +425,7 @@ function* recoverApp(
   labels,
   previousVersion
 ) {
+  const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
   const entropy = yield call(
     BIP85.bip39MnemonicToEntropy,
     config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
@@ -451,7 +450,7 @@ function* recoverApp(
       method: BackupType.SEED,
     },
     version: DeviceInfo.getVersion(),
-    networkType: config.NETWORK_TYPE,
+    networkType: bitcoinNetworkType,
   };
 
   yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
@@ -707,7 +706,7 @@ function* backupBsmsOnCloudWorker({
   const { lastBsmsBackup } = yield select((state: RootState) => state.bhr);
   if (!lastBsmsBackup) return;
   const { password } = payload;
-  if (password || password === '') yield put(setEncPassword(password));
+  if (password) yield put(setEncPassword(password));
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
     const { encPassword } = yield select((state: RootState) => state.bhr);
@@ -957,7 +956,6 @@ function* backupAllSignersAndVaultsWorker() {
         });
       }
       vaultObject[vault.id] = {
-        vaultShellId: vault.shellId,
         vaultId: vault.id,
         signersData,
         vault: vaultEncrypted,

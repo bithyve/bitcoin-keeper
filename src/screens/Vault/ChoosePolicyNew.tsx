@@ -10,36 +10,25 @@ import {
   VerificationType,
 } from 'src/models/interfaces/AssistedKeys';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
-// import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
 import Clipboard from '@react-native-community/clipboard';
-// import idx from 'idx';
 import { useDispatch } from 'react-redux';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// import { numberWithCommas } from 'src/utils/utilities';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-// import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import useToastMessage from 'src/hooks/useToastMessage';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
-// import useVault from 'src/hooks/useVault';
-import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useAppSelector } from 'src/store/hooks';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { setSignerPolicyError } from 'src/store/reducers/wallets';
 import WalletHeader from 'src/components/WalletHeader';
-import InfoIcon from 'src/assets/images/info_icon.svg';
-import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import DelayModalIcon from 'src/assets/images/delay-configuration-icon.svg';
 import DelaycompleteIcon from 'src/assets/images/delay-configuration-complete-icon.svg';
-import { Signer } from 'src/services/wallets/interfaces/vault';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { fetchDelayedPolicyUpdate } from 'src/store/sagaActions/storage';
-import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import { formatRemainingTime } from 'src/utils/utilities';
 import {
@@ -75,6 +64,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [delayModal, setDelayModal] = useState(false);
   const [configureSuccessModal, setConfigureSuccessModal] = useState(false);
   const [policyDelayedUntil, setPolicyDelayedUntil] = useState(null);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     if (maxTransaction !== undefined) {
@@ -85,7 +75,7 @@ function ChoosePolicyNew({ navigation, route }) {
       setSigningDelay(delayTime);
     }
   }, [route.params]);
-  const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
+  const isMainNet = bitcoinNetworkType === NetworkType.MAINNET;
 
   const MAINNET_SERVER_POLICY_DURATIONS = [
     { label: OFF, value: 0 },

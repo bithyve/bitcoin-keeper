@@ -1,4 +1,5 @@
 import { NodeDetail } from 'src/services/wallets/interfaces';
+import { NetworkType } from '../wallets/enums';
 
 export const predefinedTestnetNodes: NodeDetail[] = [
   {
@@ -8,6 +9,7 @@ export const predefinedTestnetNodes: NodeDetail[] = [
     isConnected: true,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.TESTNET,
   },
   {
     id: 334,
@@ -16,6 +18,7 @@ export const predefinedTestnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.TESTNET,
   },
 ];
 
@@ -27,6 +30,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: true,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 443,
@@ -35,6 +39,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 446,
@@ -43,6 +48,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 447,
@@ -51,6 +57,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 448,
@@ -59,6 +66,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 449,
@@ -67,5 +75,6 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
 ];

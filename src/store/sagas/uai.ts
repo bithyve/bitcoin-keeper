@@ -24,6 +24,7 @@ import {
 import { createWatcher } from '../utilities';
 import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
 import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
 const HEALTH_CHECK_REMINDER_TESTNET = 3; // 3hours
 const healthCheckReminderThreshold = isTestnet()
@@ -47,7 +48,9 @@ const healthCheckReminderHours = (lastHealthCheck: Date) => {
 export function* addToUaiStackWorker({ payload }) {
   const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
-    id: hash256(Buffer.from(Date.now().toString() + Math.random().toString())).toString(),
+    id: hash256(
+      Buffer.from(Date.now().toString() + Math.random().toString()).toString()
+    ).toString(),
     entityId,
     uaiType,
     uaiDetails,
@@ -152,7 +155,7 @@ function* uaiChecksWorker({ payload }) {
           if (lastHealthCheck >= healthCheckReminderThreshold) {
             const uaiCollection: UAI[] = dbManager.getObjectByField(
               RealmSchema.UAI,
-              signer.masterFingerprint,
+              signer.id,
               'entityId'
             );
             const uaiHCforSD = uaiCollection?.filter(
@@ -162,12 +165,13 @@ function* uaiChecksWorker({ payload }) {
               yield put(
                 addToUaiStack({
                   uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-                  entityId: signer.masterFingerprint,
+                  entityId: signer.id,
                   uaiDetails: {
                     // body: `Health check for ${signer.signerName} is due`,
                     body: !signer.isBIP85
                       ? `Health check for ${signer.signerName} is due`
                       : `Health check for ${signer.signerName} + is due`,
+                    networkType: signer.networkType,
                   },
                 })
               );

@@ -9,6 +9,7 @@ import {
 
 import {
   DerivationPurpose,
+  NetworkType,
   SignerStorage,
   SignerType,
   XpubTypes,
@@ -31,6 +32,7 @@ import * as b58 from 'bs58check';
 import HWError from './HWErrorState';
 
 const base58check = require('base58check');
+import { store } from 'src/store/store';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -57,10 +59,27 @@ export const generateSignerFromMetaData = ({
   signerPolicy = null,
   isAmf = false,
 }): { signer: Signer; key: VaultSigner } => {
-  const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
-  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+  const { bitcoinNetworkType } = store.getState().settings;
+  // Check network type by derivation path for jade
+  if ([SignerType.JADE].includes(signerType)) {
+    Object.entries(xpubDetails).forEach(([_, xpubDetail]) => {
+      if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(xpubDetail.derivationPath))
+        throw new HWError(HWErrorType.INCORRECT_NETWORK);
+    });
+  }
+
+  let networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
+
+  if (signerType === SignerType.KEYSTONE) {
+    if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(derivationPath))
+      throw new HWError(HWErrorType.INCORRECT_NETWORK);
+    // Keystone qr gives Zpub in testnet
+    else networkType = getNetworkTypeFromDerivationPath(derivationPath);
+  }
+
+  const network = WalletUtilities.getNetworkByType(bitcoinNetworkType);
   if (
-    networkType !== config.NETWORK_TYPE &&
+    networkType !== bitcoinNetworkType &&
     signerType !== SignerType.KEYSTONE &&
     signerType !== SignerType.JADE
   ) {
@@ -104,6 +123,7 @@ export const generateSignerFromMetaData = ({
     signerPolicy,
     signerXpubs,
     hidden: false,
+    networkType,
   };
   signer.id = getKeyUID(signer);
 
@@ -244,8 +264,8 @@ export const getSignerSigTypeInfo = (key: VaultSigner, signer: Signer) => {
 };
 
 export const getMockSigner = (signerType: SignerType) => {
-  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-    const networkType = config.NETWORK_TYPE;
+  const { bitcoinNetworkType: networkType } = store.getState().settings;
+  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT && networkType === NetworkType.TESTNET) {
     // fetched multi-sig key
     const {
       xpub: multiSigXpub,
@@ -472,8 +492,9 @@ export const extractKeyFromDescriptor = (data) => {
 
 export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
   try {
+    const { bitcoinNetworkType } = store.getState().settings;
     const psbt = bitcoinJS.Psbt.fromBase64(serializedPSBT, {
-      network: WalletUtilities.getNetworkByType(config.NETWORK_TYPE),
+      network: WalletUtilities.getNetworkByType(bitcoinNetworkType),
     });
     const txids = psbt.txInputs.map((input) => {
       const item = reverse(input.hash).toString('hex');
@@ -583,4 +604,10 @@ export const createXpubDetails = (data) => {
     ? singleSig.derivationPath
     : taproot.derivationPath;
   return { xpub, derivationPath, masterFingerprint, xpubDetails };
+};
+
+export const getNetworkTypeFromDerivationPath = (derivationPath: string) => {
+  return parseInt(derivationPath.replace(/[']/g, '').split('/')[2]) == 0
+    ? NetworkType.MAINNET
+    : NetworkType.TESTNET;
 };

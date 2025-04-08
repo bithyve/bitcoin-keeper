@@ -15,7 +15,7 @@ import {
   VaultScheme,
   VaultSigner,
 } from 'src/services/wallets/interfaces/vault';
-import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
+import { addNewVault, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
@@ -33,7 +33,6 @@ import {
   generateVaultId,
 } from 'src/services/wallets/factories/VaultFactory';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
-import config from 'src/utils/service-utilities/config';
 import {
   MONTHS_12,
   MONTHS_3,
@@ -106,6 +105,7 @@ function VaultMigrationController({
   const [newVault, setNewVault] = useState(null);
   const [checkAddressModalVisible, setCheckAddressModalVisible] = useState(false);
   const { vaultSigners } = useSigners(activeVault?.id);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const DEVICES_WITH_SCREEN = [
     SignerType.BITBOX02,
@@ -148,7 +148,6 @@ function VaultMigrationController({
     useCallback(() => {
       if (vaultId && temporaryVault) {
         dispatch(sendPhasesReset());
-        createNewVault();
       }
     }, [temporaryVault, vaultId])
   );
@@ -228,10 +227,6 @@ function VaultMigrationController({
         })
       );
     }
-  };
-
-  const createNewVault = () => {
-    dispatch(finaliseVaultMigration(activeVault.id));
   };
 
   useFocusEffect(
@@ -379,7 +374,7 @@ function VaultMigrationController({
 
     if (inheritanceSigners?.length) {
       for (const { key, duration } of inheritanceSigners) {
-        const timelock = getTimelockDuration(duration, config.NETWORK_TYPE);
+        const timelock = getTimelockDuration(duration, bitcoinNetworkType);
         if (!timelock) {
           showToast('Failed to determine inheritance timelock duration', <ToastErrorIcon />);
           return;
@@ -393,7 +388,7 @@ function VaultMigrationController({
 
     if (emergencySigners?.length) {
       for (const { key, duration } of emergencySigners) {
-        const timelock = getTimelockDuration(duration, config.NETWORK_TYPE);
+        const timelock = getTimelockDuration(duration, bitcoinNetworkType);
         if (!timelock) {
           showToast('Failed to determine emergency timelock duration', <ToastErrorIcon />);
           return;
@@ -484,7 +479,7 @@ function VaultMigrationController({
 
       if (activeVault) {
         // case: vault migration; old -> new
-        dispatch(migrateVault(vaultInfo, activeVault.shellId));
+        dispatch(migrateVault(vaultInfo, activeVault.id));
       } else {
         // case: new vault creation
         const generatedVaultId = generateVaultId(vaultInfo.vaultSigners, vaultInfo.vaultScheme);
