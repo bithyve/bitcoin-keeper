@@ -140,6 +140,13 @@ const storageSlice = createSlice({
       state,
       action: PayloadAction<{ networkType: NetworkType; created: boolean }>
     ) => {
+      // defaultWalletCreated is undefined in case of updated app due to rehydrate issue.
+      if (!state.defaultWalletCreated) {
+        state.defaultWalletCreated = {
+          [NetworkType.MAINNET]: false,
+          [NetworkType.TESTNET]: false,
+        };
+      }
       state.defaultWalletCreated[action.payload.networkType] = action.payload.created;
     },
   },

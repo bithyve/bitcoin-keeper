@@ -37,14 +37,17 @@ function SplashScreen({ navigation }) {
   };
 
   useEffect(() => {
-    if (!bitcoinNetworkType)
+    if (!bitcoinNetworkType) {
       dispatch(
         setDefaultWalletCreated({
           networkType: config.isDevMode() ? NetworkType.TESTNET : NetworkType.MAINNET,
           created: true,
         })
       );
-    dispatch(changeBitcoinNetwork(config.isDevMode() ? NetworkType.TESTNET : NetworkType.MAINNET));
+      dispatch(
+        changeBitcoinNetwork(config.isDevMode() ? NetworkType.TESTNET : NetworkType.MAINNET)
+      );
+    }
   }, []);
 
   useEffect(() => {
