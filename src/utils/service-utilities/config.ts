@@ -19,8 +19,8 @@ const DEFAULT_CONFIG = {
   SIGNING_SERVER_TESTNET: 'https://dev-sign.bithyve.com/',
   SIGNING_SERVER_MAINNET: 'https://dev-sign.bithyve.com/',
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
-  HEXA_ID_TESTNET: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a', // ! check on this implementation
-  HEXA_ID_MAINNET: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a', // ! check on this implementation
+  HEXA_ID_TESTNET: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
+  HEXA_ID_MAINNET: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
   CHANNEL_URL: 'https://keeper-channel-dev-8d01fa5233d0.herokuapp.com/',
