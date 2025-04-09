@@ -448,7 +448,7 @@ function ChoosePlan() {
     if (!currentItem) return { text: 'Get Started', disabled: false };
 
     const isPleb = currentItem.productIds.includes('pleb');
-    const isKeeperPrivate = currentItem.productIds[0].includes('keeper_black');
+    const isKeeperPrivate = currentItem.productIds[0].includes('keeper_private');
     const isSubscribed =
       (!isPleb &&
         currentItem.productIds.includes(subscription.productId.toLowerCase()) &&

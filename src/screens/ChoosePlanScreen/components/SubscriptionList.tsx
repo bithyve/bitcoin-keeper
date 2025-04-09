@@ -170,7 +170,7 @@ const SubscriptionList: React.FC<{
                 </>
               )}
 
-              {(!playServiceUnavailable || !isKeeperPrivate) && priceDisplay}
+              {playServiceUnavailable ? null : isKeeperPrivate ? null : priceDisplay}
 
               {isExpanded && (
                 <Box style={styles.btmCTR}>
