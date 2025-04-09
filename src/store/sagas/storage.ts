@@ -1,13 +1,12 @@
 import * as bip39 from 'bip39';
 import { call, put, select } from 'redux-saga/effects';
 import { generateEncryptionKey } from 'src/utils/service-utilities/encryption';
-import { v4 as uuidv4 } from 'uuid';
 import BIP85 from 'src/services/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { SignerType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, SignerType, WalletType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -25,16 +24,20 @@ import {
   SETUP_KEEPER_APP,
 } from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
-import { deleteDelayedPolicyUpdate, setAppId, updateDelayedTransaction } from '../reducers/storage';
+import {
+  deleteDelayedPolicyUpdate,
+  setAppId,
+  setDefaultWalletCreated,
+  updateDelayedTransaction,
+} from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
-
-export const defaultTransferPolicyThreshold = null;
-export const maxTransferPolicyThreshold = 1e11;
+import { RootState } from '../store';
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;
     let primaryMnemonic;
     let primarySeed;
@@ -78,7 +81,7 @@ export function* setupKeeperAppWorker({ payload }) {
         },
         backup: {},
         version: DeviceInfo.getVersion(),
-        networkType: config.NETWORK_TYPE,
+        networkType: bitcoinNetworkType,
         enableAnalytics: false,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);
@@ -88,17 +91,20 @@ export function* setupKeeperAppWorker({ payload }) {
         walletDetails: {
           name: 'Mobile Wallet',
           description: '',
-          transferPolicy: {
-            id: uuidv4(),
-            threshold: 0,
-          },
           instanceNum: 0,
+          derivationPath: WalletUtilities.getDerivationPath(
+            false,
+            bitcoinNetworkType,
+            0,
+            DerivationPurpose.BIP84
+          ),
         },
       };
 
       const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
       yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
+      yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
       yield put(setAppId(appID));
       yield put(resetRealyWalletState());
     } else {

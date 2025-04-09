@@ -45,7 +45,6 @@ import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory
 // TAPSIGNER = 'TAPSIGNER',
 // POLICY_SERVER = 'POLICY_SERVER',
 // OTHER_SD = 'OTHER_SD',
-// INHERITANCEKEY = 'INHERITANCEKEY',
 // UNKOWN_SIGNER = 'UNKNOWN_SIGNER',
 
 jest.setTimeout(20000);

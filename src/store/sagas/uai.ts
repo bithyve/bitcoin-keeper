@@ -3,11 +3,9 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put, select } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
-import { v4 as uuidv4 } from 'uuid';
 
-import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind, SignerType, VaultType } from 'src/services/wallets/enums';
+import { SignerType, VaultType } from 'src/services/wallets/enums';
 import { BackupHistory } from 'src/models/enums/BHR';
 import {
   createUaiMap,
@@ -26,6 +24,7 @@ import {
 import { createWatcher } from '../utilities';
 import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
 import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
 const HEALTH_CHECK_REMINDER_TESTNET = 3; // 3hours
 const healthCheckReminderThreshold = isTestnet()
@@ -46,17 +45,12 @@ const healthCheckReminderHours = (lastHealthCheck: Date) => {
   return differenceInHours;
 };
 
-const healthCheckReminderMinutes = (lastHealthCheck: Date) => {
-  const today = new Date();
-  const differenceInTime = today.getTime() - lastHealthCheck.getTime();
-  const differenceInMinutes = Math.round(differenceInTime / (1000 * 60));
-  return differenceInMinutes;
-};
-
 export function* addToUaiStackWorker({ payload }) {
   const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
-    id: uuidv4(),
+    id: hash256(
+      Buffer.from(Date.now().toString() + Math.random().toString()).toString()
+    ).toString(),
     entityId,
     uaiType,
     uaiDetails,
@@ -147,39 +141,6 @@ function* uaiChecksWorker({ payload }) {
         yield put(uaiActioned({ uaiId: secureVaultUai.id, action: true }));
       }
     }
-    if (checkForTypes.includes(uaiType.VAULT_TRANSFER)) {
-      const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
-      const uaiCollectionVaultTransfer: UAI[] = dbManager.getObjectByField(
-        RealmSchema.UAI,
-        uaiType.VAULT_TRANSFER,
-        'uaiType'
-      );
-      for (const wallet of wallets) {
-        const uai = uaiCollectionVaultTransfer.find((uai) => uai.entityId === wallet.id);
-        if (
-          wallet.entityKind === EntityKind.WALLET &&
-          wallet?.transferPolicy?.threshold > 0 &&
-          wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed >=
-            Number(wallet?.transferPolicy?.threshold)
-        ) {
-          if (!uai) {
-            yield put(
-              addToUaiStack({
-                uaiType: uaiType.VAULT_TRANSFER,
-                entityId: wallet.id,
-                uaiDetails: {
-                  body: `Transfer fund to vault from ${wallet.presentationData.name}`,
-                },
-              })
-            );
-          }
-        } else {
-          if (uai) {
-            yield put(uaiActioned({ entityId: uai.entityId, action: true }));
-          }
-        }
-      }
-    }
     if (checkForTypes.includes(uaiType.SIGNING_DEVICES_HEALTH_CHECK)) {
       // check for each signer if health check uai is needed
       const signers: Signer[] = dbManager
@@ -194,7 +155,7 @@ function* uaiChecksWorker({ payload }) {
           if (lastHealthCheck >= healthCheckReminderThreshold) {
             const uaiCollection: UAI[] = dbManager.getObjectByField(
               RealmSchema.UAI,
-              signer.masterFingerprint,
+              signer.id,
               'entityId'
             );
             const uaiHCforSD = uaiCollection?.filter(
@@ -204,12 +165,13 @@ function* uaiChecksWorker({ payload }) {
               yield put(
                 addToUaiStack({
                   uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-                  entityId: signer.masterFingerprint,
+                  entityId: signer.id,
                   uaiDetails: {
                     // body: `Health check for ${signer.signerName} is due`,
                     body: !signer.isBIP85
                       ? `Health check for ${signer.signerName} is due`
                       : `Health check for ${signer.signerName} + is due`,
+                    networkType: signer.networkType,
                   },
                 })
               );

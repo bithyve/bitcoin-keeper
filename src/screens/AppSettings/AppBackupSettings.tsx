@@ -20,7 +20,6 @@ import { VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import useCanaryVault from 'src/hooks/useCanaryWallets';
 import { captureError } from 'src/services/sentry';
@@ -55,7 +54,7 @@ function AppBackupSettings() {
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
-
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   useEffect(() => {
     if (relayVaultUpdate) {
       navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
@@ -84,7 +83,7 @@ function AppBackupSettings() {
           masterFingerprint: publicId,
           xfp: WalletUtilities.getFingerprintFromExtendedKey(
             singleSigSigner.xpub,
-            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+            WalletUtilities.getNetworkByType(bitcoinNetworkType)
           ),
         };
         const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);

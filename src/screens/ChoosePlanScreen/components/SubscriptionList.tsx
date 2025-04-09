@@ -25,6 +25,7 @@ const SubscriptionList: React.FC<{
   isMonthly: boolean;
   getButtonText?: any;
   listFooterCta?: React.ReactNode;
+  playServiceUnavailable?: boolean;
 }> = ({
   plans,
   currentPosition,
@@ -33,6 +34,7 @@ const SubscriptionList: React.FC<{
   isMonthly,
   getButtonText,
   listFooterCta,
+  playServiceUnavailable = false,
 }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
@@ -149,19 +151,26 @@ const SubscriptionList: React.FC<{
                   />
                 </Box>
               </View>
-              {isKeeperPrivate && !isExpanded ? null : (
-                <Box style={styles.divider} backgroundColor={`${colorMode}.brownColor`}></Box>
-              )}
+              {isKeeperPrivate && !isExpanded
+                ? null
+                : (!playServiceUnavailable || isExpanded) && (
+                    <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
+                      {' '}
+                    </Box>
+                  )}
+
               {isExpanded && (
                 <>
                   <PlanDetailsCards plansData={plans} currentPosition={currentPosition} />
-                  <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
-                    {' '}
-                  </Box>
+                  {!playServiceUnavailable && (
+                    <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
+                      {' '}
+                    </Box>
+                  )}
                 </>
               )}
 
-              {!isKeeperPrivate && priceDisplay}
+              {(!playServiceUnavailable || !isKeeperPrivate) && priceDisplay}
 
               {isExpanded && (
                 <Box style={styles.btmCTR}>

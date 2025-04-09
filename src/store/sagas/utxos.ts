@@ -48,7 +48,6 @@ export function* addLabelsWorker({
       RealmSchema.KeeperApp
     );
     yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
-    yield put(resetState());
     try {
       const backupResponse = yield call(checkBackupCondition);
       if (!backupResponse) {
@@ -63,6 +62,7 @@ export function* addLabelsWorker({
       console.log('🚀 ~ addLabelsWorker error:', error);
       yield call(setServerBackupFailed);
     }
+    yield put(resetState());
   } catch (e) {
     yield put(setSyncingUTXOError(e));
   } finally {
@@ -78,7 +78,7 @@ export function* bulkUpdateLabelsWorker({
       added: { isSystem: boolean; name: string }[];
       deleted: { isSystem: boolean; name: string }[];
     };
-    UTXO?: UTXO;
+    UTXO?: { txId: string; vout: number };
     txId?: string;
     address?: string;
     wallet: Wallet;
@@ -90,12 +90,12 @@ export function* bulkUpdateLabelsWorker({
     const origin = generateAbbreviatedOutputDescriptors(wallet);
     let addedTags: BIP329Label[] = [];
     let deletedTagIds: string[] = [];
-    const idSuffix = txId || address || `${UTXO.txId}:${UTXO.vout}`;
+    const ref = txId || address || `${UTXO.txId}:${UTXO.vout}`;
+
     if (labelChanges.added) {
-      const ref = txId || address || `${UTXO.txId}:${UTXO.vout}`;
       const type = txId ? LabelRefType.TXN : address ? LabelRefType.ADDR : LabelRefType.OUTPUT;
       addedTags = labelChanges.added.map((label) => ({
-        id: `${idSuffix}${label.name}`,
+        id: `${ref}${label.name}`,
         ref,
         type,
         label: label.name,
@@ -104,7 +104,7 @@ export function* bulkUpdateLabelsWorker({
       }));
     }
     if (labelChanges.deleted) {
-      deletedTagIds = labelChanges.deleted.map((label) => `${idSuffix}${label.name}`);
+      deletedTagIds = labelChanges.deleted.map((label) => `${ref}${label.name}`);
     }
     const { primarySeed, id }: KeeperApp = yield call(
       dbManager.getObjectByIndex,
@@ -113,7 +113,6 @@ export function* bulkUpdateLabelsWorker({
     yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
     for (const element of deletedTagIds) {
       yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
-      yield put(resetState());
     }
     try {
       const backupResponse = yield call(checkBackupCondition);
@@ -123,7 +122,7 @@ export function* bulkUpdateLabelsWorker({
           id: hash256(hash256(encryptionKey + tag.id)),
           content: encrypt(encryptionKey, JSON.stringify(tag)),
         }));
-        const tagsToDelete = deletedTagIds.map((tag) => hash256(tag));
+        const tagsToDelete = deletedTagIds.map((tag) => hash256(hash256(encryptionKey + tag)));
         yield fork(
           Relay.modifyLabels,
           id,
@@ -134,6 +133,7 @@ export function* bulkUpdateLabelsWorker({
     } catch (error) {
       yield call(setServerBackupFailed);
     }
+    yield put(resetState());
   } catch (e) {
     yield put(setSyncingUTXOError(e));
   } finally {

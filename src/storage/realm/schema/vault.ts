@@ -38,52 +38,6 @@ export const SignerPolicy: ObjectSchema = {
   },
 };
 
-export const InheritanceConfigurationSchema: ObjectSchema = {
-  name: RealmSchema.InheritanceConfiguration,
-  embedded: true,
-  properties: {
-    id: 'string',
-    m: 'int',
-    n: 'int',
-    descriptors: 'string[]',
-    bsms: 'string?',
-  },
-};
-
-export const InheritancePolicyNotificationSchema: ObjectSchema = {
-  name: RealmSchema.InheritancePolicyNotification,
-  embedded: true,
-  properties: {
-    targets: 'string[]',
-  },
-};
-
-export const InheritancePolicyAlertSchema: ObjectSchema = {
-  name: RealmSchema.InheritancePolicyAlert,
-  embedded: true,
-  properties: {
-    emails: 'string[]',
-  },
-};
-
-export const InheritancePolicySchema: ObjectSchema = {
-  name: RealmSchema.InheritancePolicy,
-  embedded: true,
-  properties: {
-    notification: RealmSchema.InheritancePolicyNotification,
-    alert: `${RealmSchema.InheritancePolicyAlert}?`,
-  },
-};
-
-export const InheritanceKeyInfoSchema: ObjectSchema = {
-  name: RealmSchema.InheritanceKeyInfo,
-  embedded: true,
-  properties: {
-    configurations: `${RealmSchema.InheritanceConfiguration}[]`,
-    policy: `${RealmSchema.InheritancePolicy}?`,
-  },
-};
-
 export const KeySpecsSchema: ObjectSchema = {
   name: RealmSchema.KeySpecs,
   properties: {
@@ -158,10 +112,11 @@ export const SignerSchema: ObjectSchema = {
     storageType: 'string',
     isBIP85: 'bool?',
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
-    inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
     hidden: { type: 'bool', default: false },
     extraData: '{}?',
     archived: { type: 'bool', default: false },
+    isExternal: 'bool?',
+    networkType: { type: 'string' },
   },
 };
 
@@ -172,7 +127,6 @@ export const VaultPresentationDataSchema: ObjectSchema = {
     name: 'string',
     description: 'string',
     visibility: 'string',
-    shell: 'int',
   },
 };
 
@@ -256,7 +210,6 @@ export const VaultSpecsSchema: ObjectSchema = {
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,
     transactions: `${RealmSchema.Transaction}[]`,
-    txNote: '{}',
     hasNewUpdates: 'bool',
     lastSynched: 'int',
   },
@@ -266,11 +219,9 @@ export const VaultSchema: ObjectSchema = {
   name: RealmSchema.Vault,
   properties: {
     id: 'string',
-    shellId: 'string',
     entityKind: 'string',
     type: 'string',
     networkType: 'string',
-    isUsable: 'bool',
     isMultiSig: 'bool',
     scheme: `${RealmSchema.VaultScheme}`,
     signers: `${RealmSchema.VaultSigner}[]`,

@@ -1,7 +1,15 @@
-import { Dimensions, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useRoute } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { Box, Image, Text, useColorMode } from 'native-base';
+import {
+  Dimensions,
+  FlatList,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  Vibration,
+  View,
+} from 'react-native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useContext, useEffect, useState } from 'react';
+import { Box, Text, useColorMode } from 'native-base';
 import Next from 'src/assets/images/icon_arrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -12,24 +20,107 @@ import moment from 'moment';
 import useSigners from 'src/hooks/useSigners';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import KeeperModal from 'src/components/KeeperModal';
+import RegisterMultisig from '../SignTransaction/component/RegisterMultisig';
+import { SignerType, VaultType } from 'src/services/wallets/enums';
+import useVault from 'src/hooks/useVault';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
+import NFC from 'src/services/nfc';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import { NfcTech } from 'react-native-nfc-manager';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
 function SignerSelectionListScreen() {
   const { params } = useRoute();
   const { colorMode } = useColorMode();
-  const { vaultId, signersMFP, title, description, callback } = params as {
+  const navigation = useNavigation();
+  const { vaultId, signersMFP, title, description, callback, vaultKeydata, mode } = params as {
     vaultId: string;
     signersMFP: string[];
     title: string;
     description: string;
+    vaultKeydata: any;
     callback: (signer, signerName) => void;
+    mode: InteracationMode;
   };
-
   const { vaultSigners } = useSigners(vaultId);
   const [availableSigners] = useState(
     vaultSigners.filter((signer) => signersMFP?.includes(signer.masterFingerprint))
   );
+
+  const [registerSignerModal, setRegisterSignerModal] = useState(false);
+  const [selectedSigner, setSelectedSigner] = useState(null);
+
+  const vaultKey = vaultKeydata?.find(
+    (item) => item?.masterFingerprint === selectedSigner?.masterFingerprint
+  );
+
+  const { activeVault } = useVault({ vaultId, includeArchived: false });
+  const [nfcVisible, setNfcVisible] = useState(false);
+  const { session } = useContext(HCESessionContext);
+
+  const isAndroid = Platform.OS === 'android';
+  const isIos = Platform.OS === 'ios';
+
+  useEffect(() => {
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      cleanUp();
+    });
+    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {});
+    return () => {
+      cleanUp();
+      unsubRead();
+      unsubDisconnect();
+    };
+  }, [session]);
+
+  const handleSignerPress = (signer) => {
+    if (signer.type === SignerType.PORTAL) {
+      callback(signer, getSignerNameFromType(signer.type));
+    } else {
+      if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+        callback(signer, getSignerNameFromType(signer.type));
+        return;
+      }
+      setSelectedSigner(signer);
+      setRegisterSignerModal(true);
+    }
+  };
+
+  const cleanUp = () => {
+    setNfcVisible(false);
+    Vibration.cancel();
+    if (isAndroid) {
+      NFC.stopTagSession(session);
+    }
+  };
+
+  const shareWithNFC = async (details) => {
+    try {
+      if (isIos) {
+        if (!isIos) {
+          setNfcVisible(true);
+        }
+        Vibration.vibrate([700, 50, 100, 50], true);
+        const enc = NFC.encodeTextRecord(details);
+        await NFC.send([NfcTech.Ndef], enc);
+        cleanUp();
+      } else {
+        setNfcVisible(true);
+        await NFC.startTagSession({ session, content: details });
+        Vibration.vibrate([700, 50, 100, 50], true);
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error: Not even registered') {
+        console.log('NFC interaction cancelled.');
+        return;
+      }
+      console.log('Error ', err);
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -40,14 +131,37 @@ function SignerSelectionListScreen() {
         data={availableSigners}
         keyExtractor={(item) => getKeyUID(item)}
         renderItem={({ item }) => (
-          <SignerCard
-            onPress={(signer, signerName) => {
-              callback(signer, signerName);
-            }}
-            signer={item}
+          <SignerCard onPress={() => handleSignerPress(item)} signer={item} />
+        )}
+      />
+
+      <KeeperModal
+        visible={registerSignerModal}
+        close={() => setRegisterSignerModal(false)}
+        title="Register multisig"
+        subTitle="Register your active vault"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <RegisterMultisig
+            isUSBAvailable={
+              selectedSigner?.type === SignerType.COLDCARD ||
+              (selectedSigner?.type === SignerType.JADE &&
+                activeVault.type === VaultType.MINISCRIPT)
+            }
+            signer={selectedSigner || {}}
+            vaultId={vaultId}
+            vaultKey={vaultKey}
+            setRegisterSignerModal={setRegisterSignerModal}
+            activeVault={activeVault}
+            navigation={navigation}
+            CommonActions={CommonActions}
+            shareWithNFC={shareWithNFC}
           />
         )}
       />
+      <NfcPrompt visible={nfcVisible} close={cleanUp} ctaText="Done" />
     </ScreenWrapper>
   );
 }
@@ -65,23 +179,16 @@ const styles = StyleSheet.create({
     marginRight: 20,
     alignSelf: 'center',
   },
-  associatedContactImage: {
-    width: '70%',
-    height: '70%',
-    borderRadius: 100,
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
 });
 
 const SignerCard = ({ onPress, signer }) => {
   const { colorMode } = useColorMode();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, false);
+
   return (
-    <TouchableOpacity testID={`btn_transactionSigner`} onPress={() => onPress(signer, signerName)}>
+    <TouchableOpacity testID={`btn_transactionSigner`} onPress={onPress}>
       <Box margin={5}>
         <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
-          {/* TODO: Move to a component as it is the same as in SignerList.tsx */}
           <Box flexDirection="row">
             <View style={styles.inheritenceView}>
               <Box
@@ -103,9 +210,7 @@ const SignerCard = ({ onPress, signer }) => {
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
               >
-                {`${getSignerNameFromType(signer.type, signer.isMock, false)} (${
-                  signer.masterFingerprint
-                })`}
+                {`${signerName} (${signer.masterFingerprint})`}
               </Text>
               {signer.signerDescription ? (
                 <Text
@@ -113,7 +218,6 @@ const SignerCard = ({ onPress, signer }) => {
                   color={`${colorMode}.greenText`}
                   fontSize={12}
                   letterSpacing={0.6}
-                  fontStyle={null}
                   maxWidth={width * 0.6}
                 >
                   {signer.signerDescription}

@@ -1,7 +1,7 @@
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
-import config, { APP_STAGE } from 'src/utils/service-utilities/config';
+import config from 'src/utils/service-utilities/config';
 import {
   decrypt,
   encrypt,
@@ -27,28 +27,26 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import semver from 'semver';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
+import { BackupAction, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { VaultType } from 'src/services/wallets/enums';
+import { DerivationPurpose, VaultType, WalletType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
 import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
+import { autoSyncWallets, updateSignerDetails } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
   appImagerecoveryRetry,
   setAppImageError,
-  setAppRecoveryLoading,
   setAutomaticCloudBackup,
   setBackupAllFailure,
   setBackupAllLoading,
   setBackupAllSuccess,
   setBackupLoading,
   setBackupType,
-  setBackupWarning,
   setDeleteBackupFailure,
   setDeleteBackupSuccess,
   setEncPassword,
@@ -68,19 +66,17 @@ import {
   HEALTH_CHECK_STATUS_UPDATE,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
-  SET_BACKUP_WARNING,
   UPADTE_HEALTH_CHECK_SIGNER,
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
   healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned } from '../sagaActions/uai';
-import { setAppId } from '../reducers/storage';
-import { applyRestoreSequence } from './restoreUpgrade';
-import { KEY_MANAGEMENT_VERSION } from './upgrade';
+import { setAppId, setDefaultWalletCreated } from '../reducers/storage';
+import { applyUpgradeSequence, KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
-import { addSigningDeviceWorker } from './wallets';
+import { addNewWalletsWorker, addSigningDeviceWorker, NewWalletInfo } from './wallets';
 import { getKeyUID } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
@@ -91,66 +87,53 @@ export function* updateAppImageWorker({
   payload: {
     wallets?: Wallet[];
     signers?: Signer[];
+    updateNodes?: boolean;
   };
 }) {
-  const { wallets, signers } = payload;
-  const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
-    dbManager.getObjectByIndex,
-    RealmSchema.KeeperApp
-  );
-  const walletObject = {};
-  const signersObjects = {};
-  const encryptionKey = generateEncryptionKey(primarySeed);
-  if (wallets) {
-    for (const wallet of wallets) {
-      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
-      walletObject[wallet.id] = encrytedWallet;
-    }
-  } else if (signers) {
-    for (const signer of signers) {
-      const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
-      signersObjects[getKeyUID(signer)] = encrytedSigner;
-    }
-  } else {
-    // update all wallets and signers
-    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
-    for (const index in wallets) {
-      const wallet = wallets[index];
-      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
-      walletObject[wallet.id] = encrytedWallet;
-    }
-    const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    for (const index in signers) {
-      const signer = signers[index];
-      const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
-      signersObjects[getKeyUID(signer)] = encrytedSigner;
-    }
-  }
-
-  const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-  const nodesToUpdate = [];
-  if (nodes && nodes.length > 0) {
-    for (const index in nodes) {
-      const node = nodes[index];
-      node.isConnected = false;
-      const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
-      nodesToUpdate.push(encrytedNode);
-    }
-  }
-
-  // API call to Relay to do modular updates
   try {
     const backupResponse = yield call(checkBackupCondition);
     if (backupResponse) return { updated: true, error: '' };
+
+    const { wallets, signers, updateNodes } = payload;
+    const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
+    const walletsObject = {};
+    const signersObject = {};
+    const nodesList = [];
+    const encryptionKey = generateEncryptionKey(primarySeed);
+    if (wallets) {
+      for (const wallet of wallets) {
+        const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
+        walletsObject[wallet.id] = encrytedWallet;
+      }
+    } else if (signers) {
+      for (const signer of signers) {
+        const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+        signersObject[getKeyUID(signer)] = encrytedSigner;
+      }
+    } else if (updateNodes) {
+      const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+      if (nodes && nodes.length > 0) {
+        for (const index in nodes) {
+          const node = nodes[index];
+          node.isConnected = false;
+          const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
+          nodesList.push(encrytedNode);
+        }
+      }
+    }
+
     const response = yield call(Relay.updateAppImage, {
       appId: id,
       publicId,
-      walletObject,
-      signersObjects,
+      walletsObject,
+      signersObject,
       networkType,
       subscription: JSON.stringify(subscription),
       version,
-      nodes: nodesToUpdate,
+      nodes: nodesList,
     });
     return response;
   } catch (err) {
@@ -170,6 +153,9 @@ export function* updateVaultImageWorker({
     isUpdate?: boolean;
   };
 }) {
+  const backupResponse = yield call(checkBackupCondition);
+  if (backupResponse) return { updated: true, error: '' };
+
   const { vault, archiveVaultId, isUpdate } = payload;
   const { primarySeed, id, subscription }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
@@ -180,8 +166,6 @@ export function* updateVaultImageWorker({
   const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
-    const backupResponse = yield call(checkBackupCondition);
-    if (backupResponse) return { updated: true, error: '' };
     const response = yield call(Relay.updateVaultImage, {
       isUpdate,
       vaultId: vault.id,
@@ -206,11 +190,8 @@ export function* updateVaultImageWorker({
   const subscriptionStrings = JSON.stringify(subscription);
 
   try {
-    const backupResponse = yield call(checkBackupCondition);
-    if (backupResponse) return { updated: true, error: '' };
     const response = yield call(Relay.updateVaultImage, {
       appID: id,
-      vaultShellId: vault.shellId,
       vaultId: vault.id,
       signersData,
       vault: vaultEncrypted,
@@ -225,6 +206,7 @@ export function* updateVaultImageWorker({
   }
 }
 
+// TODO: Other functions here only handle Relay backup, but this also updates local DB, should move that part out
 export function* deleteAppImageEntityWorker({
   payload,
 }: {
@@ -273,10 +255,10 @@ export function* deleteVaultImageWorker({
   };
 }) {
   try {
-    const { vaultIds } = payload;
-    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const backupResponse = yield call(checkBackupCondition);
     if (backupResponse) return { updated: true, error: '' };
+    const { vaultIds } = payload;
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const response = yield call(Relay.deleteVaultImage, {
       appId: id,
       vaults: vaultIds,
@@ -339,51 +321,95 @@ function* getAppImageWorker({ payload }) {
   const { primaryMnemonic } = payload;
   try {
     yield put(setAppImageError(''));
-    yield put(setAppRecoveryLoading(true));
+    if (!bip39.validateMnemonic(primaryMnemonic)) {
+      throw Error('Invalid mnemonic');
+    }
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, subscription, labels, allVaultImages } = yield call(Relay.getAppImage, appID);
+    let appImage = { appId: appID, version: null, wallets: {}, signers: {}, nodes: [] };
+    let subscription = null;
+    let labels = [];
+    let allVaultImages = [];
 
-    // applying the restore upgrade sequence if required
-    const previousVersion = appImage.version;
-    const newVersion = DeviceInfo.getVersion();
-    if (semver.lt(previousVersion, newVersion)) {
-      yield call(applyRestoreSequence, {
-        previousVersion,
-        newVersion,
-        appImage,
-      });
+    try {
+      const response = yield call(Relay.getAppImage, appID);
+      if (response) {
+        appImage = response.appImage || appImage;
+        subscription = response.subscription || subscription;
+        labels = response.labels || labels;
+        allVaultImages = response.allVaultImages || allVaultImages;
+      }
+    } catch (err) {
+      console.log('Error retrieving app image from relay:', err);
+      // Continue with empty defaults
     }
-    if (appImage && subscription) {
-      // always set recovered app plan to pleb
-      const plebSubscription = {
-        productId: SubscriptionTier.L1,
-        name: SubscriptionTier.L1,
-        level: AppSubscriptionLevel.L1,
-        icon: 'assets/ic_pleb.svg',
-        receipt: '',
+
+    const previousVersion = appImage.version;
+
+    // always set recovered app plan to pleb
+    const plebSubscription = {
+      productId: SubscriptionTier.L1,
+      name: SubscriptionTier.L1,
+      level: AppSubscriptionLevel.L1,
+      icon: 'assets/ic_pleb.svg',
+      receipt: '',
+    };
+    yield call(
+      recoverApp,
+      primaryMnemonic,
+      primarySeed,
+      encryptionKey,
+      appID,
+      plebSubscription,
+      appImage,
+      allVaultImages,
+      labels,
+      previousVersion
+    );
+
+    if ((!appImage.wallets || !Object.entries(appImage.wallets).length) && !allVaultImages.length) {
+      // recreate first wallet
+      const defaultWallet: NewWalletInfo = {
+        walletType: WalletType.DEFAULT,
+        walletDetails: {
+          name: 'Mobile Wallet',
+          description: '',
+          derivationPath: WalletUtilities.getDerivationPath(
+            false,
+            bitcoinNetworkType,
+            0,
+            DerivationPurpose.BIP84
+          ),
+          instanceNum: 0,
+        },
       };
-      yield call(
-        recoverApp,
-        primaryMnemonic,
-        primarySeed,
-        encryptionKey,
-        appID,
-        plebSubscription,
-        appImage,
-        allVaultImages,
-        labels,
-        previousVersion
-      );
+      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
     }
 
     const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
     yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
+
+    // applying the restore upgrade sequence if required
+    const newVersion = DeviceInfo.getVersion();
+    if (previousVersion && semver.lt(previousVersion, newVersion)) {
+      console.log(`applying restore upgarde sequence - from: ${previousVersion} to ${newVersion}`);
+      yield call(applyUpgradeSequence, { previousVersion, newVersion });
+      try {
+        yield call(Relay.updateAppImage, {
+          appId: appImage.appId,
+          version: newVersion,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    yield put(autoSyncWallets(true, true, false));
+    yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
   } catch (err) {
     yield put(setAppImageError(err.message));
   } finally {
-    yield put(setAppRecoveryLoading(false));
     yield put(appImagerecoveryRetry());
   }
 }
@@ -399,6 +425,7 @@ function* recoverApp(
   labels,
   previousVersion
 ) {
+  const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
   const entropy = yield call(
     BIP85.bip39MnemonicToEntropy,
     config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
@@ -423,7 +450,7 @@ function* recoverApp(
       method: BackupType.SEED,
     },
     version: DeviceInfo.getVersion(),
-    networkType: config.NETWORK_TYPE,
+    networkType: bitcoinNetworkType,
   };
 
   yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
@@ -434,7 +461,6 @@ function* recoverApp(
       try {
         const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
         yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-        yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
       } catch (err) {
         console.log('Error recovering a wallet: ', err);
         continue;
@@ -511,7 +537,6 @@ function* recoverApp(
                 isMock: signer.isMock,
                 storageType: signer.storageType,
                 signerPolicy: signer.signerPolicy,
-                inheritanceKeyInfo: signer.inheritanceKeyInfo,
                 hidden: false,
                 signerXpubs,
               };
@@ -529,8 +554,6 @@ function* recoverApp(
     }
   }
 
-  yield put(setAppId(appID));
-
   // Labels Restore
   if (labels) {
     const restoredLabels = [];
@@ -544,33 +567,20 @@ function* recoverApp(
     yield call(dbManager.createObjectBulk, RealmSchema.Tags, restoredLabels);
   }
 
-  // seed confirm for recovery
-  yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-    title: BackupAction.SEED_BACKUP_CONFIRMED,
-    date: moment().unix(),
-    confirmed: true,
-    subtitle: 'Recovered using backup phrase',
-  });
-  yield put(setSeedConfirmed(true));
-  yield put(setBackupType(BackupType.SEED));
-  // create/add restored object for version
-  yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-    version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
-    date: new Date().toString(),
-    title: 'Restored version',
-  });
-
-  const existingNodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
   if (appImage.nodes) {
+    // Delete all default nodes to only use the nodes from the user's backup
+    const existingNodes: NodeDetail[] = yield call(
+      dbManager.getCollection,
+      RealmSchema.NodeConnect
+    );
+    for (const node of existingNodes) {
+      if (node && node.id) {
+        yield call(dbManager.deleteObjectById, RealmSchema.NodeConnect, node.id.toString());
+      }
+    }
     for (const node of appImage.nodes) {
       try {
         const decryptedNode = JSON.parse(decrypt(encryptionKey, node));
-        const isExistingNode = existingNodes.some(
-          (existingNode) =>
-            existingNode.id === decryptedNode.id ||
-            (existingNode.host === decryptedNode.host && existingNode.port === decryptedNode.port)
-        );
-        if (isExistingNode) continue;
         yield call(dbManager.createObject, RealmSchema.NodeConnect, decryptedNode);
       } catch (err) {
         console.log('Error recovering a node: ', err);
@@ -578,6 +588,41 @@ function* recoverApp(
       }
     }
   }
+
+  // Connect to a node
+  const savedNodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+  if (savedNodes.length > 0 && !savedNodes.find((node) => node.isConnected)) {
+    const firstNode = savedNodes[0];
+    firstNode.isConnected = true;
+
+    yield call(
+      dbManager.updateObjectById,
+      RealmSchema.NodeConnect,
+      firstNode.id.toString(),
+      firstNode
+    );
+  }
+
+  // seed confirm for recovery
+  yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+    title: BackupAction.SEED_BACKUP_CONFIRMED,
+    date: moment().unix(),
+    confirmed: true,
+    subtitle: 'Recovered using backup phrase',
+  });
+
+  yield put(setSeedConfirmed(true));
+  yield put(setBackupType(BackupType.SEED));
+  yield put(uaiActioned({ uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK, action: true }));
+
+  // create/add restored object for version
+  yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+    version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+    date: new Date().toString(),
+    title: 'Restored version',
+  });
+
+  yield put(setAppId(appID));
 }
 
 function* healthCheckSatutsUpdateWorker({
@@ -651,34 +696,6 @@ function* healthCheckSignerWorker({
   }
 }
 
-function* isBackedUP({
-  payload,
-}: {
-  payload: {
-    history: BackupHistory;
-  };
-}) {
-  const { history } = payload;
-  const lastRecord = history[history.length - 1];
-
-  if (lastRecord) {
-    const currentDate = new Date();
-    const lastBackup = new Date(history[history.length - 1].date);
-    const devWarning = currentDate.getTime() - lastBackup.getTime() > 30;
-    const ProductionWarning =
-      (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30;
-    const selectedWarning =
-      config.ENVIRONMENT === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
-
-    if (selectedWarning && lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED) {
-      // UAI update here
-
-      yield put(setBackupWarning(true));
-    }
-  }
-  yield put(setBackupWarning(false));
-}
-
 function* backupBsmsOnCloudWorker({
   payload,
 }: {
@@ -689,9 +706,12 @@ function* backupBsmsOnCloudWorker({
   const { lastBsmsBackup } = yield select((state: RootState) => state.bhr);
   if (!lastBsmsBackup) return;
   const { password } = payload;
-  if (password || password === '') yield put(setEncPassword(password));
+  if (password) yield put(setEncPassword(password));
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
+    const { encPassword } = yield select((state: RootState) => state.bhr);
+    if (!password && !encPassword)
+      throw Error('Personal cloud backup failed, no password provided');
     const bsmsToBackup = [];
     const vaultsCollection = yield call(dbManager.getCollection, RealmSchema.Vault);
     const vaults = vaultsCollection.filter((vault) => vault.archived === false);
@@ -713,7 +733,6 @@ function* backupBsmsOnCloudWorker({
         });
       }
     });
-    const { encPassword } = yield select((state: RootState) => state.bhr);
 
     if (Platform.OS === 'android') {
       yield put(setBackupLoading(true));
@@ -724,7 +743,7 @@ function* backupBsmsOnCloudWorker({
           const response = yield call(
             CloudBackupModule.backupBsms,
             JSON.stringify(bsmsToBackup),
-            password || encPassword || ''
+            password || encPassword
           );
           if (response.status) {
             yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
@@ -764,7 +783,7 @@ function* backupBsmsOnCloudWorker({
       const response = yield call(
         CloudBackupModule.backupBsms,
         JSON.stringify(bsmsToBackup),
-        password || encPassword || ''
+        password || encPassword
       );
       if (response.status) {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
@@ -866,8 +885,6 @@ export const updateVaultImageWatcher = createWatcher(updateVaultImageWorker, UPD
 export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 
-export const backupWarningWatcher = createWatcher(isBackedUP, SET_BACKUP_WARNING);
-
 export const seedBackeupConfirmedWatcher = createWatcher(
   seedBackeupConfirmedWorked,
   SEED_BACKEDUP_CONFIRMED
@@ -939,7 +956,6 @@ function* backupAllSignersAndVaultsWorker() {
         });
       }
       vaultObject[vault.id] = {
-        vaultShellId: vault.shellId,
         vaultId: vault.id,
         signersData,
         vault: vaultEncrypted,

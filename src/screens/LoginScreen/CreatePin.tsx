@@ -20,8 +20,6 @@ import { setIsInitialLogin } from 'src/store/reducers/login';
 import { throttle } from 'src/utils/utilities';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
-import { setEnableAnalyticsLogin } from 'src/store/reducers/settings';
-import config from 'src/utils/service-utilities/config';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -119,7 +117,6 @@ export default function CreatePin(props) {
 
   const handleNext = () => {
     dispatch(setIsInitialLogin(true));
-    dispatch(setEnableAnalyticsLogin(config.isDevMode()));
     dispatch(storeCreds(createPin));
     setCreatePassword(false);
   };

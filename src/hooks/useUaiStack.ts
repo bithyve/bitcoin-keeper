@@ -15,7 +15,6 @@ export const uaiPriorityMap: UAIPriorityMap = {
   [uaiType.SERVER_BACKUP_FAILURE]: 90,
   [uaiType.SIGNING_DEVICES_HEALTH_CHECK]: 90,
   [uaiType.RECOVERY_PHRASE_HEALTH_CHECK]: 90,
-  [uaiType.VAULT_TRANSFER]: 80,
   [uaiType.SECURE_VAULT]: 70,
   [uaiType.FEE_INISGHT]: 60,
   [uaiType.SIGNING_DELAY]: 100,

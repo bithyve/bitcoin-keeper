@@ -6,6 +6,7 @@ export interface UAI {
   uaiDetails?: {
     heading?: string;
     body?: string;
+    networkType?: string;
   };
   createdAt?: Date;
   seenAt?: Date;
@@ -13,7 +14,6 @@ export interface UAI {
 
 export enum uaiType {
   // Locally Generated
-  VAULT_TRANSFER = 'VAULT_TRANSFER',
   SECURE_VAULT = 'SECURE_VAULT',
   SIGNING_DEVICES_HEALTH_CHECK = 'SIGNING_DEVICES_HEALTH_CHECK',
   RECOVERY_PHRASE_HEALTH_CHECK = 'RECOVERY_PHRASE_HEALTH CHECK',

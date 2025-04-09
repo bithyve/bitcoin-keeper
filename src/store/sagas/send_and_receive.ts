@@ -21,7 +21,6 @@ import {
   sendPhaseThreeExecuted,
   sendPhaseTwoExecuted,
   setSendMaxFee,
-  sendPhaseTwoStarted,
   customFeeCalculated,
 } from '../reducers/send_and_receive';
 import { setAverageTxFee, setExchangeRates, setOneDayInsight } from '../reducers/network';
@@ -39,7 +38,6 @@ import {
   SendPhaseOneAction,
   SendPhaseThreeAction,
   SendPhaseTwoAction,
-  feeIntelMissing,
 } from '../sagaActions/send_and_receive';
 import { addLabelsWorker, bulkUpdateLabelsWorker } from './utxos';
 import { setElectrumNotConnectedErr } from '../reducers/login';
@@ -87,16 +85,13 @@ export const fetchOneDayInsightWatcher = createWatcher(fetchOneDayInsightWorker,
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
   const { wallet, recipients, selectedUTXOs, miniscriptSelectedSatisfier } = payload;
-  const averageTxFees: AverageTxFeesByNetwork = yield select(
-    (state) => state.network.averageTxFees
-  );
+  let averageTxFees: AverageTxFeesByNetwork = yield select((state) => state.network.averageTxFees);
   if (!averageTxFees) {
-    yield put(
-      feeIntelMissing({
-        intelMissing: true,
-      })
-    );
-    return;
+    averageTxFees = yield call(WalletOperations.calculateAverageTxFee);
+    if (!averageTxFees) {
+      console.log('Missing average TX fees...');
+      return;
+    }
   }
 
   const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
@@ -138,7 +133,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     ElectrumClient.resetCurrentPeerIndex();
     yield call(connectToNodeWorker);
   }
-  yield put(sendPhaseTwoStarted());
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
@@ -146,24 +140,12 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     (state) => state.sendAndReceive.customPrioritySendPhaseOne
   );
 
-  const {
-    wallet,
-    currentBlockHeight,
-    txnPriority,
-    miniscriptTxElements,
-    note,
-    label,
-    transferType,
-  } = payload;
+  const { wallet, currentBlockHeight, txnPriority, miniscriptTxElements, note } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const customTxPrerequisites = _.cloneDeep(
     idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
   );
 
-  const recipients =
-    txnPriority == TxPriority.CUSTOM
-      ? idx(customSendPhaseOneResults, (_) => _.outputs.customTxRecipients[txnPriority])
-      : idx(sendPhaseOneResults, (_) => _.outputs.txRecipients[txnPriority]);
   const signerMap = {};
   if (wallet.entityKind === EntityKind.VAULT) {
     dbManager
@@ -177,7 +159,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       currentBlockHeight,
       txPrerequisites,
       txnPriority,
-      recipients,
       customTxPrerequisites,
       signerMap,
       miniscriptTxElements
@@ -187,7 +168,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       case EntityKind.WALLET:
         if (!txid) throw new Error('Send failed: unable to generate txid');
         if (note) {
-          wallet.specs.txNote[txid] = note;
           yield call(addLabelsWorker, {
             payload: {
               txId: txid,
@@ -203,9 +183,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
             txid,
           })
         );
-        yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-          specs: wallet.specs,
-        });
         break;
 
       case EntityKind.VAULT:
@@ -224,20 +201,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 
       default:
         throw new Error('Invalid Entity: not a vault/Wallet');
-    }
-    if (wallet.entityKind === EntityKind.WALLET) {
-      if (label && label.length) {
-        const vout = finalOutputs.findIndex((o) => o.address === recipients[0].address);
-        yield call(addLabelsWorker, {
-          payload: {
-            txId: txid,
-            vout,
-            wallet,
-            labels: label,
-            type: LabelRefType.OUTPUT,
-          },
-        });
-      }
     }
 
     if (finalOutputs) {
@@ -258,6 +221,82 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 }
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
+
+function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
+  const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
+    (state) => state.sendAndReceive.sendPhaseOne
+  );
+  const customSendPhaseOneResults = yield select(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne
+  );
+  const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = yield select(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+
+  const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
+  const customTxPrerequisites = _.cloneDeep(
+    idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
+  );
+
+  const { wallet, txnPriority, miniscriptTxElements, note } = payload;
+
+  try {
+    let txHex;
+    for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
+      if (serializedPSBTEnvelop.txHex) {
+        txHex = serializedPSBTEnvelop.txHex; // txHex is given out by COLDCARD, KEYSTONE and TREZOR post signing
+      }
+    }
+
+    const { txid, finalOutputs, inputs } = yield call(
+      WalletOperations.transferST3,
+      wallet,
+      serializedPSBTEnvelops,
+      txPrerequisites,
+      txnPriority,
+      customTxPrerequisites,
+      txHex,
+      miniscriptTxElements
+    );
+
+    if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
+
+    yield put(
+      sendPhaseThreeExecuted({
+        successful: true,
+        txid,
+      })
+    );
+
+    if (note) {
+      yield call(addLabelsWorker, {
+        payload: {
+          txId: txid,
+          wallet,
+          labels: [{ name: note, isSystem: false }],
+          type: LabelRefType.TXN,
+        },
+      });
+    }
+
+    if (finalOutputs) {
+      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid);
+    }
+  } catch (err) {
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
+      yield put(setElectrumNotConnectedErr(err?.message));
+    }
+
+    yield put(
+      sendPhaseThreeExecuted({
+        successful: false,
+        err: err.message,
+      })
+    );
+  }
+}
+
+export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
 
 function* handleChangeOutputLabels(finalOutputs, inputs, wallet, txid) {
   const changeOutputIndex = finalOutputs.findIndex((output) =>
@@ -304,96 +343,6 @@ function* handleChangeOutputLabels(finalOutputs, inputs, wallet, txid) {
   }
 }
 
-function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
-  const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
-    (state) => state.sendAndReceive.sendPhaseOne
-  );
-  const customSendPhaseOneResults = yield select(
-    (state) => state.sendAndReceive.customPrioritySendPhaseOne
-  );
-  const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = yield select(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
-  );
-
-  const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
-  const customTxPrerequisites = _.cloneDeep(
-    idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
-  );
-
-  const { wallet, txnPriority, miniscriptTxElements, note, label } = payload;
-  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.txRecipients[txnPriority]);
-  try {
-    let txHex;
-    for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
-      if (serializedPSBTEnvelop.txHex) {
-        txHex = serializedPSBTEnvelop.txHex; // txHex is given out by COLDCARD, KEYSTONE and TREZOR post signing
-      }
-    }
-
-    const { txid, finalOutputs, inputs } = yield call(
-      WalletOperations.transferST3,
-      wallet,
-      serializedPSBTEnvelops,
-      txPrerequisites,
-      txnPriority,
-      customTxPrerequisites,
-      txHex,
-      miniscriptTxElements
-    );
-    if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
-    yield put(
-      sendPhaseThreeExecuted({
-        successful: true,
-        txid,
-      })
-    );
-    yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
-      specs: wallet.specs,
-    });
-    if (note) {
-      wallet.specs.txNote[txid] = note;
-      yield call(addLabelsWorker, {
-        payload: {
-          txId: txid,
-          wallet,
-          labels: [{ name: note, isSystem: false }],
-          type: LabelRefType.TXN,
-        },
-      });
-    }
-
-    if (label && label.length) {
-      const vout = finalOutputs.findIndex((o) => o.address === recipients[0].address);
-      yield call(addLabelsWorker, {
-        payload: {
-          txId: txid,
-          vout,
-          wallet,
-          labels: label,
-          type: LabelRefType.OUTPUT,
-        },
-      });
-    }
-
-    if (finalOutputs) {
-      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid);
-    }
-  } catch (err) {
-    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
-      yield put(setElectrumNotConnectedErr(err?.message));
-    }
-
-    yield put(
-      sendPhaseThreeExecuted({
-        successful: false,
-        err: err.message,
-      })
-    );
-  }
-}
-
-export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
-
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const { recipients, wallet, selectedUTXOs, miniscriptSelectedSatisfier } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
@@ -426,7 +375,7 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
       yield put(
         customFeeCalculated({
           successful: false,
-          err: 'Custom fee minimum: 1 sat/byte',
+          err: 'Minimum custom fee: 1 sat/byte',
         })
       );
       return;
@@ -440,14 +389,10 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
       selectedUTXOs,
       miniscriptSelectedSatisfier,
     } = payload;
-    const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
-      (state) => state.sendAndReceive.sendPhaseOne
-    );
-    const txPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites);
 
     let outputs;
     if (recipients && recipients.length) {
-      // process recipients & generate outputs(normally handled by transfer ST1 saga)
+      // process recipients & generate outputs (normally handled by transfer ST1 saga)
       const outputsArray = [];
       for (const recipient of recipients) {
         outputsArray.push({
@@ -456,10 +401,6 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
         });
       }
       outputs = outputsArray;
-    } else {
-      if (txPrerequisites) {
-        outputs = txPrerequisites[TxPriority.LOW].outputs.filter((output) => output.address);
-      }
     }
 
     if (!outputs) {
@@ -497,10 +438,6 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
         })
       );
     } else {
-      let totalAmount = 0;
-      outputs.forEach((output) => {
-        totalAmount += output.value;
-      });
       yield put(
         customFeeCalculated({
           successful: false,

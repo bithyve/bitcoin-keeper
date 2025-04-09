@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -30,7 +30,6 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import InhertanceKeyIcon from 'src/assets/images/inheritance-key-illustration.svg';
 import KeyDetailsLight from 'src/assets/images/key-details-green.svg';
 import KeyDetailsDark from 'src/assets/images/key-details-white.svg';
 import HealthCheckLight from 'src/assets/images/health-check-green.svg';
@@ -42,7 +41,13 @@ import ChangeKeyDark from 'src/assets/images/change-key-white.svg';
 import EmptyStateLight from 'src/assets/images/empty-activity-illustration-light.svg';
 import EmptyStateDark from 'src/assets/images/empty-activity-illustration-dark.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { EntityKind, SignerType, VaultType, VisibilityType } from 'src/services/wallets/enums';
+import {
+  EntityKind,
+  SignerType,
+  VaultType,
+  VisibilityType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
@@ -59,9 +64,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import { useAppSelector } from 'src/store/hooks';
-import { resetKeyHealthState } from 'src/store/reducers/vaults';
-import TickIcon from 'src/assets/images/tick_icon.svg';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
@@ -76,6 +78,7 @@ import { captureError } from 'src/services/sentry';
 import {
   findChangeFromReceiverAddresses,
   findVaultFromSenderAddress,
+  getKeyExpression,
 } from 'src/utils/service-utilities/utils';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
@@ -85,6 +88,12 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SDColoredIcons } from './SigningDeviceIcons';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import ShareKeyModalContent from './components/ShareKeyModalContent';
+import STModalContent from './components/STModalContent';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import NFC from 'src/services/nfc';
+import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -93,8 +102,6 @@ export const SignersReqVault = [
   SignerType.PORTAL,
   SignerType.KEYSTONE,
 ];
-
-export const CHANGE_INDEX_THRESHOLD = 100;
 
 function EmptyActivityView({ colorMode, isDarkMode }) {
   return (
@@ -276,6 +283,8 @@ function SigningDeviceDetails({ route }) {
   const { signerMap } = useSignerMap();
   const signer: Signer = currentSigner || signerMap[getKeyUID(vaultKey)];
   const [detailModal, setDetailModal] = useState(false);
+  const [details, setDetails] = useState('');
+
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(isUaiFlow);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
@@ -287,7 +296,6 @@ function SigningDeviceDetails({ route }) {
   const { primaryMnemonic, id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const { keyHeathCheckSuccess, keyHeathCheckError } = useAppSelector((state) => state.vault);
   const { entityBasedIndicator } = useIndicatorHook({ entityId: signer.masterFingerprint });
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
@@ -295,9 +303,65 @@ function SigningDeviceDetails({ route }) {
   const [showMobileKeyModal, setShowMobileKeyModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+  const [shareKeyModal, setShareKeyModal] = useState(false);
+  const [stModal, setStModal] = useState(false);
   const isDarkMode = colorMode === 'dark';
   const data = useQuery(RealmSchema.BackupHistory);
   const signerVaults: Vault[] = [];
+
+  const [nfcVisible, setNfcVisible] = React.useState(false);
+  const { session } = useContext(HCESessionContext);
+
+  const cleanUp = () => {
+    setNfcVisible(false);
+    Vibration.cancel();
+    if (isAndroid) {
+      NFC.stopTagSession(session);
+    }
+  };
+  useEffect(() => {
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      cleanUp();
+    });
+    const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
+      try {
+        const data = idx(session, (_) => _.application.content.content);
+        if (!data) {
+          showToast('Please scan a valid psbt', <ToastErrorIcon />);
+          return;
+        }
+        signPSBT(data);
+      } catch (err) {
+        captureError(err);
+        showToast('Something went wrong.', <ToastErrorIcon />);
+      } finally {
+        cleanUp();
+      }
+    });
+
+    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {});
+    return () => {
+      cleanUp();
+      unsubRead();
+      unsubDisconnect();
+      unsubConnect();
+    };
+  }, [session]);
+
+  useEffect(() => {
+    if (isAndroid) {
+      if (nfcVisible) {
+      } else {
+        NFC.stopTagSession(session);
+      }
+    }
+    return () => {
+      nfcManager.cancelTechnologyRequest();
+    };
+  }, [nfcVisible]);
+
+  const isAndroid = Platform.OS === 'android';
+  const isIos = Platform.OS === 'ios';
 
   allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
@@ -309,24 +373,48 @@ function SigningDeviceDetails({ route }) {
     }
   });
 
-  useEffect(() => {
-    return () => {
-      dispatch(resetKeyHealthState());
-    };
-  }, []);
-
-  useEffect(() => {
-    if (keyHeathCheckError) {
-      showToast(keyHeathCheckError);
-    }
-    if (keyHeathCheckSuccess) {
-      showToast('Key restored successfully', <TickIcon />);
-    }
-  }, [keyHeathCheckSuccess, keyHeathCheckError]);
-
   if (!signer) {
     return null;
   }
+  const fetchKeyExpression = (signer: Signer) => {
+    for (const type of [XpubTypes.P2WSH]) {
+      if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
+        const keyDescriptor = getKeyExpression(
+          signer.masterFingerprint,
+          idx(signer, (_) => _.signerXpubs[type][0].derivationPath.replaceAll('h', "'")),
+          idx(signer, (_) => _.signerXpubs[type][0].xpub),
+          false
+        );
+        return keyDescriptor;
+      }
+    }
+
+    throw new Error('Missing key details.');
+  };
+
+  useEffect(() => {
+    if (!details) {
+      setTimeout(() => {
+        try {
+          const keyDescriptor = fetchKeyExpression(signer);
+          setDetails(keyDescriptor);
+        } catch (error) {
+          if (error && error.message === 'Missing key details.') {
+            showToast(
+              'Missing key details of multi-key type, please add key details from Add Device',
+              <ToastErrorIcon />
+            );
+          } else {
+            showToast(
+              "We're sorry, but we have trouble retrieving the key information",
+              <ToastErrorIcon />
+            );
+          }
+          navigation.goBack();
+        }
+      }, 200);
+    }
+  }, []);
 
   const { title, subTitle, assert, description } = getSignerContent(signer?.type);
   function SignerContent() {
@@ -353,18 +441,6 @@ function SigningDeviceDetails({ route }) {
       </Box>
     );
   }
-
-  function MobileKeyModalContent() {
-    return (
-      <Box>
-        <Box style={styles.mobileKeyIllustration}>
-          <MobileKeyModalIllustration />
-        </Box>
-        <Text style={styles.mobileKeyText}>{signerTranslations.MKHealthCheckModalDesc}</Text>
-      </Box>
-    );
-  }
-
   const navigateToCosignerDetails = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -387,10 +463,100 @@ function SigningDeviceDetails({ route }) {
           signer,
           disableMockFlow: true,
           isPSBT: true,
+          importOptions: false,
+          isSingning: true,
         },
       })
     );
   };
+  function ShareKeyModalData() {
+    return (
+      <Box>
+        <ShareKeyModalContent
+          navigation={navigation}
+          signer={signer}
+          navigateToCosignerDetails={navigateToCosignerDetails}
+          setShareKeyModal={setShareKeyModal}
+          data={details}
+          shareWithNFC={shareWithNFC}
+        />
+      </Box>
+    );
+  }
+
+  const shareWithNFC = async () => {
+    try {
+      if (isIos) {
+        if (!isIos) {
+          setNfcVisible(true);
+        }
+        Vibration.vibrate([700, 50, 100, 50], true);
+        const enc = NFC.encodeTextRecord(details);
+        await NFC.send([NfcTech.Ndef], enc);
+        cleanUp();
+      } else {
+        setNfcVisible(true);
+        await NFC.startTagSession({ session, content: details });
+        Vibration.vibrate([700, 50, 100, 50], true);
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error: Not even registered') {
+        console.log('NFC interaction cancelled.');
+        return;
+      }
+      console.log('Error ', err);
+    }
+  };
+
+  function StModalContent() {
+    return (
+      <Box>
+        <STModalContent
+          navigateToScanPSBT={navigateToScanPSBT}
+          setData={signPSBT}
+          setStModal={setStModal}
+          readFromNFC={readFromNFC}
+        />
+      </Box>
+    );
+  }
+
+  const readFromNFC = async () => {
+    try {
+      if (!isIos) {
+        setNfcVisible(true);
+        NFC.startTagSession({ session, content: '', writable: true });
+      }
+      const records = await NFC.read([NfcTech.Ndef]);
+      try {
+        const psbt = records[0].data;
+        signPSBT(psbt);
+      } catch (err) {
+        captureError(err);
+        showToast('Please scan a valid psbt tag', <ToastErrorIcon />);
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error') {
+        console.log('NFC interaction cancelled');
+        return;
+      }
+      captureError(err);
+      showToast('Something went wrong.', <ToastErrorIcon />);
+    }
+  };
+
+  function MobileKeyModalContent() {
+    return (
+      <Box>
+        <Box style={styles.mobileKeyIllustration}>
+          <MobileKeyModalIllustration />
+        </Box>
+        <Text style={styles.mobileKeyText}>{signerTranslations.MKHealthCheckModalDesc}</Text>
+      </Box>
+    );
+  }
 
   const navigateToAssignSigner = () => {
     dispatch(resetSignersUpdateState());
@@ -443,12 +609,6 @@ function SigningDeviceDetails({ route }) {
         serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
       }
       if (activeVault && changeAddressIndex) {
-        if (
-          parseInt(changeAddressIndex) >
-          activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
-        ) {
-          throw new Error('Change index is too high.');
-        }
         receiverAddresses = findChangeFromReceiverAddresses(
           activeVault,
           receiverAddresses,
@@ -537,14 +697,19 @@ function SigningDeviceDetails({ route }) {
     signer?.type !== SignerType.POLICY_SERVER && {
       text: 'Share Key',
       Icon: () => <FooterIcon Icon={isDarkMode ? KeyDetailsDark : KeyDetailsLight} />,
-      onPress: navigateToCosignerDetails,
+      onPress: () => {
+        setShareKeyModal(true);
+      },
     },
     signer?.type !== SignerType.KEEPER &&
       signer?.type !== SignerType.POLICY_SERVER &&
       signer?.type !== SignerType.UNKOWN_SIGNER && {
         text: 'Sign Transaction',
         Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
-        onPress: navigateToScanPSBT,
+        // onPress: navigateToScanPSBT,
+        onPress: () => {
+          setStModal(true);
+        },
       },
     signer?.type === SignerType.UNKOWN_SIGNER && {
       text: 'Set Device Type',
@@ -899,6 +1064,27 @@ function SigningDeviceDetails({ route }) {
               )}
             />
             <KeeperModal
+              visible={shareKeyModal}
+              close={() => setShareKeyModal(false)}
+              title={'Share Key Details'}
+              subTitle={'Choose how you would like to share your key'}
+              modalBackground={`${colorMode}.modalWhiteBackground`}
+              textColor={`${colorMode}.textGreen`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
+              Content={ShareKeyModalData}
+            />
+            <KeeperModal
+              visible={stModal}
+              close={() => setStModal(false)}
+              title={'Scan Transaction'}
+              subTitle={'Scan and verify transaction details'}
+              modalBackground={`${colorMode}.modalWhiteBackground`}
+              textColor={`${colorMode}.textGreen`}
+              subTitleColor={`${colorMode}.modalSubtitleBlack`}
+              Content={StModalContent}
+            />
+
+            <KeeperModal
               visible={backupModalVisible}
               close={() => setBackupModalVisible(false)}
               title={signerTranslations.RKBackupTitle}
@@ -943,6 +1129,7 @@ function SigningDeviceDetails({ route }) {
             fontSize={12}
             backgroundColor={`${colorMode}.primaryBackground`}
           />
+          <NfcPrompt visible={nfcVisible} close={cleanUp} ctaText="Done" />
         </Box>
       </Box>
     </Box>

@@ -99,7 +99,13 @@ describe('Wallet primitives', () => {
 
   test('wallet operations: transaction construction(PSBT)', async () => {
     txnPriority = TxPriority.LOW;
-    const res = await WalletOperations.createTransaction(wallet, txPrerequisites, txnPriority);
+    const currentBlockHeight = 1;
+    const res = await WalletOperations.createTransaction(
+      wallet,
+      currentBlockHeight,
+      txPrerequisites,
+      txnPriority
+    );
     PSBT = res.PSBT;
     expect(PSBT.data.inputs.length).toBeGreaterThan(0);
     expect(PSBT.data.outputs.length).toBeGreaterThan(0);
@@ -107,7 +113,7 @@ describe('Wallet primitives', () => {
 
   test('wallet operations: transaction signing(PSBT)', () => {
     const { inputs } = txPrerequisites[txnPriority];
-    const { signedPSBT } = WalletOperations.signTransaction(wallet, inputs, PSBT);
+    const { signedPSBT } = WalletOperations.signHotWalletTransaction(wallet, inputs, PSBT);
     // const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     // expect(areSignaturesValid).toEqual(true);
 

@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { SignerType } from 'src/services/wallets/enums';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import { getSignerNameFromType } from 'src/hardware';
-import { InheritanceKeyInfo, SignerPolicy } from 'src/models/interfaces/AssistedKeys';
+import { SignerPolicy } from 'src/models/interfaces/AssistedKeys';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
@@ -18,13 +18,11 @@ const useUnkownSigners = () => {
     type,
     isBIP85,
     signerPolicy,
-    inheritanceKeyInfo,
   }: {
     masterFingerprint: string;
     type: SignerType;
     isBIP85?: boolean;
     signerPolicy?: SignerPolicy;
-    inheritanceKeyInfo?: InheritanceKeyInfo;
   }): boolean | void => {
     try {
       const signer = unknowSigners.find((signer) => signer.masterFingerprint === masterFingerprint);
@@ -34,9 +32,6 @@ const useUnkownSigners = () => {
 
         if (isBIP85) dispatch(updateSignerDetails(signer, 'isBIP85', isBIP85));
         if (signerPolicy) dispatch(updateSignerDetails(signer, 'signerPolicy', signerPolicy));
-        if (inheritanceKeyInfo) {
-          dispatch(updateSignerDetails(signer, 'inheritanceKeyInfo', inheritanceKeyInfo));
-        }
 
         return true;
       } else {

@@ -1,4 +1,3 @@
-import { BackupHistory } from 'src/models/enums/BHR';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 
 export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';
@@ -6,7 +5,6 @@ export const GET_APP_IMAGE = 'GET_APP_IMAGE';
 export const SEED_BACKEDUP = 'SEED_BACKEDUP';
 export const SEED_BACKEDUP_CONFIRMED = 'SEED_BACKEDUP_CONFIRMED';
 export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
-export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
 export const BACKUP_BSMS_ON_CLOUD = 'BACKUP_BSMS_ON_CLOUD';
 export const BSMS_CLOUD_HEALTH_CHECK = 'BSMS_CLOUD_HEALTH_CHECK';
@@ -16,11 +14,12 @@ export const BACKUP_ALL_SIGNERS_AND_VAULTS = 'BACKUP_ALL_SIGNERS_AND_VAULTS';
 export const SET_AUTOMATIC_CLOUD_BACKUP = 'SET_AUTOMATIC_CLOUD_BACKUP';
 export const DELETE_BACKUP = 'DELETE_BACKUP';
 
-export const updateAppImage = ({ wallets, signers }) => ({
+export const updateAppImage = ({ wallets, signers, updateNodes }) => ({
   type: UPDATE_APP_IMAGE,
   payload: {
     wallets,
     signers,
+    updateNodes,
   },
 });
 
@@ -56,13 +55,6 @@ export const getAppImage = (primaryMnemonic: string) => ({
 
 export const seedBackedUp = () => ({
   type: SEED_BACKEDUP,
-});
-
-export const setWarning = (history: BackupHistory = []) => ({
-  type: SET_BACKUP_WARNING,
-  payload: {
-    history,
-  },
 });
 
 export const seedBackedConfirmed = (confirmed: boolean) => ({

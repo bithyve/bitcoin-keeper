@@ -338,8 +338,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       const snapshot: cachedTxSnapshot = snapshots[cachedTxid];
       if (!snapshot.routeParams) continue; // route params missing
 
-      const { address, addresses, amount, amounts, sender, transferType, date } =
-        snapshot.routeParams;
+      const { address, addresses, amount, amounts, sender, date } = snapshot.routeParams;
       if (sender?.id !== vault.id) continue; // doesn't belong to the current vault
 
       const cachedTx = {
@@ -352,7 +351,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         recipientAddresses: [],
         senderAddresses: [],
         tags: [],
-        transactionType: transferType,
         txid: cachedTxid,
         isCached: true,
         snapshot,

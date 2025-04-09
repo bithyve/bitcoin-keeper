@@ -4,7 +4,6 @@ import { Action } from 'redux';
 import { TxPriority } from 'src/services/wallets/enums';
 import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { TransferType } from 'src/models/enums/TransferType';
 
 export const FETCH_EXCHANGE_RATES = 'FETCH_EXCHANGE_RATES';
 export const FETCH_FEE_RATES = 'FETCH_FEE_RATES';
@@ -12,7 +11,6 @@ export const ONE_DAY_INSIGHT = 'ONE_DAY_INSIGHT';
 export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE';
 export const EXCHANGE_RATE_CALCULATED = 'EXCHANGE_RATE_CALCULATED';
 export const SEND_PHASE_ONE = 'SEND_PHASE_ONE';
-export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
 export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
 export const SEND_PHASE_THREE = 'SEND_PHASE_THREE';
 export const CALCULATE_SEND_MAX_FEE = 'CALCULATE_SEND_MAX_FEE';
@@ -57,31 +55,17 @@ export const sendPhaseOne = (payload: {
   payload,
 });
 
-export interface FeeIntelMissingAction extends Action {
-  type: typeof FEE_INTEL_MISSING;
-  payload: {
-    intelMissing: boolean;
-  };
-}
-
-export const feeIntelMissing = (payload: { intelMissing: boolean }): FeeIntelMissingAction => ({
-  type: FEE_INTEL_MISSING,
-  payload,
-});
-
 export interface SendPhaseTwoAction extends Action {
   type: typeof SEND_PHASE_TWO;
   payload: {
     wallet: Wallet | Vault;
     currentBlockHeight: number;
     txnPriority: TxPriority;
-    transferType: TransferType;
+    note?: string;
     miniscriptTxElements?: {
       selectedPhase: number;
       selectedPaths: number[];
     };
-    note?: string;
-    label?: { name: string; isSystem: boolean }[];
   };
 }
 
@@ -89,14 +73,11 @@ export const sendPhaseTwo = (payload: {
   wallet: Wallet | Vault;
   currentBlockHeight: number;
   txnPriority: TxPriority;
-  transferType: TransferType;
+  note?: string;
   miniscriptTxElements?: {
     selectedPhase: number;
     selectedPaths: number[];
   };
-  token?: number;
-  note?: string;
-  label?: { name: string; isSystem: boolean }[];
 }): SendPhaseTwoAction => ({
   type: SEND_PHASE_TWO,
   payload,
@@ -107,24 +88,22 @@ export interface SendPhaseThreeAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
+    note?: string;
     miniscriptTxElements?: {
       selectedPhase: number;
       selectedPaths: number[];
     };
-    note?: string;
-    label?: { name: string; isSystem: boolean }[];
   };
 }
 
 export const sendPhaseThree = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
+  note?: string;
   miniscriptTxElements?: {
     selectedPhase: number;
     selectedPaths: number[];
   };
-  note: string;
-  label: { name: string; isSystem: boolean }[];
 }): SendPhaseThreeAction => ({
   type: SEND_PHASE_THREE,
   payload,

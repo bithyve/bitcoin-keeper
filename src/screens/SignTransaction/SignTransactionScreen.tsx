@@ -13,11 +13,10 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
-import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/vaults';
+import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ShareGreen from 'src/assets/images/share-arrow-green.svg';
 import ShareWhite from 'src/assets/images/share-arrow-white.svg';
-import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -34,7 +33,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
@@ -45,7 +43,6 @@ import {
   setTransactionSnapshot,
 } from 'src/store/reducers/cachedTxn';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
-import config from 'src/utils/service-utilities/config';
 import { isReading, stopReading } from 'src/hardware/portal';
 import { hp, wp } from 'src/constants/responsive';
 import { getKeyUID } from 'src/utils/utilities';
@@ -72,7 +69,6 @@ function SignTransactionScreen() {
 
   const {
     note,
-    label,
     vaultId,
     sendConfirmationRouteParams,
     isMoveAllFunds,
@@ -84,7 +80,6 @@ function SignTransactionScreen() {
     amounts,
   } = (route.params || {
     note: '',
-    label: [],
     vaultId: '',
     sendConfirmationRouteParams: null,
     isMoveAllFunds: false,
@@ -95,7 +90,6 @@ function SignTransactionScreen() {
     amounts: [],
   }) as {
     note: string;
-    label: { name: string; isSystem: boolean }[];
     vaultId: string;
     isMoveAllFunds: boolean;
     sender: Vault;
@@ -114,7 +108,7 @@ function SignTransactionScreen() {
     vaultId,
   });
 
-  const { signers: vaultKeys, scheme } = defaultVault;
+  const { signers: vaultKeys } = defaultVault;
 
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
@@ -148,7 +142,6 @@ function SignTransactionScreen() {
     (state) => state.bhr
   );
 
-  const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const sendFailedMessage = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
@@ -166,6 +159,7 @@ function SignTransactionScreen() {
 
   const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     if (sendAndReceive.sendPhaseThree.txid) {
@@ -194,15 +188,11 @@ function SignTransactionScreen() {
   }, [relayVaultError, realyVaultErrorMessage]);
 
   useEffect(() => {
-    if (isMigratingNewVault) {
-      if (sendSuccessful) {
-        dispatch(finaliseVaultMigration(vaultId));
-      }
-    } else if (sendSuccessful) {
+    if (sendSuccessful) {
       setBroadcasting(false);
       setVisibleModal(true);
     }
-  }, [sendSuccessful, isMigratingNewVault]);
+  }, [sendSuccessful]);
 
   useEffect(() => {
     return () => {
@@ -288,9 +278,6 @@ function SignTransactionScreen() {
         dispatch(refillMobileKey(vaultKey));
       }
     });
-    return () => {
-      dispatch(resetKeyHealthState());
-    };
   }, []);
 
   const { withModal, nfcVisible: TSNfcVisible, closeNfc: closeTSNfc } = useTapsignerModal(card);
@@ -380,6 +367,7 @@ function SignTransactionScreen() {
           const { signedSerializedPSBT, delayed, delayedTransaction } =
             await signTransactionWithSigningServer({
               xfp,
+              vault: defaultVault,
               signingPayload,
               signingServerOTP,
               serializedPSBT,
@@ -459,7 +447,7 @@ function SignTransactionScreen() {
         }
       }
     },
-    [activeXfp, serializedPSBTEnvelops, delayedTransactions]
+    [activeXfp, serializedPSBTEnvelops, delayedTransactions, defaultVault]
   );
 
   const onFileSign = (signedSerializedPSBT: string) => {
@@ -519,18 +507,8 @@ function SignTransactionScreen() {
           const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
             (envelop) => envelop.xfp === vaultKey.xfp
           )[0];
-          const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
 
-          // case: old policy w/ exception - auto sign
-          if (
-            !signer.signerPolicy.exceptions.none &&
-            outgoing <= signer.signerPolicy.exceptions.transactionAmount
-          ) {
-            showToast('Auto-signing, send amount smaller than max no-check amount');
-            signTransaction({ xfp: vaultKey.xfp }); // case: OTP not required
-            return;
-          }
-          // case: new policy - delayed signing
+          // check existing signing request
           const delayedTxid = hash256(serializedPSBTEnvelop.serializedPSBT);
           const delayedTx: DelayedTransaction = delayedTransactions[delayedTxid];
           if (delayedTx) {
@@ -641,7 +619,7 @@ function SignTransactionScreen() {
 
   const handleShare = async () => {
     const url = `https://mempool.space${
-      config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      bitcoinNetworkType === NetworkType.TESTNET ? '/testnet' : ''
     }/tx/${sendSuccessful}`;
 
     try {
@@ -713,9 +691,8 @@ function SignTransactionScreen() {
                 sendPhaseThree({
                   wallet: defaultVault,
                   txnPriority: tnxDetails.transactionPriority,
-                  miniscriptTxElements,
                   note,
-                  label,
+                  miniscriptTxElements,
                 })
               );
             } else {

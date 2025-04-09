@@ -1,4 +1,3 @@
-import { DerivationConfig } from 'src/store/sagas/wallets';
 import { Balances, BIP85Config, UTXO, Transaction } from '.';
 import {
   NetworkType,
@@ -7,17 +6,12 @@ import {
   EntityKind,
   ScriptTypes,
   ImportedKeyType,
-  DerivationPurpose,
 } from '../enums';
 
 export interface WalletImportDetails {
   importedKey: string;
-  importedKeyDetails: {
-    importedKeyType: ImportedKeyType;
-    watchOnly: Boolean;
-    purpose: DerivationPurpose;
-  };
-  derivationConfig: DerivationConfig;
+  importedKeyType: ImportedKeyType;
+  derivationPath: string;
 }
 
 export interface WalletDerivationDetails {
@@ -31,12 +25,6 @@ export interface WalletPresentationData {
   name: string; // name of the wallet
   description: string; // description of the wallet
   visibility: VisibilityType; // visibility of the wallet
-  shell: number; // shell id
-}
-
-export interface TransferPolicy {
-  id: string;
-  threshold: number;
 }
 
 export interface AddressCache {
@@ -61,7 +49,6 @@ export interface WalletSpecs {
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
   transactions: Transaction[]; // transactions belonging to this wallet
-  txNote: { [txId: string]: string }; // transaction note
   hasNewUpdates: boolean; // spec vars have a new update?
   lastSynched: number; // wallet's last sync timestamp
 }
@@ -71,18 +58,9 @@ export interface Wallet {
   entityKind: EntityKind; // Wallet vs Vault identifier
   type: WalletType; // type of wallet
   networkType: NetworkType; // testnet/mainnet
-  isUsable: boolean; // true if wallet is usable
   derivationDetails?: WalletDerivationDetails;
   presentationData: WalletPresentationData;
   specs: WalletSpecs;
   scriptType: ScriptTypes;
-  transferPolicy?: TransferPolicy;
   receivingAddress?: string;
-}
-
-export interface TriggerPolicy {
-  id: string;
-  date: string;
-  specifications: {};
-  version: string;
 }

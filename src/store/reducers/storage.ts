@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DelayedPolicyUpdate, DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
+import { NetworkType } from 'src/services/wallets/enums';
 
 interface InheritanceToolVisitedHistoryType {
   BUY_NEW_HARDWARE_SIGNER: number;
@@ -22,10 +23,6 @@ interface InheritanceToolVisitedHistoryType {
 
 const initialState: {
   appId: string;
-  resetCred: {
-    hash: string;
-    index: number;
-  };
   failedAttempts: number;
   lastLoginFailedAt: number;
   pinHash: string;
@@ -39,12 +36,12 @@ const initialState: {
   delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate }; // contains a single policy update at a time
   plebDueToOffline: boolean; // app downgraded to pleb due to internet issue
   wasAutoUpdateEnabledBeforeDowngrade: boolean;
+  defaultWalletCreated: {
+    [NetworkType.MAINNET]: boolean;
+    [NetworkType.TESTNET]: boolean;
+  }; // map for creation of default wallet for network types
 } = {
   appId: '',
-  resetCred: {
-    hash: '',
-    index: null,
-  },
   failedAttempts: 0,
   lastLoginFailedAt: null,
   pinHash: '',
@@ -75,6 +72,10 @@ const initialState: {
   delayedPolicyUpdate: {},
   plebDueToOffline: false,
   wasAutoUpdateEnabledBeforeDowngrade: false,
+  defaultWalletCreated: {
+    [NetworkType.MAINNET]: false,
+    [NetworkType.TESTNET]: false,
+  },
 };
 
 const storageSlice = createSlice({
@@ -88,16 +89,6 @@ const storageSlice = createSlice({
     increasePinFailAttempts: (state) => {
       state.failedAttempts += 1;
       state.lastLoginFailedAt = Date.now();
-    },
-    setPinResetCreds: (state, action: PayloadAction<{ hash: string; index: number }>) => {
-      state.resetCred = {
-        hash: action.payload.hash,
-        index: action.payload.index,
-      };
-    },
-    resetPinFailAttempts: (state) => {
-      state.failedAttempts = 0;
-      state.lastLoginFailedAt = null;
     },
     setPinHash: (state, action: PayloadAction<string>) => {
       state.pinHash = action.payload;
@@ -145,14 +136,25 @@ const storageSlice = createSlice({
     setAutoUpdateEnabledBeforeDowngrade: (state, action: PayloadAction<boolean>) => {
       state.wasAutoUpdateEnabledBeforeDowngrade = action.payload;
     },
+    setDefaultWalletCreated: (
+      state,
+      action: PayloadAction<{ networkType: NetworkType; created: boolean }>
+    ) => {
+      // defaultWalletCreated is undefined in case of updated app due to rehydrate issue.
+      if (!state.defaultWalletCreated) {
+        state.defaultWalletCreated = {
+          [NetworkType.MAINNET]: false,
+          [NetworkType.TESTNET]: false,
+        };
+      }
+      state.defaultWalletCreated[action.payload.networkType] = action.payload.created;
+    },
   },
 });
 
 export const {
   setAppId,
   increasePinFailAttempts,
-  setPinResetCreds,
-  resetPinFailAttempts,
   setPinHash,
   setAppVersion,
   updateLastVisitedTimestamp,
@@ -163,6 +165,7 @@ export const {
   deleteDelayedPolicyUpdate,
   setPlebDueToOffline,
   setAutoUpdateEnabledBeforeDowngrade,
+  setDefaultWalletCreated,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

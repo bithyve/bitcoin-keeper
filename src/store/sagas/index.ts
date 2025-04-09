@@ -5,16 +5,13 @@ import {
   addSigningDeviceWatcher,
   deleteSigningDeviceWatcher,
   autoWalletsSyncWatcher,
-  finaliseVaultMigrationWatcher,
   migrateVaultWatcher,
   refreshWalletsWatcher,
-  syncWalletsWatcher,
   testcoinsWatcher,
   updateSignerPolicyWatcher,
   updateWalletDetailWatcher,
   updateSignerDetails,
   updateKeyDetails,
-  updateWalletsPropertyWatcher,
   updateVaultDetailsWatcher,
   deleteVaultyWatcher,
   reinstateVaultWatcher,
@@ -32,11 +29,8 @@ import {
   changeLoginMethodWatcher,
   credentialStorageWatcher,
   credentialsAuthWatcher,
-  resetPinCredWatcher,
-  generateSeedHashWatcher,
 } from './login';
 import {
-  backupWarningWatcher,
   deleteAppImageEntityWatcher,
   getAppImageWatcher,
   healthCheckSignerWatcher,
@@ -75,16 +69,15 @@ import {
   addTicketStatusUAIWatcher,
   scheduleOnboardingCallWatcher,
 } from './concierge';
+import { changeBitcoinNetworkWatcher } from './settings';
 
 const rootSaga = function* () {
   const sagas = [
     // login
     credentialsAuthWatcher,
     changeAuthCredWatcher,
-    generateSeedHashWatcher,
     changeLoginMethodWatcher,
     credentialStorageWatcher,
-    resetPinCredWatcher,
     setupKeeperAppWatcher,
 
     // network
@@ -98,11 +91,9 @@ const rootSaga = function* () {
     addNewWalletsWatcher,
     autoWalletsSyncWatcher,
     refreshWalletsWatcher,
-    syncWalletsWatcher,
     updateSignerPolicyWatcher,
     testcoinsWatcher,
     updateWalletDetailWatcher,
-    updateWalletsPropertyWatcher,
     generateNewExternalAddressWatcher,
 
     // vaults
@@ -110,7 +101,6 @@ const rootSaga = function* () {
     addSigningDeviceWatcher,
     deleteSigningDeviceWatcher,
     migrateVaultWatcher,
-    finaliseVaultMigrationWatcher,
     updateVaultDetailsWatcher,
     updateSignerDetails,
     updateKeyDetails,
@@ -148,7 +138,6 @@ const rootSaga = function* () {
     seedBackeupConfirmedWatcher,
     healthCheckSignerWatcher,
     healthCheckSatutsUpdateWatcher,
-    backupWarningWatcher,
     backupBsmsOnCloudWatcher,
     bsmsCloudHealthCheckWatcher,
     deleteAppImageEntityWatcher,
@@ -165,6 +154,8 @@ const rootSaga = function* () {
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
     scheduleOnboardingCallWatcher,
+    // settings
+    changeBitcoinNetworkWatcher,
   ];
 
   yield all(

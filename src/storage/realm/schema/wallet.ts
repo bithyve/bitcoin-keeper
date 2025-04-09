@@ -20,6 +20,7 @@ export const BIP85ConfigSchema: ObjectSchema = {
   },
 };
 
+// DEPRECATED
 export const LabelSchema: ObjectSchema = {
   name: RealmSchema.Label,
   properties: {
@@ -28,6 +29,7 @@ export const LabelSchema: ObjectSchema = {
   },
 };
 
+// DEPRECATED
 export const UTXOInfoSchema: ObjectSchema = {
   name: RealmSchema.UTXOInfo,
   properties: {
@@ -92,15 +94,6 @@ export const TransactionSchema: ObjectSchema = {
   },
 };
 
-export const TransactionToAddressMappingSchema: ObjectSchema = {
-  name: RealmSchema.TransactionToAddressMapping,
-  embedded: true,
-  properties: {
-    txid: 'string',
-    addresses: 'string[]',
-  },
-};
-
 export const WalletDerivationDetailsSchema: ObjectSchema = {
   name: RealmSchema.WalletDerivationDetails,
   embedded: true,
@@ -119,16 +112,6 @@ export const WalletPresentationDataSchema: ObjectSchema = {
     name: 'string',
     description: 'string',
     visibility: 'string',
-    shell: 'int',
-  },
-};
-
-export const TransferPolicySchema: ObjectSchema = {
-  name: RealmSchema.TransferPolicy,
-  embedded: true,
-  properties: {
-    id: 'string',
-    threshold: 'int',
   },
 };
 
@@ -148,26 +131,8 @@ export const WalletSpecsSchema: ObjectSchema = {
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,
     transactions: `${RealmSchema.Transaction}[]`,
-    txNote: '{}',
     hasNewUpdates: 'bool',
     lastSynched: 'int',
-  },
-};
-
-export const WhirlpoolWalletDetailsSchema: ObjectSchema = {
-  name: RealmSchema.WhirlpoolWalletDetails,
-  embedded: true,
-  properties: {
-    walletId: 'string',
-    walletType: 'string',
-  },
-};
-
-export const WhirlpoolConfigSchema: ObjectSchema = {
-  name: RealmSchema.WhirlpoolConfig,
-  embedded: true,
-  properties: {
-    whirlpoolWalletDetails: `${RealmSchema.WhirlpoolWalletDetails}[]`,
   },
 };
 
@@ -178,14 +143,10 @@ export const WalletSchema: ObjectSchema = {
     entityKind: 'string',
     type: 'string',
     networkType: 'string',
-    isUsable: 'bool',
     derivationDetails: `${RealmSchema.WalletDerivationDetails}?`,
     presentationData: RealmSchema.WalletPresentationData,
     specs: RealmSchema.WalletSpecs,
     scriptType: 'string',
-    transferPolicy: `${RealmSchema.TransferPolicy}?`,
-    depositWalletId: 'string?',
-    whirlpoolConfig: `${RealmSchema.WhirlpoolConfig}?`,
   },
   primaryKey: 'id',
 };

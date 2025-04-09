@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -13,8 +12,8 @@ import { AppStackParams } from 'src/navigation/types';
 import idx from 'idx';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { Signer } from 'src/services/wallets/interfaces/vault';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { useNavigation } from '@react-navigation/native';
+import WalletHeader from 'src/components/WalletHeader';
 
 export const fetchKeyExpression = (signer: Signer) => {
   for (const type of [XpubTypes.P2WSH]) {
@@ -66,9 +65,9 @@ function CosignerDetails({ route }: ScreenProps) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Share Key Details"
-        subtitle="Scan the key details from another app to add on that app"
+        subTitle="Scan the key details from another app to add on that app"
       />
       <ScrollView
         contentContainerStyle={styles.contentContainer}
@@ -83,11 +82,6 @@ function CosignerDetails({ route }: ScreenProps) {
               copyable
             />
           </Box>
-          {details ? (
-            <Box style={styles.centerBottom}>
-              <ShareWithNfc data={details} signer={signer} remoteShare />
-            </Box>
-          ) : null}
         </Box>
       </ScrollView>
     </ScreenWrapper>

@@ -1,4 +1,5 @@
 import { uaiType } from 'src/models/interfaces/Uai';
+import { NetworkType } from 'src/services/wallets/enums';
 
 export const ADD_TO_UAI_STACK = 'ADD_TO_UAI_STACK';
 export const UAI_ACTIONED = 'UAI_ACTIONED';
@@ -11,6 +12,7 @@ export const addToUaiStack = (payload: {
   uaiDetails?: {
     heading?: string;
     body?: string;
+    networkType?: NetworkType;
   };
   createdAt?: Date;
   seenAt?: Date;

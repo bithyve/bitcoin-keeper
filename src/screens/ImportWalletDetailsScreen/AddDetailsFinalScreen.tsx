@@ -13,21 +13,16 @@ import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
+import { DerivationPurpose, WalletType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
-import { parseInt } from 'lodash';
+import { NewWalletInfo } from 'src/store/sagas/wallets';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { v4 as uuidv4 } from 'uuid';
 
 const derivationPurposeToLabel = {
   [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
-  [DerivationPurpose.BIP49]: 'P2SH-P2WPKH: wrapped segwit, single-sig',
-  [DerivationPurpose.BIP44]: 'P2PKH: legacy, single-sig',
   [DerivationPurpose.BIP86]: 'P2TR: taproot, single-sig',
 };
 
@@ -38,71 +33,51 @@ function AddDetailsFinalScreen({ route }) {
 
   const { translations } = useContext(LocalizationContext);
   const { home, importWallet } = translations;
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const [arrow, setArrow] = useState(false);
 
-  const { importedKey, importedKeyDetails } = route.params;
+  const { importedKey, importedKeyType } = route.params;
   const [walletType, setWalletType] = useState(route.params?.type);
   const [walletName, setWalletName] = useState(route.params?.name);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
-  const [transferPolicy, setTransferPolicy] = useState(route.params?.policy);
 
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
-    { label: 'P2SH-P2WPKH: wrapped segwit, single-sig', value: DerivationPurpose.BIP49 },
-    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
     { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
   ]);
-  const [purpose, setPurpose] = useState(importedKeyDetails?.purpose || DerivationPurpose.BIP84);
+  const [purpose, setPurpose] = useState(DerivationPurpose.BIP84);
   const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
   const [path, setPath] = useState(
-    route.params?.path ||
-      WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+    route.params?.path || WalletUtilities.getDerivationPath(false, bitcoinNetworkType, 0, purpose)
   );
-  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
+    useAppSelector((state) => state.bhr);
   const [walletLoading, setWalletLoading] = useState(false);
   const { colorMode } = useColorMode();
 
   useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(
-      EntityKind.WALLET,
-      config.NETWORK_TYPE,
-      0,
-      purpose
-    );
+    const path = WalletUtilities.getDerivationPath(false, bitcoinNetworkType, 0, purpose);
     setPath(path);
   }, [purpose]);
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
-    const derivationConfig: DerivationConfig = {
-      path,
-      purpose,
-    };
     const newWallet: NewWalletInfo = {
       walletType,
       walletDetails: {
         name: walletName,
         description: walletDescription,
-        derivationConfig: {
-          path,
-          purpose,
-        },
-        transferPolicy: {
-          id: uuidv4(),
-          threshold: transferPolicy ? parseInt(transferPolicy) : 0,
-        },
+        derivationPath: path,
       },
       importDetails: {
         importedKey,
-        importedKeyDetails,
-        derivationConfig,
+        importedKeyType,
+        derivationPath: path,
       },
     };
     dispatch(addNewWallets([newWallet]));
-  }, [walletName, walletDescription, transferPolicy, path]);
+  }, [walletName, walletDescription, path]);
 
   useEffect(() => {
     if (relayWalletUpdate) {
@@ -117,7 +92,7 @@ function AddDetailsFinalScreen({ route }) {
       }
     }
     if (relayWalletError) {
-      showToast('Wallet creation failed!', <ToastErrorIcon />);
+      showToast('Wallet creation failed. ' + realyWalletErrorMessage, <ToastErrorIcon />);
       setWalletLoading(false);
       dispatch(resetRealyWalletState());
     }
@@ -205,14 +180,16 @@ function AddDetailsFinalScreen({ route }) {
           )}
         </ScrollView>
         <View style={styles.dotContainer}>
-          <View style={{ flexDirection: 'row', marginTop: hp(15) }}>
-            {[1, 2, 3].map((item, index) => (
-              <View
-                key={item.toString()}
-                style={index === 2 ? styles.selectedDot : styles.unSelectedDot}
-              />
-            ))}
-          </View>
+          {!(walletLoading || relayWalletUpdateLoading) && (
+            <View style={{ flexDirection: 'row', marginTop: hp(15) }}>
+              {[1, 2, 3].map((item, index) => (
+                <View
+                  key={item.toString()}
+                  style={index === 2 ? styles.selectedDot : styles.unSelectedDot}
+                />
+              ))}
+            </View>
+          )}
           <Box style={styles.ctaBtnWrapper}>
             <Box ml={windowWidth * -0.09}>
               <Buttons

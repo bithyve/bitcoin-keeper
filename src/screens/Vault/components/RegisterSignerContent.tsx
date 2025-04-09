@@ -1,58 +1,60 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
-import DownloadPDF from 'src/assets/images/export-pdf-icon.svg';
-import ShowQR from 'src/assets/images/qr-scan-icon.svg';
 import AirDropIcon from 'src/assets/images/airdrop-circle-icon.svg';
 import NFCIcon from 'src/assets/images/nfc-circle-icon.svg';
+import QR_Icon from 'src/assets/images/qr-scan-icon.svg';
 import { Platform, StyleSheet, Vibration } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import GenerateSingleVaultFilePDF from 'src/utils/GenerateSingleVaultFilePDF';
-import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
-import { CommonActions } from '@react-navigation/native';
 import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { captureError } from 'src/services/sentry';
-import { HCESessionContext } from 'react-native-hce';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { sanitizeFileName } from 'src/utils/utilities';
 import { exportFile } from 'src/services/fs';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { HCESessionContext } from 'react-native-hce';
+import USBIcon from 'src/assets/images/usb_white.svg';
+import { sanitizeFileName } from 'src/utils/utilities';
+import { SignerType } from 'src/services/wallets/enums';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { getWalletConfig } from 'src/hardware';
 
-function WalletConfiguration({
+function RegisterSignerContent({
   vaultId,
-  isMiniscriptVault,
-  navigation,
-  vault,
-  setWalletConfigModal,
   useNdef = false,
   isPSBTSharing = false,
   vaultKey,
   signer,
-  xfp = '',
+  setRegisterSignerModal,
+  isUSBAvailable,
+  activeVault,
+  navigateRegisterWithQR,
+  navigateRegisterWithChannel,
 }) {
   const { colorMode } = useColorMode();
-  const vaultDescriptorString = generateOutputDescriptors(vault);
-  const { session } = useContext(HCESessionContext);
-  const [fingerPrint, setFingerPrint] = useState(null);
   const [visible, setVisible] = useState(false);
   const { showToast } = useToastMessage();
-  const { translations } = useContext(LocalizationContext);
-  const { vault: vaultText } = translations;
+  const { session } = useContext(HCESessionContext);
 
   const isIos = Platform.OS === 'ios';
   const isAndroid = Platform.OS === 'android';
 
-  useEffect(() => {
-    if (vault) {
-      const vaultData = { name: vault.presentationData.name, file: vaultDescriptorString };
-      setFingerPrint(vaultData);
-    }
-  }, []);
+  const fileName = `${sanitizeFileName(activeVault.presentationData.name)}.txt`;
+  const walletConfig =
+    signer.type === SignerType.SPECTER
+      ? `addwallet ${activeVault.presentationData.name}&${generateOutputDescriptors(
+          activeVault,
+          false,
+          false
+        )
+          .replace('/**', '/{0,1}/*')
+          .replace(/<(\d+);(\d+)>/g, '{$1,$2}')}`
+      : activeVault.scheme.miniscriptScheme
+      ? generateOutputDescriptors(activeVault)
+      : getWalletConfig({ vault: activeVault, signerType: signer.type });
 
   const cleanUp = () => {
     setVisible(false);
@@ -63,19 +65,18 @@ function WalletConfiguration({
   };
 
   const shareWithNFC = async () => {
-    setWalletConfigModal(false);
     try {
       if (isIos || useNdef) {
         if (!isIos) {
           setVisible(true);
         }
         Vibration.vibrate([700, 50, 100, 50], true);
-        const enc = NFC.encodeTextRecord(vaultDescriptorString);
+        const enc = NFC.encodeTextRecord(walletConfig);
         await NFC.send([NfcTech.Ndef], enc);
         cleanUp();
       } else {
         setVisible(true);
-        await NFC.startTagSession({ session, content: vaultDescriptorString });
+        await NFC.startTagSession({ session, content: walletConfig });
         Vibration.vibrate([700, 50, 100, 50], true);
       }
     } catch (err) {
@@ -87,25 +88,31 @@ function WalletConfiguration({
       captureError(err);
     }
   };
-  const fileName = `${sanitizeFileName(vault.presentationData.name)}.txt`;
+
   const shareWithAirdrop = async () => {
-    setWalletConfigModal(false);
+    console.log('Airdrop function triggered');
 
     const shareFileName =
       fileName ||
       (isPSBTSharing
         ? `${vaultId}-${vaultKey?.xfp}-${Date.now()}.psbt`
         : `cosigner-${signer?.masterFingerprint}.txt`);
+
     try {
+      console.log('Attempting to export file:', shareFileName);
       await exportFile(
-        vaultDescriptorString,
+        walletConfig,
         shareFileName,
-        (error) => showToast(error.message, <ToastErrorIcon />),
+        (error) => {
+          console.error('File export error:', error);
+          showToast(error.message, <ToastErrorIcon />);
+        },
         'utf8',
         false
       );
+      console.log('File export successful');
     } catch (err) {
-      console.log(err);
+      console.error('Airdrop function error:', err);
       captureError(err);
     }
   };
@@ -113,15 +120,11 @@ function WalletConfiguration({
   const walletOptions = [
     {
       id: 1,
-      label: vaultText.exportPDF,
-      icon: <DownloadPDF />,
+      label: 'Scan QR',
+      icon: <QR_Icon />,
       onPress: () => {
-        GenerateSingleVaultFilePDF(fingerPrint).then((res) => {
-          if (res) {
-            navigation.navigate('PreviewPDF', { source: res });
-            setWalletConfigModal(false);
-          }
-        });
+        setRegisterSignerModal(false);
+        navigateRegisterWithQR();
       },
     },
     {
@@ -130,30 +133,32 @@ function WalletConfiguration({
       icon: <AirDropIcon />,
       onPress: () => {
         shareWithAirdrop();
+        setRegisterSignerModal(false);
       },
     },
+
     {
       id: 3,
-      label: 'Show QR',
-      icon: <ShowQR />,
-      onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate('GenerateVaultDescriptor', {
-            vaultId,
-            isMiniscriptVault,
-          })
-        );
-        setWalletConfigModal(false);
-      },
-    },
-    {
-      id: 4,
       label: 'NFC',
       icon: <NFCIcon />,
       onPress: () => {
         shareWithNFC();
+        setRegisterSignerModal(false);
       },
     },
+    ...(isUSBAvailable
+      ? [
+          {
+            id: 4,
+            label: 'USB',
+            icon: <USBIcon />,
+            onPress: () => {
+              navigateRegisterWithChannel();
+              setRegisterSignerModal(false);
+            },
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -175,7 +180,7 @@ function WalletConfiguration({
   );
 }
 
-export default WalletConfiguration;
+export default RegisterSignerContent;
 
 const styles = StyleSheet.create({
   container: {

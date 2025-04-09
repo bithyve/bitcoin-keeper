@@ -94,7 +94,11 @@ function VaultConfigurationCreation() {
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box marginTop={hp(10)}>
-            <QRScanner onScanCompleted={initateRecovery} />
+            <QRScanner
+              onScanCompleted={(data) => {
+                if (!recoveryLoading) initateRecovery(data);
+              }}
+            />
             <Box style={styles.optionsWrapper}>
               {/* <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box> */}
               <Box style={{ marginLeft: wp(25) }}>

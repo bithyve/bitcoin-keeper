@@ -21,6 +21,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from './useToastMessage';
 import useVault from './useVault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import { Alert } from 'react-native';
 
 const useConfigRecovery = () => {
   const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
@@ -45,9 +46,10 @@ const useConfigRecovery = () => {
     if (scheme && signersList?.length >= 1 && vaultSignersList?.length >= 1) {
       const generatedVaultId = generateVaultId(vaultSignersList, scheme);
       if (allVaults.find((vault) => vault.id === generatedVaultId)) {
+        Alert.alert('A vault already exists with similar configuration!');
         dispatch(resetRealyVaultState());
         setRecoveryLoading(false);
-        showToast('A vault already exists with similar configuration!');
+        navigation.goBack();
         return;
       }
       try {
@@ -73,8 +75,10 @@ const useConfigRecovery = () => {
         );
       } catch (err) {
         captureError(err);
+        Alert.alert(err);
+        setRecoveryLoading(false);
+        navigation.goBack();
       }
-      setRecoveryLoading(false);
     }
   }, [scheme, signersList]);
 
@@ -108,13 +112,13 @@ const useConfigRecovery = () => {
       if (text.match(/^[XYZTUVxyztuv]pub[1-9A-HJ-NP-Za-km-z]{100,108}$/)) {
         try {
           const importedKey = text.trim();
-          const importedKeyDetails = WalletUtilities.getImportedKeyDetails(importedKey);
+          const importedKeyType = WalletUtilities.getImportedKeyType(importedKey);
           navigation.navigate('ImportWalletDetails', {
             importedKey,
-            importedKeyDetails,
+            importedKeyType,
             type: WalletType.IMPORTED,
             name: 'Imported Wallet',
-            description: importedKeyDetails.watchOnly ? 'Watch Only' : 'Imported Wallet',
+            description: 'Watch Only',
           });
           setRecoveryLoading(false);
           return;

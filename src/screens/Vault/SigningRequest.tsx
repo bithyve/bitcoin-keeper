@@ -64,7 +64,14 @@ function SigningRequest() {
   const cancelRequest = async () => {
     try {
       const txid = requestToCancel;
-      const { signerId } = delayedTransactions[txid] as DelayedTransaction;
+      const { signerId, signedPSBT } = delayedTransactions[txid] as DelayedTransaction;
+      if (signedPSBT) {
+        showToast('This request has already been signed');
+        showValidationModal(false);
+        setOtp('');
+        return;
+      }
+
       const verificationToken = otp;
 
       const { canceled } = await SigningServer.cancelDelayedTransaction(

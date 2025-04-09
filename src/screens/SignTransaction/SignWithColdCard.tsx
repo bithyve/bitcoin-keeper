@@ -84,7 +84,7 @@ function SignWithColdCard({ route }: { route }) {
   const { signer } = useSignerFromKey(vaultKey);
 
   const { registered = false } =
-    vaultKey.registeredVaults.find((info) => info.vaultId === activeVault.id) || {};
+    vaultKey.registeredVaults?.find((info) => info.vaultId === activeVault.id) || {};
   const dispatch = useDispatch();
 
   const receiveFromColdCard = async () =>
@@ -145,18 +145,30 @@ function SignWithColdCard({ route }: { route }) {
       <VStack justifyContent="space-between" flex={1}>
         <KeeperHeader
           title="Sign Transaction via NFC"
-          subtitle="First send the transaction to the Coldcard, sign it on Coldcard, then click receive to pass it back into Keeper"
+          subtitle={
+            signer.type === SignerType.KEEPER
+              ? 'First send the transaction to the other Keeper app, sign it on Keeper, then click receive to pass it back into Keeper'
+              : 'First send the transaction to the Coldcard, sign it on Coldcard, then click receive to pass it back into Keeper'
+          }
         />
         <VStack flex={1} marginTop={hp(25)}>
           <Card
             title="Send transaction"
-            message="from the app to the Coldcard"
+            message={
+              signer.type === SignerType.KEEPER
+                ? 'from the app to other Keeper app'
+                : 'from the app to the Coldcard'
+            }
             buttonText="Send"
             buttonCallBack={signTransaction}
           />
           <Card
             title="Receive signed transaction"
-            message="from the Coldcard to the app"
+            message={
+              signer.type === SignerType.KEEPER
+                ? 'from other Keeper app to the app'
+                : 'from the Coldcard to the app'
+            }
             buttonText="Receive"
             buttonCallBack={receiveFromColdCard}
           />
@@ -169,7 +181,9 @@ function SignWithColdCard({ route }: { route }) {
               </Text>
             </Box>
             <HStack alignItems="center">
-              <Text fontSize={13}>Coldcard is showing an error?</Text>
+              <Text fontSize={13}>
+                {signer.type === SignerType.KEEPER ? 'Keeper' : 'Coldcard'} is showing an error?
+              </Text>
               <TouchableOpacity
                 onPress={() => {
                   showMk4Helper(true);
@@ -187,8 +201,17 @@ function SignWithColdCard({ route }: { route }) {
       <KeeperModal
         visible={mk4Helper}
         close={() => showMk4Helper(false)}
-        title="Need help with Coldcard?"
-        subTitle="Try to map the error on your Coldcard to one of the options here"
+        title={
+          signer.type === SignerType.KEEPER ? 'Need help with Keeper?' : 'Need help with Coldcard?'
+        }
+        subTitle={
+          signer.type === SignerType.KEEPER
+            ? 'Try to map the error on the Keeper to one of the options here'
+            : 'Try to map the error on your Coldcard to one of the options here'
+        }
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <Box>
             <TouchableOpacity
@@ -200,7 +223,9 @@ function SignWithColdCard({ route }: { route }) {
               style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
             >
               <VStack width="97%">
-                <Text fontSize={14}>Manually Register Coldcard</Text>
+                <Text fontSize={14}>
+                  Manually Register {signer.type === SignerType.KEEPER ? 'Keeper' : 'Coldcard'}
+                </Text>
                 <Text fontSize={12}>Please resigister the vault if not already registered</Text>
               </VStack>
               <Arrow />
@@ -214,9 +239,12 @@ function SignWithColdCard({ route }: { route }) {
               style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
             >
               <VStack width="97%">
-                <Text fontSize={14}>Learn more about Coldcard</Text>
+                <Text fontSize={14}>
+                  Learn more about{signer.type === SignerType.KEEPER ? ' Keeper' : ' Coldcard'}
+                </Text>
                 <Text fontSize={12}>
-                  Here you will find all of our User Documentation for the Coldcard.
+                  Here you will find all of our User Documentation for the
+                  {signer.type === SignerType.KEEPER ? ' Keeper' : ' Coldcard'}.
                 </Text>
               </VStack>
               <Arrow />

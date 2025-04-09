@@ -1,4 +1,4 @@
-import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import { crossInteractionHandler } from 'src/utils/utilities';
 import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
@@ -10,10 +10,10 @@ import { createXpubDetails, extractKeyFromDescriptor, generateSignerFromMetaData
 import HWError from './HWErrorState';
 import { getSpecterDetails } from './specter';
 import { getKeystoneDetails } from './keystone';
-import config from 'src/utils/service-utilities/config';
 import { extractColdCardExport } from './coldcard';
 import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
 import { getUSBSignerDetails } from './usbSigner';
+import { store } from 'src/store/store';
 
 const setupPassport = (qrData, isMultisig) => {
   const { xpub, derivationPath, masterFingerprint, xpubDetails } = createXpubDetails(qrData);
@@ -140,7 +140,7 @@ const setupKeeperSigner = (qrData) => {
 };
 
 const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
-  const networkType = config.NETWORK_TYPE;
+  const { bitcoinNetworkType: networkType } = store.getState().settings;
 
   // fetched multi-sig mobile key
   const {
@@ -148,13 +148,13 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
     xpriv: multiSigXpriv,
     derivationPath: multiSigPath,
     masterFingerprint,
-  } = await generateMobileKey(primaryMnemonic, networkType);
+  } = await generateMobileKey(primaryMnemonic, networkType, true);
   // fetched single-sig mobile key
   const {
     xpub: singleSigXpub,
     xpriv: singleSigXpriv,
     derivationPath: singleSigPath,
-  } = await generateMobileKey(primaryMnemonic, networkType, EntityKind.WALLET);
+  } = await generateMobileKey(primaryMnemonic, networkType, false);
 
   const xpubDetails: XpubDetailsType = {};
   xpubDetails[XpubTypes.P2WPKH] = {
@@ -182,18 +182,18 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
 };
 
 const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
-  const networkType = config.NETWORK_TYPE;
+  const { bitcoinNetworkType: networkType } = store.getState().settings;
   // fetched multi-sig seed words based key
   const {
     xpub: multiSigXpub,
     derivationPath: multiSigPath,
     masterFingerprint,
-  } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
+  } = generateSeedWordsKey(mnemonic, networkType, true);
   // fetched single-sig seed words based key
   const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
     mnemonic,
     networkType,
-    EntityKind.WALLET
+    false
   );
 
   const xpubDetails: XpubDetailsType = {};

@@ -1,24 +1,14 @@
-import config from 'src/utils/service-utilities/config';
 import ElectrumCli from 'electrum-client';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { NodeDetail } from 'src/services/wallets/interfaces';
-import { NetworkType } from 'src/services/wallets/enums';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
-import { cryptoRandom } from '../../utils/service-utilities/encryption';
 import ecc from '../wallets/operations/taproot-utils/noble_ecc';
+import { store } from 'src/store/store';
 
 bitcoinJS.initEccLib(ecc);
-
-function shufflePeers(peers) {
-  for (let i = peers.length - 1; i > 0; i--) {
-    const j = Math.floor(cryptoRandom() * (i + 1));
-    [peers[i], peers[j]] = [peers[j], peers[i]];
-  }
-  return peers;
-}
 
 const ELECTRUM_CLIENT_CONFIG: {
   maxConnectionAttempt: number;
@@ -237,7 +227,7 @@ export default class ElectrumClient {
     ELECTRUM_CLIENT = ELECTRUM_CLIENT_DEFAULTS;
 
     // set active node
-    let activeNode = currentPeerToUse || nodes.filter((node) => node.isConnected)[0];
+    let activeNode = currentPeerToUse || nodes.find((node) => node.isConnected);
     ELECTRUM_CLIENT.activePeer = activeNode;
 
     if (nodes) {
@@ -255,10 +245,11 @@ export default class ElectrumClient {
 
   public static async syncUTXOByAddress(
     addresses: string[],
-    network: bitcoinJS.Network = config.NETWORK,
+    network: bitcoinJS.Network,
     batchsize: number = 150
   ): Promise<{ [address: string]: ElectrumUTXO[] }> {
     ElectrumClient.checkConnection();
+    if (!network) network = store.getState().settings.bitcoinNetwork;
     const res = {};
     const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
     for (let itr = 0; itr < chunks.length; itr += 1) {
@@ -302,7 +293,7 @@ export default class ElectrumClient {
 
   public static async syncHistoryByAddress(
     addresses: string[],
-    network: bitcoinJS.Network = config.NETWORK,
+    network: bitcoinJS.Network,
     batchsize: number = 150
   ): Promise<{
     historyByAddress: {};
@@ -312,6 +303,7 @@ export default class ElectrumClient {
     if (addresses.length === 0) {
       return { historyByAddress: {}, txids: [], txidToAddress: {} };
     }
+    if (!network) network = store.getState().settings.bitcoinNetwork;
     ElectrumClient.checkConnection();
 
     const historyByAddress = {};
@@ -384,13 +376,16 @@ export default class ElectrumClient {
           // large response error, would need to handle it over a single call
         }
 
-        res[txdata.param] = txdata.result;
-        if (res[txdata.param] && !includeHex) delete res[txdata.param].hex;
+        // Only include transactions which returned with data in the result, note that this means the result object may not contain entries for all txids passed
+        if (txdata.result) {
+          res[txdata.param] = txdata.result;
+          if (res[txdata.param] && !includeHex) delete res[txdata.param].hex;
 
-        // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
-        for (const vout of res[txdata.param]?.vout || []) {
-          if (vout?.scriptPubKey?.address) {
-            vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
+          // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
+          for (const vout of res[txdata.param]?.vout || []) {
+            if (vout?.scriptPubKey?.address) {
+              vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
+            }
           }
         }
       }

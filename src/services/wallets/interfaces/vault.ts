@@ -29,7 +29,6 @@ export interface VaultSpecs {
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
   transactions: Transaction[]; // transactions belonging to this wallet
-  txNote: { [txId: string]: string }; // transaction note
   hasNewUpdates: boolean; // spec vars have a new update?
   lastSynched: number; // vault's last sync timestamp
 }
@@ -108,6 +107,8 @@ export interface Signer {
   hidden: boolean;
   extraData?: SignerExtraData;
   archived?: boolean;
+  isExternal?: boolean;
+  networkType: NetworkType;
 }
 
 export type RegisteredVaultInfo = {
@@ -132,11 +133,9 @@ export interface Vault {
   // Represents a Vault
   // Rel: Created using multiple VaultSigners(Extended Keys)
   id: string; // vault identifier(derived from xpub)
-  shellId: string;
   entityKind: EntityKind; // Vault vs Wallet identifier
   type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet
-  isUsable: boolean; // true if vault is usable
   isMultiSig: boolean; // true
   scheme: VaultScheme; // scheme of vault(m of n)
   signers: VaultSigner[]; // signers of the vault

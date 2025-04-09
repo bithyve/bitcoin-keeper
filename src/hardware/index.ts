@@ -9,7 +9,7 @@ import {
 
 import {
   DerivationPurpose,
-  EntityKind,
+  NetworkType,
   SignerStorage,
   SignerType,
   XpubTypes,
@@ -20,15 +20,19 @@ import { HWErrorType } from 'src/models/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { numberToOrdinal } from 'src/utils/utilities';
+import { getKeyUID, numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import ElectrumClient from 'src/services/electrum/client';
 import { captureError } from 'src/services/sentry';
-const base58check = require('base58check');
-import HWError from './HWErrorState';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+
+import * as b58 from 'bs58check';
+import HWError from './HWErrorState';
+
+const base58check = require('base58check');
+import { store } from 'src/store/store';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -53,13 +57,29 @@ export const generateSignerFromMetaData = ({
   xfp = null,
   isBIP85 = false,
   signerPolicy = null,
-  inheritanceKeyInfo = null,
   isAmf = false,
 }): { signer: Signer; key: VaultSigner } => {
-  const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
-  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+  const { bitcoinNetworkType } = store.getState().settings;
+  // Check network type by derivation path for jade
+  if ([SignerType.JADE].includes(signerType)) {
+    Object.entries(xpubDetails).forEach(([_, xpubDetail]) => {
+      if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(xpubDetail.derivationPath))
+        throw new HWError(HWErrorType.INCORRECT_NETWORK);
+    });
+  }
+
+  let networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
+
+  if (signerType === SignerType.KEYSTONE) {
+    if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(derivationPath))
+      throw new HWError(HWErrorType.INCORRECT_NETWORK);
+    // Keystone qr gives Zpub in testnet
+    else networkType = getNetworkTypeFromDerivationPath(derivationPath);
+  }
+
+  const network = WalletUtilities.getNetworkByType(bitcoinNetworkType);
   if (
-    networkType !== config.NETWORK_TYPE &&
+    networkType !== bitcoinNetworkType &&
     signerType !== SignerType.KEYSTONE &&
     signerType !== SignerType.JADE
   ) {
@@ -77,13 +97,15 @@ export const generateSignerFromMetaData = ({
     Object.entries(xpubDetails).forEach(([key, xpubDetail]) => {
       let { xpub, xpriv, derivationPath } = xpubDetail;
       signerXpubs[key] = signerXpubs[key] || [];
-      if ([SignerType.JADE, SignerType.SEEDSIGNER].includes(signerType))
+      if ([SignerType.JADE, SignerType.SEEDSIGNER].includes(signerType)) {
         xpub = WalletUtilities.getXpubFromExtendedKey(xpub, network);
+      }
       signerXpubs[key].push({ xpub, xpriv, derivationPath: derivationPath.replaceAll('h', "'") });
     });
   }
 
   const signer: Signer = {
+    id: '', // temporarily empty
     type: signerType,
     storageType,
     isMock,
@@ -99,10 +121,11 @@ export const generateSignerFromMetaData = ({
     masterFingerprint: masterFingerprint.toUpperCase(),
     isBIP85,
     signerPolicy,
-    inheritanceKeyInfo,
     signerXpubs,
     hidden: false,
+    networkType,
   };
+  signer.id = getKeyUID(signer);
 
   const key: VaultSigner = {
     xfp: xfp || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
@@ -241,21 +264,21 @@ export const getSignerSigTypeInfo = (key: VaultSigner, signer: Signer) => {
 };
 
 export const getMockSigner = (signerType: SignerType) => {
-  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-    const networkType = config.NETWORK_TYPE;
+  const { bitcoinNetworkType: networkType } = store.getState().settings;
+  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT && networkType === NetworkType.TESTNET) {
     // fetched multi-sig key
     const {
       xpub: multiSigXpub,
       xpriv: multiSigXpriv,
       derivationPath: multiSigPath,
       masterFingerprint,
-    } = generateMockExtendedKeyForSigner(EntityKind.VAULT, signerType, networkType);
+    } = generateMockExtendedKeyForSigner(true, signerType, networkType);
     // fetched single-sig key
     const {
       xpub: singleSigXpub,
       xpriv: singleSigXpriv,
       derivationPath: singleSigPath,
-    } = generateMockExtendedKeyForSigner(EntityKind.WALLET, signerType, networkType);
+    } = generateMockExtendedKeyForSigner(false, signerType, networkType);
 
     const xpubDetails: XpubDetailsType = {};
 
@@ -358,7 +381,9 @@ const getPolicyServerStatus = (
         type
       )}`,
     };
-  } else if (existingSigners.find((s) => s.type === SignerType.POLICY_SERVER)) {
+  } else if (
+    existingSigners.find((s: Signer) => s.type === SignerType.POLICY_SERVER && !s.isExternal)
+  ) {
     return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
   } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
     return {
@@ -397,7 +422,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Use Mobile Key as signer';
     }
     case SignerType.KEEPER: {
-      return `From a friend or advisor's Keeper app`;
+      return "From a friend or advisor's Keeper app";
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot key on this app';
@@ -467,8 +492,9 @@ export const extractKeyFromDescriptor = (data) => {
 
 export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
   try {
+    const { bitcoinNetworkType } = store.getState().settings;
     const psbt = bitcoinJS.Psbt.fromBase64(serializedPSBT, {
-      network: WalletUtilities.getNetworkByType(config.NETWORK_TYPE),
+      network: WalletUtilities.getNetworkByType(bitcoinNetworkType),
     });
     const txids = psbt.txInputs.map((input) => {
       const item = reverse(input.hash).toString('hex');
@@ -497,8 +523,6 @@ export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
     return { serializedPSBT };
   }
 };
-
-import * as b58 from 'bs58check';
 
 const prefixes = new Map([
   ['xpub', '0488b21e'],
@@ -580,4 +604,10 @@ export const createXpubDetails = (data) => {
     ? singleSig.derivationPath
     : taproot.derivationPath;
   return { xpub, derivationPath, masterFingerprint, xpubDetails };
+};
+
+export const getNetworkTypeFromDerivationPath = (derivationPath: string) => {
+  return parseInt(derivationPath.replace(/[']/g, '').split('/')[2]) == 0
+    ? NetworkType.MAINNET
+    : NetworkType.TESTNET;
 };

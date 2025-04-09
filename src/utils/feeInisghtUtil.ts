@@ -77,22 +77,3 @@ export const generateFeeInsightStatement = (data: HistoricalInisightData[]) => {
     oneWeekAgoFee: `${oneWeekAgoFee}`,
   };
 };
-
-export const calculateAverageBlockTime = (data: HistoricalInisightData[]) => {
-  if (data.length < 2) {
-    return '0 mins/block';
-  }
-
-  // Calculate the time differences between each block in minutes
-  let timeDifferences = [];
-  for (let i = 1; i < data.length; i++) {
-    let timeDifference = (data[i].timestamp - data[i - 1].timestamp) / 60; // Convert seconds to minutes
-    timeDifferences.push(timeDifference);
-  }
-
-  // Calculate the average time difference
-  const total = timeDifferences.reduce((sum, time) => sum + time, 0);
-  const averageBlockTime = total / timeDifferences.length;
-  // Set the statement
-  return `${averageBlockTime.toFixed(2)} mins/block`;
-};

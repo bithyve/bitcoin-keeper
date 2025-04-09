@@ -4,12 +4,10 @@ import { SignerException, SignerRestriction } from 'src/models/interfaces/Assist
 import { NewWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
-export const SYNC_WALLETS = 'SYNC_WALLETS';
 export const GET_TESTCOINS = 'GET_TESTCOINS';
 export const AUTO_SYNC_WALLETS = 'AUTO_SYNC_WALLETS';
 export const UPDATE_SIGNER_POLICY = 'UPDATE_SIGNER_POLICY';
 export const ADD_NEW_WALLETS = 'ADD_NEW_WALLETS';
-export const UPDATE_WALLET_PROPERTY = 'UPDATE_WALLET_PROPERTY';
 export const REFRESH_WALLETS = 'REFRESH_WALLETS';
 export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
@@ -20,20 +18,6 @@ export const GENERATE_NEW_ADDRESS = 'GENERATE_NEW_ADDRESS';
 export const TESTCOINS_RECEIVED = 'TESTCOINS_RECEIVED';
 export const WALLETS_SYNCHED = 'WALLETS_SYNCHED';
 
-export const syncWallets = (
-  wallets: (Wallet | Vault)[],
-  options: {
-    hardRefresh?: boolean;
-    blindRefresh?: boolean;
-  } = {}
-) => ({
-  type: SYNC_WALLETS,
-  payload: {
-    wallets,
-    options,
-  },
-});
-
 export const getTestcoins = (testWallet: Wallet) => ({
   type: GET_TESTCOINS,
   payload: testWallet,
@@ -41,11 +25,16 @@ export const getTestcoins = (testWallet: Wallet) => ({
 
 // This is called once per login to automatically sync balances and
 // transactions of all shells
-export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => ({
+export const autoSyncWallets = (
+  syncAll?: boolean,
+  hardRefresh?: boolean,
+  addNotifications?: boolean
+) => ({
   type: AUTO_SYNC_WALLETS,
   payload: {
     syncAll,
     hardRefresh,
+    addNotifications,
   },
 });
 
@@ -81,11 +70,6 @@ export const refreshWallets = (
 
 export const addNewWallets = (payload: NewWalletInfo[]) => ({
   type: ADD_NEW_WALLETS,
-  payload,
-});
-
-export const updateWalletProperty = (payload: { walletId: string; key: string; value: any }) => ({
-  type: UPDATE_WALLET_PROPERTY,
   payload,
 });
 

@@ -14,6 +14,7 @@ import config from './config';
 import { generateMiniscriptScheme } from 'src/services/wallets/factories/VaultFactory';
 import { isOdd } from '../utilities';
 import { generateEnhancedVaultElements } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import { store } from 'src/store/store';
 
 const crypto = require('crypto');
 
@@ -121,6 +122,7 @@ export const generateAbbreviatedOutputDescriptors = (wallet: Vault | Wallet) => 
       return des;
     }
   }
+  throw Error('Unsupported wallet type');
 };
 
 export const generateOutputDescriptors = (
@@ -238,6 +240,7 @@ export interface ParsedSignersDetails {
   path: String;
   isMultisig: Boolean;
 }
+
 export interface ParsedVauleText {
   signersDetails: ParsedSignersDetails[] | null;
   isMultisig: Boolean | null;
@@ -529,6 +532,7 @@ function parseEnhancedVaultMiniscript(miniscript: string): {
 } {
   // Remove wsh() wrapper and checksum
   const innerScript = miniscript.replace('wsh(', '').replace(/\)#.*$/, '');
+  const { bitcoinNetworkType } = store.getState().settings;
 
   // Extract all key expressions with derivation path and path restrictions
   const keyRegex = /\[([A-F0-9]{8})(\/[0-9h'/]+)\]([a-zA-Z0-9]+)\/<(\d+);(\d+)>\//g;
@@ -542,7 +546,7 @@ function parseEnhancedVaultMiniscript(miniscript: string): {
     pathRestriction: `<${match[4]};${match[5]}>`,
     xfp: WalletUtilities.getFingerprintFromExtendedKey(
       match[3],
-      WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+      WalletUtilities.getNetworkByType(bitcoinNetworkType)
     ),
   }));
 
@@ -701,6 +705,7 @@ interface DecryptData {
   encryptedData: string;
   authTag: string;
 }
+
 export const createDecipherGcm = (data: DecryptData, password: string) => {
   const algorithm = 'aes-256-gcm';
   const key = Buffer.from(password, 'hex');
@@ -729,10 +734,6 @@ export const getArchivedVaults = (allVaults: Vault[], vault: Vault) => {
           (v.archivedId === vault.archivedId || v.id === vault.archivedId)
       );
 };
-export function generateKeyFromPassword(password, salt = 'ARzDkUmENwt1', iterations = 100) {
-  // Derive a 16-byte key from the 12-character password
-  return crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256'); // 16 bytes = 128 bits
-}
 
 export function findVaultFromSenderAddress(allVaults: Vault[], senderAddresses) {
   let activeVault = null;
@@ -770,6 +771,10 @@ export function findChangeFromReceiverAddresses(
   changeAddressIndex: number
 ) {
   if (changeAddressIndex == undefined) return receiverAddresses;
+  if (changeAddressIndex > activeVault.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT) {
+    throw new Error('Change index is too high.');
+  }
+
   const changeAddress = WalletOperations.getExternalInternalAddressAtIdx(
     activeVault,
     changeAddressIndex,

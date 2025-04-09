@@ -23,7 +23,6 @@ export interface OutputUTXOs {
 }
 
 export interface AverageTxFeeElements {
-  averageTxFee: number;
   feePerByte: number;
   estimatedBlocks: number;
 }
@@ -108,11 +107,6 @@ export interface TransactionRecipients {
   }[];
 }
 
-export interface TransactionToAddressMapping {
-  txid: string;
-  addresses: string[];
-}
-
 export interface Transaction {
   txid: string;
   address?: string;
@@ -168,6 +162,7 @@ export interface SigningPayload {
   inputs?: InputUTXOs[];
   outputs?: OutputUTXOs[];
   change?: string;
+  changeIndex?: number;
   inputsToSign?: Array<{
     digest: string;
     subPath: string;
@@ -176,15 +171,6 @@ export interface SigningPayload {
     publicKey: string;
     signature?: string;
   }>;
-  childIndexArray?: Array<{
-    subPath: number[];
-    inputIdentifier: {
-      txId: string;
-      vout: number;
-      value: number;
-    };
-  }>;
-  outgoing?: number;
 }
 
 export interface SerializedPSBTEnvelop {
@@ -205,6 +191,7 @@ export interface NodeDetail {
   isConnected: boolean;
   useKeeperNode: boolean;
   useSSL: boolean;
+  networkType: NetworkType;
 }
 
 export interface SyncedWallet {
