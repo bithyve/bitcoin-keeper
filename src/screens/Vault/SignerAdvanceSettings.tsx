@@ -76,6 +76,7 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { vaultAlreadyExists } from './VaultMigrationController';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import RegisterSignerContent from './components/RegisterSignerContent';
+import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
 
 const { width } = Dimensions.get('screen');
 
@@ -652,6 +653,8 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }, []);
 
+  const [upgradeAdditionalUser, setUpgradeAdditionalUser] = useState(true);
+
   const displayedCards = [
     !isMobileKey && (
       <OptionCard
@@ -755,6 +758,30 @@ function SignerAdvanceSettings({ route }: any) {
           if (!disableOneTimeBackup) setDisplayBackupModal(true);
         }}
         disabled={disableOneTimeBackup}
+      />
+    ),
+    isPolicyServer && (
+      <OptionCard
+        key="AdditionalUsers"
+        title="Additional Users"
+        description={'Add multiple users for the Server Key'}
+        callback={() => {
+          if (!upgradeAdditionalUser) {
+            navigation.navigate('AdditionalUsers');
+          }
+        }}
+        disabled={upgradeAdditionalUser}
+        rightComponent={
+          upgradeAdditionalUser &&
+          (() => {
+            return (
+              // this will be upgraded with private subscription but for now it is handeling with state
+              <TouchableOpacity onPress={() => setUpgradeAdditionalUser(false)}>
+                <UpgradeIcon style={styles.upgradeIcon} width={64} height={20} />
+              </TouchableOpacity>
+            );
+          })
+        }
       />
     ),
   ].filter(Boolean);
@@ -1374,5 +1401,8 @@ const styles = StyleSheet.create({
   CVVInputsView: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  upgradeIcon: {
+    marginRight: 20,
   },
 });

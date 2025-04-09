@@ -122,5 +122,6 @@ const Colors = {
   SeaweedGreenTranslucent: 'rgba(45, 103, 89, 0.05)',
   GraphiteTranslucent: 'rgba(135, 135, 135, 0.05)',
   SilverMistTranslucent: 'rgba(212, 212, 212, 0.6)',
+  lightGreenTag: 'rgba(146, 194, 124, 1)',
 };
 export default Colors;
