@@ -66,7 +66,7 @@ const PermittedActionContent = ({
           }}
         />
 
-        <Text semiBold color={`${colorMode}.pantoneGreen`}>
+        <Text semiBold color={`${colorMode}.dashedButtonBorderColor`}>
           Select all
         </Text>
       </Box>

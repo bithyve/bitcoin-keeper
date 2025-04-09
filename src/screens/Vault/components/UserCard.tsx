@@ -33,14 +33,16 @@ const UserCard = ({ data, setDeleteUser }: Props) => {
         <Box key={index}>
           <Box style={styles.cardData}>
             <Box>
-              <Text color="black" semiBold fontSize={16}>
+              <Text semiBold fontSize={16}>
                 {item.name}
               </Text>
 
               <Box style={styles.pillContainer}>
                 {item?.tags?.map((tag, tagIndex) => (
                   <Box key={tagIndex} style={styles.pill} backgroundColor={getTagColor(tag)}>
-                    <Text fontSize={13}>{tag}</Text>
+                    <Text color={Colors.secondaryBlack} fontSize={10}>
+                      {tag}
+                    </Text>
                   </Box>
                 ))}
               </Box>
