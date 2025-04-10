@@ -72,7 +72,7 @@ const NodeSelection = () => {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { common, settings } = translations;
+  const { common, settings, error } = translations;
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -136,7 +136,7 @@ const NodeSelection = () => {
         setConnectionError(errorMessage);
       }
 
-      showToast(`Failed to save, unable to connect to: ${nodeToSave.host} `, <ToastErrorIcon />);
+      showToast(`${error.failedToSave} ${nodeToSave.host} `, <ToastErrorIcon />);
     }
     setSaveLoading(false);
   };
@@ -171,7 +171,7 @@ const NodeSelection = () => {
       node.isConnected = connected;
       await Node.update(node, { isConnected: connected });
       dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, connectedTo }));
-      showToast(`Connected to: ${connectedTo}`, <TickIcon />);
+      showToast(`${error.ConnectedTo} ${connectedTo}`, <TickIcon />);
       nodes = nodes.map((item) => {
         if (item.id === node.id) return { ...node };
         return item;
@@ -190,7 +190,7 @@ const NodeSelection = () => {
 
   const onValidateAndSave = () => {
     if (!host || !port) {
-      showToast('Host and port are required', <ToastErrorIcon />);
+      showToast(error.hostAndPortRequired, <ToastErrorIcon />);
       return;
     }
 
@@ -215,7 +215,7 @@ const NodeSelection = () => {
       }
       navigation.goBack();
     } catch (error) {
-      showToast('Invalid QR code', <ToastErrorIcon />);
+      showToast(error.InvalidQRcode, <ToastErrorIcon />);
     }
   };
 
@@ -223,8 +223,8 @@ const NodeSelection = () => {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={loading || saveLoading} />
       <KeeperHeader
-        title="Server Selection"
-        subtitle="Select a server you'd like to use. Add your own node for enhanced privacy."
+        title={settings.serverSelectionTitle}
+        subtitle={settings.serverSelectionSubtitle}
       />
       <Box style={styles.tabBarContainer}>
         <TabBar

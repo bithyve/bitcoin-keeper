@@ -178,7 +178,10 @@
     "Account": "Account",
     "messagePreview": "Message Preview",
     "TESTNET": "TESTNET",
-    "failed": "Failed"
+    "failed": "Failed",
+    "Beware": "Beware",
+    "Enable": "Enable",
+    "close": "Close"
   },
   "noInternet": {
     "no": "No Internet",
@@ -694,7 +697,18 @@
     "changeOrUpdatePurpose": "Change or update purpose",
     "walletCreatedSuccessfullyDesc": "Your new wallet was created successfully and is ready to use",
     "recoveryKeyAsBackup": "Make sure to securely store your Recovery Key as back up for your wallet",
-    "createYourWallet": "Create Your Wallet"
+    "createYourWallet": "Create Your Wallet",
+    "canaryWalletForRecoveryKey": "Canary Wallet for Recovery Key",
+    "onChainKeyAlert": "Your on-chain key alert",
+    "MoveFunds": "Move Funds",
+    "hideHiddenWallets": "Hide hidden wallets",
+    "showHiddenWallets": "Show hidden wallets",
+    "connectingViaTor": "Connecting via Tor improves your online privacy",
+    "networkOrOtherConditions": "This can be due to network or other conditions.",
+    "connectingToTor": "Connecting to Tor",
+    "connectingToTorDesc": "Network calls and some functions may work slower when enabled",
+    "connectionError": "Connection Error",
+    "connectionErrorDesc": "There was an error when connecting via Tor. You could continue without connecting to Tor or try after sometime."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1211,7 +1225,18 @@
     "assistedServerDeleteBackupModalSecondaryCTA": "Only disable",
     "cameraAccessoff": "Camera access is turned off",
     "turnCameraOn": "Turn on the camera in your device settings",
-    "tapToGoSetting": "Tap to go to settings"
+    "tapToGoSetting": "Tap to go to settings",
+    "confirmPasscodetounhide": "Confirm passcode to unhide wallets",
+    "confirmPasscodetodelete": "Confirm passcode to delete the vault",
+    "Biometrics": "Biometrics",
+    "settingsRestoredRecoverty": "These settings are not carried over when the app is restored using the Recovery Phrase",
+    "enterExistingPasscode": "Enter your existing passcode",
+    "torDisabled": "Tor Disabled",
+    "connectingToTor": "Connecting to Tor",
+    "torEnabled": "Tor enabled",
+    "torError": "Tor error",
+    "Checking": "Checking",
+    "CheckingStatus": "Checking Status"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -1467,7 +1492,8 @@
     "xPubJadeSub": "Get Your Jade ready and powered up before proceeding",
     "emergencyKey": "Emergency Key",
     "extraKeyAddedAfterTime": "An extra key which will be added to your wallet quorum after a certain time",
-    "keyDelayedFullControl": "A key with delayed full control to recover from extended key loss"
+    "keyDelayedFullControl": "A key with delayed full control to recover from extended key loss",
+    "accessKeyWarning": " Anyone with access to the Recovery Key can access and withdraw your funds. Losing them means you can’t recover your wallet."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -1674,6 +1700,7 @@
     "invalidOrNoRelatedQR": "Invalid or No related QR code",
     "cannotGetSignerPrivateKey": "Cannot get private key of signer",
     "canaryWalletFailed": "Canary Vault creation failed",
+    "canaryVaultFailed": "Canary wallet creation failed",
     "importedWalletFailed": "Wallet import failed!",
     "vaultAlreadyExists": "A vault already exists with similar configuration!",
     "unableToDeleteAssistedServer": "Unable to delete backup from Assisted Server, Please try again later.",
@@ -1681,6 +1708,23 @@
     "ErrorMappingUnknownSigner": "Error mapping unknown signer to signer",
     "scanValidQR": "Please scan a valid QR",
     "singleKeyWalletMsg": "Single-key wallet cannot use Emergency Key, only Inheritance Key.",
-    "MultiKeyWalletMsg": "Multi-key wallets with a threshold of 1 cannot use Emergency Key, only Inheritance Key."
+    "MultiKeyWalletMsg": "Multi-key wallets with a threshold of 1 cannot use Emergency Key, only Inheritance Key.",
+    "noSingleSigFound": "No single Sig found",
+    "vaultDeleted": "Vault deleted successfully",
+    "failedToDeleteVault": "Failed to delete vault",
+    "walletUnhidden": "Wallet is now unhidden",
+    "showingAllWallets": "Showing all wallets",
+    "showingHiddenWallets": "Showing hidden wallets",
+    "waletDeleted": "Wallet deleted successfully",
+    "passcodeUpdated": "Passcode updated successfully",
+    "biometricNotEnabled": "Biometrics not enabled.\nPlease go to setting and enable it",
+    "confirmIdentity": "Confirm your identity",
+    "switchOffOrbit": "Please switch off Orbot to connect to in-app Tor.",
+    "failedToSave": "Failed to save, unable to connect to:",
+    "ConnectedTo": "Connected to:",
+    "hostAndPortRequired": "Host and port are required",
+    "InvalidQRcode": "Invalid QR code",
+    "disconnectedFrom": "Disconnected from",
+    "failedToDiConnect": "Failed to disconnect from Electrum server"
   }
 }

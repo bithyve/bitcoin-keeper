@@ -1,23 +1,25 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
 import SeedwordsIllustration from 'src/assets/images/seedwords_illustration.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function BackupModalContent() {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common, signer } = translations;
   return (
     <Box style={styles.contentContainer}>
       <Box style={styles.passImg}>
         <SeedwordsIllustration />
       </Box>
       <Text color={`${colorMode}.textGreen`} medium style={styles.modalHeading}>
-        Beware
+        {common.Beware}
       </Text>
       <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
-        Anyone with access to the Recovery Key can access and withdraw your funds. Losing them means
-        you can’t recover your wallet.
+        {signer.accessKeyWarning}
       </Text>
     </Box>
   );

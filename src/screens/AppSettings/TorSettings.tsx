@@ -23,7 +23,7 @@ function TorSettings() {
   const { torStatus, setTorStatus, orbotTorStatus, inAppTor, openOrbotApp, checkTorConnection } =
     useContext(TorContext);
   const { translations } = useContext(LocalizationContext);
-  const { settings, common } = translations;
+  const { settings, common, error } = translations;
   const dispatch = useDispatch();
   const [showTorModal, setShowTorModal] = useState(false);
   const [showOrbotTorModal, setShowOrbotTorModal] = useState(false);
@@ -42,17 +42,17 @@ function TorSettings() {
   const getTorStatusText = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'Tor Disabled';
+        return settings.torDisabled;
       case TorStatus.CONNECTING:
-        return 'Connecting to Tor';
+        return settings.connectingToTor;
       case TorStatus.CONNECTED:
-        return 'Tor enabled';
+        return settings.torEnabled;
       case TorStatus.ERROR:
-        return 'Tor error';
+        return settings.torError;
       case TorStatus.CHECKING:
-        return 'Checking';
+        return settings.Checking;
       case TorStatus.CHECK_STATUS:
-        return 'Check status';
+        return settings.CheckingStatus;
       default:
         return torStatus;
     }
@@ -68,7 +68,7 @@ function TorSettings() {
       dispatch(setTorEnabled(false));
       setShowTorModal(false);
     } else if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CHECKING) {
-      showToast('Please switch off Orbot to connect to in-app Tor.');
+      showToast(error.switchOffOrbit);
       setTimeout(() => {
         openOrbotApp();
         setTorStatus(TorStatus.CHECK_STATUS);

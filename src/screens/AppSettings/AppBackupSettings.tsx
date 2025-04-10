@@ -37,7 +37,7 @@ function AppBackupSettings() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { settings, common } = translations;
+  const { settings, common, error, home, wallet } = translations;
   const { primaryMnemonic, publicId } = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -63,7 +63,7 @@ function AppBackupSettings() {
       dispatch(resetRealyVaultState());
     }
     if (relayVaultError) {
-      showToast(`Canary wallet creation failed ${realyVaultErrorMessage}`);
+      showToast(`${error.canaryVaultFailed} ${realyVaultErrorMessage}`);
       dispatch(resetRealyVaultState());
       setCanaryVaultLoading(false);
     }
@@ -76,7 +76,7 @@ function AppBackupSettings() {
         return _.signerXpubs[XpubTypes.P2WPKH][0];
       });
       if (!singleSigSigner) {
-        showToast('No single Sig found');
+        showToast(error.noSingleSigFound);
         setCanaryVaultLoading(false);
       } else {
         const ssVaultKey: VaultSigner = {
@@ -110,8 +110,8 @@ function AppBackupSettings() {
           vaultScheme: CANARY_SCHEME,
           vaultSigners: [ssVaultKey],
           vaultDetails: {
-            name: 'Canary Wallet',
-            description: `Canary Wallet for Recovery Key`,
+            name: common.CANARY + ' ' + home.wallet,
+            description: wallet.canaryWalletForRecoveryKey,
           },
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
@@ -142,8 +142,8 @@ function AppBackupSettings() {
         />
         {isCanaryWalletAllowed && (
           <OptionCard
-            title="Canary Wallet"
-            description="Your on-chain key alert"
+            title={common.CANARY + ' ' + home.wallet}
+            description={wallet.onChainKeyAlert}
             callback={handleCanaryWallet}
           />
         )}
