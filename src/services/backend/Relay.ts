@@ -548,4 +548,18 @@ export default class Relay {
       throw new Error(err.message);
     }
   };
+
+  public static getAccountManagerDetails = async (appId): Promise<any> => {
+    try {
+      const res = await RestClient.get(`${RELAY}getAccountManagerDetails?appId=${appId}`);
+      const data = res?.data;
+      return data;
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ getAccountManagerDetails ~ err:', err);
+      captureError(err);
+      if (err?.code == 'ERR_NETWORK') throw new Error('Network Error');
+      throw new Error(err.message);
+    }
+  };
 }
+

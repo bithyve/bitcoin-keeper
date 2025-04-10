@@ -9,6 +9,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import {
   loadConciergeTickets,
+  setAccountManagerDetails,
   setConciergeUserFailed,
   setOnboardCallFailed,
   setOnboardCallSuccess,
@@ -28,27 +29,44 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { emailCheck } from 'src/utils/utilities';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import { AccountManagerCard } from './components/AccountManagerCard';
+import Relay from 'src/services/backend/Relay';
+import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
+import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'CreateTicket'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
-  const { dontShowConceirgeOnboarding } = useAppSelector((state) => state.storage);
+  const { dontShowConceirgeOnboarding, appId } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const {
+    accountManagerDetails,
     conciergeUser,
     conciergeLoading,
     conciergeUserFailed,
     onboardCallSuccess,
     onboardCallFailed,
   } = useAppSelector((state) => state?.concierge);
-
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const { screenName = '', tags = [] } = route.params || {};
   const { showToast } = useToastMessage();
   const [onboardCall, setOnboardCall] = useState(false);
+  const [isKeeperPrivate, setIsKeeperPrivate] = useState(
+    useSubscriptionLevel().level === AppSubscriptionLevel.L4
+  );
 
   useEffect(() => {
+    if (isKeeperPrivate) {
+      if (!accountManagerDetails) {
+        getAccountManagerDetails();
+        return;
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isKeeperPrivate) return;
     if (!dontShowConceirgeOnboarding) dispatch(showOnboarding());
     if (conciergeUser !== null) getTickets();
     else dispatch(loadConciergeUser());
@@ -75,6 +93,24 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       showToast('Something went wrong. Please try again!.', <ToastErrorIcon />);
     }
   }, [onboardCallFailed]);
+
+  const getAccountManagerDetails = async () => {
+    setLoading(true);
+    try {
+      const res = await Relay.getAccountManagerDetails(appId);
+      if (res) {
+        dispatch(setAccountManagerDetails(res));
+      } else {
+        showToast('Account manager is unavailable. Please contact concierge', <ToastErrorIcon />);
+        setIsKeeperPrivate(false);
+      }
+    } catch (error) {
+      console.log('🚀 ~ getAccountManagerDetails ~ error:', error);
+      showToast('Something went wrong, Please try again!', <ToastErrorIcon />);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getTickets = async () => {
     setLoading(true);
@@ -107,12 +143,20 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       wrapperStyle={{ paddingTop: hp(0) }}
     >
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
-        <TicketHistory
-          onPressCTA={() => setOnboardCall(true)}
-          screenName={screenName}
-          tags={tags}
-          navigation={navigation}
-        />
+        {isKeeperPrivate ? (
+          accountManagerDetails ? (
+            <AccountManagerCard data={accountManagerDetails} />
+          ) : (
+            <></>
+          )
+        ) : (
+          <TicketHistory
+            onPressCTA={() => setOnboardCall(true)}
+            screenName={screenName}
+            tags={tags}
+            navigation={navigation}
+          />
+        )}
       </ContentWrapper>
       <KeeperModal
         visible={onboardCall}

@@ -33,8 +33,8 @@ function ConciergeScreenWrapper({
         <Box
           position={'absolute'}
           top={hp(-22)}
-          left={wp(-2)}
-          right={wp(-2)}
+          left={wp(0)}
+          right={wp(0)}
           bottom={0}
           alignItems={'center'}
           justifyContent={'center'}

@@ -44,7 +44,7 @@ import config from 'src/utils/service-utilities/config';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import messaging from '@react-native-firebase/messaging';
 import { notificationType } from 'src/models/enums/Notifications';
-import { CHANGE_INDEX_THRESHOLD, SignersReqVault } from '../Vault/SigningDeviceDetails';
+import { SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
 import { setSubscription } from 'src/store/reducers/settings';
 
@@ -216,9 +216,13 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   };
 
   const handleKeeperPrivate = async (initialUrl: string) => {
-    const redeemCode = initialUrl.split('kp/')[1];
+    const [redeemCode, accountManagerId] = initialUrl.split('kp/')[1].split('/');
     try {
-      const response = await Relay.redeemKeeperPrivate({ appId: getAppData().appId, redeemCode });
+      const response = await Relay.redeemKeeperPrivate({
+        appId: getAppData().appId,
+        redeemCode,
+        accountManagerId,
+      });
       if (!response.status) {
         showToast(
           response?.message ?? 'Something went wrong, please try again.',
