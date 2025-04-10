@@ -114,6 +114,9 @@ import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import * as bitcoin from 'bitcoinjs-lib';
+import BackupModalContent from '../AppSettings/BackupModal';
+import SignerOptionCard from './components/signerOptionCard';
+import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
