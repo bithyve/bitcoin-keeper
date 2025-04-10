@@ -91,7 +91,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         const res = await Relay.getRemoteKey(hash);
         if (!res) {
           showToast('Remote Key link expired');
-          return;
+          return false;
         }
         const { data: response } = res;
         const tempData = JSON.parse(decrypt(encryptionKey, response));
@@ -213,6 +213,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     } else {
       showToast('Invalid Remote Key link');
     }
+    return true;
   };
 
   const handleKeeperPrivate = async (initialUrl: string) => {
@@ -241,7 +242,12 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         subscription,
       });
       dispatch(setSubscription(subscription.name));
-      showToast(`You are successfully upgraded to ${subscription.name} tier.`, <TickIcon />);
+      if (response.isExtended)
+        showToast(
+          `You have successfully extended your ${subscription.name} subscription.`,
+          <TickIcon />
+        );
+      else showToast(`You are successfully upgraded to ${subscription.name} tier.`, <TickIcon />);
     } catch (error) {
       console.log('🚀 ~ handleKeeperPrivate ~ error:', error);
       showToast('Something went wrong, Please try again.', <ToastErrorIcon />);
