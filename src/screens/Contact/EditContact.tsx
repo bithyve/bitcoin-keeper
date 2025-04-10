@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { TextInput, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -15,6 +15,7 @@ import Buttons from 'src/components/Buttons';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { getPersistedDocument, persistDocument } from 'src/services/documents';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function EditContact({ route }) {
   const { colorMode } = useColorMode();
@@ -26,6 +27,8 @@ function EditContact({ route }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [disableSave, setDisableSave] = useState(true);
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   const openImagePicker = () => {
     const options = {
@@ -74,7 +77,7 @@ function EditContact({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader simple title="Edit Profile" titleColor={`${colorMode}.primaryText`} />
+      <KeeperHeader simple title={common.editProfile} titleColor={`${colorMode}.primaryText`} />
 
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
@@ -91,7 +94,7 @@ function EditContact({ route }) {
             </TouchableOpacity>
           </Box>
 
-          <Text style={styles.label}>Name</Text>
+          <Text style={styles.label}>{common.Name}</Text>
           <TextInput
             style={styles.input}
             value={defaultName}
@@ -103,7 +106,7 @@ function EditContact({ route }) {
         <Box style={styles.saveButtonContainer}>
           <Buttons
             primaryDisable={disableSave}
-            primaryText="Save Contact"
+            primaryText={common.saveContact}
             paddingHorizontal={wp(105)}
             primaryCallback={saveContactDetails}
           />

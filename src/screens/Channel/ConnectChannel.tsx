@@ -53,6 +53,8 @@ import ColdCardUSBInstruction from '../Vault/components/ColdCardUSBInstruction';
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { settings } = translations;
 
   const callback = (data) => {
     let success = onBarCodeRead(data);
@@ -73,7 +75,7 @@ function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
       ) : (
         <VStack marginTop={'40%'}>
           <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-            {`Please continue on the Keeper Desktop App`}
+            {settings.KeeperDesktopApp}
           </Text>
           <ActivityIndicator style={{ marginTop: hp(20), alignSelf: 'center', padding: '2%' }} />
         </VStack>
@@ -107,7 +109,7 @@ function ConnectChannel() {
   const decryptionKey = useRef();
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const { translations } = useContext(LocalizationContext);
-  const { common, bitbox, trezor, ledger } = translations;
+  const { common, bitbox, trezor, ledger, error: errorText, coldcard } = translations;
   const { mapUnknownSigner } = useUnkownSigners();
 
   const dispatch = useDispatch();
@@ -181,24 +183,17 @@ function ConnectChannel() {
         requestData,
       });
       if (mode === InteracationMode.ADDRESS_VERIFICATION) {
-        setNewTitle(`Verify Address on ${signer.signerName}`);
-        setNewSubtitle(
-          'Please follow the instructions on the desktop app. Make sure the address you see here matches the one on your hardware device screen.'
-        );
-        setNewNote(
-          'Only use the address from Keeper mobile app if it matches the address displayed on your device'
-        );
+        setNewTitle(`${signer.verifyAddressOn} ${signer.signerName}`);
+        setNewSubtitle(signer.hardwareDeviceInstructions);
+        setNewNote(signer.useAddressFromKeeperMobileApp);
       }
       return true;
     } catch (error) {
       console.log('Error in onBarCodeRead:', error);
       if (error.message && error.message.includes('TypeError: invalid key length 1')) {
-        showToast(
-          'QR scanned is invalid, please make sure to scan the QR from the Keeper Desktop app.',
-          <ToastErrorIcon />
-        );
+        showToast(errorText.QrScannedDesptopInvalid, <ToastErrorIcon />);
       } else {
-        showToast('Failed to connect to the Desktop App, please try again', <ToastErrorIcon />);
+        showToast(errorText.failedToConnectDesktop, <ToastErrorIcon />);
       }
       return false;
       // throw error;
@@ -251,7 +246,7 @@ function ConnectChannel() {
           ])
         );
         navigation.dispatch(CommonActions.goBack());
-        showToast(`${signer.signerName} verified successfully`, <TickIcon />);
+        showToast(`${signer.signerName} ${errorText.verifiedSuccesFully}`, <TickIcon />);
       };
 
       const handleFailure = () => {
@@ -261,7 +256,7 @@ function ConnectChannel() {
             { signerId: signerData.mfp, status: hcStatusType.HEALTH_CHECK_FAILED },
           ])
         );
-        showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
+        showToast(`${signer.signerName} ${errorText.verificationFailed}`, <ToastErrorIcon />);
       };
 
       try {
@@ -323,7 +318,7 @@ function ConnectChannel() {
               ])
             );
             navigation.goBack();
-            showToast(`Address verified successfully`, <TickIcon />);
+            showToast(errorText.AddressVerifiedSuccessfully, <TickIcon />);
           } else {
             signerSetup(signerType, responseData);
           }
@@ -345,11 +340,11 @@ function ConnectChannel() {
     [SignerType.BITBOX02]: bitbox.SetupDescription,
     [SignerType.TREZOR]: trezor.SetupDescription,
     [SignerType.LEDGER]: ledger.SetupDescription,
-    [SignerType.COLDCARD]: 'Get Your Coldcard Ready and powered up before proceeding',
-    [SignerType.JADE]: 'Get Your Jade Ready and powered up before proceeding',
+    [SignerType.COLDCARD]: coldcard.setupColdcard,
+    [SignerType.JADE]: signer.setupJade,
   };
 
-  const subtitleModal = modalSubtitle[signerType] || 'Get your device ready before proceeding';
+  const subtitleModal = modalSubtitle[signerType] || signer.defaultSetup;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -380,9 +375,7 @@ function ConnectChannel() {
         <Box style={styles.noteWrapper}>
           <Note
             title={common.note}
-            subtitle={
-              newNote ?? 'Make sure that the QR is well aligned, focused and visible as a whole'
-            }
+            subtitle={newNote ?? signer.defaultNote}
             subtitleColor="GreyText"
           />
         </Box>

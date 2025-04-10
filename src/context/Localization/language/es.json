@@ -181,7 +181,14 @@
     "failed": "Failed",
     "Beware": "Beware",
     "Enable": "Enable",
-    "close": "Close"
+    "close": "Close",
+    "enterPassword": "Enter Password",
+    "Contacts": "Contacts",
+    "enterName": "Enter name",
+    "Name": "Name",
+    "editProfile": "Edit Profile",
+    "saveContact": "Save Contact",
+    "buyFromHere": "Buy from here"
   },
   "noInternet": {
     "no": "No Internet",
@@ -374,7 +381,8 @@
   },
   "DiscountCodes": {
     "DiscountCodesTitle": "Buy new Hardware Signers",
-    "DiscountCodesDescp": "Discount codes on popular hardware signers"
+    "DiscountCodesDescp": "Discount codes on popular hardware signers",
+    "discountDetails": "Discount Details"
   },
   "inheritence": {
     "SetupInheritance": "Setup Inheritance",
@@ -936,7 +944,9 @@
     "useWithInheritanceKey": "Use with Inheritance Key",
     "spendUsingRegularKey": "Spend using the regular key",
     "spendOnlyRegularKey": "Spend using only the regular vault keys",
-    "Holduntilscanningiscomplete": "Please hold until the scanning is complete..."
+    "Holduntilscanningiscomplete": "Please hold until the scanning is complete...",
+    "enterPdfPassword": "Enter PDF File Password",
+    "pdfPasswordDesc": "Secure your BSMS PDF files by protecting them with a password of your choice."
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -993,7 +1003,8 @@
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Add your Coldcard",
-    "SetupDescription": "Choose how to add your Coldcard to Keeper"
+    "SetupDescription": "Choose how to add your Coldcard to Keeper",
+    "setupColdcard": "Get Your Coldcard Ready and powered up before proceeding"
   },
   "ledger": {
     "Setupandassociate": "Setup and associate",
@@ -1236,7 +1247,8 @@
     "torEnabled": "Tor enabled",
     "torError": "Tor error",
     "Checking": "Checking",
-    "CheckingStatus": "Checking Status"
+    "CheckingStatus": "Checking Status",
+    "KeeperDesktopApp": "Please continue on the Keeper Desktop App"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -1263,7 +1275,11 @@
     "viewSubscription": "View Subsciption",
     "noAvailablePurchaseMessage": "No purchases found",
     "currentSubscriptionMessage": "Already subscribed to",
-    "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon"
+    "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon",
+    "foundationDevicesLink": "www.foundationdevices/purchase/discountapplied.com",
+    "useDiscountCode": "or use this discount code",
+    "discountCode": "ASDF - GHJK - 8974 - UWMB",
+    "onFoundationDevices": "on Foundation\ndevice"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup",
@@ -1340,7 +1356,9 @@
     "bitcoinTransfer": "Bitcoin will be transferred to",
     "addressForRamp": "Address for Ramp transactions",
     "buyBitcoinRamp": "Buy bitcoin with Ramp",
-    "buyBitcoinRampSubTitle": "Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
+    "buyBitcoinRampSubTitle": "Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country",
+    "buyBitcoinWithRamp": "Buy Bitcoin with Ramp",
+    "buyBitcoinWithRampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country"
   },
   "signer": {
     "addSigner": "Add Signer",
@@ -1493,7 +1511,13 @@
     "emergencyKey": "Emergency Key",
     "extraKeyAddedAfterTime": "An extra key which will be added to your wallet quorum after a certain time",
     "keyDelayedFullControl": "A key with delayed full control to recover from extended key loss",
-    "accessKeyWarning": " Anyone with access to the Recovery Key can access and withdraw your funds. Losing them means you can’t recover your wallet."
+    "accessKeyWarning": " Anyone with access to the Recovery Key can access and withdraw your funds. Losing them means you can’t recover your wallet.",
+    "verifyAddressOn": "Verify Address on",
+    "hardwareDeviceInstructions": "Please follow the instructions on the desktop app. Make sure the address you see here matches the one on your hardware device screen.",
+    "useAddressFromKeeperMobileApp": "Only use the address from Keeper mobile app if it matches the address displayed on your device",
+    "setupJade": "Get Your Jade Ready and powered up before proceeding",
+    "defaultSetup": "Get your device ready before proceeding",
+    "defaultNote": "Make sure that the QR is well aligned, focused and visible as a whole"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -1725,6 +1749,13 @@
     "hostAndPortRequired": "Host and port are required",
     "InvalidQRcode": "Invalid QR code",
     "disconnectedFrom": "Disconnected from",
-    "failedToDiConnect": "Failed to disconnect from Electrum server"
+    "failedToDiConnect": "Failed to disconnect from Electrum server",
+    "QrScannedDesptopInvalid": "QR scanned is invalid, please make sure to scan the QR from the Keeper Desktop app.",
+    "failedToConnectDesktop": "Failed to connect to the Desktop App, please try again",
+    "verifiedSuccesFully": "verified successfully",
+    "verificationFailed": "verification failed",
+    "AddressVerifiedSuccessfully": "Address verified successfully",
+    "noVaultsFound": "No vaults found.",
+    "failedToLoadContacts": "Failed to load contacts, please check app permissions and try again"
   }
 }

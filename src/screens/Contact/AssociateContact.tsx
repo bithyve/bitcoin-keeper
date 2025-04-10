@@ -44,7 +44,7 @@ function AssociateContact({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultText } = translations;
+  const { common, vault: vaultText, error } = translations;
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -66,10 +66,7 @@ function AssociateContact({ route }) {
     } catch (err) {
       console.log('Error loading contacts: ', err);
       captureError(err);
-      showToast(
-        'Failed to load contacts, please check app permissions and try again',
-        <ToastErrorIcon />
-      );
+      showToast(error.failedToLoadContacts, <ToastErrorIcon />);
     }
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { TextInput, StyleSheet, TouchableOpacity, Image, Pressable } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -15,10 +15,13 @@ import Buttons from 'src/components/Buttons';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { persistDocument } from 'src/services/documents';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const ContactButton = ({ signer, isWalletFlow }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   return (
     <Pressable
       onPress={() => {
@@ -32,7 +35,7 @@ const ContactButton = ({ signer, isWalletFlow }) => {
     >
       <Box style={styles.contactButton}>
         <ContactBookLight />
-        <Text color={`${colorMode}.greenText`}>Contacts</Text>
+        <Text color={`${colorMode}.greenText`}>{common.Contacts}</Text>
       </Box>
     </Pressable>
   );
@@ -46,6 +49,8 @@ function AddContact({ route }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [disableSave, setDisableSave] = useState(true);
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { vault, common } = translations;
 
   const saveContactDetails = () => {
     if (validateData()) {
@@ -92,7 +97,7 @@ function AddContact({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Add Contact"
+        title={vault.addContact}
         titleColor={`${colorMode}.black`}
         rightComponent={
           showContactButton && <ContactButton signer={signer} isWalletFlow={isWalletFlow} />
@@ -114,10 +119,10 @@ function AddContact({ route }) {
             </TouchableOpacity>
           </Box>
 
-          <Text style={styles.label}>Name</Text>
+          <Text style={styles.label}>{common.Name}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter name"
+            placeholder={common.enterName}
             value={name}
             onChangeText={setName}
           />
@@ -125,7 +130,7 @@ function AddContact({ route }) {
 
         <Box style={styles.saveButtonContainer}>
           <Buttons
-            primaryText="Save Contact"
+            primaryText={common.saveContact}
             paddingHorizontal={wp(105)}
             primaryDisable={disableSave}
             primaryCallback={saveContactDetails}

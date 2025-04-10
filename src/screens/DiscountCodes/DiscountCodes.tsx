@@ -9,14 +9,14 @@ import DiscountIcon from 'src/assets/images/foundation.svg';
 import DiscountIconLarge from 'src/assets/images/foundation_large.svg';
 import CopyIcon from 'src/assets/images/copy_new.svg';
 
-import Colors from 'src/theme/Colors';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { hp, windowHeight } from 'src/constants/responsive';
 
 const DiscountModal = ({ card }) => {
   const { colorMode } = useColorMode();
-  console.log({ card });
+  const { translations } = useContext(LocalizationContext);
+  const { choosePlan, common } = translations;
   return (
     <Box style={styles.modalContainer}>
       <Box alignItems={'center'}>
@@ -29,13 +29,13 @@ const DiscountModal = ({ card }) => {
       </Box>
 
       <Box marginTop={30}>
-        <Text fontSize={13}>Buy from here</Text>
+        <Text fontSize={13}>{common.buyFromHere}</Text>
         <Text underline color={`${colorMode}.greenText`}>
-          www.foundationdevices/purchase/discountapplied.com
+          {choosePlan.foundationDevicesLink}
         </Text>
       </Box>
       <Box marginTop={windowHeight > 600 ? hp(40) : 0}>
-        <Text>or use this discount code</Text>
+        <Text>{choosePlan.useDiscountCode}</Text>
         <TouchableOpacity
           activeOpacity={0.4}
           testID="btn_copy_address"
@@ -43,7 +43,7 @@ const DiscountModal = ({ card }) => {
         >
           <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <Text width="80%" marginLeft={4} numberOfLines={1}>
-              ASDF - GHJK - 8974 - UWMB
+              {choosePlan.discountCode}
             </Text>
 
             <Box backgroundColor={`${colorMode}.textColor`} style={styles.copyIconWrapper}>
@@ -61,38 +61,38 @@ function DiscountCodes({ navigation }) {
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [selectedOfferDesp, setSelectedOfferDesp] = useState(null);
   const { translations } = useContext(LocalizationContext);
-  const { DiscountCodes } = translations;
+  const { DiscountCodes, choosePlan } = translations;
 
   const data = [
     {
       icon: <DiscountIcon />,
       discount: 30,
-      description: `on Foundation\ndevice`,
+      description: choosePlan.onFoundationDevices,
     },
     {
       icon: <DiscountIcon />,
       discount: 30,
-      description: `on Foundation\ndevice`,
+      description: choosePlan.onFoundationDevices,
     },
     {
       icon: <DiscountIcon />,
       discount: 30,
-      description: `on Foundation\ndevice`,
+      description: choosePlan.onFoundationDevices,
     },
     {
       icon: <DiscountIcon />,
       discount: 30,
-      description: `on Foundation\ndevice`,
+      description: choosePlan.onFoundationDevices,
     },
     {
       icon: <DiscountIcon />,
       discount: 30,
-      description: `on Foundation\ndevice`,
+      description: choosePlan.onFoundationDevices,
     },
     {
       icon: <DiscountIcon />,
       discount: 30,
-      description: `on Foundation\ndevice`,
+      description: choosePlan.onFoundationDevices,
     },
   ];
   const handleSelectedOffer = (card) => {
@@ -117,7 +117,7 @@ function DiscountCodes({ navigation }) {
       <KeeperModal
         visible={showDiscountModal}
         close={() => setShowDiscountModal(false)}
-        title={'Discount Details'}
+        title={DiscountCodes.discountDetails}
         Content={() => <DiscountModal card={selectedOfferDesp} />}
       />
     </ScreenWrapper>
