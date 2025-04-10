@@ -188,7 +188,26 @@
     "Name": "Name",
     "editProfile": "Edit Profile",
     "saveContact": "Save Contact",
-    "buyFromHere": "Buy from here"
+    "buyFromHere": "Buy from here",
+    "hoursStatistics": "24 Hours Statistics",
+    "BTC": "BTC",
+    "marketPrice": "Market Price",
+    "changeUSD": "change USD",
+    "Suggested": "Suggested",
+    "txnFee": "txn fee (fast)",
+    "satsPerByte": " sats/vByte",
+    "Current": "Current",
+    "average": "average",
+    "From": "From",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week's",
+    "feeSats": "Fee Stats",
+    "continueSession": "Continue session",
+    "startNew": "Start new",
+    "View": "View",
+    "Notifications": "Notifications",
+    "New": "New",
+    "Seen": "Seen"
   },
   "noInternet": {
     "no": "No Internet",
@@ -351,7 +370,8 @@
     "Balance": "Balance",
     "requestSpecificAmount": "Request specific amount",
     "RequestSpecificAmount": "Request Specific Amount",
-    "GetNewAddress": "Get New Address"
+    "GetNewAddress": "Get New Address",
+    "BTCTransactionFeeInsights": "BTC Transaction Fee Insights"
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
@@ -716,7 +736,16 @@
     "connectingToTor": "Connecting to Tor",
     "connectingToTorDesc": "Network calls and some functions may work slower when enabled",
     "connectionError": "Connection Error",
-    "connectionErrorDesc": "There was an error when connecting via Tor. You could continue without connecting to Tor or try after sometime."
+    "connectionErrorDesc": "There was an error when connecting via Tor. You could continue without connecting to Tor or try after sometime.",
+    "chooseWalletPurpose": "Choose Wallet Purpose",
+    "createWallet": "Create Wallet",
+    "createWalletDesc": "Create a new bitcoin wallet",
+    "restoreExistingWallet": "Restore an existing wallet",
+    "walletWithFamily": "Create wallet with family and friends",
+    "addNewWallet": "Add a New Wallet",
+    "createOrImportWallet": "Create a new wallet or import existing one",
+    "collaborativeSessionExists": "Collaborative wallet setup session already exists",
+    "collaborativeSessionExistsDesc": "You already have a collaborative wallet setup session in progress, would you like to continue the session or start a new one?"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1248,7 +1277,8 @@
     "torError": "Tor error",
     "Checking": "Checking",
     "CheckingStatus": "Checking Status",
-    "KeeperDesktopApp": "Please continue on the Keeper Desktop App"
+    "KeeperDesktopApp": "Please continue on the Keeper Desktop App",
+    "dataSource": "Data Source: mempool.space | coingecko.com"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -1517,7 +1547,8 @@
     "useAddressFromKeeperMobileApp": "Only use the address from Keeper mobile app if it matches the address displayed on your device",
     "setupJade": "Get Your Jade Ready and powered up before proceeding",
     "defaultSetup": "Get your device ready before proceeding",
-    "defaultNote": "Make sure that the QR is well aligned, focused and visible as a whole"
+    "defaultNote": "Make sure that the QR is well aligned, focused and visible as a whole",
+    "setupRequire": "Setup required"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -1672,7 +1703,13 @@
     "availableToSpend": "Available to spend",
     "vaultTransferHeading": "Sats ready to be auto-transferred\n",
     "vaultTransferSubTitle": "Amount of sats in your wallet ($wallet) have crossed the auto-transfer threshold. Ready to transfer sats to vault.",
-    "vaultTransferBody": "You can always change the transfer threshold from Wallet Settings.\n"
+    "vaultTransferBody": "You can always change the transfer threshold from Wallet Settings.\n",
+    "setupFirstVault": "Set up your first vault",
+    "createVault": "Create your vault",
+    "enhancedSecurityofVault": "Enhance security by creating a vault for your sats. Vaults add extra protection with multi-signature authentication.",
+    "viewInsights": "View insights",
+    "feeInsight": "Fee Insights",
+    "noNewNotification": "You have no new notifications"
   },
   "concierge": {
     "welcomeToConcierge": "Welcome to Keeper Concierge!",
@@ -1756,6 +1793,17 @@
     "verificationFailed": "verification failed",
     "AddressVerifiedSuccessfully": "Address verified successfully",
     "noVaultsFound": "No vaults found.",
-    "failedToLoadContacts": "Failed to load contacts, please check app permissions and try again"
+    "failedToLoadContacts": "Failed to load contacts, please check app permissions and try again",
+    "failedTofetchFeeStats": "Failed to fetch fee stats",
+    "remoteKeyLinkExpired": "Remote Key link expired",
+    "signerNotFound": "Signer not found",
+    "invalidSignerSelection": "Invalid signer selection. Please try again!",
+    "importBeforeSignig": "Please import the vault before signing",
+    "changeIndexIsHigh": "Change index is too high.",
+    "somethingWentWrong": "Something went wrong. Please try again!",
+    "invalidLink": "Invalid link. Please try again!",
+    "remoteSignedSuccesful": "Remote Transaction signed successfully",
+    "invalidRemoteLink": "Invalid Remote Key link",
+    "pendingTransactionsNotFound": "Pending transaction not found"
   }
 }

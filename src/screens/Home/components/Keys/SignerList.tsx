@@ -94,7 +94,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
             if (shellSigner.type === SignerType.POLICY_SERVER) setupSignigngServer();
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
-          description="Setup required"
+          description={signer.setupRequire}
           icon={SDIcons(shellSigner.type).Icon}
           showSelection={false}
           showDot={true}

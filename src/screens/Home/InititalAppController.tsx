@@ -1,5 +1,5 @@
 import { InteractionManager, Linking } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   RKInteractionMode,
   SignerStorage,
@@ -42,6 +42,7 @@ import messaging from '@react-native-firebase/messaging';
 import { notificationType } from 'src/models/enums/Notifications';
 import { CHANGE_INDEX_THRESHOLD, SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -52,6 +53,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { isInitialLogin } = useAppSelector((state) => state.login);
   const appData = useQuery(RealmSchema.KeeperApp);
   const { allVaults } = useVault({ includeArchived: false });
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorText } = translations;
 
   const getAppData = (): { isPleb: boolean; appId: string } => {
     const tempApp = appData.map(getJSONFromRealmObject)[0];
@@ -83,7 +86,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       try {
         const res = await Relay.getRemoteKey(hash);
         if (!res) {
-          showToast('Remote Key link expired');
+          showToast(errorText.remoteKeyLinkExpired);
           return;
         }
         const { data: response } = res;
@@ -105,7 +108,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                   const signer = signers.find((s) => keyUID == getKeyUID(s));
                   // TODO: Need to find a way to detect Miniscript in PSBT without having to import the vault
                   let isMiniscript = false;
-                  if (!signer) throw { message: 'Signer not found' };
+                  if (!signer) throw { message: errorText.signerNotFound };
                   let {
                     senderAddresses,
                     receiverAddresses,
@@ -116,7 +119,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                   } = generateDataFromPSBT(serializedPSBT, signer);
 
                   if (!signerMatched) {
-                    showToast(`Invalid signer selection. Please try again!`, <ToastErrorIcon />);
+                    showToast(errorText.invalidSignerSelection, <ToastErrorIcon />);
                     navigation.goBack();
                     return false;
                   }
@@ -125,7 +128,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                   if (SignersReqVault.includes(signer.type)) {
                     if (!activeVault) {
                       navigation.goBack();
-                      throw new Error('Please import the vault before signing');
+                      throw new Error(errorText.importBeforeSignig);
                     }
                     const psbtWithGlobalXpub = await getPsbtForHwi(serializedPSBT, activeVault);
                     serializedPSBT = psbtWithGlobalXpub.serializedPSBT;
@@ -135,7 +138,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                       parseInt(changeAddressIndex) >
                       activeVault.specs.nextFreeChangeAddressIndex + CHANGE_INDEX_THRESHOLD
                     )
-                      throw new Error('Change index is too high.');
+                      throw new Error(errorText.changeIndexIsHigh);
                     receiverAddresses = findChangeFromReceiverAddresses(
                       activeVault,
                       receiverAddresses,
@@ -166,10 +169,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                 }
               } catch (e) {
                 console.log('🚀 ~ handleRemoteKeyDeepLink ~ e:', e);
-                showToast('Something went wrong. Please try again!', <ToastErrorIcon />);
+                showToast(errorText.somethingWentWrong, <ToastErrorIcon />);
               }
             } else {
-              showToast('Invalid link. Please try again!', <ToastErrorIcon />);
+              showToast(errorText.invalidLink, <ToastErrorIcon />);
             }
             break;
 
@@ -190,11 +193,11 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                 );
                 if (routeIndex !== -1) {
                   navigation.pop(navState.index - routeIndex);
-                  showToast('Remote Transaction signed successfully', <TickIcon />);
+                  showToast(errorText.remoteSignedSuccesful, <TickIcon />);
                 }
               } else {
                 dispatch(updateCachedPsbtEnvelope({ xfp, signedSerializedPSBT: psbt, cachedTxid }));
-                showToast('Remote Transaction signed successfully', <TickIcon />);
+                showToast(errorText.remoteSignedSuccesful, <TickIcon />);
               }
             } catch (err) {
               if (err.message) showToast(err.message, <ToastErrorIcon />);
@@ -206,10 +209,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         }
       } catch (error) {
         console.log('🚀 ~ handleRemoteKeyDeepLink ~ error:', error);
-        showToast('Something went wrong, please try again!');
+        showToast(errorText.somethingWentWrong);
       }
     } else {
-      showToast('Invalid Remote Key link');
+      showToast(errorText.invalidRemoteLink);
     }
   };
 
