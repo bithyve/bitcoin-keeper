@@ -74,15 +74,12 @@ function* changeBitcoinNetworkWorker({ payload }) {
           name: 'Mobile Wallet',
           description: '',
           instanceNum: instanceNumberToSet,
-          derivationConfig: {
-            path: WalletUtilities.getDerivationPath(
-              false,
-              bitcoinNetworkType,
-              0,
-              DerivationPurpose.BIP84
-            ),
-            purpose: DerivationPurpose.BIP84,
-          },
+          derivationPath: WalletUtilities.getDerivationPath(
+            false,
+            bitcoinNetworkType,
+            0,
+            DerivationPurpose.BIP84
+          ),
         },
       };
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
