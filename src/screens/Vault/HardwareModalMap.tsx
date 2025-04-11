@@ -114,6 +114,7 @@ import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import * as bitcoin from 'bitcoinjs-lib';
+import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import BackupModalContent from '../AppSettings/BackupModal';
 import SignerOptionCard from './components/signerOptionCard';
 import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
@@ -428,6 +429,38 @@ const getSignerContent = (
             name: KeyGenerationMode.FILE,
           },
         ],
+      };
+    case SignerType.POLICY_SERVER:
+      const subtitle = isHealthcheck
+        ? 'Health check your Server Key with your 2FA authentication.'
+        : "The Server Key is a key stored securely on Keeper's servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.";
+      return {
+        type: SignerType.POLICY_SERVER,
+        Illustration: <SigningServerIllustration />,
+        Instructions: isHealthcheck
+          ? ['A request to the signer will be made to checks its health']
+          : [
+              '2FA Authenticator will have to be set up to use this option',
+              'On providing a correct OTP from the authenticator app, the Server Key will sign the transaction.',
+            ],
+        title: isHealthcheck ? 'Verify Server Key' : 'Set up the Server Key',
+        subTitle: subtitle,
+        options: isHealthcheck
+          ? []
+          : [
+              {
+                title: 'Configure a New Key',
+                icon: (
+                  <CircleIconWrapper
+                    icon={<RecoverImage />}
+                    backgroundColor={`${colorMode}.BrownNeedHelp`}
+                    width={35}
+                  />
+                ),
+                callback: () => {},
+                name: KeyGenerationMode.NEW,
+              },
+            ],
       };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = (
