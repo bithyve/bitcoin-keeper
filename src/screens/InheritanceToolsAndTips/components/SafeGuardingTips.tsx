@@ -49,7 +49,7 @@ function SafeGuardingTips({}) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <Text style={styles.container} color={`${colorMode}.headerWhite`}>
-        Tips for Doing Transactions Securely
+        {inheritancePlanning.tipsForTransactions}
       </Text>
       <TipsSlider items={tips} />
     </ScreenWrapper>

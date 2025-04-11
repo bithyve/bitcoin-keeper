@@ -1,5 +1,5 @@
 import { Dimensions, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import Pdf from 'react-native-pdf';
 import { Box, useColorMode } from 'native-base';
 import Share from 'react-native-share';
@@ -9,10 +9,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Text from 'src/components/KeeperText';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function PreviewPDF({ route }: any) {
   const { colorMode } = useColorMode();
   const { source } = route.params;
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   const DownloadPDF = () => {
     Share.open({
       url: Platform.OS === 'ios' ? source : `file://${source}`,
@@ -41,7 +44,7 @@ function PreviewPDF({ route }: any) {
             <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.accent`}>
               <DownloadIcon />
               <Text style={styles.downloadBtnText} color={`${colorMode}.learnMoreBorder`}>
-                &nbsp;&nbsp;Download
+                &nbsp;&nbsp;{common.Download}
               </Text>
             </Box>
           </TouchableOpacity>

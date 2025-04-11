@@ -17,7 +17,7 @@ function RecoveryPhraseTemplate({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning } = translations;
+  const { inheritancePlanning, common } = translations;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -54,7 +54,7 @@ function RecoveryPhraseTemplate({}) {
 
         <Box style={[styles.leftTextStyle]}>
           <Text bold color={`${colorMode}.headerWhite`}>
-            Note:
+            {common.note}:
           </Text>
           <Text color={`${colorMode}.headerWhite`}>{inheritancePlanning.recoveryPhraseNotes}</Text>
         </Box>

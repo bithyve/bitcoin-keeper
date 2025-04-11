@@ -13,7 +13,7 @@ function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
 
   const { translations } = useContext(LocalizationContext);
-  const { home, importWallet } = translations;
+  const { home, importWallet, common } = translations;
 
   const { importedKey, importedKeyDetails, type, name, description } = route.params;
 
@@ -89,11 +89,11 @@ function ImportWalletDetailsScreen({ route }) {
           <Box style={styles.ctaBtnWrapper}>
             <Box ml={windowWidth * -0.09}>
               <Buttons
-                secondaryText="Cancel"
+                secondaryText={common.cancel}
                 secondaryCallback={() => {
                   navigation.goBack();
                 }}
-                primaryText="Next"
+                primaryText={common.next}
                 // primaryDisable={Boolean(!amount || error)}
                 primaryDisable={false}
                 primaryCallback={onNextClick}

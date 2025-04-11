@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -30,7 +29,7 @@ function LetterOfAttorney() {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning } = translations;
+  const { inheritancePlanning, common, signer: signerText, error: ErrorText } = translations;
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const dispatch = useDispatch();
 
@@ -67,7 +66,7 @@ function LetterOfAttorney() {
 
         <Box style={[styles.leftTextStyle]}>
           <Text bold color={`${colorMode}.headerWhite`}>
-            Note:
+            {common.note}:
           </Text>
           <Text color={`${colorMode}.headerWhite`}>
             {inheritancePlanning.letterOfAttorneyNotes}
@@ -78,9 +77,9 @@ function LetterOfAttorney() {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Confirm Passcode"
+        title={common.confirmPassCode}
         subTitleWidth={wp(240)}
-        subTitle="To back up the app recovery key"
+        subTitle={signerText.RKBackupPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -99,7 +98,7 @@ function LetterOfAttorney() {
                   }
                 });
               } else {
-                showToast('No vaults found');
+                showToast(ErrorText.noVaultsFound);
               }
             }}
           />

@@ -28,7 +28,7 @@ function KeySecurity({ navigation }) {
   const { plan } = usePlan();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning } = translations;
+  const { inheritancePlanning, vault } = translations;
   const isHodlerAndDiamondHand =
     plan === SubscriptionTier.L3.toUpperCase() || plan === SubscriptionTier.L2.toUpperCase();
 
@@ -65,8 +65,8 @@ function KeySecurity({ navigation }) {
       <OptionCard
         disabled={!isHodlerAndDiamondHand}
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
-        title="Canary Wallets"
-        description="Alert on key compromise"
+        title={vault.canaryWallet}
+        description={inheritancePlanning.canaryWalletDesp}
         LeftIcon={!isHodlerAndDiamondHand ? <BirdDisabledIcon /> : <BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
