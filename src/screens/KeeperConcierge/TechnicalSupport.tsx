@@ -189,7 +189,7 @@ const OnboardCallContent = ({ submitOnboardEmail }) => {
         {conciergeText.onboardingCallSubTitle}
       </Text>
       <KeeperTextInput
-        placeholder={'Enter your email address'}
+        placeholder={conciergeText.enterYourEmailAddress}
         value={onboardEmail}
         onChangeText={setOnboardEmail}
         keyboardType="email-address"

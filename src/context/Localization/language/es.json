@@ -208,7 +208,9 @@
     "Notifications": "Notifications",
     "New": "New",
     "Seen": "Seen",
-    "Download": "Download"
+    "Download": "Download",
+    "unSelectAll": "Unselect All",
+    "SelectAll": "Select All"
   },
   "noInternet": {
     "no": "No Internet",
@@ -1768,7 +1770,28 @@
     "conciergeAdditionDetailSubTitle": "You can share your Device Details, Wallet Info, App Data, and Network Info.",
     "onboardingCallTitle": "Get Started with\nKeeper Onboarding Call",
     "onboardingCallSubTitle": "  We’re excited to help you get started. During this call, we’ll walk you through setting up your wallet and securing your account. Feel free to ask any questions along the way.",
-    "onboardingCallCTA": "Schedule your call"
+    "onboardingCallCTA": "Schedule your call",
+    "deviceDetails": "Device Details",
+    "walletInfo": "Wallet Info",
+    "appData": "App Data",
+    "networkInfo": "Network Info",
+    "encounteredError": "Hi, I have encountered the following error while using the app",
+    "atAppNavigationState": "At app navigation state",
+    "needSomeHelp": "Hi, I need some help with",
+    "tellUsAboutYourQuestion": "Please tell us about your question or the issue you are facing?",
+    "supportTicketRaised": "Support Ticket Raised",
+    "yourTicketReferenceNumber": "Your ticket reference number is",
+    "AcknowledgingYourMessage": "Hi! Acknowledging your message. Someone from the team will get back to you shortly.",
+    "enterYourEmailAddress": "Enter your email address",
+    "referenceId": "Reference ID",
+    "attachScreenshot": "Attach Screenshot",
+    "shareAppAttributes": "Share App Attributes",
+    "ticketHistory": "Your Ticket History",
+    "noConversations": "No Conversations Opened",
+    "keeperConciergeTeamHelp": "If you need assistance or face an issue, please feel free to reach out to our Keeper Concierge team to help you with any question!",
+    "scheduleOnboardingCall": "Schedule Onboarding Call",
+    "scheduleCallWithExpert": "Schedule a call with our experts today.",
+    "supportTeam": "Support Team"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
@@ -1827,6 +1850,7 @@
     "invalidLink": "Invalid link. Please try again!",
     "remoteSignedSuccesful": "Remote Transaction signed successfully",
     "invalidRemoteLink": "Invalid Remote Key link",
-    "pendingTransactionsNotFound": "Pending transaction not found"
+    "pendingTransactionsNotFound": "Pending transaction not found",
+    "provideIssueDescription": "Please provide the issue description"
   }
 }

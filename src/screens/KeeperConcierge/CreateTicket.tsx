@@ -51,7 +51,11 @@ const DEFAULT_SELECTED_DETAILS = {
 
 const CreateTicket = ({ navigation, route }) => {
   const { screenName, tags, errorDetails } = route.params;
-  const { concierge: conciergeText } = useContext(LocalizationContext).translations;
+  const {
+    concierge: conciergeText,
+    error: errorText,
+    common,
+  } = useContext(LocalizationContext).translations;
   const { colorMode } = useColorMode();
   const textAreaRef = useRef(null);
   const { allVaults } = useVault({});
@@ -78,7 +82,7 @@ const CreateTicket = ({ navigation, route }) => {
 
   const DETAIL_OPTIONS = [
     {
-      label: 'Device Details',
+      label: conciergeText.deviceDetails,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -87,7 +91,7 @@ const CreateTicket = ({ navigation, route }) => {
       id: 'deviceInfo',
     },
     {
-      label: 'Wallets Info',
+      label: conciergeText.walletInfo,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -96,7 +100,7 @@ const CreateTicket = ({ navigation, route }) => {
       id: 'walletInfo',
     },
     {
-      label: 'App Data',
+      label: conciergeText.appData,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -105,7 +109,7 @@ const CreateTicket = ({ navigation, route }) => {
       id: 'appData',
     },
     {
-      label: 'Network Info',
+      label: conciergeText.networkInfo,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -132,10 +136,10 @@ const CreateTicket = ({ navigation, route }) => {
   useEffect(() => {
     if (errorDetails) {
       setDesc(
-        `Hi, I have encountered the following error while using the app:\n${errorDetails}\n\nAt app navigation state: ${screenName}\n*****\n`
+        `${conciergeText.encounteredError}:\n${errorDetails}\n\n${conciergeText.atAppNavigationState}: ${screenName}\n*****\n`
       );
     } else if (!desc.length && screenName.length) {
-      setDesc(`Hi, I need some help with ${screenName}(${tags.join(', ')})\n*****\n`);
+      setDesc(`${conciergeText.needSomeHelp} ${screenName}(${tags.join(', ')})\n*****\n`);
     }
     const timer = setTimeout(() => {
       if (textAreaRef.current) {
@@ -203,11 +207,11 @@ const CreateTicket = ({ navigation, route }) => {
 
   const onNext = async () => {
     if (!desc.length) {
-      showToast('Please provide the issue description', <ToastErrorIcon />);
+      showToast(errorText.provideIssueDescription, <ToastErrorIcon />);
       return;
     }
     if (!conciergeUser) {
-      showToast('Something went wrong. Please try again', <ToastErrorIcon />);
+      showToast(errorText.somethingWentWrong, <ToastErrorIcon />);
       return;
     }
     try {
@@ -229,7 +233,7 @@ const CreateTicket = ({ navigation, route }) => {
         Keyboard.dismiss();
         setShowModal(true);
       } else {
-        showToast('Something went wrong. Please try again!', <ToastErrorIcon />);
+        showToast(errorText.somethingWentWrong, <ToastErrorIcon />);
         return;
       }
     } catch (error) {
@@ -244,7 +248,7 @@ const CreateTicket = ({ navigation, route }) => {
     if (res.status === 201 && res.data.upload.token) {
       return res.data.upload.token;
     }
-    throw new Error('Something went wrong');
+    throw new Error(common.somethingWrong);
   };
 
   const closeDetailsModal = () => {
@@ -300,7 +304,7 @@ const CreateTicket = ({ navigation, route }) => {
                 variant={'unstyled'}
                 autoCompleteType={'off'}
                 placeholderTextColor={`${colorMode}.placeHolderTextColor`}
-                placeholder={' Please tell us about your question or the issue you are facing?'}
+                placeholder={conciergeText.tellUsAboutYourQuestion}
                 color={`${colorMode}.primaryText`}
                 fontSize={12}
                 h={hp(281)}
@@ -340,7 +344,7 @@ const CreateTicket = ({ navigation, route }) => {
           showCloseIcon
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
-          buttonText={'Share'}
+          buttonText={common.share}
           buttonCallback={handleAddDetails}
           Content={() => (
             <>
@@ -351,7 +355,7 @@ const CreateTicket = ({ navigation, route }) => {
                   <CheckBoxOutlineInActive width={wp(18)} height={wp(18)} />
                 )}
                 <Text fontSize={14} semiBold color={`${colorMode}.pantoneGreen`}>
-                  {allKeysTrue ? 'Unselect All' : 'Select All'}
+                  {allKeysTrue ? common.unSelectAll : common.SelectAll}
                 </Text>
               </Pressable>
               <Box style={styles.optionsWrapper}>
@@ -370,8 +374,8 @@ const CreateTicket = ({ navigation, route }) => {
       </ContentWrapper>
       <KeeperModal
         visible={showModal}
-        title="Support Ticket Raised"
-        subTitle={`Your ticket reference number is #${modalTicketId}`}
+        title={conciergeText.supportTicketRaised}
+        subTitle={`${conciergeText.yourTicketReferenceNumber} #${modalTicketId}`}
         close={closeModal}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalWhiteContent`}
@@ -381,7 +385,7 @@ const CreateTicket = ({ navigation, route }) => {
           <Box style={styles.modal}>
             <SuccessCircleIllustration style={styles.illustration} />
             <Text color={`${colorMode}.secondaryText`} style={styles.modalDesc}>
-              Hi! Acknowledging your message. Someone from the team will get back to you shortly.
+              {conciergeText.AcknowledgingYourMessage}
             </Text>
           </Box>
         )}
