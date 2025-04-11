@@ -445,22 +445,6 @@ const getSignerContent = (
             ],
         title: isHealthcheck ? 'Verify Server Key' : 'Set up the Server Key',
         subTitle: subtitle,
-        options: isHealthcheck
-          ? []
-          : [
-              {
-                title: 'Configure a New Key',
-                icon: (
-                  <CircleIconWrapper
-                    icon={<RecoverImage />}
-                    backgroundColor={`${colorMode}.BrownNeedHelp`}
-                    width={35}
-                  />
-                ),
-                callback: () => {},
-                name: KeyGenerationMode.NEW,
-              },
-            ],
       };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = (
