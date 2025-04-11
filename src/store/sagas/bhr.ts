@@ -71,7 +71,7 @@ import {
   UPDATE_VAULT_IMAGE,
   healthCheckSigner,
 } from '../sagaActions/bhr';
-import { uaiActioned } from '../sagaActions/uai';
+import { uaiActioned, uaiChecks } from '../sagaActions/uai';
 import { setAppId, setDefaultWalletCreated } from '../reducers/storage';
 import { applyUpgradeSequence, KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
@@ -407,6 +407,7 @@ function* getAppImageWorker({ payload }) {
     }
     yield put(autoSyncWallets(true, true, false));
     yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
+    yield put(uaiChecks([uaiType.SECURE_VAULT]));
   } catch (err) {
     yield put(setAppImageError(err.message));
   } finally {
