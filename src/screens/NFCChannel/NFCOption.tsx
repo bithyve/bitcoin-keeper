@@ -20,11 +20,14 @@ import { Box, useColorMode } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, isPSBT }) {
   const { showToast } = useToastMessage();
   const { colorMode } = useColorMode();
   const [remoteShareModal, setRemoteShareModal] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { vault, common, error: errorText } = translations;
   const readFromNFC = async () => {
     try {
       await withNfcModal(async () => {
@@ -34,7 +37,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
           setData(cosigner);
         } catch (err) {
           captureError(err);
-          showToast('Please scan a valid co-signer tag', <ToastErrorIcon />);
+          showToast(vault.invalidNFCTag, <ToastErrorIcon />);
         }
       });
     } catch (err) {
@@ -43,7 +46,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
         return;
       }
       captureError(err);
-      showToast('Something went wrong.', <ToastErrorIcon />);
+      showToast(common.somethingWrong, <ToastErrorIcon />);
     }
   };
 
@@ -58,7 +61,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
         setData(cosigner);
       } catch (err) {
         captureError(err);
-        showToast('Please pick a valid co-signer file', <ToastErrorIcon />);
+        showToast(errorText.validCoSignerFile, <ToastErrorIcon />);
       }
     } catch (err) {
       if (err.toString().includes('user canceled')) {
@@ -66,7 +69,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
         return;
       }
       captureError(err);
-      showToast('Something went wrong.', <ToastErrorIcon />);
+      showToast(common.somethingWrong, <ToastErrorIcon />);
     }
   };
 
@@ -93,13 +96,13 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
         // content written from iOS to android
         const data = idx(session, (_) => _.application.content.content);
         if (!data) {
-          showToast('Please scan a valid co-signer', <ToastErrorIcon />);
+          showToast(vault.invalidNFCTag, <ToastErrorIcon />);
           return;
         }
         setData(data);
       } catch (err) {
         captureError(err);
-        showToast('Something went wrong.', <ToastErrorIcon />);
+        showToast(common.somethingWrong, <ToastErrorIcon />);
       } finally {
         closeNfc();
       }

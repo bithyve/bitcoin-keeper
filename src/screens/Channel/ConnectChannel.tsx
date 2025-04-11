@@ -109,7 +109,15 @@ function ConnectChannel() {
   const decryptionKey = useRef();
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const { translations } = useContext(LocalizationContext);
-  const { common, bitbox, trezor, ledger, error: errorText, coldcard } = translations;
+  const {
+    common,
+    bitbox,
+    trezor,
+    ledger,
+    error: errorText,
+    coldcard,
+    signer: signerText,
+  } = translations;
   const { mapUnknownSigner } = useUnkownSigners();
 
   const dispatch = useDispatch();
@@ -341,10 +349,10 @@ function ConnectChannel() {
     [SignerType.TREZOR]: trezor.SetupDescription,
     [SignerType.LEDGER]: ledger.SetupDescription,
     [SignerType.COLDCARD]: coldcard.setupColdcard,
-    [SignerType.JADE]: signer.setupJade,
+    [SignerType.JADE]: signerText.setupJade,
   };
 
-  const subtitleModal = modalSubtitle[signerType] || signer.defaultSetup;
+  const subtitleModal = modalSubtitle[signerType] || signerText.defaultSetup;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -375,7 +383,7 @@ function ConnectChannel() {
         <Box style={styles.noteWrapper}>
           <Note
             title={common.note}
-            subtitle={newNote ?? signer.defaultNote}
+            subtitle={newNote ?? signerText.defaultNote}
             subtitleColor="GreyText"
           />
         </Box>

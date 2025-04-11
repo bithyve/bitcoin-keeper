@@ -106,7 +106,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const [introModalVisible, setIntroModalVisible] = useState(false);
   const appCreationError = useAppSelector((state) => state.login.appCreationError);
   const { translations } = useContext(LocalizationContext);
-  const { login, common } = translations;
+  const { login, common, error: errorText, home } = translations;
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -131,7 +131,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   useEffect(() => {
     if (appImageError && isFocused) {
-      showToast('Failed to get app image');
+      showToast(errorText.failedToGetAppImage);
     }
   }, [appImageError]);
 
@@ -166,10 +166,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
   }
 
   const getSignUpModalContent = () => ({
-    title: 'Setting up your app',
-    subTitle:
-      'Keeper lets you create single-key (singlesig) wallets and multi-key (multisig) wallets.',
-    message: 'Stack sats, hodl long term, and plan your inheritance with Keeper.',
+    title: home.settingUpYourApp,
+    subTitle: home.createSingleAndMultisig,
+    message: home.stackSats,
   });
 
   function SignUpModalContent() {
@@ -211,7 +210,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             color={colorMode === 'light' ? Colors.secondaryLightGrey : Colors.bodyText}
             semiBold
           >
-            Server Settings
+            {common.serverSettings}
           </Text>
         </TouchableOpacity>
         <Box flex={1}>
@@ -248,7 +247,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <AppIcon />
             <Box>
               <Text fontSize={13} color={`${colorMode}.black`}>
-                Start New
+                {common.startNew}
               </Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
                 {login.newKeeperAppDesc}
@@ -266,7 +265,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <Recover />
             <Box>
               <Text fontSize={13} color={`${colorMode}.black`}>
-                Recover an existing app
+                {login.RecoverApp}
               </Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
                 {login.Enter12WordsRecovery}
@@ -306,10 +305,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
         dismissible={false}
         close={() => {}}
         visible={appCreationError}
-        title="Something went wrong"
-        subTitle="Please check your internet connection and try again."
+        title={common.somethingWrong}
+        subTitle={login.checkinternetConnection}
         Content={Box}
-        buttonText="Retry"
+        buttonText={common.retry}
         buttonCallback={() => {
           setInitiating(true);
         }}
@@ -324,7 +323,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
         Content={SignUpModalContent}
-        buttonText={appCreated ? 'Next' : null}
+        buttonText={appCreated ? common.next : null}
         buttonCallback={() => {
           setModalVisible(false);
           setTimeout(() => {
@@ -339,10 +338,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
         dismissible={false}
         close={() => {}}
         visible={appCreationError}
-        title="Something went wrong"
-        subTitle="Please check your internet connection and try again."
+        title={common.somethingWrong}
+        subTitle={login.checkinternetConnection}
         Content={Box}
-        buttonText="Retry"
+        buttonText={common.retry}
         buttonCallback={() => {
           setInitiating(true);
         }}
@@ -355,9 +354,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setIntroModalVisible(false);
         }}
         visible={introModalVisible}
-        title={'Start New:'}
+        title={`${common.startNew}:`}
         Content={StartNewModalContent}
-        buttonText={'Continue'}
+        buttonText={common.continue}
         buttonCallback={() => {
           setIntroModalVisible(false);
         }}

@@ -203,7 +203,7 @@
     "thisWeek": "This week's",
     "feeSats": "Fee Stats",
     "continueSession": "Continue session",
-    "startNew": "Start new",
+    "startNew": "Start New",
     "View": "View",
     "Notifications": "Notifications",
     "New": "New",
@@ -314,7 +314,21 @@
     "offlineModalSubTitle": "It seems there is a network issue. Please check your connection and try again",
     "offlineModalDesc": "Some functionalities requiring internet connection may not work",
     "continueOffline": "Continue offline",
-    "retryConnection": "Retry Connection"
+    "retryConnection": "Retry Connection",
+    "lockedOutOfApp": " You will be locked out of the app if you forget your passcode and will have to recover it using the Recovery Key.",
+    "rememberPasscode": "Remember your passcode",
+    "storingDeviceSecure": "Storing the devices securely is an important responsibility. Please ensure their safety and accessibility. Losing them may lead to permanent loss of your bitcoin.",
+    "enableBiometric": "Enable Biometric Authentication",
+    "fingerprintOrFace": "Use fingerprint or face recognition for quick and secure access.",
+    "closeAndReopen": "Please close and reopen the app. If the issue persists please contact support.",
+    "takeUptoMin": "It might take upto minute",
+    "connectingToTor": "Connecting to Tor",
+    "failedToConnectTor": "Failed to connect to tor",
+    "networkCallsAndTor": "Network calls and some functions may work slower when the Tor is enabled",
+    "checkConnection": "Please check your internet connection and try again. If you continue offline, some features may not be available.",
+    "incorrectPassword": "Incorrect Password",
+    "youEnteredIncorrectPasscode": "You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow",
+    "checkinternetConnection": "Please check your internet connection and try again."
   },
   "home": {
     "Hello": "Hello,",
@@ -374,7 +388,10 @@
     "requestSpecificAmount": "Request specific amount",
     "RequestSpecificAmount": "Request Specific Amount",
     "GetNewAddress": "Get New Address",
-    "BTCTransactionFeeInsights": "BTC Transaction Fee Insights"
+    "BTCTransactionFeeInsights": "BTC Transaction Fee Insights",
+    "settingUpYourApp": "Setting up your app",
+    "createSingleAndMultisig": "Keeper lets you create single-key (singlesig) wallets and multi-key (multisig) wallets.",
+    "stackSats": "Stack sats, hodl long term, and plan your inheritance with Keeper."
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
@@ -1851,6 +1868,10 @@
     "remoteSignedSuccesful": "Remote Transaction signed successfully",
     "invalidRemoteLink": "Invalid Remote Key link",
     "pendingTransactionsNotFound": "Pending transaction not found",
-    "provideIssueDescription": "Please provide the issue description"
+    "provideIssueDescription": "Please provide the issue description",
+    "biometicAuthFailed": "Biometric authentication failed.\nPlease try again or use PIN.",
+    "errorWithBiometrics": "An error occurred with biometrics.\nPlease use an alternative method.",
+    "failedToGetAppImage": "Failed to get app image",
+    "validCoSignerFile": "Please pick a valid co-signer file"
   }
 }
