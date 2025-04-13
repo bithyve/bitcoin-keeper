@@ -71,10 +71,10 @@ import InfoIcon from 'src/assets/images/info_icon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import Buttons from 'src/components/Buttons';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
 import { vaultAlreadyExists } from './VaultMigrationController';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import RegisterSignerContent from './components/RegisterSignerContent';
-import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
 
 const { width } = Dimensions.get('screen');
 
@@ -760,10 +760,10 @@ function SignerAdvanceSettings({ route }: any) {
       <OptionCard
         key="AdditionalUsers"
         title="Additional Users"
-        description={'Add multiple users for the Server Key'}
+        description="Add multiple users for the Server Key"
         callback={() => {
           if (!upgradeAdditionalUser) {
-            navigation.navigate('AdditionalUsers');
+            navigation.navigate('AdditionalUsers', { vaultKey });
           }
         }}
         disabled={upgradeAdditionalUser}

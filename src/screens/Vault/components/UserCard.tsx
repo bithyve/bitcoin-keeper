@@ -11,9 +11,10 @@ import Colors from 'src/theme/Colors';
 type Props = {
   data: any;
   setDeleteUser: any;
+  setRemoveOptionId: any;
 };
 
-const UserCard = ({ data, setDeleteUser }: Props) => {
+function UserCard({ data, setDeleteUser, setRemoveOptionId }: Props) {
   const { colorMode } = useColorMode();
 
   const getTagColor = (tag: string): string => {
@@ -45,7 +46,12 @@ const UserCard = ({ data, setDeleteUser }: Props) => {
                 ))}
               </Box>
             </Box>
-            <TouchableOpacity onPress={() => setDeleteUser(true)}>
+            <TouchableOpacity
+              onPress={() => {
+                setDeleteUser(true);
+                setRemoveOptionId(item.id);
+              }}
+            >
               <CircleIconWrapper
                 width={wp(30)}
                 icon={<Delete />}
@@ -59,7 +65,7 @@ const UserCard = ({ data, setDeleteUser }: Props) => {
       ))}
     </Box>
   );
-};
+}
 
 export default UserCard;
 

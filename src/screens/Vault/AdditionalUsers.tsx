@@ -7,21 +7,47 @@ import { hp, wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import AdditonalUserIcon from 'src/assets/images/additional_user_icon.svg';
 import Buttons from 'src/components/Buttons';
-import NewUserContent from './components/NewUserContent';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
+import DeleteIllustration from 'src/assets/images/delete-illustration.svg';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import SigningServer from 'src/services/backend/SigningServer';
+import {
+  PermittedAction,
+  SignerPolicy,
+  VerificationOption,
+  VerificationType,
+} from 'src/models/interfaces/AssistedKeys';
+import idx from 'idx';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getKeyUID } from 'src/utils/utilities';
+import { generateKey } from 'src/utils/service-utilities/encryption';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import NewUserContent from './components/NewUserContent';
 import PermittedActionContent from './components/PermittedActionContent';
 import OtpContent from './components/OtpContent';
 import UserCard from './components/UserCard';
-import DeleteIllustration from 'src/assets/images/delete-illustration.svg';
 
-const AdditionalUsers = () => {
+enum SecondaryVerificationOptionActionType {
+  ADD = 'ADD',
+  REMOVE = 'REMOVE',
+}
+
+function AdditionalUsers({ route }: any) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const {
+    vaultKey,
+  }: {
+    vaultKey: VaultSigner;
+  } = route.params;
+  const { signer } = useSignerFromKey(vaultKey);
+
   const [additionalUser, setAdditionalUser] = useState(false);
   const [addNewUserModal, setAddNewUserModal] = useState(false);
   const [PermittedActions, setPermittedActions] = useState(false);
@@ -32,42 +58,36 @@ const AdditionalUsers = () => {
   const [newUserName, setNewUserName] = useState('');
   const [deleteUser, setDeleteUser] = useState(false);
   const [deleteUserValidationModal, setDeleteUserValidationModal] = useState(false);
+  const [secondaryActionType, setSecondaryActionType] = useState('');
+  const [removeOptionId, setRemoveOptionId] = useState('');
+  const secondaryVerificationOptions: VerificationOption[] =
+    idx(signer, (_) => _.signerPolicy.secondaryVerification) || [];
 
   useEffect(() => {
-    if (isSetupValidated && !deleteUserValidationModal) {
-      navigation.navigate('SetupSigningServer', {
-        addSignerFlow: true,
-        newUserName,
-        PermittedActionData,
-      });
-      setIsSetupValidated(false);
-    } else if (isSetupValidated && deleteUserValidationModal) {
-      showToast('User Deleted Successfully');
-      setDeleteUserValidationModal(false);
+    if (isSetupValidated) {
+      if (secondaryActionType === SecondaryVerificationOptionActionType.ADD) {
+        // TODO: fix navigation
+        // newSecondaryVerificationOption.verifier has the key for QR
+        // navigation.navigate('SetupSigningServer', {
+        //   addSignerFlow: true,
+        //   newUserName,
+        //   PermittedActionData,
+        // });
+      } else if (secondaryActionType === SecondaryVerificationOptionActionType.REMOVE) {
+        showToast('User Deleted Successfully');
+        setDeleteUserValidationModal(false);
+      }
       setIsSetupValidated(false);
     }
-  }, [isSetupValidated]);
+  }, [isSetupValidated, secondaryActionType]);
 
-  // dummy array for additional user data
-  const additionalUserData = [
-    {
-      id: 1,
-      name: 'Personal Use',
-      tags: ['Transaction Signing', 'Policy Updates'],
-    },
-    {
-      id: 2,
-      name: 'When Backup',
-      tags: ['Backup Access'],
-    },
-    {
-      id: 3,
-      name: 'For cancel ',
-      tags: ['Cancel Transaction'],
-    },
-  ];
-
-  // const additionalUserData = [];
+  const additionalUserData = secondaryVerificationOptions.map((option) => {
+    return {
+      id: option.id,
+      name: option.label,
+      tags: option.permittedActions,
+    };
+  });
 
   useEffect(() => {
     // if dont have user then modal will open
@@ -163,7 +183,11 @@ const AdditionalUsers = () => {
       <WalletHeader title="2FA Management" />
       {additionalUserData.length > 0 ? (
         <Box>
-          <UserCard data={additionalUserData} setDeleteUser={setDeleteUser} />
+          <UserCard
+            data={additionalUserData}
+            setDeleteUser={setDeleteUser}
+            setRemoveOptionId={setRemoveOptionId}
+          />
         </Box>
       ) : null}
 
@@ -220,6 +244,8 @@ const AdditionalUsers = () => {
           />
         )}
         buttonCallback={() => {
+          setSecondaryActionType(SecondaryVerificationOptionActionType.ADD);
+          if (removeOptionId) setRemoveOptionId('');
           showValidationModal(true);
           setAddNewUserModal(false);
         }}
@@ -258,8 +284,7 @@ const AdditionalUsers = () => {
             setOtp={setOtp}
             otp={otp}
             showToast={showToast}
-            showValidationModal={showValidationModal}
-            setIsSetupValidated={setIsSetupValidated}
+            callback={processSecondaryVerificationOption}
           />
         )}
       />
@@ -269,8 +294,8 @@ const AdditionalUsers = () => {
         close={() => {
           setDeleteUser(false);
         }}
-        title={'Confirm Deletion'}
-        subTitle={'Are you sure you want to delete this user?'}
+        title="Confirm Deletion"
+        subTitle="Are you sure you want to delete this user?"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -279,8 +304,9 @@ const AdditionalUsers = () => {
             <DeleteIllustration />
           </Box>
         )}
-        buttonText={'Confirm'}
+        buttonText="Confirm"
         buttonCallback={() => {
+          setSecondaryActionType(SecondaryVerificationOptionActionType.REMOVE);
           setDeleteUser(false);
           showValidationModal(true);
           setDeleteUserValidationModal(true);
@@ -288,7 +314,7 @@ const AdditionalUsers = () => {
       />
     </ScreenWrapper>
   );
-};
+}
 
 export default AdditionalUsers;
 

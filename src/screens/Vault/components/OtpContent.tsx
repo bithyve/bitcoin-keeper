@@ -8,28 +8,9 @@ import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import { hp } from 'src/constants/responsive';
 
-const OtpContent = ({ otp, setOtp, showToast, showValidationModal, setIsSetupValidated }) => {
+function OtpContent({ otp, setOtp, showToast, callback }) {
   const { colorMode } = useColorMode();
-  const validateSetup = async () => {
-    const verificationToken = Number(otp);
-    try {
-      // const { valid } = await SigningServer.validate(setupData.id, verificationToken);
-      const valid = true;
-      if (valid) {
-        setIsSetupValidated(valid);
-        showValidationModal(false);
-        setOtp('');
-      } else {
-        showValidationModal(false);
-        showToast('Invalid OTP. Please try again!');
-        setOtp('');
-      }
-    } catch (err) {
-      showValidationModal(false);
-      showToast(`${err.message}`);
-      setOtp('');
-    }
-  };
+
   const onPressNumber = (text) => {
     let tmpPasscode = otp;
     if (otp.length < 6) {
@@ -85,7 +66,7 @@ const OtpContent = ({ otp, setOtp, showToast, showValidationModal, setIsSetupVal
         <Box>
           <Buttons
             primaryCallback={() => {
-              validateSetup();
+              callback();
             }}
             fullWidth
             primaryText="Confirm"
@@ -94,7 +75,7 @@ const OtpContent = ({ otp, setOtp, showToast, showValidationModal, setIsSetupVal
       </Box>
     </Box>
   );
-};
+}
 
 export default OtpContent;
 

@@ -4,15 +4,16 @@ import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import { PermittedAction } from 'src/models/interfaces/AssistedKeys';
 
-const permissionLabels = ['Sign Transactions', 'Update the Policy', 'Cancel Transactions'];
+const permissionLabels = Object.values(PermittedAction);
 
-const PermittedActionContent = ({
+function PermittedActionContent({
   setPermittedActionData,
   PermittedActionData,
   setAddNewUserModal,
   setPermittedActions,
-}) => {
+}) {
   const { colorMode } = useColorMode();
   const [permissions, setPermissions] = useState<{ [key: string]: boolean }>(
     Object.fromEntries(permissionLabels.map((label) => [label, false]))
@@ -108,7 +109,7 @@ const PermittedActionContent = ({
       </Box>
     </Box>
   );
-};
+}
 
 export default PermittedActionContent;
 
