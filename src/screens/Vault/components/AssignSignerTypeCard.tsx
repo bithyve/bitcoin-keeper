@@ -18,6 +18,9 @@ import Buttons from 'src/components/Buttons';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { translations } from 'src/context/Localization/LocContext';
 import SigningServer from 'src/services/backend/SigningServer';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getKeyUID } from 'src/utils/utilities';
 import { SDIcons } from '../SigningDeviceIcons';
 
 type AssignSignerTypeCardProps = {
@@ -81,10 +84,17 @@ function AssignSignerTypeCard({
       );
       if (valid) {
         if (id === signerId && masterFingerprint === signer.masterFingerprint) {
-          dispatch(updateSignerDetails(signer, 'type', type));
-          dispatch(updateSignerDetails(signer, 'isExternal', true));
-          dispatch(updateSignerDetails(signer, 'signerPolicy', policy));
-          dispatch(updateSignerDetails(signer, 'signerName', 'External Server Key'));
+          const signerKeyUID = getKeyUID(signer);
+          dbManager.updateObjectByQuery(
+            RealmSchema.Signer,
+            (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
+            {
+              type,
+              isExternal: true,
+              signerPolicy: policy,
+              signerName: 'External Server Key',
+            }
+          );
         } else throw new Error('Server Key mismatch');
       } else throw new Error('Server Key validation failed');
     } catch (err) {
