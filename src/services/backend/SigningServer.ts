@@ -4,7 +4,6 @@ import { asymmetricDecrypt, generateRSAKeypair } from 'src/utils/service-utiliti
 import {
   DelayedPolicyUpdate,
   DelayedTransaction,
-  SignerException,
   SignerPolicy,
   SignerRestriction,
   SingerVerification,
@@ -174,7 +173,6 @@ export default class SigningServer {
     verificationToken: number,
     updates: {
       restrictions: SignerRestriction;
-      exceptions: SignerException;
       signingDelay: number;
     },
     FCM?: string
