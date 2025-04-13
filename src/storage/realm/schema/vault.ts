@@ -9,6 +9,7 @@ export const VerificationOptionSchema: ObjectSchema = {
   properties: {
     id: 'string',
     method: 'string',
+    label: 'string?',
     verifier: 'string?',
     permittedActions: 'string[]',
   },
@@ -23,7 +24,6 @@ export const SignerPolicy: ObjectSchema = {
       properties: {
         method: 'string',
         verifier: 'string?',
-        secondary: `${RealmSchema.VerificationOption}[]?`,
       },
     },
     restrictions: {
@@ -34,13 +34,7 @@ export const SignerPolicy: ObjectSchema = {
         timeWindow: 'int?',
       },
     },
-    exceptions: {
-      type: '{}?',
-      properties: {
-        none: 'bool',
-        transactionAmount: 'int?',
-      },
-    },
+    secondaryVerification: `${RealmSchema.VerificationOption}[]`,
     signingDelay: {
       type: 'int?',
     },
