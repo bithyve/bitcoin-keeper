@@ -1,15 +1,16 @@
 import { AxiosResponse } from 'axios';
 import config from 'src/utils/service-utilities/config';
 import { asymmetricDecrypt, generateRSAKeypair } from 'src/utils/service-utilities/encryption';
+import { store } from 'src/store/store';
 import {
   DelayedPolicyUpdate,
   DelayedTransaction,
   SignerPolicy,
   SignerRestriction,
   SingerVerification,
+  VerificationOption,
 } from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
-import { store } from 'src/store/store';
 import { NetworkType } from '../wallets/enums';
 
 const { HEXA_ID_TESTNET, HEXA_ID_MAINNET, SIGNING_SERVER_MAINNET, SIGNING_SERVER_TESTNET } = config;
@@ -72,6 +73,64 @@ export default class SigningServer {
 
     return {
       valid,
+    };
+  };
+
+  static addSecondaryVerificationOption = async (
+    id: string,
+    verificationToken: number,
+    newOption: Omit<VerificationOption, 'verifier'>
+  ): Promise<{
+    success: boolean;
+    secondaryVerificationOption: VerificationOption;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${getSigningServerURL()}v3/addSecondaryVerificationOption`, {
+        HEXA_ID: getHexaId(),
+        id,
+        verificationToken,
+        newOption,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { success, secondaryVerificationOption } = res.data;
+    if (!success) throw new Error('Failed to add secondary verification option');
+
+    return {
+      success,
+      secondaryVerificationOption,
+    };
+  };
+
+  static removeSecondaryVerificationOption = async (
+    id: string,
+    verificationToken: number,
+    optionId: string
+  ): Promise<{
+    success: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${getSigningServerURL()}v3/removeSecondaryVerificationOption`, {
+        HEXA_ID: getHexaId(),
+        id,
+        verificationToken,
+        optionId,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { success } = res.data;
+    if (!success) throw new Error('Failed to remove secondary verification option');
+
+    return {
+      success,
     };
   };
 

@@ -76,6 +76,88 @@ const AdditionalUsers = () => {
     }
   }, []);
 
+  const processSecondaryVerificationOption = async () => {
+    try {
+      const verificationToken = Number(otp);
+      let success: boolean;
+      let newSecondaryVerificationOption: VerificationOption;
+      let updatedSecondaryVerificationOptions: VerificationOption[];
+
+      if (secondaryActionType === SecondaryVerificationOptionActionType.ADD) {
+        const permittedActions = Object.keys(PermittedActionData).filter(
+          (key) => PermittedActionData[key]
+        ) as PermittedAction[];
+
+        if (permittedActions.length < 1) {
+          throw new Error('Unable to add - permitted action(s) not selected');
+        }
+        const label = newUserName || 'dummy-sign'; // TODO: newUserName is not working
+        const verificationOption: VerificationOption = {
+          id: generateKey(10),
+          method: VerificationType.TWO_FA,
+          label,
+          permittedActions,
+        };
+
+        const res = await SigningServer.addSecondaryVerificationOption(
+          (vaultKey as VaultSigner).xfp,
+          verificationToken,
+          verificationOption
+        );
+        success = res.success;
+        if (success) {
+          newSecondaryVerificationOption = res.secondaryVerificationOption;
+          updatedSecondaryVerificationOptions = [
+            ...(secondaryVerificationOptions || []),
+            verificationOption,
+          ];
+        }
+      } else if (secondaryActionType === SecondaryVerificationOptionActionType.REMOVE) {
+        if (!removeOptionId) throw new Error('Unable to remove - optionId missing');
+
+        const res = await SigningServer.removeSecondaryVerificationOption(
+          (vaultKey as VaultSigner).xfp,
+          verificationToken,
+          removeOptionId
+        );
+        success = res.success;
+        if (success) {
+          updatedSecondaryVerificationOptions = secondaryVerificationOptions.filter(
+            (option) => option.id !== removeOptionId
+          );
+        }
+      } else throw new Error('Invalid action');
+
+      if (success && updatedSecondaryVerificationOptions) {
+        const updatedSignerPolicy: SignerPolicy = {
+          ...signer.signerPolicy,
+          secondaryVerification: updatedSecondaryVerificationOptions,
+        };
+
+        const signerKeyUID = getKeyUID(signer);
+        dbManager.updateObjectByQuery(
+          RealmSchema.Signer,
+          (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
+          {
+            signerPolicy: updatedSignerPolicy,
+          }
+        );
+
+        setIsSetupValidated(success);
+        showValidationModal(false);
+        setOtp('');
+      } else {
+        showValidationModal(false);
+        showToast('Invalid OTP. Please try again!');
+        setOtp('');
+      }
+    } catch (err) {
+      showValidationModal(false);
+      showToast(`${err.message}`);
+      setOtp('');
+    }
+  };
+
   return (
     <ScreenWrapper>
       <WalletHeader title="2FA Management" />
