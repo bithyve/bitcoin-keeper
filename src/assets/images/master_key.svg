@@ -3,10 +3,10 @@
     <path id="hexagontile3" d="M27.712,0A4,4,0,0,1,31.16,1.972l7.647,13a4,4,0,0,1,0,4.056l-7.647,13A4,4,0,0,1,27.712,34H12.288A4,4,0,0,1,8.84,32.028l-7.647-13a4,4,0,0,1,0-4.056l7.647-13A4,4,0,0,1,12.288,0Z" transform="translate(51 635)" fill="#fdf7f0"/>
     <g id="Group_54550" data-name="Group 54550">
       <g id="loop_1" data-name="loop 1" transform="translate(60.615 641.293)">
-        <path id="Path_119798" data-name="Path 119798" d="M11.751,7.348a5.862,5.862,0,0,1,.012,11.724A4.822,4.822,0,0,1,7.1,16.62L5.073,17.792a7.163,7.163,0,0,0,6.7,3.6A8.207,8.207,0,1,0,3.58,13.187H5.925a5.856,5.856,0,0,1,5.862-5.862Z" transform="translate(-1.212 -4.98)" fill="#2d6759" fill-rule="evenodd"/>
-        <path id="Path_119799" data-name="Path 119799" d="M16.351,11.491,14.3,8.29,12.33,9.556l2.7,4.174a1.183,1.183,0,0,0,1.63.34l4.185-2.7L19.575,9.392l-3.189,2.052Z" transform="translate(-12.33 -4.409)" fill="#2d6759" fill-rule="evenodd"/>
+        <path id="Path_119798" data-name="Path 119798" d="M11.751,7.348a5.862,5.862,0,0,1,.012,11.724A4.822,4.822,0,0,1,7.1,16.62L5.073,17.792a7.163,7.163,0,0,0,6.7,3.6A8.207,8.207,0,1,0,3.58,13.187H5.925a5.856,5.856,0,0,1,5.862-5.862Z" transform="translate(-1.212 -4.98)" fill="#2F4F4F" fill-rule="evenodd"/>
+        <path id="Path_119799" data-name="Path 119799" d="M16.351,11.491,14.3,8.29,12.33,9.556l2.7,4.174a1.183,1.183,0,0,0,1.63.34l4.185-2.7L19.575,9.392l-3.189,2.052Z" transform="translate(-12.33 -4.409)" fill="#2F4F4F" fill-rule="evenodd"/>
       </g>
-      <path id="password" d="M1,12A4.989,4.989,0,0,1,6,7H18a5,5,0,0,1,0,10H6A5,5,0,0,1,1,12Z" transform="translate(59 645.707)" fill="#2d6759" fill-rule="evenodd"/>
+      <path id="password" d="M1,12A4.989,4.989,0,0,1,6,7H18a5,5,0,0,1,0,10H6A5,5,0,0,1,1,12Z" transform="translate(59 645.707)" fill="#2F4F4F" fill-rule="evenodd"/>
       <g id="Group_54549" data-name="Group 54549" transform="translate(-1 -1.293)">
         <path id="password-2" data-name="password" d="M14.13,12.79l-.789-.8.779-.8-1.4-1.42-.789.79-.789-.8-1.4,1.41.779.79-.789.79,1.391,1.41.779-.8.779.79,1.391-1.42Z" transform="translate(65.07 647.04)" fill="#f2ede6" fill-rule="evenodd"/>
         <path id="password-3" data-name="password" d="M14.13,12.79l-.789-.8.779-.8-1.4-1.42-.789.79-.789-.8-1.4,1.41.779.79-.789.79,1.391,1.41.779-.8.779.79,1.391-1.42Z" transform="translate(60.07 647.04)" fill="#f2ede6" fill-rule="evenodd"/>

@@ -26,7 +26,7 @@ const GenerateRecoveryInstrcutionsPDF = async () => {
             font-size: 36px;
             margin-top: 20px;
             margin-bottom: 20px;
-            color: #2D6759;
+            color: #2F4F4F;
         }
             h3{
             margin-bottom: 0px;}

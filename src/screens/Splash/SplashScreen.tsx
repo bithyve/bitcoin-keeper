@@ -97,7 +97,7 @@ function SplashScreen({ navigation }) {
       height,
       width,
       borderRadius,
-      backgroundColor: '#2D6759',
+      backgroundColor: '#2F4F4F',
     };
   });
 

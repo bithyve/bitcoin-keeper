@@ -1,20 +1,20 @@
 const Colors = {
   // Light
 
-  primaryGreen: 'rgba(45, 103, 89, 1)',
-  primaryBrown: 'rgba(145, 120, 92, 1)',
+  primaryGreen: 'rgba(47, 79, 79, 1)',
+  primaryBrown: 'rgba(73, 61, 51, 1)',
   primaryCream: 'rgba(247, 242, 236, 1)',
 
   // secondary colors
-  secondaryBlack: 'rgba(4, 21, 19, 1)',
+  secondaryBlack: 'rgba(39, 36, 33, 1)',
   ashGreen: 'rgba(36, 49, 46, 1)',
-  GreenishGrey: 'rgba(62, 82, 77, 1)',
+  GreenishGrey: 'rgba(55, 46, 38, 1)',
   secondaryDarkGrey: 'rgba(135, 135, 135, 1)',
   secondaryLightGrey: 'rgba(142, 142, 142, 1)',
   secondaryCreamWhite: 'rgba(242, 237, 230, 1)',
 
   // Element  Colors
-  brightCream: 'rgba(253, 247, 240, 1)',
+  brightCream: 'rgba(249, 244, 240, 1)',
   dullGreen: 'rgba(221, 222, 216, 1)',
   redAlert: 'rgba(229, 69, 69, 1)',
   ErrorToast: 'rgba(249, 219, 219, 1)',
