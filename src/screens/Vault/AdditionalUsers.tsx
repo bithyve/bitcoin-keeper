@@ -66,13 +66,11 @@ function AdditionalUsers({ route }: any) {
   useEffect(() => {
     if (isSetupValidated) {
       if (secondaryActionType === SecondaryVerificationOptionActionType.ADD) {
-        // TODO: fix navigation
-        // newSecondaryVerificationOption.verifier has the key for QR
-        // navigation.navigate('SetupSigningServer', {
-        //   addSignerFlow: true,
-        //   newUserName,
-        //   PermittedActionData,
-        // });
+        navigation.navigate('SetupAdditionalServerKey', {
+          addSignerFlow: true,
+          newUserName,
+          PermittedActionData,
+        });
       } else if (secondaryActionType === SecondaryVerificationOptionActionType.REMOVE) {
         showToast('User Deleted Successfully');
         setDeleteUserValidationModal(false);
@@ -111,7 +109,7 @@ function AdditionalUsers({ route }: any) {
         if (permittedActions.length < 1) {
           throw new Error('Unable to add - permitted action(s) not selected');
         }
-        const label = newUserName || 'dummy-sign'; // TODO: newUserName is not working
+        const label = newUserName;
         const verificationOption: VerificationOption = {
           id: generateKey(10),
           method: VerificationType.TWO_FA,
@@ -120,7 +118,7 @@ function AdditionalUsers({ route }: any) {
         };
 
         const res = await SigningServer.addSecondaryVerificationOption(
-          (vaultKey as VaultSigner).xfp,
+          (vaultKey as VaultSigner)?.xfp,
           verificationToken,
           verificationOption
         );
@@ -136,7 +134,7 @@ function AdditionalUsers({ route }: any) {
         if (!removeOptionId) throw new Error('Unable to remove - optionId missing');
 
         const res = await SigningServer.removeSecondaryVerificationOption(
-          (vaultKey as VaultSigner).xfp,
+          (vaultKey as VaultSigner)?.xfp,
           verificationToken,
           removeOptionId
         );

@@ -6,6 +6,7 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
+import debounce from 'lodash.debounce';
 
 type Props = {
   setPermittedActions: (value: boolean) => void;
@@ -24,8 +25,15 @@ const NewUserContent = (props: Props) => {
     }
   }, [props.newUserName]);
 
+  const debouncedUpdate = React.useRef(
+    debounce((val: string) => {
+      props.setNewUserName(val);
+    }, 2000)
+  ).current;
+
   const handleChangeText = (text: string) => {
     setUserName(text);
+    debouncedUpdate(text);
   };
 
   return (
@@ -36,9 +44,6 @@ const NewUserContent = (props: Props) => {
         inpuBorderColor={`${colorMode}.textInputBackground`}
         value={username}
         onChangeText={handleChangeText}
-        onBlur={() => {
-          props.setNewUserName(username);
-        }}
       />
       <TouchableOpacity
         onPress={() => {

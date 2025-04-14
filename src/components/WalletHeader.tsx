@@ -16,6 +16,7 @@ type Props = {
   data?: any;
   rightComponent?: any;
   subTitle?: string;
+  subtitleColor?: string;
 };
 
 const WalletHeader: React.FC<Props> = ({
@@ -26,6 +27,7 @@ const WalletHeader: React.FC<Props> = ({
   contrastScreen = false,
   rightComponent,
   subTitle,
+  subtitleColor,
 }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -83,7 +85,7 @@ const WalletHeader: React.FC<Props> = ({
         {rightComponent && <Box>{rightComponent}</Box>}
       </Box>
       {subTitle && (
-        <Text color={titleColor} style={styles.subTitle}>
+        <Text color={subtitleColor} style={styles.subTitle}>
           {subTitle}
         </Text>
       )}

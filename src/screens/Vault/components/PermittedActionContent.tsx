@@ -16,22 +16,22 @@ function PermittedActionContent({
 }) {
   const { colorMode } = useColorMode();
   const [permissions, setPermissions] = useState<{ [key: string]: boolean }>(
-    Object.fromEntries(permissionLabels.map((label) => [label, false]))
+    Object.fromEntries(
+      permissionLabels.map((label) => [label, label === 'SIGN_TRANSACTION' ? true : false])
+    )
   );
 
   useEffect(() => {
     if (PermittedActionData) {
       const updatedPermissions = Object.fromEntries(
-        permissionLabels.map((label) => [label, PermittedActionData[label] || false])
+        permissionLabels.map((label) => [
+          label,
+          PermittedActionData[label] ?? (label === 'SIGN_TRANSACTION' ? true : false),
+        ])
       );
       setPermissions(updatedPermissions);
     }
   }, [PermittedActionData]);
-
-  const handleSelectAll = (isChecked: boolean) => {
-    const updated = Object.fromEntries(permissionLabels.map((label) => [label, isChecked]));
-    setPermissions(updated);
-  };
 
   const handleSingleChange = (label: string, isChecked: boolean) => {
     setPermissions((prev) => {
@@ -39,14 +39,19 @@ function PermittedActionContent({
       return updated;
     });
   };
+  // Uncomment this if you want to implement the select all functionality
 
-  const values = Object.values(permissions);
-  const allSelected = values.every(Boolean);
-  const someSelected = values.some(Boolean) && !allSelected;
+  // const handleSelectAll = (isChecked: boolean) => {
+  //   const updated = Object.fromEntries(permissionLabels.map((label) => [label, isChecked]));
+  //   setPermissions(updated);
+  // };
+  // const values = Object.values(permissions);
+  // const allSelected = values.every(Boolean);
+  // const someSelected = values.some(Boolean) && !allSelected;
 
   return (
     <Box>
-      <Box style={styles.selectAllContainer}>
+      {/* <Box style={styles.selectAllContainer}>
         <Checkbox
           value="selectAll"
           isChecked={allSelected}
@@ -66,11 +71,10 @@ function PermittedActionContent({
             bg: `${colorMode}.pantoneGreen`,
           }}
         />
-
         <Text semiBold color={`${colorMode}.pantoneGreen`}>
           Select all
         </Text>
-      </Box>
+      </Box> */}
 
       {permissionLabels.map((label) => (
         <Box
