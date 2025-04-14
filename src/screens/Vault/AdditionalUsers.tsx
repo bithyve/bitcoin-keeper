@@ -52,7 +52,6 @@ function AdditionalUsers({ route }: any) {
   const [addNewUserModal, setAddNewUserModal] = useState(false);
   const [PermittedActions, setPermittedActions] = useState(false);
   const [validationModal, showValidationModal] = useState(false);
-  const [isSetupValidated, setIsSetupValidated] = useState(false);
   const [PermittedActionData, setPermittedActionData] = useState([]);
   const [otp, setOtp] = useState('');
   const [newUserName, setNewUserName] = useState('');
@@ -62,22 +61,6 @@ function AdditionalUsers({ route }: any) {
   const [removeOptionId, setRemoveOptionId] = useState('');
   const secondaryVerificationOptions: VerificationOption[] =
     idx(signer, (_) => _.signerPolicy.secondaryVerification) || [];
-
-  useEffect(() => {
-    if (isSetupValidated) {
-      if (secondaryActionType === SecondaryVerificationOptionActionType.ADD) {
-        navigation.navigate('SetupAdditionalServerKey', {
-          addSignerFlow: true,
-          newUserName,
-          PermittedActionData,
-        });
-      } else if (secondaryActionType === SecondaryVerificationOptionActionType.REMOVE) {
-        showToast('User Deleted Successfully');
-        setDeleteUserValidationModal(false);
-      }
-      setIsSetupValidated(false);
-    }
-  }, [isSetupValidated, secondaryActionType]);
 
   const additionalUserData = secondaryVerificationOptions.map((option) => {
     return {
@@ -161,7 +144,16 @@ function AdditionalUsers({ route }: any) {
           }
         );
 
-        setIsSetupValidated(success);
+        if (secondaryActionType === SecondaryVerificationOptionActionType.ADD) {
+          navigation.navigate('SetupAdditionalServerKey', {
+            validationKey: newSecondaryVerificationOption.verifier,
+            label: newUserName,
+          });
+        } else if (secondaryActionType === SecondaryVerificationOptionActionType.REMOVE) {
+          showToast('User Deleted Successfully');
+          setDeleteUserValidationModal(false);
+        }
+
         showValidationModal(false);
         setOtp('');
       } else {
