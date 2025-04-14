@@ -21,6 +21,7 @@ import SigningServer from 'src/services/backend/SigningServer';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getKeyUID } from 'src/utils/utilities';
+import { useNavigation } from '@react-navigation/native';
 import { SDIcons } from '../SigningDeviceIcons';
 
 type AssignSignerTypeCardProps = {
@@ -49,6 +50,7 @@ function AssignSignerTypeCard({
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { common } = translations;
+  const navigation = useNavigation();
 
   const changeSignerType = () => {
     setShowConfirm(false);
@@ -82,6 +84,7 @@ function AssignSignerTypeCard({
         signerId,
         verificationToken
       );
+
       if (valid) {
         if (id === signerId && masterFingerprint === signer.masterFingerprint) {
           const signerKeyUID = getKeyUID(signer);
@@ -95,6 +98,7 @@ function AssignSignerTypeCard({
               signerName: 'External Server Key',
             }
           );
+          navigation.goBack();
         } else throw new Error('Server Key mismatch');
       } else throw new Error('Server Key validation failed');
     } catch (err) {

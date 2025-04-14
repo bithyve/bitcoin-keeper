@@ -756,7 +756,7 @@ function SignerAdvanceSettings({ route }: any) {
         disabled={disableOneTimeBackup}
       />
     ),
-    isPolicyServer && (
+    isPolicyServer && !signer.isExternal && (
       <OptionCard
         key="AdditionalUsers"
         title="Additional Users"
