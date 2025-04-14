@@ -720,7 +720,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     padding: 5,
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
     flexDirection: 'row',
   },
   atIconWrapper: {

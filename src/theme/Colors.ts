@@ -53,7 +53,7 @@ const Colors = {
   ModalBlack: 'rgba(37, 37, 37, 1)',
   AlertRedDark: 'rgba(187, 73, 73, 1)',
   ToastBg: 'rgba(164, 140, 111, 1)',
-  separator: 'rgba(212, 212, 212, 0.2)',
+  separator: 'rgba(211, 209, 206, 0.3)',
   SecondaryBackgroundDark: 'rgba(31, 31, 31, 1)',
 
   // tag color

@@ -2,11 +2,11 @@
   <g id="transaction_pending" transform="translate(-235 -451)">
     <circle id="Ellipse_2535" data-name="Ellipse 2535" cx="9" cy="9" r="9" transform="translate(235 451)" fill="#91785d"/>
     <g id="hourglass" transform="translate(236.309 453.195)">
-      <path id="Path_119468" data-name="Path 119468" d="M8.5,11.193a.477.477,0,0,0-.4-.2.485.485,0,0,0-.4.2L4.57,15.533a.472.472,0,0,0-.039.5.481.481,0,0,0,.43.261h6.276a.5.5,0,0,0,.43-.266.492.492,0,0,0-.039-.507L8.49,11.178Z" transform="translate(-0.418 -4.666)" fill="#fdf7f0" fill-rule="evenodd"/>
-      <path id="Path_119469" data-name="Path 119469" d="M8.1,7.295a.487.487,0,0,0,.391-.2l3.138-4.35a.491.491,0,0,0-.4-.772H4.954a.494.494,0,0,0-.434.261.473.473,0,0,0,.034.5L7.686,7.077a.47.47,0,0,0,.391.2ZM5.9,2.95h4.383l-2.2,3.037L5.9,2.95Z" transform="translate(-0.411)" fill="#fdf7f0" fill-rule="evenodd"/>
-      <path id="Path_119470" data-name="Path 119470" d="M12.381,2.966H3V2h9.381Z" transform="translate(0 -0.016)" fill="#fdf7f0" fill-rule="evenodd"/>
-      <path id="Path_119471" data-name="Path 119471" d="M12.381,20.965H3V20h9.381Z" transform="translate(0 -9.326)" fill="#fdf7f0" fill-rule="evenodd"/>
-      <path id="Polygon_5" data-name="Polygon 5" d="M2,0,4,3H0Z" transform="translate(9.351 6.971) rotate(180)" fill="#fdf7f0"/>
+      <path id="Path_119468" data-name="Path 119468" d="M8.5,11.193a.477.477,0,0,0-.4-.2.485.485,0,0,0-.4.2L4.57,15.533a.472.472,0,0,0-.039.5.481.481,0,0,0,.43.261h6.276a.5.5,0,0,0,.43-.266.492.492,0,0,0-.039-.507L8.49,11.178Z" transform="translate(-0.418 -4.666)" fill="#F9F4F0" fill-rule="evenodd"/>
+      <path id="Path_119469" data-name="Path 119469" d="M8.1,7.295a.487.487,0,0,0,.391-.2l3.138-4.35a.491.491,0,0,0-.4-.772H4.954a.494.494,0,0,0-.434.261.473.473,0,0,0,.034.5L7.686,7.077a.47.47,0,0,0,.391.2ZM5.9,2.95h4.383l-2.2,3.037L5.9,2.95Z" transform="translate(-0.411)" fill="#F9F4F0" fill-rule="evenodd"/>
+      <path id="Path_119470" data-name="Path 119470" d="M12.381,2.966H3V2h9.381Z" transform="translate(0 -0.016)" fill="#F9F4F0" fill-rule="evenodd"/>
+      <path id="Path_119471" data-name="Path 119471" d="M12.381,20.965H3V20h9.381Z" transform="translate(0 -9.326)" fill="#F9F4F0" fill-rule="evenodd"/>
+      <path id="Polygon_5" data-name="Polygon 5" d="M2,0,4,3H0Z" transform="translate(9.351 6.971) rotate(180)" fill="#F9F4F0"/>
     </g>
   </g>
 </svg>

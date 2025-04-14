@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
   },
   textBoxActive: {
     height: widthPercentageToDP('13%'),
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
     },
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
   },
   textStyles: {
     color: '#000000',

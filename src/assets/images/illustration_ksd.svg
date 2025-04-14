@@ -9,7 +9,7 @@
     <path id="Union_22" data-name="Union 22" d="M16.746,22.739a.593.593,0,1,1,.145.018A.594.594,0,0,1,16.746,22.739Zm1.831-2.167a.87.87,0,1,1,.87.87A.87.87,0,0,1,18.577,20.572ZM0,11.284A10.159,10.159,0,1,1,10.159,21.442,10.159,10.159,0,0,1,0,11.284ZM16.039,1.1a1.1,1.1,0,1,1,1.1,1.1A1.1,1.1,0,0,1,16.039,1.1Z" transform="translate(190.691 458.274)" opacity="0.4" fill="url(#linear-gradient)"/>
     <g id="Group_43866" data-name="Group 43866" transform="translate(69 457)">
       <path id="Union_23" data-name="Union 23" d="M19.866,61.038a2.352,2.352,0,1,1,2.352,2.352A2.352,2.352,0,0,1,19.866,61.038Zm8.225.113A1.606,1.606,0,1,1,29.7,62.758,1.606,1.606,0,0,1,28.091,61.151ZM0,29.772A27.453,27.453,0,1,1,27.453,57.225,27.454,27.454,0,0,1,0,29.772ZM6.534,2.983A2.983,2.983,0,1,1,9.516,5.965,2.983,2.983,0,0,1,6.534,2.983Z" transform="translate(0 69.378)" opacity="0.4" fill="url(#linear-gradient)"/>
-      <g id="Rectangle_7601" data-name="Rectangle 7601" transform="translate(40.551 125.975) rotate(-90)" fill="#f7f2ec" stroke="#002c27" stroke-width="1.5">
+      <g id="Rectangle_7601" data-name="Rectangle 7601" transform="translate(40.551 125.975) rotate(-90)" fill="#F6F2ED" stroke="#002c27" stroke-width="1.5">
         <rect width="125.975" height="85.032" rx="5" stroke="none"/>
         <rect x="0.75" y="0.75" width="124.475" height="83.532" rx="4.25" fill="none"/>
       </g>

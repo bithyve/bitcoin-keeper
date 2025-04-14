@@ -12,7 +12,7 @@
       <path id="Path_25534-2" data-name="Path 25534" d="M.783,0A.783.783,0,1,1,0,.783.783.783,0,0,1,.783,0Z" transform="translate(6.202 27.576) rotate(141)" fill="#888"/>
       <path id="Path_25535-2" data-name="Path 25535" d="M13.737,3.166a1.454,1.454,0,1,1,1.454-1.454A1.454,1.454,0,0,1,13.737,3.166Z" transform="translate(15.054 6.495)" fill="#888"/>
     </g>
-    <g id="Rectangle_7601" data-name="Rectangle 7601" transform="translate(115.142 604) rotate(-90)" fill="#f7f2ec" stroke="#002c27" stroke-width="1.5">
+    <g id="Rectangle_7601" data-name="Rectangle 7601" transform="translate(115.142 604) rotate(-90)" fill="#F6F2ED" stroke="#002c27" stroke-width="1.5">
       <rect width="116.05" height="89.452" rx="5" stroke="none"/>
       <rect x="0.75" y="0.75" width="114.55" height="87.952" rx="4.25" fill="none"/>
     </g>
@@ -23,8 +23,8 @@
     <g id="Group_46026" data-name="Group 46026" transform="translate(4 8)">
       <g id="specter" transform="translate(1142 2590)">
         <rect id="Rectangle_8799" data-name="Rectangle 8799" width="55" height="74" rx="3" transform="translate(-1014 -2090)" fill="#3c3c3c"/>
-        <rect id="Rectangle_8798" data-name="Rectangle 8798" width="44.928" height="52.857" rx="2" transform="translate(-1008.714 -2080.75)" fill="#f7f2ec"/>
-        <line id="Line_1207" data-name="Line 1207" x2="16" transform="translate(-1007 -2085)" fill="none" stroke="#f7f2ec" stroke-linecap="round" stroke-width="3"/>
+        <rect id="Rectangle_8798" data-name="Rectangle 8798" width="44.928" height="52.857" rx="2" transform="translate(-1008.714 -2080.75)" fill="#F6F2ED"/>
+        <line id="Line_1207" data-name="Line 1207" x2="16" transform="translate(-1007 -2085)" fill="none" stroke="#F6F2ED" stroke-linecap="round" stroke-width="3"/>
       </g>
     </g>
   </g>
