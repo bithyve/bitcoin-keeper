@@ -135,7 +135,7 @@ function UTXOLabeling() {
   const redirectToBlockExplorer = (type: 'address' | 'tx') => {
     openLink(
       `https://mempool.space${
-        bitcoinNetworkType === NetworkType.TESTNET ? '/testnet' : ''
+        bitcoinNetworkType === NetworkType.TESTNET ? '/testnet4' : ''
       }/${type}/${type == 'tx' ? utxo.txId : utxo.address}`
     );
   };

@@ -326,21 +326,6 @@ function* uaiChecksWorker({ payload }) {
         }
       }
     }
-    if (checkForTypes.includes(uaiType.DEFAULT)) {
-      const defaultUAI: UAI = dbManager.getObjectByField(
-        RealmSchema.UAI,
-        uaiType.DEFAULT,
-        'uaiType'
-      )[0];
-
-      if (!defaultUAI) {
-        yield put(
-          addToUaiStack({
-            uaiType: uaiType.DEFAULT,
-          })
-        );
-      }
-    }
     if (checkForTypes.includes(uaiType.CANARAY_WALLET)) {
       //TO-DO
       //fetch all canary vaults

@@ -29,7 +29,7 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { DerivationPurpose, VaultType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, NetworkType, VaultType, WalletType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
@@ -71,7 +71,7 @@ import {
   UPDATE_VAULT_IMAGE,
   healthCheckSigner,
 } from '../sagaActions/bhr';
-import { uaiActioned } from '../sagaActions/uai';
+import { uaiActioned, uaiChecks } from '../sagaActions/uai';
 import { setAppId, setDefaultWalletCreated } from '../reducers/storage';
 import { applyUpgradeSequence, KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
@@ -407,6 +407,7 @@ function* getAppImageWorker({ payload }) {
     }
     yield put(autoSyncWallets(true, true, false));
     yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
+    yield put(uaiChecks([uaiType.SECURE_VAULT]));
   } catch (err) {
     yield put(setAppImageError(err.message));
   } finally {
@@ -475,6 +476,12 @@ function* recoverApp(
         const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
         if (!decrytpedSigner?.id) {
           decrytpedSigner.id = getKeyUID(decrytpedSigner);
+        }
+        if (!decrytpedSigner?.networkType) {
+          // adds missing network type to signer as per the env type
+          decrytpedSigner.networkType = config.isDevMode()
+            ? NetworkType.TESTNET
+            : NetworkType.MAINNET;
         }
         yield call(dbManager.createObject, RealmSchema.Signer, decrytpedSigner);
       } catch (err) {
@@ -581,6 +588,11 @@ function* recoverApp(
     for (const node of appImage.nodes) {
       try {
         const decryptedNode = JSON.parse(decrypt(encryptionKey, node));
+        if (!decryptedNode?.networkType) {
+          decryptedNode.networkType = config.isDevMode()
+            ? NetworkType.TESTNET
+            : NetworkType.MAINNET;
+        }
         yield call(dbManager.createObject, RealmSchema.NodeConnect, decryptedNode);
       } catch (err) {
         console.log('Error recovering a node: ', err);
