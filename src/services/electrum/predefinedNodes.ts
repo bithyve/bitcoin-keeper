@@ -3,19 +3,10 @@ import { NetworkType } from '../wallets/enums';
 
 export const predefinedTestnetNodes: NodeDetail[] = [
   {
-    id: 335, // sequence 3-x-x; avoids collision w/ own node
-    host: 'mempool.space',
-    port: '40002',
-    isConnected: true,
-    useKeeperNode: false,
-    useSSL: true,
-    networkType: NetworkType.TESTNET,
-  },
-  {
     id: 336,
     host: 'blackie.c3-soft.com',
     port: '57010',
-    isConnected: false,
+    isConnected: true,
     useKeeperNode: false,
     useSSL: true,
     networkType: NetworkType.TESTNET,
