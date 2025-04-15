@@ -1,7 +1,7 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { getRoutingInstrumentation } from 'src/services/sentry';
+import * as Sentry from '@sentry/react-native';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
@@ -319,11 +319,15 @@ function Navigator() {
       background: colorMode === 'light' ? Colors.secondaryCreamWhite : Colors.PrimaryBlack,
     },
   };
+  const navigationIntegration = Sentry.reactNavigationIntegration({
+    enableTimeToInitialDisplay: true,
+  });
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
     if (config.isDevMode()) {
-      getRoutingInstrumentation().registerNavigationContainer(navigation);
+      // updated with RNv0.73.0
+      navigationIntegration.registerNavigationContainer(navigation);
     }
   };
 

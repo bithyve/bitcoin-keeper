@@ -13,7 +13,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import SigningServerIllustrations from 'src/assets/images/backup-server-illustration.svg';
 import SigningServer from 'src/services/backend/SigningServer';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import useToastMessage from 'src/hooks/useToastMessage';

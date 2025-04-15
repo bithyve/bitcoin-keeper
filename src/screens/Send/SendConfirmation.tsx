@@ -33,7 +33,7 @@ import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import CopyIcon from 'src/assets/images/copy.svg';
 import { StyleSheet } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
