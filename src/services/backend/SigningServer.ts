@@ -145,6 +145,7 @@ export default class SigningServer {
     masterFingerprint?: string;
     derivationPath?: string;
     policy?: SignerPolicy;
+    linkedViaSecondary?: boolean;
   }> => {
     let res: AxiosResponse;
     try {
@@ -161,7 +162,8 @@ export default class SigningServer {
     const { valid } = res.data;
     if (!valid) throw new Error('Signer validation failed');
 
-    const { isBIP85, xpub, masterFingerprint, derivationPath, policy } = res.data;
+    const { isBIP85, xpub, masterFingerprint, derivationPath, policy, linkedViaSecondary } =
+      res.data;
 
     return {
       valid,
@@ -171,6 +173,7 @@ export default class SigningServer {
       masterFingerprint,
       derivationPath,
       policy,
+      linkedViaSecondary,
     };
   };
 

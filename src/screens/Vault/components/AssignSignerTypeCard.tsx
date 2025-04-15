@@ -80,10 +80,8 @@ function AssignSignerTypeCard({
     }
 
     try {
-      const { valid, id, masterFingerprint, policy } = await SigningServer.fetchSignerSetup(
-        signerId,
-        verificationToken
-      );
+      const { valid, id, masterFingerprint, policy, linkedViaSecondary } =
+        await SigningServer.fetchSignerSetup(signerId, verificationToken);
 
       if (valid) {
         if (id === signerId && masterFingerprint === signer.masterFingerprint) {
@@ -94,6 +92,7 @@ function AssignSignerTypeCard({
             {
               type,
               isExternal: true,
+              linkedViaSecondary,
               signerPolicy: policy,
               signerName: 'External Server Key',
             }
