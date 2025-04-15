@@ -459,7 +459,7 @@ function ChoosePlan() {
       text: isSubscribed
         ? 'Current Plan'
         : isKeeperPrivate
-        ? 'Learn more about Keeper Private'
+        ? 'Get in Touch'
         : playServiceUnavailable
         ? ''
         : 'Get Started',
@@ -551,7 +551,7 @@ function ChoosePlan() {
             onChange={(item) => setCurrentPosition(item)}
             primaryCallback={() => {
               if (items[currentPosition].name === SubscriptionTier.L4) {
-                Linking.openURL(`http://127.0.0.1:5500/KeeperPrivate.html`); // ! update this url
+                Linking.openURL(`https://bitcoinkeeper.app/private`);
                 return;
               } else if (!isOnL1 && appSubscription.isDesktopPurchase) {
                 Alert.alert('', 'You already have an active BTC based subscription.');

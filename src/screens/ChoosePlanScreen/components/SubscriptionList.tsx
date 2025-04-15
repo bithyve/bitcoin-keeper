@@ -159,7 +159,7 @@ const SubscriptionList: React.FC<{
                     </Box>
                   )}
 
-              {isExpanded && (
+              {!isKeeperPrivate && isExpanded && (
                 <>
                   <PlanDetailsCards plansData={plans} currentPosition={currentPosition} />
                   {!playServiceUnavailable && (

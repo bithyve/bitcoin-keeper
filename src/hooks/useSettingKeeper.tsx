@@ -178,7 +178,8 @@ export const useSettingKeeper = () => {
       icon: <DiamondIcon width={30} height={30} />,
       sublightIcon: <DiamondGreenSub width={24} height={24} />,
       subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
-      subDescription: 'Unlocks new possibilities with Keeper Private.', // ! to update
+      subDescription:
+        'Experience exclusive white-glove service with personalized attention and tailored solutions', // ! to update
     },
   ];
 
