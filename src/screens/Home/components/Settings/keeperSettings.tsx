@@ -69,7 +69,7 @@ const KeeperSettings = ({ route }) => {
         description={currentPlan.description}
         titleColor={`${colorMode}.whiteSecButtonText`}
         subtitleColor={`${colorMode}.whiteSecButtonText`}
-        backgroundColor={Colors.ashGreen}
+        backgroundColor={Colors.GreenishGrey}
         onPress={() => navigation.navigate('ChoosePlan')}
         icon={currentPlan.icon}
       />

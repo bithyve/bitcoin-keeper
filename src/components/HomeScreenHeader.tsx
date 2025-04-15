@@ -205,7 +205,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
       {localLatestUnseenUai && (
         <TouchableOpacity onPress={UAI_ACTION_MAP[localLatestUnseenUai.uaiType]}>
           <Box
-            backgroundColor={`${colorMode}.BrownNeedHelp`}
+            backgroundColor={`${colorMode}.DarkSlateGray`}
             width={'100%'}
             style={{ paddingHorizontal: wp(22), paddingVertical: hp(13) }}
             flexDir={'row'}

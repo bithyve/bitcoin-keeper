@@ -244,7 +244,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor="rgba(47, 79, 79, 1)"
                 icon={<VaultIcon />}
               />
             </Box>
@@ -310,7 +310,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor="rgba(47, 79, 79, 1)"
                 icon={<VaultIcon />}
               />
             </Box>

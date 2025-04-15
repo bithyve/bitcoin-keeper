@@ -65,7 +65,7 @@ function SignerCard({
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
-      ? `${colorMode}.BrownNeedHelp`
+      ? `${colorMode}.pantoneGreen`
       : colorVarient === 'transparent'
       ? 'transparent'
       : `${colorMode}.pantoneGreen`;

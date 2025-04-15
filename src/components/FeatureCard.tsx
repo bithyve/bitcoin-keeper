@@ -38,7 +38,7 @@ function FeatureCard({
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
-        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
+        <Box backgroundColor={`${colorMode}.DarkSlateGray`} style={styles.circle}>
           {icon && icon}
         </Box>
         <Text numberOfLines={1} medium style={styles.cardName} color={`${colorMode}.primaryText`}>

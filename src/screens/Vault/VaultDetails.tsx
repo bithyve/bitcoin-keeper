@@ -5,7 +5,7 @@ import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
-import SignerIcon from 'src/assets/images/signer_white.svg';
+import SignerIcon from 'src/assets/images/keys-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import SendIcon from 'src/assets/images/send-diagonal-arrow-up.svg';
 import SendIconWhite from 'src/assets/images/send-diagonal-arrow-up.svg';

@@ -66,7 +66,7 @@ function BuyBitcoinScreen({ route }) {
             <HexagonIcon
               width={40}
               height={35}
-              backgroundColor={'rgba(45, 103, 89, 1)'}
+              backgroundColor={'rgba(47, 79, 79, 1)'}
               icon={getWalletIcon(wallet)}
             />
             <Box>
