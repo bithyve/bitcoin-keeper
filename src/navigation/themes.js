@@ -14,24 +14,24 @@ export const customTheme = extendTheme({
         italic: Fonts.InterItalic,
       },
       300: {
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
+      },
+      400: {
+        normal: Fonts.InterRegular,
+        italic: Fonts.InterItalic,
+      },
+      500: {
         normal: Fonts.InterMedium,
         italic: Fonts.InterMediumItalic,
       },
-      400: {
+      600: {
         normal: Fonts.InterSemiBold,
         italic: Fonts.InterSemiBoldItalic,
       },
-      500: {
+      700: {
         normal: Fonts.InterBold,
         italic: Fonts.InterBoldItalic,
-      },
-      600: {
-        normal: Fonts.InterRegular,
-        italic: Fonts.InterItalic,
-      },
-      700: {
-        normal: Fonts.InterRegular,
-        italic: Fonts.InterItalic,
       },
       800: {
         normal: Fonts.InterRegular,
@@ -152,6 +152,7 @@ export const customTheme = extendTheme({
       graphiteTranslucentBG: Colors.GraphiteTranslucent,
       SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
       modalSubtitleBlack: Colors.secondaryBlack,
+      DarkSlateGray: Colors.DarkSlateGray,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -257,6 +258,7 @@ export const customTheme = extendTheme({
       dullGreen: Colors.DeepCharcoalGreen,
       graphiteTranslucentBG: Colors.GraphiteTranslucent,
       SeaweedGreenTranslucentBG: Colors.SeaweedGreenTranslucent,
+      DarkSlateGray: Colors.DarkSlateGray,
     },
   },
   config: {

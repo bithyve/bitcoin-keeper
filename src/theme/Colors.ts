@@ -122,5 +122,7 @@ const Colors = {
   SeaweedGreenTranslucent: 'rgba(45, 103, 89, 0.05)',
   GraphiteTranslucent: 'rgba(135, 135, 135, 0.05)',
   SilverMistTranslucent: 'rgba(212, 212, 212, 0.6)',
+  DarkSlateGray: 'rgba(89, 111, 102, 1)',
+  EarthBrown: 'rgba(145, 120, 92, 1)',
 };
 export default Colors;
