@@ -37,10 +37,28 @@ const ImportExportLabels: React.FC<ImportExportLabelsProps> = ({
       await importFile(
         async (fileContent) => {
           try {
-            const labelsData = JSON.parse(fileContent);
+            let labelsData;
+            try {
+              // In case of JSON
+              labelsData = JSON.parse(fileContent);
+            } catch (jsonError) {
+              // In case of JSONL
+              try {
+                labelsData = fileContent
+                  .split('\n')
+                  .filter((line) => line.trim() !== '') // Skip empty lines
+                  .map((line) => JSON.parse(line));
+              } catch (jsonlError) {
+                throw jsonError;
+              }
+            }
 
             if (!Array.isArray(labelsData)) {
-              throw new Error('Invalid labels format: expected an array');
+              if (typeof labelsData === 'object' && labelsData !== null) {
+                labelsData = [labelsData];
+              } else {
+                throw new Error('Invalid labels format: expected an array or object');
+              }
             }
 
             const walletDescriptor = generateAbbreviatedOutputDescriptors(vault);
@@ -116,11 +134,11 @@ const ImportExportLabels: React.FC<ImportExportLabelsProps> = ({
 
         return exportTag;
       });
-      const jsonString = JSON.stringify(labelsToExport, null, 2);
+      const jsonlString = labelsToExport.map((label) => JSON.stringify(label)).join('\n');
 
-      const fileName = `${vault.presentationData.name.replace(/\s+/g, '_')}_labels.json`;
+      const fileName = `${vault.presentationData.name.replace(/\s+/g, '_')}_labels.jsonl`;
 
-      await exportFile(jsonString, fileName, (error) => {
+      await exportFile(jsonlString, fileName, (error) => {
         onError(error.message);
       });
 
