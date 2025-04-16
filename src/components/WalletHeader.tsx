@@ -6,6 +6,7 @@ import BackBlackButton from 'src/assets/images/header-arrow-icon.svg';
 import BackWhiteButton from 'src/assets/images/leftarrowCampainlight.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import Fonts from 'src/constants/Fonts';
 
 type Props = {
   title?: string;
@@ -47,6 +48,7 @@ const WalletHeader: React.FC<Props> = ({
     },
     title: {
       fontSize: 18,
+      fontFamily: Fonts.InterMedium,
     },
     subTitle: {
       fontSize: 14,

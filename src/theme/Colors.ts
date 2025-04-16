@@ -3,7 +3,7 @@ const Colors = {
 
   primaryGreen: 'rgba(47, 79, 79, 1)',
   primaryBrown: 'rgba(73, 61, 51, 1)',
-  primaryCream: 'rgba(247, 242, 236, 1)',
+  primaryCream: 'rgba(246, 242, 237, 1)',
 
   // secondary colors
   secondaryBlack: 'rgba(39, 36, 33, 1)',

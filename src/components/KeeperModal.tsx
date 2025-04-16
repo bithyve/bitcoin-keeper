@@ -19,6 +19,7 @@ import { useKeyboard } from 'src/hooks/useKeyboard';
 import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from './Buttons';
+import Fonts from 'src/constants/Fonts';
 
 type ModalProps = {
   visible: boolean;
@@ -278,6 +279,7 @@ const getStyles = (subTitleWidth) =>
       fontSize: 18,
       lineHeight: 27.2,
       marginBottom: hp(3),
+      fontFamily: Fonts.InterSemiBold,
     },
 
     subTitle: {
