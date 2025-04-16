@@ -17,6 +17,7 @@ import DashedCta from 'src/components/DashedCta';
 import SettingIcon from 'src/assets/images/new_icon_settings.svg';
 import DarkSettingIcon from 'src/assets/images/settings-icon-white.svg';
 import CheckIcon from 'src/assets/images/planCheckMarkSelected.svg';
+import CheckDarkIcon from 'src/assets/images/check-dark-icon.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
@@ -347,6 +348,7 @@ const EnhancedSecurityModal = ({
   navigation,
 }) => {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const [pendingInheritanceKeySelected, setPendingInheritanceKeySelected] =
     useState(inheritanceKeySelected);
   const [pendingEmergencyKeySelected, setPendingEmergencyKeySelected] =
@@ -413,8 +415,15 @@ const EnhancedSecurityModal = ({
                     Inheritance Key
                   </Text>
                   {pendingInheritanceKeySelected ? (
-                    <Box style={styles.checkmark} backgroundColor={`${colorMode}.pantoneGreen`}>
-                      <CheckIcon height={12} width={12} />
+                    <Box
+                      style={styles.checkmark}
+                      backgroundColor={`${colorMode}.dashedButtonBorderColor`}
+                    >
+                      {isDarkMode ? (
+                        <CheckDarkIcon height={12} width={12} />
+                      ) : (
+                        <CheckIcon height={12} width={12} />
+                      )}
                     </Box>
                   ) : (
                     <Box
@@ -453,8 +462,15 @@ const EnhancedSecurityModal = ({
                     Emergency Key
                   </Text>
                   {pendingEmergencyKeySelected ? (
-                    <Box style={styles.checkmark} backgroundColor={`${colorMode}.pantoneGreen`}>
-                      <CheckIcon height={12} width={12} />
+                    <Box
+                      style={styles.checkmark}
+                      backgroundColor={`${colorMode}.dashedButtonBorderColor`}
+                    >
+                      {isDarkMode ? (
+                        <CheckDarkIcon height={12} width={12} />
+                      ) : (
+                        <CheckIcon height={12} width={12} />
+                      )}
                     </Box>
                   ) : (
                     <Box
