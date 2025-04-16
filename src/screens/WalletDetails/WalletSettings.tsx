@@ -28,10 +28,12 @@ import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import Text from 'src/components/KeeperText';
 import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
+import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import WalletInfoIllustration from 'src/assets/images/walletInfoIllustration.svg';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
+  const isDarKMode = colorMode === 'dark';
   const { wallet: walletRoute } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -121,7 +123,7 @@ function WalletSettings({ route }) {
             title={settings.walletSettings}
             rightComponent={
               <Pressable onPress={() => setNeedHelpModal(true)}>
-                <LearnMoreIcon />
+                {isDarKMode ? <InfoDarkIcon /> : <LearnMoreIcon />}
               </Pressable>
             }
           />

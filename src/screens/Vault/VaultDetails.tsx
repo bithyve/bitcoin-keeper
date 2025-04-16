@@ -424,7 +424,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   );
 
   return (
-    <Box style={styles.wrapper} safeAreaTop>
+    <Box style={styles.wrapper} safeAreaTop backgroundColor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <VStack style={styles.topSection}>
@@ -517,6 +517,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           flex={1}
           style={styles.transactionsContainer}
           backgroundColor={`${colorMode}.thirdBackground`}
+          borderColor={`${colorMode}.separator`}
         >
           <TransactionList
             transactions={[...cachedTransactions, ...transactions]}
@@ -636,6 +637,8 @@ const styles = StyleSheet.create({
     paddingTop: hp(24),
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
+    borderWidth: 1,
+    borderBottomWidth: 0,
   },
 
   transTitleWrapper: {

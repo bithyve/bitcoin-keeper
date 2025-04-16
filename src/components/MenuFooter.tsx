@@ -52,7 +52,9 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
   return (
     <Box
       style={styles.container}
-      backgroundColor={`${colorMode}.ChampagneBliss`}
+      backgroundColor={
+        isDarkMode ? `${colorMode}.primaryGreenBackground` : `${colorMode}.ChampagneBliss`
+      }
       borderColor={`${colorMode}.MistSlate`}
     >
       <Box style={styles.menuWrapper}>

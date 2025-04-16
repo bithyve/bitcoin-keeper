@@ -9,7 +9,7 @@ import {
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/keeperModalCrossIcon.svg';
-import CloseGreen from 'src/assets/images/keeperModalCrossIcon.svg';
+import CloseGreen from 'src/assets/images/dark-close-icon.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -125,11 +125,13 @@ function KeeperModal(props: ModalProps) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { colorMode } = useColorMode();
+  const isDarKMode = colorMode === 'dark';
 
   if (!visible) {
     return null;
   }
-  const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
+  const getCloseIcon = () =>
+    DarkCloseIcon ? <CloseGreen /> : isDarKMode ? <CloseGreen /> : <Close />;
   const styles = getStyles(subTitleWidth);
   return (
     <Modal

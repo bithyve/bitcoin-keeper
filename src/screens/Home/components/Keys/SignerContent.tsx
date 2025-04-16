@@ -91,7 +91,7 @@ const SignerContent = ({ navigation, handleModalClose }) => {
         ))}
         <DashedCta
           backgroundColor={`${colorMode}.dullGreen`}
-          borderColor={`${colorMode}.dashedButtonBorderColor`}
+          borderColor={`${colorMode}.pantoneGreen`}
           textColor={`${colorMode}.greenWhiteText`}
           name={signer.purchaseWallet}
           cardStyles={styles.cardStyles}

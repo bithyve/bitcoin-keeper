@@ -25,6 +25,7 @@ import { SignerType } from 'src/services/wallets/enums';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
+import Fonts from 'src/constants/Fonts';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -272,5 +273,6 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 18,
+    fontFamily: Fonts.InterMedium,
   },
 });

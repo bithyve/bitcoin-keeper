@@ -29,6 +29,7 @@ import { RefreshControl } from 'react-native';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -143,11 +144,17 @@ const HomeWallet = () => {
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
         backgroundColor={`${colorMode}.dullGreen`}
-        hexagonBackgroundColor={Colors.primaryGreen}
+        hexagonBackgroundColor={isDarkMode ? Colors.primaryCream : Colors.primaryGreen}
         textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"
         callback={() => setShowAddWalletModal(true)}
-        icon={<Plus width={8.6} height={8.6} />}
+        icon={
+          isDarkMode ? (
+            <PlusGreenIcon width={8.6} height={8.6} />
+          ) : (
+            <Plus width={8.6} height={8.6} />
+          )
+        }
         iconWidth={22}
         iconHeight={20}
       />

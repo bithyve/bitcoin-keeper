@@ -38,10 +38,10 @@ const Colors = {
   LabelLight3: 'rgba(91, 191, 168, 1)',
 
   // Dark
-  DullGreenDark: 'rgba(44, 103, 89, 1)',
+  DullGreenDark: 'rgba(47, 79, 79, 1)',
   DullBrown: 'rgba(111, 98, 89, 1)',
   PrimaryBlack: 'rgba(18, 18, 18, 1)',
-  SecondaryBlack: 'rgba(31, 31, 31, 1)',
+  SecondaryBlack: 'rgba(47, 46, 45, 1)',
   TertiaryBlack: 'rgba(40, 40, 40, 1)',
   // secondary color
   headerWhite: 'rgba(255, 255, 255, 1)',
@@ -126,5 +126,8 @@ const Colors = {
   EarthBrown: 'rgba(145, 120, 92, 1)',
   MistSlate: 'rgba(47, 79, 79, 0.1)',
   WarmIvory: 'rgba(253, 247, 240, 1)',
+  seperatorDark: 'rgba(211, 209, 206, 0.1)',
+  JadePine: 'rgba(45, 103, 89, 1)',
+  OceanSage: 'rgba(80, 139, 130, 1)',
 };
 export default Colors;
