@@ -45,7 +45,7 @@ import SubscriptionList from './components/SubscriptionList';
 import usePlan from 'src/hooks/usePlan';
 import { setSubscription } from 'src/store/reducers/settings';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
-import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BrownButton } from 'src/components/BrownButton';
 import config from 'src/utils/service-utilities/config';
 import { manipulateIosProdProductId } from 'src/utils/utilities';
@@ -448,6 +448,7 @@ function ChoosePlan() {
     if (!currentItem) return { text: 'Get Started', disabled: false };
 
     const isPleb = currentItem.productIds.includes('pleb');
+    const isKeeperPrivate = currentItem.productIds[0].includes('keeper_private');
     const isSubscribed =
       (!isPleb &&
         currentItem.productIds.includes(subscription.productId.toLowerCase()) &&
@@ -455,7 +456,13 @@ function ChoosePlan() {
       (isPleb && subscription.productId.toLowerCase() === 'pleb');
 
     return {
-      text: isSubscribed ? 'Current Plan' : playServiceUnavailable ? '' : 'Get Started',
+      text: isSubscribed
+        ? 'Current Plan'
+        : isKeeperPrivate
+        ? 'Get in Touch'
+        : playServiceUnavailable
+        ? ''
+        : 'Get Started',
       disabled: isSubscribed,
     };
   };
@@ -543,7 +550,10 @@ function ChoosePlan() {
             currentPosition={currentPosition}
             onChange={(item) => setCurrentPosition(item)}
             primaryCallback={() => {
-              if (!isOnL1 && appSubscription.isDesktopPurchase) {
+              if (items[currentPosition].name === SubscriptionTier.L4) {
+                Linking.openURL(`https://bitcoinkeeper.app/private`);
+                return;
+              } else if (!isOnL1 && appSubscription.isDesktopPurchase) {
                 Alert.alert('', 'You already have an active BTC based subscription.');
                 return;
               }

@@ -170,6 +170,17 @@ export const useSettingKeeper = () => {
       subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
       subDescription: 'Unlock to protect significant amount of bitcoin and inheritance planning',
     },
+    {
+      plan: SubscriptionTier.L4.toUpperCase(),
+      title: SubscriptionTier.L4,
+      subtitle: 'Private',
+      description: 'For Private Clients',
+      icon: <DiamondIcon width={30} height={30} />,
+      sublightIcon: <DiamondGreenSub width={24} height={24} />,
+      subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
+      subDescription:
+        'Experience exclusive white-glove service with personalized attention and tailored solutions', // ! to update
+    },
   ];
 
   const BackAndRecovery = [

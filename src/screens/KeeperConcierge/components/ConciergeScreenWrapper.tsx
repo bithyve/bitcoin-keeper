@@ -2,6 +2,7 @@ import React from 'react';
 import { ActivityIndicator, StatusBarStyle, StyleSheet } from 'react-native';
 import { Box, StatusBar, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
+import { screenWidth } from 'react-native-gifted-charts/src/utils';
 
 function ConciergeScreenWrapper({
   children,
@@ -33,8 +34,8 @@ function ConciergeScreenWrapper({
         <Box
           position={'absolute'}
           top={hp(-22)}
-          left={wp(-2)}
-          right={wp(-2)}
+          left={wp(0)}
+          right={wp(0)}
           bottom={0}
           alignItems={'center'}
           justifyContent={'center'}
@@ -53,5 +54,6 @@ export default ConciergeScreenWrapper;
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+    width: screenWidth,
   },
 });
