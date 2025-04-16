@@ -46,6 +46,8 @@ import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
+import Relay from 'src/services/backend/Relay';
+import { setAccountManagerDetails } from 'src/store/reducers/concierge';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -70,6 +72,8 @@ function LoginScreen({ navigation, route }) {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
   const isOnPleb = useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L1;
+  const isKeeperPrivate =
+    useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L4;
   const { automaticCloudBackup } = useAppSelector((state) => state.bhr);
 
   const [canLogin, setCanLogin] = useState(false);
@@ -264,6 +268,11 @@ function LoginScreen({ navigation, route }) {
         navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
       }
       dispatch(credsAuthenticated(false));
+      if (isKeeperPrivate) {
+        const res = await Relay.getAccountManagerDetails(appId);
+        if (res) dispatch(setAccountManagerDetails(res));
+        else dispatch(setAccountManagerDetails(null));
+      }
     }
   };
 

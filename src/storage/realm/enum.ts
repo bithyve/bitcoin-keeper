@@ -27,6 +27,7 @@ export enum RealmSchema {
   MiniscriptScheme = 'MiniscriptScheme',
   VaultScheme = 'VaultScheme',
   SignerPolicy = 'SignerPolicy',
+  VerificationOption = 'VerificationOption',
   Backup = 'Backup',
   NodeConnect = 'NodeConnect',
   DefaultNodeConnect = 'DefaultNodeConnect',

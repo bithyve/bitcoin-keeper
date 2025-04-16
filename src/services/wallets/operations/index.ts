@@ -902,7 +902,7 @@ export default class WalletOperations {
     try {
       let endpoint;
       if (bitcoinNetworkType === NetworkType.TESTNET) {
-        endpoint = 'https://mempool.space/testnet/api/v1/fees/recommended';
+        endpoint = 'https://mempool.space/testnet4/api/v1/fees/recommended';
       } else {
         endpoint =
           RestClient.getTorStatus() === TorStatus.CONNECTED

@@ -129,5 +129,7 @@ const Colors = {
   seperatorDark: 'rgba(211, 209, 206, 0.1)',
   JadePine: 'rgba(45, 103, 89, 1)',
   OceanSage: 'rgba(80, 139, 130, 1)',
+  lightGreenTag: 'rgba(146, 194, 124, 1)',
+
 };
 export default Colors;

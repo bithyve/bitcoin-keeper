@@ -54,3 +54,16 @@ export const cryptoRandom = () => {
   const randomNumber = bytes.readUInt32LE() / 0xffffffff; // Convert to a number between 0 and 1
   return randomNumber;
 };
+
+/**
+ * Generates a cryptographic key of the specified length.
+ * @param {number} length - The length of the key in bytes.
+ * @returns {string} - The generated key as a hexadecimal string.
+ * @throws {Error} - If the length is invalid or less than 1.
+ */
+export const generateKey = (length: number): string => {
+  if (length < 1) {
+    throw new Error('Key length must be greater than 0.');
+  }
+  return randomBytes(length).toString('hex');
+};

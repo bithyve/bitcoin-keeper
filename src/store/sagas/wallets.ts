@@ -11,11 +11,7 @@ import {
   WalletType,
   XpubTypes,
 } from 'src/services/wallets/enums';
-import {
-  DelayedPolicyUpdate,
-  SignerException,
-  SignerRestriction,
-} from 'src/models/interfaces/AssistedKeys';
+import { DelayedPolicyUpdate, SignerRestriction } from 'src/models/interfaces/AssistedKeys';
 import {
   MiniscriptElements,
   Signer,
@@ -570,7 +566,7 @@ function* migrateVaultWorker({
     const migrated = yield call(addNewVaultWorker, {
       payload: { newVaultInfo, isMigrated: true, oldVaultId },
     });
-    let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
     if (migrated && migratedVault) {
       yield put(
         vaultMigrationCompleted({
@@ -656,7 +652,7 @@ function* refreshWalletsWorker({
               yield put(
                 addToUaiStack({
                   uaiType: uaiType.INCOMING_TRANSACTION,
-                  entityId: synchedWallet.entityKind + '_' + synchedWallet.id + '_' + utxo.txId,
+                  entityId: `${synchedWallet.entityKind}_${synchedWallet.id}_${utxo.txId}`,
                   uaiDetails: {
                     heading: 'New Transaction Received',
                     body: 'Click to view the transaction details',
@@ -691,7 +687,7 @@ function* refreshWalletsWorker({
     } else {
       yield put(
         setElectrumNotConnectedErr(
-          'Wallet sync failed: ' + (err.message ? err.message : err.toString())
+          `Wallet sync failed: ${err.message ? err.message : err.toString()}`
         )
       );
       captureError(err);
@@ -745,7 +741,6 @@ export function* updateSignerPolicyWorker({
     signingKey: VaultSigner;
     updates: {
       restrictions: SignerRestriction;
-      exceptions: SignerException;
       signingDelay: number;
     };
     verificationToken: number;

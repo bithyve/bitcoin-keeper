@@ -44,8 +44,9 @@ import config from 'src/utils/service-utilities/config';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import messaging from '@react-native-firebase/messaging';
 import { notificationType } from 'src/models/enums/Notifications';
-import { CHANGE_INDEX_THRESHOLD, SignersReqVault } from '../Vault/SigningDeviceDetails';
+import { SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
+import { setSubscription } from 'src/store/reducers/settings';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -54,7 +55,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { isInitialLogin, hasDeepLink } = useAppSelector((state) => state.login);
-  const appData = useQuery(RealmSchema.KeeperApp);
+  const appData: any = useQuery(RealmSchema.KeeperApp);
   const { allVaults } = useVault({ includeArchived: false });
 
   const getAppData = (): { isPleb: boolean; appId: string } => {
@@ -69,6 +70,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     if (url) {
       if (url.includes('remote/')) {
         handleRemoteKeyDeepLink(url);
+      } else if (url.includes('kp/')) {
+        handleKeeperPrivate(url);
       }
     }
   }
@@ -88,7 +91,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         const res = await Relay.getRemoteKey(hash);
         if (!res) {
           showToast('Remote Key link expired');
-          return;
+          return false;
         }
         const { data: response } = res;
         const tempData = JSON.parse(decrypt(encryptionKey, response));
@@ -209,6 +212,45 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       }
     } else {
       showToast('Invalid Remote Key link');
+    }
+    return true;
+  };
+
+  const handleKeeperPrivate = async (initialUrl: string) => {
+    const [redeemCode, accountManagerId] = initialUrl.split('kp/')[1].split('/');
+    try {
+      const response = await Relay.redeemKeeperPrivate({
+        appId: getAppData().appId,
+        redeemCode,
+        accountManagerId,
+      });
+      if (!response.status) {
+        showToast(
+          response?.message ?? 'Something went wrong, please try again.',
+          <ToastErrorIcon />
+        );
+        return;
+      }
+      const subscription = {
+        productId: response.data.productId,
+        receipt: response.data.transactionReceipt,
+        name: response.data.plan,
+        level: response.data.level,
+        icon: response.data.icon,
+      };
+      dbManager.updateObjectById(RealmSchema.KeeperApp, getAppData().appId, {
+        subscription,
+      });
+      dispatch(setSubscription(subscription.name));
+      if (response.isExtended)
+        showToast(
+          `You have successfully extended your ${subscription.name} subscription.`,
+          <TickIcon />
+        );
+      else showToast(`You are successfully upgraded to ${subscription.name} tier.`, <TickIcon />);
+    } catch (error) {
+      console.log('🚀 ~ handleKeeperPrivate ~ error:', error);
+      showToast('Something went wrong, Please try again.', <ToastErrorIcon />);
     }
   };
 
