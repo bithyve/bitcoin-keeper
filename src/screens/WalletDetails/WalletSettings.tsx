@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import { wp, hp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -16,10 +16,8 @@ import idx from 'idx';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType } from 'src/services/wallets/enums';
-import { WalletType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
 import BackupModalContent from '../AppSettings/BackupModal';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { useDispatch } from 'react-redux';
 import WalletHeader from 'src/components/WalletHeader';
@@ -29,6 +27,10 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import Text from 'src/components/KeeperText';
 import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
 import WalletInfoIllustration from 'src/assets/images/walletInfoIllustration.svg';
+import { useQuery } from '@realm/react';
+import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
+import ImportExportLabels from 'src/components/ImportExportLabels';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -37,7 +39,6 @@ function WalletSettings({ route }) {
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const [loadingState, setLoadingState] = useState(false);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
@@ -46,10 +47,18 @@ function WalletSettings({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { settings, common, wallet: walletTranslation, vault: vaultText } = translations;
   const TestSatsComponent = useTestSats({ wallet });
-  const isImported = wallet.type === WalletType.IMPORTED;
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [needHelpModal, setNeedHelpModal] = useState(false);
   const dispatch = useDispatch();
+  const [importExportLabelsModal, setImportExportLabelsModal] = useState(false);
+
+  // Get wallet descriptor for labels
+  const walletDescriptor = generateAbbreviatedOutputDescriptors(wallet);
+
+  // Query labels for this wallet
+  const labels = useQuery(RealmSchema.Tags, (tags) =>
+    tags.filtered('origin == $0', walletDescriptor)
+  );
 
   const updateWalletVisibility = () => {
     try {
@@ -101,6 +110,13 @@ function WalletSettings({ route }) {
       isDiamond: false,
       onPress: () => updateWalletVisibility(),
     },
+    {
+      title: vaultText.importExportLabels,
+      description: vaultText.importExportLabelsDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => setImportExportLabelsModal(true),
+    },
     walletMnemonic && {
       title: walletTranslation.walletSeedWord,
       description: walletTranslation.walletSeedWordSubTitle,
@@ -135,7 +151,6 @@ function WalletSettings({ route }) {
         />
         {TestSatsComponent}
       </Box>
-      <ActivityIndicatorView visible={loadingState} showLoader />
 
       <KeeperModal
         visible={confirmPassVisible}
@@ -243,6 +258,31 @@ function WalletSettings({ route }) {
           );
         }}
         buttonCallback={() => setNeedHelpModal(false)}
+      />
+
+      <KeeperModal
+        visible={importExportLabelsModal}
+        close={() => setImportExportLabelsModal(false)}
+        title={vaultText.importExportLabels}
+        subTitle={vaultText.importExportLabelsDesc}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <ImportExportLabels
+            vault={wallet}
+            labels={labels}
+            onSuccess={(message) => {
+              setImportExportLabelsModal(false);
+              showToast(message, <TickIcon />);
+            }}
+            onError={(message) => {
+              setImportExportLabelsModal(false);
+              showToast(message, <ToastErrorIcon />);
+            }}
+            translations={translations}
+          />
+        )}
       />
     </ScreenWrapper>
   );
