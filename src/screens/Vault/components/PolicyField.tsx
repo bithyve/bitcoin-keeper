@@ -22,7 +22,7 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
   const { colorMode } = useColorMode();
 
   return (
-    <Box style={styles.fieldWrapper}>
+    <Box style={styles.fieldWrapper} borderColor={`${colorMode}.separator`} borderWidth={1}>
       {title && <Text style={styles.titleText}>{title}</Text>}
       {subTitle && (
         <Text color={`${colorMode}.GreyText`} style={styles.subTitleText}>
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
   fieldWrapper: {
     width: '100%',
     marginTop: windowHeight > 600 ? hp(25) : hp(40),
+    borderRadius: 10,
   },
   titleText: {
     fontSize: 14,

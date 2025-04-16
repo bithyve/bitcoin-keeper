@@ -193,7 +193,7 @@ const SigningDeviceList = () => {
             <ActivityIndicator />
           ) : (
             <>
-              <Box paddingY="4">
+              <Box paddingY="4" backgroundColor={`${colorMode}.primaryBackground`}>
                 {sortedSigners[signerCategory]?.map((type: SignerType, index: number) => {
                   const { disabled, message: connectivityStatus } = getDeviceStatus(
                     type,

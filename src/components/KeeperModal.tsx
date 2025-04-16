@@ -9,7 +9,7 @@ import {
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/keeperModalCrossIcon.svg';
-import CloseGreen from 'src/assets/images/keeperModalCrossIcon.svg';
+import CloseGreen from 'src/assets/images/dark-close-icon.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,6 +19,7 @@ import { useKeyboard } from 'src/hooks/useKeyboard';
 import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from './Buttons';
+import Fonts from 'src/constants/Fonts';
 
 type ModalProps = {
   visible: boolean;
@@ -124,11 +125,13 @@ function KeeperModal(props: ModalProps) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { colorMode } = useColorMode();
+  const isDarKMode = colorMode === 'dark';
 
   if (!visible) {
     return null;
   }
-  const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
+  const getCloseIcon = () =>
+    DarkCloseIcon ? <CloseGreen /> : isDarKMode ? <CloseGreen /> : <Close />;
   const styles = getStyles(subTitleWidth);
   return (
     <Modal
@@ -278,6 +281,7 @@ const getStyles = (subTitleWidth) =>
       fontSize: 18,
       lineHeight: 27.2,
       marginBottom: hp(3),
+      fontFamily: Fonts.LoraSemiBold,
     },
 
     subTitle: {

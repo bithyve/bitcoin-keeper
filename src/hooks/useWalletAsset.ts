@@ -34,12 +34,12 @@ const useWalletAsset = () => {
   const getWalletCardGradient = (wallet: Wallet | Vault) => {
     if (wallet?.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.MINISCRIPT
-        ? [Colors.primaryBrown, Colors.LabelLight1]
+        ? [Colors.EarthBrown, Colors.LabelLight1]
         : wallet.type === VaultType.SINGE_SIG
         ? [Colors.DeepTeal, Colors.TagDark1]
-        : [Colors.ashGreen, Colors.GreenishGrey];
+        : [Colors.JadePine, Colors.OceanSage];
     } else {
-      return [Colors.primaryGreen, Colors.TagLight6];
+      return [Colors.DarkSlateGray, Colors.primaryGreen];
     }
   };
 

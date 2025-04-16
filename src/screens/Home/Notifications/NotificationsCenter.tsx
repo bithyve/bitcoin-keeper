@@ -433,7 +433,6 @@ function NotificationsCenter() {
   return (
     <ScreenWrapper paddingHorizontal={0}>
       <Box
-        backgroundColor={`${colorMode}.primaryBackground`}
         style={{
           paddingHorizontal: 20,
           paddingTop: hp(15),

@@ -5,7 +5,6 @@ import RestClient from 'src/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
 import * as SecureStore from 'src/storage/secure-store';
 import Animated, {
-  Extrapolation,
   interpolate,
   runOnJS,
   useAnimatedStyle,
@@ -13,9 +12,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import KeeperLogo from 'src/assets/images/logo.svg';
-import TeamBithyve from 'src/assets/images/fromBithyve.svg';
-import Tagline from 'src/assets/images/tagline.svg';
+import KeeperLogo from 'src/assets/images/keeper-logo.svg';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
 import config from 'src/utils/service-utilities/config';
@@ -78,8 +75,6 @@ function SplashScreen({ navigation }) {
   const radiusRange = [0, windowHeight, windowHeight * 2, 0, 0];
   const scaleRange = [4, 3, 1, 1, 1];
   const logoOpacityRange = [0, 0, 1, 1, 1];
-  const tagOpacityRange = [0, 0, 0, 1, 1];
-  const teamOpacityRange = [0, 0, 0, 0, 1];
 
   const SCALE_CONFIG = {
     overshootClamping: false,
@@ -97,7 +92,7 @@ function SplashScreen({ navigation }) {
       height,
       width,
       borderRadius,
-      backgroundColor: '#2D6759',
+      backgroundColor: '#2F4F4F',
     };
   });
 
@@ -113,35 +108,11 @@ function SplashScreen({ navigation }) {
     };
   });
 
-  const animatedTagline = useAnimatedStyle(() => {
-    const opacity = interpolate(progress.value, inputRange, tagOpacityRange, {
-      extrapolateRight: Extrapolation.CLAMP,
-    });
-    return {
-      marginVertical: 10,
-      opacity,
-    };
-  });
-
-  const animatedTeam = useAnimatedStyle(() => {
-    const opacity = interpolate(progress.value, inputRange, teamOpacityRange);
-    return {
-      top: windowHeight * 0.32,
-      opacity,
-    };
-  });
-
   return (
     <Animated.View style={styles.center}>
       <Animated.View style={animatedBackground} />
       <Animated.View style={animatedLogo}>
         <KeeperLogo />
-      </Animated.View>
-      <Animated.View style={animatedTagline}>
-        <Tagline />
-      </Animated.View>
-      <Animated.View style={animatedTeam}>
-        <TeamBithyve />
       </Animated.View>
     </Animated.View>
   );

@@ -25,7 +25,7 @@ const GenerateLetterToAtternyPDFInheritanceTool = async (fingerPrints) => {
             text-align: center;
             font-size: 30px;
             margin-bottom: 5px;
-            color: #2D6759;
+            color: #2F4F4F;
         }
         p {
           margin-bottom: 16px;

@@ -74,16 +74,16 @@
 	</dict>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Lora-Medium.ttf</string>
 		<string>Inter-Bold.ttf</string>
 		<string>Inter-BoldItalic.ttf</string>
 		<string>Inter-Italic.ttf</string>
 		<string>Inter-Light.ttf</string>
 		<string>Inter-LightItalic.ttf</string>
-		<string>Inter-Medium.ttf</string>
-		<string>Inter-MediumItalic.ttf</string>
+		<string>Lora-MediumItalic.ttf</string>
 		<string>Inter-Regular.ttf</string>
-		<string>Inter-SemiBold.ttf</string>
-		<string>Inter-SemiBoldItalic.ttf</string>
+		<string>Lora-SemiBold.ttf</string>
+		<string>Lora-SemiBoldItalic.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

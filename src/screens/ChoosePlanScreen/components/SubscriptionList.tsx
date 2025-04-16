@@ -109,8 +109,10 @@ const SubscriptionList: React.FC<{
           >
             <Box
               key={index}
-              borderColor={isActive ? `${colorMode}.dashedButtonBorderColor` : 'transparent'}
-              borderWidth={isActive ? 2 : 0}
+              borderColor={
+                isActive ? `${colorMode}.dashedButtonBorderColor` : `${colorMode}.separator`
+              }
+              borderWidth={isActive ? 2 : 1}
               backgroundColor={`${colorMode}.textInputBackground`}
               style={styles.card}
             >

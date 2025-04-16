@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
-    backgroundColor: '#F7F2EC',
+    backgroundColor: '#F6F2ED',
   },
   symbolWrapper: {
     height: wp('13%'),

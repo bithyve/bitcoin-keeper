@@ -1179,14 +1179,14 @@ const styles = StyleSheet.create({
   },
   descriptionBox: {
     height: 24,
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
     borderRadius: 8,
     paddingHorizontal: 10,
     justifyContent: 'center',
   },
   descriptionEdit: {
     height: 50,
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
     alignItems: 'center',
     paddingHorizontal: 10,
   },

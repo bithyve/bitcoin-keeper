@@ -308,12 +308,14 @@ function NewKeeperApp({ navigation }: { navigation }) {
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={Box}
         buttonText="Retry"
         buttonCallback={() => {
           setInitiating(true);
         }}
-        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(250)}
         showCloseIcon={false}
       />
@@ -324,6 +326,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
         Content={SignUpModalContent}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {
           setModalVisible(false);
@@ -331,7 +336,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
             navigation.replace('App', { screen: 'Home' });
           }, 500);
         }}
-        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(300)}
         showCloseIcon={false}
       />
@@ -346,7 +350,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonCallback={() => {
           setInitiating(true);
         }}
-        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />
@@ -363,6 +369,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         }}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(300)}
       />

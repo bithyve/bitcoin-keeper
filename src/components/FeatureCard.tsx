@@ -37,8 +37,10 @@ function FeatureCard({
           { minWidth: isSmallDevice ? smallDeviceWidth : wp(105) },
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
+        borderColor={`${colorMode}.separator`}
+        borderWidth={1}
       >
-        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
+        <Box backgroundColor={`${colorMode}.DarkSlateGray`} style={styles.circle}>
           {icon && icon}
         </Box>
         <Text numberOfLines={1} medium style={styles.cardName} color={`${colorMode}.primaryText`}>

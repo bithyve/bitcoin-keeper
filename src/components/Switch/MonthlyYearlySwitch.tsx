@@ -15,6 +15,8 @@ const getStyles = (btnActiveBack) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginVertical: hp(16),
+      borderWidth: 1,
+      borderColor: Colors.separator,
     },
     textActive: {
       fontSize: 15,

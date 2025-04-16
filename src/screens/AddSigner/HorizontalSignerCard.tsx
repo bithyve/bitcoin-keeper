@@ -38,7 +38,7 @@ function HorizontalSignerCard({
   const { vault: vaultTranslations } = translations;
   const backgroundColor =
     colorVarient === 'brown'
-      ? `${colorMode}.BrownNeedHelp`
+      ? `${colorMode}.pantoneGreen`
       : colorVarient === 'transparent'
       ? 'transparent'
       : `${colorMode}.pantoneGreen`;
@@ -81,10 +81,10 @@ function HorizontalSignerCard({
           <Checked />
         </Box>
         <Box style={styles.changeKeyContainer}>
-          <Text underline style={styles.changeKeyText} medium color={`${colorMode}.BrownNeedHelp`}>
+          <Text underline style={styles.changeKeyText} medium color={`${colorMode}.GreenishGrey`}>
             {vaultTranslations.changeKey}
           </Text>
-          <ArrowRightIcon fill={`${colorMode}.BrownNeedHelp`} height={hp(20)} width={wp(5)} />
+          <ArrowRightIcon fill={`${colorMode}.GreenishGrey`} height={hp(20)} width={wp(5)} />
         </Box>
       </Box>
     </Pressable>

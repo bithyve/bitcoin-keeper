@@ -141,7 +141,7 @@ function OnBoardingSlides({ navigation }) {
                 testID="btn_startApp"
               >
                 <Box style={styles.cta} backgroundColor={`${colorMode}.white`}>
-                  <Text color={`${colorMode}.greenText`} style={styles.startAppText}>
+                  <Text color={`${colorMode}.greenText`} style={styles.startAppText} medium>
                     {common.getStarted}
                   </Text>
                 </Box>

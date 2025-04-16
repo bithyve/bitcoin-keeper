@@ -238,13 +238,18 @@ function ConfirmWalletDetails({ route }) {
 
     return (
       <Box>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
+        <Box
+          backgroundColor={`${colorMode}.seashellWhite`}
+          style={styles.walletVaultInfoContainer}
+          borderColor={`${colorMode}.separator`}
+          borderWidth={1}
+        >
           <Box style={styles.walletVaultInfoWrapper}>
             <Box style={styles.iconWrapper}>
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor="rgba(47, 79, 79, 1)"
                 icon={<VaultIcon />}
               />
             </Box>
@@ -299,7 +304,12 @@ function ConfirmWalletDetails({ route }) {
 
     return (
       <Box>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
+        <Box
+          backgroundColor={`${colorMode}.seashellWhite`}
+          style={styles.walletVaultInfoContainer}
+          borderColor={`${colorMode}.separator`}
+          borderWidth={1}
+        >
           <Box style={styles.singleSigpills}>
             {tags?.map(({ tag, color }) => {
               return <CardPill key={tag} heading={tag} backgroundColor={color} />;
@@ -310,7 +320,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor="rgba(47, 79, 79, 1)"
                 icon={<VaultIcon />}
               />
             </Box>
@@ -772,7 +782,7 @@ const styles = StyleSheet.create({
   walletVaultInfoContainer: {
     paddingHorizontal: 15,
     paddingVertical: 15,
-    marginVertical: 20,
+    marginBottom: 20,
     borderRadius: 10,
     gap: 20,
   },

@@ -19,7 +19,7 @@
       <path id="Path_25534-2" data-name="Path 25534" d="M.535,0A.535.535,0,1,1,0,.535.535.535,0,0,1,.535,0Z" transform="translate(4.238 18.843) rotate(141)" fill="url(#linear-gradient-6)"/>
       <path id="Path_25535-2" data-name="Path 25535" d="M.993,1.986A.993.993,0,1,1,1.986.993.993.993,0,0,1,.993,1.986Z" transform="translate(18.681 4.615)" fill="url(#linear-gradient)"/>
     </g>
-    <g id="Ellipse_2007" data-name="Ellipse 2007" transform="translate(84.168 461)" fill="#f7f2ec" stroke="#002c27" stroke-width="2">
+    <g id="Ellipse_2007" data-name="Ellipse 2007" transform="translate(84.168 461)" fill="#F6F2ED" stroke="#002c27" stroke-width="2">
       <circle cx="48.174" cy="48.174" r="48.174" stroke="none"/>
       <circle cx="48.174" cy="48.174" r="47.174" fill="none"/>
     </g>
@@ -28,7 +28,7 @@
         <path id="Path_27264" data-name="Path 27264" d="M483.854,1195.683a44.513,44.513,0,0,1-13.243,31.748,43.933,43.933,0,0,1-31.222,12.8,44.553,44.553,0,1,1,44.466-44.553Z" transform="translate(-394.923 -1151.13)" fill="url(#linear-gradient)"/>
       </g>
     </g>
-    <g id="Ellipse_2008" data-name="Ellipse 2008" transform="translate(91.343 468.175)" fill="#f7f2ec" stroke="#002c27" stroke-width="2">
+    <g id="Ellipse_2008" data-name="Ellipse 2008" transform="translate(91.343 468.175)" fill="#F6F2ED" stroke="#002c27" stroke-width="2">
       <circle cx="40.999" cy="40.999" r="40.999" stroke="none"/>
       <circle cx="40.999" cy="40.999" r="39.999" fill="none"/>
     </g>

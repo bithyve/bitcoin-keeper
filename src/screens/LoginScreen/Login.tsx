@@ -48,6 +48,7 @@ import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
 import Relay from 'src/services/backend/Relay';
 import { setAccountManagerDetails } from 'src/store/reducers/concierge';
+import Fonts from 'src/constants/Fonts';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -526,7 +527,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
   },
   textBoxActive: {
     height: widthPercentageToDP('13%'),
@@ -541,7 +542,7 @@ const styles = StyleSheet.create({
     },
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
   },
   textStyles: {
     color: '#000000',
@@ -617,6 +618,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     marginTop: hp(47),
     textAlign: 'center',
+    fontFamily: Fonts.LoraMedium,
   },
   passcodeWrapper: {
     alignItems: 'center',

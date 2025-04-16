@@ -137,8 +137,9 @@ const SettingCard: React.FC<SettingCardProps> = ({
                 <View
                   style={{
                     height: 1,
-                    backgroundColor: isDarkMode ? 'transparent' : Colors.secondaryCreamWhite,
+                    backgroundColor: isDarkMode ? Colors.primaryCream : Colors.GreenishGrey,
                     marginVertical: 20,
+                    opacity: 0.1,
                   }}
                 />
               )}

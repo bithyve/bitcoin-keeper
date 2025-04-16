@@ -14,9 +14,10 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import Buttons from 'src/components/Buttons';
 import DashedCta from 'src/components/DashedCta';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import SettingIcon from 'src/assets/images/new_icon_settings.svg';
+import DarkSettingIcon from 'src/assets/images/settings-icon-white.svg';
 import CheckIcon from 'src/assets/images/planCheckMarkSelected.svg';
+import CheckDarkIcon from 'src/assets/images/check-dark-icon.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
@@ -26,9 +27,11 @@ import useVault from 'src/hooks/useVault';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Colors from 'src/theme/Colors';
 
 export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
 
   return (
     <HStack
@@ -41,11 +44,17 @@ export function NumberInput({ value, onDecrease, onIncrease }) {
           -
         </Text>
       </TouchableOpacity>
-      <Box style={{ height: 30, borderLeftWidth: 0.2, paddingHorizontal: 5 }} />
+      <Box
+        style={{ height: 30, borderLeftWidth: 0.2, paddingHorizontal: 0.4 }}
+        backgroundColor={isDarkMode ? Colors.primaryCream : Colors.secondaryLightGrey}
+      />
       <Text style={styles.buttonValue} bold color={`${colorMode}.greenText`}>
         {value}
       </Text>
-      <Box style={{ height: 30, borderRightWidth: 0.2, paddingHorizontal: 5 }} />
+      <Box
+        style={{ height: 30, borderRightWidth: 0.2, paddingHorizontal: 0.4 }}
+        backgroundColor={isDarkMode ? Colors.primaryCream : Colors.secondaryLightGrey}
+      />
       <TouchableOpacity testID="increaseValue" style={styles.button} onPress={onIncrease}>
         <Text style={styles.buttonText} color={`${colorMode}.greenText`}>
           +
@@ -175,7 +184,7 @@ function AddNewWallet({ navigation, route }) {
         >
           <Box
             style={[styles.optionCTR, styles.customOption]}
-            backgroundColor={`${colorMode}.separator`}
+            backgroundColor={isDarkMode ? Colors.seperatorDark : `${colorMode}.separator`}
             borderColor={
               selectedWalletType === 'custom'
                 ? `${colorMode}.pantoneGreen`
@@ -197,17 +206,18 @@ function AddNewWallet({ navigation, route }) {
       <Box style={styles.footer}>
         <DashedCta
           textPosition="left"
-          backgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
-          hexagonBackgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
+          backgroundColor={`${colorMode}.dullGreen`}
+          hexagonBackgroundColor={isDarkMode ? Colors.DeepCharcoalGreen : `${colorMode}.dullGreen`}
           textColor={isDarkMode ? Colors.headerWhite : `${colorMode}.pantoneGreen`}
           name="Enhanced Security Options"
           description="Secure your funds and future—your way"
           callback={() => setShowEnhancedOptionsModal(true)}
-          icon={<SettingIcon />}
+          icon={isDarkMode ? <DarkSettingIcon /> : <SettingIcon />}
           iconWidth={22}
           iconHeight={20}
           cardStyles={styles.enhancedVaultsCustomStyles}
           titleSize={15}
+          borderColor={isDarkMode ? Colors.primaryCream : `${colorMode}.pantoneGreen`}
         />
         <Buttons
           primaryText="Proceed"
@@ -307,7 +317,7 @@ function AddNewWallet({ navigation, route }) {
 }
 
 const OptionItem = ({ option, colorMode, active }) => {
-  const borderColor = active ? `${colorMode}.pantoneGreen` : `${colorMode}.separator`;
+  const borderColor = active ? `${colorMode}.dashedButtonBorderColor` : `${colorMode}.separator`;
   return (
     <Pressable onPress={option.onPress}>
       <Box
@@ -338,6 +348,7 @@ const EnhancedSecurityModal = ({
   navigation,
 }) => {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const [pendingInheritanceKeySelected, setPendingInheritanceKeySelected] =
     useState(inheritanceKeySelected);
   const [pendingEmergencyKeySelected, setPendingEmergencyKeySelected] =
@@ -404,8 +415,15 @@ const EnhancedSecurityModal = ({
                     Inheritance Key
                   </Text>
                   {pendingInheritanceKeySelected ? (
-                    <Box style={styles.checkmark} backgroundColor={`${colorMode}.pantoneGreen`}>
-                      <CheckIcon height={12} width={12} />
+                    <Box
+                      style={styles.checkmark}
+                      backgroundColor={`${colorMode}.dashedButtonBorderColor`}
+                    >
+                      {isDarkMode ? (
+                        <CheckDarkIcon height={12} width={12} />
+                      ) : (
+                        <CheckIcon height={12} width={12} />
+                      )}
                     </Box>
                   ) : (
                     <Box
@@ -444,8 +462,15 @@ const EnhancedSecurityModal = ({
                     Emergency Key
                   </Text>
                   {pendingEmergencyKeySelected ? (
-                    <Box style={styles.checkmark} backgroundColor={`${colorMode}.pantoneGreen`}>
-                      <CheckIcon height={12} width={12} />
+                    <Box
+                      style={styles.checkmark}
+                      backgroundColor={`${colorMode}.dashedButtonBorderColor`}
+                    >
+                      {isDarkMode ? (
+                        <CheckDarkIcon height={12} width={12} />
+                      ) : (
+                        <CheckIcon height={12} width={12} />
+                      )}
                     </Box>
                   ) : (
                     <Box

@@ -5,7 +5,7 @@ import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
-import SignerIcon from 'src/assets/images/signer_white.svg';
+import SignerIcon from 'src/assets/images/keys-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import SendIcon from 'src/assets/images/send-diagonal-arrow-up.svg';
 import SendIconWhite from 'src/assets/images/send-diagonal-arrow-up.svg';
@@ -424,7 +424,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   );
 
   return (
-    <Box style={styles.wrapper} safeAreaTop>
+    <Box style={styles.wrapper} safeAreaTop backgroundColor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <VStack style={styles.topSection}>
@@ -517,6 +517,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           flex={1}
           style={styles.transactionsContainer}
           backgroundColor={`${colorMode}.thirdBackground`}
+          borderColor={`${colorMode}.separator`}
         >
           <TransactionList
             transactions={[...cachedTransactions, ...transactions]}
@@ -636,6 +637,8 @@ const styles = StyleSheet.create({
     paddingTop: hp(24),
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
+    borderWidth: 1,
+    borderBottomWidth: 0,
   },
 
   transTitleWrapper: {
@@ -720,7 +723,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     padding: 5,
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
     flexDirection: 'row',
   },
   atIconWrapper: {

@@ -25,6 +25,7 @@ import { SignerType } from 'src/services/wallets/enums';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
+import Fonts from 'src/constants/Fonts';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -205,7 +206,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
       {localLatestUnseenUai && (
         <TouchableOpacity onPress={UAI_ACTION_MAP[localLatestUnseenUai.uaiType]}>
           <Box
-            backgroundColor={`${colorMode}.BrownNeedHelp`}
+            backgroundColor={`${colorMode}.DarkSlateGray`}
             width={'100%'}
             style={{ paddingHorizontal: wp(22), paddingVertical: hp(13) }}
             flexDir={'row'}
@@ -272,5 +273,6 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 18,
+    fontFamily: Fonts.LoraMedium,
   },
 });

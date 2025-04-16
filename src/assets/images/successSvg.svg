@@ -19,7 +19,7 @@
       <path id="Path_25534-2" data-name="Path 25534" d="M.783,0A.783.783,0,1,1,0,.783.783.783,0,0,1,.783,0Z" transform="translate(6.202 27.576) rotate(141)" fill="url(#linear-gradient-6)"/>
       <path id="Path_25535-2" data-name="Path 25535" d="M13.737,3.166a1.454,1.454,0,1,1,1.454-1.454A1.454,1.454,0,0,1,13.737,3.166Z" transform="translate(15.054 6.495)" fill="url(#linear-gradient)"/>
     </g>
-    <g id="Ellipse_2007" data-name="Ellipse 2007" transform="translate(117 473)" fill="#f7f2ec" stroke="#002c27" stroke-width="2">
+    <g id="Ellipse_2007" data-name="Ellipse 2007" transform="translate(117 473)" fill="#F6F2ED" stroke="#002c27" stroke-width="2">
       <circle cx="70.5" cy="70.5" r="70.5" stroke="none"/>
       <circle cx="70.5" cy="70.5" r="69.5" fill="none"/>
     </g>
@@ -28,7 +28,7 @@
         <path id="Path_27264" data-name="Path 27264" d="M525.069,1216.331a65.142,65.142,0,0,1-19.381,46.462A64.294,64.294,0,0,1,460,1281.532a65.2,65.2,0,1,1,65.073-65.2Z" transform="translate(-394.923 -1151.13)" fill="url(#linear-gradient)"/>
       </g>
     </g>
-    <g id="Ellipse_2008" data-name="Ellipse 2008" transform="translate(142 498)" fill="#f7f2ec" stroke="#002c27" stroke-width="2">
+    <g id="Ellipse_2008" data-name="Ellipse 2008" transform="translate(142 498)" fill="#F6F2ED" stroke="#002c27" stroke-width="2">
       <circle cx="45.5" cy="45.5" r="45.5" stroke="none"/>
       <circle cx="45.5" cy="45.5" r="44.5" fill="none"/>
     </g>
@@ -43,7 +43,7 @@
       <g id="Group_39631" data-name="Group 39631" transform="translate(176.826 535)">
         <g id="Group_39609" data-name="Group 39609" transform="translate(0 0)">
           <g id="Group_39608" data-name="Group 39608" transform="translate(0 0)">
-            <path id="Path_25590" data-name="Path 25590" d="M462.1,166.677l-6.5,6.408-2.985-3.15-1.567,1.485,3.741,3.949a1.08,1.08,0,0,0,.765.337h.018a1.079,1.079,0,0,0,.757-.311l7.288-7.181Z" transform="translate(-451.044 -166.677)" fill="#f7f2ec"/>
+            <path id="Path_25590" data-name="Path 25590" d="M462.1,166.677l-6.5,6.408-2.985-3.15-1.567,1.485,3.741,3.949a1.08,1.08,0,0,0,.765.337h.018a1.079,1.079,0,0,0,.757-.311l7.288-7.181Z" transform="translate(-451.044 -166.677)" fill="#F6F2ED"/>
           </g>
         </g>
       </g>
