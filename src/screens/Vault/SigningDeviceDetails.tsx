@@ -884,7 +884,7 @@ function SigningDeviceDetails({ route }) {
           }
         />
       </Box>
-      <Box style={styles.bottomSection} backgroundColor={`${colorMode}.thirdBackground`}>
+      <Box style={styles.bottomSection} backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.paddedArea}>
           <Box style={styles.flex1}>
             <Text style={styles.recentHistoryText} color={`${colorMode}.secondaryText`} medium>
@@ -905,9 +905,7 @@ function SigningDeviceDetails({ route }) {
                       <HexagonIcon
                         width={38}
                         height={34}
-                        backgroundColor={
-                          colorMode === 'dark' ? Colors.DullGreenDark : Colors.primaryGreen
-                        }
+                        backgroundColor={Colors.primaryGreen}
                         icon={getWalletIcon(vault)}
                       />
                     }
@@ -915,6 +913,7 @@ function SigningDeviceDetails({ route }) {
                     colorVarient="transparent"
                     customStyle={styles.signerCard}
                     colorMode={colorMode}
+                    borderColor={`${colorMode}.separator`}
                   />
                 ))}
               </ScrollView>
@@ -1120,14 +1119,14 @@ function SigningDeviceDetails({ route }) {
         <Box
           safeAreaBottom
           style={styles.footerWrapper}
-          backgroundColor={`${colorMode}.primaryBackground`}
+          backgroundColor={isDarkMode ? Colors.SecondaryBlack : `${colorMode}.primaryBackground`}
         >
           <KeeperFooter
             marginX={footerItems.length === 2 ? wp(20) : !vaultKey ? 0 : wp(5)}
             wrappedScreen={false}
             items={footerItems}
             fontSize={12}
-            backgroundColor={`${colorMode}.primaryBackground`}
+            backgroundColor={isDarkMode ? Colors.SecondaryBlack : `${colorMode}.primaryBackground`}
           />
           <NfcPrompt visible={nfcVisible} close={cleanUp} ctaText="Done" />
         </Box>

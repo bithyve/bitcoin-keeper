@@ -71,7 +71,7 @@ function SignerCard({
       : `${colorMode}.pantoneGreen`;
 
   const cardBackgroundColor = cardBackground || `${colorMode}.seashellWhite`;
-  const cardBorderColor = borderColor || `${colorMode}.dullGreyBorder`;
+  const cardBorderColor = borderColor || `${colorMode}.separator`;
   const cardNameColor = nameColor || `${colorMode}.modalWhiteContent`;
 
   const cardStyle = [
