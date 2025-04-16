@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Box, useColorMode } from 'native-base';
-import KeeperIcon from 'src/assets/images/app-icon.png';
+import KeeperIcon from 'src/assets/images/keeper-new-logo.png';
 
 function KeeperQRCode({
   qrData,
