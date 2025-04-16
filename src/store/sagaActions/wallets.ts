@@ -1,6 +1,6 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { SignerException, SignerRestriction } from 'src/models/interfaces/AssistedKeys';
+import { SignerRestriction } from 'src/models/interfaces/AssistedKeys';
 import { NewWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -43,7 +43,6 @@ export const updateSignerPolicy = (
   signingKey: VaultSigner,
   updates: {
     restrictions: SignerRestriction;
-    exceptions: SignerException;
     signingDelay: number;
   },
   verificationToken

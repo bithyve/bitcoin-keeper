@@ -3,6 +3,18 @@ import { XpubTypes } from 'src/services/wallets/enums';
 import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 
+export const VerificationOptionSchema: ObjectSchema = {
+  name: RealmSchema.VerificationOption,
+  embedded: true,
+  properties: {
+    id: 'string',
+    method: 'string',
+    label: 'string?',
+    verifier: 'string?',
+    permittedActions: 'string[]',
+  },
+};
+
 export const SignerPolicy: ObjectSchema = {
   name: RealmSchema.SignerPolicy,
   embedded: true,
@@ -22,13 +34,7 @@ export const SignerPolicy: ObjectSchema = {
         timeWindow: 'int?',
       },
     },
-    exceptions: {
-      type: '{}?',
-      properties: {
-        none: 'bool',
-        transactionAmount: 'int?',
-      },
-    },
+    secondaryVerification: `${RealmSchema.VerificationOption}[]`,
     signingDelay: {
       type: 'int?',
     },
@@ -116,6 +122,7 @@ export const SignerSchema: ObjectSchema = {
     extraData: '{}?',
     archived: { type: 'bool', default: false },
     isExternal: 'bool?',
+    linkedViaSecondary: 'bool?',
     networkType: { type: 'string' },
   },
 };

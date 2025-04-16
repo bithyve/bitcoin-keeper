@@ -4,7 +4,6 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   DelayedPolicyUpdate,
-  SignerException,
   SignerPolicy,
   SignerRestriction,
   VerificationType,
@@ -31,6 +30,7 @@ import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import { fetchDelayedPolicyUpdate } from 'src/store/sagaActions/storage';
 import { NetworkType } from 'src/services/wallets/enums';
 import { formatRemainingTime } from 'src/utils/utilities';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import {
   MONTHS_3,
   MONTHS_6,
@@ -44,7 +44,6 @@ import {
   OFF,
 } from './constants';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -152,16 +151,12 @@ function ChoosePolicyNew({ navigation, route }) {
       maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
       timeWindow: maxAmount === 0 ? null : timeLimit?.value,
     };
-    const exceptions: SignerException = {
-      none: true,
-    };
 
     const policy: SignerPolicy = {
       verification: {
         method: VerificationType.TWO_FA,
       },
       restrictions,
-      exceptions,
       signingDelay: signingDelay?.value || null,
     };
 
@@ -192,11 +187,9 @@ function ChoosePolicyNew({ navigation, route }) {
     const newPolicy = preparePolicy();
     const policyUpdates: {
       restrictions: SignerRestriction;
-      exceptions: SignerException;
       signingDelay: number;
     } = {
       restrictions: newPolicy.restrictions,
-      exceptions: newPolicy.exceptions,
       signingDelay: newPolicy.signingDelay,
     };
     dispatch(updateSignerPolicy(signer, route.params.vaultKey, policyUpdates, verificationToken));

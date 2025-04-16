@@ -2,6 +2,19 @@ export enum VerificationType {
   TWO_FA = 'TWO_FA',
 }
 
+export enum PermittedAction {
+  SIGN_TRANSACTION = 'SIGN_TRANSACTION',
+  // CANCEL_TRANSACTION = 'CANCEL_TRANSACTION',
+}
+
+export interface VerificationOption {
+  id: string;
+  method: VerificationType;
+  label?: string;
+  verifier?: string;
+  permittedActions: PermittedAction[];
+}
+
 export interface SingerVerification {
   method: VerificationType;
   verifier?: string;
@@ -15,15 +28,10 @@ export interface SignerRestriction {
   // note: if timeWindow is present, maxTransactionAmount turns into the aggregate maximum amount allowed in that time period
 }
 
-export interface SignerException {
-  none: boolean;
-  transactionAmount?: number; // max tx amount till no verification is needed
-}
-
 export interface SignerPolicy {
-  verification: SingerVerification;
+  verification: SingerVerification; // primary verification method
   restrictions: SignerRestriction;
-  exceptions: SignerException;
+  secondaryVerification?: VerificationOption[]; // secondary verification options
   signingDelay?: number; // delay in milliseconds
   backupDisabled?: boolean;
 }
@@ -45,7 +53,6 @@ export interface DelayedPolicyUpdate {
   signerId: string;
   policyUpdates: {
     restrictions: SignerRestriction;
-    exceptions: SignerException;
     signingDelay: number;
   };
   verificationToken: string;
