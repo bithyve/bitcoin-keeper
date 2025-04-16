@@ -619,7 +619,7 @@ function SignTransactionScreen() {
 
   const handleShare = async () => {
     const url = `https://mempool.space${
-      bitcoinNetworkType === NetworkType.TESTNET ? '/testnet' : ''
+      bitcoinNetworkType === NetworkType.TESTNET ? '/testnet4' : ''
     }/tx/${sendSuccessful}`;
 
     try {
