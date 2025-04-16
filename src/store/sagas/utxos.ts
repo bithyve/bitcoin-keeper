@@ -170,9 +170,6 @@ export function* importLabelsWorker({
       }));
     }
 
-    console.log('addedTags');
-    console.log(addedTags);
-
     const { primarySeed, id }: KeeperApp = yield call(
       dbManager.getObjectByIndex,
       RealmSchema.KeeperApp
