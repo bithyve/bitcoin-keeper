@@ -641,7 +641,7 @@ function SignTransactionScreen() {
         subtitle={
           serializedPSBTEnvelops.length == 1
             ? 'Sign the transaction with your key'
-            : `Choose ${serializedPSBTEnvelops.length} keys to sign the transaction`
+            : `Choose ${defaultVault.scheme.m} keys to sign the transaction`
         }
       />
       <FlatList
