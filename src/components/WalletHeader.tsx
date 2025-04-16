@@ -50,7 +50,7 @@ const WalletHeader: React.FC<Props> = ({
     },
     title: {
       fontSize: 18,
-      fontFamily: Fonts.InterMedium,
+      fontFamily: Fonts.LoraMedium,
     },
     subTitle: {
       fontSize: 14,

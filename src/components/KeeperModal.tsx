@@ -281,7 +281,7 @@ const getStyles = (subTitleWidth) =>
       fontSize: 18,
       lineHeight: 27.2,
       marginBottom: hp(3),
-      fontFamily: Fonts.InterSemiBold,
+      fontFamily: Fonts.LoraSemiBold,
     },
 
     subTitle: {

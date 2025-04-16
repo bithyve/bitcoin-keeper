@@ -273,6 +273,6 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 18,
-    fontFamily: Fonts.InterMedium,
+    fontFamily: Fonts.LoraMedium,
   },
 });

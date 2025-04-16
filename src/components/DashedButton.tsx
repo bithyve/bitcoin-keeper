@@ -28,11 +28,7 @@ function DashedButton({
   const { colorMode } = useColorMode();
   return (
     <TouchableOpacity onPress={() => callback(name)}>
-      <Box
-        style={[styles.AddCardContainer]}
-        backgroundColor={`${colorMode}.dashedButtonBackground`}
-        testID={`btn_${name}`}
-      >
+      <Box style={[styles.AddCardContainer]} testID={`btn_${name}`}>
         <HexagonIcon
           width={iconWidth}
           height={iconHeight}

@@ -449,7 +449,7 @@ function EnterSeedScreen({ route, navigation }) {
         <Box style={styles.inputListWrapper}>
           <Input
             fontWeight={500}
-            fontFamily={item.name === '' ? 'Arial' : Fonts.InterSemiBold}
+            fontFamily={item.name === '' ? 'Arial' : Fonts.LoraSemiBold}
             backgroundColor={`${colorMode}.seashellWhite`}
             borderColor={item.invalid && item.name != '' ? '#F58E6F' : `${colorMode}.seashellWhite`}
             _focus={{ borderColor: `${colorMode}.pantoneGreen` }}

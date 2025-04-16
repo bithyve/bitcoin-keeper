@@ -48,6 +48,7 @@ import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
 import Relay from 'src/services/backend/Relay';
 import { setAccountManagerDetails } from 'src/store/reducers/concierge';
+import Fonts from 'src/constants/Fonts';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -617,6 +618,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     marginTop: hp(47),
     textAlign: 'center',
+    fontFamily: Fonts.LoraMedium,
   },
   passcodeWrapper: {
     alignItems: 'center',

@@ -63,15 +63,15 @@ const styles = StyleSheet.create({
   },
   statsWrapper: {
     marginTop: 5,
-    fontFamily: Fonts.InterSemiBold,
+    fontFamily: Fonts.LoraSemiBold,
   },
   statStyle: {
     fontSize: 11,
-    fontFamily: Fonts.InterMedium,
+    fontFamily: Fonts.LoraMedium,
   },
   statsSuffix: {
     fontSize: 11,
-    fontFamily: Fonts.InterMedium,
+    fontFamily: Fonts.LoraMedium,
   },
   arrowWrapper: {
     width: 15,

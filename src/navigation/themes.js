@@ -22,12 +22,12 @@ export const customTheme = extendTheme({
         italic: Fonts.InterItalic,
       },
       500: {
-        normal: Fonts.InterMedium,
-        italic: Fonts.InterMediumItalic,
+        normal: Fonts.LoraMedium,
+        italic: Fonts.LoraMediumItalic,
       },
       600: {
-        normal: Fonts.InterSemiBold,
-        italic: Fonts.InterSemiBoldItalic,
+        normal: Fonts.LoraSemiBold,
+        italic: Fonts.LoraSemiBoldItalic,
       },
       700: {
         normal: Fonts.InterBold,
