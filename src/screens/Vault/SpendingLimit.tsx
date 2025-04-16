@@ -74,7 +74,7 @@ const SpendingLimit = ({ route }) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }} backgroundColor={`${colorMode}.primaryBackground`}>
         <ScreenWrapper>
           <WalletHeader title={signingServer.configureLimit} />
           <Text color={`${colorMode}.modalSubtitleBlack`} style={styles.subtitleText}>

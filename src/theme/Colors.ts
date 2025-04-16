@@ -124,5 +124,7 @@ const Colors = {
   SilverMistTranslucent: 'rgba(212, 212, 212, 0.6)',
   DarkSlateGray: 'rgba(89, 111, 102, 1)',
   EarthBrown: 'rgba(145, 120, 92, 1)',
+  MistSlate: 'rgba(47, 79, 79, 0.1)',
+  WarmIvory: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;

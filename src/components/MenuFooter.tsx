@@ -50,7 +50,11 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
   ];
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.ChampagneBliss`}>
+    <Box
+      style={styles.container}
+      backgroundColor={`${colorMode}.ChampagneBliss`}
+      borderColor={`${colorMode}.MistSlate`}
+    >
       <Box style={styles.menuWrapper}>
         {menuOptions.map((option) => (
           <TouchableOpacity
@@ -90,6 +94,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(10),
     paddingTop: hp(10),
     paddingBottom: hp(26),
+    borderWidth: 1,
   },
   menuWrapper: {
     flexDirection: 'row',

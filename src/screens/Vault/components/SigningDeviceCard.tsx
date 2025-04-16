@@ -75,7 +75,7 @@ const SigningDeviceCard = ({
         testID={`btn_${type}`}
       >
         <Box
-          backgroundColor={`${colorMode}.textInputBackground`}
+          backgroundColor={`${colorMode}.signerBackground`}
           borderTopRadius={first ? 10 : 0}
           borderBottomRadius={last ? 10 : 0}
           borderWidth={isDarkMode ? 1 : 0}
