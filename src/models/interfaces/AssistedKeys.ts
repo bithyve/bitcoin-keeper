@@ -3,8 +3,6 @@ export enum VerificationType {
 }
 
 export enum PermittedAction {
-  // UPDATE_POLICY = 'UPDATE_POLICY',
-  // FETCH_BACKUP = 'FETCH_BACKUP',
   SIGN_TRANSACTION = 'SIGN_TRANSACTION',
   // CANCEL_TRANSACTION = 'CANCEL_TRANSACTION',
 }

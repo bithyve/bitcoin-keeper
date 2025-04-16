@@ -35,7 +35,7 @@ function SetupSigningServer({ route }: { route }) {
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
-  const { addSignerFlow, newUserName, PermittedActionData } = route.params;
+  const { addSignerFlow } = route.params;
 
   const registerSigningServer = async () => {
     try {
