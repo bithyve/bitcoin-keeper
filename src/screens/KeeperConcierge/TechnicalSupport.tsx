@@ -103,6 +103,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       } else {
         showToast('Account manager is unavailable. Please contact concierge', <ToastErrorIcon />);
         setIsKeeperPrivate(false);
+        dispatch(setAccountManagerDetails(null));
       }
     } catch (error) {
       console.log('🚀 ~ getAccountManagerDetails ~ error:', error);
