@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
@@ -7,6 +7,8 @@ import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilitie
 import { importFile, exportFile } from 'src/services/fs';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
+import { useAppSelector } from 'src/store/hooks';
 
 interface ImportExportLabelsProps {
   vault: any;
@@ -26,9 +28,12 @@ const ImportExportLabels: React.FC<ImportExportLabelsProps> = ({
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { vault: vaultText } = translations;
+  const { syncingUTXOs } = useAppSelector((state) => state.utxos);
+  const [isSyncingLabels, setIsSyncingLabels] = useState(false);
 
   const handleImportLabels = async () => {
     try {
+      setIsSyncingLabels(true);
       await importFile(
         async (fileContent) => {
           try {
@@ -93,6 +98,8 @@ const ImportExportLabels: React.FC<ImportExportLabelsProps> = ({
       );
     } catch (error) {
       console.log('Unexpected error during import:', error);
+    } finally {
+      setIsSyncingLabels(false);
     }
   };
 
@@ -126,6 +133,7 @@ const ImportExportLabels: React.FC<ImportExportLabelsProps> = ({
 
   return (
     <Box>
+      <ActivityIndicatorView visible={syncingUTXOs || isSyncingLabels} />
       <Text color={`${colorMode}.modalSubtitleBlack`} style={styles.modalDesc}>
         {vaultText.importExportLabelsModalDesc}
       </Text>
