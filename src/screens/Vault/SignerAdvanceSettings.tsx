@@ -112,6 +112,7 @@ function SignerAdvanceSettings({ route }: any) {
   } = route.params;
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
+  const { isOnL4 } = usePlan();
 
   const signer: Signer = signerFromParam
     ? signers.find((signer) => getKeyUID(signer) === getKeyUID(signerFromParam)) // to reflect associated contact image in real time
@@ -649,8 +650,6 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }, []);
 
-  const [upgradeAdditionalUser, setUpgradeAdditionalUser] = useState(true);
-
   const displayedCards = [
     !isMobileKey && (
       <OptionCard
@@ -762,17 +761,14 @@ function SignerAdvanceSettings({ route }: any) {
         title="Additional Users"
         description="Add multiple users for the Server Key"
         callback={() => {
-          if (!upgradeAdditionalUser) {
-            navigation.navigate('AdditionalUsers', { vaultKey });
-          }
+          isOnL4 && navigation.navigate('AdditionalUsers', { vaultKey });
         }}
-        disabled={upgradeAdditionalUser}
+        disabled={!isOnL4}
         rightComponent={
-          upgradeAdditionalUser &&
+          !isOnL4 &&
           (() => {
             return (
-              // this will be upgraded with private subscription but for now it is handeling with state
-              <TouchableOpacity onPress={() => setUpgradeAdditionalUser(false)}>
+              <TouchableOpacity onPress={() => navigation.navigate('ChoosePlan')}>
                 <UpgradeIcon style={styles.upgradeIcon} width={64} height={20} />
               </TouchableOpacity>
             );
