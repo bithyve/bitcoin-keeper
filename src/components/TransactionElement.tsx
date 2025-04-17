@@ -8,7 +8,7 @@ import { Transaction } from 'src/services/wallets/interfaces';
 
 import IconSent from 'src/assets/images/icon_sent_red.svg';
 import IconRecieve from 'src/assets/images/icon_recieved_red.svg';
-import IconSentDark from 'src/assets/images/icon_sent_dark.svg';
+import IconSentDark from 'src/assets/images/icon_sent_red.svg';
 import IconRecieveDark from 'src/assets/images/icon_recieved_dark.svg';
 import TransactionPendingIcon from 'src/assets/images/transaction_pending.svg';
 import IconCache from 'src/assets/images/cache_icon.svg';
