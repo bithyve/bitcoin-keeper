@@ -16,18 +16,13 @@ function PermittedActionContent({
 }) {
   const { colorMode } = useColorMode();
   const [permissions, setPermissions] = useState<{ [key: string]: boolean }>(
-    Object.fromEntries(
-      permissionLabels.map((label) => [label, label === 'SIGN_TRANSACTION' ? true : false])
-    )
+    Object.fromEntries(permissionLabels.map((label) => [label, false]))
   );
 
   useEffect(() => {
     if (PermittedActionData) {
       const updatedPermissions = Object.fromEntries(
-        permissionLabels.map((label) => [
-          label,
-          PermittedActionData[label] ?? (label === 'SIGN_TRANSACTION' ? true : false),
-        ])
+        permissionLabels.map((label) => [label, PermittedActionData[label]])
       );
       setPermissions(updatedPermissions);
     }
@@ -38,6 +33,15 @@ function PermittedActionContent({
       const updated = { ...prev, [label]: isChecked };
       return updated;
     });
+  };
+
+  const getLabelText = (label: string) => {
+    switch (label) {
+      case PermittedAction.SIGN_TRANSACTION:
+        return 'Sign Transactions';
+      default:
+        return 'Unsupported Action';
+    }
   };
   // Uncomment this if you want to implement the select all functionality
 
@@ -97,7 +101,7 @@ function PermittedActionContent({
               },
             }}
           />
-          <Text medium>{label}</Text>
+          <Text medium>{getLabelText(label)}</Text>
         </Box>
       ))}
       <Box mt={hp(20)} alignSelf="flex-end">

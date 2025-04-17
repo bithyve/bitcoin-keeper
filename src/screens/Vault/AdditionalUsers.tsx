@@ -52,7 +52,9 @@ function AdditionalUsers({ route }: any) {
   const [addNewUserModal, setAddNewUserModal] = useState(false);
   const [PermittedActions, setPermittedActions] = useState(false);
   const [validationModal, showValidationModal] = useState(false);
-  const [PermittedActionData, setPermittedActionData] = useState([]);
+  const [PermittedActionData, setPermittedActionData] = useState({
+    [PermittedAction.SIGN_TRANSACTION]: true,
+  });
   const [otp, setOtp] = useState('');
   const [newUserName, setNewUserName] = useState('');
   const [deleteUser, setDeleteUser] = useState(false);
