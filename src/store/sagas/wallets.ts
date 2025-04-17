@@ -352,8 +352,12 @@ export function* addSigningDeviceWorker({
     yield call(mergeSimilarKeysWorker, { payload: { signer } });
   }
   try {
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
+
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    const filteredSigners = existingSigners.filter((s) => !s.archived);
+    const filteredSigners = existingSigners.filter(
+      (s) => !s.archived && s.networkType === bitcoinNetworkType
+    );
     const signerMap = Object.fromEntries(
       filteredSigners.map((signer) => [getKeyUID(signer), signer])
     );
