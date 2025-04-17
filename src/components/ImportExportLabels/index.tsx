@@ -135,6 +135,11 @@ const ImportExportLabels: React.FC<ImportExportLabelsProps> = ({
 
         return exportTag;
       });
+
+      if (!labelsToExport || labelsToExport.length === 0) {
+        onError('Wallet does not have any labels');
+        return;
+      }
       const jsonlString = labelsToExport.map((label) => JSON.stringify(label)).join('\n');
 
       const fileName = `${vault.presentationData.name.replace(/\s+/g, '_')}_labels.jsonl`;
