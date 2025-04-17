@@ -2,7 +2,6 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect } from 'react';
 import { Box, useColorMode } from 'native-base';
 import DeleteCross from 'src/assets/images/deletelabel.svg';
-import DeleteCrossLight from 'src/assets/images/deleteLabelLightMode.svg';
 import Text from 'src/components/KeeperText';
 import { sha256 } from 'bitcoinjs-lib/src/crypto';
 import { hp, wp } from 'src/constants/responsive';
@@ -61,18 +60,18 @@ function LabelItem({
         onPress={() => (!item.isSystem && editable ? onEditClick(item, index) : null)}
         testID={`btn_${item.name}`}
       >
-        <Text style={styles.labelText} testID={`text_${item.name}`}>
+        <Text
+          style={styles.labelText}
+          color={`${colorMode}.headerWhite`}
+          testID={`text_${item.name}`}
+        >
           {item.name}
         </Text>
 
         {!item.isSystem && editable ? (
           <TouchableOpacity onPress={() => onCloseClick(index)} testID={`btn_delete_${item.name}`}>
             <Box style={styles.deleteContainer}>
-              {colorMode === 'dark' ? (
-                <DeleteCross size={wp(8)} />
-              ) : (
-                <DeleteCrossLight size={wp(8)} />
-              )}
+              <DeleteCross size={wp(8)} />
             </Box>
           </TouchableOpacity>
         ) : null}
