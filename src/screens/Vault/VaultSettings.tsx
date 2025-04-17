@@ -3,7 +3,11 @@ import { Platform, Pressable, StyleSheet, Vibration } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { wp } from 'src/constants/responsive';
-import { generateOutputDescriptors, getArchivedVaults } from 'src/utils/service-utilities/utils';
+import {
+  generateAbbreviatedOutputDescriptors,
+  generateOutputDescriptors,
+  getArchivedVaults,
+} from 'src/utils/service-utilities/utils';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useTestSats from 'src/hooks/useTestSats';
@@ -30,6 +34,9 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import NFC from 'src/services/nfc';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import { NfcTech } from 'react-native-nfc-manager';
+import { useQuery } from '@realm/react';
+import ImportExportLabels from 'src/components/ImportExportLabels';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -55,6 +62,12 @@ function VaultSettings({ route }) {
   const [walletConfigModal, setWalletConfigModal] = useState(route?.params?.exportConfig || false);
   const [visible, setVisible] = React.useState(false);
   const { session } = useContext(HCESessionContext);
+  const [importExportLabelsModal, setImportExportLabelsModal] = useState(false);
+
+  const walletDescriptor = generateAbbreviatedOutputDescriptors(vault);
+  const labels = useQuery(RealmSchema.Tags, (tags) =>
+    tags.filtered('origin == $0', walletDescriptor)
+  );
 
   const cleanUp = () => {
     setVisible(false);
@@ -175,6 +188,13 @@ function VaultSettings({ route }) {
       icon: null,
       isDiamond: false,
       onPress: () => setWalletConfigModal(true),
+    },
+    {
+      title: vaultText.importExportLabels,
+      description: vaultText.importExportLabelsDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => setImportExportLabelsModal(true),
     },
     !isCanaryWalletType &&
       hasArchivedVaults && {
@@ -332,6 +352,30 @@ function VaultSettings({ route }) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={WalletConfigModal}
+      />
+      <KeeperModal
+        visible={importExportLabelsModal}
+        close={() => setImportExportLabelsModal(false)}
+        title={vaultText.importExportLabels}
+        subTitle={vaultText.importExportLabelsDesc}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <ImportExportLabels
+            vault={vault}
+            labels={labels}
+            onSuccess={(message) => {
+              setImportExportLabelsModal(false);
+              showToast(message, <TickIcon />);
+            }}
+            onError={(message) => {
+              setImportExportLabelsModal(false);
+              showToast(message, <ToastErrorIcon />);
+            }}
+            translations={translations}
+          />
+        )}
       />
       <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />
     </ScreenWrapper>
