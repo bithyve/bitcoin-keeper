@@ -45,6 +45,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
+import WalletHeader from 'src/components/WalletHeader';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -70,7 +71,11 @@ function ListItem({
     //   <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
     //     <AlignIcon />
     //   </TouchableOpacity>
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
+    <Box
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={styles.walletInfoContainer}
+      borderColor={`${colorMode}.separator`}
+    >
       <Box style={styles.textContainer}>
         <HexagonIcon width={44} height={38} backgroundColor={Colors.primaryGreen} icon={icon} />
         <Box>
@@ -301,7 +306,7 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.ManageWalletsTitle} subtitle={settings.ManageWalletsSub} />
+      <WalletHeader title={settings.ManageWalletsTitle} subTitle={settings.ManageWalletsSub} />
       {!showAll && visibleWallets.length === 0 ? (
         <Box style={styles.emptyWrapper}>
           <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
@@ -486,6 +491,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     gap: 5,
+    borderWidth: 1,
   },
   footer: {
     alignItems: 'center',

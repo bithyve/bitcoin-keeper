@@ -57,7 +57,12 @@ function DerivationPathModalContent({
   return (
     <Box style={styles.container}>
       <Box>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.textInputWrapper}>
+        <Box
+          backgroundColor={`${colorMode}.seashellWhite`}
+          borderColor={`${colorMode}.separator`}
+          borderWidth={1}
+          style={styles.textInputWrapper}
+        >
           <Text bold>{path}</Text>
         </Box>
         <Box style={{ position: 'relative' }}>
@@ -70,6 +75,8 @@ function DerivationPathModalContent({
             ]}
             backgroundColor={`${colorMode}.seashellWhite`}
             onPress={onDropDownClick}
+            borderColor={`${colorMode}.separator`}
+            borderWidth={1}
           >
             <Text fontSize={12} bold color={`${colorMode}.textGreen`}>
               {purpose

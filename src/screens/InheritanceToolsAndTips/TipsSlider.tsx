@@ -4,6 +4,7 @@ import { Box, useColorMode } from 'native-base';
 
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 import { wp } from 'src/constants/responsive';
+import Colors from 'src/theme/Colors';
 
 const { width } = Dimensions.get('window');
 
@@ -94,14 +95,14 @@ const styles = StyleSheet.create({
     width: 25,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#E3BE96',
+    backgroundColor: Colors.primaryCream,
     marginEnd: 5,
   },
   unSelectedDot: {
     width: 6,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#89AEA7',
+    backgroundColor: Colors.TropicalRainForestDark,
     marginEnd: 5,
   },
 });
