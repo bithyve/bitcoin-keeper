@@ -45,7 +45,7 @@ function SignerList({
       <Box style={styles.container}>
         <HStack>
           <Box style={styles.iconBox}>
-            <Box style={styles.iconContainer} backgroundColor={`${colorMode}.accent`}>
+            <Box style={styles.iconContainer} backgroundColor={`${colorMode}.DarkSlateGray`}>
               {signer?.extraData?.thumbnailPath ? (
                 <Image
                   src={getPersistedDocument(signer.extraData.thumbnailPath)}
