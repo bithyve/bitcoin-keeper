@@ -163,7 +163,9 @@ export function* importLabelsWorker({
       addedTags = labels.map((label) => ({
         id: `${label.ref}${label.label}`,
         ref: label.ref,
-        type: label.type.toUpperCase() as LabelRefType,
+        type: (label.type.toUpperCase() === 'TX'
+          ? 'TXN' // TODO: Need to fix txn to be tx and make all lowercase
+          : label.type.toUpperCase()) as LabelRefType,
         label: label.label,
         origin: label.origin,
         isSystem: false,

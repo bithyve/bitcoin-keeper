@@ -126,7 +126,7 @@ const ImportExportLabels: React.FC<ImportExportLabelsProps> = ({
       const labelsToExport = Array.from(labels).map((tag) => {
         // Create a copy of the tag object
         const exportTag = {
-          type: tag.type.toLowerCase(),
+          type: tag.type.toLowerCase() === 'txn' ? 'tx' : tag.type.toLowerCase(),
           ref: tag.ref,
           label: tag.label,
           origin: tag.origin,
