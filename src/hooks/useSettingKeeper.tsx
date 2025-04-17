@@ -65,7 +65,7 @@ export const useSettingKeeper = () => {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const isFocused = useIsFocused();
-  const { isOnL2Above } = usePlan();
+  const { isOnL2Above, isOnL4 } = usePlan();
 
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
@@ -230,7 +230,7 @@ export const useSettingKeeper = () => {
   ];
 
   const General = [
-    {
+    !isOnL4 && {
       title: settings.DarkMode,
       description: settings.DarkModeSubTitle,
       icon: <DarkModeIcon width={14} height={14} />,
@@ -259,7 +259,7 @@ export const useSettingKeeper = () => {
       onPress: () => navigation.navigate('SettingApp'),
       isDiamond: false,
     },
-  ];
+  ].filter(Boolean);
   const keysAndwallet = [
     {
       title: common.manageKeys,
