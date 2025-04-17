@@ -35,14 +35,6 @@ function PermittedActionContent({
     });
   };
 
-  const getLabelText = (label: string) => {
-    switch (label) {
-      case PermittedAction.SIGN_TRANSACTION:
-        return 'Sign Transactions';
-      default:
-        return 'Unsupported Action';
-    }
-  };
   // Uncomment this if you want to implement the select all functionality
 
   // const handleSelectAll = (isChecked: boolean) => {
@@ -101,7 +93,7 @@ function PermittedActionContent({
               },
             }}
           />
-          <Text medium>{getLabelText(label)}</Text>
+          <Text medium>{getServerKeyPermittedActionLabelText(label)}</Text>
         </Box>
       ))}
       <Box mt={hp(20)} alignSelf="flex-end">
@@ -138,3 +130,12 @@ const styles = StyleSheet.create({
     marginBottom: hp(15),
   },
 });
+
+export const getServerKeyPermittedActionLabelText = (label: string) => {
+  switch (label) {
+    case PermittedAction.SIGN_TRANSACTION:
+      return 'Sign Transactions';
+    default:
+      return 'Unsupported Action';
+  }
+};
