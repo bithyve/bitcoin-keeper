@@ -12,7 +12,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		18788ED8284652050002EFFD /* (null) in Resources */ = {isa = PBXBuildFile; };
+		18788ED8284652050002EFFD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		1889D6352DB0076400781072 /* Lora-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6312DB0076400781072 /* Lora-Medium.ttf */; };
 		1889D6362DB0076400781072 /* Lora-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6332DB0076400781072 /* Lora-SemiBold.ttf */; };
 		1889D6372DB0076400781072 /* Lora-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6322DB0076400781072 /* Lora-MediumItalic.ttf */; };
@@ -22,14 +22,14 @@
 		1889D63B2DB0076400781072 /* Lora-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6322DB0076400781072 /* Lora-MediumItalic.ttf */; };
 		1889D63C2DB0076400781072 /* Lora-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6342DB0076400781072 /* Lora-SemiBoldItalic.ttf */; };
 		18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
-		18BD1AA02834FA4100DB19E0 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		3368C03D4ADA4631B63D54F8 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F1E12F69D30C4430BF22E132 /* Inter-Regular.ttf */; };
 		35112D502BD7DAE700343479 /* CloudBackupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35112D4F2BD7DAE700343479 /* CloudBackupHelper.swift */; };
 		35112D512BD7DAE700343479 /* CloudBackupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35112D4F2BD7DAE700343479 /* CloudBackupHelper.swift */; };
 		35112D542BD7DB3000343479 /* cloudbackup.m in Sources */ = {isa = PBXBuildFile; fileRef = 35112D532BD7DB3000343479 /* cloudbackup.m */; };
 		35112D552BD7DB3000343479 /* cloudbackup.m in Sources */ = {isa = PBXBuildFile; fileRef = 35112D532BD7DB3000343479 /* cloudbackup.m */; };
 		413074DFD01E46F1A0D40BD6 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6702D068A26E40DDA1F0E809 /* Inter-Bold.ttf */; };
-		75EA47EFF012F028F07CCEA1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		75EA47EFF012F028F07CCEA1 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		7C2A5DE61DBCE4EC104A7B6A /* libPods-hexa_keeper_dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C538A96813BB011ADE87E0F /* libPods-hexa_keeper_dev.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		97223FD2D6714257A178B813 /* Inter-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 72B7870523C24718A997BDFB /* Inter-Italic.ttf */; };
@@ -191,17 +191,12 @@
 		81DE8301CA3743D287378279 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */,
 				6702D068A26E40DDA1F0E809 /* Inter-Bold.ttf */,
 				674E13DE09DE4AC0AD5E4C31 /* Inter-BoldItalic.ttf */,
 				72B7870523C24718A997BDFB /* Inter-Italic.ttf */,
 				94C4DE0519174B57A37E3D56 /* Inter-Light.ttf */,
 				18A6256AB47842ABA0F4BF8D /* Inter-LightItalic.ttf */,
-				6A699145EEC5444BB5B37F24 /* Inter-Medium.ttf */,
-				6865874E5E1E438EAD174ADF /* Inter-MediumItalic.ttf */,
 				F1E12F69D30C4430BF22E132 /* Inter-Regular.ttf */,
-				108E1077B46C4AAE85FD7B47 /* Inter-SemiBold.ttf */,
-				27E1FF466EB94B23BC3AD629 /* Inter-SemiBoldItalic.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -408,8 +403,8 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				18BD1AA02834FA4100DB19E0 /* (null) in Resources */,
-				18788ED8284652050002EFFD /* (null) in Resources */,
+				18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */,
+				18788ED8284652050002EFFD /* BuildFile in Resources */,
 				1889D6352DB0076400781072 /* Lora-Medium.ttf in Resources */,
 				1889D6362DB0076400781072 /* Lora-SemiBold.ttf in Resources */,
 				1889D6372DB0076400781072 /* Lora-MediumItalic.ttf in Resources */,
@@ -758,7 +753,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 491;
+				CURRENT_PROJECT_VERSION = 492;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -883,7 +878,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Bithyve UK Ltd (Y5TCB759QL)";
-				CURRENT_PROJECT_VERSION = 491;
+				CURRENT_PROJECT_VERSION = 492;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1140,7 +1135,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 491;
+				CURRENT_PROJECT_VERSION = 492;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
@@ -1270,7 +1265,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CURRENT_PROJECT_VERSION = 491;
+				CURRENT_PROJECT_VERSION = 492;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
