@@ -28,7 +28,7 @@ const useUaiStack = (): { uaiStack: UAI[]; isLoading: boolean } => {
   const UAIcollection: UAI[] = useQuery(RealmSchema.UAI).map(getJSONFromRealmObject);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const filteredUaiStack = UAIcollection.filter((uai) => {
-    if (uai.uaiDetails.networkType) {
+    if (uai?.uaiDetails?.networkType) {
       return uai.uaiDetails.networkType === bitcoinNetworkType;
     }
     return true;
