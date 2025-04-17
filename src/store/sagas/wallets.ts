@@ -653,6 +653,8 @@ function* refreshWalletsWorker({
         if (options.addNotifications) {
           if (synchedWallet.type !== VaultType.CANARY) {
             if (!Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
+              const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
+
               yield put(
                 addToUaiStack({
                   uaiType: uaiType.INCOMING_TRANSACTION,
@@ -660,6 +662,7 @@ function* refreshWalletsWorker({
                   uaiDetails: {
                     heading: 'New Transaction Received',
                     body: 'Click to view the transaction details',
+                    networkType: bitcoinNetworkType,
                   },
                 })
               );

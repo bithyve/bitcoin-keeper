@@ -26,10 +26,19 @@ const useUaiStack = (): { uaiStack: UAI[]; isLoading: boolean } => {
   const [uaiStack, setUaiStack] = useState<UAI[]>([]); // Sorted UAI for UI consumption
   const [isLoading, setIsLoading] = useState(true);
   const UAIcollection: UAI[] = useQuery(RealmSchema.UAI).map(getJSONFromRealmObject);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const filteredUaiStack = UAIcollection.filter((uai) => {
+    if (uai.uaiDetails.networkType) {
+      return uai.uaiDetails.networkType === bitcoinNetworkType;
+    }
+    return true;
+  });
   const refreshUai = useAppSelector((state) => state.uai.refreshUai);
   const uaiActionMap = useAppSelector((state) => state.uai.uaiActionMap);
 
-  const nonActionedUais = UAIcollection.filter((uai) => !uaiActionMap[uai.id] && !uai.lastActioned);
+  const nonActionedUais = filteredUaiStack.filter(
+    (uai) => !uaiActionMap[uai.id] && !uai.lastActioned
+  );
 
   const sortUAIsByPriorityAndLastActioned = (uaisArray: UAI[]): UAI[] => {
     return uaisArray.sort((a, b) => {
