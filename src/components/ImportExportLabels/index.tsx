@@ -9,6 +9,7 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 import { useAppSelector } from 'src/store/hooks';
+import Colors from 'src/theme/Colors';
 
 interface ImportExportLabelsProps {
   vault: any;
@@ -194,6 +195,8 @@ const styles = StyleSheet.create({
     paddingVertical: hp(16),
     borderRadius: 10,
     marginBottom: hp(10),
+    borderWidth: 1,
+    borderColor: Colors.separator,
   },
   modalButtonText: {
     fontSize: 14,

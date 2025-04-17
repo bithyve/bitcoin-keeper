@@ -32,6 +32,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import SettingsIcon from 'src/assets/images/settings_grey.svg';
 import EditIcon from 'src/assets/images/edit_brown.svg';
+import EditIconWhite from 'src/assets/images/edit_white.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useWallets from 'src/hooks/useWallets';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
@@ -57,6 +58,7 @@ import { CTACardDotted } from 'src/components/CTACardDotted';
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -455,8 +457,12 @@ function ConfirmWalletDetails({ route }) {
               navigation.goBack();
             }}
           >
-            <EditIcon />
-            <Text color={`${colorMode}.BrownNeedHelp`} semiBold fontSize={13}>
+            {isDarkMode ? <EditIconWhite /> : <EditIcon />}
+            <Text
+              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.BrownNeedHelp`}
+              semiBold
+              fontSize={13}
+            >
               Edit
             </Text>
           </Pressable>
@@ -604,7 +610,6 @@ function ConfirmWalletDetails({ route }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         learnMoreButton={true}
-        learnButtonTextColor={`${colorMode}.white`}
         learnMoreButtonPressed={() => {
           setVisibleModal(true);
         }}

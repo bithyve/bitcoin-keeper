@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     width: 25,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#E3BE96',
+    backgroundColor: '#F6F2ED',
     marginEnd: 5,
   },
   unSelectedDot: {

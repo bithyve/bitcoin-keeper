@@ -23,7 +23,11 @@ function KeyCard({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.signerContainer}>
+    <Box
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={styles.signerContainer}
+      borderColor={`${colorMode}.separator`}
+    >
       <VStack space={3} width="100%">
         <HStack justifyContent="space-between" alignItems="center">
           <VStack alignItems="center" style={styles.iconContainer}>
@@ -79,6 +83,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: hp(15),
     alignSelf: 'center',
+    borderWidth: 1,
   },
   dateAdded: {
     marginBottom: hp(30),

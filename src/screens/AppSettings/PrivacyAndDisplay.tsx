@@ -37,6 +37,7 @@ import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import Text from 'src/components/KeeperText';
 import { resetCredsChanged } from 'src/store/reducers/login';
 import Buttons from 'src/components/Buttons';
+import WalletHeader from 'src/components/WalletHeader';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -291,7 +292,7 @@ function PrivacyAndDisplay({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.SecurityAndLogin} subtitle={settings.AppLevelSettings} />
+      <WalletHeader title={settings.SecurityAndLogin} subTitle={settings.AppLevelSettings} />
       <ScrollView>
         <Box style={styles.wrapper}>
           <Box>
