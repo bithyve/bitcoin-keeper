@@ -30,7 +30,7 @@ import OtpContent from './components/OtpContent';
 import UserCard from './components/UserCard';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { ScriptTypes } from 'src/services/wallets/enums';
-import { useFocusEffect } from '@react-navigation/native';
+import Text from 'src/components/KeeperText';
 
 enum SecondaryVerificationOptionActionType {
   ADD = 'ADD',
@@ -193,7 +193,7 @@ function AdditionalUsers({ route }: any) {
 
   return (
     <ScreenWrapper>
-      <WalletHeader title="2FA Management" />
+      <WalletHeader title="Manage Additional Users" />
       {additionalUserData.length > 0 ? (
         <ScrollView>
           <Box>
@@ -204,11 +204,14 @@ function AdditionalUsers({ route }: any) {
             />
           </Box>
         </ScrollView>
-      ) : null}
+      ) : (
+        <Text style={styles.noUsersText}>The Server Key has no existing additional users.</Text>
+      )}
 
+      <Box flex={1} />
       <Box style={styles.ButtonContainer}>
         <Buttons
-          primaryText="Add New"
+          primaryText="Add New User"
           primaryCallback={() => {
             setAddNewUserModal(true);
           }}
@@ -348,5 +351,10 @@ const styles = StyleSheet.create({
   noUserContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  noUsersText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: 'gray',
   },
 });
