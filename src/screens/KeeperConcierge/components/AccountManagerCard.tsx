@@ -40,11 +40,15 @@ export const AccountManagerCard = ({ data }) => {
   const { colorMode } = useColorMode();
 
   return (
-    <Box style={{ flex: 1, width: screenWidth, paddingHorizontal: wp(20), marginTop: hp(30) }}>
+    <Box style={styles.container}>
       <Text medium fontSize={14}>
         Account Manager
       </Text>
-      <Box style={styles.cardCtr} backgroundColor={`${colorMode}.seashellWhite`}>
+      <Box
+        style={styles.cardCtr}
+        backgroundColor={`${colorMode}.seashellWhite`}
+        borderColor={`${colorMode}.separator`}
+      >
         <Box style={styles.profileCtr}>
           <Image
             style={styles.image}
@@ -60,7 +64,11 @@ export const AccountManagerCard = ({ data }) => {
           {Object.entries(data.links).map(([key, value]: [string, string]) => {
             return (
               <TouchableOpacity key={key} onPress={() => Linking.openURL(value)}>
-                <Box style={styles.linkBox} borderColor={`${colorMode}.dullGreyBorder`}>
+                <Box
+                  style={styles.linkBox}
+                  borderColor={`${colorMode}.dullGreyBorder`}
+                  backgroundColor={`${colorMode}.primaryBackground`}
+                >
                   {ICON_MAP[colorMode][key]}
                   <Text fontSize={12}>{capitalizeEachWord(key)}</Text>
                 </Box>
@@ -74,6 +82,11 @@ export const AccountManagerCard = ({ data }) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    width: screenWidth,
+    paddingHorizontal: wp(20),
+    marginTop: hp(30),
+  },
   linkBox: {
     flexDirection: 'column',
     borderWidth: 1,
@@ -101,5 +114,6 @@ const styles = StyleSheet.create({
     marginTop: hp(12),
     padding: wp(15),
     borderRadius: wp(10),
+    borderWidth: 1,
   },
 });
