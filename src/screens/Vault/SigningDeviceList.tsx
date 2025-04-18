@@ -31,6 +31,7 @@ import { hp, wp } from 'src/constants/responsive';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import WalletHeader from 'src/components/WalletHeader';
 
 const SigningDeviceList = () => {
   const navigation = useNavigation();
@@ -162,13 +163,10 @@ const SigningDeviceList = () => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={headerTitle}
-        subtitle={headerSubtitle}
+        subTitle={headerSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
-        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
@@ -179,8 +177,6 @@ const SigningDeviceList = () => {
             </TouchableOpacity>
           )
         }
-        rightComponentPadding={wp(10)}
-        rightComponentBottomPadding={hp(40)}
       />
       <Box style={styles.scrollViewWrapper}>
         <ScrollView

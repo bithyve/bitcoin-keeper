@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { hp, wp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/rightarrow.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -20,6 +19,7 @@ import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerType } from 'src/services/wallets/enums';
+import WalletHeader from 'src/components/WalletHeader';
 
 function Card({ title, message, buttonText, buttonCallBack }) {
   const { colorMode } = useColorMode();
@@ -143,9 +143,9 @@ function SignWithColdCard({ route }: { route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <VStack justifyContent="space-between" flex={1}>
-        <KeeperHeader
+        <WalletHeader
           title="Sign Transaction via NFC"
-          subtitle={
+          subTitle={
             signer.type === SignerType.KEEPER
               ? 'First send the transaction to the other Keeper app, sign it on Keeper, then click receive to pass it back into Keeper'
               : 'First send the transaction to the Coldcard, sign it on Coldcard, then click receive to pass it back into Keeper'

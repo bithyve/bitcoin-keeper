@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import HiddenKeyIcon from 'src/assets/images/hidden-key.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
@@ -35,6 +34,7 @@ import BounceLoader from 'src/components/BounceLoader';
 import TorAsset from 'src/components/Loader';
 import moment from 'moment';
 import { getKeyUID } from 'src/utils/utilities';
+import WalletHeader from 'src/components/WalletHeader';
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
@@ -173,18 +173,17 @@ function DeleteKeys({ route }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={signerText.hiddenKeys}
-        mediumTitle
-        subtitle={signerText.showingHiddenKeys}
-        icon={
-          <HexagonIcon
-            width={49}
-            height={44}
-            backgroundColor={colorMode === 'dark' ? Colors.TagLight2 : Colors.primaryGreen}
-            icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
-          />
-        }
+        subTitle={signerText.showingHiddenKeys}
+        // icon={
+        //   <HexagonIcon
+        //     width={49}
+        //     height={44}
+        //     backgroundColor={colorMode === 'dark' ? Colors.TagLight2 : Colors.primaryGreen}
+        //     icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
+        //   />
+        // }
       />
       <Box style={styles.container}>
         {hiddenSigners.length === 0 ? (

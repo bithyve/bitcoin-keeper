@@ -21,6 +21,7 @@ import useBalance from 'src/hooks/useBalance';
 import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import WalletHeader from 'src/components/WalletHeader';
 
 type SelectWalletParams = {
   handleSelectWallet: (wallet: Wallet | Vault) => void;
@@ -125,10 +126,9 @@ function SelectWalletScreen({ route }: Props) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={walletText.selectWalletTitle}
-        subtitle={walletText.selectWalletSubtitle}
-        subTitleSize={15}
+        subTitle={walletText.selectWalletSubtitle}
       />
       <ScrollView style={styles.walletListContainer} showsVerticalScrollIndicator={false}>
         <Box style={styles.walletList}>

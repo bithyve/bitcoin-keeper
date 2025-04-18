@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -27,6 +26,7 @@ import QRScanner from 'src/components/QRScanner';
 import { VaultType } from 'src/services/wallets/enums';
 import BackgroundTimer from 'react-native-background-timer';
 import { useAppSelector } from 'src/store/hooks';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -139,9 +139,9 @@ function RegisterWithChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Register with Keeper Desktop App"
-        subtitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to register this signer.`}
+        subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to register this signer.`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />

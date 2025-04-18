@@ -3,7 +3,6 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useQuery } from '@realm/react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import OptionCard from 'src/components/OptionCard';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -31,6 +30,7 @@ import useSigners from 'src/hooks/useSigners';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import BackupModalContent from './BackupModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
+import WalletHeader from 'src/components/WalletHeader';
 
 function AppBackupSettings() {
   const { colorMode } = useColorMode();
@@ -126,7 +126,7 @@ function AppBackupSettings() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading} showLoader={true} />
-      <KeeperHeader title={settings.BackupSettings} subtitle={settings.BackupSettingSubTitle} />
+      <WalletHeader title={settings.BackupSettings} subTitle={settings.BackupSettingSubTitle} />
       <ScrollView
         contentContainerStyle={styles.optionsListContainer}
         showsVerticalScrollIndicator={false}

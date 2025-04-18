@@ -15,7 +15,6 @@ import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
 import SearchIcon from 'src/assets/images/search-icon.svg';
 import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
@@ -28,6 +27,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import WalletHeader from 'src/components/WalletHeader';
 
 function AssociateContact({ route }) {
   const {
@@ -134,7 +134,7 @@ function AssociateContact({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={vaultText.associateContact} titleColor={`${colorMode}.black`} />
+      <WalletHeader title={vaultText.associateContact} titleColor={`${colorMode}.black`} />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
           <Box

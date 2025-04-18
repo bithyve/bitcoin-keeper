@@ -57,6 +57,7 @@ import IconGreySettings from 'src/assets/images/settings_grey.svg';
 import { TouchableOpacity } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { NumberInput } from '../AddWalletScreen/AddNewWallet';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -334,38 +335,21 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader
-          title="Sending from"
-          subtitle={sender.presentationData.name}
-          subTitleSize={16}
-          icon={
-            <HexagonIcon
-              width={44}
-              height={38}
-              backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
-              icon={getWalletIcon(sender)}
-            />
-          }
-          availableBalance={
-            <CurrencyInfo
-              hideAmounts={false}
-              amount={selectedUTXOs?.length ? totalUtxosAmount : availableBalance}
-              fontSize={16}
-              satsFontSize={12}
-              color={`${colorMode}.primaryText`}
-              variation={!isDarkMode ? 'dark' : 'light'}
-            />
-          }
+        <WalletHeader
+          title="Sending to"
+          subTitle="Enter the recipient address"
           rightComponent={
             currentRecipientIdx === 1 && (
-              <TouchableOpacity onPress={() => setShowAdvancedSettingsModal(true)}>
+              <TouchableOpacity
+                onPress={() => setShowAdvancedSettingsModal(true)}
+                style={{ marginRight: wp(15) }}
+              >
                 {colorMode === 'light' ? <IconGreySettings /> : <IconSettings />}
               </TouchableOpacity>
             )
           }
-          rightComponentPadding={wp(10)}
-          rightComponentBottomPadding={hp(5)}
         />
+
         <ScrollView
           style={styles.scrollViewWrapper}
           showsVerticalScrollIndicator={false}

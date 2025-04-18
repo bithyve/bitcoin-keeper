@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
 import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
@@ -27,6 +26,7 @@ import TierUpgradeModal, { UPGRADE_TYPE } from '../ChoosePlanScreen/TierUpgradeM
 import { useQuery } from '@realm/react';
 import { manipulateIosProdProductId } from 'src/utils/utilities';
 import { useAppSelector } from 'src/store/hooks';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -159,9 +159,9 @@ function PurchaseWithChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Purchase Subscription with Keeper Desktop App"
-        subtitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to purchase a subscription plan.`}
+        subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to purchase a subscription plan.`}
       />
       <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />
