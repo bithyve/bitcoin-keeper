@@ -72,7 +72,7 @@ function OnBoardingSlides({ navigation }) {
               style={styles.skipTextWrapper}
               testID="btn_skip"
             >
-              <Text color={`${colorMode}.white`} bold style={styles.skipText}>
+              <Text color={`${colorMode}.seashellWhiteText`} bold style={styles.skipText}>
                 Skip&nbsp;&nbsp;
               </Text>
               <Skip />
@@ -206,7 +206,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.42,
     textAlign: 'center',
-    opacity: 0.7,
   },
   startAppText: {
     fontSize: 13,
