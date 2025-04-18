@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { changeIcon, getIcon as getCurrentIcon, resetIcon } from 'react-native-change-icon';
 
 const isAndroid = Platform.OS == 'android';
@@ -18,8 +18,19 @@ export const AppIconWrapper = () => {
     if (isAndroid) {
       const currentIcon = await getCurrentIcon();
       if (currentIcon != ANDROID_ICONS.default) {
-        const response = await changeIcon(ANDROID_ICONS.default);
-        return response;
+        Alert.alert(
+          'Keeper Private',
+          'You have been downgraded from Keeper Private, the app will now restart to apply the changes.',
+          [
+            {
+              text: 'OK',
+              onPress: async () => {
+                const response = await changeIcon(ANDROID_ICONS.default);
+                return response;
+              },
+            },
+          ]
+        );
       }
       return false;
     } else {
@@ -30,10 +41,24 @@ export const AppIconWrapper = () => {
 
   const changeToKeeperPrivateIcon = async () => {
     const currentIcon = await getCurrentIcon();
-    if (![ANDROID_ICONS.keeperPrivate, iOsKeeperPrivateIcon].includes(currentIcon)) {
-      const response = await changeIcon(
-        isAndroid ? ANDROID_ICONS.keeperPrivate : iOsKeeperPrivateIcon
+    if (isAndroid) {
+      if (currentIcon === ANDROID_ICONS.keeperPrivate) return false;
+      Alert.alert(
+        'Keeper Private',
+        'Your Keeper Private subscription has been successfully redeemed. The app will now restart to apply the changes.',
+        [
+          {
+            text: 'OK',
+            onPress: async () => {
+              const response = await changeIcon(ANDROID_ICONS.keeperPrivate);
+              return response;
+            },
+          },
+        ]
       );
+    } else {
+      if (currentIcon == iOsKeeperPrivateIcon) return false;
+      const response = await changeIcon(iOsKeeperPrivateIcon);
       return response;
     }
     return false;

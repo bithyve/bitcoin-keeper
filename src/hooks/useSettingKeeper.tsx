@@ -181,7 +181,7 @@ export const useSettingKeeper = () => {
       sublightIcon: <KeeperPrivateIcon width={24} height={24} />,
       subDarkIcon: <KeeperPrivateIconWhite width={24} height={24} />,
       subDescription:
-        'Experience exclusive white-glove service with personalized attention and tailored solutions', // ! to update
+        'Experience exclusive white-glove service with personalized attention and tailored solutions',
     },
   ];
 
