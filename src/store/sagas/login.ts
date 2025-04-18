@@ -47,7 +47,8 @@ import {
 import { RootState, store } from '../store';
 import { createWatcher } from '../utilities';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
-import { setLoginMethod, setSubscription } from '../reducers/settings';
+import { setLoginMethod } from '../reducers/settings';
+import { setSubscription } from 'src/store/sagaActions/settings';
 import { backupAllSignersAndVaults } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';

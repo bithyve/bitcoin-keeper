@@ -19,7 +19,7 @@ import SubScription from 'src/models/interfaces/Subscription';
 import useToastMessage from 'src/hooks/useToastMessage';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { setSubscription } from 'src/store/reducers/settings';
+import { setSubscription } from 'src/store/sagaActions/settings';
 import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
