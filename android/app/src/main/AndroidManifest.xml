@@ -45,11 +45,11 @@
         android:windowSoftInputMode="adjustResize"
         android:exported="true"
         >
-        <intent-filter>
+        <!-- <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
             <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
-        </intent-filter>
+        </intent-filter> -->
 
         <intent-filter android:label="@string/backup_with_keeper">
             <action android:name="android.intent.action.VIEW" />
@@ -86,6 +86,30 @@
           android:name="android.nfc.cardemulation.host_apdu_service"
           android:resource="@xml/apduservice" />
     </service>
+
+     <activity-alias 
+        android:name=".MainActivityDefault"
+        android:enabled="true"
+        android:exported="true"
+        android:icon="@mipmap/ic_launcher"
+        android:targetActivity=".MainActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity-alias>
+
+        <activity-alias 
+        android:name=".MainActivityKp"
+        android:enabled="false"
+        android:exported="true"
+        android:icon="@mipmap/ic_launcher_kp"
+        android:targetActivity=".MainActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity-alias>
     
     </application>
 </manifest>
