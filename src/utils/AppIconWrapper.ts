@@ -20,7 +20,7 @@ export const AppIconWrapper = () => {
       if (currentIcon != ANDROID_ICONS.default) {
         Alert.alert(
           'Keeper Private',
-          'You have been downgraded from Keeper Private, the app will now restart to apply the changes.',
+          'We have failed to verify your Keeper Private subscription or it has expired. The app will now restart to apply the changes.',
           [
             {
               text: 'OK',
