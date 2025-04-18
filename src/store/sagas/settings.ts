@@ -1,7 +1,7 @@
 import { call, put, select } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
-import { setBitcoinNetwork } from '../reducers/settings';
-import { CHANGE_BITCOIN_NETWORK } from '../sagaActions/settings';
+import { setBitcoinNetwork, setSubscription } from '../reducers/settings';
+import { CHANGE_BITCOIN_NETWORK, SET_SUBSCRIPTION } from '../sagaActions/settings';
 import Node from 'src/services/electrum/node';
 import { fetchFeeRates } from '../sagaActions/send_and_receive';
 import { DerivationPurpose, NetworkType, SignerType, WalletType } from 'src/services/wallets/enums';
@@ -20,6 +20,8 @@ import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { addSigningDevice } from '../sagaActions/vaults';
 import { addNewWalletsWorker, NewWalletInfo } from './wallets';
 import { setDefaultWalletCreated } from '../reducers/storage';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { AppIconWrapper } from 'src/utils/AppIconWrapper';
 
 function* changeBitcoinNetworkWorker({ payload }) {
   let activeNode;
@@ -84,7 +86,22 @@ function* changeBitcoinNetworkWorker({ payload }) {
   }
 }
 
+function* setSubscriptionWorker({ payload }) {
+  try {
+    if (payload === SubscriptionTier.L4) {
+      AppIconWrapper().changeToKeeperPrivateIcon();
+    } else {
+      AppIconWrapper().changeToDefaultIcon();
+    }
+    yield put(setSubscription(payload));
+  } catch (error) {
+    console.log('🚀 ~setSubscriptionWorker ~ error:', error);
+  }
+}
+
 export const changeBitcoinNetworkWatcher = createWatcher(
   changeBitcoinNetworkWorker,
   CHANGE_BITCOIN_NETWORK
 );
+
+export const setSubscriptionWatcher = createWatcher(setSubscriptionWorker, SET_SUBSCRIPTION);

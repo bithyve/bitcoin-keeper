@@ -21,7 +21,7 @@ import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { getSecurityTip } from 'src/constants/defaultData';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
-import { setSubscription, setTorEnabled } from 'src/store/reducers/settings';
+import { setSubscription } from 'src/store/sagaActions/settings';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import SubScription from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';

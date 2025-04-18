@@ -1,0 +1,63 @@
+diff --git a/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java b/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
+index b303063..b483e91 100644
+--- a/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
++++ b/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
+@@ -68,11 +68,12 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
+             return;
+         }
+         if (this.componentClass.isEmpty()) {
+-            this.componentClass = activityName.endsWith("MainActivity") ? activityName + "Default" : activityName;
++            this.componentClass = activityName.endsWith("MainActivity") ?  "MainActivityDefault" : activityName;
+         }
+ 
+-        final String newIconName = (iconName == null || iconName.isEmpty()) ? "Default" : iconName;
+-        final String activeClass = this.packageName + ".MainActivity" + newIconName;
++        final String newIconName = (iconName == null || iconName.isEmpty()) ? "MainActivityDefault" : iconName;
++        String activeClass =  newIconName;
++        
+         if (this.componentClass.equals(activeClass)) {
+             promise.reject("ANDROID:ICON_ALREADY_USED:" + this.componentClass);
+             return;
+diff --git a/node_modules/react-native-change-icon/ios/ChangeIcon.mm b/node_modules/react-native-change-icon/ios/ChangeIcon.mm
+index 389fe05..353c068 100644
+--- a/node_modules/react-native-change-icon/ios/ChangeIcon.mm
++++ b/node_modules/react-native-change-icon/ios/ChangeIcon.mm
+@@ -43,9 +43,35 @@ RCT_REMAP_METHOD(changeIcon, iconName:(NSString *)iconName resolver:(RCTPromiseR
+             resolve(newIconName);
+         }
+ 
+-        [[UIApplication sharedApplication] setAlternateIconName:newIconName completionHandler:^(NSError * _Nullable error) {
+-            return;
+-        }];
++        UIApplication *sharedApplication = [UIApplication sharedApplication];
++
++        if ([sharedApplication respondsToSelector:@selector(supportsAlternateIcons)] &&
++             [sharedApplication supportsAlternateIcons]) {
++
++             NSMutableString *selectorString = [[NSMutableString alloc] initWithCapacity:40];
++             [selectorString appendString:@"_setAlternate"];
++             [selectorString appendString:@"IconName:"];
++             [selectorString appendString:@"completionHandler:"];
++
++             SEL selector = NSSelectorFromString(selectorString);
++
++             if ([sharedApplication respondsToSelector:selector]) {
++                 NSMethodSignature *signature = [sharedApplication methodSignatureForSelector:selector];
++
++                 if (signature) {
++                     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
++                     [invocation setTarget:sharedApplication];
++                     [invocation setSelector:selector];
++
++                     [invocation setArgument:&newIconName atIndex:2];
++
++                     void (^completionHandler)(NSError * _Nullable) = ^(NSError * _Nullable error) {};
++                     [invocation setArgument:&completionHandler atIndex:3];
++
++                     [invocation invoke];
++                 }
++             }
++        }
+     });
+ }
+ 

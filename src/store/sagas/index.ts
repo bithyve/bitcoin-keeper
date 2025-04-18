@@ -69,7 +69,7 @@ import {
   addTicketStatusUAIWatcher,
   scheduleOnboardingCallWatcher,
 } from './concierge';
-import { changeBitcoinNetworkWatcher } from './settings';
+import { changeBitcoinNetworkWatcher, setSubscriptionWatcher } from './settings';
 
 const rootSaga = function* () {
   const sagas = [
@@ -157,6 +157,7 @@ const rootSaga = function* () {
     scheduleOnboardingCallWatcher,
     // settings
     changeBitcoinNetworkWatcher,
+    setSubscriptionWatcher,
   ];
 
   yield all(
