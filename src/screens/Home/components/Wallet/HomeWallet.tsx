@@ -30,6 +30,7 @@ import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
+import usePlan from 'src/hooks/usePlan';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -59,6 +60,7 @@ const HomeWallet = () => {
     (item) => item !== null
   );
   const [isShowAmount, setIsShowAmount] = useState(false);
+  const { isOnL4 } = usePlan();
 
   const handleCollaborativeWalletCreation = () => {
     setShowAddWalletModal(false);
@@ -144,12 +146,16 @@ const HomeWallet = () => {
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
         backgroundColor={`${colorMode}.dullGreen`}
-        hexagonBackgroundColor={isDarkMode ? Colors.primaryCream : Colors.primaryGreen}
+        hexagonBackgroundColor={
+          isOnL4 ? Colors.goldenGradient : isDarkMode ? Colors.primaryCream : Colors.primaryGreen
+        }
         textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"
         callback={() => setShowAddWalletModal(true)}
         icon={
-          isDarkMode ? (
+          isOnL4 ? (
+            <Plus width={8.6} height={8.6} />
+          ) : isDarkMode ? (
             <PlusGreenIcon width={8.6} height={8.6} />
           ) : (
             <Plus width={8.6} height={8.6} />

@@ -410,7 +410,13 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.content} safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box
+      style={styles.content}
+      safeAreaTop
+      backgroundColor={
+        isKeeperPrivate ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
+    >
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -451,8 +457,14 @@ function LoginScreen({ navigation, route }) {
               }}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
-              primaryBackgroundColor={`${colorMode}.buttonText`}
-              primaryTextColor={`${colorMode}.pantoneGreen`}
+              primaryBackgroundColor={
+                isKeeperPrivate ? `${colorMode}.pantoneGreen` : `${colorMode}.buttonText`
+              }
+              primaryTextColor={
+                isKeeperPrivate
+                  ? `${colorMode}.dashedButtonBorderColor`
+                  : `${colorMode}.pantoneGreen`
+              }
               fullWidth
             />
           </Box>

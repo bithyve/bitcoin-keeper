@@ -19,6 +19,7 @@ import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
 import { setDefaultWalletCreated } from 'src/store/reducers/storage';
+import PrivateLogo from 'src/assets/images/Kepper_Private_logo.svg';
 
 function SplashScreen({ navigation }) {
   const { torEnbled, themeMode, bitcoinNetworkType } = useAppSelector((state) => state.settings);
@@ -92,7 +93,7 @@ function SplashScreen({ navigation }) {
       height,
       width,
       borderRadius,
-      backgroundColor: '#2F4F4F',
+      backgroundColor: themeMode === 'PRIVATE' ? '#272421' : '#2F4F4F',
     };
   });
 
@@ -112,7 +113,7 @@ function SplashScreen({ navigation }) {
     <Animated.View style={styles.center}>
       <Animated.View style={animatedBackground} />
       <Animated.View style={animatedLogo}>
-        <KeeperLogo />
+        {themeMode === 'PRIVATE' ? <PrivateLogo /> : <KeeperLogo />}
       </Animated.View>
     </Animated.View>
   );

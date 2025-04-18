@@ -37,6 +37,7 @@ import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationMo
 import useWallets from 'src/hooks/useWallets';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import AddCircleLight from 'src/assets/images/add-circle-light.svg';
+import AddCircleDark from 'src/assets/images/private-round-White-plus.svg';
 import VaultMigrationController from '../Vault/VaultMigrationController';
 import useVault from 'src/hooks/useVault';
 import CardPill from 'src/components/CardPill';
@@ -54,6 +55,8 @@ import useSigners from 'src/hooks/useSigners';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { CTACardDotted } from 'src/components/CTACardDotted';
+import usePlan from 'src/hooks/usePlan';
+import Colors from 'src/theme/Colors';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -103,7 +106,7 @@ function ConfirmWalletDetails({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const vaultType = route.params.vaultType;
-
+  const { isOnL4 } = usePlan();
   const isSmallDevice = useIsSmallDevices();
 
   const { signers } = useSigners();
@@ -251,7 +254,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(47, 79, 79, 1)"
+                backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
                 icon={<VaultIcon />}
               />
             </Box>
@@ -322,7 +325,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(47, 79, 79, 1)"
+                backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
                 icon={<VaultIcon />}
               />
             </Box>
@@ -434,7 +437,7 @@ function ConfirmWalletDetails({ route }) {
           >
             <Box style={styles.descriptionContainer}>
               <Text color={`${colorMode}.greenText`}>Add Description</Text>
-              <AddCircleLight />
+              {isOnL4 ? <AddCircleDark /> : <AddCircleLight />}
             </Box>
           </Pressable>
         </Box>

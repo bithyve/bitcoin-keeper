@@ -86,12 +86,16 @@ export const useSettingKeeper = () => {
   } = useAppSelector((state) => state.bhr);
 
   useEffect(() => {
-    if (colorMode === 'dark') {
-      dispatch(setThemeMode(ThemeMode.DARK));
+    if (isOnL4) {
+      dispatch(setThemeMode(ThemeMode.PRIVATE));
     } else {
-      dispatch(setThemeMode(ThemeMode.LIGHT));
+      if (colorMode === 'dark') {
+        dispatch(setThemeMode(ThemeMode.DARK));
+      } else {
+        dispatch(setThemeMode(ThemeMode.LIGHT));
+      }
     }
-  }, [colorMode]);
+  }, [colorMode, isOnL4]);
 
   const changeThemeMode = () => {
     toggleColorMode();

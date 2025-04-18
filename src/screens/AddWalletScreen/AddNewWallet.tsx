@@ -28,6 +28,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Colors from 'src/theme/Colors';
+import PrivateSetting from 'src/assets/images/private-setting-gold.svg';
 
 export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -72,6 +73,7 @@ function AddNewWallet({ navigation, route }) {
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
   const { vaultId } = route.params || {};
+  const { isOnL4 } = usePlan();
   const { activeVault } = useVault({ vaultId });
   const [scheme, setScheme] = useState(
     activeVault ? { m: activeVault.scheme.m, n: activeVault.scheme.n } : { m: 2, n: 3 }
@@ -212,12 +214,18 @@ function AddNewWallet({ navigation, route }) {
           name="Enhanced Security Options"
           description="Secure your funds and future—your way"
           callback={() => setShowEnhancedOptionsModal(true)}
-          icon={isDarkMode ? <DarkSettingIcon /> : <SettingIcon />}
+          icon={isOnL4 ? <PrivateSetting /> : isDarkMode ? <DarkSettingIcon /> : <SettingIcon />}
           iconWidth={22}
           iconHeight={20}
           cardStyles={styles.enhancedVaultsCustomStyles}
           titleSize={15}
-          borderColor={isDarkMode ? Colors.primaryCream : `${colorMode}.pantoneGreen`}
+          borderColor={
+            isOnL4
+              ? `${colorMode}.pantoneGreen`
+              : isDarkMode
+              ? Colors.primaryCream
+              : `${colorMode}.pantoneGreen`
+          }
         />
         <Buttons
           primaryText="Proceed"
@@ -363,7 +371,8 @@ const EnhancedSecurityModal = ({
   }, [isVisible, inheritanceKeySelected, emergencyKeySelected]);
 
   const { plan } = usePlan();
-  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
+  const isDiamondHand =
+    plan === SubscriptionTier.L3.toUpperCase() || plan === SubscriptionTier.L4.toUpperCase();
 
   return (
     <KeeperModal
