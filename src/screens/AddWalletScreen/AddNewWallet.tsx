@@ -370,9 +370,7 @@ const EnhancedSecurityModal = ({
     }
   }, [isVisible, inheritanceKeySelected, emergencyKeySelected]);
 
-  const { plan } = usePlan();
-  const isDiamondHand =
-    plan === SubscriptionTier.L3.toUpperCase() || plan === SubscriptionTier.L4.toUpperCase();
+  const { isOnL3Above } = usePlan();
 
   return (
     <KeeperModal
@@ -393,7 +391,7 @@ const EnhancedSecurityModal = ({
       Content={() => {
         return (
           <Box style={styles.enhancedOptionsContainer}>
-            {!isDiamondHand && (
+            {!isOnL3Above && (
               <Box>
                 <UpgradeSubscription
                   type={SubscriptionTier.L3}
@@ -406,7 +404,7 @@ const EnhancedSecurityModal = ({
               </Box>
             )}
             <Pressable
-              disabled={!isDiamondHand}
+              disabled={!isOnL3Above}
               onPress={() => setPendingInheritanceKeySelected(!pendingInheritanceKeySelected)}
             >
               <Box
@@ -418,7 +416,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     Inheritance Key
@@ -443,9 +441,7 @@ const EnhancedSecurityModal = ({
                 </Box>
                 <Text
                   fontSize={12}
-                  color={
-                    !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
-                  }
+                  color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
                   An extra key which will be added to your wallet quorum after a certain time
                 </Text>
@@ -453,7 +449,7 @@ const EnhancedSecurityModal = ({
             </Pressable>
 
             <Pressable
-              disabled={!isDiamondHand}
+              disabled={!isOnL3Above}
               onPress={() => setPendingEmergencyKeySelected(!pendingEmergencyKeySelected)}
             >
               <Box
@@ -465,7 +461,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     Emergency Key
@@ -490,9 +486,7 @@ const EnhancedSecurityModal = ({
                 </Box>
                 <Text
                   fontSize={12}
-                  color={
-                    !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
-                  }
+                  color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
                   A key with delayed full control to recover from extended key loss
                 </Text>
