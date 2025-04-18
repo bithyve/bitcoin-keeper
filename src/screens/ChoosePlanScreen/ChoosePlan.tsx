@@ -43,7 +43,7 @@ import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
 import SubscriptionList from './components/SubscriptionList';
 import usePlan from 'src/hooks/usePlan';
-import { setSubscription } from 'src/store/reducers/settings';
+import { setSubscription } from 'src/store/sagaActions/settings';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BrownButton } from 'src/components/BrownButton';

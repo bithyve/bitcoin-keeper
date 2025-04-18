@@ -11,7 +11,9 @@ type useWalletsInterface = ({ getAll, walletIds }?: { getAll?: boolean; walletId
 
 const useWallets: useWalletsInterface = ({ walletIds = [], getAll = false } = {}) => {
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
-  const allWallets: Wallet[] = useQuery(RealmSchema.Wallet);
+  const allWallets: Wallet[] = useQuery(RealmSchema.Wallet).filter((wallet) =>
+    [WalletType.DEFAULT, WalletType.IMPORTED].includes(wallet.type)
+  );
 
   const filterByNetwork = (wallets) => {
     if (bitcoinNetworkType)

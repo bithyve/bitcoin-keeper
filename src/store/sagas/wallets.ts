@@ -352,8 +352,12 @@ export function* addSigningDeviceWorker({
     yield call(mergeSimilarKeysWorker, { payload: { signer } });
   }
   try {
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
+
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    const filteredSigners = existingSigners.filter((s) => !s.archived);
+    const filteredSigners = existingSigners.filter(
+      (s) => !s.archived && s.networkType === bitcoinNetworkType
+    );
     const signerMap = Object.fromEntries(
       filteredSigners.map((signer) => [getKeyUID(signer), signer])
     );
@@ -649,6 +653,8 @@ function* refreshWalletsWorker({
         if (options.addNotifications) {
           if (synchedWallet.type !== VaultType.CANARY) {
             if (!Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
+              const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
+
               yield put(
                 addToUaiStack({
                   uaiType: uaiType.INCOMING_TRANSACTION,
@@ -656,6 +662,7 @@ function* refreshWalletsWorker({
                   uaiDetails: {
                     heading: 'New Transaction Received',
                     body: 'Click to view the transaction details',
+                    networkType: bitcoinNetworkType,
                   },
                 })
               );

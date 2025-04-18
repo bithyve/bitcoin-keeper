@@ -59,14 +59,8 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
     if (!uaiStack?.length) return null;
 
     // Filter for unseen notifications and sort by timestamp
-    const unseenUais = uaiStack
-      .filter((uai) => !uai.seenAt && uaiPriorityMap[uai.uaiType] >= 90)
-      .filter((uai) => {
-        if (uai.uaiType === uaiType.SIGNING_DEVICES_HEALTH_CHECK) {
-          return uai.uaiDetails.networkType === bitcoinNetworkType;
-        }
-        return true;
-      });
+    const unseenUais = uaiStack.filter((uai) => !uai.seenAt && uaiPriorityMap[uai.uaiType] >= 90);
+
     return unseenUais[0] || null;
   }, [uaiStack]);
 

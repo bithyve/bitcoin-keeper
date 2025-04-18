@@ -269,7 +269,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     [vault?.specs?.transactions]
   );
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
-  const isAssistedWallet = vault.type === VaultType.ASSISTED;
   const isCanaryWallet = vault.type === VaultType.CANARY;
   const introModal =
     useAppSelector((state) => state.vault.introModal) && (isCollaborativeWallet || isCanaryWallet);
@@ -283,14 +282,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const syncing =
     ELECTRUM_CLIENT.isClientConnected && walletSyncing && vault ? !!walletSyncing[vault.id] : false;
 
-  const disableBuy = false;
-  const cardProps = {
-    circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
-    pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
-    cardPillText: disableBuy ? common.comingSoon : '',
-    customCardPill: !disableBuy && <BTCAmountPill />,
-    cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
-  };
   const isDarkMode = colorMode === 'dark';
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(vault);

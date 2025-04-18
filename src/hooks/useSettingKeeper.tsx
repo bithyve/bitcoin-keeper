@@ -29,6 +29,8 @@ import HodlerWhiteSub from 'src/assets/images/Hodler-white-sub-icon.svg';
 import HodlerGreenSub from 'src/assets/images/Hodler-green-sub-icon.svg';
 import DiamondGreenSub from 'src/assets/images/DiamondHands-green-sub-icon.svg';
 import DiamondWhiteSub from 'src/assets/images/DiamondHands-white-sub-iocn.svg';
+import KeeperPrivateIcon from 'src/assets/images/KeeperPrivateIcon.svg';
+import KeeperPrivateIconWhite from 'src/assets/images/KeeperPrivateIconWhite.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -179,11 +181,11 @@ export const useSettingKeeper = () => {
       title: SubscriptionTier.L4,
       subtitle: 'Private',
       description: 'For Private Clients',
-      icon: <DiamondIcon width={30} height={30} />,
-      sublightIcon: <DiamondGreenSub width={24} height={24} />,
-      subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
+      icon: <KeeperPrivateIcon width={30} height={30} />,
+      sublightIcon: <KeeperPrivateIcon width={24} height={24} />,
+      subDarkIcon: <KeeperPrivateIconWhite width={24} height={24} />,
       subDescription:
-        'Experience exclusive white-glove service with personalized attention and tailored solutions', // ! to update
+        'Experience exclusive white-glove service with personalized attention and tailored solutions',
     },
   ];
 
