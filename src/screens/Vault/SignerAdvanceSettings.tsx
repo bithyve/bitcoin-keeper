@@ -760,7 +760,7 @@ function SignerAdvanceSettings({ route }: any) {
         key="AdditionalUsers"
         title="Additional Users"
         description={`Add multiple users for the Server Key${
-          isOnL4 ? '\n\nUnlock with the Keeper Private tier' : ''
+          !isOnL4 ? '\n\nUnlock with the Keeper Private tier' : ''
         }`}
         callback={() => {
           isOnL4 && navigation.navigate('AdditionalUsers', { signer });
