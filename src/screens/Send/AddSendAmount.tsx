@@ -542,7 +542,10 @@ function AddSendAmount({ route }) {
 
       <Box flexDirection={'row'} marginTop={hp(6)} marginBottom={hp(20)}>
         <Text fontSize={14} style={{ alignSelf: 'center', marginBottom: hp(1) }}>
-          {selectedUTXOs && selectedUTXOs.length ? 'Available ' : ''}Balance:
+          {selectedUTXOs && selectedUTXOs.length
+            ? 'Available '
+            : sender.presentationData.name + ' '}
+          Balance:
         </Text>
         <CurrencyInfo
           hideAmounts={false}
