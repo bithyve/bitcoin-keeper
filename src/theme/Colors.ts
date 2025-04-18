@@ -19,7 +19,7 @@ const Colors = {
   redAlert: 'rgba(229, 69, 69, 1)',
   ErrorToast: 'rgba(249, 219, 219, 1)',
   greyBorder: 'rgba(212, 212, 212, 1)',
-  toastBg: 'rgba(234, 210, 181, 1)',
+  pillOrange: 'rgba(234, 210, 181, 1)',
 
   // Tag Colors
   TagLight1: 'rgba(0, 103, 105, 1)',
@@ -130,5 +130,6 @@ const Colors = {
   JadePine: 'rgba(45, 103, 89, 1)',
   OceanSage: 'rgba(80, 139, 130, 1)',
   lightGreenTag: 'rgba(146, 194, 124, 1)',
+  toastDark: 'rgba(210, 212, 175, 1)',
 };
 export default Colors;

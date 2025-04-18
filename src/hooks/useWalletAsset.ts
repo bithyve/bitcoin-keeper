@@ -50,7 +50,7 @@ const useWalletAsset = () => {
 
   const TAG_COLORS = [
     Colors.LabelLight3,
-    Colors.toastBg,
+    Colors.pillOrange,
     Colors.Aquamarine,
     Colors.mintGreen,
     Colors.TagLight7,
