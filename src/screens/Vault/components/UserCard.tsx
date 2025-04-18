@@ -7,6 +7,7 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import Delete from 'src/assets/images/delete-icon.svg';
 import Colors from 'src/theme/Colors';
+import { getServerKeyPermittedActionLabelText } from './PermittedActionContent';
 
 type Props = {
   data: any;
@@ -41,7 +42,7 @@ function UserCard({ data, setDeleteUser, setRemoveOptionId }: Props) {
               <Box style={styles.pillContainer}>
                 {item?.tags?.map((tag, tagIndex) => (
                   <Box key={tagIndex} style={styles.pill} backgroundColor={getTagColor(tag)}>
-                    <Text fontSize={13}>{tag}</Text>
+                    <Text fontSize={13}>{getServerKeyPermittedActionLabelText(tag)}</Text>
                   </Box>
                 ))}
               </Box>

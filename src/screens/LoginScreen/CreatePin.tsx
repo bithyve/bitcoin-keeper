@@ -284,7 +284,7 @@ export default function CreatePin(props) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         buttonText="Continue"
-        secondaryButtonText="Cancel"
+        secondaryButtonText="Skip"
         buttonCallback={() => {
           setEnableBiometric(false);
           onChangeLoginMethod();

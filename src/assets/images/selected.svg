@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <g id="selected" transform="translate(-39 -340)">
-    <circle id="Ellipse_2068" data-name="Ellipse 2068" cx="12" cy="12" r="12" transform="translate(39 340)" fill="#d8a572"/>
+    <circle id="Ellipse_2068" data-name="Ellipse 2068" cx="12" cy="12" r="12" transform="translate(39 340)" fill="#596f66"/>
     <path id="Checkmark" d="M9.164,14.051a1.27,1.27,0,0,1,1.784,0l1.565,1.565,3.568-3.568a1.261,1.261,0,0,1,1.784,1.784l-4.46,4.46a1.248,1.248,0,0,1-.892.37,1.2,1.2,0,0,1-.892-.37L9.164,15.835A1.24,1.24,0,0,1,9.164,14.051Z" transform="translate(37.215 337.318)" fill="#fafcfc"/>
   </g>
 </svg>

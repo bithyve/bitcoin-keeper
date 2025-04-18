@@ -61,6 +61,7 @@ import {
   signTransactionWithTapsigner,
 } from './signWithSD';
 import SendSuccessfulContent from '../Send/SendSuccessfulContent';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -636,9 +637,9 @@ function SignTransactionScreen() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
-      <KeeperHeader
+      <WalletHeader
         title="Sign Transaction"
-        subtitle={
+        subTitle={
           serializedPSBTEnvelops.length == 1
             ? 'Sign the transaction with your key'
             : `Choose ${defaultVault.scheme.m} keys to sign the transaction`

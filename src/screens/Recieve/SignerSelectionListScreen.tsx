@@ -195,7 +195,7 @@ const SignerCard = ({ onPress, signer }) => {
                 width={30}
                 height={30}
                 borderRadius={30}
-                backgroundColor={`${colorMode}.accent`}
+                backgroundColor={`${colorMode}.DarkSlateGray`}
                 justifyContent="center"
                 alignItems="center"
                 marginX={1}

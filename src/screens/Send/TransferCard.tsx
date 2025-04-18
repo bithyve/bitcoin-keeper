@@ -11,6 +11,7 @@ import RightArrowGrey from 'src/assets/images/icon_arrow_grey.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
+import Fonts from 'src/constants/Fonts';
 
 interface TransferCardProps {
   title: string;
@@ -76,6 +77,7 @@ const TransferCard: React.FC<TransferCardProps> = ({
             color={titleColor || `${colorMode}.primaryText`}
             fontSize={titleFontSize || 15}
             fontWeight={titleFontWeight}
+            style={{ fontFamily: Fonts.InterBold }}
           >
             {title}
           </Text>
