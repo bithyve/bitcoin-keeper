@@ -1,16 +1,20 @@
 diff --git a/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java b/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
-index b303063..5f0726d 100644
+index b303063..b483e91 100644
 --- a/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
 +++ b/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
-@@ -72,7 +72,10 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
+@@ -68,11 +68,12 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
+             return;
+         }
+         if (this.componentClass.isEmpty()) {
+-            this.componentClass = activityName.endsWith("MainActivity") ? activityName + "Default" : activityName;
++            this.componentClass = activityName.endsWith("MainActivity") ?  "MainActivityDefault" : activityName;
          }
  
-         final String newIconName = (iconName == null || iconName.isEmpty()) ? "Default" : iconName;
+-        final String newIconName = (iconName == null || iconName.isEmpty()) ? "Default" : iconName;
 -        final String activeClass = this.packageName + ".MainActivity" + newIconName;
-+        String activeClass = this.packageName + ".MainActivity" + newIconName;
-+        if (activeClass.contains(".development")) {
-+            activeClass = activeClass.replace(".development", "");
-+        }
++        final String newIconName = (iconName == null || iconName.isEmpty()) ? "MainActivityDefault" : iconName;
++        String activeClass =  newIconName;
++        
          if (this.componentClass.equals(activeClass)) {
              promise.reject("ANDROID:ICON_ALREADY_USED:" + this.componentClass);
              return;
