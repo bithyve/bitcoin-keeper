@@ -759,7 +759,9 @@ function SignerAdvanceSettings({ route }: any) {
       <OptionCard
         key="AdditionalUsers"
         title="Additional Users"
-        description="Add multiple users for the Server Key"
+        description={`Add multiple users for the Server Key${
+          !isOnL4 && '\n\nUnlock with the Keeper Private tier'
+        }`}
         callback={() => {
           isOnL4 && navigation.navigate('AdditionalUsers', { signer });
         }}
@@ -768,7 +770,10 @@ function SignerAdvanceSettings({ route }: any) {
           !isOnL4 &&
           (() => {
             return (
-              <TouchableOpacity onPress={() => navigation.navigate('ChoosePlan')}>
+              <TouchableOpacity
+                style={{ marginTop: hp(25) }}
+                onPress={() => navigation.navigate('ChoosePlan')}
+              >
                 <UpgradeIcon style={styles.upgradeIcon} width={64} height={20} />
               </TouchableOpacity>
             );
