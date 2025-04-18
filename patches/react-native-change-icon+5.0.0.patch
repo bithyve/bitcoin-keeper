@@ -1,3 +1,19 @@
+diff --git a/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java b/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
+index b303063..5f0726d 100644
+--- a/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
++++ b/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
+@@ -72,7 +72,10 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
+         }
+ 
+         final String newIconName = (iconName == null || iconName.isEmpty()) ? "Default" : iconName;
+-        final String activeClass = this.packageName + ".MainActivity" + newIconName;
++        String activeClass = this.packageName + ".MainActivity" + newIconName;
++        if (activeClass.contains(".development")) {
++            activeClass = activeClass.replace(".development", "");
++        }
+         if (this.componentClass.equals(activeClass)) {
+             promise.reject("ANDROID:ICON_ALREADY_USED:" + this.componentClass);
+             return;
 diff --git a/node_modules/react-native-change-icon/ios/ChangeIcon.mm b/node_modules/react-native-change-icon/ios/ChangeIcon.mm
 index 389fe05..353c068 100644
 --- a/node_modules/react-native-change-icon/ios/ChangeIcon.mm
