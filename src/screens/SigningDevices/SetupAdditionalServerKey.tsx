@@ -9,10 +9,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import WalletHeader from 'src/components/WalletHeader';
+import Buttons from 'src/components/Buttons';
+import { useNavigation } from '@react-navigation/native';
 
 function SetupAdditionalServerKey({ route }: { route }) {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const navigation = useNavigation();
 
   const { validationKey, label } = route.params;
 
@@ -22,7 +25,7 @@ function SetupAdditionalServerKey({ route }: { route }) {
         <Box>
           <WalletHeader
             title="Set up Server Key 2FA"
-            subTitle="Set up a 2FA code with an authenticator app. The server will ask for the 2FA codes for signing transactions and updating the settings"
+            subTitle="Share this code securely with the intended user to set up in their authenticator app. The server will require these 2FA codes for authorized actions."
             subtitleColor={`${colorMode}.GreyText`}
           />
         </Box>
@@ -57,15 +60,20 @@ function SetupAdditionalServerKey({ route }: { route }) {
           )}
         </Box>
 
-        {/* {Bottom note} */}
         <Box style={styles.bottomNoteContainer}>
           <Box marginBottom={hp(30)}>
             <Note
               title="Note"
-              subtitle="It is a good idea to have the authenticator app on another device"
+              subtitle="Important: Anyone with access to this code can perform permitted actions on the Server Key."
               subtitleColor="GreyText"
             />
           </Box>
+
+          <Buttons
+            primaryCallback={() => navigation.goBack()}
+            primaryText="Finish Setup"
+            fullWidth
+          />
         </Box>
       </View>
     </ScreenWrapper>

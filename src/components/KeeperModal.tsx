@@ -176,11 +176,6 @@ function KeeperModal(props: ModalProps) {
                   testID="btn_learnMore"
                 >
                   <Box
-                    borderColor={
-                      learnButtonTextColor === 'light.white'
-                        ? 'light.white'
-                        : 'light.learnMoreBorder'
-                    }
                     backgroundColor={
                       learnButtonBackgroundColor == 'BrownNeedHelp'
                         ? `${colorMode}.BrownNeedHelp`
@@ -328,7 +323,6 @@ const getStyles = (subTitleWidth) =>
       position: 'absolute',
       top: hp(22),
       left: wp(240),
-      borderWidth: 0.5,
       borderRadius: 5,
       paddingHorizontal: 5,
       justifyContent: 'center',

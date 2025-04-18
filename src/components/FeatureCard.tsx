@@ -53,7 +53,7 @@ function FeatureCard({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: wp(104),
+    width: wp(105),
     minHeight: hp(83),
     padding: hp(10),
     borderRadius: 10,

@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import DeleteIllustration from 'src/assets/images/delete-illustration.svg';
-import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/backend/SigningServer';
 import {
   PermittedAction,
@@ -24,11 +24,13 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getKeyUID } from 'src/utils/utilities';
 import { generateKey } from 'src/utils/service-utilities/encryption';
-import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import NewUserContent from './components/NewUserContent';
 import PermittedActionContent from './components/PermittedActionContent';
 import OtpContent from './components/OtpContent';
 import UserCard from './components/UserCard';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { ScriptTypes } from 'src/services/wallets/enums';
+import Text from 'src/components/KeeperText';
 
 enum SecondaryVerificationOptionActionType {
   ADD = 'ADD',
@@ -42,40 +44,53 @@ function AdditionalUsers({ route }: any) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const {
-    vaultKey,
+    signer,
   }: {
-    vaultKey: VaultSigner;
+    signer: Signer;
   } = route.params;
-  const { signer } = useSignerFromKey(vaultKey);
 
   const [additionalUser, setAdditionalUser] = useState(false);
   const [addNewUserModal, setAddNewUserModal] = useState(false);
   const [PermittedActions, setPermittedActions] = useState(false);
   const [validationModal, showValidationModal] = useState(false);
-  const [PermittedActionData, setPermittedActionData] = useState([]);
+  const [PermittedActionData, setPermittedActionData] = useState({
+    [PermittedAction.SIGN_TRANSACTION]: true,
+  });
   const [otp, setOtp] = useState('');
   const [newUserName, setNewUserName] = useState('');
   const [deleteUser, setDeleteUser] = useState(false);
   const [deleteUserValidationModal, setDeleteUserValidationModal] = useState(false);
   const [secondaryActionType, setSecondaryActionType] = useState('');
   const [removeOptionId, setRemoveOptionId] = useState('');
-  const secondaryVerificationOptions: VerificationOption[] =
-    idx(signer, (_) => _.signerPolicy.secondaryVerification) || [];
+  const [secondaryVerificationOptions, setSecondaryVerificationOptions] = useState<
+    VerificationOption[]
+  >(idx(signer, (_) => _.signerPolicy.secondaryVerification) || []);
 
-  const additionalUserData = secondaryVerificationOptions.map((option) => {
-    return {
-      id: option.id,
-      name: option.label,
-      tags: option.permittedActions,
-    };
-  });
+  const [additionalUserData, setAdditionalUserData] = useState(
+    (idx(signer, (_) => _.signerPolicy.secondaryVerification) || []).map((option) => {
+      return {
+        id: option.id,
+        name: option.label,
+        tags: option.permittedActions,
+      };
+    })
+  );
 
   useEffect(() => {
-    // if dont have user then modal will open
-    if (additionalUserData.length <= 0) {
+    const userData = secondaryVerificationOptions.map((option) => {
+      return {
+        id: option.id,
+        name: option.label,
+        tags: option.permittedActions,
+      };
+    });
+
+    setAdditionalUserData(userData);
+
+    if (userData.length <= 0) {
       setAdditionalUser(true);
     }
-  }, []);
+  }, [secondaryVerificationOptions]);
 
   const processSecondaryVerificationOption = async () => {
     try {
@@ -101,7 +116,10 @@ function AdditionalUsers({ route }: any) {
         };
 
         const res = await SigningServer.addSecondaryVerificationOption(
-          (vaultKey as VaultSigner)?.xfp,
+          WalletUtilities.getFingerprintFromExtendedKey(
+            signer.signerXpubs[ScriptTypes.P2WSH][0].xpub,
+            WalletUtilities.getNetworkByType(signer.networkType)
+          ),
           verificationToken,
           verificationOption
         );
@@ -117,7 +135,10 @@ function AdditionalUsers({ route }: any) {
         if (!removeOptionId) throw new Error('Unable to remove - optionId missing');
 
         const res = await SigningServer.removeSecondaryVerificationOption(
-          (vaultKey as VaultSigner)?.xfp,
+          WalletUtilities.getFingerprintFromExtendedKey(
+            signer.signerXpubs[ScriptTypes.P2WSH][0].xpub,
+            WalletUtilities.getNetworkByType(signer.networkType)
+          ),
           verificationToken,
           removeOptionId
         );
@@ -144,13 +165,15 @@ function AdditionalUsers({ route }: any) {
           }
         );
 
+        setSecondaryVerificationOptions(updatedSecondaryVerificationOptions);
+
         if (secondaryActionType === SecondaryVerificationOptionActionType.ADD) {
           navigation.navigate('SetupAdditionalServerKey', {
             validationKey: newSecondaryVerificationOption.verifier,
             label: newUserName,
           });
         } else if (secondaryActionType === SecondaryVerificationOptionActionType.REMOVE) {
-          showToast('User Deleted Successfully');
+          showToast('User was deleted successfully');
           setDeleteUserValidationModal(false);
         }
 
@@ -170,20 +193,25 @@ function AdditionalUsers({ route }: any) {
 
   return (
     <ScreenWrapper>
-      <WalletHeader title="2FA Management" />
+      <WalletHeader title="Manage Additional Users" />
       {additionalUserData.length > 0 ? (
-        <Box>
-          <UserCard
-            data={additionalUserData}
-            setDeleteUser={setDeleteUser}
-            setRemoveOptionId={setRemoveOptionId}
-          />
-        </Box>
-      ) : null}
+        <ScrollView>
+          <Box>
+            <UserCard
+              data={additionalUserData}
+              setDeleteUser={setDeleteUser}
+              setRemoveOptionId={setRemoveOptionId}
+            />
+          </Box>
+        </ScrollView>
+      ) : (
+        <Text style={styles.noUsersText}>The Server Key has no existing additional users.</Text>
+      )}
 
+      <Box flex={1} />
       <Box style={styles.ButtonContainer}>
         <Buttons
-          primaryText="Add New"
+          primaryText="Add New User"
           primaryCallback={() => {
             setAddNewUserModal(true);
           }}
@@ -317,14 +345,16 @@ const styles = StyleSheet.create({
     marginVertical: hp(10),
   },
   ButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
+    marginTop: hp(20),
     paddingBottom: hp(20),
   },
   noUserContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  noUsersText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: 'gray',
   },
 });

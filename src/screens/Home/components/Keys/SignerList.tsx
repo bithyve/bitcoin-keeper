@@ -10,7 +10,7 @@ import { uaiType } from 'src/models/interfaces/Uai';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { getKeyUID } from 'src/utils/utilities';
-import { wp } from 'src/constants/responsive';
+import { windowWidth, wp } from 'src/constants/responsive';
 import DashedCta from 'src/components/DashedCta';
 import Colors from 'src/theme/Colors';
 import Plus from 'src/assets/images/add-plus-white.svg';
@@ -111,16 +111,14 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   };
 
   const customStyle: ViewStyle = {
-    width: wp(162),
-    height: wp(132),
+    width: windowWidth * 0.42,
+    height: wp(135),
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    marginLeft: 4,
-    marginTop: 4,
+    margin: 3,
   };
 
   return (
@@ -198,6 +196,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignContent: 'center',
     justifyContent: 'center',
+    width: windowWidth,
   },
   addedSignersContainer: {
     flexDirection: 'row',

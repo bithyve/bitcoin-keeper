@@ -32,7 +32,8 @@ import RecoverySuccessModalContent from './RecoverySuccessModalContent';
 import { resetSeedWords, setAppImageError, setSeedWord } from 'src/store/reducers/bhr';
 import Fonts from 'src/constants/Fonts';
 import { SEED_WORDS_12, SEED_WORDS_18, SEED_WORDS_24, seedWordItem } from './constants';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from 'src/theme/Colors';
+import WalletHeader from 'src/components/WalletHeader';
 
 function EnterSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
@@ -541,7 +542,7 @@ function EnterSeedScreen({ route, navigation }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.container}
       >
-        <KeeperHeader
+        <WalletHeader
           title={
             isHealthCheck || isIdentification
               ? 'Seed key health check'
@@ -551,7 +552,7 @@ function EnterSeedScreen({ route, navigation }) {
               ? seed?.EnterSeed
               : seed?.enterRecoveryPhrase
           }
-          subtitle={
+          subTitle={
             isHealthCheck || isIdentification
               ? 'Enter the seed key'
               : isImport
@@ -566,8 +567,8 @@ function EnterSeedScreen({ route, navigation }) {
               dispatch(resetSeedWords());
             }
           }}
-          // To-Do-Learn-More
         />
+
         <Box
           style={{
             marginVertical: 20,
@@ -693,6 +694,9 @@ const styles = StyleSheet.create({
   inputListWrapper: {
     width: '48%',
     paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: Colors.separator,
+    borderRadius: 10,
   },
   bottomContainerView: {
     marginHorizontal: 10,
@@ -724,6 +728,9 @@ const styles = StyleSheet.create({
   },
   dropdownContainer: {
     zIndex: 9999,
+    borderWidth: 1,
+    borderColor: Colors.separator,
+    borderRadius: 10,
   },
   invalidSeedsIllustration: {
     alignSelf: 'center',

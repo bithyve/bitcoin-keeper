@@ -113,7 +113,7 @@ function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
           styles.listContainer,
           colorMode === 'dark' && { borderWidth: 1, borderColor: 'rgba(31, 31, 31, 0.2)' },
         ]}
-        backgroundColor={`${colorMode}.boxBackground`}
+        backgroundColor={`${colorMode}.separator`}
       >
         <Box
           style={styles.inputLabeWrapper}

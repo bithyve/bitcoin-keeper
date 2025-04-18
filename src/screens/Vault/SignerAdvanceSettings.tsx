@@ -761,7 +761,7 @@ function SignerAdvanceSettings({ route }: any) {
         title="Additional Users"
         description="Add multiple users for the Server Key"
         callback={() => {
-          isOnL4 && navigation.navigate('AdditionalUsers', { vaultKey });
+          isOnL4 && navigation.navigate('AdditionalUsers', { signer });
         }}
         disabled={!isOnL4}
         rightComponent={
