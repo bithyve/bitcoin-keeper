@@ -25,6 +25,8 @@ import { SDIcons } from './SigningDeviceIcons';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import DashedCta from 'src/components/DashedCta';
 import WalletHeader from 'src/components/WalletHeader';
+import PrivateSigningDevice from 'src/assets/images/private-doc-hardware-usage.svg';
+import usePlan from 'src/hooks/usePlan';
 
 function SignerCategoryList() {
   const route = useRoute();
@@ -49,6 +51,7 @@ function SignerCategoryList() {
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const isDarkMode = colorMode === 'dark';
   const { vault, signer, common } = translations;
+  const { isOnL4 } = usePlan();
 
   const hardwareSigners = [
     { type: SignerType.COLDCARD, background: 'dullCreamBackground', isTrue: false },
@@ -116,7 +119,7 @@ function SignerCategoryList() {
     return (
       <View>
         <Box style={styles.alignCenter}>
-          <SigningDevicesIllustration />
+          {isOnL4 ? <PrivateSigningDevice /> : <SigningDevicesIllustration />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}

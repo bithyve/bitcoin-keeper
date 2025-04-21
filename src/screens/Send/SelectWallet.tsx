@@ -22,6 +22,7 @@ import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
 
 type SelectWalletParams = {
   handleSelectWallet: (wallet: Wallet | Vault) => void;
@@ -57,6 +58,7 @@ function WalletItem({
   const variation = !isDarkMode ? 'dark' : 'light';
   const isSelected = wallet.id === selectedWalletId;
   const borderColor = isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.dullGreyBorder`;
+  const { isOnL4 } = usePlan();
 
   const handlePress = () => {
     if (isSelected) {
@@ -80,7 +82,13 @@ function WalletItem({
           <HexagonIcon
             width={42}
             height={36}
-            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
+            backgroundColor={
+              isOnL4
+                ? Colors.goldenGradient
+                : isDarkMode
+                ? Colors.DullGreenDark
+                : Colors.primaryGreen
+            }
             icon={getWalletIcon(wallet)}
           />
           <Text style={styles.walletName} color={`${colorMode}.primaryText`}>

@@ -58,6 +58,7 @@ import { TouchableOpacity } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { NumberInput } from '../AddWalletScreen/AddNewWallet';
 import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -121,6 +122,7 @@ function SendScreen({ route }) {
   const totalUtxosAmount = selectedUTXOs?.reduce((sum, utxo) => sum + utxo.value, 0);
   const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false);
   const [localTotalRecipients, setLocalTotalRecipients] = useState(totalRecipients);
+  const { isOnL4 } = usePlan();
 
   const visibleWallets = useMemo(
     () =>
@@ -446,7 +448,11 @@ function SendScreen({ route }) {
                             height={26}
                             icon={getSmallWalletIcon(selectedWallet)}
                             backgroundColor={
-                              isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen
+                              isOnL4
+                                ? Colors.goldenGradient
+                                : isDarkMode
+                                ? Colors.DullGreenDark
+                                : Colors.primaryGreen
                             }
                           />
                         </Box>

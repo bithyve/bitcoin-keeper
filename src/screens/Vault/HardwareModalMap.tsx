@@ -48,6 +48,18 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
+import PrivateBitboxImage from 'src/assets/images/private-bitBox-icon.svg';
+import PrivateColdCard from 'src/assets/images/private-coldCard-icon.svg';
+import PrivateJade from 'src/assets/images/private-jade-icon.svg';
+import PrivateKeyStone from 'src/assets/images/private-keystone-icon.svg';
+import PrivateLedger from 'src/assets/images/private-ledger-icon.svg';
+import PrivatePassport from 'src/assets/images/private-passport-icon.svg';
+import PrivatePortal from 'src/assets/images/private-portal-icon.svg';
+import PrivateSpector from 'src/assets/images/private-spector-icon.svg';
+import PrivateTapSigner from 'src/assets/images/private-tapsigner-icon.svg';
+import PrivateTrezor from 'src/assets/images/private-trezor-icon.svg';
+import PrivateSeedKey from 'src/assets/images/private-seedKey-icon.svg';
+import PrivateOtherSigner from 'src/assets/images/private-otherSigner-icon.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -118,6 +130,7 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BackupModalContent from '../AppSettings/BackupModal';
 import SignerOptionCard from './components/signerOptionCard';
 import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
+import usePlan from 'src/hooks/usePlan';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -147,11 +160,13 @@ const getSignerContent = (
   keyGenerationMode: KeyGenerationMode
 ) => {
   const { tapsigner, coldcard, ledger, bitbox, trezor, externalKey, common } = translations;
+  const { isOnL4 } = usePlan();
+
   switch (type) {
     case SignerType.COLDCARD:
       return {
         type: SignerType.COLDCARD,
-        Illustration: <ColdCardSetupImage />,
+        Illustration: isOnL4 ? <PrivateColdCard /> : <ColdCardSetupImage />,
         Instructions: [
           'Export the Coldcard data by going to Advanced/Tools > Export wallet > Generic JSON.',
           'Or instead, use the Keeper Desktop app to connect to the Coldcard via USB',
@@ -229,7 +244,7 @@ const getSignerContent = (
       }
       return {
         type: SignerType.JADE,
-        Illustration: <JadeSVG />,
+        Illustration: isOnL4 ? <PrivateJade /> : <JadeSVG />,
         Instructions: instructions,
         title: isHealthcheck
           ? 'Verify Blockstream Jade'
@@ -348,7 +363,7 @@ const getSignerContent = (
         : 'Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet';
       return {
         type: SignerType.KEYSTONE,
-        Illustration: <KeystoneSetupImage />,
+        Illustration: isOnL4 ? <PrivateKeyStone /> : <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
               keystoneInstructions,
@@ -392,7 +407,7 @@ const getSignerContent = (
       } > QR Code.\n`;
       return {
         type: SignerType.PASSPORT,
-        Illustration: <PassportSVG />,
+        Illustration: isOnL4 ? <PrivatePassport /> : <PassportSVG />,
         Instructions: isTestnet()
           ? [
               passportInstructions,
@@ -508,7 +523,7 @@ const getSignerContent = (
       } > Native Segwit.\n`;
       return {
         type: SignerType.SPECTER,
-        Illustration: <SpecterSetupImage />,
+        Illustration: isOnL4 ? <PrivateSpector /> : <SpecterSetupImage />,
         Instructions: isTestnet()
           ? [
               specterInstructions,
@@ -526,7 +541,7 @@ const getSignerContent = (
     case SignerType.BITBOX02:
       return {
         type: SignerType.BITBOX02,
-        Illustration: <BitboxImage />,
+        Illustration: isOnL4 ? <PrivateBitboxImage /> : <BitboxImage />,
         Instructions: [
           `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with BitBox02.`,
           'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Desktop App.',
@@ -538,7 +553,7 @@ const getSignerContent = (
     case SignerType.TREZOR:
       return {
         type: SignerType.TREZOR,
-        Illustration: <TrezorSetup />,
+        Illustration: isOnL4 ? <PrivateTrezor /> : <TrezorSetup />,
         Instructions: [
           `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Trezor.`,
           'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Desktop App.',
@@ -550,7 +565,7 @@ const getSignerContent = (
     case SignerType.LEDGER:
       return {
         type: SignerType.LEDGER,
-        Illustration: <LedgerImage />,
+        Illustration: isOnL4 ? <PrivateLedger /> : <LedgerImage />,
         Instructions: [
           `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Ledger.`,
           'Please Make sure you have the BTC app downloaded on Ledger before this step.',
@@ -562,7 +577,7 @@ const getSignerContent = (
     case SignerType.SEED_WORDS:
       return {
         type: SignerType.SEED_WORDS,
-        Illustration: <SeedWordsIllustration />,
+        Illustration: isOnL4 ? <PrivateSeedKey /> : <SeedWordsIllustration />,
         Instructions: [
           'Make sure you secure the 12-word phrase in a safe place.',
           'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
@@ -601,7 +616,7 @@ const getSignerContent = (
     case SignerType.TAPSIGNER:
       return {
         type: SignerType.TAPSIGNER,
-        Illustration: <TapsignerSetupImage />,
+        Illustration: isOnL4 ? <PrivateTapSigner /> : <TapsignerSetupImage />,
         Instructions: [
           'TAPSIGNER communicates with the app over NFC',
           'You will need to enter the latest PIN once you proceed.',
@@ -613,7 +628,7 @@ const getSignerContent = (
     case SignerType.PORTAL:
       return {
         type: SignerType.PORTAL,
-        Illustration: <PortalIllustration />,
+        Illustration: isOnL4 ? <PrivatePortal /> : <PortalIllustration />,
         Instructions: [
           'The Portal device requires continuous power from the mobile device via NFC to function. ',
           'Place the Portal device on a flat surface, then position the mobile device so that its NFC aligns with the Portal.',
@@ -625,7 +640,7 @@ const getSignerContent = (
     case SignerType.OTHER_SD:
       return {
         type: SignerType.OTHER_SD,
-        Illustration: <OtherSDSetup />,
+        Illustration: isOnL4 ? <PrivateOtherSigner /> : <OtherSDSetup />,
         Instructions: [
           'Provide the Signer details either by entering them or scanning',
           'The hardened part of the derivation path of the xpub has to be denoted with a "h" or "\'". Please do not use any other character',
