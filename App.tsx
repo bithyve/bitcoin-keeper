@@ -1,7 +1,7 @@
 import { LogBox, Platform, UIManager } from 'react-native';
 import React, { ReactElement, useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { NativeBaseProvider, StatusBar } from 'native-base';
+import { StatusBar } from 'native-base';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { withIAPContext, initConnection, endConnection } from 'react-native-iap';
@@ -10,11 +10,11 @@ import { HCESessionProvider } from 'react-native-hce';
 import { LocalizationProvider } from 'src/context/Localization/LocContext';
 import { AppContextProvider } from 'src/context/AppContext';
 import config from 'src/utils/service-utilities/config';
-import { customTheme } from './src/navigation/themes';
 import Navigator from './src/navigation/Navigator';
 import { persistor, store } from './src/store/store';
 import NotificationHandler from 'src/hooks/useNotificationHandler';
 import { SentryWrapper } from 'src/services/sentry';
+import ThemeContextProvider from 'src/context/ThemeContext';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -43,7 +43,7 @@ function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NativeBaseProvider theme={customTheme}>
+      <ThemeContextProvider>
         <NotificationHandler />
         <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
         <LocalizationProvider>
@@ -55,7 +55,7 @@ function App() {
             </TorContextProvider>
           </AppContextProvider>
         </LocalizationProvider>
-      </NativeBaseProvider>
+      </ThemeContextProvider>
     </GestureHandlerRootView>
   );
 }
