@@ -5,7 +5,7 @@ import Buttons from 'src/components/Buttons';
 import PenLight from 'src/assets/images/pen-light.svg';
 import PenDark from 'src/assets/images/pen-dark.svg';
 import { windowWidth } from 'src/constants/responsive';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from 'src/store/hooks';
 
 type CreateTicketCTAProps = {
   onPress: () => void;
@@ -15,7 +15,7 @@ export const CreateTicketCTA = ({ onPress }: CreateTicketCTAProps) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const [display, setDisplay] = useState(false);
-  const { tickets, conciergeLoading, conciergeUserFailed, conciergeUserSuccess } = useSelector(
+  const { tickets, conciergeLoading, conciergeUserFailed, conciergeUserSuccess } = useAppSelector(
     (state) => state?.concierge
   );
 
