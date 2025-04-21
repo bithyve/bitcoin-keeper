@@ -1121,16 +1121,18 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setDetailModal(false)}
         title={!signer.isBIP85 ? title : `${title} +`}
         subTitle={subTitle}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={SignerContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.textGreen`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.textGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`}
+        secButtonTextColor={
+          isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setDetailModal(false);

@@ -28,6 +28,7 @@ import EnterPasswordModal from './EnterPasswordModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
 
 function CloudBackupScreen() {
   const navigation = useNavigation();
@@ -44,6 +45,7 @@ function CloudBackupScreen() {
   const backupModal = useAppSelector((state) => state.settings.backupModal);
   const [showModal, setShowModal] = useState(backupModal);
   const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
+  const { isOnL4 } = usePlan();
 
   useEffect(() => {
     if (loading) {
@@ -169,12 +171,12 @@ function CloudBackupScreen() {
           }
         }}
         title={strings.cloudBackupModalTitle}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.whiteSecButtonText` : `${colorMode}.pantoneGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

@@ -31,6 +31,7 @@ import DiamondGreenSub from 'src/assets/images/DiamondHands-green-sub-icon.svg';
 import DiamondWhiteSub from 'src/assets/images/DiamondHands-white-sub-iocn.svg';
 import KeeperPrivateIcon from 'src/assets/images/KeeperPrivateIcon.svg';
 import KeeperPrivateIconWhite from 'src/assets/images/KeeperPrivateIconWhite.svg';
+import PrivateManageWallet from 'src/assets/images/Private-manage-wallet-icon.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -184,7 +185,7 @@ export const useSettingKeeper = () => {
       title: SubscriptionTier.L4,
       subtitle: 'Private',
       description: 'For Private Clients',
-      icon: <KeeperPrivateIcon width={30} height={30} />,
+      icon: <KeeperPrivateIconWhite width={30} height={30} />,
       sublightIcon: <KeeperPrivateIcon width={24} height={24} />,
       subDarkIcon: <KeeperPrivateIconWhite width={24} height={24} />,
       subDescription:
@@ -273,7 +274,11 @@ export const useSettingKeeper = () => {
     {
       title: common.manageKeys,
       description: common.manageKeysDesc,
-      icon: <ManageKeyIcon width={14} height={14} />,
+      icon: isOnL4 ? (
+        <PrivateManageWallet width={14} height={14} />
+      ) : (
+        <ManageKeyIcon width={14} height={14} />
+      ),
       onPress: () => setHiddenKeyPass(true),
       isDiamond: false,
     },
@@ -402,7 +407,7 @@ export const useSettingKeeper = () => {
       subTitleWidth={wp(240)}
       subTitle={settings.assistedServerDeleteBackupSubtitle}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       Content={() => (
         <Buttons

@@ -10,14 +10,20 @@ import MultiSig from 'src/assets/images/multsig-tip.svg';
 import DiversifyHardware from 'src/assets/images/diversify-hardware.svg';
 import BackupAcidFree from 'src/assets/images/backup-acidfree.svg';
 import VariedSecuredLocation from 'src/assets/images/varied-secured-location.svg';
+import usePlan from 'src/hooks/usePlan';
+import PrivateCrossDeviceVerification from 'src/assets/images/private-doc-4-keys.svg';
+import PrivateMultisig from 'src/assets/images/private-doc-multisig-security.svg';
+import PrivateDiversifyHardware from 'src/assets/images/private-doc-hardware-usage.svg';
+import PrivateAcidFree from 'src/assets/images/private-doc-acid-free.svg';
 
 function SafeGuardingTips({}) {
   const { colorMode } = useColorMode();
+  const { isOnL4 } = usePlan();
 
   const tips = [
     {
       title: 'Activate Multi-Key (Multisig) Security:',
-      icon: <MultiSig />,
+      icon: isOnL4 ? <PrivateMultisig /> : <MultiSig />,
       paragraph:
         'A multi-key, also known as multisig, setup is crucial for enhancing the security of your bitcoin holdings. This method requires multiple approvals for transactions, significantly reducing the risk if one key is compromised.',
       paragraph2:
@@ -25,7 +31,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Diversify Hardware Wallet Usage:',
-      icon: <DiversifyHardware />,
+      icon: isOnL4 ? <PrivateDiversifyHardware /> : <DiversifyHardware />,
       paragraph2:
         'Please ensure that you keep abreast of various announcements and firmware updates from the manufacturers. Also ensure device accessibility using the Health Check feature.',
       paragraph:
@@ -33,7 +39,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Backups on Acid-Free Paper and Metal',
-      icon: <BackupAcidFree />,
+      icon: isOnL4 ? <PrivateAcidFree /> : <BackupAcidFree />,
       paragraph2:
         'A point to decide is whether you want to store them along with the devices that have your keys or store them separately. This is an important decision and should be taken carefully.',
       paragraph:
@@ -41,7 +47,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Varied and Secure Storage Locations',
-      icon: <VariedSecuredLocation />,
+      icon: isOnL4 ? <PrivateCrossDeviceVerification /> : <VariedSecuredLocation />,
       paragraph2:
         'This approach ensures that if one storage method is compromised, the others remain secure, providing a comprehensive safeguarding system for your bitcoin.',
       paragraph:
@@ -50,7 +56,10 @@ function SafeGuardingTips({}) {
   ];
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper
+      barStyle="dark-content"
+      backgroundcolor={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+    >
       <InheritanceHeader />
       <Text style={styles.container} color={`${colorMode}.headerWhite`}>
         Key Safekeeping Tips

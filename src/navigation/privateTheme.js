@@ -166,6 +166,7 @@ export const privateTheme = extendTheme({
       tagColor9: Colors.TagDark9,
       tagColor10: Colors.TagDark10,
       charcolBrown: Colors.charcolBrown,
+      warmbeige: Colors.warmbeige,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -284,6 +285,7 @@ export const privateTheme = extendTheme({
       tagColor9: Colors.TagDark9,
       tagColor10: Colors.TagDark10,
       charcolBrown: Colors.charcolBrown,
+      warmbeige: Colors.warmbeige,
     },
   },
   config: {

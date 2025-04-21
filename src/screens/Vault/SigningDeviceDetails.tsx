@@ -85,7 +85,7 @@ import { credsAuthenticated } from 'src/store/reducers/login';
 import { Psbt, script } from 'bitcoinjs-lib';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import SignerCard from '../AddSigner/SignerCard';
-import { SDColoredIcons } from './SigningDeviceIcons';
+import { SDColoredIcons, SDIcons } from './SigningDeviceIcons';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import ShareKeyModalContent from './components/ShareKeyModalContent';
@@ -94,6 +94,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import NFC from 'src/services/nfc';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
+import usePlan from 'src/hooks/usePlan';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -311,6 +312,7 @@ function SigningDeviceDetails({ route }) {
 
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const { session } = useContext(HCESessionContext);
+  const { isOnL4 } = usePlan();
 
   const cleanUp = () => {
     setNfcVisible(false);
@@ -849,13 +851,17 @@ function SigningDeviceDetails({ route }) {
   const footerItems = !vaultKey ? signerFooterItems : vaultSignerFooterItems;
 
   return (
-    <Box safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`} style={[styles.wrapper]}>
+    <Box
+      safeAreaTop
+      backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
+      style={[styles.wrapper]}
+    >
       <Box style={styles.topSection}>
         <KeeperHeader
           contrastScreen
           learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
           learnMorePressed={() => setDetailModal(true)}
-          learnBackgroundColor={`${colorMode}.pantoneGreen`}
+          learnBackgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
           learnTextColor={`${colorMode}.buttonText`}
           mediumTitle
           title={signer?.signerName === 'Signing Server' ? 'Server Key' : signer?.signerName}
@@ -865,9 +871,17 @@ function SigningDeviceDetails({ route }) {
           icon={
             <CircleIconWrapper
               backgroundColor={
-                colorMode === 'dark' ? `${colorMode}.primaryText` : `${colorMode}.thirdBackground`
+                isOnL4
+                  ? `${colorMode}.pantoneGreen`
+                  : colorMode === 'dark'
+                  ? `${colorMode}.primaryText`
+                  : `${colorMode}.thirdBackground`
               }
-              icon={SDColoredIcons(signer.type, colorMode === 'light', 26, 26).Icon}
+              icon={
+                SDIcons({ type: signer.type, light: colorMode === 'dark', width: 26, height: 26 })
+                  .Icon
+              }
+              // icon={SDIcons({ type: signer.type }).Icon}
               image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
             />
           }
@@ -905,7 +919,7 @@ function SigningDeviceDetails({ route }) {
                       <HexagonIcon
                         width={38}
                         height={34}
-                        backgroundColor={Colors.primaryGreen}
+                        backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
                         icon={getWalletIcon(vault)}
                       />
                     }

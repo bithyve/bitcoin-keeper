@@ -64,6 +64,7 @@ function ListItem({
 }) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+  const { isOnL4 } = usePlan();
 
   return (
     // TODO: Drag and rearrange wallet functionality
@@ -77,7 +78,12 @@ function ListItem({
       borderColor={`${colorMode}.separator`}
     >
       <Box style={styles.textContainer}>
-        <HexagonIcon width={44} height={38} backgroundColor={Colors.primaryGreen} icon={icon} />
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
+          icon={icon}
+        />
         <Box>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
             {title}
@@ -89,7 +95,7 @@ function ListItem({
       </Box>
       <Box style={styles.justifyContent}>
         <Box style={styles.alignCenter}>
-          {getCurrencyIcon(BTC, 'green')}
+          {getCurrencyIcon(BTC, isOnL4 ? 'light' : 'green')}
           <Text fontSize={15} color={`${colorMode}.primaryText`}>
             {` ${getBalance(balance)} ${getSatUnit()}`}
           </Text>

@@ -15,6 +15,7 @@ type EmptyCardProps = {
   loading?: boolean;
   description?: string;
   icon?: any;
+  hexagonBackgroundColor?: any;
 };
 
 function DashedButton({
@@ -24,6 +25,7 @@ function DashedButton({
   iconWidth = 40,
   iconHeight = 34,
   icon,
+  hexagonBackgroundColor = Colors.headerWhite,
 }: EmptyCardProps) {
   const { colorMode } = useColorMode();
   return (
@@ -32,7 +34,7 @@ function DashedButton({
         <HexagonIcon
           width={iconWidth}
           height={iconHeight}
-          backgroundColor={Colors.headerWhite}
+          backgroundColor={hexagonBackgroundColor}
           icon={icon}
         />
         <Box style={styles.TextContainer}>

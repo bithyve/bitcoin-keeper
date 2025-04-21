@@ -10,14 +10,19 @@ import { CommonActions } from '@react-navigation/native';
 import Chip from 'src/assets/images/chip.svg';
 import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import usePlan from 'src/hooks/usePlan';
 
 function CanaryWallets({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning, common, wallet } = translations;
+  const { isOnL4 } = usePlan();
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper
+      barStyle="dark-content"
+      backgroundcolor={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+    >
       <InheritanceHeader />
       <ScrollView>
         <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
