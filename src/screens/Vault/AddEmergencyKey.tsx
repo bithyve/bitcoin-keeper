@@ -2,12 +2,11 @@ import { Box, useColorMode } from 'native-base';
 import React, { useCallback, useContext, useState, useEffect, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import HorizontalAddCard from 'src/components/HorizontalAddCard';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import OptionPicker from 'src/components/OptionPicker';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ADDEMERGENCYKEY } from 'src/navigation/contants';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
@@ -22,8 +21,6 @@ import {
   MONTHS_24,
   MONTHS_18,
   MONTHS_36,
-  MONTHS_3,
-  MONTHS_6,
   MONTHS_30,
   MONTHS_42,
   MONTHS_48,
@@ -34,18 +31,14 @@ import { getKeyUID } from 'src/utils/utilities';
 import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import VaultMigrationController from './VaultMigrationController';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import {
-  EMERGENCY_KEY_IDENTIFIER,
-  INHERITANCE_KEY_IDENTIFIER,
-} from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import { EMERGENCY_KEY_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import WalletHeader from 'src/components/WalletHeader';
 
 export const DEFAULT_EMERGENCY_KEY_TIMELOCK = { label: MONTHS_36, value: MONTHS_36 };
 export const EMERGENCY_TIMELOCK_DURATIONS = [
@@ -174,9 +167,9 @@ function AddEmergencyKey({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={`${vaultTranslations.addEmergencyKey}`}
-        subtitle={vaultTranslations.setEmergencyKeyForVault}
+        subTitle={vaultTranslations.setEmergencyKeyForVault}
       />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>

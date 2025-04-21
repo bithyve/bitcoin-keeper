@@ -52,6 +52,7 @@ import AmountDetailsInput from './AmountDetailsInput';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
 import PriorityModal from './PriorityModal';
+import WalletHeader from 'src/components/WalletHeader';
 
 const capitalizeFirstLetter = (string) => {
   if (!string) return '';
@@ -527,29 +528,35 @@ function AddSendAmount({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title="Sending from"
-        subtitle={sender.presentationData.name}
-        subTitleSize={16}
-        icon={
-          <HexagonIcon
-            width={44}
-            height={38}
-            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
-            icon={getWalletIcon(sender)}
-          />
-        }
-        availableBalance={
-          <CurrencyInfo
-            hideAmounts={false}
-            amount={selectedUTXOs?.length ? totalUtxosAmount : availableBalance}
-            fontSize={16}
-            satsFontSize={12}
-            color={`${colorMode}.primaryText`}
-            variation={!isDarkMode ? 'dark' : 'light'}
-          />
-        }
+      <WalletHeader
+        title="Enter Amount to Send"
+        // icon={
+        //   <HexagonIcon
+        //     width={44}
+        //     height={38}
+        //     backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
+        //     icon={getWalletIcon(sender)}
+        //   />
+        // }
       />
+
+      <Box flexDirection={'row'} marginTop={hp(6)} marginBottom={hp(20)}>
+        <Text fontSize={14} style={{ alignSelf: 'center', marginBottom: hp(1) }}>
+          {selectedUTXOs && selectedUTXOs.length
+            ? 'Available '
+            : sender.presentationData.name + ' '}
+          Balance:
+        </Text>
+        <CurrencyInfo
+          hideAmounts={false}
+          amount={selectedUTXOs?.length ? totalUtxosAmount : availableBalance}
+          fontSize={14}
+          satsFontSize={12}
+          color={`${colorMode}.black`}
+          variation={!isDarkMode ? 'dark' : 'light'}
+        />
+      </Box>
+
       <AmountDetailsInput
         amount={amount}
         currentAmount={currentAmount}

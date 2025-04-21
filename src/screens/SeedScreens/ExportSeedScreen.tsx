@@ -4,7 +4,6 @@ import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { healthCheckStatusUpdate, seedBackedUp } from 'src/store/sagaActions/bhr';
@@ -30,6 +29,7 @@ import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
 import { getKeyUID } from 'src/utils/utilities';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -132,7 +132,7 @@ function ExportSeedScreen({ route, navigation }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
-        <KeeperHeader
+        <WalletHeader
           title={
             isFromAssistedKey
               ? `${BackupWallet.backingUp} ${signer.signerName}`
@@ -140,7 +140,7 @@ function ExportSeedScreen({ route, navigation }) {
               ? seedTranslation.mobileKeySeedWordsTitle
               : seedTranslation.walletSeedWords
           }
-          subtitle={
+          subTitle={
             isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedTranslation.SeedDesc
           }
         />

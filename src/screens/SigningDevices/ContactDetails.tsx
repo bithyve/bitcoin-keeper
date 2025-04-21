@@ -24,6 +24,7 @@ import { exportFile } from 'src/services/fs';
 import { useAppSelector } from 'src/store/hooks';
 import CollaborativeModals from './components/CollaborativeModals';
 import Note from 'src/components/Note/Note';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ContactDetails({ route }) {
   const {
@@ -162,9 +163,9 @@ function ContactDetails({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={vaultText.contactDetailsTitle}
-        subtitle={vaultText.contactDetailsSubtitle}
+        subTitle={vaultText.contactDetailsSubtitle}
       />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>

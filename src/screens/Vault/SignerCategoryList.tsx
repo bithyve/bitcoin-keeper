@@ -4,7 +4,6 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { hp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -25,6 +24,7 @@ import { SignerCategory, SignerType, VaultType } from 'src/services/wallets/enum
 import { SDIcons } from './SigningDeviceIcons';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import DashedCta from 'src/components/DashedCta';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SignerCategoryList() {
   const route = useRoute();
@@ -127,13 +127,10 @@ function SignerCategoryList() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={vault.Addsigner}
-        subtitle={vault.SelectSignerSubtitle}
+        subTitle={vault.SelectSignerSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
-        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}

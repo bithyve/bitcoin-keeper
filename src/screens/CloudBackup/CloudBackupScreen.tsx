@@ -2,7 +2,6 @@ import React, { useContext, useMemo, useEffect, useState } from 'react';
 import { StyleSheet, Platform, FlatList } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -28,6 +27,7 @@ import { setBackupModal } from 'src/store/reducers/settings';
 import EnterPasswordModal from './EnterPasswordModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import WalletHeader from 'src/components/WalletHeader';
 
 function CloudBackupScreen() {
   const navigation = useNavigation();
@@ -88,19 +88,19 @@ function CloudBackupScreen() {
         }}
       />
       <Box width={'100%'}>
-        <KeeperHeader
+        <WalletHeader
           title={strings.cloudBackup}
-          subtitle={`On your ${cloudName}`}
+          subTitle={`On your ${cloudName}`}
           learnMore={true}
-          learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-          learnTextColor={`${colorMode}.buttonText`}
+          // learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
+          // learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setShowModal(true)}
-          icon={
-            <CircleIconWrapper
-              backgroundColor={`${colorMode}.primaryGreenBackground`}
-              icon={<CloudIcon />}
-            />
-          }
+          // icon={
+          //   <CircleIconWrapper
+          //     backgroundColor={`${colorMode}.primaryGreenBackground`}
+          //     icon={<CloudIcon />}
+          //   />
+          // }
         />
       </Box>
       <Text style={styles.textTitle}>{strings.recentHistory}</Text>

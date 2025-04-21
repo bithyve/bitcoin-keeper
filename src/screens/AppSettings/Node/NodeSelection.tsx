@@ -1,7 +1,6 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TabBar from 'src/components/TabBar';
 import { hp, wp } from 'src/constants/responsive';
@@ -32,6 +31,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { NetworkType } from 'src/services/wallets/enums';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
+import WalletHeader from 'src/components/WalletHeader';
 
 const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL, connectionError }) => {
   return (
@@ -225,9 +225,9 @@ const NodeSelection = () => {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={loading || saveLoading} />
-      <KeeperHeader
+      <WalletHeader
         title="Server Selection"
-        subtitle="Select a server you'd like to use. Add your own node for enhanced privacy."
+        subTitle="Select a server you'd like to use. Add your own node for enhanced privacy."
       />
       <Box style={styles.tabBarContainer}>
         <TabBar
