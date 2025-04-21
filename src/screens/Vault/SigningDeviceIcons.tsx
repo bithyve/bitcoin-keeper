@@ -84,6 +84,16 @@ import PortalIcon from 'src/assets/images/portalIcon.svg';
 import PortalIconLight from 'src/assets/images/portalIconLight.svg';
 import PortalGreenIconLight from 'src/assets/images/portal-green-light.svg';
 import PortalGreenIconDark from 'src/assets/images/portal-green-dark.svg';
+import PrivateTapsigner from 'src/assets/images/private-tapsigner.svg';
+import PrivateColdCard from 'src/assets/images/private-Coldcard_1.svg';
+import PrivateJade from 'src/assets/images/private-jade.svg';
+import PrivateSeedSigner from 'src/assets/images/private-seedsigner.svg';
+import PrivatePassport from 'src/assets/images/private-passport.svg';
+import PrivateBitBox from 'src/assets/images/private-bitBox.svg';
+import PrivateKeyStone from 'src/assets/images/private-keystone.svg';
+import PrivateTrezor from 'src/assets/images/private-trezor.svg';
+import PrivateLedger from 'src/assets/images/private-ledger.svg';
+import PrivateSpector from 'src/assets/images/private-specter.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -93,20 +103,41 @@ const getColouredIcon = (LightComponent, DarkComponent, isLight, width, height) 
   const component = isLight ? LightComponent : DarkComponent;
   return React.cloneElement(component, { width, height });
 };
+type SDIconOptions = {
+  type: SignerType;
+  light?: boolean;
+  width?: number;
+  height?: number;
+  isOnL4?: boolean;
+};
 
-export const SDIcons = (type: SignerType, light = true, width = 20, height = 20) => {
+export const SDIcons = ({
+  type,
+  light = true,
+  width = 20,
+  height = 20,
+  isOnL4 = false,
+}: SDIconOptions) => {
   const { colorMode } = useColorMode();
 
   switch (type) {
     case SignerType.COLDCARD:
       return {
-        Icon: getColouredIcon(<COLDCARDICONLIGHT />, <COLDCARDICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivateColdCard />
+        ) : (
+          getColouredIcon(<COLDCARDICONLIGHT />, <COLDCARDICON />, light, width, height)
+        ),
         Logo: <COLDCARDLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.JADE:
       return {
-        Icon: getColouredIcon(<JADEICONLIGHT />, <JADEICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivateJade />
+        ) : (
+          getColouredIcon(<JADEICONLIGHT />, <JADEICON />, light, width, height)
+        ),
         Logo: colorMode === 'dark' ? <JADELOGOWHITE /> : <JADELOGO />,
         type: SignerStorage.COLD,
       };
@@ -130,13 +161,21 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
       };
     case SignerType.KEYSTONE:
       return {
-        Icon: getColouredIcon(<KEYSTONEICONLIGHT />, <KEYSTONEICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivateKeyStone />
+        ) : (
+          getColouredIcon(<KEYSTONEICONLIGHT />, <KEYSTONEICON />, light, width, height)
+        ),
         Logo: colorMode === 'dark' ? <KEYSTONELOGOWHITE /> : <KEYSTONELOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.LEDGER:
       return {
-        Icon: getColouredIcon(<LEDGERICONLIGHT />, <LEDGERICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivateLedger />
+        ) : (
+          getColouredIcon(<LEDGERICONLIGHT />, <LEDGERICON />, light, width, height)
+        ),
         Logo: colorMode === 'dark' ? <LEDGERLOGOWHITE /> : <LEDGERLOGO />,
         type: SignerStorage.COLD,
       };
@@ -152,7 +191,11 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
       };
     case SignerType.PASSPORT:
       return {
-        Icon: getColouredIcon(<PASSPORTICONLIGHT />, <PASSPORTICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivatePassport />
+        ) : (
+          getColouredIcon(<PASSPORTICONLIGHT />, <PASSPORTICON />, light, width, height)
+        ),
         Logo: colorMode === 'dark' ? <PASSPORTLOGOWHITE /> : <PASSPORTLOGO />,
         type: SignerStorage.COLD,
       };
@@ -168,31 +211,51 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
       };
     case SignerType.TAPSIGNER:
       return {
-        Icon: getColouredIcon(<TAPSIGNERICONLIGHT />, <TAPSIGNERICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivateTapsigner />
+        ) : (
+          getColouredIcon(<TAPSIGNERICONLIGHT />, <TAPSIGNERICON />, light, width, height)
+        ),
         Logo: <TAPSIGNERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.TREZOR:
       return {
-        Icon: getColouredIcon(<TREZORICONLIGHT />, <TREZORICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivateTrezor />
+        ) : (
+          getColouredIcon(<TREZORICONLIGHT />, <TREZORICON />, light, width, height)
+        ),
         Logo: colorMode === 'dark' ? <TREZORLOGOWHITE /> : <TREZORLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SEEDSIGNER:
       return {
-        Icon: getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivateSeedSigner />
+        ) : (
+          getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light, width, height)
+        ),
         Logo: <SEEDSIGNERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SPECTER:
       return {
-        Icon: getColouredIcon(<SPECTERICONLIGHT />, <SPECTERICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivateSpector />
+        ) : (
+          getColouredIcon(<SPECTERICONLIGHT />, <SPECTERICON />, light, width, height)
+        ),
         Logo: colorMode === 'dark' ? <SPECTERLOGOWHITE /> : <SPECTERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.BITBOX02:
       return {
-        Icon: getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light, width, height),
+        Icon: isOnL4 ? (
+          <PrivateBitBox />
+        ) : (
+          getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light, width, height)
+        ),
         Logo: colorMode === 'dark' ? <BITBOXLOGOWHITE /> : <BITBOXLOGO />,
         type: SignerStorage.COLD,
       };

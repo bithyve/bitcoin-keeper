@@ -191,7 +191,7 @@ function AddReserveKey({ route }) {
                   key={getKeyUID(reservedKey)}
                   name={getSignerNameFromType(reservedKey.type, reservedKey.isMock, false)}
                   description={getSignerDescription(reservedKey)}
-                  icon={SDIcons(reservedKey.type).Icon}
+                  icon={SDIcons({ type: reservedKey.type }).Icon}
                   isSelected={false}
                   showSelection={false}
                   changeKey={userKeyCallback}

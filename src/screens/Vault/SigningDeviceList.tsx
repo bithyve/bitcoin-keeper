@@ -1,7 +1,6 @@
 import { Box, Input, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
@@ -56,7 +55,7 @@ const SigningDeviceList = () => {
     vaultType?: VaultType;
   } = route.params as any;
   const { colorMode } = useColorMode();
-  const { isOnL1, isOnL2 } = usePlan();
+  const { isOnL1, isOnL2, isOnL4 } = usePlan();
   const { signers } = useSigners();
   const { translations } = useContext(LocalizationContext);
   const [isNfcSupported, setNfcSupport] = useState(true);
@@ -212,6 +211,7 @@ const SigningDeviceList = () => {
                       last={index === sortedSigners[signerCategory].length - 1}
                       isOnL1={isOnL1}
                       isOnL2={isOnL2}
+                      isOnL4={isOnL4}
                       addSignerFlow={addSignerFlow}
                       vaultId={vaultId}
                       vaultSigners={vaultSigners}
@@ -235,14 +235,14 @@ const SigningDeviceList = () => {
         }}
         title={signer.signers}
         subTitle={signer.signerDescription}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.whiteSecButtonText` : `${colorMode}.pantoneGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

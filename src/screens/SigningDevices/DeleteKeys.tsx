@@ -125,7 +125,7 @@ function DeleteKeys({ route }) {
             width={43}
             height={38}
             backgroundColor={Colors.primaryGreen}
-            icon={SDIcons(deletedSigner?.type, true).Icon}
+            icon={SDIcons({ type: deletedSigner?.type, light: true }).Icon}
           />
           <Box>
             <Text numberOfLines={1} fontSize={14} color={`${colorMode}.greenText`}>
@@ -215,7 +215,7 @@ function DeleteKeys({ route }) {
                   primaryIcon={showDelete ? <DeleteIcon /> : null}
                   secondaryIcon={<ShowIcon />}
                   icon={{
-                    element: SDIcons(signer.type, true).Icon,
+                    element: SDIcons({ type: signer.type, light: true }).Icon,
                     backgroundColor: 'pantoneGreen',
                   }}
                   name={getSignerNameFromType(signer.type)}
@@ -299,7 +299,7 @@ function DeleteKeys({ route }) {
                   width={43}
                   height={38}
                   backgroundColor={Colors.primaryGreen}
-                  icon={SDIcons(signerToDelete.type, true).Icon}
+                  icon={SDIcons({ type: signerToDelete.type, light: true }).Icon}
                 />
                 <Box>
                   <Text numberOfLines={1} fontSize={14} color={`${colorMode}.greenText`}>

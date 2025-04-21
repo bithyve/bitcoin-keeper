@@ -200,7 +200,7 @@ const SignerCard = ({ onPress, signer }) => {
                 alignItems="center"
                 marginX={1}
               >
-                {SDIcons(signer.type).Icon}
+                {SDIcons({ type: signer.type }).Icon}
               </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>

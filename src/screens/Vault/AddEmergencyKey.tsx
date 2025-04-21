@@ -189,7 +189,7 @@ function AddEmergencyKey({ route }) {
                   key={getKeyUID(emergencyKey)}
                   name={getSignerNameFromType(emergencyKey.type, emergencyKey.isMock, false)}
                   description={getSignerDescription(emergencyKey)}
-                  icon={SDIcons(emergencyKey.type).Icon}
+                  icon={SDIcons({ type: emergencyKey.type }).Icon}
                   isSelected={false}
                   showSelection={false}
                   changeKey={userKeyCallback}

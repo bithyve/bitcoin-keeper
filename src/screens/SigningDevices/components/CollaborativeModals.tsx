@@ -45,11 +45,11 @@ function NFCModalContent({ onTryAnotherMethod }: { onTryAnotherMethod: () => voi
 
   const stackItems = [
     {
-      Icon: SDIcons(SignerType.KEEPER, true, 20, 20).Icon,
+      Icon: SDIcons({ type: SignerType.KEEPER, light: true, width: 20, height: 20 }).Icon,
       backgroundColor: `${colorMode}.brownBackground`,
     },
     {
-      Icon: SDIcons(SignerType.MY_KEEPER, true, 11, 16).Icon,
+      Icon: SDIcons({ type: SignerType.MY_KEEPER, light: true, width: 11, height: 16 }).Icon,
       backgroundColor: `${colorMode}.pantoneGreen`,
     },
   ];

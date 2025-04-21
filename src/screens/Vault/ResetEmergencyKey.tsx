@@ -172,7 +172,7 @@ function ResetEmergencyKey({ route }) {
             <IKSInfocard
               name={signer?.signerName}
               description={getSignerDescription(signer)}
-              Icon={SDIcons(signer?.type)?.Icon}
+              Icon={SDIcons({ type: signer?.type })?.Icon}
               duration={activationTimes[getKeyUID(signer)]}
             />
             <Box style={styles.dropdownContainer}>

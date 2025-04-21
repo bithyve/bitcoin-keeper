@@ -406,7 +406,7 @@ function SignersList({
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, false)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type).Icon}
+          icon={SDIcons({ type: shellSigner.type }).Icon}
           showSelection={false}
           showDot={true}
           colorVarient="green"
@@ -476,7 +476,7 @@ function SignersList({
                     : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
                 description={getSignerDescription(signer)}
-                icon={SDIcons(signer.type, true).Icon}
+                icon={SDIcons({ type: signer.type, light: true }).Icon}
                 image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}

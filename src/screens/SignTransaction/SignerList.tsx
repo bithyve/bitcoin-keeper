@@ -52,7 +52,7 @@ function SignerList({
                   style={styles.associatedContactImage}
                 />
               ) : (
-                SDIcons(signer.type).Icon
+                SDIcons({ type: signer.type }).Icon
               )}
             </Box>
           </Box>

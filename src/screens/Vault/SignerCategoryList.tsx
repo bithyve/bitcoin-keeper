@@ -64,7 +64,7 @@ function SignerCategoryList() {
   ];
 
   const hardwareSnippet = hardwareSigners.map(({ type, background, isTrue }) => ({
-    Icon: SDIcons(type, isTrue, 9, 13).Icon,
+    Icon: SDIcons({ type, light: isTrue, width: 9, height: 13 }).Icon,
     backgroundColor: `${colorMode}.${background}`,
   }));
 

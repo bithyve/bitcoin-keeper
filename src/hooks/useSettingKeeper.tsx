@@ -90,6 +90,9 @@ export const useSettingKeeper = () => {
   useEffect(() => {
     if (isOnL4) {
       dispatch(setThemeMode(ThemeMode.PRIVATE));
+      if (colorMode === 'light') {
+        toggleColorMode();
+      }
     } else {
       if (colorMode === 'dark') {
         dispatch(setThemeMode(ThemeMode.DARK));

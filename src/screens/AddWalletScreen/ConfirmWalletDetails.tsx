@@ -484,7 +484,7 @@ function ConfirmWalletDetails({ route }) {
                   name={getSignerNameFromType(signer.type, signer.isMock, signer.isAMF)}
                   description={getSignerDescription(signer)}
                   // customStyle={styles.signerCard}
-                  icon={SDIcons(signer.type).Icon}
+                  icon={SDIcons({ type: signer.type }).Icon}
                   image={signer?.extraData?.thumbnailPath}
                   showSelection={false}
                   isFullText
@@ -502,7 +502,7 @@ function ConfirmWalletDetails({ route }) {
                   false
                 )}
                 description={getSignerDescription(inheritanceSigner)}
-                icon={SDIcons(inheritanceSigner.type).Icon}
+                icon={SDIcons({ type: inheritanceSigner.type }).Icon}
                 image={inheritanceSigner?.extraData?.thumbnailPath}
                 showSelection={false}
                 isFullText
@@ -516,7 +516,7 @@ function ConfirmWalletDetails({ route }) {
                 key={getKeyUID(emergencySigner)}
                 name={getSignerNameFromType(emergencySigner.type, emergencySigner.isMock, false)}
                 description={getSignerDescription(emergencySigner)}
-                icon={SDIcons(emergencySigner.type).Icon}
+                icon={SDIcons({ type: emergencySigner.type }).Icon}
                 image={emergencySigner?.extraData?.thumbnailPath}
                 showSelection={false}
                 isFullText
