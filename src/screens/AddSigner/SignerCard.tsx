@@ -5,6 +5,7 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
+import usePlan from 'src/hooks/usePlan';
 
 type SignerCardProps = {
   name: string;
@@ -33,6 +34,7 @@ type SignerCardProps = {
   titleSize?: number;
   subtitleFont?: number;
   badgeText?: string;
+  isOnL4?: boolean;
 };
 
 function SignerCard({
@@ -62,6 +64,7 @@ function SignerCard({
   subtitleFont,
   disabledWithTouch = false,
   badgeText,
+  isOnL4,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -82,6 +85,7 @@ function SignerCard({
   ];
 
   const isPressable = !disabled;
+  // const { isOnL4 } = usePlan();
 
   return (
     <Pressable
@@ -99,13 +103,17 @@ function SignerCard({
           position="absolute"
           top={hp(10)}
           right={0}
-          bg={`${colorMode}.BrownNeedHelp`}
+          bg={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.BrownNeedHelp`}
           px={3}
           py={1}
           borderTopLeftRadius={5}
           borderBottomLeftRadius={5}
         >
-          <Text color={`${colorMode}.buttonText`} fontSize={10} medium>
+          <Text
+            color={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.buttonText`}
+            fontSize={10}
+            medium
+          >
             {badgeText}
           </Text>
         </Box>

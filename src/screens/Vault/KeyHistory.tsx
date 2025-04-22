@@ -2,7 +2,6 @@ import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Signer } from 'src/services/wallets/interfaces/vault';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -16,6 +15,7 @@ import { useQuery } from '@realm/react';
 import { BackupHistoryItem } from 'src/models/enums/BHR';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Text from 'src/components/KeeperText';
+import WalletHeader from 'src/components/WalletHeader';
 
 const EmptyHistoryView = ({ colorMode }) => (
   <Box style={styles.emptyWrapper}>
@@ -57,9 +57,9 @@ function KeyHistory({ route }: any) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Key History"
-        subtitle={
+        subTitle={
           !signer.isBIP85
             ? `for ${getSignerNameFromType(signer.type, signer.isMock, false)}`
             : `for ${`${getSignerNameFromType(signer.type, signer.isMock, false)} +`}`

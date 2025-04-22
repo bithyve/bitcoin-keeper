@@ -6,6 +6,7 @@ import ActionChip from 'src/components/ActionChip';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { hp } from 'src/constants/responsive';
+import usePlan from 'src/hooks/usePlan';
 
 function KeyCard({
   icon,
@@ -22,6 +23,7 @@ function KeyCard({
   dateAdded,
 }) {
   const { colorMode } = useColorMode();
+  const { isOnL4 } = usePlan();
   return (
     <Box
       backgroundColor={`${colorMode}.seashellWhite`}
@@ -34,7 +36,7 @@ function KeyCard({
             <HexagonIcon
               width={40}
               height={40}
-              backgroundColor={Colors.primaryGreen}
+              backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
               icon={icon.element}
             />
             <Text medium style={styles.nameText} color={`${colorMode}.primaryText`}>

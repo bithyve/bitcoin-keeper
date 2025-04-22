@@ -1,11 +1,11 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperQRCode from 'src/components/KeeperQRCode';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ShareQR({ route }) {
   const { details } = route.params;
@@ -15,7 +15,7 @@ function ShareQR({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={vaultText.shareQRTitle} subtitle={vaultText.shareQRSubtitle} />
+      <WalletHeader title={vaultText.shareQRTitle} subTitle={vaultText.shareQRSubtitle} />
       <Box style={styles.container}>
         <Box>{details && <KeeperQRCode qrData={details} size={windowWidth * 0.6} showLogo />}</Box>
       </Box>

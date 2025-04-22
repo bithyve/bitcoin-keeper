@@ -3,11 +3,11 @@ import { Box, Input, View, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useNavigation } from '@react-navigation/native';
 import Buttons from 'src/components/Buttons';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
@@ -40,7 +40,7 @@ function ImportWalletDetailsScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.addDetails} />
+        <WalletHeader title={home.ImportWallet} subTitle={importWallet.addDetails} />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper, { marginTop: hp(15) }]}>

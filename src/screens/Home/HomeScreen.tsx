@@ -25,6 +25,11 @@ import KeeperSettings from './components/Settings/keeperSettings';
 import { useNavigation } from '@react-navigation/native';
 import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import usePlan from 'src/hooks/usePlan';
+import PrivateWallet from 'src/assets/privateImages/wallet-icon.svg';
+import PrivateKeys from 'src/assets/privateImages/key-icon.svg';
+import Privateconcierge from 'src/assets/privateImages/concierge-icon.svg';
+import PrivateSettings from 'src/assets/images/settings-icon-white.svg';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -33,6 +38,8 @@ function NewHomeScreen({ route }) {
   const { addedSigner, selectedOption: selectedOptionFromRoute } = route.params || {};
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
+  const { isOnL4 } = usePlan();
+
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage, homeToastMessage } =
     useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
@@ -57,12 +64,11 @@ function NewHomeScreen({ route }) {
               <HomeWallet />
             </Box>
           ),
-
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={<WalletIcon />}
-              backgroundColor={`${colorMode}.headerWhite`}
+              icon={isOnL4 ? <PrivateWallet /> : <WalletIcon />}
+              backgroundColor={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`}
             />
           ),
         };
@@ -76,8 +82,8 @@ function NewHomeScreen({ route }) {
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={<KeysIcon />}
-              backgroundColor={`${colorMode}.headerWhite`}
+              icon={isOnL4 ? <PrivateKeys /> : <KeysIcon />}
+              backgroundColor={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`}
             />
           ),
         };
@@ -92,13 +98,17 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={
-                <ConciergeIcon
-                  width={wp(20)}
-                  height={hp(20)}
-                  style={{ marginRight: wp(1), marginBottom: hp(1) }}
-                />
+                isOnL4 ? (
+                  <Privateconcierge />
+                ) : (
+                  <ConciergeIcon
+                    width={wp(20)}
+                    height={hp(20)}
+                    style={{ marginRight: wp(1), marginBottom: hp(1) }}
+                  />
+                )
               }
-              backgroundColor={`${colorMode}.headerWhite`}
+              backgroundColor={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`}
             />
           ),
         };
@@ -112,8 +122,8 @@ function NewHomeScreen({ route }) {
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={<SettingIcon />}
-              backgroundColor={`${colorMode}.headerWhite`}
+              icon={isOnL4 ? <PrivateSettings /> : <SettingIcon />}
+              backgroundColor={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`}
             />
           ),
         };

@@ -1,7 +1,6 @@
 import { Box, Input, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
@@ -31,6 +30,8 @@ import { hp, wp } from 'src/constants/responsive';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import WalletHeader from 'src/components/WalletHeader';
+import PrivateSigningDevice from 'src/assets/privateImages/doc-hardware-usage.svg';
 
 const SigningDeviceList = () => {
   const navigation = useNavigation();
@@ -55,7 +56,7 @@ const SigningDeviceList = () => {
     vaultType?: VaultType;
   } = route.params as any;
   const { colorMode } = useColorMode();
-  const { isOnL1, isOnL2 } = usePlan();
+  const { isOnL1, isOnL2, isOnL4 } = usePlan();
   const { signers } = useSigners();
   const { translations } = useContext(LocalizationContext);
   const [isNfcSupported, setNfcSupport] = useState(true);
@@ -110,7 +111,7 @@ const SigningDeviceList = () => {
     return (
       <Box>
         <Box style={styles.alignCenter}>
-          <SigningDevicesIllustration />
+          {isOnL4 ? <PrivateSigningDevice /> : <SigningDevicesIllustration />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
@@ -162,13 +163,10 @@ const SigningDeviceList = () => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={headerTitle}
-        subtitle={headerSubtitle}
+        subTitle={headerSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
-        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
@@ -179,8 +177,6 @@ const SigningDeviceList = () => {
             </TouchableOpacity>
           )
         }
-        rightComponentPadding={wp(10)}
-        rightComponentBottomPadding={hp(40)}
       />
       <Box style={styles.scrollViewWrapper}>
         <ScrollView
@@ -216,6 +212,7 @@ const SigningDeviceList = () => {
                       last={index === sortedSigners[signerCategory].length - 1}
                       isOnL1={isOnL1}
                       isOnL2={isOnL2}
+                      isOnL4={isOnL4}
                       addSignerFlow={addSignerFlow}
                       vaultId={vaultId}
                       vaultSigners={vaultSigners}
@@ -239,14 +236,14 @@ const SigningDeviceList = () => {
         }}
         title={signer.signers}
         subTitle={signer.signerDescription}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.whiteSecButtonText` : `${colorMode}.pantoneGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

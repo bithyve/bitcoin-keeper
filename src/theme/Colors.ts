@@ -130,6 +130,9 @@ const Colors = {
   JadePine: 'rgba(45, 103, 89, 1)',
   OceanSage: 'rgba(80, 139, 130, 1)',
   lightGreenTag: 'rgba(146, 194, 124, 1)',
+  goldenGradient: 'rgba(183, 159, 102, 1)',
+  charcolBrown: 'rgba(43, 41, 39, 1)',
   toastDark: 'rgba(210, 212, 175, 1)',
+  warmbeige: 'rgba(193, 167, 156, 1)',
 };
 export default Colors;

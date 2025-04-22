@@ -26,6 +26,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 import Fonts from 'src/constants/Fonts';
+import usePlan from 'src/hooks/usePlan';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -47,6 +48,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
   const { signerMap } = useSignerMap();
+  const { isOnL4 } = usePlan();
   useFocusEffect(
     useCallback(() => {
       dispatch(setRefreshUai());
@@ -167,8 +169,11 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   };
 
   return (
-    <Box backgroundColor={`${colorMode}.pantoneGreen`}>
-      <Box backgroundColor={`${colorMode}.pantoneGreen`} style={[styles.wrapper]}>
+    <Box backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}>
+      <Box
+        backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
+        style={[styles.wrapper]}
+      >
         <Box width="90%" style={styles.padding}>
           <Box style={styles.headerData} testID={`btn_choosePlan`}>
             {circleIconWrapper}

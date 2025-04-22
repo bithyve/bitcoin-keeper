@@ -13,6 +13,7 @@ type Props = {
   setAddNewUserModal: (value: boolean) => void;
   setNewUserName: (value: string) => void;
   newUserName: string;
+  isOnL4: boolean;
 };
 
 const NewUserContent = (props: Props) => {
@@ -41,7 +42,9 @@ const NewUserContent = (props: Props) => {
       <KeeperTextInput
         placeholder="Enter Your Name/label"
         placeholderTextColor={`${colorMode}.placeHolderTextColor`}
-        inpuBorderColor={`${colorMode}.textInputBackground`}
+        inpuBorderColor={
+          props.isOnL4 ? `${colorMode}.dullGreyBorder` : `${colorMode}.textInputBackground`
+        }
         value={username}
         onChangeText={handleChangeText}
       />
@@ -51,7 +54,12 @@ const NewUserContent = (props: Props) => {
           props.setAddNewUserModal(false);
         }}
       >
-        <Box backgroundColor={`${colorMode}.textInputBackground`} style={styles.cardContainer}>
+        <Box
+          backgroundColor={`${colorMode}.textInputBackground`}
+          borderColor={`${colorMode}.dullGreyBorder`}
+          borderWidth={1}
+          style={styles.cardContainer}
+        >
           <Text>Select Permitted Actions</Text>
           <RightArrowIcon />
         </Box>

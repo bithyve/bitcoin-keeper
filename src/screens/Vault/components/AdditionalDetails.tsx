@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, useColorMode, VStack } from 'native-base';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -16,6 +15,7 @@ import { useDispatch } from 'react-redux';
 import useSignerMap from 'src/hooks/useSignerMap';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { getKeyUID } from 'src/utils/utilities';
+import WalletHeader from 'src/components/WalletHeader';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -30,9 +30,9 @@ function AdditionalDetails({ route }: ScreenProps) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Additional Details"
-        subtitle="Optionally you can add description and associate a contact to key"
+        subTitle="Optionally you can add description and associate a contact to key"
       />
       <VStack style={styles.descriptionContainer}>
         <Box style={styles.inputWrapper}>

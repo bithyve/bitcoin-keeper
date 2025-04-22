@@ -21,6 +21,8 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import usePlan from 'src/hooks/usePlan';
+import NetworkIcon from 'src/assets/privateImages/network-icon.svg';
 
 const SettingsApp = () => {
   const { colorMode } = useColorMode();
@@ -31,13 +33,18 @@ const SettingsApp = () => {
   const [networkModeModal, setNetworkModeModal] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(bitcoinNetworkType);
   const [loading, setLoading] = useState(false);
+  const { isOnL4 } = usePlan();
 
   let appSetting = [
     ...useSettingKeeper().appSetting,
     {
       title: settings.networkModeTitle,
       description: settings.networkModeSubTitle,
-      icon: <NetworkModeIcon width={16.5} height={16} />,
+      icon: isOnL4 ? (
+        <NetworkIcon width={16.5} height={16} />
+      ) : (
+        <NetworkModeIcon width={16.5} height={16} />
+      ),
       onPress: () => setNetworkModeModal(true),
       isDiamond: false,
     },
@@ -107,7 +114,7 @@ const SettingsApp = () => {
           subTitleWidth={wp(240)}
           subTitle={settings.networkModeModalSubTitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.modalHeaderTitle`}
+          textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={() => (
             <Box>

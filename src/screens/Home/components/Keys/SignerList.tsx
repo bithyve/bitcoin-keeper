@@ -24,6 +24,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
+import PlusPrivateIcon from 'src/assets/privateImages/plus-gold-icon.svg';
+import usePlan from 'src/hooks/usePlan';
 
 const SignerList = ({ navigation, handleModalOpen }) => {
   const { signers } = useSigners('', false);
@@ -39,6 +41,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
+  const { isOnL4 } = usePlan();
 
   const handleCardSelect = (signer) => {
     navigation.dispatch(
@@ -100,7 +103,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type).Icon}
+          icon={SDIcons({ type: shellSigner.type }).Icon}
           showSelection={false}
           showDot={true}
           colorVarient="green"
@@ -147,7 +150,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
                     : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
                 subtitle={getSignerDescription(signer)}
-                icon={SDIcons(signer.type, true).Icon}
+                icon={SDIcons({ type: signer.type, light: true }).Icon}
                 image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}
@@ -164,7 +167,9 @@ const SignerList = ({ navigation, handleModalOpen }) => {
             name={signer.addKey}
             callback={handleModalOpen}
             icon={
-              isDarkMode ? (
+              isOnL4 ? (
+                <PlusPrivateIcon width={12.9} height={12.9} />
+              ) : isDarkMode ? (
                 <PlusGreenIcon width={12.9} height={12.9} />
               ) : (
                 <Plus width={12.9} height={12.9} />

@@ -8,20 +8,25 @@ import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
-import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import AdditionalSignerIcon from 'src/assets/images/additional-signer-icon.svg';
 import GenerateAdditionalKeyDetailsTemplate from 'src/utils/GenerateAdditionalKeyDetailsTemplate';
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import usePlan from 'src/hooks/usePlan';
+import PrivateAdditionalSigner from 'src/assets/privateImages/additional-signer-illustration.svg';
 
 function AdditionalSignerDetailsTemplate({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
+  const { isOnL4 } = usePlan();
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper
+      barStyle="dark-content"
+      backgroundcolor={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+    >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
@@ -35,7 +40,7 @@ function AdditionalSignerDetailsTemplate({}) {
         </Text>
 
         <Box style={styles.circleStyle}>
-          <AdditionalSignerIcon />
+          {isOnL4 ? <PrivateAdditionalSigner /> : <AdditionalSignerIcon />}
         </Box>
 
         <Box mt={5}>
@@ -49,6 +54,7 @@ function AdditionalSignerDetailsTemplate({}) {
               });
             }}
             name={inheritancePlanning.additionalKeysCtaTitle}
+            hexagonBackgroundColor={'transparent'}
           />
         </Box>
 

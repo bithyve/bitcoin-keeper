@@ -56,7 +56,7 @@ const KeeperSettings = ({ route }) => {
     };
   }, []); // Empty dependency array means this runs once on mount
 
-  const { plan } = usePlan();
+  const { plan, isOnL4 } = usePlan();
   const currentPlan = planData.find((p) => p.plan === plan);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
   const onSuccess = () => navigation.dispatch(CommonActions.navigate('DeleteKeys'));
@@ -75,7 +75,7 @@ const KeeperSettings = ({ route }) => {
       />
       <InheritanceDocument
         title={signer.inheritanceDocuments}
-        borderColor={`${colorMode}.SeaweedGreen`}
+        borderColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.SeaweedGreen`}
         description={signer.bitcoinSecurity}
         subtitleColor={`${colorMode}.balanceText`}
         backgroundColor={`${colorMode}.textInputBackground`}
@@ -162,6 +162,7 @@ const KeeperSettings = ({ route }) => {
         isUaiFlow={isUaiFlow}
         confirmPass={confirmPass}
         setConfirmPass={setConfirmPass}
+        isOnL4={isOnL4}
       />
       {DeleteBackupModal}
       <ActivityIndicatorView visible={backupAllLoading} showLoader />

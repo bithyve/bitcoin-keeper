@@ -1,24 +1,20 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useState, useEffect, useCallback } from 'react';
-import KeeperHeader from 'src/components/KeeperHeader';
+import React, { useContext, useState, useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
-import moment from 'moment';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useDispatch } from 'react-redux';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import { useAppSelector } from 'src/store/hooks';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
 import OptionPicker from 'src/components/OptionPicker';
 import { getSignerDescription } from 'src/hardware';
@@ -30,8 +26,8 @@ import {
   EMERGENCY_KEY_IDENTIFIER,
   getKeyTimelock,
   getVaultEnhancedSigners,
-  INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ResetEmergencyKey({ route }) {
   const { inheritanceKeys = [], vault }: { inheritanceKeys; vault: Vault } = route.params;
@@ -166,7 +162,7 @@ function ResetEmergencyKey({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={vaultText.resetEKTitle + (emergencySigners.length > 1 ? 's' : '')}
         subtitle={vaultText.resetEKDesc + (emergencySigners.length > 1 ? 's' : '')}
       />
@@ -176,7 +172,7 @@ function ResetEmergencyKey({ route }) {
             <IKSInfocard
               name={signer?.signerName}
               description={getSignerDescription(signer)}
-              Icon={SDIcons(signer?.type)?.Icon}
+              Icon={SDIcons({ type: signer?.type })?.Icon}
               duration={activationTimes[getKeyUID(signer)]}
             />
             <Box style={styles.dropdownContainer}>

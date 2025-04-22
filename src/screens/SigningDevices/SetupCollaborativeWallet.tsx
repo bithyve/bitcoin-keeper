@@ -57,6 +57,7 @@ import SignerCard from '../AddSigner/SignerCard';
 import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
+import WalletHeader from 'src/components/WalletHeader';
 let previousContent = null;
 
 function SignerItem({
@@ -634,16 +635,13 @@ function SetupCollaborativeWallet() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       {inProgress || (isCreating && <ActivityIndicatorView visible={inProgress || isCreating} />)}
-      <KeeperHeader
+      <WalletHeader
         title={vaultText.collaborativeVaultTitle}
-        subtitle={vaultText.collaborativeVaultSubtitle}
+        subTitle={vaultText.collaborativeVaultSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
         learnMorePressed={() => {
           setLearnMoreModal(true);
         }}
-        learnTextColor={`${colorMode}.buttonText`}
       />
       <FlatList
         horizontal

@@ -2,7 +2,6 @@ import React, { useContext, useMemo, useEffect, useState } from 'react';
 import { StyleSheet, Platform, FlatList } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -28,6 +27,9 @@ import { setBackupModal } from 'src/store/reducers/settings';
 import EnterPasswordModal from './EnterPasswordModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
+import PrivateBTC from 'src/assets/privateImages/Bitcoin-Illustration.svg';
 
 function CloudBackupScreen() {
   const navigation = useNavigation();
@@ -44,6 +46,7 @@ function CloudBackupScreen() {
   const backupModal = useAppSelector((state) => state.settings.backupModal);
   const [showModal, setShowModal] = useState(backupModal);
   const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
+  const { isOnL4 } = usePlan();
 
   useEffect(() => {
     if (loading) {
@@ -70,9 +73,7 @@ function CloudBackupScreen() {
         <Text color={`${colorMode}.headerWhite`} style={styles.backupModalDesc}>
           {strings.cloudBackupModalDesc}
         </Text>
-        <Box style={styles.illustration}>
-          <BTCIllustration />
-        </Box>
+        <Box style={styles.illustration}>{isOnL4 ? <PrivateBTC /> : <BTCIllustration />}</Box>
       </Box>
     );
   }
@@ -88,19 +89,19 @@ function CloudBackupScreen() {
         }}
       />
       <Box width={'100%'}>
-        <KeeperHeader
+        <WalletHeader
           title={strings.cloudBackup}
-          subtitle={`On your ${cloudName}`}
+          subTitle={`On your ${cloudName}`}
           learnMore={true}
-          learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-          learnTextColor={`${colorMode}.buttonText`}
+          // learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
+          // learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setShowModal(true)}
-          icon={
-            <CircleIconWrapper
-              backgroundColor={`${colorMode}.primaryGreenBackground`}
-              icon={<CloudIcon />}
-            />
-          }
+          // icon={
+          //   <CircleIconWrapper
+          //     backgroundColor={`${colorMode}.primaryGreenBackground`}
+          //     icon={<CloudIcon />}
+          //   />
+          // }
         />
       </Box>
       <Text style={styles.textTitle}>{strings.recentHistory}</Text>
@@ -169,12 +170,12 @@ function CloudBackupScreen() {
           }
         }}
         title={strings.cloudBackupModalTitle}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.whiteSecButtonText` : `${colorMode}.pantoneGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

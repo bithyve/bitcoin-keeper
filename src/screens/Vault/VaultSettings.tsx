@@ -24,6 +24,7 @@ import WalletHeader from 'src/components/WalletHeader';
 import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
 import LearnMoreIconDark from 'src/assets/images/info-Dark-icon.svg';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
+import PrivateVaultSetupIcon from 'src/assets/privateImages/vault_setup.svg';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
@@ -37,6 +38,7 @@ import { NfcTech } from 'react-native-nfc-manager';
 import { useQuery } from '@realm/react';
 import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import usePlan from 'src/hooks/usePlan';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -68,6 +70,7 @@ function VaultSettings({ route }) {
   const labels = useQuery(RealmSchema.Tags, (tags) =>
     tags.filtered('origin == $0', walletDescriptor)
   );
+  const { isOnL4 } = usePlan();
 
   const cleanUp = () => {
     setVisible(false);
@@ -123,7 +126,7 @@ function VaultSettings({ route }) {
     return (
       <Box>
         <Box style={styles.illustration}>
-          <VaultSetupIcon />
+          {isOnL4 ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
           {vaultText.keeperSupportSigningDevice}
@@ -318,7 +321,7 @@ function VaultSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={vaultText.keeperVault}
         subTitle={vaultText.vaultLearnMoreSubtitle}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
@@ -326,8 +329,10 @@ function VaultSettings({ route }) {
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.textGreen`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`}
+        secButtonTextColor={
+          isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setNeedHelpModal(false);

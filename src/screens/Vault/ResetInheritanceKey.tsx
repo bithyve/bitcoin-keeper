@@ -1,11 +1,10 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useState, useEffect, useCallback } from 'react';
-import KeeperHeader from 'src/components/KeeperHeader';
+import React, { useContext, useState, useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -16,7 +15,6 @@ import { useDispatch } from 'react-redux';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import { useAppSelector } from 'src/store/hooks';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { getKeyUID } from 'src/utils/utilities';
 import OptionPicker from 'src/components/OptionPicker';
 import { getSignerDescription } from 'src/hardware';
@@ -29,6 +27,7 @@ import {
   getVaultEnhancedSigners,
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ResetInheritanceKey({ route }) {
   const { vault }: { signerIds: string[]; vault: Vault } = route.params;
@@ -159,9 +158,9 @@ function ResetInheritanceKey({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={vaultText.resetIKTitle + (inheritanceSigners.length > 1 ? 's' : '')}
-        subtitle={vaultText.resetIKDesc + (inheritanceSigners.length > 1 ? 's' : '')}
+        subTitle={vaultText.resetIKDesc + (inheritanceSigners.length > 1 ? 's' : '')}
       />
       <Box style={styles.container}>
         {signers.map((signer) => (
@@ -169,7 +168,7 @@ function ResetInheritanceKey({ route }) {
             <IKSInfocard
               name={signer?.signerName}
               description={getSignerDescription(signer)}
-              Icon={SDIcons(signer?.type)?.Icon}
+              Icon={SDIcons({ type: signer?.type })?.Icon}
               duration={activationTimes[getKeyUID(signer)]}
             />
             <Box style={styles.dropdownContainer}>

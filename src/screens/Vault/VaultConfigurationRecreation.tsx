@@ -3,7 +3,6 @@ import React, { useCallback, useContext, useState } from 'react';
 import { Box, Input, ScrollView, View, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ImportIcon from 'src/assets/images/import.svg';
@@ -19,6 +18,8 @@ import QRScanner from 'src/components/QRScanner';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
 
 function WrappedImportIcon() {
   return (
@@ -37,6 +38,7 @@ function VaultConfigurationCreation() {
   const { translations } = useContext(LocalizationContext);
   const { common, importWallet } = translations;
   const [showModal, setShowModal] = useState(false);
+  const { isOnL4 } = usePlan();
 
   const handleDocumentSelection = useCallback(async () => {
     try {
@@ -83,13 +85,12 @@ function VaultConfigurationCreation() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader
+        <WalletHeader
           title={importWallet.importAWallet}
-          subtitle={
+          subTitle={
             'Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data'
           } // TODO: export subtitle
           learnMore
-          learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setShowModal(true)}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -166,14 +167,14 @@ function VaultConfigurationCreation() {
           setShowModal(false);
         }}
         title="Import a wallet:"
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={ImportVaultContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

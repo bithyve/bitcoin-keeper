@@ -195,9 +195,11 @@ function AssignSignerTypeCard({
               },
             ]}
           >
-            <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
+            <Box style={styles.walletMapWrapper}>
+              {SDIcons({ type, light: colorMode === 'dark' }).Icon}
+            </Box>
             <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.divider} />
-            <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
+            <Box style={styles.walletMapLogoWrapper}>{SDIcons({ type }).Logo}</Box>
             <Box style={styles.arrowIconWrapper}>
               {isDarkMode ? <RightArrowWhite /> : <RightArrow />}
             </Box>
