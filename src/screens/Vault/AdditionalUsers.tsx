@@ -32,6 +32,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import { ScriptTypes } from 'src/services/wallets/enums';
 import Text from 'src/components/KeeperText';
 import usePlan from 'src/hooks/usePlan';
+import AdditionalUserPrivate from 'src/assets/privateImages/additional-user-illustration.svg';
 
 enum SecondaryVerificationOptionActionType {
   ADD = 'ADD',
@@ -238,7 +239,7 @@ function AdditionalUsers({ route }: any) {
         }}
         Content={() => (
           <Box style={styles.modalIcon}>
-            <AdditonalUserIcon />
+            {isOnL4 ? <AdditionalUserPrivate /> : <AdditonalUserIcon />}
           </Box>
         )}
       />

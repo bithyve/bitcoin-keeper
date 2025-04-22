@@ -28,10 +28,12 @@ import Text from 'src/components/KeeperText';
 import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import WalletInfoIllustration from 'src/assets/images/walletInfoIllustration.svg';
+import PrivateWalletInfoIllustration from 'src/assets/privateImages/wallet-Info-Illustratipn.svg';
 import { useQuery } from '@realm/react';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import usePlan from 'src/hooks/usePlan';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -41,7 +43,7 @@ function WalletSettings({ route }) {
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-
+  const { isOnL4 } = usePlan();
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
   const walletMnemonic = idx(wallet, (_) => _.derivationDetails.mnemonic);
@@ -88,7 +90,7 @@ function WalletSettings({ route }) {
     return (
       <Box>
         <Box style={styles.illustration}>
-          <WalletInfoIllustration />
+          {isOnL4 ? <PrivateWalletInfoIllustration /> : <WalletInfoIllustration />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
           {walletTranslation.learnMoreDesc}
@@ -236,7 +238,7 @@ function WalletSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={walletTranslation.learnMoreTitle}
         subTitle={walletTranslation.learnMoreSubTitle}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
@@ -244,8 +246,10 @@ function WalletSettings({ route }) {
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.textGreen`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`}
+        secButtonTextColor={
+          isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setNeedHelpModal(false);

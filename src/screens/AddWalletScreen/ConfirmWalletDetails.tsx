@@ -16,6 +16,10 @@ import PrivacyIcon from 'src/assets/images/privacy.svg';
 import EfficiencyIcon from 'src/assets/images/efficiency.svg';
 import SaclingIcon from 'src/assets/images/scaling.svg';
 import SecurityIcon from 'src/assets/images/security.svg';
+import PrivatePrivacyIcon from 'src/assets/privateImages/privacy.svg';
+import PrivateEfficiencyIcon from 'src/assets/privateImages/efficiency.svg';
+import PrivateSaclingIcon from 'src/assets/privateImages/scaling.svg';
+import PrivateSecurityIcon from 'src/assets/privateImages/security.svg';
 
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -173,7 +177,7 @@ function ConfirmWalletDetails({ route }) {
     );
   }
 
-  function TapRootContent() {
+  function TapRootContent({ isOnL4 }) {
     const { colorMode } = useColorMode();
     const { translations } = useContext(LocalizationContext);
     const { wallet } = translations;
@@ -181,7 +185,7 @@ function ConfirmWalletDetails({ route }) {
       <Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            <PrivacyIcon />
+            {isOnL4 ? <PrivatePrivacyIcon /> : <PrivacyIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -194,7 +198,7 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            <EfficiencyIcon />
+            {isOnL4 ? <PrivateEfficiencyIcon /> : <EfficiencyIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -207,7 +211,7 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            <SaclingIcon />
+            {isOnL4 ? <PrivateSaclingIcon /> : <SaclingIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -220,7 +224,7 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            <SecurityIcon />
+            {isOnL4 ? <PrivateSecurityIcon /> : <SecurityIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -696,7 +700,7 @@ function ConfirmWalletDetails({ route }) {
         subTitle={''}
         modalBackground={isOnL4 ? `${colorMode}.primarybackground` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
-        Content={TapRootContent}
+        Content={() => <TapRootContent isOnL4={isOnL4} />}
         showCloseIcon={true}
         DarkCloseIcon
         buttonText={common.Okay}

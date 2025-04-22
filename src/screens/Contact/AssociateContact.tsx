@@ -14,6 +14,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
 import SearchIcon from 'src/assets/images/search-icon.svg';
 import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
+import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -28,6 +29,8 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
+import Colors from 'src/theme/Colors';
 
 function AssociateContact({ route }) {
   const {
@@ -51,6 +54,7 @@ function AssociateContact({ route }) {
   const [selectedContact, setSelectedContact] = useState(null);
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { isOnL4 } = usePlan();
 
   useEffect(() => {
     try {
@@ -145,7 +149,7 @@ function AssociateContact({ route }) {
             <SearchIcon />
             <TextInput
               style={styles.input}
-              placeholderTextColor={`${colorMode}.placeHolderTextColor`}
+              placeholderTextColor={!isOnL4 ? Colors.secondaryDarkGrey : Colors.headerWhite}
               placeholder={common.search}
               value={search}
               onChangeText={setSearch}
@@ -160,7 +164,11 @@ function AssociateContact({ route }) {
                 borderColor={`${colorMode}.dullGreyBorder`}
               >
                 <Box style={styles.iconContainer}>
-                  <AddContactIcon width={wp(44)} height={hp(44)} />
+                  {isOnL4 ? (
+                    <PrivateAddContactIcon />
+                  ) : (
+                    <AddContactIcon width={wp(44)} height={hp(44)} />
+                  )}
                 </Box>
                 <Text medium style={styles.buttonText}>
                   {vaultText.addContact}

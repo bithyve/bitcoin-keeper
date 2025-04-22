@@ -12,6 +12,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import SigningServerIllustrations from 'src/assets/images/backup-server-illustration.svg';
 import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-server-illustration.svg';
+import PrivateBackupSigningServerIllustrations from 'src/assets/privateImages/Backup-Server-Key-illustration.svg';
 import SigningServer from 'src/services/backend/SigningServer';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-community/clipboard';
@@ -102,7 +103,7 @@ function ServerKeySuccessScreen({ route }) {
   const BackupModalContent = useCallback(() => {
     return (
       <Box style={styles.modalContainer}>
-        <SigningServerIllustrations />
+        {isOnL4 ? <PrivateBackupSigningServerIllustrations /> : <SigningServerIllustrations />}
         <Box>
           <Text fontSize={12} semiBold style={styles.modalTitle}>
             {signingServer.attention}:

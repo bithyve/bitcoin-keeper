@@ -38,8 +38,10 @@ import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
+import PrivateMy_Keeper from 'src/assets/privateImages/mobileKeyIllustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner-setup-horizontal.svg';
+import PrivateSeedSignerSetupImage from 'src/assets/privateImages/seedSigner-illustration.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import ExternalKeySetupImage from 'src/assets/images/illustration-external-key.svg';
 import KeeperSetupImage from 'src/assets/images/mobile-key-illustration.svg';
@@ -60,6 +62,7 @@ import PrivateTapSigner from 'src/assets/privateImages/tapsigner-illustration.sv
 import PrivateTrezor from 'src/assets/privateImages/trezor-illustration.svg';
 import PrivateSeedKey from 'src/assets/privateImages/seedKey-illustration.svg';
 import PrivateOtherSigner from 'src/assets/privateImages/otherSigner-illustration.svg';
+import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-ilustration.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -280,7 +283,7 @@ const getSignerContent = (
     case SignerType.KEEPER:
       return {
         type: SignerType.KEEPER,
-        Illustration: <ExternalKeySetupImage />,
+        Illustration: isOnL4 ? <PrivateMy_Keeper /> : <ExternalKeySetupImage />,
         Instructions: [externalKey.modalInstruction1, externalKey.modalInstruction2],
         title: isHealthcheck
           ? `${common.verify} ${getSignerNameFromType(type)}`
@@ -328,7 +331,13 @@ const getSignerContent = (
     case SignerType.MY_KEEPER:
       return {
         type: SignerType.MY_KEEPER,
-        Illustration: isHealthcheck ? <SeedWordsIllustration /> : <KeeperSetupImage />,
+        Illustration: isOnL4 ? (
+          <PrivateMy_Keeper />
+        ) : isHealthcheck ? (
+          <SeedWordsIllustration />
+        ) : (
+          <KeeperSetupImage />
+        ),
         Instructions: isHealthcheck
           ? [
               'Make sure you secure the 12-word phrase in a safe place.',
@@ -349,7 +358,7 @@ const getSignerContent = (
     case SignerType.MOBILE_KEY:
       return {
         type: SignerType.MOBILE_KEY,
-        Illustration: <MobileKeyIllustration />,
+        Illustration: isOnL4 ? <PrivateMy_Keeper /> : <MobileKeyIllustration />,
         Instructions: [
           "Make sure that this wallet's Recovery Key is backed-up properly to secure this key.",
         ],
@@ -451,7 +460,7 @@ const getSignerContent = (
         : "The Server Key is a key stored securely on Keeper's servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.";
       return {
         type: SignerType.POLICY_SERVER,
-        Illustration: <SigningServerIllustration />,
+        Illustration: isOnL4 ? <PrivateServerKeyIllustration /> : <SigningServerIllustration />,
         Instructions: isHealthcheck
           ? ['A request to the signer will be made to checks its health']
           : [
@@ -500,7 +509,11 @@ const getSignerContent = (
 
       return {
         type: SignerType.SEEDSIGNER,
-        Illustration: <SeedSignerSetupImage />,
+        Illustration: isOnL4 ? (
+          <PrivateSeedSignerSetupImage width={180} height={180} />
+        ) : (
+          <SeedSignerSetupImage />
+        ),
         Instructions: isTestnet()
           ? [
               seedSignerInstructions,

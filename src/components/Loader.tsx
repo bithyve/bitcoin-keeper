@@ -45,9 +45,7 @@ function LoadingAnimation() {
           alignItems: 'flex-start',
         }}
       >
-        {/* TODO fix position of background  */}
-        {/* {isOnL4 ? <PrivateBackground /> : <Background />} */}
-        <Background />
+        {isOnL4 ? <PrivateBackground style={styles.background} /> : <Background />}
         <Animated.View style={styles.gear2}>
           {isOnL4 ? <PrivateGear2 /> : colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
         </Animated.View>
@@ -95,5 +93,8 @@ const getStyles = (clock, antiClock) =>
       right: '30%',
       top: '7%',
       transform: [{ rotate: clock }],
+    },
+    background: {
+      left: '6%',
     },
   });

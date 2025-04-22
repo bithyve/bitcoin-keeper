@@ -162,6 +162,7 @@ const KeeperSettings = ({ route }) => {
         isUaiFlow={isUaiFlow}
         confirmPass={confirmPass}
         setConfirmPass={setConfirmPass}
+        isOnL4={isOnL4}
       />
       {DeleteBackupModal}
       <ActivityIndicatorView visible={backupAllLoading} showLoader />

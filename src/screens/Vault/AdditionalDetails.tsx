@@ -24,6 +24,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
+import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -40,6 +42,7 @@ function AdditionalDetails({ route }: ScreenProps) {
   const [hasUpdatedDescription, setHasUpdatedDescription] = useState(false);
   const { thumbnailPath, givenName, familyName } = signer.extraData;
   const { relaySignersUpdate } = useAppSelector((state) => state.bhr);
+  const { isOnL4 } = usePlan();
 
   useEffect(() => {
     if (relaySignersUpdate && hasUpdatedDescription) {
@@ -86,7 +89,7 @@ function AdditionalDetails({ route }: ScreenProps) {
                   signer,
                 });
           }}
-          icon={<PhoneBookIcon />}
+          icon={isOnL4 ? <PrivateAddContactIcon /> : <PhoneBookIcon />}
           image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
         />
       </VStack>

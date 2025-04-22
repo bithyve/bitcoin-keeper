@@ -10,6 +10,7 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import usePlan from 'src/hooks/usePlan';
 
 function LinkedWalletContent() {
   return (
@@ -31,6 +32,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { isOnL4 } = usePlan();
   return (
     <KeeperModal
       visible={introModal}
@@ -39,7 +41,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       }}
       title="Pull Down to Refresh"
       subTitle="If you want to check the latest status of a transaction, simply pull down the transaction list and it will fetch the latest status and wallet balance."
-      modalBackground={`${colorMode}.pantoneGreen`}
+      modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
       textColor={`${colorMode}.headerWhite`}
       Content={LinkedWalletContent}
       DarkCloseIcon

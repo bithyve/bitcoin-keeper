@@ -29,6 +29,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import usePlan from 'src/hooks/usePlan';
+import PrivateBTC from 'src/assets/privateImages/Bitcoin-Illustration.svg';
 
 function CloudBackupScreen() {
   const navigation = useNavigation();
@@ -72,9 +73,7 @@ function CloudBackupScreen() {
         <Text color={`${colorMode}.headerWhite`} style={styles.backupModalDesc}>
           {strings.cloudBackupModalDesc}
         </Text>
-        <Box style={styles.illustration}>
-          <BTCIllustration />
-        </Box>
+        <Box style={styles.illustration}>{isOnL4 ? <PrivateBTC /> : <BTCIllustration />}</Box>
       </Box>
     );
   }

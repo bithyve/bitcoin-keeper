@@ -11,6 +11,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
 import HardwareIllustration from 'src/assets/images/diversify-hardware.svg';
+import PrivateHardwareIllustration from 'src/assets/privateImages/doc-hardware-usage.svg';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -52,6 +53,7 @@ import {
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/models/enums/Hardware';
+import usePlan from 'src/hooks/usePlan';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -83,6 +85,7 @@ function ManageSigners({ route }: ScreenProps) {
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
+  const { isOnL4 } = usePlan();
 
   useEffect(() => {
     if (remoteData?.key && !timerModal) {
@@ -255,11 +258,11 @@ function ManageSigners({ route }: ScreenProps) {
         title={signerTranslation.ManageKeys}
         subTitle={signerTranslation.manageKeysModalSubtitle}
         subTitleColor={`${colorMode}.headerWhite`}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
         secondaryIcon={<ConciergeNeedHelp />}
@@ -280,7 +283,7 @@ function ManageSigners({ route }: ScreenProps) {
         Content={() => (
           <Box style={styles.modalContent}>
             <Box style={styles.illustrationContainer}>
-              <HardwareIllustration />
+              {isOnL4 ? <PrivateHardwareIllustration /> : <HardwareIllustration />}
             </Box>
             <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
               {signerTranslation.manageKeysModalDesc}
@@ -548,6 +551,9 @@ const styles = StyleSheet.create({
   },
   illustrationContainer: {
     marginBottom: hp(30),
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalDesc: {
     width: '95%',
