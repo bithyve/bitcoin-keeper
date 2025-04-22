@@ -246,20 +246,16 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         subscription,
       });
       dispatch(setSubscription(subscription.name));
+      if (colorMode !== 'dark') {
+        toggleColorMode();
+      }
+      dispatch(setThemeMode(ThemeMode.PRIVATE));
       if (response.isExtended) {
-        if (colorMode !== 'dark') {
-          toggleColorMode();
-        }
-        dispatch(setThemeMode(ThemeMode.PRIVATE));
         showToast(
           `You have successfully extended your ${subscription.name} subscription.`,
           <TickIcon />
         );
       } else {
-        if (colorMode !== 'dark') {
-          toggleColorMode();
-        }
-        dispatch(setThemeMode(ThemeMode.PRIVATE));
         showToast(`You are successfully upgraded to ${subscription.name} tier.`, <TickIcon />);
       }
     } catch (error) {
