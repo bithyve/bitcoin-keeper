@@ -31,7 +31,7 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
-import PrivateSigningDevice from 'src/assets/images/private-doc-hardware-usage.svg';
+import PrivateSigningDevice from 'src/assets/privateImages/doc-hardware-usage.svg';
 
 const SigningDeviceList = () => {
   const navigation = useNavigation();

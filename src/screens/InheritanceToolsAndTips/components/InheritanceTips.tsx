@@ -13,10 +13,10 @@ import RegularUpdateIcon from 'src/assets/images/regular_update_icon.svg';
 import Text from 'src/components/KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import usePlan from 'src/hooks/usePlan';
-import PrivateMultiKey from 'src/assets/images/private-doc-comprehensive.svg';
-import PrivateEduate from 'src/assets/images/private-doc-tirple-person.svg';
-import PrivateKnowledge from 'src/assets/images/private-doc-knowledge.svg';
-import PrivateRecovery from 'src/assets/images/private-doc-recovery.svg';
+import PrivateMultiKey from 'src/assets/privateImages/comprihensive-stragies.svg';
+import PrivateEduate from 'src/assets/privateImages/doc-tirple-person.svg';
+import PrivateKnowledge from 'src/assets/privateImages/doc-knowledge.svg';
+import PrivateRecovery from 'src/assets/privateImages/doc-recovery.svg';
 
 function InheritanceTips({}) {
   const { colorMode } = useColorMode();

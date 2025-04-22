@@ -12,8 +12,8 @@ import MobileKeyBlack from 'src/assets/images/signerSoftwareBlack.svg';
 import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import { CommonActions } from '@react-navigation/native';
 import DashedCta from 'src/components/DashedCta';
-import PrivateHardwareKey from 'src/assets/images/private-hard-key.svg';
-import PrivateSoftwareKey from 'src/assets/images/private-soft-key.svg';
+import PrivateHardwareKey from 'src/assets/privateImages/hard-key.svg';
+import PrivateSoftwareKey from 'src/assets/privateImages/soft-key.svg';
 
 const SignerContent = ({ navigation, handleModalClose, isOnL4 }) => {
   const { colorMode } = useColorMode();

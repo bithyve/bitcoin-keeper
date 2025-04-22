@@ -13,7 +13,7 @@ import RecoveryPhraseIcon from 'src/assets/images/recovery-phrase-icon.svg';
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import usePlan from 'src/hooks/usePlan';
-import PrivateRecoveryPhrase from 'src/assets/images/private-doc-seed-word.svg';
+import PrivateRecoveryPhrase from 'src/assets/privateImages/doc-seed-word.svg';
 
 function RecoveryPhraseTemplate({}) {
   const { colorMode } = useColorMode();

@@ -13,10 +13,10 @@ import KeepBackups from 'src/assets/images/keep-backups.svg';
 import Text from 'src/components/KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import usePlan from 'src/hooks/usePlan';
-import PrivateComprehensiveStrategies from 'src/assets/images/private-doc-comprehensive.svg';
-import PrivateRegularTesting from 'src/assets/images/private-doc-4-keys.svg';
-import PrivateKeepBackups from 'src/assets/images/private-doc-recovery.svg';
-import PrivateRecovery from 'src/assets/images/private-doc-Double.svg';
+import PrivateComprehensiveStrategies from 'src/assets/privateImages/comprihensive-stragies.svg';
+import PrivateRegularTesting from 'src/assets/privateImages/doc-4-keys.svg';
+import PrivateKeepBackups from 'src/assets/privateImages/doc-recovery.svg';
+import PrivateRecovery from 'src/assets/privateImages/doc-Double.svg';
 
 function BackupAndRecoveryTips({}) {
   const { colorMode } = useColorMode();

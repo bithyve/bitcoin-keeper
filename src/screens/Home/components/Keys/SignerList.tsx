@@ -24,7 +24,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
-import PlusPrivateIcon from 'src/assets/images/private-plus-icon.svg';
+import PlusPrivateIcon from 'src/assets/privateImages/plus-gold-icon.svg';
 import usePlan from 'src/hooks/usePlan';
 
 const SignerList = ({ navigation, handleModalOpen }) => {

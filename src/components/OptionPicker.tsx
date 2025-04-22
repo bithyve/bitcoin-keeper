@@ -7,7 +7,7 @@ import Text from 'src/components/KeeperText';
 import TickIcon from 'src/assets/images/icon_check.svg';
 import KeeperModal from './KeeperModal';
 import usePlan from 'src/hooks/usePlan';
-import PrivateTickIcon from 'src/assets/images/private-tick-icon.svg';
+import PrivateTickIcon from 'src/assets/privateImages/tick-icon.svg';
 
 type Option = {
   label: string;

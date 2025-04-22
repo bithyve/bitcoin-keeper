@@ -25,7 +25,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import DashedCta from 'src/components/DashedCta';
 import WalletHeader from 'src/components/WalletHeader';
-import PrivateSigningDevice from 'src/assets/images/private-doc-hardware-usage.svg';
+import PrivateSigningDevice from 'src/assets/privateImages/doc-hardware-usage.svg';
 import usePlan from 'src/hooks/usePlan';
 
 function SignerCategoryList() {

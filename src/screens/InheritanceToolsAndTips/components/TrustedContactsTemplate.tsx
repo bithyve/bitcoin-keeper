@@ -13,7 +13,7 @@ import GenerateTrustedContactsPDF from 'src/utils/GenerateTrustedContactsPDF';
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import usePlan from 'src/hooks/usePlan';
-import PrivateTrustedIcon from 'src/assets/images/private-doc-trusted-contact.svg';
+import PrivateTrustedIcon from 'src/assets/privateImages/doc-trusted-contact.svg';
 
 function TrustedContactTemplates({}) {
   const { colorMode } = useColorMode();

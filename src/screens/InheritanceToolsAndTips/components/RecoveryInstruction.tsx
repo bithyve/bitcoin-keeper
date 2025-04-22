@@ -13,7 +13,7 @@ import GenerateRecoveryInstrcutionsPDF from 'src/utils/GenerateRecoveryInstrcuti
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import usePlan from 'src/hooks/usePlan';
-import PrivateRecoveryPhrase from 'src/assets/images/private-doc-recovery.svg';
+import PrivateRecoveryPhrase from 'src/assets/privateImages/doc-recovery.svg';
 
 function RecoveryInstruction({}) {
   const { colorMode } = useColorMode();

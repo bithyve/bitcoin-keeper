@@ -19,10 +19,10 @@ import Text from './KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Colors from 'src/theme/Colors';
 import usePlan from 'src/hooks/usePlan';
-import PrivateWallet from 'src/assets/images/private-wallet-gold.svg';
-import PrivateKey from 'src/assets/images/private-key-gold.svg';
-import PrivateConcierge from 'src/assets/images/private-gold-concierge.svg';
-import PrivateMore from 'src/assets/images/private-more-gold.svg';
+import PrivateWallet from 'src/assets/privateImages/wallet-gold.svg';
+import PrivateKey from 'src/assets/privateImages/key-gold-icon.svg';
+import PrivateConcierge from 'src/assets/privateImages/gold-concierge-icon.svg';
+import PrivateMore from 'src/assets/privateImages/more-gold-icon.svg';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();

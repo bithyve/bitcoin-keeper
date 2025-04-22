@@ -13,7 +13,7 @@ import GenerateAdditionalKeyDetailsTemplate from 'src/utils/GenerateAdditionalKe
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import usePlan from 'src/hooks/usePlan';
-import PrivateAdditionalSigner from 'src/assets/images/private-doc-additional-key.svg';
+import PrivateAdditionalSigner from 'src/assets/privateImages/additional-signer-illustration.svg';
 
 function AdditionalSignerDetailsTemplate({}) {
   const { colorMode } = useColorMode();

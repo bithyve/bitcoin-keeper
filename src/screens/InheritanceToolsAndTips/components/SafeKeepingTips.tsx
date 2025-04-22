@@ -11,10 +11,10 @@ import DiversifyHardware from 'src/assets/images/diversify-hardware.svg';
 import BackupAcidFree from 'src/assets/images/backup-acidfree.svg';
 import VariedSecuredLocation from 'src/assets/images/varied-secured-location.svg';
 import usePlan from 'src/hooks/usePlan';
-import PrivateCrossDeviceVerification from 'src/assets/images/private-doc-4-keys.svg';
-import PrivateMultisig from 'src/assets/images/private-doc-multisig-security.svg';
-import PrivateDiversifyHardware from 'src/assets/images/private-doc-hardware-usage.svg';
-import PrivateAcidFree from 'src/assets/images/private-doc-acid-free.svg';
+import PrivateCrossDeviceVerification from 'src/assets/privateImages/doc-4-keys.svg';
+import PrivateMultisig from 'src/assets/privateImages/doc-multisig-security.svg';
+import PrivateDiversifyHardware from 'src/assets/privateImages/doc-hardware-usage.svg';
+import PrivateAcidFree from 'src/assets/privateImages/doc-acid-free.svg';
 
 function SafeGuardingTips({}) {
   const { colorMode } = useColorMode();

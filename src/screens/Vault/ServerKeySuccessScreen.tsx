@@ -11,6 +11,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import SigningServerIllustrations from 'src/assets/images/backup-server-illustration.svg';
+import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-server-illustration.svg';
 import SigningServer from 'src/services/backend/SigningServer';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-community/clipboard';
@@ -24,6 +25,7 @@ import { hash256 } from 'src/utils/service-utilities/encryption';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { Signer } from 'src/services/wallets/interfaces/vault';
+import usePlan from 'src/hooks/usePlan';
 
 function ServerKeySuccessScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -32,6 +34,7 @@ function ServerKeySuccessScreen({ route }) {
   const { signingServer, common } = translations;
   const navigation = useNavigation();
   const { vaultKey, vaultId } = route.params || {};
+  const { isOnL4 } = usePlan();
   const {
     setupData,
     addedSigner,
@@ -236,7 +239,11 @@ function ServerKeySuccessScreen({ route }) {
       <ActivityIndicatorView visible={OTBLoading} showLoader={true} />
 
       <Box style={styles.container}>
-        <SigningServerIllustration />
+        {isOnL4 ? (
+          <PrivateSigningServerIllustrations width={hp(200)} height={hp(200)} />
+        ) : (
+          <SigningServerIllustration />
+        )}
         <Text semiBold fontSize={20} color={`${colorMode}.textGreen`} style={styles.title}>
           {signingServer.successTitle}
         </Text>

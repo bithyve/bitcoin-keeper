@@ -31,7 +31,7 @@ import DiamondGreenSub from 'src/assets/images/DiamondHands-green-sub-icon.svg';
 import DiamondWhiteSub from 'src/assets/images/DiamondHands-white-sub-iocn.svg';
 import KeeperPrivateIcon from 'src/assets/images/KeeperPrivateIcon.svg';
 import KeeperPrivateIconWhite from 'src/assets/images/KeeperPrivateIconWhite.svg';
-import PrivateManageWallet from 'src/assets/images/Private-manage-wallet-icon.svg';
+import PrivateManageWallet from 'src/assets/privateImages/manage-wallet-icon.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

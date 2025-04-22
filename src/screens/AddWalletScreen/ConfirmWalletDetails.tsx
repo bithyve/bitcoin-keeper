@@ -37,7 +37,7 @@ import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationMo
 import useWallets from 'src/hooks/useWallets';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import AddCircleLight from 'src/assets/images/add-circle-light.svg';
-import AddCircleDark from 'src/assets/images/private-round-White-plus.svg';
+import AddCircleDark from 'src/assets/privateImages/round-White-plus.svg';
 import VaultMigrationController from '../Vault/VaultMigrationController';
 import useVault from 'src/hooks/useVault';
 import CardPill from 'src/components/CardPill';
@@ -694,15 +694,15 @@ function ConfirmWalletDetails({ route }) {
         }}
         title={wallet.tapRootBenefits}
         subTitle={''}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.primarybackground` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={TapRootContent}
         showCloseIcon={true}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

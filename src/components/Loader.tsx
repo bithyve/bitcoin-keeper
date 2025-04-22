@@ -3,15 +3,15 @@ import { Box, useColorMode } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
 
 import Background from 'src/assets/images/background elements.svg';
-import PrivateBackground from 'src/assets/images/private-background-elements.svg';
+import PrivateBackground from 'src/assets/privateImages/background-elements.svg';
 import Gear1 from 'src/assets/images/gear1.svg';
 import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear2Dark from 'src/assets/images/smallGearDark.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
-import PrivateGear1 from 'src/assets/images/private-gear1 .svg';
-import PrivateGear2 from 'src/assets/images/private-gear 2.svg';
-import PrivateGear3 from 'src/assets/images/private-gear 3.svg';
+import PrivateGear1 from 'src/assets/privateImages/gear1 .svg';
+import PrivateGear2 from 'src/assets/privateImages/gear 2.svg';
+import PrivateGear3 from 'src/assets/privateImages/gear 3.svg';
 import { windowWidth } from 'src/constants/responsive';
 import { useSelector } from 'react-redux';
 

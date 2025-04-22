@@ -26,9 +26,9 @@ import { useNavigation } from '@react-navigation/native';
 import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import usePlan from 'src/hooks/usePlan';
-import PrivateWallet from 'src/assets/images/private-wallet-icon.svg';
-import PrivateKeys from 'src/assets/images/private-key-icon.svg';
-import Privateconcierge from 'src/assets/images/private-concierge-icon.svg';
+import PrivateWallet from 'src/assets/privateImages/wallet-icon.svg';
+import PrivateKeys from 'src/assets/privateImages/key-icon.svg';
+import Privateconcierge from 'src/assets/privateImages/concierge-icon.svg';
 import PrivateSettings from 'src/assets/images/settings-icon-white.svg';
 
 function NewHomeScreen({ route }) {

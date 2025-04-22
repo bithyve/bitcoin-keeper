@@ -22,7 +22,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import usePlan from 'src/hooks/usePlan';
-import NetworkIcon from 'src/assets/images/Private-network-icon.svg';
+import NetworkIcon from 'src/assets/privateImages/network-icon.svg';
 
 const SettingsApp = () => {
   const { colorMode } = useColorMode();

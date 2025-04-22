@@ -21,7 +21,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
-import PrivateLetterAttorney from 'src/assets/images/private-doc-letter-attoorney.svg';
+import PrivateLetterAttorney from 'src/assets/privateImages/doc-letter-attoorney.svg';
 
 function LetterOfAttorney() {
   const { signers } = useSigners();

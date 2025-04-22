@@ -28,7 +28,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Colors from 'src/theme/Colors';
-import PrivateSetting from 'src/assets/images/private-setting-gold.svg';
+import PrivateSetting from 'src/assets/privateImages/setting-gold-icon.svg';
 
 export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();

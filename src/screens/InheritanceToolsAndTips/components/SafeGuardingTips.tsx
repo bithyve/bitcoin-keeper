@@ -7,10 +7,10 @@ import ThoroughVerification from 'src/assets/images/thorough-verification.svg';
 import PreliminaryTest from 'src/assets/images/preliminary-test.svg';
 import SecureCoordination from 'src/assets/images/secure-coordination.svg';
 import CrossDeviceVerification from 'src/assets/images/cross-device-verification.svg';
-import PrivateThoroughVerification from 'src/assets/images/private-doc-seed-word.svg';
-import PrivatePreliminaryTest from 'src/assets/images/private-doc-Double.svg';
-import PrivateSecureCoordination from 'src/assets/images/private-doc-tirple-person.svg';
-import PrivateCrossDeviceVerification from 'src/assets/images/private-doc-4-keys.svg';
+import PrivateThoroughVerification from 'src/assets/privateImages/doc-seed-word.svg';
+import PrivatePreliminaryTest from 'src/assets/privateImages/doc-Double.svg';
+import PrivateSecureCoordination from 'src/assets/privateImages/doc-tirple-person.svg';
+import PrivateCrossDeviceVerification from 'src/assets/privateImages/doc-4-keys.svg';
 
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';

@@ -5,7 +5,7 @@ import { Box, ScrollView, useColorMode, VStack } from 'native-base';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import RemoteShareIllustration from 'src/assets/images/remote-share-illustration.svg';
-import PrivateRemoteShareIllustration from 'src/assets/images/private-remote-key-sharing.svg';
+import PrivateRemoteShareIllustration from 'src/assets/privateImages/remote-key-sharing.svg';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import MessagePreview from 'src/components/MessagePreview';
