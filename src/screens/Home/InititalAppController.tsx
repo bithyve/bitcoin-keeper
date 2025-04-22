@@ -47,6 +47,9 @@ import { notificationType } from 'src/models/enums/Notifications';
 import { SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
 import { setSubscription } from 'src/store/sagaActions/settings';
+import { setThemeMode } from 'src/store/reducers/settings';
+import ThemeMode from 'src/models/enums/ThemeMode';
+import { useColorMode } from 'native-base';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -57,6 +60,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { isInitialLogin, hasDeepLink } = useAppSelector((state) => state.login);
   const appData: any = useQuery(RealmSchema.KeeperApp);
   const { allVaults } = useVault({ includeArchived: false });
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const getAppData = (): { isPleb: boolean; appId: string } => {
     const tempApp = appData.map(getJSONFromRealmObject)[0];
@@ -242,12 +246,22 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         subscription,
       });
       dispatch(setSubscription(subscription.name));
-      if (response.isExtended)
+      if (response.isExtended) {
+        if (colorMode !== 'dark') {
+          toggleColorMode();
+        }
+        dispatch(setThemeMode(ThemeMode.PRIVATE));
         showToast(
           `You have successfully extended your ${subscription.name} subscription.`,
           <TickIcon />
         );
-      else showToast(`You are successfully upgraded to ${subscription.name} tier.`, <TickIcon />);
+      } else {
+        if (colorMode !== 'dark') {
+          toggleColorMode();
+        }
+        dispatch(setThemeMode(ThemeMode.PRIVATE));
+        showToast(`You are successfully upgraded to ${subscription.name} tier.`, <TickIcon />);
+      }
     } catch (error) {
       console.log('🚀 ~ handleKeeperPrivate ~ error:', error);
       showToast('Something went wrong, Please try again.', <ToastErrorIcon />);
