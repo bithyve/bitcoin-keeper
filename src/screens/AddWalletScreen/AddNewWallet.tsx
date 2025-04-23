@@ -68,7 +68,7 @@ export function NumberInput({ value, onDecrease, onIncrease }) {
 function AddNewWallet({ navigation, route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslations, common } = translations;
+  const { vault: vaultTranslations, common, wallet: walletText } = translations;
   const [selectedWalletType, setSelectedWalletType] = useState('');
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
@@ -261,8 +261,8 @@ function AddNewWallet({ navigation, route }) {
       <KeeperModal
         visible={customConfigModalVisible}
         close={() => setCustomConfigModalVisible(false)}
-        title="Create a custom wallet"
-        subTitle="Select the total number of keys"
+        title={walletText.customWalletTitle}
+        subTitle={walletText.customWalletDesc}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={common.confirm}
@@ -280,14 +280,14 @@ function AddNewWallet({ navigation, route }) {
                 color={`${colorMode}.primaryText`}
                 testID="text_totalKeys"
               >
-                Total Keys For Wallet Configuration
+                {walletText.totalKeys}
               </Text>
               <Text
                 style={{ fontSize: 12 }}
                 color={`${colorMode}.secondaryText`}
                 testID="text_totalKeys_subTitle"
               >
-                {vaultTranslations.selectTheTotalNumberOfKeys}
+                {walletText.maxNumberofKeys}
               </Text>
               <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
               <Text
