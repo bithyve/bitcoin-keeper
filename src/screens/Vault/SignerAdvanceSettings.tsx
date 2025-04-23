@@ -13,7 +13,7 @@ import Keystone from 'src/assets/images/keystone_illustration.svg';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
-import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
+import KeeperSetupImage from 'src/assets/images/illustration-external-key.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';

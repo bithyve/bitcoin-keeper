@@ -19,7 +19,7 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
-import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
+import KeeperSetupImage from 'src/assets/images/illustration-external-key.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import WalletIcon from 'src/assets/images/wallet-white.svg';
 import VaultIcon from 'src/assets/images/vault-white.svg';
