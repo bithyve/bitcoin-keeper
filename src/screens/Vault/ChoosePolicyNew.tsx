@@ -295,6 +295,7 @@ function ChoosePolicyNew({ navigation, route }) {
               }}
               fullWidth
               primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
             />
           </Box>
         </Box>

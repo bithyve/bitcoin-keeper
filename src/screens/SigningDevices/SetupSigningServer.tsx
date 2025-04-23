@@ -167,6 +167,7 @@ function SetupSigningServer({ route }: { route }) {
               }}
               fullWidth
               primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
             />
           </Box>
         </Box>
