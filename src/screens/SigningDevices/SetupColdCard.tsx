@@ -35,11 +35,13 @@ import { hp, wp } from 'src/constants/responsive';
 import ColdCardIllustration from 'src/assets/images/ColdCardSetup.svg';
 import HealthCheckIllustration from 'src/assets/images/health-check-illustration.svg';
 import HealthCheckIllustrationDark from 'src/assets/images/health-check-illustration-dark.svg';
+import PrivateHealthCheckIllustrationDark from 'src/assets/privateImages/healthCheckIllustration.svg';
 import Instruction from 'src/components/Instruction';
 import KeeperModal from 'src/components/KeeperModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
+import usePlan from 'src/hooks/usePlan';
 
 const getTitle = (mode) => {
   switch (mode) {
@@ -81,6 +83,7 @@ function SetupColdCard({ route }) {
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const isDarkMode = colorMode === 'dark';
   const [infoModal, setInfoModal] = useState(false);
+  const { isOnL4 } = usePlan();
 
   const startNfcRead = () => {
     NfcManager.isSupported().then((supported) => {
@@ -243,7 +246,9 @@ function SetupColdCard({ route }) {
             </Text>
             <Box style={styles.illustration}>
               {mode === InteracationMode.HEALTH_CHECK ? (
-                colorMode === 'light' ? (
+                isOnL4 ? (
+                  <PrivateHealthCheckIllustrationDark />
+                ) : colorMode === 'light' ? (
                   <HealthCheckIllustration />
                 ) : (
                   <HealthCheckIllustrationDark />

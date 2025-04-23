@@ -1032,7 +1032,7 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={waningModal}
         close={() => setWarning(false)}
-        title="Changing Signer Type"
+        title="Changing Device Type"
         subTitle="Are you sure you want to change the signer type?"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}

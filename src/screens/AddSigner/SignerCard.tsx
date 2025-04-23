@@ -64,7 +64,6 @@ function SignerCard({
   subtitleFont,
   disabledWithTouch = false,
   badgeText,
-  isOnL4,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -85,7 +84,7 @@ function SignerCard({
   ];
 
   const isPressable = !disabled;
-  // const { isOnL4 } = usePlan();
+  const { isOnL4 } = usePlan();
 
   return (
     <Pressable
