@@ -5,7 +5,7 @@ import Text from 'src/components/KeeperText';
 import KeeperIcon from 'src/assets/images/new-Keeper-Logo.svg';
 import PrivateKeeperIcon from 'src/assets/images/keeper-private-logo.svg';
 import KeeperNameIcon from 'src/assets/images/keeper-name-icon.svg';
-import KeeperNameIconDark from 'src/assets/images/keeper-name-icon-dark.svg';
+import KeeperNameIconDark from 'src/assets/privateImages/bitcoinKeeperWhiteLogo.svg';
 import { hp, wp } from 'src/constants/responsive';
 import usePlan from 'src/hooks/usePlan';
 

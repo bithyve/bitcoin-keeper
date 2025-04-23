@@ -12,7 +12,9 @@ import {
 import Contacts from 'react-native-contacts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
+import PrivateImagePlaceHolder from 'src/assets/privateImages/contact-image-placeholder.svg';
 import SearchIcon from 'src/assets/images/search-icon.svg';
+import PrivateSearchIcon from 'src/assets/privateImages/search-icon.svg';
 import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
 import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
@@ -94,6 +96,8 @@ function AssociateContact({ route }) {
       <Box style={styles.contactItem}>
         {item.thumbnailPath !== '' ? (
           <Image source={{ uri: item.thumbnailPath || '' }} style={styles.avatar} />
+        ) : isOnL4 ? (
+          <PrivateImagePlaceHolder style={styles.avatar} />
         ) : (
           <ImagePlaceHolder style={styles.avatar} />
         )}
@@ -146,7 +150,7 @@ function AssociateContact({ route }) {
             backgroundColor={`${colorMode}.boxSecondaryBackground`}
             borderColor={`${colorMode}.dullGreyBorder`}
           >
-            <SearchIcon />
+            {isOnL4 ? <PrivateSearchIcon width={wp(15)} height={hp(15)} /> : <SearchIcon />}
             <TextInput
               style={styles.input}
               placeholderTextColor={!isOnL4 ? Colors.secondaryDarkGrey : Colors.headerWhite}
