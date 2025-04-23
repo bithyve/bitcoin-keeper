@@ -3,7 +3,6 @@ import { StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { View, Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 
 function Buttons({
   primaryText = '',
