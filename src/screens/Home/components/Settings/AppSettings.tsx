@@ -93,8 +93,8 @@ const SettingsApp = () => {
   };
 
   return (
-    <ScreenWrapper>
-      <Box style={styles.container}>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.header}>
           <WalletHeader title={settings.appSetting} />
         </Box>
