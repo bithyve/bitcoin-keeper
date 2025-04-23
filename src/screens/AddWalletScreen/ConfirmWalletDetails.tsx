@@ -494,6 +494,7 @@ function ConfirmWalletDetails({ route }) {
                   isFullText
                   colorVarient="green"
                   colorMode={colorMode}
+                  isOnL4={isOnL4}
                 />
               );
             })}
@@ -513,6 +514,7 @@ function ConfirmWalletDetails({ route }) {
                 colorVarient="green"
                 colorMode={colorMode}
                 badgeText="Inheritance Key"
+                isOnL4={isOnL4}
               />
             ))}
             {emergencySigners.map((emergencySigner) => (
@@ -527,6 +529,7 @@ function ConfirmWalletDetails({ route }) {
                 colorVarient="green"
                 colorMode={colorMode}
                 badgeText="Emergency Key"
+                isOnL4={isOnL4}
               />
             ))}
           </Box>

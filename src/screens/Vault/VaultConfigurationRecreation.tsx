@@ -22,8 +22,10 @@ import WalletHeader from 'src/components/WalletHeader';
 import usePlan from 'src/hooks/usePlan';
 
 function WrappedImportIcon() {
+  const { colorMode } = useColorMode();
+
   return (
-    <View style={styles.iconWrapper}>
+    <View style={styles.iconWrapper} backgroundColor={`${colorMode}.pantoneGreen`}>
       <ImportIcon width={15} height={15} />
     </View>
   );
@@ -279,7 +281,6 @@ const styles = StyleSheet.create({
     height: wp(35),
     marginLeft: -7,
     borderRadius: 20,
-    backgroundColor: Colors.primaryGreen,
     justifyContent: 'center',
     alignItems: 'center',
   },

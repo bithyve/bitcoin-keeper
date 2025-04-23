@@ -23,16 +23,32 @@ const SignerContent = ({ navigation, handleModalClose, isOnL4 }) => {
   const isDarkMode = colorMode === 'dark';
 
   const hardwareSigners = [
-    { type: SignerType.COLDCARD, background: 'dullCreamBackground', isTrue: false },
+    {
+      type: SignerType.COLDCARD,
+      background: isOnL4 ? 'headerWhite' : 'dullCreamBackground',
+      isTrue: false,
+    },
     { type: SignerType.TAPSIGNER, background: 'pantoneGreen', isTrue: true },
     { type: SignerType.JADE, background: 'brownBackground', isTrue: true },
-    { type: SignerType.PASSPORT, background: 'dullCreamBackground', isTrue: false },
+    {
+      type: SignerType.PASSPORT,
+      background: isOnL4 ? 'headerWhite' : 'dullCreamBackground',
+      isTrue: false,
+    },
     { type: SignerType.SPECTER, background: 'pantoneGreen', isTrue: false },
     { type: SignerType.KEYSTONE, background: 'brownBackground', isTrue: false },
-    { type: SignerType.LEDGER, background: 'dullCreamBackground', isTrue: false },
+    {
+      type: SignerType.LEDGER,
+      background: isOnL4 ? 'headerWhite' : 'dullCreamBackground',
+      isTrue: false,
+    },
     { type: SignerType.PORTAL, background: 'pantoneGreen', isTrue: false },
     { type: SignerType.TREZOR, background: 'brownBackground', isTrue: false },
-    { type: SignerType.BITBOX02, background: 'dullCreamBackground', isTrue: false },
+    {
+      type: SignerType.BITBOX02,
+      background: isOnL4 ? 'headerWhite' : 'dullCreamBackground',
+      isTrue: false,
+    },
   ];
 
   const hardwareSnippet = hardwareSigners.map(({ type, background, isTrue }) => ({
