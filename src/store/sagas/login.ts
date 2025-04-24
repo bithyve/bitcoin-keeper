@@ -47,7 +47,8 @@ import {
 import { RootState, store } from '../store';
 import { createWatcher } from '../utilities';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
-import { setLoginMethod, setSubscription } from '../reducers/settings';
+import { setLoginMethod } from '../reducers/settings';
+import { setSubscription } from 'src/store/sagaActions/settings';
 import { backupAllSignersAndVaults } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
@@ -101,7 +102,6 @@ function* credentialsStorageWorker({ payload }) {
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
         uaiType.SECURE_VAULT,
         uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
-        uaiType.DEFAULT,
         uaiType.ZENDESK_TICKET,
         uaiType.SERVER_BACKUP_FAILURE,
       ])
@@ -199,7 +199,6 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.SECURE_VAULT,
               uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
               uaiType.FEE_INISGHT,
-              uaiType.DEFAULT,
               uaiType.ZENDESK_TICKET,
               uaiType.SIGNING_DELAY,
               uaiType.POLICY_DELAY,
@@ -210,13 +209,16 @@ function* credentialsAuthWorker({ payload }) {
           yield put(setRecepitVerificationFailed(!response.isValid));
           if (!response.isValid) {
             if (
-              (subscription.level > 1 && ['Hodler', 'Diamond Hands'].includes(subscription.name)) ||
+              (subscription.level > 1 &&
+                [SubscriptionTier.L2, SubscriptionTier.L3, SubscriptionTier.L4].includes(
+                  subscription?.name as SubscriptionTier
+                )) ||
               subscription.level !== response.level
             ) {
               yield call(downgradeToPleb);
               yield put(setRecepitVerificationFailed(true));
             }
-          } else if (plebDueToOffline && response?.level != subscription?.level) {
+          } else if (plebDueToOffline || response?.level != subscription?.level) {
             yield call(
               updateSubscriptionFromRelayData,
               response,
@@ -275,7 +277,7 @@ async function updateSubscriptionFromRelayData(data, wasAutoUpdateEnabledBeforeD
       isDesktopPurchase: true,
     };
   } else {
-    delete data.subscription.paymentType;
+    if (data.subscription?.paymentType) delete data.subscription?.paymentType;
     updatedSubscription = {
       ...data.subscription,
       isDesktopPurchase: false,

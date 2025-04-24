@@ -3,14 +3,14 @@
 <rect width="122" height="180" fill="url(#paint0_linear_8872_7875)"/>
 </mask>
 <g mask="url(#mask0_8872_7875)">
-<path opacity="0.1" d="M120.412 5.62128C96.0165 20.7262 45.9847 68.0548 41.0229 136.53C36.0611 205.006 -2.39313 268.279 -21 291.355" stroke="#F7F2EC" stroke-width="2" stroke-linecap="round"/>
-<path opacity="0.1" d="M94.5567 -12C70.1611 3.10489 20.1293 50.4336 15.1674 118.909C10.2056 187.385 -28.2486 250.657 -46.8555 273.734" stroke="#F7F2EC" stroke-width="2" stroke-linecap="round"/>
-<path opacity="0.1" d="M133.412 13.7113C109.017 28.8162 58.9847 76.1449 54.0229 144.62C49.0611 213.096 10.6069 276.369 -8 299.446" stroke="#F7F2EC" stroke-width="2" stroke-linecap="round"/>
-<path opacity="0.1" d="M107.412 -3.9079C83.0165 11.197 32.9847 58.5257 28.0229 127.001C23.0611 195.477 -15.3931 258.749 -34 281.826" stroke="#F7F2EC" stroke-width="2" stroke-linecap="round"/>
+<path opacity="0.1" d="M120.412 5.62128C96.0165 20.7262 45.9847 68.0548 41.0229 136.53C36.0611 205.006 -2.39313 268.279 -21 291.355" stroke="#F6F2ED" stroke-width="2" stroke-linecap="round"/>
+<path opacity="0.1" d="M94.5567 -12C70.1611 3.10489 20.1293 50.4336 15.1674 118.909C10.2056 187.385 -28.2486 250.657 -46.8555 273.734" stroke="#F6F2ED" stroke-width="2" stroke-linecap="round"/>
+<path opacity="0.1" d="M133.412 13.7113C109.017 28.8162 58.9847 76.1449 54.0229 144.62C49.0611 213.096 10.6069 276.369 -8 299.446" stroke="#F6F2ED" stroke-width="2" stroke-linecap="round"/>
+<path opacity="0.1" d="M107.412 -3.9079C83.0165 11.197 32.9847 58.5257 28.0229 127.001C23.0611 195.477 -15.3931 258.749 -34 281.826" stroke="#F6F2ED" stroke-width="2" stroke-linecap="round"/>
 </g>
 <defs>
 <linearGradient id="paint0_linear_8872_7875" x1="-1.8626" y1="8.5" x2="151.827" y2="54.7076" gradientUnits="userSpaceOnUse">
-<stop stop-color="#2D6759"/>
+<stop stop-color="#2F4F4F"/>
 <stop offset="1" stop-color="#508B82"/>
 </linearGradient>
 </defs>

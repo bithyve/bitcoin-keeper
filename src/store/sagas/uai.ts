@@ -4,7 +4,6 @@ import { call, put, select } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 
-import { isTestnet } from 'src/constants/Bitcoin';
 import { SignerType, VaultType } from 'src/services/wallets/enums';
 import { BackupHistory } from 'src/models/enums/BHR';
 import {
@@ -24,9 +23,12 @@ import {
 import { createWatcher } from '../utilities';
 import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
 import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import { RootState } from '../store';
+import config from 'src/utils/service-utilities/config';
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
 const HEALTH_CHECK_REMINDER_TESTNET = 3; // 3hours
-const healthCheckReminderThreshold = isTestnet()
+const healthCheckReminderThreshold = config.isDevMode()
   ? HEALTH_CHECK_REMINDER_TESTNET
   : HEALTH_CHECK_REMINDER_MAINNET;
 
@@ -47,7 +49,9 @@ const healthCheckReminderHours = (lastHealthCheck: Date) => {
 export function* addToUaiStackWorker({ payload }) {
   const { entityId, uaiType, uaiDetails, createdAt, seenAt } = payload;
   const uai: UAI = {
-    id: hash256(Buffer.from(Date.now().toString() + Math.random().toString())).toString(),
+    id: hash256(
+      Buffer.from(Date.now().toString() + Math.random().toString()).toString()
+    ).toString(),
     entityId,
     uaiType,
     uaiDetails,
@@ -119,6 +123,7 @@ export function* uaiActionedWorker({ payload }) {
 function* uaiChecksWorker({ payload }) {
   const { checkForTypes } = payload;
   try {
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     if (checkForTypes.includes(uaiType.SECURE_VAULT)) {
       const vault: Vault = dbManager.getCollection(RealmSchema.Vault)[0];
       const secureVaultUai: UAI = dbManager.getObjectByField(
@@ -145,14 +150,14 @@ function* uaiChecksWorker({ payload }) {
         .filter((signer) => !signer.hidden && signer.type !== SignerType.MY_KEEPER);
       if (signers.length > 0) {
         for (const signer of signers) {
-          const lastHealthCheck = isTestnet()
+          const lastHealthCheck = config.isDevMode()
             ? healthCheckReminderHours(signer.lastHealthCheck)
             : healthCheckReminderDays(signer.lastHealthCheck);
 
           if (lastHealthCheck >= healthCheckReminderThreshold) {
             const uaiCollection: UAI[] = dbManager.getObjectByField(
               RealmSchema.UAI,
-              signer.masterFingerprint,
+              signer.id,
               'entityId'
             );
             const uaiHCforSD = uaiCollection?.filter(
@@ -162,12 +167,13 @@ function* uaiChecksWorker({ payload }) {
               yield put(
                 addToUaiStack({
                   uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-                  entityId: signer.masterFingerprint,
+                  entityId: signer.id,
                   uaiDetails: {
                     // body: `Health check for ${signer.signerName} is due`,
                     body: !signer.isBIP85
                       ? `Health check for ${signer.signerName} is due`
                       : `Health check for ${signer.signerName} + is due`,
+                    networkType: bitcoinNetworkType,
                   },
                 })
               );
@@ -186,14 +192,17 @@ function* uaiChecksWorker({ payload }) {
 
       if (uaiCollectionHC.length > 0) {
         for (const uai of uaiCollectionHC) {
+          if (uai?.uaiDetails?.networkType && uai?.uaiDetails?.networkType !== bitcoinNetworkType) {
+            continue;
+          }
           const signers: Signer[] = dbManager.getObjectByField(
             RealmSchema.Signer,
             uai.entityId,
             'masterFingerprint'
           );
           for (const signer of signers) {
-            if (signer) {
-              const lastHealthCheck = isTestnet()
+            if (signer && signer.networkType === bitcoinNetworkType) {
+              const lastHealthCheck = config.isDevMode()
                 ? healthCheckReminderHours(signer.lastHealthCheck)
                 : healthCheckReminderDays(signer.lastHealthCheck);
               if (
@@ -219,7 +228,7 @@ function* uaiChecksWorker({ payload }) {
       if (confirmedBackups.length > 0) {
         const lastConfirmBackup = confirmedBackups.sort((a, b) => b.date - a.date)[0];
         const latestConfirmedBackupDate = new Date(lastConfirmBackup.date * 1000);
-        const lastHealthCheck = isTestnet()
+        const lastHealthCheck = config.isDevMode()
           ? healthCheckReminderHours(latestConfirmedBackupDate)
           : healthCheckReminderDays(latestConfirmedBackupDate);
 
@@ -268,6 +277,9 @@ function* uaiChecksWorker({ payload }) {
 
       if (uaiCollectionHC.length > 0) {
         for (const uai of uaiCollectionHC) {
+          if (uai?.uaiDetails?.networkType && uai?.uaiDetails?.networkType !== bitcoinNetworkType) {
+            continue;
+          }
           if (uai.seenAt && !uai.lastActioned) {
             if (!lastSeenFeesNotification || uai.seenAt > lastSeenFeesNotification) {
               lastSeenFeesNotification = uai.seenAt;
@@ -313,6 +325,7 @@ function* uaiChecksWorker({ payload }) {
               uaiDetails: {
                 heading: 'Fee Insights',
                 body: statement,
+                networkType: bitcoinNetworkType,
               },
               createdAt: lastCreatedFeesNotification,
               seenAt: lastSeenFeesNotification,
@@ -320,21 +333,6 @@ function* uaiChecksWorker({ payload }) {
           );
           yield put(setRefreshUai());
         }
-      }
-    }
-    if (checkForTypes.includes(uaiType.DEFAULT)) {
-      const defaultUAI: UAI = dbManager.getObjectByField(
-        RealmSchema.UAI,
-        uaiType.DEFAULT,
-        'uaiType'
-      )[0];
-
-      if (!defaultUAI) {
-        yield put(
-          addToUaiStack({
-            uaiType: uaiType.DEFAULT,
-          })
-        );
       }
     }
     if (checkForTypes.includes(uaiType.CANARAY_WALLET)) {
@@ -364,7 +362,8 @@ function* uaiChecksWorker({ payload }) {
                 uaiType: uaiType.CANARAY_WALLET,
                 entityId: wallet.id,
                 uaiDetails: {
-                  body: `Canary Vault  from ${wallet.presentationData.name}`,
+                  body: `Canary Wallet from ${wallet.presentationData.name}`,
+                  networkType: bitcoinNetworkType,
                 },
               })
             );

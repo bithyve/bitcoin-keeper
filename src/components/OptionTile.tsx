@@ -3,6 +3,7 @@ import { Image, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import Text from './KeeperText';
+import usePlan from 'src/hooks/usePlan';
 
 type OptionTileProps = {
   title: string;
@@ -14,12 +15,15 @@ type OptionTileProps = {
 
 function OptionTile({ title, icon, customStyle, callback, image }: OptionTileProps) {
   const { colorMode } = useColorMode();
+  const { isOnL4 } = usePlan();
 
   const ImageContainer = () => {
     return (
       <Box
         style={styles.associatedContactImageCtr}
-        backgroundColor={`${colorMode}.primaryGreenBackground`}
+        backgroundColor={
+          isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.primaryGreenBackground`
+        }
       >
         <Image src={image} style={styles.associatedContactImage} />
       </Box>

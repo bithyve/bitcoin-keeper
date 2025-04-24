@@ -29,6 +29,9 @@ import HodlerWhiteSub from 'src/assets/images/Hodler-white-sub-icon.svg';
 import HodlerGreenSub from 'src/assets/images/Hodler-green-sub-icon.svg';
 import DiamondGreenSub from 'src/assets/images/DiamondHands-green-sub-icon.svg';
 import DiamondWhiteSub from 'src/assets/images/DiamondHands-white-sub-iocn.svg';
+import KeeperPrivateIcon from 'src/assets/images/KeeperPrivateIcon.svg';
+import KeeperPrivateIconWhite from 'src/assets/images/KeeperPrivateIconWhite.svg';
+import PrivateManageWallet from 'src/assets/privateImages/manage-wallet-icon.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -65,7 +68,7 @@ export const useSettingKeeper = () => {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const isFocused = useIsFocused();
-  const { isOnL2Above } = usePlan();
+  const { isOnL2Above, isOnL4 } = usePlan();
 
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
@@ -86,12 +89,19 @@ export const useSettingKeeper = () => {
   } = useAppSelector((state) => state.bhr);
 
   useEffect(() => {
-    if (colorMode === 'dark') {
-      dispatch(setThemeMode(ThemeMode.DARK));
+    if (isOnL4) {
+      dispatch(setThemeMode(ThemeMode.PRIVATE));
+      if (colorMode === 'light') {
+        toggleColorMode();
+      }
     } else {
-      dispatch(setThemeMode(ThemeMode.LIGHT));
+      if (colorMode === 'dark') {
+        dispatch(setThemeMode(ThemeMode.DARK));
+      } else {
+        dispatch(setThemeMode(ThemeMode.LIGHT));
+      }
     }
-  }, [colorMode]);
+  }, [colorMode, isOnL4]);
 
   const changeThemeMode = () => {
     toggleColorMode();
@@ -170,6 +180,17 @@ export const useSettingKeeper = () => {
       subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
       subDescription: 'Unlock to protect significant amount of bitcoin and inheritance planning',
     },
+    {
+      plan: SubscriptionTier.L4.toUpperCase(),
+      title: SubscriptionTier.L4,
+      subtitle: 'Private',
+      description: 'For Private Clients',
+      icon: <KeeperPrivateIconWhite width={30} height={30} />,
+      sublightIcon: <KeeperPrivateIcon width={24} height={24} />,
+      subDarkIcon: <KeeperPrivateIconWhite width={24} height={24} />,
+      subDescription:
+        'Experience exclusive white-glove service with personalized attention and tailored solutions',
+    },
   ];
 
   const BackAndRecovery = [
@@ -219,7 +240,7 @@ export const useSettingKeeper = () => {
   ];
 
   const General = [
-    {
+    !isOnL4 && {
       title: settings.DarkMode,
       description: settings.DarkModeSubTitle,
       icon: <DarkModeIcon width={14} height={14} />,
@@ -248,12 +269,16 @@ export const useSettingKeeper = () => {
       onPress: () => navigation.navigate('SettingApp'),
       isDiamond: false,
     },
-  ];
+  ].filter(Boolean);
   const keysAndwallet = [
     {
       title: common.manageKeys,
       description: common.manageKeysDesc,
-      icon: <ManageKeyIcon width={14} height={14} />,
+      icon: isOnL4 ? (
+        <PrivateManageWallet width={14} height={14} />
+      ) : (
+        <ManageKeyIcon width={14} height={14} />
+      ),
       onPress: () => setHiddenKeyPass(true),
       isDiamond: false,
     },
@@ -382,7 +407,7 @@ export const useSettingKeeper = () => {
       subTitleWidth={wp(240)}
       subTitle={settings.assistedServerDeleteBackupSubtitle}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       Content={() => (
         <Buttons

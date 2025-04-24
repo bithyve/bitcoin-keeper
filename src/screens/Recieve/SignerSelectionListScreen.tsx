@@ -11,7 +11,6 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, useColorMode } from 'native-base';
 import Next from 'src/assets/images/icon_arrow.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -29,6 +28,7 @@ import NFC from 'src/services/nfc';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import { NfcTech } from 'react-native-nfc-manager';
 import { InteracationMode } from '../Vault/HardwareModalMap';
+import WalletHeader from 'src/components/WalletHeader';
 
 const { width } = Dimensions.get('screen');
 
@@ -125,7 +125,7 @@ function SignerSelectionListScreen() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={false} showLoader />
-      <KeeperHeader title={title} subtitle={description} />
+      <WalletHeader title={title} subTitle={description} />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
         data={availableSigners}
@@ -195,12 +195,12 @@ const SignerCard = ({ onPress, signer }) => {
                 width={30}
                 height={30}
                 borderRadius={30}
-                backgroundColor={`${colorMode}.accent`}
+                backgroundColor={`${colorMode}.DarkSlateGray`}
                 justifyContent="center"
                 alignItems="center"
                 marginX={1}
               >
-                {SDIcons(signer.type).Icon}
+                {SDIcons({ type: signer.type }).Icon}
               </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>

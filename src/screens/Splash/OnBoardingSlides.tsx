@@ -72,7 +72,7 @@ function OnBoardingSlides({ navigation }) {
               style={styles.skipTextWrapper}
               testID="btn_skip"
             >
-              <Text color={`${colorMode}.white`} bold style={styles.skipText}>
+              <Text color={`${colorMode}.seashellWhiteText`} bold style={styles.skipText}>
                 Skip&nbsp;&nbsp;
               </Text>
               <Skip />
@@ -141,7 +141,7 @@ function OnBoardingSlides({ navigation }) {
                 testID="btn_startApp"
               >
                 <Box style={styles.cta} backgroundColor={`${colorMode}.white`}>
-                  <Text color={`${colorMode}.greenText`} style={styles.startAppText}>
+                  <Text color={`${colorMode}.greenText`} style={styles.startAppText} medium>
                     {common.getStarted}
                   </Text>
                 </Box>
@@ -206,7 +206,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.42,
     textAlign: 'center',
-    opacity: 0.7,
   },
   startAppText: {
     fontSize: 13,

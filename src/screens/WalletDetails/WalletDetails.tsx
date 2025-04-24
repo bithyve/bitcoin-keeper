@@ -124,7 +124,7 @@ function WalletDetails({ route }: ScreenProps) {
   };
 
   return (
-    <Box safeAreaTop style={styles.wrapper}>
+    <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <Box style={styles.topContainer}>
         <WalletHeader
@@ -187,6 +187,7 @@ function WalletDetails({ route }: ScreenProps) {
             flex={1}
             style={styles.transactionsContainer}
             backgroundColor={`${colorMode}.thirdBackground`}
+            borderColor={`${colorMode}.separator`}
           >
             {wallet?.specs?.transactions?.length ? (
               <HStack style={styles.transTitleWrapper}>
@@ -216,7 +217,11 @@ function WalletDetails({ route }: ScreenProps) {
             <TransactionFooter currentWallet={wallet} />
           </Box>
         ) : (
-          <Box style={styles.addNewWalletContainer}>
+          <Box
+            style={styles.addNewWalletContainer}
+            borderColor={`${colorMode}.separator`}
+            borderTopWidth={1}
+          >
             <AddWalletIcon />
             <Text
               color={`${colorMode}.primaryText`}
@@ -264,6 +269,8 @@ const styles = StyleSheet.create({
     paddingTop: hp(24),
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
+    borderWidth: 1,
+    borderBottomWidth: 0,
   },
   transTitleWrapper: {
     paddingTop: 5,

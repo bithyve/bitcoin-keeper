@@ -3,7 +3,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { Signer } from 'src/services/wallets/interfaces/vault';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import OptionCard from 'src/components/OptionCard';
 
@@ -25,6 +24,7 @@ import { getCardInfo, handleTapsignerError } from 'src/hardware/tapsigner';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getAccountFromSigner } from 'src/utils/utilities';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ManageTapsignerSettings({ route }: any) {
   const { colorMode } = useColorMode();
@@ -151,7 +151,7 @@ function ManageTapsignerSettings({ route }: any) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={signerTranslations.manageTapsigner} />
+      <WalletHeader title={signerTranslations.manageTapsigner} />
       <ScrollView
         contentContainerStyle={styles.contentContainerStyle}
         showsVerticalScrollIndicator={false}

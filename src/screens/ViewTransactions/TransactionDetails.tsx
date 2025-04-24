@@ -11,7 +11,6 @@ import {
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import openLink from 'src/utils/OpenLink';
 import IconRecieve from 'src/assets/images/icon_received_lg.svg';
@@ -26,7 +25,6 @@ import Edit from 'src/assets/images/edit.svg';
 import EditDark from 'src/assets/images/edit-white.svg';
 import useBalance from 'src/hooks/useBalance';
 import moment from 'moment';
-import config from 'src/utils/service-utilities/config';
 import { LabelRefType, NetworkType } from 'src/services/wallets/enums';
 import { Transaction } from 'src/services/wallets/interfaces';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -38,6 +36,8 @@ import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import { getLabelChanges } from '../UTXOManagement/components/LabelsEditor';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import BTC from 'src/assets/images/btc.svg';
+import { useAppSelector } from 'src/store/hooks';
+import WalletHeader from 'src/components/WalletHeader';
 
 export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
@@ -69,6 +69,7 @@ function TransactionDetails({ route }) {
   const noteRef = useRef();
   const dispatch = useDispatch();
   const [updatingLabel, setUpdatingLabel] = React.useState(false);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     if (labels[transaction.txid][0] && noteRef.current) {
@@ -143,7 +144,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+      `https://mempool.space${bitcoinNetworkType === NetworkType.TESTNET ? '/testnet4' : ''}/tx/${
         transaction.txid
       }`
     );
@@ -162,9 +163,9 @@ function TransactionDetails({ route }) {
         backgroundColor="transparent"
       />
       <Box style={styles.topSection}>
-        <KeeperHeader
+        <WalletHeader
           title={transactions.TransactionDetails}
-          subtitle={transactions.TransactionDetailsSubTitle}
+          subTitle={transactions.TransactionDetailsSubTitle}
         />
         <Box style={styles.transViewWrapper}>
           <Box style={styles.transViewIcon}>

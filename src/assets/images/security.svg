@@ -2,16 +2,16 @@
   <g id="security" transform="translate(-38.455 -597)">
     <g id="watch_only" data-name="watch only" transform="translate(-10 335.514)">
       <g id="Group_54506" data-name="Group 54506" transform="translate(7.486 7.486)">
-        <g id="Ellipse_2007" data-name="Ellipse 2007" transform="translate(40.969 254)" fill="#f7f2ec" stroke="#002c27" stroke-width="1">
+        <g id="Ellipse_2007" data-name="Ellipse 2007" transform="translate(40.969 254)" fill="#F6F2ED" stroke="#002c27" stroke-width="1">
           <circle cx="21.215" cy="21.215" r="21.215" stroke="none"/>
           <circle cx="21.215" cy="21.215" r="20.715" fill="none"/>
         </g>
         <g id="Group_39720" data-name="Group 39720" transform="translate(42.662 255.806)">
           <g id="Group_39719" data-name="Group 39719" transform="translate(0 0)">
-            <path id="Path_27264" data-name="Path 27264" d="M434.087,1170.751a19.6,19.6,0,0,1-5.832,13.981,19.347,19.347,0,0,1-13.75,5.639,19.62,19.62,0,1,1,19.582-19.62Z" transform="translate(-394.923 -1151.13)" fill="#2d6759"/>
+            <path id="Path_27264" data-name="Path 27264" d="M434.087,1170.751a19.6,19.6,0,0,1-5.832,13.981,19.347,19.347,0,0,1-13.75,5.639,19.62,19.62,0,1,1,19.582-19.62Z" transform="translate(-394.923 -1151.13)" fill="#2F4F4F"/>
           </g>
         </g>
-        <g id="Ellipse_2008" data-name="Ellipse 2008" transform="translate(44.2 257.286)" fill="#f7f2ec" stroke="#002c27" stroke-width="1">
+        <g id="Ellipse_2008" data-name="Ellipse 2008" transform="translate(44.2 257.286)" fill="#F6F2ED" stroke="#002c27" stroke-width="1">
           <circle cx="18.055" cy="18.055" r="18.055" stroke="none"/>
           <circle cx="18.055" cy="18.055" r="17.555" fill="none"/>
         </g>
@@ -22,8 +22,8 @@
       </g>
     </g>
     <g id="unlock_1" data-name="unlock 1" transform="translate(48.788 607.221)">
-      <path id="Path_206516" data-name="Path 206516" d="M6,5.379A4.369,4.369,0,0,1,10.379,1h1.752A4.375,4.375,0,0,1,16.51,5.379V9.32H14.758V5.379a2.63,2.63,0,0,0-2.627-2.627H10.379A2.624,2.624,0,0,0,7.752,5.379V9.32H6Z" transform="translate(-0.373)" fill="#2d6759" fill-rule="evenodd"/>
-      <path id="Path_206517" data-name="Path 206517" d="M3,10.376A.867.867,0,0,1,3.876,9.5H17.889a.873.873,0,0,1,.876.876v9.2a.878.878,0,0,1-.876.876H3.876A.873.873,0,0,1,3,19.572Zm3.5,3.941h8.758V12.565H6.5Zm0,3.065h8.758V15.631H6.5Z" transform="translate(0 -1.056)" fill="#2d6759" fill-rule="evenodd"/>
+      <path id="Path_206516" data-name="Path 206516" d="M6,5.379A4.369,4.369,0,0,1,10.379,1h1.752A4.375,4.375,0,0,1,16.51,5.379V9.32H14.758V5.379a2.63,2.63,0,0,0-2.627-2.627H10.379A2.624,2.624,0,0,0,7.752,5.379V9.32H6Z" transform="translate(-0.373)" fill="#2F4F4F" fill-rule="evenodd"/>
+      <path id="Path_206517" data-name="Path 206517" d="M3,10.376A.867.867,0,0,1,3.876,9.5H17.889a.873.873,0,0,1,.876.876v9.2a.878.878,0,0,1-.876.876H3.876A.873.873,0,0,1,3,19.572Zm3.5,3.941h8.758V12.565H6.5Zm0,3.065h8.758V15.631H6.5Z" transform="translate(0 -1.056)" fill="#2F4F4F" fill-rule="evenodd"/>
     </g>
   </g>
 </svg>

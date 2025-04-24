@@ -8,7 +8,6 @@ import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wal
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import SettingCard from 'src/screens/Home/components/Settings/Component/SettingCard';
 import { useColorMode } from 'native-base';
@@ -16,6 +15,7 @@ import { useColorMode } from 'native-base';
 const useTestSats = ({ wallet }) => {
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -54,7 +54,7 @@ const useTestSats = ({ wallet }) => {
     };
   }, []);
 
-  return config.NETWORK_TYPE === NetworkType.TESTNET ? (
+  return bitcoinNetworkType === NetworkType.TESTNET ? (
     <SettingCard
       subtitleColor={`${colorMode}.balanceText`}
       backgroundColor={`${colorMode}.textInputBackground`}

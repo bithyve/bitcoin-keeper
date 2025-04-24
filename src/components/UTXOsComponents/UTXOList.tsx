@@ -10,7 +10,6 @@ import Selected from 'src/assets/images/selected.svg';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
-import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
@@ -156,7 +155,12 @@ function UTXOElement({
                 {selectedUTXOMap[utxoId] ? (
                   <Selected />
                 ) : (
-                  <Box style={[styles.selectionView, { backgroundColor: 'transparent' }]} />
+                  <Box
+                    style={[
+                      styles.selectionView,
+                      { borderColor: `${colorMode}.DarkSlateGray`, backgroundColor: 'transparent' },
+                    ]}
+                  />
                 )}
               </Box>
             </Box>
@@ -324,7 +328,6 @@ const styles = StyleSheet.create({
   },
   selectionView: {
     borderWidth: 1,
-    borderColor: 'orange',
     height: 20,
     width: 20,
     borderRadius: 20,

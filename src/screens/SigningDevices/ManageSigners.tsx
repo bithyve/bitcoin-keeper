@@ -11,6 +11,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
 import HardwareIllustration from 'src/assets/images/diversify-hardware.svg';
+import PrivateHardwareIllustration from 'src/assets/privateImages/doc-hardware-usage.svg';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -49,6 +50,10 @@ import {
   getKeyTimelock,
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import HWError from 'src/hardware/HWErrorState';
+import { HWErrorType } from 'src/models/enums/Hardware';
+import usePlan from 'src/hooks/usePlan';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -59,13 +64,14 @@ function ManageSigners({ route }: ScreenProps) {
   const { activeVault } = useVault({ vaultId });
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const {
     realySignersUpdateErrorMessage,
     relaySignersUpdate,
     relaySignersUpdateLoading,
     realySignersAdded,
   } = useAppSelector((state) => state.bhr);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
@@ -79,9 +85,19 @@ function ManageSigners({ route }: ScreenProps) {
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
+  const { isOnL4 } = usePlan();
 
   useEffect(() => {
-    if (remoteData?.key && !timerModal) setTimerModal(true);
+    if (remoteData?.key && !timerModal) {
+      const signerNetwork = WalletUtilities.getNetworkFromPrefix(
+        remoteData?.key.split(']')[1]?.slice(0, 4)
+      );
+      if (signerNetwork != bitcoinNetworkType) {
+        showToast(new HWError(HWErrorType.INCORRECT_NETWORK).message, <ToastErrorIcon />);
+        return;
+      }
+      setTimerModal(true);
+    }
   }, [remoteData]);
 
   useEffect(() => {
@@ -242,11 +258,11 @@ function ManageSigners({ route }: ScreenProps) {
         title={signerTranslation.ManageKeys}
         subTitle={signerTranslation.manageKeysModalSubtitle}
         subTitleColor={`${colorMode}.headerWhite`}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
         secondaryIcon={<ConciergeNeedHelp />}
@@ -267,7 +283,7 @@ function ManageSigners({ route }: ScreenProps) {
         Content={() => (
           <Box style={styles.modalContent}>
             <Box style={styles.illustrationContainer}>
-              <HardwareIllustration />
+              {isOnL4 ? <PrivateHardwareIllustration /> : <HardwareIllustration />}
             </Box>
             <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
               {signerTranslation.manageKeysModalDesc}
@@ -393,7 +409,7 @@ function SignersList({
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, false)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type).Icon}
+          icon={SDIcons({ type: shellSigner.type }).Icon}
           showSelection={false}
           showDot={true}
           colorVarient="green"
@@ -463,7 +479,7 @@ function SignersList({
                     : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
                 description={getSignerDescription(signer)}
-                icon={SDIcons(signer.type, true).Icon}
+                icon={SDIcons({ type: signer.type, light: true }).Icon}
                 image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}
@@ -535,6 +551,9 @@ const styles = StyleSheet.create({
   },
   illustrationContainer: {
     marginBottom: hp(30),
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalDesc: {
     width: '95%',

@@ -5,7 +5,7 @@ import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
-import SignerIcon from 'src/assets/images/signer_white.svg';
+import SignerIcon from 'src/assets/images/keys-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import SendIcon from 'src/assets/images/send-diagonal-arrow-up.svg';
 import SendIconWhite from 'src/assets/images/send-diagonal-arrow-up.svg';
@@ -16,6 +16,7 @@ import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { VaultType } from 'src/services/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
+import PrivateVaultSetupIcon from 'src/assets/privateImages/vault_setup.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
@@ -37,10 +38,9 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
-import { sendPhaseOneReset, setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
+import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import BTCAmountPill from 'src/components/BTCAmountPill';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
@@ -57,6 +57,7 @@ import MiniscriptPathSelector, {
 } from 'src/components/MiniscriptPathSelector';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import usePlan from 'src/hooks/usePlan';
 
 function Footer({
   vault,
@@ -269,7 +270,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     [vault?.specs?.transactions]
   );
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
-  const isAssistedWallet = vault.type === VaultType.ASSISTED;
   const isCanaryWallet = vault.type === VaultType.CANARY;
   const introModal =
     useAppSelector((state) => state.vault.introModal) && (isCollaborativeWallet || isCanaryWallet);
@@ -283,17 +283,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const syncing =
     ELECTRUM_CLIENT.isClientConnected && walletSyncing && vault ? !!walletSyncing[vault.id] : false;
 
-  const disableBuy = false;
-  const cardProps = {
-    circleColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
-    pillTextColor: disableBuy ? `${colorMode}.buttonText` : null,
-    cardPillText: disableBuy ? common.comingSoon : '',
-    customCardPill: !disableBuy && <BTCAmountPill />,
-    cardPillColor: disableBuy ? `${colorMode}.secondaryGrey` : null,
-  };
   const isDarkMode = colorMode === 'dark';
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(vault);
+  const { isOnL4 } = usePlan();
 
   useEffect(() => {
     if (viewTransaction) {
@@ -398,7 +391,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     () => (
       <View style={styles.vaultModalContainer}>
         <Box style={styles.alignSelf}>
-          <VaultSetupIcon />
+          {isOnL4 ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
         </Box>
         {isCanaryWallet ? (
           <Text color="white" style={styles.modalContent}>
@@ -424,7 +417,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   );
 
   return (
-    <Box style={styles.wrapper} safeAreaTop>
+    <Box style={styles.wrapper} safeAreaTop backgroundColor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <VStack style={styles.topSection}>
@@ -517,6 +510,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           flex={1}
           style={styles.transactionsContainer}
           backgroundColor={`${colorMode}.thirdBackground`}
+          borderColor={`${colorMode}.separator`}
         >
           <TransactionList
             transactions={[...cachedTransactions, ...transactions]}
@@ -555,13 +549,13 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             ? vaultTranslation.canaryLearnMoreSubtitle
             : vaultTranslation.vaultLearnMoreSubtitle
         }
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={VaultContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
@@ -636,6 +630,8 @@ const styles = StyleSheet.create({
     paddingTop: hp(24),
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
+    borderWidth: 1,
+    borderBottomWidth: 0,
   },
 
   transTitleWrapper: {
@@ -720,7 +716,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     padding: 5,
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
     flexDirection: 'row',
   },
   atIconWrapper: {

@@ -166,7 +166,7 @@ function SigningRequest() {
   }, [otp, requestToCancel, delayedTransactions]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader title="Signing Requests" />
       <ScrollView contentContainerStyle={styles.container}>
         <Box gap={hp(20)}>

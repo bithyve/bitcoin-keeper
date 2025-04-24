@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DelayedPolicyUpdate, DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
+import { NetworkType } from 'src/services/wallets/enums';
 
 interface InheritanceToolVisitedHistoryType {
   BUY_NEW_HARDWARE_SIGNER: number;
@@ -35,6 +36,10 @@ const initialState: {
   delayedPolicyUpdate: { [policyId: string]: DelayedPolicyUpdate }; // contains a single policy update at a time
   plebDueToOffline: boolean; // app downgraded to pleb due to internet issue
   wasAutoUpdateEnabledBeforeDowngrade: boolean;
+  defaultWalletCreated: {
+    [NetworkType.MAINNET]: boolean;
+    [NetworkType.TESTNET]: boolean;
+  }; // map for creation of default wallet for network types
 } = {
   appId: '',
   failedAttempts: 0,
@@ -67,6 +72,10 @@ const initialState: {
   delayedPolicyUpdate: {},
   plebDueToOffline: false,
   wasAutoUpdateEnabledBeforeDowngrade: false,
+  defaultWalletCreated: {
+    [NetworkType.MAINNET]: false,
+    [NetworkType.TESTNET]: false,
+  },
 };
 
 const storageSlice = createSlice({
@@ -127,6 +136,19 @@ const storageSlice = createSlice({
     setAutoUpdateEnabledBeforeDowngrade: (state, action: PayloadAction<boolean>) => {
       state.wasAutoUpdateEnabledBeforeDowngrade = action.payload;
     },
+    setDefaultWalletCreated: (
+      state,
+      action: PayloadAction<{ networkType: NetworkType; created: boolean }>
+    ) => {
+      // defaultWalletCreated is undefined in case of updated app due to rehydrate issue.
+      if (!state.defaultWalletCreated) {
+        state.defaultWalletCreated = {
+          [NetworkType.MAINNET]: false,
+          [NetworkType.TESTNET]: false,
+        };
+      }
+      state.defaultWalletCreated[action.payload.networkType] = action.payload.created;
+    },
   },
 });
 
@@ -143,6 +165,7 @@ export const {
   deleteDelayedPolicyUpdate,
   setPlebDueToOffline,
   setAutoUpdateEnabledBeforeDowngrade,
+  setDefaultWalletCreated,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

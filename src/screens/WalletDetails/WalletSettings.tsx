@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import { wp, hp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -16,10 +16,8 @@ import idx from 'idx';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType } from 'src/services/wallets/enums';
-import { WalletType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
 import BackupModalContent from '../AppSettings/BackupModal';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { useDispatch } from 'react-redux';
 import WalletHeader from 'src/components/WalletHeader';
@@ -28,17 +26,24 @@ import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import Text from 'src/components/KeeperText';
 import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
+import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import WalletInfoIllustration from 'src/assets/images/walletInfoIllustration.svg';
+import PrivateWalletInfoIllustration from 'src/assets/privateImages/wallet-Info-Illustratipn.svg';
+import { useQuery } from '@realm/react';
+import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
+import ImportExportLabels from 'src/components/ImportExportLabels';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import usePlan from 'src/hooks/usePlan';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
+  const isDarKMode = colorMode === 'dark';
   const { wallet: walletRoute } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const [loadingState, setLoadingState] = useState(false);
-
+  const { isOnL4 } = usePlan();
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
   const walletMnemonic = idx(wallet, (_) => _.derivationDetails.mnemonic);
@@ -46,10 +51,18 @@ function WalletSettings({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { settings, common, wallet: walletTranslation, vault: vaultText } = translations;
   const TestSatsComponent = useTestSats({ wallet });
-  const isImported = wallet.type === WalletType.IMPORTED;
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [needHelpModal, setNeedHelpModal] = useState(false);
   const dispatch = useDispatch();
+  const [importExportLabelsModal, setImportExportLabelsModal] = useState(false);
+
+  // Get wallet descriptor for labels
+  const walletDescriptor = generateAbbreviatedOutputDescriptors(wallet);
+
+  // Query labels for this wallet
+  const labels = useQuery(RealmSchema.Tags, (tags) =>
+    tags.filtered('origin == $0', walletDescriptor)
+  );
 
   const updateWalletVisibility = () => {
     try {
@@ -77,7 +90,7 @@ function WalletSettings({ route }) {
     return (
       <Box>
         <Box style={styles.illustration}>
-          <WalletInfoIllustration />
+          {isOnL4 ? <PrivateWalletInfoIllustration /> : <WalletInfoIllustration />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
           {walletTranslation.learnMoreDesc}
@@ -101,6 +114,13 @@ function WalletSettings({ route }) {
       isDiamond: false,
       onPress: () => updateWalletVisibility(),
     },
+    {
+      title: vaultText.importExportLabels,
+      description: vaultText.importExportLabelsDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => setImportExportLabelsModal(true),
+    },
     walletMnemonic && {
       title: walletTranslation.walletSeedWord,
       description: walletTranslation.walletSeedWordSubTitle,
@@ -121,7 +141,7 @@ function WalletSettings({ route }) {
             title={settings.walletSettings}
             rightComponent={
               <Pressable onPress={() => setNeedHelpModal(true)}>
-                <LearnMoreIcon />
+                {isDarKMode ? <InfoDarkIcon /> : <LearnMoreIcon />}
               </Pressable>
             }
           />
@@ -135,7 +155,6 @@ function WalletSettings({ route }) {
         />
         {TestSatsComponent}
       </Box>
-      <ActivityIndicatorView visible={loadingState} showLoader />
 
       <KeeperModal
         visible={confirmPassVisible}
@@ -219,7 +238,7 @@ function WalletSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={walletTranslation.learnMoreTitle}
         subTitle={walletTranslation.learnMoreSubTitle}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
@@ -227,8 +246,10 @@ function WalletSettings({ route }) {
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.textGreen`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`}
+        secButtonTextColor={
+          isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setNeedHelpModal(false);
@@ -243,6 +264,31 @@ function WalletSettings({ route }) {
           );
         }}
         buttonCallback={() => setNeedHelpModal(false)}
+      />
+
+      <KeeperModal
+        visible={importExportLabelsModal}
+        close={() => setImportExportLabelsModal(false)}
+        title={vaultText.importExportLabels}
+        subTitle={vaultText.importExportLabelsDesc}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <ImportExportLabels
+            vault={wallet}
+            labels={labels}
+            onSuccess={(message) => {
+              setImportExportLabelsModal(false);
+              showToast(message, <TickIcon />);
+            }}
+            onError={(message) => {
+              setImportExportLabelsModal(false);
+              showToast(message, <ToastErrorIcon />);
+            }}
+            translations={translations}
+          />
+        )}
       />
     </ScreenWrapper>
   );

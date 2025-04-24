@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import HiddenKeyIcon from 'src/assets/images/hidden-key.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
@@ -35,6 +34,7 @@ import BounceLoader from 'src/components/BounceLoader';
 import TorAsset from 'src/components/Loader';
 import moment from 'moment';
 import { getKeyUID } from 'src/utils/utilities';
+import WalletHeader from 'src/components/WalletHeader';
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
@@ -42,7 +42,7 @@ function DeleteKeys({ route }) {
   const { signer: signerText } = translations;
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const hiddenSigners = signers.filter(
     (signer) => signer.signerName !== RECOVERY_KEY_SIGNER_NAME && signer.hidden && !signer.archived
   );
@@ -125,7 +125,7 @@ function DeleteKeys({ route }) {
             width={43}
             height={38}
             backgroundColor={Colors.primaryGreen}
-            icon={SDIcons(deletedSigner?.type, true).Icon}
+            icon={SDIcons({ type: deletedSigner?.type, light: true }).Icon}
           />
           <Box>
             <Text numberOfLines={1} fontSize={14} color={`${colorMode}.greenText`}>
@@ -173,18 +173,17 @@ function DeleteKeys({ route }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={signerText.hiddenKeys}
-        mediumTitle
-        subtitle={signerText.showingHiddenKeys}
-        icon={
-          <HexagonIcon
-            width={49}
-            height={44}
-            backgroundColor={colorMode === 'dark' ? Colors.TagLight2 : Colors.primaryGreen}
-            icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
-          />
-        }
+        subTitle={signerText.showingHiddenKeys}
+        // icon={
+        //   <HexagonIcon
+        //     width={49}
+        //     height={44}
+        //     backgroundColor={colorMode === 'dark' ? Colors.TagLight2 : Colors.primaryGreen}
+        //     icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
+        //   />
+        // }
       />
       <Box style={styles.container}>
         {hiddenSigners.length === 0 ? (
@@ -216,7 +215,7 @@ function DeleteKeys({ route }) {
                   primaryIcon={showDelete ? <DeleteIcon /> : null}
                   secondaryIcon={<ShowIcon />}
                   icon={{
-                    element: SDIcons(signer.type, true).Icon,
+                    element: SDIcons({ type: signer.type, light: true }).Icon,
                     backgroundColor: 'pantoneGreen',
                   }}
                   name={getSignerNameFromType(signer.type)}
@@ -300,7 +299,7 @@ function DeleteKeys({ route }) {
                   width={43}
                   height={38}
                   backgroundColor={Colors.primaryGreen}
-                  icon={SDIcons(signerToDelete.type, true).Icon}
+                  icon={SDIcons({ type: signerToDelete.type, light: true }).Icon}
                 />
                 <Box>
                   <Text numberOfLines={1} fontSize={14} color={`${colorMode}.greenText`}>

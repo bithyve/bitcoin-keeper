@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="22" viewBox="0 0 18 22">
   <g id="copy" transform="translate(-3 -1)">
-    <path id="Path_119487" data-name="Path 119487" d="M4,7A.99.99,0,0,0,3,8V22a1,1,0,0,0,1,1H16a1,1,0,0,0,1-1V8a1,1,0,0,0-1-1Z" fill="#2d6759" fill-rule="evenodd"/>
-    <path id="Path_119488" data-name="Path 119488" d="M7,2A.99.99,0,0,1,8,1H20a1,1,0,0,1,1,1V16a1,1,0,0,1-1,1H16V15h3V3H9V8H7Z" fill="#2d6759" fill-rule="evenodd"/>
+    <path id="Path_119487" data-name="Path 119487" d="M4,7A.99.99,0,0,0,3,8V22a1,1,0,0,0,1,1H16a1,1,0,0,0,1-1V8a1,1,0,0,0-1-1Z" fill="#2F4F4F" fill-rule="evenodd"/>
+    <path id="Path_119488" data-name="Path 119488" d="M7,2A.99.99,0,0,1,8,1H20a1,1,0,0,1,1,1V16a1,1,0,0,1-1,1H16V15h3V3H9V8H7Z" fill="#2F4F4F" fill-rule="evenodd"/>
   </g>
 </svg>

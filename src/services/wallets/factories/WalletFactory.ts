@@ -1,7 +1,5 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { DerivationConfig } from 'src/store/sagas/wallets';
-import config from 'src/utils/service-utilities/config';
 import {
   EntityKind,
   ImportedKeyType,
@@ -24,6 +22,8 @@ import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
 import { XpubDetailsType } from '../interfaces/vault';
+import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
+import { store } from 'src/store/store';
 
 export const generateWalletSpecsFromMnemonic = (
   mnemonic: string,
@@ -64,21 +64,18 @@ export const generateWalletSpecsFromExtendedKeys = (
   extendedKey: string,
   extendedKeyType: ImportedKeyType
 ) => {
-  let xpriv: string;
   let xpub: string;
+  const { bitcoinNetwork } = store.getState().settings;
 
-  if (WalletUtilities.isExtendedPrvKey(extendedKeyType)) {
-    xpriv = WalletUtilities.getXprivFromExtendedKey(extendedKey, config.NETWORK);
-    xpub = WalletUtilities.getPublicExtendedKeyFromPriv(xpriv);
-  } else if (WalletUtilities.isExtendedPubKey(extendedKeyType)) {
-    xpub = WalletUtilities.getXpubFromExtendedKey(extendedKey, config.NETWORK);
+  if (WalletUtilities.isExtendedPubKey(extendedKeyType)) {
+    xpub = WalletUtilities.getXpubFromExtendedKey(extendedKey, bitcoinNetwork);
   } else {
     throw new Error('Invalid key');
   }
 
   const specs: WalletSpecs = {
     xpub,
-    xpriv,
+    xpriv: null,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
     totalExternalAddresses: 1,
@@ -101,7 +98,7 @@ export const generateWallet = async ({
   instanceNum,
   walletName,
   walletDescription,
-  derivationConfig,
+  derivationPath,
   primaryMnemonic,
   importDetails,
   networkType,
@@ -111,13 +108,14 @@ export const generateWallet = async ({
   instanceNum: number;
   walletName: string;
   walletDescription: string;
-  derivationConfig?: DerivationConfig;
+  derivationPath?: string;
   primaryMnemonic?: string;
   importDetails?: WalletImportDetails;
   networkType: NetworkType;
   wallets: Wallet[];
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
+  const { bitcoinNetwork } = store.getState().settings;
 
   let bip85Config: BIP85Config;
   let id: string;
@@ -126,7 +124,7 @@ export const generateWallet = async ({
 
   if (type === WalletType.IMPORTED) {
     if (!importDetails) throw new Error('Import details are missing');
-    const { importedKey, importedKeyDetails, derivationConfig } = importDetails;
+    const { importedKey, importedKeyType, derivationPath } = importDetails;
 
     // case: import wallet via extended keys
 
@@ -134,28 +132,31 @@ export const generateWallet = async ({
       instanceNum, // null
       mnemonic: null, // null
       bip85Config, // null
-      xDerivationPath: derivationConfig.path,
+      xDerivationPath: derivationPath,
     };
 
-    specs = generateWalletSpecsFromExtendedKeys(importedKey, importedKeyDetails.importedKeyType);
-    id = WalletUtilities.getFingerprintFromExtendedKey(specs.xpriv || specs.xpub, config.NETWORK); // case: extended key imported wallets have xfp as their id
+    specs = generateWalletSpecsFromExtendedKeys(importedKey, importedKeyType);
+    id = WalletUtilities.getFingerprintFromExtendedKey(specs.xpub, bitcoinNetwork); // case: extended key imported wallets have xfp as their id
     if (wallets.find((wallet) => wallet.id === id)) {
       throw Error('Hot wallet for this mobile key already exists.');
     }
   } else {
     // case: adding new wallet
     if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
-    if (!derivationConfig) throw new Error('Wallet derivation missing');
+    if (!derivationPath) throw new Error('Wallet derivation missing');
+    if (!Number.isInteger(instanceNum) || instanceNum < 0)
+      throw new Error('Must provide valid instance number');
+
     // BIP85 derivation: primary mnemonic to bip85-child mnemonic
     bip85Config = BIP85.generateBIP85Configuration(type, instanceNum);
     const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
-
     const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
+
     derivationDetails = {
       instanceNum,
       mnemonic,
       bip85Config,
-      xDerivationPath: derivationConfig.path,
+      xDerivationPath: derivationPath,
     };
     id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic);
     const idWithDerivation = id + derivationDetails.xDerivationPath;
@@ -172,14 +173,12 @@ export const generateWallet = async ({
     specs = generateWalletSpecsFromMnemonic(mnemonic, network, derivationDetails.xDerivationPath);
   }
 
-  const defaultShell = 1;
   const presentationData: WalletPresentationData = {
     name: walletName,
     description: walletDescription,
     visibility: VisibilityType.DEFAULT,
-    shell: defaultShell,
   };
-  const scriptType: ScriptTypes = WalletUtilities.getScriptTypeFromPurpose(
+  const scriptType: ScriptTypes = WalletUtilities.getSingleKeyScriptTypeFromPurpose(
     WalletUtilities.getPurpose(derivationDetails.xDerivationPath)
   );
 
@@ -188,7 +187,6 @@ export const generateWallet = async ({
     entityKind: EntityKind.WALLET,
     type,
     networkType,
-    isUsable: true,
     derivationDetails,
     presentationData,
     specs,
@@ -198,11 +196,12 @@ export const generateWallet = async ({
   return wallet;
 };
 
-export const generateExtendedKeysForCosigner = (mnemonic: string, isMultisig: boolean) => {
+export const generateExtendedKeysForCosigner = (mnemonic: string) => {
+  const { bitcoinNetworkType } = store.getState().settings;
   const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-  const xDerivationPath = WalletUtilities.getDerivationPath(isMultisig, config.NETWORK_TYPE, 0);
+  const xDerivationPath = WalletUtilities.getDerivationPath(true, bitcoinNetworkType, 0);
 
-  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+  const network = WalletUtilities.getNetworkByType(bitcoinNetworkType);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
     seed,
     network,
@@ -211,31 +210,17 @@ export const generateExtendedKeysForCosigner = (mnemonic: string, isMultisig: bo
   return { extendedKeys, xDerivationPath };
 };
 
-export const getCosignerDetails = async (
-  primaryMnemonic: string,
-  instanceNum: number,
-  singleSig: boolean = false
-) => {
-  const bip85Config = BIP85.generateBIP85Configuration(WalletType.DEFAULT, instanceNum);
-  const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
-  const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
-
-  const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(mnemonic, !singleSig);
+export const getCosignerDetails = async (primaryMnemonic: string, instanceNum: number) => {
+  const mnemonic = await generateMobileKeySeeds(instanceNum, primaryMnemonic);
+  const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(mnemonic);
 
   const xpubDetails: XpubDetailsType = {};
-  if (singleSig) {
-    xpubDetails[XpubTypes.P2WPKH] = {
-      xpub: extendedKeys.xpub,
-      derivationPath: xDerivationPath,
-      xpriv: extendedKeys.xpriv,
-    };
-  } else {
-    xpubDetails[XpubTypes.P2WSH] = {
-      xpub: extendedKeys.xpub,
-      derivationPath: xDerivationPath,
-      xpriv: extendedKeys.xpriv,
-    };
-  }
+
+  xpubDetails[XpubTypes.P2WSH] = {
+    xpub: extendedKeys.xpub,
+    derivationPath: xDerivationPath,
+    xpriv: extendedKeys.xpriv,
+  };
 
   return {
     mfp: WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic),
@@ -245,7 +230,8 @@ export const getCosignerDetails = async (
 
 export const signCosignerPSBT = (fingerprint: string, xpriv: string, serializedPSBT: string) => {
   // utilized by SignerType.MY_KEEPER and SignerType.KEEPER(External Keeper App)
-  const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
+  const { bitcoinNetwork } = store.getState().settings;
+  const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: bitcoinNetwork });
   let vin = 0;
 
   // w/ input.bip32Derivation[0] the sub-path(incorrect especially in case of miniscript-multipath),
@@ -270,7 +256,7 @@ export const signCosignerPSBT = (fingerprint: string, xpriv: string, serializedP
         xpriv,
         subPath[0],
         subPath[1],
-        config.NETWORK
+        bitcoinNetwork
       );
       PSBT.signInput(vin, keyPair);
     });

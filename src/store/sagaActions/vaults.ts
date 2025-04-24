@@ -7,7 +7,6 @@ export const ADD_SIGINING_DEVICE = 'ADD_SIGINING_DEVICE';
 export const DELETE_SIGINING_DEVICE = 'DELETE_SIGINING_DEVICE';
 export const ARCHIVE_SIGINING_DEVICE = 'ARCHIVE_SIGINING_DEVICE';
 export const MIGRATE_VAULT = 'MIGRATE_VAULT';
-export const FINALISE_VAULT_MIGRATION = 'FINALISE_VAULT_MIGRATION';
 export const DELETE_VAULT = 'DELETE_VAULT';
 export const REINSTATE_VAULT = 'REINSTATE_VAULT';
 export const REFILL_MOBILEKEY = 'REFILL_MOBILEKEY';
@@ -16,13 +15,7 @@ export const MERGER_SIMILAR_KEYS = 'MERGER_SIMILAR_KEYS';
 export const UPDATE_COLLABORATIVE_CHANNEL = 'UPDATE_COLLABORATIVE_CHANNEL';
 export const FETCH_COLLABORATIVE_CHANNEL = 'FETCH_COLLABORATIVE_CHANNEL';
 
-export const addNewVault = (payload: {
-  newVaultInfo: NewVaultInfo;
-  payload?: Vault;
-  isMigrated?: Boolean;
-  oldVaultId?: String;
-  isRecreation?: Boolean;
-}) => ({
+export const addNewVault = (payload: { newVaultInfo: NewVaultInfo; payload?: Vault }) => ({
   type: ADD_NEW_VAULT,
   payload,
 });
@@ -43,14 +36,9 @@ export const archiveSigningDevice = (signers: Signer[]) => ({
   payload: { signers },
 });
 
-export const migrateVault = (newVaultInfo: NewVaultInfo, vaultShellId: string) => ({
+export const migrateVault = (newVaultInfo: NewVaultInfo, oldVaultId: string) => ({
   type: MIGRATE_VAULT,
-  payload: { newVaultData: newVaultInfo, vaultShellId },
-});
-
-export const finaliseVaultMigration = (payload: string) => ({
-  type: FINALISE_VAULT_MIGRATION,
-  payload: { vaultId: payload },
+  payload: { newVaultInfo, oldVaultId },
 });
 
 export const deleteVault = (payload: string) => ({

@@ -103,11 +103,13 @@ export interface Signer {
   addedOn: Date;
   bip85Config?: BIP85Config;
   isBIP85?: boolean; // Assisted Keys+ identifier
-  signerPolicy?: SignerPolicy; // Signing Server's Signer Policy
+  signerPolicy?: SignerPolicy; // Server Key's Signer Policy
   hidden: boolean;
   extraData?: SignerExtraData;
   archived?: boolean;
   isExternal?: boolean;
+  linkedViaSecondary?: boolean; // if true, Server Key is relinked using secondary verification
+  networkType: NetworkType;
 }
 
 export type RegisteredVaultInfo = {
@@ -132,11 +134,9 @@ export interface Vault {
   // Represents a Vault
   // Rel: Created using multiple VaultSigners(Extended Keys)
   id: string; // vault identifier(derived from xpub)
-  shellId: string;
   entityKind: EntityKind; // Vault vs Wallet identifier
   type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet
-  isUsable: boolean; // true if vault is usable
   isMultiSig: boolean; // true
   scheme: VaultScheme; // scheme of vault(m of n)
   signers: VaultSigner[]; // signers of the vault

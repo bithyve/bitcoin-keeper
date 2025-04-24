@@ -382,7 +382,7 @@ const Card = memo(({ uai }: CardProps) => {
 
 function NotificationsCenter() {
   const { colorMode } = useColorMode();
-  const { uaiStack, isLoading } = useUaiStack();
+  let { uaiStack, isLoading } = useUaiStack();
   const dispatch = useDispatch();
 
   const { unseenNotifications, seenNotifications } = useMemo(
@@ -425,7 +425,6 @@ function NotificationsCenter() {
   return (
     <ScreenWrapper paddingHorizontal={0}>
       <Box
-        backgroundColor={`${colorMode}.primaryBackground`}
         style={{
           paddingHorizontal: 20,
           paddingTop: hp(15),

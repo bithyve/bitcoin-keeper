@@ -25,6 +25,8 @@ import { SignerType } from 'src/services/wallets/enums';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
+import Fonts from 'src/constants/Fonts';
+import usePlan from 'src/hooks/usePlan';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -37,6 +39,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   circleIconWrapper,
   title,
 }) => {
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { uaiStack } = useUaiStack();
@@ -44,6 +47,8 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const backupHistory = useQuery(RealmSchema.BackupHistory);
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
+  const { signerMap } = useSignerMap();
+  const { isOnL4 } = usePlan();
   useFocusEffect(
     useCallback(() => {
       dispatch(setRefreshUai());
@@ -55,6 +60,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
 
     // Filter for unseen notifications and sort by timestamp
     const unseenUais = uaiStack.filter((uai) => !uai.seenAt && uaiPriorityMap[uai.uaiType] >= 90);
+
     return unseenUais[0] || null;
   }, [uaiStack]);
 
@@ -68,7 +74,6 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
 
   const [localLatestUnseenUai, setLocalLatestUnseenUai] = useState(null);
 
-  const { signerMap } = useSignerMap();
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
   const { showToast } = useToastMessage();
 
@@ -164,8 +169,11 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   };
 
   return (
-    <Box backgroundColor={`${colorMode}.pantoneGreen`}>
-      <Box backgroundColor={`${colorMode}.pantoneGreen`} style={[styles.wrapper]}>
+    <Box backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}>
+      <Box
+        backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
+        style={[styles.wrapper]}
+      >
         <Box width="90%" style={styles.padding}>
           <Box style={styles.headerData} testID={`btn_choosePlan`}>
             {circleIconWrapper}
@@ -197,7 +205,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
       {localLatestUnseenUai && (
         <TouchableOpacity onPress={UAI_ACTION_MAP[localLatestUnseenUai.uaiType]}>
           <Box
-            backgroundColor={`${colorMode}.BrownNeedHelp`}
+            backgroundColor={`${colorMode}.DarkSlateGray`}
             width={'100%'}
             style={{ paddingHorizontal: wp(22), paddingVertical: hp(13) }}
             flexDir={'row'}
@@ -264,5 +272,6 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 18,
+    fontFamily: Fonts.LoraMedium,
   },
 });

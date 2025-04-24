@@ -186,7 +186,6 @@ export enum ImportedKeyType {
 
 export enum KeyGenerationMode {
   NEW = 'NEW',
-  RECOVER = 'RECOVER',
   IMPORT = 'IMPORT',
   CREATE = 'CREATE',
   NFC = 'NFC',

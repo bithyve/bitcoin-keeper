@@ -10,6 +10,20 @@ export type commentsCounter = {
   [tickedId: string]: number;
 };
 
+export type AccountManager = {
+  links: Links;
+  fullName: string;
+  image: string;
+};
+
+type Links = {
+  email: string;
+  whatsapp?: string;
+  calendly?: string;
+  phone?: string;
+  telegram?: string;
+};
+
 const initialState: {
   onboardingModal: boolean;
   tags: string[];
@@ -22,6 +36,7 @@ const initialState: {
   onboardCallSuccess: boolean;
   onboardCallFailed: boolean;
   onboardCallScheduled: boolean;
+  accountManagerDetails: AccountManager;
 } = {
   onboardingModal: false,
   tags: [],
@@ -34,6 +49,7 @@ const initialState: {
   onboardCallSuccess: false,
   onboardCallFailed: false,
   onboardCallScheduled: false,
+  accountManagerDetails: null,
 };
 
 const conciergeSlice = createSlice({
@@ -76,6 +92,9 @@ const conciergeSlice = createSlice({
     setOnboardCallScheduled: (state, action: PayloadAction<boolean>) => {
       state.onboardCallScheduled = action.payload;
     },
+    setAccountManagerDetails: (state, action: PayloadAction<AccountManager>) => {
+      state.accountManagerDetails = action.payload;
+    },
   },
 });
 
@@ -92,6 +111,7 @@ export const {
   setOnboardCallFailed,
   setOnboardCallSuccess,
   setOnboardCallScheduled,
+  setAccountManagerDetails,
 } = conciergeSlice.actions;
 
 export default conciergeSlice.reducer;

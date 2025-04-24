@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -20,6 +19,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { UR, UREncoder } from '@ngraveio/bc-ur';
 import { getFragmentedData } from 'src/services/qr';
+import WalletHeader from 'src/components/WalletHeader';
 
 const { width } = Dimensions.get('window');
 
@@ -77,9 +77,9 @@ function RegisterWithQR({ route, navigation }: any) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Register signer"
-        subtitle="Register the vault with any of the QR based signers"
+        subTitle="Register the vault with any of the QR based signers"
       />
       <Box style={styles.container}>
         <ScrollView

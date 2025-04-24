@@ -11,6 +11,7 @@ type CTACardDottedProps = {
   icon: any;
   isActive?: boolean;
   onPress: () => void;
+  width?: string | number;
 };
 
 export const CTACardDotted = ({
@@ -19,6 +20,7 @@ export const CTACardDotted = ({
   icon,
   isActive = false,
   onPress,
+  width = null,
 }: CTACardDottedProps) => {
   const { colorMode } = useColorMode();
   const color = isActive ? `${colorMode}.greenWhiteText` : `${colorMode}.placeHolderTextColor`;
@@ -26,7 +28,7 @@ export const CTACardDotted = ({
   return (
     <Pressable onPress={onPress}>
       <Box
-        style={styles.container}
+        style={[styles.container, width ? { width: width as any } : {}]}
         borderColor={color}
         backgroundColor={
           isActive ? `${colorMode}.SeaweedGreenTranslucentBG` : `${colorMode}.graphiteTranslucentBG`

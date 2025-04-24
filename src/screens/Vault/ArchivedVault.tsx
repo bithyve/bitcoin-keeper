@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { FlatList, Box, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
-import KeeperHeader from 'src/components/KeeperHeader';
 import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import { StyleSheet } from 'react-native';
 import useVault from 'src/hooks/useVault';
@@ -15,6 +14,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import Text from 'src/components/KeeperText';
 import { getArchivedVaults } from 'src/utils/service-utilities/utils';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ArchivedVault({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -41,17 +41,17 @@ function ArchivedVault({ navigation, route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={vaultText.archivedVaultsTitle}
-        subtitle={`${common.for} ${currentVault?.presentationData?.name}`}
-        icon={
-          <HexagonIcon
-            width={58}
-            height={50}
-            backgroundColor={Colors.primaryGreen}
-            icon={<VaultIcon />}
-          />
-        }
+        subTitle={`${common.for} ${currentVault?.presentationData?.name}`}
+        // icon={
+        //   <HexagonIcon
+        //     width={58}
+        //     height={50}
+        //     backgroundColor={Colors.primaryGreen}
+        //     icon={<VaultIcon />}
+        //   />
+        // }
       />
       {vaults.length === 0 ? (
         <Box style={styles.emptyWrapper}>

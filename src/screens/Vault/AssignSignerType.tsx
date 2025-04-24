@@ -1,7 +1,6 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/services/wallets/enums';
 import { ActivityIndicator, StyleSheet } from 'react-native';
@@ -25,6 +24,7 @@ import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useNavigation } from '@react-navigation/native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import WalletHeader from 'src/components/WalletHeader';
 
 type IProps = {
   navigation: any;
@@ -105,9 +105,9 @@ function AssignSignerType({ route }: IProps) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={signerText.changeSignerTitle}
-        subtitle={signerText.changeSignerSubtitle}
+        subTitle={signerText.changeSignerSubtitle}
       />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {signer.type === SignerType.UNKOWN_SIGNER && <UnknownSignerInfo signer={signer} />}
