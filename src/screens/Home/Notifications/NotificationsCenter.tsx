@@ -30,7 +30,7 @@ import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import CloudBackupIcon from 'src/assets/images/cloud-backup-icon.svg';
 import RecevieIcon from 'src/assets/images/incoming-tx-notification.svg';
-import PrivateRecevieIcon from 'src/assets/privateImages/incoming-tx-notification .svg';
+import PrivateRecevieIcon from 'src/assets/privateImages/incoming-tx-notification.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import UAIView from '../components/UAIView';
