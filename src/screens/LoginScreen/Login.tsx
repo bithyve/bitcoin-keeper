@@ -21,7 +21,7 @@ import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { getSecurityTip } from 'src/constants/defaultData';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
-import { setSubscription, setTorEnabled } from 'src/store/reducers/settings';
+import { setSubscription } from 'src/store/sagaActions/settings';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import SubScription from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
@@ -46,6 +46,9 @@ import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
+import Relay from 'src/services/backend/Relay';
+import { setAccountManagerDetails } from 'src/store/reducers/concierge';
+import Fonts from 'src/constants/Fonts';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -70,6 +73,8 @@ function LoginScreen({ navigation, route }) {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
   const isOnPleb = useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L1;
+  const isKeeperPrivate =
+    useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L4;
   const { automaticCloudBackup } = useAppSelector((state) => state.bhr);
 
   const [canLogin, setCanLogin] = useState(false);
@@ -264,6 +269,11 @@ function LoginScreen({ navigation, route }) {
         navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
       }
       dispatch(credsAuthenticated(false));
+      if (isKeeperPrivate) {
+        const res = await Relay.getAccountManagerDetails(appId);
+        if (res) dispatch(setAccountManagerDetails(res));
+        else dispatch(setAccountManagerDetails(null));
+      }
     }
   };
 
@@ -400,7 +410,13 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.content} safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box
+      style={styles.content}
+      safeAreaTop
+      backgroundColor={
+        isKeeperPrivate ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
+    >
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -441,8 +457,14 @@ function LoginScreen({ navigation, route }) {
               }}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
-              primaryBackgroundColor={`${colorMode}.buttonText`}
-              primaryTextColor={`${colorMode}.pantoneGreen`}
+              primaryBackgroundColor={
+                isKeeperPrivate ? `${colorMode}.pantoneGreen` : `${colorMode}.buttonText`
+              }
+              primaryTextColor={
+                isKeeperPrivate
+                  ? `${colorMode}.dashedButtonBorderColor`
+                  : `${colorMode}.pantoneGreen`
+              }
               fullWidth
             />
           </Box>
@@ -517,7 +539,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
   },
   textBoxActive: {
     height: widthPercentageToDP('13%'),
@@ -532,7 +554,7 @@ const styles = StyleSheet.create({
     },
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
   },
   textStyles: {
     color: '#000000',
@@ -608,6 +630,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     marginTop: hp(47),
     textAlign: 'center',
+    fontFamily: Fonts.LoraMedium,
   },
   passcodeWrapper: {
     alignItems: 'center',

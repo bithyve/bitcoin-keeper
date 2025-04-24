@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -26,6 +25,8 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import QRScanner from 'src/components/QRScanner';
 import { VaultType } from 'src/services/wallets/enums';
 import BackgroundTimer from 'react-native-background-timer';
+import { useAppSelector } from 'src/store/hooks';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -52,6 +53,7 @@ function RegisterWithChannel() {
   const { params } = useRoute();
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { vaultKey, vaultId, signerType } = params as {
     vaultKey: VaultSigner;
     vaultId: string;
@@ -91,7 +93,7 @@ function RegisterWithChannel() {
       firstExtAdd,
     };
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
+    channel.emit(JOIN_CHANNEL, { room, network: bitcoinNetworkType, requestData });
   };
 
   useEffect(() => {
@@ -137,9 +139,9 @@ function RegisterWithChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Register with Keeper Desktop App"
-        subtitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to register this signer.`}
+        subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to register this signer.`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />

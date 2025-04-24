@@ -135,6 +135,9 @@ import ServerKeySuccessScreen from 'src/screens/Vault/ServerKeySuccessScreen';
 import SigningRequest from 'src/screens/Vault/SigningRequest';
 import PurchaseWithChannel from 'src/screens/QRScreens/PurchaseWithChannel';
 import { AddMultipleXpub } from 'src/screens/AddSigner/AddMultipleXpub';
+import AppStateHandler from './AppStateHandler';
+import AdditionalUsers from 'src/screens/Vault/AdditionalUsers';
+import SetupAdditionalServerKey from 'src/screens/SigningDevices/SetupAdditionalServerKey';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -242,7 +245,10 @@ function AppStack() {
         <Stack.Screen name="SpendingLimit" component={SpendingLimit} />
         <Stack.Screen name="SigningDelay" component={SigningDelay} />
         <Stack.Screen name="SigningRequest" component={SigningRequest} />
+        <Stack.Screen name="AdditionalUsers" component={AdditionalUsers} />
         <Stack.Screen name="ServerKeySuccessScreen" component={ServerKeySuccessScreen} />
+        <Stack.Screen name="SetupAdditionalServerKey" component={SetupAdditionalServerKey} />
+
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
@@ -330,6 +336,7 @@ function Navigator() {
 
   return (
     <NavigationContainer theme={defaultTheme} ref={navigation} onReady={onReady}>
+      <AppStateHandler />
       <ZendeskOnboardingModal visible={onboardingModal} />
 
       <Stack.Navigator screenOptions={{ headerShown: false }}>

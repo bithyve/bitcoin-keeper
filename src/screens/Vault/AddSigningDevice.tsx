@@ -760,7 +760,7 @@ function Signers({
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type).Icon}
+          icon={SDIcons({ type: shellSigner.type }).Icon}
           showSelection={false}
           showDot={true}
           colorVarient="green"
@@ -803,7 +803,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type).Icon}
+            icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={(selected) => {
@@ -893,7 +893,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type).Icon}
+            icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={handleCardSelect}
@@ -956,7 +956,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type).Icon}
+            icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={(selected) => {
@@ -1034,7 +1034,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type).Icon}
+            icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={(selected) => {
@@ -1249,7 +1249,7 @@ function AddSigningDevice() {
   const { vault: vaultTranslation } = translations;
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
 
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   // filter out archived and hidden signers, along w/ external server keys
   const activeSigners = signers.filter(
     (signer) =>
@@ -1385,7 +1385,7 @@ function AddSigningDevice() {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor="rgba(47, 79, 79, 1)"
                 icon={<VaultIcon />}
               />
             </Box>
@@ -1433,7 +1433,7 @@ function AddSigningDevice() {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor="rgba(47, 79, 79, 1)"
                 icon={<VaultIcon />}
               />
             </Box>

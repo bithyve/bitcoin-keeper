@@ -2,12 +2,11 @@ import { Box, useColorMode } from 'native-base';
 import React, { useCallback, useContext, useState, useEffect, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import HorizontalAddCard from 'src/components/HorizontalAddCard';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import OptionPicker from 'src/components/OptionPicker';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ADDRESERVEKEY } from 'src/navigation/contants';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
@@ -33,15 +32,14 @@ import { getKeyUID } from 'src/utils/utilities';
 import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import VaultMigrationController from './VaultMigrationController';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { INHERITANCE_KEY_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import WalletHeader from 'src/components/WalletHeader';
 
 export const DEFAULT_INHERITANCE_KEY_TIMELOCK = { label: MONTHS_12, value: MONTHS_12 };
 export const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -171,9 +169,9 @@ function AddReserveKey({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={`${vaultTranslations.addInheritanceKey}`}
-        subtitle={vaultTranslations.setIKSForVault}
+        subTitle={vaultTranslations.setIKSForVault}
       />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
@@ -193,7 +191,7 @@ function AddReserveKey({ route }) {
                   key={getKeyUID(reservedKey)}
                   name={getSignerNameFromType(reservedKey.type, reservedKey.isMock, false)}
                   description={getSignerDescription(reservedKey)}
-                  icon={SDIcons(reservedKey.type).Icon}
+                  icon={SDIcons({ type: reservedKey.type }).Icon}
                   isSelected={false}
                   showSelection={false}
                   changeKey={userKeyCallback}

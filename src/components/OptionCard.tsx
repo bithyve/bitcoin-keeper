@@ -17,6 +17,7 @@ type OptionProps = {
   disabled?: boolean;
   visible?: boolean;
   CardPill?: Element;
+  rightComponent?: () => JSX.Element;
 };
 
 export function OptionCard({
@@ -31,6 +32,7 @@ export function OptionCard({
   disabled = false,
   CardPill,
   visible = true,
+  rightComponent,
 }: OptionProps) {
   const { colorMode } = useColorMode();
 
@@ -103,10 +105,13 @@ export function OptionCard({
             )}
           </VStack>
         </HStack>
-
-        <Box style={styles.arrowWrapper}>
-          {CardPill || Icon || <RightArrowIcon style={styles.arrowMargin} />}
-        </Box>
+        {rightComponent ? (
+          rightComponent()
+        ) : (
+          <Box style={styles.arrowWrapper}>
+            {CardPill || Icon || <RightArrowIcon style={styles.arrowMargin} />}
+          </Box>
+        )}
       </HStack>
     </Pressable>
   );

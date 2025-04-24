@@ -5,16 +5,13 @@ import {
   addSigningDeviceWatcher,
   deleteSigningDeviceWatcher,
   autoWalletsSyncWatcher,
-  finaliseVaultMigrationWatcher,
   migrateVaultWatcher,
   refreshWalletsWatcher,
-  syncWalletsWatcher,
   testcoinsWatcher,
   updateSignerPolicyWatcher,
   updateWalletDetailWatcher,
   updateSignerDetails,
   updateKeyDetails,
-  updateWalletsPropertyWatcher,
   updateVaultDetailsWatcher,
   deleteVaultyWatcher,
   reinstateVaultWatcher,
@@ -65,13 +62,14 @@ import {
   setupKeeperAppWatcher,
 } from './storage';
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
-import { addLabelsWatcher, bulkUpdateLabelWatcher } from './utxos';
+import { addLabelsWatcher, bulkUpdateLabelWatcher, importLabelsWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
 import {
   loadConciergeUserWatcher,
   addTicketStatusUAIWatcher,
   scheduleOnboardingCallWatcher,
 } from './concierge';
+import { changeBitcoinNetworkWatcher, setSubscriptionWatcher } from './settings';
 
 const rootSaga = function* () {
   const sagas = [
@@ -93,11 +91,9 @@ const rootSaga = function* () {
     addNewWalletsWatcher,
     autoWalletsSyncWatcher,
     refreshWalletsWatcher,
-    syncWalletsWatcher,
     updateSignerPolicyWatcher,
     testcoinsWatcher,
     updateWalletDetailWatcher,
-    updateWalletsPropertyWatcher,
     generateNewExternalAddressWatcher,
 
     // vaults
@@ -105,7 +101,6 @@ const rootSaga = function* () {
     addSigningDeviceWatcher,
     deleteSigningDeviceWatcher,
     migrateVaultWatcher,
-    finaliseVaultMigrationWatcher,
     updateVaultDetailsWatcher,
     updateSignerDetails,
     updateKeyDetails,
@@ -155,10 +150,14 @@ const rootSaga = function* () {
     // utxos
     addLabelsWatcher,
     bulkUpdateLabelWatcher,
+    importLabelsWatcher,
     // concierge
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
     scheduleOnboardingCallWatcher,
+    // settings
+    changeBitcoinNetworkWatcher,
+    setSubscriptionWatcher,
   ];
 
   yield all(

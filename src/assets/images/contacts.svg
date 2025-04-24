@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="20.99" height="16.39" viewBox="0 0 20.99 16.39">
   <g id="CONTACTS" transform="translate(-1.5 -3.79)">
     <g id="Group_54465" data-name="Group 54465">
-      <path id="Path_206424" data-name="Path 206424" d="M15.16,5.31a2.95,2.95,0,1,1-.01,5.9.75.75,0,0,0,0,1.5,4.46,4.46,0,0,0-.01-8.92.75.75,0,1,0,0,1.5Z" fill="#2d6759" fill-rule="evenodd"/>
-      <path id="Path_206425" data-name="Path 206425" d="M15.16,12.72a5.83,5.83,0,0,1,5.83,5.83.75.75,0,0,0,1.5,0,7.338,7.338,0,0,0-7.34-7.34.75.75,0,0,0,0,1.5Z" fill="#2d6759" fill-rule="evenodd"/>
-      <path id="Path_206426" data-name="Path 206426" d="M16.25,20.18a.755.755,0,0,0,.75-.75,7.75,7.75,0,0,0-15.5,0,.749.749,0,0,0,.75.75Z" fill="#2d6759" fill-rule="evenodd"/>
+      <path id="Path_206424" data-name="Path 206424" d="M15.16,5.31a2.95,2.95,0,1,1-.01,5.9.75.75,0,0,0,0,1.5,4.46,4.46,0,0,0-.01-8.92.75.75,0,1,0,0,1.5Z" fill="#2F4F4F" fill-rule="evenodd"/>
+      <path id="Path_206425" data-name="Path 206425" d="M15.16,12.72a5.83,5.83,0,0,1,5.83,5.83.75.75,0,0,0,1.5,0,7.338,7.338,0,0,0-7.34-7.34.75.75,0,0,0,0,1.5Z" fill="#2F4F4F" fill-rule="evenodd"/>
+      <path id="Path_206426" data-name="Path 206426" d="M16.25,20.18a.755.755,0,0,0,.75-.75,7.75,7.75,0,0,0-15.5,0,.749.749,0,0,0,.75.75Z" fill="#2F4F4F" fill-rule="evenodd"/>
     </g>
-    <path id="Path_206427" data-name="Path 206427" d="M9.25,3.81a3.313,3.313,0,1,1-.02-.02Z" fill="#2d6759"/>
+    <path id="Path_206427" data-name="Path 206427" d="M9.25,3.81a3.313,3.313,0,1,1-.02-.02Z" fill="#2F4F4F"/>
   </g>
 </svg>

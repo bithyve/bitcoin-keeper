@@ -9,13 +9,13 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { exportFile, importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import WalletHeader from 'src/components/WalletHeader';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import Instruction from 'src/components/Instruction';
 import KeeperModal from 'src/components/KeeperModal';
+import Colors from 'src/theme/Colors';
 
 const HandleFileScreen = ({ route, navigation }) => {
   const {
@@ -173,6 +173,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: hp(15),
     paddingHorizontal: hp(10),
+    borderColor: Colors.separator,
+    borderWidth: 1,
   },
   textInput: {
     width: '100%',
@@ -183,6 +185,9 @@ const styles = StyleSheet.create({
     marginBottom: hp(15),
     marginLeft: wp(7),
     width: windowWidth * 0.85,
+    borderWidth: 1,
+    borderColor: Colors.separator,
+    borderRadius: 10,
   },
   footerWrapper: {
     position: 'absolute',

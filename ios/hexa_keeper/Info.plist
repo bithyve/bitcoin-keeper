@@ -36,7 +36,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>487</string>
+	<string>498</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
@@ -74,16 +74,16 @@
 	</dict>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Lora-Medium.ttf</string>
 		<string>Inter-Bold.ttf</string>
 		<string>Inter-BoldItalic.ttf</string>
 		<string>Inter-Italic.ttf</string>
 		<string>Inter-Light.ttf</string>
 		<string>Inter-LightItalic.ttf</string>
-		<string>Inter-Medium.ttf</string>
-		<string>Inter-MediumItalic.ttf</string>
+		<string>Lora-MediumItalic.ttf</string>
 		<string>Inter-Regular.ttf</string>
-		<string>Inter-SemiBold.ttf</string>
-		<string>Inter-SemiBoldItalic.ttf</string>
+		<string>Lora-SemiBold.ttf</string>
+		<string>Lora-SemiBoldItalic.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
@@ -113,5 +113,31 @@
 		<string>itms-apps</string>
 		<string>orbot</string>
 	</array>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>KpAppIcon</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>KpAppIcon</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+		</dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconName</key>
+			<string></string>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<false/>
+		</dict>
+	</dict>
 </dict>
 </plist>

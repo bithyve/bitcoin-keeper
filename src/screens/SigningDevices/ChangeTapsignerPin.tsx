@@ -5,7 +5,6 @@ import { CKTapCard } from 'cktap-protocol-react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { changePin, handleTapsignerError } from 'src/hardware/tapsigner';
 import Buttons from 'src/components/Buttons';
-import KeeperHeader from 'src/components/KeeperHeader';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useEffect, useState } from 'react';
@@ -23,6 +22,7 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import SuccessIllustration from 'src/assets/images/illustration.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { KeeperPasswordInput } from 'src/components/KeeperPasswordInput';
+import WalletHeader from 'src/components/WalletHeader';
 
 const INPUTS = {
   CVC: 'CVC',
@@ -138,9 +138,9 @@ function ChangeTapsignerPin() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Change PIN"
-        subtitle="Make sure to back up your TAPSIGNER before setting a new PIN"
+        subTitle="Make sure to back up your TAPSIGNER before setting a new PIN"
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.btnContainer}>

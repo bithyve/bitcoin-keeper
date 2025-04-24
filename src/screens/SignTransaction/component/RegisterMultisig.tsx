@@ -148,7 +148,12 @@ function RegisterMultisig({
     <Box>
       {walletOptions.map((option) => (
         <TouchableOpacity key={option.id} onPress={option.onPress}>
-          <Box style={styles.container} backgroundColor={`${colorMode}.textInputBackground`}>
+          <Box
+            style={styles.container}
+            backgroundColor={`${colorMode}.textInputBackground`}
+            borderColor={`${colorMode}.separator`}
+            borderWidth={1}
+          >
             <CircleIconWrapper
               width={40}
               icon={option.icon}

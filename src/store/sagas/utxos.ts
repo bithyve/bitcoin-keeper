@@ -10,7 +10,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
 
-import { ADD_LABELS, BULK_UPDATE_LABELS } from '../sagaActions/utxos';
+import { ADD_LABELS, BULK_UPDATE_LABELS, IMPORT_LABELS } from '../sagaActions/utxos';
 import { resetState, setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
 import { checkBackupCondition, setServerBackupFailed } from './bhr';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
@@ -141,5 +141,64 @@ export function* bulkUpdateLabelsWorker({
   }
 }
 
+export function* importLabelsWorker({
+  payload,
+}: {
+  payload: {
+    labels: [
+      {
+        type: string;
+        ref: string;
+        label: string;
+        origin: string;
+      }
+    ];
+  };
+}) {
+  try {
+    yield put(setSyncingUTXOs(true));
+    const { labels } = payload;
+    let addedTags: BIP329Label[] = [];
+    if (labels) {
+      addedTags = labels.map((label) => ({
+        id: `${label.ref}${label.label}`,
+        ref: label.ref,
+        type: (label.type.toUpperCase() === 'TX'
+          ? 'TXN' // TODO: Need to fix txn to be tx and make all lowercase
+          : label.type.toUpperCase()) as LabelRefType,
+        label: label.label,
+        origin: label.origin,
+        isSystem: false,
+      }));
+    }
+
+    const { primarySeed, id }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
+    yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
+
+    try {
+      const backupResponse = yield call(checkBackupCondition);
+      if (!backupResponse) {
+        const encryptionKey = generateEncryptionKey(primarySeed);
+        const tagsToBackup = addedTags.map((tag) => ({
+          id: hash256(hash256(encryptionKey + tag.id)),
+          content: encrypt(encryptionKey, JSON.stringify(tag)),
+        }));
+        yield fork(Relay.modifyLabels, id, tagsToBackup.length ? tagsToBackup : [], []);
+      } else yield delay(100);
+    } catch (error) {
+      yield call(setServerBackupFailed);
+    }
+    yield put(resetState());
+  } catch (e) {
+    yield put(setSyncingUTXOError(e));
+  } finally {
+    yield put(setSyncingUTXOs(false));
+  }
+}
+
 export const addLabelsWatcher = createWatcher(addLabelsWorker, ADD_LABELS);
 export const bulkUpdateLabelWatcher = createWatcher(bulkUpdateLabelsWorker, BULK_UPDATE_LABELS);
+export const importLabelsWatcher = createWatcher(importLabelsWorker, IMPORT_LABELS);

@@ -31,7 +31,6 @@ import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
-import config from 'src/utils/service-utilities/config';
 import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
@@ -56,6 +55,7 @@ import WalletHeader from 'src/components/WalletHeader';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import Instruction from 'src/components/Instruction';
+import { useAppSelector } from 'src/store/hooks';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -94,6 +94,7 @@ function SetupTapsigner({ route }) {
   const isDarkMode = colorMode === 'dark';
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
   const [infoModal, setInfoModal] = useState(false);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -139,13 +140,13 @@ function SetupTapsigner({ route }) {
           xpriv: multiSigXpriv,
           derivationPath: multiSigPath,
           masterFingerprint,
-        } = generateMockExtendedKeyForSigner(true, SignerType.TAPSIGNER, config.NETWORK_TYPE);
+        } = generateMockExtendedKeyForSigner(true, SignerType.TAPSIGNER, bitcoinNetworkType);
         // fetched single-sig key
         const {
           xpub: singleSigXpub,
           xpriv: singleSigXpriv,
           derivationPath: singleSigPath,
-        } = generateMockExtendedKeyForSigner(false, SignerType.TAPSIGNER, config.NETWORK_TYPE);
+        } = generateMockExtendedKeyForSigner(false, SignerType.TAPSIGNER, bitcoinNetworkType);
 
         const xpubDetails: XpubDetailsType = {};
 
@@ -465,13 +466,18 @@ function SetupTapsigner({ route }) {
         signerXfp={signer?.masterFingerprint}
       >
         <ScrollView>
-          <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Box
+            style={styles.input}
+            backgroundColor={`${colorMode}.seashellWhite`}
+            borderColor={`${colorMode}.separator`}
+          >
             <Input
               borderWidth={0}
               value={cvc}
               onChangeText={setCvc}
               secureTextEntry
               showSoftInputOnFocus={false}
+              backgroundColor={`${colorMode}.seashellWhite`}
             />
           </Box>
           <Text style={styles.heading} color={`${colorMode}.greenText`}>
@@ -581,6 +587,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     letterSpacing: 5,
     justifyContent: 'center',
+    borderWidth: 1,
   },
   heading: {
     margin: '5%',

@@ -1,4 +1,4 @@
-import { call, put } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import semver from 'semver';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -18,15 +18,12 @@ import {
   VaultSigner,
 } from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/backend/SigningServer';
-import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
-import { CosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
 import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import { captureError } from 'src/services/sentry';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
@@ -37,10 +34,10 @@ import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { setPendingAllBackup } from '../reducers/bhr';
+import { RootState } from '../store';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
-export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
 export const KEY_MANAGEMENT_VERSION = '1.1.9';
 export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.6';
@@ -62,7 +59,6 @@ export function* applyUpgradeSequence({
     yield put(migrateLabelsToBip329());
   }
 
-  if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
   if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
     yield call(migrateStructureforSignersInAppImage);
     yield call(migrateStructureforVaultInAppImage);
@@ -160,45 +156,6 @@ function* migrateLablesWorker() {
 
 export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_LABELS_329);
 
-function* migrateAssistedKeys() {
-  try {
-    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
-    const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
-
-    if (!activeVault) throw new Error('No active vault found');
-
-    const { signers } = activeVault;
-    const signerMap = {};
-    dbManager
-      .getCollection(RealmSchema.Signer)
-      .forEach((signer) => (signerMap[getKeyUID(signer as Signer)] = signer));
-
-    for (const signer of signers) {
-      const signerType = signerMap[getKeyUID(signer)].type;
-
-      if (signerType === SignerType.POLICY_SERVER) {
-        const cosignersMapUpdates: CosignersMapUpdate[] = yield call(
-          generateCosignerMapUpdates,
-          signerMap,
-          signers,
-          signer
-        );
-        const { migrationSuccessful } = yield call(
-          SigningServer.migrateSignersV2ToV3,
-          activeVault.shellId,
-          app.id,
-          cosignersMapUpdates
-        );
-
-        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(SS)');
-      }
-    }
-  } catch (error) {
-    console.log({ error });
-  }
-}
-
 function* migrateStructureforSignersInAppImage() {
   try {
     const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
@@ -270,7 +227,7 @@ function generateExtendedKeysForSigners(signers, appKeyWalletMap) {
   const extendedKeyMap = {};
   signers.forEach((signer) => {
     const { mnemonic } = appKeyWalletMap[signer.masterFingerprint].derivationDetails;
-    const { extendedKeys } = generateExtendedKeysForCosigner(mnemonic, true);
+    const { extendedKeys } = generateExtendedKeysForCosigner(mnemonic);
     extendedKeyMap[signer.masterFingerprint] = extendedKeys;
   });
 
@@ -368,6 +325,7 @@ function* healthCheckTimelineMigration() {
 function* migrateServerKeyPolicy() {
   // migrates old server key policy to new time-based spending limit policy
   try {
+    const { bitcoinNetwork } = yield select((state: RootState) => state.settings);
     const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
 
     for (const signer of signers) {
@@ -379,7 +337,7 @@ function* migrateServerKeyPolicy() {
 
         const id = WalletUtilities.getFingerprintFromExtendedKey(
           signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-          config.NETWORK
+          bitcoinNetwork
         );
 
         const { newPolicy } = yield call(SigningServer.migrateSignerPolicy, id, oldPolicy);

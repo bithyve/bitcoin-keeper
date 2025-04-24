@@ -4,7 +4,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { TransactionType } from 'src/services/wallets/enums';
@@ -15,6 +14,7 @@ import TransferCard from './TransferCard';
 import AmountDetails from './AmountDetails';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import { SentryErrorBoundary } from 'src/services/sentry';
+import WalletHeader from 'src/components/WalletHeader';
 
 export interface PSBTSendConfirmationParams {
   sender: { address: string; amount: number }[];
@@ -68,12 +68,10 @@ function PSBTSendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={walletTranslations.signingTransaction}
-        subtitle={walletTranslations.reviewTransaction}
+        subTitle={walletTranslations.reviewTransaction}
         rightComponent={<CurrencyTypeSwitch />}
-        rightComponentPadding={wp(10)}
-        rightComponentBottomPadding={hp(5)}
       />
       <ScrollView
         style={styles.container}

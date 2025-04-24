@@ -82,9 +82,8 @@ const DeviceCard = (props: Props) => {
         <Box>
           <Buttons
             fullWidth
-            primaryFontWeight="medium"
+            primaryFontWeight="400"
             primaryText={props.buttonText}
-            primaryBackgroundColor={`${colorMode}.SeaweedGreen`}
             paddingVertical={hp(8)}
             primaryCallback={() => {
               if (props.onPress) {

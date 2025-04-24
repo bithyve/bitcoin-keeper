@@ -22,7 +22,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { captureError } from 'src/services/sentry';
 import useWallets from 'src/hooks/useWallets';
 import { useDispatch } from 'react-redux';
-import { setNetBalance } from 'src/store/reducers/wallets';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -46,6 +45,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
+import WalletHeader from 'src/components/WalletHeader';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -64,6 +64,7 @@ function ListItem({
 }) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+  const { isOnL4 } = usePlan();
 
   return (
     // TODO: Drag and rearrange wallet functionality
@@ -71,9 +72,18 @@ function ListItem({
     //   <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
     //     <AlignIcon />
     //   </TouchableOpacity>
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
+    <Box
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={styles.walletInfoContainer}
+      borderColor={`${colorMode}.separator`}
+    >
       <Box style={styles.textContainer}>
-        <HexagonIcon width={44} height={38} backgroundColor={Colors.primaryGreen} icon={icon} />
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
+          icon={icon}
+        />
         <Box>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
             {title}
@@ -85,7 +95,7 @@ function ListItem({
       </Box>
       <Box style={styles.justifyContent}>
         <Box style={styles.alignCenter}>
-          {getCurrencyIcon(BTC, 'green')}
+          {getCurrencyIcon(BTC, isOnL4 ? 'light' : 'green')}
           <Text fontSize={15} color={`${colorMode}.primaryText`}>
             {` ${getBalance(balance)} ${getSatUnit()}`}
           </Text>
@@ -142,10 +152,6 @@ function ManageWallets() {
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
 
   useEffect(() => {
-    calculateBalanceAfterVisblityChange();
-  }, [wallets]);
-
-  useEffect(() => {
     if (selectedWallet?.id) {
       if (relayVaultUpdate) {
         showToast('Vault deleted successfully', <TickIcon />);
@@ -158,18 +164,6 @@ function ManageWallets() {
   }, [relayVaultUpdate, relayVaultError]);
 
   const isWallet = selectedWallet?.entityKind === EntityKind.WALLET;
-
-  const calculateBalanceAfterVisblityChange = () => {
-    const nonHiddenWallets = wallets.filter(
-      (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
-    );
-    let netBalance = 0;
-    nonHiddenWallets.forEach((wallet) => {
-      const { confirmed, unconfirmed } = wallet.specs.balances;
-      netBalance = netBalance + confirmed + unconfirmed;
-    });
-    dispatch(setNetBalance(netBalance));
-  };
 
   const onProceed = () => {
     if (passwordMode === PasswordMode.DEFAULT) {
@@ -214,7 +208,6 @@ function ManageWallets() {
           name: wallet.presentationData.name,
           description: wallet.presentationData.description,
           visibility: visibilityType,
-          shell: wallet.presentationData.shell,
         },
       });
     } catch (error) {
@@ -319,7 +312,7 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.ManageWalletsTitle} subtitle={settings.ManageWalletsSub} />
+      <WalletHeader title={settings.ManageWalletsTitle} subTitle={settings.ManageWalletsSub} />
       {!showAll && visibleWallets.length === 0 ? (
         <Box style={styles.emptyWrapper}>
           <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
@@ -504,6 +497,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     gap: 5,
+    borderWidth: 1,
   },
   footer: {
     alignItems: 'center',

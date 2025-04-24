@@ -42,6 +42,7 @@ import { SignerType, VaultType } from 'src/services/wallets/enums';
 import WalletOperations from 'src/services/wallets/operations';
 import { getKeyUID } from 'src/utils/utilities';
 import BackgroundTimer from 'react-native-background-timer';
+import { useAppSelector } from 'src/store/hooks';
 import WalletHeader from 'src/components/WalletHeader';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
@@ -109,6 +110,7 @@ function ConnectChannel() {
   const { translations } = useContext(LocalizationContext);
   const { common, bitbox, trezor, ledger } = translations;
   const { mapUnknownSigner } = useUnkownSigners();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -177,7 +179,7 @@ function ConnectChannel() {
       const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
       channel.emit(JOIN_CHANNEL, {
         room,
-        network: config.NETWORK_TYPE,
+        network: bitcoinNetworkType,
         requestData,
       });
       if (mode === InteracationMode.ADDRESS_VERIFICATION) {

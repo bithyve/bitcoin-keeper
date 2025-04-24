@@ -6,6 +6,9 @@ import BackBlackButton from 'src/assets/images/header-arrow-icon.svg';
 import BackWhiteButton from 'src/assets/images/leftarrowCampainlight.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import Fonts from 'src/constants/Fonts';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 
 type Props = {
   title?: string;
@@ -16,6 +19,9 @@ type Props = {
   data?: any;
   rightComponent?: any;
   subTitle?: string;
+  subtitleColor?: string;
+  learnMore?: boolean;
+  learnMorePressed?: () => void;
 };
 
 const WalletHeader: React.FC<Props> = ({
@@ -26,19 +32,25 @@ const WalletHeader: React.FC<Props> = ({
   contrastScreen = false,
   rightComponent,
   subTitle,
+  subtitleColor,
+  learnMore,
+  learnMorePressed,
 }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const isDarkMode = colorMode === 'dark';
 
   const styles = StyleSheet.create({
     container: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      width: '100%',
     },
     leftContainer: {
       flexDirection: 'row',
       alignItems: 'center',
+      flex: 1,
     },
     backButton: {
       height: hp(44),
@@ -47,6 +59,7 @@ const WalletHeader: React.FC<Props> = ({
     },
     title: {
       fontSize: 18,
+      fontFamily: Fonts.LoraMedium,
     },
     subTitle: {
       fontSize: 14,
@@ -58,10 +71,18 @@ const WalletHeader: React.FC<Props> = ({
       paddingHorizontal: 22,
       paddingVertical: 22,
     },
+
+    infoIcon: {
+      width: wp(40),
+      height: wp(40),
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginLeft: wp(5),
+    },
   });
 
   return (
-    <Box>
+    <Box width={'100%'}>
       <Box style={styles.container}>
         <Box style={styles.leftContainer}>
           {enableBack && (
@@ -79,11 +100,16 @@ const WalletHeader: React.FC<Props> = ({
             </Text>
           )}
         </Box>
-
         {rightComponent && <Box>{rightComponent}</Box>}
+
+        {learnMore && (
+          <TouchableOpacity style={styles.infoIcon} onPress={learnMorePressed}>
+            {isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}
+          </TouchableOpacity>
+        )}
       </Box>
       {subTitle && (
-        <Text color={titleColor} style={styles.subTitle}>
+        <Text color={subtitleColor} style={styles.subTitle}>
           {subTitle}
         </Text>
       )}

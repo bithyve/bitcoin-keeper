@@ -10,7 +10,7 @@ import { uaiType } from 'src/models/interfaces/Uai';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { getKeyUID } from 'src/utils/utilities';
-import { wp } from 'src/constants/responsive';
+import { windowWidth, wp } from 'src/constants/responsive';
 import DashedCta from 'src/components/DashedCta';
 import Colors from 'src/theme/Colors';
 import Plus from 'src/assets/images/add-plus-white.svg';
@@ -22,19 +22,26 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { useAppSelector } from 'src/store/hooks';
+import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
+import PlusPrivateIcon from 'src/assets/privateImages/plus-gold-icon.svg';
+import usePlan from 'src/hooks/usePlan';
 
 const SignerList = ({ navigation, handleModalOpen }) => {
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
   const { signer } = translations;
   const [showSSModal, setShowSSModal] = useState(false);
   const { level } = useSubscriptionLevel();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const list = signers.filter((signer) => !signer.hidden);
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
+  const { isOnL4 } = usePlan();
 
   const handleCardSelect = (signer) => {
     navigation.dispatch(
@@ -63,6 +70,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
       masterFingerprint: Date.now().toString() + signerType,
       signerXpubs: {},
       hidden: false,
+      networkType: bitcoinNetworkType,
     });
 
     let hasSigningServer = false;
@@ -95,7 +103,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description="Setup required"
-          icon={SDIcons(shellSigner.type).Icon}
+          icon={SDIcons({ type: shellSigner.type }).Icon}
           showSelection={false}
           showDot={true}
           colorVarient="green"
@@ -106,16 +114,14 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   };
 
   const customStyle: ViewStyle = {
-    width: wp(162),
-    height: wp(132),
+    width: windowWidth * 0.42,
+    height: wp(135),
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    marginLeft: 4,
-    marginTop: 4,
+    margin: 3,
   };
 
   return (
@@ -144,7 +150,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
                     : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
                 subtitle={getSignerDescription(signer)}
-                icon={SDIcons(signer.type, true).Icon}
+                icon={SDIcons({ type: signer.type, light: true }).Icon}
                 image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}
@@ -156,11 +162,19 @@ const SignerList = ({ navigation, handleModalOpen }) => {
           {renderAssistedKeysShell()}
           <DashedCta
             backgroundColor={`${colorMode}.dullGreen`}
-            hexagonBackgroundColor={Colors.primaryGreen}
+            hexagonBackgroundColor={isDarkMode ? Colors.primaryCream : Colors.primaryGreen}
             textColor={`${colorMode}.greenWhiteText`}
             name={signer.addKey}
             callback={handleModalOpen}
-            icon={<Plus width={12.9} height={12.9} />}
+            icon={
+              isOnL4 ? (
+                <PlusPrivateIcon width={12.9} height={12.9} />
+              ) : isDarkMode ? (
+                <PlusGreenIcon width={12.9} height={12.9} />
+              ) : (
+                <Plus width={12.9} height={12.9} />
+              )
+            }
             iconWidth={33}
             iconHeight={30}
             customStyle={customStyle}
@@ -187,6 +201,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignContent: 'center',
     justifyContent: 'center',
+    width: windowWidth,
   },
   addedSignersContainer: {
     flexDirection: 'row',

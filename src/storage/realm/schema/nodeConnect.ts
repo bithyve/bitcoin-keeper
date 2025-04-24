@@ -10,6 +10,7 @@ const nodeProperties = {
   useKeeperNode: 'bool',
   isConnected: 'bool',
   useSSL: 'bool',
+  networkType: 'string',
 };
 
 export const NodeConnectSchema: ObjectSchema = {

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -30,6 +29,7 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import QRScanner from 'src/components/QRScanner';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import BackgroundTimer from 'react-native-background-timer';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -84,6 +84,7 @@ function SignWithChannel() {
 
   const dispatch = useDispatch();
   const navgation = useNavigation();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   let miniscriptPolicy = null;
   if (activeVault?.type === VaultType.MINISCRIPT) {
@@ -111,7 +112,7 @@ function SignWithChannel() {
       hmac,
     };
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
+    channel.emit(JOIN_CHANNEL, { room, network: bitcoinNetworkType, requestData });
   };
 
   useEffect(() => {
@@ -180,9 +181,9 @@ function SignWithChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Sign with Keeper Desktop App"
-        subtitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to sign with this signer.`}
+        subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to sign with this signer.`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />

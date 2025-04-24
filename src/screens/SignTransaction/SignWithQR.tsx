@@ -2,7 +2,6 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/services/wallets/enums';
@@ -26,6 +25,7 @@ import { getKeyUID, isHexadecimal } from 'src/utils/utilities';
 import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import KeeperQRCode from 'src/components/KeeperQRCode';
+import WalletHeader from 'src/components/WalletHeader';
 const { width } = Dimensions.get('window');
 
 function SignWithQR() {
@@ -147,7 +147,7 @@ function SignWithQR() {
     navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
+      <WalletHeader title="Sign Transaction" subTitle="Scan the QR with the signer" />
       <Box style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.contentContainer}

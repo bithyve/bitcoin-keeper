@@ -4,7 +4,6 @@ import { useColorMode } from 'native-base';
 import { useQuery } from '@realm/react';
 import { useDispatch } from 'react-redux';
 
-import KeeperHeader from 'src/components/KeeperHeader';
 import { RealmSchema } from 'src/storage/realm/enum';
 import TransactionElement from 'src/components/TransactionElement';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -14,6 +13,7 @@ import useVault from 'src/hooks/useVault';
 import { EntityKind } from 'src/services/wallets/enums';
 import { Transaction } from 'src/services/wallets/interfaces';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import WalletHeader from 'src/components/WalletHeader';
 
 function AllTransactions({ route }) {
   const { colorMode } = useColorMode();
@@ -45,7 +45,7 @@ function AllTransactions({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={title} subtitle={subtitle} />
+      <WalletHeader title={title} subTitle={subtitle} />
       <FlatList
         data={entityKind === EntityKind.WALLET ? walletTrans : vaultTrans}
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}

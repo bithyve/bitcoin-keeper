@@ -37,14 +37,9 @@ const InheritanceDocument: React.FC<InheritanceDocumentProps> = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
-  const { plan } = usePlan();
-  const isDiamondHands = plan === SubscriptionTier.L3.toUpperCase();
+  const { isOnL3Above } = usePlan();
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={!isDiamondHands}
-      testID={`btn_inheritance_${title}`}
-    >
+    <TouchableOpacity onPress={onPress} disabled={!isOnL3Above} testID={`btn_inheritance_${title}`}>
       <Box backgroundColor={backgroundColor} borderColor={borderColor} style={styles.Container}>
         <Box style={styles.document}>
           <Box style={styles.icon}>
@@ -52,13 +47,13 @@ const InheritanceDocument: React.FC<InheritanceDocumentProps> = ({
               width={wp(25)}
               icon={icon}
               backgroundColor={
-                isDiamondHands ? `${colorMode}.pantoneGreen` : `${colorMode}.secondaryLightGrey`
+                isOnL3Above ? `${colorMode}.pantoneGreen` : `${colorMode}.secondaryLightGrey`
               }
             />
           </Box>
           <Box>
             <Text
-              color={isDiamondHands ? titleColor : `${colorMode}.secondaryLightGrey`}
+              color={isOnL3Above ? titleColor : `${colorMode}.secondaryLightGrey`}
               fontSize={14}
               medium
               style={styles.title}
@@ -68,14 +63,14 @@ const InheritanceDocument: React.FC<InheritanceDocumentProps> = ({
             {description && (
               <Text
                 fontSize={12}
-                color={isDiamondHands ? subtitleColor : `${colorMode}.secondaryLightGrey`}
+                color={isOnL3Above ? subtitleColor : `${colorMode}.secondaryLightGrey`}
               >
                 {description}
               </Text>
             )}
           </Box>
         </Box>
-        {!isDiamondHands ? (
+        {!isOnL3Above ? (
           <TouchableOpacity onPress={onRightPress}>
             <Box>{rightIcon}</Box>
           </TouchableOpacity>
@@ -99,7 +94,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1,
     borderStyle: 'dashed',
   },
   document: {

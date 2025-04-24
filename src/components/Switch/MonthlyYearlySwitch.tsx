@@ -5,6 +5,7 @@ import Text from '../KeeperText';
 import KeeperGradient from '../KeeperGradient';
 import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
+import usePlan from 'src/hooks/usePlan';
 
 const getStyles = (btnActiveBack) =>
   StyleSheet.create({
@@ -15,6 +16,8 @@ const getStyles = (btnActiveBack) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginVertical: hp(16),
+      borderWidth: 1,
+      borderColor: Colors.separator,
     },
     textActive: {
       fontSize: 15,
@@ -53,10 +56,13 @@ const containerBackgroundColorDark = [Colors.SecondaryBlack];
 
 function Element(props) {
   const { colorMode } = useColorMode();
-  const btnActiveBack = Colors.primaryGreen;
+  const { isOnL4 } = usePlan();
+
+  const btnActiveBack = isOnL4 ? Colors.goldenGradient : Colors.primaryGreen;
   const textColor = colorMode === 'dark' ? Colors.primaryCream : Colors.primaryGreen;
   const textActiveColor = colorMode === 'light' ? Colors.primaryCream : Colors.primaryCream;
   const styles = getStyles(btnActiveBack);
+
   return (
     <Box style={props.isActive ? styles.containerBtnActive : styles.containerBtn}>
       <Text

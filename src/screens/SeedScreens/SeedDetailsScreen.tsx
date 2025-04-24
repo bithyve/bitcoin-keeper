@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import { wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { StyleSheet } from 'react-native';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SeedDetailsScreen({ route }) {
   const { seed } = route.params;
@@ -16,9 +16,9 @@ function SeedDetailsScreen({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={seedTranslation.mobileKeySeedWordsTitle}
-        subtitle={seedTranslation.mobileKeySeedNoteSubTitle}
+        subTitle={seedTranslation.mobileKeySeedNoteSubTitle}
       />
       <ScrollView contentContainerStyle={styles.container}>
         <Box style={styles.QRWrapper}>

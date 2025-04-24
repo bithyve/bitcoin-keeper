@@ -3,7 +3,6 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useQuery } from '@realm/react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import OptionCard from 'src/components/OptionCard';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -20,7 +19,6 @@ import { VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import useCanaryVault from 'src/hooks/useCanaryWallets';
 import { captureError } from 'src/services/sentry';
@@ -32,6 +30,7 @@ import useSigners from 'src/hooks/useSigners';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import BackupModalContent from './BackupModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
+import WalletHeader from 'src/components/WalletHeader';
 
 function AppBackupSettings() {
   const { colorMode } = useColorMode();
@@ -55,7 +54,7 @@ function AppBackupSettings() {
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
-
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   useEffect(() => {
     if (relayVaultUpdate) {
       navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
@@ -84,7 +83,7 @@ function AppBackupSettings() {
           masterFingerprint: publicId,
           xfp: WalletUtilities.getFingerprintFromExtendedKey(
             singleSigSigner.xpub,
-            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+            WalletUtilities.getNetworkByType(bitcoinNetworkType)
           ),
         };
         const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
@@ -127,7 +126,7 @@ function AppBackupSettings() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading} showLoader={true} />
-      <KeeperHeader title={settings.BackupSettings} subtitle={settings.BackupSettingSubTitle} />
+      <WalletHeader title={settings.BackupSettings} subTitle={settings.BackupSettingSubTitle} />
       <ScrollView
         contentContainerStyle={styles.optionsListContainer}
         showsVerticalScrollIndicator={false}

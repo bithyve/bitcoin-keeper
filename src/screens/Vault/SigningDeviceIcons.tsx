@@ -93,8 +93,21 @@ const getColouredIcon = (LightComponent, DarkComponent, isLight, width, height) 
   const component = isLight ? LightComponent : DarkComponent;
   return React.cloneElement(component, { width, height });
 };
+type SDIconOptions = {
+  type: SignerType;
+  light?: boolean;
+  width?: number;
+  height?: number;
+  isOnL4?: boolean;
+};
 
-export const SDIcons = (type: SignerType, light = true, width = 20, height = 20) => {
+export const SDIcons = ({
+  type,
+  light = true,
+  width = 20,
+  height = 20,
+  isOnL4 = false,
+}: SDIconOptions) => {
   const { colorMode } = useColorMode();
 
   switch (type) {
@@ -169,6 +182,7 @@ export const SDIcons = (type: SignerType, light = true, width = 20, height = 20)
     case SignerType.TAPSIGNER:
       return {
         Icon: getColouredIcon(<TAPSIGNERICONLIGHT />, <TAPSIGNERICON />, light, width, height),
+
         Logo: <TAPSIGNERLOGO />,
         type: SignerStorage.COLD,
       };

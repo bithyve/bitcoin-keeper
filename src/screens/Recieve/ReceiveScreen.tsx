@@ -6,7 +6,6 @@ import { ScrollView, StyleSheet, Vibration } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import Buttons from 'src/components/Buttons';
 
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -50,6 +49,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import AmountDetailsInput from '../Send/AmountDetailsInput';
 import { getAccountFromSigner } from 'src/utils/utilities';
+import WalletHeader from 'src/components/WalletHeader';
 
 const AddressVerifiableSigners = [
   SignerType.BITBOX02,
@@ -345,11 +345,11 @@ function ReceiveScreen({ route }: { route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box style={{ flexDirection: 'row' }}>
-        <KeeperHeader
+      <Box style={{ flexDirection: 'row', marginBottom: hp(25) }}>
+        <WalletHeader
           title={common.receive}
           titleColor={`${colorMode}.primaryText`}
-          topRightComponent={
+          rightComponent={
             <TouchableOpacity
               onPress={generateNewReceiveAddress}
               style={styles.getNewAddressContainer}

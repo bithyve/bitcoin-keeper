@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
 import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
@@ -19,13 +18,15 @@ import SubScription from 'src/models/interfaces/Subscription';
 import useToastMessage from 'src/hooks/useToastMessage';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { setSubscription } from 'src/store/reducers/settings';
+import { setSubscription } from 'src/store/sagaActions/settings';
 import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TierUpgradeModal, { UPGRADE_TYPE } from '../ChoosePlanScreen/TierUpgradeModal';
 import { useQuery } from '@realm/react';
 import { manipulateIosProdProductId } from 'src/utils/utilities';
+import { useAppSelector } from 'src/store/hooks';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -67,6 +68,7 @@ function PurchaseWithChannel() {
     subscription: currentSubscription,
     publicId,
   }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     const startBackgroundListener = () => {
@@ -148,7 +150,7 @@ function PurchaseWithChannel() {
     if (res.status) {
       requestBody['action'] = EMIT_MODES.PURCHASE_SUBS;
       const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
-      channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
+      channel.emit(JOIN_CHANNEL, { room, network: bitcoinNetworkType, requestData });
     } else {
       navigation.goBack();
       showToast(res.error ?? 'Something went wrong, Please try again!.', <ToastErrorIcon />);
@@ -157,9 +159,9 @@ function PurchaseWithChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Purchase Subscription with Keeper Desktop App"
-        subtitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to purchase a subscription plan.`}
+        subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to purchase a subscription plan.`}
       />
       <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />

@@ -117,7 +117,7 @@ export const AddMultipleXpub = () => {
         <Box style={styles.segmentController}>
           <SegmentedController
             options={options.filter((tab) => {
-              if ([SignerType.JADE, SignerType.PASSPORT].includes(type)) {
+              if ([SignerType.PASSPORT].includes(type)) {
                 return tab.label !== 'Taproot';
               }
               return true;

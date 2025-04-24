@@ -2,10 +2,12 @@ import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import KeeperIcon from 'src/assets/images/keeper-icon.svg';
+import KeeperIcon from 'src/assets/images/new-Keeper-Logo.svg';
+import PrivateKeeperIcon from 'src/assets/images/keeper-private-logo.svg';
 import KeeperNameIcon from 'src/assets/images/keeper-name-icon.svg';
-import KeeperNameIconDark from 'src/assets/images/keeper-name-icon-dark.svg';
+import KeeperNameIconDark from 'src/assets/privateImages/bitcoinKeeperWhiteLogo.svg';
 import { hp, wp } from 'src/constants/responsive';
+import usePlan from 'src/hooks/usePlan';
 
 type MessagePreviewProps = {
   title: string;
@@ -15,15 +17,24 @@ type MessagePreviewProps = {
 
 function MessagePreview({ title, description, link }: MessagePreviewProps) {
   const { colorMode } = useColorMode();
+  const { isOnL4 } = usePlan();
   return (
-    <Box style={styles.messagePreviewContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+    <Box
+      style={styles.messagePreviewContainer}
+      backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.seashellWhite`}
+      borderWidth={1}
+      borderColor={isOnL4 ? `${colorMode}.greyBorder` : `${colorMode}.separator`}
+    >
       <Text style={styles.previewLabel}>Message Preview</Text>
       <Box style={styles.previewBox} borderColor={`${colorMode}.greyBorder`}>
         <Text style={styles.messagePreviewTitle}>{title}</Text>
         <Text style={styles.messagePreviewDescription}>{description}</Text>
-        <Box style={styles.linkContainer} backgroundColor={`${colorMode}.seedCard`}>
+        <Box
+          style={styles.linkContainer}
+          backgroundColor={isOnL4 ? `${colorMode}.separator` : `${colorMode}.seedCard`}
+        >
           <Box style={styles.linkIconContainer}>
-            <KeeperIcon />
+            {isOnL4 ? <PrivateKeeperIcon /> : <KeeperIcon />}
           </Box>
           <Box>
             {colorMode === 'light' ? <KeeperNameIcon /> : <KeeperNameIconDark />}
