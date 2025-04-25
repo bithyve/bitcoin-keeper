@@ -887,7 +887,7 @@ function SigningDeviceDetails({ route }) {
                 isOnL4
                   ? `${colorMode}.pantoneGreen`
                   : colorMode === 'dark'
-                  ? `${colorMode}.primaryText`
+                  ? `${colorMode}.primaryBackground`
                   : `${colorMode}.thirdBackground`
               }
               icon={
