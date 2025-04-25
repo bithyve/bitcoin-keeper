@@ -1347,6 +1347,7 @@ function SignerModals({
                   isMultisig,
                   vaultId,
                   isRemoteKey,
+                  serializedPSBTEnvelop,
                 })
               );
             }
