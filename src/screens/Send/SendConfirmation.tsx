@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/constants/responsive';
@@ -94,6 +94,7 @@ function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
+  const isFocused = useIsFocused();
   const {
     sender,
     internalRecipients,
@@ -234,7 +235,9 @@ function SendConfirmation({ route }) {
             routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
           })
         );
-        showToast('New pending transaction saved successfully', <TickIcon />);
+        if (isFocused) {
+          showToast('New pending transaction saved successfully', <TickIcon />);
+        }
       } else {
         navigation.dispatch(e.data.action);
       }

@@ -190,6 +190,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           setShareKeyModal={setOpenOptionModal}
           data={details}
           shareWithNFC={shareWithNFC}
+          isSignedPSBT
+          isPSBTSharing
         />
       </Box>
     );
