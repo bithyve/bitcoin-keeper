@@ -29,14 +29,12 @@ import TechSupportIcon from 'src/assets/images/tech_support_received.svg';
 import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import CloudBackupIcon from 'src/assets/images/cloud-backup-icon.svg';
-import RecevieIcon from 'src/assets/images/incoming-tx-notification.svg';
-import PrivateRecevieIcon from 'src/assets/privateImages/incoming-tx-notification.svg';
+import RecevieIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import UAIView from '../components/UAIView';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
-import usePlan from 'src/hooks/usePlan';
 
 type CardProps = {
   uai: any;
@@ -90,11 +88,10 @@ const Card = memo(({ uai }: CardProps) => {
   const { signerMap } = useSignerMap();
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
-  const { isOnL4 } = usePlan();
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     const backupHistory = useQuery(RealmSchema.BackupHistory);
-    const content = getUaiContent(uai.uaiType, uai.uaiDetails, isOnL4);
+    const content = getUaiContent(uai.uaiType, uai.uaiDetails);
 
     switch (uai.uaiType) {
       case uaiType.SECURE_VAULT:
@@ -507,7 +504,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const getUaiContent = (type: uaiType, details?: any, isOnL4?: boolean) => {
+export const getUaiContent = (type: uaiType, details?: any) => {
   switch (type) {
     case uaiType.SECURE_VAULT:
       return {
@@ -566,7 +563,7 @@ export const getUaiContent = (type: uaiType, details?: any, isOnL4?: boolean) =>
       return {
         heading: 'New Transaction Received',
         body: 'Click to view the transaction details',
-        icon: isOnL4 ? <PrivateRecevieIcon /> : <RecevieIcon />,
+        icon: <RecevieIcon />,
       };
     case uaiType.SERVER_BACKUP_FAILURE:
       return {
