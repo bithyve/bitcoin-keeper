@@ -21,12 +21,13 @@ import Text from 'src/components/KeeperText';
 import { zendeskApi, zendeskEndpoints } from 'src/services/rest/ZendeskClient';
 import KeeperIconRound from 'src/assets/images/keeperIconRound.svg';
 import { timeFromTimeStamp } from 'src/utils/utilities';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import PaperPlaneLight from 'src/assets/images/paper-plane-light.svg';
 import PaperPlaneDark from 'src/assets/images/paper-plane-black.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import Zendesk from 'src/services/backend/Zendesk';
 import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
+import { useAppSelector } from 'src/store/hooks';
 
 const TicketNote = ({ note, closed = false }) => {
   const { colorMode } = useColorMode();
@@ -34,14 +35,16 @@ const TicketNote = ({ note, closed = false }) => {
   return (
     <Box style={styles.noteContainer}>
       {isDarkMode ? <ReachOutArrowDark /> : <ReachOutArrowLight />}
-      <Text color={closed ? `${colorMode}.greenWhiteText` : `${colorMode}.noteText`}>{note}</Text>
+      <Text color={closed ? `${colorMode}.greenWhiteText` : `${colorMode}.greenishGreyText`}>
+        {note}
+      </Text>
     </Box>
   );
 };
 
 const TicketDetails = ({ route }) => {
   const { ticketId, ticketStatus } = route.params;
-  const { conciergeUser } = useSelector((store) => store.concierge);
+  const { conciergeUser } = useAppSelector((store) => store.concierge);
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const [comments, setComments] = useState(null);
@@ -120,7 +123,11 @@ const TicketDetails = ({ route }) => {
         <Text color={`${colorMode}.primaryText`} fontSize={13}>
           {comment.body}
         </Text>
-        <ScrollView>
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.imageContainer}
+          showsHorizontalScrollIndicator={false}
+        >
           {comment.attachments &&
             comment.attachments.map((item) => {
               return (
@@ -263,6 +270,9 @@ const styles = StyleSheet.create({
   closed: {
     paddingHorizontal: wp(25),
     paddingVertical: hp(25),
+  },
+  imageContainer: {
+    gap: wp(20),
   },
 });
 
