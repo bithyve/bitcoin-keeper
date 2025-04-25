@@ -731,6 +731,7 @@ function SignerModals({
         const { activeVault } = useVault({ vaultId, includeArchived: false });
 
         const info = vaultKey.registeredVaults?.find((info) => info.vaultId === vaultId);
+
         function OptionModalContent({
           supportedSigningOptions,
           onSelect,
@@ -787,6 +788,19 @@ function SignerModals({
             </Box>
           );
         }
+        const navigateRegisterWithQR = () => {
+          navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+        };
+
+        const navigateRegisterWithChannel = () => {
+          navigation.dispatch(
+            CommonActions.navigate('RegisterWithChannel', {
+              vaultKey,
+              vaultId,
+              signerType: signer.type,
+            })
+          );
+        };
         if (signer.type === SignerType.TAPSIGNER) {
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);
@@ -1466,6 +1480,23 @@ function SignerModals({
               vaultKey={registeredVaultKey}
               setRegisterSignerModal={setRegisterSignerModal}
               activeVault={registerActiveVault}
+              navigateRegisterWithQR={() =>
+                navigation.dispatch(
+                  CommonActions.navigate('RegisterWithQR', {
+                    vaultKey: registeredVaultKey,
+                    vaultId,
+                  })
+                )
+              }
+              navigateRegisterWithChannel={() =>
+                navigation.dispatch(
+                  CommonActions.navigate('RegisterWithChannel', {
+                    vaultKey: registeredVaultKey,
+                    vaultId,
+                    signerType: registeredSigner.type,
+                  })
+                )
+              }
             />
           )}
         />
