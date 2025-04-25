@@ -158,6 +158,7 @@ function SigningRequest() {
               }}
               fullWidth
               primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
             />
           </Box>
         </Box>

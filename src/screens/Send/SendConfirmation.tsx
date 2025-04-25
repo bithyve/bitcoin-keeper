@@ -611,6 +611,7 @@ function SendConfirmation({ route }) {
               primaryCallback={cancelSigningRequestAndDiscardCache}
               fullWidth
               primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
             />
           </Box>
         </Box>

@@ -24,7 +24,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
-import PlusPrivateIcon from 'src/assets/privateImages/plus-gold-icon.svg';
 import usePlan from 'src/hooks/usePlan';
 
 const SignerList = ({ navigation, handleModalOpen }) => {
@@ -162,13 +161,13 @@ const SignerList = ({ navigation, handleModalOpen }) => {
           {renderAssistedKeysShell()}
           <DashedCta
             backgroundColor={`${colorMode}.dullGreen`}
-            hexagonBackgroundColor={isDarkMode ? Colors.primaryCream : Colors.primaryGreen}
+            hexagonBackgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
             textColor={`${colorMode}.greenWhiteText`}
             name={signer.addKey}
             callback={handleModalOpen}
             icon={
               isOnL4 ? (
-                <PlusPrivateIcon width={12.9} height={12.9} />
+                <Plus width={12.9} height={12.9} />
               ) : isDarkMode ? (
                 <PlusGreenIcon width={12.9} height={12.9} />
               ) : (

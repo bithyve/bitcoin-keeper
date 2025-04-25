@@ -98,7 +98,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import { getSpecterDetails } from 'src/hardware/specter';
 import Import from 'src/assets/images/import.svg';
 import USBIcon from 'src/assets/images/usb_white.svg';
-import NfcComms from 'src/assets/images/nfc_comms.svg';
+import NfcComms from 'src/assets/images/nfc_lines_white.svg';
 import QRComms from 'src/assets/images/qr_comms.svg';
 import useSigners from 'src/hooks/useSigners';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';

@@ -392,6 +392,7 @@ function OtpContent({ signTransaction }) {
             }}
             fullWidth
             primaryText="Proceed"
+            primaryDisable={otp.length !== 6}
           />
         </Box>
       </Box>

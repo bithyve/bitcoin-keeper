@@ -29,7 +29,7 @@ import TechSupportIcon from 'src/assets/images/tech_support_received.svg';
 import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import CloudBackupIcon from 'src/assets/images/cloud-backup-icon.svg';
-import RecevieIcon from 'src/assets/images/incoming-tx-notification.svg';
+import RecevieIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import UAIView from '../components/UAIView';
