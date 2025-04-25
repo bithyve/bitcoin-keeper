@@ -46,6 +46,7 @@ import ShareKeyModalContent from '../Vault/components/ShareKeyModalContent';
 import MagicLinkIcon from 'src/assets/images/magic-link-icon.svg';
 import useVault from 'src/hooks/useVault';
 import RegisterMultisig from './component/RegisterMultisig';
+import RegisterSignerContent from '../Vault/components/RegisterSignerContent';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -1454,7 +1455,7 @@ function SignerModals({
           textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={() => (
-            <RegisterMultisig
+            <RegisterSignerContent
               isUSBAvailable={
                 registeredSigner.type === SignerType.COLDCARD ||
                 (registeredSigner.type === SignerType.JADE && isMiniscript)
@@ -1464,8 +1465,6 @@ function SignerModals({
               vaultKey={registeredVaultKey}
               setRegisterSignerModal={setRegisterSignerModal}
               activeVault={registerActiveVault}
-              navigation={navigation}
-              CommonActions={CommonActions}
             />
           )}
         />
