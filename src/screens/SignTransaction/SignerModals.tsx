@@ -870,7 +870,7 @@ function SignerModals({
 
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={coldCardContentModal}
+                visible={currentSigner && coldCardContentModal}
                 close={() => setColdCardContentModal(false)}
                 title={'Signing with ' + signingMode}
                 subTitle="Get your Coldcard ready before proceeding"
@@ -973,7 +973,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={passportContentModal}
+                visible={currentSigner && passportContentModal}
                 close={() => {
                   setPassportContentModal(false);
                 }}
@@ -1088,7 +1088,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={keystoneContentModal}
+                visible={currentSigner && keystoneContentModal}
                 close={() => {
                   setKeystoneContentModal(false);
                 }}
@@ -1154,7 +1154,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={jadeModalContent}
+                visible={currentSigner && jadeModalContent}
                 close={() => {
                   setJadeModalContent(false);
                 }}
@@ -1249,7 +1249,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={otherModalContent}
+                visible={currentSigner && otherModalContent}
                 close={() => {
                   setOtherModalContent(false);
                 }}
@@ -1296,7 +1296,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={keeperContentModal}
+                visible={currentSigner && keeperContentModal}
                 close={() => {
                   setKeeperContentModal(false);
                 }}
@@ -1372,7 +1372,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={keeperModalContent}
+                visible={currentSigner && keeperModalContent}
                 close={() => {
                   setKeeperModalContent(false);
                 }}
