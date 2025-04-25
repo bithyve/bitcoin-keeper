@@ -165,15 +165,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
             textColor={`${colorMode}.greenWhiteText`}
             name={signer.addKey}
             callback={handleModalOpen}
-            icon={
-              isOnL4 ? (
-                <Plus width={12.9} height={12.9} />
-              ) : isDarkMode ? (
-                <PlusGreenIcon width={12.9} height={12.9} />
-              ) : (
-                <Plus width={12.9} height={12.9} />
-              )
-            }
+            icon={<Plus width={12.9} height={12.9} />}
             iconWidth={33}
             iconHeight={30}
             customStyle={customStyle}
