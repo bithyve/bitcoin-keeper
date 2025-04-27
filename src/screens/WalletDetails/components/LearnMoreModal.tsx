@@ -10,14 +10,13 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import PrivateVaultIllustration from 'src/assets/privateImages/refreshModalIcon.svg';
 import usePlan from 'src/hooks/usePlan';
 
-function LinkedWalletContent() {
+function LinkedWalletContent({ isOnL4 }) {
   return (
     <View style={styles.contentContainer}>
-      <Box alignSelf="center">
-        <VaultSetupIcon />
-      </Box>
+      <Box alignSelf="center">{isOnL4 ? <PrivateVaultIllustration /> : <VaultSetupIcon />}</Box>
       <Text style={styles.contentText}>
         When a transaction (send or receive) is submitted to the bitcoin network from a wallet, it
         may take a little while before it is propagated and visible to all nodes and wallets. Its
@@ -43,7 +42,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       subTitle="If you want to check the latest status of a transaction, simply pull down the transaction list and it will fetch the latest status and wallet balance."
       modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
       textColor={`${colorMode}.headerWhite`}
-      Content={LinkedWalletContent}
+      Content={() => <LinkedWalletContent isOnL4={isOnL4} />}
       DarkCloseIcon
       buttonText={common.Okay}
       secondaryButtonText={common.needHelp}

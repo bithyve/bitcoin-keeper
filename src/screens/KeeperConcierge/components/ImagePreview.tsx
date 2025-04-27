@@ -5,13 +5,13 @@ import { StyleSheet } from 'react-native';
 import BinLight from 'src/assets/images/bin-light.svg';
 import BinDark from 'src/assets/images/bin-dark.svg';
 
-const ImagePreview = ({ imageUri, onRemoveImage }) => {
+const ImagePreview = ({ imageUri, onRemoveImage, index }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   return (
     <Box style={styles.container}>
       <Image source={{ uri: imageUri }} style={styles.image} />
-      <Pressable onPress={onRemoveImage} style={styles.deleteButton}>
+      <Pressable onPress={() => onRemoveImage(index)} style={styles.deleteButton}>
         <Box style={styles.deleteButton} backgroundColor={`${colorMode}.primaryGreenBackground`}>
           {isDarkMode ? <BinDark /> : <BinLight />}
         </Box>

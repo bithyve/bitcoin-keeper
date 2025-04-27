@@ -9,6 +9,8 @@ import { hp, wp } from 'src/constants/responsive';
 import Fonts from 'src/constants/Fonts';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import PrivateBackButton from 'src/assets/privateImages/gold-back-arrow.svg';
+import usePlan from 'src/hooks/usePlan';
 
 type Props = {
   title?: string;
@@ -39,6 +41,7 @@ const WalletHeader: React.FC<Props> = ({
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const isDarkMode = colorMode === 'dark';
+  const { isOnL4 } = usePlan();
 
   const styles = StyleSheet.create({
     container: {
@@ -91,7 +94,13 @@ const WalletHeader: React.FC<Props> = ({
               onPress={onPressHandler || navigation.goBack}
               style={styles.backButton}
             >
-              {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
+              {isOnL4 ? (
+                <PrivateBackButton />
+              ) : colorMode === 'light' && !contrastScreen ? (
+                <BackBlackButton />
+              ) : (
+                <BackWhiteButton />
+              )}
             </TouchableOpacity>
           )}
           {title && (
