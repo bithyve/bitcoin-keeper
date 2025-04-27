@@ -46,6 +46,7 @@ import ShareKeyModalContent from '../Vault/components/ShareKeyModalContent';
 import MagicLinkIcon from 'src/assets/images/magic-link-icon.svg';
 import useVault from 'src/hooks/useVault';
 import RegisterMultisig from './component/RegisterMultisig';
+import RegisterSignerContent from '../Vault/components/RegisterSignerContent';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -392,6 +393,7 @@ function OtpContent({ signTransaction }) {
             }}
             fullWidth
             primaryText="Proceed"
+            primaryDisable={otp.length !== 6}
           />
         </Box>
       </Box>
@@ -729,6 +731,7 @@ function SignerModals({
         const { activeVault } = useVault({ vaultId, includeArchived: false });
 
         const info = vaultKey.registeredVaults?.find((info) => info.vaultId === vaultId);
+
         function OptionModalContent({
           supportedSigningOptions,
           onSelect,
@@ -785,6 +788,19 @@ function SignerModals({
             </Box>
           );
         }
+        const navigateRegisterWithQR = () => {
+          navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+        };
+
+        const navigateRegisterWithChannel = () => {
+          navigation.dispatch(
+            CommonActions.navigate('RegisterWithChannel', {
+              vaultKey,
+              vaultId,
+              signerType: signer.type,
+            })
+          );
+        };
         if (signer.type === SignerType.TAPSIGNER) {
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);
@@ -870,7 +886,7 @@ function SignerModals({
 
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={coldCardContentModal}
+                visible={currentSigner && coldCardContentModal}
                 close={() => setColdCardContentModal(false)}
                 title={'Signing with ' + signingMode}
                 subTitle="Get your Coldcard ready before proceeding"
@@ -973,7 +989,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={passportContentModal}
+                visible={currentSigner && passportContentModal}
                 close={() => {
                   setPassportContentModal(false);
                 }}
@@ -1088,7 +1104,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={keystoneContentModal}
+                visible={currentSigner && keystoneContentModal}
                 close={() => {
                   setKeystoneContentModal(false);
                 }}
@@ -1154,7 +1170,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={jadeModalContent}
+                visible={currentSigner && jadeModalContent}
                 close={() => {
                   setJadeModalContent(false);
                 }}
@@ -1249,7 +1265,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={otherModalContent}
+                visible={currentSigner && otherModalContent}
                 close={() => {
                   setOtherModalContent(false);
                 }}
@@ -1296,7 +1312,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={keeperContentModal}
+                visible={currentSigner && keeperContentModal}
                 close={() => {
                   setKeeperContentModal(false);
                 }}
@@ -1346,6 +1362,7 @@ function SignerModals({
                   isMultisig,
                   vaultId,
                   isRemoteKey,
+                  serializedPSBTEnvelop,
                 })
               );
             }
@@ -1372,7 +1389,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={keeperModalContent}
+                visible={currentSigner && keeperModalContent}
                 close={() => {
                   setKeeperModalContent(false);
                 }}
@@ -1453,7 +1470,7 @@ function SignerModals({
           textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={() => (
-            <RegisterMultisig
+            <RegisterSignerContent
               isUSBAvailable={
                 registeredSigner.type === SignerType.COLDCARD ||
                 (registeredSigner.type === SignerType.JADE && isMiniscript)
@@ -1463,8 +1480,23 @@ function SignerModals({
               vaultKey={registeredVaultKey}
               setRegisterSignerModal={setRegisterSignerModal}
               activeVault={registerActiveVault}
-              navigation={navigation}
-              CommonActions={CommonActions}
+              navigateRegisterWithQR={() =>
+                navigation.dispatch(
+                  CommonActions.navigate('RegisterWithQR', {
+                    vaultKey: registeredVaultKey,
+                    vaultId,
+                  })
+                )
+              }
+              navigateRegisterWithChannel={() =>
+                navigation.dispatch(
+                  CommonActions.navigate('RegisterWithChannel', {
+                    vaultKey: registeredVaultKey,
+                    vaultId,
+                    signerType: registeredSigner.type,
+                  })
+                )
+              }
             />
           )}
         />

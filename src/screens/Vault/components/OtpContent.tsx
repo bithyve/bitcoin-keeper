@@ -70,6 +70,7 @@ function OtpContent({ otp, setOtp, showToast, callback }) {
             }}
             fullWidth
             primaryText="Confirm"
+            primaryDisable={otp.length !== 6}
           />
         </Box>
       </Box>

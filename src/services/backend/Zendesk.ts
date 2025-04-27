@@ -126,7 +126,7 @@ export default class Zendesk {
           ticket: {
             comment: {
               body: desc,
-              uploads: [imageToken],
+              uploads: imageToken,
             },
             subject: `${isDev ? 'DEV ' : ''}Conversation with ${conciergeUser.name}`,
             external_id: conciergeUser.id,

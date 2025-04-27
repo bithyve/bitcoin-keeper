@@ -98,7 +98,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import { getSpecterDetails } from 'src/hardware/specter';
 import Import from 'src/assets/images/import.svg';
 import USBIcon from 'src/assets/images/usb_white.svg';
-import NfcComms from 'src/assets/images/nfc_comms.svg';
+import NfcComms from 'src/assets/images/nfc_lines_white.svg';
 import QRComms from 'src/assets/images/qr_comms.svg';
 import useSigners from 'src/hooks/useSigners';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
@@ -1545,9 +1545,26 @@ function HardwareModalMap({
     let error;
     try {
       jsonData = JSON.parse(fileData);
-    } catch (error) {
-      showToast(`Please scan a valid file from ${getSignerNameFromType(type)}`, <ToastErrorIcon />);
-      return;
+    } catch {
+      try {
+        if (type === SignerType.KEEPER) {
+          const { signer } = setupKeeperSigner(fileData);
+
+          if (!signer) {
+            throw Error('Failed to import file data');
+          } else {
+            hw = signer;
+          }
+        } else {
+          throw Error('Failed to import file data');
+        }
+      } catch (error) {
+        showToast(
+          `Please import a valid file from ${getSignerNameFromType(type)}`,
+          <ToastErrorIcon />
+        );
+        return;
+      }
     }
     switch (type) {
       case SignerType.PASSPORT:
@@ -1604,7 +1621,7 @@ function HardwareModalMap({
           } else {
             // TODO: handle sig type mismatch
             showToast(
-              `Please scan a valid file from ${getSignerNameFromType(type)}`,
+              `Please import a valid file from ${getSignerNameFromType(type)}`,
               <ToastErrorIcon />
             );
           }
@@ -1616,7 +1633,10 @@ function HardwareModalMap({
         break;
     }
     if (error) {
-      showToast(`Please scan a valid file from ${getSignerNameFromType(type)}`, <ToastErrorIcon />);
+      showToast(
+        `Please import a valid file from ${getSignerNameFromType(type)}`,
+        <ToastErrorIcon />
+      );
       captureError(error);
       return;
     }

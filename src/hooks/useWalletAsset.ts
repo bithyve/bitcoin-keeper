@@ -36,7 +36,7 @@ const useWalletAsset = () => {
       return wallet.type === VaultType.MINISCRIPT
         ? [Colors.EarthBrown, Colors.LabelLight1]
         : wallet.type === VaultType.SINGE_SIG
-        ? [Colors.DeepTeal, Colors.TagDark1]
+        ? [Colors.DeepTeal, Colors.OceanSage]
         : ['#24312E', '#3E524D'];
     } else {
       return [Colors.DarkSlateGray, Colors.primaryGreen];

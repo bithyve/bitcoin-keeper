@@ -162,7 +162,12 @@ function AssignSignerTypeCard({
         />
         <Box mt={10} alignSelf="flex-end">
           <Box>
-            <Buttons primaryCallback={validateServerKey} fullWidth primaryText="Confirm" />
+            <Buttons
+              primaryCallback={validateServerKey}
+              fullWidth
+              primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
+            />
           </Box>
         </Box>
       </Box>

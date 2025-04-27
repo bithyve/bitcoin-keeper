@@ -16,11 +16,18 @@ const CTAFooter = ({ onAttachScreenshot, addAttributes, onNext }) => {
   const isDarkMode = colorMode === 'dark';
 
   const handleAttachScreenshot = () => {
-    launchImageLibrary({ mediaType: 'photo', includeBase64: false }, (response) => {
-      if (response.assets && response.assets.length > 0) {
-        onAttachScreenshot(response.assets[0].uri);
+    launchImageLibrary(
+      { mediaType: 'photo', includeBase64: false, selectionLimit: 5 },
+      (response) => {
+        if (response.assets && response.assets.length > 0) {
+          const uris = [];
+          response.assets.forEach((img) => {
+            uris.push(img.uri);
+          });
+          onAttachScreenshot(uris);
+        }
       }
-    });
+    );
   };
 
   return (
