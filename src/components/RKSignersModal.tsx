@@ -201,6 +201,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           shareWithNFC={shareWithNFC}
           isSignedPSBT
           isPSBTSharing
+          fileName={`signedTransaction.psbt`}
         />
       </Box>
     );
@@ -227,7 +228,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
               },
             ])
           );
-          navigateToShowPSBT(signedSerializedPSBT);
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
         }
       } else if (SignerType.MY_KEEPER === signerType) {
         let signedSerializedPSBT: string;
