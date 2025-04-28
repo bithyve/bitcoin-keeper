@@ -12,10 +12,12 @@ import {
 import Contacts from 'react-native-contacts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
+import PrivateImagePlaceHolder from 'src/assets/privateImages/contact-image-placeholder.svg';
 import SearchIcon from 'src/assets/images/search-icon.svg';
+import PrivateSearchIcon from 'src/assets/privateImages/search-icon.svg';
 import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
+import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
@@ -28,6 +30,9 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
+import Colors from 'src/theme/Colors';
 
 function AssociateContact({ route }) {
   const {
@@ -51,6 +56,7 @@ function AssociateContact({ route }) {
   const [selectedContact, setSelectedContact] = useState(null);
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { isOnL4 } = usePlan();
 
   useEffect(() => {
     try {
@@ -90,6 +96,8 @@ function AssociateContact({ route }) {
       <Box style={styles.contactItem}>
         {item.thumbnailPath !== '' ? (
           <Image source={{ uri: item.thumbnailPath || '' }} style={styles.avatar} />
+        ) : isOnL4 ? (
+          <PrivateImagePlaceHolder style={styles.avatar} />
         ) : (
           <ImagePlaceHolder style={styles.avatar} />
         )}
@@ -134,7 +142,7 @@ function AssociateContact({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={vaultText.associateContact} titleColor={`${colorMode}.black`} />
+      <WalletHeader title={vaultText.associateContact} titleColor={`${colorMode}.black`} />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
           <Box
@@ -142,10 +150,10 @@ function AssociateContact({ route }) {
             backgroundColor={`${colorMode}.boxSecondaryBackground`}
             borderColor={`${colorMode}.dullGreyBorder`}
           >
-            <SearchIcon />
+            {isOnL4 ? <PrivateSearchIcon width={wp(15)} height={hp(15)} /> : <SearchIcon />}
             <TextInput
               style={styles.input}
-              placeholderTextColor={`${colorMode}.placeHolderTextColor`}
+              placeholderTextColor={!isOnL4 ? Colors.secondaryDarkGrey : Colors.headerWhite}
               placeholder={common.search}
               value={search}
               onChangeText={setSearch}
@@ -160,7 +168,11 @@ function AssociateContact({ route }) {
                 borderColor={`${colorMode}.dullGreyBorder`}
               >
                 <Box style={styles.iconContainer}>
-                  <AddContactIcon width={wp(44)} height={hp(44)} />
+                  {isOnL4 ? (
+                    <PrivateAddContactIcon />
+                  ) : (
+                    <AddContactIcon width={wp(44)} height={hp(44)} />
+                  )}
                 </Box>
                 <Text medium style={styles.buttonText}>
                   {vaultText.addContact}

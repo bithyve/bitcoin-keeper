@@ -7,8 +7,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperText from 'src/components/KeeperText';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Text from 'src/components/KeeperText';
+import WalletHeader from 'src/components/WalletHeader';
 
 function UpdateWalletDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -36,9 +36,9 @@ function UpdateWalletDetails({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader
+        <WalletHeader
           title={isFromSeed ? seedTranslation.walletSeedWords : walletTranslation.WalletDetails}
-          subtitle={
+          subTitle={
             isFromSeed ? walletTranslation.qrofRecoveryPhrase : walletTranslation.viewWalletPath
           }
         />

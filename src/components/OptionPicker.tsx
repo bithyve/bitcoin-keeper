@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import TickIcon from 'src/assets/images/icon_check.svg';
 import KeeperModal from './KeeperModal';
+import usePlan from 'src/hooks/usePlan';
+import PrivateTickIcon from 'src/assets/privateImages/tick-icon.svg';
 
 type Option = {
   label: string;
@@ -25,6 +27,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
   const [internalSelectedOption, setInternalSelectedOption] = useState<Option | null>(
     selectedOption
   );
+  const { isOnL4 } = usePlan();
 
   const handlePress = () => {
     setIsOpen(!isOpen);
@@ -43,14 +46,19 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
   }, [selectedOption]);
 
   const optionsContent = (
-    <Box style={styles.optionsContainer}>
+    <Box style={styles.optionsContainer} backgroundColor={isOnL4 && `${colorMode}.charcolBrown`}>
       {options.map((option, index) => (
         <Pressable key={option.value} onPress={() => handleOptionSelect(option)}>
-          <Box style={styles.optionContainer}>
+          <Box
+            style={styles.optionContainer}
+            backgroundColor={isOnL4 && `${colorMode}.charcolBrown`}
+          >
             <Text
               color={
                 internalSelectedOption?.value === option?.value
-                  ? `${colorMode}.greenText`
+                  ? isOnL4
+                    ? `${colorMode}.pantoneGreen`
+                    : `${colorMode}.greenText`
                   : `${colorMode}.DarkGreyText`
               }
               style={styles.optionText}
@@ -58,7 +66,8 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
             >
               {option.label}
             </Text>
-            {internalSelectedOption?.value === option?.value && <TickIcon />}
+            {internalSelectedOption?.value === option?.value &&
+              (isOnL4 ? <PrivateTickIcon /> : <TickIcon />)}
           </Box>
           {index !== options.length - 1 && (
             <Box style={styles.separator} backgroundColor={`${colorMode}.dullGreyBorder`} />
@@ -105,6 +114,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
         close={() => setIsOpen(false)}
         showCloseIcon={false}
         Content={() => optionsContent}
+        modalBackground={isOnL4 && `${colorMode}.charcolBrown`}
       />
     </Box>
   );

@@ -126,7 +126,7 @@ function EnhancedKeysSection({
           }
           name={`${getSignerNameFromType(key.key.type, false, false)}`}
           description={getSignerDescription(key.key)}
-          icon={SDIcons(key.key.type, true).Icon}
+          icon={SDIcons({ type: key.key.type, light: true }).Icon}
           image={key?.key.extraData?.thumbnailPath}
           showSelection={false}
           showDot={false}

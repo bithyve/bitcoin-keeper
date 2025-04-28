@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import BitcoinIllustration from 'src/assets/images/btc-illustration.svg';
+import PrivateBitcoinIllustration from 'src/assets/privateImages/Bitcoin-Illustration.svg';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import NFCLight from 'src/assets/images/nfc-fade-lines-light.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -18,6 +19,7 @@ import MenuOption from 'src/components/MenuOption';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import usePlan from 'src/hooks/usePlan';
 
 interface AddKeyOption {
   icon: JSX.Element;
@@ -45,11 +47,11 @@ function NFCModalContent({ onTryAnotherMethod }: { onTryAnotherMethod: () => voi
 
   const stackItems = [
     {
-      Icon: SDIcons(SignerType.KEEPER, true, 20, 20).Icon,
+      Icon: SDIcons({ type: SignerType.KEEPER, light: true, width: 20, height: 20 }).Icon,
       backgroundColor: `${colorMode}.brownBackground`,
     },
     {
-      Icon: SDIcons(SignerType.MY_KEEPER, true, 11, 16).Icon,
+      Icon: SDIcons({ type: SignerType.MY_KEEPER, light: true, width: 11, height: 16 }).Icon,
       backgroundColor: `${colorMode}.pantoneGreen`,
     },
   ];
@@ -85,17 +87,18 @@ function NFCModalContent({ onTryAnotherMethod }: { onTryAnotherMethod: () => voi
   );
 }
 
-function AddCoSignerContent() {
+function AddCoSignerContent({ isOnL4 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
+
   return (
     <Box style={styles.contentContainer}>
       <Text color={`${colorMode}.headerWhite`} style={styles.addCoSigner}>
         {vaultText.collabModalDescription1}
       </Text>
       <Box style={styles.bitcoinIllustration}>
-        <BitcoinIllustration />
+        {isOnL4 ? <PrivateBitcoinIllustration /> : <BitcoinIllustration />}
       </Box>
       <Text color={`${colorMode}.headerWhite`} style={styles.addCoSigner}>
         {vaultText.collabModalDescription2}
@@ -147,6 +150,7 @@ function CollaborativeModals({
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
   const isDarkMode = colorMode === 'dark';
+  const { isOnL4 } = usePlan();
 
   const handleTryAnotherMethod = () => {
     setNfcModal?.(false);
@@ -162,14 +166,16 @@ function CollaborativeModals({
           DarkCloseIcon
           title={vaultText.collaborativeVaultTitle}
           subTitle={vaultText.collaborativeVaultSubtitle}
-          modalBackground={`${colorMode}.pantoneGreen`}
+          modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
           textColor={`${colorMode}.headerWhite`}
-          Content={AddCoSignerContent}
+          Content={() => <AddCoSignerContent isOnL4={isOnL4} />}
           buttonText={common.Okay}
           secondaryButtonText={common.needHelp}
           buttonTextColor={`${colorMode}.textGreen`}
-          buttonBackground={`${colorMode}.modalWhiteButton`}
-          secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+          buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`}
+          secButtonTextColor={
+            isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
+          }
           secondaryIcon={<ConciergeNeedHelp />}
           secondaryCallback={() => {
             setLearnMoreModal?.(false);

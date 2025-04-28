@@ -57,6 +57,9 @@ import SignerCard from '../AddSigner/SignerCard';
 import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
+import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
+import GoldPlusIcon from 'src/assets/privateImages/plus-gold-icon.svg';
 let previousContent = null;
 
 function SignerItem({
@@ -78,6 +81,7 @@ function SignerItem({
 
   const signerUID = vaultKey ? getKeyUID(vaultKey) : null;
   const signer = signerUID ? signerMap[signerUID] : null;
+  const { isOnL4 } = usePlan();
 
   const isPreviousKeyAdded = useCallback(() => {
     if (index === 2) {
@@ -94,7 +98,7 @@ function SignerItem({
       <Text medium fontSize={12} color={`${colorMode}.greenishGreyText`}>
         {common.tapToAdd}{' '}
       </Text>
-      <AddIcon />
+      {isOnL4 ? <GoldPlusIcon /> : <AddIcon />}
     </Box>
   );
 
@@ -634,16 +638,13 @@ function SetupCollaborativeWallet() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       {inProgress || (isCreating && <ActivityIndicatorView visible={inProgress || isCreating} />)}
-      <KeeperHeader
+      <WalletHeader
         title={vaultText.collaborativeVaultTitle}
-        subtitle={vaultText.collaborativeVaultSubtitle}
+        subTitle={vaultText.collaborativeVaultSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
         learnMorePressed={() => {
           setLearnMoreModal(true);
         }}
-        learnTextColor={`${colorMode}.buttonText`}
       />
       <FlatList
         horizontal

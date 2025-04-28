@@ -28,6 +28,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Colors from 'src/theme/Colors';
+import PrivateSetting from 'src/assets/privateImages/setting-gold-icon.svg';
 
 export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -67,11 +68,12 @@ export function NumberInput({ value, onDecrease, onIncrease }) {
 function AddNewWallet({ navigation, route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslations, common } = translations;
+  const { vault: vaultTranslations, common, wallet: walletText } = translations;
   const [selectedWalletType, setSelectedWalletType] = useState('');
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
   const { vaultId } = route.params || {};
+  const { isOnL4 } = usePlan();
   const { activeVault } = useVault({ vaultId });
   const [scheme, setScheme] = useState(
     activeVault ? { m: activeVault.scheme.m, n: activeVault.scheme.n } : { m: 2, n: 3 }
@@ -212,12 +214,18 @@ function AddNewWallet({ navigation, route }) {
           name="Enhanced Security Options"
           description="Secure your funds and future—your way"
           callback={() => setShowEnhancedOptionsModal(true)}
-          icon={isDarkMode ? <DarkSettingIcon /> : <SettingIcon />}
+          icon={isOnL4 ? <PrivateSetting /> : isDarkMode ? <DarkSettingIcon /> : <SettingIcon />}
           iconWidth={22}
           iconHeight={20}
           cardStyles={styles.enhancedVaultsCustomStyles}
           titleSize={15}
-          borderColor={isDarkMode ? Colors.primaryCream : `${colorMode}.pantoneGreen`}
+          borderColor={
+            isOnL4
+              ? `${colorMode}.pantoneGreen`
+              : isDarkMode
+              ? Colors.primaryCream
+              : `${colorMode}.pantoneGreen`
+          }
         />
         <Buttons
           primaryText="Proceed"
@@ -253,8 +261,8 @@ function AddNewWallet({ navigation, route }) {
       <KeeperModal
         visible={customConfigModalVisible}
         close={() => setCustomConfigModalVisible(false)}
-        title="Create a custom wallet"
-        subTitle="Select the total number of keys"
+        title={walletText.customWalletTitle}
+        subTitle={walletText.customWalletDesc}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={common.confirm}
@@ -272,14 +280,14 @@ function AddNewWallet({ navigation, route }) {
                 color={`${colorMode}.primaryText`}
                 testID="text_totalKeys"
               >
-                Total Keys For Wallet Configuration
+                {walletText.totalKeys}
               </Text>
               <Text
                 style={{ fontSize: 12 }}
                 color={`${colorMode}.secondaryText`}
                 testID="text_totalKeys_subTitle"
               >
-                {vaultTranslations.selectTheTotalNumberOfKeys}
+                {walletText.maxNumberofKeys}
               </Text>
               <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
               <Text
@@ -362,8 +370,7 @@ const EnhancedSecurityModal = ({
     }
   }, [isVisible, inheritanceKeySelected, emergencyKeySelected]);
 
-  const { plan } = usePlan();
-  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
+  const { isOnL3Above } = usePlan();
 
   return (
     <KeeperModal
@@ -384,7 +391,7 @@ const EnhancedSecurityModal = ({
       Content={() => {
         return (
           <Box style={styles.enhancedOptionsContainer}>
-            {!isDiamondHand && (
+            {!isOnL3Above && (
               <Box>
                 <UpgradeSubscription
                   type={SubscriptionTier.L3}
@@ -397,7 +404,7 @@ const EnhancedSecurityModal = ({
               </Box>
             )}
             <Pressable
-              disabled={!isDiamondHand}
+              disabled={!isOnL3Above}
               onPress={() => setPendingInheritanceKeySelected(!pendingInheritanceKeySelected)}
             >
               <Box
@@ -409,7 +416,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     Inheritance Key
@@ -434,9 +441,7 @@ const EnhancedSecurityModal = ({
                 </Box>
                 <Text
                   fontSize={12}
-                  color={
-                    !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
-                  }
+                  color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
                   An extra key which will be added to your wallet quorum after a certain time
                 </Text>
@@ -444,7 +449,7 @@ const EnhancedSecurityModal = ({
             </Pressable>
 
             <Pressable
-              disabled={!isDiamondHand}
+              disabled={!isOnL3Above}
               onPress={() => setPendingEmergencyKeySelected(!pendingEmergencyKeySelected)}
             >
               <Box
@@ -456,7 +461,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     Emergency Key
@@ -481,9 +486,7 @@ const EnhancedSecurityModal = ({
                 </Box>
                 <Text
                   fontSize={12}
-                  color={
-                    !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
-                  }
+                  color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
                   A key with delayed full control to recover from extended key loss
                 </Text>

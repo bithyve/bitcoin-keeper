@@ -26,6 +26,8 @@ import { setSignerPolicyError } from 'src/store/reducers/wallets';
 import WalletHeader from 'src/components/WalletHeader';
 import DelayModalIcon from 'src/assets/images/delay-configuration-icon.svg';
 import DelaycompleteIcon from 'src/assets/images/delay-configuration-complete-icon.svg';
+import PrivateDelayCompleteIcon from 'src/assets/privateImages/delay-configuration-complete-icon 1.svg';
+import PrivateDelayNodalIcon from 'src/assets/privateImages/delayModalIcon.svg';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import { fetchDelayedPolicyUpdate } from 'src/store/sagaActions/storage';
 import { NetworkType } from 'src/services/wallets/enums';
@@ -44,6 +46,7 @@ import {
   OFF,
 } from './constants';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
+import usePlan from 'src/hooks/usePlan';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -53,6 +56,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const { signingServer, common, vault: vaultTranslation } = translations;
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
+  const { isOnL4 } = usePlan();
 
   const { maxTransaction, timelimit, delayTime, addSignerFlow } = route.params;
 
@@ -291,6 +295,7 @@ function ChoosePolicyNew({ navigation, route }) {
               }}
               fullWidth
               primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
             />
           </Box>
         </Box>
@@ -301,7 +306,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const showDelayModal = useCallback(() => {
     return (
       <Box style={styles.delayModalContainer}>
-        <DelayModalIcon />
+        {isOnL4 ? <PrivateDelayNodalIcon /> : <DelayModalIcon />}
         <Box
           style={styles.timeContainer}
           backgroundColor={
@@ -327,7 +332,7 @@ function ChoosePolicyNew({ navigation, route }) {
     return (
       <Box style={styles.delayModalContainer}>
         <Box style={styles.iconContainer}>
-          <DelaycompleteIcon />
+          {isOnL4 ? <PrivateDelayCompleteIcon /> : <DelaycompleteIcon />}
         </Box>
 
         <Box style={styles.buttonContainer}>

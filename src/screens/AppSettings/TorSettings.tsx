@@ -3,7 +3,6 @@ import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, StyleSheet } from 'react-native';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { setTorEnabled } from 'src/store/reducers/settings';
 import { TorContext } from 'src/context/TorContext';
@@ -21,6 +20,7 @@ import TorImage from 'src/assets/images/torImage.svg';
 import TorModalMap from './TorModalMap';
 import Instruction from 'src/components/Instruction';
 import { hp, wp } from 'src/constants/responsive';
+import WalletHeader from 'src/components/WalletHeader';
 
 function TorSettings() {
   const { colorMode } = useColorMode();
@@ -123,7 +123,7 @@ function TorSettings() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.torSettingTitle} subtitle={settings.torHeaderSubTitle} />
+      <WalletHeader title={settings.torSettingTitle} subTitle={settings.torHeaderSubTitle} />
       <ScrollView contentContainerStyle={{ paddingTop: 30, alignItems: 'center' }}>
         <Box style={styles.torStatusContainer} backgroundColor={`${colorMode}.seashellWhite`}>
           {torStatus === TorStatus.CONNECTED || globalTorStatus === TorStatus.CONNECTED ? (

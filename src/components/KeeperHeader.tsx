@@ -8,6 +8,7 @@ import BackWhiteButton from 'src/assets/images/back_white.svg';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Fonts from 'src/constants/Fonts';
 
 type Props = {
   title?: string;
@@ -299,6 +300,7 @@ const getStyles = (
     },
     addWalletText: {
       fontSize: titleSize,
+      fontFamily: Fonts.LoraMedium,
     },
     addWalletDescription: {
       fontSize: subTitleSize,

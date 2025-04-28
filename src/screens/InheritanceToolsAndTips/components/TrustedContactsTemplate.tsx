@@ -12,14 +12,20 @@ import TrustedContactIcon from 'src/assets/images/trusted-contact-icon.svg';
 import GenerateTrustedContactsPDF from 'src/utils/GenerateTrustedContactsPDF';
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import usePlan from 'src/hooks/usePlan';
+import PrivateTrustedIcon from 'src/assets/privateImages/doc-trusted-contact.svg';
 
 function TrustedContactTemplates({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
+  const { isOnL4 } = usePlan();
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper
+      barStyle="dark-content"
+      backgroundcolor={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+    >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
@@ -33,7 +39,8 @@ function TrustedContactTemplates({}) {
         </Text>
 
         <Box style={styles.circleStyle}>
-          <TrustedContactIcon />
+          {isOnL4 ? <PrivateTrustedIcon /> : <TrustedContactIcon />}
+          {/* <TrustedContactIcon /> */}
         </Box>
         <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {' '}
@@ -51,6 +58,7 @@ function TrustedContactTemplates({}) {
               });
             }}
             name={inheritancePlanning.trustedContactsCtaTitle}
+            hexagonBackgroundColor={'transparent'}
           />
         </Box>
 

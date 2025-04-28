@@ -5,13 +5,13 @@ import { Box, Input, useColorMode } from 'native-base';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import AddContactLight from 'src/assets/images/add-contact-light.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { hp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import MenuOption from 'src/components/MenuOption';
+import WalletHeader from 'src/components/WalletHeader';
 
 const ImportContactFile = ({ route, navigation }) => {
   const { title, subTitle, onFileExtract, ctaText, signerType } = route.params;
@@ -38,7 +38,7 @@ const ImportContactFile = ({ route, navigation }) => {
         }}
       >
         <View style={styles.wrapper}>
-          <KeeperHeader title={title} subtitle={subTitle} />
+          <WalletHeader title={title} subTitle={subTitle} />
           <Box style={styles.contentContainer}>
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <Input

@@ -158,6 +158,7 @@ function SigningRequest() {
               }}
               fullWidth
               primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
             />
           </Box>
         </Box>
@@ -166,7 +167,7 @@ function SigningRequest() {
   }, [otp, requestToCancel, delayedTransactions]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader title="Signing Requests" />
       <ScrollView contentContainerStyle={styles.container}>
         <Box gap={hp(20)}>

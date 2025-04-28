@@ -156,11 +156,20 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         Vibration.vibrate([700, 50, 100, 50], true);
       }
     } catch (err) {
+      cleanUp();
       if (err.toString() === 'Error: Not even registered') {
         console.log('NFC interaction cancelled.');
         return;
       }
       console.log('Error ', err);
+    }
+  };
+
+  const cleanUp = () => {
+    setNfcVisible(false);
+    Vibration.cancel();
+    if (Platform.OS == 'android') {
+      NFC.stopTagSession(session);
     }
   };
 
@@ -190,6 +199,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           setShareKeyModal={setOpenOptionModal}
           data={details}
           shareWithNFC={shareWithNFC}
+          isSignedPSBT
+          isPSBTSharing
         />
       </Box>
     );

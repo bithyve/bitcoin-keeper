@@ -20,6 +20,8 @@ import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from './Buttons';
 import Fonts from 'src/constants/Fonts';
+import PrivateCrossIcon from 'src/assets/privateImages/white-cross-circle-icon.svg';
+import { useSelector } from 'react-redux';
 
 type ModalProps = {
   visible: boolean;
@@ -126,12 +128,22 @@ function KeeperModal(props: ModalProps) {
   const { common } = translations;
   const { colorMode } = useColorMode();
   const isDarKMode = colorMode === 'dark';
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const isOnL4 = themeMode === 'PRIVATE';
 
   if (!visible) {
     return null;
   }
   const getCloseIcon = () =>
-    DarkCloseIcon ? <CloseGreen /> : isDarKMode ? <CloseGreen /> : <Close />;
+    isOnL4 ? (
+      <PrivateCrossIcon />
+    ) : DarkCloseIcon ? (
+      <CloseGreen />
+    ) : isDarKMode ? (
+      <CloseGreen />
+    ) : (
+      <Close />
+    );
   const styles = getStyles(subTitleWidth);
   return (
     <Modal

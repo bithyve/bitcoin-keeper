@@ -4,13 +4,14 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
 import SeedwordsIllustration from 'src/assets/images/seedwords_illustration.svg';
+import BackupRecouveryPrivateIllustration from 'src/assets/privateImages/backup-recovery-key-illustration.svg';
 
-function BackupModalContent() {
+function BackupModalContent({ isOnL4 }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.contentContainer}>
       <Box style={styles.passImg}>
-        <SeedwordsIllustration />
+        {isOnL4 ? <BackupRecouveryPrivateIllustration /> : <SeedwordsIllustration />}
       </Box>
       <Text color={`${colorMode}.textGreen`} medium style={styles.modalHeading}>
         Beware

@@ -1,4 +1,4 @@
-import { InteractionManager, Linking } from 'react-native';
+import { InteractionManager, Linking, Platform } from 'react-native';
 import React, { useEffect } from 'react';
 import {
   RKInteractionMode,
@@ -47,6 +47,11 @@ import { notificationType } from 'src/models/enums/Notifications';
 import { SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
 import { setSubscription } from 'src/store/sagaActions/settings';
+import { setThemeMode } from 'src/store/reducers/settings';
+import ThemeMode from 'src/models/enums/ThemeMode';
+import { useColorMode } from 'native-base';
+import { getString, setItem } from 'src/storage';
+export const KEEPER_PRIVATE_LINK = 'KEEPER_PRIVATE_LINK';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -57,6 +62,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { isInitialLogin, hasDeepLink } = useAppSelector((state) => state.login);
   const appData: any = useQuery(RealmSchema.KeeperApp);
   const { allVaults } = useVault({ includeArchived: false });
+  const { colorMode, toggleColorMode } = useColorMode();
+  const isAndroid = Platform.OS === 'android';
 
   const getAppData = (): { isPleb: boolean; appId: string } => {
     const tempApp = appData.map(getJSONFromRealmObject)[0];
@@ -217,6 +224,9 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   };
 
   const handleKeeperPrivate = async (initialUrl: string) => {
+    const previousKeeperPrivateLink = getString(KEEPER_PRIVATE_LINK);
+    if (isAndroid && previousKeeperPrivateLink === initialUrl) return false; // check on android if same link gets triggered again on restart
+
     const [redeemCode, accountManagerId] = initialUrl.split('kp/')[1].split('/');
     try {
       const response = await Relay.redeemKeeperPrivate({
@@ -241,13 +251,20 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       dbManager.updateObjectById(RealmSchema.KeeperApp, getAppData().appId, {
         subscription,
       });
+      if (isAndroid) setItem(KEEPER_PRIVATE_LINK, initialUrl); // saving currently availed keeper private deep link on android to avoid processing on restart
       dispatch(setSubscription(subscription.name));
-      if (response.isExtended)
+      if (colorMode !== 'dark') {
+        toggleColorMode();
+      }
+      dispatch(setThemeMode(ThemeMode.PRIVATE));
+      if (response.isExtended) {
         showToast(
           `You have successfully extended your ${subscription.name} subscription.`,
           <TickIcon />
         );
-      else showToast(`You are successfully upgraded to ${subscription.name} tier.`, <TickIcon />);
+      } else {
+        showToast(`You are successfully upgraded to ${subscription.name} tier.`, <TickIcon />);
+      }
     } catch (error) {
       console.log('🚀 ~ handleKeeperPrivate ~ error:', error);
       showToast('Something went wrong, Please try again.', <ToastErrorIcon />);

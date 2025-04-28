@@ -81,10 +81,10 @@ function HorizontalSignerCard({
           <Checked />
         </Box>
         <Box style={styles.changeKeyContainer}>
-          <Text underline style={styles.changeKeyText} medium color={`${colorMode}.GreenishGrey`}>
+          <Text underline style={styles.changeKeyText} medium color={`${colorMode}.GreyText`}>
             {vaultTranslations.changeKey}
           </Text>
-          <ArrowRightIcon fill={`${colorMode}.GreenishGrey`} height={hp(20)} width={wp(5)} />
+          <ArrowRightIcon fill={`${colorMode}.GreyText`} height={hp(20)} width={wp(5)} />
         </Box>
       </Box>
     </Pressable>

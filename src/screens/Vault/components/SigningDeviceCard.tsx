@@ -21,6 +21,7 @@ type SigningDeviceCardProps = {
   last?: boolean;
   isOnL1: boolean;
   isOnL2: boolean;
+  isOnL4: boolean;
   addSignerFlow: boolean;
   vaultId: string;
   vaultSigners?: VaultSigner[];
@@ -37,6 +38,7 @@ const SigningDeviceCard = ({
   last = false,
   isOnL1,
   isOnL2,
+  isOnL4,
   addSignerFlow,
   vaultId,
   vaultSigners,
@@ -75,7 +77,7 @@ const SigningDeviceCard = ({
         testID={`btn_${type}`}
       >
         <Box
-          backgroundColor={`${colorMode}.signerBackground`}
+          backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.signerBackground`}
           borderTopRadius={first ? 10 : 0}
           borderBottomRadius={last ? 10 : 0}
           borderWidth={isDarkMode ? 1 : 0}
@@ -100,9 +102,11 @@ const SigningDeviceCard = ({
               },
             ]}
           >
-            <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
+            <Box style={styles.walletMapWrapper}>
+              {SDIcons({ type, light: colorMode === 'dark', isOnL4 }).Icon}
+            </Box>
             <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.divider} />
-            <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
+            <Box style={styles.walletMapLogoWrapper}>{SDIcons({ type }).Logo}</Box>
 
             <Box style={styles.arrowIconWrapper}>
               {isDarkMode ? <RightArrowWhite /> : <RightArrow />}

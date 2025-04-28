@@ -3,7 +3,6 @@ import React, { useCallback, useContext, useState } from 'react';
 import { Box, Input, ScrollView, View, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ImportIcon from 'src/assets/images/import.svg';
@@ -13,6 +12,7 @@ import RNFS from 'react-native-fs';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import Colors from 'src/theme/Colors';
 import QRScanner from 'src/components/QRScanner';
+import WalletHeader from 'src/components/WalletHeader';
 
 function WrappedImportIcon() {
   return (
@@ -52,9 +52,9 @@ function PassportConfigRecovery() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader
+        <WalletHeader
           title={'Recover Using Configuration'}
-          subtitle={importWallet.insertTextfromFile}
+          subTitle={importWallet.insertTextfromFile}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
