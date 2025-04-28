@@ -6,10 +6,8 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-
 import KeysIcon from 'src/assets/images/homeGreenKeyIcon.svg';
 import ConciergeIcon from 'src/assets/images/faq-green.svg';
-import SettingIcon from 'src/assets/images/settingsGreenIcon.svg';
 import { resetRealyWalletState, setHomeToastMessage } from 'src/store/reducers/bhr';
 import InititalAppController from './InititalAppController';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -29,7 +27,8 @@ import usePlan from 'src/hooks/usePlan';
 import PrivateWallet from 'src/assets/privateImages/wallet-icon.svg';
 import PrivateKeys from 'src/assets/privateImages/key-icon.svg';
 import Privateconcierge from 'src/assets/privateImages/concierge-icon.svg';
-import PrivateSettings from 'src/assets/images/settings-icon-white.svg';
+import MoreGreen from 'src/assets/images/more-green.svg';
+import PrivateMore from 'src/assets/privateImages/more-gold-icon.svg';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -122,7 +121,7 @@ function NewHomeScreen({ route }) {
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={isOnL4 ? <PrivateSettings /> : <SettingIcon />}
+              icon={isOnL4 ? <PrivateMore /> : <MoreGreen />}
               backgroundColor={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`}
             />
           ),

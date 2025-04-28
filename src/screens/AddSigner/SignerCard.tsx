@@ -5,7 +5,7 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 type SignerCardProps = {
   name: string;
@@ -84,7 +84,8 @@ function SignerCard({
   ];
 
   const isPressable = !disabled;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const isOnL4 = themeMode === 'PRIVATE';
 
   return (
     <Pressable
