@@ -10,6 +10,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
 import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 type Props = {
   data: string;
@@ -24,7 +25,8 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const isOnL4 = themeMode === 'PRIVATE';
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
