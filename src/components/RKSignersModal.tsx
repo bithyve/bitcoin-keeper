@@ -207,7 +207,12 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
     );
   }
 
-  const signTransaction = async ({ seedBasedSingerMnemonic, tapsignerCVC, portalCVC }) => {
+  const signTransaction = async ({
+    seedBasedSingerMnemonic,
+    tapsignerCVC,
+    portalCVC,
+    signedSerializedPSBT,
+  }) => {
     try {
       if (SignerType.SEED_WORDS === signerType) {
         const { signedSerializedPSBT } = await signTransactionWithSeedWords({
@@ -324,6 +329,17 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           serializedPSBTEnvelop,
           closeNfc,
         });
+      } else if (
+        [SignerType.JADE, SignerType.LEDGER, SignerType.TREZOR, SignerType.BITBOX02].includes(
+          signerType
+        )
+      ) {
+        if (signedSerializedPSBT) {
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
+        } else {
+          throw new Error('Cannot get signed PSBT');
+        }
       }
     } catch (error) {
       console.log('🚀 ~ signTransaction ~ error:', error);
