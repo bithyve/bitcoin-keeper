@@ -650,7 +650,7 @@ function ConfirmWalletDetails({ route }) {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title={'1Wallet Created Successfully'}
+        title={'Wallet Created Successfully'}
         subTitle="Your new wallet was created successfully and is ready to use"
         Content={
           vaultType === VaultType.SINGE_SIG
@@ -669,7 +669,7 @@ function ConfirmWalletDetails({ route }) {
       />
       <WalletVaultCreationModal
         visible={walletCreatedModal}
-        title="2Wallet Created Successfully!"
+        title="Wallet Created Successfully!"
         subTitle="Your new wallet was created successfully and is ready to use"
         buttonText="View Wallet"
         descriptionMessage="Make sure to securely store your Recovery Key as back up for your wallet"
