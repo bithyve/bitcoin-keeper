@@ -312,11 +312,6 @@ function ConfirmWalletDetails({ route }) {
           borderColor={`${colorMode}.separator`}
           borderWidth={1}
         >
-          <Box style={styles.singleSigpills}>
-            {tags?.map(({ tag, color }) => {
-              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
-            })}
-          </Box>
           <Box style={styles.walletVaultInfoWrapper}>
             <Box style={styles.iconWrapper}>
               <HexagonIcon
@@ -336,6 +331,12 @@ function ConfirmWalletDetails({ route }) {
                 {vault.presentationData.name}
               </Text>
             </Box>
+          </Box>
+
+          <Box style={styles.singleSigpills}>
+            {tags?.map(({ tag, color }) => {
+              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
+            })}
           </Box>
         </Box>
       </Box>
@@ -642,7 +643,7 @@ function ConfirmWalletDetails({ route }) {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title={'Wallet Created Successfully'}
+        title={'1Wallet Created Successfully'}
         subTitle="Your new wallet was created successfully and is ready to use"
         Content={
           vaultType === VaultType.SINGE_SIG
@@ -661,7 +662,7 @@ function ConfirmWalletDetails({ route }) {
       />
       <WalletVaultCreationModal
         visible={walletCreatedModal}
-        title="Wallet Created Successfully!"
+        title="2Wallet Created Successfully!"
         subTitle="Your new wallet was created successfully and is ready to use"
         buttonText="View Wallet"
         descriptionMessage="Make sure to securely store your Recovery Key as back up for your wallet"
@@ -800,13 +801,9 @@ const styles = StyleSheet.create({
   },
   singleSigpills: {
     flexDirection: 'row',
-    gap: 5,
-    justifyContent: 'flex-end',
-    marginBottom: hp(3),
+    rowGap: 6,
+    columnGap: 8,
     width: '100%',
-    position: 'absolute',
-    top: hp(20),
-    right: wp(13),
     flexWrap: 'wrap',
   },
   walletVaultInfoWrapper: {
