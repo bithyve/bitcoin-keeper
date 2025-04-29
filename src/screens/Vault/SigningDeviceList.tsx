@@ -209,7 +209,6 @@ const SigningDeviceList = () => {
                     type === SignerType.POLICY_SERVER &&
                     !addSignerFlow &&
                     (scheme.n < 3 || scheme.m < 2);
-                  console.log('isSingleSigner', isSingleSigner);
 
                   if (!connectivityStatus) {
                     message = getSDMessage({ type });
