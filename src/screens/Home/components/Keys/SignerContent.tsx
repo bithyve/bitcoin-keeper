@@ -95,7 +95,6 @@ const SignerContent = ({ navigation, handleModalClose, isOnL4 }) => {
           signerCategory: category.signerCategory,
           headerTitle: category.headerTitle,
           headerSubtitle: category.headerSubtitle,
-          scheme: { m: 2, n: 3 },
         },
       })
     );

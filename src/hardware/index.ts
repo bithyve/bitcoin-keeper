@@ -332,7 +332,7 @@ export const getDeviceStatus = (
   isNfcSupported: boolean,
   isOnL1: boolean,
   isOnL2: boolean,
-  scheme: VaultScheme,
+  scheme: VaultScheme | null,
   existingSigners: Signer[],
   addSignerFlow: boolean = false
 ) => {
@@ -363,7 +363,7 @@ export const getDeviceStatus = (
 const getPolicyServerStatus = (
   type: SignerType,
   isOnL1: boolean,
-  scheme: VaultScheme,
+  scheme: VaultScheme | null,
   addSignerFlow: boolean,
   existingSigners
 ) => {
@@ -378,7 +378,11 @@ const getPolicyServerStatus = (
     existingSigners.find((s: Signer) => s.type === SignerType.POLICY_SERVER && !s.isExternal)
   ) {
     return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
-  } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
+  } else if (
+    type === SignerType.POLICY_SERVER &&
+    !addSignerFlow &&
+    (scheme.n < 3 || scheme.m < 2)
+  ) {
     return {
       disabled: true,
       message: 'Please create a vault with a minimum of 3 signers and 2 required signers',

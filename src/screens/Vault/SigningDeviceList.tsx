@@ -46,7 +46,7 @@ const SigningDeviceList = () => {
     headerSubtitle,
     vaultType,
   }: {
-    scheme: VaultScheme;
+    scheme?: VaultScheme;
     addSignerFlow: boolean;
     vaultId: string;
     vaultSigners?: VaultSigner[];
@@ -66,7 +66,7 @@ const SigningDeviceList = () => {
   const { signer, common } = translations;
   const isMultisig = addSignerFlow
     ? true
-    : scheme.n !== 1 || scheme.miniscriptScheme || vaultType === VaultType.MINISCRIPT;
+    : scheme?.n !== 1 || scheme?.miniscriptScheme || vaultType === VaultType.MINISCRIPT;
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
