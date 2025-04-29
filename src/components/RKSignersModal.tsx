@@ -41,6 +41,7 @@ const OTHER_SIGNERS = [
   SignerType.TREZOR,
   SignerType.BITBOX02,
   SignerType.KEYSTONE,
+  SignerType.SEEDSIGNER,
 ];
 
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
