@@ -126,10 +126,12 @@ function SignerAdvanceSettings({ route }: any) {
   const {
     vaultKey,
     vaultId,
+    isMultisig,
     signer: signerFromParam,
   }: {
     signer: Signer;
     vaultKey: VaultSigner;
+    isMultisig: boolean;
     vaultId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
@@ -601,7 +603,6 @@ function SignerAdvanceSettings({ route }: any) {
   const isMyAppKey = signer.type === SignerType.MY_KEEPER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
   const signersWithoutRegistration = isAppKey || isMyAppKey || isTapsigner;
-  const isAssistedKey = isPolicyServer;
   const isMobileKey = signer.type === SignerType.MY_KEEPER;
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
@@ -681,7 +682,7 @@ function SignerAdvanceSettings({ route }: any) {
         callback={navigateToKeyHistory}
       />
     ),
-    !(isAssistedKey || signersWithoutRegistration || !vaultId) && (
+    !(isPolicyServer || signersWithoutRegistration || !vaultId || !isMultisig) && (
       <OptionCard
         key="manualRegistration"
         title="Manual Registration"
@@ -730,7 +731,7 @@ function SignerAdvanceSettings({ route }: any) {
         }}
       />
     ),
-    !(isAssistedKey || signersWithoutRegistration) && (
+    !(isPolicyServer || signersWithoutRegistration) && (
       <OptionCard
         key="changeDeviceType"
         title={isOtherSD ? 'Assign device type' : 'Change device type'}
