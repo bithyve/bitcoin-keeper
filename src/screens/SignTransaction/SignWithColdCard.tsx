@@ -239,7 +239,14 @@ function SignWithColdCard({ route }: { route }) {
         setExternalKeyNfc(true);
         NFC.startTagSession({ session, content: '', writable: true });
       }
-      await NFC.read([NfcTech.Ndef]);
+      const records = await NFC.read([NfcTech.Ndef]);
+      try {
+        const signedPsbt = records[0].data;
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp }));
+        navigation.goBack();
+      } catch (error) {
+        throw new Error();
+      }
     } catch (err) {
       cleanUp();
       if (err.toString() === 'Error') {

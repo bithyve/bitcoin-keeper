@@ -35,6 +35,8 @@ import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HCESessionContext } from 'react-native-hce';
 
+
+
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
@@ -201,12 +203,18 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           shareWithNFC={shareWithNFC}
           isSignedPSBT
           isPSBTSharing
+          fileName={`signedTransaction.psbt`}
         />
       </Box>
     );
   }
 
-  const signTransaction = async ({ seedBasedSingerMnemonic, tapsignerCVC, portalCVC }) => {
+  const signTransaction = async ({
+    seedBasedSingerMnemonic,
+    tapsignerCVC,
+    portalCVC,
+    signedSerializedPSBT,
+  }) => {
     try {
       if (SignerType.SEED_WORDS === signerType) {
         const { signedSerializedPSBT } = await signTransactionWithSeedWords({
@@ -227,7 +235,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
               },
             ])
           );
-          navigateToShowPSBT(signedSerializedPSBT);
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
         }
       } else if (SignerType.MY_KEEPER === signerType) {
         let signedSerializedPSBT: string;
@@ -314,6 +323,10 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
             },
           ])
         );
+        if (signedSerializedPSBT) {
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
+        } else throw new Error('Portal signing failed');
         return signedSerializedPSBT;
       } else if (SignerType.COLDCARD === signerType) {
         await signTransactionWithColdCard({
@@ -322,6 +335,13 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           serializedPSBTEnvelop,
           closeNfc,
         });
+      } else {
+        if (signedSerializedPSBT) {
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
+        } else {
+          throw new Error('Cannot get signed PSBT');
+        }
       }
     } catch (error) {
       console.log('🚀 ~ signTransaction ~ error:', error);
