@@ -35,6 +35,13 @@ import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HCESessionContext } from 'react-native-hce';
 
+const CHANNEL_BASED_SIGNERS = [
+  SignerType.JADE,
+  SignerType.LEDGER,
+  SignerType.TREZOR,
+  SignerType.BITBOX02,
+];
+
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
@@ -321,6 +328,10 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
             },
           ])
         );
+        if (signedSerializedPSBT) {
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
+        } else throw new Error('Portal signing failed');
         return signedSerializedPSBT;
       } else if (SignerType.COLDCARD === signerType) {
         await signTransactionWithColdCard({
@@ -329,11 +340,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           serializedPSBTEnvelop,
           closeNfc,
         });
-      } else if (
-        [SignerType.JADE, SignerType.LEDGER, SignerType.TREZOR, SignerType.BITBOX02].includes(
-          signerType
-        )
-      ) {
+      } else if (CHANNEL_BASED_SIGNERS.includes(signerType)) {
         if (signedSerializedPSBT) {
           setDetails(signedSerializedPSBT);
           setOpenOptionModal(true);
