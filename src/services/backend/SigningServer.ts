@@ -68,7 +68,7 @@ export default class SigningServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const valid = res.data.isValid;
+    const { valid } = res.data;
     if (!valid) throw new Error('Signer validation failed');
 
     return {
