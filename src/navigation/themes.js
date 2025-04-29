@@ -166,6 +166,7 @@ export const customTheme = extendTheme({
       tagColor9: Colors.TagLight9,
       tagColor10: Colors.TagLight10,
       warmbeige: Colors.warmbeige,
+      hyperlink: Colors.darkBlue,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -284,6 +285,7 @@ export const customTheme = extendTheme({
       tagColor9: Colors.TagDark9,
       tagColor10: Colors.TagDark10,
       warmbeige: Colors.warmbeige,
+      hyperlink: Colors.softBlue,
     },
   },
   config: {

@@ -319,11 +319,6 @@ function ConfirmWalletDetails({ route }) {
           borderColor={`${colorMode}.separator`}
           borderWidth={1}
         >
-          <Box style={styles.singleSigpills}>
-            {tags?.map(({ tag, color }) => {
-              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
-            })}
-          </Box>
           <Box style={styles.walletVaultInfoWrapper}>
             <Box style={styles.iconWrapper}>
               <HexagonIcon
@@ -343,6 +338,12 @@ function ConfirmWalletDetails({ route }) {
                 {vault.presentationData.name}
               </Text>
             </Box>
+          </Box>
+
+          <Box style={styles.singleSigpills}>
+            {tags?.map(({ tag, color }) => {
+              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
+            })}
           </Box>
         </Box>
       </Box>
@@ -807,13 +808,9 @@ const styles = StyleSheet.create({
   },
   singleSigpills: {
     flexDirection: 'row',
-    gap: 5,
-    justifyContent: 'flex-end',
-    marginBottom: hp(3),
+    rowGap: 6,
+    columnGap: 8,
     width: '100%',
-    position: 'absolute',
-    top: hp(20),
-    right: wp(13),
     flexWrap: 'wrap',
   },
   walletVaultInfoWrapper: {

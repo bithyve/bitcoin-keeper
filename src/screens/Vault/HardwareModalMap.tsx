@@ -503,7 +503,14 @@ const getSignerContent = (
           }
         >
           Setting Up a SeedSigner -
-          https://bitcoinmagazine.com/guides/how-to-use-seedsigner-for-secure-bitcoin
+          <Text
+            style={{
+              textDecorationLine: 'underline',
+            }}
+            color={`${colorMode}.hyperlink`}
+          >
+            https://bitcoinmagazine.com/guides/how-to-use-seedsigner-for-secure-bitcoin
+          </Text>
         </Text>
       );
 

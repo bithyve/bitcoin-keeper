@@ -10,7 +10,11 @@ const ImagePreview = ({ imageUri, onRemoveImage, index }) => {
   const isDarkMode = colorMode === 'dark';
   return (
     <Box style={styles.container}>
-      <Image source={{ uri: imageUri }} style={styles.image} />
+      <Image
+        source={{ uri: imageUri }}
+        style={styles.image}
+        alt={`conciergeImage-${index}-${imageUri}`}
+      />
       <Pressable onPress={() => onRemoveImage(index)} style={styles.deleteButton}>
         <Box style={styles.deleteButton} backgroundColor={`${colorMode}.primaryGreenBackground`}>
           {isDarkMode ? <BinDark /> : <BinLight />}
