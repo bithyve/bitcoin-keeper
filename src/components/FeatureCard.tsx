@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
 
   cardName: {
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 16,
   },
 });

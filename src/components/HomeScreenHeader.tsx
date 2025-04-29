@@ -39,7 +39,6 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   circleIconWrapper,
   title,
 }) => {
-  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { uaiStack } = useUaiStack();
@@ -183,7 +182,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
               color={`${colorMode}.headerWhite`}
               medium
             >
-              {capitalizeEachWord(title === wallet.more ? common.keeperSettings : title)}
+              {capitalizeEachWord(title === wallet.more ? common.moreOptions : title)}
             </Text>
           </Box>
 

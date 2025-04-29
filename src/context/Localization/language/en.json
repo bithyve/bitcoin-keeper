@@ -169,7 +169,8 @@
     "the": "The",
     "contact": "Contact",
     "URL": "URL",
-    "portNumber": "Port Number"
+    "portNumber": "Port Number",
+    "moreOptions": "More Options"
   },
   "noInternet": {
     "no": "No Internet",
