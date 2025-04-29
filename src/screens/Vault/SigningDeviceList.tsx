@@ -201,6 +201,15 @@ const SigningDeviceList = () => {
                     addSignerFlow
                   );
                   let message = connectivityStatus;
+
+                  const isSigningServerExist = signers.find(
+                    (s) => s.type === SignerType.POLICY_SERVER && !s.isExternal
+                  );
+                  const isSingleSigner =
+                    type === SignerType.POLICY_SERVER &&
+                    !addSignerFlow &&
+                    (scheme.n < 3 || scheme.m < 2);
+
                   if (!connectivityStatus) {
                     message = getSDMessage({ type });
                   }
@@ -221,6 +230,8 @@ const SigningDeviceList = () => {
                       disabled={disabled}
                       message={message}
                       accountNumber={accountNumber}
+                      isSigningServerExist={isSigningServerExist}
+                      isSingleSigner={isSingleSigner}
                     />
                   );
                 })}
