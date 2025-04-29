@@ -12,6 +12,7 @@ import { SDIcons } from '../SigningDeviceIcons';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import RightArrow from 'src/assets/images/icon_arrow.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 type SigningDeviceCardProps = {
   type: SignerType;
@@ -28,6 +29,8 @@ type SigningDeviceCardProps = {
   isMultisig: boolean;
   primaryMnemonic: string;
   accountNumber: number;
+  isSigningServerExist: any;
+  isSingleSigner: boolean;
 };
 
 const SigningDeviceCard = ({
@@ -45,19 +48,27 @@ const SigningDeviceCard = ({
   isMultisig,
   primaryMnemonic,
   accountNumber,
+  isSigningServerExist,
+  isSingleSigner,
 }: SigningDeviceCardProps) => {
   const [visible, setVisible] = useState(false);
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const isOnL1L2 = isOnL1 || isOnL2;
   const isDarkMode = colorMode === 'dark';
+  const { showToast } = useToastMessage();
 
   const onPress = () => {
     if (shouldUpgrade) {
       navigateToUpgrade();
       return;
     }
-    open();
+    if (isSigningServerExist) {
+      showToast('Server Key has been already added');
+    } else if (isSingleSigner) {
+      showToast('Please create a vault with a minimum of 3 signers and 2 required signers');
+    } else {
+      open();
+    }
   };
 
   const open = () => setVisible(true);
