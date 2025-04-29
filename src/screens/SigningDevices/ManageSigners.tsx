@@ -399,27 +399,6 @@ function SignersList({
     return shellKeys.filter((shellSigner) => !addedSignersTypes.includes(shellSigner.type));
   }, [signers]);
 
-  const renderAssistedKeysShell = () => {
-    return shellAssistedKeys.map((shellSigner) => {
-      return (
-        <SignerCard
-          key={getKeyUID(shellSigner)}
-          onCardSelect={() => {
-            showToast('Please add the key to a Vault in order to use it');
-          }}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, false)}
-          description="Setup required"
-          icon={SDIcons({ type: shellSigner.type }).Icon}
-          showSelection={false}
-          showDot={true}
-          colorVarient="green"
-          colorMode={colorMode}
-          customStyle={styles.signerCard}
-        />
-      );
-    });
-  };
-
   return (
     <SafeAreaView style={styles.topContainer}>
       <ScrollView
@@ -489,7 +468,6 @@ function SignersList({
               />
             );
           })}
-          {isNonVaultManageSignerFlow && renderAssistedKeysShell()}
           {isNonVaultManageSignerFlow && list.length == 0 && shellAssistedKeys.length == 0 && (
             <EmptyListIllustration listType="keys" />
           )}

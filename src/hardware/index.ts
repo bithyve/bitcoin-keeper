@@ -367,14 +367,7 @@ const getPolicyServerStatus = (
   addSignerFlow: boolean,
   existingSigners
 ) => {
-  if (addSignerFlow) {
-    return {
-      message: isOnL1
-        ? 'Upgrade to Hodler/Diamond Hands to use the key'
-        : 'The key is already added to your Manage Keys section',
-      disabled: true,
-    };
-  } else if (isOnL1) {
+  if (isOnL1) {
     return {
       disabled: true,
       message: `Please upgrade to atleast ${SubscriptionTier.L2} to add an ${getSignerNameFromType(
