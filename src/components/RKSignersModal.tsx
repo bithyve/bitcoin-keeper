@@ -35,11 +35,12 @@ import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HCESessionContext } from 'react-native-hce';
 
-const CHANNEL_BASED_SIGNERS = [
+const OTHER_SIGNERS = [
   SignerType.JADE,
   SignerType.LEDGER,
   SignerType.TREZOR,
   SignerType.BITBOX02,
+  SignerType.KEYSTONE,
 ];
 
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
@@ -340,7 +341,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           serializedPSBTEnvelop,
           closeNfc,
         });
-      } else if (CHANNEL_BASED_SIGNERS.includes(signerType)) {
+      } else if (OTHER_SIGNERS.includes(signerType)) {
         if (signedSerializedPSBT) {
           setDetails(signedSerializedPSBT);
           setOpenOptionModal(true);

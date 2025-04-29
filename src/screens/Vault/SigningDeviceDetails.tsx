@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -662,18 +662,15 @@ function SigningDeviceDetails({ route }) {
       }
 
       navigation.dispatch(
-        CommonActions.navigate({
-          name: 'PSBTSendConfirmation',
-          params: {
-            sender: senderAddresses,
-            recipient: receiverAddresses,
-            fees,
-            signer,
-            psbt: serializedPSBT,
-            feeRate,
-            isMiniscript,
-            activeVault,
-          },
+        StackActions.replace('PSBTSendConfirmation', {
+          sender: senderAddresses,
+          recipient: receiverAddresses,
+          fees,
+          signer,
+          psbt: serializedPSBT,
+          feeRate,
+          isMiniscript,
+          activeVault,
         })
       );
     } catch (error) {
