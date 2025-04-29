@@ -35,14 +35,7 @@ import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HCESessionContext } from 'react-native-hce';
 
-const OTHER_SIGNERS = [
-  SignerType.JADE,
-  SignerType.LEDGER,
-  SignerType.TREZOR,
-  SignerType.BITBOX02,
-  SignerType.KEYSTONE,
-  SignerType.SEEDSIGNER,
-];
+
 
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
@@ -342,7 +335,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           serializedPSBTEnvelop,
           closeNfc,
         });
-      } else if (OTHER_SIGNERS.includes(signerType)) {
+      } else {
         if (signedSerializedPSBT) {
           setDetails(signedSerializedPSBT);
           setOpenOptionModal(true);
