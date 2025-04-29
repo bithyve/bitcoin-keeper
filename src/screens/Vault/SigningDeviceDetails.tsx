@@ -694,7 +694,13 @@ function SigningDeviceDetails({ route }) {
 
   const navigateToSettings = () => {
     navigation.dispatch(
-      CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId, signerId })
+      CommonActions.navigate('SignerAdvanceSettings', {
+        signer,
+        vaultKey,
+        vaultId,
+        isMultisig: activeVault?.isMultiSig,
+        signerId,
+      })
     );
   };
 
