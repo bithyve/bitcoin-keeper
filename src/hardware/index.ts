@@ -344,7 +344,7 @@ export const getDeviceStatus = (
       };
     case SignerType.MOBILE_KEY:
       if (existingSigners.find((s) => s.type === SignerType.MOBILE_KEY)) {
-        return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
+        return { message: `${getSignerNameFromType(type)} was already added`, disabled: true };
       } else {
         return { message: '', disabled: false };
       }
@@ -377,7 +377,7 @@ const getPolicyServerStatus = (
   } else if (
     existingSigners.find((s: Signer) => s.type === SignerType.POLICY_SERVER && !s.isExternal)
   ) {
-    return { message: `${getSignerNameFromType(type)} has been already added`, disabled: false };
+    return { message: `${getSignerNameFromType(type)} was already added`, disabled: false };
   } else if (
     type === SignerType.POLICY_SERVER &&
     !addSignerFlow &&

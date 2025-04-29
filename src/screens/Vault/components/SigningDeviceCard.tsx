@@ -63,7 +63,7 @@ const SigningDeviceCard = ({
       return;
     }
     if (isSigningServerExist) {
-      showToast('Server Key has been already added');
+      showToast('Server Key already exists');
     } else if (isSingleSigner) {
       showToast('Please create a vault with a minimum of 3 signers and 2 required signers');
     } else {
