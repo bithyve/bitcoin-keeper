@@ -1364,7 +1364,7 @@
     "hodlerDescription": "Secure a bigger stack",
     "DiamondHandsDesciption": "Holistic long-term stacking",
     "manageKeysModalSubtitle": "In this section you can view and manage all the keys used in your wallet.",
-    "manageKeysModalDesc": "You can ensure their accessibility via Health Checks, fund Canary Wallets, view fingerprints and even change signer type, all from this central location for keys.",
+    "manageKeysModalDesc": "You can ensure their accessibility via Health Checks, fund Canary Wallets, view fingerprints and even change device type, all from this central location for keys.",
     "manageTapsigner": "Manage TAPSIGNER",
     "saveBackup": "Save Backup",
     "changePIN": "Change PIN",
