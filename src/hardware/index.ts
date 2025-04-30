@@ -341,12 +341,17 @@ export const getDeviceStatus = (
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
+        displayToast: false,
       };
     case SignerType.MOBILE_KEY:
       if (existingSigners.find((s) => s.type === SignerType.MOBILE_KEY)) {
-        return { message: `${getSignerNameFromType(type)} was already added`, disabled: true };
+        return {
+          message: `${getSignerNameFromType(type)} was already added`,
+          disabled: true,
+          displayToast: false,
+        };
       } else {
-        return { message: '', disabled: false };
+        return { message: '', disabled: false, displayToast: false };
       }
     case SignerType.POLICY_SERVER:
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
@@ -354,9 +359,10 @@ export const getDeviceStatus = (
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
+        displayToast: false,
       };
     default:
-      return { message: '', disabled: false };
+      return { message: '', disabled: false, displayToast: false };
   }
 };
 
@@ -373,22 +379,28 @@ const getPolicyServerStatus = (
       message: `Please upgrade to atleast ${SubscriptionTier.L2} to add an ${getSignerNameFromType(
         type
       )}`,
+      displayToast: false,
     };
   } else if (
     existingSigners.find((s: Signer) => s.type === SignerType.POLICY_SERVER && !s.isExternal)
   ) {
-    return { message: `${getSignerNameFromType(type)} was already added`, disabled: false };
+    return {
+      message: `${getSignerNameFromType(type)} was already added`,
+      disabled: true,
+      displayToast: true,
+    };
   } else if (
     type === SignerType.POLICY_SERVER &&
     !addSignerFlow &&
     (scheme.n < 3 || scheme.m < 2)
   ) {
     return {
-      disabled: false,
+      disabled: true,
       message: 'Please create a vault with a minimum of 3 signers and 2 required signers',
+      displayToast: true,
     };
   } else {
-    return { disabled: false, message: '' };
+    return { disabled: false, message: '', displayToast: false };
   }
 };
 

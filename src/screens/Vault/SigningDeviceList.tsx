@@ -193,7 +193,11 @@ const SigningDeviceList = () => {
             <>
               <Box paddingY="4" backgroundColor={`${colorMode}.primaryBackground`}>
                 {sortedSigners[signerCategory]?.map((type: SignerType, index: number) => {
-                  const { disabled, message: connectivityStatus } = getDeviceStatus(
+                  const {
+                    disabled,
+                    message: connectivityStatus,
+                    displayToast,
+                  } = getDeviceStatus(
                     type,
                     isNfcSupported,
                     isOnL1,
@@ -203,14 +207,6 @@ const SigningDeviceList = () => {
                     addSignerFlow
                   );
                   let message = connectivityStatus;
-
-                  const isSigningServerExist = signers.find(
-                    (s) => s.type === SignerType.POLICY_SERVER && !s.isExternal
-                  );
-                  const isSingleSigner =
-                    type === SignerType.POLICY_SERVER &&
-                    !addSignerFlow &&
-                    (scheme.n < 3 || scheme.m < 2);
 
                   if (!connectivityStatus) {
                     message = getSDMessage({ type });
@@ -232,8 +228,7 @@ const SigningDeviceList = () => {
                       disabled={disabled}
                       message={message}
                       accountNumber={accountNumber}
-                      isSigningServerExist={isSigningServerExist}
-                      isSingleSigner={isSingleSigner}
+                      displayToast={displayToast}
                     />
                   );
                 })}
