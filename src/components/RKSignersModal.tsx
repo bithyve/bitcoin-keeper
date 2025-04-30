@@ -30,12 +30,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useAppSelector } from 'src/store/hooks';
 import ShareKeyModalContent from 'src/screens/Vault/components/ShareKeyModalContent';
-import { Platform, Vibration } from 'react-native';
-import NFC from 'src/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
-import { HCESessionContext } from 'react-native-hce';
-
-
 
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
@@ -68,8 +62,6 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
-  const [nfcVisibles, setNfcVisible] = React.useState(false);
-  const { session } = useContext(HCESessionContext);
 
   const textRef = useRef(null);
   const { signerMap } = useSignerMap();
@@ -142,38 +134,6 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         break;
     }
   };
-  const isIos = Platform.OS === 'ios';
-  const shareWithNFC = async () => {
-    try {
-      if (isIos) {
-        if (!isIos) {
-          setNfcVisible(true);
-        }
-        Vibration.vibrate([700, 50, 100, 50], true);
-        const enc = NFC.encodeTextRecord(details);
-        await NFC.send([NfcTech.Ndef], enc);
-      } else {
-        setNfcVisible(true);
-        await NFC.startTagSession({ session, content: details });
-        Vibration.vibrate([700, 50, 100, 50], true);
-      }
-    } catch (err) {
-      cleanUp();
-      if (err.toString() === 'Error: Not even registered') {
-        console.log('NFC interaction cancelled.');
-        return;
-      }
-      console.log('Error ', err);
-    }
-  };
-
-  const cleanUp = () => {
-    setNfcVisible(false);
-    Vibration.cancel();
-    if (Platform.OS == 'android') {
-      NFC.stopTagSession(session);
-    }
-  };
 
   const navigateToShowPSBT = (signedSerializedPSBT: string) => {
     navigation.dispatch(
@@ -200,7 +160,6 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           navigateToShowPSBT={navigateToShowPSBT}
           setShareKeyModal={setOpenOptionModal}
           data={details}
-          shareWithNFC={shareWithNFC}
           isSignedPSBT
           isPSBTSharing
           fileName={`signedTransaction.psbt`}
@@ -377,7 +336,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   };
   return (
     <>
-      <NfcPrompt visible={nfcVisibles || nfcVisible || TSNfcVisible} close={closeNfc} />
+      <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       {/* For MK  */}
       <KeeperModal
         visible={confirmPassVisible}

@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Input, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -56,7 +56,6 @@ import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import Instruction from 'src/components/Instruction';
 import { useAppSelector } from 'src/store/hooks';
-import { HCESessionContext } from 'react-native-hce';
 import ShareKeyModalContent from '../Vault/components/ShareKeyModalContent';
 
 function SetupTapsigner({ route }) {
@@ -99,9 +98,6 @@ function SetupTapsigner({ route }) {
   const [infoModal, setInfoModal] = useState(false);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const [signedPSBT, setSignedPSBT] = useState(null);
-  const isIos = Platform.OS === 'ios';
-  const [nfcModal, setNfcModal] = useState(false);
-  const { session } = useContext(HCESessionContext);
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -441,7 +437,6 @@ function SetupTapsigner({ route }) {
           navigateToShowPSBT={navigateToShowPSBT}
           setShareKeyModal={setOpenOptionModal}
           data={signedPSBT}
-          shareWithNFC={shareWithNFC}
           isSignedPSBT
           isPSBTSharing
           fileName={`signedTransaction.psbt`}
@@ -464,38 +459,6 @@ function SetupTapsigner({ route }) {
         },
       })
     );
-  };
-
-  const shareWithNFC = async () => {
-    try {
-      if (isIos) {
-        if (!isIos) {
-          setNfcModal(true);
-        }
-        Vibration.vibrate([700, 50, 100, 50], true);
-        const enc = NFC.encodeTextRecord(signedPSBT);
-        await NFC.send([NfcTech.Ndef], enc);
-      } else {
-        setNfcModal(true);
-        await NFC.startTagSession({ session, content: signedPSBT });
-        Vibration.vibrate([700, 50, 100, 50], true);
-      }
-    } catch (err) {
-      cleanUp();
-      if (err.toString() === 'Error: Not even registered') {
-        console.log('NFC interaction cancelled.');
-        return;
-      }
-      console.log('Error ', err);
-    }
-  };
-
-  const cleanUp = () => {
-    setNfcModal(false);
-    Vibration.cancel();
-    if (Platform.OS == 'android') {
-      NFC.stopTagSession(session);
-    }
   };
 
   return (
@@ -598,7 +561,7 @@ function SetupTapsigner({ route }) {
           primaryLoading={inProgress}
         />
       </Box>
-      <NfcPrompt visible={nfcVisible || nfcModal} close={closeNfc} />
+      <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <KeeperModal
         visible={statusModalVisible}
         close={() => setStatusModalVisible(false)}
