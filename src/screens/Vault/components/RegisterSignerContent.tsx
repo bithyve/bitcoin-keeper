@@ -1,11 +1,11 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
 import AirDropIcon from 'src/assets/images/airdrop-circle-icon.svg';
 import NFCIcon from 'src/assets/images/nfc-circle-icon.svg';
 import QR_Icon from 'src/assets/images/qr-scan-icon.svg';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, Vibration } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { captureError } from 'src/services/sentry';
@@ -14,6 +14,13 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import USBIcon from 'src/assets/images/usb_white.svg';
 import { sanitizeFileName } from 'src/utils/utilities';
+import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { getWalletConfig } from 'src/hardware';
+import { SignerType } from 'src/services/wallets/enums';
+import { HCESessionContext } from 'react-native-hce';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
+import NFC from 'src/services/nfc';
+import { NfcTech } from 'react-native-nfc-manager';
 
 function RegisterSignerContent({
   vaultId,
@@ -25,18 +32,30 @@ function RegisterSignerContent({
   activeVault,
   navigateRegisterWithQR,
   navigateRegisterWithChannel,
-  shareWithNFC,
-  walletConfig,
 }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const isIos = Platform.OS === 'ios';
+  const [visible, setVisible] = useState(false);
+  const { session } = useContext(HCESessionContext);
+  const isAndroid = Platform.OS === 'android';
 
   const fileName = `${sanitizeFileName(activeVault.presentationData.name)}.txt`;
 
-  const shareWithAirdrop = async () => {
-    console.log('Airdrop function triggered');
+  const walletConfig =
+    signer.type === SignerType.SPECTER
+      ? `addwallet ${activeVault.presentationData.name}&${generateOutputDescriptors(
+          activeVault,
+          false,
+          false
+        )
+          .replace('/**', '/{0,1}/*')
+          .replace(/<(\d+);(\d+)>/g, '{$1,$2}')}`
+      : activeVault.scheme.miniscriptScheme
+      ? generateOutputDescriptors(activeVault)
+      : getWalletConfig({ vault: activeVault, signerType: signer.type });
 
+  const shareWithAirdrop = async () => {
     const shareFileName =
       fileName ||
       (isPSBTSharing
@@ -44,7 +63,6 @@ function RegisterSignerContent({
         : `cosigner-${signer?.masterFingerprint}.txt`);
 
     try {
-      console.log('Attempting to export file:', shareFileName);
       await exportFile(
         walletConfig,
         shareFileName,
@@ -55,7 +73,6 @@ function RegisterSignerContent({
         'utf8',
         false
       );
-      console.log('File export successful');
     } catch (err) {
       console.error('Airdrop function error:', err);
       captureError(err);
@@ -88,7 +105,6 @@ function RegisterSignerContent({
       icon: <NFCIcon />,
       onPress: () => {
         shareWithNFC();
-        setRegisterSignerModal(false);
       },
     },
     ...(isUSBAvailable
@@ -105,6 +121,39 @@ function RegisterSignerContent({
         ]
       : []),
   ];
+
+  const cleanUp = () => {
+    setVisible(false);
+    Vibration.cancel();
+    if (isAndroid) {
+      NFC.stopTagSession(session);
+    }
+  };
+
+  const shareWithNFC = async () => {
+    try {
+      if (isIos) {
+        if (!isIos) {
+          setVisible(true);
+        }
+        Vibration.vibrate([700, 50, 100, 50], true);
+        const enc = NFC.encodeTextRecord(walletConfig);
+        await NFC.send([NfcTech.Ndef], enc);
+        cleanUp();
+      } else {
+        setVisible(true);
+        await NFC.startTagSession({ session, content: walletConfig });
+        Vibration.vibrate([700, 50, 100, 50], true);
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error: Not even registered') {
+        console.log('NFC interaction cancelled.');
+        return;
+      }
+      captureError(err);
+    }
+  };
 
   return (
     <Box>
@@ -125,6 +174,7 @@ function RegisterSignerContent({
           </Box>
         </TouchableOpacity>
       ))}
+      <NfcPrompt visible={visible} close={cleanUp} />
     </Box>
   );
 }
