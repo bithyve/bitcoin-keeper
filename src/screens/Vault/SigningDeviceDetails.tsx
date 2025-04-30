@@ -493,37 +493,10 @@ function SigningDeviceDetails({ route }) {
           navigateToCosignerDetails={navigateToCosignerDetails}
           setShareKeyModal={setShareKeyModal}
           data={details}
-          shareWithNFC={shareWithNFC}
         />
       </Box>
     );
   }
-
-  const shareWithNFC = async () => {
-    try {
-      if (isIos) {
-        if (!isIos) {
-          setNfcVisible(true);
-        }
-        Vibration.vibrate([700, 50, 100, 50], true);
-        const enc = NFC.encodeTextRecord(details);
-        await NFC.send([NfcTech.Ndef], enc);
-        cleanUp();
-      } else {
-        setNfcVisible(true);
-        await NFC.startTagSession({ session, content: details });
-        Vibration.vibrate([700, 50, 100, 50], true);
-      }
-    } catch (err) {
-      cleanUp();
-      if (err.toString() === 'Error: Not even registered') {
-        console.log('NFC interaction cancelled.');
-        return;
-      }
-      console.log('Error ', err);
-    }
-  };
-
   function StModalContent() {
     return (
       <Box>
