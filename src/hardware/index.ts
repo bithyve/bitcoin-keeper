@@ -376,7 +376,7 @@ const getPolicyServerStatus = (
   if (isOnL1) {
     return {
       disabled: true,
-      message: `Please upgrade to atleast ${SubscriptionTier.L2} to add an ${getSignerNameFromType(
+      message: `Please upgrade to at least ${SubscriptionTier.L2} to add an ${getSignerNameFromType(
         type
       )}`,
       displayToast: false,
