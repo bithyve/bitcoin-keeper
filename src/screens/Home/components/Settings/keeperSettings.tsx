@@ -27,6 +27,7 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { useAppSelector } from 'src/store/hooks';
 import KeeperModal from 'src/components/KeeperModal';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { useSelector } from 'react-redux';
 
 const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -56,10 +57,12 @@ const KeeperSettings = ({ route }) => {
     };
   }, []); // Empty dependency array means this runs once on mount
 
-  const { plan, isOnL4 } = usePlan();
+  const { plan } = usePlan();
   const currentPlan = planData.find((p) => p.plan === plan);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
   const onSuccess = () => navigation.dispatch(CommonActions.navigate('DeleteKeys'));
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -75,7 +78,7 @@ const KeeperSettings = ({ route }) => {
       />
       <InheritanceDocument
         title={signer.inheritanceDocuments}
-        borderColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.SeaweedGreen`}
+        borderColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.SeaweedGreen`}
         description={signer.bitcoinSecurity}
         subtitleColor={`${colorMode}.balanceText`}
         backgroundColor={`${colorMode}.textInputBackground`}
@@ -162,7 +165,6 @@ const KeeperSettings = ({ route }) => {
         isUaiFlow={isUaiFlow}
         confirmPass={confirmPass}
         setConfirmPass={setConfirmPass}
-        isOnL4={isOnL4}
       />
       {DeleteBackupModal}
       <ActivityIndicatorView visible={backupAllLoading} showLoader />

@@ -9,7 +9,7 @@ import {
   VaultType,
   WalletType,
 } from 'src/services/wallets/enums';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import PrivacyIcon from 'src/assets/images/privacy.svg';
@@ -59,7 +59,6 @@ import useSigners from 'src/hooks/useSigners';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { CTACardDotted } from 'src/components/CTACardDotted';
-import usePlan from 'src/hooks/usePlan';
 import Colors from 'src/theme/Colors';
 
 // eslint-disable-next-line react/prop-types
@@ -110,7 +109,8 @@ function ConfirmWalletDetails({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const vaultType = route.params.vaultType;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const isSmallDevice = useIsSmallDevices();
 
   const { signers } = useSigners();
@@ -177,7 +177,7 @@ function ConfirmWalletDetails({ route }) {
     );
   }
 
-  function TapRootContent({ isOnL4 }) {
+  function TapRootContent({ privateTheme }) {
     const { colorMode } = useColorMode();
     const { translations } = useContext(LocalizationContext);
     const { wallet } = translations;
@@ -185,7 +185,7 @@ function ConfirmWalletDetails({ route }) {
       <Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {isOnL4 ? <PrivatePrivacyIcon /> : <PrivacyIcon />}
+            {privateTheme ? <PrivatePrivacyIcon /> : <PrivacyIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -198,7 +198,7 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {isOnL4 ? <PrivateEfficiencyIcon /> : <EfficiencyIcon />}
+            {privateTheme ? <PrivateEfficiencyIcon /> : <EfficiencyIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -211,7 +211,7 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {isOnL4 ? <PrivateSaclingIcon /> : <SaclingIcon />}
+            {privateTheme ? <PrivateSaclingIcon /> : <SaclingIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -224,7 +224,7 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {isOnL4 ? <PrivateSecurityIcon /> : <SecurityIcon />}
+            {privateTheme ? <PrivateSecurityIcon /> : <SecurityIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -258,7 +258,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
+                backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
                 icon={<VaultIcon />}
               />
             </Box>
@@ -324,7 +324,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
+                backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
                 icon={<VaultIcon />}
               />
             </Box>
@@ -442,7 +442,7 @@ function ConfirmWalletDetails({ route }) {
           >
             <Box style={styles.descriptionContainer}>
               <Text color={`${colorMode}.greenText`}>Add Description</Text>
-              {isOnL4 ? <AddCircleDark /> : <AddCircleLight />}
+              {privateTheme ? <AddCircleDark /> : <AddCircleLight />}
             </Box>
           </Pressable>
         </Box>
@@ -699,15 +699,19 @@ function ConfirmWalletDetails({ route }) {
         }}
         title={wallet.tapRootBenefits}
         subTitle={''}
-        modalBackground={isOnL4 ? `${colorMode}.primarybackground` : `${colorMode}.pantoneGreen`}
+        modalBackground={
+          privateTheme ? `${colorMode}.primarybackground` : `${colorMode}.pantoneGreen`
+        }
         textColor={`${colorMode}.headerWhite`}
-        Content={() => <TapRootContent isOnL4={isOnL4} />}
+        Content={() => <TapRootContent privateTheme={privateTheme} />}
         showCloseIcon={true}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
-        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
+        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        }
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

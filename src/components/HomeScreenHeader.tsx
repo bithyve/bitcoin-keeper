@@ -11,7 +11,7 @@ import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/
 import useUaiStack, { uaiPriorityMap } from 'src/hooks/useUaiStack';
 import XIcon from 'src/assets/images/x.svg';
 import { uaiActioned, uaisSeen } from 'src/store/sagaActions/uai';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -26,7 +26,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 import Fonts from 'src/constants/Fonts';
-import usePlan from 'src/hooks/usePlan';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -47,7 +46,8 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
   const { signerMap } = useSignerMap();
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   useFocusEffect(
     useCallback(() => {
       dispatch(setRefreshUai());
@@ -168,9 +168,9 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   };
 
   return (
-    <Box backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}>
+    <Box backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}>
       <Box
-        backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
+        backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
         style={[styles.wrapper]}
       >
         <Box width="90%" style={styles.padding}>

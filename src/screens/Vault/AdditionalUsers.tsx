@@ -31,8 +31,8 @@ import UserCard from './components/UserCard';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { ScriptTypes } from 'src/services/wallets/enums';
 import Text from 'src/components/KeeperText';
-import usePlan from 'src/hooks/usePlan';
 import AdditionalUserPrivate from 'src/assets/privateImages/additional-user-illustration.svg';
+import { useSelector } from 'react-redux';
 
 enum SecondaryVerificationOptionActionType {
   ADD = 'ADD',
@@ -67,7 +67,8 @@ function AdditionalUsers({ route }: any) {
   const [secondaryVerificationOptions, setSecondaryVerificationOptions] = useState<
     VerificationOption[]
   >(idx(signer, (_) => _.signerPolicy.secondaryVerification) || []);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const [additionalUserData, setAdditionalUserData] = useState(
     (idx(signer, (_) => _.signerPolicy.secondaryVerification) || []).map((option) => {
       return {
@@ -229,9 +230,13 @@ function AdditionalUsers({ route }: any) {
         title="Additional Users"
         subTitle="Here you can add and manage additional users to whom you would like to give access to your Server Key. Each user will have their own 2FA code, and a set of permissions for the actions they are allowed to access with your Server Key."
         buttonText="Add New User"
-        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`}
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
+        }
         buttonTextColor={`${colorMode}.textGreen`}
-        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+        modalBackground={
+          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        }
         textColor={`${colorMode}.headerWhite`}
         buttonCallback={() => {
           setAddNewUserModal(true);
@@ -239,7 +244,7 @@ function AdditionalUsers({ route }: any) {
         }}
         Content={() => (
           <Box style={styles.modalIcon}>
-            {isOnL4 ? <AdditionalUserPrivate /> : <AdditonalUserIcon />}
+            {privateTheme ? <AdditionalUserPrivate /> : <AdditonalUserIcon />}
           </Box>
         )}
       />
@@ -261,7 +266,7 @@ function AdditionalUsers({ route }: any) {
             setAddNewUserModal={setAddNewUserModal}
             setNewUserName={setNewUserName}
             newUserName={newUserName}
-            isOnL4={isOnL4}
+            privateTheme={privateTheme}
           />
         )}
         buttonCallback={() => {

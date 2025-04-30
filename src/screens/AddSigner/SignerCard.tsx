@@ -34,7 +34,7 @@ type SignerCardProps = {
   titleSize?: number;
   subtitleFont?: number;
   badgeText?: string;
-  isOnL4?: boolean;
+  privateTheme?: boolean;
 };
 
 function SignerCard({
@@ -85,7 +85,7 @@ function SignerCard({
 
   const isPressable = !disabled;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const isOnL4 = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     <Pressable
@@ -103,14 +103,14 @@ function SignerCard({
           position="absolute"
           top={hp(10)}
           right={0}
-          bg={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.BrownNeedHelp`}
+          bg={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.BrownNeedHelp`}
           px={3}
           py={1}
           borderTopLeftRadius={5}
           borderBottomLeftRadius={5}
         >
           <Text
-            color={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.buttonText`}
+            color={privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.buttonText`}
             fontSize={10}
             medium
           >

@@ -12,19 +12,22 @@ import TrustedContactIcon from 'src/assets/images/trusted-contact-icon.svg';
 import GenerateTrustedContactsPDF from 'src/utils/GenerateTrustedContactsPDF';
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import usePlan from 'src/hooks/usePlan';
 import PrivateTrustedIcon from 'src/assets/privateImages/doc-trusted-contact.svg';
+import { useSelector } from 'react-redux';
 
 function TrustedContactTemplates({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   return (
     <ScreenWrapper
       barStyle="dark-content"
-      backgroundcolor={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+      backgroundcolor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
     >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
@@ -39,7 +42,7 @@ function TrustedContactTemplates({}) {
         </Text>
 
         <Box style={styles.circleStyle}>
-          {isOnL4 ? <PrivateTrustedIcon /> : <TrustedContactIcon />}
+          {privateTheme ? <PrivateTrustedIcon /> : <TrustedContactIcon />}
           {/* <TrustedContactIcon /> */}
         </Box>
         <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>

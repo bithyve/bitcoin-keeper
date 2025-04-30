@@ -26,7 +26,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const isOnL4 = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE';
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
@@ -51,7 +51,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
       </Box>
       <Pressable
         testID={`btn_copyToClipboard${data}`}
-        backgroundColor={isOnL4 ? `${colorMode}.separator` : `${colorMode}.textColor`}
+        backgroundColor={privateTheme ? `${colorMode}.separator` : `${colorMode}.textColor`}
         style={styles.iconContainer}
         onPress={() => {
           Clipboard.setString(data);
@@ -72,7 +72,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
           copy ? copy() : showToast(msg, <TickIcon />);
         }}
       >
-        {isOnL4 ? <CopyIconWhite /> : <CopyIcon />}
+        {privateTheme ? <CopyIconWhite /> : <CopyIcon />}
       </Pressable>
     </Box>
   );

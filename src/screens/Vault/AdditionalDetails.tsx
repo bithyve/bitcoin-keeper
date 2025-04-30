@@ -9,7 +9,7 @@ import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
 import Fonts from 'src/constants/Fonts';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import useSignerMap from 'src/hooks/useSignerMap';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
@@ -24,7 +24,6 @@ import { useAppSelector } from 'src/store/hooks';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
-import usePlan from 'src/hooks/usePlan';
 import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
@@ -42,7 +41,8 @@ function AdditionalDetails({ route }: ScreenProps) {
   const [hasUpdatedDescription, setHasUpdatedDescription] = useState(false);
   const { thumbnailPath, givenName, familyName } = signer.extraData;
   const { relaySignersUpdate } = useAppSelector((state) => state.bhr);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   useEffect(() => {
     if (relaySignersUpdate && hasUpdatedDescription) {
@@ -89,7 +89,7 @@ function AdditionalDetails({ route }: ScreenProps) {
                   signer,
                 });
           }}
-          icon={isOnL4 ? <PrivateAddContactIcon /> : <PhoneBookIcon />}
+          icon={privateTheme ? <PrivateAddContactIcon /> : <PhoneBookIcon />}
           image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
         />
       </VStack>

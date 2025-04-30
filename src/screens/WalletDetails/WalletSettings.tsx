@@ -19,7 +19,7 @@ import { VisibilityType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
 import BackupModalContent from '../AppSettings/BackupModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import WalletHeader from 'src/components/WalletHeader';
 import SettingCard from '../Home/components/Settings/Component/SettingCard';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
@@ -33,7 +33,6 @@ import { useQuery } from '@realm/react';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import usePlan from 'src/hooks/usePlan';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -43,7 +42,8 @@ function WalletSettings({ route }) {
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
   const walletMnemonic = idx(wallet, (_) => _.derivationDetails.mnemonic);
@@ -90,7 +90,7 @@ function WalletSettings({ route }) {
     return (
       <Box>
         <Box style={styles.illustration}>
-          {isOnL4 ? <PrivateWalletInfoIllustration /> : <WalletInfoIllustration />}
+          {privateTheme ? <PrivateWalletInfoIllustration /> : <WalletInfoIllustration />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
           {walletTranslation.learnMoreDesc}
@@ -238,7 +238,9 @@ function WalletSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={walletTranslation.learnMoreTitle}
         subTitle={walletTranslation.learnMoreSubTitle}
-        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+        modalBackground={
+          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        }
         textColor={`${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
@@ -246,9 +248,11 @@ function WalletSettings({ route }) {
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.textGreen`}
-        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`}
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
+        }
         secButtonTextColor={
-          isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
         }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
