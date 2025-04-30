@@ -8,9 +8,7 @@ import { Box, useColorMode } from 'native-base';
 import Share from 'react-native-share';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
 import { refillMobileKey } from 'src/store/sagaActions/vaults';
@@ -672,13 +670,6 @@ function SignTransactionScreen() {
           }
         }}
       />
-      <Box style={styles.noteWrapper}>
-        <Note
-          title={common.note}
-          subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signers, it can be broadcasted."
-          subtitleColor="GreyText"
-        />
-      </Box>
       <Box style={styles.buttonContainer}>
         <Buttons
           fullWidth
@@ -813,9 +804,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingVertical: hp(15),
-    paddingHorizontal: '2.5%',
-  },
-  noteWrapper: {
     paddingHorizontal: '2.5%',
   },
 });
