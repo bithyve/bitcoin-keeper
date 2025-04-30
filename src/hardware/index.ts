@@ -29,10 +29,10 @@ import { captureError } from 'src/services/sentry';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 import * as b58 from 'bs58check';
+import { store } from 'src/store/store';
 import HWError from './HWErrorState';
 
 const base58check = require('base58check');
-import { store } from 'src/store/store';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -63,16 +63,18 @@ export const generateSignerFromMetaData = ({
   // Check network type by derivation path for jade
   if ([SignerType.JADE].includes(signerType)) {
     Object.entries(xpubDetails).forEach(([_, xpubDetail]) => {
-      if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(xpubDetail.derivationPath))
+      if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(xpubDetail.derivationPath)) {
         throw new HWError(HWErrorType.INCORRECT_NETWORK);
+      }
     });
   }
 
   let networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
 
   if (signerType === SignerType.KEYSTONE) {
-    if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(derivationPath))
+    if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(derivationPath)) {
       throw new HWError(HWErrorType.INCORRECT_NETWORK);
+    }
     // Keystone qr gives Zpub in testnet
     else networkType = getNetworkTypeFromDerivationPath(derivationPath);
   }
@@ -373,6 +375,7 @@ const getPolicyServerStatus = (
   addSignerFlow: boolean,
   existingSigners
 ) => {
+  // check 1: Subscription Tier(Server Key is only available on L2 and above)
   if (isOnL1) {
     return {
       disabled: true,
@@ -381,27 +384,32 @@ const getPolicyServerStatus = (
       )}`,
       displayToast: false,
     };
-  } else if (
-    existingSigners.find((s: Signer) => s.type === SignerType.POLICY_SERVER && !s.isExternal)
-  ) {
+  }
+
+  // check 2: Server Key exists(internally generated, not imported - external)
+  const internalServerKeyExists = existingSigners.find(
+    (s: Signer) => s.type === SignerType.POLICY_SERVER && !s.isExternal
+  );
+  if (internalServerKeyExists) {
     return {
       message: `${getSignerNameFromType(type)} was already added`,
       disabled: true,
       displayToast: true,
     };
-  } else if (
-    type === SignerType.POLICY_SERVER &&
-    !addSignerFlow &&
-    (scheme.n < 3 || scheme.m < 2)
-  ) {
+  }
+
+  // check 3: Baseline Vault scheme requirement for a new Server Key
+  const failsNewServerKeyConfigRequirements =
+    type === SignerType.POLICY_SERVER && !addSignerFlow && (scheme.n < 3 || scheme.m < 2);
+  if (failsNewServerKeyConfigRequirements) {
     return {
       disabled: true,
       message: 'Please create a vault with a minimum of 3 signers and 2 required signers',
       displayToast: true,
     };
-  } else {
-    return { disabled: false, message: '', displayToast: false };
   }
+
+  return { disabled: false, message: '', displayToast: false };
 };
 
 export const getSDMessage = ({ type }: { type: SignerType }) => {
