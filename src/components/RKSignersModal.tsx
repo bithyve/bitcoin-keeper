@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle, useContext } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from '../screens/SignTransaction/SignerModals';
 import { ScriptTypes, SignerType, XpubTypes } from 'src/services/wallets/enums';
@@ -20,7 +20,6 @@ import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { useDispatch } from 'react-redux';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import { getInputsFromPSBT, getInputsToSignFromPSBT } from 'src/utils/utilities';
@@ -309,13 +308,6 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   };
 
   const onFileSign = (signedSerializedPSBT: string) => {
-    if (signerType == SignerType.KEYSTONE) {
-      const tx = getTxHexFromKeystonePSBT(
-        serializedPSBTEnvelop.serializedPSBT,
-        signedSerializedPSBT
-      );
-      signedSerializedPSBT = tx.toHex();
-    }
     dispatch(
       healthCheckStatusUpdate([
         {
@@ -324,7 +316,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         },
       ])
     );
-    navigateToShowPSBT(signedSerializedPSBT);
+    setDetails(signedSerializedPSBT);
+    setOpenOptionModal(true);
   };
 
   const vaultKeys = {
