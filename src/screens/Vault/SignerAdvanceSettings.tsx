@@ -2,14 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, Center, ScrollView, useColorMode, View } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import {
-  Clipboard,
-  Dimensions,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  Vibration,
-} from 'react-native';
+import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import SigningServerIllustration from 'src/assets/images/backup-server-illustration.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -26,7 +19,6 @@ import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
-import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType, VaultType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -47,7 +39,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { captureError } from 'src/services/sentry';
 import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getSignerNameFromType, getWalletConfig } from 'src/hardware';
+import { getSignerNameFromType } from 'src/hardware';
 import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
@@ -95,10 +87,6 @@ import PrivateSeedKey from 'src/assets/privateImages/seedKey-illustration.svg';
 import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-ilustration.svg';
 import PrivateSeedSignerSetupImage from 'src/assets/privateImages/seedSigner-illustration.svg';
 import PrivateMy_Keeper from 'src/assets/privateImages/mobileKeyIllustration.svg';
-import NFC from 'src/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
-import { HCESessionContext } from 'react-native-hce';
-import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 
 const { width } = Dimensions.get('screen');
 
@@ -182,10 +170,6 @@ function SignerAdvanceSettings({ route }: any) {
   const [detailModal, setDetailModal] = useState(false);
   const [registerSignerModal, setRegisterSignerModal] = useState(false);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
-  const [visible, setVisible] = useState(false);
-  const { session } = useContext(HCESessionContext);
-  const isIos = Platform.OS === 'ios';
-  const isAndroid = Platform.OS === 'android';
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
@@ -633,19 +617,6 @@ function SignerAdvanceSettings({ route }: any) {
     if (isPolicyServer) disableOneTimeBackup = oneTimeBackupStatus?.signingServer;
   }
 
-  const walletConfig =
-    signer.type === SignerType.SPECTER
-      ? `addwallet ${activeVault.presentationData.name}&${generateOutputDescriptors(
-          activeVault,
-          false,
-          false
-        )
-          .replace('/**', '/{0,1}/*')
-          .replace(/<(\d+);(\d+)>/g, '{$1,$2}')}`
-      : activeVault.scheme.miniscriptScheme
-      ? generateOutputDescriptors(activeVault)
-      : getWalletConfig({ vault: activeVault, signerType: signer.type });
-
   const onSuccess = () => {
     if (actionAfterPasscode === 'hideKey') {
       hideKey();
@@ -992,39 +963,6 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
-  const cleanUp = () => {
-    setVisible(false);
-    Vibration.cancel();
-    if (isAndroid) {
-      NFC.stopTagSession(session);
-    }
-  };
-
-  const shareWithNFC = async () => {
-    try {
-      if (isIos) {
-        if (!isIos) {
-          setVisible(true);
-        }
-        Vibration.vibrate([700, 50, 100, 50], true);
-        const enc = NFC.encodeTextRecord(walletConfig);
-        await NFC.send([NfcTech.Ndef], enc);
-        cleanUp();
-      } else {
-        setVisible(true);
-        await NFC.startTagSession({ session, content: walletConfig });
-        Vibration.vibrate([700, 50, 100, 50], true);
-      }
-    } catch (err) {
-      cleanUp();
-      if (err.toString() === 'Error: Not even registered') {
-        console.log('NFC interaction cancelled.');
-        return;
-      }
-      captureError(err);
-    }
-  };
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
@@ -1065,8 +1003,6 @@ function SignerAdvanceSettings({ route }: any) {
           ))}
         </Box>
       </ScrollView>
-      <NfcPrompt visible={visible} close={cleanUp} />
-
       <KeeperModal
         visible={registerSignerModal}
         close={() => setRegisterSignerModal(false)}
@@ -1085,8 +1021,6 @@ function SignerAdvanceSettings({ route }: any) {
             activeVault={activeVault}
             navigateRegisterWithQR={navigateRegisterWithQR}
             navigateRegisterWithChannel={navigateRegisterWithChannel}
-            shareWithNFC={shareWithNFC}
-            walletConfig={walletConfig}
           />
         )}
       />
