@@ -29,6 +29,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Colors from 'src/theme/Colors';
 import PrivateSetting from 'src/assets/privateImages/setting-gold-icon.svg';
+import { useSelector } from 'react-redux';
 
 export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -73,7 +74,8 @@ function AddNewWallet({ navigation, route }) {
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
   const { vaultId } = route.params || {};
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const { activeVault } = useVault({ vaultId });
   const [scheme, setScheme] = useState(
     activeVault ? { m: activeVault.scheme.m, n: activeVault.scheme.n } : { m: 2, n: 3 }
@@ -214,13 +216,15 @@ function AddNewWallet({ navigation, route }) {
           name="Enhanced Security Options"
           description="Secure your funds and future—your way"
           callback={() => setShowEnhancedOptionsModal(true)}
-          icon={isOnL4 ? <PrivateSetting /> : isDarkMode ? <DarkSettingIcon /> : <SettingIcon />}
+          icon={
+            privateTheme ? <PrivateSetting /> : isDarkMode ? <DarkSettingIcon /> : <SettingIcon />
+          }
           iconWidth={22}
           iconHeight={20}
           cardStyles={styles.enhancedVaultsCustomStyles}
           titleSize={15}
           borderColor={
-            isOnL4
+            privateTheme
               ? `${colorMode}.pantoneGreen`
               : isDarkMode
               ? Colors.primaryCream

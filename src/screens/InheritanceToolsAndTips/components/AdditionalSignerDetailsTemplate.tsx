@@ -12,20 +12,23 @@ import AdditionalSignerIcon from 'src/assets/images/additional-signer-icon.svg';
 import GenerateAdditionalKeyDetailsTemplate from 'src/utils/GenerateAdditionalKeyDetailsTemplate';
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import usePlan from 'src/hooks/usePlan';
 import PrivateAdditionalSigner from 'src/assets/privateImages/additional-signer-illustration.svg';
+import { useSelector } from 'react-redux';
 
 function AdditionalSignerDetailsTemplate({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     <ScreenWrapper
       barStyle="dark-content"
-      backgroundcolor={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+      backgroundcolor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
     >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
@@ -40,7 +43,7 @@ function AdditionalSignerDetailsTemplate({}) {
         </Text>
 
         <Box style={styles.circleStyle}>
-          {isOnL4 ? <PrivateAdditionalSigner /> : <AdditionalSignerIcon />}
+          {privateTheme ? <PrivateAdditionalSigner /> : <AdditionalSignerIcon />}
         </Box>
 
         <Box mt={5}>

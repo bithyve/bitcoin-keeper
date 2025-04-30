@@ -19,7 +19,7 @@ function LoadingAnimation() {
   const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const isOnL4 = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE';
   Animated.loop(
     Animated.timing(spinValue, {
       toValue: 1,
@@ -45,15 +45,15 @@ function LoadingAnimation() {
           alignItems: 'flex-start',
         }}
       >
-        {isOnL4 ? <PrivateBackground style={styles.background} /> : <Background />}
+        {privateTheme ? <PrivateBackground style={styles.background} /> : <Background />}
         <Animated.View style={styles.gear2}>
-          {isOnL4 ? <PrivateGear2 /> : colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
+          {privateTheme ? <PrivateGear2 /> : colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
         </Animated.View>
         <Animated.View style={colorMode === 'light' ? styles.gear1 : styles.gear1Dark}>
-          {isOnL4 ? <PrivateGear1 /> : colorMode === 'light' ? <Gear1 /> : <Gear1Dark />}
+          {privateTheme ? <PrivateGear1 /> : colorMode === 'light' ? <Gear1 /> : <Gear1Dark />}
         </Animated.View>
         <Animated.View style={colorMode === 'light' ? styles.gear3 : styles.gear3Dark}>
-          {isOnL4 ? <PrivateGear3 /> : colorMode === 'light' ? <Gear3 /> : <Gear2Dark />}
+          {privateTheme ? <PrivateGear3 /> : colorMode === 'light' ? <Gear3 /> : <Gear2Dark />}
         </Animated.View>
       </Box>
     </Box>

@@ -16,7 +16,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
@@ -56,7 +56,9 @@ const SigningDeviceList = () => {
     vaultType?: VaultType;
   } = route.params as any;
   const { colorMode } = useColorMode();
-  const { isOnL1, isOnL2, isOnL4 } = usePlan();
+  const { isOnL1, isOnL2 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const { signers } = useSigners();
   const { translations } = useContext(LocalizationContext);
   const [isNfcSupported, setNfcSupport] = useState(true);
@@ -111,7 +113,7 @@ const SigningDeviceList = () => {
     return (
       <Box>
         <Box style={styles.alignCenter}>
-          {isOnL4 ? <PrivateSigningDevice /> : <SigningDevicesIllustration />}
+          {privateTheme ? <PrivateSigningDevice /> : <SigningDevicesIllustration />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
@@ -221,7 +223,7 @@ const SigningDeviceList = () => {
                       last={index === sortedSigners[signerCategory].length - 1}
                       isOnL1={isOnL1}
                       isOnL2={isOnL2}
-                      isOnL4={isOnL4}
+                      privateTheme={privateTheme}
                       addSignerFlow={addSignerFlow}
                       vaultId={vaultId}
                       vaultSigners={vaultSigners}
@@ -247,14 +249,18 @@ const SigningDeviceList = () => {
         }}
         title={signer.signers}
         subTitle={signer.signerDescription}
-        modalBackground={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
+        modalBackground={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={isOnL4 ? `${colorMode}.whiteSecButtonText` : `${colorMode}.pantoneGreen`}
-        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
+        buttonTextColor={
+          privateTheme ? `${colorMode}.whiteSecButtonText` : `${colorMode}.pantoneGreen`
+        }
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        }
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

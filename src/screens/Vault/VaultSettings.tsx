@@ -38,7 +38,7 @@ import { NfcTech } from 'react-native-nfc-manager';
 import { useQuery } from '@realm/react';
 import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -70,7 +70,8 @@ function VaultSettings({ route }) {
   const labels = useQuery(RealmSchema.Tags, (tags) =>
     tags.filtered('origin == $0', walletDescriptor)
   );
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const cleanUp = () => {
     setVisible(false);
@@ -126,7 +127,7 @@ function VaultSettings({ route }) {
     return (
       <Box>
         <Box style={styles.illustration}>
-          {isOnL4 ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
+          {privateTheme ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
           {vaultText.keeperSupportSigningDevice}
@@ -321,7 +322,9 @@ function VaultSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={vaultText.keeperVault}
         subTitle={vaultText.vaultLearnMoreSubtitle}
-        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+        modalBackground={
+          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        }
         textColor={`${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
@@ -329,9 +332,11 @@ function VaultSettings({ route }) {
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.textGreen`}
-        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`}
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
+        }
         secButtonTextColor={
-          isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
         }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

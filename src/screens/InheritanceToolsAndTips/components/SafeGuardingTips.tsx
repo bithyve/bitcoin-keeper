@@ -16,36 +16,37 @@ import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function SafeGuardingTips({}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const tips = [
     {
       title: inheritancePlanning.thoroughVeirifcationTitle,
-      icon: isOnL4 ? <PrivateThoroughVerification /> : <ThoroughVerification />,
+      icon: privateTheme ? <PrivateThoroughVerification /> : <ThoroughVerification />,
       paragraph: inheritancePlanning.thoroughParagraph1,
       paragraph2: inheritancePlanning.thoroughParagraph2,
     },
 
     {
       title: inheritancePlanning.preliminaryTitle,
-      icon: isOnL4 ? <PrivatePreliminaryTest /> : <PreliminaryTest />,
+      icon: privateTheme ? <PrivatePreliminaryTest /> : <PreliminaryTest />,
       paragraph: inheritancePlanning.preliminaryParagraph1,
       paragraph2: inheritancePlanning.preliminaryParagraph2,
     },
     {
       title: inheritancePlanning.secureCoordinationTitle,
-      icon: isOnL4 ? <PrivateSecureCoordination /> : <SecureCoordination />,
+      icon: privateTheme ? <PrivateSecureCoordination /> : <SecureCoordination />,
       paragraph: inheritancePlanning.secureCoordinationParagraph1,
       paragraph2: inheritancePlanning.secureCoordinationParagraph2,
     },
     {
       title: inheritancePlanning.crossDeviceTitle,
-      icon: isOnL4 ? <PrivateCrossDeviceVerification /> : <CrossDeviceVerification />,
+      icon: privateTheme ? <PrivateCrossDeviceVerification /> : <CrossDeviceVerification />,
       paragraph: inheritancePlanning.crossDeviceParagraph1,
       paragraph2: inheritancePlanning.crossDeviceParagraph2,
     },
@@ -54,7 +55,9 @@ function SafeGuardingTips({}) {
   return (
     <ScreenWrapper
       barStyle="dark-content"
-      backgroundcolor={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+      backgroundcolor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
     >
       <InheritanceHeader />
       <Text style={styles.container} color={`${colorMode}.headerWhite`}>

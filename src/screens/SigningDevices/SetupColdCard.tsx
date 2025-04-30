@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -41,7 +41,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
-import usePlan from 'src/hooks/usePlan';
 
 const getTitle = (mode) => {
   switch (mode) {
@@ -83,7 +82,8 @@ function SetupColdCard({ route }) {
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const isDarkMode = colorMode === 'dark';
   const [infoModal, setInfoModal] = useState(false);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const startNfcRead = () => {
     NfcManager.isSupported().then((supported) => {
@@ -246,7 +246,7 @@ function SetupColdCard({ route }) {
             </Text>
             <Box style={styles.illustration}>
               {mode === InteracationMode.HEALTH_CHECK ? (
-                isOnL4 ? (
+                privateTheme ? (
                   <PrivateHealthCheckIllustrationDark />
                 ) : colorMode === 'light' ? (
                   <HealthCheckIllustration />

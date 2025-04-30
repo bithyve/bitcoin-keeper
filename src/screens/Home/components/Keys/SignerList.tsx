@@ -20,7 +20,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 const SignerList = ({ navigation, handleModalOpen }) => {
   const { signers } = useSigners('', false);
@@ -33,7 +33,8 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const handleCardSelect = (signer) => {
     navigation.dispatch(
@@ -96,7 +97,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
           })}
           <DashedCta
             backgroundColor={`${colorMode}.dullGreen`}
-            hexagonBackgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
+            hexagonBackgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
             textColor={`${colorMode}.greenWhiteText`}
             name={signer.addKey}
             callback={handleModalOpen}

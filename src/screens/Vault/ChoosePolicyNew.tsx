@@ -12,7 +12,7 @@ import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
 import Clipboard from '@react-native-community/clipboard';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
@@ -46,7 +46,6 @@ import {
   OFF,
 } from './constants';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
-import usePlan from 'src/hooks/usePlan';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -56,7 +55,8 @@ function ChoosePolicyNew({ navigation, route }) {
   const { signingServer, common, vault: vaultTranslation } = translations;
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const { maxTransaction, timelimit, delayTime, addSignerFlow } = route.params;
 
@@ -306,7 +306,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const showDelayModal = useCallback(() => {
     return (
       <Box style={styles.delayModalContainer}>
-        {isOnL4 ? <PrivateDelayNodalIcon /> : <DelayModalIcon />}
+        {privateTheme ? <PrivateDelayNodalIcon /> : <DelayModalIcon />}
         <Box
           style={styles.timeContainer}
           backgroundColor={
@@ -332,7 +332,7 @@ function ChoosePolicyNew({ navigation, route }) {
     return (
       <Box style={styles.delayModalContainer}>
         <Box style={styles.iconContainer}>
-          {isOnL4 ? <PrivateDelayCompleteIcon /> : <DelaycompleteIcon />}
+          {privateTheme ? <PrivateDelayCompleteIcon /> : <DelaycompleteIcon />}
         </Box>
 
         <Box style={styles.buttonContainer}>

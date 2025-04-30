@@ -21,7 +21,7 @@ import { Shadow } from 'react-native-shadow-2';
 import KeeperModal from 'src/components/KeeperModal';
 import { captureError } from 'src/services/sentry';
 import useWallets from 'src/hooks/useWallets';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -64,7 +64,8 @@ function ListItem({
 }) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     // TODO: Drag and rearrange wallet functionality
@@ -81,7 +82,7 @@ function ListItem({
         <HexagonIcon
           width={44}
           height={38}
-          backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
+          backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
           icon={icon}
         />
         <Box>
@@ -95,7 +96,7 @@ function ListItem({
       </Box>
       <Box style={styles.justifyContent}>
         <Box style={styles.alignCenter}>
-          {getCurrencyIcon(BTC, isOnL4 ? 'light' : 'green')}
+          {getCurrencyIcon(BTC, privateTheme ? 'light' : 'green')}
           <Text fontSize={15} color={`${colorMode}.primaryText`}>
             {` ${getBalance(balance)} ${getSatUnit()}`}
           </Text>

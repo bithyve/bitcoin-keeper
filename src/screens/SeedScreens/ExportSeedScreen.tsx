@@ -30,7 +30,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -76,7 +76,8 @@ function ExportSeedScreen({ route, navigation }) {
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const isChangePassword = parentScreen === PRIVACYANDDISPLAY;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   useEffect(() => {
     if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
       setBackupSuccessModal(true);
@@ -114,7 +115,7 @@ function ExportSeedScreen({ route, navigation }) {
         >
           <Text
             style={styles.seedTextStyle}
-            color={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.greenText2`}
+            color={privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.greenText2`}
           >
             {index < 9 ? '0' : null}
             {index + 1}

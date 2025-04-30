@@ -17,7 +17,7 @@ import { encrypt, getKeyAndHash } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -71,7 +71,8 @@ function RemoteSharing({ route }: ScreenProps) {
   const { remoteLinkDetails } = useAppSelector((state) => state.vault);
   const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
   const [primaryLoading, setPrimaryLoading] = useState(false);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const handleShare = async () => {
     setPrimaryLoading(true);
@@ -127,7 +128,7 @@ function RemoteSharing({ route }: ScreenProps) {
           showsVerticalScrollIndicator={false}
         >
           {!isPSBTSharing &&
-            (isOnL4 ? (
+            (privateTheme ? (
               <PrivateRemoteShareIllustration
                 style={styles.illustration}
                 width={130}
