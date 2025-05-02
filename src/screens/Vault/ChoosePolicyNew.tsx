@@ -368,9 +368,7 @@ function ChoosePolicyNew({ navigation, route }) {
         <Box style={styles.illustration}>
           {privateTheme ? <PrivateUpdatePolicyIllustration /> : <UpdatePolicyIllustration />}
         </Box>
-        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
-          {signingServer.UpdatePolicyInfoModalContent}
-        </Text>
+        <Text style={styles.modalDesc}>{signingServer.UpdatePolicyInfoModalContent}</Text>
       </Box>
     );
   }
@@ -460,9 +458,10 @@ function ChoosePolicyNew({ navigation, route }) {
         title={signingServer.UpdatePolicyInfoModalTitle}
         subTitle={signingServer.UpdatePolicyInfoModalSubTitle}
         modalBackground={
-          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.modalWhiteBackground`
         }
-        textColor={`${colorMode}.headerWhite`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
