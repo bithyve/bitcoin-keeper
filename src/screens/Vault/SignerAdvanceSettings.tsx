@@ -692,7 +692,7 @@ function SignerAdvanceSettings({ route }: any) {
     isPolicyServer && (
       <OptionCard
         key="configurationSetting"
-        title="Server Policy Setting"
+        title="Server Policy Settings"
         description="Update your server key signing policy"
         callback={navigateToPolicyChange}
       />
