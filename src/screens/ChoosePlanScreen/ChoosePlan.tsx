@@ -558,11 +558,7 @@ function ChoosePlan() {
                 return;
               }
               // check if user moving from yearly to monthly
-              if (
-                appSubscription.level !== AppSubscriptionLevel.L1 &&
-                isMonthly &&
-                currentPosition !== 0
-              ) {
+              if (isMonthly && appSubscription.productId.includes('yearly')) {
                 setShowChangeInterval(true);
                 return;
               }
