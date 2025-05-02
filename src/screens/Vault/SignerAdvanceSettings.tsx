@@ -1031,7 +1031,7 @@ function SignerAdvanceSettings({ route }: any) {
         visible={waningModal}
         close={() => setWarning(false)}
         title="Changing Device Type"
-        subTitle="Are you sure you want to change the signer type?"
+        subTitle="Are you sure you want to change the device type?"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
