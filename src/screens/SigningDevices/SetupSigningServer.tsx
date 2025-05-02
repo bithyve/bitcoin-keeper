@@ -217,7 +217,7 @@ function SetupSigningServer({ route }: { route }) {
           <Box marginBottom={hp(30)}>
             <Note
               title="Note"
-              subtitle="It is a good idea to have the authenticator app on another device"
+              subtitle="Server Key is allowed from the Hodler Tier. Please upgrade your plan to resume using it."
               subtitleColor="GreyText"
             />
           </Box>
