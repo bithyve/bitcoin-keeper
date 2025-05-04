@@ -662,7 +662,7 @@
     "learnMoreDesc": "Hide the wallet for privacy or to declutter your home screen. Trigger sats transfers for easy cold storage and jot down the seedwords to backup the wallet.",
     "customWalletDesc": "Setup your wallet quorum",
     "customWalletTitle": "Create a Custom Wallet",
-    "maxNumberofKeys": "Number of keys needed to sign transactions",
+    "maxNumberofKeys": "Number of keys that can sign transactions",
     "totalKeys": "Total Keys"
   },
   "vault": {
