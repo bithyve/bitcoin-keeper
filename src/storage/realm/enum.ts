@@ -36,4 +36,5 @@ export enum RealmSchema {
   BackupHistory = 'BackupHistory',
   StoreSubscription = 'StoreSubscription',
   CloudBackupHistory = 'CloudBackupHistory',
+  Balances = 'Balances',
 }

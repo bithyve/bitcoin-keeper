@@ -14,7 +14,7 @@ export const StoreSubscriptionSchema: ObjectSchema = {
       default: SubscriptionTier.L1,
     },
     receipt: {
-      type: 'string?',
+      type: 'mixed',
       default: '',
     },
     level: {

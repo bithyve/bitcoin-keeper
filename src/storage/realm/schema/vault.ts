@@ -1,40 +1,44 @@
 import { ObjectSchema } from 'realm';
 import { XpubTypes } from 'src/services/wallets/enums';
-import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 
 export const SignerPolicy: ObjectSchema = {
   name: RealmSchema.SignerPolicy,
   embedded: true,
   properties: {
-    verification: {
-      type: '{}?',
-      properties: {
-        method: 'string',
-        verifier: 'string?',
-      },
-    },
-    restrictions: {
-      type: '{}?',
-      properties: {
-        none: 'bool',
-        maxTransactionAmount: 'int?',
-        timeWindow: 'int?',
-      },
-    },
-    exceptions: {
-      type: '{}?',
-      properties: {
-        none: 'bool',
-        transactionAmount: 'int?',
-      },
-    },
-    signingDelay: {
-      type: 'int?',
-    },
-    backupDisabled: {
-      type: 'bool?',
-    },
+    verification: 'SignerPolicyVerification?',
+    restrictions: 'SignerPolicyRestrictions?',
+    exceptions: 'SignerPolicyExceptions?',
+    signingDelay: 'int?',
+    backupDisabled: 'bool?',
+  },
+};
+
+export const SignerPolicyVerificationSchema: ObjectSchema = {
+  name: 'SignerPolicyVerification',
+  embedded: true,
+  properties: {
+    method: 'string',
+    verifier: 'string?',
+  },
+};
+
+export const SignerPolicyRestrictionsSchema: ObjectSchema = {
+  name: 'SignerPolicyRestrictions',
+  embedded: true,
+  properties: {
+    none: 'bool',
+    maxTransactionAmount: 'int?',
+    timeWindow: 'int?',
+  },
+};
+
+export const SignerPolicyExceptionsSchema: ObjectSchema = {
+  name: 'SignerPolicyExceptions',
+  embedded: true,
+  properties: {
+    none: 'bool',
+    transactionAmount: 'int?',
   },
 };
 
@@ -91,7 +95,7 @@ export const HealthCheckDetails: ObjectSchema = {
   properties: {
     type: 'string',
     actionDate: 'date',
-    extraData: '{}?',
+    extraData: 'mixed?',
   },
 };
 
@@ -113,7 +117,7 @@ export const SignerSchema: ObjectSchema = {
     isBIP85: 'bool?',
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
     hidden: { type: 'bool', default: false },
-    extraData: '{}?',
+    extraData: 'mixed?',
     archived: { type: 'bool', default: false },
     isExternal: 'bool?',
     networkType: { type: 'string' },
@@ -168,7 +172,7 @@ export const MiniscriptElementsSchema: ObjectSchema = {
     keysInfo: `${RealmSchema.MiniscriptKeyInfo}[]`,
     timelocks: 'int[]',
     phases: `${RealmSchema.MiniscriptPhase}[]`,
-    signerFingerprints: '{}',
+    signerFingerprints: 'mixed?',
   },
 };
 
@@ -177,7 +181,7 @@ export const MiniscriptSchemeSchema: ObjectSchema = {
   embedded: true,
   properties: {
     miniscriptElements: RealmSchema.MiniscriptElements,
-    keyInfoMap: '{}',
+    keyInfoMap: 'mixed?',
     miniscriptPolicy: 'string',
     miniscript: 'string',
     usedMiniscriptTypes: 'string[]',
@@ -205,10 +209,10 @@ export const VaultSpecsSchema: ObjectSchema = {
     totalExternalAddresses: 'int',
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
-    addressPubs: '{}?',
+    addressPubs: 'mixed?',
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
-    balances: Balances,
+    balances: `${RealmSchema.Balances}`,
     transactions: `${RealmSchema.Transaction}[]`,
     hasNewUpdates: 'bool',
     lastSynched: 'int',
