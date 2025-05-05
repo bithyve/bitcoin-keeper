@@ -488,7 +488,7 @@ function LoginScreen({ navigation, route }) {
               }
               primaryTextColor={
                 isKeeperPrivate || PrivateThemeLight
-                  ? `${colorMode}.dashedButtonBorderColor`
+                  ? `${colorMode}.buttonText`
                   : `${colorMode}.pantoneGreen`
               }
               fullWidth

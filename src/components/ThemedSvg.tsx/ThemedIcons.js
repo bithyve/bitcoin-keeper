@@ -19,6 +19,18 @@ import KeyGreen from 'src/assets/images/key-green.svg';
 import KeyWhite from 'src/assets/images/KeyWhiteIcon.svg';
 import PrivateKeyGold from 'src/assets/privateImages/key-gold-icon.svg';
 import WalletWhite from 'src/assets/images/walletWhiteIcon.svg';
+import InheritanceSeedIcon from 'src/assets/images/inheritanceSeedIcon.svg';
+import InheritanceShareKeyIcon from 'src/assets/images/inheritanceShareKeyIcon.svg';
+import InheritanceLetterIcon from 'src/assets/images/inheritanceLetterIcon.svg';
+import PrivateInhertanceSeedIcon from 'src/assets/privateImages/inhertance-seed-gold.svg';
+import PrivateInhertanceShareKeyIcon from 'src/assets/privateImages/inheritance-shareKey-gold.svg';
+import PrivateInhertanceLetterIcon from 'src/assets/privateImages/inhertance-letter-gold.svg';
+import PrivateBackButton from 'src/assets/privateImages/gold-back-arrow.svg';
+import BackBlackButton from 'src/assets/images/header-arrow-icon.svg';
+import BackWhiteButton from 'src/assets/images/leftarrowCampainlight.svg';
+import CanaryIcon from 'src/assets/images/canary-wallets.svg';
+import PrivateCanaryIcon from 'src/assets/privateImages/canary-wallet-illustration.svg';
+import PrivateCanaryIconLight from 'src/assets/privateImages/Canary-wallet-private-light.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -26,6 +38,12 @@ const themeIcons = {
     LIGHT: KeeperLogo,
     PRIVATE: PrivateLogo,
     PRIVATE_LIGHT: PrivateLogoLight,
+  },
+  back_Button: {
+    DARK: BackWhiteButton,
+    LIGHT: BackBlackButton,
+    PRIVATE: PrivateBackButton,
+    PRIVATE_LIGHT: PrivateBackButton,
   },
   header_Wallet: {
     DARK: WalletIcon,
@@ -74,6 +92,36 @@ const themeIcons = {
     LIGHT: WalletIcon,
     PRIVATE: PrivateWalletLight,
     PRIVATE_LIGHT: PrivateWalletLight,
+  },
+  inhertance_seed_icon: {
+    DARK: InheritanceSeedIcon,
+    LIGHT: InheritanceSeedIcon,
+    PRIVATE: PrivateInhertanceSeedIcon,
+    PRIVATE_LIGHT: PrivateInhertanceSeedIcon,
+  },
+  inhertance_shareKey_icon: {
+    DARK: InheritanceShareKeyIcon,
+    LIGHT: InheritanceShareKeyIcon,
+    PRIVATE: PrivateInhertanceShareKeyIcon,
+    PRIVATE_LIGHT: PrivateInhertanceShareKeyIcon,
+  },
+  inhertance_letter_icon: {
+    DARK: InheritanceLetterIcon,
+    LIGHT: InheritanceLetterIcon,
+    PRIVATE: PrivateInhertanceLetterIcon,
+    PRIVATE_LIGHT: PrivateInhertanceLetterIcon,
+  },
+  canary_keys_icon: {
+    DARK: KeyGreen,
+    LIGHT: KeyGreen,
+    PRIVATE: PrivateKeyGold,
+    PRIVATE_LIGHT: KeyWhite,
+  },
+  canary_illustration: {
+    DARK: CanaryIcon,
+    LIGHT: CanaryIcon,
+    PRIVATE: PrivateCanaryIcon,
+    PRIVATE_LIGHT: PrivateCanaryIconLight,
   },
 };
 
