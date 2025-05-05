@@ -227,7 +227,9 @@ export function KeeperContent(props) {
 function TapsignerContent() {
   return (
     <>
-      <TapsignerSetupSVG />
+      <Box style={styles.portalIllustration}>
+        <TapsignerSetupSVG />
+      </Box>
       <Instruction text="TAPSIGNER communicates with the app over NFC" />
       <Instruction text="You will need the PIN (given at the back of the TAPSIGNER)." />
     </>

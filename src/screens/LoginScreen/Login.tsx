@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, StatusBar, useColorMode } from 'native-base';
+import { Box, StatusBar, theme, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -49,6 +49,7 @@ import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
 import Relay from 'src/services/backend/Relay';
 import { setAccountManagerDetails } from 'src/store/reducers/concierge';
 import Fonts from 'src/constants/Fonts';
+import PrivateLightDeleteIcon from 'src/assets/privateImages/keypad-private-delete-icon.svg';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -76,6 +77,11 @@ function LoginScreen({ navigation, route }) {
   const isKeeperPrivate =
     useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L4;
   const { automaticCloudBackup } = useAppSelector((state) => state.bhr);
+
+  const themeMode = useAppSelector((state) => state.settings.themeMode);
+
+  const privateThemeDark = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const [canLogin, setCanLogin] = useState(false);
   const {
@@ -414,7 +420,9 @@ function LoginScreen({ navigation, route }) {
       style={styles.content}
       safeAreaTop
       backgroundColor={
-        isKeeperPrivate ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        privateThemeDark || PrivateThemeLight
+          ? `${colorMode}.primaryBackground`
+          : `${colorMode}.pantoneGreen`
       }
     >
       <Box flex={1}>
@@ -422,16 +430,33 @@ function LoginScreen({ navigation, route }) {
         <Box flex={1}>
           <Box>
             <Box style={styles.testnetIndicatorWrapper}>{isTestnet() && <TestnetIndicator />}</Box>
-            <Text color={`${colorMode}.headerWhite`} fontSize={25} style={styles.welcomeText}>
+            <Text
+              color={PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`}
+              fontSize={25}
+              style={styles.welcomeText}
+            >
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
               <Box style={styles.passcodeWrapper}>
-                <Text fontSize={14} color={`${colorMode}.headerWhite`}>
+                <Text
+                  fontSize={14}
+                  color={
+                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
+                  }
+                >
                   {login.enter_your}
                   {login.passcode}
                 </Text>
-                <PinDotView passCode={passcode} />
+                <PinDotView
+                  passCode={passcode}
+                  dotColor={
+                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
+                  }
+                  borderColor={
+                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
+                  }
+                />
               </Box>
             </Box>
             <Box>
@@ -446,8 +471,9 @@ function LoginScreen({ navigation, route }) {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            ClearIcon={<DeleteIcon />}
+            ClearIcon={PrivateThemeLight ? <PrivateLightDeleteIcon /> : <DeleteIcon />}
             bubbleEffect
+            keyColor={PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`}
           />
           <Box style={styles.btnWrapper}>
             <Buttons
@@ -461,7 +487,7 @@ function LoginScreen({ navigation, route }) {
                 isKeeperPrivate ? `${colorMode}.pantoneGreen` : `${colorMode}.buttonText`
               }
               primaryTextColor={
-                isKeeperPrivate
+                isKeeperPrivate || PrivateThemeLight
                   ? `${colorMode}.dashedButtonBorderColor`
                   : `${colorMode}.pantoneGreen`
               }

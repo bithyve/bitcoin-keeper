@@ -90,9 +90,10 @@ export const useSettingKeeper = () => {
 
   useEffect(() => {
     if (isOnL4) {
-      dispatch(setThemeMode(ThemeMode.PRIVATE));
-      if (colorMode === 'light') {
-        toggleColorMode();
+      if (colorMode === 'dark') {
+        dispatch(setThemeMode(ThemeMode.PRIVATE));
+      } else {
+        dispatch(setThemeMode(ThemeMode.PRIVATE_LIGHT));
       }
     } else {
       if (colorMode === 'dark') {
@@ -240,7 +241,7 @@ export const useSettingKeeper = () => {
   ];
 
   const General = [
-    !isOnL4 && {
+    {
       title: settings.DarkMode,
       description: settings.DarkModeSubTitle,
       icon: <DarkModeIcon width={14} height={14} />,
