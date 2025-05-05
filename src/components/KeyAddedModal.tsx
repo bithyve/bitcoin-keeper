@@ -8,11 +8,13 @@ import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import { getAccountFromSigner } from 'src/utils/utilities';
 import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-server-illustration.svg';
 import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function KeyAddedModal({ visible, close, signer }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const defaultConfig = {
     buttonText: 'Add Description',
@@ -54,7 +56,7 @@ function KeyAddedModal({ visible, close, signer }) {
         secondaryCallback={close}
         Content={() => (
           <Box style={styles.externalKeyModal}>
-            {isOnL4 ? (
+            {privateTheme ? (
               <PrivateSigningServerIllustrations
                 width={hp(200)}
                 height={hp(200)}

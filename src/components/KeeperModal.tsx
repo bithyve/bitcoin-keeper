@@ -129,13 +129,13 @@ function KeeperModal(props: ModalProps) {
   const { colorMode } = useColorMode();
   const isDarKMode = colorMode === 'dark';
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const isOnL4 = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE';
 
   if (!visible) {
     return null;
   }
   const getCloseIcon = () =>
-    isOnL4 ? (
+    privateTheme ? (
       <PrivateCrossIcon />
     ) : DarkCloseIcon ? (
       <CloseGreen />

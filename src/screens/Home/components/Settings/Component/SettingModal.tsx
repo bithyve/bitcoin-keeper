@@ -11,7 +11,7 @@ import BackupModalContent from 'src/screens/AppSettings/BackupModal';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
-const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass, isOnL4 }) => {
+const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -84,7 +84,7 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass, isOnL4 }) => {
             })
           );
         }}
-        Content={() => <BackupModalContent isOnL4={isOnL4} />}
+        Content={() => <BackupModalContent />}
       />
     </Box>
   );

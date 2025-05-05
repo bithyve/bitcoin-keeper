@@ -6,7 +6,7 @@ import ActionChip from 'src/components/ActionChip';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { hp } from 'src/constants/responsive';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function KeyCard({
   icon,
@@ -23,7 +23,8 @@ function KeyCard({
   dateAdded,
 }) {
   const { colorMode } = useColorMode();
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   return (
     <Box
       backgroundColor={`${colorMode}.seashellWhite`}
@@ -36,7 +37,7 @@ function KeyCard({
             <HexagonIcon
               width={40}
               height={40}
-              backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
+              backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
               icon={icon.element}
             />
             <Text medium style={styles.nameText} color={`${colorMode}.primaryText`}>

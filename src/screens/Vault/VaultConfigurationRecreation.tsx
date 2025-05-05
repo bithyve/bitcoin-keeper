@@ -19,7 +19,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import WalletHeader from 'src/components/WalletHeader';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function WrappedImportIcon() {
   const { colorMode } = useColorMode();
@@ -40,7 +40,8 @@ function VaultConfigurationCreation() {
   const { translations } = useContext(LocalizationContext);
   const { common, importWallet } = translations;
   const [showModal, setShowModal] = useState(false);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const handleDocumentSelection = useCallback(async () => {
     try {
@@ -169,14 +170,18 @@ function VaultConfigurationCreation() {
           setShowModal(false);
         }}
         title="Import a wallet:"
-        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+        modalBackground={
+          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        }
         textColor={`${colorMode}.headerWhite`}
         Content={ImportVaultContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
-        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
+        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        }
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

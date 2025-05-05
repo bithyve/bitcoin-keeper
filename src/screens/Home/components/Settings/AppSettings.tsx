@@ -15,13 +15,12 @@ import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import { NetworkType } from 'src/services/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import usePlan from 'src/hooks/usePlan';
 import NetworkIcon from 'src/assets/privateImages/network-icon.svg';
 
 const SettingsApp = () => {
@@ -33,14 +32,15 @@ const SettingsApp = () => {
   const [networkModeModal, setNetworkModeModal] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(bitcoinNetworkType);
   const [loading, setLoading] = useState(false);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   let appSetting = [
     ...useSettingKeeper().appSetting,
     {
       title: settings.networkModeTitle,
       description: settings.networkModeSubTitle,
-      icon: isOnL4 ? (
+      icon: privateTheme ? (
         <NetworkIcon width={16.5} height={16} />
       ) : (
         <NetworkModeIcon width={16.5} height={16} />

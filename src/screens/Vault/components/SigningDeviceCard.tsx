@@ -12,6 +12,7 @@ import { SDIcons } from '../SigningDeviceIcons';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import RightArrow from 'src/assets/images/icon_arrow.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 type SigningDeviceCardProps = {
   type: SignerType;
@@ -21,13 +22,14 @@ type SigningDeviceCardProps = {
   last?: boolean;
   isOnL1: boolean;
   isOnL2: boolean;
-  isOnL4: boolean;
+  privateTheme: boolean;
   addSignerFlow: boolean;
   vaultId: string;
   vaultSigners?: VaultSigner[];
   isMultisig: boolean;
   primaryMnemonic: string;
   accountNumber: number;
+  displayToast?: boolean;
 };
 
 const SigningDeviceCard = ({
@@ -38,26 +40,31 @@ const SigningDeviceCard = ({
   last = false,
   isOnL1,
   isOnL2,
-  isOnL4,
+  privateTheme,
   addSignerFlow,
   vaultId,
   vaultSigners,
   isMultisig,
   primaryMnemonic,
   accountNumber,
+  displayToast,
 }: SigningDeviceCardProps) => {
   const [visible, setVisible] = useState(false);
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const isOnL1L2 = isOnL1 || isOnL2;
   const isDarkMode = colorMode === 'dark';
+  const { showToast } = useToastMessage();
 
   const onPress = () => {
     if (shouldUpgrade) {
       navigateToUpgrade();
       return;
     }
-    open();
+    if (displayToast) {
+      showToast(message);
+    } else {
+      open();
+    }
   };
 
   const open = () => setVisible(true);
@@ -73,11 +80,13 @@ const SigningDeviceCard = ({
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={onPress}
-        disabled={disabled && !shouldUpgrade}
+        disabled={disabled && !shouldUpgrade && !displayToast}
         testID={`btn_${type}`}
       >
         <Box
-          backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.signerBackground`}
+          backgroundColor={
+            privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.signerBackground`
+          }
           borderTopRadius={first ? 10 : 0}
           borderBottomRadius={last ? 10 : 0}
           borderWidth={isDarkMode ? 1 : 0}
@@ -103,7 +112,7 @@ const SigningDeviceCard = ({
             ]}
           >
             <Box style={styles.walletMapWrapper}>
-              {SDIcons({ type, light: colorMode === 'dark', isOnL4 }).Icon}
+              {SDIcons({ type, light: colorMode === 'dark', privateTheme }).Icon}
             </Box>
             <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.divider} />
             <Box style={styles.walletMapLogoWrapper}>{SDIcons({ type }).Logo}</Box>

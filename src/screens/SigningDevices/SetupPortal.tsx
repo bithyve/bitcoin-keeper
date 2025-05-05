@@ -61,7 +61,6 @@ function SetupPortal({ route }) {
     receiveAddressIndex,
     Illustration,
     Instructions,
-    isHealthcheck,
   }: {
     mode: InteracationMode;
     signer: Signer;
@@ -74,7 +73,6 @@ function SetupPortal({ route }) {
     receiveAddressIndex?: number;
     Illustration?: any;
     Instructions?: any;
-    isHealthcheck?: boolean;
   } = route.params;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
@@ -278,24 +276,9 @@ function SetupPortal({ route }) {
 
   const signWithPortal = React.useCallback(async () => {
     try {
-      const signedSerializedPSBT = await signTransaction({ portalCVC: cvc });
+      await signTransaction({ portalCVC: cvc });
       if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal signed successfully!`);
-      if (isRemoteKey && signedSerializedPSBT) {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'ShowPSBT',
-            params: {
-              data: signedSerializedPSBT,
-              encodeToBytes: false,
-              title: 'Signed PSBT',
-              subtitle: 'Please scan until all the QR data has been retrieved',
-              type: SignerType.KEEPER,
-            },
-          })
-        );
-      } else {
-        navigation.goBack();
-      }
+      navigation.goBack();
     } catch (error) {
       PORTAL.stopReading();
       showToast(

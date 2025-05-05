@@ -5,7 +5,7 @@ import Text from '../KeeperText';
 import KeeperGradient from '../KeeperGradient';
 import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 const getStyles = (btnActiveBack) =>
   StyleSheet.create({
@@ -56,9 +56,10 @@ const containerBackgroundColorDark = [Colors.SecondaryBlack];
 
 function Element(props) {
   const { colorMode } = useColorMode();
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
-  const btnActiveBack = isOnL4 ? Colors.goldenGradient : Colors.primaryGreen;
+  const btnActiveBack = privateTheme ? Colors.goldenGradient : Colors.primaryGreen;
   const textColor = colorMode === 'dark' ? Colors.primaryCream : Colors.primaryGreen;
   const textActiveColor = colorMode === 'light' ? Colors.primaryCream : Colors.primaryCream;
   const styles = getStyles(btnActiveBack);

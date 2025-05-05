@@ -98,16 +98,9 @@ type SDIconOptions = {
   light?: boolean;
   width?: number;
   height?: number;
-  isOnL4?: boolean;
 };
 
-export const SDIcons = ({
-  type,
-  light = true,
-  width = 20,
-  height = 20,
-  isOnL4 = false,
-}: SDIconOptions) => {
+export const SDIcons = ({ type, light = true, width = 20, height = 20 }: SDIconOptions) => {
   const { colorMode } = useColorMode();
 
   switch (type) {

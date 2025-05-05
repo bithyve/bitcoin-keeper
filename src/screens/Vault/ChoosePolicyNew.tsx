@@ -12,7 +12,7 @@ import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
 import Clipboard from '@react-native-community/clipboard';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
@@ -46,7 +46,10 @@ import {
   OFF,
 } from './constants';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
-import usePlan from 'src/hooks/usePlan';
+import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
+import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import UpdatePolicyIllustration from 'src/assets/images/UpdatePolicyIllustration.svg';
+import PrivateUpdatePolicyIllustration from 'src/assets/privateImages/UpdatePolicyIllustration.svg';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -56,7 +59,8 @@ function ChoosePolicyNew({ navigation, route }) {
   const { signingServer, common, vault: vaultTranslation } = translations;
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const { maxTransaction, timelimit, delayTime, addSignerFlow } = route.params;
 
@@ -68,6 +72,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [configureSuccessModal, setConfigureSuccessModal] = useState(false);
   const [policyDelayedUntil, setPolicyDelayedUntil] = useState(null);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const [needHelpModal, setNeedHelpModal] = useState(false);
 
   useEffect(() => {
     if (maxTransaction !== undefined) {
@@ -306,7 +311,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const showDelayModal = useCallback(() => {
     return (
       <Box style={styles.delayModalContainer}>
-        {isOnL4 ? <PrivateDelayNodalIcon /> : <DelayModalIcon />}
+        {privateTheme ? <PrivateDelayNodalIcon /> : <DelayModalIcon />}
         <Box
           style={styles.timeContainer}
           backgroundColor={
@@ -332,7 +337,7 @@ function ChoosePolicyNew({ navigation, route }) {
     return (
       <Box style={styles.delayModalContainer}>
         <Box style={styles.iconContainer}>
-          {isOnL4 ? <PrivateDelayCompleteIcon /> : <DelaycompleteIcon />}
+          {privateTheme ? <PrivateDelayCompleteIcon /> : <DelaycompleteIcon />}
         </Box>
 
         <Box style={styles.buttonContainer}>
@@ -357,14 +362,27 @@ function ChoosePolicyNew({ navigation, route }) {
   //   setOtp('');
   // };
 
+  function modalContent() {
+    return (
+      <Box>
+        <Box style={styles.illustration}>
+          {privateTheme ? <PrivateUpdatePolicyIllustration /> : <UpdatePolicyIllustration />}
+        </Box>
+        <Text style={styles.modalDesc}>{signingServer.UpdatePolicyInfoModalContent}</Text>
+      </Box>
+    );
+  }
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={isLoading} />
       <WalletHeader
         title={signingServer.choosePolicy}
-        // rightComponent={
-        //   <TouchableOpacity>{isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}</TouchableOpacity>
-        // }
+        rightComponent={
+          <TouchableOpacity onPress={() => setNeedHelpModal(true)}>
+            {isDarkMode ? <InfoDarkIcon /> : <LearnMoreIcon />}
+          </TouchableOpacity>
+        }
       />
       <Text style={styles.desc}>{signingServer.choosePolicySubTitle}</Text>
       <Box style={styles.fieldContainer}>
@@ -434,6 +452,20 @@ function ChoosePolicyNew({ navigation, route }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={showConfirmationModal}
       />
+      <KeeperModal
+        visible={needHelpModal}
+        close={() => setNeedHelpModal(false)}
+        title={signingServer.UpdatePolicyInfoModalTitle}
+        subTitle={signingServer.UpdatePolicyInfoModalSubTitle}
+        modalBackground={
+          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.modalWhiteBackground`
+        }
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={modalContent}
+        subTitleWidth={wp(280)}
+        DarkCloseIcon
+      />
     </ScreenWrapper>
   );
 }
@@ -492,6 +524,17 @@ const styles = StyleSheet.create({
     paddingVertical: hp(21),
     borderRadius: 10,
     borderWidth: 1,
+  },
+  modalDesc: {
+    fontSize: 14,
+    padding: 1,
+    marginBottom: 15,
+    width: wp(295),
+  },
+  illustration: {
+    marginTop: 20,
+    alignSelf: 'center',
+    marginBottom: 40,
   },
 });
 

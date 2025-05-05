@@ -30,7 +30,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation, CommonActions, StackActions } from '@react-navigation/native';
 import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -58,7 +58,6 @@ import { TouchableOpacity } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { NumberInput } from '../AddWalletScreen/AddNewWallet';
 import WalletHeader from 'src/components/WalletHeader';
-import usePlan from 'src/hooks/usePlan';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -122,7 +121,8 @@ function SendScreen({ route }) {
   const totalUtxosAmount = selectedUTXOs?.reduce((sum, utxo) => sum + utxo.value, 0);
   const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false);
   const [localTotalRecipients, setLocalTotalRecipients] = useState(totalRecipients);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const visibleWallets = useMemo(
     () =>
@@ -448,7 +448,7 @@ function SendScreen({ route }) {
                             height={26}
                             icon={getSmallWalletIcon(selectedWallet)}
                             backgroundColor={
-                              isOnL4
+                              privateTheme
                                 ? Colors.goldenGradient
                                 : isDarkMode
                                 ? Colors.DullGreenDark

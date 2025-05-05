@@ -169,7 +169,8 @@
     "the": "The",
     "contact": "Contact",
     "URL": "URL",
-    "portNumber": "Port Number"
+    "portNumber": "Port Number",
+    "moreOptions": "More Options"
   },
   "noInternet": {
     "no": "No Internet",
@@ -833,10 +834,10 @@
     "tryAnotherMethod": "Try another method",
     "collabVaultCreatedDesc": "You can share the wallet configuration with the co-signers if you want them to be able to see the wallet transactions.",
     "vaultHasBeenCreated": "vault has been created successfully.",
-    "IKAlreadyActive": "Inheritance Key is already active",
-    "EKAlreadyActive": "Emergency Key is already active",
-    "EnhancedKeyAlreadyActive": "Enhanced Key is already active",
-    "EnhancedKeysAlreadyActive": "Enhanced Keys is already active",
+    "IKAlreadyActive": "Inheritance Key is active",
+    "EKAlreadyActive": "Emergency Key is active",
+    "EnhancedKeyAlreadyActive": "Enhanced Key is active",
+    "EnhancedKeysAlreadyActive": "Enhanced Keys are active",
     "addSignerIKNote": "Current technical limitations only allows the use of specific kind of signers as keys in miniscript-based wallets.",
     "keyAlreadySelectedTitle": "Key Already Selected",
     "keyAlreadySelectedMessage": "This key is already selected. Please choose a different key.",
@@ -980,7 +981,10 @@
 
     "BackUpModalSubTitle": "For independent recovery, you can download a one-time backup of your Server Key’s private key. For security reasons, this backup can only be saved once and cannot be downloaded again. You can choose to back it up now, save it later, or disable it entirely.",
     "successTitle": "Server Key Setup is Successful",
-    "successSubTitle": "The server key setup was successful, ensuring secure and reliable operations. Your system is now ready to handle signing requests with confidence."
+    "successSubTitle": "The server key setup was successful, ensuring secure and reliable operations. Your system is now ready to handle signing requests with confidence.",
+    "UpdatePolicyInfoModalTitle": "Updating Spending Policy",
+    "UpdatePolicyInfoModalSubTitle": "If the new spending policy is more restrictive than the current one, the change will take effect immediately.",
+    "UpdatePolicyInfoModalContent": "If the new policy is less restrictive it will be process after a delay of 7 days, or the same delay as your spending delay in case it is longer."
   },
   "externalKey": {
     "modalInstruction1": "Choose a Key from another Keeper app",
@@ -1363,7 +1367,7 @@
     "hodlerDescription": "Secure a bigger stack",
     "DiamondHandsDesciption": "Holistic long-term stacking",
     "manageKeysModalSubtitle": "In this section you can view and manage all the keys used in your wallet.",
-    "manageKeysModalDesc": "You can ensure their accessibility via Health Checks, fund Canary Wallets, view fingerprints and even change signer type, all from this central location for keys.",
+    "manageKeysModalDesc": "You can ensure their accessibility via Health Checks, fund Canary Wallets, view fingerprints and even change device type, all from this central location for keys.",
     "manageTapsigner": "Manage TAPSIGNER",
     "saveBackup": "Save Backup",
     "changePIN": "Change PIN",
@@ -1372,7 +1376,7 @@
     "changeCardPIN": "Change the card's PIN code",
     "runUnlockCard": "Run the unlock card process if it's rate-limited",
     "linkExternalWallet": "Use to link external wallet to keeper",
-    "mobileKeySeedOptionSubtitle": "Use to backup/ export mobile key",
+    "mobileKeySeedOptionSubtitle": "Use to backup/ export Mobile Key",
     "NoKeysFound": "No Keys Found",
     "PleaseAddAKeyToGetStarted": "Please add a key to get started",
     "TapsignerBackupDetails": "TAPSIGNER Backup Details",

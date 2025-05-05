@@ -7,7 +7,7 @@ import PrivateKeeperIcon from 'src/assets/images/keeper-private-logo.svg';
 import KeeperNameIcon from 'src/assets/images/keeper-name-icon.svg';
 import KeeperNameIconDark from 'src/assets/privateImages/bitcoinKeeperWhiteLogo.svg';
 import { hp, wp } from 'src/constants/responsive';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 type MessagePreviewProps = {
   title: string;
@@ -17,13 +17,14 @@ type MessagePreviewProps = {
 
 function MessagePreview({ title, description, link }: MessagePreviewProps) {
   const { colorMode } = useColorMode();
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   return (
     <Box
       style={styles.messagePreviewContainer}
-      backgroundColor={isOnL4 ? `${colorMode}.charcolBrown` : `${colorMode}.seashellWhite`}
+      backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.seashellWhite`}
       borderWidth={1}
-      borderColor={isOnL4 ? `${colorMode}.greyBorder` : `${colorMode}.separator`}
+      borderColor={privateTheme ? `${colorMode}.greyBorder` : `${colorMode}.separator`}
     >
       <Text style={styles.previewLabel}>Message Preview</Text>
       <Box style={styles.previewBox} borderColor={`${colorMode}.greyBorder`}>
@@ -31,10 +32,10 @@ function MessagePreview({ title, description, link }: MessagePreviewProps) {
         <Text style={styles.messagePreviewDescription}>{description}</Text>
         <Box
           style={styles.linkContainer}
-          backgroundColor={isOnL4 ? `${colorMode}.separator` : `${colorMode}.seedCard`}
+          backgroundColor={privateTheme ? `${colorMode}.separator` : `${colorMode}.seedCard`}
         >
           <Box style={styles.linkIconContainer}>
-            {isOnL4 ? <PrivateKeeperIcon /> : <KeeperIcon />}
+            {privateTheme ? <PrivateKeeperIcon /> : <KeeperIcon />}
           </Box>
           <Box>
             {colorMode === 'light' ? <KeeperNameIcon /> : <KeeperNameIconDark />}

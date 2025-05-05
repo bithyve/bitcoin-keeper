@@ -12,41 +12,42 @@ import KeepBackups from 'src/assets/images/keep-backups.svg';
 
 import Text from 'src/components/KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import usePlan from 'src/hooks/usePlan';
 import PrivateComprehensiveStrategies from 'src/assets/privateImages/comprihensive-stragies.svg';
 import PrivateRegularTesting from 'src/assets/privateImages/doc-4-keys.svg';
 import PrivateKeepBackups from 'src/assets/privateImages/doc-recovery.svg';
 import PrivateRecovery from 'src/assets/privateImages/doc-Double.svg';
+import { useSelector } from 'react-redux';
 
 function BackupAndRecoveryTips({}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const tips = [
     {
       title: inheritancePlanning.backupRecoveryComprehensive,
-      icon: isOnL4 ? <PrivateComprehensiveStrategies /> : <ComprehensiveStrategies />,
+      icon: privateTheme ? <PrivateComprehensiveStrategies /> : <ComprehensiveStrategies />,
       paragraph2: inheritancePlanning.backupRecoveryComprehensiveP2,
       paragraph: inheritancePlanning.backupRecoveryComprehensiveP1,
     },
     {
       title: inheritancePlanning.backupRecoveryConduct,
-      icon: isOnL4 ? <PrivateRegularTesting /> : <RegularTesting />,
+      icon: privateTheme ? <PrivateRegularTesting /> : <RegularTesting />,
       paragraph2: inheritancePlanning.backupRecoveryConductP2,
       paragraph: inheritancePlanning.backupRecoveryConductP1,
     },
     {
       title: inheritancePlanning.backupRecovertPractice,
 
-      icon: isOnL4 ? <PrivateRecovery /> : <PracticeRecovery />,
+      icon: privateTheme ? <PrivateRecovery /> : <PracticeRecovery />,
       paragraph2: inheritancePlanning.backupRecoveryP2,
       paragraph: inheritancePlanning.backupRecoveryP1,
     },
     {
       title: inheritancePlanning.backupKeepsBackup,
-      icon: isOnL4 ? <PrivateKeepBackups /> : <KeepBackups />,
+      icon: privateTheme ? <PrivateKeepBackups /> : <KeepBackups />,
       paragraph2: inheritancePlanning.backupKeepsBackupP2,
       paragraph: inheritancePlanning.backupKeepsBackupP1,
     },
@@ -55,7 +56,9 @@ function BackupAndRecoveryTips({}) {
   return (
     <ScreenWrapper
       barStyle="dark-content"
-      backgroundcolor={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+      backgroundcolor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
     >
       <InheritanceHeader />
       <Text style={styles.marginLeft} color={`${colorMode}.headerWhite`}>

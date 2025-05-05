@@ -328,7 +328,12 @@ const CreateTicket = ({ navigation, route }) => {
                 showsHorizontalScrollIndicator={false}
               >
                 {imageUris.map((uri, index) => (
-                  <ImagePreview imageUri={uri} onRemoveImage={handleRemoveImage} index={index} />
+                  <ImagePreview
+                    key={index + uri}
+                    imageUri={uri}
+                    onRemoveImage={handleRemoveImage}
+                    index={index}
+                  />
                 ))}
               </ScrollView>
             )}

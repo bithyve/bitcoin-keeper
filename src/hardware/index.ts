@@ -29,10 +29,10 @@ import { captureError } from 'src/services/sentry';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 import * as b58 from 'bs58check';
+import { store } from 'src/store/store';
 import HWError from './HWErrorState';
 
 const base58check = require('base58check');
-import { store } from 'src/store/store';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -63,16 +63,18 @@ export const generateSignerFromMetaData = ({
   // Check network type by derivation path for jade
   if ([SignerType.JADE].includes(signerType)) {
     Object.entries(xpubDetails).forEach(([_, xpubDetail]) => {
-      if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(xpubDetail.derivationPath))
+      if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(xpubDetail.derivationPath)) {
         throw new HWError(HWErrorType.INCORRECT_NETWORK);
+      }
     });
   }
 
   let networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
 
   if (signerType === SignerType.KEYSTONE) {
-    if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(derivationPath))
+    if (bitcoinNetworkType != getNetworkTypeFromDerivationPath(derivationPath)) {
       throw new HWError(HWErrorType.INCORRECT_NETWORK);
+    }
     // Keystone qr gives Zpub in testnet
     else networkType = getNetworkTypeFromDerivationPath(derivationPath);
   }
@@ -332,7 +334,7 @@ export const getDeviceStatus = (
   isNfcSupported: boolean,
   isOnL1: boolean,
   isOnL2: boolean,
-  scheme: VaultScheme,
+  scheme: VaultScheme | null,
   existingSigners: Signer[],
   addSignerFlow: boolean = false
 ) => {
@@ -341,12 +343,17 @@ export const getDeviceStatus = (
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
+        displayToast: false,
       };
     case SignerType.MOBILE_KEY:
       if (existingSigners.find((s) => s.type === SignerType.MOBILE_KEY)) {
-        return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
+        return {
+          message: `${getSignerNameFromType(type)} was already added`,
+          disabled: true,
+          displayToast: false,
+        };
       } else {
-        return { message: '', disabled: false };
+        return { message: '', disabled: false, displayToast: false };
       }
     case SignerType.POLICY_SERVER:
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
@@ -354,45 +361,55 @@ export const getDeviceStatus = (
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
+        displayToast: false,
       };
     default:
-      return { message: '', disabled: false };
+      return { message: '', disabled: false, displayToast: false };
   }
 };
 
 const getPolicyServerStatus = (
   type: SignerType,
   isOnL1: boolean,
-  scheme: VaultScheme,
+  scheme: VaultScheme | null,
   addSignerFlow: boolean,
   existingSigners
 ) => {
-  if (addSignerFlow) {
-    return {
-      message: isOnL1
-        ? 'Upgrade to Hodler/Diamond Hands to use the key'
-        : 'The key is already added to your Manage Keys section',
-      disabled: true,
-    };
-  } else if (isOnL1) {
+  // check 1: Subscription Tier(Server Key is only available on L2 and above)
+  if (isOnL1) {
     return {
       disabled: true,
       message: `Please upgrade to atleast ${SubscriptionTier.L2} to add an ${getSignerNameFromType(
         type
       )}`,
+      displayToast: false,
     };
-  } else if (
-    existingSigners.find((s: Signer) => s.type === SignerType.POLICY_SERVER && !s.isExternal)
-  ) {
-    return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
-  } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
+  }
+
+  // check 2: Server Key exists(internally generated, not imported - external)
+  const internalServerKeyExists = existingSigners.find(
+    (s: Signer) => s.type === SignerType.POLICY_SERVER && !s.isExternal
+  );
+  if (internalServerKeyExists) {
+    return {
+      message: `${getSignerNameFromType(type)} was already added`,
+      disabled: true,
+      displayToast: true,
+    };
+  }
+
+  // check 3: Baseline Vault scheme requirement for a new Server Key
+  const failsNewServerKeyConfigRequirements =
+    type === SignerType.POLICY_SERVER && !addSignerFlow && (scheme.n < 3 || scheme.m < 2);
+  if (failsNewServerKeyConfigRequirements) {
     return {
       disabled: true,
       message: 'Please create a vault with a minimum of 3 signers and 2 required signers',
+      displayToast: true,
     };
-  } else {
-    return { disabled: false, message: '' };
   }
+
+  return { disabled: false, message: '', displayToast: false };
 };
 
 export const getSDMessage = ({ type }: { type: SignerType }) => {

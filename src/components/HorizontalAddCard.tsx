@@ -6,7 +6,7 @@ import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
 import HexagonIcon from './HexagonIcon';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 type AddSignerCardProps = {
   name: string;
@@ -36,7 +36,8 @@ function HorizontalAddCard({
   icon = <AddCardIcon width={wp(11)} height={hp(11)} />,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   return (
     <TouchableOpacity
       testID={isAddWallet ? 'btn_add_wallet' : `btn_${name}`}
@@ -59,7 +60,7 @@ function HorizontalAddCard({
           <HexagonIcon
             width={iconWidth}
             height={iconHeight}
-            backgroundColor={isOnL4 ? Colors.goldenGradient : Colors.primaryGreen}
+            backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
             icon={icon}
           />
         </Box>

@@ -43,6 +43,7 @@ function SignWithQR() {
     isRemoteKey,
     serializedPSBTEnvelopFromProps,
     isMultisig,
+    signTransaction: signTransactionParent,
   }: {
     vaultKey: VaultSigner;
     vaultId: string;
@@ -51,6 +52,7 @@ function SignWithQR() {
     isMultisig?: boolean;
     sendConfirmationRouteParams?: SendConfirmationRouteParams;
     tnxDetails: tnxDetailsProps;
+    signTransaction: ({ signedSerializedPSBT }: { signedSerializedPSBT: string }) => void;
   } = route.params as any;
 
   const serializedPSBTEnvelop = isRemoteKey
@@ -95,18 +97,8 @@ function SignWithQR() {
         }
       } else {
         if (isRemoteKey) {
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'ShowPSBT',
-              params: {
-                data: signedSerializedPSBT,
-                encodeToBytes: false,
-                title: 'Signed PSBT',
-                subtitle: 'Please scan until all the QR data has been retrieved',
-                type: SignerType.KEEPER, // signer used as external key
-              },
-            })
-          );
+          signTransactionParent({ signedSerializedPSBT });
+          navigation.goBack();
           return;
         }
 

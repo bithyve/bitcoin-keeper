@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import BitcoinIllustration from 'src/assets/images/btc-illustration.svg';
@@ -19,7 +19,6 @@ import MenuOption from 'src/components/MenuOption';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
-import usePlan from 'src/hooks/usePlan';
 
 interface AddKeyOption {
   icon: JSX.Element;
@@ -87,7 +86,7 @@ function NFCModalContent({ onTryAnotherMethod }: { onTryAnotherMethod: () => voi
   );
 }
 
-function AddCoSignerContent({ isOnL4 }) {
+function AddCoSignerContent({ privateTheme }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
@@ -98,7 +97,7 @@ function AddCoSignerContent({ isOnL4 }) {
         {vaultText.collabModalDescription1}
       </Text>
       <Box style={styles.bitcoinIllustration}>
-        {isOnL4 ? <PrivateBitcoinIllustration /> : <BitcoinIllustration />}
+        {privateTheme ? <PrivateBitcoinIllustration /> : <BitcoinIllustration />}
       </Box>
       <Text color={`${colorMode}.headerWhite`} style={styles.addCoSigner}>
         {vaultText.collabModalDescription2}
@@ -150,7 +149,8 @@ function CollaborativeModals({
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
   const isDarkMode = colorMode === 'dark';
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const handleTryAnotherMethod = () => {
     setNfcModal?.(false);
@@ -166,15 +166,19 @@ function CollaborativeModals({
           DarkCloseIcon
           title={vaultText.collaborativeVaultTitle}
           subTitle={vaultText.collaborativeVaultSubtitle}
-          modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+          modalBackground={
+            privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+          }
           textColor={`${colorMode}.headerWhite`}
-          Content={() => <AddCoSignerContent isOnL4={isOnL4} />}
+          Content={() => <AddCoSignerContent privateTheme={privateTheme} />}
           buttonText={common.Okay}
           secondaryButtonText={common.needHelp}
           buttonTextColor={`${colorMode}.textGreen`}
-          buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`}
+          buttonBackground={
+            privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
+          }
           secButtonTextColor={
-            isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
+            privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
           }
           secondaryIcon={<ConciergeNeedHelp />}
           secondaryCallback={() => {

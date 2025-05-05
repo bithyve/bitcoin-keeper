@@ -62,7 +62,7 @@ const useWalletAsset = () => {
     if (wallet.entityKind === EntityKind.VAULT) {
       switch (wallet.type) {
         case VaultType.SINGE_SIG:
-          tags = [{ tag: 'Cold' }, { tag: 'Single-key' }];
+          tags = [{ tag: 'Cold Wallet' }, { tag: 'Single-key' }];
           break;
         case VaultType.COLLABORATIVE:
           tags = [{ tag: 'Collaborative' }, { tag: getSchemeTag(wallet as Vault) }];
