@@ -1026,6 +1026,27 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
+  - react-native-change-icon (5.0.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-config (1.4.6):
     - react-native-config/App (= 1.4.6)
   - react-native-config/App (1.4.6):
@@ -1493,6 +1514,7 @@ DEPENDENCIES:
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
   - react-native-camera (from `../node_modules/react-native-camera`)
+  - react-native-change-icon (from `../node_modules/react-native-change-icon`)
   - react-native-config (from `../node_modules/react-native-config`)
   - react-native-contacts (from `../node_modules/react-native-contacts`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
@@ -1646,6 +1668,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-blob-util"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
+  react-native-change-icon:
+    :path: "../node_modules/react-native-change-icon"
   react-native-config:
     :path: "../node_modules/react-native-config"
   react-native-contacts:
@@ -1815,6 +1839,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: ecca256a9e1c8b430f78c4e3dcb16b57ea1418e0
   react-native-blob-util: 4be49d669870f01645b63d33342718e95d0d48b1
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
+  react-native-change-icon: 5833a440377a3df338d6d71b7610265e758597ca
   react-native-config: 8e425892a531627c52db765be3088185cb871e19
   react-native-contacts: f551920b74ebfc5f7f6df307495f085e504a4369
   react-native-document-picker: a338165804b1a14c8e408448115dc0edfd7b73ca

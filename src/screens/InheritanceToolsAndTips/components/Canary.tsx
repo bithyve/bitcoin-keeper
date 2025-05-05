@@ -8,16 +8,26 @@ import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import { CommonActions } from '@react-navigation/native';
 import Chip from 'src/assets/images/chip.svg';
+import PrivateKey from 'src/assets/privateImages/key-gold-icon.svg';
 import CanaryIcon from 'src/assets/images/canary-wallets.svg';
+import PrivateCanaryIcon from 'src/assets/privateImages/canary-wallet-illustration.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useSelector } from 'react-redux';
 
 function CanaryWallets({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning, common, wallet } = translations;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper
+      barStyle="dark-content"
+      backgroundcolor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
+    >
       <InheritanceHeader />
       <ScrollView>
         <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
@@ -31,7 +41,7 @@ function CanaryWallets({ navigation }) {
         </Text>
 
         <Box style={styles.circleStyle}>
-          <CanaryIcon />
+          {privateTheme ? <PrivateCanaryIcon /> : <CanaryIcon />}
         </Box>
         <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.canaryWalletDescp2}
@@ -53,7 +63,7 @@ function CanaryWallets({ navigation }) {
               )
             }
             name={inheritancePlanning.canaryWalletCtaHeading}
-            icon={<Chip />}
+            icon={privateTheme ? <PrivateKey /> : <Chip />}
           />
         </Box>
         <Box style={styles.leftTextStyle}>

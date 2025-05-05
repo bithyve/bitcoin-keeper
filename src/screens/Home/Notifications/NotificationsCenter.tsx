@@ -29,7 +29,7 @@ import TechSupportIcon from 'src/assets/images/tech_support_received.svg';
 import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import CloudBackupIcon from 'src/assets/images/cloud-backup-icon.svg';
-import RecevieIcon from 'src/assets/images/incoming-tx-notification.svg';
+import RecevieIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import UAIView from '../components/UAIView';
@@ -381,21 +381,13 @@ const Card = memo(({ uai }: CardProps) => {
 });
 
 function NotificationsCenter() {
-  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
   let { uaiStack, isLoading } = useUaiStack();
   const dispatch = useDispatch();
 
-  const filteredUaiStack = uaiStack.filter((uai) => {
-    if (uai.uaiType === uaiType.SIGNING_DEVICES_HEALTH_CHECK) {
-      return uai.uaiDetails.networkType === bitcoinNetworkType;
-    }
-    return true;
-  });
-
   const { unseenNotifications, seenNotifications } = useMemo(
     () => ({
-      unseenNotifications: filteredUaiStack
+      unseenNotifications: uaiStack
         .filter((uai) => !uai.seenAt)
         .filter((uai) => SUPPORTED_NOTOFOCATION_TYPES.includes(uai.uaiType))
         .sort((a, b) => {
@@ -404,7 +396,7 @@ function NotificationsCenter() {
           if (!b.createdAt) return -1;
           return b.createdAt.getTime() - a.createdAt.getTime();
         }),
-      seenNotifications: filteredUaiStack
+      seenNotifications: uaiStack
         .filter((uai) => uai.seenAt)
         .filter((uai) => SUPPORTED_NOTOFOCATION_TYPES.includes(uai.uaiType))
         .sort((a, b) => {
@@ -418,8 +410,8 @@ function NotificationsCenter() {
   );
 
   useEffect(() => {
-    if (filteredUaiStack?.length) {
-      const unseenNotifications = filteredUaiStack.filter((notification) => !notification.seenAt);
+    if (uaiStack?.length) {
+      const unseenNotifications = uaiStack.filter((notification) => !notification.seenAt);
       if (unseenNotifications.length) {
         dispatch(uaisSeen({ uaiIds: unseenNotifications.map((uai) => uai.id) }));
       }
@@ -433,7 +425,6 @@ function NotificationsCenter() {
   return (
     <ScreenWrapper paddingHorizontal={0}>
       <Box
-        backgroundColor={`${colorMode}.primaryBackground`}
         style={{
           paddingHorizontal: 20,
           paddingTop: hp(15),

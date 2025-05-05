@@ -4,7 +4,6 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { hp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -18,13 +17,15 @@ import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import SDCategoryCard from './components/SDCategoryCard';
 import { SignerCategory, SignerType, VaultType } from 'src/services/wallets/enums';
 import { SDIcons } from './SigningDeviceIcons';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import DashedCta from 'src/components/DashedCta';
+import WalletHeader from 'src/components/WalletHeader';
+import PrivateSigningDevice from 'src/assets/privateImages/doc-hardware-usage.svg';
 
 function SignerCategoryList() {
   const route = useRoute();
@@ -49,22 +50,24 @@ function SignerCategoryList() {
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const isDarkMode = colorMode === 'dark';
   const { vault, signer, common } = translations;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const hardwareSigners = [
-    { type: SignerType.COLDCARD, background: 'dullCreamBackground', isTrue: false },
+    { type: SignerType.COLDCARD, background: 'headerWhite', isTrue: false },
     { type: SignerType.TAPSIGNER, background: 'pantoneGreen', isTrue: true },
     { type: SignerType.JADE, background: 'brownBackground', isTrue: true },
-    { type: SignerType.PASSPORT, background: 'dullCreamBackground', isTrue: false },
+    { type: SignerType.PASSPORT, background: 'headerWhite', isTrue: false },
     { type: SignerType.SPECTER, background: 'pantoneGreen', isTrue: false },
     { type: SignerType.KEYSTONE, background: 'brownBackground', isTrue: false },
-    { type: SignerType.LEDGER, background: 'dullCreamBackground', isTrue: false },
+    { type: SignerType.LEDGER, background: 'headerWhite', isTrue: false },
     { type: SignerType.PORTAL, background: 'pantoneGreen', isTrue: false },
     { type: SignerType.TREZOR, background: 'brownBackground', isTrue: false },
-    { type: SignerType.BITBOX02, background: 'dullCreamBackground', isTrue: false },
+    { type: SignerType.BITBOX02, background: 'headerWhite', isTrue: false },
   ];
 
   const hardwareSnippet = hardwareSigners.map(({ type, background, isTrue }) => ({
-    Icon: SDIcons(type, isTrue, 9, 13).Icon,
+    Icon: SDIcons({ type, light: isTrue, width: 9, height: 13 }).Icon,
     backgroundColor: `${colorMode}.${background}`,
   }));
 
@@ -116,7 +119,7 @@ function SignerCategoryList() {
     return (
       <View>
         <Box style={styles.alignCenter}>
-          <SigningDevicesIllustration />
+          {privateTheme ? <PrivateSigningDevice /> : <SigningDevicesIllustration />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
@@ -127,13 +130,10 @@ function SignerCategoryList() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={vault.Addsigner}
-        subtitle={vault.SelectSignerSubtitle}
+        subTitle={vault.SelectSignerSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
-        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
@@ -158,7 +158,7 @@ function SignerCategoryList() {
             ))}
             <DashedCta
               backgroundColor={`${colorMode}.dullGreen`}
-              borderColor={`${colorMode}.dashedButtonBorderColor`}
+              borderColor={`${colorMode}.pantoneGreen`}
               textColor={`${colorMode}.greenWhiteText`}
               name={signer.purchaseWallet}
               cardStyles={styles.cardStyles}
@@ -176,14 +176,18 @@ function SignerCategoryList() {
         }}
         title={signer.signers}
         subTitle={signer.signerDescription}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={
+          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        }
         textColor={`${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        }
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

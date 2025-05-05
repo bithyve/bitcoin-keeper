@@ -34,12 +34,12 @@ const useWalletAsset = () => {
   const getWalletCardGradient = (wallet: Wallet | Vault) => {
     if (wallet?.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.MINISCRIPT
-        ? [Colors.primaryBrown, Colors.LabelLight1]
+        ? [Colors.EarthBrown, Colors.LabelLight1]
         : wallet.type === VaultType.SINGE_SIG
-        ? [Colors.DeepTeal, Colors.TagDark1]
-        : [Colors.ashGreen, Colors.GreenishGrey];
+        ? [Colors.DeepTeal, Colors.OceanSage]
+        : ['#24312E', '#3E524D'];
     } else {
-      return [Colors.primaryGreen, Colors.TagLight6];
+      return [Colors.DarkSlateGray, Colors.primaryGreen];
     }
   };
 
@@ -50,7 +50,7 @@ const useWalletAsset = () => {
 
   const TAG_COLORS = [
     Colors.LabelLight3,
-    Colors.toastBg,
+    Colors.pillOrange,
     Colors.Aquamarine,
     Colors.mintGreen,
     Colors.TagLight7,
@@ -62,7 +62,7 @@ const useWalletAsset = () => {
     if (wallet.entityKind === EntityKind.VAULT) {
       switch (wallet.type) {
         case VaultType.SINGE_SIG:
-          tags = [{ tag: 'Cold' }, { tag: 'Single-key' }];
+          tags = [{ tag: 'Cold Wallet' }, { tag: 'Single-key' }];
           break;
         case VaultType.COLLABORATIVE:
           tags = [{ tag: 'Collaborative' }, { tag: getSchemeTag(wallet as Vault) }];

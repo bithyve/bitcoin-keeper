@@ -15,42 +15,66 @@ import KeyGreen from 'src/assets/images/key-green.svg';
 import ConciergeGreen from 'src/assets/images/faq-green.svg';
 import MoreGreen from 'src/assets/images/more-green.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-
 import Text from './KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Colors from 'src/theme/Colors';
+import PrivateWallet from 'src/assets/privateImages/wallet-gold.svg';
+import PrivateKey from 'src/assets/privateImages/key-gold-icon.svg';
+import PrivateConcierge from 'src/assets/privateImages/gold-concierge-icon.svg';
+import PrivateMore from 'src/assets/privateImages/more-gold-icon.svg';
+import { useSelector } from 'react-redux';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const menuOptions = [
     {
       name: wallet.homeWallets,
       defaultIcon: <WalletIcon />,
-      selectedIcon: isDarkMode ? <WalletWhite /> : <WalletGreen />,
+      selectedIcon: privateTheme ? (
+        <PrivateWallet />
+      ) : isDarkMode ? (
+        <WalletWhite />
+      ) : (
+        <WalletGreen />
+      ),
     },
     {
       name: wallet.keys,
       defaultIcon: <KeyIcon />,
-      selectedIcon: isDarkMode ? <KeyWhite /> : <KeyGreen />,
+      selectedIcon: privateTheme ? <PrivateKey /> : isDarkMode ? <KeyWhite /> : <KeyGreen />,
     },
     {
       name: wallet.concierge,
       defaultIcon: <ConciergeIcon />,
-      selectedIcon: isDarkMode ? <ConceirgeWhite /> : <ConciergeGreen />,
+      selectedIcon: privateTheme ? (
+        <PrivateConcierge />
+      ) : isDarkMode ? (
+        <ConceirgeWhite />
+      ) : (
+        <ConciergeGreen />
+      ),
     },
     {
       name: wallet.more,
       defaultIcon: <MoreIcon />,
-      selectedIcon: isDarkMode ? <MoreWhite /> : <MoreGreen />,
+      selectedIcon: privateTheme ? <PrivateMore /> : isDarkMode ? <MoreWhite /> : <MoreGreen />,
     },
   ];
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.ChampagneBliss`}>
+    <Box
+      style={styles.container}
+      backgroundColor={
+        isDarkMode ? `${colorMode}.primaryGreenBackground` : `${colorMode}.ChampagneBliss`
+      }
+      borderColor={`${colorMode}.MistSlate`}
+    >
       <Box style={styles.menuWrapper}>
         {menuOptions.map((option) => (
           <TouchableOpacity
@@ -65,7 +89,9 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
               style={[styles.menuText]}
               color={
                 selectedOption === option.name
-                  ? isDarkMode
+                  ? privateTheme
+                    ? `${colorMode}.pantoneGreen`
+                    : isDarkMode
                     ? Colors.headerWhite
                     : `${colorMode}.pantoneGreen`
                   : `${colorMode}.placeHolderTextColor`
@@ -90,6 +116,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(10),
     paddingTop: hp(10),
     paddingBottom: hp(26),
+    borderWidth: 1,
   },
   menuWrapper: {
     flexDirection: 'row',

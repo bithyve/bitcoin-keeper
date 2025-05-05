@@ -9,7 +9,7 @@ import {
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/keeperModalCrossIcon.svg';
-import CloseGreen from 'src/assets/images/keeperModalCrossIcon.svg';
+import CloseGreen from 'src/assets/images/dark-close-icon.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,6 +19,9 @@ import { useKeyboard } from 'src/hooks/useKeyboard';
 import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from './Buttons';
+import Fonts from 'src/constants/Fonts';
+import PrivateCrossIcon from 'src/assets/privateImages/white-cross-circle-icon.svg';
+import { useSelector } from 'react-redux';
 
 type ModalProps = {
   visible: boolean;
@@ -124,11 +127,23 @@ function KeeperModal(props: ModalProps) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { colorMode } = useColorMode();
+  const isDarKMode = colorMode === 'dark';
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   if (!visible) {
     return null;
   }
-  const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
+  const getCloseIcon = () =>
+    privateTheme ? (
+      <PrivateCrossIcon />
+    ) : DarkCloseIcon ? (
+      <CloseGreen />
+    ) : isDarKMode ? (
+      <CloseGreen />
+    ) : (
+      <Close />
+    );
   const styles = getStyles(subTitleWidth);
   return (
     <Modal
@@ -173,11 +188,6 @@ function KeeperModal(props: ModalProps) {
                   testID="btn_learnMore"
                 >
                   <Box
-                    borderColor={
-                      learnButtonTextColor === 'light.white'
-                        ? 'light.white'
-                        : 'light.learnMoreBorder'
-                    }
                     backgroundColor={
                       learnButtonBackgroundColor == 'BrownNeedHelp'
                         ? `${colorMode}.BrownNeedHelp`
@@ -278,6 +288,7 @@ const getStyles = (subTitleWidth) =>
       fontSize: 18,
       lineHeight: 27.2,
       marginBottom: hp(3),
+      fontFamily: Fonts.LoraSemiBold,
     },
 
     subTitle: {
@@ -324,7 +335,6 @@ const getStyles = (subTitleWidth) =>
       position: 'absolute',
       top: hp(22),
       left: wp(240),
-      borderWidth: 0.5,
       borderRadius: 5,
       paddingHorizontal: 5,
       justifyContent: 'center',

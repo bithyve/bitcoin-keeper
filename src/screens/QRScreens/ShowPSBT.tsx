@@ -1,6 +1,5 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
@@ -8,6 +7,7 @@ import { SignerType } from 'src/services/wallets/enums';
 import DisplayQR from './DisplayQR';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import Buttons from 'src/components/Buttons';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ShowPSBT() {
   const route = useRoute();
@@ -29,7 +29,7 @@ function ShowPSBT() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={title} subtitle={subTitle} />
+      <WalletHeader title={title} subTitle={subTitle} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Box style={styles.center}>
           <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />

@@ -4,12 +4,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import KeysIcon from 'src/assets/images/homeGreenKeyIcon.svg';
 import ConciergeIcon from 'src/assets/images/faq-green.svg';
-import SettingIcon from 'src/assets/images/settingsGreenIcon.svg';
 import { resetRealyWalletState, setHomeToastMessage } from 'src/store/reducers/bhr';
 import InititalAppController from './InititalAppController';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -25,6 +24,11 @@ import KeeperSettings from './components/Settings/keeperSettings';
 import { useNavigation } from '@react-navigation/native';
 import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import PrivateWallet from 'src/assets/privateImages/wallet-icon.svg';
+import PrivateKeys from 'src/assets/privateImages/key-icon.svg';
+import Privateconcierge from 'src/assets/privateImages/concierge-icon.svg';
+import MoreGreen from 'src/assets/images/more-green.svg';
+import PrivateMore from 'src/assets/images/more-white-icon.svg';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -33,6 +37,9 @@ function NewHomeScreen({ route }) {
   const { addedSigner, selectedOption: selectedOptionFromRoute } = route.params || {};
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
+
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage, homeToastMessage } =
     useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
@@ -57,12 +64,13 @@ function NewHomeScreen({ route }) {
               <HomeWallet />
             </Box>
           ),
-
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={<WalletIcon />}
-              backgroundColor={`${colorMode}.headerWhite`}
+              icon={privateTheme ? <PrivateWallet /> : <WalletIcon />}
+              backgroundColor={
+                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
+              }
             />
           ),
         };
@@ -76,8 +84,10 @@ function NewHomeScreen({ route }) {
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={<KeysIcon />}
-              backgroundColor={`${colorMode}.headerWhite`}
+              icon={privateTheme ? <PrivateKeys /> : <KeysIcon />}
+              backgroundColor={
+                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
+              }
             />
           ),
         };
@@ -92,13 +102,19 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={
-                <ConciergeIcon
-                  width={wp(20)}
-                  height={hp(20)}
-                  style={{ marginRight: wp(1), marginBottom: hp(1) }}
-                />
+                privateTheme ? (
+                  <Privateconcierge />
+                ) : (
+                  <ConciergeIcon
+                    width={wp(20)}
+                    height={hp(20)}
+                    style={{ marginRight: wp(1), marginBottom: hp(1) }}
+                  />
+                )
               }
-              backgroundColor={`${colorMode}.headerWhite`}
+              backgroundColor={
+                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
+              }
             />
           ),
         };
@@ -112,8 +128,10 @@ function NewHomeScreen({ route }) {
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={<SettingIcon />}
-              backgroundColor={`${colorMode}.headerWhite`}
+              icon={privateTheme ? <PrivateMore /> : <MoreGreen />}
+              backgroundColor={
+                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
+              }
             />
           ),
         };

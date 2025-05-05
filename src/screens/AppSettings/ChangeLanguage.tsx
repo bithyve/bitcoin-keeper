@@ -20,6 +20,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import TickIcon from 'src/assets/images/icon_check.svg';
 import { hp } from 'src/constants/responsive';
 import useExchangeRates from 'src/hooks/useExchangeRates';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ChangeLanguage() {
   const { currencyCode, language } = useAppSelector((state) => state.settings);
@@ -191,9 +192,9 @@ function ChangeLanguage() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={settings.GeneralPreferences}
-        subtitle={settings.CurrencyDefaultsSubtitle}
+        subTitle={settings.CurrencyDefaultsSubtitle}
       />
       <Box style={styles.contentContainer}>
         <Box style={styles.satModeContainer}>
@@ -347,7 +348,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
-    backgroundColor: '#F7F2EC',
+    backgroundColor: '#F6F2ED',
   },
   symbolWrapper: {
     height: wp('13%'),

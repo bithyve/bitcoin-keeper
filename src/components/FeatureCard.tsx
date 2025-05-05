@@ -37,8 +37,10 @@ function FeatureCard({
           { minWidth: isSmallDevice ? smallDeviceWidth : wp(105) },
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
+        borderColor={`${colorMode}.separator`}
+        borderWidth={1}
       >
-        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
+        <Box backgroundColor={`${colorMode}.DarkSlateGray`} style={styles.circle}>
           {icon && icon}
         </Box>
         <Text numberOfLines={1} medium style={styles.cardName} color={`${colorMode}.primaryText`}>
@@ -51,7 +53,7 @@ function FeatureCard({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: wp(104),
+    width: wp(105),
     minHeight: hp(83),
     padding: hp(10),
     borderRadius: 10,
@@ -72,7 +74,7 @@ const styles = StyleSheet.create({
   },
 
   cardName: {
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 16,
   },
 });

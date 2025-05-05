@@ -12,15 +12,24 @@ import RecoveryPhraseIcon from 'src/assets/images/printable-templates.svg';
 import GenerateRecoveryInstrcutionsPDF from 'src/utils/GenerateRecoveryInstrcutionsPDF';
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import PrivateRecoveryPhrase from 'src/assets/privateImages/doc-recovery.svg';
+import { useSelector } from 'react-redux';
 
 function RecoveryInstruction({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper
+      barStyle="dark-content"
+      backgroundcolor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
+    >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
@@ -36,7 +45,7 @@ function RecoveryInstruction({}) {
           {inheritancePlanning.recoveryInstructionsP2}
         </Text>
         <Box style={styles.circleStyle}>
-          <RecoveryPhraseIcon />
+          {privateTheme ? <PrivateRecoveryPhrase /> : <RecoveryPhraseIcon />}
         </Box>
 
         <Box mt={5}>
@@ -51,6 +60,7 @@ function RecoveryInstruction({}) {
               });
             }}
             name={inheritancePlanning.recoveryInstructionsCtaTitle}
+            hexagonBackgroundColor={'transparent'}
           />
         </Box>
 

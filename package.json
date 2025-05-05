@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "2.1.2",
+  "version": "2.2.2",
   "private": true,
   "scripts": {
     "ios": "npx react-native run-ios --scheme=hexa_keeper_dev --simulator 'iPhone 16' ",
@@ -77,6 +77,7 @@
     "react-native-biometrics": "2.2.0",
     "react-native-blob-util": "0.18.3",
     "react-native-camera": "4.2.1",
+    "react-native-change-icon": "5.0.0",
     "react-native-config": "1.4.6",
     "react-native-contacts": "7.0.8",
     "react-native-crypto": "2.2.0",

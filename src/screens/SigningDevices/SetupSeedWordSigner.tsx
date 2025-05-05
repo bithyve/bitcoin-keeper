@@ -5,11 +5,11 @@ import React, { useContext, useState } from 'react';
 
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { windowHeight } from 'src/constants/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SetupSeedWordSigner({ route }) {
   const { colorMode } = useColorMode();
@@ -70,9 +70,9 @@ function SetupSeedWordSigner({ route }) {
   );
 
   return (
-    <Box flex={1} padding={5} background={`${colorMode}.textInputBackground`}>
+    <Box flex={1} marginTop={hp(30)} padding={5} background={`${colorMode}.textInputBackground`}>
       <StatusBarComponent padding={30} />
-      <KeeperHeader title="Seed Key" subtitle={seedText.SeedDesc} />
+      <WalletHeader title="Seed Key" subTitle={seedText.SeedDesc} />
 
       <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.5}>
         <FlatList

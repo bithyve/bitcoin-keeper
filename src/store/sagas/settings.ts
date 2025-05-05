@@ -1,10 +1,10 @@
 import { call, put, select } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
-import { setBitcoinNetwork } from '../reducers/settings';
-import { CHANGE_BITCOIN_NETWORK } from '../sagaActions/settings';
+import { setBitcoinNetwork, setSubscription, setThemeMode } from '../reducers/settings';
+import { CHANGE_BITCOIN_NETWORK, SET_SUBSCRIPTION } from '../sagaActions/settings';
 import Node from 'src/services/electrum/node';
 import { fetchFeeRates } from '../sagaActions/send_and_receive';
-import { DerivationPurpose, NetworkType, SignerType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, NetworkType, WalletType } from 'src/services/wallets/enums';
 import {
   predefinedMainnetNodes,
   predefinedTestnetNodes,
@@ -14,12 +14,14 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store';
 import ElectrumClient from 'src/services/electrum/client';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { Signer } from 'src/services/wallets/interfaces/vault';
 import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { addSigningDevice } from '../sagaActions/vaults';
 import { addNewWalletsWorker, NewWalletInfo } from './wallets';
 import { setDefaultWalletCreated } from '../reducers/storage';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { AppIconWrapper } from 'src/utils/AppIconWrapper';
+import ThemeMode from 'src/models/enums/ThemeMode';
 
 function* changeBitcoinNetworkWorker({ payload }) {
   let activeNode;
@@ -54,16 +56,8 @@ function* changeBitcoinNetworkWorker({ payload }) {
     // Create default wallet and signer if not created already
     const { defaultWalletCreated } = yield select((state: RootState) => state.storage);
     if (!defaultWalletCreated[bitcoinNetworkType]) {
-      const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-      const myAppKeys = signers.filter(
-        (signer) =>
-          signer.type === SignerType.MY_KEEPER &&
-          !signer.archived &&
-          signer.networkType === bitcoinNetworkType
-      );
-      const instanceNumberToSet = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
       const { primaryMnemonic } = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-      const cosigner = yield call(getCosignerDetails, primaryMnemonic, instanceNumberToSet);
+      const cosigner = yield call(getCosignerDetails, primaryMnemonic, 0);
       const hw = setupKeeperSigner(cosigner);
       if (hw) {
         yield put(addSigningDevice([hw.signer]));
@@ -73,7 +67,7 @@ function* changeBitcoinNetworkWorker({ payload }) {
         walletDetails: {
           name: 'Mobile Wallet',
           description: '',
-          instanceNum: instanceNumberToSet,
+          instanceNum: 0,
           derivationPath: WalletUtilities.getDerivationPath(
             false,
             bitcoinNetworkType,
@@ -92,7 +86,23 @@ function* changeBitcoinNetworkWorker({ payload }) {
   }
 }
 
+function* setSubscriptionWorker({ payload }) {
+  try {
+    if (payload === SubscriptionTier.L4) {
+      AppIconWrapper().changeToKeeperPrivateIcon();
+    } else {
+      AppIconWrapper().changeToDefaultIcon();
+      yield put(setThemeMode(ThemeMode.LIGHT));
+    }
+    yield put(setSubscription(payload));
+  } catch (error) {
+    console.log('🚀 ~setSubscriptionWorker ~ error:', error);
+  }
+}
+
 export const changeBitcoinNetworkWatcher = createWatcher(
   changeBitcoinNetworkWorker,
   CHANGE_BITCOIN_NETWORK
 );
+
+export const setSubscriptionWatcher = createWatcher(setSubscriptionWorker, SET_SUBSCRIPTION);

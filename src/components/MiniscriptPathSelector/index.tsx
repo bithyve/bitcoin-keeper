@@ -114,7 +114,7 @@ export const MiniscriptPathSelector = forwardRef<
     }
 
     return {
-      title: vault.scheme.n == 1 ? 'Use the regular key' : 'Use only regular keys',
+      title: vault.scheme.n == 1 ? 'Use the regular key' : 'Use regular keys',
       subtitle:
         vault.scheme.n == 1
           ? 'Spend using the regular key'
@@ -171,7 +171,7 @@ export const MiniscriptPathSelector = forwardRef<
     }
 
     return {
-      title: vault.scheme.n == 1 ? 'Use the regular key' : 'Use only regular keys',
+      title: vault.scheme.n == 1 ? 'Use the regular key' : 'Use regular keys',
       subtitle:
         vault.scheme.n == 1
           ? 'Spend using the regular key'

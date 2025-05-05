@@ -1,7 +1,6 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { wp } from 'src/constants/responsive';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import KeeperModal from 'src/components/KeeperModal';

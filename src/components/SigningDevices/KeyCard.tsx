@@ -6,6 +6,7 @@ import ActionChip from 'src/components/ActionChip';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { hp } from 'src/constants/responsive';
+import { useSelector } from 'react-redux';
 
 function KeyCard({
   icon,
@@ -22,15 +23,21 @@ function KeyCard({
   dateAdded,
 }) {
   const { colorMode } = useColorMode();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.signerContainer}>
+    <Box
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={styles.signerContainer}
+      borderColor={`${colorMode}.separator`}
+    >
       <VStack space={3} width="100%">
         <HStack justifyContent="space-between" alignItems="center">
           <VStack alignItems="center" style={styles.iconContainer}>
             <HexagonIcon
               width={40}
               height={40}
-              backgroundColor={Colors.primaryGreen}
+              backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
               icon={icon.element}
             />
             <Text medium style={styles.nameText} color={`${colorMode}.primaryText`}>
@@ -79,6 +86,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: hp(15),
     alignSelf: 'center',
+    borderWidth: 1,
   },
   dateAdded: {
     marginBottom: hp(30),

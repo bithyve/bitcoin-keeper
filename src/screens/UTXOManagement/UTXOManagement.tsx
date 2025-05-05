@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState, useRef } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
+import PrivateNoVaultTransactionIcon from 'src/assets/privateImages/no_transaction_icon .svg';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
@@ -27,6 +28,7 @@ import MiniscriptPathSelector, {
 import useToastMessage from 'src/hooks/useToastMessage';
 import WalletHeader from 'src/components/WalletHeader';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import { useSelector } from 'react-redux';
 
 function Footer({ utxos, wallet, setEnableSelection, enableSelection, selectedUTXOs }) {
   const navigation = useNavigation();
@@ -93,6 +95,8 @@ function UTXOManagement({ route }: ScreenProps) {
   const [selectedUTXOs, setSelectedUTXOs] = useState([]);
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && selectedWallet ? !!walletSyncing[selectedWallet.id] : false;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   useEffect(
     () => () => {
@@ -162,7 +166,13 @@ function UTXOManagement({ route }: ScreenProps) {
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
           currentWallet={selectedWallet}
-          emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
+          emptyIcon={
+            routeName === 'Vault'
+              ? privateTheme
+                ? PrivateNoVaultTransactionIcon
+                : NoVaultTransactionIcon
+              : NoTransactionIcon
+          }
         />
         <Box marginTop={hp(15)}>
           {utxos?.length ? (

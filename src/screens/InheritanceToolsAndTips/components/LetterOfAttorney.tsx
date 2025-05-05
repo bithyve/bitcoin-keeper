@@ -19,7 +19,8 @@ import useSigners from 'src/hooks/useSigners';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import PrivateLetterAttorney from 'src/assets/privateImages/doc-letter-attoorney.svg';
 
 function LetterOfAttorney() {
   const { signers } = useSigners();
@@ -33,9 +34,16 @@ function LetterOfAttorney() {
   const { inheritancePlanning } = translations;
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const dispatch = useDispatch();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper
+      barStyle="dark-content"
+      backgroundcolor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
+    >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
@@ -51,7 +59,7 @@ function LetterOfAttorney() {
           {inheritancePlanning.letterOfAttorneyP2}
         </Text>
         <Box style={styles.circleStyle}>
-          <LetterOfattorneyIcon />
+          {privateTheme ? <PrivateLetterAttorney /> : <LetterOfattorneyIcon />}
         </Box>
         <Box mt={5}>
           <DashedButton
@@ -62,6 +70,7 @@ function LetterOfAttorney() {
               setConfirmPassVisible(true);
             }}
             name={inheritancePlanning.letterOfAttorneyCtaTitle}
+            hexagonBackgroundColor={'transparent'}
           />
         </Box>
 

@@ -103,11 +103,12 @@ export interface Signer {
   addedOn: Date;
   bip85Config?: BIP85Config;
   isBIP85?: boolean; // Assisted Keys+ identifier
-  signerPolicy?: SignerPolicy; // Signing Server's Signer Policy
+  signerPolicy?: SignerPolicy; // Server Key's Signer Policy
   hidden: boolean;
   extraData?: SignerExtraData;
   archived?: boolean;
   isExternal?: boolean;
+  linkedViaSecondary?: boolean; // if true, Server Key is relinked using secondary verification
   networkType: NetworkType;
 }
 

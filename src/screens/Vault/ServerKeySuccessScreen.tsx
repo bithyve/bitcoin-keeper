@@ -11,6 +11,8 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import SigningServerIllustrations from 'src/assets/images/backup-server-illustration.svg';
+import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-server-illustration.svg';
+import PrivateBackupSigningServerIllustrations from 'src/assets/privateImages/Backup-Server-Key-illustration.svg';
 import SigningServer from 'src/services/backend/SigningServer';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -24,6 +26,7 @@ import { hash256 } from 'src/utils/service-utilities/encryption';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { Signer } from 'src/services/wallets/interfaces/vault';
+import { useSelector } from 'react-redux';
 
 function ServerKeySuccessScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -32,6 +35,8 @@ function ServerKeySuccessScreen({ route }) {
   const { signingServer, common } = translations;
   const navigation = useNavigation();
   const { vaultKey, vaultId } = route.params || {};
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const {
     setupData,
     addedSigner,
@@ -99,7 +104,11 @@ function ServerKeySuccessScreen({ route }) {
   const BackupModalContent = useCallback(() => {
     return (
       <Box style={styles.modalContainer}>
-        <SigningServerIllustrations />
+        {privateTheme ? (
+          <PrivateBackupSigningServerIllustrations />
+        ) : (
+          <SigningServerIllustrations />
+        )}
         <Box>
           <Text fontSize={12} semiBold style={styles.modalTitle}>
             {signingServer.attention}:
@@ -236,7 +245,11 @@ function ServerKeySuccessScreen({ route }) {
       <ActivityIndicatorView visible={OTBLoading} showLoader={true} />
 
       <Box style={styles.container}>
-        <SigningServerIllustration />
+        {privateTheme ? (
+          <PrivateSigningServerIllustrations width={hp(200)} height={hp(200)} />
+        ) : (
+          <SigningServerIllustration />
+        )}
         <Text semiBold fontSize={20} color={`${colorMode}.textGreen`} style={styles.title}>
           {signingServer.successTitle}
         </Text>

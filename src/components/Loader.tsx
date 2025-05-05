@@ -3,16 +3,23 @@ import { Box, useColorMode } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
 
 import Background from 'src/assets/images/background elements.svg';
+import PrivateBackground from 'src/assets/privateImages/background-elements.svg';
 import Gear1 from 'src/assets/images/gear1.svg';
 import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear2Dark from 'src/assets/images/smallGearDark.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
+import PrivateGear1 from 'src/assets/privateImages/gear1 .svg';
+import PrivateGear2 from 'src/assets/privateImages/gear 2.svg';
+import PrivateGear3 from 'src/assets/privateImages/gear 3.svg';
 import { windowWidth } from 'src/constants/responsive';
+import { useSelector } from 'react-redux';
 
 function LoadingAnimation() {
   const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   Animated.loop(
     Animated.timing(spinValue, {
       toValue: 1,
@@ -38,15 +45,15 @@ function LoadingAnimation() {
           alignItems: 'flex-start',
         }}
       >
-        <Background />
+        {privateTheme ? <PrivateBackground style={styles.background} /> : <Background />}
         <Animated.View style={styles.gear2}>
-          {colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
+          {privateTheme ? <PrivateGear2 /> : colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
         </Animated.View>
         <Animated.View style={colorMode === 'light' ? styles.gear1 : styles.gear1Dark}>
-          {colorMode === 'light' ? <Gear1 /> : <Gear1Dark />}
+          {privateTheme ? <PrivateGear1 /> : colorMode === 'light' ? <Gear1 /> : <Gear1Dark />}
         </Animated.View>
         <Animated.View style={colorMode === 'light' ? styles.gear3 : styles.gear3Dark}>
-          {colorMode === 'light' ? <Gear3 /> : <Gear2Dark />}
+          {privateTheme ? <PrivateGear3 /> : colorMode === 'light' ? <Gear3 /> : <Gear2Dark />}
         </Animated.View>
       </Box>
     </Box>
@@ -86,5 +93,8 @@ const getStyles = (clock, antiClock) =>
       right: '30%',
       top: '7%',
       transform: [{ rotate: clock }],
+    },
+    background: {
+      left: '6%',
     },
   });

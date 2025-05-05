@@ -1,7 +1,6 @@
 import { Box, Input, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
@@ -17,7 +16,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
@@ -31,6 +30,8 @@ import { hp, wp } from 'src/constants/responsive';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import WalletHeader from 'src/components/WalletHeader';
+import PrivateSigningDevice from 'src/assets/privateImages/doc-hardware-usage.svg';
 
 const SigningDeviceList = () => {
   const navigation = useNavigation();
@@ -45,7 +46,7 @@ const SigningDeviceList = () => {
     headerSubtitle,
     vaultType,
   }: {
-    scheme: VaultScheme;
+    scheme?: VaultScheme;
     addSignerFlow: boolean;
     vaultId: string;
     vaultSigners?: VaultSigner[];
@@ -56,6 +57,8 @@ const SigningDeviceList = () => {
   } = route.params as any;
   const { colorMode } = useColorMode();
   const { isOnL1, isOnL2 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const { signers } = useSigners();
   const { translations } = useContext(LocalizationContext);
   const [isNfcSupported, setNfcSupport] = useState(true);
@@ -65,7 +68,7 @@ const SigningDeviceList = () => {
   const { signer, common } = translations;
   const isMultisig = addSignerFlow
     ? true
-    : scheme.n !== 1 || scheme.miniscriptScheme || vaultType === VaultType.MINISCRIPT;
+    : scheme?.n !== 1 || scheme?.miniscriptScheme || vaultType === VaultType.MINISCRIPT;
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -110,7 +113,7 @@ const SigningDeviceList = () => {
     return (
       <Box>
         <Box style={styles.alignCenter}>
-          <SigningDevicesIllustration />
+          {privateTheme ? <PrivateSigningDevice /> : <SigningDevicesIllustration />}
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
@@ -162,13 +165,10 @@ const SigningDeviceList = () => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={headerTitle}
-        subtitle={headerSubtitle}
+        subTitle={headerSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
-        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
@@ -179,8 +179,6 @@ const SigningDeviceList = () => {
             </TouchableOpacity>
           )
         }
-        rightComponentPadding={wp(10)}
-        rightComponentBottomPadding={hp(40)}
       />
       <Box style={styles.scrollViewWrapper}>
         <ScrollView
@@ -193,9 +191,13 @@ const SigningDeviceList = () => {
             <ActivityIndicator />
           ) : (
             <>
-              <Box paddingY="4">
+              <Box paddingY="4" backgroundColor={`${colorMode}.primaryBackground`}>
                 {sortedSigners[signerCategory]?.map((type: SignerType, index: number) => {
-                  const { disabled, message: connectivityStatus } = getDeviceStatus(
+                  const {
+                    disabled,
+                    message: connectivityStatus,
+                    displayToast,
+                  } = getDeviceStatus(
                     type,
                     isNfcSupported,
                     isOnL1,
@@ -205,6 +207,7 @@ const SigningDeviceList = () => {
                     addSignerFlow
                   );
                   let message = connectivityStatus;
+
                   if (!connectivityStatus) {
                     message = getSDMessage({ type });
                   }
@@ -216,6 +219,7 @@ const SigningDeviceList = () => {
                       last={index === sortedSigners[signerCategory].length - 1}
                       isOnL1={isOnL1}
                       isOnL2={isOnL2}
+                      privateTheme={privateTheme}
                       addSignerFlow={addSignerFlow}
                       vaultId={vaultId}
                       vaultSigners={vaultSigners}
@@ -224,6 +228,7 @@ const SigningDeviceList = () => {
                       disabled={disabled}
                       message={message}
                       accountNumber={accountNumber}
+                      displayToast={displayToast}
                     />
                   );
                 })}
@@ -239,14 +244,18 @@ const SigningDeviceList = () => {
         }}
         title={signer.signers}
         subTitle={signer.signerDescription}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
         textColor={`${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={
+          privateTheme ? `${colorMode}.whiteSecButtonText` : `${colorMode}.pantoneGreen`
+        }
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        }
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

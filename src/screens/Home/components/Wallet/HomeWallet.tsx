@@ -23,12 +23,13 @@ import CollaborativeWalletIcon from 'src/assets/images/collaborative_vault_white
 
 import { useAppSelector } from 'src/store/hooks';
 import { resetCollaborativeSession } from 'src/store/reducers/vaults';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { autoSyncWallets, refreshWallets } from 'src/store/sagaActions/wallets';
 import { RefreshControl } from 'react-native';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -58,6 +59,8 @@ const HomeWallet = () => {
     (item) => item !== null
   );
   const [isShowAmount, setIsShowAmount] = useState(false);
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const handleCollaborativeWalletCreation = () => {
     setShowAddWalletModal(false);
@@ -143,11 +146,25 @@ const HomeWallet = () => {
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
         backgroundColor={`${colorMode}.dullGreen`}
-        hexagonBackgroundColor={Colors.primaryGreen}
+        hexagonBackgroundColor={
+          privateTheme
+            ? Colors.goldenGradient
+            : isDarkMode
+            ? Colors.primaryCream
+            : Colors.primaryGreen
+        }
         textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"
         callback={() => setShowAddWalletModal(true)}
-        icon={<Plus width={8.6} height={8.6} />}
+        icon={
+          privateTheme ? (
+            <Plus width={8.6} height={8.6} />
+          ) : isDarkMode ? (
+            <PlusGreenIcon width={8.6} height={8.6} />
+          ) : (
+            <Plus width={8.6} height={8.6} />
+          )
+        }
         iconWidth={22}
         iconHeight={20}
       />

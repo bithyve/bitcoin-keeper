@@ -5,6 +5,7 @@ import { TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
 import Skip from 'src/assets/images/skip.svg';
 import { hp } from 'src/constants/responsive';
+import Fonts from 'src/constants/Fonts';
 
 const { width } = Dimensions.get('window');
 function OnboardingSlideComponent(props) {
@@ -18,6 +19,7 @@ function OnboardingSlideComponent(props) {
           textAlign="center"
           letterSpacing={0.2}
           semiBold
+          style={styles.titleText}
         >
           {props.title}
         </Text>
@@ -80,6 +82,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
+  },
+  titleText: {
+    fontFamily: Fonts.LoraMedium,
   },
 });
 export default OnboardingSlideComponent;

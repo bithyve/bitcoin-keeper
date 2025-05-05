@@ -12,40 +12,52 @@ import RegularUpdateIcon from 'src/assets/images/regular_update_icon.svg';
 
 import Text from 'src/components/KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import PrivateMultiKey from 'src/assets/privateImages/comprihensive-stragies.svg';
+import PrivateEduate from 'src/assets/privateImages/doc-tirple-person.svg';
+import PrivateKnowledge from 'src/assets/privateImages/doc-knowledge.svg';
+import PrivateRecovery from 'src/assets/privateImages/doc-recovery.svg';
+import { useSelector } from 'react-redux';
 
 function InheritanceTips({}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const tips = [
     {
       title: inheritancePlanning.documentMultiKeyTitle,
-      icon: <MultiKeySetupIcon />,
+      icon: privateTheme ? <PrivateMultiKey /> : <MultiKeySetupIcon />,
       paragraph2: inheritancePlanning.documentMultiKeyP2,
       paragraph: inheritancePlanning.documentMultiKeyP1,
     },
     {
       title: inheritancePlanning.educateHireTitle,
-      icon: <EducateHierIcon />,
+      icon: privateTheme ? <PrivateEduate /> : <EducateHierIcon />,
       paragraph2: inheritancePlanning.educateHireP2,
       paragraph: inheritancePlanning.educateHireP1,
     },
     {
       title: inheritancePlanning.selectKnowledgeableTitle,
-      icon: <SelectKnowledgeIcon />,
+      icon: privateTheme ? <PrivateKnowledge /> : <SelectKnowledgeIcon />,
       paragraph2: inheritancePlanning.selectKnowledgeableP2,
       paragraph: inheritancePlanning.selectKnowledgeableP1,
     },
     {
       title: inheritancePlanning.regularUpdatesTitle,
-      icon: <RegularUpdateIcon />,
+      icon: privateTheme ? <PrivateRecovery /> : <RegularUpdateIcon />,
       paragraph2: inheritancePlanning.regularUpdatesP2,
       paragraph: inheritancePlanning.regularUpdatesP1,
     },
   ];
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper
+      barStyle="dark-content"
+      backgroundcolor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
+    >
       <InheritanceHeader />
       <Text style={styles.marginLeft} color={`${colorMode}.headerWhite`}>
         {inheritancePlanning.inheritanceTipsTitle}

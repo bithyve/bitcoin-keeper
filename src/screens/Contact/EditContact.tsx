@@ -15,6 +15,7 @@ import Buttons from 'src/components/Buttons';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { getPersistedDocument, persistDocument } from 'src/services/documents';
+import WalletHeader from 'src/components/WalletHeader';
 
 function EditContact({ route }) {
   const { colorMode } = useColorMode();
@@ -74,7 +75,7 @@ function EditContact({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader simple title="Edit Profile" titleColor={`${colorMode}.primaryText`} />
+      <WalletHeader title="Edit Profile" titleColor={`${colorMode}.primaryText`} />
 
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>

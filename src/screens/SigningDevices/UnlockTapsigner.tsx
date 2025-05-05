@@ -7,7 +7,6 @@ import { CKTapCard } from 'cktap-protocol-react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { handleTapsignerError, unlockRateLimit } from 'src/hardware/tapsigner';
 import Buttons from 'src/components/Buttons';
-import KeeperHeader from 'src/components/KeeperHeader';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
@@ -20,6 +19,7 @@ import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import Note from 'src/components/Note/Note';
+import WalletHeader from 'src/components/WalletHeader';
 
 function UnlockTapsigner() {
   const { colorMode } = useColorMode();
@@ -70,9 +70,9 @@ function UnlockTapsigner() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Unlock TAPSIGNER rate-limit"
-        subtitle="You might have entered the wrong pin too many times, please unlock here and try again"
+        subTitle="You might have entered the wrong pin too many times, please unlock here and try again"
       />
       <ScrollView />
       <Box style={styles.btnContainer}>

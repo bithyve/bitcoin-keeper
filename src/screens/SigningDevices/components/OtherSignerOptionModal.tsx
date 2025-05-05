@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
 import ShowQR from 'src/assets/images/qr-scan-icon.svg';
@@ -8,25 +8,17 @@ import NFCIcon from 'src/assets/images/nfc-circle-icon.svg';
 import { Platform, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import NFC from 'src/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
 import { captureError } from 'src/services/sentry';
-import { HCESession, HCESessionContext } from 'react-native-hce';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
-import useNfcModal from 'src/hooks/useNfcModal';
-import nfcManager from 'react-native-nfc-manager';
-import idx from 'idx';
 
-function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData }) {
+function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData, readFromNFC }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
-  const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
 
   const isIos = Platform.OS === 'ios';
-  const isAndroid = Platform.OS === 'android';
 
   const selectFile = async () => {
     try {
@@ -50,69 +42,6 @@ function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData }) {
       showToast('Something went wrong.', <ToastErrorIcon />);
     }
   };
-  const readFromNFC = async () => {
-    try {
-      await withNfcModal(async () => {
-        const records = await NFC.read([NfcTech.Ndef]);
-        try {
-          const cosigner = records[0].data;
-          setData(cosigner);
-        } catch (err) {
-          captureError(err);
-          showToast('Please scan a valid co-signer tag', <ToastErrorIcon />);
-        }
-      });
-    } catch (err) {
-      if (err.toString() === 'Error') {
-        console.log('NFC interaction cancelled');
-        return;
-      }
-      captureError(err);
-      showToast('Something went wrong.', <ToastErrorIcon />);
-    }
-  };
-
-  const { session } = useContext(HCESessionContext);
-
-  useEffect(() => {
-    if (isAndroid) {
-      if (nfcVisible) {
-        NFC.startTagSession({ session, content: '', writable: true });
-      } else {
-        NFC.stopTagSession(session);
-      }
-    }
-    return () => {
-      nfcManager.cancelTechnologyRequest();
-    };
-  }, [nfcVisible]);
-
-  useEffect(() => {
-    const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
-      try {
-        // content written from iOS to android
-        const data = idx(session, (_) => _.application.content.content);
-        if (!data) {
-          showToast('Please scan a valid co-signer', <ToastErrorIcon />);
-          return;
-        }
-        setData(data);
-      } catch (err) {
-        captureError(err);
-        showToast('Something went wrong.', <ToastErrorIcon />);
-      } finally {
-        closeNfc();
-      }
-    });
-    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
-      closeNfc();
-    });
-    return () => {
-      unsubConnect();
-      unsubDisconnect();
-      NFC.stopTagSession(session);
-    };
-  }, [session]);
 
   const walletOptions = [
     {
@@ -150,7 +79,12 @@ function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData }) {
     <Box>
       {walletOptions.map((option) => (
         <TouchableOpacity key={option.id} onPress={option.onPress}>
-          <Box style={styles.container} backgroundColor={`${colorMode}.textInputBackground`}>
+          <Box
+            style={styles.container}
+            backgroundColor={`${colorMode}.textInputBackground`}
+            borderColor={`${colorMode}.separator`}
+            borderWidth={1}
+          >
             <CircleIconWrapper
               width={40}
               icon={option.icon}

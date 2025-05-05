@@ -47,7 +47,8 @@ import {
 import { RootState, store } from '../store';
 import { createWatcher } from '../utilities';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
-import { setLoginMethod, setSubscription } from '../reducers/settings';
+import { setLoginMethod } from '../reducers/settings';
+import { setSubscription } from 'src/store/sagaActions/settings';
 import { backupAllSignersAndVaults } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
@@ -208,13 +209,16 @@ function* credentialsAuthWorker({ payload }) {
           yield put(setRecepitVerificationFailed(!response.isValid));
           if (!response.isValid) {
             if (
-              (subscription.level > 1 && ['Hodler', 'Diamond Hands'].includes(subscription.name)) ||
+              (subscription.level > 1 &&
+                [SubscriptionTier.L2, SubscriptionTier.L3, SubscriptionTier.L4].includes(
+                  subscription?.name as SubscriptionTier
+                )) ||
               subscription.level !== response.level
             ) {
               yield call(downgradeToPleb);
               yield put(setRecepitVerificationFailed(true));
             }
-          } else if (plebDueToOffline && response?.level != subscription?.level) {
+          } else if (plebDueToOffline || response?.level != subscription?.level) {
             yield call(
               updateSubscriptionFromRelayData,
               response,
@@ -273,7 +277,7 @@ async function updateSubscriptionFromRelayData(data, wasAutoUpdateEnabledBeforeD
       isDesktopPurchase: true,
     };
   } else {
-    delete data.subscription.paymentType;
+    if (data.subscription?.paymentType) delete data.subscription?.paymentType;
     updatedSubscription = {
       ...data.subscription,
       isDesktopPurchase: false,

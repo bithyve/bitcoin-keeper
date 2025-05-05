@@ -11,11 +11,7 @@ import {
   WalletType,
   XpubTypes,
 } from 'src/services/wallets/enums';
-import {
-  DelayedPolicyUpdate,
-  SignerException,
-  SignerRestriction,
-} from 'src/models/interfaces/AssistedKeys';
+import { DelayedPolicyUpdate, SignerRestriction } from 'src/models/interfaces/AssistedKeys';
 import {
   MiniscriptElements,
   Signer,
@@ -356,8 +352,12 @@ export function* addSigningDeviceWorker({
     yield call(mergeSimilarKeysWorker, { payload: { signer } });
   }
   try {
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
+
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    const filteredSigners = existingSigners.filter((s) => !s.archived);
+    const filteredSigners = existingSigners.filter(
+      (s) => !s.archived && s.networkType === bitcoinNetworkType
+    );
     const signerMap = Object.fromEntries(
       filteredSigners.map((signer) => [getKeyUID(signer), signer])
     );
@@ -570,7 +570,7 @@ function* migrateVaultWorker({
     const migrated = yield call(addNewVaultWorker, {
       payload: { newVaultInfo, isMigrated: true, oldVaultId },
     });
-    let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
     if (migrated && migratedVault) {
       yield put(
         vaultMigrationCompleted({
@@ -653,13 +653,16 @@ function* refreshWalletsWorker({
         if (options.addNotifications) {
           if (synchedWallet.type !== VaultType.CANARY) {
             if (!Object.values(synchedWallet.specs.addresses.internal).includes(utxo.address)) {
+              const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
+
               yield put(
                 addToUaiStack({
                   uaiType: uaiType.INCOMING_TRANSACTION,
-                  entityId: synchedWallet.entityKind + '_' + synchedWallet.id + '_' + utxo.txId,
+                  entityId: `${synchedWallet.entityKind}_${synchedWallet.id}_${utxo.txId}`,
                   uaiDetails: {
                     heading: 'New Transaction Received',
                     body: 'Click to view the transaction details',
+                    networkType: bitcoinNetworkType,
                   },
                 })
               );
@@ -691,7 +694,7 @@ function* refreshWalletsWorker({
     } else {
       yield put(
         setElectrumNotConnectedErr(
-          'Wallet sync failed: ' + (err.message ? err.message : err.toString())
+          `Wallet sync failed: ${err.message ? err.message : err.toString()}`
         )
       );
       captureError(err);
@@ -745,7 +748,6 @@ export function* updateSignerPolicyWorker({
     signingKey: VaultSigner;
     updates: {
       restrictions: SignerRestriction;
-      exceptions: SignerException;
       signingDelay: number;
     };
     verificationToken: number;

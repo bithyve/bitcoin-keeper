@@ -9,13 +9,17 @@ import {
   VaultType,
   WalletType,
 } from 'src/services/wallets/enums';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import PrivacyIcon from 'src/assets/images/privacy.svg';
 import EfficiencyIcon from 'src/assets/images/efficiency.svg';
 import SaclingIcon from 'src/assets/images/scaling.svg';
 import SecurityIcon from 'src/assets/images/security.svg';
+import PrivatePrivacyIcon from 'src/assets/privateImages/privacy.svg';
+import PrivateEfficiencyIcon from 'src/assets/privateImages/efficiency.svg';
+import PrivateSaclingIcon from 'src/assets/privateImages/scaling.svg';
+import PrivateSecurityIcon from 'src/assets/privateImages/security.svg';
 
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -32,10 +36,12 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import SettingsIcon from 'src/assets/images/settings_grey.svg';
 import EditIcon from 'src/assets/images/edit_brown.svg';
+import EditIconWhite from 'src/assets/images/edit_white.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useWallets from 'src/hooks/useWallets';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import AddCircleLight from 'src/assets/images/add-circle-light.svg';
+import AddCircleDark from 'src/assets/privateImages/round-White-plus.svg';
 import VaultMigrationController from '../Vault/VaultMigrationController';
 import useVault from 'src/hooks/useVault';
 import CardPill from 'src/components/CardPill';
@@ -53,10 +59,12 @@ import useSigners from 'src/hooks/useSigners';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { CTACardDotted } from 'src/components/CTACardDotted';
+import Colors from 'src/theme/Colors';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -101,7 +109,8 @@ function ConfirmWalletDetails({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const vaultType = route.params.vaultType;
-
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const isSmallDevice = useIsSmallDevices();
 
   const { signers } = useSigners();
@@ -168,7 +177,7 @@ function ConfirmWalletDetails({ route }) {
     );
   }
 
-  function TapRootContent() {
+  function TapRootContent({ privateTheme }) {
     const { colorMode } = useColorMode();
     const { translations } = useContext(LocalizationContext);
     const { wallet } = translations;
@@ -176,7 +185,7 @@ function ConfirmWalletDetails({ route }) {
       <Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            <PrivacyIcon />
+            {privateTheme ? <PrivatePrivacyIcon /> : <PrivacyIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -189,7 +198,7 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            <EfficiencyIcon />
+            {privateTheme ? <PrivateEfficiencyIcon /> : <EfficiencyIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -202,7 +211,7 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            <SaclingIcon />
+            {privateTheme ? <PrivateSaclingIcon /> : <SaclingIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -215,7 +224,7 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            <SecurityIcon />
+            {privateTheme ? <PrivateSecurityIcon /> : <SecurityIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -238,13 +247,18 @@ function ConfirmWalletDetails({ route }) {
 
     return (
       <Box>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
+        <Box
+          backgroundColor={`${colorMode}.seashellWhite`}
+          style={styles.walletVaultInfoContainer}
+          borderColor={`${colorMode}.separator`}
+          borderWidth={1}
+        >
           <Box style={styles.walletVaultInfoWrapper}>
             <Box style={styles.iconWrapper}>
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
                 icon={<VaultIcon />}
               />
             </Box>
@@ -299,18 +313,18 @@ function ConfirmWalletDetails({ route }) {
 
     return (
       <Box>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
-          <Box style={styles.singleSigpills}>
-            {tags?.map(({ tag, color }) => {
-              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
-            })}
-          </Box>
+        <Box
+          backgroundColor={`${colorMode}.seashellWhite`}
+          style={styles.walletVaultInfoContainer}
+          borderColor={`${colorMode}.separator`}
+          borderWidth={1}
+        >
           <Box style={styles.walletVaultInfoWrapper}>
             <Box style={styles.iconWrapper}>
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
                 icon={<VaultIcon />}
               />
             </Box>
@@ -324,6 +338,12 @@ function ConfirmWalletDetails({ route }) {
                 {vault.presentationData.name}
               </Text>
             </Box>
+          </Box>
+
+          <Box style={styles.singleSigpills}>
+            {tags?.map(({ tag, color }) => {
+              return <CardPill key={tag} heading={tag} backgroundColor={color} />;
+            })}
           </Box>
         </Box>
       </Box>
@@ -422,7 +442,7 @@ function ConfirmWalletDetails({ route }) {
           >
             <Box style={styles.descriptionContainer}>
               <Text color={`${colorMode}.greenText`}>Add Description</Text>
-              <AddCircleLight />
+              {privateTheme ? <AddCircleDark /> : <AddCircleLight />}
             </Box>
           </Pressable>
         </Box>
@@ -445,8 +465,12 @@ function ConfirmWalletDetails({ route }) {
               navigation.goBack();
             }}
           >
-            <EditIcon />
-            <Text color={`${colorMode}.BrownNeedHelp`} semiBold fontSize={13}>
+            {isDarkMode ? <EditIconWhite /> : <EditIcon />}
+            <Text
+              color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.BrownNeedHelp`}
+              semiBold
+              fontSize={13}
+            >
               Edit
             </Text>
           </Pressable>
@@ -465,7 +489,7 @@ function ConfirmWalletDetails({ route }) {
                   name={getSignerNameFromType(signer.type, signer.isMock, signer.isAMF)}
                   description={getSignerDescription(signer)}
                   // customStyle={styles.signerCard}
-                  icon={SDIcons(signer.type).Icon}
+                  icon={SDIcons({ type: signer.type }).Icon}
                   image={signer?.extraData?.thumbnailPath}
                   showSelection={false}
                   isFullText
@@ -483,7 +507,7 @@ function ConfirmWalletDetails({ route }) {
                   false
                 )}
                 description={getSignerDescription(inheritanceSigner)}
-                icon={SDIcons(inheritanceSigner.type).Icon}
+                icon={SDIcons({ type: inheritanceSigner.type }).Icon}
                 image={inheritanceSigner?.extraData?.thumbnailPath}
                 showSelection={false}
                 isFullText
@@ -497,7 +521,7 @@ function ConfirmWalletDetails({ route }) {
                 key={getKeyUID(emergencySigner)}
                 name={getSignerNameFromType(emergencySigner.type, emergencySigner.isMock, false)}
                 description={getSignerDescription(emergencySigner)}
-                icon={SDIcons(emergencySigner.type).Icon}
+                icon={SDIcons({ type: emergencySigner.type }).Icon}
                 image={emergencySigner?.extraData?.thumbnailPath}
                 showSelection={false}
                 isFullText
@@ -594,7 +618,6 @@ function ConfirmWalletDetails({ route }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
         learnMoreButton={true}
-        learnButtonTextColor={`${colorMode}.white`}
         learnMoreButtonPressed={() => {
           setVisibleModal(true);
         }}
@@ -676,15 +699,19 @@ function ConfirmWalletDetails({ route }) {
         }}
         title={wallet.tapRootBenefits}
         subTitle={''}
-        modalBackground={`${colorMode}.pantoneGreen`}
+        modalBackground={
+          privateTheme ? `${colorMode}.primarybackground` : `${colorMode}.pantoneGreen`
+        }
         textColor={`${colorMode}.headerWhite`}
-        Content={TapRootContent}
+        Content={() => <TapRootContent privateTheme={privateTheme} />}
         showCloseIcon={true}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.pantoneGreen`}
-        buttonBackground={`${colorMode}.whiteSecButtonText`}
+        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        }
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
@@ -772,7 +799,7 @@ const styles = StyleSheet.create({
   walletVaultInfoContainer: {
     paddingHorizontal: 15,
     paddingVertical: 15,
-    marginVertical: 20,
+    marginBottom: 20,
     borderRadius: 10,
     gap: 20,
   },
@@ -785,13 +812,9 @@ const styles = StyleSheet.create({
   },
   singleSigpills: {
     flexDirection: 'row',
-    gap: 5,
-    justifyContent: 'flex-end',
-    marginBottom: hp(3),
+    rowGap: 6,
+    columnGap: 8,
     width: '100%',
-    position: 'absolute',
-    top: hp(20),
-    right: wp(13),
     flexWrap: 'wrap',
   },
   walletVaultInfoWrapper: {

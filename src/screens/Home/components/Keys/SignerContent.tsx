@@ -12,6 +12,9 @@ import MobileKeyBlack from 'src/assets/images/signerSoftwareBlack.svg';
 import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import { CommonActions } from '@react-navigation/native';
 import DashedCta from 'src/components/DashedCta';
+import PrivateHardwareKey from 'src/assets/privateImages/hard-key.svg';
+import PrivateSoftwareKey from 'src/assets/privateImages/soft-key.svg';
+import { useSelector } from 'react-redux';
 
 const SignerContent = ({ navigation, handleModalClose }) => {
   const { colorMode } = useColorMode();
@@ -19,22 +22,40 @@ const SignerContent = ({ navigation, handleModalClose }) => {
 
   const { signer } = translations;
   const isDarkMode = colorMode === 'dark';
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const hardwareSigners = [
-    { type: SignerType.COLDCARD, background: 'dullCreamBackground', isTrue: false },
+    {
+      type: SignerType.COLDCARD,
+      background: 'headerWhite',
+      isTrue: false,
+    },
     { type: SignerType.TAPSIGNER, background: 'pantoneGreen', isTrue: true },
     { type: SignerType.JADE, background: 'brownBackground', isTrue: true },
-    { type: SignerType.PASSPORT, background: 'dullCreamBackground', isTrue: false },
+    {
+      type: SignerType.PASSPORT,
+      background: 'headerWhite',
+      isTrue: false,
+    },
     { type: SignerType.SPECTER, background: 'pantoneGreen', isTrue: false },
     { type: SignerType.KEYSTONE, background: 'brownBackground', isTrue: false },
-    { type: SignerType.LEDGER, background: 'dullCreamBackground', isTrue: false },
+    {
+      type: SignerType.LEDGER,
+      background: 'headerWhite',
+      isTrue: false,
+    },
     { type: SignerType.PORTAL, background: 'pantoneGreen', isTrue: false },
     { type: SignerType.TREZOR, background: 'brownBackground', isTrue: false },
-    { type: SignerType.BITBOX02, background: 'dullCreamBackground', isTrue: false },
+    {
+      type: SignerType.BITBOX02,
+      background: 'headerWhite',
+      isTrue: false,
+    },
   ];
 
   const hardwareSnippet = hardwareSigners.map(({ type, background, isTrue }) => ({
-    Icon: SDIcons(type, isTrue, 9, 13).Icon,
+    Icon: SDIcons({ type, light: isTrue, width: 9, height: 13 }).Icon,
     backgroundColor: `${colorMode}.${background}`,
   }));
 
@@ -45,7 +66,13 @@ const SignerContent = ({ navigation, handleModalClose }) => {
       signerCategory: SignerCategory.HARDWARE,
       headerTitle: signer.hardwareKeysHeader,
       headerSubtitle: signer.connectHardwareDevices,
-      Icon: isDarkMode ? <HardwareSignerWhite /> : <HardwareSignerBlack width={22} height={22} />,
+      Icon: privateTheme ? (
+        <PrivateHardwareKey />
+      ) : isDarkMode ? (
+        <HardwareSignerWhite />
+      ) : (
+        <HardwareSignerBlack width={22} height={22} />
+      ),
       snippet: hardwareSnippet,
     },
     {
@@ -54,7 +81,13 @@ const SignerContent = ({ navigation, handleModalClose }) => {
       signerCategory: SignerCategory.SOFTWARE,
       headerTitle: signer.softwareKeysHeader,
       headerSubtitle: signer.keysNoHardwareNeeded,
-      Icon: isDarkMode ? <MobileKeyWhite /> : <MobileKeyBlack />,
+      Icon: privateTheme ? (
+        <PrivateSoftwareKey />
+      ) : isDarkMode ? (
+        <MobileKeyWhite />
+      ) : (
+        <MobileKeyBlack />
+      ),
       snippet: [],
     },
   ];
@@ -91,7 +124,7 @@ const SignerContent = ({ navigation, handleModalClose }) => {
         ))}
         <DashedCta
           backgroundColor={`${colorMode}.dullGreen`}
-          borderColor={`${colorMode}.dashedButtonBorderColor`}
+          borderColor={`${colorMode}.pantoneGreen`}
           textColor={`${colorMode}.greenWhiteText`}
           name={signer.purchaseWallet}
           cardStyles={styles.cardStyles}

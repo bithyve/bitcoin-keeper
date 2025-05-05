@@ -6,10 +6,15 @@ import { hp, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import { getAccountFromSigner } from 'src/utils/utilities';
+import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-server-illustration.svg';
+import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function KeyAddedModal({ visible, close, signer }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const defaultConfig = {
     buttonText: 'Add Description',
@@ -51,7 +56,15 @@ function KeyAddedModal({ visible, close, signer }) {
         secondaryCallback={close}
         Content={() => (
           <Box style={styles.externalKeyModal}>
-            <SuccessCircleIllustration style={styles.externalKeyIllustration} />
+            {privateTheme ? (
+              <PrivateSigningServerIllustrations
+                width={hp(200)}
+                height={hp(200)}
+                style={styles.externalKeyIllustration}
+              />
+            ) : (
+              <SuccessCircleIllustration style={styles.externalKeyIllustration} />
+            )}
             {content}
           </Box>
         )}

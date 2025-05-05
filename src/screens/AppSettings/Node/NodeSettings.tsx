@@ -26,6 +26,7 @@ import WarningNote from 'src/components/WarningNote';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -132,9 +133,10 @@ function NodeSettings() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <ActivityIndicatorView visible={loading} />
-      <KeeperHeader
+
+      <WalletHeader
         title={settings.nodeSettings}
-        subtitle={settings.manageElectrumServersSubtitle}
+        subTitle={settings.manageElectrumServersSubtitle}
       />
       <Box style={styles.nodesListWrapper}>
         {nodeList.length > 0 ? (

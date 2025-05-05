@@ -18,6 +18,10 @@ import Buttons from 'src/components/Buttons';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { translations } from 'src/context/Localization/LocContext';
 import SigningServer from 'src/services/backend/SigningServer';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getKeyUID } from 'src/utils/utilities';
+import { useNavigation } from '@react-navigation/native';
 import { SDIcons } from '../SigningDeviceIcons';
 
 type AssignSignerTypeCardProps = {
@@ -46,6 +50,7 @@ function AssignSignerTypeCard({
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { common } = translations;
+  const navigation = useNavigation();
 
   const changeSignerType = () => {
     setShowConfirm(false);
@@ -75,16 +80,24 @@ function AssignSignerTypeCard({
     }
 
     try {
-      const { valid, id, masterFingerprint, policy } = await SigningServer.fetchSignerSetup(
-        signerId,
-        verificationToken
-      );
+      const { valid, id, masterFingerprint, policy, linkedViaSecondary } =
+        await SigningServer.fetchSignerSetup(signerId, verificationToken);
+
       if (valid) {
         if (id === signerId && masterFingerprint === signer.masterFingerprint) {
-          dispatch(updateSignerDetails(signer, 'type', type));
-          dispatch(updateSignerDetails(signer, 'isExternal', true));
-          dispatch(updateSignerDetails(signer, 'signerPolicy', policy));
-          dispatch(updateSignerDetails(signer, 'signerName', 'External Server Key'));
+          const signerKeyUID = getKeyUID(signer);
+          dbManager.updateObjectByQuery(
+            RealmSchema.Signer,
+            (realmSigner) => getKeyUID(realmSigner) === signerKeyUID,
+            {
+              type,
+              isExternal: true,
+              linkedViaSecondary,
+              signerPolicy: policy,
+              signerName: 'External Server Key',
+            }
+          );
+          navigation.goBack();
         } else throw new Error('Server Key mismatch');
       } else throw new Error('Server Key validation failed');
     } catch (err) {
@@ -149,7 +162,12 @@ function AssignSignerTypeCard({
         />
         <Box mt={10} alignSelf="flex-end">
           <Box>
-            <Buttons primaryCallback={validateServerKey} fullWidth primaryText="Confirm" />
+            <Buttons
+              primaryCallback={validateServerKey}
+              fullWidth
+              primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
+            />
           </Box>
         </Box>
       </Box>
@@ -182,9 +200,11 @@ function AssignSignerTypeCard({
               },
             ]}
           >
-            <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
+            <Box style={styles.walletMapWrapper}>
+              {SDIcons({ type, light: colorMode === 'dark' }).Icon}
+            </Box>
             <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.divider} />
-            <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
+            <Box style={styles.walletMapLogoWrapper}>{SDIcons({ type }).Logo}</Box>
             <Box style={styles.arrowIconWrapper}>
               {isDarkMode ? <RightArrowWhite /> : <RightArrow />}
             </Box>

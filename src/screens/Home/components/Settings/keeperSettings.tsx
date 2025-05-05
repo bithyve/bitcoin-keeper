@@ -27,6 +27,7 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { useAppSelector } from 'src/store/hooks';
 import KeeperModal from 'src/components/KeeperModal';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { useSelector } from 'react-redux';
 
 const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -60,6 +61,8 @@ const KeeperSettings = ({ route }) => {
   const currentPlan = planData.find((p) => p.plan === plan);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
   const onSuccess = () => navigation.dispatch(CommonActions.navigate('DeleteKeys'));
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -69,13 +72,13 @@ const KeeperSettings = ({ route }) => {
         description={currentPlan.description}
         titleColor={`${colorMode}.whiteSecButtonText`}
         subtitleColor={`${colorMode}.whiteSecButtonText`}
-        backgroundColor={Colors.ashGreen}
+        backgroundColor={Colors.GreenishGrey}
         onPress={() => navigation.navigate('ChoosePlan')}
         icon={currentPlan.icon}
       />
       <InheritanceDocument
         title={signer.inheritanceDocuments}
-        borderColor={`${colorMode}.SeaweedGreen`}
+        borderColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.SeaweedGreen`}
         description={signer.bitcoinSecurity}
         subtitleColor={`${colorMode}.balanceText`}
         backgroundColor={`${colorMode}.textInputBackground`}

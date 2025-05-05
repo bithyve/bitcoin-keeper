@@ -1,25 +1,25 @@
 const Colors = {
   // Light
 
-  primaryGreen: 'rgba(45, 103, 89, 1)',
-  primaryBrown: 'rgba(145, 120, 92, 1)',
-  primaryCream: 'rgba(247, 242, 236, 1)',
+  primaryGreen: 'rgba(47, 79, 79, 1)',
+  primaryBrown: 'rgba(73, 61, 51, 1)',
+  primaryCream: 'rgba(246, 242, 237, 1)',
 
   // secondary colors
-  secondaryBlack: 'rgba(4, 21, 19, 1)',
+  secondaryBlack: 'rgba(39, 36, 33, 1)',
   ashGreen: 'rgba(36, 49, 46, 1)',
-  GreenishGrey: 'rgba(62, 82, 77, 1)',
+  GreenishGrey: 'rgba(55, 46, 38, 1)',
   secondaryDarkGrey: 'rgba(135, 135, 135, 1)',
   secondaryLightGrey: 'rgba(142, 142, 142, 1)',
   secondaryCreamWhite: 'rgba(242, 237, 230, 1)',
 
   // Element  Colors
-  brightCream: 'rgba(253, 247, 240, 1)',
+  brightCream: 'rgba(249, 244, 240, 1)',
   dullGreen: 'rgba(221, 222, 216, 1)',
   redAlert: 'rgba(229, 69, 69, 1)',
   ErrorToast: 'rgba(249, 219, 219, 1)',
   greyBorder: 'rgba(212, 212, 212, 1)',
-  toastBg: 'rgba(234, 210, 181, 1)',
+  pillOrange: 'rgba(234, 210, 181, 1)',
 
   // Tag Colors
   TagLight1: 'rgba(0, 103, 105, 1)',
@@ -38,10 +38,10 @@ const Colors = {
   LabelLight3: 'rgba(91, 191, 168, 1)',
 
   // Dark
-  DullGreenDark: 'rgba(44, 103, 89, 1)',
+  DullGreenDark: 'rgba(47, 79, 79, 1)',
   DullBrown: 'rgba(111, 98, 89, 1)',
   PrimaryBlack: 'rgba(18, 18, 18, 1)',
-  SecondaryBlack: 'rgba(31, 31, 31, 1)',
+  SecondaryBlack: 'rgba(47, 46, 45, 1)',
   TertiaryBlack: 'rgba(40, 40, 40, 1)',
   // secondary color
   headerWhite: 'rgba(255, 255, 255, 1)',
@@ -53,7 +53,7 @@ const Colors = {
   ModalBlack: 'rgba(37, 37, 37, 1)',
   AlertRedDark: 'rgba(187, 73, 73, 1)',
   ToastBg: 'rgba(164, 140, 111, 1)',
-  separator: 'rgba(212, 212, 212, 0.2)',
+  separator: 'rgba(211, 209, 206, 0.3)',
   SecondaryBackgroundDark: 'rgba(31, 31, 31, 1)',
 
   // tag color
@@ -87,6 +87,8 @@ const Colors = {
   OutrageousOrange: 'rgba(248,107,80,1)',
   lightSeashell: 'rgba(253,247,240,0.4)',
   FadeBlue: 'rgba(183,201,196,1)',
+  darkBlue: 'rgba(0, 0, 238,1)',
+  softBlue: 'rgba(102, 178, 255,1)',
   pantoneGreenLight: 'rgba(45,103,89,0.08)',
   WarmBeigeTranslucent: 'rgba(247, 242, 236, 0.3)',
   RussetBrownLight: 'rgba(210, 194, 179, 1)',
@@ -122,5 +124,17 @@ const Colors = {
   SeaweedGreenTranslucent: 'rgba(45, 103, 89, 0.05)',
   GraphiteTranslucent: 'rgba(135, 135, 135, 0.05)',
   SilverMistTranslucent: 'rgba(212, 212, 212, 0.6)',
+  DarkSlateGray: 'rgba(89, 111, 102, 1)',
+  EarthBrown: 'rgba(145, 120, 92, 1)',
+  MistSlate: 'rgba(47, 79, 79, 0.1)',
+  WarmIvory: 'rgba(253, 247, 240, 1)',
+  seperatorDark: 'rgba(211, 209, 206, 0.1)',
+  JadePine: 'rgba(45, 103, 89, 1)',
+  OceanSage: 'rgba(80, 139, 130, 1)',
+  lightGreenTag: 'rgba(146, 194, 124, 1)',
+  goldenGradient: 'rgba(183, 159, 102, 1)',
+  charcolBrown: 'rgba(43, 41, 39, 1)',
+  toastDark: 'rgba(210, 212, 175, 1)',
+  warmbeige: 'rgba(193, 167, 156, 1)',
 };
 export default Colors;

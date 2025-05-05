@@ -7,6 +7,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Pressable,
+  ScrollView,
 } from 'react-native';
 import ConciergeHeader from './components/ConciergeHeader';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
@@ -61,7 +62,7 @@ const CreateTicket = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [imageUri, setImageUri] = useState(null);
+  const [imageUris, setImageUris] = useState(null);
   const [desc, setDesc] = useState('');
   const [loading, setLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -147,11 +148,12 @@ const CreateTicket = ({ navigation, route }) => {
   }, []);
 
   const handleAttachScreenshot = (uri) => {
-    setImageUri(uri);
+    setImageUris(uri);
   };
 
-  const handleRemoveImage = () => {
-    setImageUri(null);
+  const handleRemoveImage = (indexToDelete) => {
+    const updatedImagesUri = imageUris.filter((_, idx) => idx !== indexToDelete);
+    setImageUris(updatedImagesUri);
   };
 
   const addWalletInfo = () => {
@@ -213,7 +215,7 @@ const CreateTicket = ({ navigation, route }) => {
     try {
       setLoading(true);
       let imageToken = null;
-      if (imageUri) {
+      if (imageUris) {
         imageToken = await uploadFile();
       }
       const res = await Zendesk.createZendeskTicket({
@@ -240,11 +242,13 @@ const CreateTicket = ({ navigation, route }) => {
   };
 
   const uploadFile = async () => {
-    const res = await Zendesk.uploadMedia(imageUri);
-    if (res.status === 201 && res.data.upload.token) {
-      return res.data.upload.token;
-    }
-    throw new Error('Something went wrong');
+    const responses = await Promise.all(imageUris.map((uri) => Zendesk.uploadMedia(uri)));
+    const imageTokens = await Promise.all(
+      responses.map((res) => {
+        if (res.status === 201 && res.data.upload.token) return res.data.upload.token;
+      })
+    );
+    return imageTokens;
   };
 
   const closeDetailsModal = () => {
@@ -317,10 +321,21 @@ const CreateTicket = ({ navigation, route }) => {
               },
             ]}
           >
-            {imageUri && (
-              <Box style={styles.imagePreviewContainer}>
-                <ImagePreview imageUri={imageUri} onRemoveImage={handleRemoveImage} />
-              </Box>
+            {imageUris && (
+              <ScrollView
+                horizontal
+                contentContainerStyle={styles.imagePreviewContainer}
+                showsHorizontalScrollIndicator={false}
+              >
+                {imageUris.map((uri, index) => (
+                  <ImagePreview
+                    key={index + uri}
+                    imageUri={uri}
+                    onRemoveImage={handleRemoveImage}
+                    index={index}
+                  />
+                ))}
+              </ScrollView>
             )}
             <CTAFooter
               onAttachScreenshot={handleAttachScreenshot}
@@ -410,6 +425,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(25),
     paddingTop: hp(10),
     paddingBottom: hp(10),
+    flexDirection: 'row',
+    gap: wp(10),
   },
   modalActionCtr: {
     flexDirection: 'row',

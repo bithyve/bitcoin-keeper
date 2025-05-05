@@ -6,7 +6,6 @@ import { StyleSheet } from 'react-native';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import usePlan from 'src/hooks/usePlan';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import WhiteRightArrowIcon from 'src/assets/images/whiteRightIcon.svg';
 import Colors from 'src/theme/Colors';
@@ -42,9 +41,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
-  const { plan, isOnL2Above } = usePlan();
-  const isDiamondHands = plan === SubscriptionTier.L3.toUpperCase();
-  const isHodler = isOnL2Above;
+  const { isOnL3Above, isOnL2Above } = usePlan();
 
   return (
     <>
@@ -68,9 +65,9 @@ const SettingCard: React.FC<SettingCardProps> = ({
       >
         {items.map((item, index) => {
           const applyDiamondCheck = item?.isHodler
-            ? isHodler
+            ? isOnL2Above
             : item?.isDiamond
-            ? isDiamondHands
+            ? isOnL3Above
             : true;
 
           return (
@@ -137,8 +134,9 @@ const SettingCard: React.FC<SettingCardProps> = ({
                 <View
                   style={{
                     height: 1,
-                    backgroundColor: isDarkMode ? 'transparent' : Colors.secondaryCreamWhite,
+                    backgroundColor: isDarkMode ? Colors.primaryCream : Colors.GreenishGrey,
                     marginVertical: 20,
+                    opacity: 0.1,
                   }}
                 />
               )}

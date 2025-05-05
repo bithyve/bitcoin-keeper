@@ -62,14 +62,14 @@ import {
   setupKeeperAppWatcher,
 } from './storage';
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
-import { addLabelsWatcher, bulkUpdateLabelWatcher } from './utxos';
+import { addLabelsWatcher, bulkUpdateLabelWatcher, importLabelsWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
 import {
   loadConciergeUserWatcher,
   addTicketStatusUAIWatcher,
   scheduleOnboardingCallWatcher,
 } from './concierge';
-import { changeBitcoinNetworkWatcher } from './settings';
+import { changeBitcoinNetworkWatcher, setSubscriptionWatcher } from './settings';
 
 const rootSaga = function* () {
   const sagas = [
@@ -150,12 +150,14 @@ const rootSaga = function* () {
     // utxos
     addLabelsWatcher,
     bulkUpdateLabelWatcher,
+    importLabelsWatcher,
     // concierge
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,
     scheduleOnboardingCallWatcher,
     // settings
     changeBitcoinNetworkWatcher,
+    setSubscriptionWatcher,
   ];
 
   yield all(

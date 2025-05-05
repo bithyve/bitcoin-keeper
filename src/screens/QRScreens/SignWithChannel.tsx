@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -15,7 +14,7 @@ import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { captureError } from 'src/services/sentry';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
-import { SignerType, VaultType } from 'src/services/wallets/enums';
+import { VaultType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
@@ -30,6 +29,7 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import QRScanner from 'src/components/QRScanner';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import BackgroundTimer from 'react-native-background-timer';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -60,14 +60,14 @@ function SignWithChannel() {
     signerType,
     isRemoteKey = false,
     serializedPSBTEnvelopFromProps,
-    isMultisig,
+    signTransaction,
   } = params as {
     vaultKey: VaultSigner;
     vaultId: string;
     signerType: string;
     isRemoteKey?: boolean;
     serializedPSBTEnvelopFromProps?: any;
-    isMultisig?: boolean;
+    signTransaction: ({ signedSerializedPSBT }: { signedSerializedPSBT: string }) => void;
   };
   const { signer } = useSignerFromKey(vaultKey);
   const { activeVault } = useVault({ vaultId });
@@ -158,18 +158,8 @@ function SignWithChannel() {
         ])
       );
       if (isRemoteKey) {
-        navgation.dispatch(
-          CommonActions.navigate({
-            name: 'ShowPSBT',
-            params: {
-              data: signedSerializedPSBT,
-              encodeToBytes: false,
-              title: 'Signed PSBT',
-              subtitle: 'Please scan until all the QR data has been retrieved',
-              type: SignerType.KEEPER, // signer used as external key
-            },
-          })
-        );
+        signTransaction({ signedSerializedPSBT });
+        navgation.dispatch(CommonActions.goBack());
         return;
       }
       dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
@@ -181,9 +171,9 @@ function SignWithChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title="Sign with Keeper Desktop App"
-        subtitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to sign with this signer.`}
+        subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to sign with this signer.`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />

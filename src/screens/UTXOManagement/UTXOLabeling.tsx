@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
 import { Box, useColorMode } from 'native-base';
@@ -28,6 +27,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { EditNoteContent } from '../ViewTransactions/TransactionDetails';
 import KeeperModal from 'src/components/KeeperModal';
 import LabelsEditor, { getLabelChanges } from './components/LabelsEditor';
+import WalletHeader from 'src/components/WalletHeader';
 
 function UTXOLabeling() {
   const { showToast } = useToastMessage();
@@ -135,16 +135,16 @@ function UTXOLabeling() {
   const redirectToBlockExplorer = (type: 'address' | 'tx') => {
     openLink(
       `https://mempool.space${
-        bitcoinNetworkType === NetworkType.TESTNET ? '/testnet' : ''
+        bitcoinNetworkType === NetworkType.TESTNET ? '/testnet4' : ''
       }/${type}/${type == 'tx' ? utxo.txId : utxo.address}`
     );
   };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={walletTranslations.UTXODetails}
-        subtitle={walletTranslations.UTXODetailsSubtitle}
+        subTitle={walletTranslations.UTXODetailsSubtitle}
       />
       <ScrollView
         style={styles.scrollViewWrapper}

@@ -55,7 +55,7 @@ const SigningDelay = ({ route }) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <ScreenWrapper>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <WalletHeader title={signingServer.signigDelay} />
         <Text color={`${colorMode}.modalWhiteContent`} medium style={styles.title}>
           {signingServer.signigDelaySubTitle}

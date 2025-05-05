@@ -21,7 +21,7 @@ import { Shadow } from 'react-native-shadow-2';
 import KeeperModal from 'src/components/KeeperModal';
 import { captureError } from 'src/services/sentry';
 import useWallets from 'src/hooks/useWallets';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -45,6 +45,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
+import WalletHeader from 'src/components/WalletHeader';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -63,6 +64,8 @@ function ListItem({
 }) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     // TODO: Drag and rearrange wallet functionality
@@ -70,9 +73,18 @@ function ListItem({
     //   <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
     //     <AlignIcon />
     //   </TouchableOpacity>
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
+    <Box
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={styles.walletInfoContainer}
+      borderColor={`${colorMode}.separator`}
+    >
       <Box style={styles.textContainer}>
-        <HexagonIcon width={44} height={38} backgroundColor={Colors.primaryGreen} icon={icon} />
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
+          icon={icon}
+        />
         <Box>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
             {title}
@@ -84,7 +96,7 @@ function ListItem({
       </Box>
       <Box style={styles.justifyContent}>
         <Box style={styles.alignCenter}>
-          {getCurrencyIcon(BTC, 'green')}
+          {getCurrencyIcon(BTC, privateTheme ? 'light' : 'green')}
           <Text fontSize={15} color={`${colorMode}.primaryText`}>
             {` ${getBalance(balance)} ${getSatUnit()}`}
           </Text>
@@ -301,7 +313,7 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.ManageWalletsTitle} subtitle={settings.ManageWalletsSub} />
+      <WalletHeader title={settings.ManageWalletsTitle} subTitle={settings.ManageWalletsSub} />
       {!showAll && visibleWallets.length === 0 ? (
         <Box style={styles.emptyWrapper}>
           <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
@@ -486,6 +498,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     gap: 5,
+    borderWidth: 1,
   },
   footer: {
     alignItems: 'center',

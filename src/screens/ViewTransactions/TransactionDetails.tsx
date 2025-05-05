@@ -11,7 +11,6 @@ import {
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import openLink from 'src/utils/OpenLink';
 import IconRecieve from 'src/assets/images/icon_received_lg.svg';
@@ -38,6 +37,7 @@ import { getLabelChanges } from '../UTXOManagement/components/LabelsEditor';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import BTC from 'src/assets/images/btc.svg';
 import { useAppSelector } from 'src/store/hooks';
+import WalletHeader from 'src/components/WalletHeader';
 
 export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
@@ -144,7 +144,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${bitcoinNetworkType === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+      `https://mempool.space${bitcoinNetworkType === NetworkType.TESTNET ? '/testnet4' : ''}/tx/${
         transaction.txid
       }`
     );
@@ -163,9 +163,9 @@ function TransactionDetails({ route }) {
         backgroundColor="transparent"
       />
       <Box style={styles.topSection}>
-        <KeeperHeader
+        <WalletHeader
           title={transactions.TransactionDetails}
-          subtitle={transactions.TransactionDetailsSubTitle}
+          subTitle={transactions.TransactionDetailsSubTitle}
         />
         <Box style={styles.transViewWrapper}>
           <Box style={styles.transViewIcon}>

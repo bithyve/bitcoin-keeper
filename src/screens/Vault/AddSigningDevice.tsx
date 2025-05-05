@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Signer,
   Vault,
@@ -10,7 +10,6 @@ import {
   signerXpubs,
 } from 'src/services/wallets/interfaces/vault';
 import {
-  SignerStorage,
   SignerType,
   KeyValidationErrorCode,
   VaultType,
@@ -31,12 +30,10 @@ import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import { useDispatch } from 'react-redux';
-import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducers/bhr';
+import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import Text from 'src/components/KeeperText';
 import idx from 'idx';
-import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
-import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import CardPill from 'src/components/CardPill';
@@ -55,7 +52,6 @@ import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-il
 import KeyWarningIllustration from 'src/assets/images/reserve-key-illustration-light.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
-import { INHERITANCE_KEY1_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/InheritanceVault';
 import {
   EMERGENCY_KEY_IDENTIFIER,
   INHERITANCE_KEY_IDENTIFIER,
@@ -605,10 +601,8 @@ function Signers({
   selectedSignersFromParams,
   activeVault,
 }) {
-  const { level } = useSubscriptionLevel();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText, common } = translations;
-  const [visible, setVisible] = useState(false);
   const [visibleImportXpub, setVisibleImportXpub] = useState(false);
   const [showSSModal, setShowSSModal] = useState(false);
   const [showSignerModal, setShowSignerModal] = useState(false);
@@ -624,12 +618,7 @@ function Signers({
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const close = () => setVisible(false);
   const closeSSModal = () => setShowSSModal(false);
-
-  const setupSignigngServer = async () => {
-    setShowSSModal(true);
-  };
 
   const getDisabledMessage = (
     signer,
@@ -716,60 +705,6 @@ function Signers({
     return null;
   };
 
-  const shellKeys = [];
-
-  const shellAssistedKeys = useMemo(() => {
-    const generateShellAssistedKey = (signerType: SignerType) => ({
-      type: signerType,
-      storageType: SignerStorage.WARM,
-      signerName: getSignerNameFromType(signerType, false, false),
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-      masterFingerprint: Date.now().toString() + signerType,
-      signerXpubs: {},
-      hidden: false,
-    });
-
-    let hasSigningServer = false; // actual signing server present?
-    let isSigningServerShellCreated = false;
-
-    if (shellKeys.filter((signer) => signer.type === SignerType.POLICY_SERVER).length > 0) {
-      isSigningServerShellCreated = true;
-    }
-
-    for (const signer of signers) {
-      if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
-    }
-
-    if (!isSigningServerShellCreated && !hasSigningServer && level >= AppSubscriptionLevel.L2) {
-      shellKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
-    }
-
-    const addedSignersTypes = signers.map((signer) => signer.type);
-    return shellKeys.filter((shellSigner) => !addedSignersTypes.includes(shellSigner.type));
-  }, [signers]);
-
-  const renderAssistedKeysShell = () => {
-    return shellAssistedKeys.map((shellSigner) => {
-      const isAMF = false;
-      return (
-        <SignerCard
-          key={getKeyUID(shellSigner)}
-          onCardSelect={() => {
-            if (shellSigner.type === SignerType.POLICY_SERVER) setupSignigngServer();
-          }}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
-          description="Setup required"
-          icon={SDIcons(shellSigner.type).Icon}
-          showSelection={false}
-          showDot={true}
-          colorVarient="green"
-          colorMode={colorMode}
-        />
-      );
-    });
-  };
-
   const renderSigners = useCallback(
     (signerFilters = []) => {
       const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
@@ -803,7 +738,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type).Icon}
+            icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={(selected) => {
@@ -893,7 +828,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type).Icon}
+            icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={handleCardSelect}
@@ -956,7 +891,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type).Icon}
+            icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={(selected) => {
@@ -1034,7 +969,7 @@ function Signers({
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
             description={getSignerDescription(signer)}
-            icon={SDIcons(signer.type).Icon}
+            icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
             onCardSelect={(selected) => {
@@ -1125,10 +1060,7 @@ function Signers({
             <Box>
               <Box style={styles.addedSigners}>
                 {!isCollaborativeFlow && !isReserveKeyFlow && !isEmergencyKeyFlow ? (
-                  <>
-                    {renderSigners(signerFilters)}
-                    {signerFilters.length <= 0 && renderAssistedKeysShell()}
-                  </>
+                  <>{renderSigners(signerFilters)}</>
                 ) : isReserveKeyFlow ? (
                   <>{renderReservedKeys()}</>
                 ) : isEmergencyKeyFlow ? (
@@ -1385,7 +1317,7 @@ function AddSigningDevice() {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor="rgba(47, 79, 79, 1)"
                 icon={<VaultIcon />}
               />
             </Box>
@@ -1433,7 +1365,7 @@ function AddSigningDevice() {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor="rgba(45, 103, 89, 1)"
+                backgroundColor="rgba(47, 79, 79, 1)"
                 icon={<VaultIcon />}
               />
             </Box>

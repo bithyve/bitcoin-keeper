@@ -4,6 +4,8 @@ import { Box, useColorMode } from 'native-base';
 
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 import { wp } from 'src/constants/responsive';
+import Colors from 'src/theme/Colors';
+import { useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
 
@@ -11,6 +13,8 @@ function TipsSlider({ items }) {
   const onboardingSlideRef = useRef(null);
   const [currentPosition, setCurrentPosition] = useState(0);
   const { colorMode } = useColorMode();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   useEffect(() => {
     const backAction = () => true;
@@ -36,7 +40,12 @@ function TipsSlider({ items }) {
   };
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box
+      style={styles.container}
+      backgroundColor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
+    >
       <SafeAreaView style={styles.safeAreaViewWrapper}>
         <Box>
           <FlatList
@@ -94,14 +103,14 @@ const styles = StyleSheet.create({
     width: 25,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#E3BE96',
+    backgroundColor: Colors.primaryCream,
     marginEnd: 5,
   },
   unSelectedDot: {
     width: 6,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#89AEA7',
+    backgroundColor: Colors.TropicalRainForestDark,
     marginEnd: 5,
   },
 });

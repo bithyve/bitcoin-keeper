@@ -11,10 +11,11 @@ const AppStateHandler = () => {
   const [appState, setAppState] = useState(AppState.currentState);
   const [lastBackgroundTime, setLastBackgroundTime] = useState(null);
   const dispatch = useDispatch();
+  let triggeredDeepLink = null;
 
   useEffect(() => {
     Linking.addEventListener('url', (event) => {
-      if (event.url) dispatch(setHasDeepLink(event.url));
+      if (event.url) triggeredDeepLink = event.url;
     });
     // cleanup is performed in initialAppController for all url events at once.
 
@@ -31,6 +32,7 @@ const AppStateHandler = () => {
           lastBackgroundTime &&
           Date.now() - lastBackgroundTime > PASSCODE_TIMEOUT
         ) {
+          dispatch(setHasDeepLink(triggeredDeepLink));
           navigation.reset({
             index: 0,
             routes: [

@@ -9866,6 +9866,11 @@ react-native-camera@4.2.1:
   dependencies:
     prop-types "^15.6.2"
 
+react-native-change-icon@5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-change-icon/-/react-native-change-icon-5.0.0.tgz#40547a278fa9e3e9f5ff2c79dba89561da51cc88"
+  integrity sha512-pq2SlMeaRlgEDDlJQL2dAa2P6YpgXpKMmZ4CsXHRnmXBVjpG7SBSI9tbP85grxqZSj6b6EBuP9u1oyfZm2b+JA==
+
 react-native-codegen@0.70.7:
   version "0.70.7"
   resolved "https://registry.yarnpkg.com/react-native-codegen/-/react-native-codegen-0.70.7.tgz#8f6b47a88740ae703209d57b7605538d86dacfa6"

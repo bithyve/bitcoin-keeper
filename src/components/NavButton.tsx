@@ -18,7 +18,11 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
 
   return (
     <TouchableOpacity testID={`btn_${heading}`} onPress={() => openLink(link)}>
-      <Box style={styles.NavButtonContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+      <Box
+        style={styles.NavButtonContainer}
+        backgroundColor={`${colorMode}.seashellWhite`}
+        borderColor={`${colorMode}.separator`}
+      >
         <Box style={styles.headingWrapper}>
           {icon}
           <Box>
@@ -42,6 +46,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(8),
     alignItems: 'center',
     gap: wp(8),
+    borderWidth: 1,
   },
   headingWrapper: {
     flexDirection: 'row',

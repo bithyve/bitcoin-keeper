@@ -14,8 +14,8 @@ const InheritanceDocumentScreen = () => {
   const { inheritanceDocument } = useSettingKeeper();
 
   return (
-    <ScreenWrapper>
-      <Box style={styles.container}>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.header}>
           <WalletHeader title={signer.inheritanceDocuments} />
         </Box>

@@ -3,10 +3,9 @@ import { Box, FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Signer, Vault, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getKeyUID, numberToOrdinal } from 'src/utils/utilities';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
@@ -57,6 +56,8 @@ import SignerCard from '../AddSigner/SignerCard';
 import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
+import WalletHeader from 'src/components/WalletHeader';
+import GoldPlusIcon from 'src/assets/privateImages/plus-gold-icon.svg';
 let previousContent = null;
 
 function SignerItem({
@@ -78,6 +79,8 @@ function SignerItem({
 
   const signerUID = vaultKey ? getKeyUID(vaultKey) : null;
   const signer = signerUID ? signerMap[signerUID] : null;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const isPreviousKeyAdded = useCallback(() => {
     if (index === 2) {
@@ -94,7 +97,7 @@ function SignerItem({
       <Text medium fontSize={12} color={`${colorMode}.greenishGreyText`}>
         {common.tapToAdd}{' '}
       </Text>
-      <AddIcon />
+      {privateTheme ? <GoldPlusIcon /> : <AddIcon />}
     </Box>
   );
 
@@ -634,16 +637,13 @@ function SetupCollaborativeWallet() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       {inProgress || (isCreating && <ActivityIndicatorView visible={inProgress || isCreating} />)}
-      <KeeperHeader
+      <WalletHeader
         title={vaultText.collaborativeVaultTitle}
-        subtitle={vaultText.collaborativeVaultSubtitle}
+        subTitle={vaultText.collaborativeVaultSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
         learnMorePressed={() => {
           setLearnMoreModal(true);
         }}
-        learnTextColor={`${colorMode}.buttonText`}
       />
       <FlatList
         horizontal

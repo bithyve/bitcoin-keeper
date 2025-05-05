@@ -10,12 +10,19 @@
 		00E356F31AD99517003FC87E /* hexa_keeperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* hexa_keeperTests.m */; };
 		02EFDECE01B760848CCFE2A3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CFF59ED1275C7DD527FF60A7 /* PrivacyInfo.xcprivacy */; };
 		03A1CD3648C24AEB830A5CF4 /* Inter-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18A6256AB47842ABA0F4BF8D /* Inter-LightItalic.ttf */; };
-		073354C83A9343F6A6592F1D /* Inter-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6865874E5E1E438EAD174ADF /* Inter-MediumItalic.ttf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		159FF345F1297D1FF48528D9 /* libPods-hexa_keeper_dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E848F7DFCADFAE3FBFB35DC7 /* libPods-hexa_keeper_dev.a */; };
 		18788ED8284652050002EFFD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		1889D6352DB0076400781072 /* Lora-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6312DB0076400781072 /* Lora-Medium.ttf */; };
+		1889D6362DB0076400781072 /* Lora-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6332DB0076400781072 /* Lora-SemiBold.ttf */; };
+		1889D6372DB0076400781072 /* Lora-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6322DB0076400781072 /* Lora-MediumItalic.ttf */; };
+		1889D6382DB0076400781072 /* Lora-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6342DB0076400781072 /* Lora-SemiBoldItalic.ttf */; };
+		1889D6392DB0076400781072 /* Lora-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6312DB0076400781072 /* Lora-Medium.ttf */; };
+		1889D63A2DB0076400781072 /* Lora-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6332DB0076400781072 /* Lora-SemiBold.ttf */; };
+		1889D63B2DB0076400781072 /* Lora-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6322DB0076400781072 /* Lora-MediumItalic.ttf */; };
+		1889D63C2DB0076400781072 /* Lora-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1889D6342DB0076400781072 /* Lora-SemiBoldItalic.ttf */; };
 		18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
 		18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		3368C03D4ADA4631B63D54F8 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F1E12F69D30C4430BF22E132 /* Inter-Regular.ttf */; };
@@ -24,13 +31,10 @@
 		35112D542BD7DB3000343479 /* cloudbackup.m in Sources */ = {isa = PBXBuildFile; fileRef = 35112D532BD7DB3000343479 /* cloudbackup.m */; };
 		35112D552BD7DB3000343479 /* cloudbackup.m in Sources */ = {isa = PBXBuildFile; fileRef = 35112D532BD7DB3000343479 /* cloudbackup.m */; };
 		413074DFD01E46F1A0D40BD6 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6702D068A26E40DDA1F0E809 /* Inter-Bold.ttf */; };
-		6E4BDC34AF74480989D9A260 /* Inter-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 27E1FF466EB94B23BC3AD629 /* Inter-SemiBoldItalic.ttf */; };
 		75EA47EFF012F028F07CCEA1 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8F3F2BAB5E21BDF6D6F8747B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 435B6B72AB94B4AA09AF3B47 /* PrivacyInfo.xcprivacy */; };
-		930C25704B7849FA8CCE06C7 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 108E1077B46C4AAE85FD7B47 /* Inter-SemiBold.ttf */; };
 		97223FD2D6714257A178B813 /* Inter-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 72B7870523C24718A997BDFB /* Inter-Italic.ttf */; };
-		AB54BF5115384682BBB66F66 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6A699145EEC5444BB5B37F24 /* Inter-Medium.ttf */; };
 		D5BDB3AB19BE735A37AFA3AB /* libPods-hexa_keeper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 73E1453C58CE6BD945B34DA0 /* libPods-hexa_keeper.a */; };
 		DEFBEF21CC7B49DC8A027D1B /* Inter-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 94C4DE0519174B57A37E3D56 /* Inter-Light.ttf */; };
 		ECAEA7317141416FAA0B52C5 /* Inter-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 674E13DE09DE4AC0AD5E4C31 /* Inter-BoldItalic.ttf */; };
@@ -61,7 +65,6 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* hexa_keeperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = hexa_keeperTests.m; sourceTree = "<group>"; };
 		08FBE774D80E15AF57C7A99D /* Pods-hexa_keeper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.debug.xcconfig"; sourceTree = "<group>"; };
-		108E1077B46C4AAE85FD7B47 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../src/assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* hexa_keeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hexa_keeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = hexa_keeper/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.mm; path = hexa_keeper/AppDelegate.mm; sourceTree = "<group>"; };
@@ -69,39 +72,19 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = hexa_keeper/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = hexa_keeper/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = hexa_keeper/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-MediumItalic.ttf"; sourceTree = "<group>"; };
+		1889D6312DB0076400781072 /* Lora-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Lora-Medium.ttf"; path = "../src/assets/fonts/Lora-Medium.ttf"; sourceTree = "<group>"; };
+		1889D6322DB0076400781072 /* Lora-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Lora-MediumItalic.ttf"; path = "../src/assets/fonts/Lora-MediumItalic.ttf"; sourceTree = "<group>"; };
+		1889D6332DB0076400781072 /* Lora-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Lora-SemiBold.ttf"; path = "../src/assets/fonts/Lora-SemiBold.ttf"; sourceTree = "<group>"; };
+		1889D6342DB0076400781072 /* Lora-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Lora-SemiBoldItalic.ttf"; path = "../src/assets/fonts/Lora-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		18A6256AB47842ABA0F4BF8D /* Inter-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-LightItalic.ttf"; path = "../src/assets/fonts/Inter-LightItalic.ttf"; sourceTree = "<group>"; };
 		18B4D55E2847898D004AB91F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1F04EB0F29BFB13600326473 /* hexa_keeper-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "hexa_keeper-Bridging-Header.h"; sourceTree = "<group>"; };
-		1FE5346B2B9735AE0000F97E /* FiraSans-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Italic.ttf"; path = "../src/assets/fonts/FiraSans-Italic.ttf"; sourceTree = "<group>"; };
-		1FE5346C2B9735AE0000F97E /* FiraSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Bold.ttf"; path = "../src/assets/fonts/FiraSans-Bold.ttf"; sourceTree = "<group>"; };
-		1FE5346D2B9735AF0000F97E /* FiraSans-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
-		1FE5346E2B9735AF0000F97E /* FiraSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Regular.ttf"; path = "../src/assets/fonts/FiraSans-Regular.ttf"; sourceTree = "<group>"; };
-		1FE5346F2B9735AF0000F97E /* FiraSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBold.ttf"; path = "../src/assets/fonts/FiraSans-SemiBold.ttf"; sourceTree = "<group>"; };
-		1FE534702B9735AF0000F97E /* FiraSans-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-LightItalic.ttf"; path = "../src/assets/fonts/FiraSans-LightItalic.ttf"; sourceTree = "<group>"; };
-		1FE534712B9735AF0000F97E /* FiraSans-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-BoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-BoldItalic.ttf"; sourceTree = "<group>"; };
-		1FE534722B9735AF0000F97E /* FiraSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Medium.ttf"; path = "../src/assets/fonts/FiraSans-Medium.ttf"; sourceTree = "<group>"; };
-		1FE534732B9735AF0000F97E /* FiraSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Light.ttf"; path = "../src/assets/fonts/FiraSans-Light.ttf"; sourceTree = "<group>"; };
-		1FE534742B9735AF0000F97E /* FiraSans-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSans-MediumItalic.ttf"; sourceTree = "<group>"; };
-		1FE534752B9735C30000F97E /* FiraSans-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Italic.ttf"; path = "../src/assets/fonts/FiraSans-Italic.ttf"; sourceTree = "<group>"; };
-		1FE534762B9735C30000F97E /* FiraSans-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSans-MediumItalic.ttf"; sourceTree = "<group>"; };
-		1FE534772B9735C30000F97E /* FiraSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Regular.ttf"; path = "../src/assets/fonts/FiraSans-Regular.ttf"; sourceTree = "<group>"; };
-		1FE534782B9735C30000F97E /* FiraSans-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
-		1FE534792B9735C30000F97E /* FiraSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBold.ttf"; path = "../src/assets/fonts/FiraSans-SemiBold.ttf"; sourceTree = "<group>"; };
-		1FE5347A2B9735C30000F97E /* FiraSans-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-LightItalic.ttf"; path = "../src/assets/fonts/FiraSans-LightItalic.ttf"; sourceTree = "<group>"; };
-		1FE5347B2B9735C30000F97E /* FiraSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Light.ttf"; path = "../src/assets/fonts/FiraSans-Light.ttf"; sourceTree = "<group>"; };
-		1FE5347C2B9735C30000F97E /* FiraSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Bold.ttf"; path = "../src/assets/fonts/FiraSans-Bold.ttf"; sourceTree = "<group>"; };
-		1FE5347D2B9735C30000F97E /* FiraSans-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-BoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-BoldItalic.ttf"; sourceTree = "<group>"; };
-		1FE5347E2B9735C30000F97E /* FiraSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Medium.ttf"; path = "../src/assets/fonts/FiraSans-Medium.ttf"; sourceTree = "<group>"; };
-		27E1FF466EB94B23BC3AD629 /* Inter-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBoldItalic.ttf"; path = "../src/assets/fonts/Inter-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		35112D4F2BD7DAE700343479 /* CloudBackupHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudBackupHelper.swift; sourceTree = "<group>"; };
 		35112D522BD7DB1700343479 /* cloudbackup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cloudbackup.h; sourceTree = "<group>"; };
 		35112D532BD7DB3000343479 /* cloudbackup.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = cloudbackup.m; sourceTree = "<group>"; };
 		435B6B72AB94B4AA09AF3B47 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = hexa_keeper/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6702D068A26E40DDA1F0E809 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../src/assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
 		674E13DE09DE4AC0AD5E4C31 /* Inter-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-BoldItalic.ttf"; path = "../src/assets/fonts/Inter-BoldItalic.ttf"; sourceTree = "<group>"; };
-		6865874E5E1E438EAD174ADF /* Inter-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-MediumItalic.ttf"; path = "../src/assets/fonts/Inter-MediumItalic.ttf"; sourceTree = "<group>"; };
-		6A699145EEC5444BB5B37F24 /* Inter-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Medium.ttf"; path = "../src/assets/fonts/Inter-Medium.ttf"; sourceTree = "<group>"; };
 		72B7870523C24718A997BDFB /* Inter-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Italic.ttf"; path = "../src/assets/fonts/Inter-Italic.ttf"; sourceTree = "<group>"; };
 		73E1453C58CE6BD945B34DA0 /* libPods-hexa_keeper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = hexa_keeper/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -215,17 +198,12 @@
 		81DE8301CA3743D287378279 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */,
 				6702D068A26E40DDA1F0E809 /* Inter-Bold.ttf */,
 				674E13DE09DE4AC0AD5E4C31 /* Inter-BoldItalic.ttf */,
 				72B7870523C24718A997BDFB /* Inter-Italic.ttf */,
 				94C4DE0519174B57A37E3D56 /* Inter-Light.ttf */,
 				18A6256AB47842ABA0F4BF8D /* Inter-LightItalic.ttf */,
-				6A699145EEC5444BB5B37F24 /* Inter-Medium.ttf */,
-				6865874E5E1E438EAD174ADF /* Inter-MediumItalic.ttf */,
 				F1E12F69D30C4430BF22E132 /* Inter-Regular.ttf */,
-				108E1077B46C4AAE85FD7B47 /* Inter-SemiBold.ttf */,
-				27E1FF466EB94B23BC3AD629 /* Inter-SemiBoldItalic.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -240,26 +218,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				1FE5346C2B9735AE0000F97E /* FiraSans-Bold.ttf */,
-				1FE534712B9735AF0000F97E /* FiraSans-BoldItalic.ttf */,
-				1FE5347C2B9735C30000F97E /* FiraSans-Bold.ttf */,
-				1FE5347D2B9735C30000F97E /* FiraSans-BoldItalic.ttf */,
-				1FE534732B9735AF0000F97E /* FiraSans-Light.ttf */,
-				1FE5347B2B9735C30000F97E /* FiraSans-Light.ttf */,
-				1FE5347A2B9735C30000F97E /* FiraSans-LightItalic.ttf */,
-				1FE5347E2B9735C30000F97E /* FiraSans-Medium.ttf */,
-				1FE534702B9735AF0000F97E /* FiraSans-LightItalic.ttf */,
-				1FE534722B9735AF0000F97E /* FiraSans-Medium.ttf */,
-				1FE534742B9735AF0000F97E /* FiraSans-MediumItalic.ttf */,
-				1FE5346E2B9735AF0000F97E /* FiraSans-Regular.ttf */,
-				1FE5346F2B9735AF0000F97E /* FiraSans-SemiBold.ttf */,
-				1FE534792B9735C30000F97E /* FiraSans-SemiBold.ttf */,
-				1FE5346B2B9735AE0000F97E /* FiraSans-Italic.ttf */,
-				1FE5346D2B9735AF0000F97E /* FiraSans-SemiBoldItalic.ttf */,
-				1FE534752B9735C30000F97E /* FiraSans-Italic.ttf */,
-				1FE534762B9735C30000F97E /* FiraSans-MediumItalic.ttf */,
-				1FE534772B9735C30000F97E /* FiraSans-Regular.ttf */,
-				1FE534782B9735C30000F97E /* FiraSans-SemiBoldItalic.ttf */,
 				35112D4E2BD7DA7600343479 /* cloudbackup */,
 				F4F7F75B2A0558220027FE4C /* keepScreenAwake */,
 				1F9F461229BF9D5D006C129F /* whirlpool */,
@@ -328,6 +286,10 @@
 			isa = PBXGroup;
 			children = (
 				F42D52AE284A3D2600235E3E /* hexa_keeper_dev-Info.plist */,
+				1889D6312DB0076400781072 /* Lora-Medium.ttf */,
+				1889D6332DB0076400781072 /* Lora-SemiBold.ttf */,
+				1889D6322DB0076400781072 /* Lora-MediumItalic.ttf */,
+				1889D6342DB0076400781072 /* Lora-SemiBoldItalic.ttf */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -454,17 +416,17 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */,
 				18788ED8284652050002EFFD /* BuildFile in Resources */,
+				1889D6352DB0076400781072 /* Lora-Medium.ttf in Resources */,
+				1889D6362DB0076400781072 /* Lora-SemiBold.ttf in Resources */,
+				1889D6372DB0076400781072 /* Lora-MediumItalic.ttf in Resources */,
+				1889D6382DB0076400781072 /* Lora-SemiBoldItalic.ttf in Resources */,
 				18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */,
 				413074DFD01E46F1A0D40BD6 /* Inter-Bold.ttf in Resources */,
 				ECAEA7317141416FAA0B52C5 /* Inter-BoldItalic.ttf in Resources */,
 				97223FD2D6714257A178B813 /* Inter-Italic.ttf in Resources */,
 				DEFBEF21CC7B49DC8A027D1B /* Inter-Light.ttf in Resources */,
 				03A1CD3648C24AEB830A5CF4 /* Inter-LightItalic.ttf in Resources */,
-				AB54BF5115384682BBB66F66 /* Inter-Medium.ttf in Resources */,
-				073354C83A9343F6A6592F1D /* Inter-MediumItalic.ttf in Resources */,
 				3368C03D4ADA4631B63D54F8 /* Inter-Regular.ttf in Resources */,
-				930C25704B7849FA8CCE06C7 /* Inter-SemiBold.ttf in Resources */,
-				6E4BDC34AF74480989D9A260 /* Inter-SemiBoldItalic.ttf in Resources */,
 				8F3F2BAB5E21BDF6D6F8747B /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -474,6 +436,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4F207EE2849D20A005E79DA /* GoogleService-Info.plist in Resources */,
+				1889D6392DB0076400781072 /* Lora-Medium.ttf in Resources */,
+				1889D63A2DB0076400781072 /* Lora-SemiBold.ttf in Resources */,
+				1889D63B2DB0076400781072 /* Lora-MediumItalic.ttf in Resources */,
+				1889D63C2DB0076400781072 /* Lora-SemiBoldItalic.ttf in Resources */,
 				F49B77E82848DF5200F9AFBD /* LaunchScreen.storyboard in Resources */,
 				F49B77E92848DF5200F9AFBD /* Images.xcassets in Resources */,
 				F49B77EA2848DF5200F9AFBD /* BuildFile in Resources */,
@@ -766,8 +732,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "cd711cf7-1c75-4302-ad18-39de9d4f8bef";
-				PROVISIONING_PROFILE_SPECIFIER = "Keeper Development";
+				PROVISIONING_PROFILE = "4bff6035-a2eb-4b53-a161-79f0e10e8ede";
+				PROVISIONING_PROFILE_SPECIFIER = "Keeper Distribution";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/hexa_keeper.app/hexa_keeper";
 			};
 			name = Release;
@@ -777,11 +743,12 @@
 			baseConfigurationReference = 08FBE774D80E15AF57C7A99D /* Pods-hexa_keeper.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 490;
+				CURRENT_PROJECT_VERSION = 505;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -882,7 +849,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.2.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -903,10 +870,11 @@
 			baseConfigurationReference = F89B891DBAA38F48E9272960 /* Pods-hexa_keeper.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Bithyve UK Ltd (Y5TCB759QL)";
-				CURRENT_PROJECT_VERSION = 490;
+				CURRENT_PROJECT_VERSION = 505;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1007,7 +975,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.2.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1015,8 +983,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.hexawallet.keeper;
 				PRODUCT_NAME = hexa_keeper;
-				PROVISIONING_PROFILE = "cd711cf7-1c75-4302-ad18-39de9d4f8bef";
-				PROVISIONING_PROFILE_SPECIFIER = "Keeper Development";
+				PROVISIONING_PROFILE = "4bff6035-a2eb-4b53-a161-79f0e10e8ede";
+				PROVISIONING_PROFILE_SPECIFIER = "Keeper Distribution";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Keeper Distribution";
 				SWIFT_OBJC_BRIDGING_HEADER = "whirlpool/hexa_keeper-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1170,12 +1138,13 @@
 			baseConfigurationReference = FF44D0B6D2E87C0D657DAFA5 /* Pods-hexa_keeper_dev.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "dev-AppIcon";
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 490;
+				CURRENT_PROJECT_VERSION = 505;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
@@ -1278,7 +1247,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.2.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1301,11 +1270,12 @@
 			baseConfigurationReference = DA190250F1EBDD229E110BFA /* Pods-hexa_keeper_dev.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "dev-AppIcon";
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CURRENT_PROJECT_VERSION = 490;
+				CURRENT_PROJECT_VERSION = 505;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1407,7 +1377,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.2.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1415,8 +1385,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.hexawallet.hexakeeper.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "cd711cf7-1c75-4302-ad18-39de9d4f8bef";
-				PROVISIONING_PROFILE_SPECIFIER = "Keeper Development";
+				PROVISIONING_PROFILE = "4bff6035-a2eb-4b53-a161-79f0e10e8ede";
+				PROVISIONING_PROFILE_SPECIFIER = "Keeper Distribution";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Keeper Development";
 				SWIFT_OBJC_BRIDGING_HEADER = "whirlpool/hexa_keeper-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "hexa_keeper-Swift.h";
