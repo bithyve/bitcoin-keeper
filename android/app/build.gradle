@@ -99,6 +99,7 @@ android {
     lintOptions {
           checkReleaseBuilds false
           abortOnError false
+          warningsAsErrors false
     }
 
     signingConfigs {
@@ -164,7 +165,6 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation("com.facebook.react:flipper-integration")
 
     implementation 'com.facebook.fresco:animated-gif:2.6.0'
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'

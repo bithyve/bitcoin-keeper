@@ -1,0 +1,13 @@
+diff --git a/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/src/main/kotlin/com/facebook/react/ReactPlugin.kt b/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/src/main/kotlin/com/facebook/react/ReactPlugin.kt
+index 2c5bea4..67a396a 100644
+--- a/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/src/main/kotlin/com/facebook/react/ReactPlugin.kt
++++ b/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/src/main/kotlin/com/facebook/react/ReactPlugin.kt
+@@ -90,7 +90,7 @@ class ReactPlugin : Plugin<Project> {
+   }
+ 
+   private fun checkJvmVersion(project: Project) {
+-    val jvmVersion = Jvm.current()?.javaVersion?.majorVersion
++    val jvmVersion = Jvm.current().javaVersion?.majorVersion
+     if ((jvmVersion?.toIntOrNull() ?: 0) <= 16) {
+       project.logger.error(
+           """

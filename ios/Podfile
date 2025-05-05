@@ -18,7 +18,7 @@ prepare_react_native_project!
 # ```
 
 def common_pods
-  flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
+  # flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
   linkage = ENV['USE_FRAMEWORKS']
   if linkage != nil
     Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -63,7 +63,8 @@ post_install do |installer|
   react_native_post_install(
     installer,
     config[:reactNativePath],
-    :mac_catalyst_enabled => false
+    :mac_catalyst_enabled => false,
+      # :ccache_enabled => true
   )
 
   # fixes release issue with xCode 16, bitcode is stripped by default.
