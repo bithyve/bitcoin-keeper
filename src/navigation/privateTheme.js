@@ -54,7 +54,7 @@ export const privateTheme = extendTheme({
       greenWhiteText: Colors.secondaryBlack,
       black: Colors.PrimaryBlack,
       feeInfoColor: Colors.headerWhite,
-      balanceText: Colors.headerWhite,
+      balanceText: Colors.GreenishGrey,
       headerWhite: Colors.headerWhite,
       primaryGreen: Colors.TagLight2,
       gradientEnd: Colors.TagLight2,
