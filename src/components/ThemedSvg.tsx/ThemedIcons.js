@@ -31,6 +31,55 @@ import BackWhiteButton from 'src/assets/images/leftarrowCampainlight.svg';
 import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 import PrivateCanaryIcon from 'src/assets/privateImages/canary-wallet-illustration.svg';
 import PrivateCanaryIconLight from 'src/assets/privateImages/Canary-wallet-private-light.svg';
+import DownArrow from 'src/assets/images/down_arrow.svg';
+import PrivateDownArrow from 'src/assets/privateImages/down-arrow-private-light.svg';
+import RecoveryPhraseIcon from 'src/assets/images/recovery-phrase-icon.svg';
+import PrivateRecoveryPhrase from 'src/assets/privateImages/doc-seed-word.svg';
+import PrivateRecoveryPhraseLight from 'src/assets/privateImages/seed-private-light-illustration.svg';
+import TrustedContactIcon from 'src/assets/images/trusted-contact-icon.svg';
+import PrivateTrustedIcon from 'src/assets/privateImages/doc-trusted-contact.svg';
+import PrivateTrustedIconLight from 'src/assets/privateImages/trusted-contact-private-illustration.svg';
+import AdditionalSignerIcon from 'src/assets/images/additional-signer-icon.svg';
+import PrivateAdditionalSigner from 'src/assets/privateImages/additional-signer-illustration.svg';
+import PrivateAdditionalSignerLight from 'src/assets/privateImages/additional-key-private-illustration.svg';
+import RecoveryPhraseIllustration from 'src/assets/images/printable-templates.svg';
+import PrivateRecoveryPhraseIlllustration from 'src/assets/privateImages/doc-recovery.svg';
+import PrivateRecoveryPhraseIlllustrationLight from 'src/assets/privateImages/recovery-illustration.svg';
+import LetterOfattorneyIcon from 'src/assets/images/letterOfAttorney.svg';
+import PrivateLetterAttorney from 'src/assets/privateImages/doc-letter-attoorney.svg';
+import PrivateLetterAttorneyLight from 'src/assets/privateImages/letter_attorney-illustration.svg';
+import PrivateMultiKey from 'src/assets/privateImages/comprihensive-stragies.svg';
+import MultiKeySetupIcon from 'src/assets/images/document_multi_key_setup.svg';
+import PrivateMultiKeyLight from 'src/assets/privateImages/inheritance-tips-light.svg';
+import PrivateEducationlight from 'src/assets/privateImages/educate-heir-light.svg';
+import PrivateKnowledgeLight from 'src/assets/privateImages/knowlwdgeAble-illustration.svg';
+import EducateHierIcon from 'src/assets/images/educate_hier.svg';
+import PrivateEduate from 'src/assets/privateImages/doc-tirple-person.svg';
+import PrivateKnowledge from 'src/assets/privateImages/doc-knowledge.svg';
+import PrivateRecovery from 'src/assets/privateImages/doc-recovery.svg';
+import SelectKnowledgeIcon from 'src/assets/images/select_knowledge.svg';
+import RegularUpdateIcon from 'src/assets/images/regular_update_icon.svg';
+import BTCIllustrationLight from 'src/assets/privateImages/BTC_illustration.svg';
+import PrivateBTC from 'src/assets/privateImages/Bitcoin-Illustration.svg';
+import BTCIllustration from 'src/assets/images/btc-illustration.svg';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import InfoGoldIcon from 'src/assets/privateImages/info-gold-icon.svg';
+import RegularTesting from 'src/assets/images/regular-testing.svg';
+import PrivateRegularTesting from 'src/assets/privateImages/doc-4-keys.svg';
+import PrivateRegularTestingLight from 'src/assets/privateImages/Backup_illustration.svg';
+import PrivateRecoveryRestoration from 'src/assets/privateImages/doc-Double.svg';
+import PracticeRecovery from 'src/assets/images/practice-recovery.svg';
+import PrivatePracticeRecovery from 'src/assets/privateImages/restoreIllustration.svg';
+import PrivateMultisig from 'src/assets/privateImages/doc-multisig-security.svg';
+import MultiSig from 'src/assets/images/multsig-tip.svg';
+import PrivateMultiSigLight from 'src/assets/privateImages/Activate-multikey.svg';
+import DiversifyHardware from 'src/assets/images/diversify-hardware.svg';
+import PrivateDiversifyHardware from 'src/assets/privateImages/doc-hardware-usage.svg';
+import PrivateDiversifyHardwareLight from 'src/assets/privateImages/hardware-wallet-usage.svg';
+import BackupAcidFree from 'src/assets/images/backup-acidfree.svg';
+import PrivateAcidFree from 'src/assets/privateImages/doc-acid-free.svg';
+import PrivateAcidFreeLight from 'src/assets/privateImages/paper-metal.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -122,6 +171,108 @@ const themeIcons = {
     LIGHT: CanaryIcon,
     PRIVATE: PrivateCanaryIcon,
     PRIVATE_LIGHT: PrivateCanaryIconLight,
+  },
+  inheritance_down_arrow: {
+    DARK: DownArrow,
+    LIGHT: DownArrow,
+    PRIVATE: DownArrow,
+    PRIVATE_LIGHT: PrivateDownArrow,
+  },
+  inheritance_seed_illustration: {
+    DARK: RecoveryPhraseIcon,
+    LIGHT: RecoveryPhraseIcon,
+    PRIVATE: PrivateRecoveryPhrase,
+    PRIVATE_LIGHT: PrivateRecoveryPhraseLight,
+  },
+  inheritance_trustedContact_illustration: {
+    DARK: TrustedContactIcon,
+    LIGHT: TrustedContactIcon,
+    PRIVATE: PrivateTrustedIcon,
+    PRIVATE_LIGHT: PrivateTrustedIconLight,
+  },
+  inheritance_additionalKey_illustration: {
+    DARK: AdditionalSignerIcon,
+    LIGHT: AdditionalSignerIcon,
+    PRIVATE: PrivateAdditionalSigner,
+    PRIVATE_LIGHT: PrivateAdditionalSignerLight,
+  },
+  inheritance_recovery_illustration: {
+    DARK: RecoveryPhraseIllustration,
+    LIGHT: RecoveryPhraseIllustration,
+    PRIVATE: PrivateRecoveryPhraseIlllustration,
+    PRIVATE_LIGHT: PrivateRecoveryPhraseIlllustrationLight,
+  },
+  inheritance_letterAttorney_illustration: {
+    DARK: LetterOfattorneyIcon,
+    LIGHT: LetterOfattorneyIcon,
+    PRIVATE: PrivateLetterAttorney,
+    PRIVATE_LIGHT: PrivateLetterAttorneyLight,
+  },
+  multiKeySetupIcon_illustration: {
+    DARK: MultiKeySetupIcon,
+    LIGHT: MultiKeySetupIcon,
+    PRIVATE: PrivateMultiKey,
+    PRIVATE_LIGHT: PrivateMultiKeyLight,
+  },
+  educateHeir_illustration: {
+    DARK: EducateHierIcon,
+    LIGHT: EducateHierIcon,
+    PRIVATE: PrivateEduate,
+    PRIVATE_LIGHT: PrivateEducationlight,
+  },
+  knowledgeable_illustration: {
+    DARK: SelectKnowledgeIcon,
+    LIGHT: SelectKnowledgeIcon,
+    PRIVATE: PrivateKnowledge,
+    PRIVATE_LIGHT: PrivateKnowledgeLight,
+  },
+  estatePlan_illustration: {
+    DARK: RegularUpdateIcon,
+    LIGHT: RegularUpdateIcon,
+    PRIVATE: PrivateRecovery,
+    PRIVATE_LIGHT: PrivateRecoveryPhraseIlllustrationLight,
+  },
+  btc_illustration: {
+    DARK: BTCIllustration,
+    LIGHT: BTCIllustration,
+    PRIVATE: PrivateBTC,
+    PRIVATE_LIGHT: BTCIllustrationLight,
+  },
+  info_icon: {
+    DARK: InfoDarkIcon,
+    LIGHT: InfoIcon,
+    PRIVATE: InfoDarkIcon,
+    PRIVATE_LIGHT: InfoGoldIcon,
+  },
+  backup_illustration: {
+    DARK: RegularTesting,
+    LIGHT: RegularTesting,
+    PRIVATE: PrivateRegularTesting,
+    PRIVATE_LIGHT: PrivateRegularTestingLight,
+  },
+  restore_illustration: {
+    DARK: PracticeRecovery,
+    LIGHT: PracticeRecovery,
+    PRIVATE: PrivateRecoveryRestoration,
+    PRIVATE_LIGHT: PrivatePracticeRecovery,
+  },
+  activate_multisig_illustration: {
+    DARK: MultiSig,
+    LIGHT: MultiSig,
+    PRIVATE: PrivateMultisig,
+    PRIVATE_LIGHT: PrivateMultiSigLight,
+  },
+  diversify_hardware: {
+    DARK: DiversifyHardware,
+    LIGHT: DiversifyHardware,
+    PRIVATE: PrivateDiversifyHardware,
+    PRIVATE_LIGHT: PrivateDiversifyHardwareLight,
+  },
+  backup_acid_free: {
+    DARK: BackupAcidFree,
+    LIGHT: BackupAcidFree,
+    PRIVATE: PrivateAcidFree,
+    PRIVATE_LIGHT: PrivateAcidFreeLight,
   },
 };
 

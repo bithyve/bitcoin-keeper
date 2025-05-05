@@ -10,8 +10,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
-import HardwareIllustration from 'src/assets/images/diversify-hardware.svg';
-import PrivateHardwareIllustration from 'src/assets/privateImages/doc-hardware-usage.svg';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -53,6 +51,7 @@ import {
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/models/enums/Hardware';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -287,7 +286,7 @@ function ManageSigners({ route }: ScreenProps) {
         Content={() => (
           <Box style={styles.modalContent}>
             <Box style={styles.illustrationContainer}>
-              {privateTheme ? <PrivateHardwareIllustration /> : <HardwareIllustration />}
+              <ThemedSvg name={'diversify_hardware'} />
             </Box>
             <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
               {signerTranslation.manageKeysModalDesc}

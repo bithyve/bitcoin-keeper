@@ -168,6 +168,7 @@ export const privateTheme = extendTheme({
       charcolBrown: Colors.charcolBrown,
       warmbeige: Colors.warmbeige,
       overlayDark: Colors.overlayDark,
+      modalPrivateBackground: Colors.primaryCream,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -288,6 +289,7 @@ export const privateTheme = extendTheme({
       charcolBrown: Colors.charcolBrown,
       warmbeige: Colors.warmbeige,
       overlayDark: Colors.overlayDark,
+      modalPrivateBackground: Colors.charcolBrown,
     },
   },
   config: {

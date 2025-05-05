@@ -22,7 +22,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import Text from 'src/components/KeeperText';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
 import IconSettings from 'src/assets/images/settings.svg';
 import IconGreySettings from 'src/assets/images/settings_grey.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -31,7 +30,7 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
-import PrivateSigningDevice from 'src/assets/privateImages/doc-hardware-usage.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const SigningDeviceList = () => {
   const navigation = useNavigation();
@@ -113,7 +112,7 @@ const SigningDeviceList = () => {
     return (
       <Box>
         <Box style={styles.alignCenter}>
-          {privateTheme ? <PrivateSigningDevice /> : <SigningDevicesIllustration />}
+          <ThemedSvg name={'diversify_hardware'} />
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}

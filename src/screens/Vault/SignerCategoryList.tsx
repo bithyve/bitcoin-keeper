@@ -8,7 +8,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
-import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
 import HardwareSignerBlack from 'src/assets/images/hardware-signer-black.svg';
 import HardwareSignerWhite from 'src/assets/images/hardware-signer-white.svg';
 import MobileKeyBlack from 'src/assets/images/mobile_key.svg';
@@ -25,7 +24,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import DashedCta from 'src/components/DashedCta';
 import WalletHeader from 'src/components/WalletHeader';
-import PrivateSigningDevice from 'src/assets/privateImages/doc-hardware-usage.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SignerCategoryList() {
   const route = useRoute();
@@ -119,7 +118,7 @@ function SignerCategoryList() {
     return (
       <View>
         <Box style={styles.alignCenter}>
-          {privateTheme ? <PrivateSigningDevice /> : <SigningDevicesIllustration />}
+          <ThemedSvg name={'diversify_hardware'} />
         </Box>
         <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}

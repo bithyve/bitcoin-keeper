@@ -1,12 +1,10 @@
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import Fonts from 'src/constants/Fonts';
-import InfoIcon from 'src/assets/images/info_icon.svg';
-import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 type Props = {
@@ -33,9 +31,7 @@ const WalletHeader: React.FC<Props> = ({
   learnMore,
   learnMorePressed,
 }) => {
-  const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const isDarkMode = colorMode === 'dark';
 
   const styles = StyleSheet.create({
     container: {
@@ -101,7 +97,7 @@ const WalletHeader: React.FC<Props> = ({
 
         {learnMore && (
           <TouchableOpacity style={styles.infoIcon} onPress={learnMorePressed}>
-            {isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}
+            <ThemedSvg name={'info_icon'} />
           </TouchableOpacity>
         )}
       </Box>
