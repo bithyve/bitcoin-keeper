@@ -14,13 +14,16 @@ import { CommonActions } from '@react-navigation/native';
 import DashedCta from 'src/components/DashedCta';
 import PrivateHardwareKey from 'src/assets/privateImages/hard-key.svg';
 import PrivateSoftwareKey from 'src/assets/privateImages/soft-key.svg';
+import { useSelector } from 'react-redux';
 
-const SignerContent = ({ navigation, handleModalClose, isOnL4 }) => {
+const SignerContent = ({ navigation, handleModalClose }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
 
   const { signer } = translations;
   const isDarkMode = colorMode === 'dark';
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const hardwareSigners = [
     {
@@ -63,7 +66,7 @@ const SignerContent = ({ navigation, handleModalClose, isOnL4 }) => {
       signerCategory: SignerCategory.HARDWARE,
       headerTitle: signer.hardwareKeysHeader,
       headerSubtitle: signer.connectHardwareDevices,
-      Icon: isOnL4 ? (
+      Icon: privateTheme ? (
         <PrivateHardwareKey />
       ) : isDarkMode ? (
         <HardwareSignerWhite />
@@ -78,7 +81,13 @@ const SignerContent = ({ navigation, handleModalClose, isOnL4 }) => {
       signerCategory: SignerCategory.SOFTWARE,
       headerTitle: signer.softwareKeysHeader,
       headerSubtitle: signer.keysNoHardwareNeeded,
-      Icon: isOnL4 ? <PrivateSoftwareKey /> : isDarkMode ? <MobileKeyWhite /> : <MobileKeyBlack />,
+      Icon: privateTheme ? (
+        <PrivateSoftwareKey />
+      ) : isDarkMode ? (
+        <MobileKeyWhite />
+      ) : (
+        <MobileKeyBlack />
+      ),
       snippet: [],
     },
   ];

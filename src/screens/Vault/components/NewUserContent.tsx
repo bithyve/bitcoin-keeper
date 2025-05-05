@@ -13,7 +13,7 @@ type Props = {
   setAddNewUserModal: (value: boolean) => void;
   setNewUserName: (value: string) => void;
   newUserName: string;
-  isOnL4: boolean;
+  privateTheme: boolean;
 };
 
 const NewUserContent = (props: Props) => {
@@ -43,7 +43,7 @@ const NewUserContent = (props: Props) => {
         placeholder="Enter Your Name/label"
         placeholderTextColor={`${colorMode}.placeHolderTextColor`}
         inpuBorderColor={
-          props.isOnL4 ? `${colorMode}.dullGreyBorder` : `${colorMode}.textInputBackground`
+          props.privateTheme ? `${colorMode}.dullGreyBorder` : `${colorMode}.textInputBackground`
         }
         value={username}
         onChangeText={handleChangeText}

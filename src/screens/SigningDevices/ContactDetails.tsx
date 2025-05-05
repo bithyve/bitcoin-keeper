@@ -1,12 +1,11 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, StyleSheet, Vibration } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import QRCommsLight from 'src/assets/images/qr_comms.svg';
 import NFCLight from 'src/assets/images/nfc-no-bg-light.svg';
-import ShareContactLight from 'src/assets/images/share-contact-light.svg';
+import ShareContactLight from 'src/assets/images/contact-file-icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

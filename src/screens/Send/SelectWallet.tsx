@@ -22,7 +22,7 @@ import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 type SelectWalletParams = {
   handleSelectWallet: (wallet: Wallet | Vault) => void;
@@ -58,7 +58,8 @@ function WalletItem({
   const variation = !isDarkMode ? 'dark' : 'light';
   const isSelected = wallet.id === selectedWalletId;
   const borderColor = isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.dullGreyBorder`;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const handlePress = () => {
     if (isSelected) {
@@ -83,7 +84,7 @@ function WalletItem({
             width={42}
             height={36}
             backgroundColor={
-              isOnL4
+              privateTheme
                 ? Colors.goldenGradient
                 : isDarkMode
                 ? Colors.DullGreenDark

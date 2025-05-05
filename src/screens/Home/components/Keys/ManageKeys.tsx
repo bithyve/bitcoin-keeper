@@ -15,7 +15,6 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import usePlan from 'src/hooks/usePlan';
 
 const ManageKeys = ({ addedSigner }) => {
   const { colorMode } = useColorMode();
@@ -24,7 +23,6 @@ const ManageKeys = ({ addedSigner }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { isOnL4 } = usePlan();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
@@ -105,11 +103,7 @@ const ManageKeys = ({ addedSigner }) => {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <SignerContent
-            navigation={navigation}
-            handleModalClose={handleModalClose}
-            isOnL4={isOnL4}
-          />
+          <SignerContent navigation={navigation} handleModalClose={handleModalClose} />
         )}
       />
 

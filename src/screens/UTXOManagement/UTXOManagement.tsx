@@ -28,7 +28,7 @@ import MiniscriptPathSelector, {
 import useToastMessage from 'src/hooks/useToastMessage';
 import WalletHeader from 'src/components/WalletHeader';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function Footer({ utxos, wallet, setEnableSelection, enableSelection, selectedUTXOs }) {
   const navigation = useNavigation();
@@ -95,7 +95,8 @@ function UTXOManagement({ route }: ScreenProps) {
   const [selectedUTXOs, setSelectedUTXOs] = useState([]);
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && selectedWallet ? !!walletSyncing[selectedWallet.id] : false;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   useEffect(
     () => () => {
@@ -167,7 +168,7 @@ function UTXOManagement({ route }: ScreenProps) {
           currentWallet={selectedWallet}
           emptyIcon={
             routeName === 'Vault'
-              ? isOnL4
+              ? privateTheme
                 ? PrivateNoVaultTransactionIcon
                 : NoVaultTransactionIcon
               : NoTransactionIcon

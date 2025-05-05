@@ -18,7 +18,7 @@ import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vaul
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SignerStorage, SignerType, VaultType } from 'src/services/wallets/enums';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
@@ -53,7 +53,6 @@ import {
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/models/enums/Hardware';
-import usePlan from 'src/hooks/usePlan';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -85,7 +84,8 @@ function ManageSigners({ route }: ScreenProps) {
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   useEffect(() => {
     if (remoteData?.key && !timerModal) {
@@ -258,11 +258,15 @@ function ManageSigners({ route }: ScreenProps) {
         title={signerTranslation.ManageKeys}
         subTitle={signerTranslation.manageKeysModalSubtitle}
         subTitleColor={`${colorMode}.headerWhite`}
-        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+        modalBackground={
+          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        }
         textColor={`${colorMode}.headerWhite`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
-        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
-        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
+        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        }
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryButtonText={common.needHelp}
         secondaryIcon={<ConciergeNeedHelp />}
@@ -283,7 +287,7 @@ function ManageSigners({ route }: ScreenProps) {
         Content={() => (
           <Box style={styles.modalContent}>
             <Box style={styles.illustrationContainer}>
-              {isOnL4 ? <PrivateHardwareIllustration /> : <HardwareIllustration />}
+              {privateTheme ? <PrivateHardwareIllustration /> : <HardwareIllustration />}
             </Box>
             <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
               {signerTranslation.manageKeysModalDesc}
@@ -399,27 +403,6 @@ function SignersList({
     return shellKeys.filter((shellSigner) => !addedSignersTypes.includes(shellSigner.type));
   }, [signers]);
 
-  const renderAssistedKeysShell = () => {
-    return shellAssistedKeys.map((shellSigner) => {
-      return (
-        <SignerCard
-          key={getKeyUID(shellSigner)}
-          onCardSelect={() => {
-            showToast('Please add the key to a Vault in order to use it');
-          }}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, false)}
-          description="Setup required"
-          icon={SDIcons({ type: shellSigner.type }).Icon}
-          showSelection={false}
-          showDot={true}
-          colorVarient="green"
-          colorMode={colorMode}
-          customStyle={styles.signerCard}
-        />
-      );
-    });
-  };
-
   return (
     <SafeAreaView style={styles.topContainer}>
       <ScrollView
@@ -489,7 +472,6 @@ function SignersList({
               />
             );
           })}
-          {isNonVaultManageSignerFlow && renderAssistedKeysShell()}
           {isNonVaultManageSignerFlow && list.length == 0 && shellAssistedKeys.length == 0 && (
             <EmptyListIllustration listType="keys" />
           )}

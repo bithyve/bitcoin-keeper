@@ -6,8 +6,8 @@ import { useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import TickIcon from 'src/assets/images/icon_check.svg';
 import KeeperModal from './KeeperModal';
-import usePlan from 'src/hooks/usePlan';
 import PrivateTickIcon from 'src/assets/privateImages/tick-icon.svg';
+import { useSelector } from 'react-redux';
 
 type Option = {
   label: string;
@@ -27,7 +27,8 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
   const [internalSelectedOption, setInternalSelectedOption] = useState<Option | null>(
     selectedOption
   );
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const handlePress = () => {
     setIsOpen(!isOpen);
@@ -46,17 +47,20 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
   }, [selectedOption]);
 
   const optionsContent = (
-    <Box style={styles.optionsContainer} backgroundColor={isOnL4 && `${colorMode}.charcolBrown`}>
+    <Box
+      style={styles.optionsContainer}
+      backgroundColor={privateTheme && `${colorMode}.charcolBrown`}
+    >
       {options.map((option, index) => (
         <Pressable key={option.value} onPress={() => handleOptionSelect(option)}>
           <Box
             style={styles.optionContainer}
-            backgroundColor={isOnL4 && `${colorMode}.charcolBrown`}
+            backgroundColor={privateTheme && `${colorMode}.charcolBrown`}
           >
             <Text
               color={
                 internalSelectedOption?.value === option?.value
-                  ? isOnL4
+                  ? privateTheme
                     ? `${colorMode}.pantoneGreen`
                     : `${colorMode}.greenText`
                   : `${colorMode}.DarkGreyText`
@@ -67,7 +71,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
               {option.label}
             </Text>
             {internalSelectedOption?.value === option?.value &&
-              (isOnL4 ? <PrivateTickIcon /> : <TickIcon />)}
+              (privateTheme ? <PrivateTickIcon /> : <TickIcon />)}
           </Box>
           {index !== options.length - 1 && (
             <Box style={styles.separator} backgroundColor={`${colorMode}.dullGreyBorder`} />
@@ -114,7 +118,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
         close={() => setIsOpen(false)}
         showCloseIcon={false}
         Content={() => optionsContent}
-        modalBackground={isOnL4 && `${colorMode}.charcolBrown`}
+        modalBackground={privateTheme && `${colorMode}.charcolBrown`}
       />
     </Box>
   );

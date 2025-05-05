@@ -5,7 +5,7 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 type SignerCardProps = {
   name: string;
@@ -34,7 +34,7 @@ type SignerCardProps = {
   titleSize?: number;
   subtitleFont?: number;
   badgeText?: string;
-  isOnL4?: boolean;
+  privateTheme?: boolean;
 };
 
 function SignerCard({
@@ -84,7 +84,8 @@ function SignerCard({
   ];
 
   const isPressable = !disabled;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     <Pressable
@@ -102,14 +103,14 @@ function SignerCard({
           position="absolute"
           top={hp(10)}
           right={0}
-          bg={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.BrownNeedHelp`}
+          bg={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.BrownNeedHelp`}
           px={3}
           py={1}
           borderTopLeftRadius={5}
           borderBottomLeftRadius={5}
         >
           <Text
-            color={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.buttonText`}
+            color={privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.buttonText`}
             fontSize={10}
             medium
           >

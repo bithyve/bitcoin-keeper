@@ -20,7 +20,7 @@ import PrivateVaultSetupIcon from 'src/assets/privateImages/vault_setup.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useVault from 'src/hooks/useVault';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
@@ -57,7 +57,6 @@ import MiniscriptPathSelector, {
 } from 'src/components/MiniscriptPathSelector';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import usePlan from 'src/hooks/usePlan';
 
 function Footer({
   vault,
@@ -286,7 +285,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const isDarkMode = colorMode === 'dark';
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(vault);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   useEffect(() => {
     if (viewTransaction) {
@@ -391,7 +391,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     () => (
       <View style={styles.vaultModalContainer}>
         <Box style={styles.alignSelf}>
-          {isOnL4 ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
+          {privateTheme ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
         </Box>
         {isCanaryWallet ? (
           <Text color="white" style={styles.modalContent}>
@@ -549,13 +549,17 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             ? vaultTranslation.canaryLearnMoreSubtitle
             : vaultTranslation.vaultLearnMoreSubtitle
         }
-        modalBackground={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+        modalBackground={
+          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        }
         textColor={`${colorMode}.headerWhite`}
         Content={VaultContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={isOnL4 ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
-        buttonBackground={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`}
+        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
+        buttonBackground={
+          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        }
         secButtonTextColor={`${colorMode}.whiteSecButtonText`}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

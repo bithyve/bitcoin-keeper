@@ -87,6 +87,8 @@ const Colors = {
   OutrageousOrange: 'rgba(248,107,80,1)',
   lightSeashell: 'rgba(253,247,240,0.4)',
   FadeBlue: 'rgba(183,201,196,1)',
+  darkBlue: 'rgba(0, 0, 238,1)',
+  softBlue: 'rgba(102, 178, 255,1)',
   pantoneGreenLight: 'rgba(45,103,89,0.08)',
   WarmBeigeTranslucent: 'rgba(247, 242, 236, 0.3)',
   RussetBrownLight: 'rgba(210, 194, 179, 1)',

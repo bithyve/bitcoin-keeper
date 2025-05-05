@@ -14,7 +14,7 @@ import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { captureError } from 'src/services/sentry';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
-import { SignerType, VaultType } from 'src/services/wallets/enums';
+import { VaultType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
@@ -60,14 +60,14 @@ function SignWithChannel() {
     signerType,
     isRemoteKey = false,
     serializedPSBTEnvelopFromProps,
-    isMultisig,
+    signTransaction,
   } = params as {
     vaultKey: VaultSigner;
     vaultId: string;
     signerType: string;
     isRemoteKey?: boolean;
     serializedPSBTEnvelopFromProps?: any;
-    isMultisig?: boolean;
+    signTransaction: ({ signedSerializedPSBT }: { signedSerializedPSBT: string }) => void;
   };
   const { signer } = useSignerFromKey(vaultKey);
   const { activeVault } = useVault({ vaultId });
@@ -158,18 +158,8 @@ function SignWithChannel() {
         ])
       );
       if (isRemoteKey) {
-        navgation.dispatch(
-          CommonActions.navigate({
-            name: 'ShowPSBT',
-            params: {
-              data: signedSerializedPSBT,
-              encodeToBytes: false,
-              title: 'Signed PSBT',
-              subtitle: 'Please scan until all the QR data has been retrieved',
-              type: SignerType.KEEPER, // signer used as external key
-            },
-          })
-        );
+        signTransaction({ signedSerializedPSBT });
+        navgation.dispatch(CommonActions.goBack());
         return;
       }
       dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));

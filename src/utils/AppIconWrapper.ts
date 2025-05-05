@@ -17,7 +17,7 @@ export const AppIconWrapper = () => {
   const changeToDefaultIcon = async () => {
     if (isAndroid) {
       const currentIcon = await getCurrentIcon();
-      if (currentIcon != ANDROID_ICONS.default) {
+      if (currentIcon != 'Default') {
         Alert.alert(
           'Keeper Private',
           'We have failed to verify your Keeper Private subscription or it has expired. The app will now restart to apply the changes.',

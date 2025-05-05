@@ -26,7 +26,7 @@ import { hash256 } from 'src/utils/service-utilities/encryption';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { Signer } from 'src/services/wallets/interfaces/vault';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function ServerKeySuccessScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -35,7 +35,8 @@ function ServerKeySuccessScreen({ route }) {
   const { signingServer, common } = translations;
   const navigation = useNavigation();
   const { vaultKey, vaultId } = route.params || {};
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   const {
     setupData,
     addedSigner,
@@ -103,7 +104,11 @@ function ServerKeySuccessScreen({ route }) {
   const BackupModalContent = useCallback(() => {
     return (
       <Box style={styles.modalContainer}>
-        {isOnL4 ? <PrivateBackupSigningServerIllustrations /> : <SigningServerIllustrations />}
+        {privateTheme ? (
+          <PrivateBackupSigningServerIllustrations />
+        ) : (
+          <SigningServerIllustrations />
+        )}
         <Box>
           <Text fontSize={12} semiBold style={styles.modalTitle}>
             {signingServer.attention}:
@@ -240,7 +245,7 @@ function ServerKeySuccessScreen({ route }) {
       <ActivityIndicatorView visible={OTBLoading} showLoader={true} />
 
       <Box style={styles.container}>
-        {isOnL4 ? (
+        {privateTheme ? (
           <PrivateSigningServerIllustrations width={hp(200)} height={hp(200)} />
         ) : (
           <SigningServerIllustration />

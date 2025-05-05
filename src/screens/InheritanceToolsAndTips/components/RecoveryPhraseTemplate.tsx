@@ -12,20 +12,23 @@ import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemp
 import RecoveryPhraseIcon from 'src/assets/images/recovery-phrase-icon.svg';
 import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import usePlan from 'src/hooks/usePlan';
 import PrivateRecoveryPhrase from 'src/assets/privateImages/doc-seed-word.svg';
+import { useSelector } from 'react-redux';
 
 function RecoveryPhraseTemplate({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     <ScreenWrapper
       barStyle="dark-content"
-      backgroundcolor={isOnL4 ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`}
+      backgroundcolor={
+        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+      }
     >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
@@ -39,7 +42,7 @@ function RecoveryPhraseTemplate({}) {
           {inheritancePlanning.recoveryPhraseP1}
         </Text>
         <Box style={styles.circleStyle}>
-          {isOnL4 ? <PrivateRecoveryPhrase /> : <RecoveryPhraseIcon />}
+          {privateTheme ? <PrivateRecoveryPhrase /> : <RecoveryPhraseIcon />}
         </Box>
         <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
           {inheritancePlanning.recoveryPhraseP2}

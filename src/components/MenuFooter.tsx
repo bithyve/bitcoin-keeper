@@ -18,34 +18,41 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from './KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Colors from 'src/theme/Colors';
-import usePlan from 'src/hooks/usePlan';
 import PrivateWallet from 'src/assets/privateImages/wallet-gold.svg';
 import PrivateKey from 'src/assets/privateImages/key-gold-icon.svg';
 import PrivateConcierge from 'src/assets/privateImages/gold-concierge-icon.svg';
 import PrivateMore from 'src/assets/privateImages/more-gold-icon.svg';
+import { useSelector } from 'react-redux';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const menuOptions = [
     {
       name: wallet.homeWallets,
       defaultIcon: <WalletIcon />,
-      selectedIcon: isOnL4 ? <PrivateWallet /> : isDarkMode ? <WalletWhite /> : <WalletGreen />,
+      selectedIcon: privateTheme ? (
+        <PrivateWallet />
+      ) : isDarkMode ? (
+        <WalletWhite />
+      ) : (
+        <WalletGreen />
+      ),
     },
     {
       name: wallet.keys,
       defaultIcon: <KeyIcon />,
-      selectedIcon: isOnL4 ? <PrivateKey /> : isDarkMode ? <KeyWhite /> : <KeyGreen />,
+      selectedIcon: privateTheme ? <PrivateKey /> : isDarkMode ? <KeyWhite /> : <KeyGreen />,
     },
     {
       name: wallet.concierge,
       defaultIcon: <ConciergeIcon />,
-      selectedIcon: isOnL4 ? (
+      selectedIcon: privateTheme ? (
         <PrivateConcierge />
       ) : isDarkMode ? (
         <ConceirgeWhite />
@@ -56,7 +63,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
     {
       name: wallet.more,
       defaultIcon: <MoreIcon />,
-      selectedIcon: isOnL4 ? <PrivateMore /> : isDarkMode ? <MoreWhite /> : <MoreGreen />,
+      selectedIcon: privateTheme ? <PrivateMore /> : isDarkMode ? <MoreWhite /> : <MoreGreen />,
     },
   ];
 
@@ -82,7 +89,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
               style={[styles.menuText]}
               color={
                 selectedOption === option.name
-                  ? isOnL4
+                  ? privateTheme
                     ? `${colorMode}.pantoneGreen`
                     : isDarkMode
                     ? Colors.headerWhite

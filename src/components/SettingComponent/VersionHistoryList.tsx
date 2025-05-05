@@ -7,12 +7,13 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
 import DotView from '../DotView';
-import usePlan from 'src/hooks/usePlan';
+import { useSelector } from 'react-redux';
 
 function VersionHistoryList() {
   const { colorMode } = useColorMode();
   const VersionHistoryData = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
-  const { isOnL4 } = usePlan();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     <FlatList
@@ -32,11 +33,13 @@ function VersionHistoryList() {
             <DotView
               height={2}
               width={2}
-              color={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.DarkSlateGray`}
+              color={privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.DarkSlateGray`}
             />
           </Box>
           <Box
-            borderLeftColor={isOnL4 ? `${colorMode}.pantoneGreen` : `${colorMode}.DarkSlateGray`}
+            borderLeftColor={
+              privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.DarkSlateGray`
+            }
             borderLeftWidth={1}
             width="100%"
           >
