@@ -8,10 +8,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
-import HardwareSignerBlack from 'src/assets/images/hardware-signer-black.svg';
-import HardwareSignerWhite from 'src/assets/images/hardware-signer-white.svg';
-import MobileKeyBlack from 'src/assets/images/mobile_key.svg';
-import MobileKeyWhite from 'src/assets/images/mobile_key_light.svg';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
@@ -51,6 +47,7 @@ function SignerCategoryList() {
   const { vault, signer, common } = translations;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateLightTheme = themeMode === 'PRIVATE_LIGHT';
 
   const hardwareSigners = [
     { type: SignerType.COLDCARD, background: 'headerWhite', isTrue: false },
@@ -77,7 +74,7 @@ function SignerCategoryList() {
       signerCategory: SignerCategory.HARDWARE,
       headerTitle: signer.hardwareKeysHeader,
       headerSubtitle: signer.connectHardwareDevices,
-      Icon: isDarkMode ? <HardwareSignerWhite /> : <HardwareSignerBlack />,
+      Icon: <ThemedSvg name={'hardware_key_icon'} />,
       snippet: hardwareSnippet,
     },
     {
@@ -86,7 +83,7 @@ function SignerCategoryList() {
       signerCategory: SignerCategory.SOFTWARE,
       headerTitle: signer.softwareKeysHeader,
       headerSubtitle: signer.keysNoHardwareNeeded,
-      Icon: isDarkMode ? <MobileKeyWhite /> : <MobileKeyBlack />,
+      Icon: <ThemedSvg name={'software_key_icon'} />,
       snippet: [],
     },
   ];
@@ -120,7 +117,10 @@ function SignerCategoryList() {
         <Box style={styles.alignCenter}>
           <ThemedSvg name={'diversify_hardware'} />
         </Box>
-        <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
+        <Text
+          color={privateLightTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.modalText}
+        >
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
         </Text>
       </View>
@@ -176,18 +176,28 @@ function SignerCategoryList() {
         title={signer.signers}
         subTitle={signer.signerDescription}
         modalBackground={
-          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+          privateTheme || privateLightTheme
+            ? `${colorMode}.primaryBackground`
+            : `${colorMode}.pantoneGreen`
         }
-        textColor={`${colorMode}.headerWhite`}
+        textColor={privateLightTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
-        buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        buttonTextColor={
+          privateTheme || privateLightTheme
+            ? `${colorMode}.headerWhite`
+            : `${colorMode}.pantoneGreen`
         }
-        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        buttonBackground={
+          privateTheme || privateLightTheme
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.whiteSecButtonText`
+        }
+        secButtonTextColor={
+          privateLightTheme ? `${colorMode}.textBlack` : `${colorMode}.whiteSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           dispatch(setSdIntroModal(false));

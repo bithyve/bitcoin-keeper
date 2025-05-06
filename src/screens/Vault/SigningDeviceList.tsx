@@ -58,6 +58,7 @@ const SigningDeviceList = () => {
   const { isOnL1, isOnL2 } = usePlan();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateLightTheme = themeMode === 'PRIVATE_LIGHT';
   const { signers } = useSigners();
   const { translations } = useContext(LocalizationContext);
   const [isNfcSupported, setNfcSupport] = useState(true);
@@ -114,7 +115,10 @@ const SigningDeviceList = () => {
         <Box style={styles.alignCenter}>
           <ThemedSvg name={'diversify_hardware'} />
         </Box>
-        <Text color={`${colorMode}.headerWhite`} style={styles.modalText}>
+        <Text
+          color={privateLightTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.modalText}
+        >
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
         </Text>
       </Box>
@@ -218,7 +222,6 @@ const SigningDeviceList = () => {
                       last={index === sortedSigners[signerCategory].length - 1}
                       isOnL1={isOnL1}
                       isOnL2={isOnL2}
-                      privateTheme={privateTheme}
                       addSignerFlow={addSignerFlow}
                       vaultId={vaultId}
                       vaultSigners={vaultSigners}
@@ -243,19 +246,29 @@ const SigningDeviceList = () => {
         }}
         title={signer.signers}
         subTitle={signer.signerDescription}
-        modalBackground={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
-        textColor={`${colorMode}.headerWhite`}
+        modalBackground={
+          privateTheme || privateLightTheme
+            ? `${colorMode}.primaryBackground`
+            : `${colorMode}.pantoneGreen`
+        }
+        textColor={privateLightTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={
-          privateTheme ? `${colorMode}.whiteSecButtonText` : `${colorMode}.pantoneGreen`
+          privateTheme || privateLightTheme
+            ? `${colorMode}.whiteSecButtonText`
+            : `${colorMode}.pantoneGreen`
         }
         buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+          privateTheme || privateLightTheme
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.whiteSecButtonText`
         }
-        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secButtonTextColor={
+          privateLightTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           dispatch(setSdIntroModal(false));

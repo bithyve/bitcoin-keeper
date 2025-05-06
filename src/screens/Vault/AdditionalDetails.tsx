@@ -42,7 +42,7 @@ function AdditionalDetails({ route }: ScreenProps) {
   const { thumbnailPath, givenName, familyName } = signer.extraData;
   const { relaySignersUpdate } = useAppSelector((state) => state.bhr);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   useEffect(() => {
     if (relaySignersUpdate && hasUpdatedDescription) {

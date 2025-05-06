@@ -97,6 +97,18 @@ import LoaderGear3Private from 'src/assets/privateImages/gear 3.svg';
 import PrivateSetting from 'src/assets/privateImages/setting-gold-icon.svg';
 import DarkSettingIcon from 'src/assets/images/settings-icon-white.svg';
 import SettingIcon from 'src/assets/images/new_icon_settings.svg';
+import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-server-illustration.svg';
+import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
+import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
+import PrivateImagePlaceHolder from 'src/assets/privateImages/contact-image-placeholder.svg';
+import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
+import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
+import PrivateHardwareKey from 'src/assets/privateImages/hard-key.svg';
+import HardwareSignerWhite from 'src/assets/images/SignerWhiteHardware.svg';
+import HardwareSignerBlack from 'src/assets/images/SignerHardware.svg';
+import PrivateSoftwareKey from 'src/assets/privateImages/soft-key.svg';
+import MobileKeyBlack from 'src/assets/images/signerSoftwareBlack.svg';
+import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -320,6 +332,36 @@ const themeIcons = {
     LIGHT: SettingIcon,
     PRIVATE: PrivateSetting,
     PRIVATE_LIGHT: PrivateSetting,
+  },
+  success_illustration: {
+    DARK: SuccessCircleIllustration,
+    LIGHT: SuccessCircleIllustration,
+    PRIVATE: PrivateSigningServerIllustrations,
+    PRIVATE_LIGHT: PrivateSigningServerIllustrations,
+  },
+  image_placeholder: {
+    DARK: ImagePlaceHolder,
+    LIGHT: ImagePlaceHolder,
+    PRIVATE: PrivateImagePlaceHolder,
+    PRIVATE_LIGHT: PrivateImagePlaceHolder,
+  },
+  add_Contact_icon: {
+    DARK: AddContactIcon,
+    LIGHT: AddContactIcon,
+    PRIVATE: PrivateAddContactIcon,
+    PRIVATE_LIGHT: PrivateAddContactIcon,
+  },
+  hardware_key_icon: {
+    DARK: HardwareSignerWhite,
+    LIGHT: HardwareSignerBlack,
+    PRIVATE: PrivateHardwareKey,
+    PRIVATE_LIGHT: PrivateHardwareKey,
+  },
+  software_key_icon: {
+    DARK: MobileKeyWhite,
+    LIGHT: MobileKeyBlack,
+    PRIVATE: PrivateSoftwareKey,
+    PRIVATE_LIGHT: PrivateSoftwareKey,
   },
 };
 
