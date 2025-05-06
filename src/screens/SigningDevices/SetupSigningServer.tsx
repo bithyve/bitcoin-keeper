@@ -10,6 +10,7 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
@@ -44,7 +45,7 @@ function SetupSigningServer({ route }: { route }) {
       setSetupData(setupData);
       setValidationKey(setupData.verification.verifier);
     } catch (err) {
-      showToast('Something went wrong. Please try again!');
+      showToast(err.message || err.toString(), <ToastErrorIcon />);
     }
   };
 
