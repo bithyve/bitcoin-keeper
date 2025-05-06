@@ -692,7 +692,7 @@ function SignerAdvanceSettings({ route }: any) {
     isPolicyServer && (
       <OptionCard
         key="configurationSetting"
-        title="Server Policy Setting"
+        title="Server Policy Settings"
         description="Update your server key signing policy"
         callback={navigateToPolicyChange}
       />
@@ -1031,7 +1031,7 @@ function SignerAdvanceSettings({ route }: any) {
         visible={waningModal}
         close={() => setWarning(false)}
         title="Changing Device Type"
-        subTitle="Are you sure you want to change the signer type?"
+        subTitle="Are you sure you want to change the device type?"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

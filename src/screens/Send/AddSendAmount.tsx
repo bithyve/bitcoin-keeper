@@ -545,7 +545,7 @@ function AddSendAmount({ route }) {
           {selectedUTXOs && selectedUTXOs.length
             ? 'Available '
             : sender.presentationData.name + ' '}
-          Balance:
+          Balance:{' '}
         </Text>
         <CurrencyInfo
           hideAmounts={false}

@@ -98,7 +98,7 @@ function ShareKeyModalContent({
     },
     {
       id: 3,
-      label: `${isIos ? 'Airdrop / ' : ''}File Export`,
+      label: `${isIos ? 'Airdrop / ' : ''}File`,
       icon: <AirDropIcon />,
       onPress: () => {
         shareWithAirdrop();

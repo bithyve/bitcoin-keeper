@@ -29,8 +29,7 @@ type SigningDeviceCardProps = {
   isMultisig: boolean;
   primaryMnemonic: string;
   accountNumber: number;
-  isSigningServerExist: any;
-  isSingleSigner: boolean;
+  displayToast?: boolean;
 };
 
 const SigningDeviceCard = ({
@@ -48,8 +47,7 @@ const SigningDeviceCard = ({
   isMultisig,
   primaryMnemonic,
   accountNumber,
-  isSigningServerExist,
-  isSingleSigner,
+  displayToast,
 }: SigningDeviceCardProps) => {
   const [visible, setVisible] = useState(false);
   const navigation = useNavigation();
@@ -62,10 +60,8 @@ const SigningDeviceCard = ({
       navigateToUpgrade();
       return;
     }
-    if (isSigningServerExist) {
-      showToast('Server Key already exists');
-    } else if (isSingleSigner) {
-      showToast('Please create a vault with a minimum of 3 signers and 2 required signers');
+    if (displayToast) {
+      showToast(message);
     } else {
       open();
     }
@@ -84,7 +80,7 @@ const SigningDeviceCard = ({
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={onPress}
-        disabled={disabled && !shouldUpgrade}
+        disabled={disabled && !shouldUpgrade && !displayToast}
         testID={`btn_${type}`}
       >
         <Box
