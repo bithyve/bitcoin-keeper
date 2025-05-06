@@ -9,8 +9,6 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import TorAsset from 'src/components/Loader';
 import KeeperModal from 'src/components/KeeperModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import ModalContainer from 'src/components/Modal/ModalContainer';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';

@@ -80,6 +80,23 @@ import PrivateDiversifyHardwareLight from 'src/assets/privateImages/hardware-wal
 import BackupAcidFree from 'src/assets/images/backup-acidfree.svg';
 import PrivateAcidFree from 'src/assets/privateImages/doc-acid-free.svg';
 import PrivateAcidFreeLight from 'src/assets/privateImages/paper-metal.svg';
+import LoaderBackground from 'src/assets/images/background elements.svg';
+import LoaderPrivateBackground from 'src/assets/privateImages/background-elements.svg';
+import LoaderBackgroundLight from 'src/assets/privateImages/loader-background-light.svg';
+import LoaderGear1Private from 'src/assets/privateImages/gear1 .svg';
+import LoaderGear1 from 'src/assets/images/gear1.svg';
+import LoaderGear1Dark from 'src/assets/images/mediumGearDark.svg';
+import LoaderGear1PrivateLight from 'src/assets/privateImages/loader-light-gear1.svg';
+import LoaderGear2Private from 'src/assets/privateImages/gear 2.svg';
+import LoaderGear2 from 'src/assets/images/gear 2.svg';
+import LoaderGear2Dark from 'src/assets/images/smallGearDark.svg';
+import LoaderGear2PrivateLight from 'src/assets/privateImages/loader-light-gear-2.svg';
+import LoaderGear3PrivateLight from 'src/assets/privateImages/loader-light-gear-3.svg';
+import LoaderGear3 from 'src/assets/images/gear 3.svg';
+import LoaderGear3Private from 'src/assets/privateImages/gear 3.svg';
+import PrivateSetting from 'src/assets/privateImages/setting-gold-icon.svg';
+import DarkSettingIcon from 'src/assets/images/settings-icon-white.svg';
+import SettingIcon from 'src/assets/images/new_icon_settings.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -273,6 +290,36 @@ const themeIcons = {
     LIGHT: BackupAcidFree,
     PRIVATE: PrivateAcidFree,
     PRIVATE_LIGHT: PrivateAcidFreeLight,
+  },
+  loader_background: {
+    DARK: LoaderBackground,
+    LIGHT: LoaderBackground,
+    PRIVATE: LoaderPrivateBackground,
+    PRIVATE_LIGHT: LoaderBackgroundLight,
+  },
+  loader_gear_1: {
+    DARK: LoaderGear1Dark,
+    LIGHT: LoaderGear1,
+    PRIVATE: LoaderGear1Private,
+    PRIVATE_LIGHT: LoaderGear1PrivateLight,
+  },
+  loader_gear_2: {
+    DARK: LoaderGear2Dark,
+    LIGHT: LoaderGear2,
+    PRIVATE: LoaderGear2Private,
+    PRIVATE_LIGHT: LoaderGear2PrivateLight,
+  },
+  loader_gear_3: {
+    DARK: LoaderGear2Dark,
+    LIGHT: LoaderGear3,
+    PRIVATE: LoaderGear3Private,
+    PRIVATE_LIGHT: LoaderGear3PrivateLight,
+  },
+  setting_icon: {
+    DARK: DarkSettingIcon,
+    LIGHT: SettingIcon,
+    PRIVATE: PrivateSetting,
+    PRIVATE_LIGHT: PrivateSetting,
   },
 };
 
