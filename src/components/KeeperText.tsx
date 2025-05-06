@@ -55,6 +55,7 @@ function Text(props: KeeperTextProps) {
 
   return (
     <NativeBaseText
+      allowFontScaling={false}
       {...updatedProps}
       fontStyle={italic ? 'italic' : undefined}
       style={[{ fontSize, fontWeight: computedFontWeight }, passedStyles]}
