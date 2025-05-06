@@ -143,7 +143,7 @@ export const privateTheme = extendTheme({
       errorToastBackground: Colors.ErrorToast,
       modalUnitColor: Colors.SoftGray,
       brownBackground: Colors.primaryBrown,
-      keyPadText: Colors.SoftGray,
+      keyPadText: Colors.GreenishGrey,
       solidGreyBorder: Colors.greyBorder,
       dashedButtonBorder: Colors.separator,
       newDashedButtonBackground: Colors.SoftTealOverlay,

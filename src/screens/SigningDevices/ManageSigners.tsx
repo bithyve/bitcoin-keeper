@@ -85,6 +85,7 @@ function ManageSigners({ route }: ScreenProps) {
   });
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   useEffect(() => {
     if (remoteData?.key && !timerModal) {
@@ -191,7 +192,11 @@ function ManageSigners({ route }: ScreenProps) {
   };
 
   return (
-    <Box safeAreaTop backgroundColor={`${colorMode}.BrownNeedHelp`} style={[styles.wrapper]}>
+    <Box
+      safeAreaTop
+      backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
+      style={[styles.wrapper]}
+    >
       <Box style={styles.topSection}>
         <KeeperHeader
           title={signerTranslation.ManageKeys}
@@ -199,6 +204,9 @@ function ManageSigners({ route }: ScreenProps) {
           mediumTitle
           learnMore
           learnMorePressed={() => setShowLearnMoreModal(true)}
+          learnBackgroundColor={
+            privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`
+          }
           learnTextColor={`${colorMode}.buttonText`}
           titleColor={`${colorMode}.seashellWhiteText`}
           subTitleColor={`${colorMode}.seashellWhiteText`}
@@ -256,17 +264,27 @@ function ManageSigners({ route }: ScreenProps) {
         visible={showLearnMoreModal}
         title={signerTranslation.ManageKeys}
         subTitle={signerTranslation.manageKeysModalSubtitle}
-        subTitleColor={`${colorMode}.headerWhite`}
+        subTitleColor={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         modalBackground={
-          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+          privateTheme || PrivateThemeLight
+            ? `${colorMode}.primaryBackground`
+            : `${colorMode}.pantoneGreen`
         }
-        textColor={`${colorMode}.headerWhite`}
+        textColor={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         DarkCloseIcon={colorMode === 'dark' ? true : false}
-        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
-        buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        buttonTextColor={
+          privateTheme || PrivateThemeLight
+            ? `${colorMode}.headerWhite`
+            : `${colorMode}.pantoneGreen`
         }
-        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        buttonBackground={
+          privateTheme || PrivateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.whiteSecButtonText`
+        }
+        secButtonTextColor={
+          PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.whiteSecButtonText`
+        }
         secondaryButtonText={common.needHelp}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
@@ -288,7 +306,10 @@ function ManageSigners({ route }: ScreenProps) {
             <Box style={styles.illustrationContainer}>
               <ThemedSvg name={'diversify_hardware'} />
             </Box>
-            <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
+            <Text
+              color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+              style={styles.modalDesc}
+            >
               {signerTranslation.manageKeysModalDesc}
             </Text>
           </Box>

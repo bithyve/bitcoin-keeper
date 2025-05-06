@@ -46,10 +46,9 @@ import {
   OFF,
 } from './constants';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
-import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
-import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import UpdatePolicyIllustration from 'src/assets/images/UpdatePolicyIllustration.svg';
 import PrivateUpdatePolicyIllustration from 'src/assets/privateImages/UpdatePolicyIllustration.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -60,7 +59,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   const { maxTransaction, timelimit, delayTime, addSignerFlow } = route.params;
 
@@ -380,7 +379,7 @@ function ChoosePolicyNew({ navigation, route }) {
         title={signingServer.choosePolicy}
         rightComponent={
           <TouchableOpacity onPress={() => setNeedHelpModal(true)}>
-            {isDarkMode ? <InfoDarkIcon /> : <LearnMoreIcon />}
+            <ThemedSvg name={'info_icon'} />
           </TouchableOpacity>
         }
       />

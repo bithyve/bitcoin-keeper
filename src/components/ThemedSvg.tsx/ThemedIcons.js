@@ -109,6 +109,46 @@ import HardwareSignerBlack from 'src/assets/images/SignerHardware.svg';
 import PrivateSoftwareKey from 'src/assets/privateImages/soft-key.svg';
 import MobileKeyBlack from 'src/assets/images/signerSoftwareBlack.svg';
 import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
+import WhiteSettingIcon from 'src/assets/privateImages/setting_icon_white.svg';
+import BrownSettingIcon from 'src/assets/privateImages/setting_icon_brown.svg';
+import CopyIconWhite from 'src/assets/images/copy-icon-white.svg';
+import CopyIcon from 'src/assets/images/copy.svg';
+import CopyGoldIcon from 'src/assets/privateImages/copy-icon-gold.svg';
+import KeyDetailsDark from 'src/assets/images/key-details-white.svg';
+import KeyDetailsLight from 'src/assets/images/key-details-green.svg';
+import keyDetailGold from 'src/assets/privateImages/share-key-gold-icon.svg';
+import HealthCheckLight from 'src/assets/images/health-check-green.svg';
+import HealthCheckDark from 'src/assets/images/health-check-white.svg';
+import HealthCheckGold from 'src/assets/privateImages/healthcheck-gold-icon.svg';
+import SignTransactionLight from 'src/assets/images/sign-transaction-green.svg';
+import SignTransactionDark from 'src/assets/images/sign-transaction-white.svg';
+import SignTransactionGold from 'src/assets/privateImages/sign-trans-gold-icon.svg';
+import PrivateWalletInfoIllustration from 'src/assets/privateImages/wallet-Info-Illustratipn.svg';
+import WalletInfoIllustration from 'src/assets/images/walletInfoIllustration.svg';
+import PrivateWalletInfoIllustrationLight from 'src/assets/privateImages/wallet-info-illustration-light.svg';
+import KeeperIcon from 'src/assets/images/new-Keeper-Logo.svg';
+import PrivateKeeperIcon from 'src/assets/images/keeper-private-logo.svg';
+import KeeperGoldIcon from 'src/assets/privateImages/keeper-gold-icon.svg';
+import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
+import PrivateColdCardIllustration from 'src/assets/privateImages/coldCard-illustration.svg';
+import PassportSVG from 'src/assets/images/illustration_passport.svg';
+import PrivatePassportIllustration from 'src/assets/privateImages/passport-illustration.svg';
+import SeedSignerSetup from 'src/assets/images/seedsigner-setup-horizontal.svg';
+import PrivateSeedSignerIllustration from 'src/assets/privateImages/seedSigner-illustration.svg';
+import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
+import PrivateSpecterIllustration from 'src/assets/privateImages/spector-illustration.svg';
+import KeystoneSetup from 'src/assets/images/keystone_illustration.svg';
+import PrivateKeystoneIllustration from 'src/assets/privateImages/keystone-illustration.svg';
+import JadeSetup from 'src/assets/images/illustration_jade.svg';
+import PrivateJadeIllustration from 'src/assets/privateImages/jade-illustrationsvg.svg';
+import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
+import PrivateOtherSDIllustration from 'src/assets/privateImages/otherSigner-illustration.svg';
+import KeeperSetup from 'src/assets/images/illustration-external-key.svg';
+import PrivateKeeperSetup from 'src/assets/privateImages/external_illustration.svg';
+import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
+import PrivateTapSignerIllustration from 'src/assets/privateImages/tapsigner-illustration.svg';
+import PortalIllustration from 'src/assets/images/portal_illustration.svg';
+import PrivatePortalIllustration from 'src/assets/privateImages/portal-illustration.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -327,7 +367,7 @@ const themeIcons = {
     PRIVATE: LoaderGear3Private,
     PRIVATE_LIGHT: LoaderGear3PrivateLight,
   },
-  setting_icon: {
+  enhanced_setting_icon: {
     DARK: DarkSettingIcon,
     LIGHT: SettingIcon,
     PRIVATE: PrivateSetting,
@@ -362,6 +402,108 @@ const themeIcons = {
     LIGHT: MobileKeyBlack,
     PRIVATE: PrivateSoftwareKey,
     PRIVATE_LIGHT: PrivateSoftwareKey,
+  },
+  setting_icon: {
+    DARK: WhiteSettingIcon,
+    LIGHT: SettingIcon,
+    PRIVATE: WhiteSettingIcon,
+    PRIVATE_LIGHT: BrownSettingIcon,
+  },
+  copy_icon: {
+    DARK: CopyIconWhite,
+    LIGHT: CopyIcon,
+    PRIVATE: CopyIconWhite,
+    PRIVATE_LIGHT: CopyGoldIcon,
+  },
+  share_key: {
+    DARK: KeyDetailsDark,
+    LIGHT: KeyDetailsLight,
+    PRIVATE: KeyDetailsDark,
+    PRIVATE_LIGHT: keyDetailGold,
+  },
+  sign_transaction: {
+    DARK: SignTransactionDark,
+    LIGHT: SignTransactionLight,
+    PRIVATE: SignTransactionDark,
+    PRIVATE_LIGHT: SignTransactionGold,
+  },
+  health_check: {
+    DARK: HealthCheckDark,
+    LIGHT: HealthCheckLight,
+    PRIVATE: HealthCheckDark,
+    PRIVATE_LIGHT: HealthCheckGold,
+  },
+  walletInfoIllustration: {
+    DARK: WalletInfoIllustration,
+    LIGHT: WalletInfoIllustration,
+    PRIVATE: PrivateWalletInfoIllustration,
+    PRIVATE_LIGHT: PrivateWalletInfoIllustrationLight,
+  },
+  keeper_icon: {
+    DARK: KeeperIcon,
+    LIGHT: KeeperIcon,
+    PRIVATE: PrivateKeeperIcon,
+    PRIVATE_LIGHT: KeeperGoldIcon,
+  },
+  coldCard_illustration: {
+    DARK: ColdCardSVG,
+    LIGHT: ColdCardSVG,
+    PRIVATE: PrivateColdCardIllustration,
+    PRIVATE_LIGHT: PrivateColdCardIllustration,
+  },
+  passport_illustration: {
+    DARK: PassportSVG,
+    LIGHT: PassportSVG,
+    PRIVATE: PrivatePassportIllustration,
+    PRIVATE_LIGHT: PrivatePassportIllustration,
+  },
+  seedSigner_illustration: {
+    DARK: SeedSignerSetup,
+    LIGHT: SeedSignerSetup,
+    PRIVATE: PrivateSeedSignerIllustration,
+    PRIVATE_LIGHT: PrivateSeedSignerIllustration,
+  },
+  specter_illustration: {
+    DARK: SpecterSetupImage,
+    LIGHT: SpecterSetupImage,
+    PRIVATE: PrivateSpecterIllustration,
+    PRIVATE_LIGHT: PrivateSpecterIllustration,
+  },
+  keyStone_illustration: {
+    DARK: KeystoneSetup,
+    LIGHT: KeystoneSetup,
+    PRIVATE: PrivateKeystoneIllustration,
+    PRIVATE_LIGHT: PrivateKeystoneIllustration,
+  },
+  jade_illustration: {
+    DARK: JadeSetup,
+    LIGHT: JadeSetup,
+    PRIVATE: PrivateJadeIllustration,
+    PRIVATE_LIGHT: PrivateJadeIllustration,
+  },
+  otherSigner_illustration: {
+    DARK: OtherSDImage,
+    LIGHT: OtherSDImage,
+    PRIVATE: PrivateOtherSDIllustration,
+    PRIVATE_LIGHT: PrivateOtherSDIllustration,
+  },
+  external_Key_illustration: {
+    DARK: KeeperSetup,
+    LIGHT: KeeperSetup,
+    PRIVATE: PrivateKeeperSetup,
+    PRIVATE_LIGHT: PrivateKeeperSetup,
+  },
+  tapSigner_illustration: {
+    DARK: TapsignerSetupSVG,
+    LIGHT: TapsignerSetupSVG,
+    PRIVATE: PrivateTapSignerIllustration,
+    PRIVATE_LIGHT: PrivateTapSignerIllustration,
+  },
+  portal_illustration: {
+    DARK: PortalIllustration,
+    LIGHT: PortalIllustration,
+    PRIVATE: PrivatePortalIllustration,
+    PRIVATE_LIGHT: PrivatePortalIllustration,
   },
 };
 

@@ -221,7 +221,7 @@ function AddNewWallet({ navigation, route }) {
           name="Enhanced Security Options"
           description="Secure your funds and future—your way"
           callback={() => setShowEnhancedOptionsModal(true)}
-          icon={<ThemedSvg name={'setting_icon'} />}
+          icon={<ThemedSvg name={'enhanced_setting_icon'} />}
           iconWidth={22}
           iconHeight={20}
           cardStyles={styles.enhancedVaultsCustomStyles}

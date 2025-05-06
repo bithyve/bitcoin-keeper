@@ -66,8 +66,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
 import WalletHeader from 'src/components/WalletHeader';
-import InfoIcon from 'src/assets/images/info_icon.svg';
-import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import PrivateBackupSigningServerIllustrations from 'src/assets/privateImages/Backup-Server-Key-illustration.svg';
 import Buttons from 'src/components/Buttons';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
@@ -87,6 +86,7 @@ import PrivateSeedKey from 'src/assets/privateImages/seedKey-illustration.svg';
 import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-ilustration.svg';
 import PrivateSeedSignerSetupImage from 'src/assets/privateImages/seedSigner-illustration.svg';
 import PrivateMy_Keeper from 'src/assets/privateImages/mobileKeyIllustration.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const { width } = Dimensions.get('screen');
 
@@ -136,7 +136,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { signers } = useSigners();
   const { isOnL4 } = usePlan();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   const signer: Signer = signerFromParam
     ? signers.find((signer) => getKeyUID(signer) === getKeyUID(signerFromParam)) // to reflect associated contact image in real time
@@ -650,7 +650,7 @@ function SignerAdvanceSettings({ route }: any) {
   const BackupModalContent = useCallback(() => {
     return (
       <Box style={styles.modalContainer}>
-        <SigningServerIllustration />
+        {privateTheme ? <PrivateBackupSigningServerIllustrations /> : <SigningServerIllustration />}
         <Box>
           <Text fontSize={12} semiBold style={styles.modalTitle}>
             {signingServer.attention}:
@@ -958,7 +958,10 @@ function SignerAdvanceSettings({ route }: any) {
     return (
       <Box>
         <Center>{assert}</Center>
-        <Text color={`${colorMode}.headerWhite`} style={styles.contentDescription}>
+        <Text
+          color={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.contentDescription}
+        >
           {description}
         </Text>
       </Box>
@@ -982,7 +985,7 @@ function SignerAdvanceSettings({ route }: any) {
         }
         rightComponent={
           <TouchableOpacity style={styles.infoIcon} onPress={() => setDetailModal(true)}>
-            {isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}
+            <ThemedSvg name="info_icon" />
           </TouchableOpacity>
         }
       />
@@ -1143,8 +1146,10 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setDetailModal(false)}
         title={!signer.isBIP85 ? title : `${title} +`}
         subTitle={subTitle}
-        modalBackground={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
-        textColor={`${colorMode}.headerWhite`}
+        modalBackground={
+          privateTheme ? `${colorMode}.modalPrivateBackground` : `${colorMode}.pantoneGreen`
+        }
+        textColor={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         Content={SignerContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
