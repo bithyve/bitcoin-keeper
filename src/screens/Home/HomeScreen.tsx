@@ -6,7 +6,6 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch, useSelector } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-
 import KeysIcon from 'src/assets/images/homeGreenKeyIcon.svg';
 import ConciergeIcon from 'src/assets/images/faq-green.svg';
 import { resetRealyWalletState, setHomeToastMessage } from 'src/store/reducers/bhr';
@@ -29,6 +28,8 @@ import PrivateKeys from 'src/assets/privateImages/key-icon.svg';
 import Privateconcierge from 'src/assets/privateImages/concierge-icon.svg';
 import MoreGreen from 'src/assets/images/more-green.svg';
 import PrivateMore from 'src/assets/images/more-white-icon.svg';
+import Contact from './components/Contact/Contact';
+import ContactGreenIcon from 'src/assets/images/contact-green-icon.svg';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -112,6 +113,23 @@ function NewHomeScreen({ route }) {
                   />
                 )
               }
+              backgroundColor={
+                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
+              }
+            />
+          ),
+        };
+      case wallet.contact:
+        return {
+          content: (
+            <Box>
+              <Contact />
+            </Box>
+          ),
+          icon: (
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={privateTheme ? <ContactGreenIcon /> : <ContactGreenIcon />}
               backgroundColor={
                 privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
               }

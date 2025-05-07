@@ -650,6 +650,7 @@
     "signingTransaction": "Signing Transaction",
     "reviewTransaction": "Review the transaction",
     "sendingTo": "Sending To",
+    "contact": "Contacts",
     "advancedDetails": "Advanced Details",
     "feeRate": "Fee Rate",
     "networkFees": "Network Fees",
