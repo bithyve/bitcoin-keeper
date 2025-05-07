@@ -5,8 +5,8 @@ export const BalancesSchema: Realm.ObjectSchema = {
   name: RealmSchema.Balances,
   embedded: true,
   properties: {
-    confirmed: 'int',
-    unconfirmed: 'int',
+    confirmed: { type: 'int', default: 0 },
+    unconfirmed: { type: 'int', default: 0 },
   },
 };
 
