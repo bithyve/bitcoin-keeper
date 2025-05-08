@@ -15,7 +15,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
 const SubscriptionList: React.FC<{
   plans: any[];
@@ -45,6 +45,20 @@ const SubscriptionList: React.FC<{
   const [currentPositions, setCurrentPositions] = useState(
     currentPosition !== 0 ? currentPosition : subscription.level - 1
   );
+
+  const getKeeperPrivateExpiryDate = () => {
+    if (subscription.level == AppSubscriptionLevel.L4) {
+      const receipt = JSON.parse(subscription.receipt);
+      if (receipt.expirationTime) {
+        const expires = new Date(receipt.expirationTime);
+        return expires.toLocaleString('en-US', {
+          month: 'long',
+          year: 'numeric',
+        });
+      }
+    }
+    return null;
+  };
 
   const _onSnapToItem = (index) => {
     setCurrentPositions(index);
@@ -173,6 +187,15 @@ const SubscriptionList: React.FC<{
               )}
 
               {playServiceUnavailable ? null : isKeeperPrivate ? null : priceDisplay}
+
+              {isExpanded && isKeeperPrivate && getKeeperPrivateExpiryDate() && (
+                <Box>
+                  <Text color={`${colorMode}.GreyText`} semiBold fontSize={12}>
+                    Expires:
+                  </Text>
+                  <Text fontSize={12}>{getKeeperPrivateExpiryDate()}</Text>
+                </Box>
+              )}
 
               {isExpanded && (
                 <Box style={styles.btmCTR}>
