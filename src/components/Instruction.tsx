@@ -8,16 +8,21 @@ import openLink from 'src/utils/OpenLink';
 export function Instruction({
   text,
   textWidth = wp(285),
+  textColor,
 }: {
   text: string;
   textWidth?: DimensionValue;
+  textColor?: string;
 }) {
   const { colorMode } = useColorMode();
   const styles = getStyles(textWidth);
   return (
     <Box style={styles.bulletContainer}>
-      <Box style={styles.bullet} backgroundColor={`${colorMode}.black`}></Box>
-      <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
+      <Box
+        style={styles.bullet}
+        backgroundColor={textColor ? textColor : `${colorMode}.black`}
+      ></Box>
+      <Text color={textColor ? textColor : `${colorMode}.secondaryText`} style={styles.infoText}>
         {typeof text === 'string'
           ? text.split(/\b(https?:\/\/[^\s]+)\b/).map((part) => {
               if (part.match(/^https?:\/\//)) {
