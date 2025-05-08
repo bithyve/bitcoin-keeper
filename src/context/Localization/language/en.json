@@ -1549,7 +1549,8 @@
     "selectKnowledgeableP1": "Choose executors or trustees with a thorough understanding of bitcoin and multi-key systems. Their expertise will be crucial in managing and transferring your bitcoin according to your wishes, ensuring a smooth inheritance process.",
     "regularUpdatesTitle": "Regularly Update Estate Plans and Instructions",
     "regularUpdatesP2": "Please keep an eye out for firmware and other updates from device manufacturers. Sometimes buttons get moved around or processes change that would need to be updated in your instructions.",
-    "regularUpdatesP1": "Keep your estate planning documents and instructions regarding your multi-key setup, up-to-date. Changes in your setup or personal circumstances should be promptly reflected to avoid future complications for your heirs."
+    "regularUpdatesP1": "Keep your estate planning documents and instructions regarding your multi-key setup, up-to-date. Changes in your setup or personal circumstances should be promptly reflected to avoid future complications for your heirs.",
+    "unlockMessage": "Unlock Inheritance Documents on Diamond hands."
   },
   "cloudBackup": {
     "cloudBackup": "Cloud Backup",
