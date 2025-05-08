@@ -663,7 +663,15 @@
     "customWalletDesc": "Setup your wallet quorum",
     "customWalletTitle": "Create a Custom Wallet",
     "maxNumberofKeys": "Number of keys needed to sign transactions",
-    "totalKeys": "Total Keys"
+    "totalKeys": "Total Keys",
+    "walletRecovery": "Wallet Recovery",
+    "walletRecoveryDesc": "Correct path and purpose ensure your funds can be recovered with your seed in another compatible wallet.",
+    "compatibility": "Compatibility",
+    "compatibilityDesc": "Using standard values (like 44', 84', or 48') ensures your wallet works across apps and devices.",
+    "securityStructure": "Security Structure",
+    "securityStructureDesc": "The derivation path defines how keys and addresses are generated. For example, multisig wallets use specific paths to securely split control across multiple devices.",
+    "Organization": "Organization",
+    "OrganizationDesc": "Paths help your wallet keep track of different accounts, types of transactions (receiving vs change), and even different coins."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

@@ -12,13 +12,9 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import PrivacyIcon from 'src/assets/images/privacy.svg';
 import EfficiencyIcon from 'src/assets/images/efficiency.svg';
-import SaclingIcon from 'src/assets/images/scaling.svg';
 import SecurityIcon from 'src/assets/images/security.svg';
-import PrivatePrivacyIcon from 'src/assets/privateImages/privacy.svg';
 import PrivateEfficiencyIcon from 'src/assets/privateImages/efficiency.svg';
-import PrivateSaclingIcon from 'src/assets/privateImages/scaling.svg';
 import PrivateSecurityIcon from 'src/assets/privateImages/security.svg';
 
 import { useAppSelector } from 'src/store/hooks';
@@ -60,6 +56,10 @@ import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { CTACardDotted } from 'src/components/CTACardDotted';
 import Colors from 'src/theme/Colors';
+import WalletRecoveryIcon from 'src/assets/images/walletRecoveryIcon.svg';
+import OrganizationIcon from 'src/assets/images/organizationIcon.svg';
+import PrivateWalletRecovery from 'src/assets/privateImages/private-wallet-recovery.svg';
+import PrivateOrganization from 'src/assets/privateImages/private-organization.svg';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -185,14 +185,14 @@ function ConfirmWalletDetails({ route }) {
       <Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivatePrivacyIcon /> : <PrivacyIcon />}
+            {privateTheme ? <PrivateWalletRecovery /> : <WalletRecoveryIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
-              {wallet.tapRootPrivacy}
+              {wallet.walletRecovery}
             </Text>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
-              {wallet.tapRootPrivacyDesc}
+              {wallet.walletRecoveryDesc}
             </Text>
           </Box>
         </Box>
@@ -202,23 +202,10 @@ function ConfirmWalletDetails({ route }) {
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
-              {wallet.tapRootEfficiency}
+              {wallet.compatibility}
             </Text>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
-              {wallet.tapRootEfficiencyDesc}
-            </Text>
-          </Box>
-        </Box>
-        <Box style={styles.tapRootContainer}>
-          <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivateSaclingIcon /> : <SaclingIcon />}
-          </Box>
-          <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
-              {wallet.tapRootScalable}
-            </Text>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
-              {wallet.tapRootScalableDesc}
+              {wallet.compatibilityDesc}
             </Text>
           </Box>
         </Box>
@@ -228,10 +215,23 @@ function ConfirmWalletDetails({ route }) {
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
-              {wallet.tapRootSecurity}
+              {wallet.securityStructure}
             </Text>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
-              {wallet.tapRootSecurityDesc}
+              {wallet.securityStructureDesc}
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.tapRootContainer}>
+          <Box style={styles.tapRootIconWrapper}>
+            {privateTheme ? <PrivateOrganization /> : <OrganizationIcon />}
+          </Box>
+          <Box style={styles.tapRootContentWrapper}>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
+              {wallet.Organization}
+            </Text>
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
+              {wallet.OrganizationDesc}
             </Text>
           </Box>
         </Box>

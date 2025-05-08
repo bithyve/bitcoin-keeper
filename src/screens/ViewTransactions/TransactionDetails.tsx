@@ -185,24 +185,18 @@ function TransactionDetails({ route }) {
                 {transaction.txid}
               </Text>
               <Text style={styles.transDateText} color={`${colorMode}.GreyText`}>
-                {moment(transaction?.date).format('DD MMM YY  •  HH:mm A')}
+                {moment(transaction?.date).format('DD MMM YY • HH:mm A')}
               </Text>
             </Box>
           </Box>
-          <Box flexDir={'row'} alignItems={'center'}>
+          <Box style={styles.amountWrapper}>
             {!getSatUnit() && (
-              <Text
-                color={`${colorMode}.dateText`}
-                style={[styles.unitText, { height: '100%', marginRight: wp(5), marginTop: hp(5) }]}
-              >
+              <Box style={styles.unitIcon}>
                 {getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
-              </Text>
+              </Box>
             )}
-            <Text style={styles.amountText}>
-              {`${getBalance(transaction.amount)} `}
-              <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                {getSatUnit()}
-              </Text>
+            <Text style={styles.amountText} semiBold>
+              {getBalance(transaction.amount)} <Text style={styles.unitText}>{getSatUnit()}</Text>
             </Text>
           </Box>
         </Box>
@@ -358,18 +352,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   transDateText: {
-    fontSize: 12,
+    fontSize: 11,
   },
   transIDText: {
     fontSize: 14,
-  },
-  amountText: {
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  unitText: {
-    fontSize: 15,
-    fontWeight: '400',
   },
   listSubContainer: {
     flexWrap: 'wrap',
@@ -390,6 +376,26 @@ const styles = StyleSheet.create({
     paddingBottom: hp(20),
     paddingLeft: wp(32),
     paddingRight: wp(27),
+  },
+  amountWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  unitIcon: {
+    marginRight: wp(5),
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+
+  amountText: {
+    fontSize: 18,
+  },
+
+  unitText: {
+    fontSize: 14,
+    fontWeight: '400',
   },
 });
 export default TransactionDetails;
