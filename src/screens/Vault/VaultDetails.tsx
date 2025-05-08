@@ -11,7 +11,6 @@ import SendIcon from 'src/assets/images/send-diagonal-arrow-up.svg';
 import SendIconWhite from 'src/assets/images/send-diagonal-arrow-up.svg';
 import RecieveIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
 import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
-import SettingIcon from 'src/assets/images/settings-gear-green.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { VaultType } from 'src/services/wallets/enums';
@@ -26,7 +25,6 @@ import useVault from 'src/hooks/useVault';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
-import SettingIconWhite from 'src/assets/images/settings-gear.svg';
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
@@ -57,6 +55,7 @@ import MiniscriptPathSelector, {
 } from 'src/components/MiniscriptPathSelector';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function Footer({
   vault,
@@ -287,6 +286,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const WalletIcon = getWalletIcon(vault);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   useEffect(() => {
     if (viewTransaction) {
@@ -391,21 +391,30 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     () => (
       <View style={styles.vaultModalContainer}>
         <Box style={styles.alignSelf}>
-          {privateTheme ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
+          {privateTheme || privateThemeLight ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
         </Box>
         {isCanaryWallet ? (
-          <Text color="white" style={styles.modalContent}>
+          <Text
+            color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+            style={styles.modalContent}
+          >
             {vaultTranslation.canaryLearnMoreDesc}
           </Text>
         ) : (
           <>
-            <Text color="white" style={styles.modalContent}>
+            <Text
+              color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+              style={styles.modalContent}
+            >
               {isCollaborativeWallet
                 ? vaultTranslation.walletSetupDetails
                 : vaultTranslation.keeperSupportSigningDevice}
             </Text>
             {!isCollaborativeWallet && (
-              <Text color="white" style={styles.descText}>
+              <Text
+                color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+                style={styles.descText}
+              >
                 {vaultTranslation.additionalOptionForSignDevice}
               </Text>
             )}
@@ -437,11 +446,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                     }
               }
             >
-              {isDarkMode ? (
-                <SettingIconWhite width={24} height={24} />
-              ) : (
-                <SettingIcon width={24} height={24} />
-              )}
+              <ThemedSvg name={'setting_icon'} width={30} height={30} />
             </TouchableOpacity>
           }
         />
@@ -550,17 +555,27 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             : vaultTranslation.vaultLearnMoreSubtitle
         }
         modalBackground={
-          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.primaryBackground`
+            : `${colorMode}.pantoneGreen`
         }
-        textColor={`${colorMode}.headerWhite`}
+        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         Content={VaultContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
-        buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        buttonTextColor={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.headerWhite`
+            : `${colorMode}.pantoneGreen`
         }
-        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        buttonBackground={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.whiteSecButtonText`
+        }
+        secButtonTextColor={
+          privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.whiteSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           dispatch(setIntroModal(false));

@@ -15,6 +15,7 @@ function TipsSlider({ items }) {
   const { colorMode } = useColorMode();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   useEffect(() => {
     const backAction = () => true;
@@ -38,12 +39,27 @@ function TipsSlider({ items }) {
       onboardingSlideRef.current.scrollToOffset({ offset: maxOffsetX, animated: true });
     }
   };
+  const getDotStyle = (isSelected, isPrivateLight) => {
+    if (isPrivateLight) {
+      return {
+        width: isSelected ? 25 : 6,
+        height: 5,
+        borderRadius: 5,
+        marginEnd: 5,
+        backgroundColor: isSelected ? Colors.lightorange : Colors.separator,
+      };
+    }
+
+    return isSelected ? styles.selectedDot : styles.unSelectedDot;
+  };
 
   return (
     <Box
       style={styles.container}
       backgroundColor={
-        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        privateTheme || PrivateThemeLight
+          ? `${colorMode}.primaryBackground`
+          : `${colorMode}.pantoneGreen`
       }
     >
       <SafeAreaView style={styles.safeAreaViewWrapper}>
@@ -74,7 +90,7 @@ function TipsSlider({ items }) {
           {items.map((item, index) => (
             <Box
               key={`dot-${item.id ? item.id : index}`}
-              style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
+              style={getDotStyle(currentPosition === index, PrivateThemeLight)}
             />
           ))}
         </Box>

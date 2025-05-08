@@ -6,24 +6,15 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import SDCategoryCard from 'src/screens/Vault/components/SDCategoryCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { SignerCategory, SignerType } from 'src/services/wallets/enums';
-import HardwareSignerBlack from 'src/assets/images/SignerHardware.svg';
-import HardwareSignerWhite from 'src/assets/images/SignerWhiteHardware.svg';
-import MobileKeyBlack from 'src/assets/images/signerSoftwareBlack.svg';
-import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import { CommonActions } from '@react-navigation/native';
 import DashedCta from 'src/components/DashedCta';
-import PrivateHardwareKey from 'src/assets/privateImages/hard-key.svg';
-import PrivateSoftwareKey from 'src/assets/privateImages/soft-key.svg';
-import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const SignerContent = ({ navigation, handleModalClose }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
 
   const { signer } = translations;
-  const isDarkMode = colorMode === 'dark';
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
 
   const hardwareSigners = [
     {
@@ -66,13 +57,7 @@ const SignerContent = ({ navigation, handleModalClose }) => {
       signerCategory: SignerCategory.HARDWARE,
       headerTitle: signer.hardwareKeysHeader,
       headerSubtitle: signer.connectHardwareDevices,
-      Icon: privateTheme ? (
-        <PrivateHardwareKey />
-      ) : isDarkMode ? (
-        <HardwareSignerWhite />
-      ) : (
-        <HardwareSignerBlack width={22} height={22} />
-      ),
+      Icon: <ThemedSvg name={'hardware_key_icon'} />,
       snippet: hardwareSnippet,
     },
     {
@@ -81,13 +66,7 @@ const SignerContent = ({ navigation, handleModalClose }) => {
       signerCategory: SignerCategory.SOFTWARE,
       headerTitle: signer.softwareKeysHeader,
       headerSubtitle: signer.keysNoHardwareNeeded,
-      Icon: privateTheme ? (
-        <PrivateSoftwareKey />
-      ) : isDarkMode ? (
-        <MobileKeyWhite />
-      ) : (
-        <MobileKeyBlack />
-      ),
+      Icon: <ThemedSvg name={'software_key_icon'} />,
       snippet: [],
     },
   ];

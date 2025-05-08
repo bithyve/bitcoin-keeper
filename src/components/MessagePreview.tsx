@@ -2,12 +2,11 @@ import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import KeeperIcon from 'src/assets/images/new-Keeper-Logo.svg';
-import PrivateKeeperIcon from 'src/assets/images/keeper-private-logo.svg';
 import KeeperNameIcon from 'src/assets/images/keeper-name-icon.svg';
 import KeeperNameIconDark from 'src/assets/privateImages/bitcoinKeeperWhiteLogo.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { useSelector } from 'react-redux';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 type MessagePreviewProps = {
   title: string;
@@ -35,7 +34,7 @@ function MessagePreview({ title, description, link }: MessagePreviewProps) {
           backgroundColor={privateTheme ? `${colorMode}.separator` : `${colorMode}.seedCard`}
         >
           <Box style={styles.linkIconContainer}>
-            {privateTheme ? <PrivateKeeperIcon /> : <KeeperIcon />}
+            <ThemedSvg name={'keeper_icon'} />
           </Box>
           <Box>
             {colorMode === 'light' ? <KeeperNameIcon /> : <KeeperNameIconDark />}

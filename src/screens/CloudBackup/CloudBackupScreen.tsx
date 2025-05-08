@@ -6,8 +6,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Buttons from 'src/components/Buttons';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import CloudIcon from 'src/assets/images/cloud-white.svg';
 import { useQuery } from '@realm/react';
 import { BackupHistory } from 'src/models/enums/BHR';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -18,7 +16,6 @@ import { backupBsmsOnCloud, bsmsCloudHealthCheck } from 'src/store/sagaActions/b
 import { setBackupLoading, setLastBsmsBackup } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import BTCIllustration from 'src/assets/images/btc-illustration.svg';
 import useVault from 'src/hooks/useVault';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
@@ -28,8 +25,8 @@ import EnterPasswordModal from './EnterPasswordModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
-import PrivateBTC from 'src/assets/privateImages/Bitcoin-Illustration.svg';
 import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function CloudBackupScreen() {
   const navigation = useNavigation();
@@ -48,6 +45,7 @@ function CloudBackupScreen() {
   const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   useEffect(() => {
     if (loading) {
@@ -68,13 +66,19 @@ function CloudBackupScreen() {
   function modalContent() {
     return (
       <Box>
-        <Text color={`${colorMode}.headerWhite`} style={styles.backupModalDesc}>
+        <Text
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.backupModalDesc}
+        >
           {strings.cloudBackupModalSubitle}
         </Text>
-        <Text color={`${colorMode}.headerWhite`} style={styles.backupModalDesc}>
+        <Text
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.backupModalDesc}
+        >
           {strings.cloudBackupModalDesc}
         </Text>
-        <Box style={styles.illustration}>{privateTheme ? <PrivateBTC /> : <BTCIllustration />}</Box>
+        <Box style={styles.illustration}>{<ThemedSvg name={'btc_illustration'} />}</Box>
       </Box>
     );
   }
@@ -171,17 +175,27 @@ function CloudBackupScreen() {
           }
         }}
         title={strings.cloudBackupModalTitle}
-        modalBackground={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
-        textColor={`${colorMode}.headerWhite`}
+        modalBackground={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.modalPrivateBackground`
+            : `${colorMode}.pantoneGreen`
+        }
+        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={
-          privateTheme ? `${colorMode}.whiteSecButtonText` : `${colorMode}.pantoneGreen`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.whiteSecButtonText`
+            : `${colorMode}.pantoneGreen`
         }
         buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.whiteSecButtonText`
         }
-        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        secButtonTextColor={
+          privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.whiteSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setShowModal(false);

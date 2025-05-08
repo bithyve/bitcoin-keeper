@@ -66,6 +66,7 @@ function ListItem({
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   return (
     // TODO: Drag and rearrange wallet functionality
@@ -82,7 +83,9 @@ function ListItem({
         <HexagonIcon
           width={44}
           height={38}
-          backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
+          backgroundColor={
+            privateTheme || privateThemeLight ? Colors.goldenGradient : Colors.primaryGreen
+          }
           icon={icon}
         />
         <Box>

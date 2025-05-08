@@ -111,6 +111,7 @@ function ConfirmWalletDetails({ route }) {
   const vaultType = route.params.vaultType;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const isSmallDevice = useIsSmallDevices();
 
   const { signers } = useSigners();
@@ -188,10 +189,16 @@ function ConfirmWalletDetails({ route }) {
             {privateTheme ? <PrivatePrivacyIcon /> : <PrivacyIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
+            <Text
+              color={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+              style={styles.tapRootTitleText}
+            >
               {wallet.tapRootPrivacy}
             </Text>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
+            <Text
+              color={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+              style={styles.tapRootDescText}
+            >
               {wallet.tapRootPrivacyDesc}
             </Text>
           </Box>
@@ -201,10 +208,16 @@ function ConfirmWalletDetails({ route }) {
             {privateTheme ? <PrivateEfficiencyIcon /> : <EfficiencyIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
+            <Text
+              color={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+              style={styles.tapRootTitleText}
+            >
               {wallet.tapRootEfficiency}
             </Text>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
+            <Text
+              color={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+              style={styles.tapRootDescText}
+            >
               {wallet.tapRootEfficiencyDesc}
             </Text>
           </Box>
@@ -214,10 +227,16 @@ function ConfirmWalletDetails({ route }) {
             {privateTheme ? <PrivateSaclingIcon /> : <SaclingIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
+            <Text
+              color={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+              style={styles.tapRootTitleText}
+            >
               {wallet.tapRootScalable}
             </Text>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
+            <Text
+              color={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+              style={styles.tapRootDescText}
+            >
               {wallet.tapRootScalableDesc}
             </Text>
           </Box>
@@ -227,10 +246,22 @@ function ConfirmWalletDetails({ route }) {
             {privateTheme ? <PrivateSecurityIcon /> : <SecurityIcon />}
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
+            <Text
+              color={
+                privateTheme
+                  ? `${colorMode}.textBlack`
+                  : privateTheme
+                  ? `${colorMode}.textBlack`
+                  : `${colorMode}.headerWhite`
+              }
+              style={styles.tapRootTitleText}
+            >
               {wallet.tapRootSecurity}
             </Text>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
+            <Text
+              color={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+              style={styles.tapRootDescText}
+            >
               {wallet.tapRootSecurityDesc}
             </Text>
           </Box>
@@ -258,7 +289,9 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
+                backgroundColor={
+                  privateTheme || PrivateThemeLight ? Colors.goldenGradient : Colors.primaryGreen
+                }
                 icon={<VaultIcon />}
               />
             </Box>
@@ -324,7 +357,9 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
+                backgroundColor={
+                  privateTheme || PrivateThemeLight ? Colors.goldenGradient : Colors.primaryGreen
+                }
                 icon={<VaultIcon />}
               />
             </Box>
@@ -700,19 +735,33 @@ function ConfirmWalletDetails({ route }) {
         title={wallet.tapRootBenefits}
         subTitle={''}
         modalBackground={
-          privateTheme ? `${colorMode}.primarybackground` : `${colorMode}.pantoneGreen`
+          privateTheme || PrivateThemeLight
+            ? `${colorMode}.primarybackground`
+            : `${colorMode}.pantoneGreen`
         }
-        textColor={`${colorMode}.headerWhite`}
-        Content={() => <TapRootContent privateTheme={privateTheme} />}
+        textColor={
+          privateTheme || PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`
+        }
+        Content={() => <TapRootContent privateTheme={privateTheme || PrivateThemeLight} />}
         showCloseIcon={true}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
-        buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        buttonTextColor={
+          privateTheme || PrivateThemeLight
+            ? `${colorMode}.headerWhite`
+            : `${colorMode}.pantoneGreen`
         }
-        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        buttonBackground={
+          privateTheme || PrivateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.whiteSecButtonText`
+        }
+        secButtonTextColor={
+          privateTheme || PrivateThemeLight
+            ? `${colorMode}.textBlack`
+            : `${colorMode}.whiteSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setAdvancedSettingsVisible(false);

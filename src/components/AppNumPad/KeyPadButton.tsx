@@ -4,6 +4,7 @@ import Text from 'src/components/KeeperText';
 import ScaleSpring from '../Animations/ScaleSpring';
 import Colors from 'src/theme/Colors';
 import { useColorMode } from 'native-base';
+import { useSelector } from 'react-redux';
 
 export interface Props {
   title: string;
@@ -16,6 +17,8 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor, bubbleE
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const [pressed, setPressed] = useState(false);
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const handlePressIn = () => {
     setPressed(true);
@@ -41,7 +44,9 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor, bubbleE
               styles.circleEffect,
               pressed && styles.circleEffectActive,
               {
-                backgroundColor: isDarkMode
+                backgroundColor: privateThemeLight
+                  ? Colors.greyBorder
+                  : isDarkMode
                   ? Colors.WarmBeigeTranslucent
                   : Colors.WarmBeigeTranslucent,
               },

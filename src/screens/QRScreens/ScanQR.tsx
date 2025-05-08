@@ -22,10 +22,9 @@ import { SignerType } from 'src/services/wallets/enums';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
-import InfoIcon from 'src/assets/images/info_icon.svg';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const decoder = new URRegistryDecoder();
 
@@ -101,7 +100,7 @@ function ScanQR() {
             rightComponent={
               !isHealthCheck && !isSingning ? (
                 <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
-                  {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+                  <ThemedSvg name={'info_icon'} />
                 </TouchableOpacity>
               ) : null
             }

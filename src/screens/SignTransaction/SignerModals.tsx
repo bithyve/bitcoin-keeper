@@ -7,23 +7,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
-import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
-import JadeSetup from 'src/assets/images/illustration_jade.svg';
-import KeeperSetup from 'src/assets/images/illustration-external-key.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import KeystoneSetup from 'src/assets/images/keystone_illustration.svg';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import SeedSignerSetup from 'src/assets/images/seedsigner-setup-horizontal.svg';
-import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import { RKInteractionMode, SignerType, SigningMode } from 'src/services/wallets/enums';
-import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/utils/service-utilities/encryption';
-import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import * as SecureStore from 'src/storage/secure-store';
 import Buttons from 'src/components/Buttons';
@@ -47,6 +37,7 @@ import MagicLinkIcon from 'src/assets/images/magic-link-icon.svg';
 import useVault from 'src/hooks/useVault';
 import RegisterMultisig from './component/RegisterMultisig';
 import RegisterSignerContent from '../Vault/components/RegisterSignerContent';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -69,7 +60,7 @@ function ColdCardContent({
   } else {
     return (
       <Box alignItems="center">
-        <ColdCardSVG />
+        <ThemedSvg name={'coldCard_illustration'} />
         <Box marginTop={4}>
           <Instruction text={message} />
         </Box>
@@ -81,7 +72,7 @@ function ColdCardContent({
 function PassportContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box alignItems="center">
-      <PassportSVG />
+      <ThemedSvg name={'passport_illustration'} />
       <Box marginTop={4}>
         {isMultisig && (
           <Instruction text="Make sure the multisig wallet is registered with the Passport before signing the transaction." />
@@ -95,7 +86,7 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
 function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box alignItems="center">
-      <SeedSignerSetup />
+      <ThemedSvg name={'seedSigner_illustration'} />
       <Box marginTop={2}>
         {isMultisig ? (
           <Text style={styles.instructionsText}>
@@ -117,7 +108,7 @@ function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
 function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box alignItems="center">
-      <SpecterSetupImage />
+      <ThemedSvg name={'specter_illustration'} />
       <Box marginTop={2}>
         {isMultisig && (
           <Text style={styles.instructionsText}>
@@ -137,7 +128,7 @@ function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
 function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box alignItems="center">
-      <KeystoneSetup />
+      <ThemedSvg name={'keyStone_illustration'} />
       <Box marginTop={4}>
         {isMultisig && (
           <Instruction text="Make sure the multisig wallet is registered with the Keystone before signing the transaction." />
@@ -164,7 +155,7 @@ function JadeContent({
   }
   return (
     <Box alignItems="center">
-      <JadeSetup />
+      <ThemedSvg name={'jade_illustration'} />
       <Box marginTop={2}>
         {isMultisig && (
           <Instruction text="Make sure the multisig wallet is registered with the Jade before signing the transaction." />
@@ -202,7 +193,7 @@ function LedgerContent() {
 function OtherSDContent() {
   return (
     <Box alignItems="center">
-      <OtherSDImage />
+      <ThemedSvg name={'otherSigner_illustration'} />
       <Box marginTop={2}>
         <Text style={styles.instructionsText}>
           {'Either scan or use the export option to transfer the PSBT to the signer.'}
@@ -214,7 +205,7 @@ function OtherSDContent() {
 export function KeeperContent(props) {
   return (
     <Box alignItems="center">
-      <KeeperSetup />
+      <ThemedSvg name={'external_Key_illustration'} />
       <Box marginTop={2}>
         <Text style={styles.instructionsText}>
           {`Open the other Keeper app > Go to Manage Keys > Access the key with the fingerprint ${props.masterFingerPrint} > Sign Transaction`}
@@ -227,7 +218,9 @@ export function KeeperContent(props) {
 function TapsignerContent() {
   return (
     <>
-      <TapsignerSetupSVG />
+      <Box style={styles.portalIllustration}>
+        <ThemedSvg name={'tapSigner_illustration'} />
+      </Box>
       <Instruction text="TAPSIGNER communicates with the app over NFC" />
       <Instruction text="You will need the PIN (given at the back of the TAPSIGNER)." />
     </>
@@ -237,7 +230,7 @@ function PortalContent() {
   return (
     <>
       <Box style={styles.portalIllustration}>
-        <PortalIllustration />
+        <ThemedSvg name={'portal_illustration'} />
       </Box>
       <Instruction text="Portal communicates with the app over NFC" />
       <Instruction text="You will need the CVC/ Pin, if you have set one." />

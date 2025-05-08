@@ -36,7 +36,7 @@ function ServerKeySuccessScreen({ route }) {
   const navigation = useNavigation();
   const { vaultKey, vaultId } = route.params || {};
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
   const {
     setupData,
     addedSigner,

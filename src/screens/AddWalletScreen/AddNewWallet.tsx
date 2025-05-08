@@ -14,8 +14,6 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import Buttons from 'src/components/Buttons';
 import DashedCta from 'src/components/DashedCta';
-import SettingIcon from 'src/assets/images/new_icon_settings.svg';
-import DarkSettingIcon from 'src/assets/images/settings-icon-white.svg';
 import CheckIcon from 'src/assets/images/planCheckMarkSelected.svg';
 import CheckDarkIcon from 'src/assets/images/check-dark-icon.svg';
 import usePlan from 'src/hooks/usePlan';
@@ -28,8 +26,8 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Colors from 'src/theme/Colors';
-import PrivateSetting from 'src/assets/privateImages/setting-gold-icon.svg';
 import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -76,6 +74,7 @@ function AddNewWallet({ navigation, route }) {
   const { vaultId } = route.params || {};
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const { activeVault } = useVault({ vaultId });
   const [scheme, setScheme] = useState(
     activeVault ? { m: activeVault.scheme.m, n: activeVault.scheme.n } : { m: 2, n: 3 }
@@ -210,15 +209,19 @@ function AddNewWallet({ navigation, route }) {
       <Box style={styles.footer}>
         <DashedCta
           textPosition="left"
-          backgroundColor={`${colorMode}.dullGreen`}
+          backgroundColor={PrivateThemeLight ? 'transparent' : `${colorMode}.dullGreen`}
           hexagonBackgroundColor={isDarkMode ? Colors.DeepCharcoalGreen : `${colorMode}.dullGreen`}
-          textColor={isDarkMode ? Colors.headerWhite : `${colorMode}.pantoneGreen`}
+          textColor={
+            PrivateThemeLight
+              ? `${colorMode}.textBlack`
+              : isDarkMode
+              ? Colors.headerWhite
+              : `${colorMode}.pantoneGreen`
+          }
           name="Enhanced Security Options"
           description="Secure your funds and future—your way"
           callback={() => setShowEnhancedOptionsModal(true)}
-          icon={
-            privateTheme ? <PrivateSetting /> : isDarkMode ? <DarkSettingIcon /> : <SettingIcon />
-          }
+          icon={<ThemedSvg name={'enhanced_setting_icon'} />}
           iconWidth={22}
           iconHeight={20}
           cardStyles={styles.enhancedVaultsCustomStyles}

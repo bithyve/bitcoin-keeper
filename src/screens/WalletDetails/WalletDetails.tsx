@@ -6,8 +6,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import SettingIcon from 'src/assets/images/settings-gear-green.svg';
-import SettingIconWhite from 'src/assets/images/settings-gear.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -31,6 +29,7 @@ import WalletCard from '../Home/components/Wallet/WalletCard';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import FeatureCard from 'src/components/FeatureCard';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
@@ -135,11 +134,7 @@ function WalletDetails({ route }: ScreenProps) {
                 navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
               }
             >
-              {isDarkMode ? (
-                <SettingIconWhite width={24} height={24} />
-              ) : (
-                <SettingIcon width={24} height={24} />
-              )}
+              <ThemedSvg name={'setting_icon'} width={25} height={25} />
             </TouchableOpacity>
           }
         />

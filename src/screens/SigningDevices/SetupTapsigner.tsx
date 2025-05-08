@@ -52,11 +52,10 @@ import NFCIconWhite from 'src/assets/images/nfc_lines_white.svg';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
-import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
-import InfoIcon from 'src/assets/images/info_icon.svg';
 import Instruction from 'src/components/Instruction';
 import { useAppSelector } from 'src/store/hooks';
 import ShareKeyModalContent from '../Vault/components/ShareKeyModalContent';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -480,7 +479,7 @@ function SetupTapsigner({ route }) {
         rightComponent={
           !isHealthCheck ? (
             <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
-              {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+              <ThemedSvg name={'info_icon'} />
             </TouchableOpacity>
           ) : null
         }

@@ -2,18 +2,15 @@ import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
 import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
-import RecoveryPhraseIcon from 'src/assets/images/recovery-phrase-icon.svg';
-import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import PrivateRecoveryPhrase from 'src/assets/privateImages/doc-seed-word.svg';
 import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function RecoveryPhraseTemplate({}) {
   const { colorMode } = useColorMode();
@@ -22,34 +19,49 @@ function RecoveryPhraseTemplate({}) {
   const { inheritancePlanning } = translations;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   return (
     <ScreenWrapper
       barStyle="dark-content"
       backgroundcolor={
-        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        privateTheme || PrivateThemeLight
+          ? `${colorMode}.primaryBackground`
+          : `${colorMode}.pantoneGreen`
       }
     >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.heading}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.recoveryPhraseTitleTemplate}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.description}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.recoveryPhraseDescpMain}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.commonTextStyle}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.recoveryPhraseP1}
         </Text>
         <Box style={styles.circleStyle}>
-          {privateTheme ? <PrivateRecoveryPhrase /> : <RecoveryPhraseIcon />}
+          <ThemedSvg name={'inheritance_seed_illustration'} />
         </Box>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.commonTextStyle}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.recoveryPhraseP2}
         </Text>
         <Box mt={5}>
           <DashedButton
-            icon={<DownArrow />}
+            icon={<ThemedSvg name={'inheritance_down_arrow'} />}
             callback={() => {
               GenerateRecoveryPhraseTemplate().then((res) => {
                 if (res) {
@@ -63,10 +75,15 @@ function RecoveryPhraseTemplate({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.headerWhite`}>
+          <Text
+            bold
+            color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          >
             Note:
           </Text>
-          <Text color={`${colorMode}.headerWhite`}>{inheritancePlanning.recoveryPhraseNotes}</Text>
+          <Text color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}>
+            {inheritancePlanning.recoveryPhraseNotes}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>
@@ -88,15 +105,12 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 18,
     fontWeight: '500',
-    color: Colors.white,
   },
   description: {
     fontSize: 14,
-    color: Colors.white,
   },
   commonTextStyle: {
     marginTop: hp(40),
-    color: Colors.white,
   },
   addContainer: {
     marginTop: hp(100),
@@ -105,7 +119,6 @@ const styles = StyleSheet.create({
   leftTextStyle: {
     textAlign: 'left',
     marginTop: hp(40),
-    color: Colors.white,
   },
   circleStyle: {
     alignItems: 'center',

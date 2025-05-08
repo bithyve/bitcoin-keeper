@@ -23,7 +23,7 @@ export const SegmentedController = ({
   const { colorMode } = useColorMode();
   const [containerWidth, setContainerWidth] = useState(0);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
   const translateX = new Animated.Value(
     selectedIndex != 0
       ? selectedIndex * ((containerWidth - 2 * CONTAINER_PADDING) / length)

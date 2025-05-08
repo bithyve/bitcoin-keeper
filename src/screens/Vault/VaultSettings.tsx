@@ -21,8 +21,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { trimCWDefaultName } from 'src/utils/utilities';
 import { getVaultEnhancedSigners } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
-import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
-import LearnMoreIconDark from 'src/assets/images/info-Dark-icon.svg';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import PrivateVaultSetupIcon from 'src/assets/privateImages/vault_setup.svg';
 import Text from 'src/components/KeeperText';
@@ -39,6 +37,7 @@ import { useQuery } from '@realm/react';
 import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -72,6 +71,7 @@ function VaultSettings({ route }) {
   );
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const cleanUp = () => {
     setVisible(false);
@@ -127,12 +127,18 @@ function VaultSettings({ route }) {
     return (
       <Box>
         <Box style={styles.illustration}>
-          {privateTheme ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
+          {privateTheme || privateThemeLight ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
         </Box>
-        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
+        <Text
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.modalDesc}
+        >
           {vaultText.keeperSupportSigningDevice}
         </Text>
-        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
+        <Text
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.modalDesc}
+        >
           {vaultText.additionalOptionForSignDevice}
         </Text>
       </Box>
@@ -287,7 +293,7 @@ function VaultSettings({ route }) {
             }
             rightComponent={
               <Pressable style={styles.learnMoreIcon} onPress={() => setNeedHelpModal(true)}>
-                {isDarkMode ? <LearnMoreIconDark /> : <LearnMoreIcon />}
+                <ThemedSvg name={'info_icon'} />
               </Pressable>
             }
           />
@@ -323,9 +329,11 @@ function VaultSettings({ route }) {
         title={vaultText.keeperVault}
         subTitle={vaultText.vaultLearnMoreSubtitle}
         modalBackground={
-          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.primaryBackground`
+            : `${colorMode}.pantoneGreen`
         }
-        textColor={`${colorMode}.headerWhite`}
+        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
@@ -333,10 +341,14 @@ function VaultSettings({ route }) {
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.textGreen`}
         buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.modalWhiteButton`
         }
         secButtonTextColor={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.modalGreenSecButtonText`
         }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {

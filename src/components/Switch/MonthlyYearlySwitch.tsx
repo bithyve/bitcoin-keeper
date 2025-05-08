@@ -58,9 +58,16 @@ function Element(props) {
   const { colorMode } = useColorMode();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
-  const btnActiveBack = privateTheme ? Colors.goldenGradient : Colors.primaryGreen;
-  const textColor = colorMode === 'dark' ? Colors.primaryCream : Colors.primaryGreen;
+  const btnActiveBack =
+    privateTheme || privateThemeLight ? Colors.goldenGradient : Colors.primaryGreen;
+  const textColor =
+    colorMode === 'dark'
+      ? Colors.primaryCream
+      : privateThemeLight
+      ? Colors.GreenishGrey
+      : Colors.primaryGreen;
   const textActiveColor = colorMode === 'light' ? Colors.primaryCream : Colors.primaryCream;
   const styles = getStyles(btnActiveBack);
 

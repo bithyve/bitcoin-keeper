@@ -3,20 +3,12 @@ import { useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TipsSlider from '../TipsSlider';
 import InheritanceHeader from '../InheritanceHeader';
-import ThoroughVerification from 'src/assets/images/thorough-verification.svg';
-import PreliminaryTest from 'src/assets/images/preliminary-test.svg';
-import SecureCoordination from 'src/assets/images/secure-coordination.svg';
-import CrossDeviceVerification from 'src/assets/images/cross-device-verification.svg';
-import PrivateThoroughVerification from 'src/assets/privateImages/doc-seed-word.svg';
-import PrivatePreliminaryTest from 'src/assets/privateImages/doc-Double.svg';
-import PrivateSecureCoordination from 'src/assets/privateImages/doc-tirple-person.svg';
-import PrivateCrossDeviceVerification from 'src/assets/privateImages/doc-4-keys.svg';
-
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SafeGuardingTips({}) {
   const { colorMode } = useColorMode();
@@ -24,29 +16,30 @@ function SafeGuardingTips({}) {
   const { inheritancePlanning } = translations;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const tips = [
     {
       title: inheritancePlanning.thoroughVeirifcationTitle,
-      icon: privateTheme ? <PrivateThoroughVerification /> : <ThoroughVerification />,
+      icon: <ThemedSvg name={'inheritance_seed_illustration'} />,
       paragraph: inheritancePlanning.thoroughParagraph1,
       paragraph2: inheritancePlanning.thoroughParagraph2,
     },
 
     {
       title: inheritancePlanning.preliminaryTitle,
-      icon: privateTheme ? <PrivatePreliminaryTest /> : <PreliminaryTest />,
+      icon: <ThemedSvg name={'restore_illustration'} />,
       paragraph: inheritancePlanning.preliminaryParagraph1,
       paragraph2: inheritancePlanning.preliminaryParagraph2,
     },
     {
       title: inheritancePlanning.secureCoordinationTitle,
-      icon: privateTheme ? <PrivateSecureCoordination /> : <SecureCoordination />,
+      icon: <ThemedSvg name={'educateHeir_illustration'} />,
       paragraph: inheritancePlanning.secureCoordinationParagraph1,
       paragraph2: inheritancePlanning.secureCoordinationParagraph2,
     },
     {
       title: inheritancePlanning.crossDeviceTitle,
-      icon: privateTheme ? <PrivateCrossDeviceVerification /> : <CrossDeviceVerification />,
+      icon: <ThemedSvg name={'backup_illustration'} />,
       paragraph: inheritancePlanning.crossDeviceParagraph1,
       paragraph2: inheritancePlanning.crossDeviceParagraph2,
     },
@@ -56,11 +49,16 @@ function SafeGuardingTips({}) {
     <ScreenWrapper
       barStyle="dark-content"
       backgroundcolor={
-        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        privateTheme || PrivateThemeLight
+          ? `${colorMode}.primaryBackground`
+          : `${colorMode}.pantoneGreen`
       }
     >
       <InheritanceHeader />
-      <Text style={styles.container} color={`${colorMode}.headerWhite`}>
+      <Text
+        style={styles.container}
+        color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+      >
         Tips for Doing Transactions Securely
       </Text>
       <TipsSlider items={tips} />

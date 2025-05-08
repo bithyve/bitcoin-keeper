@@ -33,8 +33,8 @@ const PinDotView = ({
           key={index}
           filled={passCode?.length > index}
           dotSize={dotSize}
-          borderColor={`${colorMode}.appStatusTextColor` || borderColor}
-          dotColor={`${colorMode}.headerWhite` || dotColor}
+          borderColor={borderColor || `${colorMode}.appStatusTextColor`}
+          dotColor={dotColor || `${colorMode}.headerWhite`}
         />
       ))}
     </Box>

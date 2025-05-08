@@ -1,23 +1,17 @@
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import BackBlackButton from 'src/assets/images/header-arrow-icon.svg';
-import BackWhiteButton from 'src/assets/images/leftarrowCampainlight.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import Fonts from 'src/constants/Fonts';
-import InfoIcon from 'src/assets/images/info_icon.svg';
-import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
-import PrivateBackButton from 'src/assets/privateImages/gold-back-arrow.svg';
-import { useSelector } from 'react-redux';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 type Props = {
   title?: string;
   enableBack?: boolean;
   onPressHandler?: () => void;
   titleColor?: string;
-  contrastScreen?: boolean;
   data?: any;
   rightComponent?: any;
   subTitle?: string;
@@ -31,18 +25,13 @@ const WalletHeader: React.FC<Props> = ({
   enableBack = true,
   onPressHandler,
   titleColor,
-  contrastScreen = false,
   rightComponent,
   subTitle,
   subtitleColor,
   learnMore,
   learnMorePressed,
 }) => {
-  const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const isDarkMode = colorMode === 'dark';
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
 
   const styles = StyleSheet.create({
     container: {
@@ -95,13 +84,7 @@ const WalletHeader: React.FC<Props> = ({
               onPress={onPressHandler || navigation.goBack}
               style={styles.backButton}
             >
-              {privateTheme ? (
-                <PrivateBackButton />
-              ) : colorMode === 'light' && !contrastScreen ? (
-                <BackBlackButton />
-              ) : (
-                <BackWhiteButton />
-              )}
+              <ThemedSvg name={'back_Button'} />
             </TouchableOpacity>
           )}
           {title && (
@@ -114,7 +97,7 @@ const WalletHeader: React.FC<Props> = ({
 
         {learnMore && (
           <TouchableOpacity style={styles.infoIcon} onPress={learnMorePressed}>
-            {isDarkMode ? <InfoDarkIcon /> : <InfoIcon />}
+            <ThemedSvg name={'info_icon'} />
           </TouchableOpacity>
         )}
       </Box>

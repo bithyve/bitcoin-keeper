@@ -163,7 +163,7 @@ const getSignerContent = (
 ) => {
   const { tapsigner, coldcard, ledger, bitbox, trezor, externalKey, common } = translations;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   switch (type) {
     case SignerType.COLDCARD:

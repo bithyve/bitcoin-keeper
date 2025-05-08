@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import KeeperHeader from 'src/components/KeeperHeader';
 import OptionCard from 'src/components/OptionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Switch from 'src/components/Switch/Switch';
@@ -38,6 +37,7 @@ import Text from 'src/components/KeeperText';
 import { resetCredsChanged } from 'src/store/reducers/login';
 import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
+import usePlan from 'src/hooks/usePlan';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -179,7 +179,6 @@ function PrivacyAndDisplay({ route }) {
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
-
   const {
     RKBackedUp = false,
     oldPasscode,
@@ -208,6 +207,7 @@ function PrivacyAndDisplay({ route }) {
   const data = useQuery(RealmSchema.BackupHistory);
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [credsChanged, setCredsChanged] = useState('');
+  const { isOnL4 } = usePlan();
 
   useEffect(() => {
     if (credsChanged === 'changed') {
@@ -229,12 +229,20 @@ function PrivacyAndDisplay({ route }) {
   }, [route?.params]);
 
   useEffect(() => {
-    if (colorMode === 'dark') {
-      dispatch(setThemeMode(ThemeMode.DARK));
+    if (isOnL4) {
+      if (colorMode === 'dark') {
+        dispatch(setThemeMode(ThemeMode.PRIVATE));
+      } else {
+        dispatch(setThemeMode(ThemeMode.PRIVATE_LIGHT));
+      }
     } else {
-      dispatch(setThemeMode(ThemeMode.LIGHT));
+      if (colorMode === 'dark') {
+        dispatch(setThemeMode(ThemeMode.DARK));
+      } else {
+        dispatch(setThemeMode(ThemeMode.LIGHT));
+      }
     }
-  }, [colorMode]);
+  }, [colorMode, isOnL4]);
 
   const init = async () => {
     try {

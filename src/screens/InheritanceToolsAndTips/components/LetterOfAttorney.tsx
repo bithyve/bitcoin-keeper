@@ -2,25 +2,20 @@ import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
-
 import InheritanceHeader from '../InheritanceHeader';
-import LetterOfattorneyIcon from 'src/assets/images/letterOfAttorney.svg';
 import DashedButton from 'src/components/DashedButton';
 import GenerateLetterToAtternyPDFInheritanceTool from 'src/utils/GenerateLetterToAtternyPDFInheritanceTool';
-import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { useDispatch, useSelector } from 'react-redux';
-import PrivateLetterAttorney from 'src/assets/privateImages/doc-letter-attoorney.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function LetterOfAttorney() {
   const { signers } = useSigners();
@@ -36,34 +31,49 @@ function LetterOfAttorney() {
   const dispatch = useDispatch();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   return (
     <ScreenWrapper
       barStyle="dark-content"
       backgroundcolor={
-        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        privateTheme || PrivateThemeLight
+          ? `${colorMode}.primaryBackground`
+          : `${colorMode}.pantoneGreen`
       }
     >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.heading}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.letterOfAttorneyTitle}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.description}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.letterOfAttorneyDescp}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.commonTextStyle}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.letterOfAttorneyP1}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.commonTextStyle}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.letterOfAttorneyP2}
         </Text>
         <Box style={styles.circleStyle}>
-          {privateTheme ? <PrivateLetterAttorney /> : <LetterOfattorneyIcon />}
+          {<ThemedSvg name={'inheritance_letterAttorney_illustration'} />}
         </Box>
         <Box mt={5}>
           <DashedButton
-            icon={<DownArrow />}
+            icon={<ThemedSvg name={'inheritance_down_arrow'} />}
             description={inheritancePlanning.letterOfAttorneyCtaDescp}
             callback={() => {
               dispatch(credsAuthenticated(false));
@@ -75,10 +85,13 @@ function LetterOfAttorney() {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.headerWhite`}>
+          <Text
+            bold
+            color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          >
             Note:
           </Text>
-          <Text color={`${colorMode}.headerWhite`}>
+          <Text color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}>
             {inheritancePlanning.letterOfAttorneyNotes}
           </Text>
         </Box>
@@ -133,15 +146,12 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 18,
     fontWeight: '500',
-    color: Colors.white,
   },
   description: {
     fontSize: 14,
-    color: Colors.white,
   },
   commonTextStyle: {
     marginTop: hp(40),
-    color: Colors.white,
   },
   addContainer: {
     marginTop: hp(100),
@@ -150,7 +160,6 @@ const styles = StyleSheet.create({
   leftTextStyle: {
     textAlign: 'left',
     marginTop: hp(40),
-    color: Colors.white,
   },
   circleStyle: {
     alignItems: 'center',

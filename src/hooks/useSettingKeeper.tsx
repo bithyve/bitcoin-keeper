@@ -1,11 +1,8 @@
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
-import InheritanceSeedIcon from 'src/assets/images/inheritanceSeedIcon.svg';
 import InheritanceContactIcon from 'src/assets/images/inheritancecontacticon.svg';
-import InheritanceShareKeyIcon from 'src/assets/images/inheritanceShareKeyIcon.svg';
 import InheritanceRecoveryIcon from 'src/assets/images/inheritanceRecoveryIcon.svg';
-import InheritanceLetterIcon from 'src/assets/images/inheritanceLetterIcon.svg';
 import InheritanceTipsIcon from 'src/assets/images/inheritanceTipsIcon.svg';
 import SettingServerIcon from 'src/assets/images/settingServer.svg';
 import SettingAppIcon from 'src/assets/images/settingAppAccess.svg';
@@ -61,6 +58,7 @@ import usePlan from './usePlan';
 import KeeperModal from 'src/components/KeeperModal';
 import { wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 export const useSettingKeeper = () => {
   const dispatch = useAppDispatch();
@@ -90,9 +88,10 @@ export const useSettingKeeper = () => {
 
   useEffect(() => {
     if (isOnL4) {
-      dispatch(setThemeMode(ThemeMode.PRIVATE));
-      if (colorMode === 'light') {
-        toggleColorMode();
+      if (colorMode === 'dark') {
+        dispatch(setThemeMode(ThemeMode.PRIVATE));
+      } else {
+        dispatch(setThemeMode(ThemeMode.PRIVATE_LIGHT));
       }
     } else {
       if (colorMode === 'dark') {
@@ -240,7 +239,7 @@ export const useSettingKeeper = () => {
   ];
 
   const General = [
-    !isOnL4 && {
+    {
       title: settings.DarkMode,
       description: settings.DarkModeSubTitle,
       icon: <DarkModeIcon width={14} height={14} />,
@@ -357,7 +356,7 @@ export const useSettingKeeper = () => {
     {
       title: inheritancePlanning.recoveryPhraseTitle,
       description: inheritancePlanning.recoveryPhraseDescp,
-      icon: <InheritanceSeedIcon width={14} height={14} />,
+      icon: <ThemedSvg name={'inhertance_seed_icon'} width={14} height={14} />,
       onPress: () => navigation.navigate('RecoveryPhraseTemplate'),
       isDiamond: false,
     },
@@ -371,7 +370,7 @@ export const useSettingKeeper = () => {
     {
       title: inheritancePlanning.additionalKeysshare,
       description: inheritancePlanning.additionalKeysDescp,
-      icon: <InheritanceShareKeyIcon width={14} height={14} />,
+      icon: <ThemedSvg name={'inhertance_shareKey_icon'} width={14} height={14} />,
       onPress: () => navigation.navigate('AdditionalSignerDetailsTemplate'),
       isDiamond: false,
     },
@@ -385,7 +384,7 @@ export const useSettingKeeper = () => {
     {
       title: inheritancePlanning.letterOfAttorneyTitle,
       description: inheritancePlanning.letterOfAttorneyDescp,
-      icon: <InheritanceLetterIcon width={14} height={14} />,
+      icon: <ThemedSvg name={'inhertance_letter_icon'} width={14} height={14} />,
       onPress: () => navigation.navigate('LetterOfAttorney'),
       isDiamond: false,
     },

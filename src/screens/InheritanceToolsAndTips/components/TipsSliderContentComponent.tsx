@@ -3,10 +3,13 @@ import Text from 'src/components/KeeperText';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { Dimensions, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
+import { useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
 function OnboardingSlideComponent(props) {
   const { colorMode } = useColorMode();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
   return (
     <ScrollView>
       <Box style={styles.wrapper}>
@@ -15,17 +18,21 @@ function OnboardingSlideComponent(props) {
           width={'80%'}
           fontSize={20}
           mb={hp(15)}
-          color={`${colorMode}.headerWhite`}
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
           letterSpacing={0.2}
         >
           {props.title}
         </Text>
         <Box width={'90%'}>
-          <Text color={`${colorMode}.headerWhite`}>{props.paragraph}</Text>
+          <Text color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}>
+            {props.paragraph}
+          </Text>
         </Box>
         <Box style={styles.icon}>{props.icon}</Box>
         <Box width={'90%'}>
-          <Text color={`${colorMode}.headerWhite`}>{props.paragraph2}</Text>
+          <Text color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}>
+            {props.paragraph2}
+          </Text>
         </Box>
       </Box>
     </ScrollView>
