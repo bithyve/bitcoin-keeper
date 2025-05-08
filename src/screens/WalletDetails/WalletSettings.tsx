@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -22,17 +22,15 @@ import { credsAuthenticated } from 'src/store/reducers/login';
 import { useDispatch, useSelector } from 'react-redux';
 import WalletHeader from 'src/components/WalletHeader';
 import SettingCard from '../Home/components/Settings/Component/SettingCard';
-import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
-import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import Text from 'src/components/KeeperText';
 import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
-import WalletInfoIllustration from 'src/assets/images/walletInfoIllustration.svg';
-import PrivateWalletInfoIllustration from 'src/assets/privateImages/wallet-Info-Illustratipn.svg';
+import WalletInfoIllustration from 'src/assets/images/wallet-managment-illustration.svg';
+import PrivateWalletInfoIllustration from 'src/assets/privateImages/private-wallet-managment-illustration.svg';
 import { useQuery } from '@realm/react';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Instruction from 'src/components/Instruction';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -89,12 +87,37 @@ function WalletSettings({ route }) {
   function modalContent() {
     return (
       <Box>
+        <Instruction
+          textColor={`${colorMode}.headerWhite`}
+          text={'Add descriptions to better identify your wallet.'}
+        />
+        <Instruction
+          textColor={`${colorMode}.headerWhite`}
+          text={'Access the xPub to create a watch-only wallet.'}
+        />
+        <Instruction
+          textColor={`${colorMode}.headerWhite`}
+          text={'View the Path and Purpose of the wallet.'}
+        />
+
         <Box style={styles.illustration}>
-          {privateTheme ? <PrivateWalletInfoIllustration /> : <WalletInfoIllustration />}
+          {privateTheme ? (
+            <PrivateWalletInfoIllustration />
+          ) : (
+            <WalletInfoIllustration width={wp(200)} height={hp(200)} />
+          )}
         </Box>
-        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
-          {walletTranslation.learnMoreDesc}
-        </Text>
+
+        <Instruction
+          textColor={`${colorMode}.headerWhite`}
+          text={
+            'Import and Export labels to identify specific UTXOs across transactions and wallets.'
+          }
+        />
+        <Instruction
+          textColor={`${colorMode}.headerWhite`}
+          text={"Access the wallet's seed words."}
+        />
       </Box>
     );
   }
@@ -237,7 +260,6 @@ function WalletSettings({ route }) {
         visible={needHelpModal}
         close={() => setNeedHelpModal(false)}
         title={walletTranslation.learnMoreTitle}
-        subTitle={walletTranslation.learnMoreSubTitle}
         modalBackground={
           privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
         }
@@ -245,29 +267,6 @@ function WalletSettings({ route }) {
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
-        buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.textGreen`}
-        buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
-        }
-        secButtonTextColor={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
-        }
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setNeedHelpModal(false);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.WALLET],
-                screenName: 'wallet-settings',
-              },
-            })
-          );
-        }}
-        buttonCallback={() => setNeedHelpModal(false)}
       />
 
       <KeeperModal
@@ -303,17 +302,10 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 18,
   },
-  modalDesc: {
-    fontSize: 14,
-    padding: 1,
-    marginBottom: 15,
-    width: wp(295),
-  },
 
   illustration: {
-    marginTop: 20,
+    marginVertical: hp(10),
     alignSelf: 'center',
-    marginBottom: 40,
   },
 });
 export default WalletSettings;
