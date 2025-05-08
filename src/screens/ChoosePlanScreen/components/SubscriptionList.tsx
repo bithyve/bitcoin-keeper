@@ -189,7 +189,7 @@ const SubscriptionList: React.FC<{
               {playServiceUnavailable ? null : isKeeperPrivate ? null : priceDisplay}
 
               {isExpanded && isKeeperPrivate && getKeeperPrivateExpiryDate() && (
-                <Box>
+                <Box style={styles.expireCtr}>
                   <Text color={`${colorMode}.GreyText`} semiBold fontSize={12}>
                     Expires:
                   </Text>
@@ -291,6 +291,10 @@ const styles = StyleSheet.create({
   btmCTR: {
     marginTop: 15,
     marginBottom: 10,
+  },
+  expireCtr: {
+    flexDirection: 'row',
+    gap: wp(5),
   },
 });
 
