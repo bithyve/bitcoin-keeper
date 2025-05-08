@@ -22,6 +22,8 @@ import Buttons from './Buttons';
 import Fonts from 'src/constants/Fonts';
 import PrivateCrossIcon from 'src/assets/privateImages/white-cross-circle-icon.svg';
 import { useSelector } from 'react-redux';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 
 type ModalProps = {
   visible: boolean;
@@ -187,17 +189,8 @@ function KeeperModal(props: ModalProps) {
                   onPress={learnMoreButtonPressed}
                   testID="btn_learnMore"
                 >
-                  <Box
-                    backgroundColor={
-                      learnButtonBackgroundColor == 'BrownNeedHelp'
-                        ? `${colorMode}.BrownNeedHelp`
-                        : learnButtonBackgroundColor
-                    }
-                    style={styles.learnMoreButtonContainer}
-                  >
-                    <Text color={learnButtonTextColor} style={styles.learnMoreText}>
-                      {learnMoreButtonText ? learnMoreButtonText : common.learnMore}
-                    </Text>
+                  <Box style={styles.learnMoreButtonContainer}>
+                    {isDarKMode ? <InfoIconDark /> : <InfoIcon />}
                   </Box>
                 </TouchableOpacity>
               )}
@@ -334,7 +327,7 @@ const getStyles = (subTitleWidth) =>
     learnMoreButtonContainer: {
       position: 'absolute',
       top: hp(22),
-      left: wp(240),
+      right: wp(-10),
       borderRadius: 5,
       paddingHorizontal: 5,
       justifyContent: 'center',
