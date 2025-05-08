@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Box, Text, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
@@ -14,6 +14,7 @@ import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { getKeyUID } from 'src/utils/utilities';
+import Text from './KeeperText';
 
 const PendingHealthCheckModal = ({
   selectedItem,

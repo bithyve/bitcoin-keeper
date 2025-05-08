@@ -9,19 +9,12 @@ import KeeperQRCode from 'src/components/KeeperQRCode';
 import { SignerType } from 'src/services/wallets/enums';
 import { interpolateBBQR, psbtToBBQR } from 'src/utils/utilities';
 
-DisplayQR.defaultProps = {
-  toBytes: true,
-  type: 'hex',
-  shouldRotate: true,
-  signerType: null,
-};
-
 function DisplayQR({
   qrContents,
-  toBytes,
-  type,
-  shouldRotate,
-  signerType,
+  toBytes = true,
+  type = 'hex',
+  shouldRotate = true,
+  signerType = null,
   size = windowWidth * 0.7,
 }: {
   qrContents: any;

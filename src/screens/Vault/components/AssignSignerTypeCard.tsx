@@ -11,7 +11,7 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import KeeperModal from 'src/components/KeeperModal';
 import { getSignerNameFromType } from 'src/hardware';
 import ChangeSignerIllustration from 'src/assets/images/changeSignerIllustration.svg';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Buttons from 'src/components/Buttons';
