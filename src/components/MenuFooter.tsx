@@ -23,6 +23,9 @@ import PrivateKey from 'src/assets/privateImages/key-gold-icon.svg';
 import PrivateConcierge from 'src/assets/privateImages/gold-concierge-icon.svg';
 import PrivateMore from 'src/assets/privateImages/more-gold-icon.svg';
 import { useSelector } from 'react-redux';
+import ContactGreyIcon from 'src/assets/images/contact-grey-icon.svg';
+import ContactGreenIcon from 'src/assets/images/contact-green-icon.svg';
+import ContactwhiteIcon from 'src/assets/images/contact-green-icon.svg';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
@@ -58,6 +61,17 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
         <ConceirgeWhite />
       ) : (
         <ConciergeGreen />
+      ),
+    },
+    {
+      name: wallet.contact,
+      defaultIcon: <ContactGreyIcon />,
+      selectedIcon: privateTheme ? (
+        <ContactGreenIcon />
+      ) : isDarkMode ? (
+        <ContactwhiteIcon />
+      ) : (
+        <ContactGreenIcon />
       ),
     },
     {

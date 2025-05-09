@@ -663,7 +663,8 @@
     "customWalletDesc": "Setup your wallet quorum",
     "customWalletTitle": "Create a Custom Wallet",
     "maxNumberofKeys": "Number of keys needed to sign transactions",
-    "totalKeys": "Total Keys"
+    "totalKeys": "Total Keys",
+    "contact": "Contacts"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
