@@ -13,7 +13,7 @@ import { fetchSignedDelayedTransaction } from 'src/store/sagaActions/storage';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Buttons from 'src/components/Buttons';
