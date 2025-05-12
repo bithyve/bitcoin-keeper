@@ -95,7 +95,7 @@ export const customTheme = extendTheme({
       learnMoreBorder: Colors.Coffee,
       toastBg: Colors.DarkSlateGray,
       btcLabelBack: Colors.Periwinkle,
-      primaryText: Colors.SecondaryBlack,
+      primaryText: Colors.secondaryBlack,
       inActiveMsg: Colors.SecondaryBlack,
       feeInfoColor: Colors.SecondaryBlack,
       textBlack: Colors.DarkGreen,
@@ -167,6 +167,9 @@ export const customTheme = extendTheme({
       tagColor10: Colors.TagLight10,
       warmbeige: Colors.warmbeige,
       hyperlink: Colors.darkBlue,
+      stoneGrey: Colors.stoneGrey,
+      coolGrey: Colors.coolGrey,
+      subchatText: Colors.primaryBrown,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -286,6 +289,9 @@ export const customTheme = extendTheme({
       tagColor10: Colors.TagDark10,
       warmbeige: Colors.warmbeige,
       hyperlink: Colors.softBlue,
+      stoneGrey: Colors.stoneGrey,
+      coolGrey: Colors.bodyText,
+      subchatText: Colors.primaryCream,
     },
   },
   config: {

@@ -25,7 +25,7 @@ import PrivateMore from 'src/assets/privateImages/more-gold-icon.svg';
 import { useSelector } from 'react-redux';
 import ContactGreyIcon from 'src/assets/images/contact-grey-icon.svg';
 import ContactGreenIcon from 'src/assets/images/contact-green-icon.svg';
-import ContactwhiteIcon from 'src/assets/images/contact-green-icon.svg';
+import ContactwhiteIcon from 'src/assets/images/contact-white-icon.svg';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();

@@ -138,6 +138,8 @@ import { AddMultipleXpub } from 'src/screens/AddSigner/AddMultipleXpub';
 import AppStateHandler from './AppStateHandler';
 import AdditionalUsers from 'src/screens/Vault/AdditionalUsers';
 import SetupAdditionalServerKey from 'src/screens/SigningDevices/SetupAdditionalServerKey';
+import ContactScanQr from 'src/screens/Home/components/Contact/ContactScanQR';
+import ContactShareQr from 'src/screens/Home/components/Contact/ContactShowQr';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -248,6 +250,8 @@ function AppStack() {
         <Stack.Screen name="AdditionalUsers" component={AdditionalUsers} />
         <Stack.Screen name="ServerKeySuccessScreen" component={ServerKeySuccessScreen} />
         <Stack.Screen name="SetupAdditionalServerKey" component={SetupAdditionalServerKey} />
+        <Stack.Screen name="ContactShareQr" component={ContactShareQr} />
+        <Stack.Screen name="ContactScanQr" component={ContactScanQr} />
 
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />

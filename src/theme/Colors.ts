@@ -136,5 +136,7 @@ const Colors = {
   charcolBrown: 'rgba(43, 41, 39, 1)',
   toastDark: 'rgba(210, 212, 175, 1)',
   warmbeige: 'rgba(193, 167, 156, 1)',
+  stoneGrey: 'rgba(211, 209, 206, 0.5)',
+  coolGrey: 'rgba(211, 209, 206, 1)',
 };
 export default Colors;
