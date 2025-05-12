@@ -5,6 +5,7 @@ import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
 import PlaceHolderChat from './PlaceHolderChat';
 import ChatPlaceHolderIcon from 'src/assets/images/chat-image-placeholder-image.png';
+import { useNavigation } from '@react-navigation/native';
 
 // dummy chat data
 const chatData = [
@@ -22,7 +23,7 @@ const chatData = [
     name: 'Jane Smith',
     lastMessage: 'Let’s catch up soon!',
     image:
-      'file:///Users/mac/Library/Developer/CoreSimulator/Devices/2C667219-79A1-4604-9AC8-183891E43BA9/data/Containers/Data/Application/AEAC5F0D-0461-4389-8EDF-1521C17FCE9A/tmp/1B0219B7-CD88-4CAD-9216-CBA7B7DF91C2.jpg',
+      'file:///Users/mac/Library/Developer/CoreSimulator/Devices/2C667219-79A1-4604-9AC8-183891E43BA9/data/Containers/Data/Application/AEAC5F0D-0461-4389-8EDF-1521C17FCE9A/tmp/393696BD-08ED-4568-822A-8713FDFBA6ED.jpg',
     date: '2023-10-01T12:45:00',
     message_count: 6,
   },
@@ -38,13 +39,21 @@ const chatData = [
 
 const ChatItem = ({ item }) => {
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
   const formatTime = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const handlePress = () => {
+    navigation.navigate('ChatRoomScreen', {
+      receiverProfileImage: item.image,
+      receiverProfileName: item.name,
+    });
+  };
+
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={handlePress}>
       <Box
         style={styles.profile_container}
         borderColor={`${colorMode}.stoneGrey`}
@@ -93,7 +102,7 @@ const ChatList = () => {
         data={chatData}
         keyExtractor={(item) => item?.id}
         renderItem={renderItem}
-        ListEmptyComponent={<PlaceHolderChat />} // Placeholder component when chatData is empty
+        ListEmptyComponent={<PlaceHolderChat />}
         showsVerticalScrollIndicator={false}
       />
     </Box>

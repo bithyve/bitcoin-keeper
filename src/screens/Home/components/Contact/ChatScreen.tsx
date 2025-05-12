@@ -9,10 +9,12 @@ import PlusSageIcon from 'src/assets/images/sage-plus-icon.svg';
 import ChatList from './components/ChatList';
 import KeeperModal from 'src/components/KeeperModal';
 import NewContactModalContent from './components/NewContactModalContent';
+import { useNavigation } from '@react-navigation/native';
 
-const ChatScreen = ({ userProfileName, userProfileImage, setCreateProfile, navigation }) => {
+const ChatScreen = ({ userProfileName, userProfileImage, setCreateProfile }) => {
   const { colorMode } = useColorMode();
   const [addNewContact, setAddNewContact] = useState(false);
+  const navigation = useNavigation();
 
   return (
     <Box style={styles.container}>

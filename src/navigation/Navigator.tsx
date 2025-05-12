@@ -140,6 +140,7 @@ import AdditionalUsers from 'src/screens/Vault/AdditionalUsers';
 import SetupAdditionalServerKey from 'src/screens/SigningDevices/SetupAdditionalServerKey';
 import ContactScanQr from 'src/screens/Home/components/Contact/ContactScanQR';
 import ContactShareQr from 'src/screens/Home/components/Contact/ContactShowQr';
+import ChatRoomScreen from 'src/screens/Home/components/Contact/ChatRoomScreen';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -252,6 +253,7 @@ function AppStack() {
         <Stack.Screen name="SetupAdditionalServerKey" component={SetupAdditionalServerKey} />
         <Stack.Screen name="ContactShareQr" component={ContactShareQr} />
         <Stack.Screen name="ContactScanQr" component={ContactScanQr} />
+        <Stack.Screen name="ChatRoomScreen" component={ChatRoomScreen} />
 
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />

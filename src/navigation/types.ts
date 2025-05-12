@@ -177,6 +177,7 @@ export type AppStackParams = {
   AddMultipleXpub: undefined;
   ContactScanQr: undefined;
   ContactShareQr: undefined;
+  ChatRoomScreen: undefined;
 };
 
 // Usage:

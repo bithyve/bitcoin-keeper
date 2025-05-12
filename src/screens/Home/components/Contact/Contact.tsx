@@ -10,7 +10,6 @@ import HexagonIcon from 'src/assets/images/hexagon-plus-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ProfileContent from './components/ProfileContent';
 import ChatScreen from './ChatScreen';
-import { useNavigation } from '@react-navigation/native';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -18,7 +17,6 @@ const Contact = () => {
   const [createProfile, setCreateProfile] = useState(false);
   const [userProfileImage, setUserProfileImage] = useState(null);
   const [userProfileName, setUserProfileName] = useState('');
-  const navigation = useNavigation();
 
   return (
     <Box>
@@ -27,7 +25,6 @@ const Contact = () => {
           userProfileImage={userProfileImage}
           userProfileName={userProfileName}
           setCreateProfile={setCreateProfile}
-          navigation={navigation}
         />
       ) : (
         <Box style={styles.container}>

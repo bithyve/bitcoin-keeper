@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import AddImageIcon from 'src/assets/images/add-image-icon.svg';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Buttons from 'src/components/Buttons';
+import ChangeProfileImageIcon from 'src/assets/images/change-profile-icon.svg';
 
 const ProfileContent = ({
   setIsProfileAvailable,
@@ -72,7 +73,11 @@ const ProfileContent = ({
             <Image source={PlaceHolderImage} style={styles.profile_image} alt="placeHolder" />
           )}
           <TouchableOpacity style={styles.addImageIcon} onPress={pickImage}>
-            <AddImageIcon width={wp(35)} height={wp(35)} />
+            {profileImage ? (
+              <ChangeProfileImageIcon width={wp(35)} height={wp(35)} />
+            ) : (
+              <AddImageIcon width={wp(35)} height={wp(35)} />
+            )}
           </TouchableOpacity>
         </Box>
       </Box>
