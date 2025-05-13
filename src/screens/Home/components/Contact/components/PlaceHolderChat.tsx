@@ -2,10 +2,12 @@ import React from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { Box, Image, useColorMode } from 'native-base';
 import PlaceHolderImage from 'src/assets/images/profile-placeHolder.png';
+import PlaceHolderImageWhite from 'src/assets/images/profile-placeholder-white.png';
 import { wp } from 'src/constants/responsive';
 
 const PlaceHolderChatItem = () => {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
 
   return (
     <Box
@@ -14,7 +16,11 @@ const PlaceHolderChatItem = () => {
       backgroundColor={`${colorMode}.primaryBackground`}
     >
       <Box style={styles.profile_image_container}>
-        <Image source={PlaceHolderImage} style={styles.profile_image} alt="placeHolder" />
+        <Image
+          source={isDarkMode ? PlaceHolderImageWhite : PlaceHolderImage}
+          style={styles.profile_image}
+          alt="placeHolder"
+        />
         <Box>
           <Box
             style={styles.text}
@@ -73,7 +79,6 @@ const styles = StyleSheet.create({
     width: wp(47),
     height: wp(47),
     borderRadius: wp(75),
-    opacity: 0.2,
   },
   edit_icon: {
     marginTop: wp(5),

@@ -1,4 +1,4 @@
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import QRScanner from 'src/components/QRScanner';
@@ -7,8 +7,9 @@ import WalletHeader from 'src/components/WalletHeader';
 import { hp } from 'src/constants/responsive';
 
 const ContactScanQr = () => {
+  const { colorMode } = useColorMode();
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
         title="Scan QR"
         subTitle="Please scan until all the QR data has been retrieved "

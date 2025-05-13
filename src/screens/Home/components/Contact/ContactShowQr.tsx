@@ -1,16 +1,17 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { authenticator } from 'otplib';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
-import { windowWidth, wp } from 'src/constants/responsive';
+import { windowWidth } from 'src/constants/responsive';
 
 const ContactShareQr = () => {
-  const validationKey = 'Bitcoin Keeper';
+  const validationKey = 'Bitcoin Keeper'; //dummy key, replace with actual key
+  const { colorMode } = useColorMode();
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
         title="Share QR"
         subTitle="Please scan until all the QR data has been retrieved "

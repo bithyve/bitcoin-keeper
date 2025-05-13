@@ -143,7 +143,6 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: wp(12),
-    opacity: 0.6,
   },
   message_count: {
     width: wp(15),

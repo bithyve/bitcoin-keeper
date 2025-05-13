@@ -2,6 +2,7 @@ import { Box, useColorMode } from 'native-base';
 import React, { useState } from 'react';
 import Text from 'src/components/KeeperText';
 import ContactIllustration from 'src/assets/images/contact-illustration.svg';
+import ContactDarkIllustration from 'src/assets/images/contact-dark-illustration.svg';
 import Buttons from 'src/components/Buttons';
 import { StyleSheet } from 'react-native';
 import { wp } from 'src/constants/responsive';
@@ -13,6 +14,7 @@ import ChatScreen from './ChatScreen';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const [isProfileAvailable, setIsProfileAvailable] = useState(false);
   const [createProfile, setCreateProfile] = useState(false);
   const [userProfileImage, setUserProfileImage] = useState(null);
@@ -28,10 +30,13 @@ const Contact = () => {
         />
       ) : (
         <Box style={styles.container}>
-          <ContactIllustration style={styles.illustration} />
+          {isDarkMode ? (
+            <ContactDarkIllustration style={styles.illustration} />
+          ) : (
+            <ContactIllustration style={styles.illustration} />
+          )}
           <Box style={styles.text_container}>
-            <Text style={styles.text_heading}>Create your </Text>
-            <Text style={styles.text_heading}> profile for Contact anyone</Text>
+            <Text style={styles.text_heading}>Create Profile</Text>
           </Box>
           <Text style={styles.text_description}>
             Share your profile with your contacts for seamless chats and transactions.
@@ -82,7 +87,7 @@ const styles = StyleSheet.create({
     marginBottom: wp(20),
   },
   text_container: {
-    marginBottom: wp(18),
+    marginBottom: wp(12),
   },
   text_heading: {
     fontFamily: Fonts.LoraMedium,

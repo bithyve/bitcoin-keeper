@@ -49,7 +49,7 @@ function NewContactModalContent({ setAddNewContact, navigation }) {
         <TouchableOpacity key={option.id} onPress={option.onPress}>
           <Box
             style={styles.container}
-            backgroundColor={`${colorMode}.textInputBackground`}
+            backgroundColor={`${colorMode}.primaryBackground`}
             borderColor={`${colorMode}.separator`}
             borderWidth={1}
           >

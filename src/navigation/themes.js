@@ -170,6 +170,7 @@ export const customTheme = extendTheme({
       stoneGrey: Colors.stoneGrey,
       coolGrey: Colors.coolGrey,
       subchatText: Colors.primaryBrown,
+      SlateWhite: Colors.DarkSlateGray,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -292,6 +293,7 @@ export const customTheme = extendTheme({
       stoneGrey: Colors.stoneGrey,
       coolGrey: Colors.bodyText,
       subchatText: Colors.primaryCream,
+      SlateWhite: Colors.primaryCream,
     },
   },
   config: {

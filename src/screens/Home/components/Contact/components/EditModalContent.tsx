@@ -11,6 +11,7 @@ const EditModalContent = ({
 }) => {
   const { colorMode } = useColorMode();
   const [editName, setEditName] = useState('');
+
   useEffect(() => {
     setEditName(editReceiverProfileName);
   }, [editReceiverProfileName]);
@@ -26,6 +27,7 @@ const EditModalContent = ({
         placeholder="Enter Your Name/label"
         value={editName}
         onChangeText={setEditName}
+        backgroundColor={`${colorMode}.primaryBackground`}
       />
       <Buttons
         primaryText="Confirm"

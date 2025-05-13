@@ -6,6 +6,7 @@ import { wp } from 'src/constants/responsive';
 import PlaceHolderImage from 'src/assets/images/profile-placeHolder.png';
 import EditIcon from 'src/assets/images/edit-pencil-icon.svg';
 import PlusSageIcon from 'src/assets/images/sage-plus-icon.svg';
+import PlusWhiteIcon from 'src/assets/images/add-plus-white.svg';
 import ChatList from './components/ChatList';
 import KeeperModal from 'src/components/KeeperModal';
 import NewContactModalContent from './components/NewContactModalContent';
@@ -13,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const ChatScreen = ({ userProfileName, userProfileImage, setCreateProfile }) => {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const [addNewContact, setAddNewContact] = useState(false);
   const navigation = useNavigation();
 
@@ -39,7 +41,7 @@ const ChatScreen = ({ userProfileName, userProfileImage, setCreateProfile }) => 
             <Text style={styles.text} color={`${colorMode}.modalSubtitleBlack`} semiBold>
               {userProfileName}
             </Text>
-            <Text style={styles.text} color={`${colorMode}.GreenishGrey`}>
+            <Text style={styles.text} color={`${colorMode}.GreyText`}>
               View Your Profile
             </Text>
           </Box>
@@ -55,8 +57,8 @@ const ChatScreen = ({ userProfileName, userProfileImage, setCreateProfile }) => 
             Recent Chats
           </Text>
           <TouchableOpacity style={styles.edit_icon} onPress={() => setAddNewContact(true)}>
-            <PlusSageIcon />
-            <Text color={`${colorMode}.DarkSlateGray`} fontSize={12} semiBold>
+            {isDarkMode ? <PlusWhiteIcon width={11} height={11} /> : <PlusSageIcon />}
+            <Text color={`${colorMode}.SlateWhite`} fontSize={12} semiBold>
               Add New Contacts
             </Text>
           </TouchableOpacity>

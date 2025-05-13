@@ -15,22 +15,74 @@ import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import PlaceHolderImage from 'src/assets/images/chat-image-placeholder-image.png';
 import PlusIcon from 'src/assets/images/plus-green-icon.svg';
+import PlusWhiteIcon from 'src/assets/images/add-plus-white.svg';
 import SendIcon from 'src/assets/images/send-icon.svg';
 
+// dummy data
 const initialMessages = [
-  { id: 1, text: 'oy baat sun', sender: 'other', date: '2023-10-01T09:15:00' },
-  { id: 2, text: 'hn suna kya howa ', sender: 'me', date: '2023-10-01T09:15:30' },
-  { id: 3, text: 'oy baat sun', sender: 'other', date: '2023-10-01T09:16:00' },
-  { id: 4, text: 'hn suna kya howa ', sender: 'me', date: '2023-10-03T14:05:00' },
-  { id: 7, text: 'hn suna kya howa ', sender: 'me', date: '2025-05-12T14:05:00' },
+  {
+    id: 1,
+    text: 'Hey, did you end up watching "The Silent City"?',
+    sender: 'other',
+    date: '2025-05-12T10:12:00',
+  },
+  {
+    id: 2,
+    text: 'Yeah I did! Just finished it last night.',
+    sender: 'me',
+    date: '2025-05-12T10:13:00',
+  },
+  {
+    id: 3,
+    text: 'Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.',
+    sender: 'other',
+    date: '2025-05-12T10:14:30',
+  },
+  {
+    id: 10,
+    text: 'Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.',
+    sender: 'other',
+    date: '2025-05-12T10:14:30',
+  },
+  {
+    id: 4,
+    text: 'Right? When she found out her brother was behind it all...',
+    sender: 'me',
+    date: '2025-05-12T10:15:20',
+  },
   {
     id: 5,
-    text: 'bs dekh le pata lag gaya mujy ',
+    text: 'Exactly! And the cinematography was so good. Every shot looked like a painting.',
     sender: 'other',
-    date: new Date().toISOString(),
+    date: '2025-05-12T10:17:10',
   },
-  { id: 6, text: 'jasoos chory wy hy hm ny bi ', sender: 'other', date: new Date().toISOString() },
-  { id: 8, text: 'kya baat hy teri', sender: 'me', date: new Date().toISOString() },
+  {
+    id: 6,
+    text: 'I really liked the soundtrack too. Gave me chills.',
+    sender: 'me',
+    date: '2025-05-12T10:19:45',
+  },
+
+  {
+    id: 7,
+    text: 'I’ve been thinking about that ending all day 😅',
+    sender: 'other',
+    date: '2025-05-13T09:05:00',
+  },
+  {
+    id: 8,
+    text: 'Same! I kind of want to rewatch it already.',
+    sender: 'me',
+    date: '2025-05-13T09:06:10',
+  },
+  {
+    id: 9,
+    text: 'Let’s do a watch party this weekend? I’ll bring popcorn 🍿',
+    sender: 'other',
+    date: '2025-05-13T09:07:55',
+  },
+  { id: 10, text: 'Deal. Saturday night?', sender: 'me', date: '2025-05-13T09:08:20' },
+  { id: 11, text: 'Perfect. Can’t wait!', sender: 'other', date: '2025-05-13T09:08:45' },
 ];
 
 const groupMessagesByDate = (msgs) => {
@@ -53,6 +105,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
   const [inputValue, setInputValue] = useState('');
   const groupedMessages = groupMessagesByDate(messages);
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const scrollRef = useRef(null);
 
   const handleSend = () => {
@@ -110,29 +163,35 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
                     !thisMoment.isSame(nextMoment, 'minute') ||
                     msg.sender !== nextMsg.sender;
 
+                  const prevMsg = msgs[index - 1];
+                  const prevMoment = prevMsg ? moment(prevMsg.date) : null;
+
+                  const isFirstInGroup =
+                    !prevMoment ||
+                    !thisMoment.isSame(prevMoment, 'minute') ||
+                    msg.sender !== prevMsg.sender;
+
                   return (
                     <HStack
                       key={msg.id}
                       justifyContent={msg.sender === 'me' ? 'flex-end' : 'flex-start'}
-                      alignItems="flex-end"
+                      alignItems={msg.sender === 'me' ? 'flex-end' : 'flex-start'}
                       space={2}
                       style={styles.messageRow}
                     >
                       {msg.sender === 'other' &&
-                        isLastInMinuteAndSenderGroup &&
+                        isFirstInGroup &&
                         (receiverProfileImage ? (
                           <Image
                             source={{ uri: receiverProfileImage }}
                             alt="reciverprofileImage"
                             style={styles.avatar}
-                            marginBottom={hp(40)}
                           />
                         ) : (
                           <Image
                             source={PlaceHolderImage}
                             alt="placeHolder"
                             style={styles.avatar}
-                            marginBottom={hp(40)}
                           />
                         ))}
 
@@ -150,8 +209,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
                               borderTopLeftRadius: msg.sender === 'other' ? 0 : 12,
                               marginRight:
                                 msg.sender === 'me' && isLastInMinuteAndSenderGroup ? 0 : wp(32),
-                              marginLeft:
-                                msg.sender === 'other' && isLastInMinuteAndSenderGroup ? 0 : wp(32),
+                              marginLeft: msg.sender === 'other' && isFirstInGroup ? 0 : wp(32),
                             },
                             styles.messageContent,
                           ]}
@@ -202,11 +260,16 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
 
         <HStack style={styles.inputContainer} space={2}>
           <Box style={styles.inputBar} borderColor={`${colorMode}.separator`}>
-            <PlusIcon width={20} height={20} />
+            {isDarkMode ? (
+              <PlusWhiteIcon width={18} height={18} />
+            ) : (
+              <PlusIcon width={20} height={20} />
+            )}
             <Box style={styles.seperator} backgroundColor={`${colorMode}.separator`} />
             <Input
               flex={1}
-              placeholder="Type a message"
+              placeholder="Type your Message here"
+              placeholderTextColor={`${colorMode}.placeHolderTextColor`}
               value={inputValue}
               onChangeText={setInputValue}
               variant="filled"
@@ -216,6 +279,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
               backgroundColor={`${colorMode}.primaryBackground`}
               focusOutlineColor={'transparent'}
               fontSize={14}
+              selectionColor={colorMode === 'dark' ? 'white' : 'black'}
             />
             <TouchableOpacity onPress={handleSend}>
               <Box style={styles.sendButton} backgroundColor={`${colorMode}.pantoneGreen`}>
@@ -277,7 +341,7 @@ const styles = StyleSheet.create({
     paddingRight: wp(5),
     paddingVertical: hp(5),
     marginBottom: wp(10),
-    width: '95%',
+    width: '90%',
     borderTopWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',

@@ -3,6 +3,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { wp } from 'src/constants/responsive';
 import PlaceHolderImage from 'src/assets/images/profile-placeHolder.png';
+import PlaceholderWhiteImage from 'src/assets/images/placeholder-whote-image.png';
 import { useEffect, useState } from 'react';
 import AddImageIcon from 'src/assets/images/add-image-icon.svg';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -18,6 +19,7 @@ const ProfileContent = ({
   userProfileName,
 }) => {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const [profileImage, setProfileImage] = useState(null);
   const [profileName, setProfileName] = useState('');
 
@@ -70,7 +72,11 @@ const ProfileContent = ({
               resizeMode="cover"
             />
           ) : (
-            <Image source={PlaceHolderImage} style={styles.profile_image} alt="placeHolder" />
+            <Image
+              source={isDarkMode ? PlaceholderWhiteImage : PlaceHolderImage}
+              style={styles.profile_image}
+              alt="placeHolder"
+            />
           )}
           <TouchableOpacity style={styles.addImageIcon} onPress={pickImage}>
             {profileImage ? (
@@ -86,6 +92,7 @@ const ProfileContent = ({
           placeholder="Enter your name"
           value={profileName}
           onChangeText={(text) => setProfileName(text)}
+          backgroundColor={`${colorMode}.primaryBackground`}
         />
       </Box>
       <Buttons
