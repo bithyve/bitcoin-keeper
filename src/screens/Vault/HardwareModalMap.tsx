@@ -477,7 +477,7 @@ const getSignerContent = (
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = (
         <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
-          Make sure the seed is loaded (
+          {'Make sure the seed is loaded ('}
           <Text
             medium
             style={styles.learnHow}
@@ -490,9 +490,7 @@ const getSignerContent = (
           >
             Learn how
           </Text>
-          {`) and export the xPub by going to Seeds > Select your master fingerprint > Export xPub > ${
-            isMultisig ? 'Multisig' : 'Singlesig'
-          } > Native Segwit > Keeper.`}
+          {`) and export the xPub by going to Seeds > Select your master fingerprint > Export xPub > Choose SingleSig for single key cold storage or Multisig for multi-key cold storage > Native Segwit > Keeper.`}
         </Text>
       );
 
