@@ -6,9 +6,6 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch, useSelector } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-
-import KeysIcon from 'src/assets/images/homeGreenKeyIcon.svg';
-import ConciergeIcon from 'src/assets/images/faq-green.svg';
 import { resetRealyWalletState, setHomeToastMessage } from 'src/store/reducers/bhr';
 import InititalAppController from './InititalAppController';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -16,7 +13,6 @@ import { SentryErrorBoundary } from 'src/services/sentry';
 import HomeScreenHeader from 'src/components/HomeScreenHeader';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { hp, wp } from 'src/constants/responsive';
-import WalletIcon from 'src/assets/images/WalletIcon.svg';
 import MenuFooter from 'src/components/MenuFooter';
 import HomeWallet from './components/Wallet/HomeWallet';
 import ManageKeys from './components/Keys/ManageKeys';
@@ -24,13 +20,9 @@ import KeeperSettings from './components/Settings/keeperSettings';
 import { useNavigation } from '@react-navigation/native';
 import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import PrivateWallet from 'src/assets/privateImages/wallet-icon.svg';
-import PrivateKeys from 'src/assets/privateImages/key-icon.svg';
-import Privateconcierge from 'src/assets/privateImages/concierge-icon.svg';
-import MoreGreen from 'src/assets/images/more-green.svg';
-import PrivateMore from 'src/assets/images/more-white-icon.svg';
 import Contact from './components/Contact/Contact';
 import ContactGreenIcon from 'src/assets/images/contact-green-icon.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -69,7 +61,7 @@ function NewHomeScreen({ route }) {
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={privateTheme ? <PrivateWallet /> : <WalletIcon />}
+              icon={<ThemedSvg name={'header_Wallet'} />}
               backgroundColor={
                 privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
               }
@@ -86,7 +78,7 @@ function NewHomeScreen({ route }) {
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={privateTheme ? <PrivateKeys /> : <KeysIcon />}
+              icon={<ThemedSvg name={'header_key'} />}
               backgroundColor={
                 privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
               }
@@ -104,15 +96,12 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={
-                privateTheme ? (
-                  <Privateconcierge />
-                ) : (
-                  <ConciergeIcon
-                    width={wp(20)}
-                    height={hp(20)}
-                    style={{ marginRight: wp(1), marginBottom: hp(1) }}
-                  />
-                )
+                <ThemedSvg
+                  name={'header_concierge'}
+                  width={wp(20)}
+                  height={hp(20)}
+                  style={{ marginRight: wp(1), marginBottom: hp(1) }}
+                />
               }
               backgroundColor={
                 privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
@@ -147,7 +136,7 @@ function NewHomeScreen({ route }) {
           icon: (
             <CircleIconWrapper
               width={wp(39)}
-              icon={privateTheme ? <PrivateMore /> : <MoreGreen />}
+              icon={<ThemedSvg name={'header_more'} />}
               backgroundColor={
                 privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
               }
