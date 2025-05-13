@@ -84,7 +84,9 @@ function* credentialsStorageWorker({ payload }) {
     const { allAccounts } = yield select((state: RootState) => state.account);
     const accountIdentifier = allAccounts.length ? allAccounts.length : '';
 
-    if (!(yield call(SecureStore.store, hash, encryptedKey, accountIdentifier))) {
+    const pinStored = yield call(SecureStore.store, hash, encryptedKey, accountIdentifier);
+    if (typeof pinStored !== 'boolean' || !pinStored) {
+      payload.callback?.(pinStored);
       return;
     }
 

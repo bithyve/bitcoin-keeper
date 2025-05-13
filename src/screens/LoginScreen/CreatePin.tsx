@@ -118,7 +118,7 @@ export default function CreatePin(props) {
 
   const handleNext = () => {
     dispatch(setIsInitialLogin(true));
-    dispatch(storeCreds(createPin));
+    dispatch(storeCreds(createPin, (error: string) => showToast(error)));
     setCreatePassword(false);
   };
 

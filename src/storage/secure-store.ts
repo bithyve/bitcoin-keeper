@@ -5,6 +5,21 @@ import { store as reduxStore } from 'src/store/store';
 
 export const store = async (hash: string, enc_key: string, identifier: string) => {
   try {
+    // unique pin check
+    const allAccounts = reduxStore.getState().account.allAccounts;
+    for (const index in allAccounts) {
+      const identifier = allAccounts[index].accountIdentifier;
+      let credentials;
+      credentials = await Keychain.getGenericPassword({
+        service: identifier,
+      });
+      if (credentials) {
+        const password = JSON.parse(credentials.password);
+        if (hash === password.hash) {
+          return 'Passcode already exists';
+        }
+      }
+    }
     await Keychain.setGenericPassword(
       config.ENC_KEY_STORAGE_IDENTIFIER,
       JSON.stringify({
