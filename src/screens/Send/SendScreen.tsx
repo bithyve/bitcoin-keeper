@@ -122,7 +122,7 @@ function SendScreen({ route }) {
   const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false);
   const [localTotalRecipients, setLocalTotalRecipients] = useState(totalRecipients);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   const visibleWallets = useMemo(
     () =>

@@ -6,25 +6,19 @@ import { wp } from 'src/constants/responsive';
 import TipsSlider from '../TipsSlider';
 import InheritanceHeader from '../InheritanceHeader';
 import Text from 'src/components/KeeperText';
-import MultiSig from 'src/assets/images/multsig-tip.svg';
-import DiversifyHardware from 'src/assets/images/diversify-hardware.svg';
-import BackupAcidFree from 'src/assets/images/backup-acidfree.svg';
-import VariedSecuredLocation from 'src/assets/images/varied-secured-location.svg';
-import PrivateCrossDeviceVerification from 'src/assets/privateImages/doc-4-keys.svg';
-import PrivateMultisig from 'src/assets/privateImages/doc-multisig-security.svg';
-import PrivateDiversifyHardware from 'src/assets/privateImages/doc-hardware-usage.svg';
-import PrivateAcidFree from 'src/assets/privateImages/doc-acid-free.svg';
 import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SafeGuardingTips({}) {
   const { colorMode } = useColorMode();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const tips = [
     {
       title: 'Activate Multi-Key (Multisig) Security:',
-      icon: privateTheme ? <PrivateMultisig /> : <MultiSig />,
+      icon: <ThemedSvg name={'activate_multisig_illustration'} />,
       paragraph:
         'A multi-key, also known as multisig, setup is crucial for enhancing the security of your bitcoin holdings. This method requires multiple approvals for transactions, significantly reducing the risk if one key is compromised.',
       paragraph2:
@@ -32,7 +26,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Diversify Hardware Wallet Usage:',
-      icon: privateTheme ? <PrivateDiversifyHardware /> : <DiversifyHardware />,
+      icon: <ThemedSvg name={'diversify_hardware'} width={wp(225)} height={wp(225)} />,
       paragraph2:
         'Please ensure that you keep abreast of various announcements and firmware updates from the manufacturers. Also ensure device accessibility using the Health Check feature.',
       paragraph:
@@ -40,7 +34,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Backups on Acid-Free Paper and Metal',
-      icon: privateTheme ? <PrivateAcidFree /> : <BackupAcidFree />,
+      icon: <ThemedSvg name={'backup_acid_free'} />,
       paragraph2:
         'A point to decide is whether you want to store them along with the devices that have your keys or store them separately. This is an important decision and should be taken carefully.',
       paragraph:
@@ -48,7 +42,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Varied and Secure Storage Locations',
-      icon: privateTheme ? <PrivateCrossDeviceVerification /> : <VariedSecuredLocation />,
+      icon: <ThemedSvg name={'backup_illustration'} />,
       paragraph2:
         'This approach ensures that if one storage method is compromised, the others remain secure, providing a comprehensive safeguarding system for your bitcoin.',
       paragraph:
@@ -60,11 +54,16 @@ function SafeGuardingTips({}) {
     <ScreenWrapper
       barStyle="dark-content"
       backgroundcolor={
-        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        privateTheme || PrivateThemeLight
+          ? `${colorMode}.primaryBackground`
+          : `${colorMode}.pantoneGreen`
       }
     >
       <InheritanceHeader />
-      <Text style={styles.container} color={`${colorMode}.headerWhite`}>
+      <Text
+        style={styles.container}
+        color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+      >
         Key Safekeeping Tips
       </Text>
       <TipsSlider items={tips} />

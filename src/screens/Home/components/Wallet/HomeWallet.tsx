@@ -60,7 +60,8 @@ const HomeWallet = () => {
   );
   const [isShowAmount, setIsShowAmount] = useState(false);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const handleCollaborativeWalletCreation = () => {
     setShowAddWalletModal(false);
@@ -145,7 +146,7 @@ const HomeWallet = () => {
     <Box style={styles.walletContainer}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
-        backgroundColor={`${colorMode}.dullGreen`}
+        backgroundColor={privateThemeLight ? `transparent` : `${colorMode}.dullGreen`}
         hexagonBackgroundColor={
           privateTheme
             ? Colors.goldenGradient

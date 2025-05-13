@@ -7,12 +7,12 @@ import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import { CommonActions } from '@react-navigation/native';
-import Chip from 'src/assets/images/chip.svg';
-import PrivateKey from 'src/assets/privateImages/key-gold-icon.svg';
 import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 import PrivateCanaryIcon from 'src/assets/privateImages/canary-wallet-illustration.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useSelector } from 'react-redux';
+import Colors from 'src/theme/Colors';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function CanaryWallets({ navigation }) {
   const { colorMode } = useColorMode();
@@ -20,30 +20,45 @@ function CanaryWallets({ navigation }) {
   const { inheritancePlanning, common, wallet } = translations;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   return (
     <ScreenWrapper
       barStyle="dark-content"
       backgroundcolor={
-        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+        privateTheme || privateThemeLight
+          ? `${colorMode}.primaryBackground`
+          : `${colorMode}.pantoneGreen`
       }
     >
       <InheritanceHeader />
       <ScrollView>
-        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.heading}
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.canaryWallet}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.description}
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.canaryWalletDesp}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.commonTextStyle}
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.canaryWalletDescp1}
         </Text>
 
         <Box style={styles.circleStyle}>
-          {privateTheme ? <PrivateCanaryIcon /> : <CanaryIcon />}
+          <ThemedSvg name={'canary_illustration'} />
         </Box>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.commonTextStyle}
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.canaryWalletDescp2}
         </Text>
         <Box mt={5}>
@@ -63,14 +78,20 @@ function CanaryWallets({ navigation }) {
               )
             }
             name={inheritancePlanning.canaryWalletCtaHeading}
-            icon={privateTheme ? <PrivateKey /> : <Chip />}
+            icon={<ThemedSvg name={'canary_keys_icon'} width={20} height={20} />}
+            hexagonBackgroundColor={privateThemeLight ? Colors.secondaryBlack : Colors.headerWhite}
           />
         </Box>
         <Box style={styles.leftTextStyle}>
-          <Text bold color={`${colorMode}.headerWhite`}>
+          <Text
+            bold
+            color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          >
             {`${common.note}:`}
           </Text>
-          <Text color={`${colorMode}.headerWhite`}>{inheritancePlanning.canaryWalletDescp3}</Text>
+          <Text color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}>
+            {inheritancePlanning.canaryWalletDescp3}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>
