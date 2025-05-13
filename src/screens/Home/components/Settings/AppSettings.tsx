@@ -22,6 +22,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NetworkIcon from 'src/assets/privateImages/network-icon.svg';
+import { clearHasCreds } from 'src/store/reducers/login';
 
 const SettingsApp = ({ navigation }: any) => {
   const { colorMode } = useColorMode();
@@ -57,7 +58,7 @@ const SettingsApp = ({ navigation }: any) => {
         <NetworkModeIcon width={16.5} height={16} />
       ),
       onPress: () => {
-        console.log('Calling add another account');
+        dispatch(clearHasCreds());
         navigation.replace('LoginStack', {
           screen: 'CreatePin', // <-- the screen inside LoginStack
         });
