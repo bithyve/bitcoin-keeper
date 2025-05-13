@@ -23,6 +23,7 @@ import TickIcon from 'src/assets/images/tick_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NetworkIcon from 'src/assets/privateImages/network-icon.svg';
 import { clearHasCreds } from 'src/store/reducers/login';
+import { setAppCreated } from 'src/store/reducers/storage';
 
 const SettingsApp = ({ navigation }: any) => {
   const { colorMode } = useColorMode();
@@ -59,8 +60,9 @@ const SettingsApp = ({ navigation }: any) => {
       ),
       onPress: () => {
         dispatch(clearHasCreds());
+        dispatch(setAppCreated(false));
         navigation.replace('LoginStack', {
-          screen: 'CreatePin', // <-- the screen inside LoginStack
+          screen: 'CreatePin',
         });
       },
       isDiamond: false,

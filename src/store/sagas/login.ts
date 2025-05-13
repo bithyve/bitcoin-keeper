@@ -54,7 +54,11 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
-import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
+import {
+  fetchDelayedPolicyUpdate,
+  fetchSignedDelayedTransaction,
+  setAppId,
+} from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
 import { setTempDetails } from '../reducers/account';
@@ -169,6 +173,11 @@ function* credentialsAuthWorker({ payload }) {
       const { plebDueToOffline, wasAutoUpdateEnabledBeforeDowngrade } = yield select(
         (state) => state.storage
       );
+
+      // setting correct app id from realm at login
+      const { id } = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      yield put(setAppId(id));
+
       const newVersion = DeviceInfo.getVersion();
       const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
       const lastElement = versionCollection[versionCollection.length - 1];

@@ -72,7 +72,7 @@ import {
   healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned, uaiChecks } from '../sagaActions/uai';
-import { setAppId, setDefaultWalletCreated } from '../reducers/storage';
+import { setAppCreated, setAppId, setDefaultWalletCreated } from '../reducers/storage';
 import { applyUpgradeSequence, KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
@@ -635,6 +635,7 @@ function* recoverApp(
   });
 
   yield put(setAppId(appID));
+  yield put(setAppCreated(true));
 }
 
 function* healthCheckSatutsUpdateWorker({

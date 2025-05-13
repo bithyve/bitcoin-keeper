@@ -26,6 +26,7 @@ import {
 import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
 import {
   deleteDelayedPolicyUpdate,
+  setAppCreated,
   setAppId,
   setDefaultWalletCreated,
   updateDelayedTransaction,
@@ -114,6 +115,7 @@ export function* setupKeeperAppWorker({ payload }) {
       yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
       yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
       yield put(setAppId(appID));
+      yield put(setAppCreated(true));
       yield put(resetRealyWalletState());
     } else {
       yield put(setAppCreationError(true));
