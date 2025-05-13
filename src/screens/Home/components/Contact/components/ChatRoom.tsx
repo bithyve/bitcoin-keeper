@@ -65,7 +65,7 @@ const initialMessages = [
 
   {
     id: 7,
-    text: 'I’ve been thinking about that ending all day 😅',
+    text: 'I’ve been thinking about that ending all day ',
     sender: 'other',
     date: '2025-05-13T09:05:00',
   },
@@ -77,7 +77,7 @@ const initialMessages = [
   },
   {
     id: 9,
-    text: 'Let’s do a watch party this weekend? I’ll bring popcorn 🍿',
+    text: 'Let’s do a watch party this weekend? I’ll bring popcorn ',
     sender: 'other',
     date: '2025-05-13T09:07:55',
   },
@@ -127,7 +127,6 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
       scrollRef?.current?.scrollToEnd({ animated: true });
     }, 100);
   }, [messages]);
-  console.log('receiverProfileImage', receiverProfileImage);
 
   return (
     <KeyboardAvoidingView
@@ -224,7 +223,10 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
                           <Text
                             color={`${colorMode}.subchatText`}
                             style={[
-                              { alignSelf: msg.sender === 'me' ? 'flex-end' : 'flex-start' },
+                              {
+                                alignSelf: msg.sender === 'me' ? 'flex-end' : 'flex-start',
+                                marginLeft: msg.sender === 'other' && isFirstInGroup ? 0 : wp(32),
+                              },
                               styles.timestamp,
                             ]}
                           >
@@ -323,7 +325,6 @@ const styles = StyleSheet.create({
   timestamp: {
     fontSize: 10,
     marginTop: hp(4),
-    marginLeft: hp(4),
   },
   avatar: {
     borderRadius: 999,

@@ -13,8 +13,7 @@ const chatData = [
     id: '1',
     name: 'John Doe',
     lastMessage: 'Hey! Are you available tomorrow?',
-    image:
-      'file:///Users/mac/Library/Developer/CoreSimulator/Devices/2C667219-79A1-4604-9AC8-183891E43BA9/data/Containers/Data/Application/AEAC5F0D-0461-4389-8EDF-1521C17FCE9A/tmp/1B0219B7-CD88-4CAD-9216-CBA7B7DF91C2.jpg',
+    image: '',
     date: '2023-10-01T1:00:00',
     message_count: 2,
   },
@@ -22,8 +21,7 @@ const chatData = [
     id: '2',
     name: 'Jane Smith',
     lastMessage: 'Let’s catch up soon!',
-    image:
-      'file:///Users/mac/Library/Developer/CoreSimulator/Devices/2C667219-79A1-4604-9AC8-183891E43BA9/data/Containers/Data/Application/AEAC5F0D-0461-4389-8EDF-1521C17FCE9A/tmp/393696BD-08ED-4568-822A-8713FDFBA6ED.jpg',
+    image: '',
     date: '2023-10-01T12:45:00',
     message_count: 6,
   },
