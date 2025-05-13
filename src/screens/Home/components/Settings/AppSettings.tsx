@@ -23,7 +23,7 @@ import TickIcon from 'src/assets/images/tick_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NetworkIcon from 'src/assets/privateImages/network-icon.svg';
 
-const SettingsApp = () => {
+const SettingsApp = ({ navigation }: any) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { settings, common } = useContext(LocalizationContext).translations;
@@ -46,6 +46,22 @@ const SettingsApp = () => {
         <NetworkModeIcon width={16.5} height={16} />
       ),
       onPress: () => setNetworkModeModal(true),
+      isDiamond: false,
+    },
+    {
+      title: 'Add another account',
+      description: 'You can add another account or duress wallet',
+      icon: privateTheme ? (
+        <NetworkIcon width={16.5} height={16} />
+      ) : (
+        <NetworkModeIcon width={16.5} height={16} />
+      ),
+      onPress: () => {
+        console.log('Calling add another account');
+        navigation.replace('LoginStack', {
+          screen: 'CreatePin', // <-- the screen inside LoginStack
+        });
+      },
       isDiamond: false,
     },
   ];

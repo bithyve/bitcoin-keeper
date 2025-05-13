@@ -17,7 +17,8 @@ export class RealmDatabase {
    * @returns Promise
    */
   public initializeDatabase = async (
-    key: ArrayBuffer | ArrayBufferView | Int8Array
+    key: ArrayBuffer | ArrayBufferView | Int8Array,
+    path: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       // if the realm instance is already initialized, close it to prevent
@@ -26,7 +27,7 @@ export class RealmDatabase {
       if (this.realm) {
         this.realm.close();
       }
-
+      RealmDatabase.file = path;
       const realmConfig: Realm.Configuration = {
         path: RealmDatabase.file,
         schema,

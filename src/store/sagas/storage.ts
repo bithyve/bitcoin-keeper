@@ -34,6 +34,7 @@ import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
 import { RootState } from '../store';
+import { addAccount } from '../reducers/account';
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
@@ -85,6 +86,13 @@ export function* setupKeeperAppWorker({ payload }) {
         enableAnalytics: false,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);
+
+      yield put(
+        addAccount({
+          isDefault: true,
+          appId: appID,
+        })
+      );
 
       const defaultWallet: NewWalletInfo = {
         walletType: WalletType.DEFAULT,

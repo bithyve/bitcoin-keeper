@@ -1,8 +1,9 @@
 import * as Keychain from 'react-native-keychain';
 import NodeRSA from 'node-rsa';
 import config from '../utils/service-utilities/config';
+import { store as reduxStore } from 'src/store/store';
 
-export const store = async (hash: string, enc_key: string) => {
+export const store = async (hash: string, enc_key: string, identifier: string) => {
   try {
     await Keychain.setGenericPassword(
       config.ENC_KEY_STORAGE_IDENTIFIER,
@@ -11,6 +12,7 @@ export const store = async (hash: string, enc_key: string) => {
         enc_key,
       }),
       {
+        service: identifier,
         accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
       }
     );
@@ -22,20 +24,24 @@ export const store = async (hash: string, enc_key: string) => {
 
 export const fetch = async (hash_current: string) => {
   try {
-    const credentials = await Keychain.getGenericPassword();
-    if (credentials) {
-      const password = JSON.parse(credentials.password);
-      if (hash_current === '') {
-        return password.enc_key;
+    const allAccounts = reduxStore.getState().account.allAccounts;
+    for (const index in allAccounts) {
+      const identifier = allAccounts[index].accountIdentifier;
+      let credentials;
+      credentials = await Keychain.getGenericPassword({
+        service: identifier,
+      });
+      if (credentials) {
+        const password = JSON.parse(credentials.password);
+        if (hash_current === '') {
+          return password.enc_key;
+        }
+        if (hash_current === password.hash) {
+          return password.enc_key;
+        }
       }
-      if (hash_current !== password.hash) {
-        throw new Error('Incorrect Passcode');
-      } else {
-        return password.enc_key;
-      }
-    } else {
-      throw new Error('Password not found');
     }
+    throw new Error('Incorrect Passcode');
   } catch (err) {
     console.log(err);
     throw err;
@@ -44,15 +50,25 @@ export const fetch = async (hash_current: string) => {
 
 export const hasPin = async () => {
   try {
-    const credentials = await Keychain.getGenericPassword();
-    if (credentials) {
-      const password = JSON.parse(credentials.password);
-      if (password) {
-        return true;
+    const allAccounts = reduxStore.getState().account.allAccounts;
+    for (const index in allAccounts) {
+      const identifier = allAccounts[index].accountIdentifier;
+      let credentials;
+      if (!identifier.length) {
+        credentials = await Keychain.getGenericPassword({
+          service: identifier,
+        });
+      } else {
+        credentials = await Keychain.getGenericPassword();
       }
-    } else {
-      return false;
+      if (credentials) {
+        const password = JSON.parse(credentials.password);
+        if (password) {
+          return true;
+        }
+      }
     }
+    return false;
   } catch (err) {
     return false;
   }

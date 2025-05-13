@@ -57,6 +57,7 @@ import { connectToNode } from '../sagaActions/network';
 import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
+import { setTempDetails } from '../reducers/account';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -76,14 +77,21 @@ function* credentialsStorageWorker({ payload }) {
     const AES_KEY = yield call(generateEncryptionKey);
     yield put(setKey(AES_KEY));
     const encryptedKey = yield call(encrypt, hash, AES_KEY);
+    const { allAccounts } = yield select((state: RootState) => state.account);
+    const accountIdentifier = allAccounts.length ? allAccounts.length : '';
 
-    if (!(yield call(SecureStore.store, hash, encryptedKey))) {
+    if (!(yield call(SecureStore.store, hash, encryptedKey, accountIdentifier))) {
       return;
     }
 
+    const realmId = 'keeper.realm' + accountIdentifier;
+
     // initialize the database
     const uint8array = yield call(stringToArrayBuffer, AES_KEY);
-    yield call(dbManager.initializeRealm, uint8array);
+    yield call(dbManager.initializeRealm, uint8array, realmId);
+
+    // storing account details
+    yield put(setTempDetails({ hash, realmId, accountIdentifier }));
 
     // setup the application
     yield put(setPinHash(hash));
@@ -144,8 +152,14 @@ function* credentialsAuthWorker({ payload }) {
     if (!key) throw new Error('Encryption key is missing');
     // case: login
     if (!payload.reLogin) {
+      const { allAccounts } = yield select((state: RootState) => state.account);
+      const currentAccount = allAccounts.find((account) => account.hash === hash);
       const uint8array = yield call(stringToArrayBuffer, key);
-      const { success, error } = yield call(dbManager.initializeRealm, uint8array);
+      const { success, error } = yield call(
+        dbManager.initializeRealm,
+        uint8array,
+        currentAccount.realmId
+      );
 
       if (!success) {
         throw Error(`Failed to load the database: ${error}`);
