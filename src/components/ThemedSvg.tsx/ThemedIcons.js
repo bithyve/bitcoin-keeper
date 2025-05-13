@@ -123,9 +123,9 @@ import HealthCheckGold from 'src/assets/privateImages/healthcheck-gold-icon.svg'
 import SignTransactionLight from 'src/assets/images/sign-transaction-green.svg';
 import SignTransactionDark from 'src/assets/images/sign-transaction-white.svg';
 import SignTransactionGold from 'src/assets/privateImages/sign-trans-gold-icon.svg';
-import PrivateWalletInfoIllustration from 'src/assets/privateImages/wallet-Info-Illustratipn.svg';
-import WalletInfoIllustration from 'src/assets/images/walletInfoIllustration.svg';
-import PrivateWalletInfoIllustrationLight from 'src/assets/privateImages/wallet-info-illustration-light.svg';
+import PrivateWalletInfoIllustration from 'src/assets/privateImages/private-wallet-managment-illustration.svg';
+import WalletInfoIllustration from 'src/assets/images/wallet-managment-illustration.svg';
+import PrivateWalletInfoIllustrationLight from 'src/assets/privateImages/private-wallet-managment-illustration.svg';
 import KeeperIcon from 'src/assets/images/new-Keeper-Logo.svg';
 import PrivateKeeperIcon from 'src/assets/images/keeper-private-logo.svg';
 import KeeperGoldIcon from 'src/assets/privateImages/keeper-gold-icon.svg';

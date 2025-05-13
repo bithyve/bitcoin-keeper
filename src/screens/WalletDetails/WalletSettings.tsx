@@ -22,20 +22,14 @@ import { credsAuthenticated } from 'src/store/reducers/login';
 import { useDispatch, useSelector } from 'react-redux';
 import WalletHeader from 'src/components/WalletHeader';
 import SettingCard from '../Home/components/Settings/Component/SettingCard';
-import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
-import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
-import WalletInfoIllustration from 'src/assets/images/wallet-managment-illustration.svg';
-import PrivateWalletInfoIllustration from 'src/assets/privateImages/private-wallet-managment-illustration.svg';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import Text from 'src/components/KeeperText';
 import { useQuery } from '@realm/react';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Instruction from 'src/components/Instruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
-
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -93,45 +87,32 @@ function WalletSettings({ route }) {
     return (
       <Box>
         <Instruction
-          textColor={`${colorMode}.headerWhite`}
+          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
           text={'Add descriptions to better identify your wallet.'}
         />
         <Instruction
-          textColor={`${colorMode}.headerWhite`}
+          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
           text={'Access the xPub to create a watch-only wallet.'}
         />
         <Instruction
-          textColor={`${colorMode}.headerWhite`}
+          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
           text={'View the Path and Purpose of the wallet.'}
         />
 
         <Box style={styles.illustration}>
-          {privateTheme ? (
-            <PrivateWalletInfoIllustration />
-          ) : (
-            <WalletInfoIllustration width={wp(200)} height={hp(200)} />
-          )}
+          <ThemedSvg name={'walletInfoIllustration'} width={wp(200)} height={hp(200)} />
         </Box>
 
         <Instruction
-          textColor={`${colorMode}.headerWhite`}
+          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
           text={
             'Import and Export labels to identify specific UTXOs across transactions and wallets.'
           }
         />
         <Instruction
-          textColor={`${colorMode}.headerWhite`}
+          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
           text={"Access the wallet's seed words."}
         />
-          <ThemedSvg name={'walletInfoIllustration'} />
-        </Box>
-        <Text
-          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          style={styles.modalDesc}
-        >
-          {walletTranslation.learnMoreDesc}
-        </Text>
-
       </Box>
     );
   }
@@ -285,7 +266,7 @@ function WalletSettings({ route }) {
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.textGreen`}
+        buttonTextColor={privateThemeLight ? `${colorMode}.headerWhite` : `${colorMode}.textGreen`}
         buttonBackground={
           privateTheme || privateThemeLight
             ? `${colorMode}.pantoneGreen`
@@ -310,7 +291,6 @@ function WalletSettings({ route }) {
           );
         }}
         buttonCallback={() => setNeedHelpModal(false)}
-
       />
 
       <KeeperModal
