@@ -37,7 +37,7 @@ const chatData = [
   },
 ];
 
-const ChatItem = ({ item }) => {
+const ChatItem = ({ item, userProfileImage }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const formatTime = (dateString) => {
@@ -49,6 +49,7 @@ const ChatItem = ({ item }) => {
     navigation.navigate('ChatRoomScreen', {
       receiverProfileImage: item.image,
       receiverProfileName: item.name,
+      userProfileImage,
     });
   };
 
@@ -91,10 +92,10 @@ const ChatItem = ({ item }) => {
   );
 };
 
-const ChatList = () => {
+const ChatList = ({ userProfileImage }) => {
   const { colorMode } = useColorMode();
 
-  const renderItem = ({ item }) => <ChatItem item={item} />;
+  const renderItem = ({ item }) => <ChatItem item={item} userProfileImage={userProfileImage} />;
 
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`}>

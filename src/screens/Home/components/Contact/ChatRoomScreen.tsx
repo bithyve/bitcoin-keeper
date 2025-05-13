@@ -5,18 +5,20 @@ import { StyleSheet } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import EditModalContent from './components/EditModalContent';
+import ChatRoom from './components/ChatRoom';
 
 type ChatRoomParams = {
   ChatRoomScreen: {
     receiverProfileImage: string;
     receiverProfileName: string;
+    userProfileImage: string;
   };
 };
 
 const ChatRoomScreen = () => {
   const { colorMode } = useColorMode();
   const route = useRoute<RouteProp<ChatRoomParams, 'ChatRoomScreen'>>();
-  const { receiverProfileImage, receiverProfileName } = route.params;
+  const { receiverProfileImage, receiverProfileName, userProfileImage } = route.params;
   const [editReceiverProfileName, setEditReceiverProfileName] = useState(receiverProfileName);
   const [openEditModal, setOpenEditModal] = useState(false);
 
@@ -27,7 +29,7 @@ const ChatRoomScreen = () => {
         receiverProfileName={editReceiverProfileName}
         setOpenEditModal={setOpenEditModal}
       />
-      {/* <Text>Chat Room Screen</Text> */}
+      <ChatRoom userProfileImage={userProfileImage} receiverProfileImage={receiverProfileImage} />
       <KeeperModal
         visible={openEditModal}
         close={() => setOpenEditModal(false)}

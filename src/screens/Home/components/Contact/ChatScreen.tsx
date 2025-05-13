@@ -62,7 +62,7 @@ const ChatScreen = ({ userProfileName, userProfileImage, setCreateProfile }) => 
           </TouchableOpacity>
         </Box>
         <Box>
-          <ChatList />
+          <ChatList userProfileImage={userProfileImage} />
         </Box>
       </Box>
       <KeeperModal
