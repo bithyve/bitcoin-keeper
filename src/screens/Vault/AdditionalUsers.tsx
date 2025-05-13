@@ -33,6 +33,7 @@ import { ScriptTypes } from 'src/services/wallets/enums';
 import Text from 'src/components/KeeperText';
 import AdditionalUserPrivate from 'src/assets/privateImages/additional-user-illustration.svg';
 import { useSelector } from 'react-redux';
+import ConfirmDeleteGoldIllustration from 'src/assets/privateImages/Confirm-Deletion-gold.svg';
 
 enum SecondaryVerificationOptionActionType {
   ADD = 'ADD',
@@ -69,6 +70,7 @@ function AdditionalUsers({ route }: any) {
   >(idx(signer, (_) => _.signerPolicy.secondaryVerification) || []);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const [additionalUserData, setAdditionalUserData] = useState(
     (idx(signer, (_) => _.signerPolicy.secondaryVerification) || []).map((option) => {
       return {
@@ -231,20 +233,24 @@ function AdditionalUsers({ route }: any) {
         subTitle="Here you can add and manage additional users to whom you would like to give access to your Server Key. Each user will have their own 2FA code, and a set of permissions for the actions they are allowed to access with your Server Key."
         buttonText="Add New User"
         buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.modalWhiteButton`
         }
         buttonTextColor={`${colorMode}.textGreen`}
         modalBackground={
-          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.primaryBackground`
+            : `${colorMode}.pantoneGreen`
         }
-        textColor={`${colorMode}.headerWhite`}
+        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         buttonCallback={() => {
           setAddNewUserModal(true);
           setAdditionalUser(false);
         }}
         Content={() => (
           <Box style={styles.modalIcon}>
-            {privateTheme ? <AdditionalUserPrivate /> : <AdditonalUserIcon />}
+            {privateTheme || privateThemeLight ? <AdditionalUserPrivate /> : <AdditonalUserIcon />}
           </Box>
         )}
       />
@@ -266,7 +272,7 @@ function AdditionalUsers({ route }: any) {
             setAddNewUserModal={setAddNewUserModal}
             setNewUserName={setNewUserName}
             newUserName={newUserName}
-            privateTheme={privateTheme}
+            privateTheme={privateTheme || privateThemeLight}
           />
         )}
         buttonCallback={() => {
@@ -327,7 +333,11 @@ function AdditionalUsers({ route }: any) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <Box style={styles.modalIcon}>
-            <DeleteIllustration />
+            {privateTheme || privateThemeLight ? (
+              <ConfirmDeleteGoldIllustration />
+            ) : (
+              <DeleteIllustration />
+            )}
           </Box>
         )}
         buttonText="Confirm"

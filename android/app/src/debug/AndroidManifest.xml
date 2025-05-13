@@ -37,13 +37,11 @@
     <!-- Needed only if your app uses Bluetooth scan results to derive physical location. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <application
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
         tools:targetApi="28"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false" />
         <service
         android:name="com.reactnativehce.services.CardService"
         android:exported="true"

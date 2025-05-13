@@ -15,7 +15,17 @@ interface KeeperTextProps extends TextProps {
 }
 
 function Text(props: KeeperTextProps) {
-  const { children, style, fontSize, medium, semiBold, bold, light, italic, fontWeight } = props;
+  const {
+    children,
+    style,
+    fontSize,
+    medium,
+    semiBold,
+    bold = false,
+    light = false,
+    italic,
+    fontWeight = undefined,
+  } = props;
 
   let computedFontWeight: string | number = fontWeight || 400;
 
@@ -45,6 +55,7 @@ function Text(props: KeeperTextProps) {
 
   return (
     <NativeBaseText
+      allowFontScaling={false}
       {...updatedProps}
       fontStyle={italic ? 'italic' : undefined}
       style={[{ fontSize, fontWeight: computedFontWeight }, passedStyles]}
@@ -54,10 +65,5 @@ function Text(props: KeeperTextProps) {
   );
 }
 
-Text.defaultProps = {
-  bold: false,
-  light: false,
-  fontWeight: undefined,
-};
 
 export default Text;

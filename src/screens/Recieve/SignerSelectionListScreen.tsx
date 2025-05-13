@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Next from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -29,6 +29,7 @@ import { HCESession, HCESessionContext } from 'react-native-hce';
 import { NfcTech } from 'react-native-nfc-manager';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import WalletHeader from 'src/components/WalletHeader';
+import Text from 'src/components/KeeperText';
 
 const { width } = Dimensions.get('screen');
 

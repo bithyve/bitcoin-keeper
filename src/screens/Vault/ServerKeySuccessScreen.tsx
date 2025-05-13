@@ -15,7 +15,7 @@ import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-s
 import PrivateBackupSigningServerIllustrations from 'src/assets/privateImages/Backup-Server-Key-illustration.svg';
 import SigningServer from 'src/services/backend/SigningServer';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -36,7 +36,7 @@ function ServerKeySuccessScreen({ route }) {
   const navigation = useNavigation();
   const { vaultKey, vaultId } = route.params || {};
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
   const {
     setupData,
     addedSigner,
