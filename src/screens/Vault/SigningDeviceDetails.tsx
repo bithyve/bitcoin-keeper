@@ -30,12 +30,8 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import KeyDetailsLight from 'src/assets/images/key-details-green.svg';
-import KeyDetailsDark from 'src/assets/images/key-details-white.svg';
 import HealthCheckLight from 'src/assets/images/health-check-green.svg';
 import HealthCheckDark from 'src/assets/images/health-check-white.svg';
-import SignTransactionLight from 'src/assets/images/sign-transaction-green.svg';
-import SignTransactionDark from 'src/assets/images/sign-transaction-white.svg';
 import ChangeKeyLight from 'src/assets/images/change-key-green.svg';
 import ChangeKeyDark from 'src/assets/images/change-key-white.svg';
 import EmptyStateLight from 'src/assets/images/empty-activity-illustration-light.svg';
@@ -107,6 +103,7 @@ import PrivateSeedKey from 'src/assets/privateImages/seedKey-illustration.svg';
 import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-ilustration.svg';
 import PrivateSeedSignerSetupImage from 'src/assets/privateImages/seedSigner-illustration.svg';
 import PrivateMy_Keeper from 'src/assets/privateImages/mobileKeyIllustration.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -326,6 +323,7 @@ function SigningDeviceDetails({ route }) {
   const { session } = useContext(HCESessionContext);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const cleanUp = () => {
     setNfcVisible(false);
@@ -687,7 +685,7 @@ function SigningDeviceDetails({ route }) {
   const signerFooterItems = [
     signer?.type !== SignerType.POLICY_SERVER && {
       text: 'Share Key',
-      Icon: () => <FooterIcon Icon={isDarkMode ? KeyDetailsDark : KeyDetailsLight} />,
+      Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'share_key'} />} />,
       onPress: () => {
         setShareKeyModal(true);
       },
@@ -696,7 +694,7 @@ function SigningDeviceDetails({ route }) {
       signer?.type !== SignerType.POLICY_SERVER &&
       signer?.type !== SignerType.UNKOWN_SIGNER && {
         text: 'Sign Transaction',
-        Icon: () => <FooterIcon Icon={isDarkMode ? SignTransactionDark : SignTransactionLight} />,
+        Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'sign_transaction'} />} />,
         // onPress: navigateToScanPSBT,
         onPress: () => {
           setStModal(true);
@@ -711,7 +709,7 @@ function SigningDeviceDetails({ route }) {
       text: 'Health Check',
       Icon: () => (
         <FooterIcon
-          Icon={isDarkMode ? HealthCheckDark : HealthCheckLight}
+          Icon={() => <ThemedSvg name="health_check" />}
           showDot={
             (signer.type !== SignerType.MY_KEEPER &&
               entityBasedIndicator?.[signer.masterFingerprint]?.[
@@ -910,7 +908,11 @@ function SigningDeviceDetails({ route }) {
                       <HexagonIcon
                         width={38}
                         height={34}
-                        backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
+                        backgroundColor={
+                          privateTheme || privateThemeLight
+                            ? Colors.goldenGradient
+                            : Colors.primaryGreen
+                        }
                         icon={getWalletIcon(vault)}
                       />
                     }

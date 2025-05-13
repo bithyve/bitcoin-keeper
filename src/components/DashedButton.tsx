@@ -5,6 +5,7 @@ import HexagonIcon from './HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
+import { useSelector } from 'react-redux';
 
 type EmptyCardProps = {
   name: string;
@@ -28,9 +29,15 @@ function DashedButton({
   hexagonBackgroundColor = Colors.headerWhite,
 }: EmptyCardProps) {
   const { colorMode } = useColorMode();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const PrivateLightMode = themeMode === 'PRIVATE_LIGHT';
   return (
     <TouchableOpacity onPress={() => callback(name)}>
-      <Box style={[styles.AddCardContainer]} testID={`btn_${name}`}>
+      <Box
+        style={[styles.AddCardContainer]}
+        borderColor={PrivateLightMode ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        testID={`btn_${name}`}
+      >
         <HexagonIcon
           width={iconWidth}
           height={iconHeight}
@@ -39,12 +46,19 @@ function DashedButton({
         />
         <Box style={styles.TextContainer}>
           {name && (
-            <Text semiBold color={`${colorMode}.buttonText`}>
+            <Text
+              semiBold
+              color={PrivateLightMode ? `${colorMode}.textBlack` : `${colorMode}.buttonText`}
+            >
               {name}
             </Text>
           )}
           {description && (
-            <Text style={styles.descriptionText} fontSize={12} color={`${colorMode}.buttonText`}>
+            <Text
+              style={styles.descriptionText}
+              fontSize={12}
+              color={PrivateLightMode ? `${colorMode}.textBlack` : `${colorMode}.buttonText`}
+            >
               {description}
             </Text>
           )}
@@ -62,7 +76,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: Colors.headerWhite,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,

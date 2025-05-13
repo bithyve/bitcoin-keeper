@@ -26,15 +26,19 @@ import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import WalletInfoIllustration from 'src/assets/images/wallet-managment-illustration.svg';
 import PrivateWalletInfoIllustration from 'src/assets/privateImages/private-wallet-managment-illustration.svg';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import Text from 'src/components/KeeperText';
 import { useQuery } from '@realm/react';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Instruction from 'src/components/Instruction';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
-  const isDarKMode = colorMode === 'dark';
   const { wallet: walletRoute } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -42,6 +46,7 @@ function WalletSettings({ route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
   const walletMnemonic = idx(wallet, (_) => _.derivationDetails.mnemonic);
@@ -118,6 +123,15 @@ function WalletSettings({ route }) {
           textColor={`${colorMode}.headerWhite`}
           text={"Access the wallet's seed words."}
         />
+          <ThemedSvg name={'walletInfoIllustration'} />
+        </Box>
+        <Text
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.modalDesc}
+        >
+          {walletTranslation.learnMoreDesc}
+        </Text>
+
       </Box>
     );
   }
@@ -164,7 +178,7 @@ function WalletSettings({ route }) {
             title={settings.walletSettings}
             rightComponent={
               <Pressable onPress={() => setNeedHelpModal(true)}>
-                {isDarKMode ? <InfoDarkIcon /> : <LearnMoreIcon />}
+                <ThemedSvg name={'info_icon'} />
               </Pressable>
             }
           />
@@ -261,12 +275,42 @@ function WalletSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={walletTranslation.learnMoreTitle}
         modalBackground={
-          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.primaryBackground`
+            : `${colorMode}.pantoneGreen`
         }
-        textColor={`${colorMode}.headerWhite`}
+        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.textGreen`}
+        buttonBackground={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.modalWhiteButton`
+        }
+        secButtonTextColor={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.modalGreenSecButtonText`
+        }
+        secondaryIcon={<ConciergeNeedHelp />}
+        secondaryCallback={() => {
+          setNeedHelpModal(false);
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'CreateTicket',
+              params: {
+                tags: [ConciergeTag.WALLET],
+                screenName: 'wallet-settings',
+              },
+            })
+          );
+        }}
+        buttonCallback={() => setNeedHelpModal(false)}
+
       />
 
       <KeeperModal

@@ -13,6 +13,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import RightArrow from 'src/assets/images/icon_arrow.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { useSelector } from 'react-redux';
 
 type SigningDeviceCardProps = {
   type: SignerType;
@@ -22,7 +23,6 @@ type SigningDeviceCardProps = {
   last?: boolean;
   isOnL1: boolean;
   isOnL2: boolean;
-  privateTheme: boolean;
   addSignerFlow: boolean;
   vaultId: string;
   vaultSigners?: VaultSigner[];
@@ -40,7 +40,6 @@ const SigningDeviceCard = ({
   last = false,
   isOnL1,
   isOnL2,
-  privateTheme,
   addSignerFlow,
   vaultId,
   vaultSigners,
@@ -54,6 +53,8 @@ const SigningDeviceCard = ({
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const onPress = () => {
     if (shouldUpgrade) {
@@ -112,7 +113,7 @@ const SigningDeviceCard = ({
             ]}
           >
             <Box style={styles.walletMapWrapper}>
-              {SDIcons({ type, light: colorMode === 'dark', privateTheme }).Icon}
+              {SDIcons({ type, light: colorMode === 'dark' }).Icon}
             </Box>
             <Box backgroundColor={`${colorMode}.dullGreyBorder`} style={styles.divider} />
             <Box style={styles.walletMapLogoWrapper}>{SDIcons({ type }).Logo}</Box>

@@ -41,12 +41,11 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { SegmentedController } from 'src/components/SegmentController';
 import { options, SuccessContainer } from '../AddSigner/AddMultipleXpub';
-import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
-import InfoIcon from 'src/assets/images/info_icon.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import Instruction from 'src/components/Instruction';
 import { useAppSelector } from 'src/store/hooks';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SetupPortal({ route }) {
   const {
@@ -389,7 +388,7 @@ function SetupPortal({ route }) {
         rightComponent={
           InteracationMode.VAULT_ADDITION ? (
             <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
-              {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+              <ThemedSvg name={'info_icon'} />
             </TouchableOpacity>
           ) : null
         }
