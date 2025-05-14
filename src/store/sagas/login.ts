@@ -38,6 +38,7 @@ import {
   credsAuthenticatedError,
 } from '../reducers/login';
 import {
+  setAppId,
   setAppVersion,
   setAutoUpdateEnabledBeforeDowngrade,
   setPinHash,
@@ -54,11 +55,7 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
-import {
-  fetchDelayedPolicyUpdate,
-  fetchSignedDelayedTransaction,
-  setAppId,
-} from '../sagaActions/storage';
+import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
 import { addAccount, setTempDetails } from '../reducers/account';
@@ -145,7 +142,8 @@ function* credentialsAuthWorker({ payload }) {
     let encryptedKey;
     if (method === LoginMethod.PIN) {
       hash = yield call(hash512, payload.passcode);
-      encryptedKey = yield call(SecureStore.fetch, hash);
+      if (payload.reLogin) encryptedKey = yield call(SecureStore.fetchSpecific, hash, appId);
+      else encryptedKey = yield call(SecureStore.fetch, hash);
     } else if (method === LoginMethod.BIOMETRIC) {
       const res = yield call(SecureStore.verifyBiometricAuth, payload.passcode, appId);
       if (!res.success) throw new Error('Biometric Auth Failed');

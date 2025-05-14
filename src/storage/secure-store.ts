@@ -149,3 +149,23 @@ export const verifyBiometricAuth = async (signature: string, payload: string) =>
     };
   }
 };
+
+export const fetchSpecific = async (hash_current: string, appId: string) => {
+  try {
+    const allAccounts = reduxStore.getState().account.allAccounts;
+    const identifier = allAccounts.find((account) => account.appId === appId).accountIdentifier;
+    const credentials = await Keychain.getGenericPassword({
+      service: identifier,
+    });
+    if (credentials) {
+      const password = JSON.parse(credentials.password);
+      if (hash_current === password.hash) {
+        return password.enc_key;
+      }
+    }
+    throw new Error('Incorrect Passcode');
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
