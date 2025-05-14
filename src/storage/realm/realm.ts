@@ -27,7 +27,7 @@ export class RealmDatabase {
       if (this.realm) {
         this.realm.close();
       }
-      RealmDatabase.file = path;
+      if (path) RealmDatabase.file = path;
       const realmConfig: Realm.Configuration = {
         path: RealmDatabase.file,
         schema,

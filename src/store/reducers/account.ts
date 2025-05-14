@@ -27,12 +27,13 @@ const accountSlice = createSlice({
   name: 'account',
   initialState,
   reducers: {
-    addAccount: (state, action: PayloadAction<AccountWithoutHash>) => {
+    addAccount: (state, action: PayloadAction<string>) => {
       const account = {
-        ...action.payload,
+        appId: action.payload,
         hash: state.tempDetails.hash,
         realmId: state.tempDetails.realmId,
         accountIdentifier: state.tempDetails.accountIdentifier,
+        isDefault: state.allAccounts.length === 0,
       };
       state.allAccounts.push(account);
       state.tempDetails = null;

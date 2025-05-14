@@ -88,12 +88,7 @@ export function* setupKeeperAppWorker({ payload }) {
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);
 
-      yield put(
-        addAccount({
-          isDefault: true,
-          appId: appID,
-        })
-      );
+      yield put(addAccount(appID));
 
       const defaultWallet: NewWalletInfo = {
         walletType: WalletType.DEFAULT,

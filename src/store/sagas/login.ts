@@ -61,7 +61,7 @@ import {
 } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
-import { setTempDetails } from '../reducers/account';
+import { addAccount, setTempDetails } from '../reducers/account';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -82,7 +82,7 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setKey(AES_KEY));
     const encryptedKey = yield call(encrypt, hash, AES_KEY);
     const { allAccounts } = yield select((state: RootState) => state.account);
-    const accountIdentifier = allAccounts.length ? allAccounts.length : '';
+    const accountIdentifier = allAccounts.length ? allAccounts.length.toString() : '';
 
     const pinStored = yield call(SecureStore.store, hash, encryptedKey, accountIdentifier);
     if (typeof pinStored !== 'boolean' || !pinStored) {
@@ -164,7 +164,7 @@ function* credentialsAuthWorker({ payload }) {
       const { success, error } = yield call(
         dbManager.initializeRealm,
         uint8array,
-        currentAccount.realmId
+        currentAccount?.realmId
       );
 
       if (!success) {
@@ -177,8 +177,13 @@ function* credentialsAuthWorker({ payload }) {
       );
 
       // setting correct app id from realm at login
-      const { id } = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-      yield put(setAppId(id));
+      const keeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      if (keeperApp?.id) yield put(setAppId(keeperApp.id));
+
+      // Store temporary account details
+      if (!allAccounts.length) {
+        yield put(setTempDetails({ hash, realmId: 'keeper.realm', accountIdentifier: '' })); // ! need to move keeper.realm to constant
+      }
 
       const newVersion = DeviceInfo.getVersion();
       const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
@@ -255,6 +260,7 @@ function* credentialsAuthWorker({ payload }) {
             (state: RootState) => state.bhr
           );
           if (pendingAllBackup && automaticCloudBackup) yield put(backupAllSignersAndVaults());
+          if (!allAccounts.length) yield put(addAccount(appId));
         } catch (error) {
           yield put(setRecepitVerificationError(true));
           yield put(credsAuthenticatedError(error));
