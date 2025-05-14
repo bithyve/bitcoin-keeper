@@ -49,6 +49,7 @@ function AssignSignerType({ route }: IProps) {
   const navigation = useNavigation();
   const [goBackSuccessMessage, setGoBackSuccessMessage] = useState('');
   const [goBackErrorMessage, setGoBackErrorMessage] = useState('');
+  const isUnknownSigner = signer.type === SignerType.UNKOWN_SIGNER;
 
   useEffect(() => {
     if (relaySignersUpdate) {
@@ -84,7 +85,8 @@ function AssignSignerType({ route }: IProps) {
     SignerType.TREZOR,
     SignerType.SEED_WORDS,
     SignerType.POLICY_SERVER,
-  ];
+    isUnknownSigner && SignerType.TAPSIGNER,
+  ].filter(Boolean);
 
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
@@ -110,7 +112,7 @@ function AssignSignerType({ route }: IProps) {
         subTitle={signerText.changeSignerSubtitle}
       />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {signer.type === SignerType.UNKOWN_SIGNER && <UnknownSignerInfo signer={signer} />}
+        {isUnknownSigner && <UnknownSignerInfo signer={signer} />}
         {!signersLoaded ? (
           <ActivityIndicator />
         ) : (
