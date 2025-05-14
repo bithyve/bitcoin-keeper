@@ -52,11 +52,13 @@ export default function CreatePin(props) {
   const [enableBiometric, setEnableBiometric] = useState(false);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  const { allAccounts } = useAppSelector((state) => state.account);
   const RNBiometrics = new ReactNativeBiometrics();
 
   useEffect(() => {
     if (hasCreds) {
-      setEnableBiometric(true);
+      if (allAccounts.length) props.navigation.replace('OnBoardingSlides');
+      else setEnableBiometric(true);
     }
   }, [hasCreds]);
 
