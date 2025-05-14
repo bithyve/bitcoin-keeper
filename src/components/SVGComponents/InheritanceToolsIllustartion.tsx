@@ -8,7 +8,7 @@ import InhertanceToolsPrivate from 'src/assets/privateImages/inheritance-tool-il
 function InheritanceToolsIllustartion() {
   const { colorMode } = useColorMode();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   return privateTheme ? (
     <InhertanceToolsPrivate />

@@ -2,7 +2,6 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect } from 'react';
 import Colors from 'src/theme/Colors';
 import PlebContainer from './Component/PlebContainer';
-import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
 import InheritanceDocumentIcon from 'src/assets/images/inheritanceDocumentIcon.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import InheritanceDocument from './Component/InheritanceDocument';
@@ -73,7 +72,7 @@ const KeeperSettings = ({ route }) => {
         titleColor={`${colorMode}.whiteSecButtonText`}
         subtitleColor={`${colorMode}.whiteSecButtonText`}
         backgroundColor={Colors.GreenishGrey}
-        onPress={() => navigation.navigate('ChoosePlan')}
+        onPress={() => navigation.dispatch(CommonActions.navigate('ChoosePlan'))}
         icon={currentPlan.icon}
       />
       <InheritanceDocument
@@ -83,9 +82,7 @@ const KeeperSettings = ({ route }) => {
         subtitleColor={`${colorMode}.balanceText`}
         backgroundColor={`${colorMode}.textInputBackground`}
         icon={<InheritanceDocumentIcon width={14} height={14} />}
-        rightIcon={<UpgradeIcon width={64} height={20} />}
-        onRightPress={() => navigation.navigate('ChoosePlan')}
-        onPress={() => navigation.navigate('InheritanceDocumentScreen')}
+        onPress={() => navigation.dispatch(CommonActions.navigate('InheritanceDocumentScreen'))}
       />
       <SettingCard
         header={inheritancePlanning.backupRecovery}

@@ -12,14 +12,13 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import KeeperLogo from 'src/assets/images/keeper-logo.svg';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
 import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
 import { setDefaultWalletCreated } from 'src/store/reducers/storage';
-import PrivateLogo from 'src/assets/images/Kepper_Private_logo.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SplashScreen({ navigation }) {
   const { torEnbled, themeMode, bitcoinNetworkType } = useAppSelector((state) => state.settings);
@@ -50,7 +49,7 @@ function SplashScreen({ navigation }) {
 
   useEffect(() => {
     animate();
-    if (colorMode !== themeMode.toLocaleLowerCase()) {
+    if (themeMode === 'DARK' || themeMode === 'PRIVATE') {
       toggleColorMode();
     }
     RestClient.setUseTor(torEnbled);
@@ -93,7 +92,8 @@ function SplashScreen({ navigation }) {
       height,
       width,
       borderRadius,
-      backgroundColor: themeMode === 'PRIVATE' ? '#272421' : '#2F4F4F',
+      backgroundColor:
+        themeMode === 'PRIVATE' ? '#272421' : themeMode === 'PRIVATE_LIGHT' ? '#F6F2ED' : '#2F4F4F',
     };
   });
 
@@ -113,7 +113,7 @@ function SplashScreen({ navigation }) {
     <Animated.View style={styles.center}>
       <Animated.View style={animatedBackground} />
       <Animated.View style={animatedLogo}>
-        {themeMode === 'PRIVATE' ? <PrivateLogo /> : <KeeperLogo />}
+        <ThemedSvg name={'keeperLogo'} />
       </Animated.View>
     </Animated.View>
   );

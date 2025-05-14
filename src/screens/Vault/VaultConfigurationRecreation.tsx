@@ -42,6 +42,7 @@ function VaultConfigurationCreation() {
   const [showModal, setShowModal] = useState(false);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const handleDocumentSelection = useCallback(async () => {
     try {
@@ -60,18 +61,30 @@ function VaultConfigurationCreation() {
   function ImportVaultContent() {
     return (
       <View marginY={5}>
-        <Text style={styles.desc}>
+        <Text
+          style={styles.desc}
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           You can import a multisig wallet into Keeper if you have the BSMS file of that wallet.
         </Text>
-        <Text style={styles.desc}>
+        <Text
+          style={styles.desc}
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           Please note that we are calling a BSMS file (also known as Output Descriptor), as the
           Wallet Configuration File within Keeper.
         </Text>
-        <Text style={styles.desc}>
+        <Text
+          style={styles.desc}
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           If you are importing a vault that you had created in Keeper previously, note that only a
           specific vault will get imported. Not that complete Keeper app with all its wallets.
         </Text>
-        <Text style={styles.descLast}>
+        <Text
+          style={styles.descLast}
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           To import a complete Keeper app, please use that app’s Recovery Key.
         </Text>
       </View>
@@ -171,18 +184,28 @@ function VaultConfigurationCreation() {
         }}
         title="Import a wallet:"
         modalBackground={
-          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
+          privateTheme || privateThemeLight
+            ? `${colorMode}.primaryBackground`
+            : `${colorMode}.pantoneGreen`
         }
-        textColor={`${colorMode}.headerWhite`}
+        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         Content={ImportVaultContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.pantoneGreen`}
-        buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
+        buttonTextColor={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.headerWhite`
+            : `${colorMode}.pantoneGreen`
         }
-        secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+        buttonBackground={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.whiteSecButtonText`
+        }
+        secButtonTextColor={
+          privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.whiteSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setShowModal(false);
@@ -268,14 +291,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   desc: {
-    color: 'white',
     fontSize: 14,
     letterSpacing: 0.65,
     padding: 5,
     marginBottom: hp(5),
   },
   descLast: {
-    color: 'white',
     fontSize: 14,
     letterSpacing: 0.65,
     padding: 5,
