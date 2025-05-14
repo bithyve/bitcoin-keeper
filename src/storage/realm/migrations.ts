@@ -455,7 +455,7 @@ export const runRealmMigrations = ({
     const oldSubs = oldRealm.objects(RealmSchema.StoreSubscription) as any;
     const newSubs = newRealm.objects(RealmSchema.StoreSubscription) as any;
     const lastSub = oldSubs.length - 1;
-    if (oldSubs[lastSub].receipt.length) {
+    if (oldSubs[lastSub] && oldSubs[lastSub].receipt.length) {
       newSubs[lastSub].receipt = oldSubs[lastSub].receipt;
     }
 
