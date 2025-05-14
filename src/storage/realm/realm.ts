@@ -3,11 +3,12 @@ import { captureError } from 'src/services/sentry';
 import { RealmSchema } from './enum';
 import schema from './schema';
 import { runRealmMigrations } from './migrations';
+export const REALM_FILE = 'keeper.realm';
 
 export class RealmDatabase {
   private realm: Realm;
 
-  public static file = 'keeper.realm';
+  public static file = REALM_FILE;
 
   public static schemaVersion = 99;
 

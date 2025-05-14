@@ -62,6 +62,7 @@ import {
 import { setAutomaticCloudBackup } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
 import { addAccount, setTempDetails } from '../reducers/account';
+import { REALM_FILE } from 'src/storage/realm/realm';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -90,7 +91,7 @@ function* credentialsStorageWorker({ payload }) {
       return;
     }
 
-    const realmId = 'keeper.realm' + accountIdentifier;
+    const realmId = REALM_FILE + accountIdentifier;
 
     // initialize the database
     const uint8array = yield call(stringToArrayBuffer, AES_KEY);
@@ -182,7 +183,7 @@ function* credentialsAuthWorker({ payload }) {
 
       // Store temporary account details
       if (!allAccounts.length) {
-        yield put(setTempDetails({ hash, realmId: 'keeper.realm', accountIdentifier: '' })); // ! need to move keeper.realm to constant
+        yield put(setTempDetails({ hash, realmId: REALM_FILE, accountIdentifier: '' }));
       }
 
       const newVersion = DeviceInfo.getVersion();
