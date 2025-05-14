@@ -420,8 +420,8 @@ export const runRealmMigrations = ({
       const oldWallet = oldWallets[i];
       const { specs: oldSpecs } = oldWallet;
       const { specs: newSpecs } = newWallet;
-      newSpecs.addresses = { ...oldSpecs?.addresses };
-      newSpecs.addressPubs = { ...oldSpecs?.addressPubs };
+      newSpecs.addresses = oldSpecs?.addresses ? { ...oldSpecs.addresses } : null;
+      newSpecs.addressPubs = oldSpecs?.addressPubs ? { ...oldSpecs?.addressPubs } : null;
       newSpecs.balances = {
         confirmed: oldSpecs.balances?.confirmed ?? 0,
         unconfirmed: oldSpecs.balances?.unconfirmed ?? 0,
