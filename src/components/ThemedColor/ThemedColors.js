@@ -7,6 +7,12 @@ const themeColors = {
     PRIVATE: Colors.goldenGradient,
     PRIVATE_LIGHT: Colors.goldenGradient,
   },
+  homeScreen_header_background: {
+    DARK: Colors.primaryGreen,
+    LIGHT: Colors.primaryGreen,
+    PRIVATE: Colors.charcolBrown,
+    PRIVATE_LIGHT: Colors.goldenGradient,
+  },
 };
 
 export default themeColors;

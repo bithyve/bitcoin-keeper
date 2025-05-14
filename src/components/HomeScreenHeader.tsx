@@ -26,6 +26,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 import Fonts from 'src/constants/Fonts';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
@@ -48,6 +49,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const { signerMap } = useSignerMap();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const backgroundColor = ThemedColor({ name: 'homeScreen_header_background' });
   useFocusEffect(
     useCallback(() => {
       dispatch(setRefreshUai());
@@ -168,11 +170,8 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   };
 
   return (
-    <Box backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}>
-      <Box
-        backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
-        style={[styles.wrapper]}
-      >
+    <Box backgroundColor={backgroundColor}>
+      <Box backgroundColor={backgroundColor} style={[styles.wrapper]}>
         <Box width="90%" style={styles.padding}>
           <Box style={styles.headerData} testID={`btn_choosePlan`}>
             {circleIconWrapper}
