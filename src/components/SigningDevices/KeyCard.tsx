@@ -3,10 +3,8 @@ import { Box, VStack, HStack, useColorMode } from 'native-base';
 import { StyleSheet, ActivityIndicator } from 'react-native';
 import Text from 'src/components/KeeperText';
 import ActionChip from 'src/components/ActionChip';
-import HexagonIcon from 'src/components/HexagonIcon';
-import Colors from 'src/theme/Colors';
 import { hp } from 'src/constants/responsive';
-import { useSelector } from 'react-redux';
+import ThemedColor from '../ThemedColor/ThemedColor';
 
 function KeyCard({
   icon,
@@ -23,8 +21,7 @@ function KeyCard({
   dateAdded,
 }) {
   const { colorMode } = useColorMode();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
   return (
     <Box
       backgroundColor={`${colorMode}.seashellWhite`}
@@ -34,12 +31,7 @@ function KeyCard({
       <VStack space={3} width="100%">
         <HStack justifyContent="space-between" alignItems="center">
           <VStack alignItems="center" style={styles.iconContainer}>
-            <HexagonIcon
-              width={40}
-              height={40}
-              backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
-              icon={icon.element}
-            />
+            <HexagonIcon width={40} height={40} backgroundColor={HexagonIcon} icon={icon.element} />
             <Text medium style={styles.nameText} color={`${colorMode}.primaryText`}>
               {name}
             </Text>

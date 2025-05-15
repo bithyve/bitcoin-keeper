@@ -11,7 +11,7 @@ import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/
 import useUaiStack, { uaiPriorityMap } from 'src/hooks/useUaiStack';
 import XIcon from 'src/assets/images/x.svg';
 import { uaiActioned, uaisSeen } from 'src/store/sagaActions/uai';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -47,8 +47,6 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
   const { signerMap } = useSignerMap();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
   const backgroundColor = ThemedColor({ name: 'homeScreen_header_background' });
   useFocusEffect(
     useCallback(() => {

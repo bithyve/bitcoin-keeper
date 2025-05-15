@@ -30,6 +30,7 @@ import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -62,6 +63,9 @@ const HomeWallet = () => {
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
   const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const DashedCta_hexagonBackgroundColor = ThemedColor({
+    name: 'DashedCta_hexagonBackgroundColor',
+  });
 
   const handleCollaborativeWalletCreation = () => {
     setShowAddWalletModal(false);
@@ -147,13 +151,7 @@ const HomeWallet = () => {
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
         backgroundColor={privateThemeLight ? `transparent` : `${colorMode}.dullGreen`}
-        hexagonBackgroundColor={
-          privateTheme
-            ? Colors.goldenGradient
-            : isDarkMode
-            ? Colors.primaryCream
-            : Colors.primaryGreen
-        }
+        hexagonBackgroundColor={DashedCta_hexagonBackgroundColor}
         textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"
         callback={() => setShowAddWalletModal(true)}

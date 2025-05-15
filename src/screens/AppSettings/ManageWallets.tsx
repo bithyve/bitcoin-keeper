@@ -46,6 +46,7 @@ import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
 import WalletHeader from 'src/components/WalletHeader';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -66,7 +67,7 @@ function ListItem({
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
 
   return (
     // TODO: Drag and rearrange wallet functionality
@@ -80,14 +81,7 @@ function ListItem({
       borderColor={`${colorMode}.separator`}
     >
       <Box style={styles.textContainer}>
-        <HexagonIcon
-          width={44}
-          height={38}
-          backgroundColor={
-            privateTheme || privateThemeLight ? Colors.goldenGradient : Colors.primaryGreen
-          }
-          icon={icon}
-        />
+        <HexagonIcon width={44} height={38} backgroundColor={HexagonIcon} icon={icon} />
         <Box>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
             {title}

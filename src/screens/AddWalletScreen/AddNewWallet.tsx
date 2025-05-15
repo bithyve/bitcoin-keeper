@@ -10,7 +10,6 @@ import AdvanceCustomizationIcon from 'src/assets/images/other_light.svg';
 import { CommonActions } from '@react-navigation/native';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import Buttons from 'src/components/Buttons';
 import DashedCta from 'src/components/DashedCta';
@@ -28,6 +27,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Colors from 'src/theme/Colors';
 import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -73,8 +73,9 @@ function AddNewWallet({ navigation, route }) {
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
   const { vaultId } = route.params || {};
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
   const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const DashedCtaTextColor = ThemedColor({ name: 'DashedCtaTextColor' });
+  const DashedCtaBorderColor = ThemedColor({ name: 'DashedCtaBorderColor' });
   const { activeVault } = useVault({ vaultId });
   const [scheme, setScheme] = useState(
     activeVault ? { m: activeVault.scheme.m, n: activeVault.scheme.n } : { m: 2, n: 3 }
@@ -211,13 +212,7 @@ function AddNewWallet({ navigation, route }) {
           textPosition="left"
           backgroundColor={PrivateThemeLight ? 'transparent' : `${colorMode}.dullGreen`}
           hexagonBackgroundColor={isDarkMode ? Colors.DeepCharcoalGreen : `${colorMode}.dullGreen`}
-          textColor={
-            PrivateThemeLight
-              ? `${colorMode}.textBlack`
-              : isDarkMode
-              ? Colors.headerWhite
-              : `${colorMode}.pantoneGreen`
-          }
+          textColor={DashedCtaTextColor}
           name="Enhanced Security Options"
           description="Secure your funds and future—your way"
           callback={() => setShowEnhancedOptionsModal(true)}
@@ -226,13 +221,7 @@ function AddNewWallet({ navigation, route }) {
           iconHeight={20}
           cardStyles={styles.enhancedVaultsCustomStyles}
           titleSize={15}
-          borderColor={
-            privateTheme
-              ? `${colorMode}.pantoneGreen`
-              : isDarkMode
-              ? Colors.primaryCream
-              : `${colorMode}.pantoneGreen`
-          }
+          borderColor={DashedCtaBorderColor}
         />
         <Buttons
           primaryText="Proceed"

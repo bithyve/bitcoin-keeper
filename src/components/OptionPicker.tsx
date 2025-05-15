@@ -8,6 +8,7 @@ import TickIcon from 'src/assets/images/icon_check.svg';
 import KeeperModal from './KeeperModal';
 import PrivateTickIcon from 'src/assets/privateImages/tick-icon.svg';
 import { useSelector } from 'react-redux';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 type Option = {
   label: string;
@@ -29,6 +30,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
   );
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const optionTextColor = ThemedColor({ name: 'optionTextColor' });
 
   const handlePress = () => {
     setIsOpen(!isOpen);
@@ -60,9 +62,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
             <Text
               color={
                 internalSelectedOption?.value === option?.value
-                  ? privateTheme
-                    ? `${colorMode}.pantoneGreen`
-                    : `${colorMode}.greenText`
+                  ? optionTextColor
                   : `${colorMode}.DarkGreyText`
               }
               style={styles.optionText}
