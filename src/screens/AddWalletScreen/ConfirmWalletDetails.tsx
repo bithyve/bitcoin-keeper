@@ -12,10 +12,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import EfficiencyIcon from 'src/assets/images/efficiency.svg';
-import SecurityIcon from 'src/assets/images/security.svg';
-import PrivateEfficiencyIcon from 'src/assets/privateImages/efficiency.svg';
-import PrivateSecurityIcon from 'src/assets/privateImages/security.svg';
 
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -56,10 +52,7 @@ import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { CTACardDotted } from 'src/components/CTACardDotted';
 import Colors from 'src/theme/Colors';
-import WalletRecoveryIcon from 'src/assets/images/walletRecoveryIcon.svg';
-import OrganizationIcon from 'src/assets/images/organizationIcon.svg';
-import PrivateWalletRecovery from 'src/assets/privateImages/private-wallet-recovery.svg';
-import PrivateOrganization from 'src/assets/privateImages/private-organization.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -186,7 +179,7 @@ function ConfirmWalletDetails({ route }) {
       <Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivateWalletRecovery /> : <WalletRecoveryIcon />}
+            <ThemedSvg name={'wallet_Recovery_icon'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -194,13 +187,12 @@ function ConfirmWalletDetails({ route }) {
             </Text>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
               {wallet.walletRecoveryDesc}
-
             </Text>
           </Box>
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivateEfficiencyIcon /> : <EfficiencyIcon />}
+            <ThemedSvg name={'efficiency_icon'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -208,13 +200,12 @@ function ConfirmWalletDetails({ route }) {
             </Text>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
               {wallet.compatibilityDesc}
-
             </Text>
           </Box>
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivateSecurityIcon /> : <SecurityIcon />}
+            <ThemedSvg name={'security_iocn'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -222,13 +213,12 @@ function ConfirmWalletDetails({ route }) {
             </Text>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
               {wallet.securityStructureDesc}
-
             </Text>
           </Box>
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivateOrganization /> : <OrganizationIcon />}
+            <ThemedSvg name={'organization_icon'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
@@ -705,7 +695,7 @@ function ConfirmWalletDetails({ route }) {
         close={() => {
           setVisibleModal(false);
         }}
-        title={wallet.tapRootBenefits}
+        title={wallet.derivationPath}
         subTitle={''}
         modalBackground={
           privateTheme || PrivateThemeLight

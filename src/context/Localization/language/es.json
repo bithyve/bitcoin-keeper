@@ -671,7 +671,8 @@
     "securityStructure": "Security Structure",
     "securityStructureDesc": "The derivation path defines how keys and addresses are generated. For example, multisig wallets use specific paths to securely split control across multiple devices.",
     "Organization": "Organization",
-    "OrganizationDesc": "Paths help your wallet keep track of different accounts, types of transactions (receiving vs change), and even different coins."
+    "OrganizationDesc": "Paths help your wallet keep track of different accounts, types of transactions (receiving vs change), and even different coins.",
+    "derivationPath": "Choosing Derivation Path"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
