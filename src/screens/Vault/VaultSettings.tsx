@@ -38,6 +38,7 @@ import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -72,6 +73,11 @@ function VaultSettings({ route }) {
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
   const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
 
   const cleanUp = () => {
     setVisible(false);
@@ -129,16 +135,10 @@ function VaultSettings({ route }) {
         <Box style={styles.illustration}>
           {privateTheme || privateThemeLight ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
         </Box>
-        <Text
-          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          style={styles.modalDesc}
-        >
+        <Text color={green_modal_text_color} style={styles.modalDesc}>
           {vaultText.keeperSupportSigningDevice}
         </Text>
-        <Text
-          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          style={styles.modalDesc}
-        >
+        <Text color={green_modal_text_color} style={styles.modalDesc}>
           {vaultText.additionalOptionForSignDevice}
         </Text>
       </Box>
@@ -328,28 +328,16 @@ function VaultSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={vaultText.keeperVault}
         subTitle={vaultText.vaultLearnMoreSubtitle}
-        modalBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.primaryBackground`
-            : `${colorMode}.pantoneGreen`
-        }
-        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={`${colorMode}.textGreen`}
-        buttonBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.modalWhiteButton`
-        }
-        secButtonTextColor={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.modalGreenSecButtonText`
-        }
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        secButtonTextColor={green_modal_sec_button_text}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setNeedHelpModal(false);

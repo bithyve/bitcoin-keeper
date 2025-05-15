@@ -30,18 +30,16 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigation, CommonActions, StackActions } from '@react-navigation/native';
 import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/services/wallets/operations';
 import { UTXO } from 'src/services/wallets/interfaces';
-import HexagonIcon from 'src/components/HexagonIcon';
 import idx from 'idx';
 import Buttons from 'src/components/Buttons';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
@@ -58,6 +56,7 @@ import { TouchableOpacity } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { NumberInput } from '../AddWalletScreen/AddNewWallet';
 import WalletHeader from 'src/components/WalletHeader';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -121,8 +120,7 @@ function SendScreen({ route }) {
   const totalUtxosAmount = selectedUTXOs?.reduce((sum, utxo) => sum + utxo.value, 0);
   const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false);
   const [localTotalRecipients, setLocalTotalRecipients] = useState(totalRecipients);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
+  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
 
   const visibleWallets = useMemo(
     () =>
@@ -447,13 +445,7 @@ function SendScreen({ route }) {
                             width={29}
                             height={26}
                             icon={getSmallWalletIcon(selectedWallet)}
-                            backgroundColor={
-                              privateTheme
-                                ? Colors.goldenGradient
-                                : isDarkMode
-                                ? Colors.DullGreenDark
-                                : Colors.primaryGreen
-                            }
+                            backgroundColor={HexagonIcon}
                           />
                         </Box>
                         <Text color={`${colorMode}.primaryText`}>

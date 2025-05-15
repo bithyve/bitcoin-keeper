@@ -34,6 +34,7 @@ import Text from 'src/components/KeeperText';
 import AdditionalUserPrivate from 'src/assets/privateImages/additional-user-illustration.svg';
 import { useSelector } from 'react-redux';
 import ConfirmDeleteGoldIllustration from 'src/assets/privateImages/Confirm-Deletion-gold.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 enum SecondaryVerificationOptionActionType {
   ADD = 'ADD',
@@ -71,6 +72,10 @@ function AdditionalUsers({ route }: any) {
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
   const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
   const [additionalUserData, setAdditionalUserData] = useState(
     (idx(signer, (_) => _.signerPolicy.secondaryVerification) || []).map((option) => {
       return {
@@ -232,18 +237,10 @@ function AdditionalUsers({ route }: any) {
         title="Additional Users"
         subTitle="Here you can add and manage additional users to whom you would like to give access to your Server Key. Each user will have their own 2FA code, and a set of permissions for the actions they are allowed to access with your Server Key."
         buttonText="Add New User"
-        buttonBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.modalWhiteButton`
-        }
-        buttonTextColor={`${colorMode}.textGreen`}
-        modalBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.primaryBackground`
-            : `${colorMode}.pantoneGreen`
-        }
-        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        buttonBackground={green_modal_button_background}
+        buttonTextColor={green_modal_button_text}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
         buttonCallback={() => {
           setAddNewUserModal(true);
           setAdditionalUser(false);

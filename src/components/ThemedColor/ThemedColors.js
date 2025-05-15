@@ -132,7 +132,7 @@ const themeColors = {
     DARK: Colors.SoftGray,
     LIGHT: Colors.brightCream,
     PRIVATE: Colors.headerWhite,
-    PRIVATE_LIGHT: Colors.headerWhite,
+    PRIVATE_LIGHT: Colors.goldenGradient,
   },
   home_header_circle_background: {
     DARK: Colors.headerWhite,
@@ -157,6 +157,36 @@ const themeColors = {
     LIGHT: Colors.headerWhite,
     PRIVATE: Colors.headerWhite,
     PRIVATE_LIGHT: Colors.secondaryBlack,
+  },
+  login_text_color: {
+    DARK: Colors.headerWhite,
+    LIGHT: Colors.headerWhite,
+    PRIVATE: Colors.headerWhite,
+    PRIVATE_LIGHT: Colors.charcolBrown,
+  },
+  seedTextColor: {
+    DARK: Colors.TropicalRainForestDark,
+    LIGHT: Colors.TagLight2,
+    PRIVATE: Colors.goldenGradient,
+    PRIVATE_LIGHT: Colors.goldenGradient,
+  },
+  manage_signer_backGround: {
+    DARK: Colors.charcolBrown,
+    LIGHT: Colors.primaryGreen,
+    PRIVATE: Colors.goldenGradient,
+    PRIVATE_LIGHT: Colors.goldenGradient,
+  },
+  signing_CircleIconWrapper: {
+    DARK: Colors.secondaryBlack,
+    LIGHT: Colors.primaryCream,
+    PRIVATE: Colors.goldenGradient,
+    PRIVATE_LIGHT: Colors.primaryCream,
+  },
+  signing_device_card_background: {
+    DARK: Colors.SecondaryBackgroundDark,
+    LIGHT: Colors.WarmIvory,
+    PRIVATE: Colors.charcolBrown,
+    PRIVATE_LIGHT: Colors.WarmIvory,
   },
 };
 

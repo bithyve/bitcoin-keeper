@@ -19,6 +19,7 @@ import MenuOption from 'src/components/MenuOption';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 interface AddKeyOption {
   icon: JSX.Element;
@@ -151,6 +152,11 @@ function CollaborativeModals({
   const isDarkMode = colorMode === 'dark';
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
 
   const handleTryAnotherMethod = () => {
     setNfcModal?.(false);
@@ -166,20 +172,14 @@ function CollaborativeModals({
           DarkCloseIcon
           title={vaultText.collaborativeVaultTitle}
           subTitle={vaultText.collaborativeVaultSubtitle}
-          modalBackground={
-            privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
-          }
-          textColor={`${colorMode}.headerWhite`}
+          modalBackground={green_modal_background}
+          textColor={green_modal_text_color}
           Content={() => <AddCoSignerContent privateTheme={privateTheme} />}
           buttonText={common.Okay}
           secondaryButtonText={common.needHelp}
-          buttonTextColor={`${colorMode}.textGreen`}
-          buttonBackground={
-            privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
-          }
-          secButtonTextColor={
-            privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
-          }
+          buttonTextColor={green_modal_button_text}
+          buttonBackground={green_modal_button_background}
+          secButtonTextColor={green_modal_sec_button_text}
           secondaryIcon={<ConciergeNeedHelp />}
           secondaryCallback={() => {
             setLearnMoreModal?.(false);

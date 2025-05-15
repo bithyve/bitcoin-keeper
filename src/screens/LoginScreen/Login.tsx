@@ -48,6 +48,7 @@ import Relay from 'src/services/backend/Relay';
 import { setAccountManagerDetails } from 'src/store/reducers/concierge';
 import Fonts from 'src/constants/Fonts';
 import PrivateLightDeleteIcon from 'src/assets/privateImages/keypad-private-delete-icon.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -78,8 +79,10 @@ function LoginScreen({ navigation, route }) {
 
   const themeMode = useAppSelector((state) => state.settings.themeMode);
 
-  const privateThemeDark = themeMode === 'PRIVATE';
   const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
+
+  const slider_background = ThemedColor({ name: 'slider_background' });
+  const login_text_color = ThemedColor({ name: 'login_text_color' });
 
   const [canLogin, setCanLogin] = useState(false);
   const {
@@ -414,46 +417,25 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box
-      style={styles.content}
-      safeAreaTop
-      backgroundColor={
-        privateThemeDark || PrivateThemeLight
-          ? `${colorMode}.primaryBackground`
-          : `${colorMode}.pantoneGreen`
-      }
-    >
+    <Box style={styles.content} safeAreaTop backgroundColor={slider_background}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
           <Box>
             <Box style={styles.testnetIndicatorWrapper}>{isTestnet() && <TestnetIndicator />}</Box>
-            <Text
-              color={PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`}
-              fontSize={25}
-              style={styles.welcomeText}
-            >
+            <Text color={login_text_color} fontSize={25} style={styles.welcomeText}>
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
               <Box style={styles.passcodeWrapper}>
-                <Text
-                  fontSize={14}
-                  color={
-                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
-                  }
-                >
+                <Text fontSize={14} color={login_text_color}>
                   {login.enter_your}
                   {login.passcode}
                 </Text>
                 <PinDotView
                   passCode={passcode}
-                  dotColor={
-                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
-                  }
-                  borderColor={
-                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
-                  }
+                  dotColor={login_text_color}
+                  borderColor={login_text_color}
                 />
               </Box>
             </Box>
@@ -471,7 +453,7 @@ function LoginScreen({ navigation, route }) {
             onPressNumber={onPressNumber}
             ClearIcon={PrivateThemeLight ? <PrivateLightDeleteIcon /> : <DeleteIcon />}
             bubbleEffect
-            keyColor={PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`}
+            keyColor={login_text_color}
           />
           <Box style={styles.btnWrapper}>
             <Buttons

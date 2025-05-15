@@ -87,6 +87,7 @@ import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-il
 import PrivateSeedSignerSetupImage from 'src/assets/privateImages/seedSigner-illustration.svg';
 import PrivateMy_Keeper from 'src/assets/privateImages/mobileKeyIllustration.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 const { width } = Dimensions.get('screen');
 
@@ -137,6 +138,12 @@ function SignerAdvanceSettings({ route }: any) {
   const { isOnL4 } = usePlan();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
+
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
 
   const signer: Signer = signerFromParam
     ? signers.find((signer) => getKeyUID(signer) === getKeyUID(signerFromParam)) // to reflect associated contact image in real time
@@ -958,10 +965,7 @@ function SignerAdvanceSettings({ route }: any) {
     return (
       <Box>
         <Center>{assert}</Center>
-        <Text
-          color={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          style={styles.contentDescription}
-        >
+        <Text color={green_modal_text_color} style={styles.contentDescription}>
           {description}
         </Text>
       </Box>
@@ -1146,22 +1150,16 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setDetailModal(false)}
         title={!signer.isBIP85 ? title : `${title} +`}
         subTitle={subTitle}
-        modalBackground={
-          privateTheme ? `${colorMode}.modalPrivateBackground` : `${colorMode}.pantoneGreen`
-        }
-        textColor={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
         Content={SignerContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.textGreen`}
-        buttonBackground={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
-        }
-        secButtonTextColor={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
-        }
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        secButtonTextColor={green_modal_sec_button_text}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setDetailModal(false);

@@ -11,6 +11,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import PrivateVaultIllustration from 'src/assets/privateImages/refreshModalIcon.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function LinkedWalletContent({ privateTheme }) {
   return (
@@ -34,6 +35,8 @@ function LearnMoreModal({ introModal, setIntroModal }) {
   const { common } = translations;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+
   return (
     <KeeperModal
       visible={introModal}
@@ -42,9 +45,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       }}
       title="Pull Down to Refresh"
       subTitle="If you want to check the latest status of a transaction, simply pull down the transaction list and it will fetch the latest status and wallet balance."
-      modalBackground={
-        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
-      }
+      modalBackground={green_modal_background}
       textColor={`${colorMode}.headerWhite`}
       Content={() => <LinkedWalletContent privateTheme={privateTheme} />}
       DarkCloseIcon

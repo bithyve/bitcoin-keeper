@@ -1,8 +1,6 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { Pressable, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import HexagonIcon from 'src/components/HexagonIcon';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
@@ -16,13 +14,12 @@ import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import BTC from 'src/assets/images/btc.svg';
 import { useContext, useState } from 'react';
-import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
 import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
-import { useSelector } from 'react-redux';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 type SelectWalletParams = {
   handleSelectWallet: (wallet: Wallet | Vault) => void;
@@ -58,8 +55,7 @@ function WalletItem({
   const variation = !isDarkMode ? 'dark' : 'light';
   const isSelected = wallet.id === selectedWalletId;
   const borderColor = isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.dullGreyBorder`;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
+  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
 
   const handlePress = () => {
     if (isSelected) {
@@ -83,13 +79,7 @@ function WalletItem({
           <HexagonIcon
             width={42}
             height={36}
-            backgroundColor={
-              privateTheme
-                ? Colors.goldenGradient
-                : isDarkMode
-                ? Colors.DullGreenDark
-                : Colors.primaryGreen
-            }
+            backgroundColor={HexagonIcon}
             icon={getWalletIcon(wallet)}
           />
           <Text style={styles.walletName} color={`${colorMode}.primaryText`}>

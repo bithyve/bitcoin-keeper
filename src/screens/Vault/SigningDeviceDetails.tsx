@@ -104,6 +104,7 @@ import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-il
 import PrivateSeedSignerSetupImage from 'src/assets/privateImages/seedSigner-illustration.svg';
 import PrivateMy_Keeper from 'src/assets/privateImages/mobileKeyIllustration.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -323,7 +324,14 @@ function SigningDeviceDetails({ route }) {
   const { session } = useContext(HCESessionContext);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const manage_signer_backGround = ThemedColor({ name: 'manage_signer_backGround' });
+  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
+  const signing_CircleIconWrapper = ThemedColor({ name: 'signing_CircleIconWrapper' });
 
   const cleanUp = () => {
     setNfcVisible(false);
@@ -838,19 +846,13 @@ function SigningDeviceDetails({ route }) {
   const footerItems = !vaultKey ? signerFooterItems : vaultSignerFooterItems;
 
   return (
-    <Box
-      safeAreaTop
-      backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
-      style={[styles.wrapper]}
-    >
+    <Box safeAreaTop backgroundColor={manage_signer_backGround} style={[styles.wrapper]}>
       <Box style={styles.topSection}>
         <KeeperHeader
           contrastScreen
           learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
           learnMorePressed={() => setDetailModal(true)}
-          learnBackgroundColor={
-            privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`
-          }
+          learnBackgroundColor={manage_signer_backGround}
           learnTextColor={`${colorMode}.buttonText`}
           mediumTitle
           title={signer?.signerName === 'Signing Server' ? 'Server Key' : signer?.signerName}
@@ -859,13 +861,7 @@ function SigningDeviceDetails({ route }) {
           subtitle={getSignerDescription(signer)}
           icon={
             <CircleIconWrapper
-              backgroundColor={
-                privateTheme
-                  ? `${colorMode}.pantoneGreen`
-                  : colorMode === 'dark'
-                  ? `${colorMode}.primaryBackground`
-                  : `${colorMode}.thirdBackground`
-              }
+              backgroundColor={signing_CircleIconWrapper}
               icon={
                 SDIcons({ type: signer.type, light: colorMode === 'dark', width: 26, height: 26 })
                   .Icon
@@ -908,11 +904,7 @@ function SigningDeviceDetails({ route }) {
                       <HexagonIcon
                         width={38}
                         height={34}
-                        backgroundColor={
-                          privateTheme || privateThemeLight
-                            ? Colors.goldenGradient
-                            : Colors.primaryGreen
-                        }
+                        backgroundColor={HexagonIcon}
                         icon={getWalletIcon(vault)}
                       />
                     }
@@ -997,22 +989,16 @@ function SigningDeviceDetails({ route }) {
               close={() => setDetailModal(false)}
               title={!signer.isBIP85 ? title : `${title} +`}
               subTitle={subTitle}
-              modalBackground={
-                privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
-              }
-              textColor={`${colorMode}.headerWhite`}
+              modalBackground={green_modal_background}
+              textColor={green_modal_text_color}
               Content={SignerContent}
               subTitleWidth={wp(280)}
               DarkCloseIcon
               buttonText={common.Okay}
               secondaryButtonText={common.needHelp}
-              buttonTextColor={`${colorMode}.textGreen`}
-              buttonBackground={
-                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
-              }
-              secButtonTextColor={
-                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
-              }
+              buttonTextColor={green_modal_button_text}
+              buttonBackground={green_modal_button_background}
+              secButtonTextColor={green_modal_sec_button_text}
               secondaryIcon={<ConciergeNeedHelp />}
               secondaryCallback={() => {
                 setDetailModal(false);
