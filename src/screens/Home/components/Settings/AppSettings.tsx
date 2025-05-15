@@ -22,10 +22,8 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NetworkIcon from 'src/assets/privateImages/network-icon.svg';
-import { clearHasCreds } from 'src/store/reducers/login';
-import { setAppCreated } from 'src/store/reducers/storage';
 
-const SettingsApp = ({ navigation }: any) => {
+const SettingsApp = () => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { settings, common } = useContext(LocalizationContext).translations;
@@ -48,23 +46,6 @@ const SettingsApp = ({ navigation }: any) => {
         <NetworkModeIcon width={16.5} height={16} />
       ),
       onPress: () => setNetworkModeModal(true),
-      isDiamond: false,
-    },
-    {
-      title: 'Add another account',
-      description: 'You can add another account or duress wallet',
-      icon: privateTheme ? (
-        <NetworkIcon width={16.5} height={16} />
-      ) : (
-        <NetworkModeIcon width={16.5} height={16} />
-      ),
-      onPress: () => {
-        dispatch(clearHasCreds());
-        dispatch(setAppCreated(false));
-        navigation.replace('LoginStack', {
-          screen: 'CreatePin',
-        });
-      },
       isDiamond: false,
     },
   ];
