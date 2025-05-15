@@ -354,8 +354,9 @@ function* changeLoginMethodWorker({
 }) {
   try {
     const { method, pubKey } = payload;
+    const keeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     if (method === LoginMethod.BIOMETRIC) {
-      const savePubKey = yield call(SecureStore.storeBiometricPubKey, pubKey);
+      const savePubKey = yield call(SecureStore.storeBiometricPubKey, pubKey, keeperApp?.id);
       if (savePubKey) {
         yield put(setLoginMethod(method));
       }
