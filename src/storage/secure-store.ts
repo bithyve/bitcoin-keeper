@@ -41,10 +41,13 @@ export const fetch = async (hash_current: string) => {
   try {
     let allAccounts = reduxStore.getState().account.allAccounts;
     if (!allAccounts.length) {
-      allAccounts = [{ accountIdentifier: '' }];
+      allAccounts = [{ accountIdentifier: undefined }];
     }
     for (const index in allAccounts) {
-      const identifier = allAccounts[index].accountIdentifier;
+      const identifier =
+        allAccounts[index].accountIdentifier == ''
+          ? undefined
+          : allAccounts[index].accountIdentifier;
       const credentials = await Keychain.getGenericPassword({
         service: identifier,
       });
@@ -70,10 +73,13 @@ export const hasPin = async () => {
     let allAccounts = reduxStore.getState().account.allAccounts;
     // if allAccounts is empty | upgraded app with old passcode configuration
     if (!allAccounts.length) {
-      allAccounts = [{ accountIdentifier: '' }];
+      allAccounts = [{ accountIdentifier: undefined }];
     }
     for (const index in allAccounts) {
-      const identifier = allAccounts[index].accountIdentifier;
+      const identifier =
+        allAccounts[index].accountIdentifier == ''
+          ? undefined
+          : allAccounts[index].accountIdentifier;
       const credentials = await Keychain.getGenericPassword({
         service: identifier,
       });
