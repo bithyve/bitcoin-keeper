@@ -109,9 +109,8 @@ export const remove = async (key) => {
 export const storeBiometricPubKey = async (pubKey: string, appId) => {
   try {
     const allAccounts = reduxStore.getState().account.allAccounts;
-    const identifier = allAccounts.length
-      ? allAccounts.find((account) => account.appId === appId).accountIdentifier
-      : '';
+    const identifier =
+      allAccounts.find((account) => account.appId === appId)?.accountIdentifier || undefined;
     const credentials = await Keychain.getGenericPassword({ service: identifier });
     const password = JSON.parse(credentials.password);
     const reset = await Keychain.resetGenericPassword({ service: identifier });
@@ -136,7 +135,8 @@ export const storeBiometricPubKey = async (pubKey: string, appId) => {
 export const verifyBiometricAuth = async (signature: string, payload: string) => {
   try {
     const allAccounts = reduxStore.getState().account.allAccounts;
-    const identifier = allAccounts.find((account) => account.appId === payload).accountIdentifier;
+    let identifier = allAccounts.find((account) => account.appId === payload).accountIdentifier;
+    if (identifier == '') identifier = undefined;
     const keychain = await Keychain.getGenericPassword({ service: identifier });
     if (!keychain) {
       throw Error('Failed to get keychain');
