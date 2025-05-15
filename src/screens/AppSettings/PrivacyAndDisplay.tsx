@@ -208,6 +208,7 @@ function PrivacyAndDisplay({ route }) {
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [credsChanged, setCredsChanged] = useState('');
   const { isOnL4 } = usePlan();
+  const { allAccounts } = useAppSelector((state) => state.account);
 
   useEffect(() => {
     if (credsChanged === 'changed') {
@@ -267,6 +268,7 @@ function PrivacyAndDisplay({ route }) {
   };
 
   const onChangeLoginMethod = async () => {
+    if (allAccounts.length > 1) return;
     try {
       const { available } = await RNBiometrics.isSensorAvailable();
       if (available) {
@@ -312,7 +314,7 @@ function PrivacyAndDisplay({ route }) {
                   : settings.NoBiometricSubTitle
               }
               callback={() => onChangeLoginMethod()}
-              disabled={!sensorType}
+              disabled={!sensorType || allAccounts.length > 1}
               Icon={
                 sensorAvailable || !sensorType ? (
                   <Switch
