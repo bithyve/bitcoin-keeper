@@ -175,6 +175,9 @@ export type AppStackParams = {
   ShareQR: undefined;
   PurchaseWithChannel: undefined;
   AddMultipleXpub: undefined;
+  ContactScanQr: undefined;
+  ContactShareQr: undefined;
+  ChatRoomScreen: undefined;
 };
 
 // Usage:

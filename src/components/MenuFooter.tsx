@@ -11,6 +11,9 @@ import Text from './KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Colors from 'src/theme/Colors';
 import { useSelector } from 'react-redux';
+import ContactGreyIcon from 'src/assets/images/contact-grey-icon.svg';
+import ContactGreenIcon from 'src/assets/images/contact-green-icon.svg';
+import ContactwhiteIcon from 'src/assets/images/contact-white-icon.svg';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
@@ -36,6 +39,17 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
       name: wallet.concierge,
       defaultIcon: <ConciergeIcon />,
       selectedIcon: <ThemedSvg name={'footer_concierge'} />,
+    },
+    {
+      name: wallet.contact,
+      defaultIcon: <ContactGreyIcon />,
+      selectedIcon: privateTheme ? (
+        <ContactGreenIcon />
+      ) : isDarkMode ? (
+        <ContactwhiteIcon />
+      ) : (
+        <ContactGreenIcon />
+      ),
     },
     {
       name: wallet.more,

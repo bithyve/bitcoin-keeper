@@ -20,6 +20,8 @@ import KeeperSettings from './components/Settings/keeperSettings';
 import { useNavigation } from '@react-navigation/native';
 import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import Contact from './components/Contact/Contact';
+import ContactGreenIcon from 'src/assets/images/contact-green-icon.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function NewHomeScreen({ route }) {
@@ -101,6 +103,23 @@ function NewHomeScreen({ route }) {
                   style={{ marginRight: wp(1), marginBottom: hp(1) }}
                 />
               }
+              backgroundColor={
+                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
+              }
+            />
+          ),
+        };
+      case wallet.contact:
+        return {
+          content: (
+            <Box>
+              <Contact />
+            </Box>
+          ),
+          icon: (
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={privateTheme ? <ContactGreenIcon /> : <ContactGreenIcon />}
               backgroundColor={
                 privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
               }
