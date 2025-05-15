@@ -11,7 +11,7 @@ export const store = async (hash: string, enc_key: string, identifier: string) =
       const identifier = allAccounts[index].accountIdentifier;
       let credentials;
       credentials = await Keychain.getGenericPassword({
-        service: identifier,
+        service: identifier == '' ? undefined : identifier,
       });
       if (credentials) {
         const password = JSON.parse(credentials.password);
@@ -27,7 +27,7 @@ export const store = async (hash: string, enc_key: string, identifier: string) =
         enc_key,
       }),
       {
-        service: identifier,
+        service: identifier == '' ? undefined : identifier,
         accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
       }
     );
@@ -168,7 +168,7 @@ export const fetchSpecific = async (hash_current: string, appId: string) => {
     const allAccounts = reduxStore.getState().account.allAccounts;
     const identifier = allAccounts.find((account) => account.appId === appId).accountIdentifier;
     const credentials = await Keychain.getGenericPassword({
-      service: identifier,
+      service: identifier == '' ? undefined : identifier,
     });
     if (credentials) {
       const password = JSON.parse(credentials.password);

@@ -58,7 +58,7 @@ import { connectToNode } from '../sagaActions/network';
 import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
-import { addAccount, setTempDetails } from '../reducers/account';
+import { addAccount, setTempDetails, updatePasscodeHash } from '../reducers/account';
 import { REALM_FILE } from 'src/storage/realm/realm';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
@@ -332,10 +332,17 @@ function* changeAuthCredWorker({ payload }) {
     const decryptedKey = yield call(decrypt, hash, encryptedKey);
     const newHash = yield call(hash512, newPasscode);
     const newEncryptedKey = yield call(encrypt, newHash, decryptedKey);
-    if (!(yield call(SecureStore.store, newHash, newEncryptedKey))) {
+    // pass current accounts identifier
+    const appId = yield select((state: RootState) => state.storage.appId);
+    const { allAccounts } = yield select((state: RootState) => state.account);
+    const currentAccount = allAccounts.find((account) => account.appId === appId);
+    if (
+      !(yield call(SecureStore.store, newHash, newEncryptedKey, currentAccount.accountIdentifier))
+    ) {
       return;
     }
-    yield call(SecureStore.remove, hash);
+    yield call(SecureStore.store, newHash, newEncryptedKey, currentAccount.accountIdentifier);
+    yield put(updatePasscodeHash({ newHash, appId }));
     yield put(credsChanged('changed'));
   } catch (err) {
     console.log({
