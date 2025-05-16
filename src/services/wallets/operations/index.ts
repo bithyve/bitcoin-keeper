@@ -489,7 +489,10 @@ export default class WalletOperations {
           ? 0
           : wallet.specs.nextFreeChangeAddressIndex - gapLimit;
 
-      const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+      const addressCache: AddressCache = {
+        external: wallet.specs.addresses?.external || {},
+        internal: wallet.specs.addresses?.internal || {},
+      };
       const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
       let balances: Balances = {
         confirmed: 0,
