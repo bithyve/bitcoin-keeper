@@ -171,7 +171,7 @@ function LoginScreen({ navigation, route }) {
 
   const biometricAuth = async () => {
     if (
-      (allAccounts.length === 0 && loginMethod === 'biometric') ||
+      (allAccounts.length === 0 && loginMethod === LoginMethod.BIOMETRIC) ||
       (allAccounts.length > 0 && biometricEnabledAppId !== null)
     ) {
       try {
@@ -188,7 +188,7 @@ function LoginScreen({ navigation, route }) {
               setLogging(true);
               setLoginError(false);
               dispatch(
-                credsAuth(signature, LoginMethod.BIOMETRIC, false, biometricEnabledAppId ?? '')
+                credsAuth(signature, LoginMethod.BIOMETRIC, false, biometricEnabledAppId ?? appId)
               );
             }
           }

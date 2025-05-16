@@ -270,7 +270,15 @@ function* credentialsAuthWorker({ payload }) {
             (state: RootState) => state.bhr
           );
           if (pendingAllBackup && automaticCloudBackup) yield put(backupAllSignersAndVaults());
-          if (!allAccounts.length) yield put(addAccount(appId));
+          if (!allAccounts.length) {
+            // upgraded app
+            yield put(addAccount(appId));
+            const existingLoginMethod = yield select(
+              (state: RootState) => state.settings.loginMethod
+            );
+            if (existingLoginMethod == LoginMethod.BIOMETRIC)
+              yield put(setBiometricEnabledAppId(keeperApp?.id));
+          }
           yield put(loadConciergeUserOnLogin({ appId: keeperApp.id }));
           yield put(
             setLoginMethod(
