@@ -48,6 +48,11 @@ export interface MiniscriptTxSelectedSatisfier {
     nLockTime?: number;
     nSequence?: number;
   };
+  selectedScriptWitnesses?: {
+    asm: string;
+    nLockTime?: number;
+    nSequence?: number;
+  }[];
 }
 
 export interface MiniscriptScheme {
