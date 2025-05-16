@@ -420,8 +420,8 @@ export const runRealmMigrations = ({
       const oldWallet = oldWallets[i];
       const { specs: oldSpecs } = oldWallet;
       const { specs: newSpecs } = newWallet;
-      newSpecs.addresses = oldSpecs.addresses ?? null;
-      newSpecs.addressPubs = oldSpecs.addressPubs ?? null;
+      newSpecs.addresses = oldSpecs?.addresses ? { ...oldSpecs.addresses } : null;
+      newSpecs.addressPubs = oldSpecs?.addressPubs ? { ...oldSpecs?.addressPubs } : null;
       newSpecs.balances = {
         confirmed: oldSpecs.balances?.confirmed ?? 0,
         unconfirmed: oldSpecs.balances?.unconfirmed ?? 0,
@@ -433,8 +433,8 @@ export const runRealmMigrations = ({
       const oldVault = oldVaults[i];
       const { specs: oldSpecs } = oldVault;
       const { specs: newSpecs } = newVault;
-      newSpecs.addresses = oldSpecs.addresses;
-      newSpecs.addressPubs = oldSpecs.addressPubs;
+      newSpecs.addresses = { ...oldSpecs?.addresses };
+      newSpecs.addressPubs = { ...oldSpecs?.addressPubs };
       newSpecs.balances = {
         confirmed: oldSpecs.balances?.confirmed ?? 0,
         unconfirmed: oldSpecs.balances?.unconfirmed ?? 0,
@@ -443,7 +443,9 @@ export const runRealmMigrations = ({
       if (newVault.type === VaultType.MINISCRIPT) {
         const { miniscriptScheme: oldMiniscriptScheme } = oldVault.scheme;
         const { miniscriptScheme: newMiniscriptScheme } = newVault.scheme;
-        newMiniscriptScheme.keyInfoMap = oldMiniscriptScheme?.keyInfoMap || null;
+        newMiniscriptScheme.keyInfoMap = oldMiniscriptScheme?.keyInfoMap
+          ? { ...oldMiniscriptScheme?.keyInfoMap }
+          : null;
         newMiniscriptScheme.miniscriptElements = {
           ...oldMiniscriptScheme.miniscriptElements,
           signerFingerprints: oldMiniscriptScheme.miniscriptElements.signerFingerprints,

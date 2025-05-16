@@ -12,14 +12,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import PrivacyIcon from 'src/assets/images/privacy.svg';
-import EfficiencyIcon from 'src/assets/images/efficiency.svg';
-import SaclingIcon from 'src/assets/images/scaling.svg';
-import SecurityIcon from 'src/assets/images/security.svg';
-import PrivatePrivacyIcon from 'src/assets/privateImages/privacy.svg';
-import PrivateEfficiencyIcon from 'src/assets/privateImages/efficiency.svg';
-import PrivateSaclingIcon from 'src/assets/privateImages/scaling.svg';
-import PrivateSecurityIcon from 'src/assets/privateImages/security.svg';
 
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -59,6 +51,7 @@ import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { CTACardDotted } from 'src/components/CTACardDotted';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -191,53 +184,53 @@ function ConfirmWalletDetails({ route }) {
       <Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivatePrivacyIcon /> : <PrivacyIcon />}
+            <ThemedSvg name={'wallet_Recovery_icon'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
-              {wallet.tapRootPrivacy}
+              {wallet.walletRecovery}
             </Text>
-            <Text color={green_modal_text_color} style={styles.tapRootDescText}>
-              {wallet.tapRootPrivacyDesc}
+            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
+              {wallet.walletRecoveryDesc}
             </Text>
           </Box>
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivateEfficiencyIcon /> : <EfficiencyIcon />}
+            <ThemedSvg name={'efficiency_icon'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
-              {wallet.tapRootEfficiency}
+              {wallet.compatibility}
             </Text>
             <Text color={green_modal_text_color} style={styles.tapRootDescText}>
-              {wallet.tapRootEfficiencyDesc}
+              {wallet.compatibilityDesc}
             </Text>
           </Box>
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivateSaclingIcon /> : <SaclingIcon />}
+            <ThemedSvg name={'security_iocn'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
-              {wallet.tapRootScalable}
+              {wallet.securityStructure}
             </Text>
             <Text color={green_modal_text_color} style={styles.tapRootDescText}>
-              {wallet.tapRootScalableDesc}
+              {wallet.securityStructureDesc}
             </Text>
           </Box>
         </Box>
         <Box style={styles.tapRootContainer}>
           <Box style={styles.tapRootIconWrapper}>
-            {privateTheme ? <PrivateSecurityIcon /> : <SecurityIcon />}
+            <ThemedSvg name={'organization_icon'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
-              {wallet.tapRootSecurity}
+              {wallet.Organization}
             </Text>
             <Text color={green_modal_text_color} style={styles.tapRootDescText}>
-              {wallet.tapRootSecurityDesc}
+              {wallet.OrganizationDesc}
             </Text>
           </Box>
         </Box>
@@ -703,7 +696,7 @@ function ConfirmWalletDetails({ route }) {
         close={() => {
           setVisibleModal(false);
         }}
-        title={wallet.tapRootBenefits}
+        title={wallet.derivationPath}
         subTitle={''}
         modalBackground={green_modal_background}
         textColor={green_modal_text_color}
