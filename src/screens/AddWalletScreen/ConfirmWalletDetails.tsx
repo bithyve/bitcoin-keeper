@@ -188,6 +188,7 @@ function ConfirmWalletDetails({ route }) {
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
+
               {wallet.walletRecovery}
             </Text>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
@@ -217,6 +218,7 @@ function ConfirmWalletDetails({ route }) {
               {wallet.securityStructure}
             </Text>
             <Text color={green_modal_text_color} style={styles.tapRootDescText}>
+
               {wallet.securityStructureDesc}
             </Text>
           </Box>
@@ -230,6 +232,7 @@ function ConfirmWalletDetails({ route }) {
               {wallet.Organization}
             </Text>
             <Text color={green_modal_text_color} style={styles.tapRootDescText}>
+
               {wallet.OrganizationDesc}
             </Text>
           </Box>
