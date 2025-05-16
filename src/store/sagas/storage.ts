@@ -36,7 +36,7 @@ import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
 import { RootState } from '../store';
 import { addAccount } from '../reducers/account';
-import { loadConciergeUser } from '../reducers/concierge';
+import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
@@ -113,8 +113,8 @@ export function* setupKeeperAppWorker({ payload }) {
       yield put(setAppId(appID));
       yield put(setAppCreated(true));
       yield put(resetRealyWalletState());
-      const conciergeUser = yield select((state: RootState) => state.concierge);
-      if (conciergeUser.conciergeUser) yield put(loadConciergeUser(null));
+      yield put(loadConciergeUser(null));
+      yield put(loadConciergeTickets([]));
     } else {
       yield put(setAppCreationError(true));
     }
