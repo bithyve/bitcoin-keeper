@@ -135,7 +135,7 @@ export const storeBiometricPubKey = async (pubKey: string, appId) => {
 export const verifyBiometricAuth = async (signature: string, payload: string) => {
   try {
     const allAccounts = reduxStore.getState().account.allAccounts;
-    let identifier = allAccounts.find((account) => account.appId === payload).accountIdentifier;
+    let identifier = allAccounts.find((account) => account.appId === payload)?.accountIdentifier;
     if (identifier == '') identifier = undefined;
     const keychain = await Keychain.getGenericPassword({ service: identifier });
     if (!keychain) {
