@@ -22,7 +22,7 @@ import CollaborativeWalletIcon from 'src/assets/images/collaborative_vault_white
 
 import { useAppSelector } from 'src/store/hooks';
 import { resetCollaborativeSession } from 'src/store/reducers/vaults';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { autoSyncWallets, refreshWallets } from 'src/store/sagaActions/wallets';
 import { RefreshControl } from 'react-native';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
@@ -59,10 +59,11 @@ const HomeWallet = () => {
     (item) => item !== null
   );
   const [isShowAmount, setIsShowAmount] = useState(false);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const DashedCta_hexagonBackgroundColor = ThemedColor({
     name: 'DashedCta_hexagonBackgroundColor',
+  });
+  const dashed_CTA_background = ThemedColor({
+    name: 'dashed_CTA_background',
   });
 
   const handleCollaborativeWalletCreation = () => {
@@ -148,7 +149,7 @@ const HomeWallet = () => {
     <Box style={styles.walletContainer}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
-        backgroundColor={privateThemeLight ? `transparent` : `${colorMode}.dullGreen`}
+        backgroundColor={dashed_CTA_background}
         hexagonBackgroundColor={DashedCta_hexagonBackgroundColor}
         textColor={`${colorMode}.greenWhiteText`}
         name="Add Wallet"

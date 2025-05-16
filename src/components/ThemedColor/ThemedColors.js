@@ -224,6 +224,18 @@ const themeColors = {
     PRIVATE: Colors.secondaryBlack,
     PRIVATE_LIGHT: Colors.primaryCream,
   },
+  dashed_CTA_background: {
+    DARK: Colors.MistSlate,
+    LIGHT: Colors.dullGreen,
+    PRIVATE: 'transparent',
+    PRIVATE_LIGHT: Colors.MistSlate,
+  },
+  optioncontainer_background: {
+    DARK: 'transparent',
+    LIGHT: 'transparent',
+    PRIVATE: Colors.charcolBrown,
+    PRIVATE_LIGHT: 'transparent',
+  },
 };
 
 export default themeColors;

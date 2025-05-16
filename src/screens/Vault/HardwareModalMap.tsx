@@ -26,44 +26,11 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
-import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
-import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import RecoverImage from 'src/assets/images/recover_white.svg';
-
 import KeeperModal from 'src/components/KeeperModal';
-
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
-import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
-import PrivateMy_Keeper from 'src/assets/privateImages/mobileKeyIllustration.svg';
-import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import SeedSignerSetupImage from 'src/assets/images/seedsigner-setup-horizontal.svg';
-import PrivateSeedSignerSetupImage from 'src/assets/privateImages/seedSigner-illustration.svg';
-import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import ExternalKeySetupImage from 'src/assets/images/illustration-external-key.svg';
-import KeeperSetupImage from 'src/assets/images/mobile-key-illustration.svg';
-import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import PortalIllustration from 'src/assets/images/portal_illustration.svg';
-import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
-import BitboxImage from 'src/assets/images/bitboxSetup.svg';
-import PrivateBitboxImage from 'src/assets/privateImages/bitBox-illustration.svg';
-import PrivateColdCard from 'src/assets/privateImages/coldCard-illustration.svg';
-import PrivateJade from 'src/assets/privateImages/jade-illustrationsvg.svg';
-import PrivateKeyStone from 'src/assets/privateImages/keystone-illustration.svg';
-import PrivateLedger from 'src/assets/privateImages/ledger-illustration.svg';
-import PrivatePassport from 'src/assets/privateImages/passport-illustration.svg';
-import PrivatePortal from 'src/assets/privateImages/portal-illustration.svg';
-import PrivateSpector from 'src/assets/privateImages/spector-illustration.svg';
-import PrivateTapSigner from 'src/assets/privateImages/tapsigner-illustration.svg';
-import PrivateTrezor from 'src/assets/privateImages/trezor-illustration.svg';
-import PrivateSeedKey from 'src/assets/privateImages/seedKey-illustration.svg';
-import PrivateOtherSigner from 'src/assets/privateImages/otherSigner-illustration.svg';
-import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-ilustration.svg';
-import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
@@ -79,7 +46,7 @@ import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { hash512 } from 'src/utils/service-utilities/encryption';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
@@ -129,10 +96,10 @@ import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import * as bitcoin from 'bitcoinjs-lib';
-import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import BackupModalContent from '../AppSettings/BackupModal';
 import SignerOptionCard from './components/signerOptionCard';
 import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -162,14 +129,12 @@ const getSignerContent = (
   keyGenerationMode: KeyGenerationMode
 ) => {
   const { tapsigner, coldcard, ledger, bitbox, trezor, externalKey, common } = translations;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   switch (type) {
     case SignerType.COLDCARD:
       return {
         type: SignerType.COLDCARD,
-        Illustration: privateTheme ? <PrivateColdCard /> : <ColdCardSetupImage />,
+        Illustration: <ThemedSvg name={'coldCard_illustration'} />,
         Instructions: [
           'Export the Coldcard data by going to Advanced/Tools > Export wallet > Generic JSON.',
           'Or instead, use the Keeper Desktop app to connect to the Coldcard via USB',
@@ -247,7 +212,7 @@ const getSignerContent = (
       }
       return {
         type: SignerType.JADE,
-        Illustration: privateTheme ? <PrivateJade /> : <JadeSVG />,
+        Illustration: <ThemedSvg name={'jade_illustration'} />,
         Instructions: instructions,
         title: isHealthcheck
           ? 'Verify Blockstream Jade'
@@ -283,7 +248,7 @@ const getSignerContent = (
     case SignerType.KEEPER:
       return {
         type: SignerType.KEEPER,
-        Illustration: privateTheme ? <PrivateMy_Keeper /> : <ExternalKeySetupImage />,
+        Illustration: <ThemedSvg name={'external_Key_illustration'} />,
         Instructions: [externalKey.modalInstruction1, externalKey.modalInstruction2],
         title: isHealthcheck
           ? `${common.verify} ${getSignerNameFromType(type)}`
@@ -331,13 +296,12 @@ const getSignerContent = (
     case SignerType.MY_KEEPER:
       return {
         type: SignerType.MY_KEEPER,
-        Illustration: privateTheme ? (
-          <PrivateMy_Keeper />
-        ) : isHealthcheck ? (
-          <SeedWordsIllustration />
+        Illustration: isHealthcheck ? (
+          <ThemedSvg name={'SeedSetupIllustration'} />
         ) : (
-          <KeeperSetupImage />
+          <ThemedSvg name={'external_Key_illustration'} />
         ),
+        // external_Key_illustration
         Instructions: isHealthcheck
           ? [
               'Make sure you secure the 12-word phrase in a safe place.',
@@ -358,7 +322,7 @@ const getSignerContent = (
     case SignerType.MOBILE_KEY:
       return {
         type: SignerType.MOBILE_KEY,
-        Illustration: privateTheme ? <PrivateMy_Keeper /> : <MobileKeyIllustration />,
+        Illustration: <ThemedSvg name={'external_Key_illustration'} />,
         Instructions: [
           "Make sure that this wallet's Recovery Key is backed-up properly to secure this key.",
         ],
@@ -372,7 +336,7 @@ const getSignerContent = (
         : 'Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet';
       return {
         type: SignerType.KEYSTONE,
-        Illustration: privateTheme ? <PrivateKeyStone /> : <KeystoneSetupImage />,
+        Illustration: <ThemedSvg name={'keyStone_illustration'} />,
         Instructions: isTestnet()
           ? [
               keystoneInstructions,
@@ -416,7 +380,7 @@ const getSignerContent = (
       } > QR Code.\n`;
       return {
         type: SignerType.PASSPORT,
-        Illustration: privateTheme ? <PrivatePassport /> : <PassportSVG />,
+        Illustration: <ThemedSvg name={'passport_illustration'} />,
         Instructions: isTestnet()
           ? [
               passportInstructions,
@@ -460,11 +424,7 @@ const getSignerContent = (
         : "The Server Key is a key stored securely on Keeper's servers. You can configure it with custom spending rules and use it as part of a multi-key wallet setup.";
       return {
         type: SignerType.POLICY_SERVER,
-        Illustration: privateTheme ? (
-          <PrivateServerKeyIllustration />
-        ) : (
-          <SigningServerIllustration />
-        ),
+        Illustration: <ThemedSvg name={'signing_server_illustration'} />,
         Instructions: isHealthcheck
           ? ['A request to the signer will be made to checks its health']
           : [
@@ -518,11 +478,7 @@ const getSignerContent = (
 
       return {
         type: SignerType.SEEDSIGNER,
-        Illustration: privateTheme ? (
-          <PrivateSeedSignerSetupImage width={180} height={180} />
-        ) : (
-          <SeedSignerSetupImage />
-        ),
+        Illustration: <ThemedSvg name={'seedSigner_illustration'} />,
         Instructions: isTestnet()
           ? [
               seedSignerInstructions,
@@ -545,7 +501,7 @@ const getSignerContent = (
       } > Native Segwit.\n`;
       return {
         type: SignerType.SPECTER,
-        Illustration: privateTheme ? <PrivateSpector /> : <SpecterSetupImage />,
+        Illustration: <ThemedSvg name={'specter_illustration'} />,
         Instructions: isTestnet()
           ? [
               specterInstructions,
@@ -563,7 +519,7 @@ const getSignerContent = (
     case SignerType.BITBOX02:
       return {
         type: SignerType.BITBOX02,
-        Illustration: privateTheme ? <PrivateBitboxImage /> : <BitboxImage />,
+        Illustration: <ThemedSvg name={'bitBox_illustration'} />,
         Instructions: [
           `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with BitBox02.`,
           'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Desktop App.',
@@ -575,7 +531,7 @@ const getSignerContent = (
     case SignerType.TREZOR:
       return {
         type: SignerType.TREZOR,
-        Illustration: privateTheme ? <PrivateTrezor /> : <TrezorSetup />,
+        Illustration: <ThemedSvg name={'trezor_illustration'} />,
         Instructions: [
           `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Trezor.`,
           'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Desktop App.',
@@ -587,7 +543,7 @@ const getSignerContent = (
     case SignerType.LEDGER:
       return {
         type: SignerType.LEDGER,
-        Illustration: privateTheme ? <PrivateLedger /> : <LedgerImage />,
+        Illustration: <ThemedSvg name={'ledger_illustration'} />,
         Instructions: [
           `Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to connect with Ledger.`,
           'Please Make sure you have the BTC app downloaded on Ledger before this step.',
@@ -599,7 +555,7 @@ const getSignerContent = (
     case SignerType.SEED_WORDS:
       return {
         type: SignerType.SEED_WORDS,
-        Illustration: privateTheme ? <PrivateSeedKey /> : <SeedWordsIllustration />,
+        Illustration: <ThemedSvg name={'SeedSetupIllustration'} />,
         Instructions: [
           'Make sure you secure the 12-word phrase in a safe place.',
           'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
@@ -638,7 +594,7 @@ const getSignerContent = (
     case SignerType.TAPSIGNER:
       return {
         type: SignerType.TAPSIGNER,
-        Illustration: privateTheme ? <PrivateTapSigner /> : <TapsignerSetupImage />,
+        Illustration: <ThemedSvg name={'tapSigner_illustration'} />,
         Instructions: [
           'TAPSIGNER communicates with the app over NFC',
           'You will need to enter the latest PIN once you proceed.',
@@ -650,7 +606,7 @@ const getSignerContent = (
     case SignerType.PORTAL:
       return {
         type: SignerType.PORTAL,
-        Illustration: privateTheme ? <PrivatePortal /> : <PortalIllustration />,
+        Illustration: <ThemedSvg name={'portal_illustration'} />,
         Instructions: [
           'The Portal device requires continuous power from the mobile device via NFC to function. ',
           'Place the Portal device on a flat surface, then position the mobile device so that its NFC aligns with the Portal.',
@@ -662,7 +618,7 @@ const getSignerContent = (
     case SignerType.OTHER_SD:
       return {
         type: SignerType.OTHER_SD,
-        Illustration: privateTheme ? <PrivateOtherSigner /> : <OtherSDSetup />,
+        Illustration: <ThemedSvg name={'otherSigner_illustration'} />,
         Instructions: [
           'Provide the Signer details either by entering them or scanning',
           'The hardened part of the derivation path of the xpub has to be denoted with a "h" or "\'". Please do not use any other character',

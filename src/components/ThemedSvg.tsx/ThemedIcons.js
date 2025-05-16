@@ -101,7 +101,6 @@ import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-s
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
 import PrivateImagePlaceHolder from 'src/assets/privateImages/contact-image-placeholder.svg';
-import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
 import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
 import PrivateHardwareKey from 'src/assets/privateImages/hard-key.svg';
 import HardwareSignerWhite from 'src/assets/images/SignerWhiteHardware.svg';
@@ -202,6 +201,20 @@ import PrivateVaultIllustration from 'src/assets/privateImages/refreshModalIcon.
 import VaultSetupIcon from 'src/assets/images/pull-down-wallet.svg';
 import PrivateVaultSettingIcon from 'src/assets/privateImages/vault_setup.svg';
 import VaultSettingIcon from 'src/assets/images/vault_setup.svg';
+import SeedSetupIllustration from 'src/assets/images/illustration_seed_words.svg';
+import PrivateSeedKey from 'src/assets/privateImages/seedKey-illustration.svg';
+import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
+import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-ilustration.svg';
+import BitboxImage from 'src/assets/images/bitboxSetup.svg';
+import PrivateBitboxImage from 'src/assets/privateImages/bitBox-illustration.svg';
+import PrivateTrezor from 'src/assets/privateImages/trezor-illustration.svg';
+import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import PrivateLedger from 'src/assets/privateImages/ledger-illustration.svg';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
+import PrivateSigningServerBackupIllustration from 'src/assets/privateImages/Backup-Server-Key-illustration.svg';
+import SigningServerBackupIllustration from 'src/assets/images/backup-server-illustration.svg';
+import WalletVault from 'src/assets/images/vault-hexa-green.svg';
+import PrivateWalletVault from 'src/assets/privateImages/hexa-vault.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -534,6 +547,25 @@ const themeIcons = {
     PRIVATE: PrivateJadeIllustration,
     PRIVATE_LIGHT: PrivateJadeIllustration,
   },
+  ledger_illustration: {
+    DARK: LedgerImage,
+    LIGHT: LedgerImage,
+    PRIVATE: PrivateLedger,
+    PRIVATE_LIGHT: PrivateLedger,
+  },
+  signing_server_illustration: {
+    DARK: SigningServerIllustration,
+    LIGHT: SigningServerIllustration,
+    PRIVATE: PrivateServerKeyIllustration,
+    PRIVATE_LIGHT: PrivateServerKeyIllustration,
+  },
+  SeedSetupIllustration: {
+    DARK: SeedSetupIllustration,
+    LIGHT: SeedSetupIllustration,
+    PRIVATE: PrivateSeedKey,
+    PRIVATE_LIGHT: PrivateSeedKey,
+  },
+
   otherSigner_illustration: {
     DARK: OtherSDImage,
     LIGHT: OtherSDImage,
@@ -545,6 +577,18 @@ const themeIcons = {
     LIGHT: KeeperSetup,
     PRIVATE: PrivateKeeperSetup,
     PRIVATE_LIGHT: PrivateKeeperSetup,
+  },
+  bitBox_illustration: {
+    DARK: BitboxImage,
+    LIGHT: BitboxImage,
+    PRIVATE: PrivateBitboxImage,
+    PRIVATE_LIGHT: PrivateBitboxImage,
+  },
+  trezor_illustration: {
+    DARK: TrezorSetup,
+    LIGHT: TrezorSetup,
+    PRIVATE: PrivateTrezor,
+    PRIVATE_LIGHT: PrivateTrezor,
   },
   tapSigner_illustration: {
     DARK: TapsignerSetupSVG,
@@ -558,6 +602,7 @@ const themeIcons = {
     PRIVATE: PrivatePortalIllustration,
     PRIVATE_LIGHT: PrivatePortalIllustration,
   },
+
   wallet_Recovery_icon: {
     DARK: WalletRecoveryIcon,
     LIGHT: WalletRecoveryIcon,
@@ -707,6 +752,18 @@ const themeIcons = {
     LIGHT: VaultSettingIcon,
     PRIVATE: PrivateVaultSettingIcon,
     PRIVATE_LIGHT: PrivateVaultSettingIcon,
+  },
+  signing_server_backup_modal_illustration: {
+    DARK: SigningServerBackupIllustration,
+    LIGHT: SigningServerBackupIllustration,
+    PRIVATE: PrivateSigningServerBackupIllustration,
+    PRIVATE_LIGHT: PrivateSigningServerBackupIllustration,
+  },
+  WalletVault: {
+    DARK: WalletVault,
+    LIGHT: WalletVault,
+    PRIVATE: PrivateWalletVault,
+    PRIVATE_LIGHT: PrivateWalletVault,
   },
 };
 

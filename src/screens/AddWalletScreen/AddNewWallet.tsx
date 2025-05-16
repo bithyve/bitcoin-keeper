@@ -25,7 +25,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Colors from 'src/theme/Colors';
-import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
@@ -72,10 +71,9 @@ function AddNewWallet({ navigation, route }) {
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
   const { vaultId } = route.params || {};
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const DashedCtaTextColor = ThemedColor({ name: 'DashedCtaTextColor' });
   const DashedCtaBorderColor = ThemedColor({ name: 'DashedCtaBorderColor' });
+  const dashed_CTA_background = ThemedColor({ name: 'dashed_CTA_background' });
   const { activeVault } = useVault({ vaultId });
   const [scheme, setScheme] = useState(
     activeVault ? { m: activeVault.scheme.m, n: activeVault.scheme.n } : { m: 2, n: 3 }
@@ -210,7 +208,7 @@ function AddNewWallet({ navigation, route }) {
       <Box style={styles.footer}>
         <DashedCta
           textPosition="left"
-          backgroundColor={PrivateThemeLight ? 'transparent' : `${colorMode}.dullGreen`}
+          backgroundColor={dashed_CTA_background}
           hexagonBackgroundColor={isDarkMode ? Colors.DeepCharcoalGreen : `${colorMode}.dullGreen`}
           textColor={DashedCtaTextColor}
           name="Enhanced Security Options"
