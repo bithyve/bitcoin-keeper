@@ -11,10 +11,11 @@ export const CREDS_AUTHENTICATED = 'CREDS_AUTHENTICATED';
 export const AUTH_CRED_CHANGED = 'AUTH_CRED_CHANGED';
 export const PIN_CHANGED_FAILED = 'PIN_CHANGED_FAILED';
 
-export const storeCreds = (passcode) => ({
+export const storeCreds = (passcode, callback = null) => ({
   type: STORE_CREDS,
   payload: {
     passcode,
+    callback,
   },
 });
 

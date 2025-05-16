@@ -26,6 +26,7 @@ import {
 import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
 import {
   deleteDelayedPolicyUpdate,
+  setAppCreated,
   setAppId,
   setDefaultWalletCreated,
   updateDelayedTransaction,
@@ -34,6 +35,8 @@ import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
 import { RootState } from '../store';
+import { addAccount } from '../reducers/account';
+import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
@@ -86,6 +89,8 @@ export function* setupKeeperAppWorker({ payload }) {
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);
 
+      yield put(addAccount(appID));
+
       const defaultWallet: NewWalletInfo = {
         walletType: WalletType.DEFAULT,
         walletDetails: {
@@ -106,7 +111,10 @@ export function* setupKeeperAppWorker({ payload }) {
       yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
       yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
       yield put(setAppId(appID));
+      yield put(setAppCreated(true));
       yield put(resetRealyWalletState());
+      yield put(loadConciergeUser(null));
+      yield put(loadConciergeTickets([]));
     } else {
       yield put(setAppCreationError(true));
     }

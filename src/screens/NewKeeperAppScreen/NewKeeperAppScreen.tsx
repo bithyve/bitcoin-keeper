@@ -99,7 +99,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { appRecreated, appImageError } = useAppSelector((state) => state.bhr);
-  const appCreated = useAppSelector((state) => state.storage.appId);
+  const { appCreated } = useAppSelector((state) => state.storage);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
