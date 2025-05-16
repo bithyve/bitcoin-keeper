@@ -21,10 +21,12 @@ const initialState: {
   allAccounts: Account[];
   tempDetails: tempDetails;
   conciergeUsers: ConciergeUsers;
+  biometricEnabledAppId: string;
 } = {
   allAccounts: [],
   tempDetails: null,
   conciergeUsers: {},
+  biometricEnabledAppId: null,
 };
 
 const accountSlice = createSlice({
@@ -61,6 +63,9 @@ const accountSlice = createSlice({
     ) => {
       state.conciergeUsers[action.payload.appId] = action.payload.conciergeUser;
     },
+    setBiometricEnabledAppId: (state, action: PayloadAction<string>) => {
+      state.biometricEnabledAppId = action.payload;
+    },
   },
 });
 
@@ -70,5 +75,6 @@ export const {
   resetTempDetails,
   updatePasscodeHash,
   addConciergeUserToAccount,
+  setBiometricEnabledAppId,
 } = accountSlice.actions;
 export default accountSlice.reducer;

@@ -58,7 +58,12 @@ import { connectToNode } from '../sagaActions/network';
 import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
 import { setAutomaticCloudBackup } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
-import { addAccount, setTempDetails, updatePasscodeHash } from '../reducers/account';
+import {
+  addAccount,
+  setBiometricEnabledAppId,
+  setTempDetails,
+  updatePasscodeHash,
+} from '../reducers/account';
 import { REALM_FILE } from 'src/storage/realm/realm';
 import { loadConciergeUserOnLogin } from '../sagaActions/account';
 
@@ -146,7 +151,10 @@ function* credentialsAuthWorker({ payload }) {
       if (payload.reLogin) encryptedKey = yield call(SecureStore.fetchSpecific, hash, appId);
       else encryptedKey = yield call(SecureStore.fetch, hash);
     } else if (method === LoginMethod.BIOMETRIC) {
-      const res = yield call(SecureStore.verifyBiometricAuth, payload.passcode, appId);
+      let res;
+      if (payload.reLogin)
+        res = yield call(SecureStore.verifyBiometricAuth, payload.passcode, appId);
+      else res = yield call(SecureStore.verifyBiometricAuth, payload.passcode, payload.appId);
       if (!res.success) throw new Error('Biometric Auth Failed');
       hash = res.hash;
       encryptedKey = res.encryptedKey;
@@ -158,7 +166,9 @@ function* credentialsAuthWorker({ payload }) {
     if (!key) throw new Error('Encryption key is missing');
     // case: login
     if (!payload.reLogin) {
-      const { allAccounts } = yield select((state: RootState) => state.account);
+      const { allAccounts, biometricEnabledAppId } = yield select(
+        (state: RootState) => state.account
+      );
       const currentAccount = allAccounts.find((account) => account.hash === hash);
       const uint8array = yield call(stringToArrayBuffer, key);
       const { success, error } = yield call(
@@ -262,6 +272,11 @@ function* credentialsAuthWorker({ payload }) {
           if (pendingAllBackup && automaticCloudBackup) yield put(backupAllSignersAndVaults());
           if (!allAccounts.length) yield put(addAccount(appId));
           yield put(loadConciergeUserOnLogin({ appId: keeperApp.id }));
+          yield put(
+            setLoginMethod(
+              keeperApp.id === biometricEnabledAppId ? LoginMethod.BIOMETRIC : LoginMethod.PIN
+            )
+          );
         } catch (error) {
           yield put(setRecepitVerificationError(true));
           yield put(credsAuthenticatedError(error));
@@ -368,12 +383,14 @@ function* changeLoginMethodWorker({
       const savePubKey = yield call(SecureStore.storeBiometricPubKey, pubKey, keeperApp?.id);
       if (savePubKey) {
         yield put(setLoginMethod(method));
+        if (keeperApp?.id) yield put(setBiometricEnabledAppId(keeperApp?.id));
       }
     } else {
       yield put(setLoginMethod(method));
+      yield put(setBiometricEnabledAppId(null));
     }
   } catch (err) {
-    console.log('Failed to change login method');
+    console.log('🚀 ~ changeLoginMethodWorker:', err);
   }
 }
 

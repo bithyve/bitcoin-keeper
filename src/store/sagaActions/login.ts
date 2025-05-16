@@ -34,12 +34,18 @@ export const setLoginMethod = (method: LoginMethod) => ({
   },
 });
 
-export const credsAuth = (passcode: string, method: LoginMethod, reLogin?: boolean) => ({
+export const credsAuth = (
+  passcode: string,
+  method: LoginMethod,
+  reLogin?: boolean,
+  appId: string = ''
+) => ({
   type: CREDS_AUTH,
   payload: {
     passcode,
     reLogin,
     method,
+    appId,
   },
 });
 

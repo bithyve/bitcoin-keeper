@@ -35,8 +35,9 @@ import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
 import { RootState } from '../store';
-import { addAccount } from '../reducers/account';
+import { addAccount, setBiometricEnabledAppId } from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
+import LoginMethod from 'src/models/enums/LoginMethod';
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
@@ -115,6 +116,11 @@ export function* setupKeeperAppWorker({ payload }) {
       yield put(resetRealyWalletState());
       yield put(loadConciergeUser(null));
       yield put(loadConciergeTickets([]));
+      const { loginMethod } = yield select((state: RootState) => state.settings);
+      if (loginMethod === LoginMethod.BIOMETRIC) {
+        const { allAccounts } = yield select((state: RootState) => state.account);
+        if (allAccounts.length == 1) yield put(setBiometricEnabledAppId(appID));
+      }
     } else {
       yield put(setAppCreationError(true));
     }
