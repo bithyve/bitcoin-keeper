@@ -748,7 +748,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 508;
+				CURRENT_PROJECT_VERSION = 509;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -874,7 +874,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Bithyve UK Ltd (Y5TCB759QL)";
-				CURRENT_PROJECT_VERSION = 508;
+				CURRENT_PROJECT_VERSION = 509;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1144,7 +1144,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 508;
+				CURRENT_PROJECT_VERSION = 509;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
@@ -1275,7 +1275,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CURRENT_PROJECT_VERSION = 508;
+				CURRENT_PROJECT_VERSION = 509;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
