@@ -7,8 +7,8 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
-import { useSelector } from 'react-redux';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 type Props = {
   data: string;
@@ -23,8 +23,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
+  const copyToClipboard = ThemedColor({ name: 'copyToClipboard' });
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
@@ -49,7 +48,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
       </Box>
       <Pressable
         testID={`btn_copyToClipboard${data}`}
-        backgroundColor={privateTheme ? `${colorMode}.separator` : `${colorMode}.textColor`}
+        backgroundColor={copyToClipboard}
         style={styles.iconContainer}
         onPress={() => {
           Clipboard.setString(data);

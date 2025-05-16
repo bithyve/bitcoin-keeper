@@ -7,18 +7,21 @@ import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import debounce from 'lodash.debounce';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 type Props = {
   setPermittedActions: (value: boolean) => void;
   setAddNewUserModal: (value: boolean) => void;
   setNewUserName: (value: string) => void;
   newUserName: string;
-  privateTheme: boolean;
 };
 
 const NewUserContent = (props: Props) => {
   const { colorMode } = useColorMode();
   const [username, setUserName] = useState('');
+  const input_border_color = ThemedColor({
+    name: 'input_border_color',
+  });
 
   useEffect(() => {
     if (props.newUserName) {
@@ -42,9 +45,7 @@ const NewUserContent = (props: Props) => {
       <KeeperTextInput
         placeholder="Enter Your Name/label"
         placeholderTextColor={`${colorMode}.placeHolderTextColor`}
-        inpuBorderColor={
-          props.privateTheme ? `${colorMode}.dullGreyBorder` : `${colorMode}.textInputBackground`
-        }
+        inpuBorderColor={input_border_color}
         value={username}
         onChangeText={handleChangeText}
       />

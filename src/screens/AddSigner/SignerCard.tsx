@@ -5,7 +5,7 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { getPersistedDocument } from 'src/services/documents';
-import { useSelector } from 'react-redux';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 type SignerCardProps = {
   name: string;
@@ -34,7 +34,6 @@ type SignerCardProps = {
   titleSize?: number;
   subtitleFont?: number;
   badgeText?: string;
-  privateTheme?: boolean;
 };
 
 function SignerCard({
@@ -84,8 +83,8 @@ function SignerCard({
   ];
 
   const isPressable = !disabled;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const badgeText_background = ThemedColor({ name: 'badgeText_background' });
+  const badgeText_color = ThemedColor({ name: 'badgeText_color' });
 
   return (
     <Pressable
@@ -103,17 +102,13 @@ function SignerCard({
           position="absolute"
           top={hp(10)}
           right={0}
-          bg={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.BrownNeedHelp`}
+          bg={badgeText_background}
           px={3}
           py={1}
           borderTopLeftRadius={5}
           borderBottomLeftRadius={5}
         >
-          <Text
-            color={privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.buttonText`}
-            fontSize={10}
-            medium
-          >
+          <Text color={badgeText_color} fontSize={10} medium>
             {badgeText}
           </Text>
         </Box>

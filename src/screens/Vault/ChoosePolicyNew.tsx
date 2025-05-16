@@ -24,10 +24,6 @@ import { useAppSelector } from 'src/store/hooks';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { setSignerPolicyError } from 'src/store/reducers/wallets';
 import WalletHeader from 'src/components/WalletHeader';
-import DelayModalIcon from 'src/assets/images/delay-configuration-icon.svg';
-import DelaycompleteIcon from 'src/assets/images/delay-configuration-complete-icon.svg';
-import PrivateDelayCompleteIcon from 'src/assets/privateImages/delay-configuration-complete-icon 1.svg';
-import PrivateDelayNodalIcon from 'src/assets/privateImages/delayModalIcon.svg';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import { fetchDelayedPolicyUpdate } from 'src/store/sagaActions/storage';
 import { NetworkType } from 'src/services/wallets/enums';
@@ -46,9 +42,8 @@ import {
   OFF,
 } from './constants';
 import ServerKeyPolicyCard from './components/ServerKeyPolicyCard';
-import UpdatePolicyIllustration from 'src/assets/images/UpdatePolicyIllustration.svg';
-import PrivateUpdatePolicyIllustration from 'src/assets/privateImages/UpdatePolicyIllustration.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -58,9 +53,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const { signingServer, common, vault: vaultTranslation } = translations;
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
-
+  const needHelpModalBackground = ThemedColor({ name: 'needHelpModalBackground' });
   const { maxTransaction, timelimit, delayTime, addSignerFlow } = route.params;
 
   const [spendingLimit, setSpendingLimit] = useState(null);
@@ -310,7 +303,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const showDelayModal = useCallback(() => {
     return (
       <Box style={styles.delayModalContainer}>
-        {privateTheme ? <PrivateDelayNodalIcon /> : <DelayModalIcon />}
+        <ThemedSvg name={'DelayModalIcon'} />
         <Box
           style={styles.timeContainer}
           backgroundColor={
@@ -336,7 +329,7 @@ function ChoosePolicyNew({ navigation, route }) {
     return (
       <Box style={styles.delayModalContainer}>
         <Box style={styles.iconContainer}>
-          {privateTheme ? <PrivateDelayCompleteIcon /> : <DelaycompleteIcon />}
+          <ThemedSvg name={'DelaycompleteIcon'} />
         </Box>
 
         <Box style={styles.buttonContainer}>
@@ -365,7 +358,7 @@ function ChoosePolicyNew({ navigation, route }) {
     return (
       <Box>
         <Box style={styles.illustration}>
-          {privateTheme ? <PrivateUpdatePolicyIllustration /> : <UpdatePolicyIllustration />}
+          <ThemedSvg name={'UpdatePolicyIllustration'} />
         </Box>
         <Text style={styles.modalDesc}>{signingServer.UpdatePolicyInfoModalContent}</Text>
       </Box>
@@ -456,9 +449,7 @@ function ChoosePolicyNew({ navigation, route }) {
         close={() => setNeedHelpModal(false)}
         title={signingServer.UpdatePolicyInfoModalTitle}
         subTitle={signingServer.UpdatePolicyInfoModalSubTitle}
-        modalBackground={
-          privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.modalWhiteBackground`
-        }
+        modalBackground={needHelpModalBackground}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={modalContent}

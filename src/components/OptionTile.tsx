@@ -3,7 +3,7 @@ import { Image, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import Text from './KeeperText';
-import { useSelector } from 'react-redux';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 type OptionTileProps = {
   title: string;
@@ -15,17 +15,11 @@ type OptionTileProps = {
 
 function OptionTile({ title, icon, customStyle, callback, image }: OptionTileProps) {
   const { colorMode } = useColorMode();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const image_containerBackground = ThemedColor({ name: 'image_containerBackground' });
 
   const ImageContainer = () => {
     return (
-      <Box
-        style={styles.associatedContactImageCtr}
-        backgroundColor={
-          privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.primaryGreenBackground`
-        }
-      >
+      <Box style={styles.associatedContactImageCtr} backgroundColor={image_containerBackground}>
         <Image src={image} style={styles.associatedContactImage} />
       </Box>
     );

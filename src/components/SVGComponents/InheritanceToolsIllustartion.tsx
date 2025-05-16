@@ -1,21 +1,7 @@
-import { useColorMode } from 'native-base';
 import * as React from 'react';
-import { useSelector } from 'react-redux';
-import InheritanceToolsIllustration from 'src/assets/images/InheritanceToolsIllustration.svg';
-import InheritanceToolsIllustrationDark from 'src/assets/images/InheritanceToolsIllustrationDark.svg';
-import InhertanceToolsPrivate from 'src/assets/privateImages/inheritance-tool-illustration.svg';
+import ThemedSvg from '../ThemedSvg.tsx/ThemedSvg';
 
 function InheritanceToolsIllustartion() {
-  const { colorMode } = useColorMode();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
-
-  return privateTheme ? (
-    <InhertanceToolsPrivate />
-  ) : colorMode === 'light' ? (
-    <InheritanceToolsIllustration />
-  ) : (
-    <InheritanceToolsIllustrationDark />
-  );
+  return <ThemedSvg name={'InheritanceToolsIllustration'} />;
 }
 export default InheritanceToolsIllustartion;

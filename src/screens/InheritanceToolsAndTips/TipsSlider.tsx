@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, SafeAreaView, FlatList, Dimensions, BackHandler } from 'react-native';
-import { Box, useColorMode } from 'native-base';
-
+import { Box } from 'native-base';
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 import { wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import { useSelector } from 'react-redux';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 const { width } = Dimensions.get('window');
 
 function TipsSlider({ items }) {
   const onboardingSlideRef = useRef(null);
   const [currentPosition, setCurrentPosition] = useState(0);
-  const { colorMode } = useColorMode();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
   const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const slider_background = ThemedColor({ name: 'slider_background' });
 
   useEffect(() => {
     const backAction = () => true;
@@ -54,14 +53,7 @@ function TipsSlider({ items }) {
   };
 
   return (
-    <Box
-      style={styles.container}
-      backgroundColor={
-        privateTheme || PrivateThemeLight
-          ? `${colorMode}.primaryBackground`
-          : `${colorMode}.pantoneGreen`
-      }
-    >
+    <Box style={styles.container} backgroundColor={slider_background}>
       <SafeAreaView style={styles.safeAreaViewWrapper}>
         <Box>
           <FlatList

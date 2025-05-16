@@ -13,7 +13,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import RightArrow from 'src/assets/images/icon_arrow.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { useSelector } from 'react-redux';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 type SigningDeviceCardProps = {
   type: SignerType;
@@ -53,8 +53,7 @@ const SigningDeviceCard = ({
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const signing_device_card_background = ThemedColor({ name: 'signing_device_card_background' });
 
   const onPress = () => {
     if (shouldUpgrade) {
@@ -85,9 +84,7 @@ const SigningDeviceCard = ({
         testID={`btn_${type}`}
       >
         <Box
-          backgroundColor={
-            privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.signerBackground`
-          }
+          backgroundColor={signing_device_card_background}
           borderTopRadius={first ? 10 : 0}
           borderBottomRadius={last ? 10 : 0}
           borderWidth={isDarkMode ? 1 : 0}

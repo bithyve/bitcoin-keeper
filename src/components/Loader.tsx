@@ -3,10 +3,14 @@ import { Box, useColorMode } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
+import { useSelector } from 'react-redux';
 
 function LoadingAnimation() {
   const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
+
   Animated.loop(
     Animated.timing(spinValue, {
       toValue: 1,
@@ -32,7 +36,7 @@ function LoadingAnimation() {
           alignItems: 'flex-start',
         }}
       >
-        <ThemedSvg name={'loader_background'} />
+        <ThemedSvg name={'loader_background'} style={privateTheme ? styles.background : null} />
         <Animated.View style={styles.gear2}>
           <ThemedSvg name={'loader_gear_2'} />
         </Animated.View>
@@ -82,6 +86,6 @@ const getStyles = (clock, antiClock) =>
       transform: [{ rotate: clock }],
     },
     background: {
-      left: '6%',
+      left: '8%',
     },
   });

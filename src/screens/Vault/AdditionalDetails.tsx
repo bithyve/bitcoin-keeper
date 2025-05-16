@@ -9,12 +9,11 @@ import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
 import Fonts from 'src/constants/Fonts';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import useSignerMap from 'src/hooks/useSignerMap';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import OptionTile from 'src/components/OptionTile';
-import PhoneBookIcon from 'src/assets/images/phone-book-circle.svg';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
@@ -24,7 +23,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
-import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -41,8 +40,6 @@ function AdditionalDetails({ route }: ScreenProps) {
   const [hasUpdatedDescription, setHasUpdatedDescription] = useState(false);
   const { thumbnailPath, givenName, familyName } = signer.extraData ?? {};
   const { relaySignersUpdate } = useAppSelector((state) => state.bhr);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   useEffect(() => {
     if (relaySignersUpdate && hasUpdatedDescription) {
@@ -89,7 +86,7 @@ function AdditionalDetails({ route }: ScreenProps) {
                   signer,
                 });
           }}
-          icon={privateTheme ? <PrivateAddContactIcon /> : <PhoneBookIcon />}
+          icon={<ThemedSvg name={'PhoneBookIcon'} />}
           image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
         />
       </VStack>

@@ -19,7 +19,7 @@ import { VisibilityType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
 import BackupModalContent from '../AppSettings/BackupModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import WalletHeader from 'src/components/WalletHeader';
 import SettingCard from '../Home/components/Settings/Component/SettingCard';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
@@ -30,6 +30,7 @@ import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Instruction from 'src/components/Instruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -38,9 +39,11 @@ function WalletSettings({ route }) {
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
   const walletMnemonic = idx(wallet, (_) => _.derivationDetails.mnemonic);
@@ -87,15 +90,15 @@ function WalletSettings({ route }) {
     return (
       <Box>
         <Instruction
-          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          textColor={green_modal_text_color}
           text={'Add descriptions to better identify your wallet.'}
         />
         <Instruction
-          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          textColor={green_modal_text_color}
           text={'Access the xPub to create a watch-only wallet.'}
         />
         <Instruction
-          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          textColor={green_modal_text_color}
           text={'View the Path and Purpose of the wallet.'}
         />
 
@@ -104,15 +107,12 @@ function WalletSettings({ route }) {
         </Box>
 
         <Instruction
-          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          textColor={green_modal_text_color}
           text={
             'Import and Export labels to identify specific UTXOs across transactions and wallets.'
           }
         />
-        <Instruction
-          textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          text={"Access the wallet's seed words."}
-        />
+        <Instruction textColor={green_modal_text_color} text={"Access the wallet's seed words."} />
       </Box>
     );
   }
@@ -255,28 +255,16 @@ function WalletSettings({ route }) {
         visible={needHelpModal}
         close={() => setNeedHelpModal(false)}
         title={walletTranslation.learnMoreTitle}
-        modalBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.primaryBackground`
-            : `${colorMode}.pantoneGreen`
-        }
-        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={privateThemeLight ? `${colorMode}.headerWhite` : `${colorMode}.textGreen`}
-        buttonBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.modalWhiteButton`
-        }
-        secButtonTextColor={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.modalGreenSecButtonText`
-        }
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        secButtonTextColor={green_modal_sec_button_text}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setNeedHelpModal(false);

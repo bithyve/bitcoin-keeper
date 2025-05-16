@@ -11,8 +11,6 @@ import {
 } from 'react-native';
 import Contacts from 'react-native-contacts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SearchIcon from 'src/assets/images/search-icon.svg';
-import PrivateSearchIcon from 'src/assets/privateImages/search-icon.svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -27,8 +25,8 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
-import Colors from 'src/theme/Colors';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function AssociateContact({ route }) {
   const {
@@ -52,8 +50,7 @@ function AssociateContact({ route }) {
   const [selectedContact, setSelectedContact] = useState(null);
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const placeholderTextColor = ThemedColor({ name: 'placeholderTextColor' });
 
   useEffect(() => {
     try {
@@ -145,10 +142,10 @@ function AssociateContact({ route }) {
             backgroundColor={`${colorMode}.boxSecondaryBackground`}
             borderColor={`${colorMode}.dullGreyBorder`}
           >
-            {privateTheme ? <PrivateSearchIcon width={wp(15)} height={hp(15)} /> : <SearchIcon />}
+            <ThemedSvg name={'search_icon'} width={wp(15)} height={hp(15)} />
             <TextInput
               style={styles.input}
-              placeholderTextColor={!privateTheme ? Colors.secondaryDarkGrey : Colors.headerWhite}
+              placeholderTextColor={placeholderTextColor}
               placeholder={common.search}
               value={search}
               onChangeText={setSearch}

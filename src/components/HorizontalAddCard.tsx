@@ -2,11 +2,10 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
-import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
 import HexagonIcon from './HexagonIcon';
-import { useSelector } from 'react-redux';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 type AddSignerCardProps = {
   name: string;
@@ -36,8 +35,7 @@ function HorizontalAddCard({
   icon = <AddCardIcon width={wp(11)} height={hp(11)} />,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
   return (
     <TouchableOpacity
       testID={isAddWallet ? 'btn_add_wallet' : `btn_${name}`}
@@ -60,7 +58,7 @@ function HorizontalAddCard({
           <HexagonIcon
             width={iconWidth}
             height={iconHeight}
-            backgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
+            backgroundColor={HexagonIconColor}
             icon={icon}
           />
         </Box>

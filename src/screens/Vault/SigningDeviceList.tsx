@@ -16,7 +16,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
@@ -31,6 +31,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 const SigningDeviceList = () => {
   const navigation = useNavigation();
@@ -56,9 +57,6 @@ const SigningDeviceList = () => {
   } = route.params as any;
   const { colorMode } = useColorMode();
   const { isOnL1, isOnL2 } = usePlan();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateLightTheme = themeMode === 'PRIVATE_LIGHT';
   const { signers } = useSigners();
   const { translations } = useContext(LocalizationContext);
   const [isNfcSupported, setNfcSupport] = useState(true);
@@ -76,6 +74,12 @@ const SigningDeviceList = () => {
   const [accountNumber, setAccountNumber] = useState(0);
   const [accountNumberText, setAccountNumberText] = useState('');
   const { showToast } = useToastMessage();
+
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
 
   const sortedSigners = {
     [SignerCategory.HARDWARE]: [
@@ -115,10 +119,7 @@ const SigningDeviceList = () => {
         <Box style={styles.alignCenter}>
           <ThemedSvg name={'diversify_hardware'} />
         </Box>
-        <Text
-          color={privateLightTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          style={styles.modalText}
-        >
+        <Text color={green_modal_text_color} style={styles.modalText}>
           {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
         </Text>
       </Box>
@@ -246,29 +247,15 @@ const SigningDeviceList = () => {
         }}
         title={signer.signers}
         subTitle={signer.signerDescription}
-        modalBackground={
-          privateTheme || privateLightTheme
-            ? `${colorMode}.primaryBackground`
-            : `${colorMode}.pantoneGreen`
-        }
-        textColor={privateLightTheme ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
         Content={LearnMoreModalContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={
-          privateTheme || privateLightTheme
-            ? `${colorMode}.whiteSecButtonText`
-            : `${colorMode}.pantoneGreen`
-        }
-        buttonBackground={
-          privateTheme || privateLightTheme
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.whiteSecButtonText`
-        }
-        secButtonTextColor={
-          privateLightTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.whiteSecButtonText`
-        }
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        secButtonTextColor={green_modal_sec_button_text}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           dispatch(setSdIntroModal(false));

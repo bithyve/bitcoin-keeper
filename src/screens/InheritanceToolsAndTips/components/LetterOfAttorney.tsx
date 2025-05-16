@@ -14,8 +14,9 @@ import useSigners from 'src/hooks/useSigners';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function LetterOfAttorney() {
   const { signers } = useSigners();
@@ -29,43 +30,23 @@ function LetterOfAttorney() {
   const { inheritancePlanning } = translations;
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const dispatch = useDispatch();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const slider_background = ThemedColor({ name: 'slider_background' });
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
 
   return (
-    <ScreenWrapper
-      barStyle="dark-content"
-      backgroundcolor={
-        privateTheme || PrivateThemeLight
-          ? `${colorMode}.primaryBackground`
-          : `${colorMode}.pantoneGreen`
-      }
-    >
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={slider_background}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text
-          style={styles.heading}
-          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.heading} color={green_modal_text_color}>
           {inheritancePlanning.letterOfAttorneyTitle}
         </Text>
-        <Text
-          style={styles.description}
-          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.description} color={green_modal_text_color}>
           {inheritancePlanning.letterOfAttorneyDescp}
         </Text>
-        <Text
-          style={styles.commonTextStyle}
-          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.commonTextStyle} color={green_modal_text_color}>
           {inheritancePlanning.letterOfAttorneyP1}
         </Text>
-        <Text
-          style={styles.commonTextStyle}
-          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.commonTextStyle} color={green_modal_text_color}>
           {inheritancePlanning.letterOfAttorneyP2}
         </Text>
         <Box style={styles.circleStyle}>
@@ -85,15 +66,10 @@ function LetterOfAttorney() {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text
-            bold
-            color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          >
+          <Text bold color={green_modal_text_color}>
             Note:
           </Text>
-          <Text color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}>
-            {inheritancePlanning.letterOfAttorneyNotes}
-          </Text>
+          <Text color={green_modal_text_color}>{inheritancePlanning.letterOfAttorneyNotes}</Text>
         </Box>
       </ScrollView>
       <KeeperModal
