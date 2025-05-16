@@ -70,9 +70,6 @@ function VaultSettings({ route }) {
   const labels = useQuery(RealmSchema.Tags, (tags) =>
     tags.filtered('origin == $0', walletDescriptor)
   );
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
@@ -133,7 +130,7 @@ function VaultSettings({ route }) {
     return (
       <Box>
         <Box style={styles.illustration}>
-          {privateTheme || privateThemeLight ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
+          <ThemedSvg name={'vault_setting_icon'} />
         </Box>
         <Text color={green_modal_text_color} style={styles.modalDesc}>
           {vaultText.keeperSupportSigningDevice}

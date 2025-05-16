@@ -9,7 +9,7 @@ import {
   VaultType,
   WalletType,
 } from 'src/services/wallets/enums';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
@@ -32,8 +32,6 @@ import EditIconWhite from 'src/assets/images/edit_white.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useWallets from 'src/hooks/useWallets';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import AddCircleLight from 'src/assets/images/add-circle-light.svg';
-import AddCircleDark from 'src/assets/privateImages/round-White-plus.svg';
 import VaultMigrationController from '../Vault/VaultMigrationController';
 import useVault from 'src/hooks/useVault';
 import CardPill from 'src/components/CardPill';
@@ -101,9 +99,6 @@ function ConfirmWalletDetails({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const vaultType = route.params.vaultType;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const isSmallDevice = useIsSmallDevices();
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
@@ -176,7 +171,7 @@ function ConfirmWalletDetails({ route }) {
     );
   }
 
-  function TapRootContent({ privateTheme }) {
+  function TapRootContent() {
     const { colorMode } = useColorMode();
     const { translations } = useContext(LocalizationContext);
     const { wallet } = translations;
@@ -444,7 +439,7 @@ function ConfirmWalletDetails({ route }) {
           >
             <Box style={styles.descriptionContainer}>
               <Text color={`${colorMode}.greenText`}>Add Description</Text>
-              {privateTheme ? <AddCircleDark /> : <AddCircleLight />}
+              <ThemedSvg name={'add_circle'} />
             </Box>
           </Pressable>
         </Box>
@@ -703,7 +698,7 @@ function ConfirmWalletDetails({ route }) {
         subTitle={''}
         modalBackground={green_modal_background}
         textColor={green_modal_text_color}
-        Content={() => <TapRootContent privateTheme={privateTheme || PrivateThemeLight} />}
+        Content={() => <TapRootContent />}
         showCloseIcon={true}
         DarkCloseIcon
         buttonText={common.Okay}

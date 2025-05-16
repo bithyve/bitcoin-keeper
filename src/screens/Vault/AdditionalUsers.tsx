@@ -5,12 +5,10 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp, wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
-import AdditonalUserIcon from 'src/assets/images/additional_user_icon.svg';
 import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
-import DeleteIllustration from 'src/assets/images/delete-illustration.svg';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/backend/SigningServer';
 import {
@@ -31,10 +29,8 @@ import UserCard from './components/UserCard';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { ScriptTypes } from 'src/services/wallets/enums';
 import Text from 'src/components/KeeperText';
-import AdditionalUserPrivate from 'src/assets/privateImages/additional-user-illustration.svg';
-import { useSelector } from 'react-redux';
-import ConfirmDeleteGoldIllustration from 'src/assets/privateImages/Confirm-Deletion-gold.svg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 enum SecondaryVerificationOptionActionType {
   ADD = 'ADD',
@@ -69,9 +65,6 @@ function AdditionalUsers({ route }: any) {
   const [secondaryVerificationOptions, setSecondaryVerificationOptions] = useState<
     VerificationOption[]
   >(idx(signer, (_) => _.signerPolicy.secondaryVerification) || []);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
@@ -246,9 +239,7 @@ function AdditionalUsers({ route }: any) {
           setAdditionalUser(false);
         }}
         Content={() => (
-          <Box style={styles.modalIcon}>
-            {privateTheme || privateThemeLight ? <AdditionalUserPrivate /> : <AdditonalUserIcon />}
-          </Box>
+          <Box style={styles.modalIcon}>{<ThemedSvg name={'AdditonalUserIcon'} />}</Box>
         )}
       />
 
@@ -269,7 +260,6 @@ function AdditionalUsers({ route }: any) {
             setAddNewUserModal={setAddNewUserModal}
             setNewUserName={setNewUserName}
             newUserName={newUserName}
-            privateTheme={privateTheme || privateThemeLight}
           />
         )}
         buttonCallback={() => {
@@ -330,11 +320,7 @@ function AdditionalUsers({ route }: any) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <Box style={styles.modalIcon}>
-            {privateTheme || privateThemeLight ? (
-              <ConfirmDeleteGoldIllustration />
-            ) : (
-              <DeleteIllustration />
-            )}
+            <ThemedSvg name={'delete_illustration'} />
           </Box>
         )}
         buttonText="Confirm"

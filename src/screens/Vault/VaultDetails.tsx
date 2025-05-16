@@ -14,8 +14,6 @@ import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { VaultType } from 'src/services/wallets/enums';
-import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import PrivateVaultSetupIcon from 'src/assets/privateImages/vault_setup.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
@@ -285,10 +283,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const isDarkMode = colorMode === 'dark';
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(vault);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
-
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
@@ -398,7 +392,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     () => (
       <View style={styles.vaultModalContainer}>
         <Box style={styles.alignSelf}>
-          {privateTheme || privateThemeLight ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
+          <ThemedSvg name={'vault_setting_icon'} />
         </Box>
         {isCanaryWallet ? (
           <Text color={green_modal_text_color} style={styles.modalContent}>

@@ -3,8 +3,6 @@ import { Box, Pressable, useColorMode } from 'native-base';
 import { useDispatch, useSelector } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import BitcoinIllustration from 'src/assets/images/btc-illustration.svg';
-import PrivateBitcoinIllustration from 'src/assets/privateImages/Bitcoin-Illustration.svg';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import NFCLight from 'src/assets/images/nfc-fade-lines-light.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -20,6 +18,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 interface AddKeyOption {
   icon: JSX.Element;
@@ -87,7 +86,7 @@ function NFCModalContent({ onTryAnotherMethod }: { onTryAnotherMethod: () => voi
   );
 }
 
-function AddCoSignerContent({ privateTheme }) {
+function AddCoSignerContent() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
@@ -98,7 +97,7 @@ function AddCoSignerContent({ privateTheme }) {
         {vaultText.collabModalDescription1}
       </Text>
       <Box style={styles.bitcoinIllustration}>
-        {privateTheme ? <PrivateBitcoinIllustration /> : <BitcoinIllustration />}
+        <ThemedSvg name={'btc_illustration'} />
       </Box>
       <Text color={`${colorMode}.headerWhite`} style={styles.addCoSigner}>
         {vaultText.collabModalDescription2}
@@ -150,8 +149,6 @@ function CollaborativeModals({
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
   const isDarkMode = colorMode === 'dark';
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
@@ -174,7 +171,7 @@ function CollaborativeModals({
           subTitle={vaultText.collaborativeVaultSubtitle}
           modalBackground={green_modal_background}
           textColor={green_modal_text_color}
-          Content={() => <AddCoSignerContent privateTheme={privateTheme} />}
+          Content={() => <AddCoSignerContent />}
           buttonText={common.Okay}
           secondaryButtonText={common.needHelp}
           buttonTextColor={green_modal_button_text}

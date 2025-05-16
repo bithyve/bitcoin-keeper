@@ -13,7 +13,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getPersistedDocument } from 'src/services/documents';
 import { getKeyUID } from 'src/utils/utilities';
 import { hp, wp } from 'src/constants/responsive';
-import { useSelector } from 'react-redux';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function SignerList({
   vaultKey,
@@ -32,8 +32,7 @@ function SignerList({
   ).length;
   const signer = signerMap[getKeyUID(vaultKey)];
   const [showIcon, setShowIcon] = useState(null);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const iconContainerBackground = ThemedColor({ name: 'iconContainerBackground' });
 
   useEffect(() => {
     if (hasSignerSigned) {
@@ -48,12 +47,7 @@ function SignerList({
       <Box style={styles.container}>
         <HStack>
           <Box style={styles.iconBox}>
-            <Box
-              style={styles.iconContainer}
-              backgroundColor={
-                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.DarkSlateGray`
-              }
-            >
+            <Box style={styles.iconContainer} backgroundColor={iconContainerBackground}>
               {signer?.extraData?.thumbnailPath ? (
                 <Image
                   src={getPersistedDocument(signer.extraData.thumbnailPath)}

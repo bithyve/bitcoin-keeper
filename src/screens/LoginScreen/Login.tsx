@@ -12,7 +12,6 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
-import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
@@ -47,8 +46,8 @@ import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
 import Relay from 'src/services/backend/Relay';
 import { setAccountManagerDetails } from 'src/store/reducers/concierge';
 import Fonts from 'src/constants/Fonts';
-import PrivateLightDeleteIcon from 'src/assets/privateImages/keypad-private-delete-icon.svg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -77,12 +76,10 @@ function LoginScreen({ navigation, route }) {
     useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L4;
   const { automaticCloudBackup } = useAppSelector((state) => state.bhr);
 
-  const themeMode = useAppSelector((state) => state.settings.themeMode);
-
-  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
-
+  const login_button_backGround = ThemedColor({ name: 'login_button_backGround' });
   const slider_background = ThemedColor({ name: 'slider_background' });
   const login_text_color = ThemedColor({ name: 'login_text_color' });
+  const login_button_text_color = ThemedColor({ name: 'login_button_text_color' });
 
   const [canLogin, setCanLogin] = useState(false);
   const {
@@ -451,7 +448,7 @@ function LoginScreen({ navigation, route }) {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            ClearIcon={PrivateThemeLight ? <PrivateLightDeleteIcon /> : <DeleteIcon />}
+            ClearIcon={<ThemedSvg name="delete_icon" />}
             bubbleEffect
             keyColor={login_text_color}
           />
@@ -463,14 +460,8 @@ function LoginScreen({ navigation, route }) {
               }}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
-              primaryBackgroundColor={
-                isKeeperPrivate ? `${colorMode}.pantoneGreen` : `${colorMode}.buttonText`
-              }
-              primaryTextColor={
-                isKeeperPrivate || PrivateThemeLight
-                  ? `${colorMode}.buttonText`
-                  : `${colorMode}.pantoneGreen`
-              }
+              primaryBackgroundColor={login_button_backGround}
+              primaryTextColor={login_button_text_color}
               fullWidth
             />
           </Box>

@@ -188,6 +188,42 @@ const themeColors = {
     PRIVATE: Colors.charcolBrown,
     PRIVATE_LIGHT: Colors.WarmIvory,
   },
+  placeholderTextColor: {
+    DARK: Colors.secondaryDarkGrey,
+    LIGHT: Colors.secondaryDarkGrey,
+    PRIVATE: Colors.headerWhite,
+    PRIVATE_LIGHT: Colors.secondaryDarkGrey,
+  },
+  login_button_backGround: {
+    DARK: Colors.bodyText,
+    LIGHT: Colors.headerWhite,
+    PRIVATE: Colors.goldenGradient,
+    PRIVATE_LIGHT: Colors.goldenGradient,
+  },
+  login_button_text_color: {
+    DARK: Colors.primaryGreen,
+    LIGHT: Colors.primaryGreen,
+    PRIVATE: Colors.headerWhite,
+    PRIVATE_LIGHT: Colors.headerWhite,
+  },
+  iconContainerBackground: {
+    DARK: Colors.DarkSlateGray,
+    LIGHT: Colors.DarkSlateGray,
+    PRIVATE: Colors.goldenGradient,
+    PRIVATE_LIGHT: Colors.DarkSlateGray,
+  },
+  input_border_color: {
+    DARK: Colors.SecondaryBlack,
+    LIGHT: Colors.brightCream,
+    PRIVATE: Colors.separator,
+    PRIVATE_LIGHT: Colors.SilverMistTranslucent,
+  },
+  needHelpModalBackground: {
+    DARK: Colors.SecondaryBlack,
+    LIGHT: Colors.primaryCream,
+    PRIVATE: Colors.secondaryBlack,
+    PRIVATE_LIGHT: Colors.primaryCream,
+  },
 };
 
 export default themeColors;

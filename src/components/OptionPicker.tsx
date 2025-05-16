@@ -4,11 +4,10 @@ import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
-import TickIcon from 'src/assets/images/icon_check.svg';
 import KeeperModal from './KeeperModal';
-import PrivateTickIcon from 'src/assets/privateImages/tick-icon.svg';
 import { useSelector } from 'react-redux';
 import ThemedColor from './ThemedColor/ThemedColor';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 type Option = {
   label: string;
@@ -70,8 +69,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
             >
               {option.label}
             </Text>
-            {internalSelectedOption?.value === option?.value &&
-              (privateTheme ? <PrivateTickIcon /> : <TickIcon />)}
+            {internalSelectedOption?.value === option?.value && <ThemedSvg name={'tick_icon'} />}
           </Box>
           {index !== options.length - 1 && (
             <Box style={styles.separator} backgroundColor={`${colorMode}.dullGreyBorder`} />

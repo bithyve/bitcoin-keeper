@@ -1,23 +1,22 @@
 import { StyleSheet, View } from 'react-native';
 import React, { useContext } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Box, useColorMode } from 'native-base';
-import VaultSetupIcon from 'src/assets/images/pull-down-wallet.svg';
 import { hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
-import PrivateVaultIllustration from 'src/assets/privateImages/refreshModalIcon.svg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
-function LinkedWalletContent({ privateTheme }) {
+function LinkedWalletContent() {
   return (
     <View style={styles.contentContainer}>
       <Box alignSelf="center">
-        {privateTheme ? <PrivateVaultIllustration /> : <VaultSetupIcon />}
+        <ThemedSvg name={'VaultSetupIcon'} />
       </Box>
       <Text style={styles.contentText}>
         When a transaction (send or receive) is submitted to the bitcoin network from a wallet, it
@@ -33,8 +32,6 @@ function LearnMoreModal({ introModal, setIntroModal }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
 
   return (
@@ -47,7 +44,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       subTitle="If you want to check the latest status of a transaction, simply pull down the transaction list and it will fetch the latest status and wallet balance."
       modalBackground={green_modal_background}
       textColor={`${colorMode}.headerWhite`}
-      Content={() => <LinkedWalletContent privateTheme={privateTheme} />}
+      Content={() => <LinkedWalletContent />}
       DarkCloseIcon
       buttonText={common.Okay}
       secondaryButtonText={common.needHelp}
