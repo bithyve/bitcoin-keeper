@@ -77,6 +77,7 @@ import NFC from 'src/services/nfc';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -295,7 +296,7 @@ function SigningDeviceDetails({ route }) {
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const { session } = useContext(HCESessionContext);
   const manage_signer_backGround = ThemedColor({ name: 'manage_signer_backGround' });
-  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
+  const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
@@ -874,7 +875,7 @@ function SigningDeviceDetails({ route }) {
                       <HexagonIcon
                         width={38}
                         height={34}
-                        backgroundColor={HexagonIcon}
+                        backgroundColor={HexagonIconColor}
                         icon={getWalletIcon(vault)}
                       />
                     }

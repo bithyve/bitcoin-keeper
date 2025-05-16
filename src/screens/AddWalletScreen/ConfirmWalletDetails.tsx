@@ -50,6 +50,7 @@ import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { CTACardDotted } from 'src/components/CTACardDotted';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -105,7 +106,7 @@ function ConfirmWalletDetails({ route }) {
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
   const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
   const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
-  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
+  const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
 
   const { signers } = useSigners();
 
@@ -183,7 +184,6 @@ function ConfirmWalletDetails({ route }) {
           </Box>
           <Box style={styles.tapRootContentWrapper}>
             <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
-
               {wallet.walletRecovery}
             </Text>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
@@ -213,7 +213,6 @@ function ConfirmWalletDetails({ route }) {
               {wallet.securityStructure}
             </Text>
             <Text color={green_modal_text_color} style={styles.tapRootDescText}>
-
               {wallet.securityStructureDesc}
             </Text>
           </Box>
@@ -227,7 +226,6 @@ function ConfirmWalletDetails({ route }) {
               {wallet.Organization}
             </Text>
             <Text color={green_modal_text_color} style={styles.tapRootDescText}>
-
               {wallet.OrganizationDesc}
             </Text>
           </Box>
@@ -255,7 +253,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor={HexagonIcon}
+                backgroundColor={HexagonIconColor}
                 icon={<VaultIcon />}
               />
             </Box>
@@ -321,7 +319,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor={HexagonIcon}
+                backgroundColor={HexagonIconColor}
                 icon={<VaultIcon />}
               />
             </Box>

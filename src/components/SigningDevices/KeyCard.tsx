@@ -5,6 +5,7 @@ import Text from 'src/components/KeeperText';
 import ActionChip from 'src/components/ActionChip';
 import { hp } from 'src/constants/responsive';
 import ThemedColor from '../ThemedColor/ThemedColor';
+import HexagonIcon from '../HexagonIcon';
 
 function KeyCard({
   icon,
@@ -21,7 +22,7 @@ function KeyCard({
   dateAdded,
 }) {
   const { colorMode } = useColorMode();
-  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
+  const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
   return (
     <Box
       backgroundColor={`${colorMode}.seashellWhite`}
@@ -31,7 +32,12 @@ function KeyCard({
       <VStack space={3} width="100%">
         <HStack justifyContent="space-between" alignItems="center">
           <VStack alignItems="center" style={styles.iconContainer}>
-            <HexagonIcon width={40} height={40} backgroundColor={HexagonIcon} icon={icon.element} />
+            <HexagonIcon
+              width={40}
+              height={40}
+              backgroundColor={HexagonIconColor}
+              icon={icon.element}
+            />
             <Text medium style={styles.nameText} color={`${colorMode}.primaryText`}>
               {name}
             </Text>

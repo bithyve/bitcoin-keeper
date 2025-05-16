@@ -57,6 +57,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { NumberInput } from '../AddWalletScreen/AddNewWallet';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -120,7 +121,7 @@ function SendScreen({ route }) {
   const totalUtxosAmount = selectedUTXOs?.reduce((sum, utxo) => sum + utxo.value, 0);
   const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false);
   const [localTotalRecipients, setLocalTotalRecipients] = useState(totalRecipients);
-  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
+  const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
 
   const visibleWallets = useMemo(
     () =>
@@ -445,7 +446,7 @@ function SendScreen({ route }) {
                             width={29}
                             height={26}
                             icon={getSmallWalletIcon(selectedWallet)}
-                            backgroundColor={HexagonIcon}
+                            backgroundColor={HexagonIconColor}
                           />
                         </Box>
                         <Text color={`${colorMode}.primaryText`}>

@@ -26,7 +26,6 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import HexagonIcon from 'src/components/HexagonIcon';
-import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
 import BTC from 'src/assets/images/btc.svg';
 import ActionChip from 'src/components/ActionChip';
@@ -67,7 +66,7 @@ function ListItem({
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
-  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
+  const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
 
   return (
     // TODO: Drag and rearrange wallet functionality
@@ -81,7 +80,7 @@ function ListItem({
       borderColor={`${colorMode}.separator`}
     >
       <Box style={styles.textContainer}>
-        <HexagonIcon width={44} height={38} backgroundColor={HexagonIcon} icon={icon} />
+        <HexagonIcon width={44} height={38} backgroundColor={HexagonIconColor} icon={icon} />
         <Box>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
             {title}
