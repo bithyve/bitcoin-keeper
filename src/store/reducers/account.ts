@@ -13,14 +13,18 @@ export type tempDetails = {
   accountIdentifier: string;
 };
 
+export type ConciergeUsers = {
+  [appId: string]: string;
+};
+
 const initialState: {
   allAccounts: Account[];
-  activeAccount: string;
   tempDetails: tempDetails;
+  conciergeUsers: ConciergeUsers;
 } = {
   allAccounts: [],
-  activeAccount: null,
   tempDetails: null,
+  conciergeUsers: {},
 };
 
 const accountSlice = createSlice({
@@ -38,9 +42,6 @@ const accountSlice = createSlice({
       state.allAccounts.push(account);
       state.tempDetails = null;
     },
-    setActiveAccount: (state, action: PayloadAction<string>) => {
-      state.activeAccount = action.payload;
-    },
     setTempDetails: (state, action: PayloadAction<tempDetails>) => {
       state.tempDetails = action.payload;
     },
@@ -54,14 +55,20 @@ const accountSlice = createSlice({
         }
       });
     },
+    addConciergeUserToAccount: (
+      state,
+      action: PayloadAction<{ appId: string; conciergeUser: string }>
+    ) => {
+      state.conciergeUsers[action.payload.appId] = action.payload.conciergeUser;
+    },
   },
 });
 
 export const {
   addAccount,
-  setActiveAccount,
   setTempDetails,
   resetTempDetails,
   updatePasscodeHash,
+  addConciergeUserToAccount,
 } = accountSlice.actions;
 export default accountSlice.reducer;

@@ -60,6 +60,7 @@ import { setAutomaticCloudBackup } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
 import { addAccount, setTempDetails, updatePasscodeHash } from '../reducers/account';
 import { REALM_FILE } from 'src/storage/realm/realm';
+import { loadConciergeUserOnLogin } from '../sagaActions/account';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -260,6 +261,7 @@ function* credentialsAuthWorker({ payload }) {
           );
           if (pendingAllBackup && automaticCloudBackup) yield put(backupAllSignersAndVaults());
           if (!allAccounts.length) yield put(addAccount(appId));
+          yield put(loadConciergeUserOnLogin({ appId: keeperApp.id }));
         } catch (error) {
           yield put(setRecepitVerificationError(true));
           yield put(credsAuthenticatedError(error));
