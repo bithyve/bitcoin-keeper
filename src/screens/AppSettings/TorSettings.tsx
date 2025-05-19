@@ -64,6 +64,7 @@ function TorSettings() {
     if (inAppTor === TorStatus.CONNECTED || inAppTor === TorStatus.ERROR) {
       setShowTorModal(false);
     }
+    checkTorConnection();
   }, [inAppTor]);
 
   const getTorStatusText = useMemo(() => {
@@ -126,9 +127,9 @@ function TorSettings() {
       <WalletHeader title={settings.torSettingTitle} subTitle={settings.torHeaderSubTitle} />
       <ScrollView contentContainerStyle={{ paddingTop: 30, alignItems: 'center' }}>
         <Box style={styles.torStatusContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-          {torStatus === TorStatus.CONNECTED || globalTorStatus === TorStatus.CONNECTED ? (
+          {inAppTor === TorStatus.CONNECTED || globalTorStatus === TorStatus.CONNECTED ? (
             <Box style={styles.torConnectionTypeCtr}>
-              {globalTorStatus === TorStatus.CONNECTED ? <OrbotImage /> : <TorImage />}
+              {inAppTor === TorStatus.CONNECTED ? <TorImage /> : <OrbotImage />}
               <Text style={styles.torConnectionType} color={`${colorMode}.primaryText`}>
                 {getTorConnectionType}
               </Text>
