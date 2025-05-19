@@ -663,7 +663,16 @@
     "customWalletDesc": "Setup your wallet quorum",
     "customWalletTitle": "Create a Custom Wallet",
     "maxNumberofKeys": "Number of keys that can sign transactions",
-    "totalKeys": "Total Keys"
+    "totalKeys": "Total Keys",
+    "walletRecovery": "Wallet Recovery",
+    "walletRecoveryDesc": "Correct path and purpose ensure your funds can be recovered with your seed in another compatible wallet.",
+    "compatibility": "Compatibility",
+    "compatibilityDesc": "Using standard values (like 44', 84', or 48') ensures your wallet works across apps and devices.",
+    "securityStructure": "Security Structure",
+    "securityStructureDesc": "The derivation path defines how keys and addresses are generated. For example, multisig wallets use specific paths to securely split control across multiple devices.",
+    "Organization": "Organization",
+    "OrganizationDesc": "Paths help your wallet keep track of different accounts, types of transactions (receiving vs change), and even different coins.",
+    "derivationPath": "Choosing Derivation Path"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1555,7 +1564,7 @@
     "regularUpdatesTitle": "Regularly Update Estate Plans and Instructions",
     "regularUpdatesP2": "Please keep an eye out for firmware and other updates from device manufacturers. Sometimes buttons get moved around or processes change that would need to be updated in your instructions.",
     "regularUpdatesP1": "Keep your estate planning documents and instructions regarding your multi-key setup, up-to-date. Changes in your setup or personal circumstances should be promptly reflected to avoid future complications for your heirs.",
-    "unlockMessage": "Unlock Inheritance Documents on Diamond hands."
+    "unlockMessage": "Unlock on Diamond Hands tier"
   },
   "cloudBackup": {
     "cloudBackup": "Cloud Backup",

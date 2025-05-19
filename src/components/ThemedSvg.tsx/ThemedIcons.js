@@ -149,6 +149,14 @@ import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import PrivateTapSignerIllustration from 'src/assets/privateImages/tapsigner-illustration.svg';
 import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import PrivatePortalIllustration from 'src/assets/privateImages/portal-illustration.svg';
+import WalletRecoveryIcon from 'src/assets/images/walletRecoveryIcon.svg';
+import PrivateWalletRecovery from 'src/assets/privateImages/wallet-recovery-illlustration.svg';
+import OrganizationIcon from 'src/assets/images/organizationIcon.svg';
+import PrivateOrganization from 'src/assets/privateImages/Organization-illustration.svg';
+import SecurityIcon from 'src/assets/images/security.svg';
+import PrivateSecurityIcon from 'src/assets/privateImages/security.svg';
+import PrivateEfficiencyIcon from 'src/assets/privateImages/efficiency.svg';
+import EfficiencyIcon from 'src/assets/images/efficiency.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -504,6 +512,30 @@ const themeIcons = {
     LIGHT: PortalIllustration,
     PRIVATE: PrivatePortalIllustration,
     PRIVATE_LIGHT: PrivatePortalIllustration,
+  },
+  wallet_Recovery_icon: {
+    DARK: WalletRecoveryIcon,
+    LIGHT: WalletRecoveryIcon,
+    PRIVATE: PrivateWalletRecovery,
+    PRIVATE_LIGHT: PrivateWalletRecovery,
+  },
+  efficiency_icon: {
+    DARK: EfficiencyIcon,
+    LIGHT: EfficiencyIcon,
+    PRIVATE: PrivateEfficiencyIcon,
+    PRIVATE_LIGHT: PrivateEfficiencyIcon,
+  },
+  security_iocn: {
+    DARK: SecurityIcon,
+    LIGHT: SecurityIcon,
+    PRIVATE: PrivateSecurityIcon,
+    PRIVATE_LIGHT: PrivateSecurityIcon,
+  },
+  organization_icon: {
+    DARK: OrganizationIcon,
+    LIGHT: OrganizationIcon,
+    PRIVATE: PrivateOrganization,
+    PRIVATE_LIGHT: PrivateOrganization,
   },
 };
 

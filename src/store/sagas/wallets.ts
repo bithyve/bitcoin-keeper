@@ -601,7 +601,20 @@ function* refreshWalletsWorker({
     options: { hardRefresh?: boolean; addNotifications?: boolean };
   };
 }) {
-  const { wallets, options } = payload;
+  let { wallets, options } = payload;
+
+  // Filter out pre-mix, post-mix, and bad bank wallets as they are no longer displayed or used.
+  wallets = wallets.filter((wallet) => {
+    if (
+      wallet.type === WalletType.PRE_MIX ||
+      wallet.type === WalletType.POST_MIX ||
+      wallet.type === WalletType.BAD_BANK
+    ) {
+      return false;
+    }
+    return true;
+  });
+
   try {
     if (!wallets || wallets.length === 0) return;
 
