@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { BackupType } from 'src/models/enums/BHR';
 
 export type AccountWithoutHash = {
   isDefault: boolean;
@@ -17,16 +18,22 @@ export type ConciergeUsers = {
   [appId: string]: string;
 };
 
+export type BackupMethodByAppId = {
+  [appId: string]: BackupType;
+};
+
 const initialState: {
   allAccounts: Account[];
   tempDetails: tempDetails;
   conciergeUsers: ConciergeUsers;
   biometricEnabledAppId: string;
+  backupMethodByAppId: BackupMethodByAppId;
 } = {
   allAccounts: [],
   tempDetails: null,
   conciergeUsers: {},
   biometricEnabledAppId: null,
+  backupMethodByAppId: {},
 };
 
 const accountSlice = createSlice({
@@ -66,6 +73,12 @@ const accountSlice = createSlice({
     setBiometricEnabledAppId: (state, action: PayloadAction<string>) => {
       state.biometricEnabledAppId = action.payload;
     },
+    updateBackupMethodByAppId: (
+      state,
+      action: PayloadAction<{ appId: string; backupMethod: BackupType }>
+    ) => {
+      (state.backupMethodByAppId ??= {})[action.payload.appId] = action.payload.backupMethod;
+    },
   },
 });
 
@@ -76,5 +89,6 @@ export const {
   updatePasscodeHash,
   addConciergeUserToAccount,
   setBiometricEnabledAppId,
+  updateBackupMethodByAppId,
 } = accountSlice.actions;
 export default accountSlice.reducer;

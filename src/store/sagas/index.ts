@@ -70,7 +70,7 @@ import {
   scheduleOnboardingCallWatcher,
 } from './concierge';
 import { changeBitcoinNetworkWatcher, setSubscriptionWatcher } from './settings';
-import { loadConciergeUserOnLoginWatcher } from './account';
+import { loadConciergeUserOnLoginWatcher, saveBackupMethodByAppIdWatcher } from './account';
 
 const rootSaga = function* () {
   const sagas = [
@@ -161,6 +161,7 @@ const rootSaga = function* () {
     setSubscriptionWatcher,
     // account
     loadConciergeUserOnLoginWatcher,
+    saveBackupMethodByAppIdWatcher,
   ];
 
   yield all(

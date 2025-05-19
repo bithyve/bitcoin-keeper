@@ -56,7 +56,7 @@ import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { fetchDelayedPolicyUpdate, fetchSignedDelayedTransaction } from '../sagaActions/storage';
-import { setAutomaticCloudBackup } from '../reducers/bhr';
+import { setAutomaticCloudBackup, setBackupType } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
 import {
   addAccount,
@@ -65,7 +65,7 @@ import {
   updatePasscodeHash,
 } from '../reducers/account';
 import { REALM_FILE } from 'src/storage/realm/realm';
-import { loadConciergeUserOnLogin } from '../sagaActions/account';
+import { loadConciergeUserOnLogin, saveBackupMethodByAppId } from '../sagaActions/account';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -166,7 +166,7 @@ function* credentialsAuthWorker({ payload }) {
     if (!key) throw new Error('Encryption key is missing');
     // case: login
     if (!payload.reLogin) {
-      const { allAccounts, biometricEnabledAppId } = yield select(
+      const { allAccounts, biometricEnabledAppId, backupMethodByAppId } = yield select(
         (state: RootState) => state.account
       );
       const currentAccount = allAccounts.find((account) => account.hash === hash);
@@ -278,6 +278,7 @@ function* credentialsAuthWorker({ payload }) {
             );
             if (existingLoginMethod == LoginMethod.BIOMETRIC)
               yield put(setBiometricEnabledAppId(keeperApp?.id));
+            yield put(saveBackupMethodByAppId());
           }
           yield put(loadConciergeUserOnLogin({ appId: keeperApp.id }));
           yield put(
@@ -285,6 +286,8 @@ function* credentialsAuthWorker({ payload }) {
               keeperApp.id === biometricEnabledAppId ? LoginMethod.BIOMETRIC : LoginMethod.PIN
             )
           );
+          if (backupMethodByAppId[keeperApp.id])
+            yield put(setBackupType(backupMethodByAppId[keeperApp.id]));
         } catch (error) {
           yield put(setRecepitVerificationError(true));
           yield put(credsAuthenticatedError(error));

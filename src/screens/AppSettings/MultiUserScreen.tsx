@@ -19,6 +19,9 @@ import DisableBiometricIllustration from 'src/assets/images/DisableBiometricIllu
 import { changeLoginMethod } from 'src/store/sagaActions/login';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_check.svg';
+import { setInitialNodesSaved } from 'src/store/reducers/network';
+import { saveBackupMethodByAppId } from 'src/store/sagaActions/account';
+import { setBackupType } from 'src/store/reducers/bhr';
 
 export const MultiUserScreen = ({ navigation }: any) => {
   const { colorMode } = useColorMode();
@@ -36,6 +39,9 @@ export const MultiUserScreen = ({ navigation }: any) => {
     }
     dispatch(clearHasCreds());
     dispatch(setAppCreated(false));
+    dispatch(setInitialNodesSaved(false));
+    dispatch(saveBackupMethodByAppId());
+    dispatch(setBackupType(null));
     navigation.replace('LoginStack', {
       screen: 'CreatePin',
     });
