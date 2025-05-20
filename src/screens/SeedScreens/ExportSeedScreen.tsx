@@ -24,13 +24,15 @@ import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { setOTBStatusSS } from 'src/store/reducers/settings';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
 import { useSelector } from 'react-redux';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { updateOneTimeBackupStatus } from 'src/store/reducers/account';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -78,6 +80,7 @@ function ExportSeedScreen({ route, navigation }) {
   const isChangePassword = parentScreen === PRIVACYANDDISPLAY;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const { id: appId } = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   useEffect(() => {
     if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
       setBackupSuccessModal(true);
@@ -280,7 +283,7 @@ function ExportSeedScreen({ route, navigation }) {
                   }
                 } else if (isFromAssistedKey) {
                   if (isSS) {
-                    dispatch(setOTBStatusSS(true));
+                    dispatch(updateOneTimeBackupStatus({ appId, status: true }));
                   }
                   showToast(BackupWallet.OTBSuccessMessage, <TickIcon />);
                   navigation.dispatch(

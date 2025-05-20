@@ -62,6 +62,7 @@ import {
   addAccount,
   setBiometricEnabledAppId,
   setTempDetails,
+  updateOneTimeBackupStatus,
   updatePasscodeHash,
 } from '../reducers/account';
 import { REALM_FILE } from 'src/storage/realm/realm';
@@ -273,12 +274,18 @@ function* credentialsAuthWorker({ payload }) {
           if (!allAccounts.length) {
             // upgraded app
             yield put(addAccount(appId));
-            const existingLoginMethod = yield select(
-              (state: RootState) => state.settings.loginMethod
+            const { loginMethod: existingLoginMethod, oneTimeBackupStatus } = yield select(
+              (state) => state.settings
             );
             if (existingLoginMethod == LoginMethod.BIOMETRIC)
               yield put(setBiometricEnabledAppId(keeperApp?.id));
             yield put(saveBackupMethodByAppId());
+            yield put(
+              updateOneTimeBackupStatus({
+                appId: keeperApp.id,
+                status: oneTimeBackupStatus.signingServer,
+              })
+            );
           }
           yield put(loadConciergeUserOnLogin({ appId: keeperApp.id }));
           yield put(

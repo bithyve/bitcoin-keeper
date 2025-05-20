@@ -21,6 +21,9 @@ export type ConciergeUsers = {
 export type BackupMethodByAppId = {
   [appId: string]: BackupType;
 };
+export type OneTimeBackupStatusByAppId = {
+  [appId: string]: Boolean;
+};
 
 const initialState: {
   allAccounts: Account[];
@@ -28,12 +31,14 @@ const initialState: {
   conciergeUsers: ConciergeUsers;
   biometricEnabledAppId: string;
   backupMethodByAppId: BackupMethodByAppId;
+  oneTimeBackupStatusByAppId: OneTimeBackupStatusByAppId;
 } = {
   allAccounts: [],
   tempDetails: null,
   conciergeUsers: {},
   biometricEnabledAppId: null,
   backupMethodByAppId: {},
+  oneTimeBackupStatusByAppId: {}, // for signing server backup
 };
 
 const accountSlice = createSlice({
@@ -79,6 +84,12 @@ const accountSlice = createSlice({
     ) => {
       (state.backupMethodByAppId ??= {})[action.payload.appId] = action.payload.backupMethod;
     },
+    updateOneTimeBackupStatus: (
+      state,
+      action: PayloadAction<{ appId: string; status: boolean }>
+    ) => {
+      (state.oneTimeBackupStatusByAppId ??= {})[action.payload.appId] = action.payload.status;
+    },
   },
 });
 
@@ -90,5 +101,6 @@ export const {
   addConciergeUserToAccount,
   setBiometricEnabledAppId,
   updateBackupMethodByAppId,
+  updateOneTimeBackupStatus,
 } = accountSlice.actions;
 export default accountSlice.reducer;
