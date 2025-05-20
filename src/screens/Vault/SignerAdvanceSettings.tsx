@@ -501,11 +501,6 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const id = WalletUtilities.getFingerprintFromExtendedKey(
-    signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-    WalletUtilities.getNetworkByType(bitcoinNetworkType)
-  );
-
   function SigningServerOTPModal() {
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
@@ -521,6 +516,12 @@ function SignerAdvanceSettings({ route }: any) {
     };
 
     const onPressConfirm = async () => {
+      const id =
+        signer.signerXpubs[XpubTypes.P2WSH]?.[0]?.xpub &&
+        WalletUtilities.getFingerprintFromExtendedKey(
+          signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+          WalletUtilities.getNetworkByType(bitcoinNetworkType)
+        );
       try {
         setOTBLoading(true);
         const { mnemonic, derivationPath } = await SigningServer.fetchBackup(

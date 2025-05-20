@@ -411,20 +411,7 @@ function SigningDeviceDetails({ route }) {
         try {
           const keyDescriptor = fetchKeyExpression(signer);
           setDetails(keyDescriptor);
-        } catch (error) {
-          if (error && error.message === 'Missing key details.') {
-            showToast(
-              'Missing key details of multi-key type, please add key details from Add Device',
-              <ToastErrorIcon />
-            );
-          } else {
-            showToast(
-              "We're sorry, but we have trouble retrieving the key information",
-              <ToastErrorIcon />
-            );
-          }
-          navigation.goBack();
-        }
+        } catch (_) {}
       }, 200);
     }
   }, []);
@@ -683,16 +670,18 @@ function SigningDeviceDetails({ route }) {
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
   const signerFooterItems = [
-    signer?.type !== SignerType.POLICY_SERVER && {
-      text: 'Share Key',
-      Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'share_key'} />} />,
-      onPress: () => {
-        setShareKeyModal(true);
+    signer?.type !== SignerType.POLICY_SERVER &&
+      details && {
+        text: 'Share Key',
+        Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'share_key'} />} />,
+        onPress: () => {
+          setShareKeyModal(true);
+        },
       },
-    },
     signer?.type !== SignerType.KEEPER &&
       signer?.type !== SignerType.POLICY_SERVER &&
-      signer?.type !== SignerType.UNKOWN_SIGNER && {
+      signer?.type !== SignerType.UNKOWN_SIGNER &&
+      details && {
         text: 'Sign Transaction',
         Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'sign_transaction'} />} />,
         // onPress: navigateToScanPSBT,
