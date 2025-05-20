@@ -10,7 +10,6 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import CheckBoxActive from 'src/assets/images/checkbox_active.svg';
 import CheckBoxInactive from 'src/assets/images/checkbox_inactive.svg';
-import NetworkModeIcon from 'src/assets/images/SettingNetworkMode.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import { NetworkType } from 'src/services/wallets/enums';
@@ -21,7 +20,7 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import NetworkIcon from 'src/assets/privateImages/network-icon.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const SettingsApp = () => {
   const { colorMode } = useColorMode();
@@ -32,19 +31,13 @@ const SettingsApp = () => {
   const [networkModeModal, setNetworkModeModal] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(bitcoinNetworkType);
   const [loading, setLoading] = useState(false);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   let appSetting = [
     ...useSettingKeeper().appSetting,
     {
       title: settings.networkModeTitle,
       description: settings.networkModeSubTitle,
-      icon: privateTheme ? (
-        <NetworkIcon width={16.5} height={16} />
-      ) : (
-        <NetworkModeIcon width={16.5} height={16} />
-      ),
+      icon: <ThemedSvg name={'NetworkIcon'} />,
       onPress: () => setNetworkModeModal(true),
       isDiamond: false,
     },

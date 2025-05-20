@@ -9,17 +9,15 @@ import MoreIcon from 'src/assets/images/more-grey.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from './KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Colors from 'src/theme/Colors';
-import { useSelector } from 'react-redux';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const selectedFooterColor = ThemedColor({ name: 'footer_selected_option' });
 
   const menuOptions = [
     {
@@ -66,11 +64,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
               style={[styles.menuText]}
               color={
                 selectedOption === option.name
-                  ? privateTheme
-                    ? `${colorMode}.pantoneGreen`
-                    : isDarkMode
-                    ? Colors.headerWhite
-                    : `${colorMode}.pantoneGreen`
+                  ? selectedFooterColor
                   : `${colorMode}.placeHolderTextColor`
               }
             >

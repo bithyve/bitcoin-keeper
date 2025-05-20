@@ -1,10 +1,10 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useState } from 'react';
 import { Pressable, Animated, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
 import Text from 'src/components/KeeperText';
 import { hp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 const CONTAINER_PADDING = 2;
 
@@ -22,8 +22,7 @@ export const SegmentedController = ({
   const length = options.length;
   const { colorMode } = useColorMode();
   const [containerWidth, setContainerWidth] = useState(0);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
+  const HexagonIconBackGround = ThemedColor({ name: 'HexagonIcon' });
   const translateX = new Animated.Value(
     selectedIndex != 0
       ? selectedIndex * ((containerWidth - 2 * CONTAINER_PADDING) / length)
@@ -50,7 +49,7 @@ export const SegmentedController = ({
       <Animated.View
         style={[
           styles.selectedBackground,
-          { backgroundColor: privateTheme ? Colors.goldenGradient : Colors.primaryGreen },
+          { backgroundColor: HexagonIconBackGround },
           { width: (containerWidth - 2 * CONTAINER_PADDING) / length },
           { transform: [{ translateX }] },
         ]}
