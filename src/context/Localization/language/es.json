@@ -211,7 +211,10 @@
     "Download": "Download",
     "unSelectAll": "Unselect All",
     "SelectAll": "Select All",
-    "moreOptions": "More Options"
+    "moreOptions": "More Options",
+    "continueOnDesktopApp": "Please continue on the Keeper Desktop App",
+    "confirmRegistration": "Confirm Registration",
+    "Finishlater": "Finish later"
   },
   "noInternet": {
     "no": "No Internet",
@@ -777,7 +780,9 @@
     "securityStructureDesc": "The derivation path defines how keys and addresses are generated. For example, multisig wallets use specific paths to securely split control across multiple devices.",
     "Organization": "Organization",
     "OrganizationDesc": "Paths help your wallet keep track of different accounts, types of transactions (receiving vs change), and even different coins.",
-    "derivationPath": "Choosing Derivation Path"
+    "derivationPath": "Choosing Derivation Path",
+    "rescanQrDensity": "Please rescan if the QR density is changed",
+    "QrTips": "Make sure that the QR is well aligned, focused and visible as a whole"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1012,7 +1017,8 @@
     "spendOnlyRegularKey": "Spend using only the regular vault keys",
     "Holduntilscanningiscomplete": "Please hold until the scanning is complete...",
     "enterPdfPassword": "Enter PDF File Password",
-    "pdfPasswordDesc": "Secure your BSMS PDF files by protecting them with a password of your choice."
+    "pdfPasswordDesc": "Secure your BSMS PDF files by protecting them with a password of your choice.",
+    "registerVaultFromDesktop": "Please continue resigtering the vault from the Keeper Desktop App"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -1358,7 +1364,15 @@
     "discountCode": "ASDF - GHJK - 8974 - UWMB",
     "onFoundationDevices": "on Foundation\ndevice",
     "changeIntervalTitle": "Change Subscription Interval?",
-    "changeIntervalSubTitle": "Your yearly subscription includes the benefit of 2 free months of Bitcoin Keeper. Please note that switching to a monthly subscription would remove this benefit."
+    "changeIntervalSubTitle": "Your yearly subscription includes the benefit of 2 free months of Bitcoin Keeper. Please note that switching to a monthly subscription would remove this benefit.",
+    "subscribeWithDesktop": "Purchase Subscription with Keeper Desktop App",
+    "subscribeWithDesktopDesc": "Please download the Bitcoin Keeper desktop app from our website:",
+    "subscribeWithDesktopDesc2": "/desktop to purchase a subscription plan",
+    "subscribeWithDesktopDesc3": "/desktop to register this signer.",
+    "subscribeWithDesktopDesc4": "/desktop to sign with this signer",
+    "registerWithKeeper": "Register with Keeper Desktop App",
+    "continuesigntransWithDesktop": "Please continue signing the transaction from the Keeper Desktop App",
+    "signingWithDesktop": "Sign with Keeper Desktop App"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup",
@@ -1594,7 +1608,15 @@
     "setupJade": "Get Your Jade Ready and powered up before proceeding",
     "defaultSetup": "Get your device ready before proceeding",
     "defaultNote": "Make sure that the QR is well aligned, focused and visible as a whole",
-    "setupRequire": "Setup required"
+    "setupRequire": "Setup required",
+    "registerSigner": "Register signer",
+    "registerSignerDesc": "Register the vault with any of the QR based signers",
+    "coldCardModalSubtitle": "Get Your Coldcard ready and powered up before proceeding",
+    "keyStoneModalSubtitle": "Get Your Keystone ready before proceeding",
+    "specterModalSubtitle": "Get Your device ready and powered up before proceeding",
+    "keeperModalSubtitle": "Keep the other Keeper App ready",
+    "defaultModalSubtitle": "Get your device ready before proceeding",
+    "transationPsbt": "Transaction (PSBT):"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",

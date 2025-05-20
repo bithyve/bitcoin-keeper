@@ -52,7 +52,7 @@ function ScanQR() {
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, signer: signerText, wallet } = translations;
   const { showToast } = useToastMessage();
   const [inputText, setInputText] = useState('');
 
@@ -76,13 +76,13 @@ function ScanQR() {
     }
   };
   const modalSubtitle = {
-    [SignerType.COLDCARD]: 'Get Your Coldcard ready and powered up before proceeding',
-    [SignerType.KEYSTONE]: 'Get Your Keystone ready before proceeding',
-    [SignerType.SPECTER]: 'Get Your device ready and powered up before proceeding',
-    [SignerType.KEEPER]: 'Keep the other Keeper App ready ',
+    [SignerType.COLDCARD]: signerText.coldCardModalSubtitle,
+    [SignerType.KEYSTONE]: signerText.keyStoneModalSubtitle,
+    [SignerType.SPECTER]: signerText.specterModalSubtitle,
+    [SignerType.KEEPER]: signerText.keeperModalSubtitle,
   };
 
-  const subtitleModal = modalSubtitle[type] || 'Get your device ready before proceeding';
+  const subtitleModal = modalSubtitle[type] || signerText.defaultModalSubtitle;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} testID={`scanQr`}>
@@ -167,7 +167,7 @@ function ScanQR() {
             close={() => {
               setVisibleModal(false);
             }}
-            title="Add a co-signer"
+            title={wallet.AddCoSigner}
             subTitle=""
             modalBackground={`${colorMode}.pantoneGreen`}
             textColor={`${colorMode}.headerWhite`}
