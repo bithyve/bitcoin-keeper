@@ -18,8 +18,6 @@ import { initSentrySDK } from 'src/services/sentry';
 initSentrySDK();
 enableAndroidFontFix();
 
-Text.defaultProps = Text.defaultProps || {};
-Text.defaultProps.allowFontScaling = false;
 Input.defaultProps = Input.defaultProps || {};
 Input.defaultProps.allowFontScaling = false;
 NativeText.defaultProps = NativeText.defaultProps || {};

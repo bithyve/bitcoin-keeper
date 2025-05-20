@@ -481,7 +481,10 @@ export default class WalletUtilities {
         (xpub) => (subPaths[xpub] = [internal ? 1 : 0, childIndex]) // same for all xpubs in default multisig
       );
 
-      const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+      const addressCache: AddressCache = {
+        external: wallet.specs.addresses?.external || {},
+        internal: wallet.specs.addresses?.internal || {},
+      };
       const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
 
       const correspondingAddress = internal
@@ -729,7 +732,10 @@ export default class WalletUtilities {
     }
 
     const network = WalletUtilities.getNetworkByType(networkType);
-    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+    const addressCache: AddressCache = {
+      external: wallet.specs.addresses?.external || {},
+      internal: wallet.specs.addresses?.internal || {},
+    };
     const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
 
     const closingExtIndex = totalExternalAddresses - 1 + config.GAP_LIMIT;
@@ -772,7 +778,10 @@ export default class WalletUtilities {
     const xpriv = (wallet as Wallet).specs.xpriv;
 
     const network = WalletUtilities.getNetworkByType(networkType);
-    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+    const addressCache: AddressCache = {
+      external: wallet.specs.addresses?.external || {},
+      internal: wallet.specs.addresses?.internal || {},
+    };
 
     const closingExtIndex = totalExternalAddresses - 1 + config.GAP_LIMIT;
     for (let itr = 0; itr <= totalExternalAddresses - 1 + closingExtIndex; itr++) {
@@ -847,7 +856,10 @@ export default class WalletUtilities {
 
   static addressToMultiSig = (address: string, wallet: Vault) => {
     const { totalExternalAddresses, nextFreeChangeAddressIndex } = wallet.specs;
-    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+    const addressCache: AddressCache = {
+      external: wallet.specs.addresses?.external || {},
+      internal: wallet.specs.addresses?.internal || {},
+    };
 
     const closingExtIndex = totalExternalAddresses - 1 + config.GAP_LIMIT;
     for (let itr = 0; itr <= totalExternalAddresses - 1 + closingExtIndex; itr++) {

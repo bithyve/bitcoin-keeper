@@ -1,11 +1,12 @@
 import { ObjectSchema } from 'realm';
 import { RealmSchema } from '../enum';
 
-export const Balances = {
-  type: '{}',
+export const BalancesSchema: Realm.ObjectSchema = {
+  name: RealmSchema.Balances,
+  embedded: true,
   properties: {
-    confirmed: 'int',
-    unconfirmed: 'int',
+    confirmed: { type: 'int', default: 0 },
+    unconfirmed: { type: 'int', default: 0 },
   },
 };
 
@@ -71,8 +72,8 @@ export const AddressCacheSchema: ObjectSchema = {
   name: RealmSchema.AddressCache,
   embedded: true,
   properties: {
-    external: '{}',
-    internal: '{}',
+    external: 'mixed?',
+    internal: 'mixed?',
   },
 };
 
@@ -126,10 +127,10 @@ export const WalletSpecsSchema: ObjectSchema = {
     totalExternalAddresses: 'int',
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
-    addressPubs: '{}?',
+    addressPubs: 'mixed?',
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
-    balances: Balances,
+    balances: { type: 'object', objectType: RealmSchema.Balances },
     transactions: `${RealmSchema.Transaction}[]`,
     hasNewUpdates: 'bool',
     lastSynched: 'int',

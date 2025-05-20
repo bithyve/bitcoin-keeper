@@ -77,7 +77,8 @@ export const generateSignerFromMetaData = ({
     }
     // Keystone qr gives Zpub in testnet
     else networkType = getNetworkTypeFromDerivationPath(derivationPath);
-  }
+  } else if (signerType === SignerType.JADE)
+    networkType = getNetworkTypeFromDerivationPath(derivationPath);
 
   const network = WalletUtilities.getNetworkByType(bitcoinNetworkType);
   if (

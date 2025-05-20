@@ -35,6 +35,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   });
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const handleCardSelect = (signer) => {
     navigation.dispatch(
@@ -96,8 +97,10 @@ const SignerList = ({ navigation, handleModalOpen }) => {
             );
           })}
           <DashedCta
-            backgroundColor={`${colorMode}.dullGreen`}
-            hexagonBackgroundColor={privateTheme ? Colors.goldenGradient : Colors.primaryGreen}
+            backgroundColor={PrivateThemeLight ? `transparent` : `${colorMode}.dullGreen`}
+            hexagonBackgroundColor={
+              privateTheme || PrivateThemeLight ? Colors.goldenGradient : Colors.primaryGreen
+            }
             textColor={`${colorMode}.greenWhiteText`}
             name={signer.addKey}
             callback={handleModalOpen}

@@ -399,12 +399,80 @@ export const runRealmMigrations = ({
           config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET,
       };
     }
-  
+
     const newNodes = newRealm.objects(RealmSchema.NodeConnect) as any;
 
     for (const objectIndex in newNodes) {
       newNodes[objectIndex].networkType =
         config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
+    }
+  }
+
+  if (oldRealm.schemaVersion < 99) {
+    // Realm v12 changed the schema type for certain fields, need to manually migrate the values to the new type
+    const newVaults = newRealm.objects(RealmSchema.Vault) as any;
+    const oldVaults = oldRealm.objects(RealmSchema.Vault) as any;
+    const newWallets = newRealm.objects(RealmSchema.Wallet) as any;
+    const oldWallets = oldRealm.objects(RealmSchema.Wallet) as any;
+
+    // Migrating wallets fields for new schema
+    newWallets.forEach((newWallet, i) => {
+      const oldWallet = oldWallets[i];
+      const { specs: oldSpecs } = oldWallet;
+      const { specs: newSpecs } = newWallet;
+      newSpecs.addresses = oldSpecs?.addresses ? { ...oldSpecs.addresses } : null;
+      newSpecs.addressPubs = oldSpecs?.addressPubs ? { ...oldSpecs?.addressPubs } : null;
+      newSpecs.balances = {
+        confirmed: oldSpecs.balances?.confirmed ?? 0,
+        unconfirmed: oldSpecs.balances?.unconfirmed ?? 0,
+      };
+    });
+
+    // migrating Vault fields for new schema
+    newVaults.forEach((newVault, i) => {
+      const oldVault = oldVaults[i];
+      const { specs: oldSpecs } = oldVault;
+      const { specs: newSpecs } = newVault;
+      newSpecs.addresses = { ...oldSpecs?.addresses };
+      newSpecs.addressPubs = { ...oldSpecs?.addressPubs };
+      newSpecs.balances = {
+        confirmed: oldSpecs.balances?.confirmed ?? 0,
+        unconfirmed: oldSpecs.balances?.unconfirmed ?? 0,
+      };
+
+      if (newVault.type === VaultType.MINISCRIPT) {
+        const { miniscriptScheme: oldMiniscriptScheme } = oldVault.scheme;
+        const { miniscriptScheme: newMiniscriptScheme } = newVault.scheme;
+        newMiniscriptScheme.keyInfoMap = oldMiniscriptScheme?.keyInfoMap
+          ? { ...oldMiniscriptScheme?.keyInfoMap }
+          : null;
+        newMiniscriptScheme.miniscriptElements = {
+          ...oldMiniscriptScheme.miniscriptElements,
+          signerFingerprints: oldMiniscriptScheme.miniscriptElements.signerFingerprints,
+        };
+      }
+    });
+
+    // Subscription receipt
+    const oldSubs = oldRealm.objects(RealmSchema.StoreSubscription) as any;
+    const newSubs = newRealm.objects(RealmSchema.StoreSubscription) as any;
+    const lastSub = oldSubs.length - 1;
+    if (oldSubs[lastSub] && oldSubs[lastSub].receipt.length) {
+      newSubs[lastSub].receipt = oldSubs[lastSub].receipt;
+    }
+
+    // Signers extra data
+    const oldSigners = oldRealm.objects(RealmSchema.Signer) as any;
+    const newSigners = newRealm.objects(RealmSchema.Signer);
+    for (const objectIndex in oldSigners) {
+      if (newSigners[objectIndex].signerPolicy)
+        newSigners[objectIndex].signerPolicy = { ...oldSigners[objectIndex].signerPolicy };
+      newSigners[objectIndex].extraData = { ...oldSigners[objectIndex].extraData };
+      if (oldSigners[objectIndex].healthCheckDetails.extraData) {
+        newSigners[objectIndex].healthCheckDetails.extraData = {
+          ...oldSigners[objectIndex].healthCheckDetails.extraData,
+        };
+      }
     }
   }
 };

@@ -39,10 +39,10 @@ function AdditionalDetails({ route }: ScreenProps) {
   const [description, setDescription] = useState(signer?.signerDescription || '');
   const [editContactModal, setEditContactModal] = useState(false);
   const [hasUpdatedDescription, setHasUpdatedDescription] = useState(false);
-  const { thumbnailPath, givenName, familyName } = signer.extraData;
+  const { thumbnailPath, givenName, familyName } = signer.extraData ?? {};
   const { relaySignersUpdate } = useAppSelector((state) => state.bhr);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   useEffect(() => {
     if (relaySignersUpdate && hasUpdatedDescription) {
@@ -83,7 +83,7 @@ function AdditionalDetails({ route }: ScreenProps) {
         <OptionTile
           title="Associate a Contact"
           callback={() => {
-            signer.extraData.givenName
+            signer?.extraData?.givenName
               ? setEditContactModal(true)
               : navigation.navigate('AssociateContact', {
                   signer,

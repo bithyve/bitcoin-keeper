@@ -11,12 +11,8 @@ import {
 } from 'react-native';
 import Contacts from 'react-native-contacts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
-import PrivateImagePlaceHolder from 'src/assets/privateImages/contact-image-placeholder.svg';
 import SearchIcon from 'src/assets/images/search-icon.svg';
 import PrivateSearchIcon from 'src/assets/privateImages/search-icon.svg';
-import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
-import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -31,8 +27,8 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
-import usePlan from 'src/hooks/usePlan';
 import Colors from 'src/theme/Colors';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function AssociateContact({ route }) {
   const {
@@ -97,10 +93,8 @@ function AssociateContact({ route }) {
       <Box style={styles.contactItem}>
         {item.thumbnailPath !== '' ? (
           <Image source={{ uri: item.thumbnailPath || '' }} style={styles.avatar} />
-        ) : privateTheme ? (
-          <PrivateImagePlaceHolder style={styles.avatar} />
         ) : (
-          <ImagePlaceHolder style={styles.avatar} />
+          <ThemedSvg name={'image_placeholder'} style={styles.avatar} />
         )}
         <Text medium style={styles.contactName}>
           {item.givenName} {item.familyName}
@@ -169,11 +163,7 @@ function AssociateContact({ route }) {
                 borderColor={`${colorMode}.dullGreyBorder`}
               >
                 <Box style={styles.iconContainer}>
-                  {privateTheme ? (
-                    <PrivateAddContactIcon />
-                  ) : (
-                    <AddContactIcon width={wp(44)} height={hp(44)} />
-                  )}
+                  <ThemedSvg name={'add_Contact_icon'} width={wp(44)} height={hp(44)} />
                 </Box>
                 <Text medium style={styles.buttonText}>
                   {vaultText.addContact}
@@ -221,7 +211,7 @@ function AssociateContact({ route }) {
                     style={styles.modalAvatar}
                   />
                 ) : (
-                  <ImagePlaceHolder style={styles.modalAvatar} />
+                  <ThemedSvg name={'image_placeholder'} style={styles.modalAvatar} />
                 )}
               </Box>
               <Text medium style={styles.buttonText}>
