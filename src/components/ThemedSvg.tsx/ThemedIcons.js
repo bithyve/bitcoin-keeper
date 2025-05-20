@@ -157,10 +157,10 @@ import SecurityIcon from 'src/assets/images/security.svg';
 import PrivateSecurityIcon from 'src/assets/privateImages/security.svg';
 import PrivateEfficiencyIcon from 'src/assets/privateImages/efficiency.svg';
 import EfficiencyIcon from 'src/assets/images/efficiency.svg';
-import ColdCardSuccessIllustration from 'src/assets/images/coldCard-success.svg';
-import PrivateColdCardSuccessIllustration from 'src/assets/privateImages/cold-card-gold-success.svg';
-import BitBoxSuccessIllustration from 'src/assets/images/bitbox-success.svg';
-import PrivateBitboxIllustration from 'src/assets/privateImages/bitbox-gold-success.svg';
+import ColdCardSuccess from 'src/assets/images/coldCard-success.svg';
+import PrivateColdCardSuccess from 'src/assets/privateImages/cold-card-gold-success.svg';
+import BitBoxSuccess from 'src/assets/images/bitbox-success.svg';
+import PrivateBitboxSuccess from 'src/assets/privateImages/bitbox-gold-success.svg';
 import JadeSuccess from 'src/assets/images/jade-success.svg';
 import PrivateJadeSuccess from 'src/assets/privateImages/jade-gold-success.svg';
 import LedgerSuccess from 'src/assets/images/ledger-success.svg';
@@ -173,8 +173,8 @@ import SeedSignerSuccess from 'src/assets/images/seedSigner-success.svg';
 import PrivateSeedSignerSuccess from 'src/assets/privateImages/seedSigner-gold-success.svg';
 import SpecterSuccess from 'src/assets/images/specter-success.svg';
 import PrivateSpecterSuccess from 'src/assets/privateImages/specter-gold-success.svg';
-import TapSigner from 'src/assets/images/tapSigner-success.svg';
-import PrivateTapSigner from 'src/assets/privateImages/tapSigner-gold-success.svg';
+import TapSignerSuccess from 'src/assets/images/tapSigner-success.svg';
+import PrivateTapSignerSuccess from 'src/assets/privateImages/tapSigner-gold-success.svg';
 import TrezorSuccess from 'src/assets/images/trezor-success.svg';
 import PrivateTrezorSuccess from 'src/assets/privateImages/trezor-gold-success.svg';
 import KeyStoneSuccess from 'src/assets/images/keystone-success.svg';
@@ -560,16 +560,16 @@ const themeIcons = {
     PRIVATE_LIGHT: PrivateOrganization,
   },
   coldCard_success_illustration: {
-    DARK: ColdCardSuccessIllustration,
-    LIGHT: ColdCardSuccessIllustration,
-    PRIVATE: PrivateColdCardSuccessIllustration,
-    PRIVATE_LIGHT: PrivateColdCardSuccessIllustration,
+    DARK: ColdCardSuccess,
+    LIGHT: ColdCardSuccess,
+    PRIVATE: PrivateColdCardSuccess,
+    PRIVATE_LIGHT: PrivateColdCardSuccess,
   },
   bitBox_success: {
-    DARK: BitBoxSuccessIllustration,
-    LIGHT: BitBoxSuccessIllustration,
-    PRIVATE: PrivateBitboxIllustration,
-    PRIVATE_LIGHT: PrivateBitboxIllustration,
+    DARK: BitBoxSuccess,
+    LIGHT: BitBoxSuccess,
+    PRIVATE: PrivateBitboxSuccess,
+    PRIVATE_LIGHT: PrivateBitboxSuccess,
   },
   jade_success: {
     DARK: JadeSuccess,
@@ -614,10 +614,10 @@ const themeIcons = {
     PRIVATE_LIGHT: PrivateSpecterSuccess,
   },
   tapSigner_success: {
-    DARK: TapSigner,
-    LIGHT: TapSigner,
-    PRIVATE: PrivateTapSigner,
-    PRIVATE_LIGHT: PrivateTapSigner,
+    DARK: TapSignerSuccess,
+    LIGHT: TapSignerSuccess,
+    PRIVATE: PrivateTapSignerSuccess,
+    PRIVATE_LIGHT: PrivateTapSignerSuccess,
   },
   trezor_success: {
     DARK: TrezorSuccess,
