@@ -134,7 +134,7 @@ function SignerAdvanceSettings({ route }: any) {
   } = route.params;
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
-  const { isOnL4 } = usePlan();
+  const { isOnL4, isOnL1 } = usePlan();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
@@ -611,7 +611,7 @@ function SignerAdvanceSettings({ route }: any) {
     SignerType.MOBILE_KEY,
     SignerType.MY_KEEPER,
   ];
-  const isCanaryWalletAllowed = isOnL2Above && !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
+  const isCanaryWalletAllowed = !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
 
   const showOneTimeBackup = isPolicyServer && signer?.isBIP85;
   let disableOneTimeBackup = false; // disables OTB once the user has backed it up
@@ -762,6 +762,20 @@ function SignerAdvanceSettings({ route }: any) {
         title="Canary Wallet"
         description="Your on-chain key alert"
         callback={handleCanaryWallet}
+        disabled={isOnL1}
+        rightComponent={
+          isOnL1 &&
+          (() => {
+            return (
+              <TouchableOpacity
+                style={{ marginTop: hp(10) }}
+                onPress={() => navigation.navigate('ChoosePlan')}
+              >
+                <UpgradeIcon style={styles.upgradeIcon} width={64} height={20} />
+              </TouchableOpacity>
+            );
+          })
+        }
       />
     ),
     isPolicyServer && showOneTimeBackup && (
