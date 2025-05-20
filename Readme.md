@@ -2,11 +2,17 @@
 
 Affordable and easy-to-use, security for all your sats, BIP-85, Multisig, Own Node, and Hardware Wallet support. Built with React Native
 
-<img width="1396" alt="Screenshot 2024-04-25 at 11 08 39 AM" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/1e08c786-f376-4e04-8bee-0917718cf870">
+![image](https://github.com/user-attachments/assets/77c58e40-0172-4f73-aeb9-8a7851eb43eb)
 
-[![Playstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/gpbtn.png)](https://play.google.com/store/apps/details?id=io.hexawallet.bitcoinkeeper)
-[![Appstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/applebtn.png)](https://apps.apple.com/us/app/bitcoin-keeper/id1545535925)
-[![PGP_APK](https://github.com/bithyve/bitcoin-keeper/assets/50690016/67693cf0-a059-4391-8b48-a9d46a55e71c)](https://github.com/bithyve/bitcoin-keeper/releases)
+<a href="https://play.google.com/store/apps/details?id=io.hexawallet.bitcoinkeeper">
+  <img src="https://bitcoinkeeper.app/wp-content/uploads/2023/05/gpbtn.png" alt="Playstore" width="150" style="border: none; outline: none;"/>
+</a>
+<a href="https://apps.apple.com/us/app/bitcoin-keeper/id1545535925">
+  <img src="https://bitcoinkeeper.app/wp-content/uploads/2025/02/App-Store.svg" alt="Appstore" width="150" style="border: none; outline: none;"/>
+</a>
+<a href="https://github.com/bithyve/bitcoin-keeper/releases">
+  <img src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/67693cf0-a059-4391-8b48-a9d46a55e71c" alt="PGP_APK" width="150" style="border: none; outline: none;"/>
+</a>
 
 Bitcoin Keeper is an open source, bitcoin-only app designed for seasoned bitcoin hodlers. Built to store bitcoin over a prolonged period of time, Keeper helps you source, clean, and stack sats across different kinds of wallets. Keeper also helps you plan your bitcoin inheritance with built in tools and templates that unlock at the Diamond Hands subscription tier.
 

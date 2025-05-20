@@ -489,7 +489,10 @@ export default class WalletOperations {
           ? 0
           : wallet.specs.nextFreeChangeAddressIndex - gapLimit;
 
-      const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+      const addressCache: AddressCache = {
+        external: wallet.specs.addresses?.external || {},
+        internal: wallet.specs.addresses?.internal || {},
+      };
       const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
       let balances: Balances = {
         confirmed: 0,
@@ -1371,7 +1374,7 @@ export default class WalletOperations {
       .filter((path) => path !== undefined);
 
     // Generate the script witness based on selected paths
-    const selectedScriptWitness = witnessesInSelectedPhase.find((witness) => {
+    const selectedScriptWitnesses = witnessesInSelectedPhase.filter((witness) => {
       return selectedPaths.every((path) => {
         const presentKeys = path.keys.filter((key) =>
           witness.asm.includes(key.uniqueKeyIdentifier)
@@ -1380,11 +1383,13 @@ export default class WalletOperations {
       });
     });
 
-    if (!selectedScriptWitness) {
+    if (!selectedScriptWitnesses.length) {
       throw new Error('No matching script witness found for the selected paths');
     }
 
-    return { selectedPhase, selectedPaths, selectedScriptWitness };
+    const selectedScriptWitness = selectedScriptWitnesses[0];
+
+    return { selectedPhase, selectedPaths, selectedScriptWitness, selectedScriptWitnesses };
   };
 
   static addInputToPSBT = (
@@ -2232,12 +2237,12 @@ export default class WalletOperations {
         if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
           if (!miniscriptScheme) throw new Error('miniscriptScheme missing for vault');
 
-          const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
-          let selectedScriptWitness: {
-            asm: string;
-            nLockTime?: number;
-            nSequence?: number;
-          };
+          // const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
+          // let selectedScriptWitness: {
+          //   asm: string;
+          //   nLockTime?: number;
+          //   nSequence?: number;
+          // };
 
           // TODO: Commented code below seems unnecessary, should verify and remove
           // Check for timelock using miniscript types
@@ -2252,22 +2257,20 @@ export default class WalletOperations {
           //     MiniscriptTypes.EMERGENCY
           //   );
 
-          // if (!hasTimelock) {
-          //   // scriptwitness selection for TIMELOCKED/INHERITANCE/EMERGENCY vault is done using the available partial signatures(simplifies UX)
-          //   const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
-          //     miniscriptScheme,
-          //     miniscriptTxElements
-          //   );
-          //   selectedScriptWitness = miniscriptSelectedSatisfier.selectedScriptWitness;
-          // }
+          // scriptwitness selection for TIMELOCKED/INHERITANCE/EMERGENCY vault is done using the available partial signatures(simplifies UX)
+          const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
+            miniscriptScheme,
+            miniscriptTxElements
+          );
+          const selectedScriptWitnesses = miniscriptSelectedSatisfier.selectedScriptWitnesses;
 
           for (let index = 0; index < combinedPSBT.txInputs.length; index++) {
             combinedPSBT.finalizeInput(
               index,
               WalletUtilities.getFinalScriptsForMyCustomScript(
                 miniscriptScheme.keyInfoMap,
-                scriptWitnesses,
-                selectedScriptWitness
+                selectedScriptWitnesses,
+                null
               )
             );
           }

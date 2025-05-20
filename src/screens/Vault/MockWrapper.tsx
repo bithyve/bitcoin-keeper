@@ -15,20 +15,13 @@ import { InteracationMode } from './HardwareModalMap';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
-MockWrapper.defaultProps = {
-  enable: true,
-  isRecovery: false,
-  navigation: null,
-  mode: InteracationMode.VAULT_ADDITION,
-};
-
 function MockWrapper({
   children,
   signerType,
-  enable,
-  navigation,
+  enable = true,
+  navigation = null,
   addSignerFlow = false,
-  mode,
+  mode = InteracationMode.VAULT_ADDITION,
   signerXfp,
 }: {
   children: any;

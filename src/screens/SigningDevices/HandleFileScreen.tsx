@@ -11,11 +11,10 @@ import { exportFile, importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
 import WalletHeader from 'src/components/WalletHeader';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
-import InfoIcon from 'src/assets/images/info_icon.svg';
 import Instruction from 'src/components/Instruction';
 import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const HandleFileScreen = ({ route, navigation }) => {
   const {
@@ -76,7 +75,7 @@ const HandleFileScreen = ({ route, navigation }) => {
             rightComponent={
               !isHealthcheck && !signingMode ? (
                 <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
-                  {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+                  <ThemedSvg name={'info_icon'} />
                 </TouchableOpacity>
               ) : null
             }

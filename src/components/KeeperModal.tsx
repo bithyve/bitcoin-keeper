@@ -22,6 +22,8 @@ import Buttons from './Buttons';
 import Fonts from 'src/constants/Fonts';
 import PrivateCrossIcon from 'src/assets/privateImages/white-cross-circle-icon.svg';
 import { useSelector } from 'react-redux';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 
 type ModalProps = {
   visible: boolean;
@@ -55,67 +57,37 @@ type ModalProps = {
   secondaryIcon?: any;
 };
 
-KeeperModal.defaultProps = {
-  title: '',
-  subTitle: null,
-  subTitleWidth: windowWidth * 0.7,
-  modalBackground: 'primaryBackground',
-  buttonBackground: 'greenButtonBackground',
-  buttonText: null,
-  buttonTextColor: 'buttonText',
-  secButtonTextColor: 'headerText',
-  buttonCallback: () => {},
-  secondaryButtonText: null,
-  secondaryCallback: () => {},
-  textColor: 'black',
-  subTitleColor: null,
-  DarkCloseIcon: false,
-  Content: () => null,
-  dismissible: true,
-  learnMoreButton: false,
-  learnMoreButtonPressed: () => {},
-  learnMoreButtonText: null,
-  learnButtonBackgroundColor: 'BrownNeedHelp',
-  learnButtonTextColor: 'light.white',
-  closeOnOverlayClick: true,
-  showCloseIcon: true,
-  showCurrencyTypeSwitch: false,
-  justifyContent: 'flex-end',
-  loading: false,
-  secondaryIcon: null,
-};
-
 function KeeperModal(props: ModalProps) {
   const {
     visible,
     close,
-    title,
-    subTitle,
-    subTitleWidth,
-    modalBackground,
-    buttonBackground,
-    buttonText,
-    buttonTextColor,
-    buttonCallback,
-    textColor,
-    subTitleColor: ignored,
-    secondaryButtonText,
-    secondaryCallback,
-    DarkCloseIcon,
-    Content,
-    dismissible,
-    learnMoreButton,
-    learnMoreButtonPressed,
-    learnMoreButtonText,
-    learnButtonTextColor,
-    learnButtonBackgroundColor,
-    secButtonTextColor,
-    closeOnOverlayClick,
-    showCloseIcon,
-    showCurrencyTypeSwitch,
-    justifyContent,
-    loading,
-    secondaryIcon,
+    title = '',
+    subTitle = null,
+    subTitleWidth = windowWidth * 0.7,
+    modalBackground = 'primaryBackground',
+    buttonBackground = 'greenButtonBackground',
+    buttonText = null,
+    buttonTextColor = 'buttonText',
+    buttonCallback = () => {},
+    textColor = 'black',
+    subTitleColor: ignored = null,
+    secondaryButtonText = null,
+    secondaryCallback = () => {},
+    DarkCloseIcon = false,
+    Content = () => null,
+    dismissible = true,
+    learnMoreButton = false,
+    learnMoreButtonPressed = () => {},
+    learnMoreButtonText = null,
+    learnButtonTextColor = 'light.white',
+    learnButtonBackgroundColor = 'BrownNeedHelp',
+    secButtonTextColor = 'headerText',
+    closeOnOverlayClick = true,
+    showCloseIcon = true,
+    showCurrencyTypeSwitch = false,
+    justifyContent = 'flex-end',
+    loading = false,
+    secondaryIcon = null,
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
@@ -187,17 +159,8 @@ function KeeperModal(props: ModalProps) {
                   onPress={learnMoreButtonPressed}
                   testID="btn_learnMore"
                 >
-                  <Box
-                    backgroundColor={
-                      learnButtonBackgroundColor == 'BrownNeedHelp'
-                        ? `${colorMode}.BrownNeedHelp`
-                        : learnButtonBackgroundColor
-                    }
-                    style={styles.learnMoreButtonContainer}
-                  >
-                    <Text color={learnButtonTextColor} style={styles.learnMoreText}>
-                      {learnMoreButtonText ? learnMoreButtonText : common.learnMore}
-                    </Text>
+                  <Box style={styles.learnMoreButtonContainer}>
+                    {isDarKMode ? <InfoIconDark /> : <InfoIcon />}
                   </Box>
                 </TouchableOpacity>
               )}
@@ -334,7 +297,7 @@ const getStyles = (subTitleWidth) =>
     learnMoreButtonContainer: {
       position: 'absolute',
       top: hp(22),
-      left: wp(240),
+      right: wp(-10),
       borderRadius: 5,
       paddingHorizontal: 5,
       justifyContent: 'center',

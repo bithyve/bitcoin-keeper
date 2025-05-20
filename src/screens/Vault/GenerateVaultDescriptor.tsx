@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, ScrollView, Text, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { Share, StyleSheet } from 'react-native';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import IconShare from 'src/assets/images/copy-icon.svg';
@@ -14,6 +14,7 @@ import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import WalletHeader from 'src/components/WalletHeader';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import DisplayQR from '../QRScreens/DisplayQR';
+import Text from 'src/components/KeeperText';
 
 const ConfigQR = ({ isMiniscriptVault, descriptorString, activeTab }) => {
   return isMiniscriptVault ? (

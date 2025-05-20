@@ -6,13 +6,9 @@ import { windowWidth, hp, wp } from 'src/constants/responsive';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from './KeeperText';
 
-HexaToastMessages.defaultProps = {
-  Image: null,
-  error: false,
-};
 function HexaToastMessages({
-  Image,
-  error,
+  Image = null,
+  error = false,
   ToastBody,
 }: {
   Image?: any;

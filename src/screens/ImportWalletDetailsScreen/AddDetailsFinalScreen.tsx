@@ -1,5 +1,5 @@
 import { KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Text, View, useColorMode, ScrollView, Input } from 'native-base';
+import { Box, View, useColorMode, ScrollView, Input } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
@@ -20,6 +20,7 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletHeader from 'src/components/WalletHeader';
+import Text from 'src/components/KeeperText';
 
 const derivationPurposeToLabel = {
   [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',

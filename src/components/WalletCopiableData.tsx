@@ -1,16 +1,14 @@
 import React, { useContext } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
-import CopyIcon from 'src/assets/images/copy.svg';
-import CopyIconWhite from 'src/assets/images/copy-icon-white.svg';
 import { StyleSheet } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
-import usePlan from 'src/hooks/usePlan';
 import { useSelector } from 'react-redux';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 type Props = {
   data: string;
@@ -26,7 +24,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
@@ -72,7 +70,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
           copy ? copy() : showToast(msg, <TickIcon />);
         }}
       >
-        {privateTheme ? <CopyIconWhite /> : <CopyIcon />}
+        <ThemedSvg name={'copy_icon'} />
       </Pressable>
     </Box>
   );

@@ -59,7 +59,7 @@ function WalletItem({
   const isSelected = wallet.id === selectedWalletId;
   const borderColor = isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.dullGreyBorder`;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   const handlePress = () => {
     if (isSelected) {
