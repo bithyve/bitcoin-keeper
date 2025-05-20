@@ -156,6 +156,28 @@ import SecurityIcon from 'src/assets/images/security.svg';
 import PrivateSecurityIcon from 'src/assets/privateImages/security.svg';
 import PrivateEfficiencyIcon from 'src/assets/privateImages/efficiency.svg';
 import EfficiencyIcon from 'src/assets/images/efficiency.svg';
+import ColdCardSuccess from 'src/assets/images/coldCard-success.svg';
+import PrivateColdCardSuccess from 'src/assets/privateImages/cold-card-gold-success.svg';
+import BitBoxSuccess from 'src/assets/images/bitbox-success.svg';
+import PrivateBitboxSuccess from 'src/assets/privateImages/bitbox-gold-success.svg';
+import JadeSuccess from 'src/assets/images/jade-success.svg';
+import PrivateJadeSuccess from 'src/assets/privateImages/jade-gold-success.svg';
+import LedgerSuccess from 'src/assets/images/ledger-success.svg';
+import PrivateLedgerSuccess from 'src/assets/privateImages/ledger-gold-success.svg';
+import FoundationSuccess from 'src/assets/images/foundation-success.svg';
+import PrivateFoundationSuccess from 'src/assets/privateImages/foundation-gold-success.svg';
+import PortalSuccess from 'src/assets/images/portal-success.svg';
+import PrivatePortalSuccess from 'src/assets/privateImages/portal-gold-success.svg';
+import SeedSignerSuccess from 'src/assets/images/seedSigner-success.svg';
+import PrivateSeedSignerSuccess from 'src/assets/privateImages/seedSigner-gold-success.svg';
+import SpecterSuccess from 'src/assets/images/specter-success.svg';
+import PrivateSpecterSuccess from 'src/assets/privateImages/specter-gold-success.svg';
+import TapSignerSuccess from 'src/assets/images/tapSigner-success.svg';
+import PrivateTapSignerSuccess from 'src/assets/privateImages/tapSigner-gold-success.svg';
+import TrezorSuccess from 'src/assets/images/trezor-success.svg';
+import PrivateTrezorSuccess from 'src/assets/privateImages/trezor-gold-success.svg';
+import KeyStoneSuccess from 'src/assets/images/keystone-success.svg';
+import PrivateKeyStoneSuccess from 'src/assets/privateImages/keystone-gold-success.svg';
 import Close from 'src/assets/images/keeperModalCrossIcon.svg';
 import CloseGreen from 'src/assets/images/dark-close-icon.svg';
 import PrivateCrossIcon from 'src/assets/privateImages/white-cross-circle-icon.svg';
@@ -626,6 +648,72 @@ const themeIcons = {
     LIGHT: OrganizationIcon,
     PRIVATE: PrivateOrganization,
     PRIVATE_LIGHT: PrivateOrganization,
+  },
+  coldCard_success_illustration: {
+    DARK: ColdCardSuccess,
+    LIGHT: ColdCardSuccess,
+    PRIVATE: PrivateColdCardSuccess,
+    PRIVATE_LIGHT: PrivateColdCardSuccess,
+  },
+  bitBox_success: {
+    DARK: BitBoxSuccess,
+    LIGHT: BitBoxSuccess,
+    PRIVATE: PrivateBitboxSuccess,
+    PRIVATE_LIGHT: PrivateBitboxSuccess,
+  },
+  jade_success: {
+    DARK: JadeSuccess,
+    LIGHT: JadeSuccess,
+    PRIVATE: PrivateJadeSuccess,
+    PRIVATE_LIGHT: PrivateJadeSuccess,
+  },
+  keyStone_success: {
+    DARK: KeyStoneSuccess,
+    LIGHT: KeyStoneSuccess,
+    PRIVATE: PrivateKeyStoneSuccess,
+    PRIVATE_LIGHT: PrivateKeyStoneSuccess,
+  },
+  ledger_success: {
+    DARK: LedgerSuccess,
+    LIGHT: LedgerSuccess,
+    PRIVATE: PrivateLedgerSuccess,
+    PRIVATE_LIGHT: PrivateLedgerSuccess,
+  },
+  foundation_success: {
+    DARK: FoundationSuccess,
+    LIGHT: FoundationSuccess,
+    PRIVATE: PrivateFoundationSuccess,
+    PRIVATE_LIGHT: PrivateFoundationSuccess,
+  },
+  portal_success: {
+    DARK: PortalSuccess,
+    LIGHT: PortalSuccess,
+    PRIVATE: PrivatePortalSuccess,
+    PRIVATE_LIGHT: PrivatePortalSuccess,
+  },
+  seedSigner_success: {
+    DARK: SeedSignerSuccess,
+    LIGHT: SeedSignerSuccess,
+    PRIVATE: PrivateSeedSignerSuccess,
+    PRIVATE_LIGHT: PrivateSeedSignerSuccess,
+  },
+  specter_success: {
+    DARK: SpecterSuccess,
+    LIGHT: SpecterSuccess,
+    PRIVATE: PrivateSpecterSuccess,
+    PRIVATE_LIGHT: PrivateSpecterSuccess,
+  },
+  tapSigner_success: {
+    DARK: TapSignerSuccess,
+    LIGHT: TapSignerSuccess,
+    PRIVATE: PrivateTapSignerSuccess,
+    PRIVATE_LIGHT: PrivateTapSignerSuccess,
+  },
+  trezor_success: {
+    DARK: TrezorSuccess,
+    LIGHT: TrezorSuccess,
+    PRIVATE: PrivateTrezorSuccess,
+    PRIVATE_LIGHT: PrivateTrezorSuccess,
   },
   close_icon: {
     DARK: CloseGreen,
