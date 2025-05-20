@@ -1426,7 +1426,9 @@
     "inheritanceKey": "Inheritance Key",
     "designateAsInheritanceKey": "Designate a key as the Inheritance Key",
     "keyAddedTitle": "Key added successfully.",
-    "keyAddedSubTitle": "Key has been added successfully. You can continue adding other keys or click Finish to add the device."
+    "keyAddedSubTitle": "Key has been added successfully. You can continue adding other keys or click Finish to add the device.",
+    "missingSingleSigTitle": "Singe Sig xpub Missing",
+    "missingSingleSigSubTitle": "Please add the single-sig xpub to create a Canary Wallet for your {0}"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",

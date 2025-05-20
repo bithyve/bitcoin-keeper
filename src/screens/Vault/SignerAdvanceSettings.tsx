@@ -20,7 +20,13 @@ import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType, VaultType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
+import {
+  SignerCategory,
+  SignerType,
+  VaultType,
+  VisibilityType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
 import idx from 'idx';
@@ -87,6 +93,7 @@ import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-il
 import PrivateSeedSignerSetupImage from 'src/assets/privateImages/seedSigner-illustration.svg';
 import PrivateMy_Keeper from 'src/assets/privateImages/mobileKeyIllustration.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import MissingSingleXpubIllustration from 'src/assets/images/MissingSingleXpubIllustration.svg';
 
 const { width } = Dimensions.get('screen');
 
@@ -150,6 +157,7 @@ function SignerAdvanceSettings({ route }: any) {
     signingServer,
     signer: signerTranslation,
     seed: seedTranslation,
+    formatString,
   } = translations;
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -172,6 +180,7 @@ function SignerAdvanceSettings({ route }: any) {
   const [detailModal, setDetailModal] = useState(false);
   const [registerSignerModal, setRegisterSignerModal] = useState(false);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const [singleSigModal, setSingleSigModal] = useState(false);
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
@@ -425,8 +434,8 @@ function SignerAdvanceSettings({ route }: any) {
       setCanaryVaultLoading(true);
       const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
       if (!singleSigSigner) {
-        showToast('No single Sig found');
         setCanaryVaultLoading(false);
+        setSingleSigModal(true);
       } else {
         const ssVaultKey: VaultSigner = {
           ...singleSigSigner,
@@ -969,6 +978,32 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
+  const MissingXpubContent = () => {
+    return (
+      <Box style={styles.missingXpubContainer}>
+        <MissingSingleXpubIllustration />
+        <Buttons
+          primaryText={common.addNow}
+          primaryCallback={() => {
+            setSingleSigModal(false);
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'SigningDeviceList',
+                params: {
+                  addSignerFlow: true,
+                  signerCategory: SignerCategory.HARDWARE,
+                  headerTitle: signerTranslation.hardwareKeysHeader,
+                  headerSubtitle: signerTranslation.connectHardwareDevices,
+                },
+              })
+            );
+          }}
+          fullWidth
+        />
+      </Box>
+    );
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
@@ -1177,6 +1212,24 @@ function SignerAdvanceSettings({ route }: any) {
           );
         }}
         buttonCallback={() => setDetailModal(false)}
+      />
+      <KeeperModal
+        visible={singleSigModal}
+        close={() => setSingleSigModal(false)}
+        title={signerTranslation.missingSingleSigTitle}
+        subTitle={
+          formatString(
+            signerTranslation.missingSingleSigSubTitle,
+            getSignerNameFromType(signer.type, signer.isMock, false).replace(/\*+/g, '')
+          ) as string
+        }
+        modalBackground={
+          privateTheme ? `${colorMode}.modalPrivateBackground` : `${colorMode}.modalWhiteBackground`
+        }
+        textColor={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.textGreen`}
+        subTitleWidth={wp(280)}
+        DarkCloseIcon
+        Content={MissingXpubContent}
       />
     </ScreenWrapper>
   );
@@ -1433,5 +1486,9 @@ const styles = StyleSheet.create({
   },
   upgradeIcon: {
     marginRight: 20,
+  },
+  missingXpubContainer: {
+    alignItems: 'center',
+    gap: hp(30),
   },
 });
