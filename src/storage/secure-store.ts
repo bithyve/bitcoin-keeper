@@ -53,9 +53,6 @@ export const fetch = async (hash_current: string) => {
       });
       if (credentials) {
         const password = JSON.parse(credentials.password);
-        if (hash_current === '') {
-          return password.enc_key;
-        }
         if (hash_current === password.hash) {
           return password.enc_key;
         }
