@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -9,54 +9,33 @@ import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
 import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function RecoveryPhraseTemplate({}) {
-  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const slider_background = ThemedColor({ name: 'slider_background' });
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
 
   return (
-    <ScreenWrapper
-      barStyle="dark-content"
-      backgroundcolor={
-        privateTheme || PrivateThemeLight
-          ? `${colorMode}.primaryBackground`
-          : `${colorMode}.pantoneGreen`
-      }
-    >
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={slider_background}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text
-          style={styles.heading}
-          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.heading} color={green_modal_text_color}>
           {inheritancePlanning.recoveryPhraseTitleTemplate}
         </Text>
-        <Text
-          style={styles.description}
-          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.description} color={green_modal_text_color}>
           {inheritancePlanning.recoveryPhraseDescpMain}
         </Text>
-        <Text
-          style={styles.commonTextStyle}
-          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.commonTextStyle} color={green_modal_text_color}>
           {inheritancePlanning.recoveryPhraseP1}
         </Text>
         <Box style={styles.circleStyle}>
           <ThemedSvg name={'inheritance_seed_illustration'} />
         </Box>
-        <Text
-          style={styles.commonTextStyle}
-          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.commonTextStyle} color={green_modal_text_color}>
           {inheritancePlanning.recoveryPhraseP2}
         </Text>
         <Box mt={5}>
@@ -75,15 +54,10 @@ function RecoveryPhraseTemplate({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text
-            bold
-            color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          >
+          <Text bold color={green_modal_text_color}>
             Note:
           </Text>
-          <Text color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}>
-            {inheritancePlanning.recoveryPhraseNotes}
-          </Text>
+          <Text color={green_modal_text_color}>{inheritancePlanning.recoveryPhraseNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { resetRealyWalletState, setHomeToastMessage } from 'src/store/reducers/bhr';
 import InititalAppController from './InititalAppController';
@@ -21,6 +21,7 @@ import { useNavigation } from '@react-navigation/native';
 import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -29,8 +30,7 @@ function NewHomeScreen({ route }) {
   const { addedSigner, selectedOption: selectedOptionFromRoute } = route.params || {};
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const home_header_circle_background = ThemedColor({ name: 'home_header_circle_background' });
 
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage, homeToastMessage } =
     useAppSelector((state) => state.bhr);
@@ -60,9 +60,7 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<ThemedSvg name={'header_Wallet'} />}
-              backgroundColor={
-                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
-              }
+              backgroundColor={home_header_circle_background}
             />
           ),
         };
@@ -77,9 +75,7 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<ThemedSvg name={'header_key'} />}
-              backgroundColor={
-                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
-              }
+              backgroundColor={home_header_circle_background}
             />
           ),
         };
@@ -101,9 +97,7 @@ function NewHomeScreen({ route }) {
                   style={{ marginRight: wp(1), marginBottom: hp(1) }}
                 />
               }
-              backgroundColor={
-                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
-              }
+              backgroundColor={home_header_circle_background}
             />
           ),
         };
@@ -118,9 +112,7 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<ThemedSvg name={'header_more'} />}
-              backgroundColor={
-                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.headerWhite`
-              }
+              backgroundColor={home_header_circle_background}
             />
           ),
         };

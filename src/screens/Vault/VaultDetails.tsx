@@ -14,8 +14,6 @@ import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { VaultType } from 'src/services/wallets/enums';
-import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import PrivateVaultSetupIcon from 'src/assets/privateImages/vault_setup.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
@@ -56,6 +54,7 @@ import MiniscriptPathSelector, {
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function Footer({
   vault,
@@ -284,9 +283,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const isDarkMode = colorMode === 'dark';
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(vault);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
 
   useEffect(() => {
     if (viewTransaction) {
@@ -391,30 +392,21 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     () => (
       <View style={styles.vaultModalContainer}>
         <Box style={styles.alignSelf}>
-          {privateTheme || privateThemeLight ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
+          <ThemedSvg name={'vault_setting_icon'} />
         </Box>
         {isCanaryWallet ? (
-          <Text
-            color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-            style={styles.modalContent}
-          >
+          <Text color={green_modal_text_color} style={styles.modalContent}>
             {vaultTranslation.canaryLearnMoreDesc}
           </Text>
         ) : (
           <>
-            <Text
-              color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-              style={styles.modalContent}
-            >
+            <Text color={green_modal_text_color} style={styles.modalContent}>
               {isCollaborativeWallet
                 ? vaultTranslation.walletSetupDetails
                 : vaultTranslation.keeperSupportSigningDevice}
             </Text>
             {!isCollaborativeWallet && (
-              <Text
-                color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-                style={styles.descText}
-              >
+              <Text color={green_modal_text_color} style={styles.descText}>
                 {vaultTranslation.additionalOptionForSignDevice}
               </Text>
             )}
@@ -554,28 +546,14 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             ? vaultTranslation.canaryLearnMoreSubtitle
             : vaultTranslation.vaultLearnMoreSubtitle
         }
-        modalBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.primaryBackground`
-            : `${colorMode}.pantoneGreen`
-        }
-        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
         Content={VaultContent}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.headerWhite`
-            : `${colorMode}.pantoneGreen`
-        }
-        buttonBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.whiteSecButtonText`
-        }
-        secButtonTextColor={
-          privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.whiteSecButtonText`
-        }
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        secButtonTextColor={green_modal_sec_button_text}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           dispatch(setIntroModal(false));

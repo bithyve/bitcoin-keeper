@@ -101,7 +101,6 @@ import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-s
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
 import PrivateImagePlaceHolder from 'src/assets/privateImages/contact-image-placeholder.svg';
-import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
 import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
 import PrivateHardwareKey from 'src/assets/privateImages/hard-key.svg';
 import HardwareSignerWhite from 'src/assets/images/SignerWhiteHardware.svg';
@@ -179,6 +178,65 @@ import TrezorSuccess from 'src/assets/images/trezor-success.svg';
 import PrivateTrezorSuccess from 'src/assets/privateImages/trezor-gold-success.svg';
 import KeyStoneSuccess from 'src/assets/images/keystone-success.svg';
 import PrivateKeyStoneSuccess from 'src/assets/privateImages/keystone-gold-success.svg';
+import Close from 'src/assets/images/keeperModalCrossIcon.svg';
+import CloseGreen from 'src/assets/images/dark-close-icon.svg';
+import PrivateCrossIcon from 'src/assets/privateImages/white-cross-circle-icon.svg';
+import TickIcon from 'src/assets/images/icon_check.svg';
+import PrivateTickIcon from 'src/assets/privateImages/tick-icon.svg';
+import InheritanceToolsIllustration from 'src/assets/images/InheritanceToolsIllustration.svg';
+import InheritanceToolsIllustrationDark from 'src/assets/images/InheritanceToolsIllustrationDark.svg';
+import InhertanceToolsPrivate from 'src/assets/privateImages/inheritance-tool-illustration.svg';
+import AddCircleLight from 'src/assets/images/add-circle-light.svg';
+import AddCircleDark from 'src/assets/privateImages/round-White-plus.svg';
+import SeedwordsIllustration from 'src/assets/images/seedwords_illustration.svg';
+import BackupRecouveryPrivateIllustration from 'src/assets/privateImages/backup-recovery-key-illustration.svg';
+import SearchIcon from 'src/assets/images/search-icon.svg';
+import PrivateSearchIcon from 'src/assets/privateImages/search-icon.svg';
+import NetworkIcon from 'src/assets/privateImages/network-icon.svg';
+import NetworkModeIcon from 'src/assets/images/SettingNetworkMode.svg';
+import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
+import Plus from 'src/assets/images/add-plus-white.svg';
+import PrivateLightDeleteIcon from 'src/assets/privateImages/keypad-private-delete-icon.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import RemoteShareIllustration from 'src/assets/images/remote-share-illustration.svg';
+import PrivateRemoteShareIllustration from 'src/assets/privateImages/remote-key-sharing.svg';
+import HealthCheckIllustration from 'src/assets/images/health-check-illustration.svg';
+import HealthCheckIllustrationDark from 'src/assets/images/health-check-illustration-dark.svg';
+import PrivateHealthCheckIllustrationDark from 'src/assets/privateImages/healthCheckIllustration.svg';
+import GoldPlusIcon from 'src/assets/privateImages/plus-gold-icon.svg';
+import AddIcon from 'src/assets/images/add-plain-green.svg';
+import PrivateNoVaultTransactionIcon from 'src/assets/privateImages/no_transaction_icon .svg';
+import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
+import PrivateAddContactIcon from 'src/assets/privateImages/phone-book-circle .svg';
+import PhoneBookIcon from 'src/assets/images/phone-book-circle.svg';
+import AdditionalUserPrivate from 'src/assets/privateImages/additional-user-illustration.svg';
+import ConfirmDeleteGoldIllustration from 'src/assets/privateImages/Confirm-Deletion-gold.svg';
+import AdditonalUserIcon from 'src/assets/images/additional_user_icon.svg';
+import DeleteIllustration from 'src/assets/images/delete-illustration.svg';
+import UpdatePolicyIllustration from 'src/assets/images/UpdatePolicyIllustration.svg';
+import PrivateUpdatePolicyIllustration from 'src/assets/privateImages/UpdatePolicyIllustration.svg';
+import DelaycompleteIcon from 'src/assets/images/delay-configuration-complete-icon.svg';
+import PrivateDelayCompleteIcon from 'src/assets/privateImages/delay-configuration-complete-icon 1.svg';
+import DelayModalIcon from 'src/assets/images/delay-configuration-icon.svg';
+import PrivateDelayNodalIcon from 'src/assets/privateImages/delayModalIcon.svg';
+import PrivateVaultIllustration from 'src/assets/privateImages/refreshModalIcon.svg';
+import VaultSetupIcon from 'src/assets/images/pull-down-wallet.svg';
+import PrivateVaultSettingIcon from 'src/assets/privateImages/vault_setup.svg';
+import VaultSettingIcon from 'src/assets/images/vault_setup.svg';
+import SeedSetupIllustration from 'src/assets/images/illustration_seed_words.svg';
+import PrivateSeedKey from 'src/assets/privateImages/seedKey-illustration.svg';
+import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
+import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-ilustration.svg';
+import BitboxImage from 'src/assets/images/bitboxSetup.svg';
+import PrivateBitboxImage from 'src/assets/privateImages/bitBox-illustration.svg';
+import PrivateTrezor from 'src/assets/privateImages/trezor-illustration.svg';
+import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import PrivateLedger from 'src/assets/privateImages/ledger-illustration.svg';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
+import PrivateSigningServerBackupIllustration from 'src/assets/privateImages/Backup-Server-Key-illustration.svg';
+import SigningServerBackupIllustration from 'src/assets/images/backup-server-illustration.svg';
+import WalletVault from 'src/assets/images/vault-hexa-green.svg';
+import PrivateWalletVault from 'src/assets/privateImages/hexa-vault.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -511,6 +569,25 @@ const themeIcons = {
     PRIVATE: PrivateJadeIllustration,
     PRIVATE_LIGHT: PrivateJadeIllustration,
   },
+  ledger_illustration: {
+    DARK: LedgerImage,
+    LIGHT: LedgerImage,
+    PRIVATE: PrivateLedger,
+    PRIVATE_LIGHT: PrivateLedger,
+  },
+  signing_server_illustration: {
+    DARK: SigningServerIllustration,
+    LIGHT: SigningServerIllustration,
+    PRIVATE: PrivateServerKeyIllustration,
+    PRIVATE_LIGHT: PrivateServerKeyIllustration,
+  },
+  SeedSetupIllustration: {
+    DARK: SeedSetupIllustration,
+    LIGHT: SeedSetupIllustration,
+    PRIVATE: PrivateSeedKey,
+    PRIVATE_LIGHT: PrivateSeedKey,
+  },
+
   otherSigner_illustration: {
     DARK: OtherSDImage,
     LIGHT: OtherSDImage,
@@ -522,6 +599,18 @@ const themeIcons = {
     LIGHT: KeeperSetup,
     PRIVATE: PrivateKeeperSetup,
     PRIVATE_LIGHT: PrivateKeeperSetup,
+  },
+  bitBox_illustration: {
+    DARK: BitboxImage,
+    LIGHT: BitboxImage,
+    PRIVATE: PrivateBitboxImage,
+    PRIVATE_LIGHT: PrivateBitboxImage,
+  },
+  trezor_illustration: {
+    DARK: TrezorSetup,
+    LIGHT: TrezorSetup,
+    PRIVATE: PrivateTrezor,
+    PRIVATE_LIGHT: PrivateTrezor,
   },
   tapSigner_illustration: {
     DARK: TapsignerSetupSVG,
@@ -535,6 +624,7 @@ const themeIcons = {
     PRIVATE: PrivatePortalIllustration,
     PRIVATE_LIGHT: PrivatePortalIllustration,
   },
+
   wallet_Recovery_icon: {
     DARK: WalletRecoveryIcon,
     LIGHT: WalletRecoveryIcon,
@@ -624,6 +714,144 @@ const themeIcons = {
     LIGHT: TrezorSuccess,
     PRIVATE: PrivateTrezorSuccess,
     PRIVATE_LIGHT: PrivateTrezorSuccess,
+  },
+  close_icon: {
+    DARK: CloseGreen,
+    LIGHT: Close,
+    PRIVATE: PrivateCrossIcon,
+    PRIVATE_LIGHT: Close,
+  },
+  tick_icon: {
+    DARK: TickIcon,
+    LIGHT: TickIcon,
+    PRIVATE: PrivateTickIcon,
+    PRIVATE_LIGHT: PrivateTickIcon,
+  },
+  InheritanceToolsIllustration: {
+    DARK: InheritanceToolsIllustrationDark,
+    LIGHT: InheritanceToolsIllustration,
+    PRIVATE: InhertanceToolsPrivate,
+    PRIVATE_LIGHT: InhertanceToolsPrivate,
+  },
+  add_circle: {
+    DARK: AddCircleLight,
+    LIGHT: AddCircleLight,
+    PRIVATE: AddCircleDark,
+    PRIVATE_LIGHT: AddCircleLight,
+  },
+  backup_modal: {
+    DARK: SeedwordsIllustration,
+    LIGHT: SeedwordsIllustration,
+    PRIVATE: BackupRecouveryPrivateIllustration,
+    PRIVATE_LIGHT: SeedwordsIllustration,
+  },
+  search_icon: {
+    DARK: SearchIcon,
+    LIGHT: SearchIcon,
+    PRIVATE: PrivateSearchIcon,
+    PRIVATE_LIGHT: SearchIcon,
+  },
+  NetworkIcon: {
+    DARK: NetworkModeIcon,
+    LIGHT: NetworkModeIcon,
+    PRIVATE: NetworkIcon,
+    PRIVATE_LIGHT: NetworkIcon,
+  },
+  add_wallet_plus_icon: {
+    DARK: PlusGreenIcon,
+    LIGHT: Plus,
+    PRIVATE: Plus,
+    PRIVATE_LIGHT: Plus,
+  },
+  delete_icon: {
+    DARK: DeleteIcon,
+    LIGHT: DeleteIcon,
+    PRIVATE: DeleteIcon,
+    PRIVATE_LIGHT: PrivateLightDeleteIcon,
+  },
+  remote_share_illustration: {
+    DARK: RemoteShareIllustration,
+    LIGHT: RemoteShareIllustration,
+    PRIVATE: PrivateRemoteShareIllustration,
+    PRIVATE_LIGHT: PrivateRemoteShareIllustration,
+  },
+  HealthCheckIllustration: {
+    DARK: HealthCheckIllustrationDark,
+    LIGHT: HealthCheckIllustration,
+    PRIVATE: PrivateHealthCheckIllustrationDark,
+    PRIVATE_LIGHT: PrivateHealthCheckIllustrationDark,
+  },
+  add_icon_collaborative: {
+    DARK: AddIcon,
+    LIGHT: AddIcon,
+    PRIVATE: GoldPlusIcon,
+    PRIVATE_LIGHT: AddIcon,
+  },
+  NoTransactionIcon: {
+    DARK: NoTransactionIcon,
+    LIGHT: NoTransactionIcon,
+    PRIVATE: PrivateNoVaultTransactionIcon,
+    PRIVATE_LIGHT: PrivateNoVaultTransactionIcon,
+  },
+  PhoneBookIcon: {
+    DARK: PhoneBookIcon,
+    LIGHT: PhoneBookIcon,
+    PRIVATE: PrivateAddContactIcon,
+    PRIVATE_LIGHT: PrivateAddContactIcon,
+  },
+  AdditonalUserIcon: {
+    DARK: AdditonalUserIcon,
+    LIGHT: AdditonalUserIcon,
+    PRIVATE: AdditionalUserPrivate,
+    PRIVATE_LIGHT: AdditionalUserPrivate,
+  },
+  delete_illustration: {
+    DARK: DeleteIllustration,
+    LIGHT: DeleteIllustration,
+    PRIVATE: ConfirmDeleteGoldIllustration,
+    PRIVATE_LIGHT: ConfirmDeleteGoldIllustration,
+  },
+  UpdatePolicyIllustration: {
+    DARK: UpdatePolicyIllustration,
+    LIGHT: UpdatePolicyIllustration,
+    PRIVATE: PrivateUpdatePolicyIllustration,
+    PRIVATE_LIGHT: PrivateUpdatePolicyIllustration,
+  },
+  DelaycompleteIcon: {
+    DARK: DelaycompleteIcon,
+    LIGHT: DelaycompleteIcon,
+    PRIVATE: PrivateDelayCompleteIcon,
+    PRIVATE_LIGHT: PrivateDelayCompleteIcon,
+  },
+  DelayModalIcon: {
+    DARK: DelayModalIcon,
+    LIGHT: DelayModalIcon,
+    PRIVATE: PrivateDelayNodalIcon,
+    PRIVATE_LIGHT: PrivateDelayNodalIcon,
+  },
+  VaultSetupIcon: {
+    DARK: VaultSetupIcon,
+    LIGHT: VaultSetupIcon,
+    PRIVATE: PrivateVaultIllustration,
+    PRIVATE_LIGHT: PrivateVaultIllustration,
+  },
+  vault_setting_icon: {
+    DARK: VaultSettingIcon,
+    LIGHT: VaultSettingIcon,
+    PRIVATE: PrivateVaultSettingIcon,
+    PRIVATE_LIGHT: PrivateVaultSettingIcon,
+  },
+  signing_server_backup_modal_illustration: {
+    DARK: SigningServerBackupIllustration,
+    LIGHT: SigningServerBackupIllustration,
+    PRIVATE: PrivateSigningServerBackupIllustration,
+    PRIVATE_LIGHT: PrivateSigningServerBackupIllustration,
+  },
+  WalletVault: {
+    DARK: WalletVault,
+    LIGHT: WalletVault,
+    PRIVATE: PrivateWalletVault,
+    PRIVATE_LIGHT: PrivateWalletVault,
   },
 };
 
