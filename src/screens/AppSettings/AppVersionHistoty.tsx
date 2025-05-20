@@ -10,6 +10,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
+import WalletHeader from 'src/components/WalletHeader';
 
 function AppVersionHistory() {
   const { colorMode } = useColorMode();
@@ -19,9 +20,9 @@ function AppVersionHistory() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={settings.versionHistoryTitle}
-        subtitle={settings.versionHistorySubTitle}
+        subTitle={settings.versionHistorySubTitle}
       />
       <ScrollView style={styles.versionHistory} testID="view_VersionHistoryList">
         <VersionHistoryList />

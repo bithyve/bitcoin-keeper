@@ -3,11 +3,11 @@ import { Box, useColorMode } from 'native-base';
 
 import BackupHealthCheckList from 'src/components/Backup/BackupHealthCheckList';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
+import WalletHeader from 'src/components/WalletHeader';
 
 function WalletBackHistoryScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -18,7 +18,7 @@ function WalletBackHistoryScreen({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={seed.backupPhrase} />
+      <WalletHeader title={seed.backupPhrase} />
       <Box style={styles.healthCheckContainer}>
         <BackupHealthCheckList isUaiFlow={isUaiFlow} />
       </Box>

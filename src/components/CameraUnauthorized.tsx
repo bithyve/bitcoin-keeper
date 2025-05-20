@@ -41,7 +41,7 @@ function CameraUnauthorized() {
       >
         <Box
           borderColor={`${colorMode}.learnMoreBorder`}
-          backgroundColor={`${colorMode}.accent`}
+          backgroundColor={`${colorMode}.DarkSlateGray`}
           style={styles.learnMoreContainer}
         >
           <Text color={`${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>

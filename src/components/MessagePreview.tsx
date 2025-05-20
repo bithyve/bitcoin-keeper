@@ -2,11 +2,12 @@ import { StyleSheet } from 'react-native';
 import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import KeeperIcon from 'src/assets/images/keeper-icon.svg';
 import KeeperNameIcon from 'src/assets/images/keeper-name-icon.svg';
-import KeeperNameIconDark from 'src/assets/images/keeper-name-icon-dark.svg';
+import KeeperNameIconDark from 'src/assets/privateImages/bitcoinKeeperWhiteLogo.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useSelector } from 'react-redux';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 type MessagePreviewProps = {
   title: string;
@@ -18,15 +19,25 @@ function MessagePreview({ title, description, link }: MessagePreviewProps) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
   return (
-    <Box style={styles.messagePreviewContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+    <Box
+      style={styles.messagePreviewContainer}
+      backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.seashellWhite`}
+      borderWidth={1}
+      borderColor={privateTheme ? `${colorMode}.greyBorder` : `${colorMode}.separator`}
+    >
       <Text style={styles.previewLabel}>{common.messagePreview}</Text>
       <Box style={styles.previewBox} borderColor={`${colorMode}.greyBorder`}>
         <Text style={styles.messagePreviewTitle}>{title}</Text>
         <Text style={styles.messagePreviewDescription}>{description}</Text>
-        <Box style={styles.linkContainer} backgroundColor={`${colorMode}.seedCard`}>
+        <Box
+          style={styles.linkContainer}
+          backgroundColor={privateTheme ? `${colorMode}.separator` : `${colorMode}.seedCard`}
+        >
           <Box style={styles.linkIconContainer}>
-            <KeeperIcon />
+            <ThemedSvg name={'keeper_icon'} />
           </Box>
           <Box>
             {colorMode === 'light' ? <KeeperNameIcon /> : <KeeperNameIconDark />}

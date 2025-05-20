@@ -27,6 +27,7 @@ export enum RealmSchema {
   MiniscriptScheme = 'MiniscriptScheme',
   VaultScheme = 'VaultScheme',
   SignerPolicy = 'SignerPolicy',
+  VerificationOption = 'VerificationOption',
   Backup = 'Backup',
   NodeConnect = 'NodeConnect',
   DefaultNodeConnect = 'DefaultNodeConnect',
@@ -36,4 +37,5 @@ export enum RealmSchema {
   BackupHistory = 'BackupHistory',
   StoreSubscription = 'StoreSubscription',
   CloudBackupHistory = 'CloudBackupHistory',
+  Balances = 'Balances',
 }

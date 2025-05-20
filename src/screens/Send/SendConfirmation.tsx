@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/constants/responsive';
@@ -33,7 +33,7 @@ import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
@@ -45,7 +45,6 @@ import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/con
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
-import config from 'src/utils/service-utilities/config';
 import AmountChangedWarningIllustration from 'src/assets/images/amount-changed-warning-illustration.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { SentryErrorBoundary } from 'src/services/sentry';
@@ -95,6 +94,7 @@ function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
+  const isFocused = useIsFocused();
   const {
     sender,
     internalRecipients,
@@ -174,6 +174,7 @@ function SendConfirmation({ route }) {
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const [amounts, setAmounts] = useState(
     isCachedTransaction
@@ -234,7 +235,9 @@ function SendConfirmation({ route }) {
             routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
           })
         );
-        showToast('New pending transaction saved successfully', <TickIcon />);
+        if (isFocused) {
+          showToast('New pending transaction saved successfully', <TickIcon />);
+        }
       } else {
         navigation.dispatch(e.data.action);
       }
@@ -499,7 +502,7 @@ function SendConfirmation({ route }) {
 
   const handleShare = async () => {
     const url = `https://mempool.space${
-      config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      bitcoinNetworkType === NetworkType.TESTNET ? '/testnet4' : ''
     }/tx/${walletSendSuccessful}`;
 
     try {
@@ -611,6 +614,7 @@ function SendConfirmation({ route }) {
               primaryCallback={cancelSigningRequestAndDiscardCache}
               fullWidth
               primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
             />
           </Box>
         </Box>
@@ -775,7 +779,7 @@ function SendConfirmation({ route }) {
           <PriorityModal
             selectedPriority={transactionPriority}
             setSelectedPriority={setTransactionPriority}
-            averageTxFees={averageTxFees[config.NETWORK_TYPE]}
+            averageTxFees={averageTxFees[bitcoinNetworkType]}
             txFeeInfo={txFeeInfo}
             customFeePerByte={customFeePerByte}
             onOpenCustomPriorityModal={() => {

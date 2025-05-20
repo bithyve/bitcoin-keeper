@@ -3,7 +3,11 @@ import { Platform, Pressable, StyleSheet, Vibration } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { wp } from 'src/constants/responsive';
-import { generateOutputDescriptors, getArchivedVaults } from 'src/utils/service-utilities/utils';
+import {
+  generateAbbreviatedOutputDescriptors,
+  generateOutputDescriptors,
+  getArchivedVaults,
+} from 'src/utils/service-utilities/utils';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useTestSats from 'src/hooks/useTestSats';
@@ -17,9 +21,8 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { trimCWDefaultName } from 'src/utils/utilities';
 import { getVaultEnhancedSigners } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
-import LearnMoreIcon from 'src/assets/images/learnMoreIcon.svg';
-import LearnMoreIconDark from 'src/assets/images/info-Dark-icon.svg';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
+import PrivateVaultSetupIcon from 'src/assets/privateImages/vault_setup.svg';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
@@ -30,6 +33,11 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import NFC from 'src/services/nfc';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import { NfcTech } from 'react-native-nfc-manager';
+import { useQuery } from '@realm/react';
+import ImportExportLabels from 'src/components/ImportExportLabels';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -52,9 +60,18 @@ function VaultSettings({ route }) {
 
   const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
   const [needHelpModal, setNeedHelpModal] = useState(false);
-  const [walletConfigModal, setWalletConfigModal] = useState(false);
+  const [walletConfigModal, setWalletConfigModal] = useState(route?.params?.exportConfig || false);
   const [visible, setVisible] = React.useState(false);
   const { session } = useContext(HCESessionContext);
+  const [importExportLabelsModal, setImportExportLabelsModal] = useState(false);
+
+  const walletDescriptor = generateAbbreviatedOutputDescriptors(vault);
+  const labels = useQuery(RealmSchema.Tags, (tags) =>
+    tags.filtered('origin == $0', walletDescriptor)
+  );
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const cleanUp = () => {
     setVisible(false);
@@ -85,7 +102,6 @@ function VaultSettings({ route }) {
           name: vault.presentationData.name,
           description: vault.presentationData.description,
           visibility: VisibilityType.HIDDEN,
-          shell: vault.presentationData.shell,
         },
       });
       showToast(vaultText.vaultHiddenSuccessMessage, <TickIcon />, IToastCategory.DEFAULT, 5000);
@@ -111,12 +127,18 @@ function VaultSettings({ route }) {
     return (
       <Box>
         <Box style={styles.illustration}>
-          <VaultSetupIcon />
+          {privateTheme || privateThemeLight ? <PrivateVaultSetupIcon /> : <VaultSetupIcon />}
         </Box>
-        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
+        <Text
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.modalDesc}
+        >
           {vaultText.keeperSupportSigningDevice}
         </Text>
-        <Text color={`${colorMode}.headerWhite`} style={styles.modalDesc}>
+        <Text
+          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          style={styles.modalDesc}
+        >
           {vaultText.additionalOptionForSignDevice}
         </Text>
       </Box>
@@ -176,6 +198,13 @@ function VaultSettings({ route }) {
       icon: null,
       isDiamond: false,
       onPress: () => setWalletConfigModal(true),
+    },
+    {
+      title: vaultText.importExportLabels,
+      description: vaultText.importExportLabelsDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => setImportExportLabelsModal(true),
     },
     !isCanaryWalletType &&
       hasArchivedVaults && {
@@ -264,7 +293,7 @@ function VaultSettings({ route }) {
             }
             rightComponent={
               <Pressable style={styles.learnMoreIcon} onPress={() => setNeedHelpModal(true)}>
-                {isDarkMode ? <LearnMoreIconDark /> : <LearnMoreIcon />}
+                <ThemedSvg name={'info_icon'} />
               </Pressable>
             }
           />
@@ -299,16 +328,28 @@ function VaultSettings({ route }) {
         close={() => setNeedHelpModal(false)}
         title={vaultText.keeperVault}
         subTitle={vaultText.vaultLearnMoreSubtitle}
-        modalBackground={`${colorMode}.pantoneGreen`}
-        textColor={`${colorMode}.headerWhite`}
+        modalBackground={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.primaryBackground`
+            : `${colorMode}.pantoneGreen`
+        }
+        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         Content={modalContent}
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.textGreen`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonBackground={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.modalWhiteButton`
+        }
+        secButtonTextColor={
+          privateTheme || privateThemeLight
+            ? `${colorMode}.pantoneGreen`
+            : `${colorMode}.modalGreenSecButtonText`
+        }
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setNeedHelpModal(false);
@@ -333,6 +374,30 @@ function VaultSettings({ route }) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={WalletConfigModal}
+      />
+      <KeeperModal
+        visible={importExportLabelsModal}
+        close={() => setImportExportLabelsModal(false)}
+        title={vaultText.importExportLabels}
+        subTitle={vaultText.importExportLabelsDesc}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <ImportExportLabels
+            vault={vault}
+            labels={labels}
+            onSuccess={(message) => {
+              setImportExportLabelsModal(false);
+              showToast(message, <TickIcon />);
+            }}
+            onError={(message) => {
+              setImportExportLabelsModal(false);
+              showToast(message, <ToastErrorIcon />);
+            }}
+            translations={translations}
+          />
+        )}
       />
       <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />
     </ScreenWrapper>

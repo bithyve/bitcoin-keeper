@@ -8,7 +8,15 @@ import { windowWidth } from 'src/constants/responsive';
 import NFC from 'src/services/nfc';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-function NfcPrompt({ visible, close, ctaText }: { visible: boolean; close; ctaText?: string }) {
+function NfcPrompt({
+  visible = true,
+  close,
+  ctaText,
+}: {
+  visible: boolean;
+  close;
+  ctaText?: string;
+}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault } = translations;

@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import { Platform, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
@@ -16,12 +16,11 @@ import HWError from 'src/hardware/HWErrorState';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import { pickDocument } from 'src/services/documents';
 import { extractColdCardExport } from 'src/hardware/coldcard';
 import { getPassportDetails } from 'src/hardware/passport';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import OptionCard from 'src/components/OptionCard';
-import { getKeystoneDetails, getKeystoneDetailsFromFile } from 'src/hardware/keystone';
+import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { getJadeDetails } from 'src/hardware/jade';
 import { InteracationMode } from '../Vault/HardwareModalMap';
@@ -32,6 +31,14 @@ import Instruction from 'src/components/Instruction';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
+import OtherSignerOptionModal from './components/OtherSignerOptionModal';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
+import useNfcModal from 'src/hooks/useNfcModal';
+import NFC from 'src/services/nfc';
+import nfcManager, { NfcTech } from 'react-native-nfc-manager';
+import { captureError } from 'src/services/sentry';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import idx from 'idx';
 
 function SetupOtherSDScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -39,6 +46,7 @@ function SetupOtherSDScreen({ route }) {
   const [xpub, setXpub] = useState('');
   const [derivationPath, setDerivationPath] = useState('');
   const [masterFingerprint, setMasterFingerprint] = useState('');
+  const [optionModal, setOptionModal] = useState(false);
   const [infoModal, setInfoModal] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -137,6 +145,11 @@ function SetupOtherSDScreen({ route }) {
       } catch (error) {
         // ignore
       }
+      try {
+        hw = extractColdCardExport(JSON.parse(qrData), isMultisig);
+      } catch (error) {
+        // ignore
+      }
 
       if (hw) {
         const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } = hw;
@@ -172,96 +185,88 @@ function SetupOtherSDScreen({ route }) {
     }
   };
 
-  const handleError = (e) => {
-    if (e instanceof HWError) {
-      showToast(e.message, <ToastErrorIcon />);
+  const navigatetoQR = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ScanQR',
+        params: {
+          title: `Setting up ${getSignerNameFromType(SignerType.OTHER_SD)}`,
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          onQrScan,
+          setup: true,
+          type: SignerType.OTHER_SD,
+          isSingning: true,
+          importOptions: false,
+        },
+      })
+    );
+  };
+  const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
+
+  const readFromNFC = async () => {
+    try {
+      await withNfcModal(async () => {
+        const records = await NFC.read([NfcTech.Ndef]);
+        try {
+          const cosigner = records[0].data;
+          onQrScan(cosigner);
+        } catch (err) {
+          captureError(err);
+          showToast('Please scan a valid co-signer tag', <ToastErrorIcon />);
+        }
+      });
+    } catch (err) {
+      if (err.toString() === 'Error') {
+        console.log('NFC interaction cancelled');
+        return;
+      }
+      captureError(err);
+      showToast('Something went wrong.', <ToastErrorIcon />);
     }
   };
 
-  const handleFile = (file) => {
-    try {
-      let error;
-      const data = JSON.parse(file);
-      // file export from coldcard or passport(single sig)
-      try {
-        const ccDetails = extractColdCardExport(data, isMultisig);
-        const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
-        const { signer: coldcard } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          masterFingerprint,
-          isMultisig,
-          signerType: SignerType.OTHER_SD,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
-        dispatch(addSigningDevice([coldcard]));
-        const navigationState = addSignerFlow
-          ? { name: 'Home' }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
-        navigation.dispatch(CommonActions.navigate(navigationState));
-        return;
-      } catch (e) {
-        error = e;
+  const { session } = useContext(HCESessionContext);
+  const isAndroid = Platform.OS === 'android';
+
+  useEffect(() => {
+    if (isAndroid) {
+      if (nfcVisible) {
+        NFC.startTagSession({ session, content: '', writable: true });
+      } else {
+        NFC.stopTagSession(session);
       }
-      if (!(error instanceof HWError) || error.type === HWErrorType.INCORRECT_HW) {
-        // file export from passport(multisig)
-        try {
-          const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-            getPassportDetails(data);
-          if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-            const { signer: passport } = generateSignerFromMetaData({
-              xpub,
-              derivationPath,
-              masterFingerprint,
-              signerType: SignerType.OTHER_SD,
-              storageType: SignerStorage.COLD,
-              isMultisig,
-            });
-            dispatch(addSigningDevice([passport]));
-            const navigationState = addSignerFlow
-              ? { name: 'Home' }
-              : { name: 'AddSigningDevice', merge: true, params: {} };
-            navigation.dispatch(CommonActions.navigate(navigationState));
-            return;
-          }
-        } catch (e) {
-          error = e;
-        }
-        if (!(error instanceof HWError) || error.type === HWErrorType.INCORRECT_HW) {
-          // file export from keystone
-          try {
-            const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-              getKeystoneDetailsFromFile(data);
-            if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-              const { signer: keystone } = generateSignerFromMetaData({
-                xpub,
-                derivationPath,
-                masterFingerprint,
-                signerType: SignerType.OTHER_SD,
-                storageType: SignerStorage.COLD,
-                isMultisig,
-              });
-              dispatch(addSigningDevice([keystone]));
-              const navigationState = addSignerFlow
-                ? { name: 'Home' }
-                : { name: 'AddSigningDevice', merge: true, params: {} };
-              navigation.dispatch(CommonActions.navigate(navigationState));
-              return;
-            }
-          } catch (e) {
-            error = e;
-          }
-        }
-      }
-      if (error) {
-        throw error;
-      }
-    } catch (e) {
-      handleError(e);
-      showToast('Please pick a valid file', <ToastErrorIcon />);
     }
-  };
+    return () => {
+      nfcManager.cancelTechnologyRequest();
+    };
+  }, [nfcVisible]);
+
+  useEffect(() => {
+    const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
+      try {
+        // content written from iOS to android
+        const data = idx(session, (_) => _.application.content.content);
+        if (!data) {
+          showToast('Please scan a valid co-signer', <ToastErrorIcon />);
+          return;
+        }
+        onQrScan(data);
+      } catch (err) {
+        captureError(err);
+        showToast('Something went wrong.', <ToastErrorIcon />);
+      } finally {
+        closeNfc();
+      }
+    });
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      closeNfc();
+    });
+    return () => {
+      unsubConnect();
+      unsubDisconnect();
+      NFC.stopTagSession(session);
+    };
+  }, [session]);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -299,28 +304,10 @@ function SetupOtherSDScreen({ route }) {
           placeholderTextColor={`${colorMode}.SlateGreen`}
         />
         <OptionCard
-          title="Pick a file"
-          description="Add an air-gapped device using a file"
+          title="Show import options"
+          description="Add an air-gapped device using a QR, NFC, or file"
           callback={() => {
-            pickDocument().then(handleFile);
-          }}
-        />
-        <OptionCard
-          title="Scan a QR code"
-          description="Add an air-gapped device using a QR code"
-          callback={() => {
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ScanQR',
-                params: {
-                  title: `Setting up ${getSignerNameFromType(SignerType.OTHER_SD)}`,
-                  subtitle: 'Please scan until all the QR data has been retrieved',
-                  onQrScan,
-                  setup: true,
-                  type: SignerType.OTHER_SD,
-                },
-              })
-            );
+            setOptionModal(true);
           }}
         />
       </Box>
@@ -349,6 +336,28 @@ function SetupOtherSDScreen({ route }) {
           </Box>
         )}
       />
+      <KeeperModal
+        visible={optionModal}
+        close={() => {
+          setOptionModal(false);
+        }}
+        title={'Add signer'}
+        subTitle={`Choose how you would like to add your signer`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <OtherSignerOptionModal
+              setOptionModal={setOptionModal}
+              navigatetoQR={navigatetoQR}
+              setData={onQrScan}
+              readFromNFC={readFromNFC}
+            />
+          </Box>
+        )}
+      />
+      <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>
   );
 }

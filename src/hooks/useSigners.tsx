@@ -3,10 +3,12 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getKeyUID } from 'src/utils/utilities';
+import { useAppSelector } from 'src/store/hooks';
 
-const useSigners = (vaultId = ''): { vaultSigners: Signer[]; signers: Signer[] } => {
+const useSigners = (vaultId = '', getAll = true): { vaultSigners: Signer[]; signers: Signer[] } => {
   const vaults = useQuery(RealmSchema.Vault);
-  const signers = useQuery(RealmSchema.Signer);
+  let signers: any = useQuery(RealmSchema.Signer);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   let currentVault = null;
   const vaultSigners = [];
   if (vaultId) {
@@ -22,7 +24,13 @@ const useSigners = (vaultId = ''): { vaultSigners: Signer[]; signers: Signer[] }
     });
     return { vaultSigners, signers: signers.map(getJSONFromRealmObject) };
   }
-  return { vaultSigners, signers: signers.map(getJSONFromRealmObject) };
+
+  signers = signers.map(getJSONFromRealmObject);
+  if (!getAll) {
+    signers = signers.filter((signer: any) => signer.networkType === bitcoinNetworkType);
+  }
+
+  return { vaultSigners, signers };
 };
 
 export default useSigners;

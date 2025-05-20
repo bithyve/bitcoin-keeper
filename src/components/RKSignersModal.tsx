@@ -15,13 +15,11 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import KeeperModal from 'src/components/KeeperModal';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { useDispatch } from 'react-redux';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
-import config from 'src/utils/service-utilities/config';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import { getInputsFromPSBT, getInputsToSignFromPSBT } from 'src/utils/utilities';
@@ -30,6 +28,8 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useAppSelector } from 'src/store/hooks';
+import ShareKeyModalContent from 'src/screens/Vault/components/ShareKeyModalContent';
 
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
@@ -55,12 +55,15 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [portalModal, setPortalModal] = useState(false);
+  const [openOptionModal, setOpenOptionModal] = useState(false);
+  const [details, setDetails] = useState(null);
 
   const card = useRef(new CKTapCard()).current;
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const textRef = useRef(null);
   const { signerMap } = useSignerMap();
@@ -110,6 +113,11 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
         break;
+      case SignerType.KEEPER:
+        showToast(
+          `You cannot sign with an external key, please share transaction with the key owner`
+        );
+        break;
       case SignerType.PORTAL:
         setPortalModal(true);
         break;
@@ -139,18 +147,41 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           title: signerText.PSBTSigned,
           subtitle: signerText.PSBTSignedDesc,
           type: SignerType.KEEPER,
+          isSignedPSBT: false,
         },
       })
     );
   };
 
-  const signTransaction = async ({ seedBasedSingerMnemonic, tapsignerCVC, portalCVC }) => {
+  function ShareKeyModalData() {
+    return (
+      <Box>
+        <ShareKeyModalContent
+          navigation={navigation}
+          signer={signer}
+          navigateToShowPSBT={navigateToShowPSBT}
+          setShareKeyModal={setOpenOptionModal}
+          data={details}
+          isSignedPSBT
+          isPSBTSharing
+          fileName={`signedTransaction.psbt`}
+        />
+      </Box>
+    );
+  }
+
+  const signTransaction = async ({
+    seedBasedSingerMnemonic,
+    tapsignerCVC,
+    portalCVC,
+    signedSerializedPSBT,
+  }) => {
     try {
       if (SignerType.SEED_WORDS === signerType) {
         const { signedSerializedPSBT } = await signTransactionWithSeedWords({
           isRemoteKey: true,
           signingPayload: {},
-          defaultVault: { signers: [signer], networkType: config.NETWORK_TYPE }, // replicating vault details in case of RK
+          defaultVault: { signers: [signer], networkType: bitcoinNetworkType }, // replicating vault details in case of RK
           seedBasedSingerMnemonic,
           serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
           xfp: {},
@@ -165,7 +196,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
               },
             ])
           );
-          navigateToShowPSBT(signedSerializedPSBT);
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
         }
       } else if (SignerType.MY_KEEPER === signerType) {
         let signedSerializedPSBT: string;
@@ -186,7 +218,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           serializedPSBTEnvelop.serializedPSBT
         );
         if (signedSerializedPSBT) {
-          navigateToShowPSBT(signedSerializedPSBT);
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
         }
       } else if (SignerType.TAPSIGNER === signerType) {
         const currentKey = {
@@ -251,6 +284,10 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
             },
           ])
         );
+        if (signedSerializedPSBT) {
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
+        } else throw new Error('Portal signing failed');
         return signedSerializedPSBT;
       } else if (SignerType.COLDCARD === signerType) {
         await signTransactionWithColdCard({
@@ -259,6 +296,13 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           serializedPSBTEnvelop,
           closeNfc,
         });
+      } else {
+        if (signedSerializedPSBT) {
+          setDetails(signedSerializedPSBT);
+          setOpenOptionModal(true);
+        } else {
+          throw new Error('Cannot get signed PSBT');
+        }
       }
     } catch (error) {
       console.log('🚀 ~ signTransaction ~ error:', error);
@@ -267,13 +311,6 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   };
 
   const onFileSign = (signedSerializedPSBT: string) => {
-    if (signerType == SignerType.KEYSTONE) {
-      const tx = getTxHexFromKeystonePSBT(
-        serializedPSBTEnvelop.serializedPSBT,
-        signedSerializedPSBT
-      );
-      signedSerializedPSBT = tx.toHex();
-    }
     dispatch(
       healthCheckStatusUpdate([
         {
@@ -282,7 +319,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         },
       ])
     );
-    navigateToShowPSBT(signedSerializedPSBT);
+    setDetails(signedSerializedPSBT);
+    setOpenOptionModal(true);
   };
 
   const vaultKeys = {
@@ -313,6 +351,20 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
             }}
             onSuccess={signTransaction}
           />
+        )}
+      />
+      <KeeperModal
+        visible={openOptionModal}
+        close={() => setOpenOptionModal(false)}
+        title="Sign Transaction"
+        subTitle="Select how you want to sign the transaction"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <ShareKeyModalData />
+          </Box>
         )}
       />
       <SignerModals

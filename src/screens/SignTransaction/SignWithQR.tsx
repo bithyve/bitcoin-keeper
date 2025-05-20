@@ -2,7 +2,6 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/services/wallets/enums';
@@ -26,6 +25,7 @@ import { getKeyUID, isHexadecimal } from 'src/utils/utilities';
 import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import KeeperQRCode from 'src/components/KeeperQRCode';
+import WalletHeader from 'src/components/WalletHeader';
 const { width } = Dimensions.get('window');
 
 function SignWithQR() {
@@ -43,6 +43,7 @@ function SignWithQR() {
     isRemoteKey,
     serializedPSBTEnvelopFromProps,
     isMultisig,
+    signTransaction: signTransactionParent,
   }: {
     vaultKey: VaultSigner;
     vaultId: string;
@@ -51,6 +52,7 @@ function SignWithQR() {
     isMultisig?: boolean;
     sendConfirmationRouteParams?: SendConfirmationRouteParams;
     tnxDetails: tnxDetailsProps;
+    signTransaction: ({ signedSerializedPSBT }: { signedSerializedPSBT: string }) => void;
   } = route.params as any;
 
   const serializedPSBTEnvelop = isRemoteKey
@@ -95,18 +97,8 @@ function SignWithQR() {
         }
       } else {
         if (isRemoteKey) {
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'ShowPSBT',
-              params: {
-                data: signedSerializedPSBT,
-                encodeToBytes: false,
-                title: 'Signed PSBT',
-                subtitle: 'Please scan until all the QR data has been retrieved',
-                type: SignerType.KEEPER, // signer used as external key
-              },
-            })
-          );
+          signTransactionParent({ signedSerializedPSBT });
+          navigation.goBack();
           return;
         }
 
@@ -147,7 +139,7 @@ function SignWithQR() {
     navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
+      <WalletHeader title="Sign Transaction" subTitle="Scan the QR with the signer" />
       <Box style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.contentContainer}

@@ -1,12 +1,11 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, StyleSheet, Vibration } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import QRCommsLight from 'src/assets/images/qr_comms.svg';
 import NFCLight from 'src/assets/images/nfc-no-bg-light.svg';
-import ShareContactLight from 'src/assets/images/share-contact-light.svg';
+import ShareContactLight from 'src/assets/images/contact-file-icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -24,6 +23,7 @@ import { exportFile } from 'src/services/fs';
 import { useAppSelector } from 'src/store/hooks';
 import CollaborativeModals from './components/CollaborativeModals';
 import Note from 'src/components/Note/Note';
+import WalletHeader from 'src/components/WalletHeader';
 
 function ContactDetails({ route }) {
   const {
@@ -162,9 +162,9 @@ function ContactDetails({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={vaultText.contactDetailsTitle}
-        subtitle={vaultText.contactDetailsSubtitle}
+        subTitle={vaultText.contactDetailsSubtitle}
       />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>

@@ -24,13 +24,20 @@ import {
   SETUP_KEEPER_APP,
 } from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
-import { deleteDelayedPolicyUpdate, setAppId, updateDelayedTransaction } from '../reducers/storage';
+import {
+  deleteDelayedPolicyUpdate,
+  setAppId,
+  setDefaultWalletCreated,
+  updateDelayedTransaction,
+} from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
+import { RootState } from '../store';
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
+    const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;
     let primaryMnemonic;
     let primarySeed;
@@ -74,7 +81,7 @@ export function* setupKeeperAppWorker({ payload }) {
         },
         backup: {},
         version: DeviceInfo.getVersion(),
-        networkType: config.NETWORK_TYPE,
+        networkType: bitcoinNetworkType,
         enableAnalytics: false,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);
@@ -85,21 +92,19 @@ export function* setupKeeperAppWorker({ payload }) {
           name: 'Mobile Wallet',
           description: '',
           instanceNum: 0,
-          derivationConfig: {
-            path: WalletUtilities.getDerivationPath(
-              false,
-              config.NETWORK_TYPE,
-              0,
-              DerivationPurpose.BIP84
-            ),
-            purpose: DerivationPurpose.BIP84,
-          },
+          derivationPath: WalletUtilities.getDerivationPath(
+            false,
+            bitcoinNetworkType,
+            0,
+            DerivationPurpose.BIP84
+          ),
         },
       };
 
       const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
       yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
+      yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
       yield put(setAppId(appID));
       yield put(resetRealyWalletState());
     } else {

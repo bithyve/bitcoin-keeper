@@ -3,31 +3,17 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
-import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
-import JadeSetup from 'src/assets/images/illustration_jade.svg';
-import KeeperSetup from 'src/assets/images/illustration_ksd.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import KeystoneSetup from 'src/assets/images/keystone_illustration.svg';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import PortalIllustration from 'src/assets/images/portal_illustration.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import SeedSignerSetup from 'src/assets/images/seedsigner-setup-horizontal.svg';
-import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import { RKInteractionMode, SignerType, SigningMode } from 'src/services/wallets/enums';
-import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/utils/service-utilities/encryption';
-import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
-import BitoxImage from 'src/assets/images/bitboxSetup.svg';
-import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
-import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import * as SecureStore from 'src/storage/secure-store';
 import Buttons from 'src/components/Buttons';
@@ -50,6 +36,8 @@ import ShareKeyModalContent from '../Vault/components/ShareKeyModalContent';
 import MagicLinkIcon from 'src/assets/images/magic-link-icon.svg';
 import useVault from 'src/hooks/useVault';
 import RegisterMultisig from './component/RegisterMultisig';
+import RegisterSignerContent from '../Vault/components/RegisterSignerContent';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -72,7 +60,7 @@ function ColdCardContent({
   } else {
     return (
       <Box alignItems="center">
-        <ColdCardSVG />
+        <ThemedSvg name={'coldCard_illustration'} />
         <Box marginTop={4}>
           <Instruction text={message} />
         </Box>
@@ -84,7 +72,7 @@ function ColdCardContent({
 function PassportContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box alignItems="center">
-      <PassportSVG />
+      <ThemedSvg name={'passport_illustration'} />
       <Box marginTop={4}>
         {isMultisig && (
           <Instruction text="Make sure the multisig wallet is registered with the Passport before signing the transaction." />
@@ -98,7 +86,7 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
 function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box alignItems="center">
-      <SeedSignerSetup />
+      <ThemedSvg name={'seedSigner_illustration'} />
       <Box marginTop={2}>
         {isMultisig ? (
           <Text style={styles.instructionsText}>
@@ -120,7 +108,7 @@ function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
 function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box alignItems="center">
-      <SpecterSetupImage />
+      <ThemedSvg name={'specter_illustration'} />
       <Box marginTop={2}>
         {isMultisig && (
           <Text style={styles.instructionsText}>
@@ -140,7 +128,7 @@ function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
 function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box alignItems="center">
-      <KeystoneSetup />
+      <ThemedSvg name={'keyStone_illustration'} />
       <Box marginTop={4}>
         {isMultisig && (
           <Instruction text="Make sure the multisig wallet is registered with the Keystone before signing the transaction." />
@@ -167,7 +155,7 @@ function JadeContent({
   }
   return (
     <Box alignItems="center">
-      <JadeSetup />
+      <ThemedSvg name={'jade_illustration'} />
       <Box marginTop={2}>
         {isMultisig && (
           <Instruction text="Make sure the multisig wallet is registered with the Jade before signing the transaction." />
@@ -205,7 +193,7 @@ function LedgerContent() {
 function OtherSDContent() {
   return (
     <Box alignItems="center">
-      <OtherSDImage />
+      <ThemedSvg name={'otherSigner_illustration'} />
       <Box marginTop={2}>
         <Text style={styles.instructionsText}>
           {'Either scan or use the export option to transfer the PSBT to the signer.'}
@@ -217,7 +205,7 @@ function OtherSDContent() {
 export function KeeperContent(props) {
   return (
     <Box alignItems="center">
-      <KeeperSetup />
+      <ThemedSvg name={'external_Key_illustration'} />
       <Box marginTop={2}>
         <Text style={styles.instructionsText}>
           {`Open the other Keeper app > Go to Manage Keys > Access the key with the fingerprint ${props.masterFingerPrint} > Sign Transaction`}
@@ -230,7 +218,9 @@ export function KeeperContent(props) {
 function TapsignerContent() {
   return (
     <>
-      <TapsignerSetupSVG />
+      <Box style={styles.portalIllustration}>
+        <ThemedSvg name={'tapSigner_illustration'} />
+      </Box>
       <Instruction text="TAPSIGNER communicates with the app over NFC" />
       <Instruction text="You will need the PIN (given at the back of the TAPSIGNER)." />
     </>
@@ -240,7 +230,7 @@ function PortalContent() {
   return (
     <>
       <Box style={styles.portalIllustration}>
-        <PortalIllustration />
+        <ThemedSvg name={'portal_illustration'} />
       </Box>
       <Instruction text="Portal communicates with the app over NFC" />
       <Instruction text="You will need the CVC/ Pin, if you have set one." />
@@ -396,6 +386,7 @@ function OtpContent({ signTransaction }) {
             }}
             fullWidth
             primaryText="Proceed"
+            primaryDisable={otp.length !== 6}
           />
         </Box>
       </Box>
@@ -733,6 +724,7 @@ function SignerModals({
         const { activeVault } = useVault({ vaultId, includeArchived: false });
 
         const info = vaultKey.registeredVaults?.find((info) => info.vaultId === vaultId);
+
         function OptionModalContent({
           supportedSigningOptions,
           onSelect,
@@ -789,6 +781,19 @@ function SignerModals({
             </Box>
           );
         }
+        const navigateRegisterWithQR = () => {
+          navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
+        };
+
+        const navigateRegisterWithChannel = () => {
+          navigation.dispatch(
+            CommonActions.navigate('RegisterWithChannel', {
+              vaultKey,
+              vaultId,
+              signerType: signer.type,
+            })
+          );
+        };
         if (signer.type === SignerType.TAPSIGNER) {
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);
@@ -874,7 +879,7 @@ function SignerModals({
 
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={coldCardContentModal}
+                visible={currentSigner && coldCardContentModal}
                 close={() => setColdCardContentModal(false)}
                 title={'Signing with ' + signingMode}
                 subTitle="Get your Coldcard ready before proceeding"
@@ -977,7 +982,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={passportContentModal}
+                visible={currentSigner && passportContentModal}
                 close={() => {
                   setPassportContentModal(false);
                 }}
@@ -1092,7 +1097,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={keystoneContentModal}
+                visible={currentSigner && keystoneContentModal}
                 close={() => {
                   setKeystoneContentModal(false);
                 }}
@@ -1158,7 +1163,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={jadeModalContent}
+                visible={currentSigner && jadeModalContent}
                 close={() => {
                   setJadeModalContent(false);
                 }}
@@ -1253,7 +1258,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={otherModalContent}
+                visible={currentSigner && otherModalContent}
                 close={() => {
                   setOtherModalContent(false);
                 }}
@@ -1300,7 +1305,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={keeperContentModal}
+                visible={currentSigner && keeperContentModal}
                 close={() => {
                   setKeeperContentModal(false);
                 }}
@@ -1350,6 +1355,7 @@ function SignerModals({
                   isMultisig,
                   vaultId,
                   isRemoteKey,
+                  serializedPSBTEnvelop,
                 })
               );
             }
@@ -1376,7 +1382,7 @@ function SignerModals({
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={keeperModalContent}
+                visible={currentSigner && keeperModalContent}
                 close={() => {
                   setKeeperModalContent(false);
                 }}
@@ -1457,7 +1463,7 @@ function SignerModals({
           textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={() => (
-            <RegisterMultisig
+            <RegisterSignerContent
               isUSBAvailable={
                 registeredSigner.type === SignerType.COLDCARD ||
                 (registeredSigner.type === SignerType.JADE && isMiniscript)
@@ -1467,8 +1473,23 @@ function SignerModals({
               vaultKey={registeredVaultKey}
               setRegisterSignerModal={setRegisterSignerModal}
               activeVault={registerActiveVault}
-              navigation={navigation}
-              CommonActions={CommonActions}
+              navigateRegisterWithQR={() =>
+                navigation.dispatch(
+                  CommonActions.navigate('RegisterWithQR', {
+                    vaultKey: registeredVaultKey,
+                    vaultId,
+                  })
+                )
+              }
+              navigateRegisterWithChannel={() =>
+                navigation.dispatch(
+                  CommonActions.navigate('RegisterWithChannel', {
+                    vaultKey: registeredVaultKey,
+                    vaultId,
+                    signerType: registeredSigner.type,
+                  })
+                )
+              }
             />
           )}
         />

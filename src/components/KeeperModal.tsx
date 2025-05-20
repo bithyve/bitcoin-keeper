@@ -9,7 +9,7 @@ import {
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/keeperModalCrossIcon.svg';
-import CloseGreen from 'src/assets/images/keeperModalCrossIcon.svg';
+import CloseGreen from 'src/assets/images/dark-close-icon.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,6 +19,11 @@ import { useKeyboard } from 'src/hooks/useKeyboard';
 import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from './Buttons';
+import Fonts from 'src/constants/Fonts';
+import PrivateCrossIcon from 'src/assets/privateImages/white-cross-circle-icon.svg';
+import { useSelector } from 'react-redux';
+import InfoIcon from 'src/assets/images/info_icon.svg';
+import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 
 type ModalProps = {
   visible: boolean;
@@ -52,67 +57,37 @@ type ModalProps = {
   secondaryIcon?: any;
 };
 
-KeeperModal.defaultProps = {
-  title: '',
-  subTitle: null,
-  subTitleWidth: windowWidth * 0.7,
-  modalBackground: 'primaryBackground',
-  buttonBackground: 'greenButtonBackground',
-  buttonText: null,
-  buttonTextColor: 'buttonText',
-  secButtonTextColor: 'headerText',
-  buttonCallback: () => {},
-  secondaryButtonText: null,
-  secondaryCallback: () => {},
-  textColor: 'black',
-  subTitleColor: null,
-  DarkCloseIcon: false,
-  Content: () => null,
-  dismissible: true,
-  learnMoreButton: false,
-  learnMoreButtonPressed: () => {},
-  learnMoreButtonText: null,
-  learnButtonBackgroundColor: 'BrownNeedHelp',
-  learnButtonTextColor: 'light.white',
-  closeOnOverlayClick: true,
-  showCloseIcon: true,
-  showCurrencyTypeSwitch: false,
-  justifyContent: 'flex-end',
-  loading: false,
-  secondaryIcon: null,
-};
-
 function KeeperModal(props: ModalProps) {
   const {
     visible,
     close,
-    title,
-    subTitle,
-    subTitleWidth,
-    modalBackground,
-    buttonBackground,
-    buttonText,
-    buttonTextColor,
-    buttonCallback,
-    textColor,
-    subTitleColor: ignored,
-    secondaryButtonText,
-    secondaryCallback,
-    DarkCloseIcon,
-    Content,
-    dismissible,
-    learnMoreButton,
-    learnMoreButtonPressed,
-    learnMoreButtonText,
-    learnButtonTextColor,
-    learnButtonBackgroundColor,
-    secButtonTextColor,
-    closeOnOverlayClick,
-    showCloseIcon,
-    showCurrencyTypeSwitch,
-    justifyContent,
-    loading,
-    secondaryIcon,
+    title = '',
+    subTitle = null,
+    subTitleWidth = windowWidth * 0.7,
+    modalBackground = 'primaryBackground',
+    buttonBackground = 'greenButtonBackground',
+    buttonText = null,
+    buttonTextColor = 'buttonText',
+    buttonCallback = () => {},
+    textColor = 'black',
+    subTitleColor: ignored = null,
+    secondaryButtonText = null,
+    secondaryCallback = () => {},
+    DarkCloseIcon = false,
+    Content = () => null,
+    dismissible = true,
+    learnMoreButton = false,
+    learnMoreButtonPressed = () => {},
+    learnMoreButtonText = null,
+    learnButtonTextColor = 'light.white',
+    learnButtonBackgroundColor = 'BrownNeedHelp',
+    secButtonTextColor = 'headerText',
+    closeOnOverlayClick = true,
+    showCloseIcon = true,
+    showCurrencyTypeSwitch = false,
+    justifyContent = 'flex-end',
+    loading = false,
+    secondaryIcon = null,
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
@@ -124,11 +99,23 @@ function KeeperModal(props: ModalProps) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { colorMode } = useColorMode();
+  const isDarKMode = colorMode === 'dark';
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   if (!visible) {
     return null;
   }
-  const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
+  const getCloseIcon = () =>
+    privateTheme ? (
+      <PrivateCrossIcon />
+    ) : DarkCloseIcon ? (
+      <CloseGreen />
+    ) : isDarKMode ? (
+      <CloseGreen />
+    ) : (
+      <Close />
+    );
   const styles = getStyles(subTitleWidth);
   return (
     <Modal
@@ -172,22 +159,8 @@ function KeeperModal(props: ModalProps) {
                   onPress={learnMoreButtonPressed}
                   testID="btn_learnMore"
                 >
-                  <Box
-                    borderColor={
-                      learnButtonTextColor === 'light.white'
-                        ? 'light.white'
-                        : 'light.learnMoreBorder'
-                    }
-                    backgroundColor={
-                      learnButtonBackgroundColor == 'BrownNeedHelp'
-                        ? `${colorMode}.BrownNeedHelp`
-                        : learnButtonBackgroundColor
-                    }
-                    style={styles.learnMoreButtonContainer}
-                  >
-                    <Text color={learnButtonTextColor} style={styles.learnMoreText}>
-                      {learnMoreButtonText ? learnMoreButtonText : common.learnMore}
-                    </Text>
+                  <Box style={styles.learnMoreButtonContainer}>
+                    {isDarKMode ? <InfoIconDark /> : <InfoIcon />}
                   </Box>
                 </TouchableOpacity>
               )}
@@ -278,6 +251,7 @@ const getStyles = (subTitleWidth) =>
       fontSize: 18,
       lineHeight: 27.2,
       marginBottom: hp(3),
+      fontFamily: Fonts.LoraSemiBold,
     },
 
     subTitle: {
@@ -323,8 +297,7 @@ const getStyles = (subTitleWidth) =>
     learnMoreButtonContainer: {
       position: 'absolute',
       top: hp(22),
-      left: wp(240),
-      borderWidth: 0.5,
+      right: wp(-10),
       borderRadius: 5,
       paddingHorizontal: 5,
       justifyContent: 'center',

@@ -1,10 +1,10 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
 import QRScanner from 'src/components/QRScanner';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import WalletHeader from 'src/components/WalletHeader';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
@@ -15,7 +15,7 @@ const ScanNode = ({ route }) => {
   const { common, settings } = translations;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.scanQRTitle} subtitle={settings.scanQRSubtitle} />
+      <WalletHeader title={settings.scanQRTitle} subTitle={settings.scanQRSubtitle} />
       <Box style={styles.container}>
         <QRScanner onScanCompleted={onQrScan} />
         <Box style={styles.noteWrapper}>

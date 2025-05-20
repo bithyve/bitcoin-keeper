@@ -2,46 +2,67 @@ import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
-import TrustedContactIcon from 'src/assets/images/trusted-contact-icon.svg';
 import GenerateTrustedContactsPDF from 'src/utils/GenerateTrustedContactsPDF';
-import DownArrow from 'src/assets/images/down_arrow.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function TrustedContactTemplates({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning, common } = translations;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper
+      barStyle="dark-content"
+      backgroundcolor={
+        privateTheme || PrivateThemeLight
+          ? `${colorMode}.primaryBackground`
+          : `${colorMode}.pantoneGreen`
+      }
+    >
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.heading}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.trustedContactsTemplateTitle}
         </Text>
-        <Text style={styles.description} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.description}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.trustedContactsTemplateDescp}
         </Text>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.commonTextStyle}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {inheritancePlanning.trustedContactsP1}
         </Text>
 
         <Box style={styles.circleStyle}>
-          <TrustedContactIcon />
+          {<ThemedSvg name={'inheritance_trustedContact_illustration'} />}
         </Box>
-        <Text style={styles.commonTextStyle} color={`${colorMode}.headerWhite`}>
+        <Text
+          style={styles.commonTextStyle}
+          color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        >
           {' '}
           {inheritancePlanning.trustedContactsRef}
         </Text>
         <Box mt={5}>
           <DashedButton
-            icon={<DownArrow />}
+            icon={<ThemedSvg name={'inheritance_down_arrow'} />}
             description={inheritancePlanning.trustedContactsCtaDescp}
             callback={() => {
               GenerateTrustedContactsPDF().then((res) => {
@@ -51,14 +72,20 @@ function TrustedContactTemplates({}) {
               });
             }}
             name={inheritancePlanning.trustedContactsCtaTitle}
+            hexagonBackgroundColor={'transparent'}
           />
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.headerWhite`}>
+          <Text
+            bold
+            color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+          >
             {common.note}:
           </Text>
-          <Text color={`${colorMode}.headerWhite`}>{inheritancePlanning.trustedContactsNotes}</Text>
+          <Text color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}>
+            {inheritancePlanning.trustedContactsNotes}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>
@@ -80,15 +107,12 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 18,
     fontWeight: '500',
-    color: Colors.white,
   },
   description: {
     fontSize: 14,
-    color: Colors.white,
   },
   commonTextStyle: {
     marginTop: hp(40),
-    color: Colors.white,
   },
   addContainer: {
     marginTop: hp(100),
@@ -97,7 +121,6 @@ const styles = StyleSheet.create({
   leftTextStyle: {
     textAlign: 'left',
     marginTop: hp(40),
-    color: Colors.white,
   },
   circleStyle: {
     alignItems: 'center',

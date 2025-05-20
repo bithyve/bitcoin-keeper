@@ -4,10 +4,10 @@ import TicketItem from './TicketItem';
 import { hp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from 'src/store/hooks';
 
 const TicketList = () => {
-  const { tickets } = useSelector((state) => state.concierge);
+  const { tickets } = useAppSelector((state) => state.concierge);
   const navigation = useNavigation();
   const handlePress = (ticketId, ticketStatus) => {
     navigation.dispatch(

@@ -42,13 +42,13 @@ import { SignerType, VaultType } from 'src/services/wallets/enums';
 import WalletOperations from 'src/services/wallets/operations';
 import { getKeyUID } from 'src/utils/utilities';
 import BackgroundTimer from 'react-native-background-timer';
+import { useAppSelector } from 'src/store/hooks';
 import WalletHeader from 'src/components/WalletHeader';
-import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
-import InfoIcon from 'src/assets/images/info_icon.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import KeeperModal from 'src/components/KeeperModal';
 import Instruction from 'src/components/Instruction';
 import ColdCardUSBInstruction from '../Vault/components/ColdCardUSBInstruction';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
@@ -119,6 +119,7 @@ function ConnectChannel() {
     signer: signerText,
   } = translations;
   const { mapUnknownSigner } = useUnkownSigners();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -187,7 +188,7 @@ function ConnectChannel() {
       const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
       channel.emit(JOIN_CHANNEL, {
         room,
-        network: config.NETWORK_TYPE,
+        network: bitcoinNetworkType,
         requestData,
       });
       if (mode === InteracationMode.ADDRESS_VERIFICATION) {
@@ -368,7 +369,7 @@ function ConnectChannel() {
           rightComponent={
             !isHealthCheck ? (
               <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
-                {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+                <ThemedSvg name={'info_icon'} />
               </TouchableOpacity>
             ) : null
           }

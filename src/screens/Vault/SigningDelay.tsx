@@ -11,7 +11,7 @@ import Buttons from 'src/components/Buttons';
 import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { NetworkType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
+import { useAppSelector } from 'src/store/hooks';
 
 const SigningDelay = ({ route }) => {
   const navigation = useNavigation();
@@ -19,8 +19,9 @@ const SigningDelay = ({ route }) => {
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common } = translations;
   const { totalDelay, addSignerFlow } = route.params;
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
-  const isMainNet = config.NETWORK_TYPE === NetworkType.MAINNET;
+  const isMainNet = bitcoinNetworkType === NetworkType.MAINNET;
 
   const MAINNET_DURATIONS = [
     { label: OFF, value: 0 },
@@ -54,7 +55,7 @@ const SigningDelay = ({ route }) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <ScreenWrapper>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <WalletHeader title={signingServer.signigDelay} />
         <Text color={`${colorMode}.modalWhiteContent`} medium style={styles.title}>
           {signingServer.signigDelaySubTitle}

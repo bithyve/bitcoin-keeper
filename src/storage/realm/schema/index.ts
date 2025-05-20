@@ -10,6 +10,7 @@ import {
   UTXOInfoSchema,
   Tags,
   AddressCacheSchema,
+  BalancesSchema,
 } from './wallet';
 import {
   VaultPresentationDataSchema,
@@ -17,6 +18,7 @@ import {
   VaultSpecsSchema,
   VaultSignerSchema,
   SignerPolicy,
+  VerificationOptionSchema,
   SignerXpubsSchema,
   KeySpecsSchema,
   SignerSchema,
@@ -28,6 +30,9 @@ import {
   MiniscriptKeyInfoSchema,
   MiniscriptPathSchema,
   MiniscriptPhaseSchema,
+  SignerPolicyExceptionsSchema,
+  SignerPolicyRestrictionsSchema,
+  SignerPolicyVerificationSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
 import { UAIDetailsSchema, UAISchema } from './uai';
@@ -59,6 +64,7 @@ export default [
   RegistrationInfoSchema,
   VaultPresentationDataSchema,
   SignerPolicy,
+  VerificationOptionSchema,
   HealthCheckDetails,
   MiniscriptKeyInfoSchema,
   MiniscriptPathSchema,
@@ -76,4 +82,8 @@ export default [
   NodeConnectSchema,
   DefualtNodeConnectSchema,
   CloudBackupHistorySchema,
+  BalancesSchema,
+  SignerPolicyExceptionsSchema,
+  SignerPolicyRestrictionsSchema,
+  SignerPolicyVerificationSchema,
 ];

@@ -79,6 +79,7 @@ android {
     }
 
     ndkVersion rootProject.ext.ndkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
     flavorDimensions "default"
     namespace "io.hexawallet.keeper"
@@ -86,8 +87,8 @@ android {
         applicationId "io.hexawallet.keeper"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 487
-        versionName "2.1.1"
+        versionCode 510
+        versionName "2.2.3"
         missingDimensionStrategy 'react-native-camera', 'general'
         missingDimensionStrategy 'store', 'play'
         multiDexEnabled true
@@ -98,6 +99,7 @@ android {
     lintOptions {
           checkReleaseBuilds false
           abortOnError false
+          warningsAsErrors false
     }
 
     signingConfigs {

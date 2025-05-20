@@ -6,6 +6,7 @@ import { useAppSelector } from 'src/store/hooks';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import Text from 'src/components/KeeperText';
+import Fonts from 'src/constants/Fonts';
 
 interface AmountDetailsProps {
   title?: string;
@@ -49,6 +50,7 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
           color={titleColor || `${colorMode}.primaryText`}
           fontSize={titleFontSize}
           fontWeight={titleFontWeight}
+          style={{ fontFamily: Fonts.InterBold }}
         >
           {title}
         </Text>

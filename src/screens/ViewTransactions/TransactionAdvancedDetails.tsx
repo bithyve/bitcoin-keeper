@@ -5,7 +5,6 @@ import { Pressable, StatusBar, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import IconRecieve from 'src/assets/images/icon_received_lg.svg';
 import IconSend from 'src/assets/images/icon_send_lg.svg';
@@ -18,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { useAppSelector } from 'src/store/hooks';
 import BTC from 'src/assets/images/btc.svg';
+import WalletHeader from 'src/components/WalletHeader';
 
 function TabBar({ tabs, activeTab, setActiveTab }) {
   const { colorMode } = useColorMode();
@@ -135,7 +135,7 @@ function TransactionAdvancedDetails({ route }) {
         backgroundColor="transparent"
       />
       <Box style={[styles.topSection, !showTnxId && { height: '17%' }]}>
-        <KeeperHeader title={transactions.advancedDetails} />
+        <WalletHeader title={transactions.advancedDetails} />
         {showTnxId && (
           <Box style={styles.transViewWrapper}>
             <Box style={styles.transViewIcon}>

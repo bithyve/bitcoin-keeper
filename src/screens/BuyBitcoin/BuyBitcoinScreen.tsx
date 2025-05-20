@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { Linking, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useAppSelector } from 'src/store/hooks';
@@ -16,6 +15,7 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { EntityKind, VaultType } from 'src/services/wallets/enums';
+import WalletHeader from 'src/components/WalletHeader';
 
 function BuyBitcoinScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -50,9 +50,9 @@ function BuyBitcoinScreen({ route }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={rampTranslations.buyBitcoinWithRamp}
-        subtitle={rampTranslations.buyBitcoinWithRampSubTitle}
+        subTitle={rampTranslations.buyBitcoinWithRampSubTitle}
         // To-Do-Learn-More
       />
       <Box style={styles.container}>
@@ -64,7 +64,7 @@ function BuyBitcoinScreen({ route }) {
             <HexagonIcon
               width={40}
               height={35}
-              backgroundColor={'rgba(45, 103, 89, 1)'}
+              backgroundColor={'rgba(47, 79, 79, 1)'}
               icon={getWalletIcon(wallet)}
             />
             <Box>

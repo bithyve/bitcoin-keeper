@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -15,6 +14,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import EditWalletDetailsModal from './EditWalletDetailsModal';
+import WalletHeader from 'src/components/WalletHeader';
 
 function WalletDetailsSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -29,9 +29,9 @@ function WalletDetailsSettings({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={walletTranslation.WalletDetails}
-        subtitle={walletTranslation.walletDetailsSubTitle}
+        subTitle={walletTranslation.walletDetailsSubTitle}
       />
 
       <ScrollView

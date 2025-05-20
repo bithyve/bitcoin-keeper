@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DiscountCard from 'src/components/DiscountCard';
@@ -12,6 +11,7 @@ import CopyIcon from 'src/assets/images/copy_new.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { hp, windowHeight } from 'src/constants/responsive';
+import WalletHeader from 'src/components/WalletHeader';
 
 const DiscountModal = ({ card }) => {
   const { colorMode } = useColorMode();
@@ -102,9 +102,9 @@ function DiscountCodes({ navigation }) {
   };
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Champagne`}>
-      <KeeperHeader
+      <WalletHeader
         title={DiscountCodes.DiscountCodesTitle}
-        subtitle={DiscountCodes.DiscountCodesDescp}
+        subTitle={DiscountCodes.DiscountCodesDescp}
         // To-Do-Learn-More
       />
       <ScrollView>

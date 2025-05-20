@@ -1,11 +1,12 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, NetworkType, VaultType } from 'src/services/wallets/enums';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';
 import _ from 'lodash';
 import { getJSONFromRealmObject } from './utils';
 import { RealmSchema } from './enum';
 import { getKeyUID } from 'src/utils/utilities';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -376,5 +377,102 @@ export const runRealmMigrations = ({
     for (const vault of newVaults) delete vault.specs.txNote;
 
     for (const wallet of newWallets) delete wallet.specs.txNote;
+  }
+  if (oldRealm.schemaVersion < 94) {
+    const newSigners = newRealm.objects(RealmSchema.Signer) as Signer[];
+
+    for (const objectIndex in newSigners) {
+      newSigners[objectIndex].networkType =
+        config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
+      newSigners[objectIndex].id = getKeyUID(newSigners[objectIndex]);
+    }
+  }
+
+  if (oldRealm.schemaVersion < 95) {
+    const oldUAIs = oldRealm.objects(RealmSchema.UAI) as any;
+    const newUAIs = newRealm.objects(RealmSchema.UAI) as UAI[];
+
+    for (const objectIndex in newUAIs) {
+      newUAIs[objectIndex].uaiDetails = {
+        ...oldUAIs[objectIndex].uaiDetails,
+        networkType:
+          config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET,
+      };
+    }
+
+    const newNodes = newRealm.objects(RealmSchema.NodeConnect) as any;
+
+    for (const objectIndex in newNodes) {
+      newNodes[objectIndex].networkType =
+        config.ENVIRONMENT == APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
+    }
+  }
+
+  if (oldRealm.schemaVersion < 99) {
+    // Realm v12 changed the schema type for certain fields, need to manually migrate the values to the new type
+    const newVaults = newRealm.objects(RealmSchema.Vault) as any;
+    const oldVaults = oldRealm.objects(RealmSchema.Vault) as any;
+    const newWallets = newRealm.objects(RealmSchema.Wallet) as any;
+    const oldWallets = oldRealm.objects(RealmSchema.Wallet) as any;
+
+    // Migrating wallets fields for new schema
+    newWallets.forEach((newWallet, i) => {
+      const oldWallet = oldWallets[i];
+      const { specs: oldSpecs } = oldWallet;
+      const { specs: newSpecs } = newWallet;
+      newSpecs.addresses = oldSpecs?.addresses ? { ...oldSpecs.addresses } : null;
+      newSpecs.addressPubs = oldSpecs?.addressPubs ? { ...oldSpecs?.addressPubs } : null;
+      newSpecs.balances = {
+        confirmed: oldSpecs.balances?.confirmed ?? 0,
+        unconfirmed: oldSpecs.balances?.unconfirmed ?? 0,
+      };
+    });
+
+    // migrating Vault fields for new schema
+    newVaults.forEach((newVault, i) => {
+      const oldVault = oldVaults[i];
+      const { specs: oldSpecs } = oldVault;
+      const { specs: newSpecs } = newVault;
+      newSpecs.addresses = { ...oldSpecs?.addresses };
+      newSpecs.addressPubs = { ...oldSpecs?.addressPubs };
+      newSpecs.balances = {
+        confirmed: oldSpecs.balances?.confirmed ?? 0,
+        unconfirmed: oldSpecs.balances?.unconfirmed ?? 0,
+      };
+
+      if (newVault.type === VaultType.MINISCRIPT) {
+        const { miniscriptScheme: oldMiniscriptScheme } = oldVault.scheme;
+        const { miniscriptScheme: newMiniscriptScheme } = newVault.scheme;
+        newMiniscriptScheme.keyInfoMap = oldMiniscriptScheme?.keyInfoMap
+          ? { ...oldMiniscriptScheme?.keyInfoMap }
+          : null;
+        newMiniscriptScheme.miniscriptElements = {
+          ...oldMiniscriptScheme.miniscriptElements,
+          signerFingerprints: oldMiniscriptScheme.miniscriptElements.signerFingerprints,
+        };
+      }
+    });
+
+    // Subscription receipt
+    const oldSubs = oldRealm.objects(RealmSchema.StoreSubscription) as any;
+    const newSubs = newRealm.objects(RealmSchema.StoreSubscription) as any;
+    const lastSub = oldSubs.length - 1;
+    if (oldSubs[lastSub] && oldSubs[lastSub].receipt.length) {
+      newSubs[lastSub].receipt = oldSubs[lastSub].receipt;
+    }
+
+    // Signers extra data
+    const oldSigners = oldRealm.objects(RealmSchema.Signer) as any;
+    const newSigners = newRealm.objects(RealmSchema.Signer);
+    for (const objectIndex in oldSigners) {
+      if (newSigners[objectIndex].signerPolicy)
+        newSigners[objectIndex].signerPolicy = { ...oldSigners[objectIndex].signerPolicy };
+      newSigners[objectIndex].extraData = { ...oldSigners[objectIndex].extraData };
+      if (oldSigners[objectIndex].healthCheckDetails.extraData) {
+        newSigners[objectIndex].healthCheckDetails.extraData = {
+          ...oldSigners[objectIndex].healthCheckDetails.extraData,
+        };
+      }
+    }
   }
 };

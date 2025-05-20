@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';

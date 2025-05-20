@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="13.092" height="13.092" viewBox="0 0 13.092 13.092">
   <g id="qr_code" data-name="qr code" transform="translate(-1 -1)">
-    <path id="Path_119525" data-name="Path 119525" d="M1,1.6A.589.589,0,0,1,1.6,1H6.653a.593.593,0,0,1,.6.6V6.653a.6.6,0,0,1-.6.6H1.6a.593.593,0,0,1-.6-.6ZM2.488,3.083a.589.589,0,0,1,.6-.6H5.166a.593.593,0,0,1,.6.6V5.166a.6.6,0,0,1-.6.6H3.083a.593.593,0,0,1-.6-.6Z" fill="#fdf7f0" fill-rule="evenodd"/>
-    <path id="Path_119526" data-name="Path 119526" d="M1,13.1a.589.589,0,0,1,.6-.6H6.653a.593.593,0,0,1,.6.6v5.058a.6.6,0,0,1-.6.6H1.6a.593.593,0,0,1-.6-.6Zm1.488,1.488a.589.589,0,0,1,.6-.6H5.166a.593.593,0,0,1,.6.6v2.083a.6.6,0,0,1-.6.6H3.083a.593.593,0,0,1-.6-.6Z" transform="translate(0 -4.657)" fill="#fdf7f0" fill-rule="evenodd"/>
-    <path id="Path_119527" data-name="Path 119527" d="M12.5,1.6a.589.589,0,0,1,.6-.6h5.058a.593.593,0,0,1,.6.6V6.653a.6.6,0,0,1-.6.6H13.1a.593.593,0,0,1-.6-.6Zm1.488,1.488a.589.589,0,0,1,.6-.6h2.083a.593.593,0,0,1,.6.6V5.166a.6.6,0,0,1-.6.6H14.583a.593.593,0,0,1-.6-.6Z" transform="translate(-4.657)" fill="#fdf7f0" fill-rule="evenodd"/>
-    <path id="Path_119528" data-name="Path 119528" d="M13,12.5h5.356v1.19H13Z" transform="translate(-4.859 -4.657)" fill="#fdf7f0" fill-rule="evenodd"/>
-    <path id="Path_119529" data-name="Path 119529" d="M17.785,17.19H16V16h1.785Z" transform="translate(-6.074 -6.074)" fill="#fdf7f0" fill-rule="evenodd"/>
-    <path id="Path_119530" data-name="Path 119530" d="M14.785,21.19H13V20h1.785Z" transform="translate(-4.859 -7.693)" fill="#fdf7f0" fill-rule="evenodd"/>
-    <path id="Path_119531" data-name="Path 119531" d="M20.785,21.19H19V20h1.785Z" transform="translate(-7.289 -7.693)" fill="#fdf7f0" fill-rule="evenodd"/>
+    <path id="Path_119525" data-name="Path 119525" d="M1,1.6A.589.589,0,0,1,1.6,1H6.653a.593.593,0,0,1,.6.6V6.653a.6.6,0,0,1-.6.6H1.6a.593.593,0,0,1-.6-.6ZM2.488,3.083a.589.589,0,0,1,.6-.6H5.166a.593.593,0,0,1,.6.6V5.166a.6.6,0,0,1-.6.6H3.083a.593.593,0,0,1-.6-.6Z" fill="#F9F4F0" fill-rule="evenodd"/>
+    <path id="Path_119526" data-name="Path 119526" d="M1,13.1a.589.589,0,0,1,.6-.6H6.653a.593.593,0,0,1,.6.6v5.058a.6.6,0,0,1-.6.6H1.6a.593.593,0,0,1-.6-.6Zm1.488,1.488a.589.589,0,0,1,.6-.6H5.166a.593.593,0,0,1,.6.6v2.083a.6.6,0,0,1-.6.6H3.083a.593.593,0,0,1-.6-.6Z" transform="translate(0 -4.657)" fill="#F9F4F0" fill-rule="evenodd"/>
+    <path id="Path_119527" data-name="Path 119527" d="M12.5,1.6a.589.589,0,0,1,.6-.6h5.058a.593.593,0,0,1,.6.6V6.653a.6.6,0,0,1-.6.6H13.1a.593.593,0,0,1-.6-.6Zm1.488,1.488a.589.589,0,0,1,.6-.6h2.083a.593.593,0,0,1,.6.6V5.166a.6.6,0,0,1-.6.6H14.583a.593.593,0,0,1-.6-.6Z" transform="translate(-4.657)" fill="#F9F4F0" fill-rule="evenodd"/>
+    <path id="Path_119528" data-name="Path 119528" d="M13,12.5h5.356v1.19H13Z" transform="translate(-4.859 -4.657)" fill="#F9F4F0" fill-rule="evenodd"/>
+    <path id="Path_119529" data-name="Path 119529" d="M17.785,17.19H16V16h1.785Z" transform="translate(-6.074 -6.074)" fill="#F9F4F0" fill-rule="evenodd"/>
+    <path id="Path_119530" data-name="Path 119530" d="M14.785,21.19H13V20h1.785Z" transform="translate(-4.859 -7.693)" fill="#F9F4F0" fill-rule="evenodd"/>
+    <path id="Path_119531" data-name="Path 119531" d="M20.785,21.19H19V20h1.785Z" transform="translate(-7.289 -7.693)" fill="#F9F4F0" fill-rule="evenodd"/>
   </g>
 </svg>

@@ -7,12 +7,7 @@ import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import {
-  MiniscriptElements,
-  Signer,
-  VaultScheme,
-  VaultSigner,
-} from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
@@ -28,11 +23,7 @@ const useConfigRecovery = () => {
   const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
 
   const [recoveryLoading, setRecoveryLoading] = useState(false);
-  const [scheme, setScheme] = useState<VaultScheme>();
-  const [vaultSignersList, setVaultSignersList] = useState<VaultSigner[]>([]);
-  const [miniscriptElements, setMiniscriptElements] = useState<MiniscriptElements | null>(null);
   const { showToast } = useToastMessage();
-  const [signersList, setSignersList] = useState<Signer[]>([]);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { allVaults } = useVault({});
@@ -46,7 +37,7 @@ const useConfigRecovery = () => {
     message: '',
   };
 
-  useEffect(() => {
+  const createVault = (scheme, signersList, vaultSignersList, miniscriptElements) => {
     if (scheme && signersList?.length >= 1 && vaultSignersList?.length >= 1) {
       const generatedVaultId = generateVaultId(vaultSignersList, scheme);
       if (allVaults.find((vault) => vault.id === generatedVaultId)) {
@@ -84,7 +75,7 @@ const useConfigRecovery = () => {
         navigation.goBack();
       }
     }
-  }, [scheme, signersList]);
+  };
 
   useEffect(() => {
     if (relayVaultUpdate && generatedVaultId) {
@@ -116,10 +107,10 @@ const useConfigRecovery = () => {
       if (text.match(/^[XYZTUVxyztuv]pub[1-9A-HJ-NP-Za-km-z]{100,108}$/)) {
         try {
           const importedKey = text.trim();
-          const importedKeyDetails = WalletUtilities.getImportedKeyDetails(importedKey);
+          const importedKeyType = WalletUtilities.getImportedKeyType(importedKey);
           navigation.navigate('ImportWalletDetails', {
             importedKey,
-            importedKeyDetails,
+            importedKeyType,
             type: WalletType.IMPORTED,
             name: importWallet.importedWalletTitle,
             description: importedKeyDetails.watchOnly
@@ -149,10 +140,7 @@ const useConfigRecovery = () => {
             vaultSigners.push(key);
             signers.push(signer);
           });
-          setSignersList(signers);
-          setVaultSignersList(vaultSigners);
-          setScheme(parsedText.scheme);
-          setMiniscriptElements(parsedText.miniscriptElements);
+          createVault(parsedText.scheme, signers, vaultSigners, parsedText.miniscriptElements);
         }
       } catch (err) {
         setRecoveryLoading(false);

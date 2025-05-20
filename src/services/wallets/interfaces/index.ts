@@ -191,6 +191,7 @@ export interface NodeDetail {
   isConnected: boolean;
   useKeeperNode: boolean;
   useSSL: boolean;
+  networkType: NetworkType;
 }
 
 export interface SyncedWallet {

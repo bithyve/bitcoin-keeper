@@ -13,21 +13,18 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import useNfcModal from 'src/hooks/useNfcModal';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import KeeperModal from 'src/components/KeeperModal';
-import { useDispatch } from 'react-redux';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRScanner from 'src/components/QRScanner';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import NFCOption from '../NFCChannel/NFCOption';
 import Note from 'src/components/Note/Note';
 import { SignerType } from 'src/services/wallets/enums';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
-import InfoIcon from 'src/assets/images/info_icon.svg';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const decoder = new URRegistryDecoder();
 
@@ -48,7 +45,6 @@ function ScanQR() {
     addSignerFlow = false,
     learnMoreContent = {},
     isPSBT = false,
-    importOptions = true,
     showNote = false,
     Illustration,
     Instructions,
@@ -57,11 +53,10 @@ function ScanQR() {
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const [inputText, setInputText] = useState('');
 
-  const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
+  const { nfcVisible } = useNfcModal();
   const isDarkMode = colorMode === 'dark';
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
   const [infoModal, setInfoModal] = useState(false);
@@ -105,7 +100,7 @@ function ScanQR() {
             rightComponent={
               !isHealthCheck && !isSingning ? (
                 <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
-                  {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+                  <ThemedSvg name={'info_icon'} />
                 </TouchableOpacity>
               ) : null
             }
@@ -158,18 +153,6 @@ function ScanQR() {
                       }
                     />
                   </Box>
-                </Box>
-              )}
-              {importOptions && type != SignerType.COLDCARD && (
-                <Box style={styles.importOptions}>
-                  <NFCOption
-                    signerType={type}
-                    nfcVisible={nfcVisible}
-                    closeNfc={closeNfc}
-                    withNfcModal={withNfcModal}
-                    setData={onQrScan}
-                    isPSBT={isPSBT}
-                  />
                 </Box>
               )}
             </ScrollView>

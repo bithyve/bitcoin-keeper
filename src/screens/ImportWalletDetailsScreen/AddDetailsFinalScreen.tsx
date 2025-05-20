@@ -1,9 +1,8 @@
 import { KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Text, View, useColorMode, ScrollView, Input } from 'native-base';
+import { Box, View, useColorMode, ScrollView, Input } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useDispatch } from 'react-redux';
@@ -14,13 +13,14 @@ import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import { DerivationPurpose, WalletType } from 'src/services/wallets/enums';
-import config from 'src/utils/service-utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
+import { NewWalletInfo } from 'src/store/sagas/wallets';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import WalletHeader from 'src/components/WalletHeader';
+import Text from 'src/components/KeeperText';
 
 const derivationPurposeToLabel = {
   [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
@@ -34,9 +34,10 @@ function AddDetailsFinalScreen({ route }) {
 
   const { translations } = useContext(LocalizationContext);
   const { home, importWallet, common, wallet: walletTranslation } = translations;
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const [arrow, setArrow] = useState(false);
 
-  const { importedKey, importedKeyDetails } = route.params;
+  const { importedKey, importedKeyType } = route.params;
   const [walletType, setWalletType] = useState(route.params?.type);
   const [walletName, setWalletName] = useState(route.params?.name);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
@@ -46,10 +47,10 @@ function AddDetailsFinalScreen({ route }) {
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
     { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
   ]);
-  const [purpose, setPurpose] = useState(importedKeyDetails?.purpose || DerivationPurpose.BIP84);
+  const [purpose, setPurpose] = useState(DerivationPurpose.BIP84);
   const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
   const [path, setPath] = useState(
-    route.params?.path || WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose)
+    route.params?.path || WalletUtilities.getDerivationPath(false, bitcoinNetworkType, 0, purpose)
   );
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -57,30 +58,23 @@ function AddDetailsFinalScreen({ route }) {
   const { colorMode } = useColorMode();
 
   useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose);
+    const path = WalletUtilities.getDerivationPath(false, bitcoinNetworkType, 0, purpose);
     setPath(path);
   }, [purpose]);
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
-    const derivationConfig: DerivationConfig = {
-      path,
-      purpose,
-    };
     const newWallet: NewWalletInfo = {
       walletType,
       walletDetails: {
         name: walletName,
         description: walletDescription,
-        derivationConfig: {
-          path,
-          purpose,
-        },
+        derivationPath: path,
       },
       importDetails: {
         importedKey,
-        importedKeyDetails,
-        derivationConfig,
+        importedKeyType,
+        derivationPath: path,
       },
     };
     dispatch(addNewWallets([newWallet]));
@@ -126,7 +120,7 @@ function AddDetailsFinalScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.addDetails} />
+        <WalletHeader title={home.ImportWallet} subTitle={importWallet.addDetails} />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper]}>

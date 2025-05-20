@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
@@ -44,7 +45,7 @@ function SetupSigningServer({ route }: { route }) {
       setSetupData(setupData);
       setValidationKey(setupData.verification.verifier);
     } catch (err) {
-      showToast('Something went wrong. Please try again!');
+      showToast(err.message || err.toString(), <ToastErrorIcon />);
     }
   };
 
@@ -167,6 +168,7 @@ function SetupSigningServer({ route }: { route }) {
               }}
               fullWidth
               primaryText="Confirm"
+              primaryDisable={otp.length !== 6}
             />
           </Box>
         </Box>

@@ -1,7 +1,6 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TabBar from 'src/components/TabBar';
 import { hp, wp } from 'src/constants/responsive';
@@ -29,9 +28,10 @@ import SelectableServerItem from './components/SelectableServerItem';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
+import { useAppSelector } from 'src/store/hooks';
+import WalletHeader from 'src/components/WalletHeader';
 
 const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL, connectionError }) => {
   return (
@@ -50,8 +50,9 @@ const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL, conn
 };
 
 const PublicServer = ({ currentlySelectedNode, handleSelectNode }) => {
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const predefinedNodes =
-    config.NETWORK_TYPE === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
+    bitcoinNetworkType === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
   return (
     <Box style={styles.nodeListContainer}>
       {predefinedNodes.map((node) => (
@@ -86,6 +87,7 @@ const NodeSelection = () => {
   const isDarkMode = colorMode === 'dark';
 
   const tabsData = [{ label: settings.publicServer }, { label: settings.privateElectrum }];
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const nodes: NodeDetail[] = Node.getAllNodes();
 
@@ -201,6 +203,7 @@ const NodeSelection = () => {
       useKeeperNode: false,
       isConnected: false,
       useSSL,
+      networkType: bitcoinNetworkType,
     };
     onSaveCallback(nodeDetails);
   };
@@ -222,9 +225,9 @@ const NodeSelection = () => {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={loading || saveLoading} />
-      <KeeperHeader
+      <WalletHeader
         title={settings.serverSelectionTitle}
-        subtitle={settings.serverSelectionSubtitle}
+        subTitle={settings.serverSelectionSubtitle}
       />
       <Box style={styles.tabBarContainer}>
         <TabBar

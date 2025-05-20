@@ -8,16 +8,13 @@ import { Box, useColorMode } from 'native-base';
 import Share from 'react-native-share';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
-import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/vaults';
+import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ShareGreen from 'src/assets/images/share-arrow-green.svg';
 import ShareWhite from 'src/assets/images/share-arrow-white.svg';
-import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -34,7 +31,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
@@ -45,7 +41,6 @@ import {
   setTransactionSnapshot,
 } from 'src/store/reducers/cachedTxn';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
-import config from 'src/utils/service-utilities/config';
 import { isReading, stopReading } from 'src/hardware/portal';
 import { hp, wp } from 'src/constants/responsive';
 import { getKeyUID } from 'src/utils/utilities';
@@ -64,6 +59,7 @@ import {
   signTransactionWithTapsigner,
 } from './signWithSD';
 import SendSuccessfulContent from '../Send/SendSuccessfulContent';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -111,7 +107,7 @@ function SignTransactionScreen() {
     vaultId,
   });
 
-  const { signers: vaultKeys, scheme } = defaultVault;
+  const { signers: vaultKeys } = defaultVault;
 
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
@@ -145,7 +141,6 @@ function SignTransactionScreen() {
     (state) => state.bhr
   );
 
-  const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const sendFailedMessage = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
@@ -163,6 +158,7 @@ function SignTransactionScreen() {
 
   const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     if (sendAndReceive.sendPhaseThree.txid) {
@@ -191,15 +187,11 @@ function SignTransactionScreen() {
   }, [relayVaultError, realyVaultErrorMessage]);
 
   useEffect(() => {
-    if (isMigratingNewVault) {
-      if (sendSuccessful) {
-        dispatch(finaliseVaultMigration(vaultId));
-      }
-    } else if (sendSuccessful) {
+    if (sendSuccessful) {
       setBroadcasting(false);
       setVisibleModal(true);
     }
-  }, [sendSuccessful, isMigratingNewVault]);
+  }, [sendSuccessful]);
 
   useEffect(() => {
     return () => {
@@ -285,9 +277,6 @@ function SignTransactionScreen() {
         dispatch(refillMobileKey(vaultKey));
       }
     });
-    return () => {
-      dispatch(resetKeyHealthState());
-    };
   }, []);
 
   const { withModal, nfcVisible: TSNfcVisible, closeNfc: closeTSNfc } = useTapsignerModal(card);
@@ -629,7 +618,7 @@ function SignTransactionScreen() {
 
   const handleShare = async () => {
     const url = `https://mempool.space${
-      config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      bitcoinNetworkType === NetworkType.TESTNET ? '/testnet4' : ''
     }/tx/${sendSuccessful}`;
 
     try {
@@ -646,12 +635,12 @@ function SignTransactionScreen() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
-      <KeeperHeader
+      <WalletHeader
         title="Sign Transaction"
-        subtitle={
+        subTitle={
           serializedPSBTEnvelops.length == 1
             ? 'Sign the transaction with your key'
-            : `Choose ${serializedPSBTEnvelops.length} keys to sign the transaction`
+            : `Choose ${defaultVault.scheme.m} keys to sign the transaction`
         }
       />
       <FlatList
@@ -681,13 +670,6 @@ function SignTransactionScreen() {
           }
         }}
       />
-      <Box style={styles.noteWrapper}>
-        <Note
-          title={common.note}
-          subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signers, it can be broadcasted."
-          subtitleColor="GreyText"
-        />
-      </Box>
       <Box style={styles.buttonContainer}>
         <Buttons
           fullWidth
@@ -822,9 +804,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingVertical: hp(15),
-    paddingHorizontal: '2.5%',
-  },
-  noteWrapper: {
     paddingHorizontal: '2.5%',
   },
 });

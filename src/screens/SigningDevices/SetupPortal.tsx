@@ -22,7 +22,6 @@ import { useDispatch } from 'react-redux';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import config from 'src/utils/service-utilities/config';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
@@ -42,13 +41,11 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { SegmentedController } from 'src/components/SegmentController';
 import { options, SuccessContainer } from '../AddSigner/AddMultipleXpub';
-import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
-import InfoIcon from 'src/assets/images/info_icon.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import Instruction from 'src/components/Instruction';
-
-const isTestNet = config.NETWORK_TYPE === NetworkType.TESTNET;
+import { useAppSelector } from 'src/store/hooks';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SetupPortal({ route }) {
   const {
@@ -63,7 +60,6 @@ function SetupPortal({ route }) {
     receiveAddressIndex,
     Illustration,
     Instructions,
-    isHealthcheck,
   }: {
     mode: InteracationMode;
     signer: Signer;
@@ -76,7 +72,6 @@ function SetupPortal({ route }) {
     receiveAddressIndex?: number;
     Illustration?: any;
     Instructions?: any;
-    isHealthcheck?: boolean;
   } = route.params;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
@@ -93,6 +88,7 @@ function SetupPortal({ route }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [xpubs, setXpubs] = useState({});
   const [infoModal, setInfoModal] = useState(false);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   let vaultDescriptor = '';
   let vault = null;
@@ -279,24 +275,9 @@ function SetupPortal({ route }) {
 
   const signWithPortal = React.useCallback(async () => {
     try {
-      const signedSerializedPSBT = await signTransaction({ portalCVC: cvc });
+      await signTransaction({ portalCVC: cvc });
       if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal signed successfully!`);
-      if (isRemoteKey && signedSerializedPSBT) {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'ShowPSBT',
-            params: {
-              data: signedSerializedPSBT,
-              encodeToBytes: false,
-              title: 'Signed PSBT',
-              subtitle: 'Please scan until all the QR data has been retrieved',
-              type: SignerType.KEEPER,
-            },
-          })
-        );
-      } else {
-        navigation.goBack();
-      }
+      navigation.goBack();
     } catch (error) {
       PORTAL.stopReading();
       showToast(
@@ -328,7 +309,7 @@ function SetupPortal({ route }) {
           // Throws error if portal is partially initialized already.
           await PORTAL.initializePortal(
             MnemonicWords[0],
-            isTestNet ? Network.Testnet : Network.Bitcoin,
+            bitcoinNetworkType === NetworkType.TESTNET ? Network.Testnet : Network.Bitcoin,
             cvc.trim().length ? cvc : null
           );
         } catch (error) {
@@ -407,7 +388,7 @@ function SetupPortal({ route }) {
         rightComponent={
           InteracationMode.VAULT_ADDITION ? (
             <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
-              {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+              <ThemedSvg name={'info_icon'} />
             </TouchableOpacity>
           ) : null
         }
@@ -437,7 +418,10 @@ function SetupPortal({ route }) {
             {Object.values(xpubs).some((value) => value !== null) && (
               <Buttons fullWidth primaryText="Finish" primaryCallback={createPortalSigner} />
             )}
-            <Buttons secondaryText={isTestNet ? ' Wipe' : null} secondaryCallback={wipePortal} />
+            <Buttons
+              secondaryText={bitcoinNetworkType === NetworkType.TESTNET ? ' Wipe' : null}
+              secondaryCallback={wipePortal}
+            />
           </>
         ) : (
           <ScrollView>

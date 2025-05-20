@@ -30,7 +30,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation, CommonActions, StackActions } from '@react-navigation/native';
 import { MiniscriptTxSelectedSatisfier, Vault } from 'src/services/wallets/interfaces/vault';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -57,6 +57,7 @@ import IconGreySettings from 'src/assets/images/settings_grey.svg';
 import { TouchableOpacity } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { NumberInput } from '../AddWalletScreen/AddNewWallet';
+import WalletHeader from 'src/components/WalletHeader';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -120,6 +121,8 @@ function SendScreen({ route }) {
   const totalUtxosAmount = selectedUTXOs?.reduce((sum, utxo) => sum + utxo.value, 0);
   const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false);
   const [localTotalRecipients, setLocalTotalRecipients] = useState(totalRecipients);
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   const visibleWallets = useMemo(
     () =>
@@ -334,38 +337,21 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader
-          title="Sending from"
-          subtitle={sender.presentationData.name}
-          subTitleSize={16}
-          icon={
-            <HexagonIcon
-              width={44}
-              height={38}
-              backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
-              icon={getWalletIcon(sender)}
-            />
-          }
-          availableBalance={
-            <CurrencyInfo
-              hideAmounts={false}
-              amount={selectedUTXOs?.length ? totalUtxosAmount : availableBalance}
-              fontSize={16}
-              satsFontSize={12}
-              color={`${colorMode}.primaryText`}
-              variation={!isDarkMode ? 'dark' : 'light'}
-            />
-          }
+        <WalletHeader
+          title="Sending to"
+          subTitle="Enter the recipient address"
           rightComponent={
             currentRecipientIdx === 1 && (
-              <TouchableOpacity onPress={() => setShowAdvancedSettingsModal(true)}>
+              <TouchableOpacity
+                onPress={() => setShowAdvancedSettingsModal(true)}
+                style={{ marginRight: wp(15) }}
+              >
                 {colorMode === 'light' ? <IconGreySettings /> : <IconSettings />}
               </TouchableOpacity>
             )
           }
-          rightComponentPadding={wp(10)}
-          rightComponentBottomPadding={hp(5)}
         />
+
         <ScrollView
           style={styles.scrollViewWrapper}
           showsVerticalScrollIndicator={false}
@@ -462,7 +448,11 @@ function SendScreen({ route }) {
                             height={26}
                             icon={getSmallWalletIcon(selectedWallet)}
                             backgroundColor={
-                              isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen
+                              privateTheme
+                                ? Colors.goldenGradient
+                                : isDarkMode
+                                ? Colors.DullGreenDark
+                                : Colors.primaryGreen
                             }
                           />
                         </Box>

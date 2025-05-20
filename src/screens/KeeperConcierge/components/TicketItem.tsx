@@ -4,15 +4,15 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { capitalizeEachWord, timeFromTimeStamp } from 'src/utils/utilities';
-import { useSelector } from 'react-redux';
 import Colors from 'src/theme/Colors';
 import CardPill from 'src/components/CardPill';
 import { ConciergeTicketStatus } from 'src/models/enums/ConciergeTag';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useAppSelector } from 'src/store/hooks';
 
 const TicketItem = ({ ticket, handlePress }) => {
   const { colorMode } = useColorMode();
-  const { commentsCounter } = useSelector((store) => store.concierge);
+  const { commentsCounter } = useAppSelector((store) => store.concierge);
   const newComment = ticket.comment_count > commentsCounter[ticket.id];
   const isSolved = ticket.status == ConciergeTicketStatus.SOLVED;
   const { translations } = useContext(LocalizationContext);

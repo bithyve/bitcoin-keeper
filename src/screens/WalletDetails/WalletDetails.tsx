@@ -6,8 +6,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import SettingIcon from 'src/assets/images/settings-gear-green.svg';
-import SettingIconWhite from 'src/assets/images/settings-gear.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -31,6 +29,7 @@ import WalletCard from '../Home/components/Wallet/WalletCard';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import FeatureCard from 'src/components/FeatureCard';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
@@ -124,7 +123,7 @@ function WalletDetails({ route }: ScreenProps) {
   };
 
   return (
-    <Box safeAreaTop style={styles.wrapper}>
+    <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <Box style={styles.topContainer}>
         <WalletHeader
@@ -135,11 +134,7 @@ function WalletDetails({ route }: ScreenProps) {
                 navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
               }
             >
-              {isDarkMode ? (
-                <SettingIconWhite width={24} height={24} />
-              ) : (
-                <SettingIcon width={24} height={24} />
-              )}
+              <ThemedSvg name={'setting_icon'} width={25} height={25} />
             </TouchableOpacity>
           }
         />
@@ -187,6 +182,7 @@ function WalletDetails({ route }: ScreenProps) {
             flex={1}
             style={styles.transactionsContainer}
             backgroundColor={`${colorMode}.thirdBackground`}
+            borderColor={`${colorMode}.separator`}
           >
             {wallet?.specs?.transactions?.length ? (
               <HStack style={styles.transTitleWrapper}>
@@ -216,7 +212,11 @@ function WalletDetails({ route }: ScreenProps) {
             <TransactionFooter currentWallet={wallet} />
           </Box>
         ) : (
-          <Box style={styles.addNewWalletContainer}>
+          <Box
+            style={styles.addNewWalletContainer}
+            borderColor={`${colorMode}.separator`}
+            borderTopWidth={1}
+          >
             <AddWalletIcon />
             <Text
               color={`${colorMode}.primaryText`}
@@ -264,6 +264,8 @@ const styles = StyleSheet.create({
     paddingTop: hp(24),
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
+    borderWidth: 1,
+    borderBottomWidth: 0,
   },
   transTitleWrapper: {
     paddingTop: 5,

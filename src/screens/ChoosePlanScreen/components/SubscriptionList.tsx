@@ -15,6 +15,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
 const SubscriptionList: React.FC<{
   plans: any[];
@@ -24,6 +25,7 @@ const SubscriptionList: React.FC<{
   isMonthly: boolean;
   getButtonText?: any;
   listFooterCta?: React.ReactNode;
+  playServiceUnavailable?: boolean;
 }> = ({
   plans,
   currentPosition,
@@ -32,6 +34,7 @@ const SubscriptionList: React.FC<{
   isMonthly,
   getButtonText,
   listFooterCta,
+  playServiceUnavailable = false,
 }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
@@ -43,6 +46,20 @@ const SubscriptionList: React.FC<{
     currentPosition !== 0 ? currentPosition : subscription.level - 1
   );
 
+  const getKeeperPrivateExpiryDate = () => {
+    if (subscription.level == AppSubscriptionLevel.L4) {
+      const receipt = JSON.parse(subscription.receipt);
+      if (receipt.expirationTime) {
+        const expires = new Date(receipt.expirationTime);
+        return expires.toLocaleString('en-US', {
+          month: 'long',
+          year: 'numeric',
+        });
+      }
+    }
+    return null;
+  };
+
   const _onSnapToItem = (index) => {
     setCurrentPositions(index);
     onChange(index);
@@ -51,7 +68,6 @@ const SubscriptionList: React.FC<{
   const toggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
-
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
       {planData.map((plan, index) => {
@@ -60,6 +76,7 @@ const SubscriptionList: React.FC<{
 
         const matchedPlan = plans.find((p) => p.name.toLowerCase() === plan.title.toLowerCase());
         const isPleb = plan.title.toLowerCase() === 'pleb';
+        const isKeeperPrivate = plan.title === SubscriptionTier.L4;
 
         const planDetails = isPleb
           ? 'Free'
@@ -106,8 +123,10 @@ const SubscriptionList: React.FC<{
           >
             <Box
               key={index}
-              borderColor={isActive ? `${colorMode}.dashedButtonBorderColor` : 'transparent'}
-              borderWidth={isActive ? 2 : 0}
+              borderColor={
+                isActive ? `${colorMode}.dashedButtonBorderColor` : `${colorMode}.separator`
+              }
+              borderWidth={isActive ? 2 : 1}
               backgroundColor={`${colorMode}.textInputBackground`}
               style={styles.card}
             >
@@ -148,19 +167,35 @@ const SubscriptionList: React.FC<{
                   />
                 </Box>
               </View>
-              <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
-                {' '}
-              </Box>
-              {isExpanded && (
+              {isKeeperPrivate && !isExpanded
+                ? null
+                : (!playServiceUnavailable || isExpanded) && (
+                    <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
+                      {' '}
+                    </Box>
+                  )}
+
+              {!isKeeperPrivate && isExpanded && (
                 <>
                   <PlanDetailsCards plansData={plans} currentPosition={currentPosition} />
-                  <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
-                    {' '}
-                  </Box>
+                  {!playServiceUnavailable && (
+                    <Box style={styles.divider} backgroundColor={`${colorMode}.BrownNeedHelp`}>
+                      {' '}
+                    </Box>
+                  )}
                 </>
               )}
 
-              {priceDisplay}
+              {playServiceUnavailable ? null : isKeeperPrivate ? null : priceDisplay}
+
+              {isExpanded && isKeeperPrivate && getKeeperPrivateExpiryDate() && (
+                <Box style={styles.expireCtr}>
+                  <Text color={`${colorMode}.GreyText`} semiBold fontSize={12}>
+                    Expires:
+                  </Text>
+                  <Text fontSize={12}>{getKeeperPrivateExpiryDate()}</Text>
+                </Box>
+              )}
 
               {isExpanded && (
                 <Box style={styles.btmCTR}>
@@ -256,6 +291,10 @@ const styles = StyleSheet.create({
   btmCTR: {
     marginTop: 15,
     marginBottom: 10,
+  },
+  expireCtr: {
+    flexDirection: 'row',
+    gap: wp(5),
   },
 });
 

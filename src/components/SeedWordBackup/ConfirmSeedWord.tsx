@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from 'src/components/Buttons';

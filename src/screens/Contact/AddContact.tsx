@@ -6,7 +6,6 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import ContactBookLight from 'src/assets/images/contact-book-light.svg';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import ContactImagePlaceholder from 'src/assets/images/contact-image-placeholder.svg';
@@ -16,6 +15,7 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { persistDocument } from 'src/services/documents';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import WalletHeader from 'src/components/WalletHeader';
 
 const ContactButton = ({ signer, isWalletFlow }) => {
   const { colorMode } = useColorMode();
@@ -96,14 +96,12 @@ function AddContact({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={vault.addContact}
         titleColor={`${colorMode}.black`}
         rightComponent={
           showContactButton && <ContactButton signer={signer} isWalletFlow={isWalletFlow} />
         }
-        rightComponentPadding={wp(10)}
-        rightComponentBottomPadding={hp(8)}
       />
 
       <Box style={styles.container}>

@@ -31,10 +31,9 @@ import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
-import config from 'src/utils/service-utilities/config';
 import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
-import NfcManager from 'react-native-nfc-manager';
+import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
@@ -53,9 +52,10 @@ import NFCIconWhite from 'src/assets/images/nfc_lines_white.svg';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
-import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
-import InfoIcon from 'src/assets/images/info_icon.svg';
 import Instruction from 'src/components/Instruction';
+import { useAppSelector } from 'src/store/hooks';
+import ShareKeyModalContent from '../Vault/components/ShareKeyModalContent';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -65,6 +65,7 @@ function SetupTapsigner({ route }) {
   const { signer: signerTranslations, common } = translations;
   const card = useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
+  const [openOptionModal, setOpenOptionModal] = useState(false);
 
   const {
     mode,
@@ -94,6 +95,8 @@ function SetupTapsigner({ route }) {
   const isDarkMode = colorMode === 'dark';
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
   const [infoModal, setInfoModal] = useState(false);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const [signedPSBT, setSignedPSBT] = useState(null);
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -139,13 +142,13 @@ function SetupTapsigner({ route }) {
           xpriv: multiSigXpriv,
           derivationPath: multiSigPath,
           masterFingerprint,
-        } = generateMockExtendedKeyForSigner(true, SignerType.TAPSIGNER, config.NETWORK_TYPE);
+        } = generateMockExtendedKeyForSigner(true, SignerType.TAPSIGNER, bitcoinNetworkType);
         // fetched single-sig key
         const {
           xpub: singleSigXpub,
           xpriv: singleSigXpriv,
           derivationPath: singleSigPath,
-        } = generateMockExtendedKeyForSigner(false, SignerType.TAPSIGNER, config.NETWORK_TYPE);
+        } = generateMockExtendedKeyForSigner(false, SignerType.TAPSIGNER, bitcoinNetworkType);
 
         const xpubDetails: XpubDetailsType = {};
 
@@ -281,18 +284,8 @@ function SetupTapsigner({ route }) {
       const signedSerializedPSBT = await signTransaction({ tapsignerCVC: cvc });
       if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER signed successfully!`);
       if (isRemoteKey && signedSerializedPSBT) {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'ShowPSBT',
-            params: {
-              data: signedSerializedPSBT,
-              encodeToBytes: false,
-              title: 'Signed PSBT',
-              subtitle: 'Please scan until all the QR data has been retrieved',
-              type: SignerType.KEEPER,
-            },
-          })
-        );
+        setSignedPSBT(signedSerializedPSBT);
+        setOpenOptionModal(true);
       } else {
         navigation.goBack();
       }
@@ -434,6 +427,39 @@ function SetupTapsigner({ route }) {
     );
   }
 
+  function ShareKeyModalData() {
+    return (
+      <Box>
+        <ShareKeyModalContent
+          navigation={navigation}
+          signer={signer}
+          navigateToShowPSBT={navigateToShowPSBT}
+          setShareKeyModal={setOpenOptionModal}
+          data={signedPSBT}
+          isSignedPSBT
+          isPSBTSharing
+          fileName={`signedTransaction.psbt`}
+        />
+      </Box>
+    );
+  }
+
+  const navigateToShowPSBT = (signedSerializedPSBT: string) => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ShowPSBT',
+        params: {
+          data: signedSerializedPSBT,
+          encodeToBytes: false,
+          title: 'Signed PSBT',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          type: SignerType.KEEPER,
+          isSignedPSBT: false,
+        },
+      })
+    );
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
@@ -453,7 +479,7 @@ function SetupTapsigner({ route }) {
         rightComponent={
           !isHealthCheck ? (
             <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
-              {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+              <ThemedSvg name={'info_icon'} />
             </TouchableOpacity>
           ) : null
         }
@@ -465,13 +491,18 @@ function SetupTapsigner({ route }) {
         signerXfp={signer?.masterFingerprint}
       >
         <ScrollView>
-          <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Box
+            style={styles.input}
+            backgroundColor={`${colorMode}.seashellWhite`}
+            borderColor={`${colorMode}.separator`}
+          >
             <Input
               borderWidth={0}
               value={cvc}
               onChangeText={setCvc}
               secureTextEntry
               showSoftInputOnFocus={false}
+              backgroundColor={`${colorMode}.seashellWhite`}
             />
           </Box>
           <Text style={styles.heading} color={`${colorMode}.greenText`}>
@@ -560,6 +591,20 @@ function SetupTapsigner({ route }) {
           </Box>
         )}
       />
+      <KeeperModal
+        visible={openOptionModal}
+        close={() => setOpenOptionModal(false)}
+        title="Sign Transaction"
+        subTitle="Select how you want to sign the transaction"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <ShareKeyModalData />
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -581,6 +626,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     letterSpacing: 5,
     justifyContent: 'center',
+    borderWidth: 1,
   },
   heading: {
     margin: '5%',

@@ -1,11 +1,10 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
-import { Linking, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import { Linking, Platform, TouchableOpacity, Vibration } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { hp, wp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/rightarrow.svg';
-import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -20,6 +19,13 @@ import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerType } from 'src/services/wallets/enums';
+import WalletHeader from 'src/components/WalletHeader';
+import NFC from 'src/services/nfc';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import idx from 'idx';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 
 function Card({ title, message, buttonText, buttonCallBack }) {
   const { colorMode } = useColorMode();
@@ -72,16 +78,103 @@ function SignWithColdCard({ route }: { route }) {
   const navigation = useNavigation();
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
-  const { vaultKey, signTransaction, isMultisig, vaultId, isRemoteKey } = route.params as {
-    vaultKey: VaultSigner;
-    signTransaction;
-    isMultisig: boolean;
-    vaultId: string;
-    isRemoteKey: boolean;
-  };
+  const { vaultKey, signTransaction, isMultisig, vaultId, isRemoteKey, serializedPSBTEnvelop } =
+    route.params as {
+      vaultKey: VaultSigner;
+      signTransaction;
+      isMultisig: boolean;
+      vaultId: string;
+      isRemoteKey: boolean;
+      serializedPSBTEnvelop: any;
+    };
 
   const { activeVault } = useVault({ vaultId });
   const { signer } = useSignerFromKey(vaultKey);
+  const { showToast } = useToastMessage();
+  const isNotColdcard = signer.type != SignerType.COLDCARD;
+
+  const [externalKeyNfc, setExternalKeyNfc] = React.useState(false);
+  const { session } = useContext(HCESessionContext);
+
+  const cleanUp = () => {
+    setExternalKeyNfc(false);
+    Vibration.cancel();
+    if (isAndroid) {
+      NFC.stopTagSession(session);
+    }
+  };
+  useEffect(() => {
+    if (isNotColdcard) {
+      const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+        cleanUp();
+      });
+      const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
+        try {
+          const data = idx(session, (_) => _.application.content.content);
+          if (!data) {
+            showToast('Please scan a valid psbt', <ToastErrorIcon />);
+            return;
+          }
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT: data, xfp: vaultKey.xfp }));
+          navigation.goBack();
+        } catch (err) {
+          showToast('Something went wrong.', <ToastErrorIcon />);
+        } finally {
+          cleanUp();
+        }
+      });
+
+      const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {});
+      return () => {
+        cleanUp();
+        unsubRead();
+        unsubDisconnect();
+        unsubConnect();
+      };
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (isNotColdcard) {
+      if (isAndroid) {
+        if (nfcVisible) {
+        } else {
+          NFC.stopTagSession(session);
+        }
+      }
+      return () => {
+        nfcManager.cancelTechnologyRequest();
+      };
+    }
+  }, [nfcVisible]);
+
+  const shareWithNFC = async () => {
+    try {
+      if (isIos) {
+        if (!isIos) {
+          setExternalKeyNfc(true);
+        }
+        Vibration.vibrate([700, 50, 100, 50], true);
+        const enc = NFC.encodeTextRecord(serializedPSBTEnvelop.serializedPSBT);
+        await NFC.send([NfcTech.Ndef], enc);
+        cleanUp();
+      } else {
+        setExternalKeyNfc(true);
+        await NFC.startTagSession({ session, content: serializedPSBTEnvelop.serializedPSBT });
+        Vibration.vibrate([700, 50, 100, 50], true);
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error: Not even registered') {
+        console.log('NFC interaction cancelled.');
+        return;
+      }
+      console.log('Error ', err);
+    }
+  };
+
+  const isAndroid = Platform.OS === 'android';
+  const isIos = Platform.OS === 'ios';
 
   const { registered = false } =
     vaultKey.registeredVaults?.find((info) => info.vaultId === activeVault.id) || {};
@@ -139,13 +232,38 @@ function SignWithColdCard({ route }: { route }) {
   const registerCC = async () => {
     navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
   };
+
+  const readSignedPsbt = async () => {
+    try {
+      if (!isIos) {
+        setExternalKeyNfc(true);
+        NFC.startTagSession({ session, content: '', writable: true });
+      }
+      const records = await NFC.read([NfcTech.Ndef]);
+      try {
+        const signedPsbt = records[0].data;
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp }));
+        navigation.goBack();
+      } catch (error) {
+        throw new Error();
+      }
+    } catch (err) {
+      cleanUp();
+      if (err.toString() === 'Error') {
+        console.log('NFC interaction cancelled');
+        return;
+      }
+      showToast('Something went wrong.', <ToastErrorIcon />);
+    }
+  };
+
   const { colorMode } = useColorMode();
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <VStack justifyContent="space-between" flex={1}>
-        <KeeperHeader
+        <WalletHeader
           title="Sign Transaction via NFC"
-          subtitle={
+          subTitle={
             signer.type === SignerType.KEEPER
               ? 'First send the transaction to the other Keeper app, sign it on Keeper, then click receive to pass it back into Keeper'
               : 'First send the transaction to the Coldcard, sign it on Coldcard, then click receive to pass it back into Keeper'
@@ -160,7 +278,7 @@ function SignWithColdCard({ route }: { route }) {
                 : 'from the app to the Coldcard'
             }
             buttonText="Send"
-            buttonCallBack={signTransaction}
+            buttonCallBack={isNotColdcard ? shareWithNFC : signTransaction}
           />
           <Card
             title="Receive signed transaction"
@@ -170,7 +288,7 @@ function SignWithColdCard({ route }: { route }) {
                 : 'from the Coldcard to the app'
             }
             buttonText="Receive"
-            buttonCallBack={receiveFromColdCard}
+            buttonCallBack={isNotColdcard ? readSignedPsbt : receiveFromColdCard}
           />
         </VStack>
         <VStack>
@@ -252,7 +370,7 @@ function SignWithColdCard({ route }: { route }) {
           </Box>
         )}
       />
-      <NfcPrompt visible={nfcVisible} close={closeNfc} />
+      <NfcPrompt visible={nfcVisible || externalKeyNfc} close={closeNfc} />
     </ScreenWrapper>
   );
 }

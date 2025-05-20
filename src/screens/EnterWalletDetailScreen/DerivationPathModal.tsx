@@ -7,10 +7,10 @@ import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import { DerivationPurpose, EntityKind } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import TickIcon from 'src/assets/images/icon_check.svg';
+import { useAppSelector } from 'src/store/hooks';
 const purposeList = [
   { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
   { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
@@ -26,6 +26,7 @@ function DerivationPathModalContent({
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common, settings, wallet } = translations;
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const [purpose, setPurpose] = useState(initialPurpose);
   const [showPurpose, setShowPurpose] = useState(false);
@@ -33,7 +34,7 @@ function DerivationPathModalContent({
   const [path, setPath] = useState(initialPath);
 
   useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(false, config.NETWORK_TYPE, 0, purpose);
+    const path = WalletUtilities.getDerivationPath(false, bitcoinNetworkType, 0, purpose);
     setPath(path);
   }, [purpose]);
 
@@ -56,7 +57,12 @@ function DerivationPathModalContent({
   return (
     <Box style={styles.container}>
       <Box>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.textInputWrapper}>
+        <Box
+          backgroundColor={`${colorMode}.seashellWhite`}
+          borderColor={`${colorMode}.separator`}
+          borderWidth={1}
+          style={styles.textInputWrapper}
+        >
           <Text bold>{path}</Text>
         </Box>
         <Box style={{ position: 'relative' }}>
@@ -69,6 +75,8 @@ function DerivationPathModalContent({
             ]}
             backgroundColor={`${colorMode}.seashellWhite`}
             onPress={onDropDownClick}
+            borderColor={`${colorMode}.separator`}
+            borderWidth={1}
           >
             <Text fontSize={12} bold color={`${colorMode}.textGreen`}>
               {purpose

@@ -84,7 +84,7 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
             })
           );
         }}
-        Content={BackupModalContent}
+        Content={() => <BackupModalContent />}
       />
     </Box>
   );

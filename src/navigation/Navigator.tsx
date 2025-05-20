@@ -1,7 +1,7 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { getRoutingInstrumentation } from 'src/services/sentry';
+import * as Sentry from '@sentry/react-native';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
@@ -135,6 +135,9 @@ import ServerKeySuccessScreen from 'src/screens/Vault/ServerKeySuccessScreen';
 import SigningRequest from 'src/screens/Vault/SigningRequest';
 import PurchaseWithChannel from 'src/screens/QRScreens/PurchaseWithChannel';
 import { AddMultipleXpub } from 'src/screens/AddSigner/AddMultipleXpub';
+import AppStateHandler from './AppStateHandler';
+import AdditionalUsers from 'src/screens/Vault/AdditionalUsers';
+import SetupAdditionalServerKey from 'src/screens/SigningDevices/SetupAdditionalServerKey';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -242,7 +245,10 @@ function AppStack() {
         <Stack.Screen name="SpendingLimit" component={SpendingLimit} />
         <Stack.Screen name="SigningDelay" component={SigningDelay} />
         <Stack.Screen name="SigningRequest" component={SigningRequest} />
+        <Stack.Screen name="AdditionalUsers" component={AdditionalUsers} />
         <Stack.Screen name="ServerKeySuccessScreen" component={ServerKeySuccessScreen} />
+        <Stack.Screen name="SetupAdditionalServerKey" component={SetupAdditionalServerKey} />
+
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
@@ -318,11 +324,15 @@ function Navigator() {
       background: colorMode === 'light' ? Colors.secondaryCreamWhite : Colors.PrimaryBlack,
     },
   };
+  const navigationIntegration = Sentry.reactNavigationIntegration({
+    enableTimeToInitialDisplay: true,
+  });
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
     if (config.isDevMode()) {
-      getRoutingInstrumentation().registerNavigationContainer(navigation);
+      // updated with RNv0.73.0
+      navigationIntegration.registerNavigationContainer(navigation);
     }
   };
 
@@ -330,6 +340,7 @@ function Navigator() {
 
   return (
     <NavigationContainer theme={defaultTheme} ref={navigation} onReady={onReady}>
+      <AppStateHandler />
       <ZendeskOnboardingModal visible={onboardingModal} />
 
       <Stack.Navigator screenOptions={{ headerShown: false }}>

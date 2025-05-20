@@ -25,12 +25,10 @@ import { StyleSheet } from 'react-native';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
-  const { plan } = usePlan();
+  const { isOnL2Above } = usePlan();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning, vault } = translations;
-  const isHodlerAndDiamondHand =
-    plan === SubscriptionTier.L3.toUpperCase() || plan === SubscriptionTier.L2.toUpperCase();
 
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
   const navigate = (path, value) => {
@@ -54,29 +52,29 @@ function KeySecurity({ navigation }) {
         LeftIcon={<CouponIcon />}
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       /> */}
-      {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
+      {!isOnL2Above && <UpgradeSubscription type={SubscriptionTier.L2} />}
       <OptionCard
-        disabled={!isHodlerAndDiamondHand}
+        disabled={!isOnL2Above}
         title={inheritancePlanning.inheritanceKey}
         description={inheritancePlanning.inheritanceKeyOptionDesc}
-        LeftIcon={!isHodlerAndDiamondHand ? <IKGreyIcon /> : <IKGreenIcon />}
+        LeftIcon={!isOnL2Above ? <IKGreyIcon /> : <IKGreenIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
       <OptionCard
-        disabled={!isHodlerAndDiamondHand}
+        disabled={!isOnL2Above}
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
         title={vault.canaryWallet}
         description={inheritancePlanning.canaryWalletDesp}
-        LeftIcon={!isHodlerAndDiamondHand ? <BirdDisabledIcon /> : <BirdIcon />}
+        LeftIcon={!isOnL2Above ? <BirdDisabledIcon /> : <BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
-      {!isHodlerAndDiamondHand && (
+      {!isOnL2Above && (
         <Box
           borderColor={`${colorMode}.lightSkin`}
           style={StyleSheet.flatten([{ borderWidth: 1, marginTop: hp(10) }])}
         />
       )}
-      <Box paddingTop={!isHodlerAndDiamondHand && hp(20)}>
+      <Box paddingTop={!isOnL2Above && hp(20)}>
         <OptionCard
           preTitle={`${getTimeDifferenceInWords(
             inheritanceToolVisitedHistory?.[SECURE_USAGE_TIPS]

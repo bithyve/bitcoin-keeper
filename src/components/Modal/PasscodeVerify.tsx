@@ -27,17 +27,12 @@ interface Props {
   onForceSuccess?: Function;
 }
 
-const defaultProps: Props = {
-  useBiometrics: false,
-  forcedMode: false,
-};
-
 function PasscodeVerifyModal({
-  useBiometrics,
+  useBiometrics = false,
   close,
   onSuccess,
   primaryText,
-  forcedMode,
+  forcedMode = false,
   onForceSuccess,
 }: Props) {
   const { colorMode } = useColorMode();
@@ -190,5 +185,4 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 });
-PasscodeVerifyModal.defaultProps = defaultProps;
 export default PasscodeVerifyModal;

@@ -21,6 +21,8 @@ import useBalance from 'src/hooks/useBalance';
 import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import WalletHeader from 'src/components/WalletHeader';
+import { useSelector } from 'react-redux';
 
 type SelectWalletParams = {
   handleSelectWallet: (wallet: Wallet | Vault) => void;
@@ -56,6 +58,8 @@ function WalletItem({
   const variation = !isDarkMode ? 'dark' : 'light';
   const isSelected = wallet.id === selectedWalletId;
   const borderColor = isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.dullGreyBorder`;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
 
   const handlePress = () => {
     if (isSelected) {
@@ -79,7 +83,13 @@ function WalletItem({
           <HexagonIcon
             width={42}
             height={36}
-            backgroundColor={isDarkMode ? Colors.DullGreenDark : Colors.primaryGreen}
+            backgroundColor={
+              privateTheme
+                ? Colors.goldenGradient
+                : isDarkMode
+                ? Colors.DullGreenDark
+                : Colors.primaryGreen
+            }
             icon={getWalletIcon(wallet)}
           />
           <Text style={styles.walletName} color={`${colorMode}.primaryText`}>
@@ -125,10 +135,9 @@ function SelectWalletScreen({ route }: Props) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={walletText.selectWalletTitle}
-        subtitle={walletText.selectWalletSubtitle}
-        subTitleSize={15}
+        subTitle={walletText.selectWalletSubtitle}
       />
       <ScrollView style={styles.walletListContainer} showsVerticalScrollIndicator={false}>
         <Box style={styles.walletList}>

@@ -36,26 +36,27 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>487</string>
+	<string>510</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>itms-apps</string>
+		<string>orbot</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
 	<string>Allow Keeper to interact with nearby NFC devices</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
 	</dict>
-	<key>NSContactsUsageDescription</key>
-	<string>ContactsList needs your permission to access your contacts</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
+	<key>NSContactsUsageDescription</key>
+	<string>ContactsList needs your permission to access your contacts</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Allow Keeper requires FaceID access to allows you quick and secure access.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -74,16 +75,16 @@
 	</dict>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Lora-Medium.ttf</string>
 		<string>Inter-Bold.ttf</string>
 		<string>Inter-BoldItalic.ttf</string>
 		<string>Inter-Italic.ttf</string>
 		<string>Inter-Light.ttf</string>
 		<string>Inter-LightItalic.ttf</string>
-		<string>Inter-Medium.ttf</string>
-		<string>Inter-MediumItalic.ttf</string>
+		<string>Lora-MediumItalic.ttf</string>
 		<string>Inter-Regular.ttf</string>
-		<string>Inter-SemiBold.ttf</string>
-		<string>Inter-SemiBoldItalic.ttf</string>
+		<string>Lora-SemiBold.ttf</string>
+		<string>Lora-SemiBoldItalic.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
@@ -94,7 +95,7 @@
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
-		<string>armv7</string>
+		<string>arm64</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
@@ -108,10 +109,31 @@
 		<string>D2760000850101</string>
 		<string>f0436f696e6b697465434152447631</string>
 	</array>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>itms-apps</string>
-		<string>orbot</string>
-	</array>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>KpAppIcon</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>KpAppIcon</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+		</dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconName</key>
+			<string></string>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<false/>
+		</dict>
+	</dict>
 </dict>
 </plist>

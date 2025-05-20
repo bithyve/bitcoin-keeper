@@ -3,10 +3,9 @@ import { Box, FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Signer, Vault, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getKeyUID, numberToOrdinal } from 'src/utils/utilities';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
@@ -31,7 +30,6 @@ import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducer
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useVault from 'src/hooks/useVault';
@@ -58,6 +56,8 @@ import SignerCard from '../AddSigner/SignerCard';
 import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
+import WalletHeader from 'src/components/WalletHeader';
+import GoldPlusIcon from 'src/assets/privateImages/plus-gold-icon.svg';
 let previousContent = null;
 
 function SignerItem({
@@ -79,6 +79,8 @@ function SignerItem({
 
   const signerUID = vaultKey ? getKeyUID(vaultKey) : null;
   const signer = signerUID ? signerMap[signerUID] : null;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const isPreviousKeyAdded = useCallback(() => {
     if (index === 2) {
@@ -95,7 +97,7 @@ function SignerItem({
       <Text medium fontSize={12} color={`${colorMode}.greenishGreyText`}>
         {common.tapToAdd}{' '}
       </Text>
-      <AddIcon />
+      {privateTheme ? <GoldPlusIcon /> : <AddIcon />}
     </Box>
   );
 
@@ -195,6 +197,7 @@ function SetupCollaborativeWallet() {
   const { collaborativeSession } = useAppSelector((state) => state.vault);
   const isAndroid = Platform.OS === 'android';
   const { session } = useContext(HCESessionContext);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const refreshCollaborativeChannel = (self: Signer) => {
     dispatch(fetchCollaborativeChannel(self));
@@ -274,6 +277,7 @@ function SetupCollaborativeWallet() {
               type: SignerType.KEEPER,
               showNote: true,
               onQrScan,
+              isSingning: true,
             },
           })
         );
@@ -496,7 +500,7 @@ function SetupCollaborativeWallet() {
     }
   };
 
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const myAppKeys = signers.filter(
     (signer) => !signer.hidden && signer.type === SignerType.MY_KEEPER
   );
@@ -529,7 +533,7 @@ function SetupCollaborativeWallet() {
               masterFingerprint: signer.masterFingerprint,
               xfp: WalletUtilities.getFingerprintFromExtendedKey(
                 msXpub.xpub,
-                WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+                WalletUtilities.getNetworkByType(bitcoinNetworkType)
               ),
             };
             setMyKey(appKey);
@@ -633,16 +637,13 @@ function SetupCollaborativeWallet() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       {inProgress || (isCreating && <ActivityIndicatorView visible={inProgress || isCreating} />)}
-      <KeeperHeader
+      <WalletHeader
         title={vaultText.collaborativeVaultTitle}
-        subtitle={vaultText.collaborativeVaultSubtitle}
+        subTitle={vaultText.collaborativeVaultSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.brownBackground`}
-        learnMoreBorderColor={`${colorMode}.brownBackground`}
         learnMorePressed={() => {
           setLearnMoreModal(true);
         }}
-        learnTextColor={`${colorMode}.buttonText`}
       />
       <FlatList
         horizontal

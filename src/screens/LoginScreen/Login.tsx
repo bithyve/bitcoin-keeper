@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, StatusBar, useColorMode } from 'native-base';
+import { Box, StatusBar, theme, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -9,8 +9,6 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import TorAsset from 'src/components/Loader';
 import KeeperModal from 'src/components/KeeperModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import ModalContainer from 'src/components/Modal/ModalContainer';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
@@ -21,7 +19,7 @@ import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { getSecurityTip } from 'src/constants/defaultData';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
-import { setSubscription, setTorEnabled } from 'src/store/reducers/settings';
+import { setSubscription } from 'src/store/sagaActions/settings';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import SubScription from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
@@ -46,6 +44,10 @@ import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
+import Relay from 'src/services/backend/Relay';
+import { setAccountManagerDetails } from 'src/store/reducers/concierge';
+import Fonts from 'src/constants/Fonts';
+import PrivateLightDeleteIcon from 'src/assets/privateImages/keypad-private-delete-icon.svg';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -70,7 +72,14 @@ function LoginScreen({ navigation, route }) {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
   const isOnPleb = useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L1;
+  const isKeeperPrivate =
+    useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L4;
   const { automaticCloudBackup } = useAppSelector((state) => state.bhr);
+
+  const themeMode = useAppSelector((state) => state.settings.themeMode);
+
+  const privateThemeDark = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
 
   const [canLogin, setCanLogin] = useState(false);
   const {
@@ -260,6 +269,11 @@ function LoginScreen({ navigation, route }) {
         navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
       }
       dispatch(credsAuthenticated(false));
+      if (isKeeperPrivate) {
+        const res = await Relay.getAccountManagerDetails(appId);
+        if (res) dispatch(setAccountManagerDetails(res));
+        else dispatch(setAccountManagerDetails(null));
+      }
     }
   };
 
@@ -396,22 +410,47 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.content} safeAreaTop backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box
+      style={styles.content}
+      safeAreaTop
+      backgroundColor={
+        privateThemeDark || PrivateThemeLight
+          ? `${colorMode}.primaryBackground`
+          : `${colorMode}.pantoneGreen`
+      }
+    >
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
           <Box>
             <Box style={styles.testnetIndicatorWrapper}>{isTestnet() && <TestnetIndicator />}</Box>
-            <Text color={`${colorMode}.headerWhite`} fontSize={25} style={styles.welcomeText}>
+            <Text
+              color={PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`}
+              fontSize={25}
+              style={styles.welcomeText}
+            >
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
               <Box style={styles.passcodeWrapper}>
-                <Text fontSize={14} color={`${colorMode}.headerWhite`}>
+                <Text
+                  fontSize={14}
+                  color={
+                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
+                  }
+                >
                   {login.enter_your}
                   {login.passcode}
                 </Text>
-                <PinDotView passCode={passcode} />
+                <PinDotView
+                  passCode={passcode}
+                  dotColor={
+                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
+                  }
+                  borderColor={
+                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
+                  }
+                />
               </Box>
             </Box>
             <Box>
@@ -426,8 +465,9 @@ function LoginScreen({ navigation, route }) {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            ClearIcon={<DeleteIcon />}
+            ClearIcon={PrivateThemeLight ? <PrivateLightDeleteIcon /> : <DeleteIcon />}
             bubbleEffect
+            keyColor={PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`}
           />
           <Box style={styles.btnWrapper}>
             <Buttons
@@ -437,8 +477,14 @@ function LoginScreen({ navigation, route }) {
               }}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
-              primaryBackgroundColor={`${colorMode}.buttonText`}
-              primaryTextColor={`${colorMode}.pantoneGreen`}
+              primaryBackgroundColor={
+                isKeeperPrivate ? `${colorMode}.pantoneGreen` : `${colorMode}.buttonText`
+              }
+              primaryTextColor={
+                isKeeperPrivate || PrivateThemeLight
+                  ? `${colorMode}.buttonText`
+                  : `${colorMode}.pantoneGreen`
+              }
               fullWidth
             />
           </Box>
@@ -513,7 +559,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
   },
   textBoxActive: {
     height: widthPercentageToDP('13%'),
@@ -528,7 +574,7 @@ const styles = StyleSheet.create({
     },
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FDF7F0',
+    backgroundColor: '#F9F4F0',
   },
   textStyles: {
     color: '#000000',
@@ -604,6 +650,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     marginTop: hp(47),
     textAlign: 'center',
+    fontFamily: Fonts.LoraMedium,
   },
   passcodeWrapper: {
     alignItems: 'center',

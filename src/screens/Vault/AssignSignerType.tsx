@@ -1,7 +1,6 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/services/wallets/enums';
 import { ActivityIndicator, StyleSheet } from 'react-native';
@@ -14,10 +13,8 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import UnknownSignerInfo from './components/UnknownSignerInfo';
 import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import AssignSignerTypeCard from './components/AssignSignerTypeCard';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -25,6 +22,9 @@ import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useNavigation } from '@react-navigation/native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import WalletHeader from 'src/components/WalletHeader';
+import AssignSignerTypeCard from './components/AssignSignerTypeCard';
+import UnknownSignerInfo from './components/UnknownSignerInfo';
 
 type IProps = {
   navigation: any;
@@ -49,6 +49,7 @@ function AssignSignerType({ route }: IProps) {
   const navigation = useNavigation();
   const [goBackSuccessMessage, setGoBackSuccessMessage] = useState('');
   const [goBackErrorMessage, setGoBackErrorMessage] = useState('');
+  const isUnknownSigner = signer.type === SignerType.UNKOWN_SIGNER;
 
   useEffect(() => {
     if (relaySignersUpdate) {
@@ -84,7 +85,8 @@ function AssignSignerType({ route }: IProps) {
     SignerType.TREZOR,
     SignerType.SEED_WORDS,
     SignerType.POLICY_SERVER,
-  ];
+    isUnknownSigner && SignerType.TAPSIGNER,
+  ].filter(Boolean);
 
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
@@ -105,12 +107,12 @@ function AssignSignerType({ route }: IProps) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+      <WalletHeader
         title={signerText.changeSignerTitle}
-        subtitle={signerText.changeSignerSubtitle}
+        subTitle={signerText.changeSignerSubtitle}
       />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {signer.type === SignerType.UNKOWN_SIGNER && <UnknownSignerInfo signer={signer} />}
+        {isUnknownSigner && <UnknownSignerInfo signer={signer} />}
         {!signersLoaded ? (
           <ActivityIndicator />
         ) : (
@@ -119,7 +121,7 @@ function AssignSignerType({ route }: IProps) {
               {availableSigners
                 .filter((type) => type != signer?.type)
                 .map((type: SignerType, index: number) => {
-                  const { disabled, message: connectivityStatus } = getDeviceStatus(
+                  let { disabled, message: connectivityStatus } = getDeviceStatus(
                     type,
                     isNfcSupported,
                     isOnL1,
@@ -127,6 +129,12 @@ function AssignSignerType({ route }: IProps) {
                     { m: 2, n: 3 },
                     appSigners
                   );
+
+                  if (type === SignerType.POLICY_SERVER) {
+                    // overrides status for Server Key(enables: type assignment for Server Key of an Imported Vault)
+                    disabled = false;
+                    connectivityStatus = '';
+                  }
 
                   let message = connectivityStatus;
                   if (!connectivityStatus) {

@@ -1,21 +1,15 @@
 import { NodeDetail } from 'src/services/wallets/interfaces';
+import { NetworkType } from '../wallets/enums';
 
 export const predefinedTestnetNodes: NodeDetail[] = [
   {
-    id: 333, // sequence 3-x-x; avoids collision w/ own node
-    host: 'testnet.qtornado.com',
-    port: '51002',
+    id: 336,
+    host: 'blackie.c3-soft.com',
+    port: '57010',
     isConnected: true,
     useKeeperNode: false,
     useSSL: true,
-  },
-  {
-    id: 334,
-    host: 'testnet.aranguren.org',
-    port: '51002',
-    isConnected: false,
-    useKeeperNode: false,
-    useSSL: true,
+    networkType: NetworkType.TESTNET,
   },
 ];
 
@@ -27,6 +21,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: true,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 443,
@@ -35,6 +30,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 446,
@@ -43,6 +39,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 447,
@@ -51,6 +48,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 448,
@@ -59,6 +57,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
   {
     id: 449,
@@ -67,5 +66,6 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
+    networkType: NetworkType.MAINNET,
   },
 ];

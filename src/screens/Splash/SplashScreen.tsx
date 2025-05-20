@@ -5,7 +5,6 @@ import RestClient from 'src/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
 import * as SecureStore from 'src/storage/secure-store';
 import Animated, {
-  Extrapolation,
   interpolate,
   runOnJS,
   useAnimatedStyle,
@@ -13,13 +12,17 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import KeeperLogo from 'src/assets/images/logo.svg';
-import TeamBithyve from 'src/assets/images/fromBithyve.svg';
-import Tagline from 'src/assets/images/tagline.svg';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
+import { useDispatch } from 'react-redux';
+import config from 'src/utils/service-utilities/config';
+import { NetworkType } from 'src/services/wallets/enums';
+import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
+import { setDefaultWalletCreated } from 'src/store/reducers/storage';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SplashScreen({ navigation }) {
-  const { torEnbled, themeMode } = useAppSelector((state) => state.settings);
+  const { torEnbled, themeMode, bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const dispatch = useDispatch();
   const { toggleColorMode, colorMode } = useColorMode();
 
   const animate = () => {
@@ -31,8 +34,22 @@ function SplashScreen({ navigation }) {
   };
 
   useEffect(() => {
+    if (!bitcoinNetworkType) {
+      dispatch(
+        setDefaultWalletCreated({
+          networkType: config.isDevMode() ? NetworkType.TESTNET : NetworkType.MAINNET,
+          created: true,
+        })
+      );
+      dispatch(
+        changeBitcoinNetwork(config.isDevMode() ? NetworkType.TESTNET : NetworkType.MAINNET)
+      );
+    }
+  }, []);
+
+  useEffect(() => {
     animate();
-    if (colorMode !== themeMode.toLocaleLowerCase()) {
+    if (themeMode === 'DARK' || themeMode === 'PRIVATE') {
       toggleColorMode();
     }
     RestClient.setUseTor(torEnbled);
@@ -58,8 +75,6 @@ function SplashScreen({ navigation }) {
   const radiusRange = [0, windowHeight, windowHeight * 2, 0, 0];
   const scaleRange = [4, 3, 1, 1, 1];
   const logoOpacityRange = [0, 0, 1, 1, 1];
-  const tagOpacityRange = [0, 0, 0, 1, 1];
-  const teamOpacityRange = [0, 0, 0, 0, 1];
 
   const SCALE_CONFIG = {
     overshootClamping: false,
@@ -77,7 +92,8 @@ function SplashScreen({ navigation }) {
       height,
       width,
       borderRadius,
-      backgroundColor: '#2D6759',
+      backgroundColor:
+        themeMode === 'PRIVATE' ? '#272421' : themeMode === 'PRIVATE_LIGHT' ? '#F6F2ED' : '#2F4F4F',
     };
   });
 
@@ -93,35 +109,11 @@ function SplashScreen({ navigation }) {
     };
   });
 
-  const animatedTagline = useAnimatedStyle(() => {
-    const opacity = interpolate(progress.value, inputRange, tagOpacityRange, {
-      extrapolateRight: Extrapolation.CLAMP,
-    });
-    return {
-      marginVertical: 10,
-      opacity,
-    };
-  });
-
-  const animatedTeam = useAnimatedStyle(() => {
-    const opacity = interpolate(progress.value, inputRange, teamOpacityRange);
-    return {
-      top: windowHeight * 0.32,
-      opacity,
-    };
-  });
-
   return (
     <Animated.View style={styles.center}>
       <Animated.View style={animatedBackground} />
       <Animated.View style={animatedLogo}>
-        <KeeperLogo />
-      </Animated.View>
-      <Animated.View style={animatedTagline}>
-        <Tagline />
-      </Animated.View>
-      <Animated.View style={animatedTeam}>
-        <TeamBithyve />
+        <ThemedSvg name={'keeperLogo'} />
       </Animated.View>
     </Animated.View>
   );

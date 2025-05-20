@@ -21,5 +21,6 @@ export const UAIDetailsSchema: ObjectSchema = {
   properties: {
     heading: 'string?',
     body: 'string?',
+    networkType: 'string?',
   },
 };

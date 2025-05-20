@@ -23,6 +23,7 @@ import PinDotView from 'src/components/AppPinInput/PinDotView';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import useToastMessage from 'src/hooks/useToastMessage';
+import Fonts from 'src/constants/Fonts';
 
 enum PasscodeStages {
   CREATE = 'CREATE',
@@ -305,6 +306,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 25,
     lineHeight: 27,
+    fontFamily: Fonts.LoraMedium,
   },
   labelText: {
     fontSize: 14,

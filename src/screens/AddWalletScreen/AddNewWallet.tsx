@@ -10,13 +10,11 @@ import AdvanceCustomizationIcon from 'src/assets/images/other_light.svg';
 import { CommonActions } from '@react-navigation/native';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import Buttons from 'src/components/Buttons';
 import DashedCta from 'src/components/DashedCta';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import SettingIcon from 'src/assets/images/new_icon_settings.svg';
 import CheckIcon from 'src/assets/images/planCheckMarkSelected.svg';
+import CheckDarkIcon from 'src/assets/images/check-dark-icon.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
@@ -26,9 +24,13 @@ import useVault from 'src/hooks/useVault';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Colors from 'src/theme/Colors';
+import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 export function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
 
   return (
     <HStack
@@ -41,11 +43,17 @@ export function NumberInput({ value, onDecrease, onIncrease }) {
           -
         </Text>
       </TouchableOpacity>
-      <Box style={{ height: 30, borderLeftWidth: 0.2, paddingHorizontal: 5 }} />
+      <Box
+        style={{ height: 30, borderLeftWidth: 0.2, paddingHorizontal: 0.4 }}
+        backgroundColor={isDarkMode ? Colors.primaryCream : Colors.secondaryLightGrey}
+      />
       <Text style={styles.buttonValue} bold color={`${colorMode}.greenText`}>
         {value}
       </Text>
-      <Box style={{ height: 30, borderRightWidth: 0.2, paddingHorizontal: 5 }} />
+      <Box
+        style={{ height: 30, borderRightWidth: 0.2, paddingHorizontal: 0.4 }}
+        backgroundColor={isDarkMode ? Colors.primaryCream : Colors.secondaryLightGrey}
+      />
       <TouchableOpacity testID="increaseValue" style={styles.button} onPress={onIncrease}>
         <Text style={styles.buttonText} color={`${colorMode}.greenText`}>
           +
@@ -58,11 +66,14 @@ export function NumberInput({ value, onDecrease, onIncrease }) {
 function AddNewWallet({ navigation, route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslations, common, wallet, error } = translations;
+  const { vault: vaultTranslations, common, wallet: walletText, error } = translations;
   const [selectedWalletType, setSelectedWalletType] = useState('');
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
   const { vaultId } = route.params || {};
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
+  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const { activeVault } = useVault({ vaultId });
   const [scheme, setScheme] = useState(
     activeVault ? { m: activeVault.scheme.m, n: activeVault.scheme.n } : { m: 2, n: 3 }
@@ -101,7 +112,7 @@ function AddNewWallet({ navigation, route }) {
   const CREATE_WALLET_OPTIONS = [
     {
       icon: <NewWalletIcon />,
-      title: wallet.Singlekey,
+      title: walletText.Singlekey,
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 1, n: 1 });
@@ -111,7 +122,7 @@ function AddNewWallet({ navigation, route }) {
     },
     {
       icon: <ImportWalletIcon />,
-      title: wallet.multikey2of3,
+      title: walletText.multikey2of3,
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 2, n: 3 });
@@ -121,7 +132,7 @@ function AddNewWallet({ navigation, route }) {
     },
     {
       icon: <AdvanceCustomizationIcon />,
-      title: wallet.multikey3of5,
+      title: walletText.multikey3of5,
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 3, n: 5 });
@@ -158,7 +169,7 @@ function AddNewWallet({ navigation, route }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={wallet.selectYourWalletType} />
+      <WalletHeader title={walletText.selectYourWalletType} />
       <Box style={styles.addWalletOptionsList}>
         {CREATE_WALLET_OPTIONS.map((option, index) => (
           <OptionItem
@@ -175,7 +186,7 @@ function AddNewWallet({ navigation, route }) {
         >
           <Box
             style={[styles.optionCTR, styles.customOption]}
-            backgroundColor={`${colorMode}.separator`}
+            backgroundColor={isDarkMode ? Colors.seperatorDark : `${colorMode}.separator`}
             borderColor={
               selectedWalletType === 'custom'
                 ? `${colorMode}.pantoneGreen`
@@ -188,7 +199,7 @@ function AddNewWallet({ navigation, route }) {
               medium
               style={{ textAlign: 'center', flex: 1 }}
             >
-              {wallet.selectCustomSetup}{' '}
+              {walletText.selectCustomSetup}{' '}
               {selectedWalletType === 'custom' ? `: ${scheme.m} of ${scheme.n}` : ''}
             </Text>
           </Box>
@@ -197,17 +208,30 @@ function AddNewWallet({ navigation, route }) {
       <Box style={styles.footer}>
         <DashedCta
           textPosition="left"
-          backgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
-          hexagonBackgroundColor={isDarkMode ? 'rgba(21, 27, 25, 1)' : `${colorMode}.dullGreen`}
-          textColor={isDarkMode ? Colors.headerWhite : `${colorMode}.pantoneGreen`}
-          name={wallet.enhancedSecurityOption}
-          description={wallet.enhancedSecurityDesc}
+          backgroundColor={PrivateThemeLight ? 'transparent' : `${colorMode}.dullGreen`}
+          hexagonBackgroundColor={isDarkMode ? Colors.DeepCharcoalGreen : `${colorMode}.dullGreen`}
+          textColor={
+            PrivateThemeLight
+              ? `${colorMode}.textBlack`
+              : isDarkMode
+              ? Colors.headerWhite
+              : `${colorMode}.pantoneGreen`
+          }
+          name={walletText.enhancedSecurityOption}
+          description={walletText.enhancedSecurityDesc}
           callback={() => setShowEnhancedOptionsModal(true)}
-          icon={<SettingIcon />}
+          icon={<ThemedSvg name={'enhanced_setting_icon'} />}
           iconWidth={22}
           iconHeight={20}
           cardStyles={styles.enhancedVaultsCustomStyles}
           titleSize={15}
+          borderColor={
+            privateTheme
+              ? `${colorMode}.pantoneGreen`
+              : isDarkMode
+              ? Colors.primaryCream
+              : `${colorMode}.pantoneGreen`
+          }
         />
         <Buttons
           primaryText={common.proceed}
@@ -241,8 +265,8 @@ function AddNewWallet({ navigation, route }) {
       <KeeperModal
         visible={customConfigModalVisible}
         close={() => setCustomConfigModalVisible(false)}
-        title={wallet.createCustomWalletTitle}
-        subTitle={wallet.createCustomWalletDesc}
+        title={walletText.customWalletTitle}
+        subTitle={walletText.customWalletDesc}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={common.confirm}
@@ -260,14 +284,14 @@ function AddNewWallet({ navigation, route }) {
                 color={`${colorMode}.primaryText`}
                 testID="text_totalKeys"
               >
-                {wallet.totalkeysForConfig}
+                {walletText.totalKeys}
               </Text>
               <Text
                 style={{ fontSize: 12 }}
                 color={`${colorMode}.secondaryText`}
                 testID="text_totalKeys_subTitle"
               >
-                {vaultTranslations.selectTheTotalNumberOfKeys}
+                {walletText.maxNumberofKeys}
               </Text>
               <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
               <Text
@@ -305,7 +329,7 @@ function AddNewWallet({ navigation, route }) {
 }
 
 const OptionItem = ({ option, colorMode, active }) => {
-  const borderColor = active ? `${colorMode}.pantoneGreen` : `${colorMode}.separator`;
+  const borderColor = active ? `${colorMode}.dashedButtonBorderColor` : `${colorMode}.separator`;
   return (
     <Pressable onPress={option.onPress}>
       <Box
@@ -336,6 +360,7 @@ const EnhancedSecurityModal = ({
   navigation,
 }) => {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const [pendingInheritanceKeySelected, setPendingInheritanceKeySelected] =
     useState(inheritanceKeySelected);
   const [pendingEmergencyKeySelected, setPendingEmergencyKeySelected] =
@@ -349,10 +374,9 @@ const EnhancedSecurityModal = ({
     }
   }, [isVisible, inheritanceKeySelected, emergencyKeySelected]);
 
-  const { plan } = usePlan();
-  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
   const { translations } = useContext(LocalizationContext);
   const { common, wallet, signer } = translations;
+  const { isOnL3Above } = usePlan();
 
   return (
     <KeeperModal
@@ -373,7 +397,7 @@ const EnhancedSecurityModal = ({
       Content={() => {
         return (
           <Box style={styles.enhancedOptionsContainer}>
-            {!isDiamondHand && (
+            {!isOnL3Above && (
               <Box>
                 <UpgradeSubscription
                   type={SubscriptionTier.L3}
@@ -386,7 +410,7 @@ const EnhancedSecurityModal = ({
               </Box>
             )}
             <Pressable
-              disabled={!isDiamondHand}
+              disabled={!isOnL3Above}
               onPress={() => setPendingInheritanceKeySelected(!pendingInheritanceKeySelected)}
             >
               <Box
@@ -398,14 +422,21 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     {signer.inheritanceKey}
                   </Text>
                   {pendingInheritanceKeySelected ? (
-                    <Box style={styles.checkmark} backgroundColor={`${colorMode}.pantoneGreen`}>
-                      <CheckIcon height={12} width={12} />
+                    <Box
+                      style={styles.checkmark}
+                      backgroundColor={`${colorMode}.dashedButtonBorderColor`}
+                    >
+                      {isDarkMode ? (
+                        <CheckDarkIcon height={12} width={12} />
+                      ) : (
+                        <CheckIcon height={12} width={12} />
+                      )}
                     </Box>
                   ) : (
                     <Box
@@ -416,9 +447,7 @@ const EnhancedSecurityModal = ({
                 </Box>
                 <Text
                   fontSize={12}
-                  color={
-                    !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
-                  }
+                  color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
                   {signer.extraKeyAddedAfterTime}
                 </Text>
@@ -426,7 +455,7 @@ const EnhancedSecurityModal = ({
             </Pressable>
 
             <Pressable
-              disabled={!isDiamondHand}
+              disabled={!isOnL3Above}
               onPress={() => setPendingEmergencyKeySelected(!pendingEmergencyKeySelected)}
             >
               <Box
@@ -438,14 +467,21 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     {signer.emergencyKey}
                   </Text>
                   {pendingEmergencyKeySelected ? (
-                    <Box style={styles.checkmark} backgroundColor={`${colorMode}.pantoneGreen`}>
-                      <CheckIcon height={12} width={12} />
+                    <Box
+                      style={styles.checkmark}
+                      backgroundColor={`${colorMode}.dashedButtonBorderColor`}
+                    >
+                      {isDarkMode ? (
+                        <CheckDarkIcon height={12} width={12} />
+                      ) : (
+                        <CheckIcon height={12} width={12} />
+                      )}
                     </Box>
                   ) : (
                     <Box
@@ -456,9 +492,7 @@ const EnhancedSecurityModal = ({
                 </Box>
                 <Text
                   fontSize={12}
-                  color={
-                    !isDiamondHand ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
-                  }
+                  color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
                   {signer.keyDelayedFullControl}
                 </Text>

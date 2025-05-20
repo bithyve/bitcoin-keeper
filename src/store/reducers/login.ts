@@ -33,6 +33,7 @@ export const initialState: {
     error: string;
     setElectrumNotConnectedErr: string;
   };
+  hasDeepLink: string | null;
 } = {
   hasCreds: false,
   isAuthenticated: false,
@@ -60,6 +61,7 @@ export const initialState: {
     error: null,
     setElectrumNotConnectedErr: '',
   },
+  hasDeepLink: null,
 };
 
 const loginSlice = createSlice({
@@ -147,6 +149,9 @@ const loginSlice = createSlice({
     setOfflineStatus: (state, action: PayloadAction<boolean>) => {
       state.isOffline = action.payload;
     },
+    setHasDeepLink: (state, action: PayloadAction<string>) => {
+      state.hasDeepLink = action.payload;
+    },
   },
 });
 
@@ -168,5 +173,6 @@ export const {
   setElectrumNotConnectedErr,
   resetElectrumNotConnectedErr,
   setIsInitialLogin,
+  setHasDeepLink,
 } = loginSlice.actions;
 export default loginSlice.reducer;

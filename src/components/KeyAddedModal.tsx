@@ -4,9 +4,9 @@ import { Box, useColorMode } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
-import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import { getAccountFromSigner } from 'src/utils/utilities';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 function KeyAddedModal({ visible, close, signer }) {
   const navigation = useNavigation();
@@ -54,7 +54,13 @@ function KeyAddedModal({ visible, close, signer }) {
         secondaryCallback={close}
         Content={() => (
           <Box style={styles.externalKeyModal}>
-            <SuccessCircleIllustration style={styles.externalKeyIllustration} />
+            <ThemedSvg
+              name={'success_illustration'}
+              width={wp(200)}
+              height={hp(200)}
+              style={styles.externalKeyIllustration}
+            />
+
             {content}
           </Box>
         )}

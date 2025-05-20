@@ -5,8 +5,6 @@ import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
 import { windowWidth, wp } from 'src/constants/responsive';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import usePlan from 'src/hooks/usePlan';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import WhiteRightArrowIcon from 'src/assets/images/whiteRightIcon.svg';
 
@@ -18,9 +16,7 @@ interface InheritanceDocumentProps {
   subtitleColor?: string;
   description?: string;
   icon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
   onPress?: () => void;
-  onRightPress?: () => void;
 }
 
 const InheritanceDocument: React.FC<InheritanceDocumentProps> = ({
@@ -31,57 +27,33 @@ const InheritanceDocument: React.FC<InheritanceDocumentProps> = ({
   subtitleColor,
   icon,
   description,
-  rightIcon,
   onPress,
-  onRightPress,
 }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
-  const { plan } = usePlan();
-  const isDiamondHands = plan === SubscriptionTier.L3.toUpperCase();
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={!isDiamondHands}
-      testID={`btn_inheritance_${title}`}
-    >
+    <TouchableOpacity onPress={onPress} testID={`btn_inheritance_${title}`}>
       <Box backgroundColor={backgroundColor} borderColor={borderColor} style={styles.Container}>
         <Box style={styles.document}>
           <Box style={styles.icon}>
             <CircleIconWrapper
               width={wp(25)}
               icon={icon}
-              backgroundColor={
-                isDiamondHands ? `${colorMode}.pantoneGreen` : `${colorMode}.secondaryLightGrey`
-              }
+              backgroundColor={`${colorMode}.pantoneGreen`}
             />
           </Box>
           <Box>
-            <Text
-              color={isDiamondHands ? titleColor : `${colorMode}.secondaryLightGrey`}
-              fontSize={14}
-              medium
-              style={styles.title}
-            >
+            <Text color={titleColor} fontSize={14} medium style={styles.title}>
               {title}
             </Text>
             {description && (
-              <Text
-                fontSize={12}
-                color={isDiamondHands ? subtitleColor : `${colorMode}.secondaryLightGrey`}
-              >
+              <Text fontSize={12} color={subtitleColor}>
                 {description}
               </Text>
             )}
           </Box>
         </Box>
-        {!isDiamondHands ? (
-          <TouchableOpacity onPress={onRightPress}>
-            <Box>{rightIcon}</Box>
-          </TouchableOpacity>
-        ) : (
-          <Box>{isDarkMode ? <WhiteRightArrowIcon /> : <RightArrowIcon />}</Box>
-        )}
+        <Box>{isDarkMode ? <WhiteRightArrowIcon /> : <RightArrowIcon />}</Box>
       </Box>
     </TouchableOpacity>
   );
@@ -99,7 +71,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1,
     borderStyle: 'dashed',
   },
   document: {

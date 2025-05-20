@@ -6,13 +6,9 @@ import { windowWidth, hp, wp } from 'src/constants/responsive';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from './KeeperText';
 
-HexaToastMessages.defaultProps = {
-  Image: null,
-  error: false,
-};
 function HexaToastMessages({
-  Image,
-  error,
+  Image = null,
+  error = false,
   ToastBody,
 }: {
   Image?: any;
@@ -21,10 +17,10 @@ function HexaToastMessages({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={`${colorMode}.accent`} style={styles.toast} testID="toast_message">
+    <Box backgroundColor={`${colorMode}.warmbeige`} style={styles.toast} testID="toast_message">
       {error ? <ToastErrorIcon /> : Image ? <Box>{Image}</Box> : null}
       <Text
-        color={`${colorMode}.textBlack`}
+        color={`${colorMode}.primaryBackground`}
         style={[
           styles.toastMsgText,
           { marginLeft: Image ? wp(15) : wp(5), marginRight: wp(5), flex: -1 },

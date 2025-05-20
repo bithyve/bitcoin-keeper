@@ -33,7 +33,12 @@ const ServerKeyPolicyCard = (props: Props) => {
     });
   };
   return (
-    <Box backgroundColor={`${colorMode}.textInputBackground`} style={styles.container}>
+    <Box
+      backgroundColor={`${colorMode}.textInputBackground`}
+      style={styles.container}
+      borderColor={`${colorMode}.separator`}
+      borderWidth={1}
+    >
       <Text color={`${colorMode}.modalSubtitleBlack`} style={styles.title} medium>
         {props.signingServer.configureLimit}
       </Text>

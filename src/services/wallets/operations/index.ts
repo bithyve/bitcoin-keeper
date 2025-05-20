@@ -56,6 +56,7 @@ import WalletUtilities from './utils';
 import { generateScriptWitnesses, generateBitcoinScript } from './miniscript/miniscript';
 import { Phase } from './miniscript/policy-generator';
 import { coinselect } from './coinselectFixed';
+import { store } from 'src/store/store';
 
 bitcoinJS.initEccLib(ecc);
 
@@ -488,7 +489,10 @@ export default class WalletOperations {
           ? 0
           : wallet.specs.nextFreeChangeAddressIndex - gapLimit;
 
-      const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+      const addressCache: AddressCache = {
+        external: wallet.specs.addresses?.external || {},
+        internal: wallet.specs.addresses?.internal || {},
+      };
       const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
       let balances: Balances = {
         confirmed: 0,
@@ -859,6 +863,7 @@ export default class WalletOperations {
   };
 
   static estimateFeeRatesViaElectrum = async () => {
+    const { bitcoinNetworkType } = store.getState().settings;
     try {
       // high fee: 10 minutes
       const highFeeBlockEstimate = 1;
@@ -881,7 +886,7 @@ export default class WalletOperations {
         estimatedBlocks: lowFeeBlockEstimate,
       };
 
-      if (config.NETWORK_TYPE === NetworkType.TESTNET && low.feePerByte > 20) {
+      if (bitcoinNetworkType === NetworkType.TESTNET && low.feePerByte > 20) {
         // working around testnet fee spikes
         return WalletOperations.mockFeeRates();
       }
@@ -896,10 +901,11 @@ export default class WalletOperations {
 
   static fetchFeeRatesByPriority = async () => {
     // main: mempool.space, fallback: Electrum target block based fee estimator
+    const { bitcoinNetworkType } = store.getState().settings;
     try {
       let endpoint;
-      if (config.NETWORK_TYPE === NetworkType.TESTNET) {
-        endpoint = 'https://mempool.space/testnet/api/v1/fees/recommended';
+      if (bitcoinNetworkType === NetworkType.TESTNET) {
+        endpoint = 'https://mempool.space/testnet4/api/v1/fees/recommended';
       } else {
         endpoint =
           RestClient.getTorStatus() === TorStatus.CONNECTED
@@ -937,7 +943,7 @@ export default class WalletOperations {
         estimatedBlocks: lowFeeBlockEstimate,
       };
 
-      if (config.NETWORK_TYPE === NetworkType.TESTNET && low.feePerByte > 20) {
+      if (bitcoinNetworkType === NetworkType.TESTNET && low.feePerByte > 20) {
         // working around testnet fee spikes
         return WalletOperations.mockFeeRates();
       }
@@ -947,7 +953,7 @@ export default class WalletOperations {
     } catch (err) {
       console.log('Failed to fetch fee via mempool.space', { err });
       try {
-        if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+        if (bitcoinNetworkType === NetworkType.TESTNET) {
           throw new Error('Take mock fee, testnet3 fee via electrum is unstable');
         }
         return WalletOperations.estimateFeeRatesViaElectrum();
@@ -1368,7 +1374,7 @@ export default class WalletOperations {
       .filter((path) => path !== undefined);
 
     // Generate the script witness based on selected paths
-    const selectedScriptWitness = witnessesInSelectedPhase.find((witness) => {
+    const selectedScriptWitnesses = witnessesInSelectedPhase.filter((witness) => {
       return selectedPaths.every((path) => {
         const presentKeys = path.keys.filter((key) =>
           witness.asm.includes(key.uniqueKeyIdentifier)
@@ -1377,11 +1383,13 @@ export default class WalletOperations {
       });
     });
 
-    if (!selectedScriptWitness) {
+    if (!selectedScriptWitnesses.length) {
       throw new Error('No matching script witness found for the selected paths');
     }
 
-    return { selectedPhase, selectedPaths, selectedScriptWitness };
+    const selectedScriptWitness = selectedScriptWitnesses[0];
+
+    return { selectedPhase, selectedPaths, selectedScriptWitness, selectedScriptWitnesses };
   };
 
   static addInputToPSBT = (
@@ -1446,22 +1454,8 @@ export default class WalletOperations {
             },
             sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
           });
-        } else if (derivationPurpose === DerivationPurpose.BIP49) {
-          const p2sh = bitcoinJS.payments.p2sh({
-            redeem: p2wpkh,
-          });
-
-          PSBT.addInput({
-            hash: input.txId,
-            index: input.vout,
-            bip32Derivation,
-            witnessUtxo: {
-              script: p2sh.output,
-              value: input.value,
-            },
-            redeemScript: p2wpkh.output,
-            sequence: 4294967294, // to enable nLockTime the value should be less than 4294967295
-          });
+        } else {
+          throw Error('Unsupported derivation when trying to add input');
         }
       }
     } else {
@@ -1758,8 +1752,9 @@ export default class WalletOperations {
     signer: VaultSigner
   ): { signedSerializedPSBT: string } => {
     try {
+      const { bitcoinNetwork } = store.getState().settings;
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
-      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network });
+      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: bitcoinNetwork });
 
       let vin = 0;
       for (const { bip32Derivation } of PSBT.data.inputs) {
@@ -1819,6 +1814,7 @@ export default class WalletOperations {
     const signer = signerMap[getKeyUID(vaultKey)];
     const payloadTarget = signer.type;
     let isSigned = false;
+    const { bitcoinNetwork } = store.getState().settings;
 
     const keysOnlyInSelectedPathSigners = [SignerType.BITBOX02, SignerType.KEEPER];
     if (miniscriptSelectedSatisfier && keysOnlyInSelectedPathSigners.includes(signer.type)) {
@@ -1885,7 +1881,7 @@ export default class WalletOperations {
         PSBT.toBase64(),
         vaultKey
       );
-      PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: config.NETWORK });
+      PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: bitcoinNetwork });
       isSigned = true;
     } else if (
       signer.type === SignerType.TAPSIGNER ||
@@ -2197,6 +2193,7 @@ export default class WalletOperations {
     inputs: InputUTXOs[];
   }> => {
     let inputs;
+    const { bitcoinNetwork } = store.getState().settings;
     if (txnPriority === TxPriority.CUSTOM) {
       if (!customTxPrerequisites) throw new Error('Tx-prerequisites missing for custom fee');
       inputs = customTxPrerequisites[txnPriority].inputs;
@@ -2209,7 +2206,7 @@ export default class WalletOperations {
       // construct the txHex by combining the signed PSBTs
       for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
         const { signerType, serializedPSBT, signingPayload, isMockSigner } = serializedPSBTEnvelop;
-        const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
+        const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: bitcoinNetwork });
         if (signerType === SignerType.TAPSIGNER && !isMockSigner) {
           for (const { inputsToSign } of signingPayload) {
             for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
@@ -2240,12 +2237,12 @@ export default class WalletOperations {
         if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
           if (!miniscriptScheme) throw new Error('miniscriptScheme missing for vault');
 
-          const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
-          let selectedScriptWitness: {
-            asm: string;
-            nLockTime?: number;
-            nSequence?: number;
-          };
+          // const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
+          // let selectedScriptWitness: {
+          //   asm: string;
+          //   nLockTime?: number;
+          //   nSequence?: number;
+          // };
 
           // TODO: Commented code below seems unnecessary, should verify and remove
           // Check for timelock using miniscript types
@@ -2260,22 +2257,20 @@ export default class WalletOperations {
           //     MiniscriptTypes.EMERGENCY
           //   );
 
-          // if (!hasTimelock) {
-          //   // scriptwitness selection for TIMELOCKED/INHERITANCE/EMERGENCY vault is done using the available partial signatures(simplifies UX)
-          //   const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
-          //     miniscriptScheme,
-          //     miniscriptTxElements
-          //   );
-          //   selectedScriptWitness = miniscriptSelectedSatisfier.selectedScriptWitness;
-          // }
+          // scriptwitness selection for TIMELOCKED/INHERITANCE/EMERGENCY vault is done using the available partial signatures(simplifies UX)
+          const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
+            miniscriptScheme,
+            miniscriptTxElements
+          );
+          const selectedScriptWitnesses = miniscriptSelectedSatisfier.selectedScriptWitnesses;
 
           for (let index = 0; index < combinedPSBT.txInputs.length; index++) {
             combinedPSBT.finalizeInput(
               index,
               WalletUtilities.getFinalScriptsForMyCustomScript(
                 miniscriptScheme.keyInfoMap,
-                scriptWitnesses,
-                selectedScriptWitness
+                selectedScriptWitnesses,
+                null
               )
             );
           }

@@ -1,11 +1,8 @@
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
-import InheritanceSeedIcon from 'src/assets/images/inheritanceSeedIcon.svg';
 import InheritanceContactIcon from 'src/assets/images/inheritancecontacticon.svg';
-import InheritanceShareKeyIcon from 'src/assets/images/inheritanceShareKeyIcon.svg';
 import InheritanceRecoveryIcon from 'src/assets/images/inheritanceRecoveryIcon.svg';
-import InheritanceLetterIcon from 'src/assets/images/inheritanceLetterIcon.svg';
 import InheritanceTipsIcon from 'src/assets/images/inheritanceTipsIcon.svg';
 import SettingServerIcon from 'src/assets/images/settingServer.svg';
 import SettingAppIcon from 'src/assets/images/settingAppAccess.svg';
@@ -29,6 +26,9 @@ import HodlerWhiteSub from 'src/assets/images/Hodler-white-sub-icon.svg';
 import HodlerGreenSub from 'src/assets/images/Hodler-green-sub-icon.svg';
 import DiamondGreenSub from 'src/assets/images/DiamondHands-green-sub-icon.svg';
 import DiamondWhiteSub from 'src/assets/images/DiamondHands-white-sub-iocn.svg';
+import KeeperPrivateIcon from 'src/assets/images/KeeperPrivateIcon.svg';
+import KeeperPrivateIconWhite from 'src/assets/images/KeeperPrivateIconWhite.svg';
+import PrivateManageWallet from 'src/assets/privateImages/manage-wallet-icon.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -58,6 +58,7 @@ import usePlan from './usePlan';
 import KeeperModal from 'src/components/KeeperModal';
 import { wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 export const useSettingKeeper = () => {
   const dispatch = useAppDispatch();
@@ -65,7 +66,7 @@ export const useSettingKeeper = () => {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const isFocused = useIsFocused();
-  const { isOnL2Above } = usePlan();
+  const { isOnL2Above, isOnL4 } = usePlan();
 
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
@@ -86,12 +87,20 @@ export const useSettingKeeper = () => {
   } = useAppSelector((state) => state.bhr);
 
   useEffect(() => {
-    if (colorMode === 'dark') {
-      dispatch(setThemeMode(ThemeMode.DARK));
+    if (isOnL4) {
+      if (colorMode === 'dark') {
+        dispatch(setThemeMode(ThemeMode.PRIVATE));
+      } else {
+        dispatch(setThemeMode(ThemeMode.PRIVATE_LIGHT));
+      }
     } else {
-      dispatch(setThemeMode(ThemeMode.LIGHT));
+      if (colorMode === 'dark') {
+        dispatch(setThemeMode(ThemeMode.DARK));
+      } else {
+        dispatch(setThemeMode(ThemeMode.LIGHT));
+      }
     }
-  }, [colorMode]);
+  }, [colorMode, isOnL4]);
 
   const changeThemeMode = () => {
     toggleColorMode();
@@ -166,6 +175,17 @@ export const useSettingKeeper = () => {
       sublightIcon: <DiamondGreenSub width={24} height={24} />,
       subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
       subDescription: signer.diamondHandSubDescription,
+    },
+    {
+      plan: SubscriptionTier.L4.toUpperCase(),
+      title: SubscriptionTier.L4,
+      subtitle: 'Private',
+      description: 'For Private Clients',
+      icon: <KeeperPrivateIconWhite width={30} height={30} />,
+      sublightIcon: <KeeperPrivateIcon width={24} height={24} />,
+      subDarkIcon: <KeeperPrivateIconWhite width={24} height={24} />,
+      subDescription:
+        'Experience exclusive white-glove service with personalized attention and tailored solutions',
     },
   ];
 
@@ -245,12 +265,16 @@ export const useSettingKeeper = () => {
       onPress: () => navigation.navigate('SettingApp'),
       isDiamond: false,
     },
-  ];
+  ].filter(Boolean);
   const keysAndwallet = [
     {
       title: common.manageKeys,
       description: common.manageKeysDesc,
-      icon: <ManageKeyIcon width={14} height={14} />,
+      icon: isOnL4 ? (
+        <PrivateManageWallet width={14} height={14} />
+      ) : (
+        <ManageKeyIcon width={14} height={14} />
+      ),
       onPress: () => setHiddenKeyPass(true),
       isDiamond: false,
     },
@@ -329,44 +353,44 @@ export const useSettingKeeper = () => {
     {
       title: inheritancePlanning.recoveryPhraseTitle,
       description: inheritancePlanning.recoveryPhraseDescp,
-      icon: <InheritanceSeedIcon width={14} height={14} />,
+      icon: <ThemedSvg name={'inhertance_seed_icon'} width={14} height={14} />,
       onPress: () => navigation.navigate('RecoveryPhraseTemplate'),
-      isDiamond: false,
+      isDiamond: true,
     },
     {
       title: inheritancePlanning.trustedContactsTitle,
       description: inheritancePlanning.trustedContactsDescp,
       icon: <InheritanceContactIcon width={14} height={14} />,
       onPress: () => navigation.navigate('TrustedContactTemplates'),
-      isDiamond: false,
+      isDiamond: true,
     },
     {
       title: inheritancePlanning.additionalKeysshare,
       description: inheritancePlanning.additionalKeysDescp,
-      icon: <InheritanceShareKeyIcon width={14} height={14} />,
+      icon: <ThemedSvg name={'inhertance_shareKey_icon'} width={14} height={14} />,
       onPress: () => navigation.navigate('AdditionalSignerDetailsTemplate'),
-      isDiamond: false,
+      isDiamond: true,
     },
     {
       title: inheritancePlanning.recoveryInstructionsTitle,
       description: inheritancePlanning.recoveryInstructionsDescp,
       icon: <InheritanceRecoveryIcon width={14} height={14} />,
       onPress: () => navigation.navigate('RecoveryInstruction'),
-      isDiamond: false,
+      isDiamond: true,
     },
     {
       title: inheritancePlanning.letterOfAttorneyTitle,
       description: inheritancePlanning.letterOfAttorneyDescp,
-      icon: <InheritanceLetterIcon width={14} height={14} />,
+      icon: <ThemedSvg name={'inhertance_letter_icon'} width={14} height={14} />,
       onPress: () => navigation.navigate('LetterOfAttorney'),
-      isDiamond: false,
+      isDiamond: true,
     },
     {
       title: inheritancePlanning.inheritanceTipsTitle,
       description: inheritancePlanning.inheritanceTipsDescp,
       icon: <InheritanceTipsIcon width={14} height={14} />,
       onPress: () => navigation.navigate('InheritanceTips'),
-      isDiamond: false,
+      isDiamond: true,
     },
   ];
 
@@ -379,7 +403,7 @@ export const useSettingKeeper = () => {
       subTitleWidth={wp(240)}
       subTitle={settings.assistedServerDeleteBackupSubtitle}
       modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.modalHeaderTitle`}
+      textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       Content={() => (
         <Buttons

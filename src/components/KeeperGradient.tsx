@@ -8,14 +8,8 @@ interface IKeeperGradientProps extends IBoxProps {
   location?: Array<number>;
 }
 
-KeeperGradient.defaultProps = {
-  start: undefined,
-  end: undefined,
-  location: undefined,
-};
-
 function KeeperGradient(props: IKeeperGradientProps) {
-  const { children, colors, start, end, location } = props;
+  const { children, colors } = props;
   const updatedProps = {
     ...props,
     colors: undefined,

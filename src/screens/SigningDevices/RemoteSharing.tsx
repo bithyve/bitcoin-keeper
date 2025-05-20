@@ -5,6 +5,7 @@ import { Box, ScrollView, useColorMode, VStack } from 'native-base';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import RemoteShareIllustration from 'src/assets/images/remote-share-illustration.svg';
+import PrivateRemoteShareIllustration from 'src/assets/privateImages/remote-key-sharing.svg';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import MessagePreview from 'src/components/MessagePreview';
@@ -16,6 +17,7 @@ import { encrypt, getKeyAndHash } from 'src/utils/service-utilities/encryption';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
+import { useSelector } from 'react-redux';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -69,6 +71,8 @@ function RemoteSharing({ route }: ScreenProps) {
   const { remoteLinkDetails } = useAppSelector((state) => state.vault);
   const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
   const [primaryLoading, setPrimaryLoading] = useState(false);
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
 
   const handleShare = async () => {
     setPrimaryLoading(true);
@@ -123,9 +127,16 @@ function RemoteSharing({ route }: ScreenProps) {
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          {!isPSBTSharing && (
-            <RemoteShareIllustration style={styles.illustration} width={130} height={130} />
-          )}
+          {!isPSBTSharing &&
+            (privateTheme ? (
+              <PrivateRemoteShareIllustration
+                style={styles.illustration}
+                width={130}
+                height={130}
+              />
+            ) : (
+              <RemoteShareIllustration style={styles.illustration} width={130} height={130} />
+            ))}
 
           <Box style={styles.messagePreview}>
             <MessagePreview

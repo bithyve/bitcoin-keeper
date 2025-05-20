@@ -1,14 +1,8 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
-
-import Background from 'src/assets/images/background elements.svg';
-import Gear1 from 'src/assets/images/gear1.svg';
-import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
-import Gear2 from 'src/assets/images/gear 2.svg';
-import Gear2Dark from 'src/assets/images/smallGearDark.svg';
-import Gear3 from 'src/assets/images/gear 3.svg';
 import { windowWidth } from 'src/constants/responsive';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 function LoadingAnimation() {
   const { colorMode } = useColorMode();
@@ -38,15 +32,15 @@ function LoadingAnimation() {
           alignItems: 'flex-start',
         }}
       >
-        <Background />
+        <ThemedSvg name={'loader_background'} />
         <Animated.View style={styles.gear2}>
-          {colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
+          <ThemedSvg name={'loader_gear_2'} />
         </Animated.View>
         <Animated.View style={colorMode === 'light' ? styles.gear1 : styles.gear1Dark}>
-          {colorMode === 'light' ? <Gear1 /> : <Gear1Dark />}
+          <ThemedSvg name={'loader_gear_1'} />
         </Animated.View>
         <Animated.View style={colorMode === 'light' ? styles.gear3 : styles.gear3Dark}>
-          {colorMode === 'light' ? <Gear3 /> : <Gear2Dark />}
+          <ThemedSvg name={'loader_gear_3'} />
         </Animated.View>
       </Box>
     </Box>
@@ -86,5 +80,8 @@ const getStyles = (clock, antiClock) =>
       right: '30%',
       top: '7%',
       transform: [{ rotate: clock }],
+    },
+    background: {
+      left: '6%',
     },
   });

@@ -19,11 +19,10 @@ import { manipulateSeedSignerData } from 'src/hardware/seedsigner';
 import { getPassportDetails, manipulatePassportDetails } from 'src/hardware/passport';
 import WalletHeader from 'src/components/WalletHeader';
 import KeeperModal from 'src/components/KeeperModal';
-import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
-import InfoIcon from 'src/assets/images/info_icon.svg';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 export const options = [
   { label: 'Singlesig', sub: 'BIP84', purpose: DerivationPurpose.BIP84 },
@@ -111,7 +110,7 @@ export const AddMultipleXpub = () => {
           rightComponent={
             !isHealthCheck ? (
               <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
-                {isDarkMode ? <InfoIconDark /> : <InfoIcon />}
+                <ThemedSvg name={'info_icon'} />
               </TouchableOpacity>
             ) : null
           }
@@ -119,7 +118,7 @@ export const AddMultipleXpub = () => {
         <Box style={styles.segmentController}>
           <SegmentedController
             options={options.filter((tab) => {
-              if ([SignerType.JADE, SignerType.PASSPORT].includes(type)) {
+              if ([SignerType.PASSPORT].includes(type)) {
                 return tab.label !== 'Taproot';
               }
               return true;

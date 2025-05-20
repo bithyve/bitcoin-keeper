@@ -41,9 +41,9 @@ function PreviewPDF({ route }: any) {
             onPress={() => DownloadPDF()}
             style={{ alignSelf: 'flex-end', marginBottom: 5 }}
           >
-            <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.accent`}>
+            <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.DarkSlateGray`}>
               <DownloadIcon />
-              <Text style={styles.downloadBtnText} color={`${colorMode}.learnMoreBorder`}>
+              <Text style={styles.downloadBtnText} color={`${colorMode}.secondaryCreamWhite`}>
                 &nbsp;&nbsp;{common.Download}
               </Text>
             </Box>

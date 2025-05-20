@@ -5,6 +5,7 @@ import Text from '../KeeperText';
 import KeeperGradient from '../KeeperGradient';
 import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
+import { useSelector } from 'react-redux';
 
 const getStyles = (btnActiveBack) =>
   StyleSheet.create({
@@ -15,6 +16,8 @@ const getStyles = (btnActiveBack) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginVertical: hp(16),
+      borderWidth: 1,
+      borderColor: Colors.separator,
     },
     textActive: {
       fontSize: 15,
@@ -53,10 +56,21 @@ const containerBackgroundColorDark = [Colors.SecondaryBlack];
 
 function Element(props) {
   const { colorMode } = useColorMode();
-  const btnActiveBack = Colors.primaryGreen;
-  const textColor = colorMode === 'dark' ? Colors.primaryCream : Colors.primaryGreen;
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE';
+  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+
+  const btnActiveBack =
+    privateTheme || privateThemeLight ? Colors.goldenGradient : Colors.primaryGreen;
+  const textColor =
+    colorMode === 'dark'
+      ? Colors.primaryCream
+      : privateThemeLight
+      ? Colors.GreenishGrey
+      : Colors.primaryGreen;
   const textActiveColor = colorMode === 'light' ? Colors.primaryCream : Colors.primaryCream;
   const styles = getStyles(btnActiveBack);
+
   return (
     <Box style={props.isActive ? styles.containerBtnActive : styles.containerBtn}>
       <Text
