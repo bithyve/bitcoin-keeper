@@ -15,6 +15,7 @@ import VaultMigrationController from './VaultMigrationController';
 import { getVaultEnhancedSigners } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
 import { INITIAL_TIMELOCK_DURATIONS } from './SelectInitialTimelock';
+import Text from 'src/components/KeeperText';
 
 function ResetInitialTimelock({ route }) {
   const { vault }: { signerIds: string[]; vault: Vault } = route.params;
@@ -68,14 +69,17 @@ function ResetInitialTimelock({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={vaultText.resetIKTitle} subTitle={vaultText.resetIKDesc} />
+      <WalletHeader title={vaultText.resetInitialTLTitle} subTitle={vaultText.resetInitialTLDesc} />
       <Box style={styles.container}>
-        <OptionPicker
-          label={vaultText.selectActivationTime}
-          options={INITIAL_TIMELOCK_DURATIONS}
-          selectedOption={selectedOption}
-          onOptionSelect={(option) => setSelectedOption(option)}
-        />
+        <Text>{vaultText.resetInitialTLNote}</Text>
+        <Box style={styles.container}>
+          <OptionPicker
+            label={vaultText.selectActivationTime}
+            options={INITIAL_TIMELOCK_DURATIONS}
+            selectedOption={selectedOption}
+            onOptionSelect={(option) => setSelectedOption(option)}
+          />
+        </Box>
         <Box>
           <Buttons
             primaryLoading={vaultCreating}

@@ -779,6 +779,7 @@
     "pleaseEnterVaultName": "Please enter a name for your vault",
     "resetInitialTLTitle": "Resetting Wallet Timelock",
     "resetInitialTLDesc": "Re-vault to start the timer again on the wallet timelock",
+    "resetInitialTLNote": "Note that funds cannot be moved to the new vault until the existing timelock expires.",
     "resetIKTitle": "Resetting Inheritance Key",
     "resetIKDesc": "Re-vault to start the timer again on the Inheritance Key",
     "resetEKTitle": "Resetting Emergency Key",
