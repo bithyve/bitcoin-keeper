@@ -30,7 +30,10 @@ import {
 import WalletHeader from 'src/components/WalletHeader';
 
 function ResetInheritanceKey({ route }) {
-  const { vault }: { signerIds: string[]; vault: Vault } = route.params;
+  const {
+    initialTimelockDuration,
+    vault,
+  }: { initialTimelockDuration; signerIds: string[]; vault: Vault } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
@@ -236,6 +239,7 @@ function ResetInheritanceKey({ route }) {
           key: signer,
           duration: selectedOptions[getKeyUID(signer)]?.label,
         }))}
+        initialTimelockDuration={initialTimelockDuration ?? 0}
         currentBlockHeight={currentBlockHeight}
         miniscriptTypes={vault.scheme.miniscriptScheme.usedMiniscriptTypes}
       />

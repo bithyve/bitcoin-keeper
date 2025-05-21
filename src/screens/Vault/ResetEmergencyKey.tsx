@@ -30,7 +30,11 @@ import {
 import WalletHeader from 'src/components/WalletHeader';
 
 function ResetEmergencyKey({ route }) {
-  const { inheritanceKeys = [], vault }: { inheritanceKeys; vault: Vault } = route.params;
+  const {
+    inheritanceKeys = [],
+    initialTimelockDuration = 0,
+    vault,
+  }: { inheritanceKeys; initialTimelockDuration; vault: Vault } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
@@ -164,7 +168,7 @@ function ResetEmergencyKey({ route }) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
         title={vaultText.resetEKTitle + (emergencySigners.length > 1 ? 's' : '')}
-        subtitle={vaultText.resetEKDesc + (emergencySigners.length > 1 ? 's' : '')}
+        subTitle={vaultText.resetEKDesc + (emergencySigners.length > 1 ? 's' : '')}
       />
       <Box style={styles.container}>
         {signers.map((signer) => (
@@ -225,6 +229,7 @@ function ResetEmergencyKey({ route }) {
           key: signer,
           duration: selectedOptions[getKeyUID(signer)]?.label,
         }))}
+        initialTimelockDuration={initialTimelockDuration ?? 0}
         currentBlockHeight={currentBlockHeight}
         miniscriptTypes={vault.scheme.miniscriptScheme.usedMiniscriptTypes}
       />

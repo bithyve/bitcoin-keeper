@@ -45,6 +45,7 @@ import {
   MONTHS_48,
   MONTHS_54,
   MONTHS_60,
+  MONTHS_9,
 } from './constants';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
@@ -74,6 +75,7 @@ function VaultMigrationController({
   vaultType = VaultType.DEFAULT,
   inheritanceKeys = [],
   emergencyKeys = [],
+  initialTimelockDuration = '',
   currentBlockHeight = null,
   miniscriptTypes = [],
   setVaultCreatedModalVisible = null,
@@ -299,6 +301,8 @@ function VaultMigrationController({
         ? 'MONTHS_3'
         : selectedDuration === MONTHS_6
         ? 'MONTHS_6'
+        : selectedDuration === MONTHS_9
+        ? 'MONTHS_9'
         : selectedDuration === MONTHS_12
         ? 'MONTHS_12'
         : selectedDuration === MONTHS_18
@@ -334,21 +338,25 @@ function VaultMigrationController({
     miniscriptTypes: MiniscriptTypes[],
     inheritanceSigners?: { key: VaultSigner; duration: string }[],
     emergencySigners?: { key: VaultSigner; duration: string }[],
+    initialTimelockDuration?: string,
     existingMiniscriptScheme?: MiniscriptScheme
   ) => {
     if (
       vaultInfo.vaultType !== VaultType.MINISCRIPT ||
       !(
+        miniscriptTypes.includes(MiniscriptTypes.TIMELOCKED) ||
         miniscriptTypes.includes(MiniscriptTypes.INHERITANCE) ||
         miniscriptTypes.includes(MiniscriptTypes.EMERGENCY)
       )
     ) {
       showToast(
-        'Invalid vault type - supported only for inheritance and emergency',
+        'Invalid vault type - supported only for timelocked, inheritance emergency',
         <ToastErrorIcon />
       );
       return;
     }
+
+    let initialTimelock = 0;
 
     const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
     let currentSyncedBlockHeight = currentBlockHeight;
@@ -369,6 +377,14 @@ function VaultMigrationController({
       }
     }
 
+    if (initialTimelockDuration) {
+      initialTimelock = getTimelockDuration(initialTimelockDuration, bitcoinNetworkType);
+      if (!initialTimelock) {
+        showToast('Failed to determine initial timelock duration', <ToastErrorIcon />);
+        return;
+      }
+    }
+
     const inheritanceSignerWithTimelocks = [];
     const emergencySignerWithTimelocks = [];
 
@@ -381,7 +397,7 @@ function VaultMigrationController({
         }
         inheritanceSignerWithTimelocks.push({
           signer: key,
-          timelock: currentBlockHeight + timelock,
+          timelock: currentBlockHeight + initialTimelock + timelock,
         });
       }
     }
@@ -393,7 +409,10 @@ function VaultMigrationController({
           showToast('Failed to determine emergency timelock duration', <ToastErrorIcon />);
           return;
         }
-        emergencySignerWithTimelocks.push({ signer: key, timelock: currentBlockHeight + timelock });
+        emergencySignerWithTimelocks.push({
+          signer: key,
+          timelock: currentBlockHeight + initialTimelock + timelock,
+        });
       }
     }
 
@@ -401,7 +420,8 @@ function VaultMigrationController({
       vaultInfo.vaultSigners,
       inheritanceSignerWithTimelocks,
       emergencySignerWithTimelocks,
-      vaultInfo.vaultScheme
+      vaultInfo.vaultScheme,
+      initialTimelock ? currentBlockHeight + initialTimelock : 0
     );
 
     if (!miniscriptElements) {
@@ -463,6 +483,7 @@ function VaultMigrationController({
             miniscriptTypes,
             inheritanceKeys,
             emergencyKeys,
+            initialTimelockDuration,
             activeVault ? activeVault.scheme.miniscriptScheme : null
           );
         } catch (err) {

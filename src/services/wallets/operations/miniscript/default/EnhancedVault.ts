@@ -6,6 +6,7 @@ import { getKeyUID } from 'src/utils/utilities';
 export const ENHANCED_VAULT_TIMELOCKS_TESTNET = {
   MONTHS_3: 3,
   MONTHS_6: 6,
+  MONTHS_9: 9,
   MONTHS_12: 12,
   MONTHS_18: 18,
   MONTHS_24: 24,
@@ -20,6 +21,7 @@ export const ENHANCED_VAULT_TIMELOCKS_TESTNET = {
 export const ENHANCED_VAULT_TIMELOCKS_MAINNET = {
   MONTHS_3: 13140,
   MONTHS_6: 26280,
+  MONTHS_9: 39420,
   MONTHS_12: 52560,
   MONTHS_18: 78840,
   MONTHS_24: 105120,
@@ -56,7 +58,8 @@ export function generateEnhancedVaultElements(
   signers: VaultSigner[],
   inheritanceSigners: { signer: VaultSigner; timelock: number }[],
   emergencySigners: { signer: VaultSigner; timelock: number }[],
-  scheme: VaultScheme
+  scheme: VaultScheme,
+  initialTimelock: number
 ): MiniscriptElements {
   if (scheme.m > signers.length) {
     throw new Error('Threshold (m) cannot be greater than the number of signers (n)');
@@ -119,6 +122,10 @@ export function generateEnhancedVaultElements(
     .map((s) => s.timelock)
     .filter((value, index, self) => self.indexOf(value) === index)
     .sort((a, b) => a - b);
+
+  if (initialTimelock) {
+    timelocks.unshift(initialTimelock);
+  }
 
   // Combine inheritance and emergency signers and sort by timelock
   const timelockSigners = [
@@ -221,7 +228,7 @@ export function generateEnhancedVaultElements(
   const phases: Phase[] = [
     {
       id: 1,
-      timelock: 0,
+      timelock: initialTimelock,
       paths: [{ id: 1, threshold: scheme.m, keys: keysInfo }],
       requiredPaths: 1,
       probability: probabilities[0],

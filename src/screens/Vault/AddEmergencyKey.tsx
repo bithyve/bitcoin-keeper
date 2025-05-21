@@ -60,11 +60,13 @@ function AddEmergencyKey({ route }) {
     scheme,
     description,
     vaultId,
+    hasInitialTimelock,
     isAddInheritanceKey,
     isAddEmergencyKey,
     currentBlockHeight: currentBlockHeightParam,
     keyToRotate,
     inheritanceKeys = [],
+    initialTimelockDuration,
   } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -151,6 +153,7 @@ function AddEmergencyKey({ route }) {
       scheme,
       isAddInheritanceKey,
       isAddEmergencyKey,
+      hasInitialTimelock,
       currentBlockHeight,
       onGoBack: (signer) => setSelectedSigner(signer),
     });
@@ -162,6 +165,7 @@ function AddEmergencyKey({ route }) {
     scheme,
     isAddInheritanceKey,
     isAddEmergencyKey,
+    hasInitialTimelock,
     currentBlockHeight,
   ]);
 
@@ -233,9 +237,9 @@ function AddEmergencyKey({ route }) {
                 scheme,
                 isHotWallet: false,
                 vaultType: VaultType.MINISCRIPT,
-                isTimeLock: false,
                 isAddInheritanceKey,
                 isAddEmergencyKey,
+                hasInitialTimelock,
                 currentBlockHeight,
                 hotWalletInstanceNum: null,
                 reservedKeys: inheritanceKeys,
@@ -244,6 +248,7 @@ function AddEmergencyKey({ route }) {
                   : [],
                 selectedSigners: route.params.selectedSigners,
                 vaultId,
+                initialTimelockDuration,
               });
             }}
           />
@@ -304,8 +309,10 @@ function AddEmergencyKey({ route }) {
         emergencyKeys={
           selectedSigner ? [{ key: selectedSigner[0], duration: selectedOption.label }] : []
         }
+        initialTimelockDuration={initialTimelockDuration ?? 0}
         currentBlockHeight={currentBlockHeight}
         miniscriptTypes={[
+          ...(hasInitialTimelock ? [MiniscriptTypes.TIMELOCKED] : []),
           ...(inheritanceKeys.length ? [MiniscriptTypes.INHERITANCE] : []),
           MiniscriptTypes.EMERGENCY,
         ]}

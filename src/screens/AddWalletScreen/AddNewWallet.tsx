@@ -239,10 +239,10 @@ function AddNewWallet({ navigation, route }) {
                 name: 'AddSigningDevice',
                 params: {
                   scheme,
-                  isTimeLock: false,
                   currentBlockHeight,
                   isAddInheritanceKey: inheritanceKeySelected,
                   isAddEmergencyKey: emergencyKeySelected,
+                  hasInitialTimelock: true, // initialTimelockSelected, // TODO: Update
                   isNewSchemeFlow: true,
                   vaultId,
                 },

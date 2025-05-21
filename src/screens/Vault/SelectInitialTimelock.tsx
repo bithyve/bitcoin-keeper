@@ -1,61 +1,34 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useCallback, useContext, useState, useEffect, useMemo } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import HorizontalAddCard from 'src/components/HorizontalAddCard';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import OptionPicker from 'src/components/OptionPicker';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { ADDRESERVEKEY } from 'src/navigation/contants';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import KEEPERAPP from 'src/assets/images/KeeperIcon.svg';
-import KEEPERAPPLIGHT from 'src/assets/images/KeeperIconLight.svg';
 import Buttons from 'src/components/Buttons';
-import { SDIcons } from './SigningDeviceIcons';
-import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
-import {
-  MONTHS_12,
-  MONTHS_24,
-  MONTHS_18,
-  MONTHS_6,
-  MONTHS_30,
-  MONTHS_36,
-  MONTHS_42,
-  MONTHS_48,
-  MONTHS_54,
-  MONTHS_60,
-} from './constants';
+import { MONTHS_3, MONTHS_6, MONTHS_9, MONTHS_12 } from './constants';
 import { getKeyUID } from 'src/utils/utilities';
 import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import VaultMigrationController from './VaultMigrationController';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
-import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { INHERITANCE_KEY_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
 
-export const DEFAULT_INHERITANCE_KEY_TIMELOCK = { label: MONTHS_12, value: MONTHS_12 };
-export const INHERITANCE_TIMELOCK_DURATIONS = [
+export const DEFAULT_INITIAL_TIMELOCK = { label: MONTHS_6, value: MONTHS_6 };
+export const INITIAL_TIMELOCK_DURATIONS = [
+  { label: MONTHS_3, value: MONTHS_3 },
   { label: MONTHS_6, value: MONTHS_6 },
+  { label: MONTHS_9, value: MONTHS_9 },
   { label: MONTHS_12, value: MONTHS_12 },
-  { label: MONTHS_18, value: MONTHS_18 },
-  { label: MONTHS_24, value: MONTHS_24 },
-  { label: MONTHS_30, value: MONTHS_30 },
-  { label: MONTHS_36, value: MONTHS_36 },
-  { label: MONTHS_42, value: MONTHS_42 },
-  { label: MONTHS_48, value: MONTHS_48 },
-  { label: MONTHS_54, value: MONTHS_54 },
-  { label: MONTHS_60, value: MONTHS_60 },
 ];
 
-function AddReserveKey({ route }) {
+function SelectInitialTimelock({ route }) {
   const {
     vaultKeys: vaultKeysParam,
     name,
@@ -67,60 +40,19 @@ function AddReserveKey({ route }) {
     hasInitialTimelock,
     currentBlockHeight: currentBlockHeightParam,
     keyToRotate,
-    initialTimelockDuration,
   } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultTranslations } = translations;
-  const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_KEY_TIMELOCK);
-  const [selectedSigner, setSelectedSigner] = useState(null);
-  const { activeVault, allVaults } = useVault({ vaultId });
+  const [selectedOption, setSelectedOption] = useState(DEFAULT_INITIAL_TIMELOCK);
+  const { activeVault } = useVault({ vaultId });
   const vaultKeys = vaultKeysParam || activeVault?.signers || [];
   const [vaultCreating, setCreating] = useState(false);
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const [generatedVaultId, setGeneratedVaultId] = useState('');
-  const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
-  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage, relayVaultUpdateLoading } =
-    useAppSelector((state) => state.bhr);
-  const { showToast } = useToastMessage();
+  const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(currentBlockHeightParam);
-
-  const dispatch = useDispatch();
-
-  // TODO: Allow multiple inheritance keys
-  const reservedKey = useMemo(() => {
-    if (!selectedSigner || !signerMap) return null;
-    return signerMap[getKeyUID(selectedSigner[0])];
-  }, [selectedSigner, signerMap]);
-
-  const isDarkMode = colorMode === 'dark';
-
-  useEffect(() => {
-    if (selectedSigner || keyToRotate) return;
-
-    if (
-      !activeVault?.id ||
-      !activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints
-    )
-      return;
-
-    // TODO: Support multiple inheritance keys
-    const inheritanceKeyFingerprint = Object.entries(
-      activeVault.scheme.miniscriptScheme.miniscriptElements.signerFingerprints
-    ).find(([key]) => key.startsWith(INHERITANCE_KEY_IDENTIFIER))?.[1];
-
-    if (!inheritanceKeyFingerprint) return;
-
-    const inheritanceKey = activeVault.signers.find(
-      (key) => key.masterFingerprint === inheritanceKeyFingerprint
-    );
-
-    if (inheritanceKey) {
-      setSelectedSigner([inheritanceKey]);
-    }
-  }, [activeVault?.id, keyToRotate, selectedSigner]);
 
   const viewVault = () => {
     setVaultCreatedModalVisible(false);
@@ -147,63 +79,14 @@ function AddReserveKey({ route }) {
     }
   }, []);
 
-  const userKeyCallback = useCallback(() => {
-    navigation.push('AddSigningDevice', {
-      parentScreen: ADDRESERVEKEY,
-      selectedSignersFromParams:
-        vaultKeys && vaultKeys.length > 0 ? vaultKeys : route.params.selectedSigners,
-      scheme,
-      isAddInheritanceKey,
-      isAddEmergencyKey,
-      hasInitialTimelock,
-      currentBlockHeight,
-      onGoBack: (signer) => setSelectedSigner(signer),
-    });
-  }, [
-    navigation,
-    vaultKeys,
-    route.params.selectedSigners,
-    selectedSigner,
-    scheme,
-    isAddInheritanceKey,
-    isAddEmergencyKey,
-    hasInitialTimelock,
-    currentBlockHeight,
-  ]);
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title={`${vaultTranslations.addInheritanceKey}`}
+        title={`${vaultTranslations.selectWalletTimelock}`}
         subTitle={vaultTranslations.setIKSForVault}
       />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
-          <Box>
-            <Box style={styles.cardContainer}>
-              {!reservedKey ? (
-                <HorizontalAddCard
-                  name={vaultTranslations.addInheritanceKey}
-                  cardStyles={{ minHeight: hp(92) }}
-                  iconWidth={25}
-                  iconHeight={22}
-                  callback={userKeyCallback}
-                  KeyIcon={isDarkMode ? KEEPERAPPLIGHT : KEEPERAPP}
-                />
-              ) : (
-                <HorizontalSignerCard
-                  key={getKeyUID(reservedKey)}
-                  name={getSignerNameFromType(reservedKey.type, reservedKey.isMock, false)}
-                  description={getSignerDescription(reservedKey)}
-                  icon={SDIcons({ type: reservedKey.type }).Icon}
-                  isSelected={false}
-                  showSelection={false}
-                  changeKey={userKeyCallback}
-                  colorMode={colorMode}
-                />
-              )}
-            </Box>
-          </Box>
           <Box>
             <Box style={styles.textContainer}>
               <Text color={`${colorMode}.primaryText`}>
@@ -216,7 +99,7 @@ function AddReserveKey({ route }) {
             <Box style={styles.dropDownContainer}>
               <OptionPicker
                 label={vaultTranslations.selectActivationTime}
-                options={INHERITANCE_TIMELOCK_DURATIONS}
+                options={INITIAL_TIMELOCK_DURATIONS}
                 selectedOption={selectedOption}
                 onOptionSelect={(option) => setSelectedOption(option)}
               />
@@ -228,9 +111,24 @@ function AddReserveKey({ route }) {
             primaryLoading={vaultCreating || relayVaultUpdateLoading}
             primaryText={common.confirm}
             fullWidth
-            primaryDisable={!selectedSigner || !selectedOption}
+            primaryDisable={!selectedOption}
             primaryCallback={() => {
               if (isAddEmergencyKey) {
+                navigation.navigate('AddReserveKey', {
+                  vaultKeys,
+                  vaultId,
+                  scheme,
+                  name,
+                  description,
+                  isAddInheritanceKey,
+                  isAddEmergencyKey,
+                  hasInitialTimelock,
+                  currentBlockHeight,
+                  initialTimelockDuration: selectedOption.label,
+                  selectedSigners: route.params.selectedSigners,
+                  keyToRotate,
+                });
+              } else if (isAddEmergencyKey) {
                 navigation.navigate('AddEmergencyKey', {
                   vaultKeys,
                   vaultId,
@@ -241,12 +139,9 @@ function AddReserveKey({ route }) {
                   isAddEmergencyKey,
                   hasInitialTimelock,
                   currentBlockHeight,
+                  initialTimelockDuration: selectedOption.label,
                   selectedSigners: route.params.selectedSigners,
                   keyToRotate,
-                  inheritanceKeys: selectedSigner
-                    ? [{ key: selectedSigner[0], duration: selectedOption.label }]
-                    : [],
-                  initialTimelockDuration,
                 });
               } else {
                 if (vaultId) {
@@ -263,12 +158,9 @@ function AddReserveKey({ route }) {
                   hasInitialTimelock,
                   currentBlockHeight,
                   hotWalletInstanceNum: null,
-                  reservedKeys: selectedSigner
-                    ? [{ key: selectedSigner[0], duration: selectedOption.label }]
-                    : [],
+                  initialTimelockDuration: selectedOption.label,
                   selectedSigners: route.params.selectedSigners,
                   vaultId,
-                  initialTimelockDuration,
                 });
               }
             }}
@@ -303,17 +195,9 @@ function AddReserveKey({ route }) {
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}
-        vaultKeys={vaultKeys
-          .filter((key) => (keyToRotate ? getKeyUID(key) !== getKeyUID(keyToRotate) : true))
-          .filter(
-            (signer) =>
-              !Object.entries(
-                activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints || {}
-              )
-                .filter(([key]) => key.startsWith(INHERITANCE_KEY_IDENTIFIER))
-                .map(([_, value]) => value)
-                .includes(signer.masterFingerprint)
-          )}
+        vaultKeys={vaultKeys.filter((key) =>
+          keyToRotate ? getKeyUID(key) !== getKeyUID(keyToRotate) : true
+        )}
         scheme={scheme}
         name={name}
         description={description}
@@ -321,22 +205,16 @@ function AddReserveKey({ route }) {
         setGeneratedVaultId={setGeneratedVaultId}
         setCreating={setCreating}
         vaultType={VaultType.MINISCRIPT}
-        inheritanceKeys={
-          selectedSigner ? [{ key: selectedSigner[0], duration: selectedOption.label }] : []
-        }
-        initialTimelockDuration={initialTimelockDuration ?? 0}
         currentBlockHeight={currentBlockHeight}
-        miniscriptTypes={[
-          ...(initialTimelockDuration ? [MiniscriptTypes.TIMELOCKED] : []),
-          MiniscriptTypes.INHERITANCE,
-        ]}
+        miniscriptTypes={[MiniscriptTypes.TIMELOCKED]}
         setVaultCreatedModalVisible={setVaultCreatedModalVisible}
+        initialTimelockDuration={selectedOption.label}
       />
     </ScreenWrapper>
   );
 }
 
-export default AddReserveKey;
+export default SelectInitialTimelock;
 
 const styles = StyleSheet.create({
   container: {
