@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, Toast, useColorMode } from 'native-base';
 import { SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
@@ -24,6 +24,8 @@ import { getKeyUID } from 'src/utils/utilities';
 import { useNavigation } from '@react-navigation/native';
 import { SDIcons } from '../SigningDeviceIcons';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 type AssignSignerTypeCardProps = {
   type: SignerType;
@@ -81,7 +83,7 @@ function AssignSignerTypeCard({
       );
 
       if (!signerId) {
-        showToast('Unable to find server key instance id');
+        showToast('Unable to find server key instance id', <ToastErrorIcon />);
         return;
       }
 
@@ -102,11 +104,14 @@ function AssignSignerTypeCard({
               signerName: 'External Server Key',
             }
           );
-          navigation.goBack();
+          showToast('Server Key successfully assigned', <TickIcon />);
+          setTimeout(() => {
+            navigation.goBack();
+          }, 1000);
         } else throw new Error('Server Key mismatch');
       } else throw new Error('Server Key validation failed');
     } catch (err) {
-      showToast(err?.message || 'Server Key validation failed');
+      showToast(err?.message || 'Server Key validation failed', <ToastErrorIcon />);
     }
 
     setOtp('');
