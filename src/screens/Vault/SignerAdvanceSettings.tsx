@@ -64,7 +64,6 @@ import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import RegisterSignerContent from './components/RegisterSignerContent';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
-import MissingSingleXpubIllustration from 'src/assets/images/MissingSingleXpubIllustration.svg';
 
 const { width } = Dimensions.get('screen');
 
@@ -959,7 +958,7 @@ function SignerAdvanceSettings({ route }: any) {
   const MissingXpubContent = () => {
     return (
       <Box style={styles.missingXpubContainer}>
-        <MissingSingleXpubIllustration />
+        <ThemedSvg name={'MissingSingleXpubIllustration'} />
         <Buttons
           primaryText={common.addNow}
           primaryCallback={() => {
@@ -1193,10 +1192,8 @@ function SignerAdvanceSettings({ route }: any) {
             getSignerNameFromType(signer.type, signer.isMock, false).replace(/\*+/g, '')
           ) as string
         }
-        modalBackground={
-          privateTheme ? `${colorMode}.modalPrivateBackground` : `${colorMode}.modalWhiteBackground`
-        }
-        textColor={privateTheme ? `${colorMode}.textBlack` : `${colorMode}.textGreen`}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
         subTitleWidth={wp(280)}
         DarkCloseIcon
         Content={MissingXpubContent}

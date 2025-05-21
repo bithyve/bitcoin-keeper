@@ -237,6 +237,8 @@ import PrivateSigningServerBackupIllustration from 'src/assets/privateImages/Bac
 import SigningServerBackupIllustration from 'src/assets/images/backup-server-illustration.svg';
 import WalletVault from 'src/assets/images/vault-hexa-green.svg';
 import PrivateWalletVault from 'src/assets/privateImages/hexa-vault.svg';
+import MissingSingleXpubIllustration from 'src/assets/images/MissingSingleXpubIllustration.svg';
+import PrivateMissingSingleXpubIllustration from 'src/assets/privateImages/PrivateMissingSingleXpubIllustration.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -852,6 +854,12 @@ const themeIcons = {
     LIGHT: WalletVault,
     PRIVATE: PrivateWalletVault,
     PRIVATE_LIGHT: PrivateWalletVault,
+  },
+  MissingSingleXpubIllustration: {
+    DARK: MissingSingleXpubIllustration,
+    LIGHT: MissingSingleXpubIllustration,
+    PRIVATE: PrivateMissingSingleXpubIllustration,
+    PRIVATE_LIGHT: PrivateMissingSingleXpubIllustration,
   },
 };
 
