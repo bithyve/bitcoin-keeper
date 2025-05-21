@@ -89,9 +89,13 @@ function AddNewWallet({ navigation, route }) {
   const [emergencyKeySelected, setEmergencyKeySelected] = useState(
     activeVault?.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
       MiniscriptTypes.EMERGENCY
-    ) ||
-      route.isAddEmergencKeyFromParams ||
-      false
+    ) || false
+  );
+
+  const [initialTimelockSelected, setInitialTimelockSelected] = useState(
+    activeVault?.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+      MiniscriptTypes.TIMELOCKED
+    ) || false
   );
   const isDarkMode = colorMode === 'dark';
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
@@ -99,7 +103,8 @@ function AddNewWallet({ navigation, route }) {
 
   useEffect(() => {
     // TODO: Add more as new options are added
-    const isMiniscriptEnabled = inheritanceKeySelected || emergencyKeySelected;
+    const isMiniscriptEnabled =
+      inheritanceKeySelected || emergencyKeySelected || initialTimelockSelected;
     if (isMiniscriptEnabled && !currentBlockHeight) {
       WalletUtilities.fetchCurrentBlockHeight()
         .then(({ currentBlockHeight }) => {
@@ -107,7 +112,7 @@ function AddNewWallet({ navigation, route }) {
         })
         .catch((err) => console.log('Failed to fetch the current chain data:', err));
     }
-  }, [inheritanceKeySelected, emergencyKeySelected]);
+  }, [inheritanceKeySelected, emergencyKeySelected, initialTimelockSelected]);
 
   const CREATE_WALLET_OPTIONS = [
     {
@@ -242,7 +247,7 @@ function AddNewWallet({ navigation, route }) {
                   currentBlockHeight,
                   isAddInheritanceKey: inheritanceKeySelected,
                   isAddEmergencyKey: emergencyKeySelected,
-                  hasInitialTimelock: true, // initialTimelockSelected, // TODO: Update
+                  hasInitialTimelock: initialTimelockSelected,
                   isNewSchemeFlow: true,
                   vaultId,
                 },
@@ -312,6 +317,8 @@ function AddNewWallet({ navigation, route }) {
         setInheritanceKeySelected={setInheritanceKeySelected}
         emergencyKeySelected={emergencyKeySelected}
         setEmergencyKeySelected={setEmergencyKeySelected}
+        initialTimelockSelected={initialTimelockSelected}
+        setInitialTimelockSelected={setInitialTimelockSelected}
         navigation={navigation}
       />
     </ScreenWrapper>
@@ -347,6 +354,8 @@ const EnhancedSecurityModal = ({
   setInheritanceKeySelected,
   emergencyKeySelected,
   setEmergencyKeySelected,
+  initialTimelockSelected,
+  setInitialTimelockSelected,
   navigation,
 }) => {
   const { colorMode } = useColorMode();
@@ -355,14 +364,19 @@ const EnhancedSecurityModal = ({
     useState(inheritanceKeySelected);
   const [pendingEmergencyKeySelected, setPendingEmergencyKeySelected] =
     useState(emergencyKeySelected);
+  const [pendingInitialTimelockSelected, setPendingInitialTimelockSelected] =
+    useState(initialTimelockSelected);
+  const [showAdvancedEnhancedOptions, setShowAdvancedEnhancedOptions] =
+    useState(initialTimelockSelected);
 
   // Reset pending state when modal opens
   useEffect(() => {
     if (isVisible) {
       setPendingInheritanceKeySelected(inheritanceKeySelected);
       setPendingEmergencyKeySelected(emergencyKeySelected);
+      setPendingInitialTimelockSelected(initialTimelockSelected);
     }
-  }, [isVisible, inheritanceKeySelected, emergencyKeySelected]);
+  }, [isVisible, inheritanceKeySelected, emergencyKeySelected, initialTimelockSelected]);
 
   const { isOnL3Above } = usePlan();
 
@@ -381,6 +395,7 @@ const EnhancedSecurityModal = ({
         onClose();
         setInheritanceKeySelected(pendingInheritanceKeySelected);
         setEmergencyKeySelected(pendingEmergencyKeySelected);
+        setInitialTimelockSelected(pendingInitialTimelockSelected);
       }}
       Content={() => {
         return (
@@ -441,7 +456,6 @@ const EnhancedSecurityModal = ({
                 </Text>
               </Box>
             </Pressable>
-
             <Pressable
               disabled={!isOnL3Above}
               onPress={() => setPendingEmergencyKeySelected(!pendingEmergencyKeySelected)}
@@ -483,6 +497,75 @@ const EnhancedSecurityModal = ({
                   color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
                   A key with delayed full control to recover from extended key loss
+                </Text>
+              </Box>
+            </Pressable>
+            {showAdvancedEnhancedOptions && (
+              <Pressable
+                disabled={!isOnL3Above}
+                onPress={() => setPendingInitialTimelockSelected(!pendingInitialTimelockSelected)}
+              >
+                <Box
+                  style={styles.optionBox}
+                  backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                  borderColor={`${colorMode}.border`}
+                >
+                  <Box style={styles.optionHeader}>
+                    <Text
+                      fontSize={16}
+                      color={
+                        !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                      }
+                    >
+                      Wallet Timelock
+                    </Text>
+                    {pendingInitialTimelockSelected ? (
+                      <Box
+                        style={styles.checkmark}
+                        backgroundColor={`${colorMode}.dashedButtonBorderColor`}
+                      >
+                        {isDarkMode ? (
+                          <CheckDarkIcon height={12} width={12} />
+                        ) : (
+                          <CheckIcon height={12} width={12} />
+                        )}
+                      </Box>
+                    ) : (
+                      <Box
+                        style={[styles.checkmark, { opacity: 0.2 }]}
+                        backgroundColor={`${colorMode}.secondaryGrey`}
+                      ></Box>
+                    )}
+                  </Box>
+                  <Text
+                    fontSize={12}
+                    color={
+                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
+                    }
+                  >
+                    An initial timelock before funds can be spent from the wallet
+                  </Text>
+                </Box>
+              </Pressable>
+            )}
+
+            <Pressable
+              onPress={() => {
+                setShowAdvancedEnhancedOptions(!showAdvancedEnhancedOptions);
+              }}
+            >
+              <Box
+                style={[styles.optionCTR, styles.customOption]}
+                backgroundColor={isDarkMode ? Colors.seperatorDark : `${colorMode}.separator`}
+                borderColor={`${colorMode}.primaryBackground`}
+              >
+                <Text
+                  color={`${colorMode}.greenText`}
+                  fontSize={14}
+                  medium
+                  style={{ textAlign: 'center', flex: 1 }}
+                >
+                  {showAdvancedEnhancedOptions ? 'Hide advanced options' : 'Show advanced options'}
                 </Text>
               </Box>
             </Pressable>

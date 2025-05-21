@@ -19,6 +19,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import WalletHeader from 'src/components/WalletHeader';
+import WarningNote from 'src/components/WarningNote';
 
 export const DEFAULT_INITIAL_TIMELOCK = { label: MONTHS_6, value: MONTHS_6 };
 export const INITIAL_TIMELOCK_DURATIONS = [
@@ -83,19 +84,11 @@ function SelectInitialTimelock({ route }) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
         title={`${vaultTranslations.selectWalletTimelock}`}
-        subTitle={vaultTranslations.setIKSForVault}
+        subTitle={vaultTranslations.selectWalletTimelockDesc}
       />
       <Box style={styles.container}>
         <Box style={styles.contentContainer}>
           <Box>
-            <Box style={styles.textContainer}>
-              <Text color={`${colorMode}.primaryText`}>
-                {vaultTranslations.inheritanceKeyActivation}
-              </Text>
-              <Text color={`${colorMode}.greenishGreyText`} fontSize={12}>
-                {vaultTranslations.availableAfterDelay}
-              </Text>
-            </Box>
             <Box style={styles.dropDownContainer}>
               <OptionPicker
                 label={vaultTranslations.selectActivationTime}
@@ -105,8 +98,10 @@ function SelectInitialTimelock({ route }) {
               />
             </Box>
           </Box>
+          <Text fontSize={13}>{vaultTranslations.selectWalletTimelockNote}</Text>
         </Box>
         <Box style={styles.bottomContainer}>
+          <WarningNote noteText={vaultTranslations.selectWalletTimelockWarning} />
           <Buttons
             primaryLoading={vaultCreating || relayVaultUpdateLoading}
             primaryText={common.confirm}
