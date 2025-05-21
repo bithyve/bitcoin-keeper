@@ -5,7 +5,7 @@ import Text from '../KeeperText';
 import KeeperGradient from '../KeeperGradient';
 import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
-import { useSelector } from 'react-redux';
+import ThemedColor from '../ThemedColor/ThemedColor';
 
 const getStyles = (btnActiveBack) =>
   StyleSheet.create({
@@ -55,20 +55,12 @@ const containerBackgroundColorLight = [Colors.brightCream];
 const containerBackgroundColorDark = [Colors.SecondaryBlack];
 
 function Element(props) {
-  const { colorMode } = useColorMode();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const ActiveButtonColor = ThemedColor({ name: 'HexagonIcon' });
+  const NonActiveTextColor = ThemedColor({ name: 'NonActiveTextColor' });
 
-  const btnActiveBack =
-    privateTheme || privateThemeLight ? Colors.goldenGradient : Colors.primaryGreen;
-  const textColor =
-    colorMode === 'dark'
-      ? Colors.primaryCream
-      : privateThemeLight
-      ? Colors.GreenishGrey
-      : Colors.primaryGreen;
-  const textActiveColor = colorMode === 'light' ? Colors.primaryCream : Colors.primaryCream;
+  const btnActiveBack = ActiveButtonColor;
+  const textColor = NonActiveTextColor;
+  const textActiveColor = Colors.primaryCream;
   const styles = getStyles(btnActiveBack);
 
   return (
