@@ -19,6 +19,7 @@ import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 import BIP32Factory from 'bip32';
 import { detectFileType, splitQRs } from 'src/services/qr/bbqr/split';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { getRandomBytes } from './service-utilities/encryption';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -682,4 +683,9 @@ export function formatRemainingTime(milliseconds) {
 export const manipulateIosProdProductId = (productId: string) => {
   if (Platform.OS === 'ios' && !config.isDevMode()) return productId.replace('.', '_'); // Replace "." with "_"
   return productId;
+};
+
+export const generateAccountIdentifier = (length) => {
+  if (!length) return '';
+  return getRandomBytes(3);
 };

@@ -19,7 +19,7 @@ import * as SecureStore from 'src/storage/secure-store';
 import dbManager from 'src/storage/realm/dbManager';
 import SubScription from 'src/models/interfaces/Subscription';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { manipulateIosProdProductId } from 'src/utils/utilities';
+import { generateAccountIdentifier, manipulateIosProdProductId } from 'src/utils/utilities';
 import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
@@ -87,7 +87,7 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setKey(AES_KEY));
     const encryptedKey = yield call(encrypt, hash, AES_KEY);
     const { allAccounts } = yield select((state: RootState) => state.account);
-    const accountIdentifier = allAccounts.length ? allAccounts.length.toString() : '';
+    const accountIdentifier = generateAccountIdentifier(allAccounts?.length);
 
     const pinStored = yield call(SecureStore.store, hash, encryptedKey, accountIdentifier);
     if (typeof pinStored !== 'boolean' || !pinStored) {
