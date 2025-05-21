@@ -99,7 +99,7 @@ function SendScreen({ route }) {
   };
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, error: errorTranslation, wallet: walletTranslation, settings } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
   const [note, setNote] = useState(txNote);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(null);
@@ -144,7 +144,7 @@ function SendScreen({ route }) {
       // disabling send flow for watch-only wallets
       const isWatchOnly = !idx(sender as Wallet, (_) => _.specs.xpriv);
       if (isWatchOnly) {
-        showToast('Cannot send via Watch-only wallet', <ToastErrorIcon />);
+        showToast(errorTranslation.cannotSendViaWatchOnly, <ToastErrorIcon />);
         navigation.goBack();
       }
     }
@@ -159,7 +159,7 @@ function SendScreen({ route }) {
               vault.archivedId === (sender as Vault).archivedId
           );
         if (newVault) {
-          showToast('Automatically selected the recipient wallet to complete the migration.');
+          showToast(errorTranslation.automaticallySelected);
           handleSelectWallet(newVault);
         }
       }
@@ -181,12 +181,12 @@ function SendScreen({ route }) {
 
   const navigateToNext = (address: string, amount?: string, recipient?: Wallet | Vault) => {
     if (!avgFees) {
-      showToast("Average transaction fees couldn't be fetched!");
+      showToast(errorTranslation.averageFeeError);
       return;
     }
 
     if (finalRecipients.some((recipient) => recipient.address === address)) {
-      showToast('Cannot select the same recipient address more than once');
+      showToast(errorTranslation.cannotSelectSameAddress);
       return;
     }
 
@@ -273,11 +273,11 @@ function SendScreen({ route }) {
         setPaymentInfo(qrData);
       } else {
         setPaymentInfo('');
-        showToast('Invalid bitcoin address', <ToastErrorIcon />);
+        showToast(errorTranslation.invalidBitCoinAddress, <ToastErrorIcon />);
       }
       navigation.goBack();
     } catch (error) {
-      showToast('Invalid bitcoin address', <ToastErrorIcon />);
+      showToast(errorTranslation.invalidBitCoinAddress, <ToastErrorIcon />);
       showToast(error.message, <ToastErrorIcon />);
     }
   };
@@ -296,7 +296,7 @@ function SendScreen({ route }) {
         break;
       default:
         Keyboard.dismiss();
-        showToast('Invalid bitcoin address', <ToastErrorIcon />);
+        showToast(errorTranslation.invalidBitCoinAddress, <ToastErrorIcon />);
     }
   };
   const handleProceed = (skipHealthCheck = false) => {
@@ -314,10 +314,10 @@ function SendScreen({ route }) {
       try {
         validateAddress(paymentInfo);
       } catch (error) {
-        showToast('Invalid bitcoin address', <ToastErrorIcon />);
+        showToast(errorTranslation.invalidBitCoinAddress, <ToastErrorIcon />);
       }
     } else {
-      showToast('Please select a wallet or vault');
+      showToast(errorTranslation.selectWalletOrVault);
     }
   };
 
@@ -338,8 +338,8 @@ function SendScreen({ route }) {
         style={styles.scrollViewWrapper}
       >
         <WalletHeader
-          title="Sending to"
-          subTitle="Enter the recipient address"
+          title={walletTranslation.sendingTo}
+          subTitle={walletTranslation.enterRecipientAddress}
           rightComponent={
             currentRecipientIdx === 1 && (
               <TouchableOpacity
@@ -361,7 +361,7 @@ function SendScreen({ route }) {
             <Box style={styles.inputWrapper}>
               <KeeperTextInput
                 testID="input_receive_address"
-                placeholder="Enter Address"
+                placeholder={walletTranslation.enterAddress}
                 inpuBackgroundColor={`${colorMode}.textInputBackground`}
                 inpuBorderColor={`${colorMode}.dullGreyBorder`}
                 height={50}
@@ -379,8 +379,8 @@ function SendScreen({ route }) {
                           CommonActions.navigate({
                             name: 'ScanQR',
                             params: {
-                              title: 'Scan Address',
-                              subtitle: 'Scan the address of the recipient',
+                              title: walletTranslation.scanAddress,
+                              subtitle: walletTranslation.recipientAddress,
                               onQrScan,
                               importOptions: false,
                               isSingning: true,
@@ -399,7 +399,7 @@ function SendScreen({ route }) {
               {finalRecipients.length === 0 && (
                 <KeeperTextInput
                   testID="input_receive_address"
-                  placeholder="Add a note (Optional)"
+                  placeholder={`${common.addNote} (${common.optional})`}
                   inpuBackgroundColor={`${colorMode}.textInputBackground`}
                   inpuBorderColor={`${colorMode}.dullGreyBorder`}
                   height={50}
@@ -481,7 +481,7 @@ function SendScreen({ route }) {
 
       <KeeperModal
         visible={showAdvancedSettingsModal}
-        title="Advanced Options"
+        title={settings.SingerSettingsTitle}
         close={() => setShowAdvancedSettingsModal(false)}
         buttonText={common.done}
         buttonCallback={() => {
@@ -490,7 +490,7 @@ function SendScreen({ route }) {
         secondaryButtonText={common.cancel}
         Content={() => (
           <Box>
-            <Text>Number of recipients (for transaction batching):</Text>
+            <Text>{settings.numberOfRecipients}</Text>
             <NumberInput
               value={localTotalRecipients}
               onDecrease={() => {

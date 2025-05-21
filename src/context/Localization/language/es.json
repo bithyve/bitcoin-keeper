@@ -214,7 +214,13 @@
     "moreOptions": "More Options",
     "continueOnDesktopApp": "Please continue on the Keeper Desktop App",
     "confirmRegistration": "Confirm Registration",
-    "Finishlater": "Finish later"
+    "Finishlater": "Finish later",
+    "connectingTo": "Connecting to",
+    "verfyAddressbutton": "Verify Address",
+    "Available": "Available",
+    "sendMax": "Send Max",
+    "sendConfirmation": "Send Confirmation",
+    "discard": "Discard"
   },
   "noInternet": {
     "no": "No Internet",
@@ -421,7 +427,9 @@
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions",
     "advancedDetails": "Advanced Details",
     "transactionHistory": "Transactions History",
-    "viewAllRecords": "View all your records"
+    "viewAllRecords": "View all your records",
+    "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here:",
+    "transactionDetails": "Transaction Details"
   },
   "DiscountCodes": {
     "DiscountCodesTitle": "Buy new Hardware Signers",
@@ -782,7 +790,15 @@
     "OrganizationDesc": "Paths help your wallet keep track of different accounts, types of transactions (receiving vs change), and even different coins.",
     "derivationPath": "Choosing Derivation Path",
     "rescanQrDensity": "Please rescan if the QR density is changed",
-    "QrTips": "Make sure that the QR is well aligned, focused and visible as a whole"
+    "QrTips": "Make sure that the QR is well aligned, focused and visible as a whole",
+    "verifyAddress": "Verify Address on Device",
+    "enterAmonuntInSat": "Enter amount in sats/vbyte",
+    "enterRecipientAddress": "Enter the recipient address",
+    "enterAddress": "Enter Address",
+    "scanAddress": "Scan Address",
+    "recipientAddress": "Scan the address of the recipient",
+    "sentTo": "Sent to",
+    "sentFrom": "Sent from"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1018,7 +1034,12 @@
     "Holduntilscanningiscomplete": "Please hold until the scanning is complete...",
     "enterPdfPassword": "Enter PDF File Password",
     "pdfPasswordDesc": "Secure your BSMS PDF files by protecting them with a password of your choice.",
-    "registerVaultFromDesktop": "Please continue resigtering the vault from the Keeper Desktop App"
+    "registerVaultFromDesktop": "Please continue resigtering the vault from the Keeper Desktop App",
+    "registerVaultOnDevice": "Register vault on Device",
+    "addLabeltoAddress": " + Add labels to your address",
+    "registerVault": "Register vault",
+    "registerMultisig": "Register multisig",
+    "registerActiveVault": "Register your active vault"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -1054,14 +1075,21 @@
     "mobileKeySeedWordsTitle": "Mobile Key Seed Words",
     "mobileKeySeedNoteSubTitle": "The QR below comprises of your 12-word Mobile Key",
     "mobileKeySeedNote": "Losing your Mobile Key may compromise a hot wallet and potential vaults. Store securely and never share.",
-    "storeSecurely": "Write down these words and store them securely."
+    "storeSecurely": "Write down these words and store them securely.",
+    "enterAmountToSend": "Enter Amount to Send",
+    "feePriority": "Fee Priority"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signer",
     "HealthCheck": "Perform Health Check",
     "SkippingHealthCheck": "Skipping Health Check",
     "EnterCVV": "Enter the CVV",
-    "HealthCheckSuccessful": "Health Check Successful"
+    "HealthCheckSuccessful": "Health Check Successful",
+    "seedHealthCheck": "Seed key health check",
+    "enterSeedWord": "Enter Seed Words",
+    "enterSeedKey": "Enter the seed key",
+    "toimportEnterSeedKey": "To import enter the seed key",
+    "toSignTransaction": "To sign transaction"
   },
   "tapsigner": {
     "Setupandassociate": "Setup and associate",
@@ -1331,7 +1359,8 @@
     "networkModeModalTitle": "Change network type",
     "networkModeModalSubTitle": "Choose network type to change to, this will affect your wallets, keys, and nodes",
     "networkChangePrimaryCTA": "Confirm network change",
-    "torConnectionString": " is connected"
+    "torConnectionString": " is connected",
+    "numberOfRecipients": "Number of recipients (for transaction batching):"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -1786,7 +1815,9 @@
     "cloudBackupSubtitle": "Keeper's Cloud Backup feature allows you to securely store your multikey configuration files and metadata on your preferred cloud service. This ensures that even if your device is lost or damaged, your multikey setup and related data can be easily recovered. The file itself is protected by a password setup by you within the app. This enhances the security of your BSMS file folder on your cloud.",
     "cloudBackupModalTitle": "Backup vaults on your cloud",
     "cloudBackupModalSubitle": "Easily access your wallet configuration files from anywhere on any bitcoin wallet.",
-    "cloudBackupModalDesc": "Once initiated, the backups are updated automatically. Rest assured of having the latest wallet configurations."
+    "cloudBackupModalDesc": "Once initiated, the backups are updated automatically. Rest assured of having the latest wallet configurations.",
+    "identificanSuccessful": "Identification successful!",
+    "identificanFailed": "Identification failed!"
   },
   "notification": {
     "Balance": "Balance",
@@ -1920,6 +1951,24 @@
     "biometicAuthFailed": "Biometric authentication failed.\nPlease try again or use PIN.",
     "errorWithBiometrics": "An error occurred with biometrics.\nPlease use an alternative method.",
     "failedToGetAppImage": "Failed to get app image",
-    "validCoSignerFile": "Please pick a valid co-signer file"
+    "validCoSignerFile": "Please pick a valid co-signer file",
+    "selectEnoughUTXOstoSend": "Please select enough UTXOs to send",
+    "selectEnoughUTXOstoAccommodateFee": "Please select enough UTXOs to accommodate fee",
+    "amountEnteredMoreThanAvailable": "Amount entered is more than available to spend",
+    "enterValidAmount": "Please enter a valid amount",
+    "insufficientBalance": "Insufficient balance for the amount to be sent + fees",
+    "feeRateLessThanOne": "Fee rate cannot be less than 1 sat/vbyte",
+    "pendingTransactonSuccesful": "New pending transaction saved successfully",
+    "invalidPhase": "Invalid phase/path selection",
+    "failedToFetchCurrentBlock": "Failed to fetch current block height. Please check your internet connection and retry.",
+    "serverKeysigningReq": "Associated Server Key signing request has been cancelled",
+    "failedToCancelServerKeysigningReq": "Failed to cancel the associated Server Key signing request. Please try again!",
+    "failedToSendTransaction": "Failed to send transaction:",
+    "cannotSendViaWatchOnly": "Cannot send via Watch-only wallet",
+    "automaticallySelected": "Automatically selected the recipient wallet to complete the migration.",
+    "averageFeeError": "Average transaction fees couldn't be fetched!",
+    "cannotSelectSameAddress": "Cannot select the same recipient address more than once",
+    "invalidBitCoinAddress": "Invalid bitcoin address",
+    "selectWalletOrVault": "Please select a wallet or vault"
   }
 }
