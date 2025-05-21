@@ -1,4 +1,4 @@
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
 import InheritanceContactIcon from 'src/assets/images/inheritancecontacticon.svg';
@@ -29,6 +29,7 @@ import DiamondWhiteSub from 'src/assets/images/DiamondHands-white-sub-iocn.svg';
 import KeeperPrivateIcon from 'src/assets/images/KeeperPrivateIcon.svg';
 import KeeperPrivateIconWhite from 'src/assets/images/KeeperPrivateIconWhite.svg';
 import PrivateManageWallet from 'src/assets/privateImages/manage-wallet-icon.svg';
+import MultiUserIcon from 'src/assets/images/MultiUserIcon.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -349,6 +350,13 @@ export const useSettingKeeper = () => {
       description: settings.VersionHistorySubTitle,
       icon: <SettingHistoryIcon width={16.5} height={16} />,
       onPress: () => navigation.navigate('AppVersionHistory'),
+      isDiamond: false,
+    },
+    {
+      title: settings.multiUserTitle,
+      description: settings.multiUserSubTitle,
+      icon: <MultiUserIcon width={14} height={14} />,
+      onPress: () => navigation.dispatch(CommonActions.navigate('MultiUserScreen')),
       isDiamond: false,
     },
   ];

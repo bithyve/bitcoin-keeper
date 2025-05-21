@@ -68,7 +68,7 @@ const conciergeSlice = createSlice({
     loadConciergeTickets: (state, action: PayloadAction<any[]>) => {
       state.tickets = action.payload;
     },
-    loadConciergeUser: (state, action: PayloadAction<conciergeUser>) => {
+    loadConciergeUser: (state, action: PayloadAction<conciergeUser | null>) => {
       state.conciergeUser = action.payload;
     },
     setConciergeLoading: (state, action: PayloadAction<boolean>) => {

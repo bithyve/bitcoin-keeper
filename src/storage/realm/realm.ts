@@ -3,11 +3,12 @@ import { captureError } from 'src/services/sentry';
 import { RealmSchema } from './enum';
 import schema from './schema';
 import { runRealmMigrations } from './migrations';
+export const REALM_FILE = 'keeper.realm';
 
 export class RealmDatabase {
   private realm: Realm;
 
-  public static file = 'keeper.realm';
+  public static file = REALM_FILE;
 
   public static schemaVersion = 99;
 
@@ -17,7 +18,8 @@ export class RealmDatabase {
    * @returns Promise
    */
   public initializeDatabase = async (
-    key: ArrayBuffer | ArrayBufferView | Int8Array
+    key: ArrayBuffer | ArrayBufferView | Int8Array,
+    path: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       // if the realm instance is already initialized, close it to prevent
@@ -26,7 +28,7 @@ export class RealmDatabase {
       if (this.realm) {
         this.realm.close();
       }
-
+      if (path) RealmDatabase.file = path;
       const realmConfig: Realm.Configuration = {
         path: RealmDatabase.file,
         schema,

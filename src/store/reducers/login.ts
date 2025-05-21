@@ -152,6 +152,9 @@ const loginSlice = createSlice({
     setHasDeepLink: (state, action: PayloadAction<string>) => {
       state.hasDeepLink = action.payload;
     },
+    clearHasCreds: (state) => {
+      state.hasCreds = false;
+    },
   },
 });
 
@@ -174,5 +177,6 @@ export const {
   resetElectrumNotConnectedErr,
   setIsInitialLogin,
   setHasDeepLink,
+  clearHasCreds,
 } = loginSlice.actions;
 export default loginSlice.reducer;

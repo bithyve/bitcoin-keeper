@@ -40,6 +40,7 @@ const initialState: {
     [NetworkType.MAINNET]: boolean;
     [NetworkType.TESTNET]: boolean;
   }; // map for creation of default wallet for network types
+  appCreated: boolean;
 } = {
   appId: '',
   failedAttempts: 0,
@@ -76,6 +77,7 @@ const initialState: {
     [NetworkType.MAINNET]: false,
     [NetworkType.TESTNET]: false,
   },
+  appCreated: false,
 };
 
 const storageSlice = createSlice({
@@ -149,6 +151,9 @@ const storageSlice = createSlice({
       }
       state.defaultWalletCreated[action.payload.networkType] = action.payload.created;
     },
+    setAppCreated: (state, action: PayloadAction<boolean>) => {
+      state.appCreated = action.payload;
+    },
   },
 });
 
@@ -166,6 +171,7 @@ export const {
   setPlebDueToOffline,
   setAutoUpdateEnabledBeforeDowngrade,
   setDefaultWalletCreated,
+  setAppCreated,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

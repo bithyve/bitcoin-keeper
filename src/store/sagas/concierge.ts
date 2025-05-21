@@ -24,6 +24,7 @@ import ZendeskClass from 'src/services/backend/Zendesk';
 import Relay from 'src/services/backend/Relay';
 import { addToUaiStack } from '../sagaActions/uai';
 import { uaiType } from 'src/models/interfaces/Uai';
+import { addConciergeUserToAccount } from '../reducers/account';
 
 function* loadConciergeUserWorker() {
   try {
@@ -58,6 +59,7 @@ function* loadConciergeUserWorker() {
       yield call(Relay.updateZendeskExternalId, relayData);
       yield put(setConciergeLoading(false));
       yield put(setConciergeUserSuccess(true));
+      yield put(addConciergeUserToAccount({ appId: id, conciergeUser: JSON.stringify(data) }));
     } else {
       // failure
       yield put(setConciergeLoading(false));
