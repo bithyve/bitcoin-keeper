@@ -7,8 +7,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-
-import Close from 'src/assets/images/keeperModalCrossIcon.svg';
 import CloseGreen from 'src/assets/images/dark-close-icon.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useContext } from 'react';
@@ -17,13 +15,11 @@ import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
 import { useKeyboard } from 'src/hooks/useKeyboard';
 import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from './Buttons';
 import Fonts from 'src/constants/Fonts';
-import PrivateCrossIcon from 'src/assets/privateImages/white-cross-circle-icon.svg';
-import { useSelector } from 'react-redux';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 type ModalProps = {
   visible: boolean;
@@ -96,26 +92,14 @@ function KeeperModal(props: ModalProps) {
   const { height: screenHeight } = useWindowDimensions();
   const availableHeight = screenHeight - bottom - (isKeyboardOpen ? hp(200) : hp(100));
   const maxModalHeight = Math.min(availableHeight, screenHeight * 0.85);
-  const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
   const { colorMode } = useColorMode();
   const isDarKMode = colorMode === 'dark';
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
 
   if (!visible) {
     return null;
   }
-  const getCloseIcon = () =>
-    privateTheme ? (
-      <PrivateCrossIcon />
-    ) : DarkCloseIcon ? (
-      <CloseGreen />
-    ) : isDarKMode ? (
-      <CloseGreen />
-    ) : (
-      <Close />
-    );
+  const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <ThemedSvg name={'close_icon'} />);
+
   const styles = getStyles(subTitleWidth);
   return (
     <Modal

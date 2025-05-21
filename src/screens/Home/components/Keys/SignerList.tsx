@@ -12,7 +12,6 @@ import { SignerType } from 'src/services/wallets/enums';
 import { getKeyUID } from 'src/utils/utilities';
 import { windowWidth, wp } from 'src/constants/responsive';
 import DashedCta from 'src/components/DashedCta';
-import Colors from 'src/theme/Colors';
 import Plus from 'src/assets/images/add-plus-white.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HardwareModalMap, { InteracationMode } from 'src/screens/Vault/HardwareModalMap';
@@ -20,7 +19,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useSelector } from 'react-redux';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 const SignerList = ({ navigation, handleModalOpen }) => {
   const { signers } = useSigners('', false);
@@ -33,9 +32,8 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
+  const dashed_CTA_background = ThemedColor({ name: 'dashed_CTA_background' });
 
   const handleCardSelect = (signer) => {
     navigation.dispatch(
@@ -97,10 +95,8 @@ const SignerList = ({ navigation, handleModalOpen }) => {
             );
           })}
           <DashedCta
-            backgroundColor={PrivateThemeLight ? `transparent` : `${colorMode}.dullGreen`}
-            hexagonBackgroundColor={
-              privateTheme || PrivateThemeLight ? Colors.goldenGradient : Colors.primaryGreen
-            }
+            backgroundColor={dashed_CTA_background}
+            hexagonBackgroundColor={HexagonIcon}
             textColor={`${colorMode}.greenWhiteText`}
             name={signer.addKey}
             callback={handleModalOpen}

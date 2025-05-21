@@ -29,7 +29,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
-import { useSelector } from 'react-redux';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { updateOneTimeBackupStatus } from 'src/store/reducers/account';
@@ -78,8 +78,7 @@ function ExportSeedScreen({ route, navigation }) {
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const isChangePassword = parentScreen === PRIVACYANDDISPLAY;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const seedTextColor = ThemedColor({ name: 'seedTextColor' });
   const { id: appId } = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   useEffect(() => {
     if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
@@ -116,10 +115,7 @@ function ExportSeedScreen({ route, navigation }) {
           opacity={showWordIndex === index ? 1 : 0.5}
           style={styles.seedCardWrapper}
         >
-          <Text
-            style={styles.seedTextStyle}
-            color={privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.greenText2`}
-          >
+          <Text style={styles.seedTextStyle} color={seedTextColor}>
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
