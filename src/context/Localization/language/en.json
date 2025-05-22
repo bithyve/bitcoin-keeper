@@ -841,7 +841,9 @@
     "your": "Your",
     "canaryWallet": "Canary Wallet",
     "deviceDoesntRequireVaultRegistration": "This device doesn't require vault registration",
-    "warningContentData": "If the signer is identified incorrectly there may be repercussions with general signer interactions like signing etc."
+    "warningContentData": "If the signer is identified incorrectly there may be repercussions with general signer interactions like signing etc.",
+    "setDeviceType": "Set Device Type",
+    "scanAndVerifyTransaction": "Scan and verify transaction details"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1162,7 +1164,12 @@
     "enterSeedWord": "Enter Seed Words",
     "enterSeedKey": "Enter the seed key",
     "toimportEnterSeedKey": "To import enter the seed key",
-    "toSignTransaction": "To sign transaction"
+    "toSignTransaction": "To sign transaction",
+    "keepYourSignersSecure": "It is very important that you keep your signers secure and fairly accessible at all times",
+    "confirmAccess": "Confirm Access",
+    "confirmLater": "Confirm Later",
+    "deviceVerifiedManually": "Device verified manually!",
+    "deviceHealthCheckSkipped": "Device health check skipped!"
   },
   "tapsigner": {
     "Setupandassociate": "Setup and associate",
@@ -1958,7 +1965,12 @@
     "jadeInfo": "Jade is an easy-to-use, purely open-source hardware wallet that offers advanced security for your Bitcoin.",
     "jadeDesc": "\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions",
     "specterInfo": "An open-source hardware wallet for users to take full control over their Bitcoin security.",
-    "specterDesc": "\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions."
+    "specterDesc": "\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions.",
+    "noActivityDetected": "No activity detected!",
+    "signerNotLinked": "This Signer isn't linked to a wallet yet. Ready to unlock its power?",
+    "manualHealthCheck": "You can choose to manually confirm the health of the signer if you are sure that they are secure and accessible. Or you can choose to do the Health Check when you can",
+    "howToShare": "Choose how you would like to share your key",
+    "scanAndVerifyTransaction": "Scan and verify transaction details"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -2323,6 +2335,7 @@
     "updatedWalletReady": "Your updated wallet has been successfully created and is ready to receive funds from the previous wallet.",
     "verifyNewAddress": "We recommend verifying the new wallet address on your hardware device before transferring funds.",
     "transferFunds": "You can transfer the funds now or later. Your old wallet will remain visible in the Wallets tab until the transfer is complete.",
-    "oneTimeBackupNotSupported": "This signer does not support one-time backup"
+    "oneTimeBackupNotSupported": "This signer does not support one-time backup",
+    "signerNotValid": "Current signer is not available in the PSBT"
   }
 }
