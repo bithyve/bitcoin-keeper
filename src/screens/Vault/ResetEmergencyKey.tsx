@@ -28,6 +28,7 @@ import {
   getVaultEnhancedSigners,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
+import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/VaultFactory';
 
 function ResetEmergencyKey({ route }) {
   const {
@@ -101,7 +102,7 @@ function ResetEmergencyKey({ route }) {
 
   useEffect(() => {
     try {
-      if (!currentBlockHeight) {
+      if (isVaultUsingBlockHeightTimelock(vault) && !currentBlockHeight) {
         setActivationTimes((prev) => {
           const newTimes = {};
           signers.forEach((signer) => {
@@ -113,22 +114,40 @@ function ResetEmergencyKey({ route }) {
       }
 
       signers.forEach((signer) => {
-        const blocksUntilActivation =
-          getKeyTimelock(
-            Object.entries(vault.scheme.miniscriptScheme.keyInfoMap)
-              .find(
-                ([identifier, descriptor]) =>
-                  identifier.startsWith(EMERGENCY_KEY_IDENTIFIER) &&
-                  descriptor.substring(1, 9) === signer.masterFingerprint
-              )[0]
-              .split('<')[0],
-            vault.scheme.miniscriptScheme.miniscriptElements
-          ) - currentBlockHeight;
+        let secondsUntilActivation = 0;
+
+        if (isVaultUsingBlockHeightTimelock(vault)) {
+          const blocksUntilActivation =
+            getKeyTimelock(
+              Object.entries(vault.scheme.miniscriptScheme.keyInfoMap)
+                .find(
+                  ([identifier, descriptor]) =>
+                    identifier.startsWith(EMERGENCY_KEY_IDENTIFIER) &&
+                    descriptor.substring(1, 9) === signer.masterFingerprint
+                )[0]
+                .split('<')[0],
+              vault.scheme.miniscriptScheme.miniscriptElements
+            ) - currentBlockHeight;
+
+          secondsUntilActivation = blocksUntilActivation * 10 * 60;
+        } else {
+          secondsUntilActivation =
+            getKeyTimelock(
+              Object.entries(vault.scheme.miniscriptScheme.keyInfoMap)
+                .find(
+                  ([identifier, descriptor]) =>
+                    identifier.startsWith(EMERGENCY_KEY_IDENTIFIER) &&
+                    descriptor.substring(1, 9) === signer.masterFingerprint
+                )[0]
+                .split('<')[0],
+              vault.scheme.miniscriptScheme.miniscriptElements
+            ) - Math.floor(Date.now() / 1000);
+        }
+
         let timeString = '';
 
-        if (blocksUntilActivation > 0) {
-          const seconds = blocksUntilActivation * 10 * 60;
-          const days = Math.floor(seconds / (24 * 60 * 60));
+        if (secondsUntilActivation > 0) {
+          const days = Math.floor(secondsUntilActivation / (24 * 60 * 60));
           const months = Math.floor(days / 30);
 
           if (months > 0) {
@@ -136,8 +155,8 @@ function ResetEmergencyKey({ route }) {
           } else if (days > 0) {
             timeString = `${days} day${days > 1 ? 's' : ''}`;
           } else {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
+            const hours = Math.floor(secondsUntilActivation / 3600);
+            const minutes = Math.floor((secondsUntilActivation % 3600) / 60);
             timeString = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${
               minutes > 1 ? 's' : ''
             }`;

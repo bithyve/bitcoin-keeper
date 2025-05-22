@@ -75,18 +75,13 @@ function AddEmergencyKey({ route }) {
   const { common, vault: vaultTranslations } = translations;
   const [selectedOption, setSelectedOption] = useState(DEFAULT_EMERGENCY_KEY_TIMELOCK);
   const [selectedSigner, setSelectedSigner] = useState(null);
-  const { activeVault, allVaults } = useVault({ vaultId });
+  const { activeVault } = useVault({ vaultId });
   const vaultKeys = vaultKeysParam || activeVault?.signers || [];
   const [vaultCreating, setCreating] = useState(false);
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const [generatedVaultId, setGeneratedVaultId] = useState('');
-  const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
-  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage, relayVaultUpdateLoading } =
-    useAppSelector((state) => state.bhr);
-  const { showToast } = useToastMessage();
+  const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(currentBlockHeightParam);
-
-  const dispatch = useDispatch();
 
   // TODO: Allow multiple inheritance keys
   const emergencyKey = useMemo(() => {

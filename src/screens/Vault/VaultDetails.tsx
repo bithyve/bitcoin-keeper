@@ -57,6 +57,7 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import Buttons from 'src/components/Buttons';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/VaultFactory';
 
 function Footer({
   vault,
@@ -304,27 +305,35 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [timeUntilTimelockExpires, setTimeUntilTimelockExpires] = useState<string | null>(null);
 
   useEffect(() => {
-    WalletUtilities.fetchCurrentBlockHeight()
-      .then(({ currentBlockHeight }) => {
-        setCurrentBlockHeight(currentBlockHeight);
-      })
-      .catch((err) => showToast(err));
+    if (isVaultUsingBlockHeightTimelock(vault)) {
+      WalletUtilities.fetchCurrentBlockHeight()
+        .then(({ currentBlockHeight }) => {
+          setCurrentBlockHeight(currentBlockHeight);
+        })
+        .catch((err) => showToast(err));
+    }
   }, [setCurrentBlockHeight, showToast]);
 
   useEffect(() => {
     if (
       !vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(MiniscriptTypes.TIMELOCKED) ||
-      currentBlockHeight === null
+      (isVaultUsingBlockHeightTimelock(vault) && currentBlockHeight === null)
     )
       return;
 
     try {
-      const blocksUntilActivation =
-        vault.scheme?.miniscriptScheme?.miniscriptElements.timelocks[0] - currentBlockHeight;
+      let secondsUntilActivation = 0;
+      if (isVaultUsingBlockHeightTimelock(vault)) {
+        const blocksUntilActivation =
+          vault.scheme?.miniscriptScheme?.miniscriptElements.timelocks[0] - currentBlockHeight;
+        secondsUntilActivation = blocksUntilActivation * 10 * 60;
+      } else {
+        secondsUntilActivation =
+          vault.scheme?.miniscriptScheme?.miniscriptElements.timelocks[0] - currentBlockHeight;
+      }
 
-      if (blocksUntilActivation > 0) {
-        const seconds = blocksUntilActivation * 10 * 60;
-        const days = Math.floor(seconds / (24 * 60 * 60));
+      if (secondsUntilActivation > 0) {
+        const days = Math.floor(secondsUntilActivation / (24 * 60 * 60));
         const months = Math.floor(days / 30);
 
         let timeString = '';
@@ -333,8 +342,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         } else if (days > 0) {
           timeString = `${days} day${days > 1 ? 's' : ''}`;
         } else {
-          const hours = Math.floor(seconds / 3600);
-          const minutes = Math.floor((seconds % 3600) / 60);
+          const hours = Math.floor(secondsUntilActivation / 3600);
+          const minutes = Math.floor((secondsUntilActivation % 3600) / 60);
           timeString = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${
             minutes > 1 ? 's' : ''
           }`;

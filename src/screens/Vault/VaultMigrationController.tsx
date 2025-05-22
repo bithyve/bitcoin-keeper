@@ -51,8 +51,10 @@ import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
 import {
-  ENHANCED_VAULT_TIMELOCKS_MAINNET,
-  ENHANCED_VAULT_TIMELOCKS_TESTNET,
+  ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_MAINNET,
+  ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET,
+  ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET,
+  ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_TESTNET,
   generateEnhancedVaultElements,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import { getKeyUID } from 'src/utils/utilities';
@@ -295,6 +297,14 @@ function VaultMigrationController({
     ])
   );
 
+  // The getCurrentTimeForLock and getTimelockDuration control whether
+  // a vault created will use UNIX timestamp or block height based timelocks.
+
+  const getCurrentTimeForLock = () => {
+    // return currentBlockHeight;
+    return Math.floor(Date.now() / 1000);
+  };
+
   const getTimelockDuration = (selectedDuration, networkType) => {
     const durationIdentifier =
       selectedDuration === MONTHS_3
@@ -328,9 +338,13 @@ function VaultMigrationController({
       return;
     }
 
+    // return networkType === NetworkType.MAINNET
+    //   ? ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_MAINNET[durationIdentifier]
+    //   : ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET[durationIdentifier];
+
     return networkType === NetworkType.MAINNET
-      ? ENHANCED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
-      : ENHANCED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
+      ? ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET[durationIdentifier]
+      : ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_TESTNET[durationIdentifier];
   };
 
   const prepareMiniscriptScheme = async (
@@ -359,23 +373,23 @@ function VaultMigrationController({
     let initialTimelock = 0;
 
     const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
-    let currentSyncedBlockHeight = currentBlockHeight;
-    if (!currentSyncedBlockHeight) {
-      try {
-        currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
-          .currentBlockHeight;
-      } catch (err) {
-        console.log('Failed to re-fetch current block height: ' + err);
-      }
-      if (!currentSyncedBlockHeight) {
-        showToast(
-          'Failed to fetch current chain data, please check your connection and try again',
-          <ToastErrorIcon />
-        );
-        setCreating(false);
-        return;
-      }
-    }
+    // let currentSyncedBlockHeight = currentBlockHeight;
+    // if (!currentSyncedBlockHeight) {
+    //   try {
+    //     currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+    //       .currentBlockHeight;
+    //   } catch (err) {
+    //     console.log('Failed to re-fetch current block height: ' + err);
+    //   }
+    //   if (!currentSyncedBlockHeight) {
+    //     showToast(
+    //       'Failed to fetch current chain data, please check your connection and try again',
+    //       <ToastErrorIcon />
+    //     );
+    //     setCreating(false);
+    //     return;
+    //   }
+    // }
 
     if (initialTimelockDuration) {
       initialTimelock = getTimelockDuration(initialTimelockDuration, bitcoinNetworkType);
@@ -397,7 +411,7 @@ function VaultMigrationController({
         }
         inheritanceSignerWithTimelocks.push({
           signer: key,
-          timelock: currentBlockHeight + initialTimelock + timelock,
+          timelock: getCurrentTimeForLock() + initialTimelock + timelock,
         });
       }
     }
@@ -411,7 +425,7 @@ function VaultMigrationController({
         }
         emergencySignerWithTimelocks.push({
           signer: key,
-          timelock: currentBlockHeight + initialTimelock + timelock,
+          timelock: getCurrentTimeForLock() + initialTimelock + timelock,
         });
       }
     }
@@ -421,7 +435,7 @@ function VaultMigrationController({
       inheritanceSignerWithTimelocks,
       emergencySignerWithTimelocks,
       vaultInfo.vaultScheme,
-      initialTimelock ? currentBlockHeight + initialTimelock : 0
+      initialTimelock ? getCurrentTimeForLock() + initialTimelock : 0
     );
 
     if (!miniscriptElements) {

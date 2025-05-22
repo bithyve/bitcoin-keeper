@@ -16,6 +16,7 @@ import {
   getKeyTimelock,
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/VaultFactory';
 
 function EnhancedKeysSection({
   vault,
@@ -42,24 +43,36 @@ function EnhancedKeysSection({
   const [currentTimeUntilActivation, setCurrentTimeUntilActivation] = useState('');
 
   useEffect(() => {
-    WalletUtilities.fetchCurrentBlockHeight()
-      .then(({ currentBlockHeight }) => {
-        setCurrentBlockHeight(currentBlockHeight);
-      })
-      .catch((err) => showToast(err));
-  }, [setCurrentBlockHeight, showToast]);
+    if (isVaultUsingBlockHeightTimelock(vault)) {
+      WalletUtilities.fetchCurrentBlockHeight()
+        .then(({ currentBlockHeight }) => {
+          setCurrentBlockHeight(currentBlockHeight);
+        })
+        .catch((err) => showToast(err));
+    }
+  }, [setCurrentBlockHeight, showToast, vault]);
 
   useEffect(() => {
-    if (!keys.length || currentBlockHeight === null) return;
+    if (!keys.length || (isVaultUsingBlockHeightTimelock(vault) && currentBlockHeight === null))
+      return;
 
     try {
-      const blocksUntilActivation =
-        getKeyTimelock(keys[0].identifier, vault.scheme.miniscriptScheme.miniscriptElements) -
-        currentBlockHeight;
+      let secondsUntilActivation = 0;
 
-      if (blocksUntilActivation > 0) {
-        const seconds = blocksUntilActivation * 10 * 60;
-        const days = Math.floor(seconds / (24 * 60 * 60));
+      if (isVaultUsingBlockHeightTimelock(vault)) {
+        const blocksUntilActivation =
+          getKeyTimelock(keys[0].identifier, vault.scheme.miniscriptScheme.miniscriptElements) -
+          currentBlockHeight;
+
+        secondsUntilActivation = blocksUntilActivation * 10 * 60;
+      } else {
+        secondsUntilActivation =
+          getKeyTimelock(keys[0].identifier, vault.scheme.miniscriptScheme.miniscriptElements) -
+          Math.floor(Date.now() / 1000);
+      }
+
+      if (secondsUntilActivation > 0) {
+        const days = Math.floor(secondsUntilActivation / (24 * 60 * 60));
         const months = Math.floor(days / 30);
 
         let timeString = '';
@@ -68,8 +81,8 @@ function EnhancedKeysSection({
         } else if (days > 0) {
           timeString = `${days} day${days > 1 ? 's' : ''}`;
         } else {
-          const hours = Math.floor(seconds / 3600);
-          const minutes = Math.floor((seconds % 3600) / 60);
+          const hours = Math.floor(secondsUntilActivation / 3600);
+          const minutes = Math.floor((secondsUntilActivation % 3600) / 60);
           timeString = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${
             minutes > 1 ? 's' : ''
           }`;

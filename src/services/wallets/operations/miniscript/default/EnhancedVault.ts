@@ -3,7 +3,7 @@ import { MiniscriptElements, Vault, VaultScheme, VaultSigner } from '../../../in
 import { KeyInfo, Phase } from '../policy-generator';
 import { getKeyUID } from 'src/utils/utilities';
 
-export const ENHANCED_VAULT_TIMELOCKS_TESTNET = {
+export const ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET = {
   MONTHS_3: 3,
   MONTHS_6: 6,
   MONTHS_9: 9,
@@ -18,7 +18,7 @@ export const ENHANCED_VAULT_TIMELOCKS_TESTNET = {
   MONTHS_60: 60,
 };
 
-export const ENHANCED_VAULT_TIMELOCKS_MAINNET = {
+export const ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_MAINNET = {
   MONTHS_3: 13140,
   MONTHS_6: 26280,
   MONTHS_9: 39420,
@@ -31,6 +31,36 @@ export const ENHANCED_VAULT_TIMELOCKS_MAINNET = {
   MONTHS_48: 210240,
   MONTHS_54: 236520,
   MONTHS_60: 262800,
+};
+
+export const ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_TESTNET = {
+  MONTHS_3: 3 * 10 * 60,
+  MONTHS_6: 6 * 10 * 60,
+  MONTHS_9: 9 * 10 * 60,
+  MONTHS_12: 12 * 10 * 60,
+  MONTHS_18: 18 * 10 * 60,
+  MONTHS_24: 24 * 10 * 60,
+  MONTHS_30: 30 * 10 * 60,
+  MONTHS_36: 36 * 10 * 60,
+  MONTHS_42: 42 * 10 * 60,
+  MONTHS_48: 48 * 10 * 60,
+  MONTHS_54: 54 * 10 * 60,
+  MONTHS_60: 60 * 10 * 60,
+};
+
+export const ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET = {
+  MONTHS_3: 3 * 30 * 24 * 60 * 60,
+  MONTHS_6: 6 * 30 * 24 * 60 * 60,
+  MONTHS_9: 9 * 30 * 24 * 60 * 60,
+  MONTHS_12: 12 * 30 * 24 * 60 * 60,
+  MONTHS_18: 18 * 30 * 24 * 60 * 60,
+  MONTHS_24: 24 * 30 * 24 * 60 * 60,
+  MONTHS_30: 30 * 30 * 24 * 60 * 60,
+  MONTHS_36: 36 * 30 * 24 * 60 * 60,
+  MONTHS_42: 42 * 30 * 24 * 60 * 60,
+  MONTHS_48: 48 * 30 * 24 * 60 * 60,
+  MONTHS_54: 54 * 30 * 24 * 60 * 60,
+  MONTHS_60: 60 * 30 * 24 * 60 * 60,
 };
 
 export const INHERITANCE_KEY_IDENTIFIER = 'IK';
