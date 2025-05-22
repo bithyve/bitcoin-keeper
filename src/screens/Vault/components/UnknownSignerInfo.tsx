@@ -1,11 +1,12 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import { getSignerDescription } from 'src/hardware';
 import { Signer } from 'src/services/wallets/interfaces/vault';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Props = {
   signer: Signer;
@@ -13,6 +14,8 @@ type Props = {
 
 function UnknownSignerInfo({ signer }: Props) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerText } = translations;
 
   return (
     <Box
@@ -29,13 +32,13 @@ function UnknownSignerInfo({ signer }: Props) {
           />
           <Box>
             <Text fontSize={12} medium>
-              Unknown Signer
+              {signerText.unknownSigner}
             </Text>
             <Text fontSize={11}>{getSignerDescription(signer)}</Text>
           </Box>
         </Box>
         <Box style={[styles.marginRight40, styles.flexEnd]}>
-          <Text fontSize={11}>Master Fingerprint</Text>
+          <Text fontSize={11}>{signerText.masterFingerprint}</Text>
           <Text fontSize={11} medium>
             {signer.masterFingerprint}
           </Text>

@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from 'src/components/KeeperText';
 import KeeperTextInput from 'src/components/KeeperTextInput';
@@ -7,6 +7,7 @@ import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import debounce from 'lodash.debounce';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Props = {
   setPermittedActions: (value: boolean) => void;
@@ -19,6 +20,8 @@ type Props = {
 const NewUserContent = (props: Props) => {
   const { colorMode } = useColorMode();
   const [username, setUserName] = useState('');
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   useEffect(() => {
     if (props.newUserName) {
@@ -40,7 +43,7 @@ const NewUserContent = (props: Props) => {
   return (
     <Box style={styles.cardWrapper}>
       <KeeperTextInput
-        placeholder="Enter Your Name/label"
+        placeholder={common.enterYourName}
         placeholderTextColor={`${colorMode}.placeHolderTextColor`}
         inpuBorderColor={
           props.privateTheme ? `${colorMode}.dullGreyBorder` : `${colorMode}.textInputBackground`
@@ -60,7 +63,7 @@ const NewUserContent = (props: Props) => {
           borderWidth={1}
           style={styles.cardContainer}
         >
-          <Text>Select Permitted Actions</Text>
+          <Text>{common.seletPermitedAction}</Text>
           <RightArrowIcon />
         </Box>
       </TouchableOpacity>

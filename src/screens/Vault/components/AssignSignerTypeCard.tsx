@@ -49,7 +49,7 @@ function AssignSignerTypeCard({
   const isDarkMode = colorMode === 'dark';
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { common } = translations;
+  const { common, vault: vaultText, error: errorText } = translations;
   const navigation = useNavigation();
 
   const changeSignerType = () => {
@@ -75,7 +75,7 @@ function AssignSignerTypeCard({
     }
 
     if (!signerId) {
-      showToast('Unable to find server key instance id');
+      showToast(vaultText.unableToFindServerKeyId);
       return;
     }
 
@@ -94,14 +94,14 @@ function AssignSignerTypeCard({
               isExternal: true,
               linkedViaSecondary,
               signerPolicy: policy,
-              signerName: 'External Server Key',
+              signerName: vaultText.externalServerKey,
             }
           );
           navigation.goBack();
         } else throw new Error('Server Key mismatch');
       } else throw new Error('Server Key validation failed');
     } catch (err) {
-      showToast(err?.message || 'Server Key validation failed');
+      showToast(err?.message || vaultText.serverKayValidationFailed);
     }
 
     setOtp('');
@@ -135,7 +135,7 @@ function AssignSignerTypeCard({
               if (clipBoardData.match(/^\d{6}$/)) {
                 setOtp(clipBoardData);
               } else {
-                showToast('Invalid OTP');
+                showToast(errorText.invalidOtpshort);
                 setOtp('');
               }
             }}
@@ -165,7 +165,7 @@ function AssignSignerTypeCard({
             <Buttons
               primaryCallback={validateServerKey}
               fullWidth
-              primaryText="Confirm"
+              primaryText={common.confirm}
               primaryDisable={otp.length !== 6}
             />
           </Box>
@@ -215,15 +215,13 @@ function AssignSignerTypeCard({
       <KeeperModal
         visible={showConfirm}
         close={() => setShowConfirm(false)}
-        title="Changing Device Type"
-        subTitle={`Are you sure you want to change the device type to ${getSignerNameFromType(
-          type
-        )}?`}
+        title={vaultText.changeDeviceType}
+        subTitle={`${vaultText.sureWantTOChangeDeviceType} ${getSignerNameFromType(type)}?`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText="Continue"
-        secondaryButtonText="Cancel"
+        buttonText={common.continue}
+        secondaryButtonText={common.cancel}
         secondaryCallback={() => setShowConfirm(false)}
         buttonCallback={changeSignerType}
         Content={() => (

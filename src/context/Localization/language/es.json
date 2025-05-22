@@ -230,7 +230,11 @@
     "unlock": "Unlock",
     "saveLabels": "Save Labels",
     "manageCoins": "Manage Coins",
-    "broadCast": "Broadcast"
+    "broadCast": "Broadcast",
+    "identify": "Identify",
+    "enterYourName": "Enter Your Name/label",
+    "seletPermitedAction": "Select Permitted Actions",
+    "remians": "Remains"
   },
   "noInternet": {
     "no": "No Internet",
@@ -411,7 +415,12 @@
     "BTCTransactionFeeInsights": "BTC Transaction Fee Insights",
     "settingUpYourApp": "Setting up your app",
     "createSingleAndMultisig": "Keeper lets you create single-key (singlesig) wallets and multi-key (multisig) wallets.",
-    "stackSats": "Stack sats, hodl long term, and plan your inheritance with Keeper."
+    "stackSats": "Stack sats, hodl long term, and plan your inheritance with Keeper.",
+    "vaultTransactions": "Vault Transactions",
+    "incommingAndOutgoing": "All incoming and outgoing transactions",
+    "viewAll": " View All",
+    "securityTip": "Security Tip",
+    "securityTipDesc": "Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
@@ -1070,7 +1079,15 @@
     "registerActiveVault": "Register your active vault",
     "addNewKey": "Add a new key",
     "shareContactNote": "After sharing your details, do not close the app. You can go back and add another contact or wait for your wallet to be created automatically once the other participant joins.",
-    "vaultRegisteredSuccessfully": "Vault Registered Successfully"
+    "vaultRegisteredSuccessfully": "Vault Registered Successfully",
+    "additionalDetailsDesc": "Optionally you can add description and associate a contact to key",
+    "addDEscription": "Add a Description (Optional)",
+    "descriptionUpdated": "Description updated successfully",
+    "unableToFindServerKeyId": "Unable to find server key instance id",
+    "externalServerKey": "External Server Key",
+    "serverKayValidationFailed": "Server Key validation failed",
+    "changeDeviceType": "Changing Device Type",
+    "sureWantTOChangeDeviceType": "Are you sure you want to change the device type to"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -1166,7 +1183,15 @@
     "exportColdCardData": "\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose the account number (default 0) and transfer over NFC.",
     "exportColdCardData1": "\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose 0 for the account number and transfer over NFC.",
     "rememberAccount": "Make sure you remember the account you had chosen (This is important for recovering your wallet).",
-    "startNFC": "Start NFC"
+    "startNFC": "Start NFC",
+    "downloadKeepr": "Download the Bitcoin Keeper",
+    "desktopApp": "desktop app",
+    "scanQRonDesktop": "Scan the QR shown on the desktop app",
+    "followInstructions": "Follow the instructions on the desktop app",
+    "followThisStep": "Follow this step:",
+    "smoothSignoingProcess": "The signing process will be smoother if you identify your signer type correctly.\n\nYou can always chang it from the device settings > advance options > assign signer type.",
+    "assignDeviceType": "Assign device type",
+    "assignDeviceTypeSubTitle": "Identify your device type for enhanced connectivity and communication"
   },
   "ledger": {
     "Setupandassociate": "Setup and associate",
@@ -1201,7 +1226,6 @@
     "attentionSubTitle": "If you choose to save it, make sure to store it safely, as this is the private key of the Server Key, and can be used to sign any transaction on behalf of it.",
     "BackUpModalTitle": "Back up Server Key",
     "timeUntilSigning": "Time until signing",
-
     "BackUpModalSubTitle": "For independent recovery, you can download a one-time backup of your Server Key’s private key. For security reasons, this backup can only be saved once and cannot be downloaded again. You can choose to back it up now, save it later, or disable it entirely.",
     "successTitle": "Server Key Setup is Successful",
     "successSubTitle": "The server key setup was successful, ensuring secure and reliable operations. Your system is now ready to handle signing requests with confidence.",
@@ -1212,7 +1236,8 @@
     "setupServer2FASubTitle": "Share this code securely with the intended user to set up in their authenticator app. The server will require these 2FA codes for authorized actions.",
     "noteDesc": "Important: Anyone with access to this code can perform permitted actions on the Server Key.",
     "setupServer2FATitle": "Set up 2FA for Server Key",
-    "noteDesC2": "It is a good idea to have the authenticator app on another device"
+    "noteDesC2": "It is a good idea to have the authenticator app on another device",
+    "delayCompleted": "Delay completed"
   },
   "externalKey": {
     "modalInstruction1": "Choose a Key from another Keeper app",
@@ -1841,7 +1866,10 @@
     "seedSignerInstruction2": "\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned.",
     "pasportInstruction1": "Make sure the multisig wallet is registered with the Passport before signing the transaction.",
     "passportInstruction2": "For QR signing, on the Passport main menu, choose the 'Sign with QR Code' option.",
-    "coldCardMultisigMsg": "Make sure the multisig wallet is registered with the Coldcard before signing the transaction"
+    "coldCardMultisigMsg": "Make sure the multisig wallet is registered with the Coldcard before signing the transaction",
+    "unknownSigner": "Unknown Signer",
+    "sendingOutOfVault": "For sending out of the vault you will need the signers. This means no one can steal your bitcoin in the vault unless they also have the signers",
+    "vaultCreated": "New vault Created"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -2182,6 +2210,7 @@
     "transactionBeingProcessed": "Your transaction is being processed. You will receive a notification when it is signed",
     "enoughtSignature": "We already have enough signatures, you can now broadcast.",
     "transactionAlreadySubmitted": "Transaction already submitted for signing",
-    "notEnoughtSignature": "Sorry there aren't enough signatures!"
+    "notEnoughtSignature": "Sorry there aren't enough signatures!",
+    "invalidOtpshort": "Invalid OTP"
   }
 }
