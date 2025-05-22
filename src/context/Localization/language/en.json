@@ -227,7 +227,9 @@
     "newPassword": "New password",
     "confirmPassword": "Confirm password",
     "initilizePortal": "Initialize Portal",
-    "unlock": "Unlock"
+    "unlock": "Unlock",
+    "saveLabels": "Save Labels",
+    "manageCoins": "Manage Coins"
   },
   "noInternet": {
     "no": "No Internet",
@@ -436,7 +438,8 @@
     "transactionHistory": "Transactions History",
     "viewAllRecords": "View all your records",
     "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here:",
-    "transactionDetails": "Transaction Details"
+    "transactionDetails": "Transaction Details",
+    "addTransactionNote": "Add transaction note"
   },
   "DiscountCodes": {
     "DiscountCodesTitle": "Buy new Hardware Signers",
@@ -805,7 +808,17 @@
     "scanAddress": "Scan Address",
     "recipientAddress": "Scan the address of the recipient",
     "sentTo": "Sent to",
-    "sentFrom": "Sent from"
+    "sentFrom": "Sent from",
+    "transactionStatus": "When a transaction (send or receive) is submitted to the bitcoin network from a wallet, it may take a little while before it is propagated and visible to all nodes and wallets. Its confirmation status also changes as new blocks are mined.",
+    "pullDownToRefresh": "Pull Down to Refresh",
+    "pullDownSubtitle": "If you want to check the latest status of a transaction, simply pull down the transaction list and it will fetch the latest status and wallet balance.",
+    "editNameAndDescription": "Edit name & description",
+    "reflectOnHome": "This will reflect on the home screen",
+    "addDescription": "Add descriptions to better identify your wallet.",
+    "accessXpub": "Access the xPub to create a watch-only wallet.",
+    "viewPath": "View the Path and Purpose of the wallet.",
+    "importExport": "Import and Export labels to identify specific UTXOs across transactions and wallets.",
+    "walletSeedWordaccess": "Access the wallet's seed words."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1755,7 +1768,11 @@
     "addYourPortal": "Add your Portal",
     "initilizeportal": "Initialize portal with 12 words seed",
     "enterDevicePassword": "Enter your device password",
-    "selectSignOption": "Select how you want to sign the transaction"
+    "selectSignOption": "Select how you want to sign the transaction",
+    "shareKeyDetails": "Share Key Details",
+    "scanKeyDetailFromAnotherApp": "Scan the key details from another app to add on that app",
+    "cosignerDetails": "Co-signer Details",
+    "cosignerDetailsCopied": "Co-signer Details Copied Successfully"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -2089,6 +2106,8 @@
     "coldCardVerified": "ColdCard verified successfully",
     "scanValidCoSigner": "Please scan a valid co-signer",
     "addressFailed": "Address verification failed",
-    "invalidOtp": "Invalid OTP. Please try again"
+    "invalidOtp": "Invalid OTP. Please try again",
+    "missingKeyDetails": "Missing key details of multi-key type, please add key details from Add Device",
+    "troubleRecivingInfo": "We're sorry, but we have trouble retrieving the key information"
   }
 }

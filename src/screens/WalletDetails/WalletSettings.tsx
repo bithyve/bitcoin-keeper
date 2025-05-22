@@ -88,15 +88,15 @@ function WalletSettings({ route }) {
       <Box>
         <Instruction
           textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          text={'Add descriptions to better identify your wallet.'}
+          text={walletTranslation.addDescription}
         />
         <Instruction
           textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          text={'Access the xPub to create a watch-only wallet.'}
+          text={walletTranslation.accessXpub}
         />
         <Instruction
           textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          text={'View the Path and Purpose of the wallet.'}
+          text={walletTranslation.viewPath}
         />
 
         <Box style={styles.illustration}>
@@ -105,13 +105,11 @@ function WalletSettings({ route }) {
 
         <Instruction
           textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          text={
-            'Import and Export labels to identify specific UTXOs across transactions and wallets.'
-          }
+          text={walletTranslation.importExport}
         />
         <Instruction
           textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          text={"Access the wallet's seed words."}
+          text={walletTranslation.walletSeedWordaccess}
         />
       </Box>
     );
@@ -126,8 +124,8 @@ function WalletSettings({ route }) {
       onPress: () => navigation.navigate('WalletDetailsSettings', { wallet }),
     },
     {
-      title: 'Hide Wallet',
-      description: 'Hidden wallets can be managed from Manage Wallets',
+      title: vaultText.vaultHideTitle,
+      description: vaultText.vaultHideDesc,
       icon: null,
       isDiamond: false,
       onPress: () => updateWalletVisibility(),

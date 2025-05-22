@@ -13,16 +13,14 @@ import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import PrivateVaultIllustration from 'src/assets/privateImages/refreshModalIcon.svg';
 
 function LinkedWalletContent({ privateTheme }) {
+  const { translations } = useContext(LocalizationContext);
+  const { wallet } = translations;
   return (
     <View style={styles.contentContainer}>
       <Box alignSelf="center">
         {privateTheme ? <PrivateVaultIllustration /> : <VaultSetupIcon />}
       </Box>
-      <Text style={styles.contentText}>
-        When a transaction (send or receive) is submitted to the bitcoin network from a wallet, it
-        may take a little while before it is propagated and visible to all nodes and wallets. Its
-        confirmation status also changes as new blocks are mined.{' '}
-      </Text>
+      <Text style={styles.contentText}>{wallet.transactionStatus}</Text>
     </View>
   );
 }
@@ -31,7 +29,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, wallet: walletTranslation } = translations;
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
   return (
@@ -40,8 +38,8 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       close={() => {
         dispatch(setIntroModal(false));
       }}
-      title="Pull Down to Refresh"
-      subTitle="If you want to check the latest status of a transaction, simply pull down the transaction list and it will fetch the latest status and wallet balance."
+      title={walletTranslation.pullDownToRefresh}
+      subTitle={walletTranslation.pullDownSubtitle}
       modalBackground={
         privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
       }
