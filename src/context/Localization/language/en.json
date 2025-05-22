@@ -1106,7 +1106,12 @@
     "usageTimeline": "View the usage timeline",
     "manualRegistration": "Manual Registration",
     "serverPolicySettings": "Server Policy Settings",
-    "updateServerKeyPolicy": "Update your server key signing policy"
+    "updateServerKeyPolicy": "Update your server key signing policy",
+    "wantTochageDevice": "Are you sure you want to change the device type?",
+    "keyUsedForVault": "Key is being used for Vault",
+    "keysTryingToHide": "The Key you are trying to hide is used in one of the visible vaults.",
+    "toHideKey": "To hide the key",
+    "toviewMobileKey": "To view Mobile Key seed words"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -1267,7 +1272,9 @@
     "confirmDeletion": "Confirm Deletion",
     "confirmDeletionSubTitle": "Are you sure you want to delete this user?",
     "serverKeyBackup": "Server key backed up",
-    "saveBackup": "Save a backup of the Server Key"
+    "saveBackup": "Save a backup of the Server Key",
+    "AddMultipleUsers": "Add multiple users for the Server Key",
+    "unlockKeeperPrivate": "\n\nUnlock with the Keeper Private tier"
   },
   "externalKey": {
     "modalInstruction1": "Choose a Key from another Keeper app",
@@ -1924,7 +1931,34 @@
     "hideKey": "Hide key",
     "hideKeyDesc": "Hide this key from the list",
     "missingSingleSigTitle": "Singe-sig xPub Missing",
-    "missingSingleSigSubTitle": "Please add the single-sig xPub to create a Canary Wallet for your {0}"
+    "missingSingleSigSubTitle": "Please add the single-sig xPub to create a Canary Wallet for your {0}",
+    "coldCardInfo": "Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip.",
+    "coldCardDesx": "\u2022 Coldcard provides the best physical security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.",
+    "tapsignerInfo": "TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone.",
+    "tapsignerDes": "\u2022 TAPSIGNER’s lower cost makes hardware wallet features and security available to a wider market around the world.\n\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s). \n\u2022 The card form factor makes it easy to carry and easy to conceal.",
+    "ledgerInfo": "Ledger has industry-leading security to keep your Bitcoin secure at all times. Buy, sell, exchange, and grow your assets with our partners easily and securely. With Ledger, you can secure, store and manage your Bitcoin.",
+    "seedSigerInfo": "The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signer using inexpensive, publicly available hardware components (usually < $50)",
+    "seedSigerDes": "\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022 It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.",
+    "keyStoneInfo": "It offers a convenient cold storage solution with open source firmware, a 4-inch touchscreen, and multi-key support. Protect your bitcoin with the right balance between a secure and convenient hardware wallet with mobile phone support.",
+    "keystoneDes": "\u2022 With QR codes, you can verify all data transmission to ensure that information coming into Keystone contains no trojans or viruses, while information going out doesn't leak private keys or any other sensitive information.",
+    "foundationInfo": "Foundation products empower individuals to reclaim their digital sovereignty by taking control of your money and data. Foundation offers best-in-class security and privacy via openness. No walled gardens; no closed source engineering",
+    "foundationDesc": "\u2022 Passport has no direct connection with the outside world – meaning your keys are never directly exposed online. It uses a camera and QR codes for communication. This provides hardcore, air-gapped security while offering a seamless user experience.\n\u2022 Passport’s software and hardware are both fully open source. No walled gardens, no closed source engineering. Connect Passport to their Envoy mobile app for a seamless experience.",
+    "mobileKeyInfo": "You could use the wallet key on your app as one of the signing keys",
+    "mobileKeyDes": "\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.",
+    "seedKeyInfo": "You could use a newly generated seed (12 words) as one of the signing keys",
+    "seedKeyDes": "\u2022 Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.",
+    "externalKeyinfo": "You can use a specific BIP-85 wallet on Keeper as a signer",
+    "externalKeyDes": "\u2022 Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used.",
+    "serverKeyinfo": "The key on the signer will sign a transaction depending on the policy and authentication",
+    "serverKeyDesc": "\u2022 An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server",
+    "biTBoxInfo": "Easy backup and restore with a microSD card",
+    "bitBoxDesx": "\u2022 BitBox02 is known for its ease of use, open-source firmware, and security features like backup recovery via microSD card, USB-C connectivity, and integration with the BitBoxApp.\n\u2022 The wallet prioritizes privacy and security with advanced encryption and verification protocols, making it ideal for users who value high security in managing their bitcoin.",
+    "trezorInfo": "Trezor Suite is designed for every level of user. Easily and securely send, receive, and manage coins with confidence",
+    "trezorDes": "\u2022Sleek, secure design.\n\u2022 Digital Independence.\n\u2022 Easy hardware wallet backup",
+    "jadeInfo": "Jade is an easy-to-use, purely open-source hardware wallet that offers advanced security for your Bitcoin.",
+    "jadeDesc": "\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions",
+    "specterInfo": "An open-source hardware wallet for users to take full control over their Bitcoin security.",
+    "specterDesc": "\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
