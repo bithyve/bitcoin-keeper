@@ -803,6 +803,7 @@
     "selectWalletTimelockDesc": "Add a timelock period to your vault. During that period all funds sent into the vault will be unspendable.",
     "selectWalletTimelockWarning": "Funds sent to this vault will not be possible to spend for the selected time period. Proceed only if you are sure this is what you want.",
     "selectWalletTimelockNote": "Note that if you configure any special keys, their activation time will start counting only after the timelock period ends.",
+    "selectWalletTimelockAccept": "I understand the limits and wish to continue",
     "addInheritanceKey": "Add Inheritance Key",
     "addInheritanceKeyAfterKeys": "Add Inheritance Key after adding the usual keys (early access)",
     "inheritanceKeyDesc": "Set an Inheritance key for your vault. This will act as a reserve key and will be activated if one of your key gets misplaced",

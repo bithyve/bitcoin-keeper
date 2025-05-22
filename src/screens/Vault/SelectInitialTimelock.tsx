@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, Checkbox, useColorMode } from 'native-base';
 import React, { useContext, useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -54,6 +54,7 @@ function SelectInitialTimelock({ route }) {
   const [generatedVaultId, setGeneratedVaultId] = useState('');
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(currentBlockHeightParam);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const viewVault = () => {
     setVaultCreatedModalVisible(false);
@@ -102,11 +103,28 @@ function SelectInitialTimelock({ route }) {
         </Box>
         <Box style={styles.bottomContainer}>
           <WarningNote noteText={vaultTranslations.selectWalletTimelockWarning} />
+          <Box flexDirection="row" alignItems="center">
+            <Text style={{ margin: wp(9) }}>{vaultTranslations.selectWalletTimelockAccept}</Text>
+            <Checkbox
+              value={'acceptTerms'}
+              isChecked={acceptedTerms}
+              onChange={(isChecked) => setAcceptedTerms(isChecked)}
+              accessibilityLabel={'acceptTerms'}
+              mr={wp(10)}
+              _checked={{
+                bg: `${colorMode}.pantoneGreen`,
+                borderColor: `${colorMode}.pantoneGreen`,
+                _icon: {
+                  color: 'white',
+                },
+              }}
+            />
+          </Box>
           <Buttons
             primaryLoading={vaultCreating || relayVaultUpdateLoading}
             primaryText={common.confirm}
             fullWidth
-            primaryDisable={!selectedOption}
+            primaryDisable={!selectedOption || !acceptedTerms}
             primaryCallback={() => {
               if (isAddEmergencyKey) {
                 navigation.navigate('AddReserveKey', {
