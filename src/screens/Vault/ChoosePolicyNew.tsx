@@ -55,7 +55,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { signingServer, common, vault: vaultTranslation } = translations;
+  const { signingServer, common, error: errorText } = translations;
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
@@ -175,7 +175,7 @@ function ChoosePolicyNew({ navigation, route }) {
     if (signer) {
       // case: policy update
       if (delayedPolicyUpdate && Object.keys(delayedPolicyUpdate).length > 0) {
-        showToast('Please wait for the previous policy update to complete');
+        showToast(errorText.waitForPolicyUpdate);
         return;
       }
 
@@ -232,7 +232,7 @@ function ChoosePolicyNew({ navigation, route }) {
           showValidationModal(false);
           setOtp('');
           if (policyError !== 'idle') {
-            showToast('2FA verification failed, please try again', <ToastErrorIcon />);
+            showToast(errorText.verificationFailed2fa, <ToastErrorIcon />);
           }
         }, 100);
       }
@@ -266,7 +266,7 @@ function ChoosePolicyNew({ navigation, route }) {
               if (clipBoardData.match(/^\d{6}$/)) {
                 setOtp(clipBoardData);
               } else {
-                showToast('Invalid OTP');
+                showToast(errorText.invalidOtpshort);
                 setOtp('');
               }
             }}
@@ -298,7 +298,7 @@ function ChoosePolicyNew({ navigation, route }) {
                 onConfirmUpdatePolicy();
               }}
               fullWidth
-              primaryText="Confirm"
+              primaryText={common.confirm}
               primaryDisable={otp.length !== 6}
             />
           </Box>

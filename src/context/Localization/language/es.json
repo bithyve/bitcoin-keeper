@@ -835,7 +835,13 @@
     "vaultDetails": "Vault Details",
     "signTransactionWithKey": "Sign the transaction with your key",
     "keysToSign": "keys to sign the transaction",
-    "choose": "Choose"
+    "choose": "Choose",
+    "yourWalletKeyWasSuccessfullyReplaced": "Your wallet key was successfully replaced, you can continue to use your updated wallet.",
+    "testVault": "vault has been created successfully. Please test the setup before putting in significant amounts.",
+    "your": "Your",
+    "canaryWallet": "Canary Wallet",
+    "deviceDoesntRequireVaultRegistration": "This device doesn't require vault registration",
+    "warningContentData": "If the signer is identified incorrectly there may be repercussions with general signer interactions like signing etc."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1087,7 +1093,20 @@
     "externalServerKey": "External Server Key",
     "serverKayValidationFailed": "Server Key validation failed",
     "changeDeviceType": "Changing Device Type",
-    "sureWantTOChangeDeviceType": "Are you sure you want to change the device type to"
+    "sureWantTOChangeDeviceType": "Are you sure you want to change the device type to",
+    "keyReplacedSuccessfully": "Key Replaced Successfully",
+    "replacedKeyMessage": "Your key was successfully replaced, you can continue to use your updated wallet.",
+    "associateAContact": "Associate a Contact",
+    "selectYourWalletKeys": "Select your wallet keys",
+    "recentHistory": "Recent History",
+    "keyHistory": "Key History",
+    "healthCheckHistory": "The history of your key health checks would be visible here.",
+    "archiveWallet": "Archive this wallet",
+    "finishMigration": "If you have finished migrating to the new vault archive the wallet here",
+    "usageTimeline": "View the usage timeline",
+    "manualRegistration": "Manual Registration",
+    "serverPolicySettings": "Server Policy Settings",
+    "updateServerKeyPolicy": "Update your server key signing policy"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -1237,7 +1256,18 @@
     "noteDesc": "Important: Anyone with access to this code can perform permitted actions on the Server Key.",
     "setupServer2FATitle": "Set up 2FA for Server Key",
     "noteDesC2": "It is a good idea to have the authenticator app on another device",
-    "delayCompleted": "Delay completed"
+    "delayCompleted": "Delay completed",
+    "manageAdditionalUsers": "Manage Additional Users",
+    "noAdditionalUsers": "The Server Key has no existing additional users.",
+    "addNewUser": "Add New User",
+    "additionalUsers": "Additional Users",
+    "additionalUsersSubTitle": "Here you can add and manage additional users to whom you would like to give access to your Server Key. Each user will have their own 2FA code, and a set of permissions for the actions they are allowed to access with your Server Key.",
+    "subtitle2": "Please add a name for the new user and select the permissions for them to have with your Server Key",
+    "permittedAction": "Permitted Actions",
+    "confirmDeletion": "Confirm Deletion",
+    "confirmDeletionSubTitle": "Are you sure you want to delete this user?",
+    "serverKeyBackup": "Server key backed up",
+    "saveBackup": "Save a backup of the Server Key"
   },
   "externalKey": {
     "modalInstruction1": "Choose a Key from another Keeper app",
@@ -1452,7 +1482,9 @@
     "networkModeModalSubTitle": "Choose network type to change to, this will affect your wallets, keys, and nodes",
     "networkChangePrimaryCTA": "Confirm network change",
     "torConnectionString": " is connected",
-    "numberOfRecipients": "Number of recipients (for transaction batching):"
+    "numberOfRecipients": "Number of recipients (for transaction batching):",
+    "accountNumberForAdvancedUser": "Account numbers are for advanced users. Leave this empty unless you need a specific account.",
+    "accountNumberInvalid": "Account number invalid"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -1562,7 +1594,12 @@
     "importVaultFromSigner": "Import Vault From Signer",
     "importVaultFromSignerSubtitle": "Use a signer with vault registration",
     "recreateWalletModalTitle": "Recreate your wallet",
-    "recreateWalletModalSubtitle": "Recreate an existing wallet by selecting its keys. Choose between a single-key wallet and a multi-key vault."
+    "recreateWalletModalSubtitle": "Recreate an existing wallet by selecting its keys. Choose between a single-key wallet and a multi-key vault.",
+    "importMultisigWallet": "You can import a multisig wallet into Keeper if you have the BSMS file of that wallet.",
+    "bsmsFile": "Please note that we are calling a BSMS file (also known as Output Descriptor), as the Wallet Configuration File within Keeper.",
+    "importVaultforKeeper": "If you are importing a vault that you had created in Keeper previously, note that only a specific vault will get imported. Not that complete Keeper app with all its wallets.",
+    "importCompleteKeeper": "To import a complete Keeper app, please use that app’s Recovery Key",
+    "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data"
   },
   "ramp": {
     "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
@@ -1869,7 +1906,23 @@
     "coldCardMultisigMsg": "Make sure the multisig wallet is registered with the Coldcard before signing the transaction",
     "unknownSigner": "Unknown Signer",
     "sendingOutOfVault": "For sending out of the vault you will need the signers. This means no one can steal your bitcoin in the vault unless they also have the signers",
-    "vaultCreated": "New vault Created"
+    "vaultCreated": "New vault Created",
+    "accountNumberoptional": "Account Number (Optional):",
+    "accountNumberoptionalDesc": "Account Number (Optional):",
+    "signingReq": "Signing Requests",
+    "noSigningReq": "There are no signing requests",
+    "eitherHideVaultOrRemove": "Either hide the vault or remove the key from the vault to perform this operation.",
+    "keyHiddenSuccessfully": "Key hidden successfully",
+    "failedCanaryWallet": "Canary wallet creation failed",
+    "seePendingSigning": "See your pending signing requests",
+    "manageTapsignerCard": "Manage your TAPSIGNER card",
+    "additionalInfo": "Additional Info",
+    "accociateContactAndDesc": "Associate contact or edit description",
+    "deviceType": "Assign device type",
+    "changeDeviceType": "Change device type",
+    "deviceList": "Select from device list",
+    "hideKey": "Hide key",
+    "hideKeyDesc": "Hide this key from the list"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -2211,6 +2264,29 @@
     "enoughtSignature": "We already have enough signatures, you can now broadcast.",
     "transactionAlreadySubmitted": "Transaction already submitted for signing",
     "notEnoughtSignature": "Sorry there aren't enough signatures!",
-    "invalidOtpshort": "Invalid OTP"
+    "invalidOtpshort": "Invalid OTP",
+    "userDeleted": "User was deleted successfully",
+    "waitForPolicyUpdate": "Please wait for the previous policy update to complete",
+    "verificationFailed2fa": "2FA verification failed, please try again",
+    "selectActivationTime": "Please select activation time",
+    "forAllEMKey": "for all emergency keys",
+    "forAllInheritanceKey": "for all inheritance keys",
+    "faildtoFetchCurrent": "Failed to fetch current chain data, please check your connection and try again",
+    "failedToCheckEMKeyActivationTime": "Failed to check current activation time for Emergency Key",
+    "requestAlreadySigned": "This request has already been signed",
+    "signingRequestCancelled": "Signing request has been cancelled",
+    "failedToCancelSigningReq": "Failed to cancel the signing request",
+    "selectSigningRequest": "Please select a Signing Request",
+    "insufficientBalanceatThisTime": "You have insufficient balance at this time.",
+    "invalidDuration": "Invalid duration selected",
+    "invalidVaultType": "Invalid vault type - supported only for inheritance and emergency",
+    "failedToDetermineInheritanceDuration": "Failed to determine inheritance timelock duration",
+    "failedToDetermineEmergencyDuration": "Failed to determine emergency timelock duration",
+    "failedToGenerateMiniscript": "Failed to generate miniscript elements",
+    "walletUpdateInitiated": "Wallet update initiated successfully, you can continue transferring the funds from the Send tab.",
+    "updatedWalletReady": "Your updated wallet has been successfully created and is ready to receive funds from the previous wallet.",
+    "verifyNewAddress": "We recommend verifying the new wallet address on your hardware device before transferring funds.",
+    "transferFunds": "You can transfer the funds now or later. Your old wallet will remain visible in the Wallets tab until the transfer is complete.",
+    "oneTimeBackupNotSupported": "This signer does not support one-time backup"
   }
 }

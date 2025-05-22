@@ -32,7 +32,7 @@ function ServerKeySuccessScreen({ route }) {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { signingServer, common } = translations;
+  const { signingServer, common, error: errorTranslations } = translations;
   const navigation = useNavigation();
   const { vaultKey, vaultId } = route.params || {};
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
@@ -123,7 +123,7 @@ function ServerKeySuccessScreen({ route }) {
             setBackupKeyModal(false);
           }}
           fullWidth
-          primaryText="Backup Now"
+          primaryText={common.backupNow}
         />
         <Box style={styles.modalButtonContainer}>
           <Buttons
@@ -201,7 +201,7 @@ function ServerKeySuccessScreen({ route }) {
               if (clipBoardData.match(/^\d{6}$/)) {
                 setOtp(clipBoardData);
               } else {
-                showToast('Invalid OTP');
+                showToast(errorTranslations.invalidOtpshort);
                 setOtp('');
               }
             }}
@@ -232,7 +232,7 @@ function ServerKeySuccessScreen({ route }) {
                 onPressConfirm();
               }}
               fullWidth
-              primaryText="Confirm"
+              primaryText={common.confirm}
             />
           </Box>
         </Box>
@@ -267,7 +267,7 @@ function ServerKeySuccessScreen({ route }) {
           navigation.dispatch(CommonActions.navigate(navigationState));
         }}
         fullWidth
-        primaryText="Finish"
+        primaryText={common.finish}
       />
       <KeeperModal
         visible={backupKeyModal}

@@ -38,7 +38,7 @@ function VaultConfigurationCreation() {
   const { recoveryLoading, initateRecovery } = useConfigRecovery();
 
   const { translations } = useContext(LocalizationContext);
-  const { common, importWallet } = translations;
+  const { common, importWallet, signer: signerTranslation } = translations;
   const [showModal, setShowModal] = useState(false);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
@@ -65,27 +65,25 @@ function VaultConfigurationCreation() {
           style={styles.desc}
           color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         >
-          You can import a multisig wallet into Keeper if you have the BSMS file of that wallet.
+          {importWallet.importMultisigWallet}
         </Text>
         <Text
           style={styles.desc}
           color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         >
-          Please note that we are calling a BSMS file (also known as Output Descriptor), as the
-          Wallet Configuration File within Keeper.
+          {importWallet.bsmsFile}
         </Text>
         <Text
           style={styles.desc}
           color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         >
-          If you are importing a vault that you had created in Keeper previously, note that only a
-          specific vault will get imported. Not that complete Keeper app with all its wallets.
+          {importWallet.importVaultforKeeper}
         </Text>
         <Text
           style={styles.descLast}
           color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
         >
-          To import a complete Keeper app, please use that app’s Recovery Key.
+          {importWallet.importCompleteKeeper}
         </Text>
       </View>
     );
@@ -103,9 +101,7 @@ function VaultConfigurationCreation() {
       >
         <WalletHeader
           title={importWallet.importAWallet}
-          subTitle={
-            'Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data'
-          } // TODO: export subtitle
+          subTitle={importWallet.importExistingWallet}
           learnMore
           learnMorePressed={() => setShowModal(true)}
         />
@@ -120,8 +116,8 @@ function VaultConfigurationCreation() {
               {/* <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box> */}
               <Box style={{ marginLeft: wp(25) }}>
                 <OptionCard
-                  title="Upload a file"
-                  description="Select a file from your storage locations"
+                  title={signerTranslation.uploadFile}
+                  description={signerTranslation.uploadFileDesc}
                   LeftIcon={<WrappedImportIcon />}
                   callback={handleDocumentSelection}
                 />
@@ -143,8 +139,8 @@ function VaultConfigurationCreation() {
               <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
                 <Input
                   testID="input_walletConfigurationFile"
-                  placeholder="or enter configuration manually"
-                  placeholderTextColor={`${colorMode}.primaryText`} // TODO: change to colorMode and use native base component
+                  placeholder={signerTranslation.enterManualConfig}
+                  placeholderTextColor={`${colorMode}.primaryText`}
                   style={styles.textInput}
                   variant="unstyled"
                   value={inputText}
@@ -182,7 +178,7 @@ function VaultConfigurationCreation() {
         close={() => {
           setShowModal(false);
         }}
-        title="Import a wallet:"
+        title={`${importWallet.importAWallet}:`}
         modalBackground={
           privateTheme || privateThemeLight
             ? `${colorMode}.primaryBackground`

@@ -1178,7 +1178,7 @@ function AddSigningDevice() {
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation } = translations;
+  const { vault: vaultTranslation, wallet: walletTranslation } = translations;
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
 
   const { signers } = useSigners('', false);
@@ -1431,7 +1431,7 @@ function AddSigningDevice() {
     <Box backgroundColor={`${colorMode}.primaryBackground`} flex={1}>
       <SafeAreaView style={styles.topContainer}>
         <Box style={styles.topSection}>
-          <WalletHeader title="Select your wallet keys" />
+          <WalletHeader title={vaultTranslation.selectYourWalletKeys} />
         </Box>
         <VaultMigrationController
           vaultCreating={vaultCreating}
@@ -1512,11 +1512,13 @@ function AddSigningDevice() {
           dismissible
           close={() => {}}
           visible={vaultCreatedModalVisible}
-          title={keyToRotate ? 'Key Replaced Successfully' : 'Wallet Created Successfully'}
+          title={
+            keyToRotate ? vaultTranslation.keyReplacedSuccessfully : walletTranslation.WalletCreated
+          }
           subTitle={
             keyToRotate
-              ? 'Your wallet key was successfully replaced, you can continue to use your updated wallet.'
-              : `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`
+              ? walletTranslation.yourWalletKeyWasSuccessfullyReplaced
+              : `${walletTranslation.your} ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} ${walletTranslation.testVault}`
           }
           Content={
             keyToRotate
@@ -1531,7 +1533,7 @@ function AddSigningDevice() {
               ? () => SingleSigWallet(newVault)
               : () => VaultCreatedModalContent(newVault)
           }
-          buttonText="View Wallet"
+          buttonText={walletTranslation.ViewWallet}
           buttonCallback={viewVault}
           secondaryCallback={viewVault}
           modalBackground={`${colorMode}.modalWhiteBackground`}
