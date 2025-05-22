@@ -9,6 +9,7 @@ import WalletOperations from 'src/services/wallets/operations';
 import {
   getAvailableMiniscriptPhase,
   getBlockHeightOrTimestampForVault,
+  isVaultUsingBlockHeightTimelock,
 } from 'src/services/wallets/factories/VaultFactory';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
@@ -41,16 +42,24 @@ export const MiniscriptPathSelector = forwardRef<
   const [selectedPhase, setSelectedPhase] = useState<Phase>(null);
   const [availablePaths, setAvailablePaths] = useState<Path[]>([]);
   const [currentBlockHeight, setCurrentBlockHeight] = useState<number | null>(null);
+  const [currentMedianTimePast, setCurrentMedianTimePast] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const currentTimestamp = Math.floor(Date.now() / 1000);
 
   useEffect(() => {
     if (vault.type === VaultType.MINISCRIPT) {
-      WalletUtilities.fetchCurrentBlockHeight()
-        .then(({ currentBlockHeight }) => {
-          setCurrentBlockHeight(currentBlockHeight);
-        })
-        .catch((err) => onError(err));
+      if (isVaultUsingBlockHeightTimelock(vault)) {
+        WalletUtilities.fetchCurrentBlockHeight()
+          .then(({ currentBlockHeight }) => {
+            setCurrentBlockHeight(currentBlockHeight);
+          })
+          .catch((err) => onError(err));
+      } else {
+        WalletUtilities.fetchCurrentMedianTime()
+          .then(({ currentMedianTime }) => {
+            setCurrentMedianTimePast(currentMedianTime);
+          })
+          .catch((err) => onError(err));
+      }
     }
   }, []);
 
@@ -202,7 +211,7 @@ export const MiniscriptPathSelector = forwardRef<
     const currentTime = getBlockHeightOrTimestampForVault(
       vault,
       currentBlockHeight,
-      currentTimestamp
+      currentMedianTimePast
     );
     if (!currentTime) {
       throw Error('Failed to get current time, please check your connection and try again');

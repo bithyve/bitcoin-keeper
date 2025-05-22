@@ -21,13 +21,16 @@ import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/
 function EnhancedKeysSection({
   vault,
   keys,
+  currentMedianTimePast,
   currentBlockHeight,
   handleCardSelect,
   setCurrentBlockHeight,
+  setCurrentMedianTimePast,
 }: {
   vault: Vault;
   keys: { key: Signer; keyMeta: VaultSigner; identifier: string }[];
   currentBlockHeight: number | null;
+  currentMedianTimePast: number | null;
   handleCardSelect: (
     signer: Signer,
     item: VaultSigner,
@@ -35,6 +38,7 @@ function EnhancedKeysSection({
     isEmergencyKey: boolean
   ) => void;
   setCurrentBlockHeight: (blockHeight: number | null) => void;
+  setCurrentMedianTimePast: (medianTimePast: number | null) => void;
 }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -49,8 +53,14 @@ function EnhancedKeysSection({
           setCurrentBlockHeight(currentBlockHeight);
         })
         .catch((err) => showToast(err));
+    } else {
+      WalletUtilities.fetchCurrentMedianTime()
+        .then(({ currentMedianTime }) => {
+          setCurrentMedianTimePast(currentMedianTime);
+        })
+        .catch((err) => showToast(err));
     }
-  }, [setCurrentBlockHeight, showToast, vault]);
+  }, [setCurrentBlockHeight, setCurrentMedianTimePast, showToast, vault]);
 
   useEffect(() => {
     if (!keys.length || (isVaultUsingBlockHeightTimelock(vault) && currentBlockHeight === null))
@@ -68,7 +78,7 @@ function EnhancedKeysSection({
       } else {
         secondsUntilActivation =
           getKeyTimelock(keys[0].identifier, vault.scheme.miniscriptScheme.miniscriptElements) -
-          Math.floor(Date.now() / 1000);
+          currentMedianTimePast;
       }
 
       if (secondsUntilActivation > 0) {

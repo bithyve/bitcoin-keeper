@@ -52,6 +52,7 @@ function ResetEmergencyKey({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreating, setCreating] = useState(false);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+  const [currentMedianTimePast, setCurrentMedianTimePast] = useState(null);
   const [activationTimes, setActivationTimes] = useState<Record<string, string>>({});
 
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
@@ -93,16 +94,27 @@ function ResetEmergencyKey({ route }) {
   };
 
   useEffect(() => {
-    WalletUtilities.fetchCurrentBlockHeight()
-      .then(({ currentBlockHeight }) => {
-        setCurrentBlockHeight(currentBlockHeight);
-      })
-      .catch((err) => showToast(err));
+    if (isVaultUsingBlockHeightTimelock(vault)) {
+      WalletUtilities.fetchCurrentBlockHeight()
+        .then(({ currentBlockHeight }) => {
+          setCurrentBlockHeight(currentBlockHeight);
+        })
+        .catch((err) => showToast(err));
+    } else {
+      WalletUtilities.fetchCurrentMedianTime()
+        .then(({ currentMedianTime }) => {
+          setCurrentMedianTimePast(currentMedianTime);
+        })
+        .catch((err) => showToast(err));
+    }
   }, []);
 
   useEffect(() => {
     try {
-      if (isVaultUsingBlockHeightTimelock(vault) && !currentBlockHeight) {
+      if (
+        (isVaultUsingBlockHeightTimelock(vault) && !currentBlockHeight) ||
+        (!isVaultUsingBlockHeightTimelock(vault) && !currentMedianTimePast)
+      ) {
         setActivationTimes((prev) => {
           const newTimes = {};
           signers.forEach((signer) => {
@@ -141,7 +153,7 @@ function ResetEmergencyKey({ route }) {
                 )[0]
                 .split('<')[0],
               vault.scheme.miniscriptScheme.miniscriptElements
-            ) - Math.floor(Date.now() / 1000);
+            ) - currentMedianTimePast;
         }
 
         let timeString = '';
@@ -181,7 +193,7 @@ function ResetEmergencyKey({ route }) {
         true
       );
     }
-  }, [currentBlockHeight, vault]);
+  }, [currentBlockHeight, currentMedianTimePast, vault]);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>

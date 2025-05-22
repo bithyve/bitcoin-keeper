@@ -302,22 +302,32 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
 
   const [currentBlockHeight, setCurrentBlockHeight] = useState<number | null>(null);
+  const [currentMedianTimePast, setCurrentMedianTimePast] = useState<number | null>(null);
   const [timeUntilTimelockExpires, setTimeUntilTimelockExpires] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isVaultUsingBlockHeightTimelock(vault)) {
-      WalletUtilities.fetchCurrentBlockHeight()
-        .then(({ currentBlockHeight }) => {
-          setCurrentBlockHeight(currentBlockHeight);
-        })
-        .catch((err) => showToast(err));
+    if (vault?.type === VaultType.MINISCRIPT) {
+      if (isVaultUsingBlockHeightTimelock(vault)) {
+        WalletUtilities.fetchCurrentBlockHeight()
+          .then(({ currentBlockHeight }) => {
+            setCurrentBlockHeight(currentBlockHeight);
+          })
+          .catch((err) => showToast(err));
+      } else {
+        WalletUtilities.fetchCurrentMedianTime()
+          .then(({ currentMedianTime }) => {
+            setCurrentMedianTimePast(currentMedianTime);
+          })
+          .catch((err) => showToast(err));
+      }
     }
-  }, [setCurrentBlockHeight, showToast]);
+  }, [setCurrentBlockHeight, setCurrentMedianTimePast, showToast]);
 
   useEffect(() => {
     if (
       !vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(MiniscriptTypes.TIMELOCKED) ||
-      (isVaultUsingBlockHeightTimelock(vault) && currentBlockHeight === null)
+      (isVaultUsingBlockHeightTimelock(vault) && currentBlockHeight === null) ||
+      (!isVaultUsingBlockHeightTimelock(vault) && currentMedianTimePast === null)
     )
       return;
 
@@ -329,7 +339,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         secondsUntilActivation = blocksUntilActivation * 10 * 60;
       } else {
         secondsUntilActivation =
-          vault.scheme?.miniscriptScheme?.miniscriptElements.timelocks[0] - currentBlockHeight;
+          vault.scheme?.miniscriptScheme?.miniscriptElements.timelocks[0] - currentMedianTimePast;
       }
 
       if (secondsUntilActivation > 0) {
