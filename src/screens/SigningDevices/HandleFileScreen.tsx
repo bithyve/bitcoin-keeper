@@ -1,5 +1,5 @@
 import { Keyboard, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, Input, useColorMode } from 'native-base';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
@@ -15,6 +15,7 @@ import Instruction from 'src/components/Instruction';
 import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const HandleFileScreen = ({ route, navigation }) => {
   const {
@@ -36,6 +37,8 @@ const HandleFileScreen = ({ route, navigation }) => {
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
   const [infoModal, setInfoModal] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorText, coldcard, signer: signerText, externalKey } = translations;
 
   const exportCallback = () =>
     exportFile(fileData, `keeper-${Date.now()}.psbt`, (error) =>
@@ -48,18 +51,18 @@ const HandleFileScreen = ({ route, navigation }) => {
         setInputText(data);
       },
       (_) => {
-        showToast('Please pick a valid file', <ToastErrorIcon />);
+        showToast(errorText.pickValidFile, <ToastErrorIcon />);
       },
       signerType === SignerType.KEYSTONE ? 'base64' : 'utf8'
     );
   };
   const modalSubtitle = {
-    [SignerType.COLDCARD]: 'Get Your Coldcard Ready and powered up before proceeding',
-    [SignerType.KEYSTONE]: 'Get Your Keystone Ready before proceeding',
-    [SignerType.KEEPER]: 'Keep the other Keeper App ready',
+    [SignerType.COLDCARD]: coldcard.setupColdcard,
+    [SignerType.KEYSTONE]: signerText.keyStoneModalSubtitle,
+    [SignerType.KEEPER]: externalKey.modalSubtitle,
   };
 
-  const subtitleModal = modalSubtitle[signerType] || 'Get your device ready before proceeding';
+  const subtitleModal = modalSubtitle[signerType] || signerText.defaultSetup;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -84,17 +87,23 @@ const HandleFileScreen = ({ route, navigation }) => {
             {fileData && (
               <Box style={styles.tileWrapper}>
                 <Tile
-                  title={fileType === 'PSBT' ? 'Export transaction file' : 'Export file'}
-                  subTitle={fileType === 'PSBT' ? 'Export the PSBT file to sign' : 'to your phone'}
+                  title={
+                    fileType === 'PSBT' ? signerText.exportTransactionFile : signerText.exportFile
+                  }
+                  subTitle={
+                    fileType === 'PSBT' ? signerText.exportPsbtToSign : signerText.toYourPhone
+                  }
                   onPress={exportCallback}
                 />
               </Box>
             )}
             <Box style={styles.tileWrapper}>
               <Tile
-                title={fileType === 'PSBT' ? 'Import signed transaction file' : 'Import file'}
+                title={
+                  fileType === 'PSBT' ? signerText.signedTransactionFile : signerText.importFile
+                }
                 subTitle={
-                  fileType === 'PSBT' ? 'Import signed PSBT file into Keeper' : 'from your phone'
+                  fileType === 'PSBT' ? signerText.importPsbtFile : signerText.fromYourPhone
                 }
                 onPress={importCallback}
               />
@@ -102,7 +111,7 @@ const HandleFileScreen = ({ route, navigation }) => {
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <Input
                 testID="input_container"
-                placeholder="Manually enter the contents of the file to import"
+                placeholder={signerText.manuallyEnterContent}
                 placeholderTextColor={`${colorMode}.placeHolderTextColor`}
                 style={styles.textInput}
                 variant="unstyled"

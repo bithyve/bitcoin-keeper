@@ -164,8 +164,8 @@ function ManageSigners({ route }: ScreenProps) {
       await Relay.sendSingleNotification({
         fcm: remoteData.fcm,
         notification: {
-          title: 'Remote key accepted',
-          body: 'The remote key that you shared has been accepted by the user',
+          title: signerTranslation.remoteKeyAccepted,
+          body: signerTranslation.remoteKeyAcceptedDesc,
         },
         data: {
           notificationType: notificationType.REMOTE_KEY_SHARE,
@@ -182,8 +182,8 @@ function ManageSigners({ route }: ScreenProps) {
     await Relay.sendSingleNotification({
       fcm: remoteData.fcm,
       notification: {
-        title: 'Remote key rejected',
-        body: 'The remote key that you shared has been rejected by the user',
+        title: signerTranslation.remoteKeyRejected,
+        body: signerTranslation.remotweKeyRejectedDesc,
       },
       data: {
         notificationType: notificationType.REMOTE_KEY_SHARE,

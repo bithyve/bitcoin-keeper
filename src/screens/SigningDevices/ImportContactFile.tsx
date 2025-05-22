@@ -1,5 +1,5 @@
 import { Keyboard, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, Input, useColorMode } from 'native-base';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -12,19 +12,22 @@ import { SignerType } from 'src/services/wallets/enums';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import MenuOption from 'src/components/MenuOption';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const ImportContactFile = ({ route, navigation }) => {
   const { title, subTitle, onFileExtract, ctaText, signerType } = route.params;
   const [inputText, setInputText] = useState('');
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorText, signer, vault } = translations;
   const importCallback = () => {
     importFile(
       (data) => {
         setInputText(data);
       },
       (_) => {
-        showToast('Please pick a valid file', <ToastErrorIcon />);
+        showToast(errorText.pickValidFile, <ToastErrorIcon />);
       },
       signerType === SignerType.KEYSTONE ? 'base64' : 'utf8'
     );
@@ -43,7 +46,7 @@ const ImportContactFile = ({ route, navigation }) => {
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <Input
                 testID="input_container"
-                placeholder="Enter contents of the file"
+                placeholder={signer.enterContentsOfTheFile}
                 placeholderTextColor={`${colorMode}.placeHolderTextColor`}
                 style={styles.textInput}
                 variant="unstyled"
@@ -61,7 +64,7 @@ const ImportContactFile = ({ route, navigation }) => {
               />
             </Box>
             <MenuOption
-              title="Add contact using file"
+              title={vault.addContactUsingFile}
               Icon={<AddContactLight />}
               callback={importCallback}
             />

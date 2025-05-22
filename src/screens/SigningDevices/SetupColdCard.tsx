@@ -5,7 +5,7 @@ import { getColdcardDetails, getConfigDetails } from 'src/hardware/coldcard';
 
 import { Box, useColorMode } from 'native-base';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -41,17 +41,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
-
-const getTitle = (mode) => {
-  switch (mode) {
-    case InteracationMode.CONFIG_RECOVERY:
-      return 'Recover Using Configuration';
-    case InteracationMode.VAULT_ADDITION:
-      return 'Add your Coldcard';
-    case InteracationMode.HEALTH_CHECK || InteracationMode.IDENTIFICATION:
-      return 'Health Check Coldcard';
-  }
-};
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupColdCard({ route }) {
   const { colorMode } = useColorMode();
@@ -84,6 +74,8 @@ function SetupColdCard({ route }) {
   const [infoModal, setInfoModal] = useState(false);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorTexts, common, coldcard } = translations;
 
   const startNfcRead = () => {
     NfcManager.isSupported().then((supported) => {
@@ -96,9 +88,19 @@ function SetupColdCard({ route }) {
           addColdCardWithProgress();
         }
       } else if (!DeviceInfo.isEmulator()) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />);
+        showToast(errorTexts.nfcNotSupported, <ToastErrorIcon />);
       }
     });
+  };
+  const getTitle = (mode) => {
+    switch (mode) {
+      case InteracationMode.CONFIG_RECOVERY:
+        return coldcard.recoverUsingConfig;
+      case InteracationMode.VAULT_ADDITION:
+        return coldcard.addColdCard;
+      case InteracationMode.HEALTH_CHECK || InteracationMode.IDENTIFICATION:
+        return coldcard.healthCheckColdCard;
+    }
   };
 
   const handleNFCError = (error) => {
@@ -176,7 +178,7 @@ function SetupColdCard({ route }) {
           ])
         );
         navigation.dispatch(CommonActions.goBack());
-        showToast('ColdCard verified successfully', <TickIcon />);
+        showToast(errorTexts.coldCardVerified, <TickIcon />);
       };
       const showVerificationError = () => {
         dispatch(
@@ -187,7 +189,7 @@ function SetupColdCard({ route }) {
             },
           ])
         );
-        showToast('Something went wrong!', <ToastErrorIcon />);
+        showToast(common.somethingWrong, <ToastErrorIcon />);
       };
       if (mode === InteracationMode.IDENTIFICATION) {
         const mapped = mapUnknownSigner({ masterFingerprint, type: SignerType.COLDCARD });
@@ -213,14 +215,11 @@ function SetupColdCard({ route }) {
   };
 
   const instructions = isConfigRecovery
-    ? '\nExport the wallet config by going to Settings > Multisig Wallets > <Your Wallet> > Descriptors > Export > Press 3 to share via NFC'
+    ? coldcard.exportConfigBySetting
     : mode === InteracationMode.CANARY_ADDITION
-    ? '\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose the account number (default 0) and transfer over NFC.'
-    : '\nExport the Coldcard data by going to Advanced/Tools > Export Wallet > Generic JSON. From there choose 0 for the account number and transfer over NFC.';
-  const instructions2 =
-    mode === InteracationMode.VAULT_ADDITION
-      ? 'Make sure you remember the account you had chosen (This is important for recovering your wallet).'
-      : '';
+    ? coldcard.exportColdCardData
+    : coldcard.exportColdCardData1;
+  const instructions2 = mode === InteracationMode.VAULT_ADDITION ? coldcard.rememberAccount : '';
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -265,7 +264,7 @@ function SetupColdCard({ route }) {
         <Buttons
           fullWidth
           primaryCallback={startNfcRead}
-          primaryText="Start NFC"
+          primaryText={coldcard.startNFC}
           primaryDisable={nfcVisible}
         />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
@@ -276,7 +275,7 @@ function SetupColdCard({ route }) {
           setInfoModal(false);
         }}
         title={getTitle(mode)}
-        subTitle={`Get your Coldcard ready before proceeding.`}
+        subTitle={coldcard.setupColdcard}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

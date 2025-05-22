@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet, Share } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, ScrollView, useColorMode, VStack } from 'native-base';
@@ -18,35 +18,33 @@ import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
 import { useSelector } from 'react-redux';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
-const RemoteShareText = {
+const getRemoteShareText = (signerTranslation: any) => ({
   [RKInteractionMode.SHARE_REMOTE_KEY]: {
-    title: 'Magic Link Sharing',
-    desc: 'Please share the key using this link with your contact using a secure and private communication medium.',
-    cta: 'Share Key',
-    msgTitle: 'Magic Link Sharing',
-    msgDesc:
-      "Hey, I'm sharing a bitcoin key with you. Please click the link to accept it on the Bitcoin Keeper app and keep it safe.",
+    title: signerTranslation.magicLinkSharing,
+    desc: signerTranslation.magicLinkSharingDesc,
+    cta: signerTranslation.magicLinkCTA,
+    msgTitle: signerTranslation.magicLinkSharing,
+    msgDesc: signerTranslation.magicLinkSharingDesc1,
   },
   [RKInteractionMode.SHARE_PSBT]: {
-    title: 'Sign Transaction Remotely',
-    desc: 'Please share this unsigned transaction (PSBT) using the link with the key holder for transaction signing. Use a secure and private communication medium.',
-    cta: 'Share Link',
-    msgTitle: 'Transaction Signing Request Received',
-    msgDesc:
-      'Hey, I need you to sign a transaction with the key you have shared previously. Please click the link to view details and sign the transaction in the Bitcoin Keeper app',
+    title: signerTranslation.signTransactionRemotely,
+    desc: signerTranslation.signTransactionRemotelyDesc,
+    cta: signerTranslation.signTransactionRemotelyCTA,
+    msgTitle: signerTranslation.signTransactionRemotelymsgTitle,
+    msgDesc: signerTranslation.signTransactionRemotelyDesc1,
   },
   [RKInteractionMode.SHARE_SIGNED_PSBT]: {
-    title: 'Sign Transaction Remotely',
-    desc: 'Please share back this signed transaction (PSBT) using the link with the transaction creator. Use a secure and private communication medium.',
-    cta: 'Share Link',
-    msgTitle: 'Signed Transaction Received',
-    msgDesc:
-      'Hey, I have signed the transaction you had requested. Please click the link to accept it.',
+    title: signerTranslation.signedTransactionReceived,
+    desc: signerTranslation.signedTransactionReceivedDesc,
+    cta: signerTranslation.signTransactionRemotelyCTA1,
+    msgTitle: signerTranslation.signTransactionRemotelymsgTitle1,
+    msgDesc: signerTranslation.signTransactionRemotelymsgDesc1,
   },
-};
+});
 
 const DeepLinkIdentifier = {
   [APP_STAGE.DEVELOPMENT]: 'app/dev',
@@ -73,6 +71,10 @@ function RemoteSharing({ route }: ScreenProps) {
   const [primaryLoading, setPrimaryLoading] = useState(false);
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslation, common } = translations;
+
+  const RemoteShareText = getRemoteShareText(signerTranslation);
 
   const handleShare = async () => {
     setPrimaryLoading(true);
@@ -155,7 +157,7 @@ function RemoteSharing({ route }: ScreenProps) {
             paddingVertical={hp(12)}
           />
           <Buttons
-            secondaryText="Cancel"
+            secondaryText={common.cancel}
             secondaryCallback={() => {
               navigation.goBack();
             }}
