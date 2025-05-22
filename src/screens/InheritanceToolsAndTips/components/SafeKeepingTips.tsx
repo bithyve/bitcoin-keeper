@@ -1,20 +1,17 @@
 import React, { useContext } from 'react';
-import { useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { wp } from 'src/constants/responsive';
 import TipsSlider from '../TipsSlider';
 import InheritanceHeader from '../InheritanceHeader';
 import Text from 'src/components/KeeperText';
-import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SafeGuardingTips({}) {
-  const { colorMode } = useColorMode();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const slider_background = ThemedColor({ name: 'slider_background' });
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
 
@@ -54,19 +51,9 @@ function SafeGuardingTips({}) {
   ];
 
   return (
-    <ScreenWrapper
-      barStyle="dark-content"
-      backgroundcolor={
-        privateTheme || PrivateThemeLight
-          ? `${colorMode}.primaryBackground`
-          : `${colorMode}.pantoneGreen`
-      }
-    >
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={slider_background}>
       <InheritanceHeader />
-      <Text
-        style={styles.container}
-        color={PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-      >
+      <Text style={styles.container} color={green_modal_text_color}>
         {inheritancePlanning.keySafekeeping}
       </Text>
       <TipsSlider items={tips} />

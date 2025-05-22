@@ -6,8 +6,8 @@ import KeeperNameIcon from 'src/assets/images/keeper-name-icon.svg';
 import KeeperNameIconDark from 'src/assets/privateImages/bitcoinKeeperWhiteLogo.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { useSelector } from 'react-redux';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 type MessagePreviewProps = {
   title: string;
@@ -19,23 +19,21 @@ function MessagePreview({ title, description, link }: MessagePreviewProps) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const msg_preview_background = ThemedColor({ name: 'msg_preview_background' });
+  const msg_preview_border = ThemedColor({ name: 'msg_preview_border' });
+  const msg_linkContainer_background = ThemedColor({ name: 'msg_linkContainer_background' });
   return (
     <Box
       style={styles.messagePreviewContainer}
-      backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.seashellWhite`}
+      backgroundColor={msg_preview_background}
       borderWidth={1}
-      borderColor={privateTheme ? `${colorMode}.greyBorder` : `${colorMode}.separator`}
+      borderColor={msg_preview_border}
     >
       <Text style={styles.previewLabel}>{common.messagePreview}</Text>
       <Box style={styles.previewBox} borderColor={`${colorMode}.greyBorder`}>
         <Text style={styles.messagePreviewTitle}>{title}</Text>
         <Text style={styles.messagePreviewDescription}>{description}</Text>
-        <Box
-          style={styles.linkContainer}
-          backgroundColor={privateTheme ? `${colorMode}.separator` : `${colorMode}.seedCard`}
-        >
+        <Box style={styles.linkContainer} backgroundColor={msg_linkContainer_background}>
           <Box style={styles.linkIconContainer}>
             <ThemedSvg name={'keeper_icon'} />
           </Box>

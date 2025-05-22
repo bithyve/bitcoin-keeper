@@ -4,15 +4,11 @@ import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SigningServerIllustration from 'src/assets/images/Server-key-successful-illustration.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import SigningServerIllustrations from 'src/assets/images/backup-server-illustration.svg';
-import PrivateSigningServerIllustrations from 'src/assets/privateImages/backup-server-illustration.svg';
-import PrivateBackupSigningServerIllustrations from 'src/assets/privateImages/Backup-Server-Key-illustration.svg';
 import SigningServer from 'src/services/backend/SigningServer';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -26,7 +22,7 @@ import { hash256 } from 'src/utils/service-utilities/encryption';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { Signer } from 'src/services/wallets/interfaces/vault';
-import { useSelector } from 'react-redux';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function ServerKeySuccessScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -35,8 +31,6 @@ function ServerKeySuccessScreen({ route }) {
   const { signingServer, common, error: errorTranslations } = translations;
   const navigation = useNavigation();
   const { vaultKey, vaultId } = route.params || {};
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
   const {
     setupData,
     addedSigner,
@@ -104,11 +98,7 @@ function ServerKeySuccessScreen({ route }) {
   const BackupModalContent = useCallback(() => {
     return (
       <Box style={styles.modalContainer}>
-        {privateTheme ? (
-          <PrivateBackupSigningServerIllustrations />
-        ) : (
-          <SigningServerIllustrations />
-        )}
+        <ThemedSvg name={'success_illustration'} />
         <Box>
           <Text fontSize={12} semiBold style={styles.modalTitle}>
             {signingServer.attention}:
@@ -245,11 +235,7 @@ function ServerKeySuccessScreen({ route }) {
       <ActivityIndicatorView visible={OTBLoading} showLoader={true} />
 
       <Box style={styles.container}>
-        {privateTheme ? (
-          <PrivateSigningServerIllustrations width={hp(200)} height={hp(200)} />
-        ) : (
-          <SigningServerIllustration />
-        )}
+        <ThemedSvg name={'success_illustration'} />
         <Text semiBold fontSize={20} color={`${colorMode}.textGreen`} style={styles.title}>
           {signingServer.successTitle}
         </Text>

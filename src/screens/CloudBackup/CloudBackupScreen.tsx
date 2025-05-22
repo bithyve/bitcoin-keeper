@@ -25,8 +25,8 @@ import EnterPasswordModal from './EnterPasswordModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
-import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function CloudBackupScreen() {
   const navigation = useNavigation();
@@ -43,9 +43,11 @@ function CloudBackupScreen() {
   const backupModal = useAppSelector((state) => state.settings.backupModal);
   const [showModal, setShowModal] = useState(backupModal);
   const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
 
   useEffect(() => {
     if (loading) {
@@ -66,16 +68,10 @@ function CloudBackupScreen() {
   function modalContent() {
     return (
       <Box>
-        <Text
-          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          style={styles.backupModalDesc}
-        >
+        <Text color={green_modal_text_color} style={styles.backupModalDesc}>
           {strings.cloudBackupModalSubitle}
         </Text>
-        <Text
-          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-          style={styles.backupModalDesc}
-        >
+        <Text color={green_modal_text_color} style={styles.backupModalDesc}>
           {strings.cloudBackupModalDesc}
         </Text>
         <Box style={styles.illustration}>{<ThemedSvg name={'btc_illustration'} />}</Box>
@@ -175,27 +171,13 @@ function CloudBackupScreen() {
           }
         }}
         title={strings.cloudBackupModalTitle}
-        modalBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.modalPrivateBackground`
-            : `${colorMode}.pantoneGreen`
-        }
-        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.whiteSecButtonText`
-            : `${colorMode}.pantoneGreen`
-        }
-        buttonBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.whiteSecButtonText`
-        }
-        secButtonTextColor={
-          privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.whiteSecButtonText`
-        }
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        secButtonTextColor={green_modal_sec_button_text}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setShowModal(false);

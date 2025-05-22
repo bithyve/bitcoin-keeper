@@ -9,7 +9,7 @@ import {
   VaultType,
   WalletType,
 } from 'src/services/wallets/enums';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
@@ -32,12 +32,9 @@ import EditIconWhite from 'src/assets/images/edit_white.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useWallets from 'src/hooks/useWallets';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import AddCircleLight from 'src/assets/images/add-circle-light.svg';
-import AddCircleDark from 'src/assets/privateImages/round-White-plus.svg';
 import VaultMigrationController from '../Vault/VaultMigrationController';
 import useVault from 'src/hooks/useVault';
 import CardPill from 'src/components/CardPill';
-import HexagonIcon from 'src/components/HexagonIcon';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import DerivationPathModalContent from '../EnterWalletDetailScreen/DerivationPathModal';
@@ -51,8 +48,9 @@ import useSigners from 'src/hooks/useSigners';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { CTACardDotted } from 'src/components/CTACardDotted';
-import Colors from 'src/theme/Colors';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 // eslint-disable-next-line react/prop-types
 function ConfirmWalletDetails({ route }) {
@@ -102,10 +100,13 @@ function ConfirmWalletDetails({ route }) {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const vaultType = route.params.vaultType;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
   const isSmallDevice = useIsSmallDevices();
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
+  const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
 
   const { signers } = useSigners();
 
@@ -171,7 +172,7 @@ function ConfirmWalletDetails({ route }) {
     );
   }
 
-  function TapRootContent({ privateTheme }) {
+  function TapRootContent() {
     const { colorMode } = useColorMode();
     const { translations } = useContext(LocalizationContext);
     const { wallet } = translations;
@@ -182,7 +183,7 @@ function ConfirmWalletDetails({ route }) {
             <ThemedSvg name={'wallet_Recovery_icon'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
+            <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
               {wallet.walletRecovery}
             </Text>
             <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
@@ -195,10 +196,10 @@ function ConfirmWalletDetails({ route }) {
             <ThemedSvg name={'efficiency_icon'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
+            <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
               {wallet.compatibility}
             </Text>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
+            <Text color={green_modal_text_color} style={styles.tapRootDescText}>
               {wallet.compatibilityDesc}
             </Text>
           </Box>
@@ -208,10 +209,10 @@ function ConfirmWalletDetails({ route }) {
             <ThemedSvg name={'security_iocn'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
+            <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
               {wallet.securityStructure}
             </Text>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
+            <Text color={green_modal_text_color} style={styles.tapRootDescText}>
               {wallet.securityStructureDesc}
             </Text>
           </Box>
@@ -221,10 +222,10 @@ function ConfirmWalletDetails({ route }) {
             <ThemedSvg name={'organization_icon'} />
           </Box>
           <Box style={styles.tapRootContentWrapper}>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootTitleText}>
+            <Text color={green_modal_text_color} style={styles.tapRootTitleText}>
               {wallet.Organization}
             </Text>
-            <Text color={`${colorMode}.headerWhite`} style={styles.tapRootDescText}>
+            <Text color={green_modal_text_color} style={styles.tapRootDescText}>
               {wallet.OrganizationDesc}
             </Text>
           </Box>
@@ -252,9 +253,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor={
-                  privateTheme || PrivateThemeLight ? Colors.goldenGradient : Colors.primaryGreen
-                }
+                backgroundColor={HexagonIconColor}
                 icon={<VaultIcon />}
               />
             </Box>
@@ -320,9 +319,7 @@ function ConfirmWalletDetails({ route }) {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor={
-                  privateTheme || PrivateThemeLight ? Colors.goldenGradient : Colors.primaryGreen
-                }
+                backgroundColor={HexagonIconColor}
                 icon={<VaultIcon />}
               />
             </Box>
@@ -440,7 +437,7 @@ function ConfirmWalletDetails({ route }) {
           >
             <Box style={styles.descriptionContainer}>
               <Text color={`${colorMode}.greenText`}>{importWallet.addDescription}</Text>
-              {privateTheme ? <AddCircleDark /> : <AddCircleLight />}
+              <ThemedSvg name={'add_circle'} />
             </Box>
           </Pressable>
         </Box>
@@ -697,34 +694,16 @@ function ConfirmWalletDetails({ route }) {
         }}
         title={wallet.derivationPath}
         subTitle={''}
-        modalBackground={
-          privateTheme || PrivateThemeLight
-            ? `${colorMode}.primarybackground`
-            : `${colorMode}.pantoneGreen`
-        }
-        textColor={
-          privateTheme || PrivateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`
-        }
-        Content={() => <TapRootContent privateTheme={privateTheme || PrivateThemeLight} />}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
+        Content={() => <TapRootContent />}
         showCloseIcon={true}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={
-          privateTheme || PrivateThemeLight
-            ? `${colorMode}.headerWhite`
-            : `${colorMode}.pantoneGreen`
-        }
-        buttonBackground={
-          privateTheme || PrivateThemeLight
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.whiteSecButtonText`
-        }
-        secButtonTextColor={
-          privateTheme || PrivateThemeLight
-            ? `${colorMode}.textBlack`
-            : `${colorMode}.whiteSecButtonText`
-        }
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        secButtonTextColor={green_modal_sec_button_text}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setAdvancedSettingsVisible(false);

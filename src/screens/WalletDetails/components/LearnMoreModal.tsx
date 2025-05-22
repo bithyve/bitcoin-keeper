@@ -1,24 +1,24 @@
 import { StyleSheet, View } from 'react-native';
 import React, { useContext } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Box, useColorMode } from 'native-base';
-import VaultSetupIcon from 'src/assets/images/pull-down-wallet.svg';
 import { hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
-import PrivateVaultIllustration from 'src/assets/privateImages/refreshModalIcon.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
-function LinkedWalletContent({ privateTheme }) {
+function LinkedWalletContent() {
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
   return (
     <View style={styles.contentContainer}>
       <Box alignSelf="center">
-        {privateTheme ? <PrivateVaultIllustration /> : <VaultSetupIcon />}
+        <ThemedSvg name={'VaultSetupIcon'} />
       </Box>
       <Text style={styles.contentText}>{wallet.transactionStatus}</Text>
     </View>
@@ -30,8 +30,9 @@ function LearnMoreModal({ introModal, setIntroModal }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletTranslation } = translations;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+
   return (
     <KeeperModal
       visible={introModal}
@@ -40,11 +41,9 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       }}
       title={walletTranslation.pullDownToRefresh}
       subTitle={walletTranslation.pullDownSubtitle}
-      modalBackground={
-        privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
-      }
+      modalBackground={green_modal_background}
       textColor={`${colorMode}.headerWhite`}
-      Content={() => <LinkedWalletContent privateTheme={privateTheme} />}
+      Content={() => <LinkedWalletContent />}
       DarkCloseIcon
       buttonText={common.Okay}
       secondaryButtonText={common.needHelp}

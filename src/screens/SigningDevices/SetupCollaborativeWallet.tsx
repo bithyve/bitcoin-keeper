@@ -37,7 +37,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import QRCommsLight from 'src/assets/images/qr_comms.svg';
 import NFCLight from 'src/assets/images/nfc-no-bg-light.svg';
 import AirDropLight from 'src/assets/images/airdrop-no-bg-light.svg';
-import AddIcon from 'src/assets/images/add-plain-green.svg';
 import UserCoSigner from 'src/assets/images/user-cosigner.svg';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import HWError from 'src/hardware/HWErrorState';
@@ -57,7 +56,7 @@ import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
 import WalletHeader from 'src/components/WalletHeader';
-import GoldPlusIcon from 'src/assets/privateImages/plus-gold-icon.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 let previousContent = null;
 
 function SignerItem({
@@ -79,8 +78,6 @@ function SignerItem({
 
   const signerUID = vaultKey ? getKeyUID(vaultKey) : null;
   const signer = signerUID ? signerMap[signerUID] : null;
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
 
   const isPreviousKeyAdded = useCallback(() => {
     if (index === 2) {
@@ -97,7 +94,7 @@ function SignerItem({
       <Text medium fontSize={12} color={`${colorMode}.greenishGreyText`}>
         {common.tapToAdd}{' '}
       </Text>
-      {privateTheme ? <GoldPlusIcon /> : <AddIcon />}
+      <ThemedSvg name={'add_icon_collaborative'} />
     </Box>
   );
 

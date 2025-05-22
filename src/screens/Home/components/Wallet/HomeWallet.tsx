@@ -2,7 +2,6 @@ import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import DashedCta from 'src/components/DashedCta';
-import Plus from 'src/assets/images/add-plus-white.svg';
 import WalletCard from './WalletCard';
 import Colors from 'src/theme/Colors';
 import useWallets from 'src/hooks/useWallets';
@@ -23,14 +22,15 @@ import CollaborativeWalletIcon from 'src/assets/images/collaborative_vault_white
 
 import { useAppSelector } from 'src/store/hooks';
 import { resetCollaborativeSession } from 'src/store/reducers/vaults';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { autoSyncWallets, refreshWallets } from 'src/store/sagaActions/wallets';
 import { RefreshControl } from 'react-native';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import PlusGreenIcon from 'src/assets/images/plus-green-icon.svg';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -62,9 +62,12 @@ const HomeWallet = () => {
     (item) => item !== null
   );
   const [isShowAmount, setIsShowAmount] = useState(false);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const DashedCta_hexagonBackgroundColor = ThemedColor({
+    name: 'DashedCta_hexagonBackgroundColor',
+  });
+  const dashed_CTA_background = ThemedColor({
+    name: 'dashed_CTA_background',
+  });
 
   const handleCollaborativeWalletCreation = () => {
     setShowAddWalletModal(false);
@@ -149,26 +152,12 @@ const HomeWallet = () => {
     <Box style={styles.walletContainer}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <DashedCta
-        backgroundColor={privateThemeLight ? `transparent` : `${colorMode}.dullGreen`}
-        hexagonBackgroundColor={
-          privateTheme
-            ? Colors.goldenGradient
-            : isDarkMode
-            ? Colors.primaryCream
-            : Colors.primaryGreen
-        }
+        backgroundColor={dashed_CTA_background}
+        hexagonBackgroundColor={DashedCta_hexagonBackgroundColor}
         textColor={`${colorMode}.greenWhiteText`}
         name={walletText.addWallet}
         callback={() => setShowAddWalletModal(true)}
-        icon={
-          privateTheme ? (
-            <Plus width={8.6} height={8.6} />
-          ) : isDarkMode ? (
-            <PlusGreenIcon width={8.6} height={8.6} />
-          ) : (
-            <Plus width={8.6} height={8.6} />
-          )
-        }
+        icon={<ThemedSvg name={'add_wallet_plus_icon'} />}
         iconWidth={22}
         iconHeight={20}
       />

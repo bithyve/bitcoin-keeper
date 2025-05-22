@@ -19,7 +19,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import WalletHeader from 'src/components/WalletHeader';
-import { useSelector } from 'react-redux';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function WrappedImportIcon() {
   const { colorMode } = useColorMode();
@@ -40,9 +40,12 @@ function VaultConfigurationCreation() {
   const { translations } = useContext(LocalizationContext);
   const { common, importWallet, signer: signerTranslation } = translations;
   const [showModal, setShowModal] = useState(false);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
 
   const handleDocumentSelection = useCallback(async () => {
     try {
@@ -61,28 +64,16 @@ function VaultConfigurationCreation() {
   function ImportVaultContent() {
     return (
       <View marginY={5}>
-        <Text
-          style={styles.desc}
-          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
-          {importWallet.importMultisigWallet}
+        <Text style={styles.desc} color={green_modal_text_color}>
+          {importWallet.importMultisigWallet}{' '}
         </Text>
-        <Text
-          style={styles.desc}
-          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.desc} color={green_modal_text_color}>
           {importWallet.bsmsFile}
         </Text>
-        <Text
-          style={styles.desc}
-          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.desc} color={green_modal_text_color}>
           {importWallet.importVaultforKeeper}
         </Text>
-        <Text
-          style={styles.descLast}
-          color={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
-        >
+        <Text style={styles.descLast} color={green_modal_text_color}>
           {importWallet.importCompleteKeeper}
         </Text>
       </View>
@@ -179,29 +170,15 @@ function VaultConfigurationCreation() {
           setShowModal(false);
         }}
         title={`${importWallet.importAWallet}:`}
-        modalBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.primaryBackground`
-            : `${colorMode}.pantoneGreen`
-        }
-        textColor={privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.headerWhite`}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
         Content={ImportVaultContent}
         DarkCloseIcon
         buttonText={common.Okay}
         secondaryButtonText={common.needHelp}
-        buttonTextColor={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.headerWhite`
-            : `${colorMode}.pantoneGreen`
-        }
-        buttonBackground={
-          privateTheme || privateThemeLight
-            ? `${colorMode}.pantoneGreen`
-            : `${colorMode}.whiteSecButtonText`
-        }
-        secButtonTextColor={
-          privateThemeLight ? `${colorMode}.textBlack` : `${colorMode}.whiteSecButtonText`
-        }
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        secButtonTextColor={green_modal_sec_button_text}
         secondaryIcon={<ConciergeNeedHelp />}
         secondaryCallback={() => {
           setShowModal(false);

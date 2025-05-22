@@ -1922,7 +1922,9 @@
     "changeDeviceType": "Change device type",
     "deviceList": "Select from device list",
     "hideKey": "Hide key",
-    "hideKeyDesc": "Hide this key from the list"
+    "hideKeyDesc": "Hide this key from the list",
+    "missingSingleSigTitle": "Singe-sig xPub Missing",
+    "missingSingleSigSubTitle": "Please add the single-sig xPub to create a Canary Wallet for your {0}"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",

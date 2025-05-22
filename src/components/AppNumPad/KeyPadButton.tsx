@@ -2,9 +2,7 @@ import { StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import React, { useState } from 'react';
 import Text from 'src/components/KeeperText';
 import ScaleSpring from '../Animations/ScaleSpring';
-import Colors from 'src/theme/Colors';
-import { useColorMode } from 'native-base';
-import { useSelector } from 'react-redux';
+import ThemedColor from '../ThemedColor/ThemedColor';
 
 export interface Props {
   title: string;
@@ -14,11 +12,8 @@ export interface Props {
 }
 
 const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor, bubbleEffect }: Props) => {
-  const { colorMode } = useColorMode();
-  const isDarkMode = colorMode === 'dark';
   const [pressed, setPressed] = useState(false);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const keyPad_colors = ThemedColor({ name: 'keyPad_colors' });
 
   const handlePressIn = () => {
     setPressed(true);
@@ -44,11 +39,7 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor, bubbleE
               styles.circleEffect,
               pressed && styles.circleEffectActive,
               {
-                backgroundColor: privateThemeLight
-                  ? Colors.greyBorder
-                  : isDarkMode
-                  ? Colors.WarmBeigeTranslucent
-                  : Colors.WarmBeigeTranslucent,
+                backgroundColor: keyPad_colors,
               },
             ]}
           />
