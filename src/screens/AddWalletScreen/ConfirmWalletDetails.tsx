@@ -557,7 +557,9 @@ function ConfirmWalletDetails({ route }) {
         inheritanceKeys={route.params.reservedKeys ?? []}
         emergencyKeys={route.params.emergencyKeys ?? []}
         currentBlockHeight={route.params.currentBlockHeight}
+        initialTimelockDuration={route.params.initialTimelockDuration ?? 0}
         miniscriptTypes={[
+          ...(route.params.hasInitialTimelock ? [MiniscriptTypes.TIMELOCKED] : []),
           ...(route.params.isAddInheritanceKey ? [MiniscriptTypes.INHERITANCE] : []),
           ...(route.params.isAddEmergencyKey ? [MiniscriptTypes.EMERGENCY] : []),
         ]}

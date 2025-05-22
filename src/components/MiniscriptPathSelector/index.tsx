@@ -6,7 +6,11 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import WalletOperations from 'src/services/wallets/operations';
-import { getAvailableMiniscriptPhase } from 'src/services/wallets/factories/VaultFactory';
+import {
+  getAvailableMiniscriptPhase,
+  getBlockHeightOrTimestampForVault,
+  isVaultUsingBlockHeightTimelock,
+} from 'src/services/wallets/factories/VaultFactory';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -38,15 +42,24 @@ export const MiniscriptPathSelector = forwardRef<
   const [selectedPhase, setSelectedPhase] = useState<Phase>(null);
   const [availablePaths, setAvailablePaths] = useState<Path[]>([]);
   const [currentBlockHeight, setCurrentBlockHeight] = useState<number | null>(null);
+  const [currentMedianTimePast, setCurrentMedianTimePast] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (vault.type === VaultType.MINISCRIPT) {
-      WalletUtilities.fetchCurrentBlockHeight()
-        .then(({ currentBlockHeight }) => {
-          setCurrentBlockHeight(currentBlockHeight);
-        })
-        .catch((err) => onError(err));
+      if (isVaultUsingBlockHeightTimelock(vault)) {
+        WalletUtilities.fetchCurrentBlockHeight()
+          .then(({ currentBlockHeight }) => {
+            setCurrentBlockHeight(currentBlockHeight);
+          })
+          .catch((err) => onError(err));
+      } else {
+        WalletUtilities.fetchCurrentMedianTime()
+          .then(({ currentMedianTime }) => {
+            setCurrentMedianTimePast(currentMedianTime);
+          })
+          .catch((err) => onError(err));
+      }
     }
   }, []);
 
@@ -195,10 +208,16 @@ export const MiniscriptPathSelector = forwardRef<
       }
     }
 
-    const { phases: availablePhasesOptions } = getAvailableMiniscriptPhase(
+    const currentTime = getBlockHeightOrTimestampForVault(
       vault,
-      currentBlockHeight
+      currentBlockHeight,
+      currentMedianTimePast
     );
+    if (!currentTime) {
+      throw Error('Failed to get current time, please check your connection and try again');
+    }
+
+    const { phases: availablePhasesOptions } = getAvailableMiniscriptPhase(vault, currentTime);
 
     if (!availablePhasesOptions || availablePhasesOptions.length === 0) {
       onError('No spending paths available; timelock is active');

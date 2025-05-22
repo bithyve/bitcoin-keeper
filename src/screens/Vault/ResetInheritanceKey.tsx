@@ -28,9 +28,13 @@ import {
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
+import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/VaultFactory';
 
 function ResetInheritanceKey({ route }) {
-  const { vault }: { signerIds: string[]; vault: Vault } = route.params;
+  const {
+    initialTimelockDuration,
+    vault,
+  }: { initialTimelockDuration; signerIds: string[]; vault: Vault } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
@@ -47,6 +51,7 @@ function ResetInheritanceKey({ route }) {
   const { allVaults } = useVault({ includeArchived: false });
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreating, setCreating] = useState(false);
+  const [currentMedianTimePast, setCurrentMedianTimePast] = useState(null);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
   const [activationTimes, setActivationTimes] = useState<Record<string, string>>({});
 
@@ -90,16 +95,27 @@ function ResetInheritanceKey({ route }) {
   };
 
   useEffect(() => {
-    WalletUtilities.fetchCurrentBlockHeight()
-      .then(({ currentBlockHeight }) => {
-        setCurrentBlockHeight(currentBlockHeight);
-      })
-      .catch((err) => showToast(err));
+    if (isVaultUsingBlockHeightTimelock(vault)) {
+      WalletUtilities.fetchCurrentBlockHeight()
+        .then(({ currentBlockHeight }) => {
+          setCurrentBlockHeight(currentBlockHeight);
+        })
+        .catch((err) => showToast(err));
+    } else {
+      WalletUtilities.fetchCurrentMedianTime()
+        .then(({ currentMedianTime }) => {
+          setCurrentMedianTimePast(currentMedianTime);
+        })
+        .catch((err) => showToast(err));
+    }
   }, []);
 
   useEffect(() => {
     try {
-      if (!currentBlockHeight) {
+      if (
+        (isVaultUsingBlockHeightTimelock(vault) && !currentBlockHeight) ||
+        (!isVaultUsingBlockHeightTimelock(vault) && !currentMedianTimePast)
+      ) {
         setActivationTimes((prev) => {
           const newTimes = {};
           inheritanceSigners.forEach((signer) => {
@@ -111,22 +127,38 @@ function ResetInheritanceKey({ route }) {
       }
 
       signers.forEach((signer) => {
-        const blocksUntilActivation =
-          getKeyTimelock(
-            Object.entries(vault.scheme.miniscriptScheme.keyInfoMap)
-              .find(
-                ([identifier, descriptor]) =>
-                  identifier.startsWith(INHERITANCE_KEY_IDENTIFIER) &&
-                  descriptor.substring(1, 9) === signer.masterFingerprint
-              )[0]
-              .split('<')[0],
-            vault.scheme.miniscriptScheme.miniscriptElements
-          ) - currentBlockHeight;
+        let secondsUntilActivation = 0;
+        if (isVaultUsingBlockHeightTimelock(vault)) {
+          const blocksUntilActivation =
+            getKeyTimelock(
+              Object.entries(vault.scheme.miniscriptScheme.keyInfoMap)
+                .find(
+                  ([identifier, descriptor]) =>
+                    identifier.startsWith(INHERITANCE_KEY_IDENTIFIER) &&
+                    descriptor.substring(1, 9) === signer.masterFingerprint
+                )[0]
+                .split('<')[0],
+              vault.scheme.miniscriptScheme.miniscriptElements
+            ) - currentBlockHeight;
+          secondsUntilActivation = blocksUntilActivation * 10 * 60;
+        } else {
+          secondsUntilActivation =
+            getKeyTimelock(
+              Object.entries(vault.scheme.miniscriptScheme.keyInfoMap)
+                .find(
+                  ([identifier, descriptor]) =>
+                    identifier.startsWith(INHERITANCE_KEY_IDENTIFIER) &&
+                    descriptor.substring(1, 9) === signer.masterFingerprint
+                )[0]
+                .split('<')[0],
+              vault.scheme.miniscriptScheme.miniscriptElements
+            ) - currentMedianTimePast;
+        }
+
         let timeString = '';
 
-        if (blocksUntilActivation > 0) {
-          const seconds = blocksUntilActivation * 10 * 60;
-          const days = Math.floor(seconds / (24 * 60 * 60));
+        if (secondsUntilActivation > 0) {
+          const days = Math.floor(secondsUntilActivation / (24 * 60 * 60));
           const months = Math.floor(days / 30);
 
           if (months > 0) {
@@ -134,8 +166,8 @@ function ResetInheritanceKey({ route }) {
           } else if (days > 0) {
             timeString = `${days} day${days > 1 ? 's' : ''}`;
           } else {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
+            const hours = Math.floor(secondsUntilActivation / 3600);
+            const minutes = Math.floor((secondsUntilActivation % 3600) / 60);
             timeString = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${
               minutes > 1 ? 's' : ''
             }`;
@@ -154,7 +186,7 @@ function ResetInheritanceKey({ route }) {
     } catch (e) {
       showToast(e.toString(), null, IToastCategory.DEFAULT, 3000, true);
     }
-  }, [currentBlockHeight, vault]);
+  }, [currentBlockHeight, currentMedianTimePast, vault]);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -236,6 +268,7 @@ function ResetInheritanceKey({ route }) {
           key: signer,
           duration: selectedOptions[getKeyUID(signer)]?.label,
         }))}
+        initialTimelockDuration={initialTimelockDuration ?? 0}
         currentBlockHeight={currentBlockHeight}
         miniscriptTypes={vault.scheme.miniscriptScheme.usedMiniscriptTypes}
       />

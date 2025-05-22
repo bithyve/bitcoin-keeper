@@ -299,7 +299,10 @@ export const generateMiniscriptScheme = (
   return miniscriptScheme;
 };
 
-export const getAvailableMiniscriptPhase = (vault: Vault, currentBlockHeight: number) => {
+export const getAvailableMiniscriptPhase = (
+  vault: Vault,
+  currentBlockHeightOrTimestamp: number
+) => {
   const miniscriptScheme = idx(vault, (_) => _.scheme.miniscriptScheme);
   if (!miniscriptScheme) return {};
 
@@ -310,7 +313,7 @@ export const getAvailableMiniscriptPhase = (vault: Vault, currentBlockHeight: nu
   const availableSignerFingerprints = {};
 
   for (const phase of phases) {
-    if (phase.timelock <= currentBlockHeight) {
+    if (phase.timelock <= currentBlockHeightOrTimestamp) {
       availablePhases.push(phase);
       phase.paths.forEach((path) => {
         path.keys.forEach((key) => {
@@ -330,4 +333,40 @@ export const getAvailableMiniscriptPhase = (vault: Vault, currentBlockHeight: nu
     phases: availablePhases,
     signers: availableSigners,
   };
+};
+
+export const getBlockHeightOrTimestampForVault = (
+  vault: Vault,
+  currentBlockHeight: number,
+  currentTimestamp: number
+): number | null => {
+  const miniscriptScheme = idx(vault, (_) => _.scheme.miniscriptScheme);
+  if (!miniscriptScheme) return null;
+
+  const { miniscriptElements } = miniscriptScheme;
+  if (miniscriptElements?.timelocks && miniscriptElements?.timelocks?.length) {
+    if (miniscriptElements?.timelocks[0] < 500000000) {
+      return currentBlockHeight;
+    } else {
+      return currentTimestamp;
+    }
+  } else {
+    return null;
+  }
+};
+
+export const isVaultUsingBlockHeightTimelock = (vault: Vault): boolean | null => {
+  const miniscriptScheme = idx(vault, (_) => _.scheme.miniscriptScheme);
+  if (!miniscriptScheme) return null;
+
+  const { miniscriptElements } = miniscriptScheme;
+  if (miniscriptElements?.timelocks && miniscriptElements?.timelocks?.length) {
+    if (miniscriptElements?.timelocks[0] < 500000000) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return null;
+  }
 };

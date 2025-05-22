@@ -31,6 +31,7 @@ import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import {
   generateMiniscriptScheme,
   generateVaultId,
+  isVaultUsingBlockHeightTimelock,
 } from 'src/services/wallets/factories/VaultFactory';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
 import {
@@ -45,13 +46,16 @@ import {
   MONTHS_48,
   MONTHS_54,
   MONTHS_60,
+  MONTHS_9,
 } from './constants';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
 import {
-  ENHANCED_VAULT_TIMELOCKS_MAINNET,
-  ENHANCED_VAULT_TIMELOCKS_TESTNET,
+  ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_MAINNET,
+  ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET,
+  ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET,
+  ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_TESTNET,
   generateEnhancedVaultElements,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import { getKeyUID } from 'src/utils/utilities';
@@ -74,6 +78,7 @@ function VaultMigrationController({
   vaultType = VaultType.DEFAULT,
   inheritanceKeys = [],
   emergencyKeys = [],
+  initialTimelockDuration = '',
   currentBlockHeight = null,
   miniscriptTypes = [],
   setVaultCreatedModalVisible = null,
@@ -293,12 +298,24 @@ function VaultMigrationController({
     ])
   );
 
+  // The getCurrentTimeForLock and getTimelockDuration control whether
+  // a vault created will use UNIX timestamp or block height based timelocks.
+
+  const getCurrentTimeForLock = () => {
+    if (activeVault && isVaultUsingBlockHeightTimelock(activeVault)) {
+      return currentBlockHeight;
+    }
+    return Math.floor(Date.now() / 1000);
+  };
+
   const getTimelockDuration = (selectedDuration, networkType) => {
     const durationIdentifier =
       selectedDuration === MONTHS_3
         ? 'MONTHS_3'
         : selectedDuration === MONTHS_6
         ? 'MONTHS_6'
+        : selectedDuration === MONTHS_9
+        ? 'MONTHS_9'
         : selectedDuration === MONTHS_12
         ? 'MONTHS_12'
         : selectedDuration === MONTHS_18
@@ -324,9 +341,15 @@ function VaultMigrationController({
       return;
     }
 
+    if (activeVault && isVaultUsingBlockHeightTimelock(activeVault)) {
+      return networkType === NetworkType.MAINNET
+        ? ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_MAINNET[durationIdentifier]
+        : ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET[durationIdentifier];
+    }
+
     return networkType === NetworkType.MAINNET
-      ? ENHANCED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
-      : ENHANCED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
+      ? ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET[durationIdentifier]
+      : ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_TESTNET[durationIdentifier];
   };
 
   const prepareMiniscriptScheme = async (
@@ -334,37 +357,49 @@ function VaultMigrationController({
     miniscriptTypes: MiniscriptTypes[],
     inheritanceSigners?: { key: VaultSigner; duration: string }[],
     emergencySigners?: { key: VaultSigner; duration: string }[],
+    initialTimelockDuration?: string,
     existingMiniscriptScheme?: MiniscriptScheme
   ) => {
     if (
       vaultInfo.vaultType !== VaultType.MINISCRIPT ||
       !(
+        miniscriptTypes.includes(MiniscriptTypes.TIMELOCKED) ||
         miniscriptTypes.includes(MiniscriptTypes.INHERITANCE) ||
         miniscriptTypes.includes(MiniscriptTypes.EMERGENCY)
       )
     ) {
       showToast(
-        'Invalid vault type - supported only for inheritance and emergency',
+        'Invalid vault type - supported only for timelocked, inheritance emergency',
         <ToastErrorIcon />
       );
       return;
     }
 
+    let initialTimelock = 0;
+
     const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
-    let currentSyncedBlockHeight = currentBlockHeight;
-    if (!currentSyncedBlockHeight) {
-      try {
-        currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
-          .currentBlockHeight;
-      } catch (err) {
-        console.log('Failed to re-fetch current block height: ' + err);
-      }
-      if (!currentSyncedBlockHeight) {
-        showToast(
-          'Failed to fetch current chain data, please check your connection and try again',
-          <ToastErrorIcon />
-        );
-        setCreating(false);
+    // let currentSyncedBlockHeight = currentBlockHeight;
+    // if (!currentSyncedBlockHeight) {
+    //   try {
+    //     currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+    //       .currentBlockHeight;
+    //   } catch (err) {
+    //     console.log('Failed to re-fetch current block height: ' + err);
+    //   }
+    //   if (!currentSyncedBlockHeight) {
+    //     showToast(
+    //       'Failed to fetch current chain data, please check your connection and try again',
+    //       <ToastErrorIcon />
+    //     );
+    //     setCreating(false);
+    //     return;
+    //   }
+    // }
+
+    if (initialTimelockDuration) {
+      initialTimelock = getTimelockDuration(initialTimelockDuration, bitcoinNetworkType);
+      if (!initialTimelock) {
+        showToast('Failed to determine initial timelock duration', <ToastErrorIcon />);
         return;
       }
     }
@@ -381,7 +416,7 @@ function VaultMigrationController({
         }
         inheritanceSignerWithTimelocks.push({
           signer: key,
-          timelock: currentBlockHeight + timelock,
+          timelock: getCurrentTimeForLock() + initialTimelock + timelock,
         });
       }
     }
@@ -393,7 +428,10 @@ function VaultMigrationController({
           showToast('Failed to determine emergency timelock duration', <ToastErrorIcon />);
           return;
         }
-        emergencySignerWithTimelocks.push({ signer: key, timelock: currentBlockHeight + timelock });
+        emergencySignerWithTimelocks.push({
+          signer: key,
+          timelock: getCurrentTimeForLock() + initialTimelock + timelock,
+        });
       }
     }
 
@@ -401,7 +439,8 @@ function VaultMigrationController({
       vaultInfo.vaultSigners,
       inheritanceSignerWithTimelocks,
       emergencySignerWithTimelocks,
-      vaultInfo.vaultScheme
+      vaultInfo.vaultScheme,
+      initialTimelock ? getCurrentTimeForLock() + initialTimelock : 0
     );
 
     if (!miniscriptElements) {
@@ -463,6 +502,7 @@ function VaultMigrationController({
             miniscriptTypes,
             inheritanceKeys,
             emergencyKeys,
+            initialTimelockDuration,
             activeVault ? activeVault.scheme.miniscriptScheme : null
           );
         } catch (err) {

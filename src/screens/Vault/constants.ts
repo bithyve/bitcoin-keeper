@@ -8,6 +8,7 @@ export const WEEKS_2 = '2 weeks';
 export const MONTH_1 = '1 month';
 export const MONTHS_3 = '3 months';
 export const MONTHS_6 = '6 months';
+export const MONTHS_9 = '9 months';
 export const MONTHS_12 = '1 year';
 export const MONTHS_18 = '1.5 years';
 export const MONTHS_24 = '2 years';
