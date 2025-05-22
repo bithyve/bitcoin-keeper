@@ -31,6 +31,7 @@ import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import {
   generateMiniscriptScheme,
   generateVaultId,
+  isVaultUsingBlockHeightTimelock,
 } from 'src/services/wallets/factories/VaultFactory';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
 import {
@@ -301,7 +302,9 @@ function VaultMigrationController({
   // a vault created will use UNIX timestamp or block height based timelocks.
 
   const getCurrentTimeForLock = () => {
-    // return currentBlockHeight;
+    if (activeVault && isVaultUsingBlockHeightTimelock(activeVault)) {
+      return currentBlockHeight;
+    }
     return Math.floor(Date.now() / 1000);
   };
 
@@ -338,9 +341,11 @@ function VaultMigrationController({
       return;
     }
 
-    // return networkType === NetworkType.MAINNET
-    //   ? ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_MAINNET[durationIdentifier]
-    //   : ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET[durationIdentifier];
+    if (activeVault && isVaultUsingBlockHeightTimelock(activeVault)) {
+      return networkType === NetworkType.MAINNET
+        ? ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_MAINNET[durationIdentifier]
+        : ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET[durationIdentifier];
+    }
 
     return networkType === NetworkType.MAINNET
       ? ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET[durationIdentifier]
