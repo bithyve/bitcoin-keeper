@@ -229,7 +229,8 @@
     "initilizePortal": "Initialize Portal",
     "unlock": "Unlock",
     "saveLabels": "Save Labels",
-    "manageCoins": "Manage Coins"
+    "manageCoins": "Manage Coins",
+    "broadCast": "Broadcast"
   },
   "noInternet": {
     "no": "No Internet",
@@ -439,7 +440,8 @@
     "viewAllRecords": "View all your records",
     "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here:",
     "transactionDetails": "Transaction Details",
-    "addTransactionNote": "Add transaction note"
+    "addTransactionNote": "Add transaction note",
+    "scanSignedTransaction": "Scan Signed Transaction"
   },
   "DiscountCodes": {
     "DiscountCodesTitle": "Buy new Hardware Signers",
@@ -818,7 +820,13 @@
     "accessXpub": "Access the xPub to create a watch-only wallet.",
     "viewPath": "View the Path and Purpose of the wallet.",
     "importExport": "Import and Export labels to identify specific UTXOs across transactions and wallets.",
-    "walletSeedWordaccess": "Access the wallet's seed words."
+    "walletSeedWordaccess": "Access the wallet's seed words.",
+    "scanQrWithSigner": "Scan the QR with the signer",
+    "scanTransaction": "Scan Transaction",
+    "vaultDetails": "Vault Details",
+    "signTransactionWithKey": "Sign the transaction with your key",
+    "keysToSign": "keys to sign the transaction",
+    "choose": "Choose"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1141,7 +1149,8 @@
     "unlockCompletely": "It was not unlocked completely, please try holding for",
     "unlockTapSigner": "Unlock TAPSIGNER rate-limit",
     "enteredWrongPin": "You might have entered the wrong pin too many times, please unlock here and try again",
-    "msgNote": "This might take approximately 15s or less"
+    "msgNote": "This might take approximately 15s or less",
+    "getTapsignerReady": "Get your TAPSIGNER ready"
   },
   "coldcard": {
     "Setupandassociate": "Setup and associate",
@@ -1772,7 +1781,67 @@
     "shareKeyDetails": "Share Key Details",
     "scanKeyDetailFromAnotherApp": "Scan the key details from another app to add on that app",
     "cosignerDetails": "Co-signer Details",
-    "cosignerDetailsCopied": "Co-signer Details Copied Successfully"
+    "cosignerDetailsCopied": "Co-signer Details Copied Successfully",
+    "signTransactionViaNFC": "Sign Transaction via NFC",
+    "signTransactionViaNFCDesc": "First send the transaction to the other Keeper app, sign it on Keeper, then click receive to pass it back into Keeper",
+    "signTransactionViaColdcard": "First send the transaction to the Coldcard, sign it on Coldcard, then click receive to pass it back into Keeper",
+    "sendTransaction": "Send transaction",
+    "fromAppToOtherApp": "from the app to other Keeper app",
+    "fromAppToColdcard": "from the app to the Coldcard",
+    "recievesignedTransaction": "Receive signed transaction",
+    "fromOtherAppToApp": "from other Keeper app to the app",
+    "fromColdcardToApp": "from the Coldcard to the app",
+    "needHelpWithKeeper": "Need help with Keeper?",
+    "needHelpWithColdCard": "Need help with Coldcard?",
+    "mapErrorOnKeeper": "Try to map the error on the Keeper to one of the options here",
+    "mapErrorOncoldcard": "Try to map the error on the Coldcard to one of the options here",
+    "manuallyRegister": " Manually Register",
+    "registervaultifnotregistered": "Please resigister the vault if not already registered",
+    "learnMOreAbout": "Learn more about",
+    "findAlluserDocumentation": "Here you will find all of our User Documentation for the",
+    "uploadAndPasteFile": "Please upload or paste the file containing the signed transaction",
+    "getColdCardReady": "Get your Coldcard ready",
+    "signingWith": "Signing with",
+    "startSigning": "Start Signing",
+    "keepPortalReady": "Keep your Portal ready",
+    "portalReadySub": "Keep your Portal ready before proceeding",
+    "getYourDeviceReady": "Get your Device Ready",
+    "chooseOneoftheFollowingOptions": "Choose one of the following options",
+    "keepSignerReady": "Keep the Signer Ready",
+    "keepBitBox02Ready": "Keep BitBox02 Ready",
+    "keepBitBox02ReadySub": "Keep your BitBox02 connected to the computer before proceeding.",
+    "keepTrezorReady": "Keep Trezor Ready",
+    "connectTrezortoComp": "Connect the Trezor to your computer and open the Bitcoin Keeper desktop app",
+    "keepJadeReady": "Keep Jade Ready",
+    "getJadeReady": "Get your Jade ready before proceeding",
+    "keepKeyStoneReady": "Keep Keystone Ready",
+    "keepSpectorReady": "Keep Specter Ready",
+    "getSpectorReady": "Get your Specter ready before proceeding",
+    "keepSeedSignerReady": "Keep SeedSigner Ready",
+    "getSeedSignerReady": "Get your SeedSigner ready before proceeding",
+    "keepPasportReady": "Keep Passport Ready",
+    "getYourLedgerReady": "Get your Ledger Ready",
+    "connectLedgerToComp": "Connect the Legger to your computer and open the Bitcoin Keeper desktop app",
+    "portalInstruction1": "Portal communicates with the app over NFC",
+    "portalInstruction2": "PYou will need the CVC/ Pin, if you have set one.",
+    "tapsignerInstruction1": "TAPSIGNER communicates with the app over NFC",
+    "tapsignerInstruction2": "You will need the PIN (given at the back of the TAPSIGNER).",
+    "openOtherApp": "Open the other Keeper app > Go to Manage Keys > Access the key with the fingerprint",
+    "eitherScanOrExport": "Either scan or use the export option to transfer the PSBT to the signer.",
+    "jadeInstruction1": "Make sure the multisig wallet is registered with the Jade before signing the transaction.",
+    "jadeInstruction2": "On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned.",
+    "keystoneinstruction1": "Make sure the multisig wallet is registered with the Keystone before signing the transaction.",
+    "forQrSigning": "For QR signing, on the Keystone, choose",
+    "multisigMenu": "multisig menu",
+    "genericWalletSection": "Generic Wallet section",
+    "pressScanIcon": "press the scan icon on the top bar and wait for the QR to be scanned.",
+    "spectorInstruction1": "Make sure the multisig wallet is registered with the Specter before signing the transaction",
+    "spectorInstruction2": "On the Specter main menu, choose the 'Scan QR code' option and wait for the QR to be scanned.",
+    "seedSignerInstruction1": "\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.",
+    "seedSignerInstruction2": "\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned.",
+    "pasportInstruction1": "Make sure the multisig wallet is registered with the Passport before signing the transaction.",
+    "passportInstruction2": "For QR signing, on the Passport main menu, choose the 'Sign with QR Code' option.",
+    "coldCardMultisigMsg": "Make sure the multisig wallet is registered with the Coldcard before signing the transaction"
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
@@ -2108,6 +2177,11 @@
     "addressFailed": "Address verification failed",
     "invalidOtp": "Invalid OTP. Please try again",
     "missingKeyDetails": "Missing key details of multi-key type, please add key details from Add Device",
-    "troubleRecivingInfo": "We're sorry, but we have trouble retrieving the key information"
+    "troubleRecivingInfo": "We're sorry, but we have trouble retrieving the key information",
+    "scanValidPsbt": "Please scan a valid psbt",
+    "transactionBeingProcessed": "Your transaction is being processed. You will receive a notification when it is signed",
+    "enoughtSignature": "We already have enough signatures, you can now broadcast.",
+    "transactionAlreadySubmitted": "Transaction already submitted for signing",
+    "notEnoughtSignature": "Sorry there aren't enough signatures!"
   }
 }

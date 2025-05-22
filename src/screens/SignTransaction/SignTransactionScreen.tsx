@@ -111,7 +111,13 @@ function SignTransactionScreen() {
 
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTransactions, common } = translations;
+  const {
+    wallet: walletTransactions,
+    common,
+    error: errorText,
+    transactions: transactionText,
+    settings: settingsText,
+  } = translations;
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
@@ -376,9 +382,7 @@ function SignTransactionScreen() {
             });
 
           if (delayed) {
-            showToast(
-              'Your transaction is being processed. You will receive a notification when it is signed'
-            );
+            showToast(errorText.transactionBeingProcessed);
             dispatch(updateDelayedTransaction(delayedTransaction));
           } else if (signedSerializedPSBT) {
             dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
@@ -485,7 +489,7 @@ function SignTransactionScreen() {
   const callbackForSigners = (vaultKey: VaultSigner, signer: Signer) => {
     setActiveXfp(vaultKey.xfp);
     if (areSignaturesSufficient()) {
-      showToast('We already have enough signatures, you can now broadcast.');
+      showToast(errorText.enoughtSignature);
       return;
     }
     switch (signer.type) {
@@ -512,7 +516,7 @@ function SignTransactionScreen() {
           const delayedTx: DelayedTransaction = delayedTransactions[delayedTxid];
           if (delayedTx) {
             if (!delayedTx.signedPSBT) {
-              showToast('Transaction already submitted for signing');
+              showToast(errorText.transactionAlreadySubmitted);
               return;
             }
           }
@@ -623,9 +627,9 @@ function SignTransactionScreen() {
 
     try {
       await Share.open({
-        message: 'The transaction has been successfully sent. You can track its status here:',
+        message: transactionText.transactionSuccessSent,
         url,
-        title: 'Transaction Details',
+        title: transactionText.TransactionDetails,
       });
     } catch (err) {
       console.error('Share error:', err);
@@ -636,11 +640,11 @@ function SignTransactionScreen() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
       <WalletHeader
-        title="Sign Transaction"
+        title={walletTransactions.SignTransaction}
         subTitle={
           serializedPSBTEnvelops.length == 1
-            ? 'Sign the transaction with your key'
-            : `Choose ${defaultVault.scheme.m} keys to sign the transaction`
+            ? walletTransactions.signTransactionWithKey
+            : `${walletTransactions.choose} ${defaultVault.scheme.m} ${walletTransactions.keysToSign}`
         }
       />
       <FlatList
@@ -675,7 +679,7 @@ function SignTransactionScreen() {
           fullWidth
           primaryDisable={!areSignaturesSufficient()}
           primaryLoading={broadcasting}
-          primaryText="Broadcast"
+          primaryText={common.broadCast}
           primaryCallback={() => {
             if (areSignaturesSufficient()) {
               setBroadcasting(true);
@@ -688,7 +692,7 @@ function SignTransactionScreen() {
                 })
               );
             } else {
-              showToast("Sorry there aren't enough signatures!");
+              showToast(errorText.notEnoughtSignature);
             }
           }}
         />
@@ -775,8 +779,8 @@ function SignTransactionScreen() {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Enter Passcode"
-        subTitle="Confirm passcode to sign with mobile key"
+        title={settingsText.EnterPasscodeTitle}
+        subTitle={settingsText.EnterPasscodeMobile}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
