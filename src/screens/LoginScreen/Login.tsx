@@ -352,7 +352,7 @@ function LoginScreen({ navigation, route }) {
 
   const modelButtonText = useMemo(() => {
     if (isAuthenticated) {
-      if (campaignDetails && !campaignDetails.loginModalShown) {
+      if (campaignDetails && !campaignFlags.loginModalShown) {
         setLoginModal(false);
         dispatch(setCampaignFlags({ key: 'loginModalShown', value: true }));
         setShowCampaignModal(true);
