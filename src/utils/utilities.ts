@@ -683,3 +683,12 @@ export const manipulateIosProdProductId = (productId: string) => {
   if (Platform.OS === 'ios' && !config.isDevMode()) return productId.replace('.', '_'); // Replace "." with "_"
   return productId;
 };
+
+export const getLocalizedDiscountedPrice = (price, localizedPrice, discount) => {
+  const originalPrice = parseFloat(price);
+  const discountAmount = originalPrice * (discount / 100);
+  const finalPrice = originalPrice - discountAmount;
+  const symbolMatch = localizedPrice.match(/^[^\d.,\s]+/);
+  const currencySymbol = symbolMatch ? symbolMatch[0] : '';
+  return `${currencySymbol}${finalPrice.toFixed(2)}`;
+};
