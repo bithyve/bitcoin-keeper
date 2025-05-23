@@ -843,7 +843,12 @@
     "deviceDoesntRequireVaultRegistration": "This device doesn't require vault registration",
     "warningContentData": "If the signer is identified incorrectly there may be repercussions with general signer interactions like signing etc.",
     "setDeviceType": "Set Device Type",
-    "scanAndVerifyTransaction": "Scan and verify transaction details"
+    "scanAndVerifyTransaction": "Scan and verify transaction details",
+    "backupyourwallet": "Make sure to backup your wallet recovery file",
+    "recoverYourWallet": "You will need it to recover your wallet in case you lose access to your device.",
+    "doThisLater": "You can also do this later from the wallet settings.",
+    "backupFile": "Backup Wallet Recovery File",
+    "keepItPrivate": "Keep it private and secure"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

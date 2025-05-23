@@ -239,6 +239,8 @@ function ConfirmWalletDetails({ route }) {
       ...tag,
       key: `tag-${index}-${tag.tag}`,
     }));
+    const { translations } = useContext(LocalizationContext);
+    const { wallet: walletText } = translations;
 
     return (
       <Box>
@@ -280,18 +282,18 @@ function ConfirmWalletDetails({ route }) {
         </Box>
         <Box style={{ marginBottom: hp(10) }}>
           <Text fontSize={13} style={{ marginBottom: hp(2) }}>
-            Make sure to backup your wallet recovery file.
+            {walletText.backupyourwallet}
           </Text>
           <Text fontSize={13} style={{ marginBottom: hp(2) }}>
-            You will need it to recover your wallet in case you lose access to your device.
+            {walletText.recoverYourWallet}
           </Text>
           <Text fontSize={13} style={{ marginBottom: hp(2) }}>
-            You can also do this later from the wallet settings.
+            {walletText.doThisLater}
           </Text>
         </Box>
         <CTACardDotted
-          title={'Backup Wallet Recovery File'}
-          subTitle={'Keep it private and secure'}
+          title={walletText.backupFile}
+          subTitle={walletText.keepItPrivate}
           isActive={true}
           onPress={viewVaultConfigFile}
           width={'100%'}
