@@ -78,7 +78,7 @@ const KeeperSettings = ({ route }) => {
         onPress={() => {
           if (!campaignFlags?.subscriptionDotShown) {
             dispatch(setCampaignFlags({ key: 'subscriptionDotShown', value: true }));
-            navigation.dispatch(CommonActions.navigate('DiscountedPlanScreen'));
+            navigation.dispatch(CommonActions.navigate('ChoosePlan', { showDiscounted: true }));
           } else navigation.dispatch(CommonActions.navigate('ChoosePlan'));
         }}
         icon={currentPlan.icon}

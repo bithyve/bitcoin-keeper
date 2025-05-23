@@ -451,12 +451,12 @@ function LoginScreen({ navigation, route }) {
   const campaignNavigation = () => {
     updateFCM();
     navigation.reset({
-      index: 2,
+      index: 3,
       routes: [
         {
           name: 'App',
           state: {
-            routes: [{ name: 'Home' }, { name: 'DiscountedPlanScreen' }],
+            routes: [{ name: 'Home' }, { name: 'ChoosePlan' }, { name: 'DiscountedPlanScreen' }],
           },
         },
       ],

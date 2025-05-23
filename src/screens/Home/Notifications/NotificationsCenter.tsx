@@ -334,7 +334,7 @@ const Card = memo(({ uai }: CardProps) => {
               text: 'View',
               cta: () => {
                 dispatch(uaiActioned({ uaiId: uai.id, action: false }));
-                navigtaion.dispatch(CommonActions.navigate('DiscountedPlanScreen'));
+                navigtaion.dispatch(CommonActions.navigate('ChoosePlan', { showDiscounted: true }));
               },
             },
           },

@@ -57,7 +57,9 @@ const OLD_SUBS_PRODUCT_ID = ['hodler.dev', 'diamond_hands.dev', 'diamond_hands',
 function ChoosePlan() {
   const route = useRoute();
   const navigation = useNavigation();
-  const initialPosition = route.params?.planPosition || 0;
+  const { initialPosition } = route.params?.planPosition || 0;
+  const showDiscounted = route?.params?.showDiscounted || false;
+
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
@@ -124,6 +126,10 @@ function ChoosePlan() {
       } else setEnableDesktopManagement(true);
     }
   }, [appSubscription]);
+
+  useEffect(() => {
+    if (showDiscounted) navigation.dispatch(CommonActions.navigate('DiscountedPlanScreen'));
+  }, []);
 
   const checkForActiveCampaign = async () => {
     const res = await Relay.getActiveCampaign(id);
