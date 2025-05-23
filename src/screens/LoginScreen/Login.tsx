@@ -50,6 +50,8 @@ import Fonts from 'src/constants/Fonts';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import CampaignModalIllustration from 'src/assets/images/CampaignModalIllustration.svg';
+import { uaiType } from 'src/models/interfaces/Uai';
+import { addToUaiStack, uaiChecks } from 'src/store/sagaActions/uai';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -549,7 +551,13 @@ function LoginScreen({ navigation, route }) {
           Content={CampaignContent}
           subTitleWidth={wp(280)}
           secondaryButtonText={common.skip}
-          secondaryCallback={loginModalAction}
+          secondaryCallback={() => {
+            dispatch(
+              addToUaiStack({ entityId: campaignDetails.planName, uaiType: uaiType.CAMPAIGN })
+            );
+            dispatch(uaiChecks([uaiType.CAMPAIGN]));
+            loginModalAction();
+          }}
         />
       )}
 

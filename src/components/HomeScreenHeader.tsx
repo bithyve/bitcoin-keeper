@@ -165,6 +165,10 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
       dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
       dispatch(backupAllSignersAndVaults());
     },
+    [uaiType.CAMPAIGN]: () => {
+      dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
+      navigtaion.dispatch(CommonActions.navigate('DiscountedPlanScreen'));
+    },
   };
 
   return (
