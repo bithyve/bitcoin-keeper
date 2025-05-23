@@ -507,6 +507,13 @@ function ChoosePlan() {
             onPress={() => navigation.dispatch(CommonActions.navigate('PurchaseWithChannel'))}
           />
         )}
+      </>
+    );
+  };
+
+  const HeaderCTA = () => {
+    return (
+      <>
         {activeCampaign && !isOnL3Above && (
           <BrownButton
             title={activeCampaign}
@@ -599,6 +606,7 @@ function ChoosePlan() {
             isMonthly={isMonthly}
             getButtonText={getButtonState}
             listFooterCta={<FooterCTA />}
+            listHeaderCta={<HeaderCTA />}
           />
         </Box>
       )}
