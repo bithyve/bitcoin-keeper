@@ -286,6 +286,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           name: 'TicketDetails',
           params: { ticketId: parseInt(ticketId), ticketStatus },
         });
+    } else if (data?.notificationType === notificationType.CAMPAIGN) {
+      navigation.navigate('DiscountedPlanScreen');
     }
   };
 
