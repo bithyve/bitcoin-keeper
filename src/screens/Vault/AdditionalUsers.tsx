@@ -42,7 +42,7 @@ function AdditionalUsers({ route }: any) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, error: errorTranslation, signingServer: signingServerTranslation } = translations;
   const {
     signer,
   }: {
@@ -176,7 +176,7 @@ function AdditionalUsers({ route }: any) {
             label: newUserName,
           });
         } else if (secondaryActionType === SecondaryVerificationOptionActionType.REMOVE) {
-          showToast('User was deleted successfully');
+          showToast(errorTranslation.userDeleted);
           setDeleteUserValidationModal(false);
         }
 
@@ -184,7 +184,7 @@ function AdditionalUsers({ route }: any) {
         setOtp('');
       } else {
         showValidationModal(false);
-        showToast('Invalid OTP. Please try again!');
+        showToast(errorTranslation.invalidOtp);
         setOtp('');
       }
     } catch (err) {
@@ -196,7 +196,7 @@ function AdditionalUsers({ route }: any) {
 
   return (
     <ScreenWrapper>
-      <WalletHeader title="Manage Additional Users" />
+      <WalletHeader title={signingServerTranslation.manageAdditionalUsers} />
       {additionalUserData.length > 0 ? (
         <ScrollView>
           <Box>
@@ -208,13 +208,13 @@ function AdditionalUsers({ route }: any) {
           </Box>
         </ScrollView>
       ) : (
-        <Text style={styles.noUsersText}>The Server Key has no existing additional users.</Text>
+        <Text style={styles.noUsersText}>{signingServerTranslation.noAdditionalUsers}</Text>
       )}
 
       <Box flex={1} />
       <Box style={styles.ButtonContainer}>
         <Buttons
-          primaryText="Add New User"
+          primaryText={signingServerTranslation.addNewUser}
           primaryCallback={() => {
             setAddNewUserModal(true);
           }}
@@ -227,9 +227,9 @@ function AdditionalUsers({ route }: any) {
         close={() => {
           setAdditionalUser(false);
         }}
-        title="Additional Users"
-        subTitle="Here you can add and manage additional users to whom you would like to give access to your Server Key. Each user will have their own 2FA code, and a set of permissions for the actions they are allowed to access with your Server Key."
-        buttonText="Add New User"
+        title={signingServerTranslation.additionalUsers}
+        subTitle={signingServerTranslation.additionalUsersSubTitle}
+        buttonText={signingServerTranslation.addNewUser}
         buttonBackground={green_modal_button_background}
         buttonTextColor={green_modal_button_text}
         modalBackground={green_modal_background}
@@ -248,9 +248,9 @@ function AdditionalUsers({ route }: any) {
         close={() => {
           setAddNewUserModal(false);
         }}
-        title="Add New User"
-        subTitle="Please add a name for the new user and select the permissions for them to have with your Server Key"
-        buttonText="Confirm"
+        title={signingServerTranslation.addNewUser}
+        subTitle={signingServerTranslation.subtitle2}
+        buttonText={common.confirm}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -275,7 +275,7 @@ function AdditionalUsers({ route }: any) {
         close={() => {
           setPermittedActions(false);
         }}
-        title="Permitted Actions"
+        title={signingServerTranslation.permittedAction}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
@@ -313,8 +313,8 @@ function AdditionalUsers({ route }: any) {
         close={() => {
           setDeleteUser(false);
         }}
-        title="Confirm Deletion"
-        subTitle="Are you sure you want to delete this user?"
+        title={signingServerTranslation.confirmDeletion}
+        subTitle={signingServerTranslation.confirmDeletionSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -323,7 +323,7 @@ function AdditionalUsers({ route }: any) {
             <ThemedSvg name={'delete_illustration'} />
           </Box>
         )}
-        buttonText="Confirm"
+        buttonText={common.confirm}
         buttonCallback={() => {
           setSecondaryActionType(SecondaryVerificationOptionActionType.REMOVE);
           setDeleteUser(false);

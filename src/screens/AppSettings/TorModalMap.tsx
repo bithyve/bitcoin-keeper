@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
@@ -6,9 +6,12 @@ import { hp, wp } from 'src/constants/responsive';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import { TorStatus } from 'src/services/rest/RestClient';
 import LoadingAnimation from 'src/components/Loader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function TorConnectionContent() {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet } = translations;
   // assert missing
   return (
     <Box width={wp(300)}>
@@ -17,7 +20,7 @@ function TorConnectionContent() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text color={`${colorMode}.greenText`} fontSize={14} padding={1} letterSpacing={0.65}>
-          Connecting via Tor improves your online privacy
+          {wallet.connectingViaTor}
         </Text>
       </Box>
     </Box>
@@ -26,6 +29,8 @@ function TorConnectionContent() {
 
 function TorConnectionFailed() {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet } = translations;
   return (
     <Box width={wp(270)}>
       <Box alignItems="center">
@@ -33,7 +38,7 @@ function TorConnectionFailed() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text color={`${colorMode}.greenText`} fontSize={14} padding={1} letterSpacing={0.65}>
-          This can be due to network or other conditions.
+          {wallet.networkOrOtherConditions}
         </Text>
       </Box>
     </Box>
@@ -43,14 +48,16 @@ function TorConnectionFailed() {
 function TorModalMap({ visible, close }) {
   const { colorMode } = useColorMode();
   const [torStatus] = useState<TorStatus>(TorStatus.CONNECTING);
+  const { translations } = useContext(LocalizationContext);
+  const { wallet, common } = translations;
 
   return (
     <>
       <KeeperModal
         visible={visible && torStatus === TorStatus.CONNECTING}
         close={close}
-        title="Connecting to Tor"
-        subTitle="Network calls and some functions may work slower when enabled"
+        title={wallet.connectingToTor}
+        subTitle={wallet.connectingToTorDesc}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={TorConnectionContent}
@@ -58,11 +65,11 @@ function TorModalMap({ visible, close }) {
       <KeeperModal
         visible={visible && torStatus === TorStatus.ERROR}
         close={close}
-        title="Connection Error"
-        subTitle="There was an error when connecting via Tor. You could continue without connecting to Tor or try after sometime."
+        title={wallet.connectionError}
+        subTitle={wallet.connectionErrorDesc}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText="Close"
+        buttonText={common.close}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonCallback={() => {
           close();

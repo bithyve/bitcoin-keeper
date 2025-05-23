@@ -1,5 +1,5 @@
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { windowWidth } from 'src/constants/responsive';
 import FeeGraph from './FeeGraph';
 import Text from 'src/components/KeeperText';
@@ -10,6 +10,7 @@ import { generateFeeInsightStatement } from 'src/utils/feeInisghtUtil';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
 import FeeInsightCard from './FeeInsightCard';
 import FeeDataSource from './FeeDataSource';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const FeeInsightsContent = () => {
   const [oneWeekFeeRate, setOneWeekFreeRate] = useState([]);
@@ -23,6 +24,8 @@ const FeeInsightsContent = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common, home } = translations;
 
   useEffect(() => {
     fetchOneWeekData();
@@ -49,7 +52,7 @@ const FeeInsightsContent = () => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ minHeight: 400 }}>
         <View style={[styles.headerWrapper, { backgroundColor: `${colorMode}.seashellWhite` }]}>
           <Text style={styles.titleLabel} color={`${colorMode}.modalGreenTitle`}>
-            BTC Transaction Fee Insights
+            {home.BTCTransactionFeeInsights}
           </Text>
         </View>
         {isLoading ? (
@@ -60,23 +63,23 @@ const FeeInsightsContent = () => {
           <>
             <View style={styles.cardWrapper}>
               <FeeInsightCard
-                line1={'Current'}
-                line2={'average'}
-                suffix={' sats/vByte'}
+                line1={common.Current}
+                line2={common.average}
+                suffix={common.satsPerByte}
                 stats={feeInsightStatement.latestFee}
               />
               <FeeInsightCard
-                line1={'From'}
-                line2={'yesterday'}
-                suffix={' sats/vByte'}
+                line1={common.From}
+                line2={common.yesterday}
+                suffix={common.satsPerByte}
                 stats={feeInsightStatement.oneDayAgoFee}
                 showArrow={true}
                 pointer={feeInsightStatement.dayComparisonText}
               />
               <FeeInsightCard
-                line1={`This week's`}
-                line2={'average'}
-                suffix={' sats/vByte'}
+                line1={common.thisWeek}
+                line2={common.average}
+                suffix={common.satsPerByte}
                 stats={feeInsightStatement.oneWeekAgoFee}
               />
             </View>

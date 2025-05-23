@@ -15,7 +15,7 @@ import Buttons from 'src/components/Buttons';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { createXpubDetails, generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
@@ -46,6 +46,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import Instruction from 'src/components/Instruction';
 import { useAppSelector } from 'src/store/hooks';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupPortal({ route }) {
   const {
@@ -89,6 +90,8 @@ function SetupPortal({ route }) {
   const [xpubs, setXpubs] = useState({});
   const [infoModal, setInfoModal] = useState(false);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorText, signer: signerText, vault: vaultText, common } = translations;
 
   let vaultDescriptor = '';
   let vault = null;
@@ -125,7 +128,7 @@ function SetupPortal({ route }) {
       } else {
         if (mode === InteracationMode.VAULT_ADDITION) setIsAddSignerMode(true);
         if (!(await DeviceInfo.isEmulator()))
-          showToast('NFC not supported on this device', <ToastErrorIcon />);
+          showToast(errorText.nfcNotSupported, <ToastErrorIcon />);
       }
     });
   };
@@ -139,21 +142,18 @@ function SetupPortal({ route }) {
         const res = await PORTAL.verifyAddress(receiveAddressIndex);
         if (res == receivingAddress) {
           navigation.dispatch(CommonActions.goBack());
-          if (Platform.OS === 'ios') NFC.showiOSMessage(`Address verified successfully!`);
-          showToast('Address verified successfully', <TickIcon />);
+          if (Platform.OS === 'ios') NFC.showiOSMessage(errorText.AddressVerifiedSuccessfully);
+          showToast(errorText.AddressVerifiedSuccessfully, <TickIcon />);
           return true;
         } else {
-          if (Platform.OS === 'ios') NFC.showiOSMessage(`Address verification failed!`);
-          showToast('Address verification failed!');
+          if (Platform.OS === 'ios') NFC.showiOSMessage(errorText.addressFailed);
+          showToast(errorText.addressFailed);
           return false;
         }
       });
     } catch (error) {
       if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
-      showToast(
-        error.message ? error.message : 'Something went wrong. Please try again',
-        <ToastErrorIcon />
-      );
+      showToast(error.message ? error.message : errorText.somethingWentWrong, <ToastErrorIcon />);
       return false;
     }
   };
@@ -176,15 +176,12 @@ function SetupPortal({ route }) {
           );
         }
         navigation.dispatch(CommonActions.goBack());
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal verified successfully!`);
-        showToast('Portal verified successfully', <TickIcon />);
+        if (Platform.OS === 'ios') NFC.showiOSMessage(signerText.portalverified);
+        showToast(signerText.portalverified, <TickIcon />);
         return true;
       });
     } catch (error) {
-      showToast(
-        error.message ? error.message : 'Something went wrong. Please try again',
-        <ToastErrorIcon />
-      );
+      showToast(error.message ? error.message : errorText.somethingWentWrong, <ToastErrorIcon />);
       if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
       return false;
     }
@@ -199,10 +196,7 @@ function SetupPortal({ route }) {
       return true;
     } catch (error) {
       if (error?.message.includes(PORTAL_ERRORS.PORTAL_NOT_INITIALIZED)) navigation.goBack();
-      showToast(
-        error.message ? error.message : 'Something went wrong. Please try again',
-        <ToastErrorIcon />
-      );
+      showToast(error.message ? error.message : errorText.somethingWentWrong, <ToastErrorIcon />);
 
       return false;
     }
@@ -211,7 +205,7 @@ function SetupPortal({ route }) {
   const startRegisterVault = async () => {
     const res = await withNfcModal(async () => registerVault());
     if (res) {
-      showToast('Vault Registered Successfully');
+      showToast(vaultText.vaultRegisteredSuccessfully, <TickIcon />);
       navigation.goBack();
     }
   };
@@ -232,10 +226,7 @@ function SetupPortal({ route }) {
           return { ...xpubs, [purpose]: portalDetails };
         });
       } catch (error) {
-        showToast(
-          error.message ? error.message : 'Something went wrong. Please try again',
-          <ToastErrorIcon />
-        );
+        showToast(error.message ? error.message : errorText.somethingWentWrong, <ToastErrorIcon />);
       }
     },
     [cvc]
@@ -253,7 +244,7 @@ function SetupPortal({ route }) {
       xpubDetails,
       isAmf: false,
     });
-    if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal added successfully!`);
+    if (Platform.OS === 'ios') NFC.showiOSMessage(signerText.portalAddedSuccess);
     dispatch(addSigningDevice([portalSigner]));
     const navigationState = addSignerFlow
       ? {
@@ -276,12 +267,12 @@ function SetupPortal({ route }) {
   const signWithPortal = React.useCallback(async () => {
     try {
       await signTransaction({ portalCVC: cvc });
-      if (Platform.OS === 'ios') NFC.showiOSMessage(`Portal signed successfully!`);
+      if (Platform.OS === 'ios') NFC.showiOSMessage(signerText.portalSignedSuccess);
       navigation.goBack();
     } catch (error) {
       PORTAL.stopReading();
       showToast(
-        error?.message ? error.message : 'Something went wrong. Please try again',
+        error?.message ? error.message : errorText.somethingWentWrong,
         <ToastErrorIcon />,
         IToastCategory.DEFAULT,
         3000,
@@ -324,10 +315,7 @@ function SetupPortal({ route }) {
         setConfirmCVC('');
       });
     } catch (error) {
-      showToast(
-        error.message ? error.message : 'Something went wrong. Please try again',
-        <ToastErrorIcon />
-      );
+      showToast(error.message ? error.message : errorText.somethingWentWrong, <ToastErrorIcon />);
     }
   }, [cvc, confirmCVC, mode]);
 
@@ -351,7 +339,7 @@ function SetupPortal({ route }) {
       <Box style={styles.contentContainer}>
         <Text
           style={styles.contentText}
-        >{`Proceed with scanning portal for fetching ${options[selectedIndex].label} xpub details`}</Text>
+        >{`${signerText.proceedWithScanning} ${options[selectedIndex].label} ${signerText.xpubDetails}`}</Text>
         <Buttons
           fullWidth
           primaryText="Scan"
@@ -369,21 +357,21 @@ function SetupPortal({ route }) {
         title={(() => {
           switch (mode) {
             case InteracationMode.HEALTH_CHECK:
-              return 'Verify Portal';
+              return signerText.verifyPortal;
             case InteracationMode.SIGN_TRANSACTION:
-              return 'Sign with Portal';
+              return signerText.signWithPortal;
             case InteracationMode.BACKUP_SIGNER:
-              return 'Save Portal Backup';
+              return signerText.savePortalBackup;
             case InteracationMode.VAULT_REGISTER:
-              return 'Register Vault with Portal';
+              return signerText.registerVaultwithPortal;
             default:
-              return 'Add your Portal';
+              return signerText.addYourPortal;
           }
         })()}
         subTitle={
           portalStatus?.initialized == false
-            ? 'Initialize portal with 12 words seed'
-            : 'Enter your device password'
+            ? signerText.initilizeportal
+            : signerText.enterDevicePassword
         }
         rightComponent={
           InteracationMode.VAULT_ADDITION ? (
@@ -403,7 +391,7 @@ function SetupPortal({ route }) {
           <>
             <ScrollView>
               <PasswordField
-                label={'Password'}
+                label={common.Password}
                 placeholder="********"
                 value={cvc}
                 onChangeText={setCvc}
@@ -416,7 +404,7 @@ function SetupPortal({ route }) {
               <Box marginTop={hp(30)}>{renderContent()}</Box>
             </ScrollView>
             {Object.values(xpubs).some((value) => value !== null) && (
-              <Buttons fullWidth primaryText="Finish" primaryCallback={createPortalSigner} />
+              <Buttons fullWidth primaryText={common.finish} primaryCallback={createPortalSigner} />
             )}
             <Buttons
               secondaryText={bitcoinNetworkType === NetworkType.TESTNET ? ' Wipe' : null}
@@ -428,7 +416,7 @@ function SetupPortal({ route }) {
             {!portalStatus && (
               <Box style={styles.inputWrapper}>
                 <PasswordField
-                  label={'Password'}
+                  label={common.Password}
                   placeholder="********"
                   value={cvc}
                   onChangeText={setCvc}
@@ -438,13 +426,13 @@ function SetupPortal({ route }) {
                     primaryText={(() => {
                       switch (mode) {
                         case InteracationMode.SIGN_TRANSACTION:
-                          return 'Sign';
+                          return common.sign;
                         case InteracationMode.VAULT_REGISTER:
-                          return 'Register';
+                          return common.register;
                         case InteracationMode.HEALTH_CHECK:
-                          return 'Verify';
+                          return common.verify;
                         default:
-                          return 'Proceed';
+                          return common.proceed;
                       }
                     })()}
                     primaryCallback={continueWithPortal}
@@ -456,20 +444,20 @@ function SetupPortal({ route }) {
             {portalStatus && !portalStatus?.initialized && (
               <Box style={styles.inputWrapper}>
                 <PasswordField
-                  label={'New password(optional)'}
+                  label={`${common.newPassword}(${common.optional})`}
                   placeholder="********"
                   value={cvc}
                   onChangeText={setCvc}
                 />
                 <PasswordField
-                  label={'Confirm password'}
+                  label={common.confirmPassword}
                   placeholder="********"
                   value={confirmCVC}
                   onChangeText={setConfirmCVC}
                 />
                 <Box marginTop={5} marginBottom={9}>
                   <Buttons
-                    primaryText={'Initialize Portal'}
+                    primaryText={common.initilizePortal}
                     primaryCallback={validateAndInitializePortal}
                   />
                 </Box>
@@ -484,8 +472,8 @@ function SetupPortal({ route }) {
         close={() => {
           setInfoModal(false);
         }}
-        title={'Add your Portal'}
-        subTitle={`Get your device ready before proceeding.`}
+        title={signerText.addYourPortal}
+        subTitle={signerText.xPubDefaultSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

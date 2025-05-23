@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -16,14 +16,15 @@ import { BackupHistoryItem } from 'src/models/enums/BHR';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Text from 'src/components/KeeperText';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-const EmptyHistoryView = ({ colorMode }) => (
+const EmptyHistoryView = ({ colorMode, vaultText }) => (
   <Box style={styles.emptyWrapper}>
     <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
-      {'Key History'}
+      {vaultText.keyHistory}
     </Text>
     <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
-      {'The history of your key health checks would be visible here.'}
+      {vaultText.healthCheckHistory}
     </Text>
     <Box style={styles.emptyStateContainer}>
       <EmptyState />
@@ -37,6 +38,8 @@ function KeyHistory({ route }: any) {
   const [healthCheckArray, setHealthCheckArray] = useState([]);
   const data = useQuery(RealmSchema.BackupHistory);
   const history: BackupHistoryItem[] = useMemo(() => data.sorted('date', true), [data]);
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultText } = translations;
 
   const {
     signer,
@@ -58,7 +61,7 @@ function KeyHistory({ route }: any) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Key History"
+        title={vaultText.keyHistory}
         subTitle={
           !signer.isBIP85
             ? `for ${getSignerNameFromType(signer.type, signer.isMock, false)}`
@@ -67,7 +70,7 @@ function KeyHistory({ route }: any) {
       />
       <Box style={styles.titleContainer}>
         <Text fontSize={15} color={`${colorMode}.primaryText`} semiBold>
-          Recent History
+          {vaultText.recentHistory}
         </Text>
       </Box>
       <ScrollView
@@ -78,7 +81,7 @@ function KeyHistory({ route }: any) {
           {showLoader ? (
             <ActivityIndicatorView visible={showLoader} showLoader />
           ) : healthCheckArray.length === 0 ? (
-            <EmptyHistoryView colorMode={colorMode} />
+            <EmptyHistoryView colorMode={colorMode} vaultText={vaultText} />
           ) : signer.type !== SignerType.MY_KEEPER ? (
             healthCheckArray.map((item, index) => (
               <SigningDeviceChecklist

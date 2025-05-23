@@ -2,10 +2,11 @@ import { Animated, Modal, Platform, StyleSheet } from 'react-native';
 import { Pressable, useColorMode, View } from 'native-base';
 
 import NFCSVG from 'src/assets/images/nfc.svg';
-import React from 'react';
+import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { windowWidth } from 'src/constants/responsive';
 import NFC from 'src/services/nfc';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function NfcPrompt({
   visible = true,
@@ -17,6 +18,8 @@ function NfcPrompt({
   ctaText?: string;
 }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { vault } = translations;
   const animation = React.useRef(new Animated.Value(0)).current;
 
   if (Platform.OS === 'ios') {
@@ -71,7 +74,7 @@ function NfcPrompt({
           <View style={styles.center} backgroundColor={`${colorMode}.textInputBackground`}>
             <NFCSVG />
             <Text color={`${colorMode}.greenText`} style={{ textAlign: 'center' }}>
-              Please hold until the scanning is complete...
+              {vault.Holduntilscanningiscomplete}
             </Text>
             <Pressable style={styles.cancel} onPress={onCancel}>
               <Text color={`${colorMode}.greenText`} style={{ textAlign: 'center' }}>

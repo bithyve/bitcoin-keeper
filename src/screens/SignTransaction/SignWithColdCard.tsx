@@ -26,6 +26,7 @@ import idx from 'idx';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function Card({ title, message, buttonText, buttonCallBack }) {
   const { colorMode } = useColorMode();
@@ -95,6 +96,8 @@ function SignWithColdCard({ route }: { route }) {
 
   const [externalKeyNfc, setExternalKeyNfc] = React.useState(false);
   const { session } = useContext(HCESessionContext);
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorText, common, signer: signerText } = translations;
 
   const cleanUp = () => {
     setExternalKeyNfc(false);
@@ -112,13 +115,13 @@ function SignWithColdCard({ route }: { route }) {
         try {
           const data = idx(session, (_) => _.application.content.content);
           if (!data) {
-            showToast('Please scan a valid psbt', <ToastErrorIcon />);
+            showToast(errorText.scanValidPsbt, <ToastErrorIcon />);
             return;
           }
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT: data, xfp: vaultKey.xfp }));
           navigation.goBack();
         } catch (err) {
-          showToast('Something went wrong.', <ToastErrorIcon />);
+          showToast(common.somethingWrong, <ToastErrorIcon />);
         } finally {
           cleanUp();
         }
@@ -202,8 +205,8 @@ function SignWithColdCard({ route }: { route }) {
               params: {
                 data: psbt,
                 encodeToBytes: false,
-                title: 'Signed PSBT',
-                subtitle: 'Please scan until all the QR data has been retrieved',
+                title: signerText.PSBTSigned,
+                subtitle: signerText.PSBTSignedDesc,
                 type: SignerType.KEEPER,
               },
             })
@@ -253,7 +256,7 @@ function SignWithColdCard({ route }: { route }) {
         console.log('NFC interaction cancelled');
         return;
       }
-      showToast('Something went wrong.', <ToastErrorIcon />);
+      showToast(common.somethingWrong, <ToastErrorIcon />);
     }
   };
 
@@ -262,32 +265,32 @@ function SignWithColdCard({ route }: { route }) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <VStack justifyContent="space-between" flex={1}>
         <WalletHeader
-          title="Sign Transaction via NFC"
+          title={signerText.signTransactionViaNFC}
           subTitle={
             signer.type === SignerType.KEEPER
-              ? 'First send the transaction to the other Keeper app, sign it on Keeper, then click receive to pass it back into Keeper'
-              : 'First send the transaction to the Coldcard, sign it on Coldcard, then click receive to pass it back into Keeper'
+              ? signerText.signTransactionViaNFCDesc
+              : signerText.signTransactionViaColdcard
           }
         />
         <VStack flex={1} marginTop={hp(25)}>
           <Card
-            title="Send transaction"
+            title={signerText.sendTransaction}
             message={
               signer.type === SignerType.KEEPER
-                ? 'from the app to other Keeper app'
-                : 'from the app to the Coldcard'
+                ? signerText.fromAppToOtherApp
+                : signerText.fromAppToColdcard
             }
-            buttonText="Send"
+            buttonText={common.send}
             buttonCallBack={isNotColdcard ? shareWithNFC : signTransaction}
           />
           <Card
-            title="Receive signed transaction"
+            title={signerText.recievesignedTransaction}
             message={
               signer.type === SignerType.KEEPER
-                ? 'from other Keeper app to the app'
-                : 'from the Coldcard to the app'
+                ? signerText.fromOtherAppToApp
+                : signerText.fromColdcardToApp
             }
-            buttonText="Receive"
+            buttonText={common.receive}
             buttonCallBack={isNotColdcard ? readSignedPsbt : receiveFromColdCard}
           />
         </VStack>
@@ -295,7 +298,7 @@ function SignWithColdCard({ route }: { route }) {
           <Box padding={2}>
             <Box opacity={1}>
               <Text fontSize={14} color={`${colorMode}.primaryText`}>
-                Note
+                {common.note}
               </Text>
             </Box>
             <HStack alignItems="center">
@@ -309,7 +312,7 @@ function SignWithColdCard({ route }: { route }) {
                 testID={`btn_need_help`}
               >
                 <Text fontSize={14} bold>
-                  {' Need Help?'}
+                  {common.needHelp}
                 </Text>
               </TouchableOpacity>
             </HStack>
@@ -320,12 +323,14 @@ function SignWithColdCard({ route }: { route }) {
         visible={mk4Helper}
         close={() => showMk4Helper(false)}
         title={
-          signer.type === SignerType.KEEPER ? 'Need help with Keeper?' : 'Need help with Coldcard?'
+          signer.type === SignerType.KEEPER
+            ? signerText.needHelpWithKeeper
+            : signerText.needHelpWithColdCard
         }
         subTitle={
           signer.type === SignerType.KEEPER
-            ? 'Try to map the error on the Keeper to one of the options here'
-            : 'Try to map the error on your Coldcard to one of the options here'
+            ? signerText.mapErrorOnKeeper
+            : signerText.mapErrorOncoldcard
         }
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
@@ -342,9 +347,10 @@ function SignWithColdCard({ route }: { route }) {
             >
               <VStack width="97%">
                 <Text fontSize={14}>
-                  Manually Register {signer.type === SignerType.KEEPER ? 'Keeper' : 'Coldcard'}
+                  {signerText.manuallyRegister}{' '}
+                  {signer.type === SignerType.KEEPER ? 'Keeper' : 'Coldcard'}
                 </Text>
-                <Text fontSize={12}>Please resigister the vault if not already registered</Text>
+                <Text fontSize={12}>{signerText.registervaultifnotregistered}</Text>
               </VStack>
               <Arrow />
             </TouchableOpacity>
@@ -358,11 +364,14 @@ function SignWithColdCard({ route }: { route }) {
             >
               <VStack width="97%">
                 <Text fontSize={14}>
-                  Learn more about{signer.type === SignerType.KEEPER ? ' Keeper' : ' Coldcard'}
+                  {`${signerText.learnMOreAbout} ${
+                    signer.type === SignerType.KEEPER ? 'Keeper' : 'Coldcard'
+                  }`}
                 </Text>
                 <Text fontSize={12}>
-                  Here you will find all of our User Documentation for the
-                  {signer.type === SignerType.KEEPER ? ' Keeper' : ' Coldcard'}.
+                  {`${signerText.findAlluserDocumentation} ${
+                    signer.type === SignerType.KEEPER ? 'Keeper' : 'Coldcard'
+                  }.`}
                 </Text>
               </VStack>
               <Arrow />

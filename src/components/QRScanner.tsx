@@ -3,12 +3,11 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import CameraUnauthorized from './CameraUnauthorized';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/services/qr';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import UploadImage from './UploadImage';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -17,6 +16,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { joinQRs } from 'src/services/qr/bbqr/join';
 import { extractBBQRIndex, isHexadecimal } from 'src/utils/utilities';
 import { Psbt } from 'bitcoinjs-lib';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 let decoder = new URRegistryDecoder();
 
@@ -34,6 +34,8 @@ function QRScanner({
   const [qrData, setData] = useState(0);
   const [hasError, setHasError] = useState(false);
   const bbqrArray = useRef([]);
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorText } = translations;
 
   const { showToast } = useToastMessage();
 
@@ -54,7 +56,7 @@ function QRScanner({
       setData(0);
       setQrPercent(0);
       if (error || hasError) {
-        showToast('Invalid QR Scanned', <ToastErrorIcon />);
+        showToast(errorText.invalidQRscanned, <ToastErrorIcon />);
         decoder = new URRegistryDecoder();
         await sleep(3000);
       }
@@ -166,9 +168,9 @@ function QRScanner({
         if (response.didCancel) {
           // ignore if user canceled the process
         } else if (response.errorCode === 'camera_unavailable') {
-          showToast('Camera not available on device');
+          showToast(errorText.cameraNotAvailable);
         } else if (response.errorCode === 'permission') {
-          showToast('Permission not satisfied');
+          showToast(errorText.PermissionNotSatisfied);
         } else if (response.errorCode === 'others') {
           showToast(response.errorMessage);
         } else {
@@ -176,7 +178,7 @@ function QRScanner({
           onBarCodeRead({ data });
         }
       } catch (_) {
-        showToast('Invalid or No related QR code');
+        showToast(errorText.invalidOrNoRelatedQR);
       }
     });
   };

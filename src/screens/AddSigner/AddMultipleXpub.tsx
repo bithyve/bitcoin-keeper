@@ -51,6 +51,8 @@ export const AddMultipleXpub = () => {
   const isDarkMode = colorMode === 'dark';
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
   const [infoModal, setInfoModal] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { common, signer, error: ErrorText } = translations;
 
   const renderContent = () => {
     const data = xpubs[options[selectedIndex].purpose];
@@ -84,16 +86,16 @@ export const AddMultipleXpub = () => {
         });
     } catch (error) {
       console.log('🚀 ~ onScanCompleted ~ error:', error);
-      showToast('Please scan a valid QR', <ToastErrorIcon />);
+      showToast(ErrorText.scanValidQR, <ToastErrorIcon />);
     }
   };
   const modalSubtitle = {
-    [SignerType.PASSPORT]: 'Get Your Foundation Passport ready before proceeding',
-    [SignerType.SEEDSIGNER]: 'Get Your SeedSigner ready before proceeding',
-    [SignerType.JADE]: 'Get Your Jade ready and powered up before proceeding',
+    [SignerType.PASSPORT]: signer.xPubPassPortSub,
+    [SignerType.SEEDSIGNER]: signer.xPubSeedSignerSub,
+    [SignerType.JADE]: signer.xPubJadeSub,
   };
 
-  const subtitleModal = modalSubtitle[type] || 'Get your device ready before proceeding';
+  const subtitleModal = modalSubtitle[type] || signer.xPubDefaultSubtitle;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -137,7 +139,7 @@ export const AddMultipleXpub = () => {
           {Object.values(xpubs).some((value) => value !== null) && (
             <Buttons
               fullWidth
-              primaryText="Finish"
+              primaryText={common.finish}
               primaryCallback={() => {
                 onQrScan(xpubs);
               }}

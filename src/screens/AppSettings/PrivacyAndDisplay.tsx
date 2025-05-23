@@ -198,7 +198,7 @@ function PrivacyAndDisplay({ route }) {
   const [passcodeHCModal, setPasscodeHCModal] = useState(false);
 
   const { translations, formatString } = useContext(LocalizationContext);
-  const { settings, common } = translations;
+  const { settings, common, error } = translations;
   const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
   const { primaryMnemonic, backup }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -211,7 +211,7 @@ function PrivacyAndDisplay({ route }) {
 
   useEffect(() => {
     if (credsChanged === 'changed') {
-      showToast('Passcode updated successfully');
+      showToast(error.passcodeUpdated);
       dispatch(resetCredsChanged());
       setCredsChanged('');
     }
@@ -276,7 +276,7 @@ function PrivacyAndDisplay({ route }) {
             await RNBiometrics.deleteKeys();
           }
           const { success } = await RNBiometrics.simplePrompt({
-            promptMessage: 'Confirm your identity',
+            promptMessage: error.confirmIdentity,
           });
           if (success) {
             const { publicKey } = await RNBiometrics.createKeys();
@@ -287,10 +287,7 @@ function PrivacyAndDisplay({ route }) {
         }
       } else {
         setSensorAvailable(false);
-        showToast(
-          'Biometrics not enabled.\nPlease go to setting and enable it',
-          <ToastErrorIcon />
-        );
+        showToast(error.biometricNotEnabled, <ToastErrorIcon />);
       }
     } catch (error) {
       console.log(error);
@@ -305,7 +302,7 @@ function PrivacyAndDisplay({ route }) {
         <Box style={styles.wrapper}>
           <Box>
             <OptionCard
-              title={sensorType || 'Biometrics'}
+              title={sensorType || settings.Biometrics}
               description={
                 sensorType
                   ? formatString(settings.UseBiometricSubTitle, sensorType)
@@ -328,7 +325,7 @@ function PrivacyAndDisplay({ route }) {
                       backgroundColor={`${colorMode}.coffeeBackground`}
                     >
                       <Text style={styles.settingsCTAText} bold color={`${colorMode}.textColor`}>
-                        Enable {sensorType}
+                        {common.Enable} {sensorType}
                       </Text>
                     </Box>
                   </TouchableOpacity>
@@ -349,7 +346,7 @@ function PrivacyAndDisplay({ route }) {
       <Box style={styles.note}>
         <Note
           title={common.note}
-          subtitle="These settings are not carried over when the app is restored using the Recovery Phrase"
+          subtitle={settings.settingsRestoredRecoverty}
           subtitleColor="GreyText"
         />
       </Box>
@@ -359,13 +356,13 @@ function PrivacyAndDisplay({ route }) {
         close={() => setVisiblePassCode(false)}
         title={settings.changePasscode}
         subTitleWidth={wp(240)}
-        subTitle="Enter your existing passcode"
+        subTitle={settings.enterExistingPasscode}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
-            primaryText="Confirm"
+            primaryText={common.confirm}
             close={() => {
               setVisiblePassCode(false);
             }}

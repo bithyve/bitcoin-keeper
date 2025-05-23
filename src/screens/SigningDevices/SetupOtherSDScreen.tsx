@@ -39,6 +39,7 @@ import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { captureError } from 'src/services/sentry';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupOtherSDScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -51,6 +52,8 @@ function SetupOtherSDScreen({ route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { common, error: errorText, vault: vaultText, signer: signerText } = translations;
   const {
     mode,
     signer: hcSigner,
@@ -100,7 +103,7 @@ function SetupOtherSDScreen({ route }) {
             ])
           );
           navigation.dispatch(CommonActions.goBack());
-          showToast('Other SD verified successfully', <TickIcon />);
+          showToast(signerText.otherSignerVerified, <TickIcon />);
         } else {
           dispatch(
             healthCheckStatusUpdate([
@@ -110,7 +113,7 @@ function SetupOtherSDScreen({ route }) {
               },
             ])
           );
-          showToast('Something went wrong!', <ToastErrorIcon />);
+          showToast(common.somethingWrong, <ToastErrorIcon />);
         }
       }
     } catch (error) {
@@ -168,20 +171,24 @@ function SetupOtherSDScreen({ route }) {
               ? { name: 'Home' }
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
-            showToast('signer added successfully', <TickIcon />, IToastCategory.SIGNING_DEVICE);
+            showToast(
+              signerText.signerAddedSuccessMessage,
+              <TickIcon />,
+              IToastCategory.SIGNING_DEVICE
+            );
           }
         } else {
           throw new HWError(HWErrorType.INVALID_SIG);
         }
       } else {
-        showToast('Please scan a valid QR', <ToastErrorIcon />);
+        showToast(errorText.scanValidQR, <ToastErrorIcon />);
       }
     } catch (e) {
       if (e instanceof HWError) {
         showToast(e.message, <ToastErrorIcon />);
         return;
       }
-      showToast('Please scan a valid QR', <ToastErrorIcon />);
+      showToast(errorText.scanValidCoSigner, <ToastErrorIcon />);
     }
   };
 
@@ -190,8 +197,8 @@ function SetupOtherSDScreen({ route }) {
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Setting up ${getSignerNameFromType(SignerType.OTHER_SD)}`,
-          subtitle: 'Please scan until all the QR data has been retrieved',
+          title: `${signerText.settingUp} ${getSignerNameFromType(SignerType.OTHER_SD)}`,
+          subtitle: signerText.scanUntilQrDataRetrieved,
           onQrScan,
           setup: true,
           type: SignerType.OTHER_SD,
@@ -212,7 +219,7 @@ function SetupOtherSDScreen({ route }) {
           onQrScan(cosigner);
         } catch (err) {
           captureError(err);
-          showToast('Please scan a valid co-signer tag', <ToastErrorIcon />);
+          showToast(vaultText.invalidNFCTag, <ToastErrorIcon />);
         }
       });
     } catch (err) {
@@ -221,7 +228,7 @@ function SetupOtherSDScreen({ route }) {
         return;
       }
       captureError(err);
-      showToast('Something went wrong.', <ToastErrorIcon />);
+      showToast(common.somethingWrong, <ToastErrorIcon />);
     }
   };
 
@@ -247,13 +254,13 @@ function SetupOtherSDScreen({ route }) {
         // content written from iOS to android
         const data = idx(session, (_) => _.application.content.content);
         if (!data) {
-          showToast('Please scan a valid co-signer', <ToastErrorIcon />);
+          showToast(errorText.scanValidCoSigner, <ToastErrorIcon />);
           return;
         }
         onQrScan(data);
       } catch (err) {
         captureError(err);
-        showToast('Something went wrong.', <ToastErrorIcon />);
+        showToast(common.somethingWrong, <ToastErrorIcon />);
       } finally {
         closeNfc();
       }
@@ -271,8 +278,10 @@ function SetupOtherSDScreen({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title={`${mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'} other signer`}
-        subTitle="Manually provide the signer details"
+        title={`${mode === InteracationMode.HEALTH_CHECK ? common.verify : common.setup} ${
+          signerText.otherSigner
+        }`}
+        subTitle={signerText.manuallyProvideSignerDetails}
         rightComponent={
           InteracationMode.VAULT_ADDITION ? (
             <TouchableOpacity style={styles.infoIcon} onPress={() => setInfoModal(true)}>
@@ -290,29 +299,29 @@ function SetupOtherSDScreen({ route }) {
           placeholderTextColor={`${colorMode}.SlateGreen`}
         />
         <KeeperTextInput
-          placeholder="Derivation path (m/84h/0h/0h)"
+          placeholder={signerText.derivationPath}
           value={derivationPath}
           onChangeText={setDerivationPath}
           testID="derivationPath"
           placeholderTextColor={`${colorMode}.SlateGreen`}
         />
         <KeeperTextInput
-          placeholder="Master fingerprint"
+          placeholder={signerText.masterFingerprint}
           value={masterFingerprint}
           onChangeText={setMasterFingerprint}
           testID="masterFingerprint"
           placeholderTextColor={`${colorMode}.SlateGreen`}
         />
         <OptionCard
-          title="Show import options"
-          description="Add an air-gapped device using a QR, NFC, or file"
+          title={signerText.showImportOptions}
+          description={signerText.airGappedDevice}
           callback={() => {
             setOptionModal(true);
           }}
         />
       </Box>
       <Buttons
-        primaryText="Proceed"
+        primaryText={common.proceed}
         primaryCallback={validateAndAddSigner}
         primaryDisable={!xpub.length || !derivationPath.length || masterFingerprint.length !== 8}
       />
@@ -321,8 +330,8 @@ function SetupOtherSDScreen({ route }) {
         close={() => {
           setInfoModal(false);
         }}
-        title={'Add Signer'}
-        subTitle={`Get your Signer ready before proceeding.`}
+        title={signerText.addSigner}
+        subTitle={signerText.signerReady}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -341,8 +350,8 @@ function SetupOtherSDScreen({ route }) {
         close={() => {
           setOptionModal(false);
         }}
-        title={'Add signer'}
-        subTitle={`Choose how you would like to add your signer`}
+        title={signerText.addSigner}
+        subTitle={signerText.chooseHowToAddSigner}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

@@ -1,17 +1,18 @@
 import { StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { Box, useColorMode } from 'native-base';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function FinalizeFooter({ setEnableSelection, footerCallback, secondaryText, selectedUTXOs }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   return (
     <Box style={[styles.footerContainer]} backgroundColor={`${colorMode}.primaryBackground`}>
       <Buttons
-        primaryText={
-          'Send' // TODO: Use translations
-        }
+        primaryText={common.send}
         secondaryText={secondaryText}
         secondaryCallback={() => {
           setEnableSelection(false);

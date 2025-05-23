@@ -32,7 +32,7 @@ function SendSuccessfulContent({
     <Box style={styles.container}>
       <ReceiptWrapper>
         <TransferCard
-          title="Sent from"
+          title={walletTranslations.sentFrom}
           subTitle={sender?.presentationData?.name}
           titleFontSize={15}
           titleFontWeight={500}
@@ -42,7 +42,7 @@ function SendSuccessfulContent({
         />
         {amounts.flatMap((amount, index) => [
           <TransferCard
-            title="Sent to"
+            title={walletTranslations.sentTo}
             subTitle={
               recipients[index]?.presentationData?.name
                 ? recipients[index]?.presentationData?.name

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef, useContext } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
@@ -27,17 +27,20 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import WalletHeader from 'src/components/WalletHeader';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function Footer({ utxos, wallet, setEnableSelection, enableSelection, selectedUTXOs }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   return enableSelection ? (
     <>
       <FinalizeFooter
         setEnableSelection={setEnableSelection}
-        secondaryText="Cancel"
+        secondaryText={common.cancel}
         footerCallback={() => {
           if (
             wallet.entityKind === EntityKind.VAULT &&
@@ -93,7 +96,8 @@ function UTXOManagement({ route }: ScreenProps) {
   const [selectedUTXOs, setSelectedUTXOs] = useState([]);
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && selectedWallet ? !!walletSyncing[selectedWallet.id] : false;
-
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   useEffect(
     () => () => {
       dispatch(resetSyncing());
@@ -149,7 +153,7 @@ function UTXOManagement({ route }: ScreenProps) {
     <ScreenWrapper paddingHorizontal={0} backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <Box style={{ marginLeft: wp(15), marginRight: wp(22) }}>
-        <WalletHeader title="Manage Coins" rightComponent={<CurrencyTypeSwitch />} />
+        <WalletHeader title={common.manageCoins} rightComponent={<CurrencyTypeSwitch />} />
       </Box>
       <Box style={styles.contentContainer}>
         {enableSelection ? (

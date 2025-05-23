@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, useColorMode, VStack } from 'native-base';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -16,6 +16,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -27,12 +28,14 @@ function AdditionalDetails({ route }: ScreenProps) {
   const { signerMap } = useSignerMap();
   const signer = signerMap[getKeyUID(signerFromParam)];
   const [description, setDescription] = useState(signer?.signerDescription || '');
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultText, concierge } = translations;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Additional Details"
-        subTitle="Optionally you can add description and associate a contact to key"
+        title={concierge.conciergeAdditionDetailTitle}
+        subTitle={vaultText.additionalDetailsDesc}
       />
       <VStack style={styles.descriptionContainer}>
         <Box style={styles.inputWrapper}>
@@ -47,13 +50,13 @@ function AdditionalDetails({ route }: ScreenProps) {
                 color: colorMode === 'dark' ? Colors.secondaryDarkGrey : Colors.ashGreen,
               },
             ]}
-            placeholder="Add a Description (Optional)"
+            placeholder={vaultText.addDEscription}
             placeholderTextColor={Colors.secondaryDarkGrey}
             value={description}
             maxLength={20}
             onSubmitEditing={() => {
               dispatch(updateSignerDetails(signer, 'signerDescription', description));
-              showToast('Description updated successfully', <TickIcon />);
+              showToast(vaultText.descriptionUpdated, <TickIcon />);
             }}
           />
           <Text color={`${colorMode}.GreyText`} semiBold style={styles.limitText}>

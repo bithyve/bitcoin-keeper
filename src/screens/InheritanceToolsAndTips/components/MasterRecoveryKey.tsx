@@ -22,7 +22,7 @@ import { useDispatch } from 'react-redux';
 function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning } = translations;
+  const { inheritancePlanning, common, settings, signer } = translations;
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const dispatch = useDispatch();
@@ -53,18 +53,18 @@ function MasterRecoveryKey({ navigation }) {
         <Box mt={5} alignItems={'center'}>
           <DashedButton
             icon={<MasterKey />}
-            description="Please view in a private location"
+            description={settings.viewPrivateLocation}
             callback={() => {
               dispatch(credsAuthenticated(false));
               setConfirmPassVisible(true);
             }}
-            name="View Recovery Key"
+            name={settings.ViewRKTitle}
           />
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
           <Text bold color={`${colorMode}.headerWhite`}>
-            Note:
+            {common.note}:
           </Text>
           <Text color={`${colorMode}.headerWhite`}>{inheritancePlanning.masterKeyNote}</Text>
         </Box>
@@ -73,9 +73,9 @@ function MasterRecoveryKey({ navigation }) {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Confirm Passcode"
+        title={common.confirmPassCode}
         subTitleWidth={wp(240)}
-        subTitle="To back up the app recovery key"
+        subTitle={signer.RKBackupPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

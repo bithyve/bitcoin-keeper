@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
@@ -27,10 +27,13 @@ import { VaultType } from 'src/services/wallets/enums';
 import BackgroundTimer from 'react-native-background-timer';
 import { useAppSelector } from 'src/store/hooks';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { vault } = translations;
 
   const callback = (data) => {
     onBarCodeRead(data);
@@ -42,7 +45,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
     // TODO: Move this to a component
     <VStack marginTop={'40%'}>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {'Please continue resigtering the vault from the Keeper Desktop App'}
+        {vault.registerVaultFromDesktop}
       </Text>
       <ActivityIndicator style={{ marginTop: hp(20), alignSelf: 'center', padding: '2%' }} />
     </VStack>
@@ -60,7 +63,8 @@ function RegisterWithChannel() {
     signerType: string;
   };
   const { signer } = useSignerFromKey(vaultKey);
-
+  const { translations } = useContext(LocalizationContext);
+  const { choosePlan } = translations;
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
 
@@ -140,8 +144,8 @@ function RegisterWithChannel() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Register with Keeper Desktop App"
-        subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to register this signer.`}
+        title={choosePlan.registerWithKeeper}
+        subTitle={`${choosePlan.subscribeWithDesktopDesc} ${KEEPER_WEBSITE_BASE_URL}${choosePlan.subscribeWithDesktopDesc3}`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />

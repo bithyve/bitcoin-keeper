@@ -28,7 +28,7 @@ function PassportConfigRecovery() {
   const { recoveryLoading, initateRecovery } = useConfigRecovery();
 
   const { translations } = useContext(LocalizationContext);
-  const { common, importWallet } = translations;
+  const { common, importWallet, signer: signerTranslation } = translations;
 
   const handleDocumentSelection = useCallback(async () => {
     try {
@@ -53,7 +53,7 @@ function PassportConfigRecovery() {
         style={styles.scrollViewWrapper}
       >
         <WalletHeader
-          title={'Recover Using Configuration'}
+          title={signerTranslation.recoverUsingConfig}
           subTitle={importWallet.insertTextfromFile}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -63,8 +63,8 @@ function PassportConfigRecovery() {
               <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
                 <Input
                   testID="input_walletConfigurationFile"
-                  placeholder="or enter configuration manually"
-                  placeholderTextColor={`${colorMode}.primaryText`} // TODO: change to colorMode and use native base component
+                  placeholder={signerTranslation.enterManualConfig}
+                  placeholderTextColor={`${colorMode}.primaryText`}
                   style={styles.textInput}
                   variant="unstyled"
                   value={inputText}
@@ -85,8 +85,8 @@ function PassportConfigRecovery() {
               <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box>
               <Box>
                 <OptionCard
-                  title="Upload a file"
-                  description="Select a file from your storage locations"
+                  title={signerTranslation.uploadFile}
+                  description={signerTranslation.uploadFileDesc}
                   LeftIcon={<WrappedImportIcon />}
                   callback={handleDocumentSelection}
                 />

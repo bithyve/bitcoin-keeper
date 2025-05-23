@@ -32,7 +32,7 @@ const KeeperConcierge = () => {
   const navigation = useNavigation();
   const { params } = useRoute();
   const { translations } = useContext(LocalizationContext);
-  const { concierge } = translations;
+  const { concierge, common } = translations;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
@@ -54,7 +54,7 @@ const KeeperConcierge = () => {
   useEffect(() => {
     if (conciergeUserFailed == true) {
       dispatch(setConciergeUserFailed(false));
-      showToast('Something went wrong');
+      showToast(common.somethingWrong);
     }
   }, [conciergeUserFailed]);
 

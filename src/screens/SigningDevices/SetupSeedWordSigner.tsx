@@ -14,7 +14,7 @@ import WalletHeader from 'src/components/WalletHeader';
 function SetupSeedWordSigner({ route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { login } = translations;
+  const { login, seed: translationsSeed } = translations;
   const { seed } = route.params;
   const [words] = useState(seed.split(' '));
   const { next } = route.params;
@@ -72,7 +72,7 @@ function SetupSeedWordSigner({ route }) {
   return (
     <Box flex={1} marginTop={hp(30)} padding={5} background={`${colorMode}.textInputBackground`}>
       <StatusBarComponent padding={30} />
-      <WalletHeader title="Seed Key" subTitle={seedText.SeedDesc} />
+      <WalletHeader title={translationsSeed.seedKey} subTitle={seedText.SeedDesc} />
 
       <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.5}>
         <FlatList

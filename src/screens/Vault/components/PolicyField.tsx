@@ -1,8 +1,9 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 interface PolicyFieldProps {
   title?: string;
@@ -12,14 +13,10 @@ interface PolicyFieldProps {
   onChangeText: (text: string) => void;
 }
 
-const PolicyField: React.FC<PolicyFieldProps> = ({
-  title,
-  subTitle,
-  value,
-  onPress,
-  onChangeText,
-}) => {
+const PolicyField: React.FC<PolicyFieldProps> = ({ title, subTitle, value, onChangeText }) => {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { home } = translations;
 
   return (
     <Box style={styles.fieldWrapper} borderColor={`${colorMode}.separator`} borderWidth={1}>
@@ -35,7 +32,7 @@ const PolicyField: React.FC<PolicyFieldProps> = ({
             fontSize={13}
             color={value ? `${colorMode}.black` : `${colorMode}.SlateGreen`}
             backgroundColor={`${colorMode}.seashellWhite`}
-            placeholder="Enter Amount"
+            placeholder={home.AddAmount}
             placeholderTextColor={`${colorMode}.greenText`}
             fontWeight={300}
             opacity={value ? 1 : 0.5}

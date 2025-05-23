@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, HStack, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -7,6 +7,7 @@ import { capitalizeEachWord, timeFromTimeStamp } from 'src/utils/utilities';
 import Colors from 'src/theme/Colors';
 import CardPill from 'src/components/CardPill';
 import { ConciergeTicketStatus } from 'src/models/enums/ConciergeTag';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppSelector } from 'src/store/hooks';
 
 const TicketItem = ({ ticket, handlePress }) => {
@@ -14,6 +15,8 @@ const TicketItem = ({ ticket, handlePress }) => {
   const { commentsCounter } = useAppSelector((store) => store.concierge);
   const newComment = ticket.comment_count > commentsCounter[ticket.id];
   const isSolved = ticket.status == ConciergeTicketStatus.SOLVED;
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
 
   return (
     <TouchableOpacity onPress={handlePress} testID="ticket_item">
@@ -25,7 +28,7 @@ const TicketItem = ({ ticket, handlePress }) => {
         <HStack style={styles.header}>
           <Box alignItems={'center'} flexDirection={'row'}>
             <Text color={`${colorMode}.primaryText`} fontSize={15} semiBold>
-              {'Support Team '}
+              {concierge.supportTeam}:
               <Text color={`${colorMode}.greenText`} fontSize={15}>
                 #{ticket.id}
               </Text>

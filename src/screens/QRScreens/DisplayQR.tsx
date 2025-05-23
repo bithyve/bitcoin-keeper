@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
 import { BufferEncoding } from 'src/models/enums/BufferEncoding';
 import { VStack, Slider, useColorMode } from 'native-base';
@@ -8,6 +8,7 @@ import KeeperQRCode from 'src/components/KeeperQRCode';
 
 import { SignerType } from 'src/services/wallets/enums';
 import { interpolateBBQR, psbtToBBQR } from 'src/utils/utilities';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function DisplayQR({
   qrContents,
@@ -28,6 +29,8 @@ function DisplayQR({
   const { colorMode } = useColorMode();
   const [rotation, setRotation] = useState(100);
   const [coldCardQrData, setColdCardQrData] = useState(null);
+  const { translations } = useContext(LocalizationContext);
+  const { wallet } = translations;
   const { qrData } = useDynamicQrContent({
     data: isColdCard ? coldCardQrData : qrContents,
     toBytes,
@@ -76,9 +79,7 @@ function DisplayQR({
             </Slider.Track>
             <Slider.Thumb bg={`${colorMode}.pantoneGreen`} />
           </Slider>
-          <Text color={`${colorMode}.secondaryText`}>
-            Please rescan if the QR density is changed
-          </Text>
+          <Text color={`${colorMode}.secondaryText`}>{wallet.rescanQrDensity}</Text>
         </VStack>
       )}
     </>

@@ -31,6 +31,8 @@ import WalletHeader from 'src/components/WalletHeader';
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   const callback = (data) => {
     let success = onBarCodeRead(data);
@@ -44,7 +46,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
     <VStack>
       <VStack marginTop={'40%'}>
         <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-          {`Please continue on the Keeper Desktop App`}
+          {common.continueOnDesktopApp}
         </Text>
         <ActivityIndicator style={{ marginTop: hp(20), alignSelf: 'center', padding: '2%' }} />
       </VStack>
@@ -56,7 +58,12 @@ function PurchaseWithChannel() {
   const { colorMode } = useColorMode();
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
-  const { common } = useContext(LocalizationContext).translations;
+  const {
+    common,
+    error: errorText,
+    choosePlan,
+    wallet,
+  } = useContext(LocalizationContext).translations;
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -82,7 +89,7 @@ function PurchaseWithChannel() {
             const { icon } = data;
             const res = await Relay.verifyReceipt(id, publicId);
             if (!res.isValid || res.level == 1) {
-              showToast('Something went wrong, Please try again!.', <ToastErrorIcon />);
+              showToast(errorText.somethingWentWrong, <ToastErrorIcon />);
               navigation.goBack();
             }
             const subscription: SubScription = {
@@ -109,7 +116,7 @@ function PurchaseWithChannel() {
                 },
               ]);
             } else {
-              showToast('Something went wrong, Please try again!.', <ToastErrorIcon />);
+              showToast(errorText.somethingWentWrong, <ToastErrorIcon />);
               navigation.goBack();
             }
           }
@@ -153,25 +160,21 @@ function PurchaseWithChannel() {
       channel.emit(JOIN_CHANNEL, { room, network: bitcoinNetworkType, requestData });
     } else {
       navigation.goBack();
-      showToast(res.error ?? 'Something went wrong, Please try again!.', <ToastErrorIcon />);
+      showToast(res.error ?? errorText.somethingWentWrong, <ToastErrorIcon />);
     }
   };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Purchase Subscription with Keeper Desktop App"
-        subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to purchase a subscription plan.`}
+        title={choosePlan.subscribeWithDesktop}
+        subTitle={`${choosePlan.subscribeWithDesktopDesc} ${KEEPER_WEBSITE_BASE_URL} ${choosePlan.subscribeWithDesktopDesc2}`}
       />
       <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />
       </ScrollView>
       <Box style={styles.noteWrapper}>
-        <Note
-          title={common.note}
-          subtitle={'Make sure that the QR is well aligned, focused and visible as a whole'}
-          subtitleColor="GreyText"
-        />
+        <Note title={common.note} subtitle={wallet.QrTips} subtitleColor="GreyText" />
       </Box>
       <TierUpgradeModal
         visible={showUpgradeModal}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
@@ -20,6 +20,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { UR, UREncoder } from '@ngraveio/bc-ur';
 import { getFragmentedData } from 'src/services/qr';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const { width } = Dimensions.get('window');
 
@@ -27,6 +28,8 @@ function RegisterWithQR({ route, navigation }: any) {
   const { colorMode } = useColorMode();
   const { vaultKey, vaultId = '' }: { vaultKey: VaultSigner; vaultId: string } = route.params;
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerText, common } = translations;
   const { activeVault } = useVault({ vaultId });
   const { signer } = useSignerFromKey(vaultKey);
   const walletConfig =
@@ -77,10 +80,7 @@ function RegisterWithQR({ route, navigation }: any) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader
-        title="Register signer"
-        subTitle="Register the vault with any of the QR based signers"
-      />
+      <WalletHeader title={signerText.registerSigner} subTitle={signerText.registerSignerDesc} />
       <Box style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.contentContainer}
@@ -105,9 +105,9 @@ function RegisterWithQR({ route, navigation }: any) {
           <Box style={styles.centerBottom}></Box>
         </ScrollView>
         <Buttons
-          primaryText="Confirm Registration"
+          primaryText={common.confirmRegistration}
           primaryCallback={markAsRegistered}
-          secondaryText="Finish later"
+          secondaryText={common.Finishlater}
           secondaryCallback={() => navigation.goBack()}
         />
       </Box>

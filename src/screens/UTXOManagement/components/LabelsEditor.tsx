@@ -165,7 +165,7 @@ function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
           <Buttons
             primaryLoading={syncingUTXOs}
             primaryCallback={onSaveChangeClick}
-            primaryText="Save Labels"
+            primaryText={translations.common.saveLabels}
             fullWidth
           />
         </Box>

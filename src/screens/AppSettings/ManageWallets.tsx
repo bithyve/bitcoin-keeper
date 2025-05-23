@@ -117,7 +117,7 @@ function ListItem({
 function ManageWallets() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { settings } = translations;
+  const { settings, error, common, wallet } = translations;
 
   const { wallets } = useWallets({ getAll: true });
 
@@ -151,10 +151,10 @@ function ManageWallets() {
   useEffect(() => {
     if (selectedWallet?.id) {
       if (relayVaultUpdate) {
-        showToast('Vault deleted successfully', <TickIcon />);
+        showToast(error.vaultDeleted, <TickIcon />);
       }
       if (relayVaultError) {
-        showToast('Failed to delete vault', <ToastErrorIcon />);
+        showToast(error.failedToDeleteVault, <ToastErrorIcon />);
       }
       dispatch(resetRealyVaultState());
     }
@@ -165,18 +165,18 @@ function ManageWallets() {
   const onProceed = () => {
     if (passwordMode === PasswordMode.DEFAULT) {
       updateWalletVisibility(selectedWallet, false);
-      showToast('Wallet is now unhidden', <TickIcon />);
+      showToast(error.walletUnhidden, <TickIcon />);
     }
     if (passwordMode === PasswordMode.SHOWALL) {
       setshowAll(true);
-      showToast('Showing all wallets', <TickIcon />);
+      showToast(error.showingAllWallets, <TickIcon />);
     }
   };
 
   const onForceProceed = () => {
     if (passwordMode === PasswordMode.SHOWALL) {
       setShowAllForced(true);
-      showToast('Showing hidden wallets', <TickIcon />);
+      showToast(error.showingHiddenWallets, <TickIcon />);
     }
   };
 
@@ -186,7 +186,7 @@ function ManageWallets() {
     }
     if (selectedWallet && selectedWallet.entityKind === EntityKind.WALLET) {
       dispatch(deleteAppImageEntity({ walletIds: [selectedWallet.id] }));
-      showToast('Wallet deleted successfully', <TickIcon />);
+      showToast(error.waletDeleted, <TickIcon />);
     }
   };
 
@@ -249,7 +249,7 @@ function ManageWallets() {
             activeOpacity={0.5}
           >
             <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-              {isWallet ? 'Cancel' : 'Continue'}
+              {isWallet ? common.cancel : common.continue}
             </Text>
           </TouchableOpacity>
 
@@ -281,7 +281,7 @@ function ManageWallets() {
                   color={`${colorMode}.buttonText`}
                   bold
                 >
-                  Move Funds
+                  {wallet.MoveFunds}
                 </Text>
               </Box>
             </Shadow>
@@ -381,7 +381,7 @@ function ManageWallets() {
           {showAll || showAllForced ? <HideAllIcon /> : <ShowAllIcon />}
         </Box>
         <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
-          {showAll || showAllForced ? `Hide hidden wallets` : `Show hidden wallets`}
+          {showAll || showAllForced ? wallet.hideHiddenWallets : wallet.showHiddenWallets}
         </Text>
       </Pressable>
       <KeeperModal
@@ -407,9 +407,9 @@ function ManageWallets() {
         closeOnOverlayClick={true}
         close={() => setConfirmPassVisible(false)}
         showCloseIcon={false}
-        title="Enter Passcode"
+        title={settings.EnterPasscodeTitle}
         subTitleWidth={wp(240)}
-        subTitle="Confirm passcode to unhide wallets"
+        subTitle={settings.confirmPasscodetounhide}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -429,9 +429,9 @@ function ManageWallets() {
         visible={confirmPasscodeVisible}
         closeOnOverlayClick={true}
         close={() => setConfirmPasscodeVisible(false)}
-        title="Enter Passcode"
+        title={settings.EnterPasscodeTitle}
         subTitleWidth={wp(240)}
-        subTitle={'Confirm passcode to delete the vault'}
+        subTitle={settings.confirmPasscodetodelete}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

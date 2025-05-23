@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
@@ -30,10 +30,13 @@ import QRScanner from 'src/components/QRScanner';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import BackgroundTimer from 'react-native-background-timer';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { choosePlan } = translations;
 
   const callback = (data) => {
     onBarCodeRead(data);
@@ -44,7 +47,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
   ) : (
     <VStack marginTop={'40%'}>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {'Please continue signing the transaction from the Keeper Desktop App'}
+        {choosePlan.continuesigntransWithDesktop}
       </Text>
       <ActivityIndicator style={{ marginTop: hp(20), alignSelf: 'center', padding: '2%' }} />
     </VStack>
@@ -85,6 +88,8 @@ function SignWithChannel() {
   const dispatch = useDispatch();
   const navgation = useNavigation();
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const { translations } = useContext(LocalizationContext);
+  const { choosePlan } = translations;
 
   let miniscriptPolicy = null;
   if (activeVault?.type === VaultType.MINISCRIPT) {
@@ -172,8 +177,8 @@ function SignWithChannel() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Sign with Keeper Desktop App"
-        subTitle={`Please download the Bitcoin Keeper desktop app from our website: ${KEEPER_WEBSITE_BASE_URL}/desktop to sign with this signer.`}
+        title={choosePlan.signingWithDesktop}
+        subTitle={`${choosePlan.subscribeWithDesktopDesc} ${KEEPER_WEBSITE_BASE_URL}${choosePlan.subscribeWithDesktopDesc4}`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />

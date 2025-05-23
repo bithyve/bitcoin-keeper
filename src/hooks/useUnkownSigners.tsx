@@ -7,11 +7,15 @@ import { SignerPolicy } from 'src/models/interfaces/AssistedKeys';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { useContext } from 'react';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const useUnkownSigners = () => {
   const signers: Signer[] = useQuery(RealmSchema.Signer).map(getJSONFromRealmObject);
   const unknowSigners = signers.filter((signer) => signer.type === SignerType.UNKOWN_SIGNER);
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { error: ErrorText } = translations;
 
   const mapUnknownSigner = ({
     masterFingerprint,
@@ -38,8 +42,8 @@ const useUnkownSigners = () => {
         return false;
       }
     } catch (error) {
-      console.error('Error mapping unknown signer to signer:', error);
-      throw new Error('Error mapping unknown signer to signer');
+      console.error(`${ErrorText.ErrorMappingUnknownSigner}:`, error);
+      throw new Error(ErrorText.ErrorMappingUnknownSigner);
     }
   };
 

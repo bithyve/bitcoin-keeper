@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { Dimensions, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import DashedButton from 'src/components/DashedButton';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const { width } = Dimensions.get('window');
 function AssistedKeysContentSlider(props) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   return (
     <ScrollView>
@@ -49,7 +52,7 @@ function AssistedKeysContentSlider(props) {
         </Box>
         <Box width={'90%'} mt={hp(15)}>
           <Text bold color={`${colorMode}.headerWhite`}>
-            Note:{' '}
+            {common.note}:{' '}
           </Text>
           <Text color={`${colorMode}.headerWhite`}>{props.note}</Text>
         </Box>

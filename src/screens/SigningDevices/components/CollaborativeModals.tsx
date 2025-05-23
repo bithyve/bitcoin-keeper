@@ -42,7 +42,7 @@ interface CollaborativeModalsProps {
 function NFCModalContent({ onTryAnotherMethod }: { onTryAnotherMethod: () => void }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultText } = translations;
+  const { vault: vaultText, signer: signerText } = translations;
 
   const stackItems = [
     {
@@ -147,7 +147,7 @@ function CollaborativeModals({
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultText } = translations;
+  const { common, vault: vaultText, signer: signerText, importWallet } = translations;
   const isDarkMode = colorMode === 'dark';
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
@@ -225,15 +225,15 @@ function CollaborativeModals({
       {keyAddedModal && (
         <KeeperModal
           visible={keyAddedModal}
-          title="Contact Added Successfully!"
-          subTitle={'The new contact has been added to your collaborative wallet.'}
+          title={signerText.contactAdded}
+          subTitle={signerText.contactAddedDesc}
           close={() => {
             setKeyAddedModal?.(false);
           }}
           showCloseIcon
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
-          buttonText={'Add Details'}
+          buttonText={importWallet.addDetails}
           buttonCallback={() => {
             setKeyAddedModal?.(false);
             navigation.dispatch(
@@ -251,9 +251,7 @@ function CollaborativeModals({
           Content={() => (
             <Box style={styles.externalKeyModal}>
               <SuccessCircleIllustration style={styles.externalKeyIllustration} />
-              <Text color={`${colorMode}.secondaryText`}>
-                You can also edit contact details from add details section
-              </Text>
+              <Text color={`${colorMode}.secondaryText`}>{signerText.editContactDetail}</Text>
             </Box>
           )}
         />

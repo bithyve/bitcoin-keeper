@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -14,13 +14,16 @@ import { useAppSelector } from 'src/store/hooks';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import { CreateTicketCTA } from './CreateTicketCTA';
 import { CommonActions } from '@react-navigation/native';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 const HistoryTitle = () => {
   const { colorMode } = useColorMode();
   const isSmaller = useIsSmallDevices();
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
   return (
     <Box style={[styles.historyTitle]}>
       <Text color={`${colorMode}.GreyText`} fontSize={13}>
-        Your Ticket History
+        {concierge.ticketHistory}
       </Text>
     </Box>
   );
@@ -30,15 +33,16 @@ const EmptyState = () => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const isSmaller = useIsSmallDevices();
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
   return (
     <Box style={styles.emptyStateContainer}>
       <Box style={styles.emptyTextContainer}>
         <Text color={`${colorMode}.primaryText`} medium fontSize={14}>
-          No Conversations Opened
+          {concierge.noConversations}
         </Text>
         <Text color={`${colorMode}.secondaryText`} fontSize={13} style={styles.centerdText}>
-          If you need assistance or face an issue, please feel free to reach out to our Keeper
-          Concierge team to help you with any question!
+          {concierge.keeperConciergeTeamHelp}
         </Text>
       </Box>
       {isDarkMode ? (
@@ -59,6 +63,8 @@ const EmptyState = () => {
 const TicketHistory = ({ onPressCTA, screenName, tags, navigation }) => {
   const { tickets, onboardCallScheduled } = useAppSelector((state) => state.concierge);
   const { isOnL3 } = usePlan();
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
 
   return (
     <Box style={styles.container}>
@@ -67,8 +73,8 @@ const TicketHistory = ({ onPressCTA, screenName, tags, navigation }) => {
       {!onboardCallScheduled && (
         <Box style={{ marginHorizontal: wp(22), marginBottom: hp(15) }}>
           <CTACardDotted
-            title={'Schedule Onboarding Call'}
-            subTitle={'Schedule a call with our experts today.'}
+            title={concierge.scheduleOnboardingCall}
+            subTitle={concierge.scheduleCallWithExpert}
             icon={isOnL3 ? <OnBoardCallActive /> : <OnBoardCallInActive />}
             isActive={isOnL3}
             onPress={() => isOnL3 && onPressCTA()}

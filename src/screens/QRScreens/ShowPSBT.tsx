@@ -1,6 +1,6 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import { SignerType } from 'src/services/wallets/enums';
@@ -8,6 +8,7 @@ import DisplayQR from './DisplayQR';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function ShowPSBT() {
   const route = useRoute();
@@ -26,6 +27,8 @@ function ShowPSBT() {
   } = route.params as any;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { signer, common } = translations;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -35,12 +38,12 @@ function ShowPSBT() {
           <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
         </Box>
         <Box style={styles.fingerprint}>
-          <WalletCopiableData title="Transaction (PSBT):" data={data} dataType="psbt" />
+          <WalletCopiableData title={signer.transationPsbt} data={data} dataType="psbt" />
         </Box>
       </ScrollView>
       <Box style={styles.ctaContainer}>
         <Buttons
-          primaryText="Done"
+          primaryText={common.done}
           fullWidth={true}
           primaryCallback={() => {
             navigation.dispatch((state) => {

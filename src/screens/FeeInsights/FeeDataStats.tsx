@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Relay from 'src/services/backend/Relay';
 import Text from 'src/components/KeeperText';
 import { useColorMode } from 'native-base';
@@ -9,6 +9,7 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import Fonts from 'src/constants/Fonts';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 interface DataItem {
   btc_data: {
@@ -32,6 +33,8 @@ const FeeDataStats = () => {
   const exchangeRates = useExchangeRates();
   const { currencyKind } = useAppSelector((state) => state.settings);
   const currencyCode = useCurrencyCode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   useEffect(() => {
     const fetchInsightData = async () => {
       const result = await Relay.fetchFeeInsightData();
@@ -64,33 +67,33 @@ const FeeDataStats = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.titleLabel} color={`${colorMode}.modalGreenTitle`}>
-        24 Hours Statistics
+        {common.hoursStatistics}
       </Text>
       <View style={styles.cardWrapper}>
         <FeeInsightCard
-          line1={'BTC'}
-          line2={'Market Price'}
+          line1={common.BTC}
+          line2={common.marketPrice}
           suffix={''}
           stats={`$ ${addCommas(String(feeInsight.btc_data.btc_price_usd))}`}
         />
         <FeeInsightCard
-          line1={'Market price'}
-          line2={'change USD'}
+          line1={common.marketPrice}
+          line2={common.changeUSD}
           suffix={''}
           stats={feeInsight.btc_data.btc_price_change_percent.toFixed(2) + '%'}
         />
         {currencyKind === 'BITCOIN' && (
           <FeeInsightCard
-            line1={'Suggested'}
-            line2={'txn fee (fast)'}
-            suffix={' sats/vByte'}
+            line1={common.Suggested}
+            line2={common.txnFee}
+            suffix={common.satsPerByte}
             stats={feeInsight.suggested_fee}
           />
         )}
         {currencyKind === 'FIAT' && (
           <FeeInsightCard
-            line1={'Suggested'}
-            line2={'txn fee (fast)'}
+            line1={common.Suggested}
+            line2={common.txnFee}
             suffix={''}
             stats={`$ ${convertSatsToFiat(feeInsight.suggested_fee).toFixed(5)}`}
           />

@@ -264,8 +264,8 @@ function ReceiveScreen({ route }: { route }) {
       CommonActions.navigate('SignerSelectionListScreen', {
         signersMFP,
         vaultId: wallet.id,
-        title: 'Verify Address on Device', //TODO: Move to translations
-        description: 'Select a signer',
+        title: walletTranslation.verifyAddress,
+        description: vaultTranslations.SelectSigner,
         mode: InteracationMode.ADDRESS_VERIFICATION,
         callback: (signer, signerName) => {
           if (signer.type === SignerType.PORTAL) {
@@ -284,7 +284,7 @@ function ReceiveScreen({ route }: { route }) {
                 vaultId: wallet.id,
                 type: signer.type,
                 mode: InteracationMode.ADDRESS_VERIFICATION,
-                title: `Connecting to ${signerName}`,
+                title: `${common.connectingTo} ${signerName}`,
                 subtitle: vaultTranslations.verifyAddDesc,
                 receiveAddressIndex: currentAddressIdx - 1,
               })
@@ -304,8 +304,8 @@ function ReceiveScreen({ route }: { route }) {
       CommonActions.navigate('SignerSelectionListScreen', {
         signersMFP,
         vaultId: wallet.id,
-        title: 'Register vault on Device', //TODO: Move to translations
-        description: 'Select a signer',
+        title: vaultTranslations.registerVaultOnDevice,
+        description: vaultTranslations.SelectSigner,
         vaultKeydata: (wallet as Vault).signers,
         mode: InteracationMode.VAULT_REGISTER,
         callback: (signer, signerName) => {
@@ -388,7 +388,7 @@ function ReceiveScreen({ route }: { route }) {
               </Box>
             ) : (
               <Text color={`${colorMode}.textGreen`} style={styles.addLablesText} semiBold>
-                + Add labels to your address
+                {vaultTranslations.addLabeltoAddress}
               </Text>
             )}
           </TouchableOpacity>
@@ -480,9 +480,11 @@ function ReceiveScreen({ route }: { route }) {
               <Box marginTop={hp(33)}>
                 <Buttons
                   fullWidth
-                  primaryText={addVerifiableSigners?.length ? 'Verify Address' : null}
+                  primaryText={addVerifiableSigners?.length ? common.verfyAddressbutton : null}
                   primaryCallback={onVerifyAddress}
-                  secondaryText={signersNeedRegistration.length ? 'Register vault' : null}
+                  secondaryText={
+                    signersNeedRegistration.length ? vaultTranslations.registerVault : null
+                  }
                   secondaryCallback={onRegisterVault}
                 />
               </Box>

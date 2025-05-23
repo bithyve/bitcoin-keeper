@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, HStack, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { useNavigation } from '@react-navigation/native';
 import { hp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function UpgradeSubscription({
   type,
@@ -16,6 +17,8 @@ function UpgradeSubscription({
     navigation = useNavigation();
   }
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   return (
     <HStack
@@ -44,7 +47,7 @@ function UpgradeSubscription({
             medium
             style={StyleSheet.flatten([styles.learnMoreText, customStyles?.learnMoreText])}
           >
-            Upgrade
+            {common.upgrade}
           </Text>
         </Box>
       </TouchableOpacity>

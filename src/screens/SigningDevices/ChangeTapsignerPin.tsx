@@ -7,7 +7,7 @@ import { changePin, handleTapsignerError } from 'src/hardware/tapsigner';
 import Buttons from 'src/components/Buttons';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -23,6 +23,7 @@ import SuccessIllustration from 'src/assets/images/illustration.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { KeeperPasswordInput } from 'src/components/KeeperPasswordInput';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const INPUTS = {
   CVC: 'CVC',
@@ -46,6 +47,13 @@ function ChangeTapsignerPin() {
   const [ctaDisabled, setCtaDisabled] = useState(true);
 
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const {
+    error: errorTranslation,
+    tapsigner: tapsignerTranslation,
+    signer: signerTranslation,
+    common,
+  } = translations;
 
   const onPressHandler = (digit) => {
     const temp =
@@ -83,12 +91,12 @@ function ChangeTapsignerPin() {
       const res = await withModal(async () => changePin(card, CVC, newCVC))();
       if (res) {
         navigation.dispatch(CommonActions.goBack());
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`Changed CVC successfully!`);
-        showToast('Tapsigner CVC changed successfully', <TickIcon />);
+        if (Platform.OS === 'ios') NFC.showiOSMessage(errorTranslation.cvcChanged);
+        showToast(errorTranslation.tapsignerCvcChanged, <TickIcon />);
       } else {
         if (Platform.OS === 'ios')
-          NFC.showiOSErrorMessage(`Error while changing Tapsigner pin. Please try again`);
-        else showToast(`Error while changing Tapsigner pin. Please try again`);
+          NFC.showiOSErrorMessage(errorTranslation.errorChangingTapsignerPin);
+        else showToast(errorTranslation.errorChangingTapsignerPin);
       }
     } catch (error) {
       const errorMessage = handleTapsignerError(error, navigation);
@@ -110,7 +118,7 @@ function ChangeTapsignerPin() {
         <Box style={styles.modalTextCtr}>
           <Box style={styles.dot} backgroundColor={`${colorMode}.primaryText`} />
           <Text color={`${colorMode}.greenText`} style={styles.modalText}>
-            Click continue and scan your TAPSIGNER to activate the new PIN.
+            {tapsignerTranslation.clickToContinueTap}
           </Text>
         </Box>
       </>
@@ -139,28 +147,28 @@ function ChangeTapsignerPin() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Change PIN"
-        subTitle="Make sure to back up your TAPSIGNER before setting a new PIN"
+        title={signerTranslation.changePIN}
+        subTitle={signerTranslation.backupTapsigner}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.btnContainer}>
           <FieldWithLabel
-            label={'Existing PIN'}
-            placeholder="Existing PIN"
+            label={signerTranslation.existingPin}
+            placeholder={signerTranslation.existingPin}
             value={CVC}
             onPress={() => setActiveInput(INPUTS.CVC)}
             isActive={activeInput === INPUTS.CVC}
           />
           <FieldWithLabel
-            label={'New PIN'}
-            placeholder="New PIN"
+            label={signerTranslation.newPin}
+            placeholder={signerTranslation.newPin}
             value={newCVC}
             onPress={() => setActiveInput(INPUTS.NEW_CVC)}
             isActive={activeInput === INPUTS.NEW_CVC}
           />
           <FieldWithLabel
-            label={'Confirm PIN'}
-            placeholder="Confirm PIN"
+            label={signerTranslation.confirmPin}
+            placeholder={signerTranslation.confirmPin}
             value={confCVC}
             onPress={() => setActiveInput(INPUTS.CONFIRM_CVC)}
             isActive={activeInput === INPUTS.CONFIRM_CVC}
@@ -176,7 +184,7 @@ function ChangeTapsignerPin() {
       />
       <Box style={styles.ctaContainer}>
         <Buttons
-          primaryText="Continue"
+          primaryText={common.continue}
           primaryCallback={() => setShowPinModal(true)}
           primaryDisable={ctaDisabled}
           fullWidth
@@ -186,13 +194,13 @@ function ChangeTapsignerPin() {
         visible={showPinModal}
         close={() => setShowPinModal(false)}
         showCloseIcon={false}
-        title="Activate New PIN"
-        subTitle="Get your TAPSIGNER ready before proceeding"
+        title={signerTranslation.activateNewPin}
+        subTitle={tapsignerTranslation.SetupDescription}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText="Continue"
-        secondaryButtonText="Cancel"
+        buttonText={common.continue}
+        secondaryButtonText={common.cancel}
         secondaryCallback={() => setShowPinModal(false)}
         buttonCallback={() => {
           setShowPinModal(false);
@@ -205,12 +213,12 @@ function ChangeTapsignerPin() {
         visible={showActivatedModal}
         close={() => setShowActivatedModal(false)}
         showCloseIcon={false}
-        title="Pin Activated"
-        subTitle="Your TAPSIGNER new pin has been activated"
+        title={signerTranslation.pinActivated}
+        subTitle={tapsignerTranslation.tapsignerPinActivated}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText="Okay"
+        buttonText={common.Okay}
         buttonCallback={() => {
           console.log('Pressed pin activated btn');
           setShowActivatedModal(false);

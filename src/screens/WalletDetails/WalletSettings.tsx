@@ -89,30 +89,19 @@ function WalletSettings({ route }) {
   function modalContent() {
     return (
       <Box>
-        <Instruction
-          textColor={green_modal_text_color}
-          text={'Add descriptions to better identify your wallet.'}
-        />
-        <Instruction
-          textColor={green_modal_text_color}
-          text={'Access the xPub to create a watch-only wallet.'}
-        />
-        <Instruction
-          textColor={green_modal_text_color}
-          text={'View the Path and Purpose of the wallet.'}
-        />
+        <Instruction textColor={green_modal_text_color} text={walletTranslation.addDescription} />
+        <Instruction textColor={green_modal_text_color} text={walletTranslation.accessXpub} />
+        <Instruction textColor={green_modal_text_color} text={walletTranslation.accessXpub} />
 
         <Box style={styles.illustration}>
           <ThemedSvg name={'walletInfoIllustration'} width={wp(200)} height={hp(200)} />
         </Box>
 
+        <Instruction textColor={green_modal_text_color} text={walletTranslation.importExport} />
         <Instruction
           textColor={green_modal_text_color}
-          text={
-            'Import and Export labels to identify specific UTXOs across transactions and wallets.'
-          }
+          text={walletTranslation.walletSeedWordaccess}
         />
-        <Instruction textColor={green_modal_text_color} text={"Access the wallet's seed words."} />
       </Box>
     );
   }
@@ -126,8 +115,8 @@ function WalletSettings({ route }) {
       onPress: () => navigation.navigate('WalletDetailsSettings', { wallet }),
     },
     {
-      title: 'Hide Wallet',
-      description: 'Hidden wallets can be managed from Manage Wallets',
+      title: vaultText.vaultHideTitle,
+      description: vaultText.vaultHideDesc,
       icon: null,
       isDiamond: false,
       onPress: () => updateWalletVisibility(),

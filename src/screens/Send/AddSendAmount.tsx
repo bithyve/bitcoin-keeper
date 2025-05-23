@@ -8,10 +8,7 @@ import {
   sendPhaseOne,
 } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/constants/responsive';
-
 import Buttons from 'src/components/Buttons';
-import Colors from 'src/theme/Colors';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import {
@@ -65,7 +62,14 @@ function AddSendAmount({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslations, common, vault } = translations;
+  const {
+    wallet: walletTranslations,
+    common,
+    vault,
+    error: errorText,
+    seed,
+    notification,
+  } = translations;
   const {
     sender,
     internalRecipients,
@@ -213,12 +217,12 @@ function AddSendAmount({ route }) {
   useEffect(() => {
     if (haveSelectedUTXOs) {
       if (availableToSpend < Number(amountToSend)) {
-        setErrorMessage('Please select enough UTXOs to send');
+        setErrorMessage(errorText.selectEnoughUTXOstoSend);
       } else if (availableToSpend < Number(amountToSend)) {
-        setErrorMessage('Please select enough UTXOs to accommodate fee');
+        setErrorMessage(errorText.selectEnoughUTXOstoAccommodateFee);
       } else setErrorMessage('');
     } else if (availableToSpend < Number(amountToSend)) {
-      setErrorMessage('Amount entered is more than available to spend');
+      setErrorMessage(errorText.amountEnteredMoreThanAvailable);
     } else setErrorMessage('');
   }, [amountToSend, selectedUTXOs.length]);
 
@@ -382,7 +386,7 @@ function AddSendAmount({ route }) {
   const executeSendPhaseOne = () => {
     dispatch(sendPhaseOneReset());
     if (!amountToSend) {
-      showToast('Please enter a valid amount');
+      showToast(errorText.enterValidAmount);
       return;
     }
     const amountInSats = isSendingMax
@@ -440,7 +444,7 @@ function AddSendAmount({ route }) {
         finalRecipients.pop();
       }
       if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
-        showToast('Insufficient balance for the amount to be sent + fees');
+        showToast(errorText.insufficientBalance);
       } else showToast(sendPhaseOneState.failedErrorMessage);
     }
   }, [sendPhaseOneState]);
@@ -529,7 +533,7 @@ function AddSendAmount({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Enter Amount to Send"
+        title={seed.enterAmountToSend}
         // icon={
         //   <HexagonIcon
         //     width={44}
@@ -543,9 +547,9 @@ function AddSendAmount({ route }) {
       <Box flexDirection={'row'} marginTop={hp(6)} marginBottom={hp(20)}>
         <Text fontSize={14} style={{ alignSelf: 'center', marginBottom: hp(1) }}>
           {selectedUTXOs && selectedUTXOs.length
-            ? 'Available '
+            ? common.Available
             : sender.presentationData.name + ' '}
-          Balance:{' '}
+          {notification.Balance}:{' '}
         </Text>
         <CurrencyInfo
           hideAmounts={false}
@@ -586,7 +590,7 @@ function AddSendAmount({ route }) {
               <Box flexDirection="row">
                 {colorMode === 'light' ? <ReceiptIcon /> : <ReceiptIconDark />}
                 <Text medium fontSize={13} style={{ marginLeft: wp(10) }}>
-                  Fee Priority: {capitalizeFirstLetter(transactionPriority)}
+                  {seed.feePriority}: {capitalizeFirstLetter(transactionPriority)}
                 </Text>
               </Box>
               <Box flexDirection="row">
@@ -679,7 +683,7 @@ function AddSendAmount({ route }) {
             } else {
               if (customFeePerByte === '0') {
                 setTransPriorityModalVisible(false);
-                showToast('Fee rate cannot be less than 1 sat/vbyte', <ToastErrorIcon />);
+                showToast(errorText.feeRateLessThanOne, <ToastErrorIcon />);
               }
             }
           }}

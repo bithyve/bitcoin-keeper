@@ -1,32 +1,35 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, useColorMode, VStack } from 'native-base';
 import { StyleSheet } from 'react-native';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import Text from 'src/components/KeeperText';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const ColdCardUSBInstruction = () => {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { coldcard } = translations;
   const steps = [
     <Text>
-      Download the Bitcoin Keeper{' '}
+      {coldcard.downloadKeepr}{' '}
       <Text
         color={`${colorMode}.greenWhiteText`}
         bold
         onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}/desktop`)}
         style={styles.link}
       >
-        desktop app
+        {coldcard.desktopApp}
       </Text>
     </Text>,
-    'Scan the QR shown on the desktop app',
-    'Follow the instructions on the desktop app',
+    coldcard.scanQRonDesktop,
+    coldcard.followInstructions,
   ];
 
   return (
     <Box backgroundColor={`${colorMode}.dullGrey`}>
       <Text medium style={{ marginBottom: 20 }}>
-        Follow this step:
+        {coldcard.followThisStep}
       </Text>
       <VStack space={4}>
         {steps.map((step, index) => (

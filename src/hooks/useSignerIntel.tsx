@@ -5,6 +5,8 @@ import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault'
 import useSignerMap from './useSignerMap';
 import usePlan from './usePlan';
 import { getKeyUID } from 'src/utils/utilities';
+import { useContext } from 'react';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const areSignersSame = ({ existingKeys, vaultKeys }) => {
   if (!existingKeys.length || !vaultKeys.length) {
@@ -29,6 +31,8 @@ const useSignerIntel = ({
   const { signerMap } = useSignerMap();
   const { plan } = usePlan();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+  const { translations } = useContext(LocalizationContext);
+  const { signer } = translations;
 
   const amfSigners = [];
   for (const signerIdentifier of selectedSigners.keys()) {
@@ -46,10 +50,10 @@ const useSignerIntel = ({
       if (isSS) {
         if (isOnL1) {
           invalidSS = true;
-          invalidMessage = `${signerName} is allowed from ${SubscriptionTier.L2} Please upgrade your plan or remove them`;
+          invalidMessage = `${signerName} ${signer.isallowedfrom} ${SubscriptionTier.L2} ${signer.upgradeOrRemove}`;
         } else if (scheme.m < 2 || scheme.n < 3) {
           invalidSS = true;
-          invalidMessage = `You need at least 3 signers and 2 required signers to use ${signerName}. Please add more signers`;
+          invalidMessage = `${signer.RequiredSigners} ${signerName}. ${signer.addMoreSigners}`;
         }
       }
     }

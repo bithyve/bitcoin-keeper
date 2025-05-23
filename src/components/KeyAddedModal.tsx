@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import { getAccountFromSigner } from 'src/utils/utilities';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 import { SignerType } from 'src/services/wallets/enums';
 
 function KeyAddedModal({ visible, close, signer }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common, importWallet, signer: signerText } = translations;
 
   const KeyAddedIllustration = ({ signer }) => {
     let Illustration;
@@ -141,7 +144,7 @@ function KeyAddedModal({ visible, close, signer }) {
   };
 
   const defaultConfig = {
-    buttonText: 'Add Description',
+    buttonText: importWallet.addDescription,
     buttonCallback: () => {
       close();
       signer &&
@@ -152,7 +155,7 @@ function KeyAddedModal({ visible, close, signer }) {
           })
         );
     },
-    secondaryButtonText: 'Cancel',
+    secondaryButtonText: common.cancel,
     secondaryButtonCallback: close,
     content: null,
   };
@@ -182,9 +185,9 @@ function KeyAddedModal({ visible, close, signer }) {
         title={getSignerTitle(signer.type)}
         subTitle={`${
           getAccountFromSigner(signer) !== 0
-            ? `Account #${getAccountFromSigner(signer)} of the key was successfully added. `
+            ? `${common.Account} #${getAccountFromSigner(signer)} ${signerText.halfSuccessfulText} `
             : ''
-        }Access key details from Manage Keys and sign transactions from within wallets.`}
+        }${signerText.AccessKeyDetails}`}
         close={close}
         showCloseIcon
         modalBackground={`${colorMode}.modalWhiteBackground`}

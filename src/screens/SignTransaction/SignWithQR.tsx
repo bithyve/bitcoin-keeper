@@ -2,7 +2,7 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import React from 'react';
+import React, { useContext } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/services/wallets/enums';
 import { Alert, Dimensions, ScrollView, StyleSheet } from 'react-native';
@@ -26,6 +26,7 @@ import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 const { width } = Dimensions.get('window');
 
 function SignWithQR() {
@@ -34,6 +35,8 @@ function SignWithQR() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+  const { translations } = useContext(LocalizationContext);
+  const { transactions, wallet: walletText } = translations;
   const route = useRoute();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -123,8 +126,8 @@ function SignWithQR() {
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: 'Scan Signed Transaction',
-          subtitle: 'Please scan until all the QR data has been retrieved',
+          title: transactions.scanSignedTransaction,
+          subtitle: walletText.ScanQRData,
           onQrScan: signTransaction,
           type: signer.type,
           isPSBT: true,
@@ -139,7 +142,7 @@ function SignWithQR() {
     navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title="Sign Transaction" subTitle="Scan the QR with the signer" />
+      <WalletHeader title={walletText.SignTransaction} subTitle={walletText.scanQrWithSigner} />
       <Box style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.contentContainer}
@@ -162,9 +165,9 @@ function SignWithQR() {
       </Box>
       <Box style={styles.bottom}>
         <Buttons
-          primaryText="Scan Transaction"
+          primaryText={walletText.scanTransaction}
           primaryCallback={navigateToQrScan}
-          secondaryText={isRemoteKey ? null : 'Vault Details'}
+          secondaryText={isRemoteKey ? null : walletText.vaultDetails}
           secondaryCallback={navigateToVaultRegistration}
         />
       </Box>
