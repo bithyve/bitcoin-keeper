@@ -78,10 +78,11 @@ function ChoosePlan() {
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
-  const { isOnL1 } = usePlan();
+  const { isOnL1, isOnL3Above } = usePlan();
   const [enableDesktopManagement, setEnableDesktopManagement] = useState(true);
   const [showChangeInterval, setShowChangeInterval] = useState(false);
   const [playServiceUnavailable, setPlayServiceUnavailable] = useState(false);
+  const [activeChampaign, setActiveChampaign] = useState(null);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -104,6 +105,7 @@ function ChoosePlan() {
 
   useEffect(() => {
     init();
+    checkForActiveCampaign();
   }, []);
 
   useEffect(() => {
@@ -123,6 +125,11 @@ function ChoosePlan() {
     }
   }, [appSubscription]);
 
+  const checkForActiveCampaign = async () => {
+    const res = await Relay.getActiveCampaign(id);
+    setActiveChampaign(res ? res.planName : null);
+  };
+
   async function init() {
     let data = [];
     try {
@@ -133,7 +140,7 @@ function ChoosePlan() {
         getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
         const subscriptions = await getSubscriptions({ skus });
         if (!subscriptions.length) throw { message: 'Something went wrong, please try again!' };
-        subscriptions.forEach((subscription, i) => {
+        subscriptions.forEach((subscription: any, i) => {
           const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
           const monthlyPlans = [];
           const yearlyPlans = [];
@@ -485,6 +492,29 @@ function ChoosePlan() {
     );
   };
 
+  const FooterCTA = () => {
+    return (
+      <>
+        {enableDesktopManagement && (
+          <BrownButton
+            title="Desktop Subscription Management"
+            onPress={() => navigation.dispatch(CommonActions.navigate('PurchaseWithChannel'))}
+          />
+        )}
+        {activeChampaign && !isOnL3Above && (
+          <BrownButton
+            title={activeChampaign}
+            onPress={() =>
+              navigation.dispatch(
+                CommonActions.navigate('DiscountedPlanScreen', { processPurchase })
+              )
+            }
+          />
+        )}
+      </>
+    );
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
@@ -566,14 +596,7 @@ function ChoosePlan() {
             }}
             isMonthly={isMonthly}
             getButtonText={getButtonState}
-            listFooterCta={
-              enableDesktopManagement && (
-                <BrownButton
-                  title="Desktop Subscription Management"
-                  onPress={() => navigation.dispatch(CommonActions.navigate('PurchaseWithChannel'))}
-                />
-              )
-            }
+            listFooterCta={<FooterCTA />}
           />
         </Box>
       )}
