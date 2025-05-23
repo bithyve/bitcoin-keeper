@@ -170,6 +170,14 @@ const storageSlice = createSlice({
       const { key, value } = action.payload;
       state.campaignFlags[key] = value;
     },
+    setAllCampaigns: (state, action: PayloadAction<boolean>) => {
+      const status = action.payload;
+      state.campaignFlags = {
+        loginModalShown: status,
+        uaiShown: status,
+        subscriptionDotShown: status,
+      };
+    },
   },
 });
 
@@ -188,6 +196,7 @@ export const {
   setAutoUpdateEnabledBeforeDowngrade,
   setDefaultWalletCreated,
   setCampaignFlags,
+  setAllCampaigns,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;
