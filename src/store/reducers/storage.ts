@@ -21,6 +21,10 @@ interface InheritanceToolVisitedHistoryType {
   ADDITIONAL_SIGNER_DETAILS: number;
 }
 
+type CampaignFlagsType = {
+  [key: string]: boolean;
+};
+
 const initialState: {
   appId: string;
   failedAttempts: number;
@@ -40,6 +44,7 @@ const initialState: {
     [NetworkType.MAINNET]: boolean;
     [NetworkType.TESTNET]: boolean;
   }; // map for creation of default wallet for network types
+  campaignFlags: CampaignFlagsType;
 } = {
   appId: '',
   failedAttempts: 0,
@@ -75,6 +80,11 @@ const initialState: {
   defaultWalletCreated: {
     [NetworkType.MAINNET]: false,
     [NetworkType.TESTNET]: false,
+  },
+  campaignFlags: {
+    loginModalShown: false,
+    uaiShown: false,
+    subscriptionDotShown: false,
   },
 };
 
@@ -149,6 +159,25 @@ const storageSlice = createSlice({
       }
       state.defaultWalletCreated[action.payload.networkType] = action.payload.created;
     },
+    setCampaignFlags: (state, action: PayloadAction<{ key: string; value: boolean }>) => {
+      if (!state.campaignFlags) {
+        state.campaignFlags = {
+          loginModalShown: false,
+          uaiShown: false,
+          subscriptionDotShown: false,
+        };
+      }
+      const { key, value } = action.payload;
+      state.campaignFlags[key] = value;
+    },
+    setAllCampaigns: (state, action: PayloadAction<boolean>) => {
+      const status = action.payload;
+      state.campaignFlags = {
+        loginModalShown: status,
+        uaiShown: status,
+        subscriptionDotShown: status,
+      };
+    },
   },
 });
 
@@ -166,6 +195,8 @@ export const {
   setPlebDueToOffline,
   setAutoUpdateEnabledBeforeDowngrade,
   setDefaultWalletCreated,
+  setCampaignFlags,
+  setAllCampaigns,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

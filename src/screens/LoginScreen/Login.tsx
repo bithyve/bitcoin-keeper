@@ -12,7 +12,6 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
-import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
@@ -35,6 +34,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import {
   increasePinFailAttempts,
   setAutoUpdateEnabledBeforeDowngrade,
+  setCampaignFlags,
   setPlebDueToOffline,
 } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -47,7 +47,11 @@ import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
 import Relay from 'src/services/backend/Relay';
 import { setAccountManagerDetails } from 'src/store/reducers/concierge';
 import Fonts from 'src/constants/Fonts';
-import PrivateLightDeleteIcon from 'src/assets/privateImages/keypad-private-delete-icon.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import CampaignModalIllustration from 'src/assets/images/CampaignModalIllustration.svg';
+import { uaiType } from 'src/models/interfaces/Uai';
+import { addToUaiStack, uaiChecks } from 'src/store/sagaActions/uai';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -63,7 +67,9 @@ function LoginScreen({ navigation, route }) {
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const { loginMethod } = useAppSelector((state) => state.settings);
   const torEnbled = false;
-  const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
+  const { appId, failedAttempts, lastLoginFailedAt, campaignFlags } = useAppSelector(
+    (state) => state.storage
+  );
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [isBiometric, setIsBiometric] = useState(false);
@@ -76,10 +82,10 @@ function LoginScreen({ navigation, route }) {
     useAppSelector((state) => state.settings.subscription) === SubscriptionTier.L4;
   const { automaticCloudBackup } = useAppSelector((state) => state.bhr);
 
-  const themeMode = useAppSelector((state) => state.settings.themeMode);
-
-  const privateThemeDark = themeMode === 'PRIVATE';
-  const PrivateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const login_button_backGround = ThemedColor({ name: 'login_button_backGround' });
+  const slider_background = ThemedColor({ name: 'slider_background' });
+  const login_text_color = ThemedColor({ name: 'login_text_color' });
+  const login_button_text_color = ThemedColor({ name: 'login_button_text_color' });
 
   const [canLogin, setCanLogin] = useState(false);
   const {
@@ -92,6 +98,9 @@ function LoginScreen({ navigation, route }) {
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { common } = translations;
+
+  const [showCampaignModal, setShowCampaignModal] = useState(false);
+  const [campaignDetails, setCampaignDetails] = useState(null);
 
   const onChangeTorStatus = (status: TorStatus) => {
     settorStatus(status);
@@ -120,6 +129,7 @@ function LoginScreen({ navigation, route }) {
 
   useEffect(() => {
     dispatch(fetchOneDayInsight());
+    fetchCampaignDetails();
   }, []);
 
   useEffect(() => {
@@ -344,6 +354,12 @@ function LoginScreen({ navigation, route }) {
 
   const modelButtonText = useMemo(() => {
     if (isAuthenticated) {
+      if (campaignDetails && !campaignFlags?.loginModalShown) {
+        setLoginModal(false);
+        dispatch(setCampaignFlags({ key: 'loginModalShown', value: true }));
+        setShowCampaignModal(true);
+        return null;
+      }
       if (torEnbled) {
         if (torStatus === TorStatus.CONNECTED) {
           return 'Next';
@@ -384,6 +400,16 @@ function LoginScreen({ navigation, route }) {
     );
   }
 
+  const CampaignContent = () => {
+    return (
+      <Box>
+        <Box alignItems={'center'}>
+          <CampaignModalIllustration />
+        </Box>
+      </Box>
+    );
+  };
+
   function resetToPleb() {
     const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
     const updatedSubscription: SubScription = {
@@ -413,47 +439,51 @@ function LoginScreen({ navigation, route }) {
     );
   }
 
-  return (
-    <Box
-      style={styles.content}
-      safeAreaTop
-      backgroundColor={
-        privateThemeDark || PrivateThemeLight
-          ? `${colorMode}.primaryBackground`
-          : `${colorMode}.pantoneGreen`
+  const fetchCampaignDetails = async () => {
+    if (!campaignFlags?.loginModalShown && appId != '' && !relogin) {
+      const activeCampaign = await Relay.getActiveCampaign(appId);
+      if (activeCampaign) {
+        setCampaignDetails(activeCampaign);
       }
-    >
+    }
+  };
+
+  const campaignNavigation = () => {
+    updateFCM();
+    navigation.reset({
+      index: 3,
+      routes: [
+        {
+          name: 'App',
+          state: {
+            routes: [{ name: 'Home' }, { name: 'ChoosePlan' }, { name: 'DiscountedPlanScreen' }],
+          },
+        },
+      ],
+    });
+    setShowCampaignModal(false);
+  };
+
+  return (
+    <Box style={styles.content} safeAreaTop backgroundColor={slider_background}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
           <Box>
             <Box style={styles.testnetIndicatorWrapper}>{isTestnet() && <TestnetIndicator />}</Box>
-            <Text
-              color={PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`}
-              fontSize={25}
-              style={styles.welcomeText}
-            >
+            <Text color={login_text_color} fontSize={25} style={styles.welcomeText}>
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
               <Box style={styles.passcodeWrapper}>
-                <Text
-                  fontSize={14}
-                  color={
-                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
-                  }
-                >
+                <Text fontSize={14} color={login_text_color}>
                   {login.enter_your}
                   {login.passcode}
                 </Text>
                 <PinDotView
                   passCode={passcode}
-                  dotColor={
-                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
-                  }
-                  borderColor={
-                    PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`
-                  }
+                  dotColor={login_text_color}
+                  borderColor={login_text_color}
                 />
               </Box>
             </Box>
@@ -469,9 +499,9 @@ function LoginScreen({ navigation, route }) {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            ClearIcon={PrivateThemeLight ? <PrivateLightDeleteIcon /> : <DeleteIcon />}
+            ClearIcon={<ThemedSvg name="delete_icon" />}
             bubbleEffect
-            keyColor={PrivateThemeLight ? `${colorMode}.charcolBrown` : `${colorMode}.headerWhite`}
+            keyColor={login_text_color}
           />
           <Box style={styles.btnWrapper}>
             <Buttons
@@ -481,14 +511,8 @@ function LoginScreen({ navigation, route }) {
               }}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
-              primaryBackgroundColor={
-                isKeeperPrivate ? `${colorMode}.pantoneGreen` : `${colorMode}.buttonText`
-              }
-              primaryTextColor={
-                isKeeperPrivate || PrivateThemeLight
-                  ? `${colorMode}.buttonText`
-                  : `${colorMode}.pantoneGreen`
-              }
+              primaryBackgroundColor={login_button_backGround}
+              primaryTextColor={login_button_text_color}
               fullWidth
             />
           </Box>
@@ -510,6 +534,33 @@ function LoginScreen({ navigation, route }) {
         Content={LoginModalContent}
         subTitleWidth={wp(280)}
       />
+      {campaignDetails && (
+        <KeeperModal
+          visible={showCampaignModal}
+          close={() => {}}
+          title={campaignDetails?.loginModalText?.title ?? ''}
+          subTitle={campaignDetails?.loginModalText?.subTitle ?? ''}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.textGreen`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
+          buttonBackground={`${colorMode}.pantoneGreen`}
+          showCloseIcon={false}
+          buttonText={campaignDetails?.loginModalText?.primaryCTA ?? common.next}
+          buttonCallback={campaignNavigation}
+          buttonTextColor={`${colorMode}.buttonText`}
+          Content={CampaignContent}
+          subTitleWidth={wp(280)}
+          secondaryButtonText={common.goToWallets}
+          secondaryCallback={() => {
+            dispatch(
+              addToUaiStack({ entityId: campaignDetails.planName, uaiType: uaiType.CAMPAIGN })
+            );
+            dispatch(uaiChecks([uaiType.CAMPAIGN]));
+            loginModalAction();
+          }}
+          secondaryIcon={<ThemedSvg name="smallWallet" />}
+        />
+      )}
 
       <KeeperModal
         dismissible={false}

@@ -58,12 +58,7 @@ export function OptionCard({
   };
 
   return (
-    <Pressable
-      testID={`btn_${title}`}
-      onPress={callback}
-      disabled={disabled}
-      opacity={disabled ? 0.8 : 1}
-    >
+    <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
       <HStack
         py={3}
         width={windowWidth * 0.85}
@@ -72,7 +67,11 @@ export function OptionCard({
         borderRadius={10}
         testID={`view_${title.replace(/ /g, '_')}`}
       >
-        <HStack space={3} style={[styles.iconContainer, { opacity: containerOpacity }]}>
+        <HStack
+          opacity={disabled ? 0.8 : 1}
+          space={3}
+          style={[styles.iconContainer, { opacity: containerOpacity }]}
+        >
           {LeftIcon && <Box style={styles.iconWrapper}>{LeftIcon}</Box>}
 
           <VStack flex={1} space={1}>

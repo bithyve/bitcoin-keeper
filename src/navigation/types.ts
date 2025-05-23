@@ -175,6 +175,7 @@ export type AppStackParams = {
   ShareQR: undefined;
   PurchaseWithChannel: undefined;
   AddMultipleXpub: undefined;
+  DiscountedPlanScreen: undefined;
 };
 
 // Usage:

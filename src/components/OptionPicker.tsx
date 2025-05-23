@@ -4,10 +4,9 @@ import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
-import TickIcon from 'src/assets/images/icon_check.svg';
 import KeeperModal from './KeeperModal';
-import PrivateTickIcon from 'src/assets/privateImages/tick-icon.svg';
-import { useSelector } from 'react-redux';
+import ThemedColor from './ThemedColor/ThemedColor';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 
 type Option = {
   label: string;
@@ -27,8 +26,8 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
   const [internalSelectedOption, setInternalSelectedOption] = useState<Option | null>(
     selectedOption
   );
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const optionTextColor = ThemedColor({ name: 'optionTextColor' });
+  const optioncontainer_background = ThemedColor({ name: 'optioncontainer_background' });
 
   const handlePress = () => {
     setIsOpen(!isOpen);
@@ -47,22 +46,14 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
   }, [selectedOption]);
 
   const optionsContent = (
-    <Box
-      style={styles.optionsContainer}
-      backgroundColor={privateTheme && `${colorMode}.charcolBrown`}
-    >
+    <Box style={styles.optionsContainer} backgroundColor={optioncontainer_background}>
       {options.map((option, index) => (
         <Pressable key={option.value} onPress={() => handleOptionSelect(option)}>
-          <Box
-            style={styles.optionContainer}
-            backgroundColor={privateTheme && `${colorMode}.charcolBrown`}
-          >
+          <Box style={styles.optionContainer} backgroundColor={optioncontainer_background}>
             <Text
               color={
                 internalSelectedOption?.value === option?.value
-                  ? privateTheme
-                    ? `${colorMode}.pantoneGreen`
-                    : `${colorMode}.greenText`
+                  ? optionTextColor
                   : `${colorMode}.DarkGreyText`
               }
               style={styles.optionText}
@@ -70,8 +61,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
             >
               {option.label}
             </Text>
-            {internalSelectedOption?.value === option?.value &&
-              (privateTheme ? <PrivateTickIcon /> : <TickIcon />)}
+            {internalSelectedOption?.value === option?.value && <ThemedSvg name={'tick_icon'} />}
           </Box>
           {index !== options.length - 1 && (
             <Box style={styles.separator} backgroundColor={`${colorMode}.dullGreyBorder`} />
@@ -118,7 +108,7 @@ function SelectableDropdown({ label, options, selectedOption, onOptionSelect }: 
         close={() => setIsOpen(false)}
         showCloseIcon={false}
         Content={() => optionsContent}
-        modalBackground={privateTheme && `${colorMode}.charcolBrown`}
+        modalBackground={optioncontainer_background}
       />
     </Box>
   );
