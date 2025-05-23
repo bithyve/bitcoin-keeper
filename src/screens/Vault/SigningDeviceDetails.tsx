@@ -2,34 +2,20 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
 import { ScrollView } from 'react-native-gesture-handler';
 import { hp, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
-import SeedSigner from 'src/assets/images/seedsigner-setup-horizontal.svg';
-import Ledger from 'src/assets/images/ledger_image.svg';
-import Keystone from 'src/assets/images/keystone_illustration.svg';
-import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import SkipHealthCheck from 'src/assets/images/skipHealthCheck.svg';
 import MobileKeyModalIllustration from 'src/assets/images/mobile-key-illustration.svg';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
-import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
-import KeeperSetupImage from 'src/assets/images/illustration-external-key.svg';
-import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import WalletIcon from 'src/assets/images/wallet-white.svg';
 import VaultIcon from 'src/assets/images/vault-white.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import SettingIcon from 'src/assets/images/settings-gear.svg';
 import SettingIconLight from 'src/assets/images/settings-gear-green.svg';
-import BitboxImage from 'src/assets/images/bitboxSetup.svg';
-import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import JadeSVG from 'src/assets/images/illustration_jade.svg';
-import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import HealthCheckLight from 'src/assets/images/health-check-green.svg';
 import HealthCheckDark from 'src/assets/images/health-check-white.svg';
 import ChangeKeyLight from 'src/assets/images/change-key-green.svg';
@@ -68,7 +54,6 @@ import { getPersistedDocument } from 'src/services/documents';
 import { generateDataFromPSBT, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import idx from 'idx';
 import Colors from 'src/theme/Colors';
-import HexagonIcon from 'src/components/HexagonIcon';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import { captureError } from 'src/services/sentry';
 import {
@@ -81,7 +66,7 @@ import { credsAuthenticated } from 'src/store/reducers/login';
 import { Psbt, script } from 'bitcoinjs-lib';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import SignerCard from '../AddSigner/SignerCard';
-import { SDColoredIcons, SDIcons } from './SigningDeviceIcons';
+import { SDIcons } from './SigningDeviceIcons';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import ShareKeyModalContent from './components/ShareKeyModalContent';
@@ -90,20 +75,9 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import NFC from 'src/services/nfc';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
-import PrivateBitboxImage from 'src/assets/privateImages/bitBox-illustration.svg';
-import PrivateColdCard from 'src/assets/privateImages/coldCard-illustration.svg';
-import PrivateJade from 'src/assets/privateImages/jade-illustrationsvg.svg';
-import PrivateKeyStone from 'src/assets/privateImages/keystone-illustration.svg';
-import PrivateLedger from 'src/assets/privateImages/ledger-illustration.svg';
-import PrivatePassport from 'src/assets/privateImages/passport-illustration.svg';
-import PrivateSpector from 'src/assets/privateImages/spector-illustration.svg';
-import PrivateTapSigner from 'src/assets/privateImages/tapsigner-illustration.svg';
-import PrivateTrezor from 'src/assets/privateImages/trezor-illustration.svg';
-import PrivateSeedKey from 'src/assets/privateImages/seedKey-illustration.svg';
-import PrivateServerKeyIllustration from 'src/assets/privateImages/Server-key-ilustration.svg';
-import PrivateSeedSignerSetupImage from 'src/assets/privateImages/seedSigner-illustration.svg';
-import PrivateMy_Keeper from 'src/assets/privateImages/mobileKeyIllustration.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -129,14 +103,14 @@ function EmptyActivityView({ colorMode, isDarkMode }) {
   );
 }
 
-const getSignerContent = (type: SignerType, privateTheme) => {
+const getSignerContent = (type: SignerType) => {
   switch (type) {
     case SignerType.COLDCARD:
       return {
         title: 'Coldcard',
         subTitle:
           'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip.',
-        assert: privateTheme ? <PrivateColdCard /> : <ColdCardSetupImage />,
+        assert: <ThemedSvg name={'coldCard_illustration'} />,
         description:
           '\u2022 Coldcard provides the best physical security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.',
         FAQ: 'https://coldcard.com/docs/faq',
@@ -146,7 +120,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
         title: 'TAPSIGNER',
         subTitle:
           'TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone.',
-        assert: privateTheme ? <PrivateTapSigner /> : <TapsignerSetupImage />,
+        assert: <ThemedSvg name={'tapSigner_illustration'} />,
         description:
           '\u2022 TAPSIGNER’s lower cost makes hardware wallet features and security available to a wider market around the world.\n\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s). \n\u2022 The card form factor makes it easy to carry and easy to conceal.',
         FAQ: 'https://tapsigner.com/faq',
@@ -156,7 +130,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
         title: 'LEDGER',
         subTitle:
           'Ledger has industry-leading security to keep your Bitcoin secure at all times. Buy, sell, exchange, and grow your assets with our partners easily and securely. With Ledger, you can secure, store and manage your Bitcoin.',
-        assert: privateTheme ? <PrivateLedger width={180} height={180} /> : <Ledger />,
+        assert: <ThemedSvg name={'ledger_illustration'} width={180} height={180} />,
         description: '',
         FAQ: 'https://support.ledger.com/hc/en-us/categories/4404369571601?support=true',
       };
@@ -165,7 +139,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
         title: 'SeedSigner',
         subTitle:
           'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signer using inexpensive, publicly available hardware components (usually < $50).',
-        assert: privateTheme ? <PrivateSeedSignerSetupImage /> : <SeedSigner />,
+        assert: <ThemedSvg name={'seedSigner_illustration'} />,
         description:
           '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022 It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
         FAQ: 'https://seedsigner.com/faqs/',
@@ -175,7 +149,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
         title: 'Keystone',
         subTitle:
           'It offers a convenient cold storage solution with open source firmware, a 4-inch touchscreen, and multi-key support. Protect your bitcoin with the right balance between a secure and convenient hardware wallet with mobile phone support.',
-        assert: privateTheme ? <PrivateKeyStone /> : <Keystone />,
+        assert: <ThemedSvg name={'keyStone_illustration'} />,
         description:
           "\u2022 With QR codes, you can verify all data transmission to ensure that information coming into Keystone contains no trojans or viruses, while information going out doesn't leak private keys or any other sensitive information.",
         FAQ: 'https://support.keyst.one/miscellaneous/faq',
@@ -185,7 +159,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
         title: 'Foundation Passport',
         subTitle:
           'Foundation products empower individuals to reclaim their digital sovereignty by taking control of your money and data. Foundation offers best-in-class security and privacy via openness. No walled gardens; no closed source engineering',
-        assert: privateTheme ? <PrivatePassport /> : <PassportSVG />,
+        assert: <ThemedSvg name={'passport_illustration'} />,
         description:
           '\u2022 Passport has no direct connection with the outside world – meaning your keys are never directly exposed online. It uses a camera and QR codes for communication. This provides hardcore, air-gapped security while offering a seamless user experience.\n\u2022 Passport’s software and hardware are both fully open source. No walled gardens, no closed source engineering. Connect Passport to their Envoy mobile app for a seamless experience.',
         FAQ: 'https://docs.foundationdevices.com',
@@ -194,7 +168,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
       return {
         title: 'Mobile Key',
         subTitle: 'You could use the wallet key on your app as one of the signing keys',
-        assert: privateTheme ? <PrivateMy_Keeper /> : <MobileKeyIllustration />,
+        assert: <ThemedSvg name={'external_Key_illustration'} />,
         description:
           '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
         FAQ: KEEPER_KNOWLEDGEBASE,
@@ -203,7 +177,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
       return {
         title: 'Seed Key',
         subTitle: 'You could use a newly generated seed (12 words) as one of the signing keys',
-        assert: privateTheme ? <PrivateSeedKey /> : <SeedWordsIllustration />,
+        assert: <ThemedSvg name={'SeedSetupIllustration'} />,
         description:
           '\u2022 Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
         FAQ: '',
@@ -213,7 +187,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
       return {
         title: `${getSignerNameFromType(type)} as signer`,
         subTitle: 'You can use a specific BIP-85 wallet on Keeper as a signer',
-        assert: privateTheme ? <PrivateMy_Keeper /> : <KeeperSetupImage />,
+        assert: <ThemedSvg name={'external_Key_illustration'} />,
         description:
           '\u2022 Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used.',
         FAQ: KEEPER_KNOWLEDGEBASE,
@@ -223,7 +197,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
         title: 'Server Key',
         subTitle:
           'The key on the signer will sign a transaction depending on the policy and authentication',
-        assert: privateTheme ? <PrivateServerKeyIllustration /> : <SigningServerIllustration />,
+        assert: <ThemedSvg name={'signing_server_illustration'} />,
         description:
           '\u2022 An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
         FAQ: '',
@@ -232,7 +206,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
       return {
         title: 'Bitbox 02',
         subTitle: 'Easy backup and restore with a microSD card',
-        assert: privateTheme ? <PrivateBitboxImage /> : <BitboxImage />,
+        assert: <ThemedSvg name={'bitBox_illustration'} />,
         description:
           '\u2022 BitBox02 is known for its ease of use, open-source firmware, and security features like backup recovery via microSD card, USB-C connectivity, and integration with the BitBoxApp.\n\u2022 The wallet prioritizes privacy and security with advanced encryption and verification protocols, making it ideal for users who value high security in managing their bitcoin.',
         FAQ: 'https://shiftcrypto.ch/support/',
@@ -242,7 +216,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
         title: 'Trezor',
         subTitle:
           'Trezor Suite is designed for every level of user. Easily and securely send, receive, and manage coins with confidence',
-        assert: privateTheme ? <PrivateTrezor /> : <TrezorSetup />,
+        assert: <ThemedSvg name={'trezor_illustration'} />,
         description:
           '\u2022Sleek, secure design.\n\u2022 Digital Independence.\n\u2022 Easy hardware wallet backup',
         FAQ: 'https://trezor.io/support',
@@ -252,7 +226,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
         title: 'Jade Blockstream',
         subTitle:
           'Jade is an easy-to-use, purely open-source hardware wallet that offers advanced security for your Bitcoin.',
-        assert: privateTheme ? <PrivateJade /> : <JadeSVG />,
+        assert: <ThemedSvg name={'jade_illustration'} />,
         description:
           '\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions',
         FAQ: 'https://help.blockstream.com/hc/en-us/categories/900000061906-Blockstream-Jade',
@@ -262,7 +236,7 @@ const getSignerContent = (type: SignerType, privateTheme) => {
         title: 'Specter DIY',
         subTitle:
           'An open-source hardware wallet for users to take full control over their Bitcoin security.',
-        assert: privateTheme ? <PrivateSpector /> : <SpecterSetupImage />,
+        assert: <ThemedSvg name={'specter_illustration'} />,
         description:
           '\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions.',
         FAQ: 'https://docs.specter.solutions/diy/faq/',
@@ -321,9 +295,14 @@ function SigningDeviceDetails({ route }) {
 
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const { session } = useContext(HCESessionContext);
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
-  const privateThemeLight = themeMode === 'PRIVATE_LIGHT';
+  const manage_signer_backGround = ThemedColor({ name: 'manage_signer_backGround' });
+  const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
+  const signing_CircleIconWrapper = ThemedColor({ name: 'signing_CircleIconWrapper' });
 
   const cleanUp = () => {
     setNfcVisible(false);
@@ -411,25 +390,12 @@ function SigningDeviceDetails({ route }) {
         try {
           const keyDescriptor = fetchKeyExpression(signer);
           setDetails(keyDescriptor);
-        } catch (error) {
-          if (error && error.message === 'Missing key details.') {
-            showToast(
-              'Missing key details of multi-key type, please add key details from Add Device',
-              <ToastErrorIcon />
-            );
-          } else {
-            showToast(
-              "We're sorry, but we have trouble retrieving the key information",
-              <ToastErrorIcon />
-            );
-          }
-          navigation.goBack();
-        }
+        } catch (_) {}
       }, 200);
     }
   }, []);
 
-  const { title, subTitle, assert, description } = getSignerContent(signer?.type, privateTheme);
+  const { title, subTitle, assert, description } = getSignerContent(signer?.type);
   function SignerContent() {
     return (
       <Box>
@@ -683,16 +649,18 @@ function SigningDeviceDetails({ route }) {
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
   const signerFooterItems = [
-    signer?.type !== SignerType.POLICY_SERVER && {
-      text: 'Share Key',
-      Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'share_key'} />} />,
-      onPress: () => {
-        setShareKeyModal(true);
+    signer?.type !== SignerType.POLICY_SERVER &&
+      details && {
+        text: 'Share Key',
+        Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'share_key'} />} />,
+        onPress: () => {
+          setShareKeyModal(true);
+        },
       },
-    },
     signer?.type !== SignerType.KEEPER &&
       signer?.type !== SignerType.POLICY_SERVER &&
-      signer?.type !== SignerType.UNKOWN_SIGNER && {
+      signer?.type !== SignerType.UNKOWN_SIGNER &&
+      details && {
         text: 'Sign Transaction',
         Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'sign_transaction'} />} />,
         // onPress: navigateToScanPSBT,
@@ -838,19 +806,13 @@ function SigningDeviceDetails({ route }) {
   const footerItems = !vaultKey ? signerFooterItems : vaultSignerFooterItems;
 
   return (
-    <Box
-      safeAreaTop
-      backgroundColor={privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`}
-      style={[styles.wrapper]}
-    >
+    <Box safeAreaTop backgroundColor={manage_signer_backGround} style={[styles.wrapper]}>
       <Box style={styles.topSection}>
         <KeeperHeader
           contrastScreen
           learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
           learnMorePressed={() => setDetailModal(true)}
-          learnBackgroundColor={
-            privateTheme ? `${colorMode}.charcolBrown` : `${colorMode}.pantoneGreen`
-          }
+          learnBackgroundColor={manage_signer_backGround}
           learnTextColor={`${colorMode}.buttonText`}
           mediumTitle
           title={signer?.signerName === 'Signing Server' ? 'Server Key' : signer?.signerName}
@@ -859,13 +821,7 @@ function SigningDeviceDetails({ route }) {
           subtitle={getSignerDescription(signer)}
           icon={
             <CircleIconWrapper
-              backgroundColor={
-                privateTheme
-                  ? `${colorMode}.pantoneGreen`
-                  : colorMode === 'dark'
-                  ? `${colorMode}.primaryBackground`
-                  : `${colorMode}.thirdBackground`
-              }
+              backgroundColor={signing_CircleIconWrapper}
               icon={
                 SDIcons({ type: signer.type, light: colorMode === 'dark', width: 26, height: 26 })
                   .Icon
@@ -908,11 +864,7 @@ function SigningDeviceDetails({ route }) {
                       <HexagonIcon
                         width={38}
                         height={34}
-                        backgroundColor={
-                          privateTheme || privateThemeLight
-                            ? Colors.goldenGradient
-                            : Colors.primaryGreen
-                        }
+                        backgroundColor={HexagonIconColor}
                         icon={getWalletIcon(vault)}
                       />
                     }
@@ -997,22 +949,16 @@ function SigningDeviceDetails({ route }) {
               close={() => setDetailModal(false)}
               title={!signer.isBIP85 ? title : `${title} +`}
               subTitle={subTitle}
-              modalBackground={
-                privateTheme ? `${colorMode}.primaryBackground` : `${colorMode}.pantoneGreen`
-              }
-              textColor={`${colorMode}.headerWhite`}
+              modalBackground={green_modal_background}
+              textColor={green_modal_text_color}
               Content={SignerContent}
               subTitleWidth={wp(280)}
               DarkCloseIcon
               buttonText={common.Okay}
               secondaryButtonText={common.needHelp}
-              buttonTextColor={`${colorMode}.textGreen`}
-              buttonBackground={
-                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalWhiteButton`
-              }
-              secButtonTextColor={
-                privateTheme ? `${colorMode}.pantoneGreen` : `${colorMode}.modalGreenSecButtonText`
-              }
+              buttonTextColor={green_modal_button_text}
+              buttonBackground={green_modal_button_background}
+              secButtonTextColor={green_modal_sec_button_text}
               secondaryIcon={<ConciergeNeedHelp />}
               secondaryCallback={() => {
                 setDetailModal(false);

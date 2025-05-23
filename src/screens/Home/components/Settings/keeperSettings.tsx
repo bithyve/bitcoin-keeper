@@ -26,7 +26,9 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { useAppSelector } from 'src/store/hooks';
 import KeeperModal from 'src/components/KeeperModal';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { useSelector } from 'react-redux';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { useDispatch } from 'react-redux';
+import { setCampaignFlags } from 'src/store/reducers/storage';
 
 const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -60,8 +62,9 @@ const KeeperSettings = ({ route }) => {
   const currentPlan = planData.find((p) => p.plan === plan);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
   const onSuccess = () => navigation.dispatch(CommonActions.navigate('DeleteKeys'));
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
+  const InheritanceDocument_border = ThemedColor({ name: 'InheritanceDocument_border' });
+  const { campaignFlags } = useAppSelector((s) => s.storage);
+  const dispatch = useDispatch();
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -72,12 +75,18 @@ const KeeperSettings = ({ route }) => {
         titleColor={`${colorMode}.whiteSecButtonText`}
         subtitleColor={`${colorMode}.whiteSecButtonText`}
         backgroundColor={Colors.GreenishGrey}
-        onPress={() => navigation.dispatch(CommonActions.navigate('ChoosePlan'))}
+        onPress={() => {
+          if (!campaignFlags?.subscriptionDotShown) {
+            dispatch(setCampaignFlags({ key: 'subscriptionDotShown', value: true }));
+            navigation.dispatch(CommonActions.navigate('ChoosePlan', { showDiscounted: true }));
+          } else navigation.dispatch(CommonActions.navigate('ChoosePlan'));
+        }}
         icon={currentPlan.icon}
+        showDot={!campaignFlags?.subscriptionDotShown}
       />
       <InheritanceDocument
         title={signer.inheritanceDocuments}
-        borderColor={privateTheme ? `${colorMode}.headerWhite` : `${colorMode}.SeaweedGreen`}
+        borderColor={InheritanceDocument_border}
         description={signer.bitcoinSecurity}
         subtitleColor={`${colorMode}.balanceText`}
         backgroundColor={`${colorMode}.textInputBackground`}
