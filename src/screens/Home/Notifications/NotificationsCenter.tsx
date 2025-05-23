@@ -30,6 +30,7 @@ import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import CloudBackupIcon from 'src/assets/images/cloud-backup-icon.svg';
 import RecevieIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
+import DiscountIcon from 'src/assets/images/discountIcon.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import UAIView from '../components/UAIView';
@@ -592,7 +593,7 @@ export const getUaiContent = (type: uaiType, details?: any) => {
       return {
         heading: '25% off on Diamond Hands this week',
         body: 'Plan your inheritance and contingencies',
-        icon: <CloudBackupIcon />, // ! to be updated
+        icon: <DiscountIcon />,
       };
 
     default:

@@ -550,7 +550,7 @@ function LoginScreen({ navigation, route }) {
           buttonTextColor={`${colorMode}.buttonText`}
           Content={CampaignContent}
           subTitleWidth={wp(280)}
-          secondaryButtonText={common.skip}
+          secondaryButtonText={common.goToWallets}
           secondaryCallback={() => {
             dispatch(
               addToUaiStack({ entityId: campaignDetails.planName, uaiType: uaiType.CAMPAIGN })
@@ -558,6 +558,7 @@ function LoginScreen({ navigation, route }) {
             dispatch(uaiChecks([uaiType.CAMPAIGN]));
             loginModalAction();
           }}
+          secondaryIcon={<ThemedSvg name="smallWallet" />}
         />
       )}
 
