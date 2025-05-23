@@ -571,7 +571,7 @@ export default class Relay {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
-    return res.data || res.json;
+    return res ? res.data || res.json : null;
   };
 }
 
