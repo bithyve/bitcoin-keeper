@@ -592,7 +592,7 @@ export const getUaiContent = (type: uaiType, details?: any) => {
     case uaiType.CAMPAIGN:
       return {
         heading: '25% off on Diamond Hands this week',
-        body: 'Plan your inheritance and contingencies',
+        body: 'Plan your inheritance and improve your security',
         icon: <DiscountIcon />,
       };
 
