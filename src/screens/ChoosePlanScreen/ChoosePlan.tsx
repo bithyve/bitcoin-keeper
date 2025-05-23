@@ -82,7 +82,7 @@ function ChoosePlan() {
   const [enableDesktopManagement, setEnableDesktopManagement] = useState(true);
   const [showChangeInterval, setShowChangeInterval] = useState(false);
   const [playServiceUnavailable, setPlayServiceUnavailable] = useState(false);
-  const [activeChampaign, setActiveChampaign] = useState(null);
+  const [activeCampaign, setActiveCampaign] = useState(null);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -127,7 +127,7 @@ function ChoosePlan() {
 
   const checkForActiveCampaign = async () => {
     const res = await Relay.getActiveCampaign(id);
-    setActiveChampaign(res ? res.planName : null);
+    setActiveCampaign(res ? res.planName : null);
   };
 
   async function init() {
@@ -501,9 +501,9 @@ function ChoosePlan() {
             onPress={() => navigation.dispatch(CommonActions.navigate('PurchaseWithChannel'))}
           />
         )}
-        {activeChampaign && !isOnL3Above && (
+        {activeCampaign && !isOnL3Above && (
           <BrownButton
-            title={activeChampaign}
+            title={activeCampaign}
             onPress={() =>
               navigation.dispatch(
                 CommonActions.navigate('DiscountedPlanScreen', { processPurchase })

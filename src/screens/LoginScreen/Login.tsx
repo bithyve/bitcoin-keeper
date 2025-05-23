@@ -34,6 +34,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import {
   increasePinFailAttempts,
   setAutoUpdateEnabledBeforeDowngrade,
+  setCampaignFlags,
   setPlebDueToOffline,
 } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -48,6 +49,7 @@ import { setAccountManagerDetails } from 'src/store/reducers/concierge';
 import Fonts from 'src/constants/Fonts';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import CampaignModalIllustration from 'src/assets/images/CampaignModalIllustration.svg';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -63,7 +65,9 @@ function LoginScreen({ navigation, route }) {
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const { loginMethod } = useAppSelector((state) => state.settings);
   const torEnbled = false;
-  const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
+  const { appId, failedAttempts, lastLoginFailedAt, campaignFlags } = useAppSelector(
+    (state) => state.storage
+  );
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [isBiometric, setIsBiometric] = useState(false);
@@ -93,6 +97,9 @@ function LoginScreen({ navigation, route }) {
   const { login } = translations;
   const { common } = translations;
 
+  const [showCampaignModal, setShowCampaignModal] = useState(false);
+  const [campaignDetails, setCampaignDetails] = useState(null);
+
   const onChangeTorStatus = (status: TorStatus) => {
     settorStatus(status);
   };
@@ -120,6 +127,7 @@ function LoginScreen({ navigation, route }) {
 
   useEffect(() => {
     dispatch(fetchOneDayInsight());
+    fetchCampaignDetails();
   }, []);
 
   useEffect(() => {
@@ -344,6 +352,12 @@ function LoginScreen({ navigation, route }) {
 
   const modelButtonText = useMemo(() => {
     if (isAuthenticated) {
+      if (campaignDetails && !campaignDetails.loginModalShown) {
+        setLoginModal(false);
+        dispatch(setCampaignFlags({ key: 'loginModalShown', value: true }));
+        setShowCampaignModal(true);
+        return null;
+      }
       if (torEnbled) {
         if (torStatus === TorStatus.CONNECTED) {
           return 'Next';
@@ -384,6 +398,16 @@ function LoginScreen({ navigation, route }) {
     );
   }
 
+  const CampaignContent = () => {
+    return (
+      <Box>
+        <Box alignItems={'center'}>
+          <CampaignModalIllustration />
+        </Box>
+      </Box>
+    );
+  };
+
   function resetToPleb() {
     const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
     const updatedSubscription: SubScription = {
@@ -412,6 +436,31 @@ function LoginScreen({ navigation, route }) {
       </Box>
     );
   }
+
+  const fetchCampaignDetails = async () => {
+    if (!campaignFlags?.loginModalShown && appId != '' && !relogin) {
+      const activeCampaign = await Relay.getActiveCampaign(appId);
+      if (activeCampaign) {
+        setCampaignDetails(activeCampaign);
+      }
+    }
+  };
+
+  const campaignNavigation = () => {
+    updateFCM();
+    navigation.reset({
+      index: 2,
+      routes: [
+        {
+          name: 'App',
+          state: {
+            routes: [{ name: 'Home' }, { name: 'DiscountedPlanScreen' }],
+          },
+        },
+      ],
+    });
+    setShowCampaignModal(false);
+  };
 
   return (
     <Box style={styles.content} safeAreaTop backgroundColor={slider_background}>
@@ -483,6 +532,26 @@ function LoginScreen({ navigation, route }) {
         Content={LoginModalContent}
         subTitleWidth={wp(280)}
       />
+      {campaignDetails && (
+        <KeeperModal
+          visible={showCampaignModal}
+          close={() => {}}
+          title={campaignDetails?.loginModalText?.title ?? ''}
+          subTitle={campaignDetails?.loginModalText?.subTitle ?? ''}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.textGreen`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
+          buttonBackground={`${colorMode}.pantoneGreen`}
+          showCloseIcon={false}
+          buttonText={campaignDetails?.loginModalText?.primaryCTA ?? common.next}
+          buttonCallback={campaignNavigation}
+          buttonTextColor={`${colorMode}.buttonText`}
+          Content={CampaignContent}
+          subTitleWidth={wp(280)}
+          secondaryButtonText={common.skip}
+          secondaryCallback={loginModalAction}
+        />
+      )}
 
       <KeeperModal
         dismissible={false}

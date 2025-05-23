@@ -27,6 +27,8 @@ import { useAppSelector } from 'src/store/hooks';
 import KeeperModal from 'src/components/KeeperModal';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { useDispatch } from 'react-redux';
+import { setCampaignFlags } from 'src/store/reducers/storage';
 
 const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -61,6 +63,8 @@ const KeeperSettings = ({ route }) => {
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
   const onSuccess = () => navigation.dispatch(CommonActions.navigate('DeleteKeys'));
   const InheritanceDocument_border = ThemedColor({ name: 'InheritanceDocument_border' });
+  const { campaignFlags } = useAppSelector((s) => s.storage);
+  const dispatch = useDispatch();
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -71,8 +75,14 @@ const KeeperSettings = ({ route }) => {
         titleColor={`${colorMode}.whiteSecButtonText`}
         subtitleColor={`${colorMode}.whiteSecButtonText`}
         backgroundColor={Colors.GreenishGrey}
-        onPress={() => navigation.dispatch(CommonActions.navigate('ChoosePlan'))}
+        onPress={() => {
+          if (!campaignFlags?.subscriptionDotShown) {
+            dispatch(setCampaignFlags({ key: 'subscriptionDotShown', value: true }));
+            navigation.dispatch(CommonActions.navigate('DiscountedPlanScreen'));
+          } else navigation.dispatch(CommonActions.navigate('ChoosePlan'));
+        }}
         icon={currentPlan.icon}
+        showDot={!campaignFlags?.subscriptionDotShown}
       />
       <InheritanceDocument
         title={signer.inheritanceDocuments}
