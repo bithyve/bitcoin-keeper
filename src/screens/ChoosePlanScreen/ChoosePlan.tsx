@@ -504,11 +504,7 @@ function ChoosePlan() {
         {activeCampaign && !isOnL3Above && (
           <BrownButton
             title={activeCampaign}
-            onPress={() =>
-              navigation.dispatch(
-                CommonActions.navigate('DiscountedPlanScreen', { processPurchase })
-              )
-            }
+            onPress={() => navigation.dispatch(CommonActions.navigate('DiscountedPlanScreen'))}
           />
         )}
       </>

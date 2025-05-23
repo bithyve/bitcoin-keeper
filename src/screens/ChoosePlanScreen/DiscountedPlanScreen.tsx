@@ -25,7 +25,7 @@ import PlanCheckMarkWhite from 'src/assets/images/plan-white-check.svg';
 import Discount25 from 'src/assets/images/discount25.svg';
 const isIOS = Platform.OS === 'ios';
 
-export const DiscountedPlanScreen = ({ processPurchase, navigation }) => {
+export const DiscountedPlanScreen = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { subscription: appSubscription, id: appId }: any = dbManager.getObjectByIndex(
@@ -41,13 +41,8 @@ export const DiscountedPlanScreen = ({ processPurchase, navigation }) => {
   }, []);
 
   useEffect(() => {
-    const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
-      processPurchase(purchase);
-      navigation.pop();
-    });
-    const purchaseErrorSubscription = purchaseErrorListener((error) => {
-      console.log('purchaseErrorListener', error);
-    });
+    const purchaseUpdateSubscription = purchaseUpdatedListener(() => navigation.goBack());
+    const purchaseErrorSubscription = purchaseErrorListener(() => {});
 
     return () => {
       if (purchaseUpdateSubscription) {
@@ -93,7 +88,7 @@ export const DiscountedPlanScreen = ({ processPurchase, navigation }) => {
       }
     } else {
       navigation.pop();
-      showToast('Not ongoing active campaign', <ToastErrorIcon />);
+      showToast('No ongoing campaigns', <ToastErrorIcon />);
     }
   };
 
