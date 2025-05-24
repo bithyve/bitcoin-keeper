@@ -514,7 +514,7 @@ function ChoosePlan() {
   const HeaderCTA = () => {
     return (
       <>
-        {activeCampaign && !isOnL3Above && (
+        {!isMonthly && activeCampaign && !isOnL3Above && (
           <BrownButton
             title={activeCampaign}
             onPress={() => navigation.dispatch(CommonActions.navigate('DiscountedPlanScreen'))}
