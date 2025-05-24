@@ -111,6 +111,7 @@ export const DiscountedPlanScreen = ({ navigation }) => {
         <Text medium>{capitalizeEachWord(parameter)}</Text>
         <Text fontSize={16} light>
           {value}
+          <Text>{' per year'}</Text>
         </Text>
       </Box>
     );
@@ -118,7 +119,7 @@ export const DiscountedPlanScreen = ({ navigation }) => {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={'Discounted Plan'} />
+      <WalletHeader />
       {details ? (
         <Box position={'relative'}>
           <Box style={styles.ribbonCtr}>
@@ -164,7 +165,7 @@ export const DiscountedPlanScreen = ({ navigation }) => {
 
             <Buttons
               fullWidth
-              primaryText="Subscription"
+              primaryText="Subscribe Now"
               primaryCallback={isIOS ? purchaseIos : purchaseAndroid}
             />
           </Box>
