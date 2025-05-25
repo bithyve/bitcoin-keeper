@@ -518,6 +518,7 @@ function ChoosePlan() {
           <BrownButton
             title={activeCampaign}
             onPress={() => navigation.dispatch(CommonActions.navigate('DiscountedPlanScreen'))}
+            subTitle={isMonthly ? '(On yearly subscription)' : null}
           />
         )}
       </>
