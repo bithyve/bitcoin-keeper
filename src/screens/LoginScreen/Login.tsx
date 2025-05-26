@@ -456,7 +456,7 @@ function LoginScreen({ navigation, route }) {
         {
           name: 'App',
           state: {
-            routes: [{ name: 'Home' }, { name: 'ChoosePlan' }, { name: 'DiscountedPlanScreen' }],
+            routes: [{ name: 'Home' }, { name: 'ChoosePlan', params: { showDiscounted: true } }],
           },
         },
       ],

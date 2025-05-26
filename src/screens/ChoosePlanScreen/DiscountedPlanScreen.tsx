@@ -1,12 +1,7 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Linking, Platform } from 'react-native';
-import {
-  getSubscriptions,
-  purchaseErrorListener,
-  purchaseUpdatedListener,
-  requestSubscription,
-} from 'react-native-iap';
+import { StyleSheet, Linking, Platform, ActivityIndicator } from 'react-native';
+import { getSubscriptions, purchaseUpdatedListener, requestSubscription } from 'react-native-iap';
 import Buttons from 'src/components/Buttons';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
@@ -15,7 +10,6 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { capitalizeEachWord, getLocalizedDiscountedPrice } from 'src/utils/utilities';
 import Text from 'src/components/KeeperText';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Relay from 'src/services/backend/Relay';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -42,14 +36,10 @@ export const DiscountedPlanScreen = ({ navigation }) => {
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(() => navigation.goBack());
-    const purchaseErrorSubscription = purchaseErrorListener(() => {});
 
     return () => {
       if (purchaseUpdateSubscription) {
         purchaseUpdateSubscription.remove();
-      }
-      if (purchaseErrorSubscription) {
-        purchaseErrorSubscription.remove();
       }
     };
   }, []);
@@ -171,7 +161,7 @@ export const DiscountedPlanScreen = ({ navigation }) => {
           </Box>
         </Box>
       ) : (
-        <ActivityIndicatorView visible />
+        <ActivityIndicator size="large" animating color="#00836A" />
       )}
     </ScreenWrapper>
   );

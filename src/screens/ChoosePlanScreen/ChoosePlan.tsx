@@ -128,7 +128,11 @@ function ChoosePlan() {
   }, [appSubscription]);
 
   useEffect(() => {
-    if (showDiscounted) navigation.dispatch(CommonActions.navigate('DiscountedPlanScreen'));
+    if (showDiscounted) {
+      setTimeout(() => {
+        navigation.dispatch(CommonActions.navigate('DiscountedPlanScreen'));
+      }, 500);
+    }
   }, []);
 
   const checkForActiveCampaign = async () => {
