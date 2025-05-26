@@ -241,6 +241,11 @@ import SmallWalletGreen from 'src/assets/images/smallWalletGreen.svg';
 import SmallWalletGrey from 'src/assets/images/smallWalletGrey.svg';
 import MissingSingleXpubIllustration from 'src/assets/images/MissingSingleXpubIllustration.svg';
 import PrivateMissingSingleXpubIllustration from 'src/assets/privateImages/PrivateMissingSingleXpubIllustration.svg';
+import ChangeSignerIllustration from 'src/assets/images/changeSignerIllustration.svg';
+import PrivateChangeDeviceTypeIllustration from 'src/assets/privateImages/privatechangeDeviceIllustration.svg';
+import ChangeKeyLight from 'src/assets/images/change-key-green.svg';
+import ChangeKeyDark from 'src/assets/images/change-key-white.svg';
+import PrivateChangeKeyLight from 'src/assets/privateImages/change-key-gold.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -868,6 +873,18 @@ const themeIcons = {
     LIGHT: MissingSingleXpubIllustration,
     PRIVATE: PrivateMissingSingleXpubIllustration,
     PRIVATE_LIGHT: PrivateMissingSingleXpubIllustration,
+  },
+  change_device_type_illustration: {
+    DARK: ChangeSignerIllustration,
+    LIGHT: ChangeSignerIllustration,
+    PRIVATE: PrivateChangeDeviceTypeIllustration,
+    PRIVATE_LIGHT: PrivateChangeDeviceTypeIllustration,
+  },
+  change_key_icon: {
+    DARK: ChangeKeyDark,
+    LIGHT: ChangeKeyLight,
+    PRIVATE: ChangeKeyDark,
+    PRIVATE_LIGHT: PrivateChangeKeyLight,
   },
 };
 
