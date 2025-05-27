@@ -31,6 +31,7 @@ export const MultiUserScreen = ({ navigation }: any) => {
   const { loginMethod } = useAppSelector((state) => state.settings);
   const [showBiometricModal, setShowBiometricModal] = useState(false);
   const { showToast } = useToastMessage();
+  const { allAccounts } = useAppSelector((s) => s.account);
 
   const onAddNewUser = () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
@@ -69,8 +70,12 @@ export const MultiUserScreen = ({ navigation }: any) => {
           <Box alignItems={'center'}>
             {isDarkMode ? <MultiUserIllustrationDark /> : <MultiUserIllustration />}
           </Box>
-          <Text fontSize={14}>{settings.multiUserScreenTitle2}</Text>
-          <Buttons primaryText="Add User" primaryCallback={onAddNewUser} fullWidth />
+          <Buttons
+            primaryText="Add User"
+            primaryCallback={onAddNewUser}
+            fullWidth
+            primaryDisable={allAccounts.length >= 10}
+          />
         </Box>
       </Box>
       <KeeperModal
