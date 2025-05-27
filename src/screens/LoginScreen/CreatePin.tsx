@@ -274,9 +274,7 @@ export default function CreatePin(props) {
       />
       <KeeperModal
         visible={enableBiometric}
-        close={() => {
-          setEnableBiometric(false);
-        }}
+        close={() => {}}
         title="Enable Biometric Authentication"
         subTitle="Use fingerprint or face recognition for quick and secure access."
         modalBackground={`${colorMode}.modalWhiteBackground`}
