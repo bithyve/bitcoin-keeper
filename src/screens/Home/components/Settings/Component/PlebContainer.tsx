@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -14,6 +14,7 @@ interface PlebContainerProps {
   description?: string;
   icon?: React.ReactNode;
   onPress?: () => void;
+  showDot?: boolean;
 }
 
 const PlebContainer: React.FC<PlebContainerProps> = ({
@@ -25,29 +26,34 @@ const PlebContainer: React.FC<PlebContainerProps> = ({
   icon,
   description,
   onPress,
+  showDot = false,
 }) => {
+  const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity onPress={onPress} testID={`btn_pleb_${title}`}>
-      <Box backgroundColor={backgroundColor} style={styles.Container}>
-        <Box>
-          <Text color={titleColor} fontSize={14} semiBold style={styles.title}>
-            {title}{' '}
-            {subtitle && (
-              <Text color={subtitleColor} fontSize={12} medium>
-                ({subtitle})
+    <>
+      {showDot && <Box style={styles.alertContainer} backgroundColor={`${colorMode}.alertRed`} />}
+      <TouchableOpacity onPress={onPress} testID={`btn_pleb_${title}`}>
+        <Box backgroundColor={backgroundColor} style={styles.Container}>
+          <Box>
+            <Text color={titleColor} fontSize={14} semiBold style={styles.title}>
+              {title}{' '}
+              {subtitle && (
+                <Text color={subtitleColor} fontSize={12} medium>
+                  ({subtitle})
+                </Text>
+              )}
+            </Text>
+            {description && (
+              <Text fontSize={12} color={subtitleColor}>
+                {description}
               </Text>
             )}
-          </Text>
-          {description && (
-            <Text fontSize={12} color={subtitleColor}>
-              {description}
-            </Text>
-          )}
-        </Box>
+          </Box>
 
-        <Box>{icon}</Box>
-      </Box>
-    </TouchableOpacity>
+          <Box>{icon}</Box>
+        </Box>
+      </TouchableOpacity>
+    </>
   );
 };
 
@@ -66,5 +72,12 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 2,
+  },
+  alertContainer: {
+    height: wp(10),
+    width: wp(10),
+    borderRadius: 10,
+    position: 'absolute',
+    zIndex: 10,
   },
 });

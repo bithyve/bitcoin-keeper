@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, useColorMode } from 'native-base';
-import { SignerType } from 'src/services/wallets/enums';
+import { Box, Toast, useColorMode } from 'native-base';
+import { SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import RightArrow from 'src/assets/images/icon_arrow.svg';
@@ -23,6 +23,9 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getKeyUID } from 'src/utils/utilities';
 import { useNavigation } from '@react-navigation/native';
 import { SDIcons } from '../SigningDeviceIcons';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 type AssignSignerTypeCardProps = {
   type: SignerType;
@@ -66,20 +69,24 @@ function AssignSignerTypeCard({
 
   const validateServerKey = async () => {
     const verificationToken = Number(otp);
-    let signerId;
-    for (const { masterFingerprint, xfp } of vault.signers) {
-      if (masterFingerprint === signer.masterFingerprint) {
-        signerId = xfp;
-        break;
-      }
-    }
-
-    if (!signerId) {
-      showToast('Unable to find server key instance id');
-      return;
-    }
-
     try {
+      // for (const { masterFingerprint, xfp } of vault.signers) {
+      //   if (masterFingerprint === signer.masterFingerprint) {
+      //     signerId = xfp;
+      //     break;
+      //   }
+      // } // Note: vault object can be undefined for certain flows, ex: Keys flow
+
+      const signerId = WalletUtilities.getFingerprintFromExtendedKey(
+        signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+        WalletUtilities.getNetworkByType(signer.networkType)
+      );
+
+      if (!signerId) {
+        showToast('Unable to find server key instance id', <ToastErrorIcon />);
+        return;
+      }
+
       const { valid, id, masterFingerprint, policy, linkedViaSecondary } =
         await SigningServer.fetchSignerSetup(signerId, verificationToken);
 
@@ -97,11 +104,14 @@ function AssignSignerTypeCard({
               signerName: 'External Server Key',
             }
           );
-          navigation.goBack();
+          showToast('Server Key successfully assigned', <TickIcon />);
+          setTimeout(() => {
+            navigation.goBack();
+          }, 1000);
         } else throw new Error('Server Key mismatch');
       } else throw new Error('Server Key validation failed');
     } catch (err) {
-      showToast(err?.message || 'Server Key validation failed');
+      showToast(err?.message || 'Server Key validation failed', <ToastErrorIcon />);
     }
 
     setOtp('');

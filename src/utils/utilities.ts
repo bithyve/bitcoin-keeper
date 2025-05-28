@@ -685,6 +685,14 @@ export const manipulateIosProdProductId = (productId: string) => {
   return productId;
 };
 
+export const getLocalizedDiscountedPrice = (price, localizedPrice, discount) => {
+  const originalPrice = parseFloat(price);
+  const discountAmount = originalPrice * (discount / 100);
+  const finalPrice = originalPrice - discountAmount;
+  const symbolMatch = localizedPrice.match(/^[^\d.,\s]+/);
+  const currencySymbol = symbolMatch ? symbolMatch[0] : '';
+  return `${currencySymbol}${finalPrice.toFixed(2)}`;
+};
 export const generateAccountIdentifier = (length) => {
   if (!length) return '';
   return getRandomBytes(3);

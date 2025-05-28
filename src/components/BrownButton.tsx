@@ -12,6 +12,7 @@ type BrownButtonProps = {
   customTextStyle?: TextStyle;
   customTextColor?: string;
   disabled?: boolean;
+  subTitle?: string;
 };
 
 export const BrownButton = (props: BrownButtonProps) => {
@@ -28,6 +29,15 @@ export const BrownButton = (props: BrownButtonProps) => {
       >
         {props.title}
       </Text>
+      {props.subTitle && (
+        <Text
+          style={[styles.subText]}
+          bold
+          color={props.customTextColor ?? `${colorMode}.BrownNeedHelp`}
+        >
+          {props.subTitle}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };
@@ -44,5 +54,8 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 14,
+  },
+  subText: {
+    fontSize: 12,
   },
 });

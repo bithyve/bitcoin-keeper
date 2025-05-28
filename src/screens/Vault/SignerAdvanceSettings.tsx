@@ -6,7 +6,13 @@ import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-nativ
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType, VaultType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
+import {
+  SignerCategory,
+  SignerType,
+  VaultType,
+  VisibilityType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
 import idx from 'idx';
@@ -117,6 +123,7 @@ function SignerAdvanceSettings({ route }: any) {
     signingServer,
     signer: signerTranslation,
     seed: seedTranslation,
+    formatString,
   } = translations;
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
   const { primaryMnemonic, id: appId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -139,6 +146,7 @@ function SignerAdvanceSettings({ route }: any) {
   const [detailModal, setDetailModal] = useState(false);
   const [registerSignerModal, setRegisterSignerModal] = useState(false);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const [singleSigModal, setSingleSigModal] = useState(false);
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
@@ -386,8 +394,8 @@ function SignerAdvanceSettings({ route }: any) {
       setCanaryVaultLoading(true);
       const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
       if (!singleSigSigner) {
-        showToast('No single Sig found');
         setCanaryVaultLoading(false);
+        setSingleSigModal(true);
       } else {
         const ssVaultKey: VaultSigner = {
           ...singleSigSigner,
@@ -462,11 +470,6 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const id = WalletUtilities.getFingerprintFromExtendedKey(
-    signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-    WalletUtilities.getNetworkByType(bitcoinNetworkType)
-  );
-
   function SigningServerOTPModal() {
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
@@ -482,6 +485,12 @@ function SignerAdvanceSettings({ route }: any) {
     };
 
     const onPressConfirm = async () => {
+      const id =
+        signer.signerXpubs[XpubTypes.P2WSH]?.[0]?.xpub &&
+        WalletUtilities.getFingerprintFromExtendedKey(
+          signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+          WalletUtilities.getNetworkByType(bitcoinNetworkType)
+        );
       try {
         setOTBLoading(true);
         const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
@@ -940,6 +949,32 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
+  const MissingXpubContent = () => {
+    return (
+      <Box style={styles.missingXpubContainer}>
+        <ThemedSvg name={'MissingSingleXpubIllustration'} />
+        <Buttons
+          primaryText={common.addNow}
+          primaryCallback={() => {
+            setSingleSigModal(false);
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'SigningDeviceList',
+                params: {
+                  addSignerFlow: true,
+                  signerCategory: SignerCategory.HARDWARE,
+                  headerTitle: signerTranslation.hardwareKeysHeader,
+                  headerSubtitle: signerTranslation.connectHardwareDevices,
+                },
+              })
+            );
+          }}
+          fullWidth
+        />
+      </Box>
+    );
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
@@ -1140,6 +1175,22 @@ function SignerAdvanceSettings({ route }: any) {
           );
         }}
         buttonCallback={() => setDetailModal(false)}
+      />
+      <KeeperModal
+        visible={singleSigModal}
+        close={() => setSingleSigModal(false)}
+        title={signerTranslation.missingSingleSigTitle}
+        subTitle={
+          formatString(
+            signerTranslation.missingSingleSigSubTitle,
+            getSignerNameFromType(signer.type, signer.isMock, false).replace(/\*+/g, '')
+          ) as string
+        }
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
+        subTitleWidth={wp(280)}
+        DarkCloseIcon
+        Content={MissingXpubContent}
       />
     </ScreenWrapper>
   );
@@ -1396,5 +1447,9 @@ const styles = StyleSheet.create({
   },
   upgradeIcon: {
     marginRight: 20,
+  },
+  missingXpubContainer: {
+    alignItems: 'center',
+    gap: hp(30),
   },
 });
