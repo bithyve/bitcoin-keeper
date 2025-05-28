@@ -246,6 +246,12 @@ import PrivateChangeDeviceTypeIllustration from 'src/assets/privateImages/privat
 import ChangeKeyLight from 'src/assets/images/change-key-green.svg';
 import ChangeKeyDark from 'src/assets/images/change-key-white.svg';
 import PrivateChangeKeyLight from 'src/assets/privateImages/change-key-gold.svg';
+import Triple_arrow_green from 'src/assets/images/triple-arrow-green.svg';
+import Triple_arrow_white from 'src/assets/images/triple-arrow-white.svg';
+import Triple_arrow_gold from 'src/assets/privateImages/triple-arrow-gold.svg';
+import BTC_DOWN from 'src/assets/images/btc_down.svg';
+import BTC_Down_White from 'src/assets/images/btc-down-white.svg';
+import BTC_Down_Gold from 'src/assets/privateImages/btc-down-gold.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -885,6 +891,18 @@ const themeIcons = {
     LIGHT: ChangeKeyLight,
     PRIVATE: ChangeKeyDark,
     PRIVATE_LIGHT: PrivateChangeKeyLight,
+  },
+  triple_arrow: {
+    DARK: Triple_arrow_white,
+    LIGHT: Triple_arrow_green,
+    PRIVATE: Triple_arrow_white,
+    PRIVATE_LIGHT: Triple_arrow_gold,
+  },
+  btc_down_arrow: {
+    DARK: BTC_Down_White,
+    LIGHT: BTC_DOWN,
+    PRIVATE: BTC_Down_White,
+    PRIVATE_LIGHT: BTC_Down_Gold,
   },
 };
 
