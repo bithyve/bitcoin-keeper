@@ -639,13 +639,13 @@ function SendConfirmation({ route }) {
         <Box style={styles.receiptContainer}>
           <ReceiptWrapper showThemedSvg>
             <SendingCard
-              title={'Sending from'}
+              title={walletTranslations.sendingFrom}
               subTitle={sender?.presentationData?.name}
               icon={<SendingCardIcon width={30} height={30} />}
             />
             {amounts?.flatMap((amount, index) => [
               <SendingCard
-                title={'Sending to'}
+                title={walletTranslations.sendingTo}
                 subTitle={internalRecipients[index]?.presentationData?.name || addresses[index]}
                 icon={amounts.length > 1 ? <MultiSendSvg /> : <WalletIcon />}
                 amount={amount}
@@ -675,10 +675,15 @@ function SendConfirmation({ route }) {
               />
             )}
             <Box>
-              <Text medium color={`${colorMode}.primaryText`} style={styles.currentBtcPrice}>
-                Current BTC price
+              <Text
+                medium
+                color={`${colorMode}.primaryText`}
+                fontSize={16}
+                style={styles.currentBtcPrice}
+              >
+                {walletTranslations.currentBtcPrice}
               </Text>
-              <Text fontSize={13} color={`${colorMode}.primaryText`}>
+              <Text fontSize={14} color={`${colorMode}.primaryText`}>
                 {exchangeRates?.BMD?.symbol + exchangeRates?.BMD?.last}
               </Text>
             </Box>
@@ -695,21 +700,23 @@ function SendConfirmation({ route }) {
             amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
             amountFontSize={13}
             unitFontSize={13}
-            titleColor={`${colorMode}.secondaryGrey`}
-            amountColor={`${colorMode}.secondaryGrey`}
-            unitColor={`${colorMode}.secondaryGrey`}
+            titleColor={`${colorMode}.secondaryLightGrey`}
+            amountColor={`${colorMode}.secondaryLightGrey`}
+            unitColor={`${colorMode}.secondaryLightGrey`}
           />
           <AmountDetails
-            title={walletTranslations.totalAmount}
+            title={walletTranslations.amountBeingSend}
             titleFontSize={16}
             titleFontWeight={500}
             amount={amounts.reduce((sum, amount) => sum + amount, 0)}
             amountFontSize={16}
             unitFontSize={14}
+            amountColor={`${colorMode}.secondaryText`}
+            unitColor={`${colorMode}.secondaryText`}
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
-            title={walletTranslations.total}
+            title={walletTranslations.totalAmount}
             titleFontSize={16}
             titleFontWeight={500}
             amount={
@@ -718,6 +725,8 @@ function SendConfirmation({ route }) {
             }
             amountFontSize={18}
             unitFontSize={14}
+            amountColor={`${colorMode}.secondaryText`}
+            unitColor={`${colorMode}.secondaryText`}
           />
         </Box>
       </ScrollView>

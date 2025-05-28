@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Text from 'src/components/KeeperText';
@@ -10,6 +10,7 @@ import BTC from 'src/assets/images/btc.svg';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 interface SendingCardProps {
   title?: string;
@@ -39,6 +40,8 @@ const SendingCard: React.FC<SendingCardProps> = ({
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const isCurrentCurrencyFiat = currentCurrency === CurrencyKind.FIAT;
   const currencyCode = useCurrencyCode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
 
   return (
     <Box>
@@ -58,7 +61,7 @@ const SendingCard: React.FC<SendingCardProps> = ({
       {amount && multiItem && (
         <Box style={styles.amountData}>
           <Box style={styles.amountContainer} backgroundColor={`${colorMode}.separator`}>
-            <Text>Sending Amount:</Text>
+            <Text>{walletTranslation.sendingAmount}</Text>
             <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
               {!getSatUnit() && getCurrencyIcon(BTC, colorMode === 'light' ? 'dark' : 'light')}
               <Text color={amountColor || `${colorMode}.GreyText`}>{` ${getBalance(
