@@ -26,6 +26,7 @@ const SubscriptionList: React.FC<{
   getButtonText?: any;
   listFooterCta?: React.ReactNode;
   playServiceUnavailable?: boolean;
+  listHeaderCta?: React.ReactNode;
 }> = ({
   plans,
   currentPosition,
@@ -35,6 +36,7 @@ const SubscriptionList: React.FC<{
   getButtonText,
   listFooterCta,
   playServiceUnavailable = false,
+  listHeaderCta,
 }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
@@ -70,6 +72,7 @@ const SubscriptionList: React.FC<{
   };
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
+      {listHeaderCta}
       {planData.map((plan, index) => {
         const isExpanded = expandedIndex === index;
         const isActive = index === currentPositions;

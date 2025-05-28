@@ -38,6 +38,7 @@ import {
   credsAuthenticatedError,
 } from '../reducers/login';
 import {
+  setAllCampaigns,
   setAppVersion,
   setAutoUpdateEnabledBeforeDowngrade,
   setPinHash,
@@ -225,6 +226,12 @@ function* credentialsAuthWorker({ payload }) {
               wasAutoUpdateEnabledBeforeDowngrade
             );
           }
+          // Check if user is in dh already, set all campaign states to true
+          const { subscription: updatedSubs }: KeeperApp = yield call(
+            dbManager.getObjectByIndex,
+            RealmSchema.KeeperApp
+          );
+          if (updatedSubs.level > 2) yield put(setAllCampaigns(true));
 
           const { pendingAllBackup, automaticCloudBackup } = yield select(
             (state: RootState) => state.bhr
