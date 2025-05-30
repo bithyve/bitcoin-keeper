@@ -13,6 +13,7 @@ export const HEALTH_CHECK_STATUS_UPDATE = 'HEALTH_CHECK_STATUS_UPDATE';
 export const BACKUP_ALL_SIGNERS_AND_VAULTS = 'BACKUP_ALL_SIGNERS_AND_VAULTS';
 export const SET_AUTOMATIC_CLOUD_BACKUP = 'SET_AUTOMATIC_CLOUD_BACKUP';
 export const DELETE_BACKUP = 'DELETE_BACKUP';
+export const VALIDATE_SERVER_BACKUP = 'VALIDATE_SERVER_BACKUP';
 
 export const updateAppImage = ({ wallets, signers, updateNodes }) => ({
   type: UPDATE_APP_IMAGE,
@@ -102,4 +103,9 @@ export const setAutomaticCloudBackup = (payload) => ({
 
 export const deleteBackup = () => ({
   type: DELETE_BACKUP,
+});
+
+export const validateServerBackup = (callback) => ({
+  type: VALIDATE_SERVER_BACKUP,
+  callback,
 });

@@ -69,6 +69,7 @@ import {
   UPADTE_HEALTH_CHECK_SIGNER,
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
+  VALIDATE_SERVER_BACKUP,
   healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned, uaiChecks } from '../sagaActions/uai';
@@ -77,7 +78,7 @@ import { applyUpgradeSequence, KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { addNewWalletsWorker, addSigningDeviceWorker, NewWalletInfo } from './wallets';
-import { getKeyUID } from 'src/utils/utilities';
+import { areSetsEqual, getKeyUID } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
 
@@ -1099,3 +1100,79 @@ export function* setServerBackupFailed() {
   });
   yield put(setPendingAllBackup(true));
 }
+
+function* validateServerBackupWorker({ callback }) {
+  try {
+    const { primarySeed, id }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
+    const encryptionKey = generateEncryptionKey(primarySeed as string);
+    let { allVaultImages, appImage, labels } = yield call(Relay.getAppImage, id);
+    const { nodes, wallets, signers = {} } = appImage;
+
+    // Check for vaults
+    let localVaultIds = yield call(dbManager.getCollection, RealmSchema.Vault);
+    localVaultIds = localVaultIds.map((item) => item.id);
+    const vaultIds = allVaultImages.map((item) => item.vaultId);
+    if (!areSetsEqual(new Set(localVaultIds), new Set(vaultIds)))
+      return callback({ status: false, message: 'Vaults do not match' });
+
+    // Check for labels
+    let localLabelIds: any = yield call(dbManager.getCollection, RealmSchema.Tags);
+    localLabelIds = localLabelIds.map((item) => item.id);
+    if (labels.length !== localLabelIds.length)
+      return callback({ status: false, message: 'Labels do not match' });
+    const decryptedLabelIds = [];
+    for (const index in labels) {
+      decryptedLabelIds.push(JSON.parse(decrypt(encryptionKey, labels[index].content)).id);
+    }
+    if (!areSetsEqual(new Set(localLabelIds), new Set(decryptedLabelIds)))
+      return callback({ status: false, message: 'Labels do not match' });
+
+    //  Check for Signers
+    let localSigners: any = yield call(dbManager.getCollection, RealmSchema.Signer);
+    if (Object.keys(signers).length !== localSigners.length)
+      return callback({ status: false, message: 'Signers do not match' });
+    const localSignerIds = new Set(localSigners.map((item) => item.id));
+    const backupSignerIds = new Set(Object.keys(signers));
+    if (!areSetsEqual(localSignerIds, backupSignerIds))
+      return callback({ status: false, message: 'Signers do not match' });
+
+    //  Check for Wallets
+    let localWallets: any = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const walletsBackupLength = Array.isArray(wallets)
+      ? wallets.length
+      : Object.keys(wallets).length;
+    if (walletsBackupLength !== localWallets.length)
+      return callback({ status: false, message: 'Wallets do not match' });
+    const localWalletIds = new Set(localWallets.map((item) => item.id));
+    const backupWalletIds = new Set(Object.keys(wallets));
+    if (!areSetsEqual(localWalletIds, backupWalletIds))
+      return callback({ status: false, message: 'Wallets do not match' });
+
+    //  Check for nodes
+    let localNodes: any = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    localNodes = localNodes.map((node) => {
+      node.isConnected = false;
+      return JSON.stringify(node);
+    });
+    if (localNodes.length !== nodes.length)
+      return callback({ status: false, message: 'Nodes do not match' });
+    const decryptedNodes = [];
+    for (const index in nodes) {
+      decryptedNodes.push(JSON.stringify(JSON.parse(decrypt(encryptionKey, nodes[index]))));
+    }
+    const missingNodes = decryptedNodes.filter((item) => !localNodes.includes(item));
+    if (missingNodes.length > 0) return callback({ status: false, message: 'Nodes do not match' });
+
+    return callback({ status: true, message: 'Backup verified successfully.' });
+  } catch (error) {
+    return callback({ status: false, message: 'Backup verification failed.', error: true });
+  }
+}
+
+export const validateSeverBackupWatcher = createWatcher(
+  validateServerBackupWorker,
+  VALIDATE_SERVER_BACKUP
+);

@@ -43,6 +43,7 @@ import {
   healthCheckSatutsUpdateWatcher,
   backupAllSignersAndVaultsWatcher,
   deleteBackupWatcher,
+  validateSeverBackupWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -143,6 +144,8 @@ const rootSaga = function* () {
     deleteAppImageEntityWatcher,
     backupAllSignersAndVaultsWatcher,
     deleteBackupWatcher,
+    validateSeverBackupWatcher,
+
     // upgrade
     updateVersionHistoryWatcher,
     migrateLablesWatcher,
