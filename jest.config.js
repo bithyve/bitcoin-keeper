@@ -1,28 +1,8 @@
-//Previous setup
-// module.exports = {
-//   verbose: true,
-//   preset: 'react-native',
-//   setupFiles: [
-//     // "./test-setup.js",
-//     './node_modules/react-native-gesture-handler/jestSetup.js',
-//   ],
-//   setupFilesAfterEnv: ['./test-setup.js'],
-//   transformIgnorePatterns: [
-//     'node_modules/(?!(jest-)?@?react-native|@react-native-community|@react-navigation|redux-persist)',
-//   ],
-//   moduleNameMapper: {
-//     '\\.svg': '<rootDir>/__mocks__/svgMock.js',
-//   },
-//   moduleDirectories: ['node_modules', './src/utils', './src/core'],
-// };
 module.exports = {
   preset: 'react-native',
   verbose: true,
   setupFiles: ['./node_modules/react-native-gesture-handler/jestSetup.js'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  // transformIgnorePatterns: [
-  //   'node_modules/(?!(jest-)?@?react-native|@react-navigation|@react-native-community|redux-persist)',
-  // ],
+  setupFilesAfterEnv: ['./test-setup.js'],
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?@?react-native|@react-navigation|@react-native-community|redux-persist|@realm)',
   ],
