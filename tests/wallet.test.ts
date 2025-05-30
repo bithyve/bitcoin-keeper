@@ -7,6 +7,20 @@ import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
 
 jest.setTimeout(150 * 1000);
 
+
+jest.mock('src/store/store', () => ({
+  store: {
+    getState: () => ({
+      settings: {
+        bitcoinNetworkType: 'MAINNET',
+      },
+    }),
+  },
+}));
+
+jest.mock('realm', () => ({}));
+
+
 describe('Wallet primitives', () => {
   let primaryMnemonic;
   let wallet;

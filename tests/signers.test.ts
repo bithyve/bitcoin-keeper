@@ -36,7 +36,7 @@ import {
 
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/services/qr';
-import { SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { DerivationPurpose, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { getSignerNameFromType } from 'src/hardware';
 import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 
@@ -48,6 +48,19 @@ import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory
 // UNKOWN_SIGNER = 'UNKNOWN_SIGNER',
 
 jest.setTimeout(20000);
+
+jest.mock('src/store/store', () => ({
+  store: {
+    getState: () => ({
+      settings: {
+        bitcoinNetworkType: 'MAINNET',
+      },
+    }),
+  },
+}));
+
+jest.mock('realm', () => ({}));
+
 type RotatingQR = {
   data: string;
 }[];
@@ -81,8 +94,19 @@ describe('Signing Devices: setup flow with sample singlesig data', () => {
         expect(qrExtract).toHaveProperty(prop);
       }
 
+      let signer;
+      let key;
+
       // Setup signer and key
-      const { signer, key } = await setupFunction(qrExtract, false);
+      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.PASSPORT].includes(type)) {
+        const data = await setupFunction({ [DerivationPurpose.BIP84]: qrExtract }, false);
+        signer = data.signer;
+        key = data.key;
+      } else {
+        const data = await setupFunction(qrExtract, false);
+        signer = data.signer;
+        key = data.key;
+      }
 
       // Assert signer properties
       expect(signer).toHaveProperty('signerXpubs');
@@ -188,8 +212,18 @@ describe('Signing Devices: setup flow with sample multisig data', () => {
         expect(qrExtract).toHaveProperty(prop);
       }
 
+      let signer;
+      let key;
       // Setup signer and key
-      const { signer, key } = await setupFunction(qrExtract, true);
+      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.PASSPORT].includes(type)) {
+        const data = await setupFunction({ [DerivationPurpose.BIP48]: qrExtract }, false);
+        signer = data.signer;
+        key = data.key;
+      } else {
+        const data = await setupFunction(qrExtract, false);
+        signer = data.signer;
+        key = data.key;
+      }
 
       // Assert signer properties
       expect(signer).toHaveProperty('signerXpubs');

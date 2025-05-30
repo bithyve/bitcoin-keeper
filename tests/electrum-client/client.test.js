@@ -4,6 +4,15 @@ import ElectrumClient from '../../src/services/electrum/client';
 import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
 
 jest.setTimeout(150 * 1000);
+jest.mock('src/store/store', () => ({
+  store: {
+    getState: () => ({
+      settings: {
+        bitcoinNetwork: 'testnet',
+      },
+    }),
+  },
+}));
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
@@ -25,10 +34,7 @@ beforeAll(async () => {
 
 describe('Client', () => {
   it('Client can test connection', async () => {
-    assert.ok(
-      !(await ElectrumClient.testConnection('testnet.qtornado.com', false, 51002)).connected
-    );
-    // assert.ok(await ElectrumClient.testConnection('electrumx-core.1209k.com', false, 50002));
+    assert.ok((await ElectrumClient.testConnection(predefinedTestnetNodes[0])).connected);
   });
 
   it('Client can ping', async () => {

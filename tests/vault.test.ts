@@ -47,6 +47,18 @@ import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
 
 jest.setTimeout(20000);
 
+jest.mock('src/store/store', () => ({
+  store: {
+    getState: () => ({
+      settings: {
+        bitcoinNetworkType: 'MAINNET',
+      },
+    }),
+  },
+}));
+
+jest.mock('realm', () => ({}));
+
 const connectToElectrumClient = async () => {
   try {
     ElectrumClient.setActivePeer(predefinedTestnetNodes);
