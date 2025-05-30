@@ -29,6 +29,8 @@ import LoadingAnimation from 'src/components/Loader';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 import Text from '../KeeperText';
 import { hp } from 'src/constants/responsive';
+import BackupVerificationFailedIllustration from 'src/assets/images/BackupVerificationFailedModal.svg';
+import BackupMismatchIllustration from 'src/assets/images/BackupMismatchIllustration.svg';
 
 const ContentType = {
   verifying: 'verifying',
@@ -38,24 +40,22 @@ const ContentType = {
 };
 function Content({ contentType }: { contentType: string }) {
   const { colorMode } = useColorMode();
+  const { BackupWallet } = useContext(LocalizationContext).translations;
   const illustrations = {
     [ContentType.verifying]: (
       <Box marginBottom={hp(20)}>
         <LoadingAnimation />
       </Box>
     ),
-    [ContentType.verificationFailed]:
-      colorMode === 'light' ? <AlertIllustration /> : <AlertIllustrationDark />,
-    [ContentType.mismatch]:
-      colorMode === 'light' ? <AlertIllustration /> : <AlertIllustrationDark />,
+    [ContentType.verificationFailed]: <BackupVerificationFailedIllustration />,
+    [ContentType.mismatch]: <BackupMismatchIllustration />,
     [ContentType.healthCheckSuccessful]:
       colorMode === 'light' ? <AlertIllustration /> : <AlertIllustrationDark />,
   };
   const descriptions = {
-    [ContentType.verificationFailed]:
-      'There might be a temporary issue with the server or your connection. Please try again later.',
-    [ContentType.mismatch]:
-      'Some recent changes may not be backed up yet. To avoid data loss, we recommend initiating a backup now.',
+    [ContentType.verificationFailed]: BackupWallet.backupFailedModalDesc,
+
+    [ContentType.mismatch]: BackupWallet.mismatchModalDesc,
   };
 
   return (
@@ -226,10 +226,8 @@ function BackupHealthCheckList({ isUaiFlow }) {
         dismissible={false}
         showCloseIcon={false}
         visible={verificationModal}
-        title={'Verifying Server Backup'}
-        subTitle={
-          'Verifying your server backup integrity against your local data.\nThis may take a moment.'
-        }
+        title={BackupWallet.verifyModalTitle}
+        subTitle={BackupWallet.verifyModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -242,8 +240,8 @@ function BackupHealthCheckList({ isUaiFlow }) {
         dismissible={false}
         showCloseIcon={false}
         visible={failedVerificationModal}
-        title={'Backup Verification Failed'}
-        subTitle={'We couldn’t verify your data with the server backup.'}
+        title={BackupWallet.backupFailedModalTitle}
+        subTitle={BackupWallet.backupFailedModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -262,8 +260,8 @@ function BackupHealthCheckList({ isUaiFlow }) {
         dismissible={false}
         showCloseIcon={false}
         visible={backupMismatchModal}
-        title={'Data Mismatch Detected'}
-        subTitle={'Your local data doesn’t match the server backup.'}
+        title={BackupWallet.mismatchModalTitle}
+        subTitle={BackupWallet.mismatchModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

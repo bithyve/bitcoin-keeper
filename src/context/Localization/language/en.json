@@ -427,7 +427,6 @@
     "TrezorSafe3": "Trezor Safe 3",
     "TrezorSafe5": "Trezor Safe 5",
     "TrezorBTCOnly": " - BTC Only",
-
     "hardwareBitSaga": "Bitsaga",
     "hardwareBitSagaSubTitle": "Bitsaga provides premium hardware and expert consultancy to upgrade your bitcoin security.",
     "hardwareBitBox": "BitBox02",
@@ -445,12 +444,10 @@
     "hardwareFoundationSubscribeText": "Get $10 off with Keeper’s special discount!",
     "hardwareUnsubscribeText": "Upgrade to Hodler/Diamond Hands tier to get 5% discount.",
     "hardwareDeviceButton": "Buy Now",
-
     "hardwareResellerButton": "View Store",
     "coldCardMK4": "COLDCARD™ Mk4",
     "coldCardQ": "COLDCARD™ Q",
     "tapsignerHB": "TAPSIGNER™ Honey Badger",
-
     "Setupawalletforyoubitcoin": "Set up a wallet for you bitcoin",
     "Creatingyourwallet": "Creating your wallet",
     "ImportingWallet": "Importing Wallet",
@@ -988,7 +985,6 @@
     "attentionSubTitle": "If you choose to save it, make sure to store it safely, as this is the private key of the Server Key, and can be used to sign any transaction on behalf of it.",
     "BackUpModalTitle": "Back up Server Key",
     "timeUntilSigning": "Time until signing",
-
     "BackUpModalSubTitle": "For independent recovery, you can download a one-time backup of your Server Key’s private key. For security reasons, this backup can only be saved once and cannot be downloaded again. You can choose to back it up now, save it later, or disable it entirely.",
     "successTitle": "Server Key Setup is Successful",
     "successSubTitle": "The server key setup was successful, ensuring secure and reliable operations. Your system is now ready to handle signing requests with confidence.",
@@ -1260,7 +1256,15 @@
     "enterThe": "Enter the",
     "seedWord": "seed word",
     "enterSeedWordPlaceholder": "Enter seed word",
-    "viewBackupHistory": "View History of Backup"
+    "viewBackupHistory": "View History of Backup",
+    "verifyModalTitle": "Verifying Server Backup",
+    "verifyModalSubTitle": "Verifying your server backup integrity against your local data.\nThis may take a moment.",
+    "backupFailedModalTitle": "Backup Verification Failed",
+    "backupFailedModalSubTitle": "We couldn’t verify your data with the server backup.",
+    "backupFailedModalDesc": "There might be a temporary issue with the server or your connection. Please try again later.",
+    "mismatchModalTitle": "Data Mismatch Detected",
+    "mismatchModalSubTitle": "Your local data doesn’t match the server backup.",
+    "mismatchModalDesc": "Some recent changes may not be backed up yet. To avoid data loss, we recommend initiating a backup now."
   },
   "importWallet": {
     "addDetails": "Add details",
