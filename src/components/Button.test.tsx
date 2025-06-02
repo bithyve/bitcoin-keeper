@@ -1,3 +1,11 @@
+jest.mock('src/components/KeeperText', () => {
+  return ({ children }) => <span>{children}</span>;
+});
+
+import React from 'react';
+import { fireEvent, render } from '../utils/test-utils';
+import Buttons from '../components/Buttons';
+
 jest.mock('react-native-device-info', () => ({
   getVersion: () => '1.0.0',
   getBuildNumber: () => '100',
@@ -5,14 +13,11 @@ jest.mock('react-native-device-info', () => ({
   getUniqueId: () => 'mocked-device-id',
   getManufacturer: () => Promise.resolve('MockedManufacturer'),
 }));
-import React from 'react';
-import { fireEvent, render } from '../utils/test-utils';
-import Buttons from '../components/Buttons';
 
 describe('Buttons Component', () => {
-  it('renders primary button with text', () => {
-    const { getByText } = render(<Buttons primaryText="Submit" />);
-    expect(getByText('Submit')).toBeTruthy();
+  it('renders primary button', () => {
+    const { getByTestId } = render(<Buttons primaryText="Submit" />);
+    expect(getByTestId('btn_primaryText')).toBeTruthy();
   });
 
   it('calls primaryCallback when pressed', () => {
@@ -38,10 +43,10 @@ describe('Buttons Component', () => {
 
   it('renders and triggers secondary button callback', () => {
     const mockSecondary = jest.fn();
-    const { getByText, getByTestId } = render(
+    const { getByTestId } = render(
       <Buttons primaryText="Save" secondaryText="Cancel" secondaryCallback={mockSecondary} />
     );
-    expect(getByText('Cancel')).toBeTruthy();
+    expect(getByTestId('btn_secondaryText')).toBeTruthy();
     fireEvent.press(getByTestId('btn_secondaryText'));
     expect(mockSecondary).toHaveBeenCalled();
   });

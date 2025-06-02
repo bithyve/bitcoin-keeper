@@ -1,4 +1,8 @@
 export default {
+  addEventListener: jest.fn(() => ({
+    remove: jest.fn(),
+  })),
   fetch: jest.fn(() => Promise.resolve({ isConnected: true })),
-  addEventListener: jest.fn(() => jest.fn()), // unsubscribe
+  addListener: jest.fn(),
+  removeListeners: jest.fn(),
 };
