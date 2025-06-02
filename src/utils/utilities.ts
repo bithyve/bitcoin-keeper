@@ -23,6 +23,7 @@ import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
 import _ from 'lodash';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { getRandomBytes } from './service-utilities/encryption';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -696,6 +697,7 @@ export const getLocalizedDiscountedPrice = (price, localizedPrice, discount) => 
   const currencySymbol = symbolMatch ? symbolMatch[0] : '';
   return `${currencySymbol}${finalPrice.toFixed(2)}`;
 };
+
 export const sanitizeSeedKeyForBackup = (signer: Signer) => {
   // Remove xpriv from seed words if stored already
   if (signer.type === SignerType.SEED_WORDS && signer.signerName !== RECOVERY_KEY_SIGNER_NAME) {
@@ -736,4 +738,9 @@ export const sanitizeVaultSignersForSeedKeyBackup = (vault: Vault) => {
     return vaultSigner;
   });
   return updatedVault;
+};
+
+export const generateAccountIdentifier = (length) => {
+  if (!length) return '';
+  return getRandomBytes(3);
 };

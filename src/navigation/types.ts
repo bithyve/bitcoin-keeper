@@ -176,6 +176,7 @@ export type AppStackParams = {
   PurchaseWithChannel: undefined;
   AddMultipleXpub: undefined;
   DiscountedPlanScreen: undefined;
+  MultiUserScreen: undefined;
 };
 
 // Usage:
