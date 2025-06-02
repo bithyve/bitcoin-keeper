@@ -40,7 +40,7 @@ import {
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
-import { PasswordTimeout } from 'src/utils/PasswordTimeout';
+import { formatCoolDownTime, PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
@@ -53,7 +53,6 @@ import CampaignModalIllustration from 'src/assets/images/CampaignModalIllustrati
 import { uaiType } from 'src/models/interfaces/Uai';
 import { addToUaiStack, uaiChecks } from 'src/store/sagaActions/uai';
 
-const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
@@ -143,7 +142,7 @@ function LoginScreen({ navigation, route }) {
 
       setTimeout(() => {
         setLoginError(true);
-        setErrMessage(`Please try after ${PasswordTimeout(failedAttempts) / TIMEOUT} minutes`);
+        setErrMessage(`Please try after ${formatCoolDownTime(PasswordTimeout(failedAttempts))}`);
         setCanLogin(false);
       }, 100);
 
