@@ -187,6 +187,25 @@ export default class WalletUtilities {
     }
   };
 
+  static fetchCurrentMedianTime = async () => {
+    const { bitcoinNetworkType } = store.getState().settings;
+
+    try {
+      const endpoint =
+        bitcoinNetworkType === NetworkType.MAINNET
+          ? 'https://mempool.space/api/blocks/tip'
+          : 'https://mempool.space/testnet4/api/blocks/tip';
+
+      const res = await RestClient.get(endpoint);
+      const currentMedianTime = res.data[0].mediantime;
+
+      return { currentMedianTime };
+    } catch (error) {
+      console.error('Failed to fetch current median time');
+      return { currentMedianTime: Math.floor(Date.now() / 1000) };
+    }
+  };
+
   static generateCustomScript = (
     miniscriptScheme: MiniscriptScheme,
     isInternal: boolean,
