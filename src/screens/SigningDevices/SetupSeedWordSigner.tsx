@@ -8,13 +8,16 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { hp, windowHeight } from 'src/constants/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import WalletHeader from 'src/components/WalletHeader';
+import KeeperModal from 'src/components/KeeperModal';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function SetupSeedWordSigner({ route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { login } = translations;
+  const { login, common, signer } = translations;
   const { seed } = route.params;
   const [words] = useState(seed.split(' '));
   const { next } = route.params;
@@ -22,6 +25,12 @@ function SetupSeedWordSigner({ route }) {
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState('');
   const seedText = translations.seed;
+  const [rememberModal, setRememberModal] = useState(false);
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
 
   function SeedCard({ item, index }: { item; index }) {
     return (
@@ -69,6 +78,22 @@ function SetupSeedWordSigner({ route }) {
     <SeedCard item={item} index={index} />
   );
 
+  const rememberModalContent = () => {
+    return (
+      <>
+        <Box style={styles.illustrationCTR}>
+          <ThemedSvg name={'RememberSeedKey'} />
+        </Box>
+        <Text color={green_modal_text_color}>{signer.seedKeyRememberDesc}</Text>
+      </>
+    );
+  };
+
+  const onNext = (remember) => {
+    setRememberModal(false);
+    onSuccess(seed, remember);
+  };
+
   return (
     <Box flex={1} marginTop={hp(30)} padding={5} background={`${colorMode}.textInputBackground`}>
       <StatusBarComponent padding={30} />
@@ -114,11 +139,30 @@ function SetupSeedWordSigner({ route }) {
             words={words}
             confirmBtnPress={() => {
               setConfirmSeedModal(false);
-              onSuccess(seed);
+              setRememberModal(true);
             }}
           />
         </ModalWrapper>
       </Box>
+      <KeeperModal
+        close={() => {}}
+        showCloseIcon={false}
+        dismissible={false}
+        visible={rememberModal}
+        title={signer.seedKeyRememberTitle}
+        subTitle={signer.seedKeyRememberSubTitle}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
+        Content={rememberModalContent}
+        subTitleWidth={wp(280)}
+        buttonText={common.save}
+        secondaryButtonText={common.skip}
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        secButtonTextColor={green_modal_sec_button_text}
+        buttonCallback={() => onNext(true)}
+        secondaryCallback={() => onNext(false)}
+      />
     </Box>
   );
 }
@@ -134,6 +178,10 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     letterSpacing: 0.6,
     marginRight: 10,
+  },
+  illustrationCTR: {
+    alignItems: 'center',
+    marginBottom: hp(30),
   },
 });
 export default SetupSeedWordSigner;

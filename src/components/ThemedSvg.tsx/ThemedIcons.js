@@ -241,6 +241,7 @@ import SmallWalletGreen from 'src/assets/images/smallWalletGreen.svg';
 import SmallWalletGrey from 'src/assets/images/smallWalletGrey.svg';
 import MissingSingleXpubIllustration from 'src/assets/images/MissingSingleXpubIllustration.svg';
 import PrivateMissingSingleXpubIllustration from 'src/assets/privateImages/PrivateMissingSingleXpubIllustration.svg';
+import RememberSeedKeyIllustration from 'src/assets/images/RememberSeedKeyIllustration.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -868,6 +869,12 @@ const themeIcons = {
     LIGHT: MissingSingleXpubIllustration,
     PRIVATE: PrivateMissingSingleXpubIllustration,
     PRIVATE_LIGHT: PrivateMissingSingleXpubIllustration,
+  },
+  RememberSeedKey: {
+    DARK: RememberSeedKeyIllustration,
+    LIGHT: RememberSeedKeyIllustration,
+    PRIVATE: RememberSeedKeyIllustration,
+    PRIVATE_LIGHT: RememberSeedKeyIllustration,
   },
 };
 

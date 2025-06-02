@@ -429,7 +429,6 @@
     "TrezorSafe3": "Trezor Safe 3",
     "TrezorSafe5": "Trezor Safe 5",
     "TrezorBTCOnly": " - BTC Only",
-
     "hardwareBitSaga": "Bitsaga",
     "hardwareBitSagaSubTitle": "Bitsaga provides premium hardware and expert consultancy to upgrade your bitcoin security.",
     "hardwareBitBox": "BitBox02",
@@ -447,12 +446,10 @@
     "hardwareFoundationSubscribeText": "Get $10 off with Keeper’s special discount!",
     "hardwareUnsubscribeText": "Upgrade to Hodler/Diamond Hands tier to get 5% discount.",
     "hardwareDeviceButton": "Buy Now",
-
     "hardwareResellerButton": "View Store",
     "coldCardMK4": "COLDCARD™ Mk4",
     "coldCardQ": "COLDCARD™ Q",
     "tapsignerHB": "TAPSIGNER™ Honey Badger",
-
     "Setupawalletforyoubitcoin": "Set up a wallet for you bitcoin",
     "Creatingyourwallet": "Creating your wallet",
     "ImportingWallet": "Importing Wallet",
@@ -999,7 +996,6 @@
     "attentionSubTitle": "If you choose to save it, make sure to store it safely, as this is the private key of the Server Key, and can be used to sign any transaction on behalf of it.",
     "BackUpModalTitle": "Back up Server Key",
     "timeUntilSigning": "Time until signing",
-
     "BackUpModalSubTitle": "For independent recovery, you can download a one-time backup of your Server Key’s private key. For security reasons, this backup can only be saved once and cannot be downloaded again. You can choose to back it up now, save it later, or disable it entirely.",
     "successTitle": "Server Key Setup is Successful",
     "successSubTitle": "The server key setup was successful, ensuring secure and reliable operations. Your system is now ready to handle signing requests with confidence.",
@@ -1444,7 +1440,10 @@
     "keyAddedTitle": "Key added successfully.",
     "keyAddedSubTitle": "Key has been added successfully. You can continue adding other keys or click Finish to add the device.",
     "missingSingleSigTitle": "Singe-sig xPub Missing",
-    "missingSingleSigSubTitle": "Please add the single-sig xPub to create a Canary Wallet for your {0}"
+    "missingSingleSigSubTitle": "Please add the single-sig xPub to create a Canary Wallet for your {0}",
+    "seedKeyRememberTitle": "Remember Seed Words?",
+    "seedKeyRememberSubTitle": "Allow the app to securely store your seed words and sign transactions automatically when needed.",
+    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",

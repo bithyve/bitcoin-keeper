@@ -77,7 +77,11 @@ import { applyUpgradeSequence, KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { addNewWalletsWorker, addSigningDeviceWorker, NewWalletInfo } from './wallets';
-import { getKeyUID } from 'src/utils/utilities';
+import {
+  getKeyUID,
+  sanitizeSeedKeyForBackup,
+  sanitizeVaultSignersForSeedKeyBackup,
+} from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
 
@@ -110,7 +114,10 @@ export function* updateAppImageWorker({
       }
     } else if (signers) {
       for (const signer of signers) {
-        const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+        const encrytedSigner = encrypt(
+          encryptionKey,
+          JSON.stringify(sanitizeSeedKeyForBackup(signer))
+        );
         signersObject[getKeyUID(signer)] = encrytedSigner;
       }
     } else if (updateNodes) {
@@ -162,8 +169,10 @@ export function* updateVaultImageWorker({
     RealmSchema.KeeperApp
   );
   const encryptionKey = generateEncryptionKey(primarySeed);
-
-  const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
+  const vaultEncrypted = encrypt(
+    encryptionKey,
+    JSON.stringify(sanitizeVaultSignersForSeedKeyBackup(vault))
+  );
 
   if (isUpdate) {
     const response = yield call(Relay.updateVaultImage, {
@@ -951,13 +960,19 @@ function* backupAllSignersAndVaultsWorker() {
     const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     for (const index in signers) {
       const signer = signers[index];
-      const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+      const encrytedSigner = encrypt(
+        encryptionKey,
+        JSON.stringify(sanitizeSeedKeyForBackup(signer))
+      );
       signersObject[getKeyUID(signer)] = encrytedSigner;
     }
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
     for (const index in vaults) {
       const vault = vaults[index];
-      const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
+      const vaultEncrypted = encrypt(
+        encryptionKey,
+        JSON.stringify(sanitizeVaultSignersForSeedKeyBackup(vault))
+      );
       const signersData: Array<{
         signerId: string;
         xfpHash: string;
