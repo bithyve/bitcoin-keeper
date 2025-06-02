@@ -155,8 +155,8 @@ function SetupSeedWordSigner({ route }) {
         textColor={green_modal_text_color}
         Content={rememberModalContent}
         subTitleWidth={wp(280)}
-        buttonText={common.allow}
-        secondaryButtonText={common.deny}
+        buttonText={common.save}
+        secondaryButtonText={common.skip}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
         secButtonTextColor={green_modal_sec_button_text}

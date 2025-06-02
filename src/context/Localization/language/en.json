@@ -1432,7 +1432,7 @@
     "missingSingleSigSubTitle": "Please add the single-sig xPub to create a Canary Wallet for your {0}",
     "seedKeyRememberTitle": "Remember Seed Words?",
     "seedKeyRememberSubTitle": "Allow the app to securely store your seed words and sign transactions automatically when needed.",
-    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you each time. This saves time but increases responsibility—enable only if you're sure this device is secure."
+    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
