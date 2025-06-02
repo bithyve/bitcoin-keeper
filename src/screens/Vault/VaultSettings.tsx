@@ -75,6 +75,9 @@ function VaultSettings({ route }) {
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
   const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
   const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
+  const hasInitialTimelock = vault?.scheme?.miniscriptScheme.usedMiniscriptTypes.includes(
+    MiniscriptTypes.TIMELOCKED
+  );
 
   const cleanUp = () => {
     setVisible(false);
@@ -247,24 +250,45 @@ function VaultSettings({ route }) {
             })
           ),
       },
-    inheritanceKeys.length && {
-      title: emergencyKeys.length
-        ? vaultText.resetKeysTitle
-        : vaultText.resetIKTitle + (inheritanceKeys.length > 1 ? 's' : ''),
-      description: emergencyKeys.length
-        ? vaultText.resetKeysDesc
-        : vaultText.resetIKDesc + (inheritanceKeys.length > 1 ? 's' : ''),
+    hasInitialTimelock && {
+      title:
+        inheritanceKeys.length || emergencyKeys.length
+          ? vaultText.resetKeysTitle
+          : vaultText.resetInitialTLTitle,
+      description:
+        inheritanceKeys.length || emergencyKeys.length
+          ? vaultText.resetKeysDesc
+          : vaultText.resetInitialTLDesc,
       icon: null,
       isDiamond: false,
       onPress: () =>
         navigation.dispatch(
           CommonActions.navigate({
-            name: 'ResetInheritanceKey',
+            name: 'ResetInitialTimelock',
             params: { vault },
           })
         ),
     },
-    emergencyKeys.length &&
+    !hasInitialTimelock &&
+      inheritanceKeys.length && {
+        title: emergencyKeys.length
+          ? vaultText.resetKeysTitle
+          : vaultText.resetIKTitle + (inheritanceKeys.length > 1 ? 's' : ''),
+        description: emergencyKeys.length
+          ? vaultText.resetKeysDesc
+          : vaultText.resetIKDesc + (inheritanceKeys.length > 1 ? 's' : ''),
+        icon: null,
+        isDiamond: false,
+        onPress: () =>
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'ResetInheritanceKey',
+              params: { vault },
+            })
+          ),
+      },
+    !hasInitialTimelock &&
+      emergencyKeys.length &&
       inheritanceKeys.length === 0 && {
         title: vaultText.resetEKTitle + (emergencyKeys.length > 1 ? 's' : ''),
         description: vaultText.resetEKDesc + (emergencyKeys.length > 1 ? 's' : ''),

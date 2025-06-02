@@ -35,6 +35,7 @@ import {
 import {
   DerivationPurpose,
   EntityKind,
+  MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
   ScriptTypes,
@@ -238,7 +239,12 @@ export default class WalletOperations {
       // case: multi-sig vault
 
       // Safety check
-      if ((wallet as Vault).signers.length < 2)
+      if (
+        (wallet as Vault).signers.length < 2 &&
+        !(wallet as Vault).scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+          MiniscriptTypes.TIMELOCKED
+        )
+      )
         throw Error(`Error deriving address. Multi-key vault cannot have less than 2 keys`);
 
       receivingAddress = WalletUtilities.createMultiSig(wallet as Vault, index, isInternal).address;

@@ -7,10 +7,11 @@ import realm from './realm';
  * @returns Promise
  */
 const initializeRealm = async (
-  key: ArrayBuffer | ArrayBufferView | Int8Array
+  key: ArrayBuffer | ArrayBufferView | Int8Array,
+  path: string
 ): Promise<{ success: boolean; error?: string }> => {
   console.log('[Realm]: Database initialising...');
-  return realm.initializeDatabase(key);
+  return realm.initializeDatabase(key, path);
 };
 
 /**
