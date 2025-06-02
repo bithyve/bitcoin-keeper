@@ -18,6 +18,7 @@ import WhatsappIconDark from 'src/assets/images/link_whatsapp_dark.svg';
 import EmailIconDark from 'src/assets/images/link_email_dark.svg';
 import PhoneIconDark from 'src/assets/images/link_phone_dark.svg';
 import TelegramIconDark from 'src/assets/images/link_telegram_dark.svg';
+import FastImage from 'react-native-fast-image';
 
 const ICON_MAP = {
   dark: {
@@ -50,7 +51,7 @@ export const AccountManagerCard = ({ data }) => {
         borderColor={`${colorMode}.separator`}
       >
         <Box style={styles.profileCtr}>
-          <Image
+          <FastImage
             style={styles.image}
             source={{
               uri: data.image,
