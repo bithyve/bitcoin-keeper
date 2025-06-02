@@ -1190,7 +1190,11 @@
     "networkModeModalTitle": "Change network type",
     "networkModeModalSubTitle": "Choose network type to change to, this will affect your wallets, keys, and nodes",
     "networkChangePrimaryCTA": "Confirm network change",
-    "torConnectionString": " is connected"
+    "torConnectionString": " is connected",
+    "multiUserTitle": "Multi User Mode",
+    "multiUserSubTitle": "Setup multiple app users",
+    "multiUserScreenHeader": "Add New Keeper User",
+    "multiUserScreenTitle1": "Keeper allows you to create multiple users of the app, each completely separated with its own 4-digit PIN. When you log in, just enter the PIN of the user you want to access and the app will load for it."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",

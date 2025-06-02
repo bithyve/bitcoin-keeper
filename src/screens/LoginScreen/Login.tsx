@@ -98,6 +98,7 @@ function LoginScreen({ navigation, route }) {
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { common } = translations;
+  const { allAccounts, biometricEnabledAppId } = useAppSelector((state) => state.account);
 
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [campaignDetails, setCampaignDetails] = useState(null);
@@ -179,7 +180,10 @@ function LoginScreen({ navigation, route }) {
   }, [recepitVerificationError]);
 
   const biometricAuth = async () => {
-    if (loginMethod === LoginMethod.BIOMETRIC) {
+    if (
+      (allAccounts.length === 0 && loginMethod === LoginMethod.BIOMETRIC) ||
+      (allAccounts.length > 0 && biometricEnabledAppId !== null)
+    ) {
       try {
         setTimeout(async () => {
           if (canLogin) {
@@ -193,7 +197,9 @@ function LoginScreen({ navigation, route }) {
               setLoginModal(true);
               setLogging(true);
               setLoginError(false);
-              dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+              dispatch(
+                credsAuth(signature, LoginMethod.BIOMETRIC, false, biometricEnabledAppId ?? appId)
+              );
             }
           }
         }, 200);

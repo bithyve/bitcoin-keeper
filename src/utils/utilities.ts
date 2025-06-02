@@ -19,6 +19,7 @@ import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 import BIP32Factory from 'bip32';
 import { detectFileType, splitQRs } from 'src/services/qr/bbqr/split';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { getRandomBytes } from './service-utilities/encryption';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -691,4 +692,8 @@ export const getLocalizedDiscountedPrice = (price, localizedPrice, discount) => 
   const symbolMatch = localizedPrice.match(/^[^\d.,\s]+/);
   const currencySymbol = symbolMatch ? symbolMatch[0] : '';
   return `${currencySymbol}${finalPrice.toFixed(2)}`;
+};
+export const generateAccountIdentifier = (length) => {
+  if (!length) return '';
+  return getRandomBytes(3);
 };

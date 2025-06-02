@@ -15,7 +15,7 @@ const initialState: {
   torEnbled: boolean;
   satsEnabled: boolean;
   oneTimeBackupStatus: {
-    signingServer: boolean;
+    signingServer: boolean; // to be removed later, moved to accounts reducer & mapped with appId
   };
   backupModal: boolean;
   subscription: string;
