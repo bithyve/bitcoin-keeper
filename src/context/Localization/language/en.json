@@ -673,7 +673,7 @@
     "Organization": "Organization",
     "OrganizationDesc": "Paths help your wallet keep track of different accounts, types of transactions (receiving vs change), and even different coins.",
     "derivationPath": "Choosing Derivation Path",
-    "currentBtcPrice": "Current BTC price",
+    "currentBtcPrice": "Current BTC Price",
     "amountBeingSend": "Amount being sent",
     "sendingAmount": "Sending Amount:"
   },

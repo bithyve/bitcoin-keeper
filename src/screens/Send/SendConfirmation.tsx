@@ -684,7 +684,11 @@ function SendConfirmation({ route }) {
                 {walletTranslations.currentBtcPrice}
               </Text>
               <Text fontSize={14} color={`${colorMode}.primaryText`}>
-                {exchangeRates?.BMD?.symbol + exchangeRates?.BMD?.last}
+                {exchangeRates?.BMD?.symbol +
+                  new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(exchangeRates?.BMD?.last)}
               </Text>
             </Box>
           </ReceiptWrapper>
