@@ -4,6 +4,7 @@ import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import idx from 'idx';
 import { getAccountFromSigner } from 'src/utils/utilities';
 import {
+  DerivationPurpose,
   EntityKind,
   MiniscriptTypes,
   MultisigScriptType,
@@ -186,7 +187,8 @@ export const generateMobileKey = async (
 export const generateSeedWordsKey = (
   mnemonic: string,
   networkType: NetworkType,
-  isMultisig: boolean
+  isMultisig: boolean,
+  isTaproot: boolean = false
 ): {
   xpub: string;
   xpriv: string;
@@ -203,7 +205,8 @@ export const generateSeedWordsKey = (
   const xDerivationPath = WalletUtilities.getDerivationPath(
     isMultisig,
     networkType,
-    DEFAULT_CHILD_PATH
+    DEFAULT_CHILD_PATH,
+    isTaproot ? DerivationPurpose.BIP86 : DerivationPurpose.BIP84
   );
 
   const network = WalletUtilities.getNetworkByType(networkType);

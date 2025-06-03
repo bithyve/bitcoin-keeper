@@ -201,6 +201,12 @@ const setupSeedWordsBasedKey = (
     derivationPath: singleSigPath,
   } = generateSeedWordsKey(mnemonic, networkType, false);
 
+  const {
+    xpriv: taprootXpriv,
+    xpub: taprootXpub,
+    derivationPath: taprootPath,
+  } = generateSeedWordsKey(mnemonic, networkType, false, true);
+
   const xpubDetails: XpubDetailsType = {};
   xpubDetails[XpubTypes.P2WPKH] = {
     xpub: singleSigXpub,
@@ -211,6 +217,11 @@ const setupSeedWordsBasedKey = (
     xpub: multiSigXpub,
     derivationPath: multiSigPath,
     xpriv: remember ? multiSigXpriv : null,
+  };
+  xpubDetails[XpubTypes.P2TR] = {
+    xpub: taprootXpub,
+    derivationPath: taprootPath,
+    xpriv: remember ? taprootXpriv : null,
   };
 
   const { signer: softSigner, key } = generateSignerFromMetaData({
