@@ -670,7 +670,7 @@ function SigningDeviceDetails({ route }) {
       },
     signer?.type === SignerType.UNKOWN_SIGNER && {
       text: 'Set Device Type',
-      Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
+      Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'change_key_icon'} />} />,
       onPress: navigateToAssignSigner,
     },
     signer?.type !== SignerType.MY_KEEPER && {
@@ -752,7 +752,7 @@ function SigningDeviceDetails({ route }) {
       ? [
           {
             text: 'Change Key',
-            Icon: () => <FooterIcon Icon={isDarkMode ? ChangeKeyDark : ChangeKeyLight} />,
+            Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'change_key_icon'} />} />,
             onPress: isEmergencyKey
               ? () =>
                   navigation.dispatch(
