@@ -75,7 +75,7 @@ function VaultSettings({ route }) {
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
   const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
   const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
-  const hasInitialTimelock = vault?.scheme?.miniscriptScheme.usedMiniscriptTypes.includes(
+  const hasInitialTimelock = vault?.scheme?.miniscriptScheme?.usedMiniscriptTypes.includes(
     MiniscriptTypes.TIMELOCKED
   );
 
