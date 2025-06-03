@@ -397,7 +397,6 @@ function SignerAdvanceSettings({ route }: any) {
       setCanaryVaultLoading(true);
       const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
       if (!singleSigSigner) {
-        showToast(errorTranslation.noSingleSigFound);
         setCanaryVaultLoading(false);
         setSingleSigModal(true);
       } else {
@@ -1168,10 +1167,7 @@ function SignerAdvanceSettings({ route }: any) {
             getSignerNameFromType(signer.type, signer.isMock, false).replace(/\*+/g, '')
           ) as string
         }
-        modalBackground={green_modal_background}
-        textColor={green_modal_text_color}
         subTitleWidth={wp(280)}
-        DarkCloseIcon
         Content={MissingXpubContent}
       />
     </ScreenWrapper>
