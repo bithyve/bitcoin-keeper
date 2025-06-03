@@ -64,8 +64,10 @@ function AddReserveKey({ route }) {
     vaultId,
     isAddInheritanceKey,
     isAddEmergencyKey,
+    hasInitialTimelock,
     currentBlockHeight: currentBlockHeightParam,
     keyToRotate,
+    initialTimelockDuration,
   } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -153,6 +155,7 @@ function AddReserveKey({ route }) {
       scheme,
       isAddInheritanceKey,
       isAddEmergencyKey,
+      hasInitialTimelock,
       currentBlockHeight,
       onGoBack: (signer) => setSelectedSigner(signer),
     });
@@ -164,6 +167,7 @@ function AddReserveKey({ route }) {
     scheme,
     isAddInheritanceKey,
     isAddEmergencyKey,
+    hasInitialTimelock,
     currentBlockHeight,
   ]);
 
@@ -235,12 +239,14 @@ function AddReserveKey({ route }) {
                   description,
                   isAddInheritanceKey,
                   isAddEmergencyKey,
+                  hasInitialTimelock,
                   currentBlockHeight,
                   selectedSigners: route.params.selectedSigners,
                   keyToRotate,
                   inheritanceKeys: selectedSigner
                     ? [{ key: selectedSigner[0], duration: selectedOption.label }]
                     : [],
+                  initialTimelockDuration,
                 });
               } else {
                 if (vaultId) {
@@ -252,9 +258,9 @@ function AddReserveKey({ route }) {
                   scheme,
                   isHotWallet: false,
                   vaultType: VaultType.MINISCRIPT,
-                  isTimeLock: false,
                   isAddInheritanceKey,
                   isAddEmergencyKey,
+                  hasInitialTimelock,
                   currentBlockHeight,
                   hotWalletInstanceNum: null,
                   reservedKeys: selectedSigner
@@ -262,6 +268,7 @@ function AddReserveKey({ route }) {
                     : [],
                   selectedSigners: route.params.selectedSigners,
                   vaultId,
+                  initialTimelockDuration,
                 });
               }
             }}
@@ -317,8 +324,12 @@ function AddReserveKey({ route }) {
         inheritanceKeys={
           selectedSigner ? [{ key: selectedSigner[0], duration: selectedOption.label }] : []
         }
+        initialTimelockDuration={initialTimelockDuration ?? 0}
         currentBlockHeight={currentBlockHeight}
-        miniscriptTypes={[MiniscriptTypes.INHERITANCE]}
+        miniscriptTypes={[
+          ...(initialTimelockDuration ? [MiniscriptTypes.TIMELOCKED] : []),
+          MiniscriptTypes.INHERITANCE,
+        ]}
         setVaultCreatedModalVisible={setVaultCreatedModalVisible}
       />
     </ScreenWrapper>

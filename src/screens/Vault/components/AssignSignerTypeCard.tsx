@@ -10,7 +10,6 @@ import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import KeeperModal from 'src/components/KeeperModal';
 import { getSignerNameFromType } from 'src/hardware';
-import ChangeSignerIllustration from 'src/assets/images/changeSignerIllustration.svg';
 import Clipboard from '@react-native-clipboard/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -26,6 +25,7 @@ import { SDIcons } from '../SigningDeviceIcons';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 type AssignSignerTypeCardProps = {
   type: SignerType;
@@ -238,7 +238,7 @@ function AssignSignerTypeCard({
         buttonCallback={changeSignerType}
         Content={() => (
           <Box style={styles.illustrationContainer}>
-            <ChangeSignerIllustration />
+            <ThemedSvg name={'change_device_type_illustration'} />
           </Box>
         )}
       />

@@ -45,6 +45,7 @@ const initialState: {
     [NetworkType.TESTNET]: boolean;
   }; // map for creation of default wallet for network types
   campaignFlags: CampaignFlagsType;
+  appCreated: boolean;
 } = {
   appId: '',
   failedAttempts: 0,
@@ -86,6 +87,7 @@ const initialState: {
     uaiShown: false,
     subscriptionDotShown: false,
   },
+  appCreated: false,
 };
 
 const storageSlice = createSlice({
@@ -178,6 +180,9 @@ const storageSlice = createSlice({
         subscriptionDotShown: status,
       };
     },
+    setAppCreated: (state, action: PayloadAction<boolean>) => {
+      state.appCreated = action.payload;
+    },
   },
 });
 
@@ -197,6 +202,7 @@ export const {
   setDefaultWalletCreated,
   setCampaignFlags,
   setAllCampaigns,
+  setAppCreated,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

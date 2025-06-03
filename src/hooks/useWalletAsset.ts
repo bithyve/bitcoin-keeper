@@ -86,6 +86,9 @@ const useWalletAsset = () => {
             wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
               MiniscriptTypes.EMERGENCY
             ) && { tag: 'Emergency key' },
+            wallet.scheme.miniscriptScheme?.usedMiniscriptTypes.includes(
+              MiniscriptTypes.TIMELOCKED
+            ) && { tag: 'Timelocked' },
           ].filter(Boolean);
           break;
         default:

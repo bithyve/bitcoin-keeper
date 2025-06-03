@@ -40,7 +40,7 @@ import {
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
-import { PasswordTimeout } from 'src/utils/PasswordTimeout';
+import { formatCoolDownTime, PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
@@ -53,7 +53,6 @@ import CampaignModalIllustration from 'src/assets/images/CampaignModalIllustrati
 import { uaiType } from 'src/models/interfaces/Uai';
 import { addToUaiStack, uaiChecks } from 'src/store/sagaActions/uai';
 
-const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
@@ -98,6 +97,7 @@ function LoginScreen({ navigation, route }) {
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { common } = translations;
+  const { allAccounts, biometricEnabledAppId } = useAppSelector((state) => state.account);
 
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [campaignDetails, setCampaignDetails] = useState(null);
@@ -142,7 +142,7 @@ function LoginScreen({ navigation, route }) {
 
       setTimeout(() => {
         setLoginError(true);
-        setErrMessage(`Please try after ${PasswordTimeout(failedAttempts) / TIMEOUT} minutes`);
+        setErrMessage(`Please try after ${formatCoolDownTime(PasswordTimeout(failedAttempts))}`);
         setCanLogin(false);
       }, 100);
 
@@ -179,7 +179,10 @@ function LoginScreen({ navigation, route }) {
   }, [recepitVerificationError]);
 
   const biometricAuth = async () => {
-    if (loginMethod === LoginMethod.BIOMETRIC) {
+    if (
+      (allAccounts.length === 0 && loginMethod === LoginMethod.BIOMETRIC) ||
+      (allAccounts.length > 0 && biometricEnabledAppId !== null)
+    ) {
       try {
         setTimeout(async () => {
           if (canLogin) {
@@ -193,7 +196,9 @@ function LoginScreen({ navigation, route }) {
               setLoginModal(true);
               setLogging(true);
               setLoginError(false);
-              dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+              dispatch(
+                credsAuth(signature, LoginMethod.BIOMETRIC, false, biometricEnabledAppId ?? appId)
+              );
             }
           }
         }, 200);

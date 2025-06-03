@@ -106,9 +106,11 @@ import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 import SetupPortal from 'src/screens/SigningDevices/SetupPortal';
 import SelectWalletScreen from 'src/screens/Send/SelectWallet';
 import PSBTSendConfirmation from 'src/screens/Send/PSBTSendConfirmation';
+import ResetInitialTimelock from 'src/screens/Vault/ResetInitialTimelock';
 import ResetInheritanceKey from 'src/screens/Vault/ResetInheritanceKey';
 import ResetEmergencyKey from 'src/screens/Vault/ResetEmergencyKey';
 import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
+import SelectInitialTimelock from 'src/screens/Vault/SelectInitialTimelock';
 import AddReserveKey from 'src/screens/Vault/AddReserveKey';
 import AddEmergencyKey from 'src/screens/Vault/AddEmergencyKey';
 import { useColorMode } from 'native-base';
@@ -139,6 +141,7 @@ import AppStateHandler from './AppStateHandler';
 import AdditionalUsers from 'src/screens/Vault/AdditionalUsers';
 import SetupAdditionalServerKey from 'src/screens/SigningDevices/SetupAdditionalServerKey';
 import { DiscountedPlanScreen } from 'src/screens/ChoosePlanScreen/DiscountedPlanScreen';
+import { MultiUserScreen } from 'src/screens/AppSettings/MultiUserScreen';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -295,8 +298,10 @@ function AppStack() {
         <Stack.Screen name="AddContact" component={AddContact} />
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
+        <Stack.Screen name="SelectInitialTimelock" component={SelectInitialTimelock} />
         <Stack.Screen name="AddReserveKey" component={AddReserveKey} />
         <Stack.Screen name="AddEmergencyKey" component={AddEmergencyKey} />
+        <Stack.Screen name="ResetInitialTimelock" component={ResetInitialTimelock} />
         <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
         <Stack.Screen name="ResetEmergencyKey" component={ResetEmergencyKey} />
         <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
@@ -309,6 +314,7 @@ function AppStack() {
         <Stack.Screen name="PurchaseWithChannel" component={PurchaseWithChannel} />
         <Stack.Screen name="AddMultipleXpub" component={AddMultipleXpub} />
         <Stack.Screen name="DiscountedPlanScreen" component={DiscountedPlanScreen} />
+        <Stack.Screen name="MultiUserScreen" component={MultiUserScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );

@@ -353,6 +353,7 @@ function SignersList({
   const shellKeys = [];
 
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+  const [currentMedianTimePast, setCurrentMedianTimePast] = useState(null);
 
   const inheritanceKeys = vault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints
     ? Object.entries(vault.scheme.miniscriptScheme.miniscriptElements.signerFingerprints)
@@ -493,8 +494,10 @@ function SignersList({
                 )}
               vault={vault}
               currentBlockHeight={currentBlockHeight}
+              currentMedianTimePast={currentMedianTimePast}
               handleCardSelect={handleCardSelect}
               setCurrentBlockHeight={setCurrentBlockHeight}
+              setCurrentMedianTimePast={setCurrentMedianTimePast}
             />
           ))}
       </ScrollView>
