@@ -73,7 +73,7 @@ function AddReserveKey({ route }) {
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultTranslations } = translations;
+  const { common, vault: vaultTranslations, wallet: walletTranslations } = translations;
   const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_KEY_TIMELOCK);
   const [selectedSigner, setSelectedSigner] = useState(null);
   const { activeVault, allVaults } = useVault({ vaultId });
@@ -279,10 +279,8 @@ function AddReserveKey({ route }) {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title={'Key Replaced Successfully'}
-        subTitle={
-          'Your key was successfully replaced, you can continue to use your updated wallet.'
-        }
+        title={vaultTranslations.keyReplacedSuccessfully}
+        subTitle={vaultTranslations.replacedKeyMessage}
         Content={() => {
           return (
             <Box flex={1} alignItems={'center'}>
@@ -290,7 +288,7 @@ function AddReserveKey({ route }) {
             </Box>
           );
         }}
-        buttonText={'View Wallet'}
+        buttonText={walletTranslations.ViewWallet}
         buttonCallback={viewVault}
         secondaryCallback={viewVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}

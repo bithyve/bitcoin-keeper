@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
@@ -14,6 +14,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import { useNavigation } from '@react-navigation/native';
 import WalletHeader from 'src/components/WalletHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 export const fetchKeyExpression = (signer: Signer) => {
   for (const type of [XpubTypes.P2WSH]) {
@@ -38,6 +39,8 @@ function CosignerDetails({ route }: ScreenProps) {
   const [details, setDetails] = React.useState('');
   const { signer } = route.params;
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorText, signer: signerText } = translations;
 
   useEffect(() => {
     if (!details) {
@@ -47,15 +50,9 @@ function CosignerDetails({ route }: ScreenProps) {
           setDetails(keyDescriptor);
         } catch (error) {
           if (error && error.message === 'Missing key details.') {
-            showToast(
-              'Missing key details of multi-key type, please add key details from Add Device',
-              <ToastErrorIcon />
-            );
+            showToast(errorText.missingKeyDetails, <ToastErrorIcon />);
           } else {
-            showToast(
-              "We're sorry, but we have trouble retrieving the key information",
-              <ToastErrorIcon />
-            );
+            showToast(errorText.troubleRecivingInfo, <ToastErrorIcon />);
           }
           navigation.goBack();
         }
@@ -66,8 +63,8 @@ function CosignerDetails({ route }: ScreenProps) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Share Key Details"
-        subTitle="Scan the key details from another app to add on that app"
+        title={signerText.shareKeyDetails}
+        subTitle={signerText.scanKeyDetailFromAnotherApp}
       />
       <ScrollView
         contentContainerStyle={styles.contentContainer}
@@ -77,8 +74,8 @@ function CosignerDetails({ route }: ScreenProps) {
           <Box style={styles.center}>
             <ShowXPub
               data={details}
-              copy={() => showToast('Co-signer Details Copied Successfully', <TickIcon />)}
-              subText="Co-signer Details"
+              copy={() => showToast(signerText.cosignerDetails, <TickIcon />)}
+              subText={signerText.cosignerDetailsCopied}
               copyable
             />
           </Box>

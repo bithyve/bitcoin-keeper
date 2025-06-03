@@ -40,7 +40,7 @@ function CustomPriorityModal(props) {
   const [estimationSign, setEstimationSign] = useState('≈');
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation } = translations;
+  const { wallet: walletTranslation, home } = translations;
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
@@ -153,7 +153,7 @@ function CustomPriorityModal(props) {
                 fontSize={13}
                 bold
               >
-                {customPriorityFee || 'Enter amount'}
+                {customPriorityFee || home.AddAmount}
               </Text>
             </Box>
             <Box my={3} flexDirection="row" justifyContent="space-between" mx={1}>

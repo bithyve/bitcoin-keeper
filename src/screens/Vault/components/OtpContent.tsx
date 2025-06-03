@@ -1,15 +1,18 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import { hp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function OtpContent({ otp, setOtp, showToast, callback }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common, error: errorText } = translations;
 
   const onPressNumber = (text) => {
     let tmpPasscode = otp;
@@ -37,7 +40,7 @@ function OtpContent({ otp, setOtp, showToast, callback }) {
             if (clipBoardData.match(/^\d{6}$/)) {
               setOtp(clipBoardData);
             } else {
-              showToast('Invalid OTP');
+              showToast(errorText.invalidOtpshort);
               setOtp('');
             }
           }}
@@ -69,7 +72,7 @@ function OtpContent({ otp, setOtp, showToast, callback }) {
               callback();
             }}
             fullWidth
-            primaryText="Confirm"
+            primaryText={common.confirm}
             primaryDisable={otp.length !== 6}
           />
         </Box>

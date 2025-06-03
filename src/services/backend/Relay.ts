@@ -563,6 +563,7 @@ export default class Relay {
   };
 
   public static getActiveCampaign = async (appId): Promise<any> => {
+    return undefined; // To be enabled after successful implementation
     let res;
     try {
       res = await RestClient.get(`${RELAY}getActiveCampaign?appId=${appId}`);
@@ -574,4 +575,3 @@ export default class Relay {
     return res ? res.data || res.json : null;
   };
 }
-

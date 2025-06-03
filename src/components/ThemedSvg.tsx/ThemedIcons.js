@@ -257,7 +257,7 @@ import BackupMismatch from 'src/assets/images/BackupMismatchIllustration.svg';
 import BackupMismatchPrivate from 'src/assets/privateImages/BackupMismatchPrivateIllustration.svg';
 import BackupVerificationFailed from 'src/assets/images/BackupVerificationFailedModal.svg';
 import BackupVerificationFailedPrivate from 'src/assets/privateImages/BackupVerificationFailedPrivateModal.svg';
-
+import RememberSeedKeyPrivate from 'src/assets/privateImages/RememberSeedKeyPrivateIllustration.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -913,8 +913,8 @@ const themeIcons = {
   RememberSeedKey: {
     DARK: RememberSeedKeyIllustration,
     LIGHT: RememberSeedKeyIllustration,
-    PRIVATE: RememberSeedKeyIllustration,
-    PRIVATE_LIGHT: RememberSeedKeyIllustration,
+    PRIVATE: RememberSeedKeyPrivate,
+    PRIVATE_LIGHT: RememberSeedKeyPrivate,
   },
   BackupMismatch: {
     DARK: BackupMismatch,

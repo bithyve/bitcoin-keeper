@@ -74,7 +74,7 @@ export const useSettingKeeper = () => {
   const [hiddenKeyPass, setHiddenKeyPass] = useState(false);
   const [showDeleteBackup, setShowDeleteBackup] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault, wallet, inheritancePlanning, settings, common, signer } = translations;
+  const { vault, wallet, inheritancePlanning, settings, common, signer, error } = translations;
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
@@ -123,10 +123,7 @@ export const useSettingKeeper = () => {
   useEffect(() => {
     if (deleteBackupFailure && isFocused) {
       dispatch(setDeleteBackupFailure(false));
-      showToast(
-        'Unable to delete backup from Assisted Server, Please try again later.',
-        <ToastErrorIcon />
-      );
+      showToast(error.unableToDeleteAssistedServer, <ToastErrorIcon />);
     }
   }, [deleteBackupFailure]);
 
@@ -158,7 +155,7 @@ export const useSettingKeeper = () => {
       icon: <PlebIcon width={30} height={30} />,
       sublightIcon: <PlebGreenSub width={24} height={24} />,
       subDarkIcon: <PlebWhiteSub width={24} height={24} />,
-      subDescription: 'Start your bitcoin journey with our free subscription',
+      subDescription: signer.plebSubDescription,
     },
     {
       plan: SubscriptionTier.L2.toUpperCase(),
@@ -168,7 +165,7 @@ export const useSettingKeeper = () => {
       icon: <HodlerIcon width={30} height={30} />,
       sublightIcon: <HodlerGreenSub width={24} height={24} />,
       subDarkIcon: <HodlerWhiteSub width={24} height={24} />,
-      subDescription: 'Unlock features to easily manage bigger bitcoin stacks',
+      subDescription: signer.hodlerSubDescription,
     },
     {
       plan: SubscriptionTier.L3.toUpperCase(),
@@ -178,7 +175,7 @@ export const useSettingKeeper = () => {
       icon: <DiamondIcon width={30} height={30} />,
       sublightIcon: <DiamondGreenSub width={24} height={24} />,
       subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
-      subDescription: 'Unlock to protect significant amount of bitcoin and inheritance planning',
+      subDescription: signer.diamondHandSubDescription,
     },
     {
       plan: SubscriptionTier.L4.toUpperCase(),

@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -10,10 +10,13 @@ import PaperClipDark from 'src/assets/images/paper-clip-dark.svg';
 import DocumentLight from 'src/assets/images/document-light.svg';
 import DocumentDark from 'src/assets/images/document-dark.svg';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const CTAFooter = ({ onAttachScreenshot, addAttributes, onNext }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
 
   const handleAttachScreenshot = () => {
     launchImageLibrary(
@@ -36,7 +39,7 @@ const CTAFooter = ({ onAttachScreenshot, addAttributes, onNext }) => {
         <Pressable style={[styles.touchable]} onPress={handleAttachScreenshot}>
           {isDarkMode ? <PaperClipDark /> : <PaperClipLight />}
           <Text color={`${colorMode}.buttonText`} fontSize={12}>
-            Attach Screenshot
+            {concierge.attachScreenshot}
           </Text>
         </Pressable>
       </Box>
@@ -46,7 +49,7 @@ const CTAFooter = ({ onAttachScreenshot, addAttributes, onNext }) => {
         <Pressable style={[styles.touchable]} onPress={addAttributes}>
           {isDarkMode ? <DocumentDark /> : <DocumentLight />}
           <Text color={`${colorMode}.buttonText`} fontSize={12}>
-            Share App Attributes
+            {concierge.shareAppAttributes}
           </Text>
         </Pressable>
       </Box>

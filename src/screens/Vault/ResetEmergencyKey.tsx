@@ -45,7 +45,7 @@ function ResetEmergencyKey({ route }) {
   const signers: Signer[] = emergencySigners.map(
     (emergencySigner) => signerMap[getKeyUID(emergencySigner)]
   );
-  const { vault: vaultText, common } = translations;
+  const { vault: vaultText, error: errorTranslation } = translations;
   const { showToast } = useToastMessage();
   const [generatedVaultId, setGeneratedVaultId] = useState('');
   const { allVaults } = useVault({ includeArchived: false });
@@ -67,8 +67,8 @@ function ResetEmergencyKey({ route }) {
       .every((id) => selectedOptions[id]);
     if (!hasAllSelections) {
       showToast(
-        'Please select activation time' +
-          (emergencySigners.length === 1 ? '' : 'for all emergency keys'),
+        errorTranslation.selectActivationTime +
+          (emergencySigners.length === 1 ? '' : errorTranslation.forAllEMKey),
         <ToastErrorIcon />
       );
       setCreating(false);
@@ -83,10 +83,7 @@ function ResetEmergencyKey({ route }) {
         console.log('Failed to re-fetch current block height: ' + err);
       }
       if (!currentSyncedBlockHeight) {
-        showToast(
-          'Failed to fetch current chain data, please check your connection and try again',
-          <ToastErrorIcon />
-        );
+        showToast(errorTranslation.faildtoFetchCurrent, <ToastErrorIcon />);
         setCreating(false);
         return;
       }
@@ -186,7 +183,7 @@ function ResetEmergencyKey({ route }) {
       });
     } catch {
       showToast(
-        'Failed to check current activation time for Emergency Key',
+        errorTranslation.failedToCheckEMKeyActivationTime,
         null,
         IToastCategory.DEFAULT,
         3000,

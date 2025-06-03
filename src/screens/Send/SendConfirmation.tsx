@@ -133,7 +133,13 @@ function SendConfirmation({ route }) {
   const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
 
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslations, common, vault } = translations;
+  const {
+    wallet: walletTranslations,
+    common,
+    vault,
+    error: errorText,
+    transactions,
+  } = translations;
 
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
@@ -241,7 +247,7 @@ function SendConfirmation({ route }) {
           })
         );
         if (isFocused) {
-          showToast('New pending transaction saved successfully', <TickIcon />);
+          showToast(errorText.pendingTransactonSuccesful, <TickIcon />);
         }
       } else {
         navigation.dispatch(e.data.action);
@@ -292,7 +298,7 @@ function SendConfirmation({ route }) {
           (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
         ) {
           if (!miniscriptSelectedSatisfier) {
-            showToast('Invalid phase/path selection', <ToastErrorIcon />);
+            showToast(errorText.invalidPhase, <ToastErrorIcon />);
             return;
           }
         }
@@ -317,12 +323,7 @@ function SendConfirmation({ route }) {
               );
             }, 200);
           })
-          .catch(() =>
-            showToast(
-              'Failed to fetch current block height. Please check your internet connection and retry.',
-              <ToastErrorIcon />
-            )
-          );
+          .catch(() => showToast(errorText.failedToFetchCurrentBlock, <ToastErrorIcon />));
       }
     }
   }, [inProgress]);
@@ -387,13 +388,13 @@ function SendConfirmation({ route }) {
     if (canceled) {
       dispatch(deleteDelayedTransaction(cachedTxid));
       showValidationModal(false);
-      showToast('Associated Server Key signing request has been cancelled');
+      showToast(errorText.serverKeysigningReq);
 
       dropSnapshot();
     } else {
       setOtp('');
       showValidationModal(false);
-      showToast('Failed to cancel the associated Server Key signing request. Please try again!');
+      showToast(errorText.failedToCancelServerKeysigningReq);
     }
   };
 
@@ -512,9 +513,9 @@ function SendConfirmation({ route }) {
 
     try {
       await Share.open({
-        message: 'The transaction has been successfully sent. You can track its status here:',
+        message: transactions.transactionSuccessSent,
         url,
-        title: 'Transaction Details',
+        title: transactions.transactionDetails,
       });
     } catch (err) {
       console.error('Share error:', err);
@@ -531,7 +532,7 @@ function SendConfirmation({ route }) {
   useEffect(() => {
     if (sendPhaseTwoFailed) setProgress(false);
     if (failedSendPhaseTwoErrorMessage) {
-      showToast(`Failed to send transaction: ${failedSendPhaseTwoErrorMessage}`);
+      showToast(`${errorText.failedToSendTransaction} ${failedSendPhaseTwoErrorMessage}`);
     }
   }, [sendPhaseTwoFailed]);
 
@@ -629,7 +630,7 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title="Send Confirmation" rightComponent={<CurrencyTypeSwitch />} />
+      <WalletHeader title={common.sendConfirmation} rightComponent={<CurrencyTypeSwitch />} />
 
       <ScrollView
         style={styles.container}
@@ -736,7 +737,7 @@ function SendConfirmation({ route }) {
       </ScrollView>
       <Buttons
         primaryText={common.confirmProceed}
-        secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
+        secondaryText={isCachedTransaction ? common.discard : common.cancel}
         secondaryCallback={() => {
           if (isCachedTransaction) discardCachedTransaction();
           else navigation.goBack();
@@ -908,7 +909,7 @@ function SendConfirmation({ route }) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonBackground={`${colorMode}.pantoneGreen`}
-        buttonText="Discard"
+        buttonText={common.discard}
         buttonCallback={discardCachedTransaction}
         buttonTextColor={`${colorMode}.buttonText`}
         secondaryButtonText="Cancel"
@@ -939,7 +940,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.Goback}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle="Enter amount in sats/vbyte"
+          subTitle={walletTranslations.enterAmonuntInSat}
           network={sender?.networkType || sourceWallet?.networkType}
           recipients={addresses.map((address, index) => ({
             address,
@@ -955,7 +956,7 @@ function SendConfirmation({ route }) {
             } else {
               if (customFeePerByte === '0') {
                 setTransPriorityModalVisible(false);
-                showToast('Fee rate cannot be less than 1 sat/vbyte', <ToastErrorIcon />);
+                showToast(errorText.feeRateLessThanOne, <ToastErrorIcon />);
               }
             }
           }}

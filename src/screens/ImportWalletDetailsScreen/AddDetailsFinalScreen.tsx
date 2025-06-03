@@ -33,7 +33,7 @@ function AddDetailsFinalScreen({ route }) {
   const dispatch = useDispatch();
 
   const { translations } = useContext(LocalizationContext);
-  const { home, importWallet } = translations;
+  const { home, importWallet, common, wallet: walletTranslation } = translations;
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const [arrow, setArrow] = useState(false);
 
@@ -85,15 +85,18 @@ function AddDetailsFinalScreen({ route }) {
       dispatch(resetRealyWalletState());
       setWalletLoading(false);
       if (walletType === WalletType.DEFAULT) {
-        showToast('New wallet created!', <TickIcon />);
+        showToast(walletTranslation.newWalletCreated, <TickIcon />);
         navigation.goBack();
       } else {
-        showToast('Wallet imported', <TickIcon />);
+        showToast(walletTranslation.walletImported, <TickIcon />);
         navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
       }
     }
     if (relayWalletError) {
-      showToast('Wallet creation failed. ' + realyWalletErrorMessage, <ToastErrorIcon />);
+      showToast(
+        walletTranslation.walletCreationFailed + realyWalletErrorMessage,
+        <ToastErrorIcon />
+      );
       setWalletLoading(false);
       dispatch(resetRealyWalletState());
     }
@@ -194,11 +197,11 @@ function AddDetailsFinalScreen({ route }) {
           <Box style={styles.ctaBtnWrapper}>
             <Box ml={windowWidth * -0.09}>
               <Buttons
-                secondaryText="Cancel"
+                secondaryText={common.cancel}
                 secondaryCallback={() => {
                   navigation.goBack();
                 }}
-                primaryText="Import"
+                primaryText={walletTranslation.import}
                 primaryDisable={!walletName || !walletDescription}
                 primaryCallback={createNewWallet}
                 primaryLoading={walletLoading || relayWalletUpdateLoading}

@@ -66,7 +66,7 @@ export function NumberInput({ value, onDecrease, onIncrease }) {
 function AddNewWallet({ navigation, route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslations, common, wallet: walletText } = translations;
+  const { vault: vaultTranslations, common, wallet: walletText, error } = translations;
   const [selectedWalletType, setSelectedWalletType] = useState('');
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
@@ -117,7 +117,7 @@ function AddNewWallet({ navigation, route }) {
   const CREATE_WALLET_OPTIONS = [
     {
       icon: <NewWalletIcon />,
-      title: 'Single-key',
+      title: walletText.Singlekey,
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 1, n: 1 });
@@ -127,7 +127,7 @@ function AddNewWallet({ navigation, route }) {
     },
     {
       icon: <ImportWalletIcon />,
-      title: '2 of 3 multi-key',
+      title: walletText.multikey2of3,
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 2, n: 3 });
@@ -137,7 +137,7 @@ function AddNewWallet({ navigation, route }) {
     },
     {
       icon: <AdvanceCustomizationIcon />,
-      title: '3 of 5 multi-key',
+      title: walletText.multikey3of5,
       onPress: () => {
         Vibration.vibrate(50);
         setScheme({ m: 3, n: 5 });
@@ -174,7 +174,7 @@ function AddNewWallet({ navigation, route }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title="Select your wallet type" />
+      <WalletHeader title={walletText.selectYourWalletType} />
       <Box style={styles.addWalletOptionsList}>
         {CREATE_WALLET_OPTIONS.map((option, index) => (
           <OptionItem
@@ -204,7 +204,7 @@ function AddNewWallet({ navigation, route }) {
               medium
               style={{ textAlign: 'center', flex: 1 }}
             >
-              Select custom setup{' '}
+              {walletText.selectCustomSetup}{' '}
               {selectedWalletType === 'custom' ? `: ${scheme.m} of ${scheme.n}` : ''}
             </Text>
           </Box>
@@ -216,8 +216,8 @@ function AddNewWallet({ navigation, route }) {
           backgroundColor={dashed_CTA_background}
           hexagonBackgroundColor={isDarkMode ? Colors.DeepCharcoalGreen : `${colorMode}.dullGreen`}
           textColor={DashedCtaTextColor}
-          name="Enhanced Security Options"
-          description="Secure your funds and future—your way"
+          name={walletText.enhancedSecurityOption}
+          description={walletText.enhancedSecurityDesc}
           callback={() => setShowEnhancedOptionsModal(true)}
           icon={<ThemedSvg name={'enhanced_setting_icon'} />}
           iconWidth={22}
@@ -227,14 +227,12 @@ function AddNewWallet({ navigation, route }) {
           borderColor={DashedCtaBorderColor}
         />
         <Buttons
-          primaryText="Proceed"
+          primaryText={common.proceed}
           primaryDisable={!selectedWalletType}
           primaryCallback={() => {
             if (scheme.m === 1 && emergencyKeySelected) {
               showToast(
-                scheme.n === 1
-                  ? 'Single-key wallet cannot use Emergency Key, only Inheritance Key.'
-                  : 'Multi-key wallets with a threshold of 1 cannot use Emergency Key, only Inheritance Key.',
+                scheme.n === 1 ? error.singleKeyWalletMsg : error.MultiKeyWalletMsg,
                 <ToastErrorIcon />
               );
               return;
@@ -378,6 +376,8 @@ const EnhancedSecurityModal = ({
     }
   }, [isVisible, inheritanceKeySelected, emergencyKeySelected, initialTimelockSelected]);
 
+  const { translations } = useContext(LocalizationContext);
+  const { common, wallet, signer } = translations;
   const { isOnL3Above } = usePlan();
 
   return (
@@ -388,9 +388,9 @@ const EnhancedSecurityModal = ({
       }}
       textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
-      title="Enhanced Security Options"
-      subTitle="You'll be prompted to configure your enhanced options after you select your normal wallet keys"
-      buttonText="Save Changes"
+      title={wallet.enhancedSecurityOption}
+      subTitle={wallet.enhancedSecurityDesc2}
+      buttonText={common.saveChanges}
       buttonCallback={() => {
         onClose();
         setInheritanceKeySelected(pendingInheritanceKeySelected);
@@ -428,7 +428,7 @@ const EnhancedSecurityModal = ({
                       !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
-                    Inheritance Key
+                    {signer.inheritanceKey}
                   </Text>
                   {pendingInheritanceKeySelected ? (
                     <Box
@@ -452,7 +452,7 @@ const EnhancedSecurityModal = ({
                   fontSize={12}
                   color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
-                  An extra key which will be added to your wallet quorum after a certain time
+                  {signer.extraKeyAddedAfterTime}
                 </Text>
               </Box>
             </Pressable>
@@ -472,7 +472,7 @@ const EnhancedSecurityModal = ({
                       !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
-                    Emergency Key
+                    {signer.emergencyKey}
                   </Text>
                   {pendingEmergencyKeySelected ? (
                     <Box
@@ -496,7 +496,7 @@ const EnhancedSecurityModal = ({
                   fontSize={12}
                   color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
-                  A key with delayed full control to recover from extended key loss
+                  {signer.keyDelayedFullControl}
                 </Text>
               </Box>
             </Pressable>

@@ -39,7 +39,7 @@ function ContactDetails({ route }) {
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultText } = translations;
+  const { common, vault: vaultText, error: errorText } = translations;
   const [nfcModal, setNfcModal] = React.useState(false);
   const [details, setDetails] = useState(null);
   const signer = signerMap[getKeyUID(signerData)];
@@ -96,10 +96,7 @@ function ContactDetails({ route }) {
       setTimeout(() => {
         const { keyDescriptor, keyAES } = collaborativeSession.signers[signer.masterFingerprint];
         if (!keyAES) {
-          showToast(
-            "We're sorry, but we have trouble retrieving the key information",
-            <ToastErrorIcon />
-          );
+          showToast(errorText.troubleRetrievingKey, <ToastErrorIcon />);
           return;
         }
 
@@ -107,10 +104,7 @@ function ContactDetails({ route }) {
           setDetails(JSON.stringify({ keyDescriptor, keyAES }));
           setActivateFetcher(true); // activates the collaborative channel fetcher, case: fetching state updates from the first collaborator
         } catch (error) {
-          showToast(
-            "We're sorry, but we have trouble retrieving the key information",
-            <ToastErrorIcon />
-          );
+          showToast(errorText.troubleRetrievingKey, <ToastErrorIcon />);
         }
       }, 200);
     }
@@ -180,13 +174,7 @@ function ContactDetails({ route }) {
         </Box>
         <CollaborativeModals nfcModal={nfcModal} setNfcModal={setNfcModal} />
         <NfcPrompt visible={visible} close={cleanUp} ctaText={common.done} />
-        <Note
-          title={common.note}
-          subtitle={
-            'After sharing your details, do not close the app. You can go back and add another contact or wait for your wallet to be created automatically once the other participant joins.'
-          }
-          subtitleColor="GreyText"
-        />
+        <Note title={common.note} subtitle={vaultText.shareContactNote} subtitleColor="GreyText" />
       </Box>
     </ScreenWrapper>
   );

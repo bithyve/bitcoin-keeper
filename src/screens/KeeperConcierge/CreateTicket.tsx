@@ -50,9 +50,15 @@ const DEFAULT_SELECTED_DETAILS = {
   networkInfo: false,
 };
 
+const br = '\n------------------------------------\n';
+
 const CreateTicket = ({ navigation, route }) => {
   const { screenName, tags, errorDetails } = route.params;
-  const { concierge: conciergeText } = useContext(LocalizationContext).translations;
+  const {
+    concierge: conciergeText,
+    error: errorText,
+    common,
+  } = useContext(LocalizationContext).translations;
   const { colorMode } = useColorMode();
   const textAreaRef = useRef(null);
   const { allVaults } = useVault({});
@@ -79,7 +85,7 @@ const CreateTicket = ({ navigation, route }) => {
 
   const DETAIL_OPTIONS = [
     {
-      label: 'Device Details',
+      label: conciergeText.deviceDetails,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -88,7 +94,7 @@ const CreateTicket = ({ navigation, route }) => {
       id: 'deviceInfo',
     },
     {
-      label: 'Wallets Info',
+      label: conciergeText.walletInfo,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -97,7 +103,7 @@ const CreateTicket = ({ navigation, route }) => {
       id: 'walletInfo',
     },
     {
-      label: 'App Data',
+      label: conciergeText.appData,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -106,7 +112,7 @@ const CreateTicket = ({ navigation, route }) => {
       id: 'appData',
     },
     {
-      label: 'Network Info',
+      label: conciergeText.networkInfo,
       onPress: () =>
         setSelectedDetails({
           ...selectedDetails,
@@ -133,10 +139,10 @@ const CreateTicket = ({ navigation, route }) => {
   useEffect(() => {
     if (errorDetails) {
       setDesc(
-        `Hi, I have encountered the following error while using the app:\n${errorDetails}\n\nAt app navigation state: ${screenName}\n*****\n`
+        `${conciergeText.encounteredError}:\n${errorDetails}\n\n${conciergeText.atAppNavigationState}: ${screenName}\n*****\n`
       );
     } else if (!desc.length && screenName.length) {
-      setDesc(`Hi, I need some help with ${screenName}(${tags.join(', ')})\n*****\n`);
+      setDesc(`${conciergeText.needSomeHelp} ${screenName}(${tags.join(', ')})\n*****\n`);
     }
     const timer = setTimeout(() => {
       if (textAreaRef.current) {
@@ -157,59 +163,58 @@ const CreateTicket = ({ navigation, route }) => {
   };
 
   const addWalletInfo = () => {
-    let details = `\nI have ${allVaults?.length} vault(s) and ${wallets?.length} wallet(s) with following attributes:\n\n`;
-    allVaults.forEach((vault) => {
-      details += `Vault Name:\n${vault.presentationData.name}\n`;
-      details += `${vault.scheme.m} of ${vault.scheme.n}, Multisig\nKeys:\n`;
-      vault.signers.forEach((signer, index) => {
-        details += `${index + 1}.${signerMap[getKeyUID(signer)].signerName}  `;
-      });
-      details += '\n\n';
-    });
-
-    wallets.forEach((wallet) => {
-      details += `Wallet Name:\n${wallet.presentationData.name}\n1 of 1, SingleSig\n\n`;
-    });
-    details += '\n';
-    return details.trim() + `\n*****\n`;
+    const heading = `\nI have ${allVaults?.length} ${
+      allVaults.length > 1 ? 'vaults' : 'vault'
+    } and ${wallets?.length} ${
+      wallets.length > 1 ? 'wallets' : 'wallet'
+    } with following attributes:\n\n`;
+    const vaultDetails = allVaults.map(
+      (vault) =>
+        `Vault Name:      ${vault.presentationData.name}\nLabels:              ${
+          vault.scheme.m
+        }-of-${vault.scheme.n} | Multisig\nKeys:                 ${vault.signers
+          .map((signer, index) => `${index + 1}. ${signerMap[getKeyUID(signer)].signerName}  `)
+          .join('')}\n${br}\n`
+    );
+    const walletDetails = wallets.map(
+      (wallet) =>
+        `Wallet Name:     ${wallet.presentationData.name}\nLabels:               1-of-1 | Singlesig`
+    );
+    return heading + (vaultDetails.concat(walletDetails).join('') + '\n') + br;
   };
 
   const addDeviceInfo = async () => {
     let device;
     if (isiOS) device = DeviceInfo.getDeviceId();
     else device = await DeviceInfo.getDevice();
-    const os = DeviceInfo.getSystemVersion();
-    let details = `\nI have a ${device} running on ${
-      isiOS ? 'iOS' : 'Android'
-    } version ${os}\n*****\n`;
-    return details;
+    const osVersion = DeviceInfo.getSystemVersion();
+    const osName = DeviceInfo.getSystemName();
+    return `\nPhone Type:    ${device}\nOS Version:     ${osName} ${osVersion}\n${br}`;
   };
 
   const addAppData = () => {
     const isAppUpgraded = appVersionHistory.length > 1;
     const currentVersion = appVersionHistory.pop().version;
     const installedVersion = appVersionHistory?.[0]?.version;
-    const details = `\nMy Keeper app in on ${currentVersion} version${
-      isAppUpgraded ? ` upgraded from version ${installedVersion}` : ''
-    } on ${plan} tier\n*****\n`;
-    return details;
+    return `\nMy Keeper app is on ${currentVersion} version${
+      isAppUpgraded ? ` upgraded from version ${installedVersion}` : ' with first-time setup and'
+    } on ${plan} tier\n${br}`;
   };
 
   const addNetworkInfo = () => {
     const activeNode = nodes.find((node) => node.isConnected);
-    let details = `\nMy app is connected to ${
+    return `\nMy app is connected to ${
       activeNode?.host || 'unknown'
-    } node over a ${networkType} network ${torStatus === 'CONNECTED' ? 'over Tor' : ''}\n*****\n`;
-    return details;
+    } node over a ${networkType} network ${torStatus === 'CONNECTED' ? 'over Tor' : ''}\n${br}`;
   };
 
   const onNext = async () => {
     if (!desc.length) {
-      showToast('Please provide the issue description', <ToastErrorIcon />);
+      showToast(errorText.provideIssueDescription, <ToastErrorIcon />);
       return;
     }
     if (!conciergeUser) {
-      showToast('Something went wrong. Please try again', <ToastErrorIcon />);
+      showToast(errorText.somethingWentWrong, <ToastErrorIcon />);
       return;
     }
     try {
@@ -231,7 +236,7 @@ const CreateTicket = ({ navigation, route }) => {
         Keyboard.dismiss();
         setShowModal(true);
       } else {
-        showToast('Something went wrong. Please try again!', <ToastErrorIcon />);
+        showToast(errorText.somethingWentWrong, <ToastErrorIcon />);
         return;
       }
     } catch (error) {
@@ -304,11 +309,11 @@ const CreateTicket = ({ navigation, route }) => {
                 variant={'unstyled'}
                 autoCompleteType={'off'}
                 placeholderTextColor={`${colorMode}.placeHolderTextColor`}
-                placeholder={'Please tell us about your question or the issue you are facing?'}
+                placeholder={conciergeText.tellUsAboutYourQuestion}
                 color={`${colorMode}.primaryText`}
-                fontSize={12}
                 h={hp(281)}
                 onChangeText={setDesc}
+                style={styles.textArea}
               />
             </Box>
           </TouchableWithoutFeedback>
@@ -355,7 +360,7 @@ const CreateTicket = ({ navigation, route }) => {
           showCloseIcon
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
-          buttonText={'Share'}
+          buttonText={common.share}
           buttonCallback={handleAddDetails}
           Content={() => (
             <>
@@ -366,7 +371,7 @@ const CreateTicket = ({ navigation, route }) => {
                   <CheckBoxOutlineInActive width={wp(18)} height={wp(18)} />
                 )}
                 <Text fontSize={14} semiBold color={`${colorMode}.pantoneGreen`}>
-                  {allKeysTrue ? 'Unselect All' : 'Select All'}
+                  {allKeysTrue ? common.unSelectAll : common.SelectAll}
                 </Text>
               </Pressable>
               <Box style={styles.optionsWrapper}>
@@ -385,8 +390,8 @@ const CreateTicket = ({ navigation, route }) => {
       </ContentWrapper>
       <KeeperModal
         visible={showModal}
-        title="Support Ticket Raised"
-        subTitle={`Your ticket reference number is #${modalTicketId}`}
+        title={conciergeText.supportTicketRaised}
+        subTitle={`${conciergeText.yourTicketReferenceNumber} #${modalTicketId}`}
         close={closeModal}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalWhiteContent`}
@@ -396,7 +401,7 @@ const CreateTicket = ({ navigation, route }) => {
           <Box style={styles.modal}>
             <SuccessCircleIllustration style={styles.illustration} />
             <Text color={`${colorMode}.secondaryText`} style={styles.modalDesc}>
-              Hi! Acknowledging your message. Someone from the team will get back to you shortly.
+              {conciergeText.AcknowledgingYourMessage}
             </Text>
           </Box>
         )}
@@ -411,8 +416,8 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flex: 1,
-    paddingHorizontal: wp(25),
-    paddingVertical: hp(25),
+    paddingHorizontal: wp(12),
+    paddingVertical: hp(16),
   },
   footerCTR: {
     position: 'absolute',
@@ -463,6 +468,10 @@ const styles = StyleSheet.create({
   },
   modal: {
     alignItems: 'center',
+  },
+  textArea: {
+    fontSize: 13,
+    fontWeight: '400',
   },
 });
 
