@@ -1131,8 +1131,11 @@ function* validateServerBackupWorker({ callback }) {
     // Check for vaults
     let localVaultIds = yield call(dbManager.getCollection, RealmSchema.Vault);
     localVaultIds = localVaultIds.map((item) => item.id);
-    const vaultIds = allVaultImages.map((item) => item.vaultId);
-    if (!areSetsEqual(new Set(localVaultIds), new Set(vaultIds)))
+    let decryptedVaultIds = [];
+    for (const index in allVaultImages) {
+      decryptedVaultIds.push(JSON.parse(decrypt(encryptionKey, allVaultImages[index].vault)).id);
+    }
+    if (!areSetsEqual(new Set(localVaultIds), new Set(decryptedVaultIds)))
       return callback({ status: false, message: 'Vaults do not match' });
 
     // Check for labels
@@ -1148,12 +1151,15 @@ function* validateServerBackupWorker({ callback }) {
       return callback({ status: false, message: 'Labels do not match' });
 
     //  Check for Signers
-    let localSigners: any = yield call(dbManager.getCollection, RealmSchema.Signer);
-    if (Object.keys(signers).length !== localSigners.length)
+    let localSignerIds: any = yield call(dbManager.getCollection, RealmSchema.Signer);
+    localSignerIds = localSignerIds.map((item) => item.id);
+    if (Object.keys(signers).length !== localSignerIds.length)
       return callback({ status: false, message: 'Signers do not match' });
-    const localSignerIds = new Set(localSigners.map((item) => item.id));
-    const backupSignerIds = new Set(Object.keys(signers));
-    if (!areSetsEqual(localSignerIds, backupSignerIds))
+    let decryptedSignerIds = [];
+    for (const index in signers) {
+      decryptedSignerIds.push(JSON.parse(decrypt(encryptionKey, signers[index])).id);
+    }
+    if (!areSetsEqual(new Set(localSignerIds), new Set(decryptedSignerIds)))
       return callback({ status: false, message: 'Signers do not match' });
 
     //  Check for Wallets
@@ -1163,9 +1169,12 @@ function* validateServerBackupWorker({ callback }) {
       : Object.keys(wallets).length;
     if (walletsBackupLength !== localWallets.length)
       return callback({ status: false, message: 'Wallets do not match' });
-    const localWalletIds = new Set(localWallets.map((item) => item.id));
-    const backupWalletIds = new Set(Object.keys(wallets));
-    if (!areSetsEqual(localWalletIds, backupWalletIds))
+    const localWalletIds = localWallets.map((item) => item.id);
+    let decryptedWalletIds = [];
+    for (const index in wallets) {
+      decryptedWalletIds.push(JSON.parse(decrypt(encryptionKey, wallets[index])).id);
+    }
+    if (!areSetsEqual(new Set(localWalletIds), new Set(decryptedWalletIds)))
       return callback({ status: false, message: 'Wallets do not match' });
 
     //  Check for nodes
@@ -1185,6 +1194,7 @@ function* validateServerBackupWorker({ callback }) {
 
     return callback({ status: true, message: 'Backup verified successfully.' });
   } catch (error) {
+    console.log('🚀 ~ function*validateServerBackupWorker ~ error:', error);
     return callback({ status: false, message: 'Backup verification failed.', error: true });
   }
 }
