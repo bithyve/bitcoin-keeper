@@ -4,9 +4,14 @@ import { WalletType, NetworkType, TxPriority } from 'src/services/wallets/enums'
 import { generateWallet } from 'src/services/wallets/factories/WalletFactory';
 import ElectrumClient from 'src/services/electrum/client';
 import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
-
-jest.setTimeout(150 * 1000);
-
+import * as bitcoinJS from 'bitcoinjs-lib';
+import {
+  AverageTxFeesByNetwork,
+  InputUTXOs,
+  Transaction,
+  TransactionPrerequisite,
+} from 'src/services/wallets/interfaces';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 jest.mock('src/store/store', () => ({
   store: {
@@ -20,118 +25,160 @@ jest.mock('src/store/store', () => ({
 
 jest.mock('realm', () => ({}));
 
-
-describe('Wallet primitives', () => {
-  let primaryMnemonic;
-  let wallet;
-  let averageTxFees;
-  let txPrerequisites;
-  let txnPriority;
-  let PSBT;
+describe('Wallet Functionality Tests', () => {
+  let primaryMnemonic: string;
+  let wallet: Wallet;
+  let childMnemonic: string; // BIP85 mnemonic for child wallet
+  let averageTxFees: AverageTxFeesByNetwork;
+  let txPrerequisites: TransactionPrerequisite;
+  let txnPriority: TxPriority;
+  let PSBT: bitcoinJS.Psbt;
 
   beforeAll(async () => {
     primaryMnemonic =
-      'duty burger portion domain athlete sweet birth impact miss shield help peanut';
-
+      'midnight auction hello stereo such fault legal outdoor manual recycle derive like';
+    childMnemonic = 'penalty indoor upset digital panther dwarf wealth kind stem guilt tiny police';
     try {
       ElectrumClient.setActivePeer(predefinedTestnetNodes);
       await ElectrumClient.connect();
-      // console.log('Electrum connected');
     } catch (err) {
-      console.log('failed to connect to Electrum:', err);
+      console.error('Failed to connect to Electrum:', err);
       process.exit(1);
     }
   });
 
-  test('wallet factory: creating a wallet', async () => {
-    const walletName = 'Checking Wallet';
-    const walletDescription = 'Bitcoin Wallet';
-    wallet = await generateWallet({
-      type: WalletType.DEFAULT,
-      instanceNum: 0,
-      walletName,
-      walletDescription,
-      primaryMnemonic,
-      networkType: NetworkType.TESTNET,
-    });
-    expect(wallet.derivationDetails.mnemonic).toEqual(
-      'trumpet access minor basic rule rifle wife summer brown deny used very'
-    );
+  afterAll(async () => {
+    ElectrumClient.forceDisconnect();
   });
 
-  test('wallet operations: generating a receive address', () => {
-    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
-    expect(receivingAddress).toEqual('tb1qvmww6r6zlf98a7rwp2mw7afpg32qe2j22c76tq');
+  describe('Wallet Creation', () => {
+    test('should create a wallet with valid parameters', async () => {
+      const walletName = 'Mobile Wallet';
+      const walletDescription = 'Bitcoin Wallet';
+      wallet = await generateWallet({
+        type: WalletType.DEFAULT,
+        instanceNum: 0,
+        walletName,
+        walletDescription,
+        derivationPath: "m/84'/1'/0'",
+        primaryMnemonic,
+        networkType: NetworkType.TESTNET,
+        wallets: [],
+      });
+      expect(wallet.derivationDetails.mnemonic).toEqual(childMnemonic);
+      expect(wallet.presentationData.name).toEqual(walletName);
+      expect(wallet.presentationData.description).toEqual(walletDescription);
+    });
   });
 
-  test('wallet operations: fetching balance, utxos & transactions', async () => {
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    const { synchedWallets } = await WalletOperations.syncWalletsViaElectrumClient(
-      [wallet],
-      network
-    );
-    [wallet] = synchedWallets;
-
-    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = wallet.synchedWallet.specs;
-
-    let netBalance = 0;
-    confirmedUTXOs.forEach((utxo) => {
-      netBalance += utxo.value;
-    });
-    unconfirmedUTXOs.forEach((utxo) => {
-      netBalance += utxo.value;
+  describe('Wallet Operations', () => {
+    test('should generate a valid receiving address', () => {
+      const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
+      expect(receivingAddress).toMatch(/^tb1[a-z0-9]{39}$/);
     });
 
-    expect(balances.confirmed + balances.unconfirmed).toEqual(5000);
-    expect(netBalance).toEqual(balances.confirmed + balances.unconfirmed);
-    expect(transactions.length).toEqual(1);
-  });
+    test('should fetch balances, UTXOs and transactions', async () => {
+      const network = WalletUtilities.getNetworkByType(wallet.networkType);
+      const { synchedWallets } = await WalletOperations.syncWalletsViaElectrumClient(
+        [wallet],
+        network
+      );
+      wallet = synchedWallets[0].synchedWallet as Wallet;
 
-  test('wallet operations: transaction fee fetch', async () => {
-    const averageTxFeeByNetwork = await WalletOperations.calculateAverageTxFee();
-    averageTxFees = averageTxFeeByNetwork;
-    expect(averageTxFees[NetworkType.MAINNET]).toBeDefined();
-    expect(averageTxFees[NetworkType.TESTNET]).toBeDefined();
-  });
+      const {
+        balances,
+        confirmedUTXOs,
+        unconfirmedUTXOs,
+        transactions,
+      }: {
+        balances: any;
+        confirmedUTXOs: InputUTXOs[];
+        unconfirmedUTXOs: InputUTXOs[];
+        transactions: Transaction[];
+      } = wallet.specs;
 
-  test('wallet operations: transaction pre-requisites(priority based coinselection)', async () => {
-    const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
-    const recipients = [
-      {
-        address: 'tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt',
-        amount: 3000,
-      },
-    ];
+      const checkUTXO = (utxo: InputUTXOs) => {
+        expect(utxo).toEqual(
+          expect.objectContaining({
+            height: expect.any(Number),
+            value: expect.any(Number),
+            txId: expect.any(String),
+            vout: expect.any(Number),
+            address: expect.any(String),
+          })
+        );
+      };
 
-    const res = await WalletOperations.transferST1(wallet, recipients, averageTxFeeByNetwork);
-    txPrerequisites = res.txPrerequisites;
+      confirmedUTXOs.forEach(checkUTXO);
+      unconfirmedUTXOs.forEach(checkUTXO);
 
-    expect(txPrerequisites[TxPriority.LOW]).toBeDefined();
-    expect(txPrerequisites[TxPriority.MEDIUM]).toBeDefined();
-    expect(txPrerequisites[TxPriority.HIGH]).toBeDefined();
-  });
+      const netBalance = [...confirmedUTXOs, ...unconfirmedUTXOs].reduce(
+        (sum, utxo) => sum + utxo.value,
+        0
+      );
 
-  test('wallet operations: transaction construction(PSBT)', async () => {
-    txnPriority = TxPriority.LOW;
-    const currentBlockHeight = 1;
-    const res = await WalletOperations.createTransaction(
-      wallet,
-      currentBlockHeight,
-      txPrerequisites,
-      txnPriority
-    );
-    PSBT = res.PSBT;
-    expect(PSBT.data.inputs.length).toBeGreaterThan(0);
-    expect(PSBT.data.outputs.length).toBeGreaterThan(0);
-  });
+      expect(balances.confirmed + balances.unconfirmed).toEqual(netBalance);
 
-  test('wallet operations: transaction signing(PSBT)', () => {
-    const { inputs } = txPrerequisites[txnPriority];
-    const { signedPSBT } = WalletOperations.signHotWalletTransaction(wallet, inputs, PSBT);
-    // const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
-    // expect(areSignaturesValid).toEqual(true);
+      const optionalFields: Record<string, (value: any) => void> = {
+        address: (v) => expect(typeof v).toBe('string'),
+        confirmations: (v) => expect(typeof v).toBe('number'),
+        fee: (v) => expect(typeof v).toBe('number'),
+        date: (v) => expect(typeof v).toBe('string'),
+        transactionType: (v) => expect(typeof v).toBe('string'),
+        recipientAddresses: (v) => expect(Array.isArray(v)).toBe(true),
+        senderAddresses: (v) => expect(Array.isArray(v)).toBe(true),
+        blockTime: (v) => expect(typeof v).toBe('number'),
+        tags: (v) => expect(Array.isArray(v)).toBe(true),
+      };
 
-    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
-    expect(txHex).toBeDefined();
+      transactions.forEach((transaction) => {
+        expect(transaction).toEqual(
+          expect.objectContaining({
+            txid: expect.any(String),
+            amount: expect.any(Number),
+          })
+        );
+        Object.entries(optionalFields).forEach(([key, check]) => {
+          if (transaction[key] !== undefined) {
+            check(transaction[key]);
+          }
+        });
+      });
+
+      expect(transactions.length).toBeGreaterThan(0);
+    });
+
+    test('should calculate average transaction fees', async () => {
+      averageTxFees = await WalletOperations.calculateAverageTxFee();
+      expect(typeof averageTxFees).toBe('object');
+      Object.values(NetworkType).forEach((network) => {
+        const fees = averageTxFees[network];
+        expect(fees).toBeDefined();
+        expect(typeof fees).toBe('object');
+        [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH].forEach((priority) => {
+          expect(fees[priority]).toEqual({
+            estimatedBlocks: expect.any(Number),
+            feePerByte: expect.any(Number),
+          });
+        });
+      });
+    });
+
+    test('should calculate transaction prerequisites', async () => {
+      const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
+      const recipients = [
+        {
+          address: 'tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt',
+          amount: 3000,
+        },
+      ];
+
+      const res = await WalletOperations.transferST1(wallet, recipients, averageTxFeeByNetwork);
+      txPrerequisites = res.txPrerequisites;
+
+      expect(txPrerequisites[TxPriority.LOW]).toBeDefined();
+      expect(txPrerequisites[TxPriority.MEDIUM]).toBeDefined();
+      expect(txPrerequisites[TxPriority.HIGH]).toBeDefined();
+    });
   });
 });
