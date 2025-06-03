@@ -32,6 +32,7 @@ describe('Wallet Functionality Tests', () => {
   let averageTxFees: AverageTxFeesByNetwork;
   let txPrerequisites: TransactionPrerequisite;
   let txnPriority: TxPriority;
+  let currentBlockHeight: number;
   let PSBT: bitcoinJS.Psbt;
 
   beforeAll(async () => {
@@ -176,9 +177,113 @@ describe('Wallet Functionality Tests', () => {
       const res = await WalletOperations.transferST1(wallet, recipients, averageTxFeeByNetwork);
       txPrerequisites = res.txPrerequisites;
 
-      expect(txPrerequisites[TxPriority.LOW]).toBeDefined();
-      expect(txPrerequisites[TxPriority.MEDIUM]).toBeDefined();
-      expect(txPrerequisites[TxPriority.HIGH]).toBeDefined();
+      [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH].forEach((priority) => {
+        const prerequisites = txPrerequisites[priority];
+        expect(prerequisites).toEqual(
+          expect.objectContaining({
+            inputs: expect.arrayContaining([
+              expect.objectContaining({
+                txId: expect.any(String),
+                vout: expect.any(Number),
+                value: expect.any(Number),
+                address: expect.any(String),
+                height: expect.any(Number),
+              }),
+            ]),
+            outputs: expect.arrayContaining([
+              expect.objectContaining({
+                value: expect.any(Number),
+                address: expect.any(String),
+              }),
+            ]),
+            fee: expect.any(Number),
+            estimatedBlocks: expect.any(Number),
+          })
+        );
+      });
+    });
+
+    test('should construct a transaction (PSBT)', async () => {
+      txnPriority = TxPriority.LOW;
+      currentBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight()).currentBlockHeight;
+      expect(currentBlockHeight).toBeGreaterThan(0);
+      const res = await WalletOperations.createTransaction(
+        wallet,
+        currentBlockHeight,
+        txPrerequisites,
+        txnPriority
+      );
+      PSBT = res.PSBT;
+      expect(PSBT).toBeDefined();
+      expect(PSBT.data.inputs.length).toBeGreaterThan(0);
+      expect(PSBT.data.outputs.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Sending Transaction', () => {
+    test('should calculate transaction prerequisites using transferST1', async () => {
+      const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
+      const recipients = [
+        {
+          address: 'tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt',
+          amount: 3000,
+        },
+      ];
+
+      const res = await WalletOperations.transferST1(wallet, recipients, averageTxFeeByNetwork);
+      txPrerequisites = res.txPrerequisites;
+
+      expect(res.txPrerequisites).toBeDefined();
+      expect(res.txRecipients).toBeDefined();
+
+      [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH].forEach((priority) => {
+        const prerequisites = txPrerequisites[priority];
+        expect(prerequisites).toEqual(
+          expect.objectContaining({
+            inputs: expect.arrayContaining([
+              expect.objectContaining({
+                txId: expect.any(String),
+                vout: expect.any(Number),
+                value: expect.any(Number),
+                address: expect.any(String),
+                height: expect.any(Number),
+              }),
+            ]),
+            outputs: expect.arrayContaining([
+              expect.objectContaining({
+                value: expect.any(Number),
+                address: expect.any(String),
+              }),
+            ]),
+            fee: expect.any(Number),
+            estimatedBlocks: expect.any(Number),
+          })
+        );
+      });
+    });
+
+    test('should construct and broadcast transaction using transferST2', async () => {
+      const broadcastSpy = jest
+        .spyOn(WalletOperations, 'broadcastTransaction')
+        .mockResolvedValue('24913105c497b4bb4ccf81b03857c8306aba0e58ccde792d981f6c18efdb24b8'); // mocking transaction broadcast to avoid subsequent broadcast failure
+
+      const res = await WalletOperations.transferST2(
+        wallet,
+        currentBlockHeight,
+        txPrerequisites,
+        txnPriority
+      );
+      const { txid, finalOutputs } = res;
+      expect(txid).toBe('24913105c497b4bb4ccf81b03857c8306aba0e58ccde792d981f6c18efdb24b8');
+      expect(finalOutputs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            value: expect.any(Number),
+            address: expect.any(String),
+          }),
+        ])
+      );
+      broadcastSpy.mockRestore();
     });
   });
 });
