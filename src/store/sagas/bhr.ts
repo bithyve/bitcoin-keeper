@@ -69,6 +69,7 @@ import {
   UPADTE_HEALTH_CHECK_SIGNER,
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
+  VALIDATE_SERVER_BACKUP,
   healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned, uaiChecks } from '../sagaActions/uai';
@@ -78,6 +79,7 @@ import { RootState } from '../store';
 import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { addNewWalletsWorker, addSigningDeviceWorker, NewWalletInfo } from './wallets';
 import {
+  areSetsEqual,
   getKeyUID,
   sanitizeSeedKeyForBackup,
   sanitizeVaultSignersForSeedKeyBackup,
@@ -1115,3 +1117,89 @@ export function* setServerBackupFailed() {
   });
   yield put(setPendingAllBackup(true));
 }
+
+function* validateServerBackupWorker({ callback }) {
+  try {
+    const { primarySeed, id }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
+    const encryptionKey = generateEncryptionKey(primarySeed as string);
+    let { allVaultImages, appImage, labels } = yield call(Relay.getAppImage, id);
+    const { nodes, wallets, signers = {} } = appImage;
+
+    // Check for vaults
+    let localVaultIds = yield call(dbManager.getCollection, RealmSchema.Vault);
+    localVaultIds = localVaultIds.map((item) => item.id);
+    let decryptedVaultIds = [];
+    for (const index in allVaultImages) {
+      decryptedVaultIds.push(JSON.parse(decrypt(encryptionKey, allVaultImages[index].vault)).id);
+    }
+    if (!areSetsEqual(new Set(localVaultIds), new Set(decryptedVaultIds)))
+      return callback({ status: false, message: 'Vaults do not match' });
+
+    // Check for labels
+    let localLabelIds: any = yield call(dbManager.getCollection, RealmSchema.Tags);
+    localLabelIds = localLabelIds.map((item) => item.id);
+    if (labels.length !== localLabelIds.length)
+      return callback({ status: false, message: 'Labels do not match' });
+    const decryptedLabelIds = [];
+    for (const index in labels) {
+      decryptedLabelIds.push(JSON.parse(decrypt(encryptionKey, labels[index].content)).id);
+    }
+    if (!areSetsEqual(new Set(localLabelIds), new Set(decryptedLabelIds)))
+      return callback({ status: false, message: 'Labels do not match' });
+
+    //  Check for Signers
+    let localSignerIds: any = yield call(dbManager.getCollection, RealmSchema.Signer);
+    localSignerIds = localSignerIds.map((item) => item.id);
+    if (Object.keys(signers).length !== localSignerIds.length)
+      return callback({ status: false, message: 'Signers do not match' });
+    let decryptedSignerIds = [];
+    for (const index in signers) {
+      decryptedSignerIds.push(JSON.parse(decrypt(encryptionKey, signers[index])).id);
+    }
+    if (!areSetsEqual(new Set(localSignerIds), new Set(decryptedSignerIds)))
+      return callback({ status: false, message: 'Signers do not match' });
+
+    //  Check for Wallets
+    let localWallets: any = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const walletsBackupLength = Array.isArray(wallets)
+      ? wallets.length
+      : Object.keys(wallets).length;
+    if (walletsBackupLength !== localWallets.length)
+      return callback({ status: false, message: 'Wallets do not match' });
+    const localWalletIds = localWallets.map((item) => item.id);
+    let decryptedWalletIds = [];
+    for (const index in wallets) {
+      decryptedWalletIds.push(JSON.parse(decrypt(encryptionKey, wallets[index])).id);
+    }
+    if (!areSetsEqual(new Set(localWalletIds), new Set(decryptedWalletIds)))
+      return callback({ status: false, message: 'Wallets do not match' });
+
+    //  Check for nodes
+    let localNodes: any = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    localNodes = localNodes.map((node) => {
+      node.isConnected = false;
+      return JSON.stringify(node);
+    });
+    if (localNodes.length !== nodes.length)
+      return callback({ status: false, message: 'Nodes do not match' });
+    const decryptedNodes = [];
+    for (const index in nodes) {
+      decryptedNodes.push(JSON.stringify(JSON.parse(decrypt(encryptionKey, nodes[index]))));
+    }
+    const missingNodes = decryptedNodes.filter((item) => !localNodes.includes(item));
+    if (missingNodes.length > 0) return callback({ status: false, message: 'Nodes do not match' });
+
+    return callback({ status: true, message: 'Backup verified successfully.' });
+  } catch (error) {
+    console.log('🚀 ~ function*validateServerBackupWorker ~ error:', error);
+    return callback({ status: false, message: 'Backup verification failed.', error: true });
+  }
+}
+
+export const validateSeverBackupWatcher = createWatcher(
+  validateServerBackupWorker,
+  VALIDATE_SERVER_BACKUP
+);

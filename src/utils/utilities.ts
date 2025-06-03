@@ -744,3 +744,11 @@ export const generateAccountIdentifier = (noOfAccounts) => {
   if (!noOfAccounts) return '';
   return getRandomBytes(3);
 };
+
+export const areSetsEqual = (setA: Set<any>, setB: Set<any>) => {
+  if (setA.size !== setB.size) return false;
+  for (const item of setA) {
+    if (!setB.has(item)) return false;
+  }
+  return true;
+};

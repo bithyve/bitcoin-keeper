@@ -1604,7 +1604,15 @@
     "enterThe": "Enter the",
     "seedWord": "seed word",
     "enterSeedWordPlaceholder": "Enter seed word",
-    "viewBackupHistory": "View History of Backup"
+    "viewBackupHistory": "View History of Backup",
+    "verifyModalTitle": "Verifying Server Backup",
+    "verifyModalSubTitle": "Verifying your server backup integrity against your local data.\nThis may take a moment.",
+    "backupFailedModalTitle": "Backup Verification Failed",
+    "backupFailedModalSubTitle": "We couldn’t verify your data with the server backup.",
+    "backupFailedModalDesc": "There might be a temporary issue with the server or your connection. Please try again later.",
+    "mismatchModalTitle": "Data Mismatch Detected",
+    "mismatchModalSubTitle": "Your local data doesn’t match the server backup.",
+    "mismatchModalDesc": "Some recent changes may not be backed up yet. To avoid data loss, we recommend initiating a backup now."
   },
   "importWallet": {
     "addDetails": "Add details",
