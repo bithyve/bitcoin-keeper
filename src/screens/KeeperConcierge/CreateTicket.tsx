@@ -50,6 +50,8 @@ const DEFAULT_SELECTED_DETAILS = {
   networkInfo: false,
 };
 
+const br = '\n------------------------------------\n';
+
 const CreateTicket = ({ navigation, route }) => {
   const { screenName, tags, errorDetails } = route.params;
   const {
@@ -161,50 +163,49 @@ const CreateTicket = ({ navigation, route }) => {
   };
 
   const addWalletInfo = () => {
-    let details = `\nI have ${allVaults?.length} vault(s) and ${wallets?.length} wallet(s) with following attributes:\n\n`;
-    allVaults.forEach((vault) => {
-      details += `Vault Name:\n${vault.presentationData.name}\n`;
-      details += `${vault.scheme.m} of ${vault.scheme.n}, Multisig\nKeys:\n`;
-      vault.signers.forEach((signer, index) => {
-        details += `${index + 1}.${signerMap[getKeyUID(signer)].signerName}  `;
-      });
-      details += '\n\n';
-    });
-
-    wallets.forEach((wallet) => {
-      details += `Wallet Name:\n${wallet.presentationData.name}\n1 of 1, SingleSig\n\n`;
-    });
-    details += '\n';
-    return details.trim() + `\n*****\n`;
+    const heading = `\nI have ${allVaults?.length} ${
+      allVaults.length > 1 ? 'vaults' : 'vault'
+    } and ${wallets?.length} ${
+      wallets.length > 1 ? 'wallets' : 'wallet'
+    } with following attributes:\n\n`;
+    const vaultDetails = allVaults.map(
+      (vault) =>
+        `Vault Name:      ${vault.presentationData.name}\nLabels:              ${
+          vault.scheme.m
+        }-of-${vault.scheme.n} | Multisig\nKeys:                 ${vault.signers
+          .map((signer, index) => `${index + 1}. ${signerMap[getKeyUID(signer)].signerName}  `)
+          .join('')}\n${br}\n`
+    );
+    const walletDetails = wallets.map(
+      (wallet) =>
+        `Wallet Name:     ${wallet.presentationData.name}\nLabels:               1-of-1 | Singlesig`
+    );
+    return heading + (vaultDetails.concat(walletDetails).join('') + '\n') + br;
   };
 
   const addDeviceInfo = async () => {
     let device;
     if (isiOS) device = DeviceInfo.getDeviceId();
     else device = await DeviceInfo.getDevice();
-    const os = DeviceInfo.getSystemVersion();
-    let details = `\nI have a ${device} running on ${
-      isiOS ? 'iOS' : 'Android'
-    } version ${os}\n*****\n`;
-    return details;
+    const osVersion = DeviceInfo.getSystemVersion();
+    const osName = DeviceInfo.getSystemName();
+    return `\nPhone Type:    ${device}\nOS Version:     ${osName} ${osVersion}\n${br}`;
   };
 
   const addAppData = () => {
     const isAppUpgraded = appVersionHistory.length > 1;
     const currentVersion = appVersionHistory.pop().version;
     const installedVersion = appVersionHistory?.[0]?.version;
-    const details = `\nMy Keeper app in on ${currentVersion} version${
-      isAppUpgraded ? ` upgraded from version ${installedVersion}` : ''
-    } on ${plan} tier\n*****\n`;
-    return details;
+    return `\nMy Keeper app is on ${currentVersion} version${
+      isAppUpgraded ? ` upgraded from version ${installedVersion}` : ' with first-time setup and'
+    } on ${plan} tier\n${br}`;
   };
 
   const addNetworkInfo = () => {
     const activeNode = nodes.find((node) => node.isConnected);
-    let details = `\nMy app is connected to ${
+    return `\nMy app is connected to ${
       activeNode?.host || 'unknown'
-    } node over a ${networkType} network ${torStatus === 'CONNECTED' ? 'over Tor' : ''}\n*****\n`;
-    return details;
+    } node over a ${networkType} network ${torStatus === 'CONNECTED' ? 'over Tor' : ''}\n${br}`;
   };
 
   const onNext = async () => {
@@ -310,9 +311,9 @@ const CreateTicket = ({ navigation, route }) => {
                 placeholderTextColor={`${colorMode}.placeHolderTextColor`}
                 placeholder={conciergeText.tellUsAboutYourQuestion}
                 color={`${colorMode}.primaryText`}
-                fontSize={12}
                 h={hp(281)}
                 onChangeText={setDesc}
+                style={styles.textArea}
               />
             </Box>
           </TouchableWithoutFeedback>
@@ -415,8 +416,8 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flex: 1,
-    paddingHorizontal: wp(25),
-    paddingVertical: hp(25),
+    paddingHorizontal: wp(12),
+    paddingVertical: hp(16),
   },
   footerCTR: {
     position: 'absolute',
@@ -467,6 +468,10 @@ const styles = StyleSheet.create({
   },
   modal: {
     alignItems: 'center',
+  },
+  textArea: {
+    fontSize: 13,
+    fontWeight: '400',
   },
 });
 
