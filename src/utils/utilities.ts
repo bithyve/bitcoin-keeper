@@ -740,7 +740,7 @@ export const sanitizeVaultSignersForSeedKeyBackup = (vault: Vault) => {
   return updatedVault;
 };
 
-export const generateAccountIdentifier = (length) => {
-  if (!length) return '';
+export const generateAccountIdentifier = (noOfAccounts) => {
+  if (!noOfAccounts) return '';
   return getRandomBytes(3);
 };
