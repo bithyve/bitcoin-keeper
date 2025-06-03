@@ -253,6 +253,7 @@ import BTC_DOWN from 'src/assets/images/btc_down.svg';
 import BTC_Down_White from 'src/assets/images/btc-down-white.svg';
 import BTC_Down_Gold from 'src/assets/privateImages/btc-down-gold.svg';
 import RememberSeedKeyIllustration from 'src/assets/images/RememberSeedKeyIllustration.svg';
+import RememberSeedKeyPrivate from 'src/assets/privateImages/RememberSeedKeyPrivateIllustration.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -908,8 +909,8 @@ const themeIcons = {
   RememberSeedKey: {
     DARK: RememberSeedKeyIllustration,
     LIGHT: RememberSeedKeyIllustration,
-    PRIVATE: RememberSeedKeyIllustration,
-    PRIVATE_LIGHT: RememberSeedKeyIllustration,
+    PRIVATE: RememberSeedKeyPrivate,
+    PRIVATE_LIGHT: RememberSeedKeyPrivate,
   },
 };
 
