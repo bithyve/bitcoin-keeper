@@ -16,8 +16,8 @@ import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import DisplayQR from '../QRScreens/DisplayQR';
 import Text from 'src/components/KeeperText';
 
-const ConfigQR = ({ isMiniscriptVault, descriptorString, activeTab }) => {
-  return isMiniscriptVault ? (
+const ConfigQR = ({ showAnimatedOption, descriptorString, activeTab }) => {
+  return showAnimatedOption ? (
     <Box style={styles.IKConfigContainer}>
       {!activeTab ? (
         <KeeperQRCode size={windowWidth * 0.8} ecl="L" qrData={descriptorString} />
@@ -37,10 +37,10 @@ const ConfigQR = ({ isMiniscriptVault, descriptorString, activeTab }) => {
 
 function GenerateVaultDescriptor() {
   const route = useRoute();
-  const { vaultId, isMiniscriptVault } = route.params as {
+  const { vaultId, showAnimatedOption } = route.params as {
     descriptorString: string;
     vaultId: string;
-    isMiniscriptVault: boolean;
+    showAnimatedOption: boolean;
   };
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -60,14 +60,14 @@ function GenerateVaultDescriptor() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader title={vaultText.WalletConfiguration} />
-      <Text style={[styles.desc, { marginBottom: isMiniscriptVault ? hp(0) : hp(20) }]}>
+      <Text style={[styles.desc, { marginBottom: showAnimatedOption ? hp(0) : hp(20) }]}>
         {vaultText.WalletConfigurationDesc}
       </Text>
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {isMiniscriptVault && (
+        {showAnimatedOption && (
           <Box style={styles.tabBarContainer}>
             <MonthlyYearlySwitch
               title2={vaultText.animatedQR}
@@ -79,7 +79,7 @@ function GenerateVaultDescriptor() {
         )}
         <Box style={styles.container}>
           <ConfigQR
-            isMiniscriptVault={isMiniscriptVault}
+            showAnimatedOption={showAnimatedOption}
             descriptorString={vaultDescriptorString}
             activeTab={activeTab}
           />
